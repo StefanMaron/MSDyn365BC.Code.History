@@ -3,6 +3,7 @@ table 14925 "VAT Allocation Line"
     Caption = 'VAT Allocation Line';
     DrillDownPageID = "VAT Allocation";
     LookupPageID = "VAT Allocation";
+    DataClassification = CustomerContent;
 
     fields
     {

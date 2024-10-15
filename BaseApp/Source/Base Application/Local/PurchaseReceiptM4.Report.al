@@ -181,15 +181,13 @@ report 12475 "Purchase Receipt M-4"
         TotalAmountFCY: Decimal;
         TotalAmountInclVATFCY: Decimal;
     begin
-        with PurchHeader do begin
-            PurchLine.SetRange("Document Type", "Document Type");
-            PurchLine.SetRange("Document No.", "No.");
-            PurchLine.SetFilter(Type, '>0');
-            PurchLine.SetFilter(Quantity, '<>0');
+        PurchLine.SetRange("Document Type", PurchHeader."Document Type");
+        PurchLine.SetRange("Document No.", PurchHeader."No.");
+        PurchLine.SetFilter(Type, '>0');
+        PurchLine.SetFilter(Quantity, '<>0');
 
-            PurchasePosting.SumPurchLines2Ex("Purchase Header", PurchLineWithLCYAmt, PurchLine, 0,
-              TotalAmountFCY, TotalAmount, TotalAmountInclVATFCY, TotalAmountInclVAT);
-        end;
+        PurchasePosting.SumPurchLines2Ex("Purchase Header", PurchLineWithLCYAmt, PurchLine, 0,
+          TotalAmountFCY, TotalAmount, TotalAmountInclVATFCY, TotalAmountInclVAT);
     end;
 
     [Scope('OnPrem')]
@@ -211,18 +209,16 @@ report 12475 "Purchase Receipt M-4"
     var
         ReportHeaderArr: array[10] of Text;
     begin
-        with "Purchase Header" do begin
-            ReportHeaderArr[1] := StdRepMgt.GetCompanyName();
-            ReportHeaderArr[2] := ReceivedBy."Employee Org. Unit";
-            ReportHeaderArr[3] := CompanyInfo."OKPO Code";
-            ReportHeaderArr[4] := "No.";
-            ReportHeaderArr[5] := Format("Document Date");
-            ReportHeaderArr[6] := "Location Code";
-            ReportHeaderArr[7] := StdRepMgt.GetVendorName("Buy-from Vendor No.");
-            ReportHeaderArr[8] := "Buy-from Vendor No.";
-            ReportHeaderArr[9] := AccNo;
-            ReportHeaderArr[10] := "Vendor Shipment No.";
-        end;
+        ReportHeaderArr[1] := StdRepMgt.GetCompanyName();
+        ReportHeaderArr[2] := ReceivedBy."Employee Org. Unit";
+        ReportHeaderArr[3] := CompanyInfo."OKPO Code";
+        ReportHeaderArr[4] := "Purchase Header"."No.";
+        ReportHeaderArr[5] := Format("Purchase Header"."Document Date");
+        ReportHeaderArr[6] := "Purchase Header"."Location Code";
+        ReportHeaderArr[7] := StdRepMgt.GetVendorName("Purchase Header"."Buy-from Vendor No.");
+        ReportHeaderArr[8] := "Purchase Header"."Buy-from Vendor No.";
+        ReportHeaderArr[9] := AccNo;
+        ReportHeaderArr[10] := "Purchase Header"."Vendor Shipment No.";
 
         InventoryReportsHelper.FillM4ReportTitle(ReportHeaderArr);
     end;
@@ -232,18 +228,16 @@ report 12475 "Purchase Receipt M-4"
     var
         PageHeaderArr: array[10] of Text;
     begin
-        with "Purchase Line" do begin
-            PageHeaderArr[1] := Description + "Description 2";
-            PageHeaderArr[2] := "No.";
-            PageHeaderArr[3] := "Unit of Measure Code";
-            PageHeaderArr[4] := "Unit of Measure";
-            PageHeaderArr[5] := Format(Quantity);
-            PageHeaderArr[6] := Format("Qty. to Receive");
-            PageHeaderArr[7] := FormatAmount(UnitCost);
-            PageHeaderArr[8] := FormatAmount(Amount);
-            PageHeaderArr[9] := LineVATText[2];
-            PageHeaderArr[10] := FormatAmount("Amount Including VAT");
-        end;
+        PageHeaderArr[1] := "Purchase Line".Description + "Purchase Line"."Description 2";
+        PageHeaderArr[2] := "Purchase Line"."No.";
+        PageHeaderArr[3] := "Purchase Line"."Unit of Measure Code";
+        PageHeaderArr[4] := "Purchase Line"."Unit of Measure";
+        PageHeaderArr[5] := Format("Purchase Line".Quantity);
+        PageHeaderArr[6] := Format("Purchase Line"."Qty. to Receive");
+        PageHeaderArr[7] := FormatAmount(UnitCost);
+        PageHeaderArr[8] := FormatAmount("Purchase Line".Amount);
+        PageHeaderArr[9] := LineVATText[2];
+        PageHeaderArr[10] := FormatAmount("Purchase Line"."Amount Including VAT");
 
         InventoryReportsHelper.FillM4Body(PageHeaderArr);
     end;

@@ -2,6 +2,7 @@ table 12426 KBK
 {
     Caption = 'KBK';
     LookupPageID = "KBK Codes";
+    DataClassification = CustomerContent;
 
     fields
     {

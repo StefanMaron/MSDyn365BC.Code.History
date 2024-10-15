@@ -14,6 +14,7 @@ table 7316 "Warehouse Receipt Header"
     Caption = 'Warehouse Receipt Header';
     LookupPageID = "Warehouse Receipts";
     Permissions = TableData "Warehouse Receipt Line" = rd;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -25,7 +26,7 @@ table 7316 "Warehouse Receipt Header"
             begin
                 WhseSetup.Get();
                 if "No." <> xRec."No." then begin
-                    NoSeriesMgt.TestManual(WhseSetup."Whse. Receipt Nos.");
+                    NoSeries.TestManual(WhseSetup."Whse. Receipt Nos.");
                     "No. Series" := '';
                 end;
             end;
@@ -145,7 +146,7 @@ table 7316 "Warehouse Receipt Header"
                 if (xRec."Bin Code" <> "Bin Code") or ("Zone Code" = '') then begin
                     if "Bin Code" <> '' then begin
                         GetLocation("Location Code");
-                        WhseIntegrationMgt.CheckBinTypeCode(
+                        WhseIntegrationMgt.CheckBinTypeAndCode(
                             Database::"Warehouse Receipt Header", FieldCaption("Bin Code"), "Location Code", "Bin Code", 0);
                         Bin.Get("Location Code", "Bin Code");
                         "Zone Code" := Bin."Zone Code";
@@ -250,14 +251,12 @@ table 7316 "Warehouse Receipt Header"
 
             trigger OnLookup()
             begin
-                with WhseRcptHeader do begin
-                    WhseRcptHeader := Rec;
-                    WhseSetup.Get();
-                    WhseSetup.TestField("Posted Whse. Receipt Nos.");
-                    if NoSeriesMgt.LookupSeries(WhseSetup."Posted Whse. Receipt Nos.", "Receiving No. Series") then
-                        Validate("Receiving No. Series");
-                    Rec := WhseRcptHeader;
-                end;
+                WhseRcptHeader := Rec;
+                WhseSetup.Get();
+                WhseSetup.TestField("Posted Whse. Receipt Nos.");
+                if NoSeries.LookupRelatedNoSeries(WhseSetup."Posted Whse. Receipt Nos.", WhseRcptHeader."Receiving No. Series") then
+                    WhseRcptHeader.Validate(WhseRcptHeader."Receiving No. Series");
+                Rec := WhseRcptHeader;
             end;
 
             trigger OnValidate()
@@ -265,7 +264,7 @@ table 7316 "Warehouse Receipt Header"
                 if "Receiving No. Series" <> '' then begin
                     WhseSetup.Get();
                     WhseSetup.TestField("Posted Whse. Receipt Nos.");
-                    NoSeriesMgt.TestSeries(WhseSetup."Posted Whse. Receipt Nos.", "Receiving No. Series");
+                    NoSeries.TestAreRelated(WhseSetup."Posted Whse. Receipt Nos.", "Receiving No. Series");
                 end;
                 TestField("Receiving No.", '');
             end;
@@ -293,14 +292,37 @@ table 7316 "Warehouse Receipt Header"
     end;
 
     trigger OnInsert()
+#if not CLEAN24
+    var
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         WhseSetup.Get();
         if "No." = '' then begin
             WhseSetup.TestField("Whse. Receipt Nos.");
-            NoSeriesMgt.InitSeries(WhseSetup."Whse. Receipt Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series");
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(WhseSetup."Whse. Receipt Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                "No. Series" := WhseSetup."Whse. Receipt Nos.";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", WhseSetup."Whse. Receipt Nos.", "Posting Date", "No.");
+            end;
+#endif
         end;
 
+#if CLEAN24
+        if NoSeries.IsAutomatic(WhseSetup."Posted Whse. Receipt Nos.") then
+            "Receiving No. Series" := WhseSetup."Posted Whse. Receipt Nos.";
+#else
+#pragma warning disable AL0432
         NoSeriesMgt.SetDefaultSeries("Receiving No. Series", WhseSetup."Posted Whse. Receipt Nos.");
+#pragma warning restore AL0432
+#endif
 
         GetLocation("Location Code");
         Validate("Bin Code", Location."Receipt Bin Code");
@@ -320,7 +342,7 @@ table 7316 "Warehouse Receipt Header"
         WhseRcptHeader: Record "Warehouse Receipt Header";
         WhseSetup: Record "Warehouse Setup";
         WhseCommentLine: Record "Warehouse Comment Line";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         WmsManagement: Codeunit "WMS Management";
         Text000: Label 'You cannot rename a %1.';
         Text001: Label 'You cannot change the %1, because the document has one or more lines.';
@@ -337,16 +359,14 @@ table 7316 "Warehouse Receipt Header"
     procedure AssistEdit(OldWhseRcptHeader: Record "Warehouse Receipt Header"): Boolean
     begin
         WhseSetup.Get();
-        with WhseRcptHeader do begin
-            WhseRcptHeader := Rec;
-            WhseSetup.TestField("Whse. Receipt Nos.");
-            if NoSeriesMgt.SelectSeries(
-                 WhseSetup."Whse. Receipt Nos.", OldWhseRcptHeader."No. Series", "No. Series")
-            then begin
-                NoSeriesMgt.SetSeries("No.");
-                Rec := WhseRcptHeader;
-                exit(true);
-            end;
+        WhseRcptHeader := Rec;
+        WhseSetup.TestField("Whse. Receipt Nos.");
+        if NoSeries.LookupRelatedNoSeries(
+             WhseSetup."Whse. Receipt Nos.", OldWhseRcptHeader."No. Series", WhseRcptHeader."No. Series")
+        then begin
+            WhseRcptHeader."No." := NoSeries.GetNextNo(WhseRcptHeader."No. Series");
+            Rec := WhseRcptHeader;
+            exit(true);
         end;
 
         OnAfterAssistEdit(OldWhseRcptHeader);
@@ -444,20 +464,18 @@ table 7316 "Warehouse Receipt Header"
         OrderStatus: Option " ","Partially Received","Completely Received";
     begin
         WhseReceiptLine2.SetRange("No.", "No.");
-        with WhseReceiptLine2 do begin
-            if LineNo <> 0 then
-                SetFilter("Line No.", '<>%1', LineNo);
-            if Find('-') then
-                repeat
-                    case OrderStatus of
-                        OrderStatus::" ":
-                            OrderStatus := Status;
-                        OrderStatus::"Completely Received":
-                            if Status = Status::"Partially Received" then
-                                OrderStatus := OrderStatus::"Partially Received";
-                    end;
-                until Next() = 0;
-        end;
+        if LineNo <> 0 then
+            WhseReceiptLine2.SetFilter("Line No.", '<>%1', LineNo);
+        if WhseReceiptLine2.Find('-') then
+            repeat
+                case OrderStatus of
+                    OrderStatus::" ":
+                        OrderStatus := WhseReceiptLine2.Status;
+                    OrderStatus::"Completely Received":
+                        if WhseReceiptLine2.Status = WhseReceiptLine2.Status::"Partially Received" then
+                            OrderStatus := OrderStatus::"Partially Received";
+                end;
+            until WhseReceiptLine2.Next() = 0;
         exit(OrderStatus);
     end;
 

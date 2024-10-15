@@ -208,9 +208,6 @@ page 103 "Account Schedule Names"
 #if not CLEAN22
         area(reporting)
         {
-            ObsoleteReason = 'AccScheduleName is no longer printable directly as they are only row definitions, print instead related Financial Report by calling directly the Account Schedule Report with SetFinancialReportName or SetFinancialReportNameNonEditable.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
             action(Print)
             {
                 ApplicationArea = Basic, Suite;

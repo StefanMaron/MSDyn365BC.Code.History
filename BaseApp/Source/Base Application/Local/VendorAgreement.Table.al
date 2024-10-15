@@ -4,6 +4,7 @@ table 14901 "Vendor Agreement"
     DataCaptionFields = "Vendor No.", "No.";
     DrillDownPageID = "Vendor Agreements";
     LookupPageID = "Vendor Agreements";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -17,10 +18,12 @@ table 14901 "Vendor Agreement"
             Caption = 'No.';
 
             trigger OnValidate()
+            var
+                NoSeries: Codeunit "No. Series";
             begin
                 if "No." <> xRec."No." then begin
                     Vend.Get("Vendor No.");
-                    NoSeriesMgt.TestManual(Vend."Agreement Nos.");
+                    NoSeries.TestManual(Vend."Agreement Nos.");
                     "No. Series" := '';
                 end;
             end;
@@ -450,12 +453,29 @@ table 14901 "Vendor Agreement"
     end;
 
     trigger OnInsert()
+    var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         Vend.Get("Vendor No.");
         Vend.TestField("Agreement Posting", Vend."Agreement Posting"::Mandatory);
         if "No." = '' then begin
             Vend.TestField("Agreement Nos.");
-            NoSeriesMgt.InitSeries(Vend."Agreement Nos.", xRec."No. Series", WorkDate(), "No.", "No. Series");
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(Vend."Agreement Nos.", xRec."No. Series", WorkDate(), "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                "No. Series" := Vend."Agreement Nos.";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", Vend."Agreement Nos.", WorkDate(), "No.");
+            end;
+#endif
             Description := StrSubstNo('%1 %2', Text12400, "No.");
         end;
 
@@ -519,7 +539,6 @@ table 14901 "Vendor Agreement"
         DefaultDim: Record "Default Dimension";
         DefaultDim2: Record "Default Dimension";
         VendAgrmt: Record "Vendor Agreement";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
         Text003: Label 'You cannot rename %1.';
         Text005: Label 'post';
@@ -533,11 +552,13 @@ table 14901 "Vendor Agreement"
 
     [Scope('OnPrem')]
     procedure AssistEdit(OldVendAgreement: Record "Vendor Agreement"): Boolean
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         Vend.Get("Vendor No.");
         Vend.TestField("Agreement Nos.");
-        if NoSeriesMgt.SelectSeries(Vend."Agreement Nos.", OldVendAgreement."No. Series", "No. Series") then begin
-            NoSeriesMgt.SetSeries("No.");
+        if NoSeries.LookupRelatedNoSeries(Vend."Agreement Nos.", OldVendAgreement."No. Series", "No. Series") then begin
+            "No." := NoSeries.GetNextNo("No. Series");
             exit(true);
         end;
     end;

@@ -107,63 +107,61 @@ codeunit 12462 "Item Report Management"
         Address: Text;
         Name: Text[250];
     begin
-        with PurchaseHeaderBuffer do begin
-            if Location.Get("Location Code") then
-                ExcelReportBuilderMgr.AddDataToSection('DepartmentName', Location.Name);
-            ExcelReportBuilderMgr.AddDataToSection('DocumentNumber', "No.");
-            ExcelReportBuilderMgr.AddDataToSection('DocumentDate', Format("Document Date"));
+        if Location.Get(PurchaseHeaderBuffer."Location Code") then
+            ExcelReportBuilderMgr.AddDataToSection('DepartmentName', Location.Name);
+        ExcelReportBuilderMgr.AddDataToSection('DocumentNumber', PurchaseHeaderBuffer."No.");
+        ExcelReportBuilderMgr.AddDataToSection('DocumentDate', Format(PurchaseHeaderBuffer."Document Date"));
 
-            if DocPrintBuffer."Table ID" = DATABASE::"Purchase Header" then begin
-                ExcelReportBuilderMgr.AddDataToSection('VendorReceiptDoc', "Vendor Receipts No." + ' ' + Format("Vendor Receipts Date"));
+        if DocPrintBuffer."Table ID" = DATABASE::"Purchase Header" then begin
+            ExcelReportBuilderMgr.AddDataToSection('VendorReceiptDoc', PurchaseHeaderBuffer."Vendor Receipts No." + ' ' + Format(PurchaseHeaderBuffer."Vendor Receipts Date"));
 
-                if "Agreement No." <> '' then begin
-                    ExcelReportBuilderMgr.AddDataToSection('ContractNumber', "Agreement No.");
-                    VendorAgreement.Get("Buy-from Vendor No.", "Agreement No.");
-                    ExcelReportBuilderMgr.AddDataToSection('ContractDateDay', Format(VendorAgreement."Agreement Date", 0, '<Day>'));
-                    ExcelReportBuilderMgr.AddDataToSection('ContractDateMonth', LocalMgt.Month2Text(VendorAgreement."Agreement Date"));
-                    ExcelReportBuilderMgr.AddDataToSection('ContractDateYear', Format(VendorAgreement."Agreement Date", 0, '<Year>'));
-                end;
-
-                if "Vendor VAT Invoice No." <> '' then begin
-                    ExcelReportBuilderMgr.AddDataToSection('VendorVATInvoiceNo', "Vendor VAT Invoice No.");
-                    ExcelReportBuilderMgr.AddDataToSection('VendorVATInvoiceDateDay', Format("Vendor VAT Invoice Date", 0, '<Day>'));
-                    ExcelReportBuilderMgr.AddDataToSection('VendorVATInvoiceDateMonth', LocalMgt.Month2Text("Vendor VAT Invoice Date"));
-                    ExcelReportBuilderMgr.AddDataToSection('VendorVATInvoiceDateYear', Format("Vendor VAT Invoice Date", 0, '<Year>'));
-                end;
-
-                if TransportMethod.Get("Transport Method") then
-                    ExcelReportBuilderMgr.AddDataToSection('TransportMethod', TransportMethod.Description);
-
-                ExcelReportBuilderMgr.AddDataToSection('CompanyAddress',
-                  "Ship-to Post Code" + ' ' + "Ship-to City" + ', ' +
-                  "Ship-to Address" + ' ' + "Ship-to Address 2");
-
-                Vendor.Get("Buy-from Vendor No.");
-                Address :=
-                  LocalReportMgt.GetFullAddr(
-                    "Buy-from Post Code", "Buy-from City", "Buy-from Address", "Buy-from Address 2", '', "Buy-from County");
-                Name := LocalReportMgt.GetVendorName("Buy-from Vendor No.");
-                if Vendor."Phone No." <> '' then
-                    ExcelReportBuilderMgr.AddDataToSection('InvoiceAccountName',
-                      Name + ', ' + Address + ', ' + "Buy-from Address 2" + ', ' + TelTxt + Vendor."Phone No.")
-                else
-                    ExcelReportBuilderMgr.AddDataToSection('InvoiceAccountName', Name + ', ' + Address + ', ' + "Buy-from Address 2");
-
-                Address := '';
-                Vendor.Get("Pay-to Vendor No.");
-                Address :=
-                  LocalReportMgt.GetFullAddr("Pay-to Post Code", "Pay-to City", "Pay-to Address", "Pay-to Address 2", '', "Pay-to County");
-                Name := LocalReportMgt.GetVendorName("Pay-to Vendor No.");
-                if Vendor."Phone No." <> '' then
-                    ExcelReportBuilderMgr.AddDataToSection('VendAccountName',
-                      Name + ', ' + Address + ', ' + "Pay-to Address 2" + ', ' + TelTxt + Vendor."Phone No.")
-                else
-                    ExcelReportBuilderMgr.AddDataToSection('VendAccountName', Name + ', ' + Address + ', ' + "Pay-to Address 2");
+            if PurchaseHeaderBuffer."Agreement No." <> '' then begin
+                ExcelReportBuilderMgr.AddDataToSection('ContractNumber', PurchaseHeaderBuffer."Agreement No.");
+                VendorAgreement.Get(PurchaseHeaderBuffer."Buy-from Vendor No.", PurchaseHeaderBuffer."Agreement No.");
+                ExcelReportBuilderMgr.AddDataToSection('ContractDateDay', Format(VendorAgreement."Agreement Date", 0, '<Day>'));
+                ExcelReportBuilderMgr.AddDataToSection('ContractDateMonth', LocalMgt.Month2Text(VendorAgreement."Agreement Date"));
+                ExcelReportBuilderMgr.AddDataToSection('ContractDateYear', Format(VendorAgreement."Agreement Date", 0, '<Year>'));
             end;
 
-            CopyDocLinesToTempDocLines(DocPrintBuffer, PurchaseLineTemp);
-            FillLines(DocPrintBuffer, PurchaseHeaderBuffer, PurchaseLineTemp);
+            if PurchaseHeaderBuffer."Vendor VAT Invoice No." <> '' then begin
+                ExcelReportBuilderMgr.AddDataToSection('VendorVATInvoiceNo', PurchaseHeaderBuffer."Vendor VAT Invoice No.");
+                ExcelReportBuilderMgr.AddDataToSection('VendorVATInvoiceDateDay', Format(PurchaseHeaderBuffer."Vendor VAT Invoice Date", 0, '<Day>'));
+                ExcelReportBuilderMgr.AddDataToSection('VendorVATInvoiceDateMonth', LocalMgt.Month2Text(PurchaseHeaderBuffer."Vendor VAT Invoice Date"));
+                ExcelReportBuilderMgr.AddDataToSection('VendorVATInvoiceDateYear', Format(PurchaseHeaderBuffer."Vendor VAT Invoice Date", 0, '<Year>'));
+            end;
+
+            if TransportMethod.Get(PurchaseHeaderBuffer."Transport Method") then
+                ExcelReportBuilderMgr.AddDataToSection('TransportMethod', TransportMethod.Description);
+
+            ExcelReportBuilderMgr.AddDataToSection('CompanyAddress',
+              PurchaseHeaderBuffer."Ship-to Post Code" + ' ' + PurchaseHeaderBuffer."Ship-to City" + ', ' +
+              PurchaseHeaderBuffer."Ship-to Address" + ' ' + PurchaseHeaderBuffer."Ship-to Address 2");
+
+            Vendor.Get(PurchaseHeaderBuffer."Buy-from Vendor No.");
+            Address :=
+              LocalReportMgt.GetFullAddr(
+                PurchaseHeaderBuffer."Buy-from Post Code", PurchaseHeaderBuffer."Buy-from City", PurchaseHeaderBuffer."Buy-from Address", PurchaseHeaderBuffer."Buy-from Address 2", '', PurchaseHeaderBuffer."Buy-from County");
+            Name := LocalReportMgt.GetVendorName(PurchaseHeaderBuffer."Buy-from Vendor No.");
+            if Vendor."Phone No." <> '' then
+                ExcelReportBuilderMgr.AddDataToSection('InvoiceAccountName',
+                  Name + ', ' + Address + ', ' + PurchaseHeaderBuffer."Buy-from Address 2" + ', ' + TelTxt + Vendor."Phone No.")
+            else
+                ExcelReportBuilderMgr.AddDataToSection('InvoiceAccountName', Name + ', ' + Address + ', ' + PurchaseHeaderBuffer."Buy-from Address 2");
+
+            Address := '';
+            Vendor.Get(PurchaseHeaderBuffer."Pay-to Vendor No.");
+            Address :=
+              LocalReportMgt.GetFullAddr(PurchaseHeaderBuffer."Pay-to Post Code", PurchaseHeaderBuffer."Pay-to City", PurchaseHeaderBuffer."Pay-to Address", PurchaseHeaderBuffer."Pay-to Address 2", '', PurchaseHeaderBuffer."Pay-to County");
+            Name := LocalReportMgt.GetVendorName(PurchaseHeaderBuffer."Pay-to Vendor No.");
+            if Vendor."Phone No." <> '' then
+                ExcelReportBuilderMgr.AddDataToSection('VendAccountName',
+                  Name + ', ' + Address + ', ' + PurchaseHeaderBuffer."Pay-to Address 2" + ', ' + TelTxt + Vendor."Phone No.")
+            else
+                ExcelReportBuilderMgr.AddDataToSection('VendAccountName', Name + ', ' + Address + ', ' + PurchaseHeaderBuffer."Pay-to Address 2");
         end;
+
+        CopyDocLinesToTempDocLines(DocPrintBuffer, PurchaseLineTemp);
+        FillLines(DocPrintBuffer, PurchaseHeaderBuffer, PurchaseLineTemp);
     end;
 
     local procedure FillLines(DocumentPrintBuffer: Record "Document Print Buffer"; var TempPurchHeader: Record "Purchase Header" temporary; var TempPurchLine: Record "Purchase Line" temporary)
@@ -182,113 +180,111 @@ codeunit 12462 "Item Report Management"
         TextArray: array[5] of Text[250];
         CurrencyFactor: Decimal;
     begin
-        with TempPurchLine do begin
-            ExcelReportBuilderMgr.SetSheet('Sheet2');
-            ExcelReportBuilderMgr.AddSection('REPORTHEADER');
-            Torg2RHeaderId := ExcelReportBuilderMgr.GetCurrentSectionId();
+        ExcelReportBuilderMgr.SetSheet('Sheet2');
+        ExcelReportBuilderMgr.AddSection('REPORTHEADER');
+        Torg2RHeaderId := ExcelReportBuilderMgr.GetCurrentSectionId();
 
-            CopyDocLinesToTempDocLines(DocumentPrintBuffer, PurchaseLineBuffer);
-            ExcelReportBuilderMgr.AddSection('PAGEHEADER');
-            if FindSet() then
-                repeat
-                    ClearArrays(DecimalArray, TextArray);
-                    if (Quantity <> "Qty. to Receive") or Surplus or
-                       (DocumentPrintBuffer."Table ID" <> DATABASE::"Purchase Header")
-                    then begin
-                        if TempPurchHeader."Currency Code" <> '' then
-                            CurrencyFactor := TempPurchHeader."Currency Factor"
-                        else
-                            CurrencyFactor := 1;
+        CopyDocLinesToTempDocLines(DocumentPrintBuffer, PurchaseLineBuffer);
+        ExcelReportBuilderMgr.AddSection('PAGEHEADER');
+        if TempPurchLine.FindSet() then
+            repeat
+                ClearArrays(DecimalArray, TextArray);
+                if (TempPurchLine.Quantity <> TempPurchLine."Qty. to Receive") or TempPurchLine.Surplus or
+                   (DocumentPrintBuffer."Table ID" <> DATABASE::"Purchase Header")
+                then begin
+                    if TempPurchHeader."Currency Code" <> '' then
+                        CurrencyFactor := TempPurchHeader."Currency Factor"
+                    else
+                        CurrencyFactor := 1;
 
-                        TextArray[1] := Description + ' ' + "Description 2";
-                        Item.Get("No.");
-                        UnitOfMeasure.Get(Item."Base Unit of Measure");
-                        TextArray[2] := UnitOfMeasure.Description;
-                        TextArray[3] := UnitOfMeasure."OKEI Code";
-                        if DocumentPrintBuffer."Table ID" = DATABASE::"Purchase Header" then
-                            TextArray[4] := "No.";
-                        TextArray[5] := "No.";
+                    TextArray[1] := TempPurchLine.Description + ' ' + TempPurchLine."Description 2";
+                    Item.Get(TempPurchLine."No.");
+                    UnitOfMeasure.Get(Item."Base Unit of Measure");
+                    TextArray[2] := UnitOfMeasure.Description;
+                    TextArray[3] := UnitOfMeasure."OKEI Code";
+                    if DocumentPrintBuffer."Table ID" = DATABASE::"Purchase Header" then
+                        TextArray[4] := TempPurchLine."No.";
+                    TextArray[5] := TempPurchLine."No.";
 
-                        DecimalArray[1] := Quantity;
+                    DecimalArray[1] := TempPurchLine.Quantity;
 
-                        ItemUnitOfMeasure.SetRange("Item No.", "No.");
-                        ItemUnitOfMeasure.SetRange(Code, "Unit of Measure");
-                        DecimalArray[8] := Amount / CurrencyFactor / "Quantity (Base)";
-                        if DocumentPrintBuffer."Table ID" = DATABASE::"Purchase Header" then
-                            DecimalArray[5] := DecimalArray[8]
-                        else
-                            DecimalArray[8] := "Direct Unit Cost" / CurrencyFactor / ("Quantity (Base)" / Quantity);
+                    ItemUnitOfMeasure.SetRange("Item No.", TempPurchLine."No.");
+                    ItemUnitOfMeasure.SetRange(Code, TempPurchLine."Unit of Measure");
+                    DecimalArray[8] := TempPurchLine.Amount / CurrencyFactor / TempPurchLine."Quantity (Base)";
+                    if DocumentPrintBuffer."Table ID" = DATABASE::"Purchase Header" then
+                        DecimalArray[5] := DecimalArray[8]
+                    else
+                        DecimalArray[8] := TempPurchLine."Direct Unit Cost" / CurrencyFactor / (TempPurchLine."Quantity (Base)" / TempPurchLine.Quantity);
 
-                        if DocumentPrintBuffer."Table ID" = DATABASE::"Purchase Header" then begin
-                            if (TempPurchHeader."Document Type" = TempPurchHeader."Document Type"::"Credit Memo") and not Surplus then begin
-                                if "Appl.-to Item Entry" <> 0 then begin
-                                    ItemLedgerEntry.Get("Appl.-to Item Entry");
-                                    if ItemLedgerEntry."Document Type" = ItemLedgerEntry."Document Type"::"Purchase Receipt" then begin
-                                        PurchRcptLine.Get(ItemLedgerEntry."Document No.", ItemLedgerEntry."Document Line No.");
-                                        DecimalArray[2] := PurchRcptLine."Gross Weight" * PurchRcptLine.Quantity;
-                                        DecimalArray[3] := DecimalArray[2];
-                                        TotalNetWeight := TotalNetWeight + PurchRcptLine."Net Weight" * PurchRcptLine.Quantity;
-                                    end;
-                                    DecimalArray[1] := ItemLedgerEntry.Quantity / ItemLedgerEntry."Qty. per Unit of Measure";
-                                    DecimalArray[4] := ItemLedgerEntry.Quantity;
-                                    DecimalArray[6] := DecimalArray[4] * DecimalArray[5];
-                                    DecimalArray[7] := DecimalArray[4] - "Return Qty. to Ship (Base)";
-                                    TotalAccomQtyToReceive := TotalAccomQtyToReceive + DecimalArray[1] - Quantity;
-                                end
-                            end else
-                                if Surplus then begin
-                                    PurchaseLineBuffer.SetRange("No.", "No.");
-                                    PurchaseLineBuffer.SetRange(Surplus, false);
-                                    DecimalArray[1] := 0;
-                                    if PurchaseLineBuffer.FindSet() then
-                                        repeat
-                                            if PurchaseLineBuffer.Quantity = PurchaseLineBuffer."Qty. to Receive" then begin
-                                                DecimalArray[1] := DecimalArray[1] + PurchaseLineBuffer.Quantity;
-                                                DecimalArray[2] := DecimalArray[2] + PurchaseLineBuffer."Gross Weight" * PurchaseLineBuffer.Quantity;
-                                                DecimalArray[4] := DecimalArray[4] + PurchaseLineBuffer."Quantity (Base)";
-                                                DecimalArray[6] := DecimalArray[6] + PurchaseLineBuffer.Amount / CurrencyFactor;
-                                                DecimalArray[7] := DecimalArray[7] + PurchaseLineBuffer."Qty. to Receive (Base)";
-                                                TotalAccomQtyToReceive := TotalAccomQtyToReceive + PurchaseLineBuffer.Quantity;
-                                                TotalNetWeight := TotalNetWeight + PurchaseLineBuffer."Net Weight" * PurchaseLineBuffer.Quantity;
-                                            end;
-                                        until PurchaseLineBuffer.Next() = 0;
-                                    DecimalArray[3] := DecimalArray[2] + "Gross Weight" * Quantity;
-                                    DecimalArray[7] := DecimalArray[7] + "Qty. to Receive (Base)";
-                                end else begin
-                                    DecimalArray[2] := "Gross Weight" * Quantity;
+                    if DocumentPrintBuffer."Table ID" = DATABASE::"Purchase Header" then begin
+                        if (TempPurchHeader."Document Type" = TempPurchHeader."Document Type"::"Credit Memo") and not TempPurchLine.Surplus then begin
+                            if TempPurchLine."Appl.-to Item Entry" <> 0 then begin
+                                ItemLedgerEntry.Get(TempPurchLine."Appl.-to Item Entry");
+                                if ItemLedgerEntry."Document Type" = ItemLedgerEntry."Document Type"::"Purchase Receipt" then begin
+                                    PurchRcptLine.Get(ItemLedgerEntry."Document No.", ItemLedgerEntry."Document Line No.");
+                                    DecimalArray[2] := PurchRcptLine."Gross Weight" * PurchRcptLine.Quantity;
                                     DecimalArray[3] := DecimalArray[2];
-                                    DecimalArray[4] := "Quantity (Base)";
-                                    DecimalArray[6] := Amount / CurrencyFactor;
-                                    DecimalArray[7] := "Qty. to Receive (Base)";
-                                    TotalNetWeight := TotalNetWeight + "Net Weight" * Quantity;
-                                end
+                                    TotalNetWeight := TotalNetWeight + PurchRcptLine."Net Weight" * PurchRcptLine.Quantity;
+                                end;
+                                DecimalArray[1] := ItemLedgerEntry.Quantity / ItemLedgerEntry."Qty. per Unit of Measure";
+                                DecimalArray[4] := ItemLedgerEntry.Quantity;
+                                DecimalArray[6] := DecimalArray[4] * DecimalArray[5];
+                                DecimalArray[7] := DecimalArray[4] - TempPurchLine."Return Qty. to Ship (Base)";
+                                TotalAccomQtyToReceive := TotalAccomQtyToReceive + DecimalArray[1] - TempPurchLine.Quantity;
+                            end
                         end else
-                            DecimalArray[7] := "Quantity (Base)";
+                            if TempPurchLine.Surplus then begin
+                                PurchaseLineBuffer.SetRange("No.", TempPurchLine."No.");
+                                PurchaseLineBuffer.SetRange(Surplus, false);
+                                DecimalArray[1] := 0;
+                                if PurchaseLineBuffer.FindSet() then
+                                    repeat
+                                        if PurchaseLineBuffer.Quantity = PurchaseLineBuffer."Qty. to Receive" then begin
+                                            DecimalArray[1] := DecimalArray[1] + PurchaseLineBuffer.Quantity;
+                                            DecimalArray[2] := DecimalArray[2] + PurchaseLineBuffer."Gross Weight" * PurchaseLineBuffer.Quantity;
+                                            DecimalArray[4] := DecimalArray[4] + PurchaseLineBuffer."Quantity (Base)";
+                                            DecimalArray[6] := DecimalArray[6] + PurchaseLineBuffer.Amount / CurrencyFactor;
+                                            DecimalArray[7] := DecimalArray[7] + PurchaseLineBuffer."Qty. to Receive (Base)";
+                                            TotalAccomQtyToReceive := TotalAccomQtyToReceive + PurchaseLineBuffer.Quantity;
+                                            TotalNetWeight := TotalNetWeight + PurchaseLineBuffer."Net Weight" * PurchaseLineBuffer.Quantity;
+                                        end;
+                                    until PurchaseLineBuffer.Next() = 0;
+                                DecimalArray[3] := DecimalArray[2] + TempPurchLine."Gross Weight" * TempPurchLine.Quantity;
+                                DecimalArray[7] := DecimalArray[7] + TempPurchLine."Qty. to Receive (Base)";
+                            end else begin
+                                DecimalArray[2] := TempPurchLine."Gross Weight" * TempPurchLine.Quantity;
+                                DecimalArray[3] := DecimalArray[2];
+                                DecimalArray[4] := TempPurchLine."Quantity (Base)";
+                                DecimalArray[6] := TempPurchLine.Amount / CurrencyFactor;
+                                DecimalArray[7] := TempPurchLine."Qty. to Receive (Base)";
+                                TotalNetWeight := TotalNetWeight + TempPurchLine."Net Weight" * TempPurchLine.Quantity;
+                            end
+                    end else
+                        DecimalArray[7] := TempPurchLine."Quantity (Base)";
 
-                        DecimalArray[9] := DecimalArray[7] * Round(DecimalArray[8], 0.01);
+                    DecimalArray[9] := DecimalArray[7] * Round(DecimalArray[8], 0.01);
 
-                        if DocumentPrintBuffer."Table ID" = DATABASE::"Purchase Header" then begin
-                            if DecimalArray[4] > DecimalArray[7] then
-                                DecimalArray[14] := DecimalArray[4] - DecimalArray[7]
-                            else
-                                DecimalArray[16] := DecimalArray[7] - DecimalArray[4];
-                            DecimalArray[15] := DecimalArray[14] * DecimalArray[5];
-                            DecimalArray[17] := DecimalArray[16] * DecimalArray[5];
-                        end;
-
-                        TotalAccomQty := TotalAccomQty + DecimalArray[1];
-                        if DocumentPrintBuffer."Table ID" = DATABASE::"Purchase Header" then
-                            TotalAccomQtyToReceive := TotalAccomQtyToReceive + "Qty. to Receive"
+                    if DocumentPrintBuffer."Table ID" = DATABASE::"Purchase Header" then begin
+                        if DecimalArray[4] > DecimalArray[7] then
+                            DecimalArray[14] := DecimalArray[4] - DecimalArray[7]
                         else
-                            TotalAccomQtyToReceive := TotalAccomQtyToReceive + Quantity;
-
-                        TotalGrossWeight := TotalGrossWeight + DecimalArray[2];
-
-                        FillLineToExcel(DecimalArray, TextArray);
+                            DecimalArray[16] := DecimalArray[7] - DecimalArray[4];
+                        DecimalArray[15] := DecimalArray[14] * DecimalArray[5];
+                        DecimalArray[17] := DecimalArray[16] * DecimalArray[5];
                     end;
-                until Next() = 0;
-            FillTotalsToExcel(TotalAccomQty, TotalAccomQtyToReceive, TotalGrossWeight, TotalNetWeight);
-        end;
+
+                    TotalAccomQty := TotalAccomQty + DecimalArray[1];
+                    if DocumentPrintBuffer."Table ID" = DATABASE::"Purchase Header" then
+                        TotalAccomQtyToReceive := TotalAccomQtyToReceive + TempPurchLine."Qty. to Receive"
+                    else
+                        TotalAccomQtyToReceive := TotalAccomQtyToReceive + TempPurchLine.Quantity;
+
+                    TotalGrossWeight := TotalGrossWeight + DecimalArray[2];
+
+                    FillLineToExcel(DecimalArray, TextArray);
+                end;
+            until TempPurchLine.Next() = 0;
+        FillTotalsToExcel(TotalAccomQty, TotalAccomQtyToReceive, TotalGrossWeight, TotalNetWeight);
     end;
 
     local procedure FillLineToExcel(DecimalLineValue: array[17] of Decimal; TextLineValue: array[5] of Text[250])
@@ -313,16 +309,14 @@ codeunit 12462 "Item Report Management"
 
     local procedure CalculateNumberOfLines(var LineBuffer2: Record "Purchase Line" temporary; TableID: Integer) Number: Integer
     begin
-        with LineBuffer2 do begin
-            if FindFirst() then
-                repeat
-                    if TableID = DATABASE::"Purchase Header" then begin
-                        if (Quantity <> "Qty. to Receive") or Surplus then
-                            Number := Number + 1;
-                    end else
+        if LineBuffer2.FindFirst() then
+            repeat
+                if TableID = DATABASE::"Purchase Header" then begin
+                    if (LineBuffer2.Quantity <> LineBuffer2."Qty. to Receive") or LineBuffer2.Surplus then
                         Number := Number + 1;
-                until Next() = 0;
-        end;
+                end else
+                    Number := Number + 1;
+            until LineBuffer2.Next() = 0;
     end;
 
     local procedure CopyDocLinesToTempDocLines(DocPrintBuffer: Record "Document Print Buffer"; var PurchaseLineBuffer: Record "Purchase Line" temporary)

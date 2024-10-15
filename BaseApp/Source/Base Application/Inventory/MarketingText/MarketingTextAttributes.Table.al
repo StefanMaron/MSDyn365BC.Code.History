@@ -7,6 +7,7 @@ namespace Microsoft.Inventory.MarketingText;
 table 5834 "Marketing Text Attributes"
 {
     TableType = Temporary;
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -284,7 +284,7 @@
 
         // Setup.
         Initialize();
-        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, CreateAndPostApplicationEntry);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, CreateAndPostApplicationEntry());
 
         // Exercise: Reverse Fully Applied Invoice from Ledger.
         ReversalEntry.SetHideDialog(true);
@@ -306,7 +306,7 @@
 
         // Setup: Create Customer, Make Invoice and Post from General Journal and Block the same Customer.
         Initialize();
-        CreateAndPostApplicationEntry;
+        CreateAndPostApplicationEntry();
 
         // Exercise: Reverse Fully Applied Invoice from Regiser.
         GLRegister.FindLast();
@@ -332,8 +332,8 @@
 
         // Setup: Create and Post General Journal Line with Random Amount and Modify Exchange Rate. Run Adjust Exchange Rate Batch Job
         // and calculate Realized Gain/Loss Amount.
-        CreateGeneralJounalLine(GenJournalLine, GenJournalLine."Document Type"::" ", CreateCustomer, -LibraryRandom.RandDec(100, 2));
-        GenJournalLine.Validate("Currency Code", CreateCurrency);
+        CreateGeneralJounalLine(GenJournalLine, GenJournalLine."Document Type"::" ", CreateCustomer(), -LibraryRandom.RandDec(100, 2));
+        GenJournalLine.Validate("Currency Code", CreateCurrency());
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         UpdateExchangeRate(GenJournalLine."Currency Code");
@@ -365,7 +365,7 @@
         Initialize();
         LibraryFiscalYear.CreateClosedAccountingPeriods();
         CreateGenJnlLineForInvoice(
-          GenJournalLine, GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, CreateCustomer);
+          GenJournalLine, GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), CreateCustomer());
         CreateAndPostApplnDateCompress(
           GenJournalLine."Document No.", GenJournalLine."Bal. Account Type"::"G/L Account", GenJournalLine."Bal. Account No.",
           GenJournalLine."Account No.", GenJournalLine.Amount);
@@ -385,7 +385,7 @@
         Initialize();
         LibraryFiscalYear.CreateClosedAccountingPeriods();
         CreateGenJnlLineForInvoice(
-          GenJournalLine, GenJournalLine."Bal. Account Type"::"Bank Account", CreateBankAccount, CreateCustomer);
+          GenJournalLine, GenJournalLine."Bal. Account Type"::"Bank Account", CreateBankAccount(), CreateCustomer());
         CreateAndPostApplnDateCompress(
           GenJournalLine."Document No.", GenJournalLine."Bal. Account Type"::"Bank Account", GenJournalLine."Bal. Account No.",
           GenJournalLine."Account No.", GenJournalLine.Amount);
@@ -409,7 +409,7 @@
 
         // Setup: Create and Post Invoice and apply Payment on Invoice.
         Initialize();
-        DocumentNo := CreateAndPostApplicationEntry;
+        DocumentNo := CreateAndPostApplicationEntry();
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, DocumentNo);
         CustomerNo := ModifyCustomerWithBlockStatus(CustLedgerEntry."Customer No.");
         FindDetailedCustLedgEntry(DetailedCustLedgEntry, CustomerNo);
@@ -475,7 +475,7 @@
     begin
         // Create and Post Invoice and apply Payment on Invoice.
         CreateGeneralJounalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer, LibraryRandom.RandDec(100, 2));
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer(), LibraryRandom.RandDec(100, 2));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         DocumentNo := GenJournalLine."Document No.";
         CreateGeneralJounalLine(

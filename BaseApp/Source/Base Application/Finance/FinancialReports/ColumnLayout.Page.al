@@ -10,6 +10,7 @@ page 489 "Column Layout"
     DataCaptionFields = "Column Layout Name";
     PageType = Worksheet;
     SourceTable = "Column Layout";
+    AnalysisModeEnabled = false;
     UsageCategory = Administration;
 
     layout

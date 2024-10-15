@@ -238,7 +238,6 @@ page 26562 "Report Data List"
     }
 
     var
-        StatutoryReport: Record "Statutory Report";
         StatutoryReportMgt: Codeunit "Statutory Report Management";
 }
 

@@ -43,15 +43,13 @@ codeunit 12422 "Corrective Document Mgt."
     var
         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
     begin
-        with SalesLine do begin
-            ItemChargeAssgntSales.Reset();
-            ItemChargeAssgntSales.SetRange("Document Type", "Document Type");
-            ItemChargeAssgntSales.SetRange("Document No.", "Document No.");
-            ItemChargeAssgntSales.SetRange("Document Line No.", "Line No.");
-            ItemChargeAssgntSales.SetRange("Item Charge No.", "No.");
-            if ItemChargeAssgntSales.FindLast() then;
-            exit(ItemChargeAssgntSales."Line No.");
-        end;
+        ItemChargeAssgntSales.Reset();
+        ItemChargeAssgntSales.SetRange("Document Type", SalesLine."Document Type");
+        ItemChargeAssgntSales.SetRange("Document No.", SalesLine."Document No.");
+        ItemChargeAssgntSales.SetRange("Document Line No.", SalesLine."Line No.");
+        ItemChargeAssgntSales.SetRange("Item Charge No.", SalesLine."No.");
+        if ItemChargeAssgntSales.FindLast() then;
+        exit(ItemChargeAssgntSales."Line No.");
     end;
 
     local procedure ItemShptChargeAssgnt(SalesLine: Record "Sales Line"; var TempSalesShptLine: Record "Sales Shipment Line")
@@ -59,18 +57,16 @@ codeunit 12422 "Corrective Document Mgt."
         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
         AssignItemChargeSales: Codeunit "Item Charge Assgnt. (Sales)";
     begin
-        with SalesLine do begin
-            ItemChargeAssgntSales.Init();
-            ItemChargeAssgntSales."Document Type" := "Document Type";
-            ItemChargeAssgntSales."Document No." := "Document No.";
-            ItemChargeAssgntSales."Document Line No." := "Line No.";
-            ItemChargeAssgntSales."Item Charge No." := "No.";
-            ItemChargeAssgntSales."Line No." := GetItemChargeAssgntLineNo(SalesLine);
-            ItemChargeAssgntSales."Unit Cost" := "Unit Price";
+        ItemChargeAssgntSales.Init();
+        ItemChargeAssgntSales."Document Type" := SalesLine."Document Type";
+        ItemChargeAssgntSales."Document No." := SalesLine."Document No.";
+        ItemChargeAssgntSales."Document Line No." := SalesLine."Line No.";
+        ItemChargeAssgntSales."Item Charge No." := SalesLine."No.";
+        ItemChargeAssgntSales."Line No." := GetItemChargeAssgntLineNo(SalesLine);
+        ItemChargeAssgntSales."Unit Cost" := SalesLine."Unit Price";
 
-            TempSalesShptLine.FindSet();
-            AssignItemChargeSales.CreateShptChargeAssgnt(TempSalesShptLine, ItemChargeAssgntSales);
-        end;
+        TempSalesShptLine.FindSet();
+        AssignItemChargeSales.CreateShptChargeAssgnt(TempSalesShptLine, ItemChargeAssgntSales);
     end;
 
     local procedure ItemRcptChargeAssgnt(SalesLine: Record "Sales Line"; var TempSalesReturnRcptLine: Record "Return Receipt Line")
@@ -78,18 +74,16 @@ codeunit 12422 "Corrective Document Mgt."
         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
         AssignItemChargeSales: Codeunit "Item Charge Assgnt. (Sales)";
     begin
-        with SalesLine do begin
-            ItemChargeAssgntSales.Init();
-            ItemChargeAssgntSales."Document Type" := "Document Type";
-            ItemChargeAssgntSales."Document No." := "Document No.";
-            ItemChargeAssgntSales."Document Line No." := "Line No.";
-            ItemChargeAssgntSales."Item Charge No." := "No.";
-            ItemChargeAssgntSales."Line No." := GetItemChargeAssgntLineNo(SalesLine);
-            ItemChargeAssgntSales."Unit Cost" := "Unit Price";
+        ItemChargeAssgntSales.Init();
+        ItemChargeAssgntSales."Document Type" := SalesLine."Document Type";
+        ItemChargeAssgntSales."Document No." := SalesLine."Document No.";
+        ItemChargeAssgntSales."Document Line No." := SalesLine."Line No.";
+        ItemChargeAssgntSales."Item Charge No." := SalesLine."No.";
+        ItemChargeAssgntSales."Line No." := GetItemChargeAssgntLineNo(SalesLine);
+        ItemChargeAssgntSales."Unit Cost" := SalesLine."Unit Price";
 
-            TempSalesReturnRcptLine.FindSet();
-            AssignItemChargeSales.CreateRcptChargeAssgnt(TempSalesReturnRcptLine, ItemChargeAssgntSales);
-        end;
+        TempSalesReturnRcptLine.FindSet();
+        AssignItemChargeSales.CreateRcptChargeAssgnt(TempSalesReturnRcptLine, ItemChargeAssgntSales);
     end;
 
     local procedure SalesItemChargeAssgnt(SalesLine: Record "Sales Line"; var TempSalesShptLine: Record "Sales Shipment Line"; var TempSalesReturnRcptLine: Record "Return Receipt Line")
@@ -116,53 +110,51 @@ codeunit 12422 "Corrective Document Mgt."
         if SalesLine.Type <> SalesLine.Type::"Charge (Item)" then
             exit;
 
-        with SalesLine do begin
-            case "Original Doc. Type" of
-                "Original Doc. Type"::Invoice:
+        case SalesLine."Original Doc. Type" of
+            SalesLine."Original Doc. Type"::Invoice:
+                GetSalesShptLines(
+                  TempSalesShptLine,
+                  SalesLine."Original Doc. No.",
+                  GetSalesInvHeaderPostingDate(SalesLine."Original Doc. No."),
+                  SalesLine."Original No.",
+                  SalesLine."Corrected Doc. Line No.");
+            SalesLine."Original Doc. Type"::"Credit Memo":
+                GetSalesRcptLines(
+                  TempReturnRcptLine,
+                  SalesLine."Original Doc. No.",
+                  GetSalesCrMHeaderPostingDate(SalesLine."Original Doc. No."),
+                  SalesLine."Original No.",
+                  SalesLine."Corrected Doc. Line No.");
+        end;
+
+        SetSalesInvCrMemoLineFilters(
+          SalesInvLine,
+          SalesCrMemoLine,
+          SalesLine."Original Doc. Type",
+          SalesLine."Original Doc. No.",
+          SalesLine."Original Doc. Line No.");
+
+        if SalesInvLine.FindSet() then
+            repeat
+                if SalesInvLine.Type = SalesInvLine.Type::Item then
                     GetSalesShptLines(
                       TempSalesShptLine,
-                      "Original Doc. No.",
-                      GetSalesInvHeaderPostingDate("Original Doc. No."),
-                      "Original No.",
-                      "Corrected Doc. Line No.");
-                "Original Doc. Type"::"Credit Memo":
+                      SalesInvLine."Document No.",
+                      GetSalesInvHeaderPostingDate(SalesInvLine."Document No."),
+                      SalesInvLine."Original No.",
+                      SalesInvLine."Line No.");
+            until SalesInvLine.Next() = 0;
+
+        if SalesCrMemoLine.FindSet() then
+            repeat
+                if SalesCrMemoLine.Type = SalesCrMemoLine.Type::Item then
                     GetSalesRcptLines(
                       TempReturnRcptLine,
-                      "Original Doc. No.",
-                      GetSalesCrMHeaderPostingDate("Original Doc. No."),
-                      "Original No.",
-                      "Corrected Doc. Line No.");
-            end;
-
-            SetSalesInvCrMemoLineFilters(
-              SalesInvLine,
-              SalesCrMemoLine,
-              "Original Doc. Type",
-              "Original Doc. No.",
-              "Original Doc. Line No.");
-
-            if SalesInvLine.FindSet() then
-                repeat
-                    if SalesInvLine.Type = SalesInvLine.Type::Item then
-                        GetSalesShptLines(
-                          TempSalesShptLine,
-                          SalesInvLine."Document No.",
-                          GetSalesInvHeaderPostingDate(SalesInvLine."Document No."),
-                          SalesInvLine."Original No.",
-                          SalesInvLine."Line No.");
-                until SalesInvLine.Next() = 0;
-
-            if SalesCrMemoLine.FindSet() then
-                repeat
-                    if SalesCrMemoLine.Type = SalesCrMemoLine.Type::Item then
-                        GetSalesRcptLines(
-                          TempReturnRcptLine,
-                          SalesCrMemoLine."Document No.",
-                          GetSalesCrMHeaderPostingDate(SalesCrMemoLine."Document No."),
-                          SalesCrMemoLine."Original No.",
-                          SalesCrMemoLine."Line No.");
-                until SalesCrMemoLine.Next() = 0;
-        end;
+                      SalesCrMemoLine."Document No.",
+                      GetSalesCrMHeaderPostingDate(SalesCrMemoLine."Document No."),
+                      SalesCrMemoLine."Original No.",
+                      SalesCrMemoLine."Line No.");
+            until SalesCrMemoLine.Next() = 0;
 
         SalesItemChargeAssgnt(SalesLine, TempSalesShptLine, TempReturnRcptLine);
     end;
@@ -401,50 +393,48 @@ codeunit 12422 "Corrective Document Mgt."
         CorrectedLine: Boolean;
     begin
         CorrectedLine := TempSalesLine."Corrected Doc. Line No." <> 0;
-        with SalesLine do begin
-            Validate("Gen. Prod. Posting Group", TempSalesLine."Gen. Prod. Posting Group");
-            Validate("VAT Prod. Posting Group", TempSalesLine."VAT Prod. Posting Group");
-            "Corrected Doc. Line No." := TempSalesLine."Line No.";
-            Description := TempSalesLine.Description;
-            if CorrectedLine then begin
-                "Original Doc. Type" := TempSalesLine."Original Doc. Type";
-                "Original Doc. No." := TempSalesLine."Original Doc. No.";
-                "Original Doc. Line No." := TempSalesLine."Original Doc. Line No.";
-                "Original Type" := TempSalesLine."Original Type";
-                "Original No." := TempSalesLine."Original No.";
-                "Quantity (Before)" := TempSalesLine."Quantity (After)";
-                "Quantity (After)" := TempSalesLine."Quantity (After)";
-                "Unit Price (Before)" := TempSalesLine."Unit Price (After)";
-                "Unit Price (After)" := TempSalesLine."Unit Price (After)";
-                "Amount (Before)" := TempSalesLine."Amount (After)";
-                "Amount Including VAT (Before)" := TempSalesLine."Amount Including VAT (After)";
-                "Amount (LCY) (Before)" := TempSalesLine."Amount (LCY) (After)";
-                "Amt. Incl. VAT (LCY) (Before)" := TempSalesLine."Amt. Incl. VAT (LCY) (After)";
-            end else begin
-                "Original Doc. Type" := SalesHeader."Corrected Doc. Type";
-                "Original Doc. No." := SalesHeader."Corrected Doc. No.";
-                "Original Doc. Line No." := TempSalesLine."Line No.";
-                "Original Type" := TempSalesLine.Type.AsInteger();
-                "Original No." := TempSalesLine."No.";
-                "Quantity (Before)" := TempSalesLine.Quantity;
-                "Quantity (After)" := TempSalesLine.Quantity;
-                "Unit Price (Before)" := TempSalesLine."Unit Price";
-                "Unit Price (After)" := TempSalesLine."Unit Price";
-                "Amount (Before)" := TempSalesLine.Amount;
-                "Amount Including VAT (Before)" := TempSalesLine."Amount Including VAT";
-                "Amount (LCY) (Before)" := TempSalesLine."Amount (LCY)";
-                "Amt. Incl. VAT (LCY) (Before)" := TempSalesLine."Amount Including VAT (LCY)";
-                if TempSalesLine."Line Discount %" <> 0 then begin
-                    "Unit Price (Before)" :=
-                      Round("Amount (Before)" / "Quantity (Before)", Currency."Unit-Amount Rounding Precision");
-                    "Unit Price (After)" := "Unit Price (Before)";
-                end;
+        SalesLine.Validate("Gen. Prod. Posting Group", TempSalesLine."Gen. Prod. Posting Group");
+        SalesLine.Validate("VAT Prod. Posting Group", TempSalesLine."VAT Prod. Posting Group");
+        SalesLine."Corrected Doc. Line No." := TempSalesLine."Line No.";
+        SalesLine.Description := TempSalesLine.Description;
+        if CorrectedLine then begin
+            SalesLine."Original Doc. Type" := TempSalesLine."Original Doc. Type";
+            SalesLine."Original Doc. No." := TempSalesLine."Original Doc. No.";
+            SalesLine."Original Doc. Line No." := TempSalesLine."Original Doc. Line No.";
+            SalesLine."Original Type" := TempSalesLine."Original Type";
+            SalesLine."Original No." := TempSalesLine."Original No.";
+            SalesLine."Quantity (Before)" := TempSalesLine."Quantity (After)";
+            SalesLine."Quantity (After)" := TempSalesLine."Quantity (After)";
+            SalesLine."Unit Price (Before)" := TempSalesLine."Unit Price (After)";
+            SalesLine."Unit Price (After)" := TempSalesLine."Unit Price (After)";
+            SalesLine."Amount (Before)" := TempSalesLine."Amount (After)";
+            SalesLine."Amount Including VAT (Before)" := TempSalesLine."Amount Including VAT (After)";
+            SalesLine."Amount (LCY) (Before)" := TempSalesLine."Amount (LCY) (After)";
+            SalesLine."Amt. Incl. VAT (LCY) (Before)" := TempSalesLine."Amt. Incl. VAT (LCY) (After)";
+        end else begin
+            SalesLine."Original Doc. Type" := SalesHeader."Corrected Doc. Type";
+            SalesLine."Original Doc. No." := SalesHeader."Corrected Doc. No.";
+            SalesLine."Original Doc. Line No." := TempSalesLine."Line No.";
+            SalesLine."Original Type" := TempSalesLine.Type.AsInteger();
+            SalesLine."Original No." := TempSalesLine."No.";
+            SalesLine."Quantity (Before)" := TempSalesLine.Quantity;
+            SalesLine."Quantity (After)" := TempSalesLine.Quantity;
+            SalesLine."Unit Price (Before)" := TempSalesLine."Unit Price";
+            SalesLine."Unit Price (After)" := TempSalesLine."Unit Price";
+            SalesLine."Amount (Before)" := TempSalesLine.Amount;
+            SalesLine."Amount Including VAT (Before)" := TempSalesLine."Amount Including VAT";
+            SalesLine."Amount (LCY) (Before)" := TempSalesLine."Amount (LCY)";
+            SalesLine."Amt. Incl. VAT (LCY) (Before)" := TempSalesLine."Amount Including VAT (LCY)";
+            if TempSalesLine."Line Discount %" <> 0 then begin
+                SalesLine."Unit Price (Before)" :=
+                  Round(SalesLine."Amount (Before)" / SalesLine."Quantity (Before)", Currency."Unit-Amount Rounding Precision");
+                SalesLine."Unit Price (After)" := SalesLine."Unit Price (Before)";
             end;
-            Validate(Quantity, "Quantity (After)");
-            Validate("Unit of Measure Code", TempSalesLine."Unit of Measure Code");
-            Validate("Unit Price", "Unit Price (After)");
-            Validate("Line Discount %", 0);
         end;
+        SalesLine.Validate(Quantity, SalesLine."Quantity (After)");
+        SalesLine.Validate("Unit of Measure Code", TempSalesLine."Unit of Measure Code");
+        SalesLine.Validate("Unit Price", SalesLine."Unit Price (After)");
+        SalesLine.Validate("Line Discount %", 0);
     end;
 
     local procedure CheckSalesLineExists(CorrLineNo: Integer)
@@ -578,18 +568,16 @@ codeunit 12422 "Corrective Document Mgt."
 
     local procedure IsCopyItemTrkg(var ItemLedgEntry: Record "Item Ledger Entry"): Boolean
     begin
-        with ItemLedgEntry do begin
-            if IsEmpty() then
-                exit(true);
-            SetFilter("Lot No.", '<>%1', '');
-            if not IsEmpty() then
-                exit(true);
-            SetRange("Lot No.");
-            SetFilter("Serial No.", '<>%1', '');
-            if not IsEmpty() then
-                exit(true);
-            SetRange("Serial No.");
-        end;
+        if ItemLedgEntry.IsEmpty() then
+            exit(true);
+        ItemLedgEntry.SetFilter("Lot No.", '<>%1', '');
+        if not ItemLedgEntry.IsEmpty() then
+            exit(true);
+        ItemLedgEntry.SetRange("Lot No.");
+        ItemLedgEntry.SetFilter("Serial No.", '<>%1', '');
+        if not ItemLedgEntry.IsEmpty() then
+            exit(true);
+        ItemLedgEntry.SetRange("Serial No.");
         exit(false);
     end;
 
@@ -600,27 +588,25 @@ codeunit 12422 "Corrective Document Mgt."
         CorrSalesCrMemoHeader: Record "Sales Cr.Memo Header";
         TempSalesHeader: Record "Sales Header";
     begin
-        with CorrDocHeader do begin
-            case "Corrected Doc. Type" of
-                "Corrected Doc. Type"::Invoice:
-                    begin
-                        CorrSalesInvHeader.Get("Corrected Doc. No.");
-                        TempSalesHeader.TransferFields(CorrSalesInvHeader);
-                    end;
-                "Corrected Doc. Type"::"Credit Memo":
-                    begin
-                        CorrSalesCrMemoHeader.Get("Corrected Doc. No.");
-                        TempSalesHeader.TransferFields(CorrSalesCrMemoHeader);
-                    end;
-            end;
-            TestField("Currency Code", TempSalesHeader."Currency Code");
-            TestField("Currency Factor", TempSalesHeader."Currency Factor");
-            TestField("Prices Including VAT", TempSalesHeader."Prices Including VAT");
-            TestField("Sell-to Customer No.", TempSalesHeader."Sell-to Customer No.");
-            TestField("Bill-to Customer No.", TempSalesHeader."Bill-to Customer No.");
-            TestField("Shortcut Dimension 1 Code", TempSalesHeader."Shortcut Dimension 1 Code");
-            TestField("Shortcut Dimension 2 Code", TempSalesHeader."Shortcut Dimension 2 Code");
+        case CorrDocHeader."Corrected Doc. Type" of
+            CorrDocHeader."Corrected Doc. Type"::Invoice:
+                begin
+                    CorrSalesInvHeader.Get(CorrDocHeader."Corrected Doc. No.");
+                    TempSalesHeader.TransferFields(CorrSalesInvHeader);
+                end;
+            CorrDocHeader."Corrected Doc. Type"::"Credit Memo":
+                begin
+                    CorrSalesCrMemoHeader.Get(CorrDocHeader."Corrected Doc. No.");
+                    TempSalesHeader.TransferFields(CorrSalesCrMemoHeader);
+                end;
         end;
+        CorrDocHeader.TestField("Currency Code", TempSalesHeader."Currency Code");
+        CorrDocHeader.TestField("Currency Factor", TempSalesHeader."Currency Factor");
+        CorrDocHeader.TestField("Prices Including VAT", TempSalesHeader."Prices Including VAT");
+        CorrDocHeader.TestField("Sell-to Customer No.", TempSalesHeader."Sell-to Customer No.");
+        CorrDocHeader.TestField("Bill-to Customer No.", TempSalesHeader."Bill-to Customer No.");
+        CorrDocHeader.TestField("Shortcut Dimension 1 Code", TempSalesHeader."Shortcut Dimension 1 Code");
+        CorrDocHeader.TestField("Shortcut Dimension 2 Code", TempSalesHeader."Shortcut Dimension 2 Code");
     end;
 
     [Scope('OnPrem')]
@@ -629,21 +615,20 @@ codeunit 12422 "Corrective Document Mgt."
         SalesInvHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
-        with CorrDocHeader do
-            case "Corrected Doc. Type" of
-                "Corrected Doc. Type"::Invoice:
-                    begin
-                        SalesInvHeader.Get("Corrected Doc. No.");
-                        if SalesInvHeader."Dimension Set ID" <> "Dimension Set ID" then
-                            Error(Text004, "Document Type", "No.", "Corrected Doc. No.");
-                    end;
-                "Corrected Doc. Type"::"Credit Memo":
-                    begin
-                        SalesCrMemoHeader.Get("Corrected Doc. No.");
-                        if SalesCrMemoHeader."Dimension Set ID" <> "Dimension Set ID" then
-                            Error(Text004, "Document Type", "No.", "Corrected Doc. No.");
-                    end;
-            end;
+        case CorrDocHeader."Corrected Doc. Type" of
+            CorrDocHeader."Corrected Doc. Type"::Invoice:
+                begin
+                    SalesInvHeader.Get(CorrDocHeader."Corrected Doc. No.");
+                    if SalesInvHeader."Dimension Set ID" <> CorrDocHeader."Dimension Set ID" then
+                        Error(Text004, CorrDocHeader."Document Type", CorrDocHeader."No.", CorrDocHeader."Corrected Doc. No.");
+                end;
+            CorrDocHeader."Corrected Doc. Type"::"Credit Memo":
+                begin
+                    SalesCrMemoHeader.Get(CorrDocHeader."Corrected Doc. No.");
+                    if SalesCrMemoHeader."Dimension Set ID" <> CorrDocHeader."Dimension Set ID" then
+                        Error(Text004, CorrDocHeader."Document Type", CorrDocHeader."No.", CorrDocHeader."Corrected Doc. No.");
+                end;
+        end;
     end;
 
     [Scope('OnPrem')]
@@ -674,8 +659,7 @@ codeunit 12422 "Corrective Document Mgt."
 
     local procedure IsCorrDocType(var CorrSalesHeader: Record "Sales Header"): Boolean
     begin
-        with CorrSalesHeader do
-            exit("Corrective Document" and ("Corrective Doc. Type" = "Corrective Doc. Type"::Correction));
+        exit(CorrSalesHeader."Corrective Document" and (CorrSalesHeader."Corrective Doc. Type" = CorrSalesHeader."Corrective Doc. Type"::Correction));
     end;
 
     [Scope('OnPrem')]
@@ -687,40 +671,34 @@ codeunit 12422 "Corrective Document Mgt."
 
     local procedure FindInitialDoc(var CorrSalesHeader: Record "Sales Header"): Boolean
     begin
-        with CorrSalesHeader do begin
-            if not GetRelatedDoc(CorrSalesHeader, "Original Doc. Type", "Original Doc. No.") then
-                exit(false);
-            if "Corrective Document" then
-                exit(FindInitialDoc(CorrSalesHeader));
-            exit(true);
-        end;
+        if not GetRelatedDoc(CorrSalesHeader, CorrSalesHeader."Original Doc. Type", CorrSalesHeader."Original Doc. No.") then
+            exit(false);
+        if CorrSalesHeader."Corrective Document" then
+            exit(FindInitialDoc(CorrSalesHeader));
+        exit(true);
     end;
 
     [Scope('OnPrem')]
     procedure GetCorrToRevDoc(var CorrSalesHeader: Record "Sales Header"): Boolean
     begin
-        with CorrSalesHeader do begin
-            if "Corrective Doc. Type" <> "Corrective Doc. Type"::Correction then begin
-                Clear(CorrSalesHeader);
-                exit(false);
-            end;
-            if FindFirstRevDoc(CorrSalesHeader) then
-                exit(true);
+        if CorrSalesHeader."Corrective Doc. Type" <> CorrSalesHeader."Corrective Doc. Type"::Correction then begin
             Clear(CorrSalesHeader);
+            exit(false);
         end;
+        if FindFirstRevDoc(CorrSalesHeader) then
+            exit(true);
+        Clear(CorrSalesHeader);
     end;
 
     local procedure FindFirstRevDoc(var CorrSalesHeader: Record "Sales Header"): Boolean
     begin
-        with CorrSalesHeader do begin
-            if (not GetRelatedDoc(CorrSalesHeader, "Corrected Doc. Type", "Corrected Doc. No.")) or
-               (not "Corrective Document")
-            then
-                exit(false);
-            if "Corrective Doc. Type" = "Corrective Doc. Type"::Revision then
-                exit(true);
-            exit(FindFirstRevDoc(CorrSalesHeader));
-        end;
+        if (not GetRelatedDoc(CorrSalesHeader, CorrSalesHeader."Corrected Doc. Type", CorrSalesHeader."Corrected Doc. No.")) or
+           (not CorrSalesHeader."Corrective Document")
+        then
+            exit(false);
+        if CorrSalesHeader."Corrective Doc. Type" = CorrSalesHeader."Corrective Doc. Type"::Revision then
+            exit(true);
+        exit(FindFirstRevDoc(CorrSalesHeader));
     end;
 
     local procedure GetLastRevToInitial(var CorrSalesHeader: Record "Sales Header"): Boolean
@@ -735,15 +713,13 @@ codeunit 12422 "Corrective Document Mgt."
     var
         LastRevSalesHeader: Record "Sales Header" temporary;
     begin
-        with CorrSalesHeader do begin
-            if "Corrective Doc. Type" = "Corrective Doc. Type"::Revision then
-                LastRevSalesHeader := CorrSalesHeader;
-            if not FindNextRevision(CorrSalesHeader) then begin
-                CorrSalesHeader := LastRevSalesHeader;
-                exit("Corrective Doc. Type" = "Corrective Doc. Type"::Revision);
-            end;
-            exit(FindLastRevToInitial(CorrSalesHeader));
+        if CorrSalesHeader."Corrective Doc. Type" = CorrSalesHeader."Corrective Doc. Type"::Revision then
+            LastRevSalesHeader := CorrSalesHeader;
+        if not FindNextRevision(CorrSalesHeader) then begin
+            CorrSalesHeader := LastRevSalesHeader;
+            exit(CorrSalesHeader."Corrective Doc. Type" = CorrSalesHeader."Corrective Doc. Type"::Revision);
         end;
+        exit(FindLastRevToInitial(CorrSalesHeader));
     end;
 
     local procedure FindNextRevision(var CorrSalesHeader: Record "Sales Header"): Boolean
@@ -751,56 +727,51 @@ codeunit 12422 "Corrective Document Mgt."
         SalesInvHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
-        with CorrSalesHeader do
-            case "Document Type" of
-                "Document Type"::Invoice:
-                    begin
-                        SalesInvHeader.SetRange("Corrected Doc. Type", GetCorrDocType(CorrSalesHeader));
-                        SalesInvHeader.SetRange("Corrected Doc. No.", "No.");
-                        SalesInvHeader.SetRange("Corrective Doc. Type", "Corrective Doc. Type"::Revision);
-                        if SalesInvHeader.FindFirst() then begin
-                            FillSalesInvCorrHeader(CorrSalesHeader, SalesInvHeader);
-                            exit(true);
-                        end;
+        case CorrSalesHeader."Document Type" of
+            CorrSalesHeader."Document Type"::Invoice:
+                begin
+                    SalesInvHeader.SetRange("Corrected Doc. Type", GetCorrDocType(CorrSalesHeader));
+                    SalesInvHeader.SetRange("Corrected Doc. No.", CorrSalesHeader."No.");
+                    SalesInvHeader.SetRange("Corrective Doc. Type", CorrSalesHeader."Corrective Doc. Type"::Revision);
+                    if SalesInvHeader.FindFirst() then begin
+                        FillSalesInvCorrHeader(CorrSalesHeader, SalesInvHeader);
+                        exit(true);
                     end;
-                "Document Type"::"Credit Memo":
-                    begin
-                        SalesCrMemoHeader.SetRange("Corrected Doc. Type", GetCorrDocType(CorrSalesHeader));
-                        SalesCrMemoHeader.SetRange("Corrected Doc. No.", "No.");
-                        SalesCrMemoHeader.SetRange("Corrective Doc. Type", "Corrective Doc. Type"::Revision);
-                        if SalesCrMemoHeader.FindFirst() then begin
-                            FillSalesCrMemoCorrHeader(CorrSalesHeader, SalesCrMemoHeader);
-                            exit(true);
-                        end;
+                end;
+            CorrSalesHeader."Document Type"::"Credit Memo":
+                begin
+                    SalesCrMemoHeader.SetRange("Corrected Doc. Type", GetCorrDocType(CorrSalesHeader));
+                    SalesCrMemoHeader.SetRange("Corrected Doc. No.", CorrSalesHeader."No.");
+                    SalesCrMemoHeader.SetRange("Corrective Doc. Type", CorrSalesHeader."Corrective Doc. Type"::Revision);
+                    if SalesCrMemoHeader.FindFirst() then begin
+                        FillSalesCrMemoCorrHeader(CorrSalesHeader, SalesCrMemoHeader);
+                        exit(true);
                     end;
-            end;
+                end;
+        end;
     end;
 
     [Scope('OnPrem')]
     procedure GetRevToCorrDoc(var CorrSalesHeader: Record "Sales Header"): Boolean
     begin
-        with CorrSalesHeader do begin
-            if "Corrective Doc. Type" <> "Corrective Doc. Type"::Revision then begin
-                Clear(CorrSalesHeader);
-                exit(false);
-            end;
-            if FindFirstCorrDoc(CorrSalesHeader) then
-                exit(true);
+        if CorrSalesHeader."Corrective Doc. Type" <> CorrSalesHeader."Corrective Doc. Type"::Revision then begin
             Clear(CorrSalesHeader);
+            exit(false);
         end;
+        if FindFirstCorrDoc(CorrSalesHeader) then
+            exit(true);
+        Clear(CorrSalesHeader);
     end;
 
     local procedure FindFirstCorrDoc(var CorrSalesHeader: Record "Sales Header"): Boolean
     begin
-        with CorrSalesHeader do begin
-            if (not GetRelatedDoc(CorrSalesHeader, "Corrected Doc. Type", "Corrected Doc. No.")) or
-               (not "Corrective Document")
-            then
-                exit(false);
-            if "Corrective Doc. Type" = "Corrective Doc. Type"::Correction then
-                exit(true);
-            exit(FindFirstCorrDoc(CorrSalesHeader));
-        end;
+        if (not GetRelatedDoc(CorrSalesHeader, CorrSalesHeader."Corrected Doc. Type", CorrSalesHeader."Corrected Doc. No.")) or
+           (not CorrSalesHeader."Corrective Document")
+        then
+            exit(false);
+        if CorrSalesHeader."Corrective Doc. Type" = CorrSalesHeader."Corrective Doc. Type"::Correction then
+            exit(true);
+        exit(FindFirstCorrDoc(CorrSalesHeader));
     end;
 
     local procedure GetRelatedDoc(var CorrSalesHeader: Record "Sales Header"; DocType: Option; DocNo: Code[20]): Boolean
@@ -808,49 +779,43 @@ codeunit 12422 "Corrective Document Mgt."
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
-        with CorrSalesHeader do
-            case DocType of
-                "Corrected Doc. Type"::Invoice:
-                    if SalesInvoiceHeader.Get(DocNo) then begin
-                        FillSalesInvCorrHeader(CorrSalesHeader, SalesInvoiceHeader);
-                        exit(true);
-                    end;
-                "Corrected Doc. Type"::"Credit Memo":
-                    if SalesCrMemoHeader.Get(DocNo) then begin
-                        FillSalesCrMemoCorrHeader(CorrSalesHeader, SalesCrMemoHeader);
-                        exit(true);
-                    end;
-            end;
+        case DocType of
+            CorrSalesHeader."Corrected Doc. Type"::Invoice:
+                if SalesInvoiceHeader.Get(DocNo) then begin
+                    FillSalesInvCorrHeader(CorrSalesHeader, SalesInvoiceHeader);
+                    exit(true);
+                end;
+            CorrSalesHeader."Corrected Doc. Type"::"Credit Memo":
+                if SalesCrMemoHeader.Get(DocNo) then begin
+                    FillSalesCrMemoCorrHeader(CorrSalesHeader, SalesCrMemoHeader);
+                    exit(true);
+                end;
+        end;
         Clear(CorrSalesHeader);
     end;
 
     local procedure GetCorrDocType(CorrSalesHeader: Record "Sales Header"): Integer
     begin
-        with CorrSalesHeader do
-            case "Document Type" of
-                "Document Type"::Invoice:
-                    exit("Corrected Doc. Type"::Invoice);
-                "Document Type"::"Credit Memo":
-                    exit("Corrected Doc. Type"::"Credit Memo");
-            end;
+        case CorrSalesHeader."Document Type" of
+            CorrSalesHeader."Document Type"::Invoice:
+                exit(CorrSalesHeader."Corrected Doc. Type"::Invoice);
+            CorrSalesHeader."Document Type"::"Credit Memo":
+                exit(CorrSalesHeader."Corrected Doc. Type"::"Credit Memo");
+        end;
     end;
 
     [Scope('OnPrem')]
     procedure FillSalesInvCorrHeader(var CorrSalesHeader: Record "Sales Header"; SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
-        with CorrSalesHeader do begin
-            TransferFields(SalesInvoiceHeader);
-            "Document Type" := "Document Type"::Invoice;
-        end;
+        CorrSalesHeader.TransferFields(SalesInvoiceHeader);
+        CorrSalesHeader."Document Type" := CorrSalesHeader."Document Type"::Invoice;
     end;
 
     [Scope('OnPrem')]
     procedure FillSalesCrMemoCorrHeader(var CorrSalesHeader: Record "Sales Header"; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
-        with CorrSalesHeader do begin
-            TransferFields(SalesCrMemoHeader);
-            "Document Type" := "Document Type"::"Credit Memo";
-        end;
+        CorrSalesHeader.TransferFields(SalesCrMemoHeader);
+        CorrSalesHeader."Document Type" := CorrSalesHeader."Document Type"::"Credit Memo";
     end;
 
     [Scope('OnPrem')]
@@ -987,13 +952,11 @@ codeunit 12422 "Corrective Document Mgt."
 
     local procedure GetVendCrMemoLedgEntry(var VendLedgEntry: Record "Vendor Ledger Entry"; PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
     begin
-        with VendLedgEntry do begin
-            SetRange("Vendor No.", PurchCrMemoHdr."Pay-to Vendor No.");
-            SetRange("Document Type", "Document Type"::"Credit Memo");
-            SetRange("Document No.", PurchCrMemoHdr."No.");
-            SetRange("Posting Date", PurchCrMemoHdr."Posting Date");
-            FindFirst();
-        end;
+        VendLedgEntry.SetRange("Vendor No.", PurchCrMemoHdr."Pay-to Vendor No.");
+        VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::"Credit Memo");
+        VendLedgEntry.SetRange("Document No.", PurchCrMemoHdr."No.");
+        VendLedgEntry.SetRange("Posting Date", PurchCrMemoHdr."Posting Date");
+        VendLedgEntry.FindFirst();
     end;
 
     local procedure FindAndSetApplFromItemEntryNo(var SalesLine: Record "Sales Line"; SalesInvoiceLine: Record "Sales Invoice Line")

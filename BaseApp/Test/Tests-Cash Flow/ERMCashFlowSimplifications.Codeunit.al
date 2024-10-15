@@ -22,7 +22,7 @@ codeunit 134550 "ERM Cash Flow Simplifications"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Cash Flow Simplifications");
-        DeleteCashFlowSetup;
+        DeleteCashFlowSetup();
         if IsInitialized then
             exit;
 
@@ -78,10 +78,10 @@ codeunit 134550 "ERM Cash Flow Simplifications"
         Assert.RecordIsEmpty(CashFlowForecastEntry);
 
         // [GIVEN] Mock customer ledger entry
-        LibraryCashFlow.MockCashFlowCustOverdueData;
+        LibraryCashFlow.MockCashFlowCustOverdueData();
 
         // [WHEN] The Cash Flow Forecast is set up using the simplified setup functionality
-        CashFlowManagement.SetupCashFlow(CopyStr(CashFlowManagement.GetCashAccountFilter, 1, 250));
+        CashFlowManagement.SetupCashFlow(CopyStr(CashFlowManagement.GetCashAccountFilter(), 1, 250));
         CashFlowSetup.Get();
         CashFlowManagement.UpdateCashFlowForecast(CashFlowSetup."Azure AI Enabled");
 
@@ -95,7 +95,7 @@ codeunit 134550 "ERM Cash Flow Simplifications"
         Assert.IsTrue(CashFlowForecast.Get(DefaultTxt), 'No DEFAULT Cash Flow Forecast exists');
         Assert.IsTrue(
           CashFlowForecast."Overdue CF Dates to Work Date", 'Move Overdue Cash Flow Dates to Work Date is not enabled by default');
-        Assert.IsTrue(CashFlowForecast.GetShowInChart, 'DEFAULT Cash Flow Forecast is not set to be shown in chart on role center');
+        Assert.IsTrue(CashFlowForecast.GetShowInChart(), 'DEFAULT Cash Flow Forecast is not set to be shown in chart on role center');
 
         Assert.IsTrue(CashFlowAccount.Count >= 12, 'There should be at least 12 Cash Flow Accounts');
     end;
@@ -114,10 +114,10 @@ codeunit 134550 "ERM Cash Flow Simplifications"
         Initialize();
 
         // [GIVEN] A working cash flow forecast setup where "Move Overdue Cash Flow Dates to Work Date" is enabled (default)
-        CashFlowManagement.SetupCashFlow(CopyStr(CashFlowManagement.GetCashAccountFilter, 1, 250));
+        CashFlowManagement.SetupCashFlow(CopyStr(CashFlowManagement.GetCashAccountFilter(), 1, 250));
 
         // [GIVEN] Mock overdue customer entry
-        LibraryCashFlow.MockCashFlowCustOverdueData;
+        LibraryCashFlow.MockCashFlowCustOverdueData();
 
         // [WHEN] The Cash Flow Forecast is updated
         CashFlowSetup.Get();
@@ -169,7 +169,7 @@ codeunit 134550 "ERM Cash Flow Simplifications"
         Initialize();
 
         // [GIVEN] Cash Flow Forecast with "Default G/L Budget Name" = "X"
-        CashFlowManagement.SetupCashFlow(CopyStr(CashFlowManagement.GetCashAccountFilter, 1, 250));
+        CashFlowManagement.SetupCashFlow(CopyStr(CashFlowManagement.GetCashAccountFilter(), 1, 250));
         CashFlowForecast.Get(DefaultTxt);
         LibraryERM.CreateGLBudgetName(GLBudgetName);
         CashFlowForecast.Validate("Default G/L Budget Name", GLBudgetName.Name);

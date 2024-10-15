@@ -761,15 +761,6 @@ page 392 "Phys. Inventory Journal"
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
-#if not CLEAN21
-                actionref("Bin Contents_Promoted"; "Bin Contents")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category7)
             {
@@ -877,6 +868,7 @@ page 392 "Phys. Inventory Journal"
         if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
         SetDimensionsVisibility();
+        SetItemReferenceVisibility();
         if Rec.IsOpenedFromBatch() then begin
             CurrentJnlBatchName := Rec."Journal Batch Name";
             ItemJnlMgt.OpenJnl(CurrentJnlBatchName, Rec);
@@ -898,6 +890,7 @@ page 392 "Phys. Inventory Journal"
         ItemJournalErrorsMgt: Codeunit "Item Journal Errors Mgt.";
         ItemDescription: Text[100];
         BackgroundErrorCheck: Boolean;
+        ItemReferenceVisible: Boolean;
         ShowAllLinesEnabled: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
         EntryTypeErr: Label 'You cannot use entry type %1 in this journal.', Comment = '%1 - Entry Type';
@@ -927,6 +920,13 @@ page 392 "Phys. Inventory Journal"
     begin
         ItemJnlMgt.GetItem(Rec."Item No.", ItemDescription);
         Rec.ShowShortcutDimCode(ShortcutDimCode);
+    end;
+
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReference: Record "Item Reference";
+    begin
+        ItemReferenceVisible := not ItemReference.IsEmpty();
     end;
 
     local procedure SetDimensionsVisibility()

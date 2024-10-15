@@ -10,7 +10,6 @@ codeunit 137010 "SCM Revaluation"
     end;
 
     var
-        LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryCosting: Codeunit "Library - Costing";
         LibraryWarehouse: Codeunit "Library - Warehouse";
@@ -19,14 +18,14 @@ codeunit 137010 "SCM Revaluation"
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        ErrorQtyMustBeEqual: Label 'ErrorQtyMustBeEqual';
-        ErrorCostMustBeEqual: Label 'Cost must be Equal';
-        ErrorGeneratedMustBeSame: Label 'Error Generated Must Be Same';
-        UndoReceiptErrorMessage: Label 'You cannot undo line %1, because a revaluation has already been posted.';
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         InventoryPostingGroup: Code[20];
         isInitialized: Boolean;
+        ErrorQtyMustBeEqual: Label 'ErrorQtyMustBeEqual';
+        ErrorCostMustBeEqual: Label 'Cost must be Equal';
+        ErrorGeneratedMustBeSame: Label 'Error Generated Must Be Same';
+        UndoReceiptErrorMessage: Label 'You cannot undo line %1, because a revaluation has already been posted.';
         ReturnReceiptAlreadyReversedErr: Label 'This return receipt has already been reversed.';
 
     [Test]
@@ -49,7 +48,7 @@ codeunit 137010 "SCM Revaluation"
 
         // Create required Inventory setups and Location.
         Initialize();
-        LocationCode := CreateRequiredSetup;
+        LocationCode := CreateRequiredSetup();
 
         // Create Item and calculate standard cost.
         ItemNo := CreateItem(InventoryPostingGroup);
@@ -114,7 +113,7 @@ codeunit 137010 "SCM Revaluation"
 
         // Create required Inventory setups and Location.
         Initialize();
-        LocationCode := CreateRequiredSetup;
+        LocationCode := CreateRequiredSetup();
 
         // Create Item and calculate standard cost.
         ItemNo := CreateItem(InventoryPostingGroup);
@@ -184,7 +183,7 @@ codeunit 137010 "SCM Revaluation"
 
         // Create required Inventory setups and Location.
         Initialize();
-        LocationCode := CreateRequiredSetup;
+        LocationCode := CreateRequiredSetup();
 
         // Create Item and calculate standard cost.
         ItemNo := CreateItem(InventoryPostingGroup);
@@ -244,7 +243,7 @@ codeunit 137010 "SCM Revaluation"
 
         // Create required Inventory setups and Location.
         Initialize();
-        LocationCode := CreateRequiredSetup;
+        LocationCode := CreateRequiredSetup();
 
         // Create Item and calculate standard cost.
         ItemNo := CreateItem(InventoryPostingGroup);
@@ -309,7 +308,7 @@ codeunit 137010 "SCM Revaluation"
 
         // Create required Inventory setups and Location.
         Initialize();
-        LocationCode := CreateRequiredSetup;
+        LocationCode := CreateRequiredSetup();
 
         // Create Item and calculate standard cost.
         ItemNo := CreateItem(InventoryPostingGroup);
@@ -380,12 +379,11 @@ codeunit 137010 "SCM Revaluation"
     var
         Location: Record Location;
         InventoryPostingGroupRec: Record "Inventory Posting Group";
-        AverageCostCalcType: Option " ",Item,"Item & Location & Variant";
         AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         LibraryInventory.SetAutomaticCostPosting(true);
         LibraryInventory.SetExpectedCostPosting(false);
-        LibraryInventory.SetAutomaticCostAdjmtNever;
+        LibraryInventory.SetAutomaticCostAdjmtNever();
         LibraryInventory.SetAverageCostSetup("Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
@@ -446,7 +444,7 @@ codeunit 137010 "SCM Revaluation"
     begin
         PurchRcptHeader.SetRange("Order No.", PurchaseOrderNo);
         if IsCostRevalued then
-            PurchRcptHeader.FindLast
+            PurchRcptHeader.FindLast()
         else
             PurchRcptHeader.FindFirst();
         PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
@@ -555,8 +553,8 @@ codeunit 137010 "SCM Revaluation"
 
     local procedure CreateItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")
     begin
-        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, SelectItemJournalTemplate);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, SelectItemJournalTemplate());
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
     end;
 
@@ -565,14 +563,13 @@ codeunit 137010 "SCM Revaluation"
     var
         ItemJournalBatch: Record "Item Journal Batch";
         CalculateInventoryValue: Report "Calculate Inventory Value";
-        CalculatePer: Option "Item Ledger Entry",Item;
-        CalculationBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
     begin
         CreateItemJournalBatch(ItemJournalBatch);
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
-        CalculateInventoryValue.InitializeRequest(WorkDate(), ItemJournalLine."Document No.",
-          true, CalculatePer::Item, false, false, true, CalculationBase::" ", false);
+        CalculateInventoryValue.SetParameters(
+            WorkDate(), ItemJournalLine."Document No.", true, "Inventory Value Calc. Per"::Item,
+            false, false, true, "Inventory Value Calc. Base"::" ", false);
         Commit();
         CalculateInventoryValue.UseRequestPage(false);
         CalculateInventoryValue.SetItemJnlLine(ItemJournalLine);

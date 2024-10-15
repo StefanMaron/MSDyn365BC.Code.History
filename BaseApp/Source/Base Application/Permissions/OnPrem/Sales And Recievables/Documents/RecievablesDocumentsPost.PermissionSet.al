@@ -1,6 +1,5 @@
 namespace System.Security.AccessControl;
 
-using Microsoft.Intercompany.Comment;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
@@ -26,6 +25,7 @@ using Microsoft.Sales.Receivables;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Intercompany.Comment;
 using Microsoft.Intercompany.BankAccount;
 using Microsoft.Intercompany.Dimension;
 using Microsoft.Intercompany.GLAccount;

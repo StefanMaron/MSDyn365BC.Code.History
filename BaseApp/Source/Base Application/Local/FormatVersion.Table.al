@@ -2,6 +2,7 @@ table 26573 "Format Version"
 {
     Caption = 'Format Version';
     LookupPageID = "Format Versions";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -5,6 +5,7 @@ using Microsoft.Bank.BankAccount;
 table 1299 "Payment Matching Details"
 {
     Caption = 'Payment Matching Details';
+    DataClassification = CustomerContent;
 
     fields
     {

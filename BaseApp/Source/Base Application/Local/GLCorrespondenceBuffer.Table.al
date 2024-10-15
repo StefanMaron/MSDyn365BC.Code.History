@@ -2,6 +2,7 @@
 {
     Caption = 'G/L Correspondence Buffer';
     TableType = Temporary;
+    DataClassification = CustomerContent;
 
     fields
     {

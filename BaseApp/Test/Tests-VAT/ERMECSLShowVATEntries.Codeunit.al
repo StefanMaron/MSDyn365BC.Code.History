@@ -10,7 +10,6 @@ codeunit 134072 "ERM ECSL Show VAT Entries"
 
     var
         LibraryUtility: Codeunit "Library - Utility";
-        Assert: Codeunit Assert;
 
     [Test]
     [Scope('OnPrem')]
@@ -77,12 +76,12 @@ codeunit 134072 "ERM ECSL Show VAT Entries"
     var
         VATReportHeader: Record "VAT Report Header";
     begin
-        MockVATReportConfiguration;
+        MockVATReportConfiguration();
         VATReportHeader.Init();
         VATReportHeader."No." := LibraryUtility.GenerateGUID();
         VATReportHeader."VAT Report Config. Code" := VATReportHeader."VAT Report Config. Code"::"EC Sales List";
         VATReportHeader.Status := VATReportHeader.Status::Open;
-        VATReportHeader.Insert;
+        VATReportHeader.Insert();
         ECSLVATReportLine.Init();
         ECSLVATReportLine."Report No." := VATReportHeader."No.";
         ECSLVATReportLine."Line No." := 10000;

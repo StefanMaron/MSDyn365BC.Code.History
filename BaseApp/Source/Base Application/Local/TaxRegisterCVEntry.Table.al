@@ -1,6 +1,7 @@
 table 17210 "Tax Register CV Entry"
 {
     Caption = 'Tax Register CV Entry';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -112,7 +113,6 @@ table 17210 "Tax Register CV Entry"
     }
 
     var
-        TaxRegMgt: Codeunit "Tax Register Mgt.";
 
     [Scope('OnPrem')]
     procedure ObjectName(): Text[100]

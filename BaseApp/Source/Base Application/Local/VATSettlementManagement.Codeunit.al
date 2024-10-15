@@ -238,22 +238,20 @@ codeunit 12411 "VAT Settlement Management"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            EntryCount := 0;
-            SetCurrentKey("Unrealized VAT Entry No.");
-            SetRange("Unrealized VAT Entry No.", UnrealVATEntryNo);
-            if FindSet() then
-                repeat
-                    if (not Correction) and
-                       (not Reversed) and ("VAT Settlement Part" <> "VAT Settlement Part"::" ")
-                    then
-                        if "VAT Settlement Part" = VATSettlementPart then
-                            EntryCount := EntryCount + 1
-                        else
-                            Error(Text14711, FieldCaption("VAT Settlement Part"), "VAT Settlement Part",
-                              FieldCaption("Unrealized VAT Entry No."), "Unrealized VAT Entry No.");
-                until Next() = 0;
-        end;
+        EntryCount := 0;
+        VATEntry.SetCurrentKey("Unrealized VAT Entry No.");
+        VATEntry.SetRange("Unrealized VAT Entry No.", UnrealVATEntryNo);
+        if VATEntry.FindSet() then
+            repeat
+                if (not VATEntry.Correction) and
+                   (not VATEntry.Reversed) and (VATEntry."VAT Settlement Part" <> VATEntry."VAT Settlement Part"::" ")
+                then
+                    if VATEntry."VAT Settlement Part" = VATSettlementPart then
+                        EntryCount := EntryCount + 1
+                    else
+                        Error(Text14711, VATEntry.FieldCaption("VAT Settlement Part"), VATEntry."VAT Settlement Part",
+                          VATEntry.FieldCaption("Unrealized VAT Entry No."), VATEntry."Unrealized VAT Entry No.");
+            until VATEntry.Next() = 0;
     end;
 
     local procedure GetPeriodCount(VATSettlementPart: Option " ",Full,"1/6","1/12","28FL") PeriodCount: Integer
@@ -476,11 +474,9 @@ codeunit 12411 "VAT Settlement Management"
     begin
         if VATSettlementPart <> 0 then
             exit(false);
-        with VATEntry do begin
-            if VATBusPostingGroup.Get("VAT Bus. Posting Group") then
-                if VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
-                    exit(VATPostingSetup."Manual VAT Settlement");
-        end;
+        if VATBusPostingGroup.Get(VATEntry."VAT Bus. Posting Group") then
+            if VATPostingSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group") then
+                exit(VATPostingSetup."Manual VAT Settlement");
     end;
 
     [Scope('OnPrem')]
@@ -488,15 +484,13 @@ codeunit 12411 "VAT Settlement Management"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetCurrentKey("Unrealized VAT Entry No.");
-            SetRange("Unrealized VAT Entry No.", UnrealVATEntryNo);
-            if Find('+') then
-                repeat
-                    if (not Reversed) and ("VAT Settlement Part" > "VAT Settlement Part"::" ") then
-                        exit("VAT Settlement Part");
-                until Next(-1) = 0;
-        end;
+        VATEntry.SetCurrentKey("Unrealized VAT Entry No.");
+        VATEntry.SetRange("Unrealized VAT Entry No.", UnrealVATEntryNo);
+        if VATEntry.Find('+') then
+            repeat
+                if (not VATEntry.Reversed) and (VATEntry."VAT Settlement Part" > VATEntry."VAT Settlement Part"::" ") then
+                    exit(VATEntry."VAT Settlement Part");
+            until VATEntry.Next(-1) = 0;
         exit(0);
     end;
 
@@ -739,86 +733,84 @@ codeunit 12411 "VAT Settlement Management"
         PostingDate: Date;
         CVEntryType: Option " ",Purchase,Sale;
     begin
-        with TempVATDocBuf do begin
-            VATDocEntryBuffer.CopyFilters(TempVATDocBuf);
-            DeleteAll();
-            Window.Open('@1@@@@@@@@@@@@@@@');
+        VATDocEntryBuffer.CopyFilters(TempVATDocBuf);
+        TempVATDocBuf.DeleteAll();
+        Window.Open('@1@@@@@@@@@@@@@@@');
 
-            VATEntry.Reset();
-            case Type of
-                Type::Purchase:
-                    VATEntry.SetRange(Type, Type::Purchase);
-                Type::Sale:
-                    VATEntry.SetRange(Type, Type::Sale);
-                Type::"Fixed Asset":
-                    VATEntry.SetRange("VAT Settlement Type", VATEntry."VAT Settlement Type"::"by Act");
-                Type::"Future Expense":
-                    VATEntry.SetRange("VAT Settlement Type", VATEntry."VAT Settlement Type"::"Future Expenses");
-            end;
-            if Type in [Type::"Fixed Asset", Type::"Future Expense"] then
-                VATEntry.SetRange("Object Type", VATEntry."Object Type"::"Fixed Asset")
-            else
-                VATEntry.SetFilter("Object Type", '<>%1', VATEntry."Object Type"::"Fixed Asset");
-            VATEntry.SetRange(Reversed, false);
-            VATEntry.SetRange("Unrealized VAT Entry No.", 0);
-            VATEntry.SetFilter("Posting Date", GetFilter("Date Filter"));
-            VATEntry.SetFilter("VAT Bus. Posting Group", GetFilter("VAT Bus. Posting Group Filter"));
-            VATEntry.SetFilter("VAT Prod. Posting Group", GetFilter("VAT Prod. Posting Group Filter"));
-            VATEntry.SetRange(Base, 0);
-            VATEntry.SetFilter("Remaining Unrealized Amount", '<>%1', 0);
-            VATEntry.SetRange("Manual VAT Settlement", true);
-            I := 0;
-            VATCount := VATEntry.Count();
-            if VATEntry.FindSet() then
-                repeat
-                    I += 1;
-                    Window.Update(1, Round(I / VATCount * 10000, 1));
-                    PostingDate := GetRangeMax("Date Filter");
-                    if CheckFixedAsset(VATEntry, PostingDate, Type) then
-                        if VATPostingSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group") then
-                            // IF VATPostingSetup."Manual VAT Settlement" THEN
-                            if VATEntry.FindCVEntry(CVEntryType, CVEntryNo) then begin
-                                case CVEntryType of
-                                    CVEntryType::Purchase:
-                                        begin
-                                            VendLedgEntry.Get(CVEntryNo);
-                                            VendLedgEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)");
-                                            TransferFields(VendLedgEntry);
-                                            "Amount (LCY)" := VendLedgEntry."Amount (LCY)";
-                                            "Remaining Amt. (LCY)" := VendLedgEntry."Remaining Amt. (LCY)";
-                                            "Table ID" := DATABASE::"Vendor Ledger Entry";
-                                            Vend.Get(VendLedgEntry."Vendor No.");
-                                            "CV Name" := Vend.Name;
-                                            DimSetID := VendLedgEntry."Dimension Set ID";
-                                        end;
-                                    CVEntryType::Sale:
-                                        begin
-                                            CustLedgEntry.Get(CVEntryNo);
-                                            CustLedgEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)");
-                                            TransferFields(CustLedgEntry);
-                                            "Amount (LCY)" := CustLedgEntry."Amount (LCY)";
-                                            "Remaining Amt. (LCY)" := CustLedgEntry."Remaining Amt. (LCY)";
-                                            "Table ID" := DATABASE::"Cust. Ledger Entry";
-                                            Cust.Get(CustLedgEntry."Customer No.");
-                                            "CV Name" := Cust.Name;
-                                            DimSetID := CustLedgEntry."Dimension Set ID";
-                                        end;
-                                end;
-                                "Entry Type" := CVEntryType;
-                                "Document Date" := "Posting Date";
-                                if PostingDate > "Posting Date" then
-                                    "Posting Date" := PostingDate;
-                                CreateAllocation(VATEntry."Entry No.");
-                                RecalculateAllocation(VATEntry."Entry No.", "Posting Date");
-                                MergeEntryDimSetIDWithVATAllocationDim(VATEntry."Entry No.", DimSetID);
-                                CalcFields("VAT Amount To Allocate");
-                                "Allocated VAT Amount" := "VAT Amount To Allocate";
-                                if Insert then
-                                    FillCVEntryNo("Transaction No.", "Entry No.");
-                            end;
-                until VATEntry.Next() = 0;
-            Window.Close();
+        VATEntry.Reset();
+        case Type of
+            Type::Purchase:
+                VATEntry.SetRange(Type, Type::Purchase);
+            Type::Sale:
+                VATEntry.SetRange(Type, Type::Sale);
+            Type::"Fixed Asset":
+                VATEntry.SetRange("VAT Settlement Type", VATEntry."VAT Settlement Type"::"by Act");
+            Type::"Future Expense":
+                VATEntry.SetRange("VAT Settlement Type", VATEntry."VAT Settlement Type"::"Future Expenses");
         end;
+        if Type in [Type::"Fixed Asset", Type::"Future Expense"] then
+            VATEntry.SetRange("Object Type", VATEntry."Object Type"::"Fixed Asset")
+        else
+            VATEntry.SetFilter("Object Type", '<>%1', VATEntry."Object Type"::"Fixed Asset");
+        VATEntry.SetRange(Reversed, false);
+        VATEntry.SetRange("Unrealized VAT Entry No.", 0);
+        VATEntry.SetFilter("Posting Date", TempVATDocBuf.GetFilter("Date Filter"));
+        VATEntry.SetFilter("VAT Bus. Posting Group", TempVATDocBuf.GetFilter("VAT Bus. Posting Group Filter"));
+        VATEntry.SetFilter("VAT Prod. Posting Group", TempVATDocBuf.GetFilter("VAT Prod. Posting Group Filter"));
+        VATEntry.SetRange(Base, 0);
+        VATEntry.SetFilter("Remaining Unrealized Amount", '<>%1', 0);
+        VATEntry.SetRange("Manual VAT Settlement", true);
+        I := 0;
+        VATCount := VATEntry.Count();
+        if VATEntry.FindSet() then
+            repeat
+                I += 1;
+                Window.Update(1, Round(I / VATCount * 10000, 1));
+                PostingDate := TempVATDocBuf.GetRangeMax("Date Filter");
+                if CheckFixedAsset(VATEntry, PostingDate, Type) then
+                    if VATPostingSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group") then
+                        // IF VATPostingSetup."Manual VAT Settlement" THEN
+                        if VATEntry.FindCVEntry(CVEntryType, CVEntryNo) then begin
+                            case CVEntryType of
+                                CVEntryType::Purchase:
+                                    begin
+                                        VendLedgEntry.Get(CVEntryNo);
+                                        VendLedgEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)");
+                                        TempVATDocBuf.TransferFields(VendLedgEntry);
+                                        TempVATDocBuf."Amount (LCY)" := VendLedgEntry."Amount (LCY)";
+                                        TempVATDocBuf."Remaining Amt. (LCY)" := VendLedgEntry."Remaining Amt. (LCY)";
+                                        TempVATDocBuf."Table ID" := DATABASE::"Vendor Ledger Entry";
+                                        Vend.Get(VendLedgEntry."Vendor No.");
+                                        TempVATDocBuf."CV Name" := Vend.Name;
+                                        DimSetID := VendLedgEntry."Dimension Set ID";
+                                    end;
+                                CVEntryType::Sale:
+                                    begin
+                                        CustLedgEntry.Get(CVEntryNo);
+                                        CustLedgEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)");
+                                        TempVATDocBuf.TransferFields(CustLedgEntry);
+                                        TempVATDocBuf."Amount (LCY)" := CustLedgEntry."Amount (LCY)";
+                                        TempVATDocBuf."Remaining Amt. (LCY)" := CustLedgEntry."Remaining Amt. (LCY)";
+                                        TempVATDocBuf."Table ID" := DATABASE::"Cust. Ledger Entry";
+                                        Cust.Get(CustLedgEntry."Customer No.");
+                                        TempVATDocBuf."CV Name" := Cust.Name;
+                                        DimSetID := CustLedgEntry."Dimension Set ID";
+                                    end;
+                            end;
+                            TempVATDocBuf."Entry Type" := "General Posting Type".FromInteger(CVEntryType);
+                            TempVATDocBuf."Document Date" := TempVATDocBuf."Posting Date";
+                            if PostingDate > TempVATDocBuf."Posting Date" then
+                                TempVATDocBuf."Posting Date" := PostingDate;
+                            CreateAllocation(VATEntry."Entry No.");
+                            RecalculateAllocation(VATEntry."Entry No.", TempVATDocBuf."Posting Date");
+                            MergeEntryDimSetIDWithVATAllocationDim(VATEntry."Entry No.", DimSetID);
+                            TempVATDocBuf.CalcFields("VAT Amount To Allocate");
+                            TempVATDocBuf."Allocated VAT Amount" := TempVATDocBuf."VAT Amount To Allocate";
+                            if TempVATDocBuf.Insert() then
+                                FillCVEntryNo(TempVATDocBuf."Transaction No.", TempVATDocBuf."Entry No.");
+                        end;
+            until VATEntry.Next() = 0;
+        Window.Close();
     end;
 
     [Scope('OnPrem')]
@@ -924,24 +916,22 @@ codeunit 12411 "VAT Settlement Management"
         Mode: Option Any,Depreciation,General;
     begin
         VATEntry.Get(VATEntryNo);
-        with VATAllocLine do begin
-            SetFilter("Posting Date Filter", VATDocEntryBuffer.GetFilter("Date Filter"));
-            Init();
-            "Line No." := 10000;
-            Validate("VAT Entry No.", VATEntryNo);
-            "Allocation %" := 100;
-            Base := Base::Remaining;
-            if VATEntry."Object Type" = VATEntry."Object Type"::"Fixed Asset" then begin
-                "VAT Settlement Type" := VATEntry."VAT Settlement Type";
-                if "VAT Settlement Type" = "VAT Settlement Type"::"Future Expenses" then begin
-                    GetFPEMode(VATEntryNo, Mode);
-                    if Mode <> Mode::General then
-                        Base := Base::Depreciation;
-                end;
+        VATAllocLine.SetFilter("Posting Date Filter", VATDocEntryBuffer.GetFilter("Date Filter"));
+        VATAllocLine.Init();
+        VATAllocLine."Line No." := 10000;
+        VATAllocLine.Validate("VAT Entry No.", VATEntryNo);
+        VATAllocLine."Allocation %" := 100;
+        VATAllocLine.Base := VATAllocLine.Base::Remaining;
+        if VATEntry."Object Type" = VATEntry."Object Type"::"Fixed Asset" then begin
+            VATAllocLine."VAT Settlement Type" := VATEntry."VAT Settlement Type";
+            if VATAllocLine."VAT Settlement Type" = VATAllocLine."VAT Settlement Type"::"Future Expenses" then begin
+                GetFPEMode(VATEntryNo, Mode);
+                if Mode <> Mode::General then
+                    VATAllocLine.Base := VATAllocLine.Base::Depreciation;
             end;
-            Validate(Base);
-            Insert();
         end;
+        VATAllocLine.Validate(Base);
+        VATAllocLine.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -966,34 +956,32 @@ codeunit 12411 "VAT Settlement Management"
         VATAllocLine: Record "VAT Allocation Line";
         LineNo: Integer;
     begin
-        with VATAllocLine do begin
-            SetFilter("Posting Date Filter", VATDocEntryBuffer.GetFilter("Date Filter"));
-            LineNo := 0;
-            DefaultVATAlloc.FindSet();
-            repeat
-                LineNo := LineNo + 10000;
-                Init();
-                "Line No." := LineNo;
-                Validate("VAT Entry No.", VATEntry."Entry No.");
-                "CV Ledger Entry No." := VATEntry."CV Ledg. Entry No.";
-                Type := DefaultVATAlloc.Type;
-                "Account No." := DefaultVATAlloc."Account No.";
-                if "Account No." = '' then
-                    Validate(Type);
-                if DefaultVATAlloc.Description <> '' then
-                    Description := DefaultVATAlloc.Description;
-                "Recurring Frequency" := DefaultVATAlloc."Recurring Frequency";
-                "Shortcut Dimension 1 Code" := DefaultVATAlloc."Shortcut Dimension 1 Code";
-                "Shortcut Dimension 2 Code" := DefaultVATAlloc."Shortcut Dimension 2 Code";
-                "Dimension Set ID" := DefaultVATAlloc."Dimension Set ID";
-                "Allocation %" := DefaultVATAlloc."Allocation %";
-                Amount := DefaultVATAlloc.Amount;
-                Validate(Base, DefaultVATAlloc.Base);
-                if VATEntry."Object Type" = VATEntry."Object Type"::"Fixed Asset" then
-                    "VAT Settlement Type" := VATEntry."VAT Settlement Type";
-                Insert();
-            until DefaultVATAlloc.Next() = 0;
-        end;
+        VATAllocLine.SetFilter("Posting Date Filter", VATDocEntryBuffer.GetFilter("Date Filter"));
+        LineNo := 0;
+        DefaultVATAlloc.FindSet();
+        repeat
+            LineNo := LineNo + 10000;
+            VATAllocLine.Init();
+            VATAllocLine."Line No." := LineNo;
+            VATAllocLine.Validate("VAT Entry No.", VATEntry."Entry No.");
+            VATAllocLine."CV Ledger Entry No." := VATEntry."CV Ledg. Entry No.";
+            VATAllocLine.Type := DefaultVATAlloc.Type;
+            VATAllocLine."Account No." := DefaultVATAlloc."Account No.";
+            if VATAllocLine."Account No." = '' then
+                VATAllocLine.Validate(Type);
+            if DefaultVATAlloc.Description <> '' then
+                VATAllocLine.Description := DefaultVATAlloc.Description;
+            VATAllocLine."Recurring Frequency" := DefaultVATAlloc."Recurring Frequency";
+            VATAllocLine."Shortcut Dimension 1 Code" := DefaultVATAlloc."Shortcut Dimension 1 Code";
+            VATAllocLine."Shortcut Dimension 2 Code" := DefaultVATAlloc."Shortcut Dimension 2 Code";
+            VATAllocLine."Dimension Set ID" := DefaultVATAlloc."Dimension Set ID";
+            VATAllocLine."Allocation %" := DefaultVATAlloc."Allocation %";
+            VATAllocLine.Amount := DefaultVATAlloc.Amount;
+            VATAllocLine.Validate(Base, DefaultVATAlloc.Base);
+            if VATEntry."Object Type" = VATEntry."Object Type"::"Fixed Asset" then
+                VATAllocLine."VAT Settlement Type" := VATEntry."VAT Settlement Type";
+            VATAllocLine.Insert();
+        until DefaultVATAlloc.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1031,7 +1019,7 @@ codeunit 12411 "VAT Settlement Management"
                 VATAllocLine.Amount := Round(TotalAmount) - TotalAmountRnded;
                 TotalAmountRnded := TotalAmountRnded + VATAllocLine.Amount;
                 VATAllocLine.Modify();
-                VATAllocLine.CheckVATAllocation;
+                VATAllocLine.CheckVATAllocation();
                 SetDateFormula(MinDateFormula, VATAllocLine."Recurring Frequency");
             until VATAllocLine.Next() = 0;
         if Format(MinDateFormula) <> '' then
@@ -1219,29 +1207,27 @@ codeunit 12411 "VAT Settlement Management"
         TableID: array[10] of Integer;
         AccNo: array[10] of Code[20];
     begin
-        with VATAllocLine do begin
-            SetRange("VAT Entry No.", GenJnlLine."Unrealized VAT Entry No.");
-            if FindSet() then
-                repeat
-                    TestField("Account No.");
-                    TestField(Amount);
-                    TableID[1] := DATABASE::"G/L Account";
-                    AccNo[1] := "Account No.";
-                    if not DimMgt.CheckDimValuePosting(TableID, AccNo, "Dimension Set ID") then
-                        Error(
-                          Text14716,
-                          TableCaption, "VAT Entry No.", "Line No.",
-                          DimMgt.GetDimValuePostingErr());
-                    TableID[1] := DATABASE::"G/L Account";
-                    AccNo[1] := "VAT Unreal. Account No.";
-                    if not DimMgt.CheckDimValuePosting(TableID, AccNo, "Dimension Set ID") then
-                        Error(
-                          Text14717,
-                          GenJnlLine.TableCaption(), GenJnlLine."Journal Template Name",
-                          GenJnlLine."Journal Batch Name", GenJnlLine."Line No.",
-                          DimMgt.GetDimValuePostingErr())
-                until Next() = 0;
-        end;
+        VATAllocLine.SetRange("VAT Entry No.", GenJnlLine."Unrealized VAT Entry No.");
+        if VATAllocLine.FindSet() then
+            repeat
+                VATAllocLine.TestField("Account No.");
+                VATAllocLine.TestField(Amount);
+                TableID[1] := DATABASE::"G/L Account";
+                AccNo[1] := VATAllocLine."Account No.";
+                if not DimMgt.CheckDimValuePosting(TableID, AccNo, VATAllocLine."Dimension Set ID") then
+                    Error(
+                      Text14716,
+                      VATAllocLine.TableCaption, VATAllocLine."VAT Entry No.", VATAllocLine."Line No.",
+                      DimMgt.GetDimValuePostingErr());
+                TableID[1] := DATABASE::"G/L Account";
+                AccNo[1] := VATAllocLine."VAT Unreal. Account No.";
+                if not DimMgt.CheckDimValuePosting(TableID, AccNo, VATAllocLine."Dimension Set ID") then
+                    Error(
+                      Text14717,
+                      GenJnlLine.TableCaption(), GenJnlLine."Journal Template Name",
+                      GenJnlLine."Journal Batch Name", GenJnlLine."Line No.",
+                      DimMgt.GetDimValuePostingErr())
+            until VATAllocLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1249,42 +1235,38 @@ codeunit 12411 "VAT Settlement Management"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetCurrentKey("Unrealized VAT Entry No.");
-            SetRange("Unrealized VAT Entry No.", UnrealVATEntryNo);
-            SetRange(Reversed, false);
-            if FindLast() then begin
-                if "FA Ledger Entry No." = 0 then
-                    Mode := Mode::General
-                else
-                    Mode := Mode::Depreciation;
-            end else
-                Mode := Mode::Any;
-        end;
+        VATEntry.SetCurrentKey("Unrealized VAT Entry No.");
+        VATEntry.SetRange("Unrealized VAT Entry No.", UnrealVATEntryNo);
+        VATEntry.SetRange(Reversed, false);
+        if VATEntry.FindLast() then begin
+            if VATEntry."FA Ledger Entry No." = 0 then
+                Mode := Mode::General
+            else
+                Mode := Mode::Depreciation;
+        end else
+            Mode := Mode::Any;
     end;
 
     local procedure MergeEntryDimSetIDWithVATAllocationDim(VATEntryNo: Integer; DimSetID: Integer)
     var
         VATAllocationLine: Record "VAT Allocation Line";
     begin
-        with VATAllocationLine do begin
-            SetRange("VAT Entry No.", VATEntryNo);
-            if FindSet(true) then
-                repeat
-                    "Dimension Set ID" := GetCombinedDimSetID(
-                        "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
-                        "Dimension Set ID", DimSetID, GetVATEntryDimSetID(VATEntryNo));
-                    Modify(true);
-                until Next() = 0;
-        end;
+        VATAllocationLine.SetRange("VAT Entry No.", VATEntryNo);
+        if VATAllocationLine.FindSet(true) then
+            repeat
+                VATAllocationLine."Dimension Set ID" := GetCombinedDimSetID(
+                    VATAllocationLine."Shortcut Dimension 1 Code", VATAllocationLine."Shortcut Dimension 2 Code",
+                    VATAllocationLine."Dimension Set ID", DimSetID, GetVATEntryDimSetID(VATEntryNo));
+                VATAllocationLine.Modify(true);
+            until VATAllocationLine.Next() = 0;
     end;
 
     local procedure UpdateGenJnlLineDimSetID(var GenJournalLine: Record "Gen. Journal Line"; VATEntryNo: Integer)
     begin
-        with GenJournalLine do
-            "Dimension Set ID" := GetCombinedDimSetID(
-                "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
-                "Dimension Set ID", GetVATEntryDimSetID(VATEntryNo), 0);
+        GenJournalLine."Dimension Set ID" :=
+            GetCombinedDimSetID(
+                GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code",
+                GenJournalLine."Dimension Set ID", GetVATEntryDimSetID(VATEntryNo), 0);
     end;
 
     local procedure GetCombinedDimSetID(var ShortcutDimensionCode1: Code[20]; var ShortcutDimensionCode2: Code[20]; DimSetID1: Integer; DimSetID2: Integer; DimSetID3: Integer): Integer

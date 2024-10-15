@@ -99,19 +99,17 @@ report 14978 "Transfer Shipment TORG-13"
         BodyDetails: array[6] of Text;
         AmountValues: array[4] of Decimal;
     begin
-        with "Transfer Shipment Line" do begin
-            AmountValues[1] := TotalCost;
-            AmountValues[2] := Quantity;
-            AmountValues[3] := GrossWeight;
-            AmountValues[4] := NetWeight;
+        AmountValues[1] := TotalCost;
+        AmountValues[2] := "Transfer Shipment Line".Quantity;
+        AmountValues[3] := GrossWeight;
+        AmountValues[4] := NetWeight;
 
-            BodyDetails[1] := Description;
-            BodyDetails[2] := "Item No.";
-            BodyDetails[3] := StdRepMgt.GetUoMDesc("Unit of Measure Code");
-            BodyDetails[4] := "Unit of Measure Code";
-            BodyDetails[5] := Format(Item."Units per Parcel");
-            BodyDetails[6] := Format(Item."Unit Cost");
-        end;
+        BodyDetails[1] := "Transfer Shipment Line".Description;
+        BodyDetails[2] := "Transfer Shipment Line"."Item No.";
+        BodyDetails[3] := StdRepMgt.GetUoMDesc("Transfer Shipment Line"."Unit of Measure Code");
+        BodyDetails[4] := "Transfer Shipment Line"."Unit of Measure Code";
+        BodyDetails[5] := Format(Item."Units per Parcel");
+        BodyDetails[6] := Format(Item."Unit Cost");
 
         TORG13Helper.FillLine(BodyDetails, AmountValues);
     end;

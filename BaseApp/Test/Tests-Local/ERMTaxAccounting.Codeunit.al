@@ -44,13 +44,13 @@ codeunit 144515 "ERM Tax Accounting"
         // Setup:
         Initialize();
 
-        LibraryTaxAcc.PrepareTaxDiffDeprBonusSetup;
+        LibraryTaxAcc.PrepareTaxDiffDeprBonusSetup();
         LibraryTaxAcc.CreateTaxDiffJnlSetup(TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
         CreateFixedAsset(FixedAsset);
-        CreateTaxDiffDeprBonusEntry(FixedAsset."No.", WorkDate(), WorkDate, FixedAsset."Tax Difference Code", 100);
+        CreateTaxDiffDeprBonusEntry(FixedAsset."No.", WorkDate(), WorkDate(), FixedAsset."Tax Difference Code", 100);
 
         // Exercise:
-        RunCalcTaxDiffDeprBonusReport(FixedAsset, WorkDate(), WorkDate, TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
+        RunCalcTaxDiffDeprBonusReport(FixedAsset, WorkDate(), WorkDate(), TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
 
         // Verify:
         TaxRegisterSetup.Get();
@@ -68,10 +68,10 @@ codeunit 144515 "ERM Tax Accounting"
         // Setup:
         Initialize();
 
-        LibraryTaxAcc.PrepareTaxDiffFASetup;
+        LibraryTaxAcc.PrepareTaxDiffFASetup();
         LibraryTaxAcc.CreateTaxDiffJnlSetup(TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
         CreateFixedAsset(FixedAsset);
-        CreateTaxDiffFAEntry(FixedAsset."No.", WorkDate(), WorkDate, FixedAsset."Tax Difference Code", 100);
+        CreateTaxDiffFAEntry(FixedAsset."No.", WorkDate(), WorkDate(), FixedAsset."Tax Difference Code", 100);
 
         // Exercise:
         RunCalcTaxDiffFAReport(FixedAsset, WorkDate(), TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
@@ -92,13 +92,13 @@ codeunit 144515 "ERM Tax Accounting"
         // Setup:
         Initialize();
 
-        LibraryTaxAcc.PrepareTaxDiffDisposalSetup;
+        LibraryTaxAcc.PrepareTaxDiffDisposalSetup();
         LibraryTaxAcc.CreateTaxDiffJnlSetup(TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
         CreateFixedAsset(FixedAsset);
-        CreateTaxDiffDisposalEntry(FixedAsset."No.", WorkDate(), WorkDate, FixedAsset."Tax Difference Code", 100);
+        CreateTaxDiffDisposalEntry(FixedAsset."No.", WorkDate(), WorkDate(), FixedAsset."Tax Difference Code", 100);
 
         // Exercise:
-        RunCalcTaxDiffDisposedFAReport(FixedAsset, WorkDate(), WorkDate, TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
+        RunCalcTaxDiffDisposedFAReport(FixedAsset, WorkDate(), WorkDate(), TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
 
         // Verify:
         TaxRegisterSetup.Get();
@@ -116,13 +116,13 @@ codeunit 144515 "ERM Tax Accounting"
         // Setup:
         Initialize();
 
-        LibraryTaxAcc.PrepareTaxDiffDeprFESetup;
+        LibraryTaxAcc.PrepareTaxDiffDeprFESetup();
         LibraryTaxAcc.CreateTaxDiffJnlSetup(TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
         CreateFutureExpense(FutureExpense);
-        CreateTaxDiffFEDeprEntry(FutureExpense."No.", WorkDate(), WorkDate, 100);
+        CreateTaxDiffFEDeprEntry(FutureExpense."No.", WorkDate(), WorkDate(), 100);
 
         // Exercise:
-        RunCalcTaxDiffDeprFEReport(FutureExpense, WorkDate(), WorkDate, TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
+        RunCalcTaxDiffDeprFEReport(FutureExpense, WorkDate(), WorkDate(), TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
 
         // Verify:
         VerifyTaxDiffJnl(TaxDiffJnlTemplateName, TaxDiffJnlBatchName, '', 1);
@@ -195,7 +195,7 @@ codeunit 144515 "ERM Tax Accounting"
     var
         CalcTaxDiffDeprBonusReport: Report "Calc. Tax Diff.- Depr. Bonus";
     begin
-        ClearTaxDiffJnlLine;
+        ClearTaxDiffJnlLine();
         FixedAsset.SetRange("No.", FixedAsset."No.");
         CalcTaxDiffDeprBonusReport.SetTableView(FixedAsset);
         CalcTaxDiffDeprBonusReport.InitializeRequest(
@@ -208,7 +208,7 @@ codeunit 144515 "ERM Tax Accounting"
     var
         CalcTaxDiffFAReport: Report "Calculate Tax Diff. for FA";
     begin
-        ClearTaxDiffJnlLine;
+        ClearTaxDiffJnlLine();
         FixedAsset.SetRange("No.", FixedAsset."No.");
         CalcTaxDiffFAReport.SetTableView(FixedAsset);
         CalcTaxDiffFAReport.InitializeRequest(
@@ -221,7 +221,7 @@ codeunit 144515 "ERM Tax Accounting"
     var
         CalcTaxDiffDisposedFAReport: Report "Calc. Tax Diff.- Disposed FA";
     begin
-        ClearTaxDiffJnlLine;
+        ClearTaxDiffJnlLine();
         FixedAsset.SetRange("No.", FixedAsset."No.");
         CalcTaxDiffDisposedFAReport.SetTableView(FixedAsset);
         CalcTaxDiffDisposedFAReport.InitializeRequest(
@@ -234,7 +234,7 @@ codeunit 144515 "ERM Tax Accounting"
     var
         CalcTaxDiffFEReport: Report "Calculate Tax Diff. for FE";
     begin
-        ClearTaxDiffJnlLine;
+        ClearTaxDiffJnlLine();
         FutureExpense.SetRange("No.", FutureExpense."No.");
         CalcTaxDiffFEReport.SetTableView(FutureExpense);
         CalcTaxDiffFEReport.InitializeRequest(
@@ -274,7 +274,7 @@ codeunit 144515 "ERM Tax Accounting"
     begin
         with FALedgerEntry do begin
             Init();
-            "Entry No." := GetLastFALedgerEntryNo + 1;
+            "Entry No." := GetLastFALedgerEntryNo() + 1;
             "FA No." := FANo;
             "Depreciation Book Code" := DeprBookCode;
             "FA Posting Date" := FAPostingDate;
@@ -482,7 +482,7 @@ codeunit 144515 "ERM Tax Accounting"
     begin
         with GLCorrEntry do begin
             Init();
-            Validate("Entry No.", GetLastGLCorrEntryNo + 10000);
+            Validate("Entry No.", GetLastGLCorrEntryNo() + 10000);
             Validate("Posting Date", PostingDate);
             Validate("Debit Account No.", AccountNo);
             Validate("Credit Account No.", BalAccountNo);

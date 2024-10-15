@@ -37,16 +37,15 @@ codeunit 79 "Sales-Post and Send"
 
         OnBeforePostAndSend(SalesHeader, HideDialog, TempDocumentSendingProfile);
         if not HideDialog then
-            with SalesHeader do
-                case "Document Type" of
-                    "Document Type"::Invoice,
-                  "Document Type"::"Credit Memo",
-                  "Document Type"::Order:
-                        if not ConfirmPostAndSend(SalesHeader, TempDocumentSendingProfile) then
-                            exit;
-                    else
-                        Error(NotSupportedDocumentTypeErr, "Document Type");
-                end;
+            case SalesHeader."Document Type" of
+                SalesHeader."Document Type"::Invoice,
+                  SalesHeader."Document Type"::"Credit Memo",
+                  SalesHeader."Document Type"::Order:
+                    if not ConfirmPostAndSend(SalesHeader, TempDocumentSendingProfile) then
+                        exit;
+                else
+                    Error(NotSupportedDocumentTypeErr, SalesHeader."Document Type");
+            end;
         OnCodeOnAfterConfirmPostAndSend(SalesHeader);
 
         TempDocumentSendingProfile.CheckElectronicSendingEnabled();

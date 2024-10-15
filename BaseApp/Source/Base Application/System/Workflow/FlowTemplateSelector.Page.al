@@ -56,7 +56,7 @@ page 6400 "Flow Template Selector"
                                       FlowServiceManagement.GetFlowTemplatePageSize(), FlowServiceManagement.GetFlowTemplateDestinationDetails());
                             end;
                         }
-                        usercontrol(FlowAddin; "Microsoft.Dynamics.Nav.Client.FlowIntegration")
+                        usercontrol(FlowAddin; FlowIntegration)
                         {
                             ApplicationArea = Basic, Suite;
 

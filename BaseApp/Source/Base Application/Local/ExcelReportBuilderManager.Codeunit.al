@@ -17,23 +17,20 @@ codeunit 14930 "Excel Report Builder Manager"
             Error(SheetNameExceedsMaxLengthErr, Format(MaxStrLen(TempExcelTemplateSheetBuffer."Sheet Name")));
 
         ReportBuilder.SetSheet(SheetName);
-
         // Buffer that store sheet size info
-        with TempExcelTemplateSheetBuffer do begin
-            // Save current values
-            if "Sheet Name" <> '' then
-                Modify();
+        // Save current values
+        if TempExcelTemplateSheetBuffer."Sheet Name" <> '' then
+            TempExcelTemplateSheetBuffer.Modify();
 
-            if not Get(SheetName) then begin
-                ExcelTemplateSheet.Get(TemplateCode, SheetName);
+        if not TempExcelTemplateSheetBuffer.Get(SheetName) then begin
+            ExcelTemplateSheet.Get(TemplateCode, SheetName);
 
-                Init();
-                "Sheet Name" := CopyStr(SheetName, 1, MaxStrLen("Sheet Name"));
-                "Paper Height" := ExcelTemplateSheet."Paper Height";
-                "Current Paper Height" := ExcelTemplateSheet."Paper Height";
-                "Last Page No." := 1;
-                Insert();
-            end;
+            TempExcelTemplateSheetBuffer.Init();
+            TempExcelTemplateSheetBuffer."Sheet Name" := CopyStr(SheetName, 1, MaxStrLen(TempExcelTemplateSheetBuffer."Sheet Name"));
+            TempExcelTemplateSheetBuffer."Paper Height" := ExcelTemplateSheet."Paper Height";
+            TempExcelTemplateSheetBuffer."Current Paper Height" := ExcelTemplateSheet."Paper Height";
+            TempExcelTemplateSheetBuffer."Last Page No." := 1;
+            TempExcelTemplateSheetBuffer.Insert();
         end;
     end;
 

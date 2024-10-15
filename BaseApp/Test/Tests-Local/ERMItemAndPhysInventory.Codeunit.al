@@ -250,7 +250,7 @@ codeunit 144709 "ERM Item And Phys. Inventory"
 
         Item.SetRange("No.", ItemNo);
         ItemCardM17.SetTableView(Item);
-        ItemCardM17.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        ItemCardM17.SetFileNameSilent(LibraryReportValidation.GetFileName());
         ItemCardM17.UseRequestPage(false);
         ItemCardM17.Run();
     end;
@@ -272,7 +272,7 @@ codeunit 144709 "ERM Item And Phys. Inventory"
         ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
         ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
         PhysInventoryFormINV3.SetTableView(ItemJnlLine);
-        PhysInventoryFormINV3.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        PhysInventoryFormINV3.SetFileNameSilent(LibraryReportValidation.GetFileName());
         PhysInventoryFormINV3.UseRequestPage(false);
         PhysInventoryFormINV3.Run();
     end;
@@ -289,7 +289,7 @@ codeunit 144709 "ERM Item And Phys. Inventory"
         ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
         ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
         PhysInvFormINV19.SetTableView(ItemJnlLine);
-        PhysInvFormINV19.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        PhysInvFormINV19.SetFileNameSilent(LibraryReportValidation.GetFileName());
         PhysInvFormINV19.UseRequestPage(false);
         PhysInvFormINV19.Run();
     end;
@@ -302,7 +302,7 @@ codeunit 144709 "ERM Item And Phys. Inventory"
     begin
         InitItemJournalLine(ItemJnlLine, ItemJournalBatch."Template Type"::Item);
         for i := 1 to LibraryRandom.RandIntInRange(2, 5) do begin
-            CreateAndPostItemJournalLine(ItemJnlLine, LibraryInventory.CreateItemNo);
+            CreateAndPostItemJournalLine(ItemJnlLine, LibraryInventory.CreateItemNo());
             ItemFilter += ItemJnlLine."Item No." + '|';
         end;
         ItemFilter := DelChr(ItemFilter, '>', '|');
@@ -380,7 +380,7 @@ codeunit 144709 "ERM Item And Phys. Inventory"
             repeat
                 Validate("Qty. (Phys. Inventory)", InventoryQty);
                 Modify(true);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -390,7 +390,7 @@ codeunit 144709 "ERM Item And Phys. Inventory"
         with ItemJnlLine do
             repeat
                 QtyCalc += "Qty. (Calculated)";
-            until Next = 0;
+            until Next() = 0;
     end;
 
     local procedure GetItemJnlLineQtyFact(ItemJnlLine: Record "Item Journal Line") QtyFact: Decimal
@@ -399,7 +399,7 @@ codeunit 144709 "ERM Item And Phys. Inventory"
         with ItemJnlLine do
             repeat
                 QtyFact += "Qty. (Phys. Inventory)";
-            until Next = 0;
+            until Next() = 0;
     end;
 
     local procedure GetItemJnlLineNewAmount(ItemJnlLine: Record "Item Journal Line") RemAmt: Decimal
@@ -441,7 +441,7 @@ codeunit 144709 "ERM Item And Phys. Inventory"
                 QtyDiff := "Qty. (Phys. Inventory)" - "Qty. (Calculated)";
                 if Surplus xor (QtyDiff < 0) then
                     Qty += QtyDiff;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     local procedure GetRandomType(FromInt: Integer; ToInt: Integer): Integer
@@ -454,7 +454,7 @@ codeunit 144709 "ERM Item And Phys. Inventory"
         Item: Record Item;
     begin
         Item.SetFilter("No.", ItemFilter);
-        LibraryInventory.CalculateInventory(ItemJournalLine, Item, WorkDate + 1, false, false);
+        LibraryInventory.CalculateInventory(ItemJournalLine, Item, WorkDate() + 1, false, false);
     end;
 
     local procedure UpdateInvFactQuantity(ItemJnlLine: Record "Item Journal Line"; Sign: Integer)
@@ -464,7 +464,7 @@ codeunit 144709 "ERM Item And Phys. Inventory"
             repeat
                 Validate("Qty. (Phys. Inventory)", Sign * LibraryRandom.RandDec(100, 2));
                 Modify(true);
-            until Next = 0;
+            until Next() = 0;
     end;
 
     local procedure VerifyRemainingQuantity(ItemNo: Code[20])
@@ -481,7 +481,7 @@ codeunit 144709 "ERM Item And Phys. Inventory"
                 LibraryReportValidation.VerifyCellValue(25 + i, 22, Format("Entry No."));
                 LibraryReportValidation.VerifyCellValue(25 + i, 127, Format(RemQty));
                 i += 1;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 }

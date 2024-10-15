@@ -17,7 +17,6 @@ codeunit 12410 "VAT Prepayment-Post"
         SourceCodeSetup: Record "Source Code Setup";
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
         PostingType: Option Set,Reset;
         PostingDate: Date;
         UseDocNo: Code[20];
@@ -31,41 +30,39 @@ codeunit 12410 "VAT Prepayment-Post"
         CustAgr: Record "Customer Agreement";
         VendAgr: Record "Vendor Agreement";
     begin
-        with CVLedgEntryBuf do begin
-            GenJnlLine.Init();
-            if PostingDate = 0D then
-                GenJnlLine."Posting Date" := "Posting Date"
-            else
-                GenJnlLine."Posting Date" := PostingDate;
-            if EntryType = EntryType::Sale then begin
-                GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
-                GenJnlLine."Source Code" := SourceCodeSetup."Customer Prepayments";
-            end else begin
-                GenJnlLine."Account Type" := GenJnlLine."Account Type"::Vendor;
-                GenJnlLine."Source Code" := SourceCodeSetup."Vendor Prepayments";
-            end;
-            GenJnlLine.Validate("Account No.", "CV No.");
-            GenJnlLine.Validate("Currency Code", "Currency Code");
-            GenJnlLine.Description := StrSubstNo(PostDescription, "Document No.", "Posting Date");
-            GenJnlLine."System-Created Entry" := true;
-            GenJnlLine."Shortcut Dimension 1 Code" := "Global Dimension 1 Code";
-            GenJnlLine."Shortcut Dimension 2 Code" := "Global Dimension 2 Code";
-            GenJnlLine."Dimension Set ID" := "Dimension Set ID";
-            GenJnlLine."Prepayment Document No." := UseDocNo;
-            if "Agreement No." <> '' then begin
-                GenJnlLine."Agreement No." := "Agreement No.";
-                if EntryType = EntryType::Sale then begin
-                    CustAgr.Get(GenJnlLine."Account No.", GenJnlLine."Agreement No.");
-                    if GenJnlLine."Posting Date" <= CustAgr."Expire Date" then
-                        GenJnlLine."Posting Group" := CustAgr."Customer Posting Group";
-                end else begin
-                    VendAgr.Get(GenJnlLine."Account No.", GenJnlLine."Agreement No.");
-                    if GenJnlLine."Posting Date" <= VendAgr."Expire Date" then
-                        GenJnlLine."Posting Group" := VendAgr."Vendor Posting Group";
-                end;
-            end;
-            GenJnlLine."External Document No." := "External Document No.";
+        GenJnlLine.Init();
+        if PostingDate = 0D then
+            GenJnlLine."Posting Date" := CVLedgEntryBuf."Posting Date"
+        else
+            GenJnlLine."Posting Date" := PostingDate;
+        if EntryType = EntryType::Sale then begin
+            GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
+            GenJnlLine."Source Code" := SourceCodeSetup."Customer Prepayments";
+        end else begin
+            GenJnlLine."Account Type" := GenJnlLine."Account Type"::Vendor;
+            GenJnlLine."Source Code" := SourceCodeSetup."Vendor Prepayments";
         end;
+        GenJnlLine.Validate("Account No.", CVLedgEntryBuf."CV No.");
+        GenJnlLine.Validate("Currency Code", CVLedgEntryBuf."Currency Code");
+        GenJnlLine.Description := StrSubstNo(PostDescription, CVLedgEntryBuf."Document No.", CVLedgEntryBuf."Posting Date");
+        GenJnlLine."System-Created Entry" := true;
+        GenJnlLine."Shortcut Dimension 1 Code" := CVLedgEntryBuf."Global Dimension 1 Code";
+        GenJnlLine."Shortcut Dimension 2 Code" := CVLedgEntryBuf."Global Dimension 2 Code";
+        GenJnlLine."Dimension Set ID" := CVLedgEntryBuf."Dimension Set ID";
+        GenJnlLine."Prepayment Document No." := UseDocNo;
+        if CVLedgEntryBuf."Agreement No." <> '' then begin
+            GenJnlLine."Agreement No." := CVLedgEntryBuf."Agreement No.";
+            if EntryType = EntryType::Sale then begin
+                CustAgr.Get(GenJnlLine."Account No.", GenJnlLine."Agreement No.");
+                if GenJnlLine."Posting Date" <= CustAgr."Expire Date" then
+                    GenJnlLine."Posting Group" := CustAgr."Customer Posting Group";
+            end else begin
+                VendAgr.Get(GenJnlLine."Account No.", GenJnlLine."Agreement No.");
+                if GenJnlLine."Posting Date" <= VendAgr."Expire Date" then
+                    GenJnlLine."Posting Group" := VendAgr."Vendor Posting Group";
+            end;
+        end;
+        GenJnlLine."External Document No." := CVLedgEntryBuf."External Document No.";
     end;
 
     [Scope('OnPrem')]
@@ -84,6 +81,7 @@ codeunit 12410 "VAT Prepayment-Post"
         SalesSetup: Record "Sales & Receivables Setup";
         CustPostingGr: Record "Customer Posting Group";
         VendPostingGr: Record "Vendor Posting Group";
+        NoSeries: Codeunit "No. Series";
         Amount: Decimal;
         AmountLCY: Decimal;
     begin
@@ -99,7 +97,7 @@ codeunit 12410 "VAT Prepayment-Post"
             if PostingDocNo = '' then begin
                 SalesSetup.Get();
                 SalesSetup.TestField("Posted Prepayment Nos.");
-                UseDocNo := NoSeriesManagement.GetNextNo(SalesSetup."Posted Prepayment Nos.", PostingDate, true);
+                UseDocNo := NoSeries.GetNextNo(SalesSetup."Posted Prepayment Nos.", PostingDate);
             end;
         end else begin // Purchase
             VendPostingGr.Get(CVLedgEntryBuf."CV Posting Group");
@@ -152,6 +150,7 @@ codeunit 12410 "VAT Prepayment-Post"
         SalesLine: Record "Sales Line";
         Currency: Record Currency;
         VATPostingSetup: Record "VAT Posting Setup";
+        NoSeries: Codeunit "No. Series";
         TemplateDocumentNo: Code[20];
         TemplateDocumentType: Enum "Sales Document Type";
         PrepmtFactor: Decimal;
@@ -162,7 +161,7 @@ codeunit 12410 "VAT Prepayment-Post"
             TemplateDocumentNo := GenJnlLine."Prepayment Document No.";
             SalesSetup.Get();
             SalesSetup.TestField("Posted Prepayment Nos.");
-            UseDocNo := NoSeriesManagement.GetNextNo(SalesSetup."Posted Prepayment Nos.", GenJnlLine."Posting Date", true);
+            UseDocNo := NoSeries.GetNextNo(SalesSetup."Posted Prepayment Nos.", GenJnlLine."Posting Date");
         end else
             UseDocNo := GenJnlLine."Prepayment Document No.";
 
@@ -466,11 +465,12 @@ codeunit 12410 "VAT Prepayment-Post"
     var
         PurchSetup: Record "Purchases & Payables Setup";
         PurchInvHeader: Record "Purch. Inv. Header";
+        NoSeries: Codeunit "No. Series";
     begin
         PurchSetup.Get();
         PurchSetup.TestField("Posted Invoice Nos.");
         GenJnlLine."Document No." :=
-          NoSeriesManagement.GetNextNo(PurchSetup."Posted Invoice Nos.", GenJnlLine."Posting Date", true);
+          NoSeries.GetNextNo(PurchSetup."Posted Invoice Nos.", GenJnlLine."Posting Date");
         GenJnlLine."Document Type" := GenJnlLine."Document Type"::Invoice;
 
         PurchInvHeader.Init();
@@ -568,6 +568,7 @@ codeunit 12410 "VAT Prepayment-Post"
         TempOrigPurchInvLine: Record "Purch. Inv. Line" temporary;
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
+        NoSeries: Codeunit "No. Series";
         PurchHeaderAmount: Decimal;
     begin
         if GenJnlLine.Prepayment then
@@ -622,9 +623,7 @@ codeunit 12410 "VAT Prepayment-Post"
         PurchInvHeader."Document Date" := GenJnlLine."Document Date";
         PurchInvHeader."Posting Description" := GenJnlLine.Description;
         PurchInvHeader."Vendor Invoice No." := GenJnlLine."External Document No.";
-        PurchInvHeader."No." :=
-          NoSeriesManagement.GetNextNo(
-            PurchSetup."Posted VAT Agent Invoice Nos.", GenJnlLine."Posting Date", true);
+        PurchInvHeader."No." := NoSeries.GetNextNo(PurchSetup."Posted VAT Agent Invoice Nos.", GenJnlLine."Posting Date");
         PurchInvHeader."Dimension Set ID" := GenJnlLine."Dimension Set ID";
         PurchInvHeader.Insert();
 

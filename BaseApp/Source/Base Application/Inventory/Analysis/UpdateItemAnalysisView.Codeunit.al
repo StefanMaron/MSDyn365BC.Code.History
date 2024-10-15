@@ -70,12 +70,10 @@ codeunit 7150 "Update Item Analysis View"
         ItemBudgetEntry.Reset();
         if LastEntryNoIsInitialized then
             exit;
-        with ValueEntry do
-            if FindLast() then
-                LastValueEntryNo := "Entry No.";
-        with ItemBudgetEntry do
-            if FindLast() then
-                LastItemBudgetEntryNo := "Entry No.";
+        if ValueEntry.FindLast() then
+            LastValueEntryNo := ValueEntry."Entry No.";
+        if ItemBudgetEntry.FindLast() then
+            LastItemBudgetEntryNo := ItemBudgetEntry."Entry No.";
         LastEntryNoIsInitialized := true;
     end;
 
@@ -181,24 +179,24 @@ codeunit 7150 "Update Item Analysis View"
         OnUpdateEntriesOnAfterSetFilters(ItemAnalysisView);
         ItemAnalysisViewSource.Open();
 
-        with ItemAnalysisViewSource do
-            while Read() do begin
-                ProgressIndicator := ProgressIndicator + 1;
-                if DimSetIDInFilter(DimensionSetID, ItemAnalysisView) then begin
-                    UpdateAnalysisViewEntry(DimVal1, DimVal2, DimVal3, ItemLedgerEntryType);
-                    if (ItemAnalysisView."Analysis Area" = ItemAnalysisView."Analysis Area"::Sales) and
-                       (ItemLedgerEntryType = ItemLedgerEntryType::Purchase) and
-                       (CostAmountNonInvtbl <> 0) and
-                       (ItemChargeNo <> '')
-                    then begin // purchase invoice for item charge can belong to sales - Cost Amount (Non-Invtbl.)
-                        ItemLedgerEntry.Get(ItemLedgerEntryNo);
-                        if ItemLedgerEntry."Entry Type" = ItemLedgerEntry."Entry Type"::Sale then
-                            UpdateAnalysisViewEntry(DimVal1, DimVal2, DimVal3, ItemLedgerEntryType::Sale);
-                    end;
+        while ItemAnalysisViewSource.Read() do begin
+            ProgressIndicator := ProgressIndicator + 1;
+            if DimSetIDInFilter(ItemAnalysisViewSource.DimensionSetID, ItemAnalysisView) then begin
+                UpdateAnalysisViewEntry(ItemAnalysisViewSource.DimVal1, ItemAnalysisViewSource.DimVal2, ItemAnalysisViewSource.DimVal3, ItemAnalysisViewSource.ItemLedgerEntryType);
+                if (ItemAnalysisView."Analysis Area" = ItemAnalysisView."Analysis Area"::Sales) and
+                   (ItemAnalysisViewSource.ItemLedgerEntryType = ItemAnalysisViewSource.ItemLedgerEntryType::Purchase) and
+                   (ItemAnalysisViewSource.CostAmountNonInvtbl <> 0) and
+                   (ItemAnalysisViewSource.ItemChargeNo <> '')
+                then begin
+                    // purchase invoice for item charge can belong to sales - Cost Amount (Non-Invtbl.)
+                    ItemLedgerEntry.Get(ItemAnalysisViewSource.ItemLedgerEntryNo);
+                    if ItemLedgerEntry."Entry Type" = ItemLedgerEntry."Entry Type"::Sale then
+                        UpdateAnalysisViewEntry(ItemAnalysisViewSource.DimVal1, ItemAnalysisViewSource.DimVal2, ItemAnalysisViewSource.DimVal3, ItemAnalysisViewSource.ItemLedgerEntryType::Sale);
                 end;
-                if ShowProgressWindow then
-                    UpdateWindowCounter(ProgressIndicator);
             end;
+            if ShowProgressWindow then
+                UpdateWindowCounter(ProgressIndicator);
+        end;
         ItemAnalysisViewSource.Close();
 
         if ShowProgressWindow then
@@ -507,7 +505,7 @@ codeunit 7150 "Update Item Analysis View"
     begin
         ItemAnalysisView.SetRange("Last Budget Entry No.", NewLastBudgetEntryNo + 1, 2147483647);
         ItemAnalysisView.SetRange("Include Budgets", true);
-        if ItemAnalysisView.FindSet(true, true) then
+        if ItemAnalysisView.FindSet(true) then
             repeat
                 ItemAnalysisView2 := ItemAnalysisView;
                 ItemAnalysisView2."Last Budget Entry No." := NewLastBudgetEntryNo;
@@ -522,15 +520,13 @@ codeunit 7150 "Update Item Analysis View"
 
     local procedure IsValueIncludedInFilter(DimValue: Code[20]; DimFilter: Code[250]): Boolean
     begin
-        with TempDimBuf do begin
-            Reset();
-            DeleteAll();
-            Init();
-            "Dimension Value Code" := DimValue;
-            Insert();
-            SetFilter("Dimension Value Code", DimFilter);
-            exit(FindFirst());
-        end;
+        TempDimBuf.Reset();
+        TempDimBuf.DeleteAll();
+        TempDimBuf.Init();
+        TempDimBuf."Dimension Value Code" := DimValue;
+        TempDimBuf.Insert();
+        TempDimBuf.SetFilter(TempDimBuf."Dimension Value Code", DimFilter);
+        exit(TempDimBuf.FindFirst());
     end;
 
     procedure DimSetIDInFilter(DimSetID: Integer; var ItemAnalysisView: Record "Item Analysis View"): Boolean

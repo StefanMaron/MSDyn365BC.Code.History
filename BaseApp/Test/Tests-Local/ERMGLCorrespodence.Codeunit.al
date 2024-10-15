@@ -129,8 +129,8 @@ codeunit 144016 "ERM G/L Correspodence"
 
         // [GIVEN] Pair of G/L Entries with Amount "X" split between transactions "T" and "T+1" is inserted.
         Amount := LibraryRandom.RandDecInRange(5, 10, 2);
-        MockGLEntry(LibraryERM.CreateGLAccountNo, Amount, 0, TransactionNo);
-        MockGLEntry(LibraryERM.CreateGLAccountNo, 0, Amount, TransactionNo + 1);
+        MockGLEntry(LibraryERM.CreateGLAccountNo(), Amount, 0, TransactionNo);
+        MockGLEntry(LibraryERM.CreateGLAccountNo(), 0, Amount, TransactionNo + 1);
 
         // [WHEN] Create G/L Correspondence for the transaction "T".
         GLEntry.SetRange("Transaction No.", TransactionNo);
@@ -215,7 +215,7 @@ codeunit 144016 "ERM G/L Correspodence"
         // [GIVEN] Post purchase invoice and credit-memo for one item, quantity and amount are same.
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreateVendor(Vendor);
-        CreateAndPostPurchaseDocument(DummyPurchaseHeader."Document Type"::Invoice, Vendor."No.", Item."No.", Qty, UnitCost);
+        CreateAndPostPurchaseDocument("Purchase Document Type"::Invoice, Vendor."No.", Item."No.", Qty, UnitCost);
         CreateAndPostPurchaseDocument(DummyPurchaseHeader."Document Type"::"Credit Memo", Vendor."No.", Item."No.", Qty, UnitCost);
 
         // [GIVEN] Inventory Account for the item = "X".
@@ -349,7 +349,7 @@ codeunit 144016 "ERM G/L Correspodence"
         SalesInvoiceHeaderNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CreateAndPostPurchaseDocument(DocumentType: Option; VendorNo: Code[20]; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal)
+    local procedure CreateAndPostPurchaseDocument(DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -369,7 +369,7 @@ codeunit 144016 "ERM G/L Correspodence"
             Validate("VAT %", LibraryRandom.RandIntInRange(10, 30));
             Validate("Trans. VAT Type", TransVATType);
             if "Trans. VAT Type" <> "Trans. VAT Type"::" " then
-                Validate("Trans. VAT Account", LibraryERM.CreateGLAccountNo);
+                Validate("Trans. VAT Account", LibraryERM.CreateGLAccountNo());
             Modify(true);
         end;
     end;
@@ -377,7 +377,7 @@ codeunit 144016 "ERM G/L Correspodence"
     local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
     begin
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
-        GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode);
+        GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode());
         GenJournalBatch.Modify(true);
     end;
 
@@ -407,7 +407,7 @@ codeunit 144016 "ERM G/L Correspodence"
     begin
         DebitGLAccountNo := LibraryERM.CreateGLAccountNo();
         CreditGLAccountNo := LibraryERM.CreateGLAccountNo();
-        TransactionNo := LibraryUtility.GetLastTransactionNo + 1;
+        TransactionNo := LibraryUtility.GetLastTransactionNo() + 1;
 
         AmountString := '-38,-19,10,6,-10,-20,20,-6,-4,-25,-30,19,4,30,38,25';
         for i := 1 to 16 do begin
@@ -590,7 +590,7 @@ codeunit 144016 "ERM G/L Correspodence"
                 Assert.AreEqual("Credit Account No.", ReversedGLCorrespondenceEntry."Credit Account No.", FieldCaption("Credit Account No."));
                 Assert.AreEqual(-Amount, ReversedGLCorrespondenceEntry.Amount, FieldCaption(Amount));
                 ReversedGLCorrespondenceEntry.Next();
-            until Next = 0;
+            until Next() = 0;
     end;
 
     local procedure VerifyGLCorrespondenceAccount(DocumentNo: Code[20]; DebitAccountNo: Code[20]; CreditAccountNo: Code[20])

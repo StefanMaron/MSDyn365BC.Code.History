@@ -1,4 +1,4 @@
-#if not CLEAN21
+#if not CLEAN23
 namespace Microsoft.Projects.Resources.Pricing;
 
 using Microsoft.Projects.Resources.Resource;
@@ -21,15 +21,14 @@ codeunit 221 "Resource-Find Price"
 
         ResPrice.Copy(Rec);
         OnRunOnAfterCopyResourcePrice(Rec, Res);
-        with ResPrice do
-            if FindResPrice() then
-                ResPrice := ResPrice2
-            else begin
-                Init();
-                Code := Res."No.";
-                "Currency Code" := '';
-                "Unit Price" := Res."Unit Price";
-            end;
+        if FindResPrice() then
+            ResPrice := ResPrice2
+        else begin
+            ResPrice.Init();
+            ResPrice.Code := Res."No.";
+            ResPrice."Currency Code" := '';
+            ResPrice."Unit Price" := Res."Unit Price";
+        end;
         Rec := ResPrice;
     end;
 
@@ -48,26 +47,24 @@ codeunit 221 "Resource-Find Price"
         if IsHandled then
             exit(Result);
 
-        with ResPrice do begin
-            if ResPrice2.Get(Type::Resource, Code, "Work Type Code", "Currency Code") then
-                exit(true);
+        if ResPrice2.Get(ResPrice.Type::Resource, ResPrice.Code, ResPrice."Work Type Code", ResPrice."Currency Code") then
+            exit(true);
 
-            if ResPrice2.Get(Type::Resource, Code, "Work Type Code", '') then
-                exit(true);
+        if ResPrice2.Get(ResPrice.Type::Resource, ResPrice.Code, ResPrice."Work Type Code", '') then
+            exit(true);
 
-            Res.Get(Code);
-            if ResPrice2.Get(Type::"Group(Resource)", Res."Resource Group No.", "Work Type Code", "Currency Code") then
-                exit(true);
+        Res.Get(ResPrice.Code);
+        if ResPrice2.Get(ResPrice.Type::"Group(Resource)", Res."Resource Group No.", ResPrice."Work Type Code", ResPrice."Currency Code") then
+            exit(true);
 
-            if ResPrice2.Get(Type::"Group(Resource)", Res."Resource Group No.", "Work Type Code", '') then
-                exit(true);
+        if ResPrice2.Get(ResPrice.Type::"Group(Resource)", Res."Resource Group No.", ResPrice."Work Type Code", '') then
+            exit(true);
 
-            if ResPrice2.Get(Type::All, '', "Work Type Code", "Currency Code") then
-                exit(true);
+        if ResPrice2.Get(ResPrice.Type::All, '', ResPrice."Work Type Code", ResPrice."Currency Code") then
+            exit(true);
 
-            if ResPrice2.Get(Type::All, '', "Work Type Code", '') then
-                exit(true);
-        end;
+        if ResPrice2.Get(ResPrice.Type::All, '', ResPrice."Work Type Code", '') then
+            exit(true);
 
         OnAfterFindResPrice(ResPrice, Res);
     end;

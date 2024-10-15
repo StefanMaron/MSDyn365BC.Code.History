@@ -1,4 +1,4 @@
-codeunit 14940 "Update G/L Corr. Analysis View"
+﻿codeunit 14940 "Update G/L Corr. Analysis View"
 {
     Permissions = TableData "Analysis View" = rm,
                   TableData "Analysis View Filter" = r,
@@ -29,7 +29,6 @@ codeunit 14940 "Update G/L Corr. Analysis View"
         GLCorrAnalysisViewFilter: Record "G/L Corr. Analysis View Filter";
         DimSetEntry: Record "Dimension Set Entry";
         TempDimBuf: Record "Dimension Buffer" temporary;
-        TempDimSetEntry: Record "Dimension Set Entry" temporary;
         TempDimEntryBuffer: Record "Dimension Entry Buffer" temporary;
         FilterIsInitialized: Boolean;
         FiltersExist: Boolean;
@@ -335,15 +334,13 @@ codeunit 14940 "Update G/L Corr. Analysis View"
 
     local procedure IsValueIncludedInFilter(DimValue: Code[20]; DimFilter: Code[250]): Boolean
     begin
-        with TempDimBuf do begin
-            Reset();
-            DeleteAll();
-            Init();
-            "Dimension Value Code" := DimValue;
-            Insert();
-            SetFilter("Dimension Value Code", DimFilter);
-            exit(FindFirst());
-        end;
+        TempDimBuf.Reset();
+        TempDimBuf.DeleteAll();
+        TempDimBuf.Init();
+        TempDimBuf."Dimension Value Code" := DimValue;
+        TempDimBuf.Insert();
+        TempDimBuf.SetFilter("Dimension Value Code", DimFilter);
+        exit(TempDimBuf.FindFirst());
     end;
 
     [Scope('OnPrem')]

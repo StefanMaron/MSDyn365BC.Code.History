@@ -123,19 +123,18 @@ page 17324 "Tax Calc. Calc. Buffer"
         AccumulateRecordRef: RecordRef;
         TaxCalcFieldRef: FieldRef;
     begin
-        with TaxCalcAccumulation do
-            if TaxCalcLine.Get("Section Code", "Register No.", "Template Line No.") then begin
-                TaxCalcRecordRef.GetTable(TaxCalcLine);
-                TaxCalcFieldRef := TaxCalcRecordRef.Field(TaxCalcLine.FieldNo("Date Filter"));
-                TaxCalcFieldRef.SetRange("Starting Date", "Ending Date");
-                TaxCalcAccumulation2 := TaxCalcAccumulation;
-                TaxCalcAccumulation2.SetCurrentKey("Section Code", "Register No.");
-                TaxCalcAccumulation2.SetRange("Ending Date", "Ending Date");
-                TaxCalcAccumulation2.SetRange("Section Code", "Section Code");
-                AccumulateRecordRef.GetTable(TaxCalcAccumulation2);
-                AccumulateRecordRef.SetView(TaxCalcAccumulation2.GetView(false));
-                TaxRegTermMgt.ShowExpressionValue(TaxCalcRecordRef, Rec, AccumulateRecordRef);
-            end;
+        if TaxCalcLine.Get(TaxCalcAccumulation."Section Code", TaxCalcAccumulation."Register No.", TaxCalcAccumulation."Template Line No.") then begin
+            TaxCalcRecordRef.GetTable(TaxCalcLine);
+            TaxCalcFieldRef := TaxCalcRecordRef.Field(TaxCalcLine.FieldNo("Date Filter"));
+            TaxCalcFieldRef.SetRange(TaxCalcAccumulation."Starting Date", TaxCalcAccumulation."Ending Date");
+            TaxCalcAccumulation2 := TaxCalcAccumulation;
+            TaxCalcAccumulation2.SetCurrentKey("Section Code", "Register No.");
+            TaxCalcAccumulation2.SetRange("Ending Date", TaxCalcAccumulation."Ending Date");
+            TaxCalcAccumulation2.SetRange("Section Code", TaxCalcAccumulation."Section Code");
+            AccumulateRecordRef.GetTable(TaxCalcAccumulation2);
+            AccumulateRecordRef.SetView(TaxCalcAccumulation2.GetView(false));
+            TaxRegTermMgt.ShowExpressionValue(TaxCalcRecordRef, Rec, AccumulateRecordRef);
+        end;
     end;
 
     [Scope('OnPrem')]

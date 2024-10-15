@@ -17,7 +17,7 @@ codeunit 144516 "ERM Create Tax Reg. Entry"
     begin
         // test run Create Tax Register FA Entry report,
         // checks for Tax Register Accumulation amounts and Tax Register FA Entry entries
-        CheckTaxRegisterFAEntry;
+        CheckTaxRegisterFAEntry();
     end;
 
     [Test]
@@ -27,7 +27,7 @@ codeunit 144516 "ERM Create Tax Reg. Entry"
     begin
         // test run Create Tax Register FE Entry report,
         // checks for Tax Register Accumulation amounts and Tax Register FE Entry entries
-        CheckTaxRegisterFEEntry;
+        CheckTaxRegisterFEEntry();
     end;
 
     local procedure CheckTaxRegisterFAEntry()
@@ -38,7 +38,7 @@ codeunit 144516 "ERM Create Tax Reg. Entry"
     begin
         CreateFASumFieldNoArray(SumFieldNoArray);
         for I := 1 to ArrayLen(SumFieldNoArray) do begin
-            UpdateTaxRegSetupFA;
+            UpdateTaxRegSetupFA();
             SetupTaxRegisterFA(TaxRegTemplate, SumFieldNoArray[I]);
 
             CreateTaxRegisterFAEntry(TaxRegTemplate."Section Code", WorkDate());
@@ -55,7 +55,7 @@ codeunit 144516 "ERM Create Tax Reg. Entry"
     begin
         CreateFESumFieldNoArray(SumFieldNoArray);
         for I := 1 to ArrayLen(SumFieldNoArray) do begin
-            UpdateTaxRegSetupFE;
+            UpdateTaxRegSetupFE();
             SetupTaxRegisterFE(TaxRegTemplate, SumFieldNoArray[I]);
 
             CreateTaxRegisterFEEntry(TaxRegTemplate."Section Code", WorkDate());
@@ -206,7 +206,7 @@ codeunit 144516 "ERM Create Tax Reg. Entry"
         SetupTaxRegister(TaxRegTemplate, DATABASE::"Tax Register FA Entry");
         UpdateTaxRegTemplateFA(TaxRegTemplate, SumFieldNo, TaxRegSetup."Tax Depreciation Book");
         CreateFALedgerEntryFA(
-          LibraryTaxAcc.CreateFAWithTaxFADeprBook, TaxRegSetup."Tax Depreciation Book", WorkDate(), SumFieldNo);
+          LibraryTaxAcc.CreateFAWithTaxFADeprBook(), TaxRegSetup."Tax Depreciation Book", WorkDate(), SumFieldNo);
     end;
 
     local procedure SetupTaxRegisterFE(var TaxRegTemplate: Record "Tax Register Template"; SumFieldNo: Integer)
@@ -217,7 +217,7 @@ codeunit 144516 "ERM Create Tax Reg. Entry"
         SetupTaxRegister(TaxRegTemplate, DATABASE::"Tax Register FE Entry");
         UpdateTaxRegTemplateFE(TaxRegTemplate, SumFieldNo, TaxRegSetup."Future Exp. Depreciation Book");
         CreateFALedgerEntryFE(
-          LibraryTaxAcc.CreateFEWithTaxFADeprBook, TaxRegSetup."Future Exp. Depreciation Book", WorkDate(), SumFieldNo);
+          LibraryTaxAcc.CreateFEWithTaxFADeprBook(), TaxRegSetup."Future Exp. Depreciation Book", WorkDate(), SumFieldNo);
     end;
 
     local procedure UpdateTaxRegSetupFA()

@@ -779,7 +779,7 @@ codeunit 144013 "ERM Print Corr. Documents"
         LibrarySales.CreateCustomer(Cust);
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, Cust."No.");
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(15, 50));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(15, 50));
         SalesLine.Validate("Unit Price", LibraryRandom.RandInt(100));
         SalesLine.Modify(true);
     end;
@@ -954,7 +954,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     procedure ReportSelectionPrintModalPageHandler(var ReportSelectionPrint: TestPage "Report Selection - Print")
     begin
         ReportSelectionPrint."Set All".Invoke();
-        ReportSelectionPrint.OK.Invoke();
+        ReportSelectionPrint.OK().Invoke();
     end;
 }
 

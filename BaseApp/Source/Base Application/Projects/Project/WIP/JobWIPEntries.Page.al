@@ -4,8 +4,9 @@ using Microsoft.Finance.Dimension;
 
 page 1008 "Job WIP Entries"
 {
+    AdditionalSearchTerms = 'Job WIP Entries';
     ApplicationArea = Jobs;
-    Caption = 'Job WIP Entries';
+    Caption = 'Project WIP Entries';
     DataCaptionFields = "Job No.";
     Editable = false;
     PageType = List;
@@ -22,22 +23,22 @@ page 1008 "Job WIP Entries"
                 field("WIP Posting Date"; Rec."WIP Posting Date")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the posting date you entered in the Posting Date field on the Options FastTab in the Job Calculate WIP batch job.';
+                    ToolTip = 'Specifies the posting date you entered in the Posting Date field on the Options FastTab in the Project Calculate WIP batch job.';
                 }
                 field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the document number you entered in the Document No. field on the Options FastTab in the Job Calculate WIP batch job.';
+                    ToolTip = 'Specifies the document number you entered in the Document No. field on the Options FastTab in the Project Calculate WIP batch job.';
                 }
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                 }
                 field("Job Complete"; Rec."Job Complete")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies whether the Job WIP Entry was created for a job with a Completed status.';
+                    ToolTip = 'Specifies whether the Project WIP Entry was created for a project with a Completed status.';
                 }
                 field("Job WIP Total Entry No."; Rec."Job WIP Total Entry No.")
                 {
@@ -47,22 +48,22 @@ page 1008 "Job WIP Entries"
                 field("G/L Account No."; Rec."G/L Account No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the general ledger account number to which the WIP on this entry will be posted, if you run the Job Post WIP to the general ledger batch job.';
+                    ToolTip = 'Specifies the general ledger account number to which the WIP on this entry will be posted, if you run the Project Post WIP to the general ledger batch job.';
                 }
                 field("G/L Bal. Account No."; Rec."G/L Bal. Account No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the general ledger balancing account number that WIP on this entry will be posted to, if you run the Job Post WIP to general ledger batch job.';
+                    ToolTip = 'Specifies the general ledger balancing account number that WIP on this entry will be posted to, if you run the Project Post WIP to general ledger batch job.';
                 }
                 field("WIP Method Used"; Rec."WIP Method Used")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the WIP method that was specified for the job when you ran the Job Calculate WIP batch job.';
+                    ToolTip = 'Specifies the WIP method that was specified for the project when you ran the Project Calculate WIP batch job.';
                 }
                 field("WIP Posting Method Used"; Rec."WIP Posting Method Used")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the WIP posting method used. The information in this field comes from the setting you have specified on the job card.';
+                    ToolTip = 'Specifies the WIP posting method used. The information in this field comes from the setting you have specified on the project card.';
                 }
                 field(Type; Rec.Type)
                 {
@@ -72,7 +73,7 @@ page 1008 "Job WIP Entries"
                 field("WIP Entry Amount"; Rec."WIP Entry Amount")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the WIP amount that will be posted for this entry, if you run the Job Post WIP to G/L batch job.';
+                    ToolTip = 'Specifies the WIP amount that will be posted for this entry, if you run the Project Post WIP to G/L batch job.';
                 }
                 field("Job Posting Group"; Rec."Job Posting Group")
                 {
@@ -181,7 +182,7 @@ page 1008 "Job WIP Entries"
                     Image = EntriesList;
                     RunObject = Page "Job WIP Totals";
                     RunPageLink = "Entry No." = field("Job WIP Total Entry No.");
-                    ToolTip = 'View the job''s WIP totals.';
+                    ToolTip = 'View the project''s WIP totals.';
                 }
                 action(Dimensions)
                 {

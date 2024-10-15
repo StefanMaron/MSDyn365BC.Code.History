@@ -2,6 +2,7 @@ table 26552 "Statutory Report Table"
 {
     Caption = 'Statutory Report Table';
     LookupPageID = "Statutory Report Tables";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -304,14 +305,7 @@ table 26552 "Statutory Report Table"
 
     var
         StatutoryReport: Record "Statutory Report";
-        FormatVersion: Record "Format Version";
-        TempBlob: Codeunit "Temp Blob";
         ExcelMgt: Codeunit "Excel Management";
-        FileMgt: Codeunit "File Management";
-        Text000: Label 'Excel not found.';
-        Text001: Label 'You must enter a file name.';
-        Text003: Label 'The file %1 does not exist.';
-        Text004: Label 'The Excel worksheet %1 does not exist.';
         Text008: Label 'You must specify an Acc. Schedule Name.';
         Text009: Label 'You must specify a Column Layout Name.';
         Text018: Label 'All related page indication elements will be deleted. Proceed?';
@@ -485,9 +479,7 @@ table 26552 "Statutory Report Table"
         ParentStatReportExcelSheet: Record "Stat. Report Excel Sheet";
         StatutoryReportDataValue: Record "Statutory Report Data Value";
         XMLElementLine: Record "XML Element Line";
-        PageIndicationXMLElement: Record "Page Indication XML Element";
         CellValueAsText: Text[250];
-        RequisiteValue: Text[250];
     begin
         if "Scalable Table" then
             if not ImportScalableTableDataXML(DataHeaderNo, TempExcelBuffer, ExcelSheetName, ErrorMessage) then

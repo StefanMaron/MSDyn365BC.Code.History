@@ -28,11 +28,11 @@
         LibraryPurchase.CreateVendorWithAddress(Vendor);
 
         // Execute
-        VendorList.OpenEdit;
+        VendorList.OpenEdit();
         VendorList.GotoRecord(Vendor);
 
-        PurchaseInvoice.Trap;
-        VendorList.NewPurchaseInvoice.Invoke;
+        PurchaseInvoice.Trap();
+        VendorList.NewPurchaseInvoice.Invoke();
 
         // Verification
         VerifyBillToAddressOnPurchaseInvoiceIsVendorAddress(PurchaseInvoice, Vendor);
@@ -42,8 +42,8 @@
         PurchaseInvoice.Close();
 
         // Execute
-        PurchaseInvoice.Trap;
-        VendorList.NewPurchaseInvoice.Invoke;
+        PurchaseInvoice.Trap();
+        VendorList.NewPurchaseInvoice.Invoke();
 
         // Verification
         VerifyBillToAddressOnPurchaseInvoiceIsVendorAddress(PurchaseInvoice, Vendor);
@@ -71,11 +71,11 @@
         LibraryPurchase.CreateVendorWithAddress(Vendor);
 
         // Execute
-        VendorList.OpenEdit;
+        VendorList.OpenEdit();
         VendorList.GotoRecord(Vendor);
 
-        PurchaseCreditMemo.Trap;
-        VendorList.NewPurchaseCrMemo.Invoke;
+        PurchaseCreditMemo.Trap();
+        VendorList.NewPurchaseCrMemo.Invoke();
 
         // Verification
         VerifyBillToAddressOnPurchaseCreditMemoIsVendorAddress(PurchaseCreditMemo, Vendor);
@@ -85,8 +85,8 @@
         PurchaseCreditMemo.Close();
 
         // Execute
-        PurchaseCreditMemo.Trap;
-        VendorList.NewPurchaseCrMemo.Invoke;
+        PurchaseCreditMemo.Trap();
+        VendorList.NewPurchaseCrMemo.Invoke();
 
         // Verification
         VerifyBillToAddressOnPurchaseCreditMemoIsVendorAddress(PurchaseCreditMemo, Vendor);

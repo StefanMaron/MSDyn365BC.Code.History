@@ -167,7 +167,6 @@ report 14915 "Supplement to INV-17"
         Accountant: Record "Document Signature";
         CustAgrmt: Record "Customer Agreement";
         VendAgrmt: Record "Vendor Agreement";
-        DocSignMgt: Codeunit "Doc. Signature Management";
         INV17Helper: Codeunit "INV-17 Report Helper";
         FileName: Text;
         Counter: Integer;

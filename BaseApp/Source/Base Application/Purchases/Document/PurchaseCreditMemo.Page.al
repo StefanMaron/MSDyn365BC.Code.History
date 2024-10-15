@@ -909,7 +909,7 @@ page 52 "Purchase Credit Memo"
             {
                 ApplicationArea = Basic, Suite;
                 ShowFilter = false;
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
             }
             part(Control5; "Purchase Line FactBox")
             {
@@ -1040,7 +1040,9 @@ page 52 "Purchase Credit Memo"
                     Image = Signature;
                     RunObject = Page "Document Signatures";
                     RunPageLink = "Table ID" = const(38),
+#pragma warning disable AL0603
                                   "Document Type" = field("Document Type"),
+#pragma warning restore AL0603
                                   "Document No." = field("No.");
                 }
             }
@@ -1344,7 +1346,7 @@ page 52 "Purchase Credit Memo"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    Enabled = NOT OpenApprovalEntriesExist AND CanRequestApprovalForFlow;
+                    Enabled = not OpenApprovalEntriesExist and CanRequestApprovalForFlow;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval of the document.';
 
@@ -1360,7 +1362,7 @@ page 52 "Purchase Credit Memo"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cancel Approval Re&quest';
-                    Enabled = CanCancelApprovalForRecord OR CanCancelApprovalForFlow;
+                    Enabled = CanCancelApprovalForRecord or CanCancelApprovalForFlow;
                     Image = CancelApprovalRequest;
                     ToolTip = 'Cancel the approval request.';
 
@@ -1417,20 +1419,6 @@ page 52 "Purchase Credit Memo"
                         end;
                     }
 #endif
-#if not CLEAN21
-                    action(SeeFlows)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'See my flows';
-                        Image = Flow;
-                        RunObject = Page "Flow Selector";
-                        ToolTip = 'View and configure Power Automate flows that you created.';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                        ObsoleteTag = '21.0';
-                    }
-#endif
                 }
             }
             group("P&osting")
@@ -1485,7 +1473,7 @@ page 52 "Purchase Credit Memo"
                     Image = PostPrint;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and print the document or journal. The values and quantities are posted to the related accounts.';
-                    Visible = NOT IsOfficeAddin;
+                    Visible = not IsOfficeAddin;
 
                     trigger OnAction()
                     begin
@@ -1641,24 +1629,6 @@ page 52 "Purchase Credit Memo"
                 actionref(CancelApprovalRequest_Promoted; CancelApprovalRequest)
                 {
                 }
-#if not CLEAN21
-                actionref(CreateFlow_Promoted; CreateFlow)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
-#if not CLEAN21
-                actionref(SeeFlows_Promoted; SeeFlows)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category6)
             {

@@ -219,7 +219,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         ExpectedMatchedLineNo := CreateBankAccRecLine(BankAccReconciliation, 0D, Description, '', Amount);
         CreateBankAccRecLine(BankAccReconciliation, WorkDate(), Description, '', Amount);
         CreateBankAccRecLine(BankAccReconciliation, WorkDate(), '', '', Amount);
-        CreateBankAccRecLine(BankAccReconciliation, PostingDate, DocumentNo, '', Amount - LibraryRandom.RandDec(100, 2));
+        CreateBankAccRecLine(BankAccReconciliation, PostingDate, DocumentNo, '', -Amount);
 
         // Exercise.
         BankAccReconciliation.MatchSingle(0);
@@ -626,9 +626,9 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         // Exercise.
         LibraryVariableStorage.Enqueue(0);
         Commit();
-        BankAccReconciliationPage.OpenEdit;
+        BankAccReconciliationPage.OpenEdit();
         BankAccReconciliationPage.GotoRecord(BankAccReconciliation);
-        BankAccReconciliationPage.MatchAutomatically.Invoke;
+        BankAccReconciliationPage.MatchAutomatically.Invoke();
 
         // Verify.
         VerifyOneToOneMatch(BankAccReconciliation, ExpectedMatchedLineNo, ExpectedMatchedEntryNo, Amount);
@@ -650,7 +650,6 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         DocumentNo: Code[20];
         Description: Text[50];
         Amount: Decimal;
-        ExpectedMatchedLineNo: Integer;
     begin
         Initialize();
 
@@ -730,7 +729,6 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         Description: Text[50];
         Amount: Decimal;
         ExpectedMatchedEntryNo: Integer;
-        ExpectedMatchedLineNo: Integer;
         PaymentMatchDetailsCount: Integer;
     begin
         Initialize();
@@ -1033,14 +1031,10 @@ codeunit 134252 "Match Bank Reconciliation - UT"
     var
         TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary;
         TempBankAccountLedgerEntry: Record "Bank Account Ledger Entry" temporary;
-        PaymentMatchingDetails: Record "Payment Matching Details";
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
-        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
-        BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer";
         BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
         MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
-        MatchBankRecScenarios: Codeunit "Match Bank Rec. Scenarios";
         PostingDate: Date;
         BankAccountNo: Code[20];
         StatementNo: Code[20];
@@ -1063,10 +1057,10 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         BankAccountLedgerEntry.Get(ExpectedMatchedEntryNo);
         VerifyManyToOneMatch(BankAccountLedgerEntry, 2, 2 * Amount);
 
-        BankAccReconciliationPage.OpenEdit;
+        BankAccReconciliationPage.OpenEdit();
         BankAccReconciliationPage.GotoRecord(BankAccReconciliation);
-        BankAccReconciliationPage.StatementEndingBalance.SetValue(BankAccReconciliationPage.StmtLine.TotalBalance.AsDEcimal);
-        BankAccReconciliationPage.Post.Invoke;
+        BankAccReconciliationPage.StatementEndingBalance.SetValue(BankAccReconciliationPage.StmtLine.TotalBalance.AsDecimal());
+        BankAccReconciliationPage.Post.Invoke();
         VerifyPosting(BankAccReconciliation, 1);
     end;
 
@@ -1131,15 +1125,13 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         DummyBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin
         // [SCENARIO 198751] "Applies-to ID" must be unique for each Bank Account Reconciliation Line
-        with DummyBankAccReconciliationLine do begin
-            "Bank Account No." := 'BANK';
-            "Statement No." := 'STATEMENT_0000012345';
-            "Statement Line No." := 1234567890;
-            Assert.AreEqual(
-              'BANK-STATEMENT_0000012345-1234567890',
-              GetAppliesToID,
-              'Wrong BankAccReconciliationLine.GenerateAppliesToID() return result');
-        end;
+        DummyBankAccReconciliationLine."Bank Account No." := 'BANK';
+        DummyBankAccReconciliationLine."Statement No." := 'STATEMENT_0000012345';
+        DummyBankAccReconciliationLine."Statement Line No." := 1234567890;
+        Assert.AreEqual(
+          'BANK-STATEMENT_0000012345-1234567890',
+          DummyBankAccReconciliationLine.GetAppliesToID(),
+          'Wrong BankAccReconciliationLine.GenerateAppliesToID() return result');
     end;
 
     [Test]
@@ -1331,7 +1323,6 @@ codeunit 134252 "Match Bank Reconciliation - UT"
     var
         BankAccReconciliation: array[2] of Record "Bank Acc. Reconciliation";
         BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
-        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         FilteredPostingDate: array[2] of Text;
         BankAccountNo: Code[20];
         StatementNo: Code[20];
@@ -1491,14 +1482,14 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin
         Amount := -LibraryRandom.RandDec(1000, 2);
-        PostingDate := WorkDate - LibraryRandom.RandInt(10);
+        PostingDate := WorkDate() - LibraryRandom.RandInt(10);
         BankAccountNo := LibraryUtility.GenerateRandomCode(BankAccReconciliationLine.FieldNo("Bank Account No."),
             DATABASE::"Bank Acc. Reconciliation Line");
         StatementNo := LibraryUtility.GenerateRandomCode(BankAccReconciliationLine.FieldNo("Statement No."),
             DATABASE::"Bank Acc. Reconciliation Line");
         DocumentNo := LibraryUtility.GenerateRandomCode(BankAccReconciliationLine.FieldNo("Document No."),
             DATABASE::"Bank Acc. Reconciliation Line");
-        Description := CopyStr(CreateGuid, 1, 50);
+        Description := CopyStr(CreateGuid(), 1, 50);
         if not BankAccount.Get(BankAccountNo) then
             CreateBankAccountWithNo(BankAccount, BankAccountNo);
     end;
@@ -1706,7 +1697,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
     begin
         LibraryVariableStorage.Dequeue(DateRange);
         MatchBankAccReconciliation.DateRange.SetValue(DateRange);
-        MatchBankAccReconciliation.OK.Invoke;
+        MatchBankAccReconciliation.OK().Invoke();
     end;
 
     [MessageHandler]

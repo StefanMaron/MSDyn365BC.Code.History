@@ -50,44 +50,42 @@ codeunit 5942 "ServContractQuote-Tmpl. Upd."
         TemplateContractServiceDiscount: Record "Contract/Service Discount";
     begin
         OnBeforeApplyTemplate(ServiceContractHeader, ServiceContractTemplate);
-        with ServiceContractHeader do begin
-            Description := ServiceContractTemplate.Description;
-            Validate("Contract Group Code", ServiceContractTemplate."Contract Group Code");
-            Validate("Service Order Type", ServiceContractTemplate."Service Order Type");
-            Validate("Service Period", ServiceContractTemplate."Default Service Period");
-            Validate("Price Update Period", ServiceContractTemplate."Price Update Period");
-            Validate("Response Time (Hours)", ServiceContractTemplate."Default Response Time (Hours)");
-            Validate("Max. Labor Unit Price", ServiceContractTemplate."Max. Labor Unit Price");
-            Validate("Invoice after Service", ServiceContractTemplate."Invoice after Service");
-            Validate("Invoice Period", ServiceContractTemplate."Invoice Period");
-            Validate("Price Inv. Increase Code", ServiceContractTemplate."Price Inv. Increase Code");
-            Validate("Allow Unbalanced Amounts", ServiceContractTemplate."Allow Unbalanced Amounts");
-            Validate("Contract Lines on Invoice", ServiceContractTemplate."Contract Lines on Invoice");
-            Validate("Combine Invoices", ServiceContractTemplate."Combine Invoices");
-            Validate("Automatic Credit Memos", ServiceContractTemplate."Automatic Credit Memos");
-            Validate(Prepaid, ServiceContractTemplate.Prepaid);
-            Validate("Serv. Contract Acc. Gr. Code", ServiceContractTemplate."Serv. Contract Acc. Gr. Code");
-            "Template No." := ServiceContractTemplate."No.";
+        ServiceContractHeader.Description := ServiceContractTemplate.Description;
+        ServiceContractHeader.Validate("Contract Group Code", ServiceContractTemplate."Contract Group Code");
+        ServiceContractHeader.Validate("Service Order Type", ServiceContractTemplate."Service Order Type");
+        ServiceContractHeader.Validate("Service Period", ServiceContractTemplate."Default Service Period");
+        ServiceContractHeader.Validate("Price Update Period", ServiceContractTemplate."Price Update Period");
+        ServiceContractHeader.Validate("Response Time (Hours)", ServiceContractTemplate."Default Response Time (Hours)");
+        ServiceContractHeader.Validate("Max. Labor Unit Price", ServiceContractTemplate."Max. Labor Unit Price");
+        ServiceContractHeader.Validate("Invoice after Service", ServiceContractTemplate."Invoice after Service");
+        ServiceContractHeader.Validate("Invoice Period", ServiceContractTemplate."Invoice Period");
+        ServiceContractHeader.Validate("Price Inv. Increase Code", ServiceContractTemplate."Price Inv. Increase Code");
+        ServiceContractHeader.Validate("Allow Unbalanced Amounts", ServiceContractTemplate."Allow Unbalanced Amounts");
+        ServiceContractHeader.Validate("Contract Lines on Invoice", ServiceContractTemplate."Contract Lines on Invoice");
+        ServiceContractHeader.Validate("Combine Invoices", ServiceContractTemplate."Combine Invoices");
+        ServiceContractHeader.Validate("Automatic Credit Memos", ServiceContractTemplate."Automatic Credit Memos");
+        ServiceContractHeader.Validate(Prepaid, ServiceContractTemplate.Prepaid);
+        ServiceContractHeader.Validate("Serv. Contract Acc. Gr. Code", ServiceContractTemplate."Serv. Contract Acc. Gr. Code");
+        ServiceContractHeader."Template No." := ServiceContractTemplate."No.";
 
-            OnApplyTemplateOnBeforeCreateDimFromDefaultDim(ServiceContractHeader, ServiceContractTemplate);
-            CreateDimFromDefaultDim(0);
+        OnApplyTemplateOnBeforeCreateDimFromDefaultDim(ServiceContractHeader, ServiceContractTemplate);
+        ServiceContractHeader.CreateDimFromDefaultDim(0);
 
-            ContractServiceDiscount.Reset();
-            ContractServiceDiscount.SetRange("Contract Type", "Contract Type");
-            ContractServiceDiscount.SetRange("Contract No.", "Contract No.");
-            ContractServiceDiscount.DeleteAll();
+        ContractServiceDiscount.Reset();
+        ContractServiceDiscount.SetRange("Contract Type", ServiceContractHeader."Contract Type");
+        ContractServiceDiscount.SetRange("Contract No.", ServiceContractHeader."Contract No.");
+        ContractServiceDiscount.DeleteAll();
 
-            TemplateContractServiceDiscount.Reset();
-            TemplateContractServiceDiscount.SetRange("Contract Type", TemplateContractServiceDiscount."Contract Type"::Template);
-            TemplateContractServiceDiscount.SetRange("Contract No.", ServiceContractTemplate."No.");
-            if TemplateContractServiceDiscount.Find('-') then
-                repeat
-                    ContractServiceDiscount := TemplateContractServiceDiscount;
-                    ContractServiceDiscount."Contract Type" := "Contract Type";
-                    ContractServiceDiscount."Contract No." := "Contract No.";
-                    ContractServiceDiscount.Insert();
-                until TemplateContractServiceDiscount.Next() = 0;
-        end;
+        TemplateContractServiceDiscount.Reset();
+        TemplateContractServiceDiscount.SetRange("Contract Type", TemplateContractServiceDiscount."Contract Type"::Template);
+        TemplateContractServiceDiscount.SetRange("Contract No.", ServiceContractTemplate."No.");
+        if TemplateContractServiceDiscount.Find('-') then
+            repeat
+                ContractServiceDiscount := TemplateContractServiceDiscount;
+                ContractServiceDiscount."Contract Type" := ServiceContractHeader."Contract Type";
+                ContractServiceDiscount."Contract No." := ServiceContractHeader."Contract No.";
+                ContractServiceDiscount.Insert();
+            until TemplateContractServiceDiscount.Next() = 0;
         OnAfterApplyTemplate(ServiceContractHeader, ServiceContractTemplate);
     end;
 

@@ -54,6 +54,7 @@ report 14905 "Letter of Attorney M-2A"
             trigger OnAfterGetRecord()
             var
                 LocalReportManagement: Codeunit "Local Report Management";
+                NoSeries: Codeunit "No. Series";
             begin
                 TestField("Employee No.");
                 TestField("Buy-from Vendor Name");
@@ -61,7 +62,7 @@ report 14905 "Letter of Attorney M-2A"
 
                 if not Preview then begin
                     if "Letter of Attorney No." = '' then
-                        "Letter of Attorney No." := NoSeriesManagement.GetNextNo(PurchSetup."Released Letter of Attor. Nos.", WorkDate(), true);
+                        "Letter of Attorney No." := NoSeries.GetNextNo(PurchSetup."Released Letter of Attor. Nos.");
                     Release();
                 end;
 
@@ -158,7 +159,6 @@ report 14905 "Letter of Attorney M-2A"
         CompanyInformation: Record "Company Information";
         PurchSetup: Record "Purchases & Payables Setup";
         Employee: Record Employee;
-        NoSeriesManagement: Codeunit NoSeriesManagement;
         LocManagement: Codeunit "Localisation Management";
         ExcelReportBuilderManager: Codeunit "Excel Report Builder Manager";
         QuantityText: Text[250];

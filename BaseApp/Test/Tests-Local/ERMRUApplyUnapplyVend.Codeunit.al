@@ -146,7 +146,7 @@ codeunit 144505 "ERM RU Apply Unapply Vend"
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
           GenJournalLine."Account Type"::Vendor, VendorNo,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
           Amount);
         GenJournalLine.Validate(Prepayment, Prepayment);
         GenJournalLine.Modify();

@@ -77,46 +77,44 @@ codeunit 12404 "G/L Corresp. Management"
         if IsReversedGLReg(TempGLEntry) then
             TempGLEntry.Ascending(false);
 
-        with TempGLEntry do begin
-            for Level := 1 to MaxLevel do
-                if Find('-') then
-                    repeat
-                        if (Amount = 0) and ("Additional-Currency Amount" = 0) then
-                            Delete()
-                        else begin
-                            CurrentTempGLEntry := TempGLEntry;
-                            FoundEntry := false;
-                            SetFilter("Entry No.", '<>%1', CurrentTempGLEntry."Entry No.");
-                            if Find('-') then
-                                repeat
-                                    if (not CurrentTempGLEntry."Used in Correspondence") or
-                                       (not "Used in Correspondence")
-                                    then
-                                        if ValidateEntries(CurrentTempGLEntry, TempGLEntry, Level) then begin
-                                            FoundEntry := true;
-                                            InsertCorrespEntry(CurrentTempGLEntry, TempGLEntry);
-                                            if (Amount = 0) and ("Additional-Currency Amount" = 0) then
-                                                Delete()
-                                            else
-                                                Modify();
-                                        end;
-                                until FoundEntry or (Next() = 0);
-                            if FoundEntry and (Level = MaxLevel) then
-                                Level -= 1;
-                            TempGLEntry := CurrentTempGLEntry;
-                            if (Amount = 0) and ("Additional-Currency Amount" = 0) then
-                                Delete()
-                            else
-                                Modify();
-                        end;
-                    until Next() = 0;
-
-            Reset();
-            if Find('-') then
+        for Level := 1 to MaxLevel do
+            if TempGLEntry.Find('-') then
                 repeat
-                    UpdateBuffer("Entry No.", Amount);
-                until Next() = 0;
-        end;
+                    if (TempGLEntry.Amount = 0) and (TempGLEntry."Additional-Currency Amount" = 0) then
+                        TempGLEntry.Delete()
+                    else begin
+                        CurrentTempGLEntry := TempGLEntry;
+                        FoundEntry := false;
+                        TempGLEntry.SetFilter("Entry No.", '<>%1', CurrentTempGLEntry."Entry No.");
+                        if TempGLEntry.Find('-') then
+                            repeat
+                                if (not CurrentTempGLEntry."Used in Correspondence") or
+                                   (not TempGLEntry."Used in Correspondence")
+                                then
+                                    if ValidateEntries(CurrentTempGLEntry, TempGLEntry, Level) then begin
+                                        FoundEntry := true;
+                                        InsertCorrespEntry(CurrentTempGLEntry, TempGLEntry);
+                                        if (TempGLEntry.Amount = 0) and (TempGLEntry."Additional-Currency Amount" = 0) then
+                                            TempGLEntry.Delete()
+                                        else
+                                            TempGLEntry.Modify();
+                                    end;
+                            until FoundEntry or (TempGLEntry.Next() = 0);
+                        if FoundEntry and (Level = MaxLevel) then
+                            Level -= 1;
+                        TempGLEntry := CurrentTempGLEntry;
+                        if (TempGLEntry.Amount = 0) and (TempGLEntry."Additional-Currency Amount" = 0) then
+                            TempGLEntry.Delete()
+                        else
+                            TempGLEntry.Modify();
+                    end;
+                until TempGLEntry.Next() = 0;
+
+        TempGLEntry.Reset();
+        if TempGLEntry.Find('-') then
+            repeat
+                UpdateBuffer(TempGLEntry."Entry No.", TempGLEntry.Amount);
+            until TempGLEntry.Next() = 0;
     end;
 
     local procedure InsertCorrespEntry(var GLEntry1: Record "G/L Entry" temporary; var GLEntry2: Record "G/L Entry" temporary)
@@ -180,34 +178,32 @@ codeunit 12404 "G/L Corresp. Management"
             GLCorresp.Insert();
         end;
 
-        with GLCorrespEntry do begin
-            Init();
-            "Entry No." := GLCorrespEntryNo;
-            "Document No." := GLEntry1."Document No.";
-            "Posting Date" := GLEntry1."Posting Date";
-            "Debit Account No." := DebitEntry."G/L Account No.";
-            "Credit Account No." := CreditEntry."G/L Account No.";
-            Amount := CorrAmount;
-            "Amount (ACY)" := AmountACY;
-            "User ID" := DebitEntry."User ID";
-            "Transaction No." := GLEntry1."Transaction No.";
-            "Business Unit Code" := GLEntry1."Business Unit Code";
-            "Debit Global Dimension 1 Code" := DebitEntry."Global Dimension 1 Code";
-            "Debit Global Dimension 2 Code" := DebitEntry."Global Dimension 2 Code";
-            "Debit Dimension Set ID" := DebitEntry."Dimension Set ID";
-            "Debit Source Type" := DebitEntry."Source Type";
-            "Debit Source No." := DebitEntry."Source No.";
-            "Credit Global Dimension 1 Code" := CreditEntry."Global Dimension 1 Code";
-            "Credit Global Dimension 2 Code" := CreditEntry."Global Dimension 2 Code";
-            "Credit Dimension Set ID" := CreditEntry."Dimension Set ID";
-            "Credit Source Type" := CreditEntry."Source Type";
-            "Credit Source No." := CreditEntry."Source No.";
-            Positive := Sign = 1;
-            "Creation Date" := Today;
-            "Debit Entry No." := DebitEntry."Entry No.";
-            "Credit Entry No." := CreditEntry."Entry No.";
-            Insert(true);
-        end;
+        GLCorrespEntry.Init();
+        GLCorrespEntry."Entry No." := GLCorrespEntryNo;
+        GLCorrespEntry."Document No." := GLEntry1."Document No.";
+        GLCorrespEntry."Posting Date" := GLEntry1."Posting Date";
+        GLCorrespEntry."Debit Account No." := DebitEntry."G/L Account No.";
+        GLCorrespEntry."Credit Account No." := CreditEntry."G/L Account No.";
+        GLCorrespEntry.Amount := CorrAmount;
+        GLCorrespEntry."Amount (ACY)" := AmountACY;
+        GLCorrespEntry."User ID" := DebitEntry."User ID";
+        GLCorrespEntry."Transaction No." := GLEntry1."Transaction No.";
+        GLCorrespEntry."Business Unit Code" := GLEntry1."Business Unit Code";
+        GLCorrespEntry."Debit Global Dimension 1 Code" := DebitEntry."Global Dimension 1 Code";
+        GLCorrespEntry."Debit Global Dimension 2 Code" := DebitEntry."Global Dimension 2 Code";
+        GLCorrespEntry."Debit Dimension Set ID" := DebitEntry."Dimension Set ID";
+        GLCorrespEntry."Debit Source Type" := DebitEntry."Source Type";
+        GLCorrespEntry."Debit Source No." := DebitEntry."Source No.";
+        GLCorrespEntry."Credit Global Dimension 1 Code" := CreditEntry."Global Dimension 1 Code";
+        GLCorrespEntry."Credit Global Dimension 2 Code" := CreditEntry."Global Dimension 2 Code";
+        GLCorrespEntry."Credit Dimension Set ID" := CreditEntry."Dimension Set ID";
+        GLCorrespEntry."Credit Source Type" := CreditEntry."Source Type";
+        GLCorrespEntry."Credit Source No." := CreditEntry."Source No.";
+        GLCorrespEntry.Positive := Sign = 1;
+        GLCorrespEntry."Creation Date" := Today;
+        GLCorrespEntry."Debit Entry No." := DebitEntry."Entry No.";
+        GLCorrespEntry."Credit Entry No." := CreditEntry."Entry No.";
+        GLCorrespEntry.Insert(true);
     end;
 
     local procedure ValidateEntries(var GLEntry1: Record "G/L Entry"; var GLEntry2: Record "G/L Entry"; CurrentAttempt: Integer): Boolean
@@ -283,24 +279,22 @@ codeunit 12404 "G/L Corresp. Management"
         GLEntry: Record "G/L Entry";
         DoubleEntryBuffer: Record "G/L Corresp. Posting Buffer";
     begin
-        with DoubleEntryBuffer do begin
-            Init();
-            GLEntry.Get(EntryNo);
-            if Get(GLEntry."Transaction No.", GLEntry."G/L Account No.") then begin
-                "G/L Amount" += GLEntry.Amount;
-                "G/L Corresp. Amount" += CorAmount;
-                if "G/L Corresp. Amount" = 0 then
-                    Delete()
-                else
-                    Modify();
-            end else begin
-                "Transaction No." := GLEntry."Transaction No.";
-                "G/L Account No." := GLEntry."G/L Account No.";
-                "G/L Amount" := GLEntry.Amount;
-                "G/L Corresp. Amount" := CorAmount;
-                if "G/L Corresp. Amount" <> 0 then
-                    Insert();
-            end;
+        DoubleEntryBuffer.Init();
+        GLEntry.Get(EntryNo);
+        if DoubleEntryBuffer.Get(GLEntry."Transaction No.", GLEntry."G/L Account No.") then begin
+            DoubleEntryBuffer."G/L Amount" += GLEntry.Amount;
+            DoubleEntryBuffer."G/L Corresp. Amount" += CorAmount;
+            if DoubleEntryBuffer."G/L Corresp. Amount" = 0 then
+                DoubleEntryBuffer.Delete()
+            else
+                DoubleEntryBuffer.Modify();
+        end else begin
+            DoubleEntryBuffer."Transaction No." := GLEntry."Transaction No.";
+            DoubleEntryBuffer."G/L Account No." := GLEntry."G/L Account No.";
+            DoubleEntryBuffer."G/L Amount" := GLEntry.Amount;
+            DoubleEntryBuffer."G/L Corresp. Amount" := CorAmount;
+            if DoubleEntryBuffer."G/L Corresp. Amount" <> 0 then
+                DoubleEntryBuffer.Insert();
         end;
     end;
 

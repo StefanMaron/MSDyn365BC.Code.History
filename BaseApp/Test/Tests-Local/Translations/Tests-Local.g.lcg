@@ -95,15 +95,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Agreements - NamedType DefaultDimNotExistErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3123404281 - NamedType 3515383122" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot delete agreement if you already have labor contracts.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Agreements - NamedType DeleteAgmtWithLCErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3123404281 - NamedType 2723383444" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot delete agreement if you already have ledger entries.]]></Val>
@@ -417,15 +408,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Currency Adjustment - NamedType IncorrectDimensionValueErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 889971382 - NamedType 3235670077" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is nothing to adjust.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Currency Adjustment - NamedType NothingToAdjustTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3354015240 - NamedType 793651990" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1004,15 +986,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RU Purch. Unrealized VAT - NamedType EntryDoesNotExist)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4219260009 - NamedType 3235670077" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is nothing to adjust.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RU Purch. Unrealized VAT - NamedType NothingToAdjustTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3457780735 - NamedType 3991777929" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Cannot find entry in table %1 with filters %2.]]></Val>
@@ -1020,15 +993,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RU Sales Unrealized VAT - NamedType EntryDoesNotExist)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3457780735 - NamedType 3235670077" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is nothing to adjust.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RU Sales Unrealized VAT - NamedType NothingToAdjustTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 872598470 - NamedType 1445714488" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1715,15 +1679,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT Sales Ledger Corr. - NamedType VATLedgerLineCntErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2619507651 - NamedType 873896575" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[One or more currency exchange rates have been adjusted.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Exch. Rate Adjmt. Dimensions - NamedType ExchRateWasAdjustedTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2619507651 - NamedType 3288095867" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong G/L Entry number of records]]></Val>
@@ -1742,15 +1697,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Exch. Rate Adjmt. Dimensions - NamedType IncorrectDimensionValueErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2619507651 - NamedType 3235670077" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is nothing to adjust.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Exch. Rate Adjmt. Dimensions - NamedType NothingToAdjustTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2372897525 - NamedType 3991777929" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Cannot find entry in table %1 with filters %2.]]></Val>
@@ -1760,15 +1706,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Exch. Rate Adjmt. VAT Purch. - NamedType EntryDoesNotExist)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2372897525 - NamedType 3235670077" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is nothing to adjust.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Exch. Rate Adjmt. VAT Purch. - NamedType NothingToAdjustTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1796700539 - NamedType 3991777929" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Cannot find entry in table %1 with filters %2.]]></Val>
@@ -1776,15 +1713,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Exch. Rate Adjmt. VAT Sales - NamedType EntryDoesNotExist)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1796700539 - NamedType 3235670077" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is nothing to adjust.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Exch. Rate Adjmt. VAT Sales - NamedType NothingToAdjustTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2639682882 - NamedType 1695721094" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1805,15 +1733,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Exch.Rate Adjmt. Prepmt. Purch - NamedType EntryExistsErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2639682882 - NamedType 3235670077" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is nothing to adjust.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Exch.Rate Adjmt. Prepmt. Purch - NamedType NothingToAdjustTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2639682882 - NamedType 3353806735" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong value in %1.%2, Entry No.= %3.]]></Val>
@@ -1830,15 +1749,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Exch.Rate Adjmt. Prepmt. Sales - NamedType EntryDoesNotExistErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3729628438 - NamedType 3235670077" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is nothing to adjust.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Exch.Rate Adjmt. Prepmt. Sales - NamedType NothingToAdjustTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3729628438 - NamedType 3353806735" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1875,33 +1785,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Item Documents - NamedType WrongQuantityErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3382378424 - NamedType 762284302" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There are one or more errors. For details, see the journal error FactBox.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Intrastat - NamedType AdvChecklistErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3382378424 - NamedType 3228010162" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Intrastat file was not created]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Intrastat - NamedType FileNotCreatedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3382378424 - NamedType 3744254637" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Reported must be equal to 'No'  in Intrastat Jnl. Batch]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Intrastat - NamedType ReportedMustBeNoErr)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

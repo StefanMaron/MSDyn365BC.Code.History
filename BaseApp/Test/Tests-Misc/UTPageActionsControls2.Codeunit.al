@@ -238,10 +238,10 @@ codeunit 134348 "UT Page Actions & Controls - 2"
 
         GeneralLedgerSetup.OpenEdit();
         Assert.IsTrue(
-          GeneralLedgerSetup.SEPANonEuroExport.Visible,
+          GeneralLedgerSetup.SEPANonEuroExport.Visible(),
           StrSubstNo(PageFieldVisibleErr, GeneralLedgerSetup.SEPANonEuroExport.Caption));
         Assert.IsTrue(
-          GeneralLedgerSetup.SEPANonEuroExport.Editable,
+          GeneralLedgerSetup.SEPANonEuroExport.Editable(),
           StrSubstNo(PageFieldEditableErr, GeneralLedgerSetup.SEPANonEuroExport.Caption));
     end;
 
@@ -260,10 +260,10 @@ codeunit 134348 "UT Page Actions & Controls - 2"
 
         GeneralLedgerSetup.OpenEdit();
         Assert.IsTrue(
-          GeneralLedgerSetup.SEPANonEuroExport.Visible,
+          GeneralLedgerSetup.SEPANonEuroExport.Visible(),
           StrSubstNo(PageFieldVisibleErr, GeneralLedgerSetup.SEPANonEuroExport.Caption));
         Assert.IsTrue(
-          GeneralLedgerSetup.SEPANonEuroExport.Editable,
+          GeneralLedgerSetup.SEPANonEuroExport.Editable(),
           StrSubstNo(PageFieldEditableErr, GeneralLedgerSetup.SEPANonEuroExport.Caption));
 
         LibraryPermissions.SetTestabilitySoftwareAsAService(false);
@@ -281,10 +281,10 @@ codeunit 134348 "UT Page Actions & Controls - 2"
 
         GeneralLedgerSetup.OpenEdit();
         Assert.IsTrue(
-          GeneralLedgerSetup.SEPAExportWoBankAccData.Visible,
+          GeneralLedgerSetup.SEPAExportWoBankAccData.Visible(),
           StrSubstNo(PageFieldVisibleErr, GeneralLedgerSetup.SEPAExportWoBankAccData.Caption));
         Assert.IsTrue(
-          GeneralLedgerSetup.SEPAExportWoBankAccData.Editable,
+          GeneralLedgerSetup.SEPAExportWoBankAccData.Editable(),
           StrSubstNo(PageFieldEditableErr, GeneralLedgerSetup.SEPAExportWoBankAccData.Caption));
     end;
 
@@ -302,10 +302,10 @@ codeunit 134348 "UT Page Actions & Controls - 2"
 
         GeneralLedgerSetup.OpenEdit();
         Assert.IsTrue(
-          GeneralLedgerSetup.SEPAExportWoBankAccData.Visible,
+          GeneralLedgerSetup.SEPAExportWoBankAccData.Visible(),
           StrSubstNo(PageFieldVisibleErr, GeneralLedgerSetup.SEPAExportWoBankAccData.Caption));
         Assert.IsTrue(
-          GeneralLedgerSetup.SEPAExportWoBankAccData.Editable,
+          GeneralLedgerSetup.SEPAExportWoBankAccData.Editable(),
           StrSubstNo(PageFieldEditableErr, GeneralLedgerSetup.SEPAExportWoBankAccData.Caption));
 
         LibraryPermissions.SetTestabilitySoftwareAsAService(false);
@@ -354,7 +354,7 @@ codeunit 134348 "UT Page Actions & Controls - 2"
         Assert.AreEqual(GetExpectedDateFilter(), CustomerList.FILTER.GetFilter("Date Filter"), 'Customer List');
 
         CustomerCard.Trap();
-        CustomerList.Edit.Invoke();
+        CustomerList.Edit().Invoke();
         Assert.AreEqual(GetExpectedDateFilter(), CustomerCard.FILTER.GetFilter("Date Filter"), CustomerCardTxt);
 
         CustomerCard.Close();
@@ -515,7 +515,7 @@ codeunit 134348 "UT Page Actions & Controls - 2"
     begin
         Initialize();
 
-        LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeader, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeader, LibrarySales.CreateCustomerNo());
 
         SalesQuote.OpenView();
         SalesQuote.FILTER.SetFilter("No.", SalesHeader."No.");
@@ -539,7 +539,7 @@ codeunit 134348 "UT Page Actions & Controls - 2"
     begin
         Initialize();
 
-        LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeader, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeader, LibrarySales.CreateCustomerNo());
 
         SalesQuotes.OpenView();
         SalesQuotes.FILTER.SetFilter("No.", SalesHeader."No.");
@@ -568,7 +568,7 @@ codeunit 134348 "UT Page Actions & Controls - 2"
         Assert.AreEqual(GetExpectedDateFilter(), VendorList.FILTER.GetFilter("Date Filter"), 'Vendor List');
 
         VendorCard.Trap();
-        VendorList.Edit.Invoke();
+        VendorList.Edit().Invoke();
         Assert.AreEqual(GetExpectedDateFilter(), VendorCard.FILTER.GetFilter("Date Filter"), VendorCardTxt);
 
         VendorCard.Close();
@@ -1018,7 +1018,7 @@ codeunit 134348 "UT Page Actions & Controls - 2"
         GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
         GenPostingSetupPage: TestPage "General Posting Setup";
         AccountCategory: Option;
-        AccountType: Option;
+        AccountType: Enum "G/L Account Type";
         AccSubcategoryFilter: Text;
         EntryNoFilter: Text;
     begin
@@ -1080,7 +1080,7 @@ codeunit 134348 "UT Page Actions & Controls - 2"
         GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
         GenPostingSetupPage: TestPage "General Posting Setup";
         AccountCategory: Option;
-        AccountType: Option;
+        AccountType: Enum "G/L Account Type";
         AccSubcategoryFilter: Text;
         EntryNoFilter: Text;
     begin
@@ -1194,11 +1194,11 @@ codeunit 134348 "UT Page Actions & Controls - 2"
         GenPostingSetup.Modify(true);
     end;
 
-    local procedure CreateGLAccount(var GLAccount: Record "G/L Account"; AccountType: Option; AccountCategory: Option; AccountCategoryEntryNo: Integer)
+    local procedure CreateGLAccount(var GLAccount: Record "G/L Account"; AccountType: Enum "G/L Account Type"; AccountCategory: Option; AccountCategoryEntryNo: Integer)
     begin
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount."Account Type" := AccountType;
-        GLAccount."Account Category" := AccountCategory;
+        GLAccount."Account Category" := "G/L Account Category".FromInteger(AccountCategory);
         GLAccount."Account Subcategory Entry No." := AccountCategoryEntryNo;
         GLAccount.Modify();
     end;
@@ -1309,7 +1309,7 @@ codeunit 134348 "UT Page Actions & Controls - 2"
         LibraryVariableStorage.Enqueue(GLAccountList.FILTER.GetFilter("Account Type"));
         LibraryVariableStorage.Enqueue(GLAccountList.FILTER.GetFilter("Account Category"));
         LibraryVariableStorage.Enqueue(GLAccountList.FILTER.GetFilter("Account Subcategory Entry No."));
-        GLAccountList.Cancel.Invoke();
+        GLAccountList.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1317,7 +1317,7 @@ codeunit 134348 "UT Page Actions & Controls - 2"
     procedure GLAccountListAccountNoModalPageHandler(var GLAccountList: TestPage "G/L Account List")
     begin
         LibraryVariableStorage.Enqueue(GLAccountList."No.".Value);
-        GLAccountList.Cancel.Invoke();
+        GLAccountList.Cancel().Invoke();
     end;
 }
 

@@ -557,7 +557,9 @@ page 14971 "Sales Corrective Invoice"
                     Image = Signature;
                     RunObject = Page "Document Signatures";
                     RunPageLink = "Table ID" = const(36),
+#pragma warning disable AL0603
                                   "Document Type" = field("Document Type"),
+#pragma warning restore AL0603
                                   "Document No." = field("No.");
                 }
             }
@@ -680,7 +682,7 @@ page 14971 "Sales Corrective Invoice"
                         CorrDocMgt: Codeunit "Corrective Document Mgt.";
                     begin
                         CorrDocMgt.SetSalesHeader(Rec."Document Type".AsInteger(), Rec."No.");
-                        CorrDocMgt.SelectPstdSalesDocLines;
+                        CorrDocMgt.SelectPstdSalesDocLines();
                     end;
                 }
             }

@@ -305,7 +305,6 @@ report 12447 "Bank Account G/L Turnover"
     var
         Text003: Label 'Zero values are replaced by spacebar';
         LocMgt: Codeunit "Localisation Management";
-        AccReportingManagement: Codeunit PeriodReportManagement;
         BalanceDebitBegining: Decimal;
         BalanceCreditBegining: Decimal;
         NetChangeDebit: Decimal;

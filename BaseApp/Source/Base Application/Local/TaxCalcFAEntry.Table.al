@@ -1,6 +1,7 @@
 table 17318 "Tax Calc. FA Entry"
 {
     Caption = 'Tax Calc. FA Entry';
+    DataClassification = CustomerContent;
 
     fields
     {

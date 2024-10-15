@@ -21,6 +21,7 @@ table 313 "Inventory Setup"
 {
     Caption = 'Inventory Setup';
     Permissions = TableData "Inventory Adjmt. Entry (Order)" = m;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -65,6 +66,11 @@ table 313 "Inventory Setup"
                         Message(Text000);
                 end;
             end;
+        }
+        field(31; "Cost Adjustment Logging"; Enum "Cost Adjustment Logging Level")
+        {
+            Caption = 'Cost Adjustment Logging';
+            DataClassification = CustomerContent;
         }
         field(40; "Prevent Negative Inventory"; Boolean)
         {
@@ -274,6 +280,18 @@ table 313 "Inventory Setup"
             AccessByPermission = TableData "Phys. Invt. Order Header" = R;
             Caption = 'Posted Phys. Invt. Order Nos.';
             TableRelation = "No. Series";
+        }
+        field(5877; "Invt. Orders Package Tracking"; Boolean)
+        {
+            Caption = 'Invt. Orders Package Tracking';
+            ObsoleteReason = 'Temporary setup to enable/disable package tracking in Phys. Inventory Orders';
+#if not CLEAN24
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '27.0';
+#endif
         }
         field(6500; "Package Caption"; Text[30])
         {

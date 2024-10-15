@@ -470,7 +470,6 @@ report 14920 "Calculate Assessed Tax"
 
             trigger OnAfterGetRecord()
             var
-                currcellname: Text[30];
             begin
             end;
 

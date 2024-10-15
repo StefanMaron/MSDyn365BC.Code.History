@@ -118,14 +118,17 @@ report 14966 "Sales Corr. Factura-Invoice"
                 end;
 
                 trigger OnPreDataItem()
+                var
+                    NoSeries: Codeunit "No. Series";
                 begin
                     if not SalesLine1.Find('-') then
                         CurrReport.Break();
 
                     if Header."Posting No." = '' then begin
-                        Clear(NoSeriesManagement);
-                        Header."Posting No." := NoSeriesManagement.GetNextNo(
-                            Header."Posting No. Series", Header."Posting Date", not Preview);
+                        if Preview then
+                            Header."Posting No." := NoSeries.PeekNextNo(Header."Posting No. Series", Header."Posting Date")
+                        else
+                            Header."Posting No." := NoSeries.GetNextNo(Header."Posting No. Series", Header."Posting Date");
                         if not Preview then
                             Header.Modify();
                     end;
@@ -285,7 +288,6 @@ report 14966 "Sales Corr. Factura-Invoice"
         AttachedSalesLine: Record "Sales Line" temporary;
         SalesSetup: Record "Sales & Receivables Setup";
         Currency: Record Currency;
-        NoSeriesManagement: Codeunit NoSeriesManagement;
         StdRepMgt: Codeunit "Local Report Management";
         ArchiveManagement: Codeunit ArchiveManagement;
         SegManagement: Codeunit SegManagement;
@@ -442,15 +444,14 @@ report 14966 "Sales Corr. Factura-Invoice"
         SalesInvoiceLine: Record "Sales Invoice Line";
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
-        with SalesLine do
-            case "Original Doc. Type" of
-                "Original Doc. Type"::Invoice:
-                    if SalesInvoiceLine.Get("Original Doc. No.", "Original Doc. Line No.") then
-                        exit(SalesInvoiceLine."Unit of Measure Code");
-                "Original Doc. Type"::"Credit Memo":
-                    if SalesCrMemoLine.Get("Original Doc. No.", "Original Doc. Line No.") then
-                        exit(SalesCrMemoLine."Unit of Measure Code");
-            end;
+        case SalesLine."Original Doc. Type" of
+            SalesLine."Original Doc. Type"::Invoice:
+                if SalesInvoiceLine.Get(SalesLine."Original Doc. No.", SalesLine."Original Doc. Line No.") then
+                    exit(SalesInvoiceLine."Unit of Measure Code");
+            SalesLine."Original Doc. Type"::"Credit Memo":
+                if SalesCrMemoLine.Get(SalesLine."Original Doc. No.", SalesLine."Original Doc. Line No.") then
+                    exit(SalesCrMemoLine."Unit of Measure Code");
+        end;
 
         exit('');
     end;

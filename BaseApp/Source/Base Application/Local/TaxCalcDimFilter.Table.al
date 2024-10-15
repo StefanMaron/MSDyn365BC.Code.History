@@ -2,6 +2,7 @@ table 17313 "Tax Calc. Dim. Filter"
 {
     Caption = 'Tax Calc. Dim. Filter';
     LookupPageID = "Tax Calc. Dimension Filters";
+    DataClassification = CustomerContent;
 
     fields
     {

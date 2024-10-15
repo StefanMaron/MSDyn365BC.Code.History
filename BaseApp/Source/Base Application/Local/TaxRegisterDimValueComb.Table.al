@@ -1,6 +1,7 @@
 table 17216 "Tax Register Dim. Value Comb."
 {
     Caption = 'Tax Register Dim. Value Comb.';
+    DataClassification = CustomerContent;
 
     fields
     {

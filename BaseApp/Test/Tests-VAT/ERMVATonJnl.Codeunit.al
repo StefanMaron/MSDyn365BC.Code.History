@@ -269,9 +269,9 @@ codeunit 134044 "ERM VAT on Jnl"
         Commit(); // due to expected error message
 
         // [GIVEN] Open page "General Journal Templates"
-        GeneralJournalTemplates.OpenEdit;
+        GeneralJournalTemplates.OpenEdit();
         GeneralJournalTemplates.FILTER.SetFilter(Name, GenJournalTemplate.Name);
-        GeneralJournalTemplates.First;
+        GeneralJournalTemplates.First();
         // [WHEN] Set "Allow VAT Difference" = YES, but answer NO on the confirmation request
         asserterror GeneralJournalTemplates."Allow VAT Difference".SetValue(false);
 
@@ -433,7 +433,7 @@ codeunit 134044 "ERM VAT on Jnl"
         VATDifference := LibraryRandom.RandDec(1, 2);  // Take random Amount for VAT Difference.
         ModifyGeneralLedgerSetup(VATDifference);
         CreateBatchAndGenJournalLine(GenJournalBatch, GenJournalLine, GenJournalLine."Document Type"::Invoice, true);
-        GenJournalLine.Validate("Bal. Account No.", CreateGLAccountWithVAT);
+        GenJournalLine.Validate("Bal. Account No.", CreateGLAccountWithVAT());
         GenJournalLine.Modify(true);
 
         // Exercise: Change Bal. VAT Amount for Negative Random Value greater than 100 to generate error message.
@@ -604,7 +604,7 @@ codeunit 134044 "ERM VAT on Jnl"
         OldVATDifference := ModifyGeneralLedgerSetup(VATDifference);
         CreateJournalTemplateBatch(GenJournalBatch);
         AllowVATDifferenceInTemplate(GenJournalBatch."Journal Template Name", true);
-        CreateAndUpdateGenJournalLine(GenJournalLine, GenJournalBatch, CreateGLAccountWithVAT, '', VATDifference);
+        CreateAndUpdateGenJournalLine(GenJournalLine, GenJournalBatch, CreateGLAccountWithVAT(), '', VATDifference);
         VATProdPostingGroup := GenJournalLine."VAT Prod. Posting Group";
         VATAmount := ComputeVATAmount(GenJournalLine.Amount, GenJournalLine."VAT %") + VATDifference;
         CreateAndUpdateGenJournalLine(GenJournalLine, GenJournalBatch, CreateGLAccount(GenJournalLine."Account No."), '', VATDifference);
@@ -665,7 +665,7 @@ codeunit 134044 "ERM VAT on Jnl"
         SelectJournalBatchAndClearJournalLines(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::"G/L Account", CreateGLAccountWithVAT, LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::"G/L Account", CreateGLAccountWithVAT(), LibraryRandom.RandDec(100, 2));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify that correct GL Entry VAT Entry Link exists for posted entry.
@@ -728,7 +728,7 @@ codeunit 134044 "ERM VAT on Jnl"
           GenJournalLine."Account Type"::"G/L Account", AccountNo, LibraryRandom.RandDec(100, 2));
         GenJournalLine.Validate("Document No.", GenJournalBatch.Name);
         GenJournalLine.Validate("Currency Code", CurrencyCode);
-        GenJournalLine.Validate("Bal. Account No.", CreateGLAccountWithVAT);
+        GenJournalLine.Validate("Bal. Account No.", CreateGLAccountWithVAT());
         GenJournalLine.Validate("VAT Amount", GenJournalLine."VAT Amount" + VATDifference);
         GenJournalLine.Modify(true);
     end;
@@ -750,7 +750,7 @@ codeunit 134044 "ERM VAT on Jnl"
         CreateJournalTemplateBatch(GenJournalBatch);
         AllowVATDifferenceInTemplate(GenJournalBatch."Journal Template Name", true);
         CreateAndUpdateGenJournalLine(
-          GenJournalLine, GenJournalBatch, CreateGLAccountWithVAT, Currency.Code, Currency."Max. VAT Difference Allowed");
+          GenJournalLine, GenJournalBatch, CreateGLAccountWithVAT(), Currency.Code, Currency."Max. VAT Difference Allowed");
         UpdateBalVATAmountOnGenJnlLine(GenJournalLine);
     end;
 
@@ -769,7 +769,7 @@ codeunit 134044 "ERM VAT on Jnl"
         // Taking Random value greater than 100 for Amount to avoid negative amount in General Journal Line.
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
-          GenJournalLine."Account Type"::"G/L Account", CreateGLAccountWithVAT, 100 + LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::"G/L Account", CreateGLAccountWithVAT(), 100 + LibraryRandom.RandDec(100, 2));
     end;
 
     local procedure CreateGenTemplateAndBatch(var GenJournalTemplate: Record "Gen. Journal Template"; var GenJournalBatch: Record "Gen. Journal Batch"; CopyVATSetuptoJnlLinesForTempl: Boolean; CopyVATSetuptoJnlLines: Boolean)
@@ -894,10 +894,10 @@ codeunit 134044 "ERM VAT on Jnl"
     var
         GeneralJournalTemplates: TestPage "General Journal Templates";
     begin
-        GeneralJournalTemplates.OpenEdit;
+        GeneralJournalTemplates.OpenEdit();
         GeneralJournalTemplates.FILTER.SetFilter(Name, Name);
         GeneralJournalTemplates."Copy VAT Setup to Jnl. Lines".SetValue(CopyVATSetuptoJnlLines);
-        GeneralJournalTemplates.OK.Invoke;
+        GeneralJournalTemplates.OK().Invoke();
     end;
 
     local procedure ModifyGeneralLedgerSetup(MaxVATDifferenceAllowed: Decimal) MaxVATDiffAllowedOld: Decimal

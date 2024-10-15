@@ -111,7 +111,7 @@ codeunit 12417 "VAT Allocation-Post"
                     if Factor < 1 then begin
                         PostPurchInvItemCharge(GenJnlLine, PurchInvHeader, PurchInvLine,
                           TempItemLedgEntry."Entry No.", TempItemLedgEntry.Quantity,
-                          AmountToAssign * Sign, QtyToAssign, PurchInvLine."Indirect Cost %",
+                          AmountToAssign * Sign, PurchInvLine."Indirect Cost %",
                           TempItemLedgEntry."Serial No.", TempItemLedgEntry."Lot No.");
                         NonDistrQuantity := NonDistrQuantity - TempItemLedgEntry.Quantity;
                         NonDistrQtyToAssign := NonDistrQtyToAssign - QtyToAssign;
@@ -119,7 +119,7 @@ codeunit 12417 "VAT Allocation-Post"
                     end else // the last time
                         PostPurchInvItemCharge(GenJnlLine, PurchInvHeader, PurchInvLine,
                           TempItemLedgEntry."Entry No.", TempItemLedgEntry.Quantity,
-                          NonDistrAmountToAssign * Sign, NonDistrQtyToAssign, PurchInvLine."Indirect Cost %",
+                          NonDistrAmountToAssign * Sign, PurchInvLine."Indirect Cost %",
                           TempItemLedgEntry."Serial No.", TempItemLedgEntry."Lot No.");
                 until TempItemLedgEntry.Next() = 0;
             end else
@@ -128,7 +128,6 @@ codeunit 12417 "VAT Allocation-Post"
             PostPurchInvItemCharge(GenJnlLine, PurchInvHeader, PurchInvLine,
               TempItemLedgEntry."Entry No.", PurchInvLine."Quantity (Base)",
               TempItemChargeAssgntPurch."Amount to Assign" * Sign,
-              TempItemChargeAssgntPurch."Qty. to Assign",
               PurchInvLine."Indirect Cost %",
               TempItemLedgEntry."Serial No.", TempItemLedgEntry."Lot No.");
     end;
@@ -171,7 +170,7 @@ codeunit 12417 "VAT Allocation-Post"
                     if Factor < 1 then begin
                         PostPurchCrMemoItemCharge(GenJnlLine, PurchCrMemoHeader, PurchCrMemoLine,
                           TempItemLedgEntry."Entry No.", TempItemLedgEntry.Quantity,
-                          AmountToAssign * Sign, QtyToAssign, PurchCrMemoLine."Indirect Cost %",
+                          AmountToAssign * Sign, PurchCrMemoLine."Indirect Cost %",
                           TempItemLedgEntry."Serial No.", TempItemLedgEntry."Lot No.");
                         NonDistrQuantity := NonDistrQuantity - TempItemLedgEntry.Quantity;
                         NonDistrQtyToAssign := NonDistrQtyToAssign - QtyToAssign;
@@ -179,7 +178,7 @@ codeunit 12417 "VAT Allocation-Post"
                     end else // the last time
                         PostPurchCrMemoItemCharge(GenJnlLine, PurchCrMemoHeader, PurchCrMemoLine,
                           TempItemLedgEntry."Entry No.", TempItemLedgEntry.Quantity,
-                          NonDistrAmountToAssign * Sign, NonDistrQtyToAssign, PurchCrMemoLine."Indirect Cost %",
+                          NonDistrAmountToAssign * Sign, PurchCrMemoLine."Indirect Cost %",
                           TempItemLedgEntry."Serial No.", TempItemLedgEntry."Lot No.");
                 until TempItemLedgEntry.Next() = 0;
             end else
@@ -188,7 +187,6 @@ codeunit 12417 "VAT Allocation-Post"
             PostPurchCrMemoItemCharge(GenJnlLine, PurchCrMemoHeader, PurchCrMemoLine,
               TempItemLedgEntry."Entry No.", PurchCrMemoLine."Quantity (Base)",
               TempItemChargeAssgntPurch."Amount to Assign" * Sign,
-              TempItemChargeAssgntPurch."Qty. to Assign",
               PurchCrMemoLine."Indirect Cost %",
               TempItemLedgEntry."Serial No.", TempItemLedgEntry."Lot No.");
     end;
@@ -231,7 +229,7 @@ codeunit 12417 "VAT Allocation-Post"
                     if Factor < 1 then begin
                         PostSalesInvItemCharge(GenJnlLine, SalesInvHeader, SalesInvLine,
                           TempItemLedgEntry."Entry No.", TempItemLedgEntry.Quantity,
-                          AmountToAssign * Sign, QtyToAssign,
+                          AmountToAssign * Sign,
                           TempItemLedgEntry."Serial No.", TempItemLedgEntry."Lot No.");
                         NonDistrQuantity := NonDistrQuantity - TempItemLedgEntry.Quantity;
                         NonDistrQtyToAssign := NonDistrQtyToAssign - QtyToAssign;
@@ -239,7 +237,7 @@ codeunit 12417 "VAT Allocation-Post"
                     end else // the last time
                         PostSalesInvItemCharge(GenJnlLine, SalesInvHeader, SalesInvLine,
                           TempItemLedgEntry."Entry No.", TempItemLedgEntry.Quantity,
-                          NonDistrAmountToAssign * Sign, NonDistrQtyToAssign,
+                          NonDistrAmountToAssign * Sign,
                           TempItemLedgEntry."Serial No.", TempItemLedgEntry."Lot No.");
                 until TempItemLedgEntry.Next() = 0;
             end else
@@ -248,7 +246,6 @@ codeunit 12417 "VAT Allocation-Post"
             PostSalesInvItemCharge(GenJnlLine, SalesInvHeader, SalesInvLine,
               TempItemLedgEntry."Entry No.", SalesInvLine."Quantity (Base)",
               TempItemChargeAssgntSales."Amount to Assign" * Sign,
-              TempItemChargeAssgntSales."Qty. to Assign",
               TempItemLedgEntry."Serial No.", TempItemLedgEntry."Lot No.");
     end;
 
@@ -290,7 +287,7 @@ codeunit 12417 "VAT Allocation-Post"
                     if Factor < 1 then begin
                         PostSalesCrMemoItemCharge(GenJnlLine, SalesCrMemoHeader, SalesCrMemoLine,
                           TempItemLedgEntry."Entry No.", TempItemLedgEntry.Quantity,
-                          AmountToAssign * Sign, QtyToAssign,
+                          AmountToAssign * Sign,
                           TempItemLedgEntry."Serial No.", TempItemLedgEntry."Lot No.");
                         NonDistrQuantity := NonDistrQuantity - TempItemLedgEntry.Quantity;
                         NonDistrQtyToAssign := NonDistrQtyToAssign - QtyToAssign;
@@ -298,7 +295,7 @@ codeunit 12417 "VAT Allocation-Post"
                     end else // the last time
                         PostSalesCrMemoItemCharge(GenJnlLine, SalesCrMemoHeader, SalesCrMemoLine,
                           TempItemLedgEntry."Entry No.", TempItemLedgEntry.Quantity,
-                          NonDistrAmountToAssign * Sign, NonDistrQtyToAssign,
+                          NonDistrAmountToAssign * Sign,
                           TempItemLedgEntry."Serial No.", TempItemLedgEntry."Lot No.");
                 until TempItemLedgEntry.Next() = 0;
             end else
@@ -307,11 +304,10 @@ codeunit 12417 "VAT Allocation-Post"
             PostSalesCrMemoItemCharge(GenJnlLine, SalesCrMemoHeader, SalesCrMemoLine,
               TempItemLedgEntry."Entry No.", SalesCrMemoLine."Quantity (Base)",
               TempItemChargeAssgntSales."Amount to Assign" * Sign,
-              TempItemChargeAssgntSales."Qty. to Assign",
               TempItemLedgEntry."Serial No.", TempItemLedgEntry."Lot No.");
     end;
 
-    local procedure PostPurchInvItemCharge(GenJnlLine: Record "Gen. Journal Line"; PurchInvHeader: Record "Purch. Inv. Header"; PurchInvLine: Record "Purch. Inv. Line"; ItemEntryNo: Integer; QuantityBase: Decimal; AmountToAssign: Decimal; QtyToAssign: Decimal; IndirectCostPct: Decimal; SerialNo: Code[50]; LotNo: Code[50])
+    local procedure PostPurchInvItemCharge(GenJnlLine: Record "Gen. Journal Line"; PurchInvHeader: Record "Purch. Inv. Header"; PurchInvLine: Record "Purch. Inv. Line"; ItemEntryNo: Integer; QuantityBase: Decimal; AmountToAssign: Decimal; IndirectCostPct: Decimal; SerialNo: Code[50]; LotNo: Code[50])
     var
         ItemJnlLine: Record "Item Journal Line";
         Currency: Record Currency;
@@ -319,36 +315,34 @@ codeunit 12417 "VAT Allocation-Post"
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         Usedate: Date;
     begin
-        with TempItemChargeAssgntPurch do begin
-            PrepareGenJnlLinePurch(ItemJnlLine, GenJnlLine, SerialNo, LotNo, AmountToAssign, ItemEntryNo,
-              IndirectCostPct, ItemJnlLine."Document Type"::"Purchase Invoice");
+        PrepareGenJnlLinePurch(ItemJnlLine, GenJnlLine, SerialNo, LotNo, AmountToAssign, ItemEntryNo,
+          IndirectCostPct, ItemJnlLine."Document Type"::"Purchase Invoice");
 
-            ItemJnlLine.CopyFromPurchInvHeader(PurchInvHeader);
-            ItemJnlLine.CopyFromPurchInvLine(PurchInvLine);
-            ItemJnlLine.Quantity := 0;
-            ItemJnlLine."Quantity (Base)" := 0;
+        ItemJnlLine.CopyFromPurchInvHeader(PurchInvHeader);
+        ItemJnlLine.CopyFromPurchInvLine(PurchInvLine);
+        ItemJnlLine.Quantity := 0;
+        ItemJnlLine."Quantity (Base)" := 0;
 
-            if PurchInvHeader."Currency Code" <> '' then begin
-                Currency.Get(PurchInvHeader."Currency Code");
-                ItemJnlLine."Unit Cost" := Round(
-                    ItemJnlLine.Amount / QuantityBase, Currency."Unit-Amount Rounding Precision");
-                TotalChargeAmt := TotalChargeAmt + ItemJnlLine.Amount;
-                if PurchInvHeader."Currency Code" <> '' then
-                    ItemJnlLine.Amount := CurrExchRate.ExchangeAmtFCYToLCY(
-                        Usedate, PurchInvHeader."Currency Code", TotalChargeAmt, PurchInvHeader."Currency Factor");
-            end else
-                ItemJnlLine."Unit Cost" := Round(
-                    ItemJnlLine.Amount / QuantityBase, GLSetup."Unit-Amount Rounding Precision");
-
-            ItemJnlLine.Amount := Round(ItemJnlLine.Amount, GLSetup."Amount Rounding Precision") - TotalChargeAmtLCY;
+        if PurchInvHeader."Currency Code" <> '' then begin
+            Currency.Get(PurchInvHeader."Currency Code");
+            ItemJnlLine."Unit Cost" := Round(
+                ItemJnlLine.Amount / QuantityBase, Currency."Unit-Amount Rounding Precision");
+            TotalChargeAmt := TotalChargeAmt + ItemJnlLine.Amount;
             if PurchInvHeader."Currency Code" <> '' then
-                TotalChargeAmtLCY := TotalChargeAmtLCY + ItemJnlLine.Amount;
+                ItemJnlLine.Amount := CurrExchRate.ExchangeAmtFCYToLCY(
+                    Usedate, PurchInvHeader."Currency Code", TotalChargeAmt, PurchInvHeader."Currency Factor");
+        end else
+            ItemJnlLine."Unit Cost" := Round(
+                ItemJnlLine.Amount / QuantityBase, GLSetup."Unit-Amount Rounding Precision");
 
-            ItemJnlPostLine.RunWithCheck(ItemJnlLine);
-        end;
+        ItemJnlLine.Amount := Round(ItemJnlLine.Amount, GLSetup."Amount Rounding Precision") - TotalChargeAmtLCY;
+        if PurchInvHeader."Currency Code" <> '' then
+            TotalChargeAmtLCY := TotalChargeAmtLCY + ItemJnlLine.Amount;
+
+        ItemJnlPostLine.RunWithCheck(ItemJnlLine);
     end;
 
-    local procedure PostPurchCrMemoItemCharge(GenJnlLine: Record "Gen. Journal Line"; PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; PurchCrMemoLine: Record "Purch. Cr. Memo Line"; ItemEntryNo: Integer; QuantityBase: Decimal; AmountToAssign: Decimal; QtyToAssign: Decimal; IndirectCostPct: Decimal; SerialNo: Code[50]; LotNo: Code[50])
+    local procedure PostPurchCrMemoItemCharge(GenJnlLine: Record "Gen. Journal Line"; PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; PurchCrMemoLine: Record "Purch. Cr. Memo Line"; ItemEntryNo: Integer; QuantityBase: Decimal; AmountToAssign: Decimal; IndirectCostPct: Decimal; SerialNo: Code[50]; LotNo: Code[50])
     var
         ItemJnlLine: Record "Item Journal Line";
         Currency: Record Currency;
@@ -356,36 +350,34 @@ codeunit 12417 "VAT Allocation-Post"
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         Usedate: Date;
     begin
-        with TempItemChargeAssgntPurch do begin
-            PrepareGenJnlLinePurch(ItemJnlLine, GenJnlLine, SerialNo, LotNo, AmountToAssign, ItemEntryNo,
-              IndirectCostPct, ItemJnlLine."Document Type"::"Purchase Credit Memo");
+        PrepareGenJnlLinePurch(ItemJnlLine, GenJnlLine, SerialNo, LotNo, AmountToAssign, ItemEntryNo,
+          IndirectCostPct, ItemJnlLine."Document Type"::"Purchase Credit Memo");
 
-            ItemJnlLine.CopyFromPurchCrMemoHeader(PurchCrMemoHeader);
-            ItemJnlLine.CopyFromPurchCrMemoLine(PurchCrMemoLine);
-            ItemJnlLine.Quantity := 0;
-            ItemJnlLine."Quantity (Base)" := 0;
+        ItemJnlLine.CopyFromPurchCrMemoHeader(PurchCrMemoHeader);
+        ItemJnlLine.CopyFromPurchCrMemoLine(PurchCrMemoLine);
+        ItemJnlLine.Quantity := 0;
+        ItemJnlLine."Quantity (Base)" := 0;
 
-            if PurchCrMemoHeader."Currency Code" <> '' then begin
-                Currency.Get(PurchCrMemoHeader."Currency Code");
-                ItemJnlLine."Unit Cost" := Round(
-                    ItemJnlLine.Amount / QuantityBase, Currency."Unit-Amount Rounding Precision");
-                TotalChargeAmt := TotalChargeAmt + ItemJnlLine.Amount;
-                if PurchCrMemoHeader."Currency Code" <> '' then
-                    ItemJnlLine.Amount := CurrExchRate.ExchangeAmtFCYToLCY(
-                        Usedate, PurchCrMemoHeader."Currency Code", TotalChargeAmt, PurchCrMemoHeader."Currency Factor");
-            end else
-                ItemJnlLine."Unit Cost" := Round(
-                    ItemJnlLine.Amount / QuantityBase, GLSetup."Unit-Amount Rounding Precision");
-
-            ItemJnlLine.Amount := Round(ItemJnlLine.Amount, GLSetup."Amount Rounding Precision") - TotalChargeAmtLCY;
+        if PurchCrMemoHeader."Currency Code" <> '' then begin
+            Currency.Get(PurchCrMemoHeader."Currency Code");
+            ItemJnlLine."Unit Cost" := Round(
+                ItemJnlLine.Amount / QuantityBase, Currency."Unit-Amount Rounding Precision");
+            TotalChargeAmt := TotalChargeAmt + ItemJnlLine.Amount;
             if PurchCrMemoHeader."Currency Code" <> '' then
-                TotalChargeAmtLCY := TotalChargeAmtLCY + ItemJnlLine.Amount;
+                ItemJnlLine.Amount := CurrExchRate.ExchangeAmtFCYToLCY(
+                    Usedate, PurchCrMemoHeader."Currency Code", TotalChargeAmt, PurchCrMemoHeader."Currency Factor");
+        end else
+            ItemJnlLine."Unit Cost" := Round(
+                ItemJnlLine.Amount / QuantityBase, GLSetup."Unit-Amount Rounding Precision");
 
-            ItemJnlPostLine.RunWithCheck(ItemJnlLine);
-        end;
+        ItemJnlLine.Amount := Round(ItemJnlLine.Amount, GLSetup."Amount Rounding Precision") - TotalChargeAmtLCY;
+        if PurchCrMemoHeader."Currency Code" <> '' then
+            TotalChargeAmtLCY := TotalChargeAmtLCY + ItemJnlLine.Amount;
+
+        ItemJnlPostLine.RunWithCheck(ItemJnlLine);
     end;
 
-    local procedure PostSalesInvItemCharge(GenJnlLine: Record "Gen. Journal Line"; SalesInvHeader: Record "Sales Invoice Header"; SalesInvLine: Record "Sales Invoice Line"; ItemEntryNo: Integer; QuantityBase: Decimal; AmountToAssign: Decimal; QtyToAssign: Decimal; SerialNo: Code[50]; LotNo: Code[50])
+    local procedure PostSalesInvItemCharge(GenJnlLine: Record "Gen. Journal Line"; SalesInvHeader: Record "Sales Invoice Header"; SalesInvLine: Record "Sales Invoice Line"; ItemEntryNo: Integer; QuantityBase: Decimal; AmountToAssign: Decimal; SerialNo: Code[50]; LotNo: Code[50])
     var
         ItemJnlLine: Record "Item Journal Line";
         Currency: Record Currency;
@@ -393,36 +385,34 @@ codeunit 12417 "VAT Allocation-Post"
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         Usedate: Date;
     begin
-        with TempItemChargeAssgntSales do begin
-            PrepareGenJnlLineSales(ItemJnlLine, GenJnlLine, SerialNo, LotNo, AmountToAssign, ItemEntryNo,
-              ItemJnlLine."Document Type"::"Sales Invoice");
+        PrepareGenJnlLineSales(ItemJnlLine, GenJnlLine, SerialNo, LotNo, AmountToAssign, ItemEntryNo,
+          ItemJnlLine."Document Type"::"Sales Invoice");
 
-            ItemJnlLine.CopyFromSalesInvHeader(SalesInvHeader);
-            ItemJnlLine.CopyFromSalesInvLine(SalesInvLine);
-            ItemJnlLine.Quantity := 0;
-            ItemJnlLine."Quantity (Base)" := 0;
+        ItemJnlLine.CopyFromSalesInvHeader(SalesInvHeader);
+        ItemJnlLine.CopyFromSalesInvLine(SalesInvLine);
+        ItemJnlLine.Quantity := 0;
+        ItemJnlLine."Quantity (Base)" := 0;
 
-            if SalesInvHeader."Currency Code" <> '' then begin
-                Currency.Get(SalesInvHeader."Currency Code");
-                ItemJnlLine."Unit Cost" := Round(
-                    ItemJnlLine.Amount / QuantityBase, Currency."Unit-Amount Rounding Precision");
-                TotalChargeAmt := TotalChargeAmt + ItemJnlLine.Amount;
-                if SalesInvHeader."Currency Code" <> '' then
-                    ItemJnlLine.Amount := CurrExchRate.ExchangeAmtFCYToLCY(
-                        Usedate, SalesInvHeader."Currency Code", TotalChargeAmt, SalesInvHeader."Currency Factor");
-            end else
-                ItemJnlLine."Unit Cost" := Round(
-                    ItemJnlLine.Amount / QuantityBase, GLSetup."Unit-Amount Rounding Precision");
-
-            ItemJnlLine.Amount := Round(ItemJnlLine.Amount, GLSetup."Amount Rounding Precision") - TotalChargeAmtLCY;
+        if SalesInvHeader."Currency Code" <> '' then begin
+            Currency.Get(SalesInvHeader."Currency Code");
+            ItemJnlLine."Unit Cost" := Round(
+                ItemJnlLine.Amount / QuantityBase, Currency."Unit-Amount Rounding Precision");
+            TotalChargeAmt := TotalChargeAmt + ItemJnlLine.Amount;
             if SalesInvHeader."Currency Code" <> '' then
-                TotalChargeAmtLCY := TotalChargeAmtLCY + ItemJnlLine.Amount;
+                ItemJnlLine.Amount := CurrExchRate.ExchangeAmtFCYToLCY(
+                    Usedate, SalesInvHeader."Currency Code", TotalChargeAmt, SalesInvHeader."Currency Factor");
+        end else
+            ItemJnlLine."Unit Cost" := Round(
+                ItemJnlLine.Amount / QuantityBase, GLSetup."Unit-Amount Rounding Precision");
 
-            ItemJnlPostLine.RunWithCheck(ItemJnlLine);
-        end;
+        ItemJnlLine.Amount := Round(ItemJnlLine.Amount, GLSetup."Amount Rounding Precision") - TotalChargeAmtLCY;
+        if SalesInvHeader."Currency Code" <> '' then
+            TotalChargeAmtLCY := TotalChargeAmtLCY + ItemJnlLine.Amount;
+
+        ItemJnlPostLine.RunWithCheck(ItemJnlLine);
     end;
 
-    local procedure PostSalesCrMemoItemCharge(GenJnlLine: Record "Gen. Journal Line"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesCrMemoLine: Record "Sales Cr.Memo Line"; ItemEntryNo: Integer; QuantityBase: Decimal; AmountToAssign: Decimal; QtyToAssign: Decimal; SerialNo: Code[50]; LotNo: Code[50])
+    local procedure PostSalesCrMemoItemCharge(GenJnlLine: Record "Gen. Journal Line"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesCrMemoLine: Record "Sales Cr.Memo Line"; ItemEntryNo: Integer; QuantityBase: Decimal; AmountToAssign: Decimal; SerialNo: Code[50]; LotNo: Code[50])
     var
         ItemJnlLine: Record "Item Journal Line";
         Currency: Record Currency;
@@ -430,33 +420,31 @@ codeunit 12417 "VAT Allocation-Post"
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         Usedate: Date;
     begin
-        with TempItemChargeAssgntSales do begin
-            PrepareGenJnlLineSales(ItemJnlLine, GenJnlLine, SerialNo, LotNo, AmountToAssign, ItemEntryNo,
-              ItemJnlLine."Document Type"::"Sales Credit Memo");
+        PrepareGenJnlLineSales(ItemJnlLine, GenJnlLine, SerialNo, LotNo, AmountToAssign, ItemEntryNo,
+          ItemJnlLine."Document Type"::"Sales Credit Memo");
 
-            ItemJnlLine.CopyFromSalesCrMemoHeader(SalesCrMemoHeader);
-            ItemJnlLine.CopyFromSalesCrMemoLine(SalesCrMemoLine);
-            ItemJnlLine.Quantity := 0;
-            ItemJnlLine."Quantity (Base)" := 0;
+        ItemJnlLine.CopyFromSalesCrMemoHeader(SalesCrMemoHeader);
+        ItemJnlLine.CopyFromSalesCrMemoLine(SalesCrMemoLine);
+        ItemJnlLine.Quantity := 0;
+        ItemJnlLine."Quantity (Base)" := 0;
 
-            if SalesCrMemoHeader."Currency Code" <> '' then begin
-                Currency.Get(SalesCrMemoHeader."Currency Code");
-                ItemJnlLine."Unit Cost" := Round(
-                    ItemJnlLine.Amount / QuantityBase, Currency."Unit-Amount Rounding Precision");
-                TotalChargeAmt := TotalChargeAmt + ItemJnlLine.Amount;
-                if SalesCrMemoHeader."Currency Code" <> '' then
-                    ItemJnlLine.Amount := CurrExchRate.ExchangeAmtFCYToLCY(
-                        Usedate, SalesCrMemoHeader."Currency Code", TotalChargeAmt, SalesCrMemoHeader."Currency Factor");
-            end else
-                ItemJnlLine."Unit Cost" := Round(
-                    ItemJnlLine.Amount / QuantityBase, GLSetup."Unit-Amount Rounding Precision");
+        if SalesCrMemoHeader."Currency Code" <> '' then begin
+            Currency.Get(SalesCrMemoHeader."Currency Code");
+            ItemJnlLine."Unit Cost" := Round(
+                ItemJnlLine.Amount / QuantityBase, Currency."Unit-Amount Rounding Precision");
+            TotalChargeAmt := TotalChargeAmt + ItemJnlLine.Amount;
+            if SalesCrMemoHeader."Currency Code" <> '' then
+                ItemJnlLine.Amount := CurrExchRate.ExchangeAmtFCYToLCY(
+                    Usedate, SalesCrMemoHeader."Currency Code", TotalChargeAmt, SalesCrMemoHeader."Currency Factor");
+        end else
+            ItemJnlLine."Unit Cost" := Round(
+                ItemJnlLine.Amount / QuantityBase, GLSetup."Unit-Amount Rounding Precision");
 
-            ItemJnlLine.Amount := Round(ItemJnlLine.Amount, GLSetup."Amount Rounding Precision") - TotalChargeAmtLCY;
-            if PurchCrMemoHeader."Currency Code" <> '' then
-                TotalChargeAmtLCY := TotalChargeAmtLCY + ItemJnlLine.Amount;
+        ItemJnlLine.Amount := Round(ItemJnlLine.Amount, GLSetup."Amount Rounding Precision") - TotalChargeAmtLCY;
+        if PurchCrMemoHeader."Currency Code" <> '' then
+            TotalChargeAmtLCY := TotalChargeAmtLCY + ItemJnlLine.Amount;
 
-            ItemJnlPostLine.RunWithCheck(ItemJnlLine);
-        end;
+        ItemJnlPostLine.RunWithCheck(ItemJnlLine);
     end;
 
     [Scope('OnPrem')]
@@ -639,103 +627,95 @@ codeunit 12417 "VAT Allocation-Post"
         end;
     end;
 
-    local procedure InsertItemChargeAssgntPurch(var NextLineNo: Integer; var TotalAmount: Decimal; DocumentNo: Code[20]; LineNo: Integer; ItemNo: Code[20]; Description: Text[100]; UnitCostLCY: Decimal; LineAmount: Decimal): Decimal
+    local procedure InsertItemChargeAssgntPurch(var NextLineNo: Integer; DocumentNo: Code[20]; LineNo: Integer; ItemNo: Code[20]; UnitCostLCY: Decimal; LineAmount: Decimal): Decimal
     begin
-        with TempItemChargeAssgntPurch do begin
-            Init();
-            "Line No." := NextLineNo;
-            NextLineNo := NextLineNo + 10000;
-            VATPostingSetup.TestField("VAT Charge No.");
-            "Item Charge No." := VATPostingSetup."VAT Charge No.";
-            "Applies-to Doc. Type" := "Applies-to Doc. Type"::Invoice;
-            "Applies-to Doc. No." := DocumentNo;
-            "Applies-to Doc. Line No." := LineNo;
-            "Item No." := ItemNo;
-            Description := Description;
-            "Unit Cost" := UnitCostLCY;
-            "Applies-to Doc. Line Amount" := LineAmount;
-            Insert();
-            exit("Applies-to Doc. Line Amount");
-        end;
+        TempItemChargeAssgntPurch.Init();
+        TempItemChargeAssgntPurch."Line No." := NextLineNo;
+        NextLineNo := NextLineNo + 10000;
+        VATPostingSetup.TestField("VAT Charge No.");
+        TempItemChargeAssgntPurch."Item Charge No." := VATPostingSetup."VAT Charge No.";
+        TempItemChargeAssgntPurch."Applies-to Doc. Type" := TempItemChargeAssgntPurch."Applies-to Doc. Type"::Invoice;
+        TempItemChargeAssgntPurch."Applies-to Doc. No." := DocumentNo;
+        TempItemChargeAssgntPurch."Applies-to Doc. Line No." := LineNo;
+        TempItemChargeAssgntPurch."Item No." := ItemNo;
+        TempItemChargeAssgntPurch.Description := TempItemChargeAssgntPurch.Description;
+        TempItemChargeAssgntPurch."Unit Cost" := UnitCostLCY;
+        TempItemChargeAssgntPurch."Applies-to Doc. Line Amount" := LineAmount;
+        TempItemChargeAssgntPurch.Insert();
+        exit(TempItemChargeAssgntPurch."Applies-to Doc. Line Amount");
     end;
 
-    local procedure InsertItemChargeAssgntSales(NextLineNo: Integer; var TotalAmount: Decimal; DocumentNo: Code[20]; LineNo: Integer; ItemNo: Code[20]; Description: Text[100]; UnitCostLCY: Decimal; LineAmount: Decimal): Decimal
+    local procedure InsertItemChargeAssgntSales(NextLineNo: Integer; DocumentNo: Code[20]; LineNo: Integer; ItemNo: Code[20]; UnitCostLCY: Decimal; LineAmount: Decimal): Decimal
     begin
-        with TempItemChargeAssgntSales do begin
-            Init();
-            "Document Line No." := LineNo;
-            "Line No." := NextLineNo;
-            NextLineNo := NextLineNo + 10000;
-            VATPostingSetup.TestField("VAT Charge No.");
-            "Item Charge No." := VATPostingSetup."VAT Charge No.";
-            "Applies-to Doc. Type" := "Applies-to Doc. Type"::Invoice;
-            "Applies-to Doc. No." := DocumentNo;
-            "Applies-to Doc. Line No." := LineNo;
-            "Item No." := ItemNo;
-            Description := Description;
-            "Unit Cost" := UnitCostLCY;
-            "Applies-to Doc. Line Amount" := LineAmount;
-            Insert();
-            exit("Applies-to Doc. Line Amount");
-        end;
+        TempItemChargeAssgntSales.Init();
+        TempItemChargeAssgntSales."Document Line No." := LineNo;
+        TempItemChargeAssgntSales."Line No." := NextLineNo;
+        NextLineNo := NextLineNo + 10000;
+        VATPostingSetup.TestField("VAT Charge No.");
+        TempItemChargeAssgntSales."Item Charge No." := VATPostingSetup."VAT Charge No.";
+        TempItemChargeAssgntSales."Applies-to Doc. Type" := TempItemChargeAssgntSales."Applies-to Doc. Type"::Invoice;
+        TempItemChargeAssgntSales."Applies-to Doc. No." := DocumentNo;
+        TempItemChargeAssgntSales."Applies-to Doc. Line No." := LineNo;
+        TempItemChargeAssgntSales."Item No." := ItemNo;
+        TempItemChargeAssgntSales.Description := TempItemChargeAssgntSales.Description;
+        TempItemChargeAssgntSales."Unit Cost" := UnitCostLCY;
+        TempItemChargeAssgntSales."Applies-to Doc. Line Amount" := LineAmount;
+        TempItemChargeAssgntSales.Insert();
+        exit(TempItemChargeAssgntSales."Applies-to Doc. Line Amount");
     end;
 
     local procedure PrepareGenJnlLinePurch(var ItemJnlLine: Record "Item Journal Line"; GenJnlLine: Record "Gen. Journal Line"; SerialNo: Code[50]; LotNo: Code[50]; AmountToAssign: Decimal; ItemEntryNo: Integer; IndirectCostPct: Decimal; DocumentType: Enum "Item Ledger Document Type")
     begin
-        with ItemJnlLine do begin
-            Init();
-            "Posting Date" := GenJnlLine."Posting Date";
-            "Document Date" := GenJnlLine."Document Date";
-            Description := TempItemChargeAssgntPurch.Description;
-            "Item No." := TempItemChargeAssgntPurch."Item No.";
-            "Serial No." := SerialNo;
-            "Lot No." := LotNo;
-            "Job Purchase" := "Job No." <> '';
-            "Drop Shipment" := false;
-            "Entry Type" := "Entry Type"::Purchase;
-            "Document Type" := DocumentType;
-            "Invoice No." := GenJnlLine."Document No.";
-            "External Document No." := GenJnlLine."External Document No.";
-            "Invoiced Quantity" := TempItemChargeAssgntPurch."Qty. to Assign";
-            "Invoiced Qty. (Base)" := TempItemChargeAssgntPurch."Qty. to Assign";
-            "Value Entry Type" := "Value Entry Type"::"Direct Cost";
-            "Item Charge No." := TempItemChargeAssgntPurch."Item Charge No.";
-            Amount := AmountToAssign;
-            "Source Type" := "Source Type"::Vendor;
-            "Source Code" := SourceCodeSetup."VAT Allocation on Cost";
-            "Applies-to Entry" := ItemEntryNo;
-            "Item Shpt. Entry No." := ItemEntryNo;
-            "Indirect Cost %" := IndirectCostPct;
-        end;
+        ItemJnlLine.Init();
+        ItemJnlLine."Posting Date" := GenJnlLine."Posting Date";
+        ItemJnlLine."Document Date" := GenJnlLine."Document Date";
+        ItemJnlLine.Description := TempItemChargeAssgntPurch.Description;
+        ItemJnlLine."Item No." := TempItemChargeAssgntPurch."Item No.";
+        ItemJnlLine."Serial No." := SerialNo;
+        ItemJnlLine."Lot No." := LotNo;
+        ItemJnlLine."Job Purchase" := ItemJnlLine."Job No." <> '';
+        ItemJnlLine."Drop Shipment" := false;
+        ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::Purchase;
+        ItemJnlLine."Document Type" := DocumentType;
+        ItemJnlLine."Invoice No." := GenJnlLine."Document No.";
+        ItemJnlLine."External Document No." := GenJnlLine."External Document No.";
+        ItemJnlLine."Invoiced Quantity" := TempItemChargeAssgntPurch."Qty. to Assign";
+        ItemJnlLine."Invoiced Qty. (Base)" := TempItemChargeAssgntPurch."Qty. to Assign";
+        ItemJnlLine."Value Entry Type" := ItemJnlLine."Value Entry Type"::"Direct Cost";
+        ItemJnlLine."Item Charge No." := TempItemChargeAssgntPurch."Item Charge No.";
+        ItemJnlLine.Amount := AmountToAssign;
+        ItemJnlLine."Source Type" := ItemJnlLine."Source Type"::Vendor;
+        ItemJnlLine."Source Code" := SourceCodeSetup."VAT Allocation on Cost";
+        ItemJnlLine."Applies-to Entry" := ItemEntryNo;
+        ItemJnlLine."Item Shpt. Entry No." := ItemEntryNo;
+        ItemJnlLine."Indirect Cost %" := IndirectCostPct;
     end;
 
     [Scope('OnPrem')]
     procedure PrepareGenJnlLineSales(var ItemJnlLine: Record "Item Journal Line"; GenJnlLine: Record "Gen. Journal Line"; SerialNo: Code[50]; LotNo: Code[50]; AmountToAssign: Decimal; ItemEntryNo: Integer; DocumentType: Enum "Item Ledger Document Type")
     begin
-        with ItemJnlLine do begin
-            Init();
-            "Posting Date" := GenJnlLine."Posting Date";
-            "Document Date" := GenJnlLine."Document Date";
-            Description := TempItemChargeAssgntSales.Description;
-            "Item No." := TempItemChargeAssgntSales."Item No.";
-            "Serial No." := SerialNo;
-            "Lot No." := LotNo;
-            "Job Purchase" := "Job No." <> '';
-            "Drop Shipment" := false;
-            "Entry Type" := "Entry Type"::Purchase;
-            "Document Type" := DocumentType;
-            "Invoice No." := GenJnlLine."Document No.";
-            "External Document No." := GenJnlLine."External Document No.";
-            "Invoiced Quantity" := TempItemChargeAssgntSales."Qty. to Assign";
-            "Invoiced Qty. (Base)" := TempItemChargeAssgntSales."Qty. to Assign";
-            "Value Entry Type" := "Value Entry Type"::"Direct Cost";
-            "Item Charge No." := TempItemChargeAssgntSales."Item Charge No.";
-            Amount := AmountToAssign;
-            "Source Type" := "Source Type"::Vendor;
-            "Source Code" := SourceCodeSetup."VAT Allocation on Cost";
-            "Applies-to Entry" := ItemEntryNo;
-            "Item Shpt. Entry No." := ItemEntryNo;
-        end;
+        ItemJnlLine.Init();
+        ItemJnlLine."Posting Date" := GenJnlLine."Posting Date";
+        ItemJnlLine."Document Date" := GenJnlLine."Document Date";
+        ItemJnlLine.Description := TempItemChargeAssgntSales.Description;
+        ItemJnlLine."Item No." := TempItemChargeAssgntSales."Item No.";
+        ItemJnlLine."Serial No." := SerialNo;
+        ItemJnlLine."Lot No." := LotNo;
+        ItemJnlLine."Job Purchase" := ItemJnlLine."Job No." <> '';
+        ItemJnlLine."Drop Shipment" := false;
+        ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::Purchase;
+        ItemJnlLine."Document Type" := DocumentType;
+        ItemJnlLine."Invoice No." := GenJnlLine."Document No.";
+        ItemJnlLine."External Document No." := GenJnlLine."External Document No.";
+        ItemJnlLine."Invoiced Quantity" := TempItemChargeAssgntSales."Qty. to Assign";
+        ItemJnlLine."Invoiced Qty. (Base)" := TempItemChargeAssgntSales."Qty. to Assign";
+        ItemJnlLine."Value Entry Type" := ItemJnlLine."Value Entry Type"::"Direct Cost";
+        ItemJnlLine."Item Charge No." := TempItemChargeAssgntSales."Item Charge No.";
+        ItemJnlLine.Amount := AmountToAssign;
+        ItemJnlLine."Source Type" := ItemJnlLine."Source Type"::Vendor;
+        ItemJnlLine."Source Code" := SourceCodeSetup."VAT Allocation on Cost";
+        ItemJnlLine."Applies-to Entry" := ItemEntryNo;
+        ItemJnlLine."Item Shpt. Entry No." := ItemEntryNo;
     end;
 
     [Scope('OnPrem')]
@@ -760,30 +740,30 @@ codeunit 12417 "VAT Allocation-Post"
     begin
         case GenJnlLine."Document Type" of
             GenJnlLine."Document Type"::Invoice:
-                with PurchInvLine do begin
-                    Reset();
-                    SetRange("Document No.", GenJnlLine."Document No.");
-                    SetRange(Type, Type::Item);
-                    SetRange("VAT Bus. Posting Group", VATAllocLine."VAT Bus. Posting Group");
-                    SetRange("VAT Prod. Posting Group", VATAllocLine."VAT Prod. Posting Group");
-                    if FindSet() then
+                begin
+                    PurchInvLine.Reset();
+                    PurchInvLine.SetRange("Document No.", GenJnlLine."Document No.");
+                    PurchInvLine.SetRange(Type, PurchInvLine.Type::Item);
+                    PurchInvLine.SetRange("VAT Bus. Posting Group", VATAllocLine."VAT Bus. Posting Group");
+                    PurchInvLine.SetRange("VAT Prod. Posting Group", VATAllocLine."VAT Prod. Posting Group");
+                    if PurchInvLine.FindSet() then
                         repeat
-                            TotalAmount := TotalAmount + InsertItemChargeAssgntPurch(NextLineNo, TotalAmount, "Document No.", "Line No.",
-                                "No.", Description, "Unit Cost (LCY)", "Line Amount");
-                        until Next() = 0;
+                            TotalAmount := TotalAmount + InsertItemChargeAssgntPurch(NextLineNo, PurchInvLine."Document No.", PurchInvLine."Line No.",
+                                PurchInvLine."No.", PurchInvLine."Unit Cost (LCY)", PurchInvLine."Line Amount");
+                        until PurchInvLine.Next() = 0;
                 end;
             GenJnlLine."Document Type"::"Credit Memo":
-                with PurchCrMemoLine do begin
-                    Reset();
-                    SetRange("Document No.", GenJnlLine."Document No.");
-                    SetRange(Type, Type::Item);
-                    SetRange("VAT Bus. Posting Group", VATAllocLine."VAT Bus. Posting Group");
-                    SetRange("VAT Prod. Posting Group", VATAllocLine."VAT Prod. Posting Group");
-                    if FindSet() then
+                begin
+                    PurchCrMemoLine.Reset();
+                    PurchCrMemoLine.SetRange("Document No.", GenJnlLine."Document No.");
+                    PurchCrMemoLine.SetRange(Type, PurchCrMemoLine.Type::Item);
+                    PurchCrMemoLine.SetRange("VAT Bus. Posting Group", VATAllocLine."VAT Bus. Posting Group");
+                    PurchCrMemoLine.SetRange("VAT Prod. Posting Group", VATAllocLine."VAT Prod. Posting Group");
+                    if PurchCrMemoLine.FindSet() then
                         repeat
-                            TotalAmount := TotalAmount + InsertItemChargeAssgntPurch(NextLineNo, TotalAmount, "Document No.", "Line No.",
-                                "No.", Description, "Unit Cost (LCY)", "Line Amount");
-                        until Next() = 0;
+                            TotalAmount := TotalAmount + InsertItemChargeAssgntPurch(NextLineNo, PurchCrMemoLine."Document No.", PurchCrMemoLine."Line No.",
+                                PurchCrMemoLine."No.", PurchCrMemoLine."Unit Cost (LCY)", PurchCrMemoLine."Line Amount");
+                        until PurchCrMemoLine.Next() = 0;
                 end;
             else
                 GenJnlLine.FieldError("Document Type");
@@ -853,33 +833,33 @@ codeunit 12417 "VAT Allocation-Post"
     begin
         case GenJnlLine."Document Type" of
             GenJnlLine."Document Type"::Invoice:
-                with SalesInvLine do begin
-                    Reset();
-                    SetRange("Document No.", GenJnlLine."Document No.");
-                    SetRange(Type, Type::Item);
-                    SetRange("VAT Bus. Posting Group", VATAllocLine."VAT Bus. Posting Group");
-                    SetRange("VAT Prod. Posting Group", VATAllocLine."VAT Prod. Posting Group");
-                    if FindSet() then
+                begin
+                    SalesInvLine.Reset();
+                    SalesInvLine.SetRange("Document No.", GenJnlLine."Document No.");
+                    SalesInvLine.SetRange(Type, SalesInvLine.Type::Item);
+                    SalesInvLine.SetRange("VAT Bus. Posting Group", VATAllocLine."VAT Bus. Posting Group");
+                    SalesInvLine.SetRange("VAT Prod. Posting Group", VATAllocLine."VAT Prod. Posting Group");
+                    if SalesInvLine.FindSet() then
                         repeat
                             TotalAmount :=
                               TotalAmount +
                               InsertItemChargeAssgntSales(
-                                NextLineNo, TotalAmount, "Document No.", "Line No.",
-                                "No.", Description, "Unit Cost (LCY)", "Line Amount");
-                        until Next() = 0;
+                                NextLineNo, SalesInvLine."Document No.", SalesInvLine."Line No.",
+                                SalesInvLine."No.", SalesInvLine."Unit Cost (LCY)", SalesInvLine."Line Amount");
+                        until SalesInvLine.Next() = 0;
                 end;
             GenJnlLine."Document Type"::"Credit Memo":
-                with SalesCrMemoLine do begin
-                    Reset();
-                    SetRange("Document No.", GenJnlLine."Document No.");
-                    SetRange(Type, Type::Item);
-                    SetRange("VAT Bus. Posting Group", VATAllocLine."VAT Bus. Posting Group");
-                    SetRange("VAT Prod. Posting Group", VATAllocLine."VAT Prod. Posting Group");
-                    if FindSet() then
+                begin
+                    SalesCrMemoLine.Reset();
+                    SalesCrMemoLine.SetRange("Document No.", GenJnlLine."Document No.");
+                    SalesCrMemoLine.SetRange(Type, SalesCrMemoLine.Type::Item);
+                    SalesCrMemoLine.SetRange("VAT Bus. Posting Group", VATAllocLine."VAT Bus. Posting Group");
+                    SalesCrMemoLine.SetRange("VAT Prod. Posting Group", VATAllocLine."VAT Prod. Posting Group");
+                    if SalesCrMemoLine.FindSet() then
                         repeat
-                            TotalAmount := TotalAmount + InsertItemChargeAssgntSales(NextLineNo, TotalAmount, "Document No.", "Line No.",
-                                "No.", Description, "Unit Cost (LCY)", "Line Amount");
-                        until Next() = 0;
+                            TotalAmount := TotalAmount + InsertItemChargeAssgntSales(NextLineNo, SalesCrMemoLine."Document No.", SalesCrMemoLine."Line No.",
+                                SalesCrMemoLine."No.", SalesCrMemoLine."Unit Cost (LCY)", SalesCrMemoLine."Line Amount");
+                        until SalesCrMemoLine.Next() = 0;
                 end;
             else
                 GenJnlLine.FieldError("Document Type");

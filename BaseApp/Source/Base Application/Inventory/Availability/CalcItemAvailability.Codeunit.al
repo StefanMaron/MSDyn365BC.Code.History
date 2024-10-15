@@ -502,33 +502,32 @@ codeunit 5530 "Calc. Item Availability"
     begin
         CopyOfInvtEventBuf.Copy(InvtEventBuf);
 
-        with BlanketSalesLine do
-            if FindLinesWithItemToPlan(Item, "Document Type"::"Blanket Order") then
-                repeat
-                    InvtEventBuf.SetRange(Type, InvtEventBuf.Type::Sale);
-                    InvtEventBuf.SetRange("Derived from Blanket Order", true);
-                    InvtEventBuf.SetRange("Ref. Order No.", "Document No.");
-                    InvtEventBuf.SetRange("Ref. Order Line No.", "Line No.");
-                    if InvtEventBuf.Find('-') then
-                        repeat
-                            QtyReleased -= InvtEventBuf."Remaining Quantity (Base)";
-                            OnGetBlanketSalesOrdersOnAfterAdjustQtyReleasedFromInvtEventBuf(InvtEventBuf);
-                        until InvtEventBuf.Next() = 0;
-                    SetRange("Document No.", "Document No.");
-                    SetRange("Line No.", "Line No.");
+        if BlanketSalesLine.FindLinesWithItemToPlan(Item, BlanketSalesLine."Document Type"::"Blanket Order") then
+            repeat
+                InvtEventBuf.SetRange(Type, InvtEventBuf.Type::Sale);
+                InvtEventBuf.SetRange("Derived from Blanket Order", true);
+                InvtEventBuf.SetRange("Ref. Order No.", BlanketSalesLine."Document No.");
+                InvtEventBuf.SetRange("Ref. Order Line No.", BlanketSalesLine."Line No.");
+                if InvtEventBuf.Find('-') then
                     repeat
-                        if "Outstanding Qty. (Base)" > QtyReleased then begin
-                            InvtEventBuf.TransferFromSalesBlanketOrder(BlanketSalesLine, "Outstanding Qty. (Base)" - QtyReleased);
-                            OnGetBlanketSalesOrdersOnAfterTransferFromSalesBlanketOrder(BlanketSalesLine, InvtEventBuf);
-                            InsertEntry(InvtEventBuf);
-                            QtyReleased := 0;
-                        end else
-                            QtyReleased -= "Outstanding Qty. (Base)";
-                        OnGetBlanketSalesOrdersOnAfterAssignQtyReleased(BlanketSalesLine, QtyReleased);
-                    until Next() = 0;
-                    SetRange("Document No.");
-                    SetRange("Line No.");
-                until Next() = 0;
+                        QtyReleased -= InvtEventBuf."Remaining Quantity (Base)";
+                        OnGetBlanketSalesOrdersOnAfterAdjustQtyReleasedFromInvtEventBuf(InvtEventBuf);
+                    until InvtEventBuf.Next() = 0;
+                BlanketSalesLine.SetRange("Document No.", BlanketSalesLine."Document No.");
+                BlanketSalesLine.SetRange("Line No.", BlanketSalesLine."Line No.");
+                repeat
+                    if BlanketSalesLine."Outstanding Qty. (Base)" > QtyReleased then begin
+                        InvtEventBuf.TransferFromSalesBlanketOrder(BlanketSalesLine, BlanketSalesLine."Outstanding Qty. (Base)" - QtyReleased);
+                        OnGetBlanketSalesOrdersOnAfterTransferFromSalesBlanketOrder(BlanketSalesLine, InvtEventBuf);
+                        InsertEntry(InvtEventBuf);
+                        QtyReleased := 0;
+                    end else
+                        QtyReleased -= BlanketSalesLine."Outstanding Qty. (Base)";
+                    OnGetBlanketSalesOrdersOnAfterAssignQtyReleased(BlanketSalesLine, QtyReleased);
+                until BlanketSalesLine.Next() = 0;
+                BlanketSalesLine.SetRange("Document No.");
+                BlanketSalesLine.SetRange("Line No.");
+            until BlanketSalesLine.Next() = 0;
 
         InvtEventBuf.Copy(CopyOfInvtEventBuf);
     end;
@@ -539,53 +538,51 @@ codeunit 5530 "Calc. Item Availability"
         RecRef: RecordRef;
     begin
         // Planning suggestions
-        with ReqLine do begin
-            SetRange(Type, Type::Item);
-            SetRange("No.", Item."No.");
-            SetFilter("Location Code", Item.GetFilter("Location Filter"));
-            SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-            OnGetPlanningLinesOnAfterReqLineSetFilters(ReqLine, Item);
-            if FindSet() then
-                repeat
-                    RecRef.GetTable(ReqLine);
-                    case "Action Message" of
-                        "Action Message"::New:
-                            begin
-                                InvtEventBuf.TransferFromReqLine(ReqLine, "Location Code", "Due Date", "Quantity (Base)", RecRef.RecordId);
-                                InsertEntry(InvtEventBuf);
-                            end;
-                        "Action Message"::"Change Qty.":
-                            begin
-                                InvtEventBuf.TransferFromReqLine(ReqLine, "Location Code", "Due Date", -GetOriginalQtyBase(), RecRef.RecordId);
-                                InsertEntry(InvtEventBuf);
+        ReqLine.SetRange(Type, ReqLine.Type::Item);
+        ReqLine.SetRange("No.", Item."No.");
+        ReqLine.SetFilter("Location Code", Item.GetFilter("Location Filter"));
+        ReqLine.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+        OnGetPlanningLinesOnAfterReqLineSetFilters(ReqLine, Item);
+        if ReqLine.FindSet() then
+            repeat
+                RecRef.GetTable(ReqLine);
+                case ReqLine."Action Message" of
+                    ReqLine."Action Message"::New:
+                        begin
+                            InvtEventBuf.TransferFromReqLine(ReqLine, ReqLine."Location Code", ReqLine."Due Date", ReqLine."Quantity (Base)", RecRef.RecordId);
+                            InsertEntry(InvtEventBuf);
+                        end;
+                    ReqLine."Action Message"::"Change Qty.":
+                        begin
+                            InvtEventBuf.TransferFromReqLine(ReqLine, ReqLine."Location Code", ReqLine."Due Date", -ReqLine.GetOriginalQtyBase(), RecRef.RecordId);
+                            InsertEntry(InvtEventBuf);
 
-                                InvtEventBuf.TransferFromReqLine(ReqLine, "Location Code", "Due Date", "Quantity (Base)", RecRef.RecordId);
-                                InsertEntry(InvtEventBuf);
-                            end;
-                        "Action Message"::Reschedule:
-                            begin
-                                InvtEventBuf.TransferFromReqLine(ReqLine, "Location Code", "Original Due Date", -"Quantity (Base)", RecRef.RecordId);
-                                InsertEntry(InvtEventBuf);
+                            InvtEventBuf.TransferFromReqLine(ReqLine, ReqLine."Location Code", ReqLine."Due Date", ReqLine."Quantity (Base)", RecRef.RecordId);
+                            InsertEntry(InvtEventBuf);
+                        end;
+                    ReqLine."Action Message"::Reschedule:
+                        begin
+                            InvtEventBuf.TransferFromReqLine(ReqLine, ReqLine."Location Code", ReqLine."Original Due Date", -ReqLine."Quantity (Base)", RecRef.RecordId);
+                            InsertEntry(InvtEventBuf);
 
-                                InvtEventBuf.TransferFromReqLine(ReqLine, "Location Code", "Due Date", "Quantity (Base)", RecRef.RecordId);
-                                InsertEntry(InvtEventBuf);
-                            end;
-                        "Action Message"::"Resched. & Chg. Qty.":
-                            begin
-                                InvtEventBuf.TransferFromReqLine(ReqLine, "Location Code", "Original Due Date", -GetOriginalQtyBase(), RecRef.RecordId);
-                                InsertEntry(InvtEventBuf);
+                            InvtEventBuf.TransferFromReqLine(ReqLine, ReqLine."Location Code", ReqLine."Due Date", ReqLine."Quantity (Base)", RecRef.RecordId);
+                            InsertEntry(InvtEventBuf);
+                        end;
+                    ReqLine."Action Message"::"Resched. & Chg. Qty.":
+                        begin
+                            InvtEventBuf.TransferFromReqLine(ReqLine, ReqLine."Location Code", ReqLine."Original Due Date", -ReqLine.GetOriginalQtyBase(), RecRef.RecordId);
+                            InsertEntry(InvtEventBuf);
 
-                                InvtEventBuf.TransferFromReqLine(ReqLine, "Location Code", "Due Date", "Quantity (Base)", RecRef.RecordId);
-                                InsertEntry(InvtEventBuf);
-                            end;
-                        "Action Message"::Cancel:
-                            begin
-                                InvtEventBuf.TransferFromReqLine(ReqLine, "Location Code", "Due Date", -GetOriginalQtyBase(), RecRef.RecordId);
-                                InsertEntry(InvtEventBuf);
-                            end;
-                    end;
-                until Next() = 0;
-        end;
+                            InvtEventBuf.TransferFromReqLine(ReqLine, ReqLine."Location Code", ReqLine."Due Date", ReqLine."Quantity (Base)", RecRef.RecordId);
+                            InsertEntry(InvtEventBuf);
+                        end;
+                    ReqLine."Action Message"::Cancel:
+                        begin
+                            InvtEventBuf.TransferFromReqLine(ReqLine, ReqLine."Location Code", ReqLine."Due Date", -ReqLine.GetOriginalQtyBase(), RecRef.RecordId);
+                            InsertEntry(InvtEventBuf);
+                        end;
+                end;
+            until ReqLine.Next() = 0;
 
         OnAfterGetPlanningLines(InvtEventBuf, Item, ReqLine, RecRef);
     end;
@@ -760,33 +757,31 @@ codeunit 5530 "Calc. Item Availability"
     var
         ForecastExist: Boolean;
     begin
-        with ProdForecastEntry do begin
-            SetRange("Forecast Date", ExcludeForecastBefore, FromDate);
-            if Find('+') then
+        ProdForecastEntry.SetRange("Forecast Date", ExcludeForecastBefore, FromDate);
+        if ProdForecastEntry.Find('+') then
+            repeat
+                ProdForecastEntry.SetRange("Forecast Date", ProdForecastEntry."Forecast Date");
+                ProdForecastEntry.CalcSums("Forecast Quantity (Base)");
+                if ProdForecastEntry."Forecast Quantity (Base)" <> 0 then
+                    ForecastExist := true
+                else
+                    ProdForecastEntry.SetRange("Forecast Date", ExcludeForecastBefore, ProdForecastEntry."Forecast Date" - 1);
+            until (not ProdForecastEntry.Find('+')) or ForecastExist;
+
+        if not ForecastExist then begin
+            if ExcludeForecastBefore > FromDate then
+                ProdForecastEntry.SetRange("Forecast Date", ExcludeForecastBefore, ToDate)
+            else
+                ProdForecastEntry.SetRange("Forecast Date", FromDate + 1, ToDate);
+            if ProdForecastEntry.Find('-') then
                 repeat
-                    SetRange("Forecast Date", "Forecast Date");
-                    CalcSums("Forecast Quantity (Base)");
-                    if "Forecast Quantity (Base)" <> 0 then
+                    ProdForecastEntry.SetRange("Forecast Date", ProdForecastEntry."Forecast Date");
+                    ProdForecastEntry.CalcSums("Forecast Quantity (Base)");
+                    if ProdForecastEntry."Forecast Quantity (Base)" <> 0 then
                         ForecastExist := true
                     else
-                        SetRange("Forecast Date", ExcludeForecastBefore, "Forecast Date" - 1);
-                until (not Find('+')) or ForecastExist;
-
-            if not ForecastExist then begin
-                if ExcludeForecastBefore > FromDate then
-                    SetRange("Forecast Date", ExcludeForecastBefore, ToDate)
-                else
-                    SetRange("Forecast Date", FromDate + 1, ToDate);
-                if Find('-') then
-                    repeat
-                        SetRange("Forecast Date", "Forecast Date");
-                        CalcSums("Forecast Quantity (Base)");
-                        if "Forecast Quantity (Base)" <> 0 then
-                            ForecastExist := true
-                        else
-                            SetRange("Forecast Date", "Forecast Date" + 1, ToDate);
-                    until (not Find('-')) or ForecastExist
-            end;
+                        ProdForecastEntry.SetRange("Forecast Date", ProdForecastEntry."Forecast Date" + 1, ToDate);
+                until (not ProdForecastEntry.Find('-')) or ForecastExist
         end;
         exit(ForecastExist);
     end;

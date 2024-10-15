@@ -36,24 +36,24 @@ codeunit 136907 Resource
         WantToCreateContractQst: Label 'Do you want to create the contract using a contract template?';
         CannotModifyBaseUnitOfMeasureErr: Label 'You cannot modify %1 %2 for resource %3 because it is the resource''s %4.', Comment = '%1 Table name (Item Unit of measure), %2 Value of Measure (KG, PCS...), %3 Item ID, %4 Base unit of Measure';
         BaseUnitOfMeasureQtyMustBeOneErr: Label 'The quantity per base unit of measure must be 1. %1 is set up with %2 per unit of measure.', Comment = '%1 Name of Unit of measure (e.g. BOX, PCS, KG...), %2 Qty. of %1 per base unit of measure ';
-        JobTaskTypeErr: Label 'Job Task Type must be equal to ''Posting''  in Job Task:';
-        JobLedgerEntryUpdatedMsg: Label 'The job ledger entry item costs have now been updated to equal the related item ledger entry actual costs.';
-        NoJobLedgEntriesToUpdateMsg: Label 'There were no job ledger entries that needed to be updated';
+        JobTaskTypeErr: Label 'Project Task Type must be equal to ''Posting''  in Project Task:';
+        JobLedgerEntryUpdatedMsg: Label 'The project ledger entry item costs have now been updated to equal the related item ledger entry actual costs.';
+        NoJobLedgEntriesToUpdateMsg: Label 'There were no project ledger entries that needed to be updated';
         WantToPostJournalLinesQst: Label 'Do you want to post the journal lines?';
         JournalLinesPostedMsg: Label 'The journal lines were successfully posted.';
-        NoJobLedgerEntriesUpdatedMsg: Label 'There were no job ledger entries that needed to be updated.';
-        JobPlanningLineMustBeEmptyMsg: Label 'Job Planning Line must be empty.';
-        PurchaseLineTypeErr: Label 'Job No. must not be specified when Type = Charge (Item) in Purchase Line';
-        JobNoErr: Label 'Job No. must not be specified when Type = Fixed Asset in Purchase Line Document Type=''%1'',Document No.=''%2'',Line No.=''%3''', Comment = '%1 = Document Type Value, %2 = Document No. Value, %3 = Line No. Value';
+        NoJobLedgerEntriesUpdatedMsg: Label 'There were no project ledger entries that needed to be updated.';
+        JobPlanningLineMustBeEmptyMsg: Label 'Project Planning Line must be empty.';
+        PurchaseLineTypeErr: Label 'Project No. must not be specified when Type = Charge (Item) in Purchase Line';
+        JobNoErr: Label 'Project No. must not be specified when Type = Fixed Asset in Purchase Line Document Type=''%1'',Document No.=''%2'',Line No.=''%3''', Comment = '%1 = Document Type Value, %2 = Document No. Value, %3 = Line No. Value';
         QuantityMustBeSameMsg: Label 'Quantity must be same.';
-        AdjustedJobLedgerEntryExistMsg: Label 'Adjusted Job ledger entry exist.';
+        AdjustedJobLedgerEntryExistMsg: Label 'Adjusted Project ledger entry exist.';
         ItemAnalysisViewEntryMustNotExistMsg: Label 'Item Analysis View entry must not exist.';
         WantToUndoConsumptionQst: Label 'Do you want to undo consumption of the selected shipment line(s)?';
         TemplateCodeErr: Label 'Unexpected Template Code';
         JobPlanningLineCountErr: Label '%1 count should be greater than %2';
         JobPlanningLineFilterErr: Label 'Entry count of %1 with filter %2 is invalid';
         DaysTok: Label 'day(s)';
-        JobLedgEntryExistsErr: Label 'Incorrect Job Ledger Entry exists.';
+        JobLedgEntryExistsErr: Label 'Incorrect Project Ledger Entry exists.';
         DocumentExistsErr: Label 'You cannot delete resource %1 because there are one or more outstanding %2 that include this resource.';
         UnitPriceErr: Label 'Unit Price must not change.';
 
@@ -670,7 +670,7 @@ codeunit 136907 Resource
         ErrorOnUpdatingJobTaskTypeOnPurchaseLine(JobTask."Job Task Type"::"Begin-Total");
     end;
 
-    local procedure ErrorOnUpdatingJobTaskTypeOnPurchaseLine(JobTaskType: Option)
+    local procedure ErrorOnUpdatingJobTaskTypeOnPurchaseLine(JobTaskType: Enum "Job Task Type")
     var
         Item: Record Item;
         JobTask: Record "Job Task";
@@ -1016,7 +1016,7 @@ codeunit 136907 Resource
         Item.Init();
         Item.Insert(true);
 
-        NewUnitOfMeasureCode := CreateNewUnitOfMeasureCode;
+        NewUnitOfMeasureCode := CreateNewUnitOfMeasureCode();
         UnitOfMeasure.Init();
         UnitOfMeasure.Code := NewUnitOfMeasureCode;
         UnitOfMeasure.Insert();
@@ -1205,7 +1205,7 @@ codeunit 136907 Resource
         Res.Validate("Base Unit of Measure", ResUnitOfMeasure.Code);
         Res.Modify();
 
-        NewUnitOfMeasureCode := CreateNewUnitOfMeasureCode;
+        NewUnitOfMeasureCode := CreateNewUnitOfMeasureCode();
         Commit();
 
         // Exercise: rename unit of measure assigned to Item (and Item Unit of Measure)
@@ -1264,7 +1264,7 @@ codeunit 136907 Resource
         // [WHEN] Create location "L2" and resource location for resource "R" on location "L2"
         for I := 1 to ArrayLen(Location) do begin
             LibraryWarehouse.CreateLocation(Location[I]);
-            CreateResourceLocation(ResourceLocation, Resource."No.", Location[I].Code, WorkDate + I);
+            CreateResourceLocation(ResourceLocation, Resource."No.", Location[I].Code, WorkDate() + I);
         end;
 
         // [THEN] Two resource locations are created
@@ -1359,7 +1359,7 @@ codeunit 136907 Resource
 
         // [GIVEN] Sales Invoice with two Resource Sales Invoice line
         ResNo := LibraryResource.CreateResourceNo();
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
 
         // [GIVEN] First sales line has positive "Unit Price" = 100
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Resource, ResNo, LibraryRandom.RandIntInRange(5, 10));
@@ -1539,7 +1539,7 @@ codeunit 136907 Resource
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         NoSeriesSetup();
-        CreateItemJournalTemplateAndBatch;
+        CreateItemJournalTemplateAndBatch();
         LocationSetup();
 
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
@@ -1574,15 +1574,15 @@ codeunit 136907 Resource
         JobsSetup: Record "Jobs Setup";
     begin
         SalesSetup.Get();
-        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesSetup.Modify(true);
 
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
 
         JobsSetup.Get();
-        JobsSetup.Validate("Job Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        JobsSetup.Validate("Job Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         JobsSetup.Modify(true);
     end;
 
@@ -1842,7 +1842,7 @@ codeunit 136907 Resource
         ItemTrackingCode: Record "Item Tracking Code";
     begin
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false);
-        LibraryInventory.CreateTrackedItem(Item, '', LibraryUtility.GetGlobalNoSeriesCode, ItemTrackingCode.Code);
+        LibraryInventory.CreateTrackedItem(Item, '', LibraryUtility.GetGlobalNoSeriesCode(), ItemTrackingCode.Code);
     end;
 
     local procedure CreateItemWithUnitCost(var Item: Record Item)
@@ -1989,7 +1989,7 @@ codeunit 136907 Resource
         SalesLine: Record "Sales Line";
     begin
         ResNo := LibraryResource.CreateResourceNo();
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo());
         UnitPrice[1] := CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Resource, ResNo, FirstLineQnt);
         UnitPrice[2] := CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Resource, ResNo, SecondLineQnt);
     end;
@@ -2128,9 +2128,9 @@ codeunit 136907 Resource
     var
         ServiceContract: TestPage "Service Contract";
     begin
-        ServiceContract.OpenEdit;
+        ServiceContract.OpenEdit();
         ServiceContract.FILTER.SetFilter("Contract No.", ContractNo);
-        ServiceContract.SelectContractLines.Invoke;
+        ServiceContract.SelectContractLines.Invoke();
     end;
 
     local procedure OpenTaskCardFromContactCardAndUpdateTeamCode(var TaskList: TestPage "Task List"; ContactNo: Code[20]; TeamCode: Code[10])
@@ -2138,14 +2138,14 @@ codeunit 136907 Resource
         ContactCard: TestPage "Contact Card";
         TaskCard: TestPage "Task Card";
     begin
-        ContactCard.OpenEdit;
+        ContactCard.OpenEdit();
         ContactCard.FILTER.SetFilter("No.", ContactNo);
-        TaskList.Trap;
-        ContactCard."T&asks".Invoke;
-        TaskCard.Trap;
-        TaskList."Edit Organizer Task".Invoke;
+        TaskList.Trap();
+        ContactCard."T&asks".Invoke();
+        TaskCard.Trap();
+        TaskList."Edit Organizer Task".Invoke();
         TaskCard."Team Code".SetValue(TeamCode);
-        TaskCard.OK.Invoke;
+        TaskCard.OK().Invoke();
     end;
 
     local procedure PostPurchaseOrder(PurchaseHeader: Record "Purchase Header"; IsShipAndInvoice: Boolean)
@@ -2183,7 +2183,7 @@ codeunit 136907 Resource
         if CostingMethod = Item."Costing Method"::Specific then begin
             LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false);
             Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
-            Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         end;
         Item.Validate("Costing Method", CostingMethod);
         Item.Modify(true);
@@ -2193,9 +2193,9 @@ codeunit 136907 Resource
     var
         ItemAnalysisViewList: TestPage "Item Analysis View List";
     begin
-        ItemAnalysisViewList.OpenEdit;
+        ItemAnalysisViewList.OpenEdit();
         ItemAnalysisViewList.FILTER.SetFilter(Code, ItemAnalysisViewCode);
-        ItemAnalysisViewList."&Update".Invoke;
+        ItemAnalysisViewList."&Update".Invoke();
     end;
 
     local procedure UpdateJobItemCostAfterAdjustCostItemEntries(ItemNo: Code[20]; JobNo: Code[20])
@@ -2205,7 +2205,7 @@ codeunit 136907 Resource
         LibraryJob.RunUpdateJobItemCost(JobNo);
     end;
 
-    local procedure UpdateJobTaskTypeOnJobTask(var JobTask: Record "Job Task"; JobTaskType: Option)
+    local procedure UpdateJobTaskTypeOnJobTask(var JobTask: Record "Job Task"; JobTaskType: Enum "Job Task Type")
     begin
         JobTask.Validate("Job Task Type", JobTaskType);
         JobTask.Modify(true);
@@ -2272,7 +2272,7 @@ codeunit 136907 Resource
         JobLedgerEntry.SetRange("No.", ItemNo);
         JobLedgerEntry.SetRange("Unit of Measure Code", UnitOfMeasureCode);
         JobLedgerEntry.SetRange(Adjusted, true);
-        Assert.AreEqual(JobLedgerEntry.FindFirst, EntryExist, AdjustedJobLedgerEntryExistMsg);
+        Assert.AreEqual(JobLedgerEntry.FindFirst(), EntryExist, AdjustedJobLedgerEntryExistMsg);
     end;
 
     local procedure VerifyEmptyJobPlanningLines(PurchaseLine: Record "Purchase Line"; LineType: Enum "Job Planning Line Line Type")
@@ -2425,7 +2425,7 @@ codeunit 136907 Resource
         Assert.AreEqual(ExpectedUnitsOfMeasureCount, ResUnitOfMeasure.Count, 'Wrong number of Units of measure was found on the item');
         ResUnitOfMeasure.SetFilter(Code, ExpectedBaseUnitOfMeasure.Code);
 
-        Assert.IsTrue(ResUnitOfMeasure.FindFirst, 'Cannot get Item unit of measure for specified code');
+        Assert.IsTrue(ResUnitOfMeasure.FindFirst(), 'Cannot get Item unit of measure for specified code');
         Assert.AreEqual(1, ResUnitOfMeasure."Qty. per Unit of Measure", 'Qty. per Unit of Measure should be set to 1');
         Assert.AreEqual(Res."Base Unit of Measure", ResUnitOfMeasure.Code, 'Base unit of measure was not set by validate');
     end;
@@ -2461,7 +2461,7 @@ codeunit 136907 Resource
     [Scope('OnPrem')]
     procedure ContractLineSelectionPageHandler(var ContractLineSelection: TestPage "Contract Line Selection")
     begin
-        ContractLineSelection.OK.Invoke;
+        ContractLineSelection.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2474,7 +2474,7 @@ codeunit 136907 Resource
         LibraryVariableStorage.Dequeue(DequeueVariable);
         QtyToCreate := DequeueVariable;
         EnterQuantityToCreate.QtyToCreate.SetValue(QtyToCreate);
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2488,25 +2488,25 @@ codeunit 136907 Resource
         ItemTrackingMode := DequeueVariable;
         case ItemTrackingMode of
             ItemTrackingMode::SelectEntries:
-                ItemTrackingLines."Select Entries".Invoke;
+                ItemTrackingLines."Select Entries".Invoke();
             ItemTrackingMode::AssignSerialNo:
-                ItemTrackingLines."Assign Serial No.".Invoke;
+                ItemTrackingLines."Assign Serial No.".Invoke();
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ResourceUnitofMeasurePageHandler(var ResourceUnitsofMeasure: TestPage "Resource Units of Measure")
     begin
-        ResourceUnitsofMeasure.Code.AssertEquals(LibraryVariableStorage.DequeueText);
+        ResourceUnitsofMeasure.Code.AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 
     [MessageHandler]
@@ -2525,7 +2525,7 @@ codeunit 136907 Resource
     [Scope('OnPrem')]
     procedure ServiceContractTemplateListPageHandler(var ServiceContractTemplateList: TestPage "Service Contract Template List")
     begin
-        ServiceContractTemplateList.OK.Invoke;
+        ServiceContractTemplateList.OK().Invoke();
     end;
 }
 

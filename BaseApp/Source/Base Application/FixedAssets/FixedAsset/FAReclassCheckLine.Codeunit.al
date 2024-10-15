@@ -48,15 +48,13 @@ codeunit 5641 "FA Reclass. Check Line"
         if not GLSetup."Enable Russian Accounting" then
             exit;
 
-        with FAReclassJnlLine do begin
-            TestField("New Depreciation Book Code");
+        FAReclassJnlLine.TestField("New Depreciation Book Code");
 
-            if NewDeprBookCode = '' then
-                NewDeprBookCode := "New Depreciation Book Code";
+        if NewDeprBookCode = '' then
+            NewDeprBookCode := FAReclassJnlLine."New Depreciation Book Code";
 
-            if "New Depreciation Book Code" <> NewDeprBookCode then
-                FieldError("New Depreciation Book Code", Text001);
-        end;
+        if FAReclassJnlLine."New Depreciation Book Code" <> NewDeprBookCode then
+            FAReclassJnlLine.FieldError("New Depreciation Book Code", Text001);
     end;
 
     [IntegrationEvent(false, false)]

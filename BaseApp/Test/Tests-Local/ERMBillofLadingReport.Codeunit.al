@@ -72,15 +72,15 @@ codeunit 144722 "ERM Bill of Lading Report"
 
         // [WHEN] Run Bill Of lading report for the sales document
         LibraryReportValidation.SetFileName(SalesHeader."No.");
-        RunReport(SalesHeader, LibraryReportValidation.GetFileName);
+        RunReport(SalesHeader, LibraryReportValidation.GetFileName());
 
         // [THEN] Sales Document number, Order Date and shipment info is exported
         LibraryReportValidation.VerifyCellValueByRef('BU', 9, 1, Format(SalesHeader."Order Date"));
         LibraryReportValidation.VerifyCellValueByRef('CQ', 9, 1, SalesHeader."No.");
         LibraryReportValidation.VerifyCellValueByRef(
           'B', 15, 1,
-          LocalReportManagement.GetCompanyName + '. ' +
-          LocalReportManagement.GetLegalAddress + LocalReportManagement.GetCompanyPhoneFax);
+          LocalReportManagement.GetCompanyName() + '. ' +
+          LocalReportManagement.GetLegalAddress() + LocalReportManagement.GetCompanyPhoneFax());
 
         LibraryReportValidation.VerifyCellValueByRef('B', 20, 1, SalesHeader."Sell-to Customer No." + '  ');
         LibraryReportValidation.VerifyCellValueByRef('B', 25, 1, ItemDescription);
@@ -104,11 +104,9 @@ codeunit 144722 "ERM Bill of Lading Report"
     local procedure CreateReleaseSalesInvoice(var SalesHeader: Record "Sales Header")
     begin
         LibrarySales.CreateSalesInvoice(SalesHeader);
-        with SalesHeader do begin
-            "Location Code" := CreateLocationCode;
-            "Shipping Agent Code" := CreateShippingAgentCode;
-            Modify();
-        end;
+        SalesHeader."Location Code" := CreateLocationCode();
+        SalesHeader."Shipping Agent Code" := CreateShippingAgentCode();
+        SalesHeader.Modify();
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
@@ -117,15 +115,13 @@ codeunit 144722 "ERM Bill of Lading Report"
         Location: Record Location;
     begin
         LibraryWarehouse.CreateLocation(Location);
-        with Location do begin
-            "Country/Region Code" := CreateCountryRegionCode;
-            "Post Code" := LibraryUtility.GenerateGUID();
-            City := LibraryUtility.GenerateGUID();
-            Address := LibraryUtility.GenerateGUID();
-            "Address 2" := LibraryUtility.GenerateGUID();
-            Modify();
-            exit(Code);
-        end;
+        Location."Country/Region Code" := CreateCountryRegionCode();
+        Location."Post Code" := LibraryUtility.GenerateGUID();
+        Location.City := LibraryUtility.GenerateGUID();
+        Location.Address := LibraryUtility.GenerateGUID();
+        Location."Address 2" := LibraryUtility.GenerateGUID();
+        Location.Modify();
+        exit(Location.Code);
     end;
 
     local procedure CreateCountryRegionCode(): Code[10]
@@ -133,11 +129,9 @@ codeunit 144722 "ERM Bill of Lading Report"
         CountryRegion: Record "Country/Region";
     begin
         LibraryERM.CreateCountryRegion(CountryRegion);
-        with CountryRegion do begin
-            "Local Name" := LibraryUtility.GenerateGUID();
-            Modify();
-            exit(Code);
-        end;
+        CountryRegion."Local Name" := LibraryUtility.GenerateGUID();
+        CountryRegion.Modify();
+        exit(CountryRegion.Code);
     end;
 
     local procedure CreateShippingAgentCode(): Code[10]
@@ -145,11 +139,9 @@ codeunit 144722 "ERM Bill of Lading Report"
         ShippingAgent: Record "Shipping Agent";
     begin
         LibraryInventory.CreateShippingAgent(ShippingAgent);
-        with ShippingAgent do begin
-            Name := LibraryUtility.GenerateGUID();
-            Modify();
-            exit(Code);
-        end;
+        ShippingAgent.Name := LibraryUtility.GenerateGUID();
+        ShippingAgent.Modify();
+        exit(ShippingAgent.Code);
     end;
 
     local procedure RunReport(var SalesHeader: Record "Sales Header"; FileName: Text)
@@ -169,7 +161,7 @@ codeunit 144722 "ERM Bill of Lading Report"
         BillofLading.ItemDescription.SetValue(LibraryVariableStorage.DequeueText());
         BillofLading.VehicleDescription.SetValue(LibraryVariableStorage.DequeueText());
         BillofLading.VehicleRegistrationNo.SetValue(LibraryVariableStorage.DequeueText());
-        BillofLading.OK.Invoke();
+        BillofLading.OK().Invoke();
     end;
 }
 

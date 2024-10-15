@@ -1,6 +1,7 @@
 table 17223 "Lookup Buffer"
 {
     Caption = 'Lookup Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

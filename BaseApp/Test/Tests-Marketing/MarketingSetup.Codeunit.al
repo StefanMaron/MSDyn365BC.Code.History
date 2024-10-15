@@ -34,7 +34,7 @@ codeunit 136205 "Marketing Setup"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Marketing Setup");
 
         LibraryTemplates.EnableTemplatesFeature();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
 
@@ -350,7 +350,7 @@ codeunit 136205 "Marketing Setup"
 
         // 1. Setup: Set value of Bus. Relation Code for Bank Acc. on Marketing Setup.
         Initialize();
-        ExecuteUIHandler;
+        ExecuteUIHandler();
         BusinessRelation.FindFirst();
         DefaultBusRelCodeforBankAccs := UpdateBusRelCodeforBankAccount(BusinessRelation.Code);
 
@@ -419,7 +419,7 @@ codeunit 136205 "Marketing Setup"
         LibraryMarketing.CreateCompanyContact(Contact);
 
         // 2. Exercise: Create Bank Account from Contact.
-        Contact.CreateBankAccount;
+        Contact.CreateBankAccount();
 
         // 3. Verify: Verify Contact Business Relation and Bank Account successfully created.
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::"Bank Account");
@@ -684,7 +684,7 @@ codeunit 136205 "Marketing Setup"
         // Covers document number TC0027 - refer to TFS ID 123227.
         // Test Salutation Formula created with Salutation Type Formal with Language.
 
-        CreateSalutationFormula(SalutationFormula."Salutation Type"::Formal, SelectLanguage);
+        CreateSalutationFormula(SalutationFormula."Salutation Type"::Formal, SelectLanguage());
     end;
 
     [Test]
@@ -696,7 +696,7 @@ codeunit 136205 "Marketing Setup"
         // Covers document number TC0027 - refer to TFS ID 123227.
         // Test Salutation Formula created with Salutation Type InFormal with Language.
 
-        CreateSalutationFormula(SalutationFormula."Salutation Type"::Informal, SelectLanguage);
+        CreateSalutationFormula(SalutationFormula."Salutation Type"::Informal, SelectLanguage());
     end;
 
     local procedure CreateSalutationFormula(SalutationType: Enum "Salutation Formula Salutation Type"; LanguageCode: Code[10])
@@ -761,14 +761,14 @@ codeunit 136205 "Marketing Setup"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         // [WHEN] Marketing Setup Page is opened
-        MarketingSetupPage.OpenEdit;
+        MarketingSetupPage.OpenEdit();
 
         // [THEN] Fields of General fasttab are not visible
         Assert.IsFalse(
-          MarketingSetupPage."Attachment Storage Type".Visible,
+          MarketingSetupPage."Attachment Storage Type".Visible(),
           StrSubstNo(ControlVisibilityErr, false));
         Assert.IsFalse(
-          MarketingSetupPage."Attachment Storage Location".Visible,
+          MarketingSetupPage."Attachment Storage Location".Visible(),
           StrSubstNo(ControlVisibilityErr, false));
         MarketingSetupPage.Close();
     end;
@@ -787,14 +787,14 @@ codeunit 136205 "Marketing Setup"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
 
         // [WHEN] Marketing Setup Page is opened
-        MarketingSetupPage.OpenEdit;
+        MarketingSetupPage.OpenEdit();
 
         // [THEN] Fields of General fasttab are visible
         Assert.IsTrue(
-          MarketingSetupPage."Attachment Storage Type".Visible,
+          MarketingSetupPage."Attachment Storage Type".Visible(),
           StrSubstNo(ControlVisibilityErr, true));
         Assert.IsTrue(
-          MarketingSetupPage."Attachment Storage Location".Visible,
+          MarketingSetupPage."Attachment Storage Location".Visible(),
           StrSubstNo(ControlVisibilityErr, true));
         MarketingSetupPage.Close();
     end;
@@ -885,7 +885,7 @@ codeunit 136205 "Marketing Setup"
         Contact.Validate("Country/Region Code", CountryRegion.Code);
         Contact.Validate("Language Code", Language.Code);
         Contact.Validate(Address, LibraryUtility.GenerateRandomCode(Contact.FieldNo(Address), DATABASE::Contact));
-        Contact.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
+        Contact.Validate("E-Mail", LibraryUtility.GenerateRandomEmail());
         Contact.Modify(true);
     end;
 
@@ -989,7 +989,7 @@ codeunit 136205 "Marketing Setup"
         TempTask.Validate(Description, TempTask."Salesperson Code");
         TempTask.Validate(Date, WorkDate());
 
-        TempTask.CheckStatus;
+        TempTask.CheckStatus();
         TempTask.FinishWizard(false);
     end;
 
@@ -1007,8 +1007,8 @@ codeunit 136205 "Marketing Setup"
           Description, LibraryUtility.GenerateRandomCode(TempOpportunity.FieldNo(Description), DATABASE::Opportunity));
         TempOpportunity.Modify();
 
-        TempOpportunity.CheckStatus;
-        TempOpportunity.FinishWizard;
+        TempOpportunity.CheckStatus();
+        TempOpportunity.FinishWizard();
     end;
 
     [ModalPageHandler]

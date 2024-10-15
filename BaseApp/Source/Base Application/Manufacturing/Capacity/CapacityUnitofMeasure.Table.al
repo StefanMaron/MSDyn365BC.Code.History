@@ -5,6 +5,7 @@ table 99000780 "Capacity Unit of Measure"
     Caption = 'Capacity Unit of Measure';
     DrillDownPageID = "Capacity Units of Measure";
     LookupPageID = "Capacity Units of Measure";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -57,12 +57,12 @@ codeunit 139003 "Test Instruction Mgt. PasS"
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, '', '', 1, '', 0D);
         DocumentNo := SalesHeader."No.";
 
-        UpdateSalesInvoiceReportSelections;
+        UpdateSalesInvoiceReportSelections();
 
         // Exercise
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
-        SalesInvoice."Email as PDF".Invoke;
+        SalesInvoice."Email as PDF".Invoke();
 
         // Verify
         SalesInvoiceHeader.SetCurrentKey("Pre-Assigned No.");
@@ -78,7 +78,7 @@ codeunit 139003 "Test Instruction Mgt. PasS"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Test Instruction Mgt. PasS");
 
-        BindActiveDirectoryMockEvents;
+        BindActiveDirectoryMockEvents();
 
         UserPreference.DeleteAll();
 
@@ -136,10 +136,10 @@ codeunit 139003 "Test Instruction Mgt. PasS"
 
     local procedure BindActiveDirectoryMockEvents()
     begin
-        if ActiveDirectoryMockEvents.Enabled then
+        if ActiveDirectoryMockEvents.Enabled() then
             exit;
         BindSubscription(ActiveDirectoryMockEvents);
-        ActiveDirectoryMockEvents.Enable;
+        ActiveDirectoryMockEvents.Enable();
     end;
 }
 

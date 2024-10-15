@@ -14,15 +14,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cust/Vend/Item/Empl Templates - NamedType CopyTemplateDataErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3467874167 - NamedType 3533415301" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Dimensions in copied template are wrong]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cust/Vend/Item/Empl Templates - NamedType CopyTemplateDimensionsErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3467874167 - NamedType 2798434149" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Value of template Global Dimension Code is wrong]]></Val>
@@ -419,15 +410,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Location Transfers - NamedType WrongInventoryErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 506906479 - NamedType 2476081108" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This feature is only available in the online production version of the product.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Miscellaneous - NamedType EnvironmentErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 506906479 - NamedType 2689946489" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Field should be visible in On-prem installation]]></Val>
@@ -563,15 +545,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Simplify UI Purch.Cr.Memo - NamedType SelectVendErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2523966737 - NamedType 2180760119" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[All items are available and no planning lines are created.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Simplify UI Sales Invoice - NamedType AllItemsAreAvailableErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2523966737 - NamedType 3902240088" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[It cannot be zero or empty.]]></Val>
@@ -680,24 +653,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Templates Test - NamedType CancelActionTok)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 473930558 - NamedType 1629780117" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Could not find Dimension Template Header with code %1.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Templates Test - NamedType CouldNotFindDimensionWithCodeErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 473930558 - NamedType 1096484016" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The template %1 is already in this hierarchy.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Templates Test - NamedType DuplicateRelationErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 473930558 - NamedType 2093756454" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Edit]]></Val>
@@ -752,15 +707,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Templates Test - NamedType OKActionTok)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 473930558 - NamedType 1990387277" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[A template cannot relate to itself. Specify a different template.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Templates Test - NamedType RelationErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 473930558 - NamedType 2182457253" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[ABC00010D]]></Val>
@@ -777,24 +723,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Templates Test - NamedType TemplateMustBeEnabledErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 473930558 - NamedType 1761544855" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Configuration template %1 should not be displayed in the list.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Templates Test - NamedType UnexpectedTemplateInListErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 473930558 - NamedType 1174607250" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Wrong no. of configuration templates in the list]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Templates Test - NamedType WrongTemplatesCountErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2828474383 - NamedType 285597898" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

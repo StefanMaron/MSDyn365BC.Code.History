@@ -6,7 +6,7 @@ using Microsoft.Sales.Setup;
 
 report 1094 "Job Transfer to Sales Invoice"
 {
-    Caption = 'Job Transfer to Sales Invoice';
+    Caption = 'Project Transfer to Sales Invoice';
     ProcessingOnly = true;
 
     dataset
@@ -82,7 +82,11 @@ report 1094 "Job Transfer to Sales Invoice"
                             Clear(SalesHeader);
                             SalesHeader.FilterGroup := 2;
                             SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
-                            SalesHeader.SetRange("Bill-to Customer No.", Job."Bill-to Customer No.");
+                            SalesHeader.SetRange("Bill-to Customer No.", BillToCustomerNo);
+                            if Job."Task Billing Method" = Job."Task Billing Method"::"Multiple customers" then begin
+                                SalesHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
+                                SalesHeader.SetRange("Currency Code", CurrencyCode);
+                            end;
                             SalesHeader.FilterGroup := 0;
                             if PAGE.RunModal(0, SalesHeader) = ACTION::LookupOK then
                                 InvoiceNo := SalesHeader."No.";
@@ -153,6 +157,7 @@ report 1094 "Job Transfer to Sales Invoice"
 
     var
         SalesHeader: Record "Sales Header";
+        BillToCustomerNo, SellToCustomerNo, CurrencyCode : Code[20];
         PostingDate: Date;
         DocumentDate: Date;
         InvoicePostingDate: Date;
@@ -192,6 +197,24 @@ report 1094 "Job Transfer to Sales Invoice"
     procedure SetCustomer(JobNo: Code[20])
     begin
         Job.Get(JobNo);
+    end;
+
+    procedure SetCustomer(JobPlanningLine: Record "Job Planning Line")
+    var
+        JobTask: Record "Job Task";
+    begin
+        Job.Get(JobPlanningLine."Job No.");
+        BillToCustomerNo := Job."Bill-to Customer No.";
+
+        if Job."Task Billing Method" = Job."Task Billing Method"::"One customer" then
+            exit;
+
+        JobTask.SetLoadFields("Bill-to Customer No.", "Sell-to Customer No.", "Invoice Currency Code");
+        if JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.") then begin
+            BillToCustomerNo := JobTask."Bill-to Customer No.";
+            SellToCustomerNo := JobTask."Sell-to Customer No.";
+            CurrencyCode := JobTask."Invoice Currency Code";
+        end;
     end;
 
     procedure SetPostingDate(PostingDate2: Date)

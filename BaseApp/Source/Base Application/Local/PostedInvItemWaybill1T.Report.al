@@ -61,7 +61,6 @@ report 12420 "Posted Inv. Item Waybill 1-T"
 
                     trigger OnPostDataItem()
                     var
-                        FooterValues: array[9] of Text;
                     begin
                         if QtyNotItem < 1 then
                             AddendumSheets := ''

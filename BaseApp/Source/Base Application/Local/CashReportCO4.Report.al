@@ -332,22 +332,18 @@ report 14902 "Cash Report CO-4"
 
     local procedure GetAccNoFromCust(CustNo: Code[20]): Code[20]
     begin
-        with Customer do begin
-            Get(CustNo);
-            TestField("Customer Posting Group");
-            exit(GetAccNoFromCustPostGroup("Customer Posting Group"));
-        end;
+        Customer.Get(CustNo);
+        Customer.TestField("Customer Posting Group");
+        exit(GetAccNoFromCustPostGroup(Customer."Customer Posting Group"));
     end;
 
     local procedure GetAccNoFromCustAgreement(CustNo: Code[20]; AgreementCode: Code[20]): Code[20]
     var
         CustAgreement: Record "Customer Agreement";
     begin
-        with CustAgreement do begin
-            Get(CustNo, AgreementCode);
-            TestField("Customer Posting Group");
-            exit(GetAccNoFromCustPostGroup("Customer Posting Group"));
-        end;
+        CustAgreement.Get(CustNo, AgreementCode);
+        CustAgreement.TestField("Customer Posting Group");
+        exit(GetAccNoFromCustPostGroup(CustAgreement."Customer Posting Group"));
     end;
 
     local procedure GetAccNoFromCustPostGroup(CustPostGroupCode: Code[20]): Code[20]
@@ -366,22 +362,18 @@ report 14902 "Cash Report CO-4"
 
     local procedure GetAccNoFromVend(VendNo: Code[20]): Code[20]
     begin
-        with Vendor do begin
-            Get(VendNo);
-            TestField("Vendor Posting Group");
-            exit(GetAccNoFromVendPostGroup("Vendor Posting Group"));
-        end;
+        Vendor.Get(VendNo);
+        Vendor.TestField("Vendor Posting Group");
+        exit(GetAccNoFromVendPostGroup(Vendor."Vendor Posting Group"));
     end;
 
     local procedure GetAccNoFromVendAgreement(VendNo: Code[20]; AgreementCode: Code[20]): Code[20]
     var
         VendAgreement: Record "Vendor Agreement";
     begin
-        with VendAgreement do begin
-            Get(VendNo, AgreementCode);
-            TestField("Vendor Posting Group");
-            exit(GetAccNoFromVendPostGroup("Vendor Posting Group"));
-        end;
+        VendAgreement.Get(VendNo, AgreementCode);
+        VendAgreement.TestField("Vendor Posting Group");
+        exit(GetAccNoFromVendPostGroup(VendAgreement."Vendor Posting Group"));
     end;
 
     local procedure GetAccNoFromVendPostGroup(VendPostGroupCode: Code[20]): Code[20]
@@ -560,13 +552,11 @@ report 14902 "Cash Report CO-4"
     var
         CheckLedgerEntry: Record "Check Ledger Entry";
     begin
-        with CheckLedgerEntry do begin
-            SetRange("Bank Account No.", "Bank Account Ledger Entry"."Bank Account No.");
-            SetRange("Posting Date", "Bank Account Ledger Entry"."Posting Date");
-            SetRange("Document No.", "Bank Account Ledger Entry"."Document No.");
-            SetRange("Entry Status", "Entry Status"::"Financially Voided");
-            exit(not IsEmpty);
-        end;
+        CheckLedgerEntry.SetRange("Bank Account No.", "Bank Account Ledger Entry"."Bank Account No.");
+        CheckLedgerEntry.SetRange("Posting Date", "Bank Account Ledger Entry"."Posting Date");
+        CheckLedgerEntry.SetRange("Document No.", "Bank Account Ledger Entry"."Document No.");
+        CheckLedgerEntry.SetRange("Entry Status", CheckLedgerEntry."Entry Status"::"Financially Voided");
+        exit(not CheckLedgerEntry.IsEmpty);
     end;
 
     [Scope('OnPrem')]

@@ -396,7 +396,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         BankAcc: Record "Bank Account";
     begin
         CreateBankAccount(BankAcc);
-        LibraryERM.CreateGenJournalBatch(GenJnlBatch, LibraryERM.SelectGenJnlTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJnlBatch, LibraryERM.SelectGenJnlTemplate());
         GenJnlBatch.Validate("Bal. Account Type", GenJnlBatch."Bal. Account Type"::"Bank Account");
         GenJnlBatch.Validate("Bal. Account No.", BankAcc."No.");
         GenJnlBatch.Validate("Allow Payment Export", true);

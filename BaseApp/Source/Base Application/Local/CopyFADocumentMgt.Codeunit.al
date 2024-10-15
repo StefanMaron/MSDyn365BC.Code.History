@@ -50,112 +50,110 @@ codeunit 12472 "Copy FA Document Mgt."
         NextLineNo: Integer;
         LinesNotCopied: Integer;
     begin
-        with ToFADocHeader do begin
-            if not CreateToHeader then begin
-                if FromDocNo = '' then
-                    Error(Text000);
-                Find();
-            end;
+        if not CreateToHeader then begin
+            if FromDocNo = '' then
+                Error(Text000);
+            ToFADocHeader.Find();
+        end;
+        case FromDocType of
+            FADocType::Writeoff,
+            FADocType::Release,
+            FADocType::Disposal:
+                begin
+                    FromFADocHeader.Get(FADocHeaderDocType(FromDocType), FromDocNo);
+                    if (FromFADocHeader."Document Type" = ToFADocHeader."Document Type") and
+                       (FromFADocHeader."No." = ToFADocHeader."No.")
+                    then
+                        Error(
+                          Text001,
+                          ToFADocHeader."Document Type", ToFADocHeader."No.");
+                end;
+            FADocType::"Posted Writeoff",
+          FADocType::"Posted Release",
+          FADocType::"Posted Disposal":
+                FromPostedFADocHeader.Get(FADocHeaderDocType(FromDocType - 3), FromDocNo);
+        end;
+
+        ToFADocLine.LockTable();
+
+        if CreateToHeader then begin
+            ToFADocHeader.Insert(true);
+            ToFADocLine.SetRange("Document Type", ToFADocHeader."Document Type");
+            ToFADocLine.SetRange("Document No.", ToFADocHeader."No.");
+        end else begin
+            ToFADocLine.SetRange("Document Type", ToFADocHeader."Document Type");
+            ToFADocLine.SetRange("Document No.", ToFADocHeader."No.");
+            if IncludeHeader then
+                if not ToFADocLine.IsEmpty() then begin
+                    Commit();
+                    if not
+                       Confirm(
+                         Text002 +
+                         Text003, true,
+                         ToFADocHeader."Document Type", ToFADocHeader."No.")
+                    then
+                        exit;
+                    ToFADocLine.DeleteAll(true);
+                end;
+        end;
+
+        if ToFADocLine.FindLast() then
+            NextLineNo := ToFADocLine."Line No."
+        else
+            NextLineNo := 0;
+
+        if IncludeHeader then begin
+            OldFADocHeader := ToFADocHeader;
             case FromDocType of
                 FADocType::Writeoff,
                 FADocType::Release,
                 FADocType::Disposal:
                     begin
-                        FromFADocHeader.Get(FADocHeaderDocType(FromDocType), FromDocNo);
-                        if (FromFADocHeader."Document Type" = "Document Type") and
-                           (FromFADocHeader."No." = "No.")
-                        then
-                            Error(
-                              Text001,
-                              "Document Type", "No.");
+                        ToFADocHeader.TransferFields(FromFADocHeader, false);
+                        ToFADocHeader."Posting Date" := OldFADocHeader."Posting Date";
                     end;
                 FADocType::"Posted Writeoff",
               FADocType::"Posted Release",
               FADocType::"Posted Disposal":
-                    FromPostedFADocHeader.Get(FADocHeaderDocType(FromDocType - 3), FromDocNo);
+                    ToFADocHeader.TransferFields(FromPostedFADocHeader, false);
             end;
+            ToFADocHeader."No. Series" := OldFADocHeader."No. Series";
+            ToFADocHeader."Posting Description" := OldFADocHeader."Posting Description";
+            ToFADocHeader."Posting No." := OldFADocHeader."Posting No.";
+            ToFADocHeader."Posting No. Series" := OldFADocHeader."Posting No. Series";
+            ToFADocHeader."No. Printed" := 0;
+        end;
 
-            ToFADocLine.LockTable();
-
-            if CreateToHeader then begin
-                Insert(true);
-                ToFADocLine.SetRange("Document Type", "Document Type");
-                ToFADocLine.SetRange("Document No.", "No.");
-            end else begin
-                ToFADocLine.SetRange("Document Type", "Document Type");
-                ToFADocLine.SetRange("Document No.", "No.");
-                if IncludeHeader then
-                    if not ToFADocLine.IsEmpty() then begin
-                        Commit();
-                        if not
-                           Confirm(
-                             Text002 +
-                             Text003, true,
-                             "Document Type", "No.")
-                        then
-                            exit;
-                        ToFADocLine.DeleteAll(true);
-                    end;
-            end;
-
-            if ToFADocLine.FindLast() then
-                NextLineNo := ToFADocLine."Line No."
-            else
-                NextLineNo := 0;
-
-            if IncludeHeader then begin
-                OldFADocHeader := ToFADocHeader;
-                case FromDocType of
-                    FADocType::Writeoff,
-                    FADocType::Release,
-                    FADocType::Disposal:
-                        begin
-                            TransferFields(FromFADocHeader, false);
-                            "Posting Date" := OldFADocHeader."Posting Date";
-                        end;
-                    FADocType::"Posted Writeoff",
-                  FADocType::"Posted Release",
-                  FADocType::"Posted Disposal":
-                        TransferFields(FromPostedFADocHeader, false);
+        LinesNotCopied := 0;
+        case FromDocType of
+            FADocType::Writeoff,
+            FADocType::Release,
+            FADocType::Disposal:
+                begin
+                    FromFADocLine.Reset();
+                    FromFADocLine.SetRange("Document Type", FromFADocHeader."Document Type");
+                    FromFADocLine.SetRange("Document No.", FromFADocHeader."No.");
+                    if FromFADocLine.FindSet() then
+                        repeat
+                            CopyFADocLine(ToFADocHeader, ToFADocLine, FromFADocLine, NextLineNo, LinesNotCopied);
+                        until FromFADocLine.Next() = 0;
                 end;
-                "No. Series" := OldFADocHeader."No. Series";
-                "Posting Description" := OldFADocHeader."Posting Description";
-                "Posting No." := OldFADocHeader."Posting No.";
-                "Posting No. Series" := OldFADocHeader."Posting No. Series";
-                "No. Printed" := 0;
-            end;
-
-            LinesNotCopied := 0;
-            case FromDocType of
-                FADocType::Writeoff,
-                FADocType::Release,
-                FADocType::Disposal:
-                    begin
-                        FromFADocLine.Reset();
-                        FromFADocLine.SetRange("Document Type", FromFADocHeader."Document Type");
-                        FromFADocLine.SetRange("Document No.", FromFADocHeader."No.");
-                        if FromFADocLine.FindSet() then
-                            repeat
-                                CopyFADocLine(ToFADocHeader, ToFADocLine, FromFADocLine, NextLineNo, LinesNotCopied);
-                            until FromFADocLine.Next() = 0;
-                    end;
-                FADocType::"Posted Writeoff",
-                FADocType::"Posted Release",
-                FADocType::"Posted Disposal":
-                    begin
-                        FASetup.Get();
-                        FromFADocHeader.TransferFields(FromPostedFADocHeader);
-                        FromPostedFADocLine.Reset();
-                        FromPostedFADocLine.SetRange("Document No.", FromPostedFADocHeader."No.");
-                        if FromPostedFADocLine.FindSet() then
-                            repeat
-                                FromFADocLine.TransferFields(FromPostedFADocLine);
-                                CopyFADocLine(
-                                  ToFADocHeader, ToFADocLine, FromFADocLine,
-                                  NextLineNo, LinesNotCopied);
-                            until FromPostedFADocLine.Next() = 0;
-                    end;
-            end;
+            FADocType::"Posted Writeoff",
+            FADocType::"Posted Release",
+            FADocType::"Posted Disposal":
+                begin
+                    FASetup.Get();
+                    FromFADocHeader.TransferFields(FromPostedFADocHeader);
+                    FromPostedFADocLine.Reset();
+                    FromPostedFADocLine.SetRange("Document No.", FromPostedFADocHeader."No.");
+                    if FromPostedFADocLine.FindSet() then
+                        repeat
+                            FromFADocLine.TransferFields(FromPostedFADocLine);
+                            CopyFADocLine(
+                              ToFADocHeader, ToFADocLine, FromFADocLine,
+                              NextLineNo, LinesNotCopied);
+                        until FromPostedFADocLine.Next() = 0;
+                end;
         end;
 
         if LinesNotCopied > 0 then
@@ -165,15 +163,14 @@ codeunit 12472 "Copy FA Document Mgt."
     [Scope('OnPrem')]
     procedure ShowFADoc(ToFADocHeader: Record "FA Document Header")
     begin
-        with ToFADocHeader do
-            case "Document Type" of
-                "Document Type"::Writeoff:
-                    PAGE.Run(PAGE::"FA Writeoff Act", ToFADocHeader);
-                "Document Type"::Release:
-                    PAGE.Run(PAGE::"FA Release Act", ToFADocHeader);
-                "Document Type"::Movement:
-                    PAGE.Run(PAGE::"FA Movement Act", ToFADocHeader);
-            end;
+        case ToFADocHeader."Document Type" of
+            ToFADocHeader."Document Type"::Writeoff:
+                PAGE.Run(PAGE::"FA Writeoff Act", ToFADocHeader);
+            ToFADocHeader."Document Type"::Release:
+                PAGE.Run(PAGE::"FA Release Act", ToFADocHeader);
+            ToFADocHeader."Document Type"::Movement:
+                PAGE.Run(PAGE::"FA Movement Act", ToFADocHeader);
+        end;
     end;
 
     local procedure CopyFADocLine(var ToFADocHeader: Record "FA Document Header"; var ToFADocLine: Record "FA Document Line"; var FromFADocLine: Record "FA Document Line"; var NextLineNo: Integer; var LinesNotCopied: Integer)

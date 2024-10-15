@@ -181,7 +181,6 @@ report 17308 "Calc. Tax Diff.- Depr. Bonus"
         TaxDiffLedgerEntry: Record "Tax Diff. Ledger Entry";
         CalendarPeriod: Record Date;
         DatePeriod: Record Date;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         PeriodReportManagement: Codeunit PeriodReportManagement;
         StartDate: Date;
         EndDate: Date;
@@ -196,6 +195,8 @@ report 17308 "Calc. Tax Diff.- Depr. Bonus"
 
     [Scope('OnPrem')]
     procedure CreateJnlLine(Description: Text[80]; PostingDate: Date; TaxDiffCode: Code[10]; AmountBase: Decimal; AmountTax: Decimal; SourceType: Option; SourceNo: Code[20])
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         xRecTaxDiffJnlLine := TaxDiffJnlLine;
         TaxDiffJnlLine.Init();
@@ -204,7 +205,7 @@ report 17308 "Calc. Tax Diff.- Depr. Bonus"
         TaxDiffJnlLine."Journal Batch Name" := BatchName;
         TaxDiffJnlLine."Line No." := LineNo;
         TaxDiffJnlLine.Description := CopyStr(Description, 1, MaxStrLen(TaxDiffJnlLine.Description));
-        TaxDiffJnlLine."Document No." := NoSeriesMgt.GetNextNo(TaxDiffJnlBatch."No. Series", EndDate, true);
+        TaxDiffJnlLine."Document No." := NoSeries.GetNextNo(TaxDiffJnlBatch."No. Series", EndDate);
         TaxDiffJnlLine."Posting Date" := PostingDate;
         TaxDiffJnlLine."Source Type" := SourceType;
         TaxDiffJnlLine.Validate("Source No.", SourceNo);

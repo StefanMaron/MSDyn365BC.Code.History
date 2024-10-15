@@ -1,4 +1,4 @@
-﻿codeunit 135060 "Document Mailing Tests"
+codeunit 135060 "Document Mailing Tests"
 {
     EventSubscriberInstance = Manual;
     Subtype = Test;
@@ -89,7 +89,7 @@
         SourceIDs: List of [Guid];
         InStream: InStream;
         VariableVariant: Variant;
-        Content, BodyContent : Text;
+        Content: Text;
         Name: Text;
     begin
         // [SCENARIO] An email can be sent where the email body is given as a stream
@@ -146,7 +146,7 @@
         SourceIDs: List of [Guid];
         InStream: InStream;
         VariableVariant: Variant;
-        Content, BodyContent : Text;
+        Content: Text;
         Name: Text;
     begin
         // [SCENARIO] An email can be sent where the email body is given as a stream

@@ -156,29 +156,27 @@ xmlport 1230 "Export Generic CSV"
         if DataExchFieldHeaderFooter."Column Type" = DataExchFieldHeaderFooter."Column Type"::" " then
             exit(false);
 
-        with DataExchField do begin
-            SetRange("Data Exch. No.", DataExchFieldHeaderFooter."Data Exch. No.");
-            SetRange("Column No.", DataExchFieldHeaderFooter."Column No.");
-            case DataExchFieldHeaderFooter."Column Type" of
-                DataExchFieldHeaderFooter."Column Type"::Header:
-                    begin
-                        if (DataExchFieldHeaderFooter."Column Name" = DataExchDef."Document Start Tag") and
-                           (DataExchDef."Document Start Tag" <> '')
-                        then
-                            exit(false);
-                        SetFilter("Line No.", '<%1', DataExchFieldHeaderFooter."Line No.");
-                    end;
-                DataExchFieldHeaderFooter."Column Type"::Footer:
-                    begin
-                        if (DataExchFieldHeaderFooter."Column Name" = DataExchDef."Document End Tag") and
-                           (DataExchDef."Document End Tag" <> '')
-                        then
-                            exit(false);
-                        SetFilter("Line No.", '>%1', DataExchFieldHeaderFooter."Line No.");
-                    end;
-            end;
-            exit(not IsEmpty);
+        DataExchField.SetRange("Data Exch. No.", DataExchFieldHeaderFooter."Data Exch. No.");
+        DataExchField.SetRange("Column No.", DataExchFieldHeaderFooter."Column No.");
+        case DataExchFieldHeaderFooter."Column Type" of
+            DataExchFieldHeaderFooter."Column Type"::Header:
+                begin
+                    if (DataExchFieldHeaderFooter."Column Name" = DataExchDef."Document Start Tag") and
+                       (DataExchDef."Document Start Tag" <> '')
+                    then
+                        exit(false);
+                    DataExchField.SetFilter("Line No.", '<%1', DataExchFieldHeaderFooter."Line No.");
+                end;
+            DataExchFieldHeaderFooter."Column Type"::Footer:
+                begin
+                    if (DataExchFieldHeaderFooter."Column Name" = DataExchDef."Document End Tag") and
+                       (DataExchDef."Document End Tag" <> '')
+                    then
+                        exit(false);
+                    DataExchField.SetFilter("Line No.", '>%1', DataExchFieldHeaderFooter."Line No.");
+                end;
         end;
+        exit(not DataExchField.IsEmpty);
     end;
 
     [IntegrationEvent(true, false)]

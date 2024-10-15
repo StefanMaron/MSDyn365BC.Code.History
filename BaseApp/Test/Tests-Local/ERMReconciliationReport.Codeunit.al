@@ -31,7 +31,7 @@
         InvoiceAmount: Decimal;
         PaymentAmount: Decimal;
     begin
-        RunReconciliationForPurchase(WorkDate + LibraryRandom.RandInt(5), true, InvoiceAmount, PaymentAmount);
+        RunReconciliationForPurchase(WorkDate() + LibraryRandom.RandInt(5), true, InvoiceAmount, PaymentAmount);
 
         LibraryReportValidation.VerifyCellValue(13, 14, AmountAsText(InvoiceAmount - PaymentAmount));
     end;
@@ -56,7 +56,7 @@
         InvoiceAmount: Decimal;
         PaymentAmount: Decimal;
     begin
-        RunReconciliationForPurchase(WorkDate - LibraryRandom.RandInt(5), true, InvoiceAmount, PaymentAmount);
+        RunReconciliationForPurchase(WorkDate() - LibraryRandom.RandInt(5), true, InvoiceAmount, PaymentAmount);
 
         Assert.IsFalse(
           LibraryReportValidation.CheckIfValueExistsInSpecifiedColumn('N', AmountAsText(InvoiceAmount)),
@@ -70,7 +70,7 @@
         InvoiceAmount: Decimal;
         PaymentAmount: Decimal;
     begin
-        RunReconciliationForSales(WorkDate + LibraryRandom.RandInt(5), true, InvoiceAmount, PaymentAmount, 2);
+        RunReconciliationForSales(WorkDate() + LibraryRandom.RandInt(5), true, InvoiceAmount, PaymentAmount, 2);
 
         LibraryReportValidation.VerifyCellValue(17, 12, AmountAsText(InvoiceAmount + PaymentAmount));
     end;
@@ -95,7 +95,7 @@
         InvoiceAmount: Decimal;
         PaymentAmount: Decimal;
     begin
-        RunReconciliationForSales(WorkDate - LibraryRandom.RandInt(5), true, InvoiceAmount, PaymentAmount, 2);
+        RunReconciliationForSales(WorkDate() - LibraryRandom.RandInt(5), true, InvoiceAmount, PaymentAmount, 2);
 
         Assert.IsFalse(
           LibraryReportValidation.CheckIfValueExistsInSpecifiedColumn('L', AmountAsText(InvoiceAmount)),
@@ -109,7 +109,7 @@
         InvoiceAmount: Decimal;
         PaymentAmount: Decimal;
     begin
-        RunReconciliationForPurchase(WorkDate + LibraryRandom.RandInt(5), false, InvoiceAmount, PaymentAmount);
+        RunReconciliationForPurchase(WorkDate() + LibraryRandom.RandInt(5), false, InvoiceAmount, PaymentAmount);
 
         LibraryReportValidation.VerifyCellValue(19, 18, AmountAsText(InvoiceAmount - PaymentAmount));
     end;
@@ -133,7 +133,7 @@
         InvoiceAmount: Decimal;
         PaymentAmount: Decimal;
     begin
-        RunReconciliationForPurchase(WorkDate - LibraryRandom.RandInt(5), false, InvoiceAmount, PaymentAmount);
+        RunReconciliationForPurchase(WorkDate() - LibraryRandom.RandInt(5), false, InvoiceAmount, PaymentAmount);
 
         Assert.IsFalse(
           LibraryReportValidation.CheckIfValueExistsInSpecifiedColumn('N', AmountAsText(InvoiceAmount)),
@@ -147,7 +147,7 @@
         InvoiceAmount: Decimal;
         PaymentAmount: Decimal;
     begin
-        RunReconciliationForSales(WorkDate + LibraryRandom.RandInt(5), false, InvoiceAmount, PaymentAmount, 2);
+        RunReconciliationForSales(WorkDate() + LibraryRandom.RandInt(5), false, InvoiceAmount, PaymentAmount, 2);
 
         LibraryReportValidation.VerifyCellValue(17, 12, AmountAsText(InvoiceAmount + PaymentAmount));
     end;
@@ -193,7 +193,7 @@
         InvoiceAmount: Decimal;
         PaymentAmount: Decimal;
     begin
-        RunReconciliationForSales(WorkDate - LibraryRandom.RandInt(5), false, InvoiceAmount, PaymentAmount, 2);
+        RunReconciliationForSales(WorkDate() - LibraryRandom.RandInt(5), false, InvoiceAmount, PaymentAmount, 2);
 
         Assert.IsFalse(
           LibraryReportValidation.CheckIfValueExistsInSpecifiedColumn('L', AmountAsText(InvoiceAmount)),
@@ -215,8 +215,8 @@
         // [SCENARIO 379097] Report "Customer - Reconciliation Act" qualifies for cases described in RFHs 352923..36, 353949, 354901..2, 355590, 355715
         // [GIVEN] Customer with "Agreement Posting" = Mandatory and empty "Currency Code",
         // [GIVEN] Customer Agreements "A1" and "A2",
-        // [GIVEN] Posted Sales Invoice "I1" for "A1" with "Posting Date" = (WORKDATE - 1) and Amount = "IA1",
-        // [GIVEN] Posted Payment for "I1" with "Posting Date" = (WORKDATE - 1) and Amount = "IA1" / 2, applied to "I1"
+        // [GIVEN] Posted Sales Invoice "I1" for "A1" with "Posting Date" = (WorkDate() - 1) and Amount = "IA1",
+        // [GIVEN] Posted Payment for "I1" with "Posting Date" = (WorkDate() - 1) and Amount = "IA1" / 2, applied to "I1"
         // [GIVEN] Posted Sales Invoice "I2" for "A2" with "Posting Date" = WORKDATE and Amount = "IA2",
         // [GIVEN] Posted Sales Credit Memo "CM2" for "A2" as "I2" cancellation,
         // [GIVEN] Posted Sales Invoice "I3" for "A1" with "Posting Date" = WORKDATE and Amount = "IA2",
@@ -268,11 +268,11 @@
     begin
         // [FEATURE] [Sales] [Currency]
         // [SCENARIO 379097] Report "Customer - Reconciliation Act" qualifies for cases described in RFHs 352923..36, 353949, 354901..2, 355590, 355715 in case of currency
-        // [GIVEN] Currency "C" with Exchange Rate "E1" for WORKDATE - 1 and "E2" for WORKDATE,
+        // [GIVEN] Currency "C" with Exchange Rate "E1" for WorkDate() - 1 and "E2" for WORKDATE,
         // [GIVEN] Customer with "Agreement Posting" = Mandatory and "Currency Code" = "C",
         // [GIVEN] Customer Agreements "A1" and "A2",
-        // [GIVEN] Posted Sales Invoice "I1" for "A1" with "Posting Date" = (WORKDATE - 1) and Amount = "IA1",
-        // [GIVEN] Posted Payment for "I1" with "Posting Date" = (WORKDATE - 1) and Amount = "IA1" / 2, applied to "I1"
+        // [GIVEN] Posted Sales Invoice "I1" for "A1" with "Posting Date" = (WorkDate() - 1) and Amount = "IA1",
+        // [GIVEN] Posted Payment for "I1" with "Posting Date" = (WorkDate() - 1) and Amount = "IA1" / 2, applied to "I1"
         // [GIVEN] Posted Sales Invoice "I2" for "A2" with "Posting Date" = WORKDATE and Amount = "IA2",
         // [GIVEN] Posted Sales Credit Memo "CM2" for "A2" as "I2" cancellation,
         // [GIVEN] Posted Sales Invoice "I3" for "A1" with "Posting Date" = WORKDATE and Amount = "IA2",
@@ -324,8 +324,8 @@
         // [FEATURE] [Sales]
         // [SCENARIO 379097] Report "Customer - Reconciliation Act" qualifies for the case described in RFHs 378987
         // [GIVEN] Customer with "Agreement Posting" = "No Agreement" and empty "Currency Code",
-        // [GIVEN] Posted Sales Invoice "I1" with "Posting Date" = (WORKDATE - 1) and Amount = "IA1",
-        // [GIVEN] Posted Payment "P1" for "I1" with "Posting Date" = (WORKDATE + 1) and Amount = "IA1", applied to "I1"
+        // [GIVEN] Posted Sales Invoice "I1" with "Posting Date" = (WorkDate() - 1) and Amount = "IA1",
+        // [GIVEN] Posted Payment "P1" for "I1" with "Posting Date" = (WorkDate() + 1) and Amount = "IA1", applied to "I1"
         Initialize();
         CustomerNo :=
           CreateDataForSalesWithFuturePayment(WorkDate(), InvoiceAmount);
@@ -427,10 +427,10 @@
         // [GIVEN] Second customer without transactions within period
 
         // [WHEN] Printing report "Customer - Reconciliation Act" for both customers
-        PrintCustomerReconciliation(CustomerNo, LibrarySales.CreateCustomerNo, WorkDate());
+        PrintCustomerReconciliation(CustomerNo, LibrarySales.CreateCustomerNo(), WorkDate());
 
         // [THEN] The second customer has zero turnover
-        VerifyCustomerZeroTurnoverLine;
+        VerifyCustomerZeroTurnoverLine();
     end;
 
     [Test]
@@ -456,10 +456,10 @@
         // [GIVEN] Second customer without transactions within period
 
         // [WHEN] Printing report "Customer - Reconciliation Act" for both customers
-        PrintCustomerReconciliation(CustomerNo, LibrarySales.CreateCustomerNo, WorkDate());
+        PrintCustomerReconciliation(CustomerNo, LibrarySales.CreateCustomerNo(), WorkDate());
 
         // [THEN] The second customer has zero turnover
-        VerifyCustomerZeroTurnoverLine;
+        VerifyCustomerZeroTurnoverLine();
     end;
 
     [Test]
@@ -739,7 +739,7 @@
         PurchaseHeader.Validate("Posting Date", PostingDate);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, 1);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
         PurchaseLine.Modify(true);
         InvoiceAmount := PurchaseLine."Amount Including VAT";
@@ -786,7 +786,7 @@
     begin
         with GenJournalLine do
             CreateApplyPostGenJnlLine(
-              WorkDate, "Document Type"::Refund, "Account Type"::Customer, CustomerNo,
+              WorkDate(), "Document Type"::Refund, "Account Type"::Customer, CustomerNo,
               "Applies-to Doc. Type"::"Credit Memo", CrMemoNo, '', LineAmount);
     end;
 
@@ -855,7 +855,7 @@
           LibraryRandom.RandDateFrom(
             CalcDate(
               StrSubstNo('<-CM + %1M>', MonthShift),
-              WorkDate), 20));
+              WorkDate()), 20));
     end;
 
     local procedure GetAmountGreaterThan(Amount: Decimal): Decimal
@@ -874,7 +874,7 @@
         VendorReconciliationAct: Report "Vendor - Reconciliation Act";
     begin
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        VendorReconciliationAct.InitializeRequest(ReportDate, ReportDate, LibraryReportValidation.GetFileName, true);
+        VendorReconciliationAct.InitializeRequest(ReportDate, ReportDate, LibraryReportValidation.GetFileName(), true);
         Vendor.SetRange("No.", VendorNo);
         VendorReconciliationAct.UseRequestPage(UseRequestPage);
         VendorReconciliationAct.SetTableView(Vendor);
@@ -894,7 +894,7 @@
     begin
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         Clear(CustomerReconciliationAct);
-        CustomerReconciliationAct.InitializeRequest(ReportDate, ReportDate, LibraryReportValidation.GetFileName, true);
+        CustomerReconciliationAct.InitializeRequest(ReportDate, ReportDate, LibraryReportValidation.GetFileName(), true);
         if CustomerNo2 = '' then
             Customer.SetRange("No.", CustomerNo1)
         else
@@ -913,7 +913,7 @@
         LibraryVariableStorage.Enqueue(CurrencyCode);
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         Clear(CustomerReconciliationAct);
-        CustomerReconciliationAct.InitializeRequest(ReportDate, ReportDate, LibraryReportValidation.GetFileName, true);
+        CustomerReconciliationAct.InitializeRequest(ReportDate, ReportDate, LibraryReportValidation.GetFileName(), true);
         Customer.SetRange("No.", CustomerNo);
         CustomerReconciliationAct.UseRequestPage(true);
         CustomerReconciliationAct.SetTableView(Customer);
@@ -1052,7 +1052,7 @@
         SalesLine: Record "Sales Line";
     begin
         with SalesLine do begin
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
             Validate("Unit Price", LibraryRandom.RandIntInRange(1000, 2000));
             Modify(true);
             exit("Amount Including VAT");
@@ -1081,7 +1081,6 @@
     local procedure CreatePostPartialCorrectionSalesInvoice(CustomerNo: Code[20]; InvoiceNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
         LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Credit Memo", InvoiceNo, true, false);
@@ -1315,15 +1314,15 @@
     procedure VendorReconciliationActRequestPageHandler(var VendorReconciliationAct: TestRequestPage "Vendor - Reconciliation Act")
     begin
         VendorReconciliationAct.ShowDetails.SetValue(0); // "Show Details" = "Full Detail"
-        VendorReconciliationAct.OK.Invoke;
+        VendorReconciliationAct.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CustomerReconciliationActRequestPageHandler(var "Report": TestRequestPage "Customer - Reconciliation Act")
     begin
-        Report.CurrencyCode.SetValue(LibraryVariableStorage.DequeueText);
-        Report.OK.Invoke;
+        Report.CurrencyCode.SetValue(LibraryVariableStorage.DequeueText());
+        Report.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1331,7 +1330,7 @@
     procedure CustomerReconciliationActDetailRequestPageHandler(var CustomerReconciliationAct: TestRequestPage "Customer - Reconciliation Act")
     begin
         CustomerReconciliationAct.ShowDetails.SetValue(0);
-        CustomerReconciliationAct.OK.Invoke;
+        CustomerReconciliationAct.OK().Invoke();
     end;
 }
 

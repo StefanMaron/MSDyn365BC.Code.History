@@ -207,8 +207,6 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
 
                 trigger OnPreDataItem()
                 var
-                    Vendor: Record Vendor;
-                    Delimiter: Code[1];
                 begin
                     if not ShowCustPrepay then
                         CurrReport.Break();
@@ -226,7 +224,6 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
                 trigger OnAfterGetRecord()
                 var
                     VATEntry1: Record "VAT Entry";
-                    VATEntry2: Record "VAT Entry";
                     Vend: Record Vendor;
                     VendLedgEntry: Record "Vendor Ledger Entry";
                     DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
@@ -781,91 +778,89 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
     begin
         Clear(AmountBuffer);
 
-        with VATEntry do begin
-            "Tax Invoice Amount Type" := "Tax Invoice Amount Type"::VAT;
-            case "VAT Calculation Type" of
-                "VAT Calculation Type"::"Full VAT",
-                "VAT Calculation Type"::"Normal VAT":
-                    begin
-                        VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
-                        if VATPostingSetup."Not Include into VAT Ledger" in
-                           [VATPostingSetup."Not Include into VAT Ledger"::Purchases,
-                            VATPostingSetup."Not Include into VAT Ledger"::"Purchases & Sales"]
-                        then
-                            exit(false);
-                        "Tax Invoice Amount Type" := VATPostingSetup."Tax Invoice Amount Type";
-                    end;
-                "VAT Calculation Type"::"Sales Tax":
-                    begin
-                        TaxJurisdiction.Get("Tax Jurisdiction Code");
-                        if TaxJurisdiction."Not Include into Ledger" in
-                           [TaxJurisdiction."Not Include into Ledger"::Purchase,
-                            TaxJurisdiction."Not Include into Ledger"::"Purchase & Sales"]
-                        then
-                            exit(false);
-                        "Tax Invoice Amount Type" := TaxJurisdiction."Sales Tax Amount Type";
-                        TaxDetail.SetRange("Tax Jurisdiction Code", "Tax Jurisdiction Code");
-                        TaxDetail.SetRange("Tax Group Code", "Tax Group Used");
-                        TaxDetail.SetRange("Tax Type", "Tax Type");
-                        TaxDetail.SetRange("Effective Date", 0D, "Posting Date");
-                        TaxDetail.Find('+');
-                    end;
-            end;
-            case "Tax Invoice Amount Type" of
-                "Tax Invoice Amount Type"::Excise:
-                    case "VAT Calculation Type" of
-                        "VAT Calculation Type"::"Full VAT",
-                      "VAT Calculation Type"::"Sales Tax":
-                            AmountBuffer."Excise Amount" := Amount;
-                        else
-                            FieldError("VAT Calculation Type",
-                              StrSubstNo(Text12400,
-                                "VAT Calculation Type", "Tax Invoice Amount Type"));
-                    end;
-                "Tax Invoice Amount Type"::VAT:
-                    case "VAT Calculation Type" of
-                        "VAT Calculation Type"::"Full VAT":
-                            begin
-                                if "VAT Correction" then
-                                    AmountBuffer."VAT Correction" := true
-                                else
-                                    AmountBuffer."Full VAT Amount" := Amount;
-                                CheckVAT(VATEntry, VATPostingSetup."VAT %", VATPostingSetup."VAT Exempt");
-                            end;
-
-                        "VAT Calculation Type"::"Normal VAT":
+        VATEntry."Tax Invoice Amount Type" := VATEntry."Tax Invoice Amount Type"::VAT;
+        case VATEntry."VAT Calculation Type" of
+            VATEntry."VAT Calculation Type"::"Full VAT",
+            VATEntry."VAT Calculation Type"::"Normal VAT":
+                begin
+                    VATPostingSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group");
+                    if VATPostingSetup."Not Include into VAT Ledger" in
+                       [VATPostingSetup."Not Include into VAT Ledger"::Purchases,
+                        VATPostingSetup."Not Include into VAT Ledger"::"Purchases & Sales"]
+                    then
+                        exit(false);
+                    VATEntry."Tax Invoice Amount Type" := VATPostingSetup."Tax Invoice Amount Type";
+                end;
+            VATEntry."VAT Calculation Type"::"Sales Tax":
+                begin
+                    TaxJurisdiction.Get(VATEntry."Tax Jurisdiction Code");
+                    if TaxJurisdiction."Not Include into Ledger" in
+                       [TaxJurisdiction."Not Include into Ledger"::Purchase,
+                        TaxJurisdiction."Not Include into Ledger"::"Purchase & Sales"]
+                    then
+                        exit(false);
+                    VATEntry."Tax Invoice Amount Type" := TaxJurisdiction."Sales Tax Amount Type";
+                    TaxDetail.SetRange("Tax Jurisdiction Code", VATEntry."Tax Jurisdiction Code");
+                    TaxDetail.SetRange("Tax Group Code", VATEntry."Tax Group Used");
+                    TaxDetail.SetRange("Tax Type", VATEntry."Tax Type");
+                    TaxDetail.SetRange("Effective Date", 0D, VATEntry."Posting Date");
+                    TaxDetail.Find('+');
+                end;
+        end;
+        case VATEntry."Tax Invoice Amount Type" of
+            VATEntry."Tax Invoice Amount Type"::Excise:
+                case VATEntry."VAT Calculation Type" of
+                    VATEntry."VAT Calculation Type"::"Full VAT",
+                  VATEntry."VAT Calculation Type"::"Sales Tax":
+                        AmountBuffer."Excise Amount" := VATEntry.Amount;
+                    else
+                        VATEntry.FieldError("VAT Calculation Type",
+                          StrSubstNo(Text12400,
+                            VATEntry."VAT Calculation Type", VATEntry."Tax Invoice Amount Type"));
+                end;
+            VATEntry."Tax Invoice Amount Type"::VAT:
+                case VATEntry."VAT Calculation Type" of
+                    VATEntry."VAT Calculation Type"::"Full VAT":
+                        begin
+                            if VATEntry."VAT Correction" then
+                                AmountBuffer."VAT Correction" := true
+                            else
+                                AmountBuffer."Full VAT Amount" := VATEntry.Amount;
                             CheckVAT(VATEntry, VATPostingSetup."VAT %", VATPostingSetup."VAT Exempt");
-                        "VAT Calculation Type"::"Sales Tax":
-                            CheckVAT(VATEntry, TaxDetail."Tax Below Maximum", VATPostingSetup."VAT Exempt");
-                        else
-                            FieldError("VAT Calculation Type",
-                              StrSubstNo(Text12400,
-                                "VAT Calculation Type", "Tax Invoice Amount Type"));
-                    end;
-                "Tax Invoice Amount Type"::"Sales Tax":
-                    case "VAT Calculation Type" of
-                        "VAT Calculation Type"::"Full VAT":
-                            begin
-                                if "VAT Correction" = true then begin
-                                    AmountBuffer."VAT Correction" := true;
-                                    AmountBuffer."Sales Tax Amount" := Amount;
-                                    AmountBuffer."Sales Tax Base" := Base;
-                                end else
-                                    AmountBuffer."Full Sales Tax Amount" := Amount;
-                            end;
-                        "VAT Calculation Type"::"Sales Tax":
-                            begin
-                                AmountBuffer."Sales Tax Amount" := Amount;
-                                AmountBuffer."Sales Tax Base" := Base;
-                            end;
-                        else
-                            FieldError("VAT Calculation Type",
-                              StrSubstNo(Text12400,
-                                "VAT Calculation Type", "Tax Invoice Amount Type"));
-                    end;
-                else
-                    Error(Text12401);
-            end;
+                        end;
+
+                    VATEntry."VAT Calculation Type"::"Normal VAT":
+                        CheckVAT(VATEntry, VATPostingSetup."VAT %", VATPostingSetup."VAT Exempt");
+                    VATEntry."VAT Calculation Type"::"Sales Tax":
+                        CheckVAT(VATEntry, TaxDetail."Tax Below Maximum", VATPostingSetup."VAT Exempt");
+                    else
+                        VATEntry.FieldError("VAT Calculation Type",
+                          StrSubstNo(Text12400,
+                            VATEntry."VAT Calculation Type", VATEntry."Tax Invoice Amount Type"));
+                end;
+            VATEntry."Tax Invoice Amount Type"::"Sales Tax":
+                case VATEntry."VAT Calculation Type" of
+                    VATEntry."VAT Calculation Type"::"Full VAT":
+                        begin
+                            if VATEntry."VAT Correction" = true then begin
+                                AmountBuffer."VAT Correction" := true;
+                                AmountBuffer."Sales Tax Amount" := VATEntry.Amount;
+                                AmountBuffer."Sales Tax Base" := VATEntry.Base;
+                            end else
+                                AmountBuffer."Full Sales Tax Amount" := VATEntry.Amount;
+                        end;
+                    VATEntry."VAT Calculation Type"::"Sales Tax":
+                        begin
+                            AmountBuffer."Sales Tax Amount" := VATEntry.Amount;
+                            AmountBuffer."Sales Tax Base" := VATEntry.Base;
+                        end;
+                    else
+                        VATEntry.FieldError("VAT Calculation Type",
+                          StrSubstNo(Text12400,
+                            VATEntry."VAT Calculation Type", VATEntry."Tax Invoice Amount Type"));
+                end;
+            else
+                Error(Text12401);
         end;
         exit(true);
     end;
@@ -873,36 +868,34 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
     [Scope('OnPrem')]
     procedure CheckVAT(VATEntry: Record "VAT Entry"; VATPercent: Decimal; VATExempt: Boolean)
     begin
-        with VATEntry do begin
-            if VATPercent = 0 then
-                if not VATExempt then
-                    AmountBuffer.Base0 := Base + "Unrealized Base"
-                else
-                    AmountBuffer."Base VAT Exempt" := Base + "Unrealized Base"
+        if VATPercent = 0 then
+            if not VATExempt then
+                AmountBuffer.Base0 := VATEntry.Base + VATEntry."Unrealized Base"
             else
-                case VATPercent of
-                    9.09, 10:
-                        begin
-                            AmountBuffer.Base10 := Base + "Unrealized Base";
-                            AmountBuffer.Amount10 := Amount + "Unrealized Amount";
-                        end;
-                    VATLedgMgt.GetVATPctRate2018():
-                        begin
-                            AmountBuffer.Base18 := Base + "Unrealized Base";
-                            AmountBuffer.Amount18 := Amount + "Unrealized Amount";
-                        end;
-                    16.67, 20:
-                        begin
-                            AmountBuffer.Base20 := Base + "Unrealized Base";
-                            AmountBuffer.Amount20 := Amount + "Unrealized Amount";
-                        end;
-                    else begin
-                            AmountBuffer.Base18 := Base + "Unrealized Base";
-                            AmountBuffer.Amount18 := Amount + "Unrealized Amount";
-                            AmountBuffer."VAT Percent" := VATPercent;
-                        end;
+                AmountBuffer."Base VAT Exempt" := VATEntry.Base + VATEntry."Unrealized Base"
+        else
+            case VATPercent of
+                9.09, 10:
+                    begin
+                        AmountBuffer.Base10 := VATEntry.Base + VATEntry."Unrealized Base";
+                        AmountBuffer.Amount10 := VATEntry.Amount + VATEntry."Unrealized Amount";
+                    end;
+                VATLedgMgt.GetVATPctRate2018():
+                    begin
+                        AmountBuffer.Base18 := VATEntry.Base + VATEntry."Unrealized Base";
+                        AmountBuffer.Amount18 := VATEntry.Amount + VATEntry."Unrealized Amount";
+                    end;
+                16.67, 20:
+                    begin
+                        AmountBuffer.Base20 := VATEntry.Base + VATEntry."Unrealized Base";
+                        AmountBuffer.Amount20 := VATEntry.Amount + VATEntry."Unrealized Amount";
+                    end;
+                else begin
+                    AmountBuffer.Base18 := VATEntry.Base + VATEntry."Unrealized Base";
+                    AmountBuffer.Amount18 := VATEntry.Amount + VATEntry."Unrealized Amount";
+                    AmountBuffer."VAT Percent" := VATPercent;
                 end;
-        end;
+            end;
     end;
 
     [Scope('OnPrem')]
@@ -917,161 +910,155 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
         if not Check(VATEntry) then
             exit;
 
-        with VATEntry do begin
+        if (OtherPercents = OtherPercents::Total) and (AmountBuffer."VAT Percent" <> 0) then begin
+            LedgerBuffer.SetRange("Document No.");
+            LedgerBuffer.SetRange("Real. VAT Entry Date");
+            LedgerBuffer.SetRange("Transaction/Entry No.");
+            LedgerBuffer.SetRange("VAT Product Posting Group");
+            LedgerBuffer.SetRange("Document Type");
+            LedgerBuffer.SetRange("C/V No.");
+        end else begin
+            LedgerBuffer.SetRange("Document No.", DocumentNo);
+            LedgerBuffer.SetRange("Payment Date", PaymentDate);
+            LedgerBuffer.SetRange(Correction, ADinTA);
+            LedgerBuffer.SetRange("VAT Product Posting Group");
+            LedgerBuffer.SetRange("Document Type", VATEntry."Document Type");
+            LedgerBuffer.SetRange("C/V No.", VendNo);
+        end;
+        LedgerBuffer.SetRange("VAT Percent", AmountBuffer."VAT Percent");
+
+        if CorrDocMgt.IsCorrVATEntry(VATEntry) then begin
+            case VATEntry."Corrective Doc. Type" of
+                VATEntry."Corrective Doc. Type"::Correction:
+                    begin
+                        LedgerBuffer.SetRange("Correction No.", CorrectionNo);
+                        LedgerBuffer.SetRange("Revision No.");
+                        LedgerBuffer.SetRange("Revision of Corr. No.");
+                    end;
+                VATEntry."Corrective Doc. Type"::Revision:
+                    begin
+                        if RevisionNo <> '' then begin
+                            LedgerBuffer.SetRange("Revision No.", RevisionNo);
+                            LedgerBuffer.SetRange("Correction No.");
+                            LedgerBuffer.SetRange("Revision of Corr. No.");
+                        end;
+                        if RevisionOfCorrectionNo <> '' then begin
+                            LedgerBuffer.SetRange("Revision of Corr. No.", RevisionOfCorrectionNo);
+                            LedgerBuffer.SetRange("Correction No.");
+                            LedgerBuffer.SetRange("Revision No.");
+                        end;
+                    end;
+            end;
+        end else begin
+            LedgerBuffer.SetRange("Correction No.", '');
+            LedgerBuffer.SetRange("Revision No.", '');
+            LedgerBuffer.SetRange("Revision of Corr. No.", '');
+        end;
+
+        if LedgerBuffer.IsEmpty() then begin
+            LedgerBuffer.Init();
+            LineNo := LineNo + 1;
+            LedgerBuffer.Type := VATLedgerName.Type;
+            LedgerBuffer.Code := VATLedgerName.Code;
+            LedgerBuffer."Line No." := LineNo;
             if (OtherPercents = OtherPercents::Total) and
                (AmountBuffer."VAT Percent" <> 0)
             then begin
-                LedgerBuffer.SetRange("Document No.");
-                LedgerBuffer.SetRange("Real. VAT Entry Date");
-                LedgerBuffer.SetRange("Transaction/Entry No.");
-                LedgerBuffer.SetRange("VAT Product Posting Group");
-                LedgerBuffer.SetRange("Document Type");
-                LedgerBuffer.SetRange("C/V No.");
+                LedgerBuffer."Document No." := '';
+                LedgerBuffer."Real. VAT Entry Date" := VATLedgerName."End Date";
+                LedgerBuffer."Transaction/Entry No." := 0;
+                LedgerBuffer."VAT Product Posting Group" := '';
+                LedgerBuffer."VAT Business Posting Group" := '';
+                LedgerBuffer."Document Type" := "Gen. Journal Document Type"::" ";
             end else begin
-                LedgerBuffer.SetRange("Document No.", DocumentNo);
-                LedgerBuffer.SetRange("Payment Date", PaymentDate);
-                LedgerBuffer.SetRange(Correction, ADinTA);
-                LedgerBuffer.SetRange("VAT Product Posting Group");
-                LedgerBuffer.SetRange("Document Type", "Document Type");
-                LedgerBuffer.SetRange("C/V No.", VendNo);
+                LedgerBuffer."Document Type" := VATEntry."Document Type";
+                LedgerBuffer."Document Date" := DocumentDate;
+                LedgerBuffer."Document No." := DocumentNo;
+                LedgerBuffer.Correction := ADinTA;
+                LedgerBuffer."Origin. Document No." := OrigDocNo;
+                LedgerBuffer."Real. VAT Entry Date" := RealVATEntryDate;
+                LedgerBuffer."Transaction/Entry No." := VATEntry."Transaction No.";
+                LedgerBuffer."VAT Product Posting Group" := VATEntry."VAT Prod. Posting Group";
+                LedgerBuffer."VAT Business Posting Group" := VATEntry."VAT Bus. Posting Group";
+                LedgerBuffer."Unreal. VAT Entry Date" := DocPostingDate;
+                LedgerBuffer.Prepayment := VATEntry.Prepayment;
             end;
-            LedgerBuffer.SetRange("VAT Percent", AmountBuffer."VAT Percent");
+            LedgerBuffer."C/V No." := VATEntry."Bill-to/Pay-to No.";
+            LedgerBuffer."VAT Percent" := AmountBuffer."VAT Percent";
+
+            LedgerBuffer."External Document No." := VATEntry."External Document No.";
+            GetVATEntryValues(VATEntry, CVLedgEntryAmount, CurrencyCode, VATEntryType);
+            LedgerBuffer.Amount := CVLedgEntryAmount;
+            LedgerBuffer."Currency Code" := CurrencyCode;
+            LedgerBuffer."VAT Entry Type" := VATEntryType;
+            LedgerBuffer."VAT Correction" := VATEntry."VAT Correction";
+            LedgerBuffer.Partial := Partial;
+            LedgerBuffer."Last Date" := 0D;
+            if (DocumentDate <> 0D) and (DocumentDate > LedgerBuffer."Last Date") then
+                LedgerBuffer."Last Date" := DocumentDate;
+            if (RealVATEntryDate <> 0D) and (RealVATEntryDate > LedgerBuffer."Last Date") then
+                LedgerBuffer."Last Date" := RealVATEntryDate;
+            if (DocPostingDate <> 0D) and (DocPostingDate > LedgerBuffer."Last Date") then
+                LedgerBuffer."Last Date" := DocPostingDate;
+            if (InvoiceRecDate <> 0D) and (InvoiceRecDate > LedgerBuffer."Last Date") then
+                LedgerBuffer."Last Date" := InvoiceRecDate;
+
+            case VATEntry.Type of
+                VATEntry.Type::Purchase:
+                    if Vend.Get(LedgerBuffer."C/V No.") then begin
+                        LedgerBuffer."C/V Name" := Vend.Name + Vend."Name 2";
+                        LedgerBuffer."C/V VAT Reg. No." := Vend."VAT Registration No.";
+                        LedgerBuffer."Reg. Reason Code" := Vend."KPP Code";
+                    end else
+                        Vend.Init();
+                VATEntry.Type::Sale:
+                    if Cust.Get(LedgerBuffer."C/V No.") then begin
+                        LedgerBuffer."C/V Name" := Cust.Name + Cust."Name 2";
+                        LedgerBuffer."C/V VAT Reg. No." := Cust."VAT Registration No.";
+                        LedgerBuffer."Reg. Reason Code" := Cust."KPP Code";
+                    end;
+            end;
+
+            LedgerBuffer."Additional Sheet" := VATEntry."Additional VAT Ledger Sheet";
+            if VATEntry."Additional VAT Ledger Sheet" then
+                LedgerBuffer."Corr. VAT Entry Posting Date" := VATEntry."Posting Date";
+
+            LedgerBuffer."Payment Date" := PaymentDate;
+            LedgerBuffer."Payment Doc. No." := PaymentDocNo;
 
             if CorrDocMgt.IsCorrVATEntry(VATEntry) then begin
-                case "Corrective Doc. Type" of
-                    "Corrective Doc. Type"::Correction:
-                        begin
-                            LedgerBuffer.SetRange("Correction No.", CorrectionNo);
-                            LedgerBuffer.SetRange("Revision No.");
-                            LedgerBuffer.SetRange("Revision of Corr. No.");
-                        end;
-                    "Corrective Doc. Type"::Revision:
-                        begin
-                            if RevisionNo <> '' then begin
-                                LedgerBuffer.SetRange("Revision No.", RevisionNo);
-                                LedgerBuffer.SetRange("Correction No.");
-                                LedgerBuffer.SetRange("Revision of Corr. No.");
-                            end;
-                            if RevisionOfCorrectionNo <> '' then begin
-                                LedgerBuffer.SetRange("Revision of Corr. No.", RevisionOfCorrectionNo);
-                                LedgerBuffer.SetRange("Correction No.");
-                                LedgerBuffer.SetRange("Revision No.");
-                            end;
-                        end;
-                end;
-            end else begin
-                LedgerBuffer.SetRange("Correction No.", '');
-                LedgerBuffer.SetRange("Revision No.", '');
-                LedgerBuffer.SetRange("Revision of Corr. No.", '');
+                LedgerBuffer."Document Date" := DocumentDate;
+                LedgerBuffer."Correction No." := CorrectionNo;
+                LedgerBuffer."Correction Date" := CorrectionDate;
+                LedgerBuffer."Revision No." := RevisionNo;
+                LedgerBuffer."Revision Date" := RevisionDate;
+                LedgerBuffer."Revision of Corr. No." := RevisionOfCorrectionNo;
+                LedgerBuffer."Revision of Corr. Date" := RevisionOfCorrectionDate;
+                LedgerBuffer."Print Revision" := PrintRevision;
             end;
 
-            if LedgerBuffer.IsEmpty() then begin
-                LedgerBuffer.Init();
-                LineNo := LineNo + 1;
-                LedgerBuffer.Type := VATLedgerName.Type;
-                LedgerBuffer.Code := VATLedgerName.Code;
-                LedgerBuffer."Line No." := LineNo;
-                if (OtherPercents = OtherPercents::Total) and
-                   (AmountBuffer."VAT Percent" <> 0)
-                then begin
-                    LedgerBuffer."Document No." := '';
-                    LedgerBuffer."Real. VAT Entry Date" := VATLedgerName."End Date";
-                    LedgerBuffer."Transaction/Entry No." := 0;
-                    LedgerBuffer."VAT Product Posting Group" := '';
-                    LedgerBuffer."VAT Business Posting Group" := '';
-                    LedgerBuffer."Document Type" := "Gen. Journal Document Type"::" ";
-                end else begin
-                    LedgerBuffer."Document Type" := "Document Type";
-                    LedgerBuffer."Document Date" := DocumentDate;
-                    LedgerBuffer."Document No." := DocumentNo;
-                    LedgerBuffer.Correction := ADinTA;
-                    LedgerBuffer."Origin. Document No." := OrigDocNo;
-                    LedgerBuffer."Real. VAT Entry Date" := RealVATEntryDate;
-                    LedgerBuffer."Transaction/Entry No." := "Transaction No.";
-                    LedgerBuffer."VAT Product Posting Group" := "VAT Prod. Posting Group";
-                    LedgerBuffer."VAT Business Posting Group" := "VAT Bus. Posting Group";
-                    LedgerBuffer."Unreal. VAT Entry Date" := DocPostingDate;
-                    LedgerBuffer.Prepayment := Prepayment;
-                end;
-                LedgerBuffer."C/V No." := "Bill-to/Pay-to No.";
-                LedgerBuffer."VAT Percent" := AmountBuffer."VAT Percent";
-
-                LedgerBuffer."External Document No." := "External Document No.";
-                GetVATEntryValues(VATEntry, CVLedgEntryAmount, CurrencyCode, VATEntryType);
-                LedgerBuffer.Amount := CVLedgEntryAmount;
-                LedgerBuffer."Currency Code" := CurrencyCode;
-                LedgerBuffer."VAT Entry Type" := VATEntryType;
-                LedgerBuffer."VAT Correction" := "VAT Correction";
-                LedgerBuffer.Partial := Partial;
-                LedgerBuffer."Last Date" := 0D;
-                if (DocumentDate <> 0D) and (DocumentDate > LedgerBuffer."Last Date") then
-                    LedgerBuffer."Last Date" := DocumentDate;
-                if (RealVATEntryDate <> 0D) and (RealVATEntryDate > LedgerBuffer."Last Date") then
-                    LedgerBuffer."Last Date" := RealVATEntryDate;
-                if (DocPostingDate <> 0D) and (DocPostingDate > LedgerBuffer."Last Date") then
-                    LedgerBuffer."Last Date" := DocPostingDate;
-                if (InvoiceRecDate <> 0D) and (InvoiceRecDate > LedgerBuffer."Last Date") then
-                    LedgerBuffer."Last Date" := InvoiceRecDate;
-
-                case Type of
-                    Type::Purchase:
-                        if Vend.Get(LedgerBuffer."C/V No.") then begin
-                            LedgerBuffer."C/V Name" := Vend.Name + Vend."Name 2";
-                            LedgerBuffer."C/V VAT Reg. No." := Vend."VAT Registration No.";
-                            LedgerBuffer."Reg. Reason Code" := Vend."KPP Code";
-                        end else
-                            Vend.Init();
-                    Type::Sale:
-                        if Cust.Get(LedgerBuffer."C/V No.") then begin
-                            LedgerBuffer."C/V Name" := Cust.Name + Cust."Name 2";
-                            LedgerBuffer."C/V VAT Reg. No." := Cust."VAT Registration No.";
-                            LedgerBuffer."Reg. Reason Code" := Cust."KPP Code";
-                        end;
-                end;
-
-                LedgerBuffer."Additional Sheet" := "Additional VAT Ledger Sheet";
-                if "Additional VAT Ledger Sheet" then
-                    LedgerBuffer."Corr. VAT Entry Posting Date" := "Posting Date";
-
-                LedgerBuffer."Payment Date" := PaymentDate;
-                LedgerBuffer."Payment Doc. No." := PaymentDocNo;
-
-                if CorrDocMgt.IsCorrVATEntry(VATEntry) then begin
-                    LedgerBuffer."Document Date" := DocumentDate;
-                    LedgerBuffer."Correction No." := CorrectionNo;
-                    LedgerBuffer."Correction Date" := CorrectionDate;
-                    LedgerBuffer."Revision No." := RevisionNo;
-                    LedgerBuffer."Revision Date" := RevisionDate;
-                    LedgerBuffer."Revision of Corr. No." := RevisionOfCorrectionNo;
-                    LedgerBuffer."Revision of Corr. Date" := RevisionOfCorrectionDate;
-                    LedgerBuffer."Print Revision" := PrintRevision;
-                end;
-
-                LedgerBuffer.Insert();
-                InsertLedgerConnBuffer(LedgerBuffer, "Entry No.");
-            end;
+            LedgerBuffer.Insert();
+            InsertLedgerConnBuffer(LedgerBuffer, VATEntry."Entry No.");
         end;
 
-        with LedgerBuffer do begin
-            Base10 := Base10 + AmountBuffer.Base10;
-            Amount10 := Amount10 + AmountBuffer.Amount10;
-            Base18 := Base18 + AmountBuffer.Base18;
-            Amount18 := Amount18 + AmountBuffer.Amount18;
-            Base20 := Base20 + AmountBuffer.Base20;
-            Amount20 := Amount20 + AmountBuffer.Amount20;
-            "Full VAT Amount" := "Full VAT Amount" + AmountBuffer."Full VAT Amount";
-            "Sales Tax Amount" := "Sales Tax Amount" + AmountBuffer."Sales Tax Amount";
-            "Sales Tax Base" := "Sales Tax Base" + AmountBuffer."Sales Tax Base";
-            "Full Sales Tax Amount" := "Full Sales Tax Amount" + AmountBuffer."Full Sales Tax Amount";
-            Base0 := Base0 + AmountBuffer.Base0;
-            "Base VAT Exempt" := "Base VAT Exempt" + AmountBuffer."Base VAT Exempt";
-            "Excise Amount" := "Excise Amount" + AmountBuffer."Excise Amount";
-            if DocumentDate <> 0D then
-                "Document Date" := DocumentDate;
-            if DocPostingDate <> 0D then
-                "Unreal. VAT Entry Date" := DocPostingDate;
-            Modify();
-        end;
+        LedgerBuffer.Base10 := LedgerBuffer.Base10 + AmountBuffer.Base10;
+        LedgerBuffer.Amount10 := LedgerBuffer.Amount10 + AmountBuffer.Amount10;
+        LedgerBuffer.Base18 := LedgerBuffer.Base18 + AmountBuffer.Base18;
+        LedgerBuffer.Amount18 := LedgerBuffer.Amount18 + AmountBuffer.Amount18;
+        LedgerBuffer.Base20 := LedgerBuffer.Base20 + AmountBuffer.Base20;
+        LedgerBuffer.Amount20 := LedgerBuffer.Amount20 + AmountBuffer.Amount20;
+        LedgerBuffer."Full VAT Amount" := LedgerBuffer."Full VAT Amount" + AmountBuffer."Full VAT Amount";
+        LedgerBuffer."Sales Tax Amount" := LedgerBuffer."Sales Tax Amount" + AmountBuffer."Sales Tax Amount";
+        LedgerBuffer."Sales Tax Base" := LedgerBuffer."Sales Tax Base" + AmountBuffer."Sales Tax Base";
+        LedgerBuffer."Full Sales Tax Amount" := LedgerBuffer."Full Sales Tax Amount" + AmountBuffer."Full Sales Tax Amount";
+        LedgerBuffer.Base0 := LedgerBuffer.Base0 + AmountBuffer.Base0;
+        LedgerBuffer."Base VAT Exempt" := LedgerBuffer."Base VAT Exempt" + AmountBuffer."Base VAT Exempt";
+        LedgerBuffer."Excise Amount" := LedgerBuffer."Excise Amount" + AmountBuffer."Excise Amount";
+        if DocumentDate <> 0D then
+            LedgerBuffer."Document Date" := DocumentDate;
+        if DocPostingDate <> 0D then
+            LedgerBuffer."Unreal. VAT Entry Date" := DocPostingDate;
+        LedgerBuffer.Modify();
     end;
 
     [Scope('OnPrem')]

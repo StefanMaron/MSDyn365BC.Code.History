@@ -144,10 +144,10 @@ codeunit 144703 "ERM Purchase Receipt M-4"
         Initialize();
 
         // [GIVEN] Purchase Order "PO"
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] Purchase Line having 20 chars long "No."
-        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup();
 
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, 1);
 
@@ -156,7 +156,7 @@ codeunit 144703 "ERM Purchase Receipt M-4"
         Commit();
         PurchaseHeader.SetRecFilter();
         PurchaseReceiptM4.SetTableView(PurchaseHeader);
-        PurchaseReceiptM4.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        PurchaseReceiptM4.SetFileNameSilent(LibraryReportValidation.GetFileName());
         PurchaseReceiptM4.UseRequestPage(false);
         PurchaseReceiptM4.Run();
 
@@ -179,10 +179,10 @@ codeunit 144703 "ERM Purchase Receipt M-4"
         Initialize();
 
         // [GIVEN] Purchase Order "PO"
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] Purchase Line having 20 chars long "No."
-        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup();
 
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, 1);
 
@@ -194,7 +194,7 @@ codeunit 144703 "ERM Purchase Receipt M-4"
         Commit();
         PurchInvHeader.SetRange("No.", DocumentNo);
         PostedPurchaseReceiptM4.SetTableView(PurchInvHeader);
-        PostedPurchaseReceiptM4.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        PostedPurchaseReceiptM4.SetFileNameSilent(LibraryReportValidation.GetFileName());
         PostedPurchaseReceiptM4.UseRequestPage(false);
         PostedPurchaseReceiptM4.Run();
 
@@ -264,7 +264,7 @@ codeunit 144703 "ERM Purchase Receipt M-4"
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseHeader.SetRange("No.", PurchaseHeader."No.");
         PurchaseReceiptM4.SetTableView(PurchaseHeader);
-        PurchaseReceiptM4.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        PurchaseReceiptM4.SetFileNameSilent(LibraryReportValidation.GetFileName());
         PurchaseReceiptM4.UseRequestPage(false);
         PurchaseReceiptM4.Run();
 
@@ -286,7 +286,7 @@ codeunit 144703 "ERM Purchase Receipt M-4"
         Commit();
         PurchInvHeader.SetRange("No.", DocumentNo);
         PostedPurchaseReceiptM4.SetTableView(PurchInvHeader);
-        PostedPurchaseReceiptM4.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        PostedPurchaseReceiptM4.SetFileNameSilent(LibraryReportValidation.GetFileName());
         PostedPurchaseReceiptM4.UseRequestPage(false);
         PostedPurchaseReceiptM4.Run();
     end;

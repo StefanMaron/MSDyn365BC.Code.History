@@ -1,9 +1,13 @@
 #if not CLEAN23
 // Replaced by test codeunit 134881 ERM Exch. Rate Adjmt. Vendor"
+#pragma warning disable AS0072
 codeunit 134081 "ERM Adjust Exch. Rate Vendor"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
+    ObsoleteReason = 'Not Used.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '23.0';
 
     trigger OnRun()
     begin
@@ -290,7 +294,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, CreateVendor, -LibraryRandom.RandIntInRange(500, 1000));
+          GenJournalLine."Account Type"::Vendor, CreateVendor(), -LibraryRandom.RandIntInRange(500, 1000));
     end;
 
     local procedure CreateCurrency(): Code[10]
@@ -309,7 +313,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
         LibraryPurchase: Codeunit "Library - Purchase";
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Currency Code", CreateCurrency);
+        Vendor.Validate("Currency Code", CreateCurrency());
         Vendor.Modify();
         exit(Vendor."No.");
     end;

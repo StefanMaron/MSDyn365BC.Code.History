@@ -8,6 +8,7 @@ table 50 "Accounting Period"
 {
     Caption = 'Accounting Period';
     LookupPageID = "Accounting Periods";
+    DataClassification = CustomerContent;
 
     fields
     {

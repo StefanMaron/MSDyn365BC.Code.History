@@ -151,16 +151,19 @@ report 12411 "Order Factura-Invoice (A)"
                 end;
 
                 trigger OnPreDataItem()
+                var
+                    NoSeries: Codeunit "No. Series";
                 begin
                     if not SalesLine1.Find('-') then
                         CurrReport.Break();
 
                     if Header."Posting No." = '' then begin
-                        Clear(NoSeriesManagement);
-                        Header."Posting No." := NoSeriesManagement.GetNextNo(
-                            Header."Posting No. Series", Header."Posting Date", not Preview);
-                        if not Preview then
+                        if Preview then
+                            Header."Posting No." := NoSeries.PeekNextNo(Header."Posting No. Series", Header."Posting Date")
+                        else begin
+                            Header."Posting No." := NoSeries.GetNextNo(Header."Posting No. Series", Header."Posting Date");
                             Header.Modify();
+                        end;
                     end;
 
                     SetRange(Number, 1, CopiesNumber);
@@ -337,10 +340,8 @@ report 12411 "Order Factura-Invoice (A)"
         PackageNoInfo: Record "Package No. Information";
         TempTrackingSpecBuffer: Record "Tracking Specification" temporary;
         TempTrackingSpecBuffer2: Record "Tracking Specification" temporary;
-        NoSeriesManagement: Codeunit NoSeriesManagement;
         LocMgt: Codeunit "Localisation Management";
         StdRepMgt: Codeunit "Local Report Management";
-        ArchiveManagement: Codeunit ArchiveManagement;
         SegManagement: Codeunit SegManagement;
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
         FacturaInvoiceHelper: Codeunit "Factura-Invoice Report Helper";
@@ -358,7 +359,6 @@ report 12411 "Order Factura-Invoice (A)"
         CountryCode: Code[10];
         CountryName: Text;
         LogInteraction: Boolean;
-        ArchiveDocument: Boolean;
         CDNo: Text;
         KPPCode: Code[10];
         Receiver: array[2] of Text;
@@ -383,11 +383,9 @@ report 12411 "Order Factura-Invoice (A)"
     [Scope('OnPrem')]
     procedure IncrAmount(SalesLine2: Record "Sales Line")
     begin
-        with SalesLine2 do begin
-            TotalAmount[1] := TotalAmount[1] + Amount;
-            TotalAmount[2] := TotalAmount[2] + "Amount Including VAT" - Amount;
-            TotalAmount[3] := TotalAmount[3] + "Amount Including VAT";
-        end;
+        TotalAmount[1] := TotalAmount[1] + SalesLine2.Amount;
+        TotalAmount[2] := TotalAmount[2] + SalesLine2."Amount Including VAT" - SalesLine2.Amount;
+        TotalAmount[3] := TotalAmount[3] + SalesLine2."Amount Including VAT";
     end;
 
     [Scope('OnPrem')]
@@ -453,33 +451,30 @@ report 12411 "Order Factura-Invoice (A)"
     var
         CorrDocMgt: Codeunit "Corrective Document Mgt.";
     begin
-        with Header do
-            if "Corrective Doc. Type" = "Corrective Doc. Type"::Revision then begin
-                case "Original Doc. Type" of
-                    "Original Doc. Type"::Invoice:
-                        DocDate := LocMgt.Date2Text(CorrDocMgt.GetSalesInvHeaderPostingDate("Original Doc. No."));
-                    "Original Doc. Type"::"Credit Memo":
-                        DocDate := LocMgt.Date2Text(CorrDocMgt.GetSalesCrMHeaderPostingDate("Original Doc. No."));
-                end;
-                DocNo := "Original Doc. No.";
-                RevNo := "Revision No.";
-                RevDate := LocMgt.Date2Text("Document Date");
-            end else begin
-                DocNo := "Posting No.";
-                DocDate := LocMgt.Date2Text("Document Date");
-                RevNo := '-';
-                RevDate := '-';
+        if Header."Corrective Doc. Type" = Header."Corrective Doc. Type"::Revision then begin
+            case Header."Original Doc. Type" of
+                Header."Original Doc. Type"::Invoice:
+                    DocDate := LocMgt.Date2Text(CorrDocMgt.GetSalesInvHeaderPostingDate(Header."Original Doc. No."));
+                Header."Original Doc. Type"::"Credit Memo":
+                    DocDate := LocMgt.Date2Text(CorrDocMgt.GetSalesCrMHeaderPostingDate(Header."Original Doc. No."));
             end;
+            DocNo := Header."Original Doc. No.";
+            RevNo := Header."Revision No.";
+            RevDate := LocMgt.Date2Text(Header."Document Date");
+        end else begin
+            DocNo := Header."Posting No.";
+            DocDate := LocMgt.Date2Text(Header."Document Date");
+            RevNo := '-';
+            RevDate := '-';
+        end;
     end;
 
     local procedure FillProformaHeader(var DocNo: Code[20]; var DocDate: Text; var RevNo: Code[20]; var RevDate: Text)
     begin
-        with Header do begin
-            DocNo := "No.";
-            DocDate := LocMgt.Date2Text("Document Date");
-            RevNo := '';
-            RevDate := '';
-        end;
+        DocNo := Header."No.";
+        DocDate := LocMgt.Date2Text(Header."Document Date");
+        RevNo := '';
+        RevDate := '';
     end;
 
     local procedure FillHeader(IsProforma: Boolean)

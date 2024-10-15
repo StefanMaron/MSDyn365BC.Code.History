@@ -517,7 +517,6 @@ report 12442 "Customer Entries Analysis"
         PaymentDate: Date;
         NewPageForCustomer: Boolean;
         FirstPage: Boolean;
-        FirstHeader: Boolean;
         ReportCurrency: Option LCY,"Entry Currency";
         CustEntryDocAmount: Decimal;
         PageCounter: Integer;

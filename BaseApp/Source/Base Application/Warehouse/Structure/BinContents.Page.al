@@ -298,9 +298,9 @@ page 7374 "Bin Contents"
             part(Control2; "Lot Numbers by Bin FactBox")
             {
                 ApplicationArea = ItemTracking;
-                SubPageLink = "Item No." = FIELD("Item No."),
-                              "Variant Code" = FIELD("Variant Code"),
-                              "Location Code" = FIELD("Location Code");
+                SubPageLink = "Item No." = field("Item No."),
+                              "Variant Code" = field("Variant Code"),
+                              "Location Code" = field("Location Code");
                 Visible = false;
             }
             systempart(Control1900383207; Links)
@@ -330,11 +330,11 @@ page 7374 "Bin Contents"
                     Caption = 'Warehouse Entries';
                     Image = BinLedger;
                     RunObject = Page "Warehouse Entries";
-                    RunPageLink = "Item No." = FIELD("Item No."),
-                                  "Location Code" = FIELD("Location Code"),
-                                  "Bin Code" = FIELD("Bin Code"),
-                                  "Variant Code" = FIELD("Variant Code");
-                    RunPageView = SORTING("Item No.", "Bin Code", "Location Code", "Variant Code");
+                    RunPageLink = "Item No." = field("Item No."),
+                                  "Location Code" = field("Location Code"),
+                                  "Bin Code" = field("Bin Code"),
+                                  "Variant Code" = field("Variant Code");
+                    RunPageView = sorting("Item No.", "Bin Code", "Location Code", "Variant Code");
                     ToolTip = 'View completed warehouse activities related to the document.';
                 }
             }

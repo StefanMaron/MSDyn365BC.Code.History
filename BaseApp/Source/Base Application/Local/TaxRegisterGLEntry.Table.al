@@ -1,6 +1,7 @@
 table 17209 "Tax Register G/L Entry"
 {
     Caption = 'Tax Register G/L Entry';
+    DataClassification = CustomerContent;
 
     fields
     {

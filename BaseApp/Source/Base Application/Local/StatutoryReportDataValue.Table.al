@@ -1,6 +1,7 @@
-table 26564 "Statutory Report Data Value"
+﻿table 26564 "Statutory Report Data Value"
 {
     Caption = 'Statutory Report Data Value';
+    DataClassification = CustomerContent;
 
     fields
     {

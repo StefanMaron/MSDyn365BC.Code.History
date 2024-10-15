@@ -1,6 +1,7 @@
 table 17238 "Gen. Term Profile"
 {
     Caption = 'Gen. Term Profile';
+    DataClassification = CustomerContent;
 
     fields
     {

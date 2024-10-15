@@ -2,6 +2,7 @@ table 12429 "Taxpayer Document Type"
 {
     Caption = 'Taxpayer Document Type';
     LookupPageID = "Taxpayer Document Types";
+    DataClassification = CustomerContent;
 
     fields
     {

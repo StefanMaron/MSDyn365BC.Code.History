@@ -301,12 +301,12 @@ page 5999 "Available - Service Lines"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateReservFrom(var ReservationEntry: Record "Reservation Entry")
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateReservMgt(var ReservationEntry: Record "Reservation Entry")
     begin
     end;

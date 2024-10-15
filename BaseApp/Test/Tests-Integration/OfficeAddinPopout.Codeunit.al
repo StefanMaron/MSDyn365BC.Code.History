@@ -37,7 +37,7 @@ codeunit 139053 "Office Addin Popout"
         Initialize();
 
         // [GIVEN] New contact with email is created and assigned to customer
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         CreateContactFromCustomer(TestEmail, ContactNo, NewBusRelCode);
 
         // [WHEN] Outlook Main Engine finds email and contact/customer it is assigned to
@@ -66,7 +66,7 @@ codeunit 139053 "Office Addin Popout"
         Initialize();
 
         // [GIVEN] New contact with email is created and assigned to customer
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         CreateContactFromCustomer(TestEmail, ContactNo, NewBusRelCode);
 
         // [WHEN] Outlook Main Engine finds email and contact/customer it is assigned to
@@ -95,7 +95,7 @@ codeunit 139053 "Office Addin Popout"
         Initialize();
 
         // [GIVEN] New contact with email is created and assigned to customer
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         CreateContactFromCustomer(TestEmail, ContactNo, NewBusRelCode);
 
         // [WHEN] Outlook Main Engine finds email and contact/customer it is assigned to
@@ -124,7 +124,7 @@ codeunit 139053 "Office Addin Popout"
         Initialize();
 
         // [GIVEN] New contact with email is created and assigned to customer
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode);
 
         // [WHEN] Outlook Main Engine finds email and contact/vendor it is assigned to
@@ -152,10 +152,10 @@ codeunit 139053 "Office Addin Popout"
         // Setup
         Initialize();
 
-        SetDocNoSeries;
+        SetDocNoSeries();
 
         // [GIVEN] New contact with email is created and assigned to customer
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode);
 
         // [WHEN] Outlook Main Engine finds email and contact/vendor it is assigned to
@@ -184,11 +184,11 @@ codeunit 139053 "Office Addin Popout"
         VendLedgEntry.FindFirst();
 
         // [WHEN] The applies entry opens to expose the actions on the page
-        AppliesVendorEntries.Trap;
+        AppliesVendorEntries.Trap();
         PAGE.Run(PAGE::"Apply Vendor Entries", VendLedgEntry);
 
         // [THEN] Navigate action is not visible on the Apply Vendor Entries page
-        Assert.IsFalse(AppliesVendorEntries.Navigate.Visible, 'Navigate should not be visible.');
+        Assert.IsFalse(AppliesVendorEntries.Navigate.Visible(), 'Navigate should not be visible.');
     end;
 
     local procedure Initialize()
@@ -228,7 +228,7 @@ codeunit 139053 "Office Addin Popout"
         OfficeHost: DotNet OfficeHost;
     begin
         OfficeAddinContext.DeleteAll();
-        SetOfficeHostUnAvailable;
+        SetOfficeHostUnAvailable();
 
         SetOfficeHostProvider(CODEUNIT::"Library - Office Host Provider");
 
@@ -240,7 +240,7 @@ codeunit 139053 "Office Addin Popout"
         NameValueBuffer: Record "Name/Value Buffer";
     begin
         // Test Providers checks whether we have registered Host in NameValueBuffer or not
-        if NameValueBuffer.Get(SessionId) then begin
+        if NameValueBuffer.Get(SessionId()) then begin
             NameValueBuffer.Delete();
             Commit();
         end;
@@ -257,7 +257,7 @@ codeunit 139053 "Office Addin Popout"
 
     local procedure RandomEmail(): Text[80]
     begin
-        exit(StrSubstNo('%1@%2', CreateGuid, 'example.com'));
+        exit(StrSubstNo('%1@%2', CreateGuid(), 'example.com'));
     end;
 
     local procedure SetupSales()
@@ -268,15 +268,15 @@ codeunit 139053 "Office Addin Popout"
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Stockout Warning" := false;
         if SalesReceivablesSetup."Blanket Order Nos." = '' then
-            SalesReceivablesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            SalesReceivablesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if SalesReceivablesSetup."Return Order Nos." = '' then
-            SalesReceivablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            SalesReceivablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if SalesReceivablesSetup."Order Nos." = '' then
-            SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if SalesReceivablesSetup."Quote Nos." = '' then
-            SalesReceivablesSetup.Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            SalesReceivablesSetup.Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if SalesReceivablesSetup."Customer Nos." = '' then
-            SalesReceivablesSetup.Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            SalesReceivablesSetup.Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify();
     end;
 
@@ -287,7 +287,7 @@ codeunit 139053 "Office Addin Popout"
     begin
         MarketingSetup.Get();
         if MarketingSetup."Contact Nos." = '' then
-            MarketingSetup.Validate("Contact Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            MarketingSetup.Validate("Contact Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         MarketingSetup.Modify();
     end;
 
@@ -380,7 +380,7 @@ codeunit 139053 "Office Addin Popout"
         AddinManifestManagement.GetAddinByHostType(OfficeAddin, OfficeHostType.OutlookItemRead);
         OfficeAddinContext.SetRange(Version, OfficeAddin.Version);
 
-        OutlookMailEngine.Trap;
+        OutlookMailEngine.Trap();
         PAGE.Run(PAGE::"Outlook Mail Engine", OfficeAddinContext);
     end;
 
@@ -450,8 +450,8 @@ codeunit 139053 "Office Addin Popout"
     procedure CustomerActionPageHandlerForQuote(var CustomerCard: TestPage "Customer Card")
     begin
         // Verify "New Sales Quote" action is visible.
-        Assert.IsTrue(CustomerCard.NewSalesQuoteAddin.Visible, 'New Sales Quote (add-in) should be visible');
-        Assert.IsFalse(CustomerCard.NewSalesQuote.Visible, 'New Sales Quote shouldn''t be visible.');
+        Assert.IsTrue(CustomerCard.NewSalesQuoteAddin.Visible(), 'New Sales Quote (add-in) should be visible');
+        Assert.IsFalse(CustomerCard.NewSalesQuote.Visible(), 'New Sales Quote shouldn''t be visible.');
         CustomerCard.Close();
     end;
 
@@ -460,8 +460,8 @@ codeunit 139053 "Office Addin Popout"
     procedure CustomerActionPageHandlerForInvoice(var CustomerCard: TestPage "Customer Card")
     begin
         // Verify "New Sales Invoice" action is visible.
-        Assert.IsTrue(CustomerCard.NewSalesInvoiceAddin.Visible, 'New Sales Invoice (add-in) should be visible.');
-        Assert.IsFalse(CustomerCard.NewSalesInvoice.Visible, 'New Sales Invoice shouldn''t be visible.');
+        Assert.IsTrue(CustomerCard.NewSalesInvoiceAddin.Visible(), 'New Sales Invoice (add-in) should be visible.');
+        Assert.IsFalse(CustomerCard.NewSalesInvoice.Visible(), 'New Sales Invoice shouldn''t be visible.');
         CustomerCard.Close();
     end;
 
@@ -470,8 +470,8 @@ codeunit 139053 "Office Addin Popout"
     procedure CustomerActionPageHandlerForCreditMemo(var CustomerCard: TestPage "Customer Card")
     begin
         // Verify "New Sales Credit Memo" action is visible.
-        Assert.IsTrue(CustomerCard.NewSalesCreditMemoAddin.Visible, 'New Sales Credit Memo (add-in) should be visible.');
-        Assert.IsFalse(CustomerCard.NewSalesCreditMemo.Visible, 'New Sales Credit Memo shoudln''t be visible.');
+        Assert.IsTrue(CustomerCard.NewSalesCreditMemoAddin.Visible(), 'New Sales Credit Memo (add-in) should be visible.');
+        Assert.IsFalse(CustomerCard.NewSalesCreditMemo.Visible(), 'New Sales Credit Memo shoudln''t be visible.');
         CustomerCard.Close();
     end;
 
@@ -482,13 +482,13 @@ codeunit 139053 "Office Addin Popout"
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // Verify "New Purchase Invoice" action is visible.
-        Assert.IsTrue(VendorCard.NewPurchaseInvoiceAddin.Visible, 'New Purchase Invoice (add-in) should be visible');
-        Assert.IsFalse(VendorCard.NewPurchaseInvoice.Visible, 'New Purchase Invoice shouldn''t be visible');
-        PurchaseInvoice.Trap;
-        VendorCard.NewPurchaseInvoice.Invoke;
+        Assert.IsTrue(VendorCard.NewPurchaseInvoiceAddin.Visible(), 'New Purchase Invoice (add-in) should be visible');
+        Assert.IsFalse(VendorCard.NewPurchaseInvoice.Visible(), 'New Purchase Invoice shouldn''t be visible');
+        PurchaseInvoice.Trap();
+        VendorCard.NewPurchaseInvoice.Invoke();
 
         // Validate Vendor Name is copied over to new Purchase Invoice
-        PurchaseInvoice."Buy-from Vendor Name".Activate;
+        PurchaseInvoice."Buy-from Vendor Name".Activate();
         PurchaseInvoice."Buy-from Vendor Name".AssertEquals(VendorCard.Name.Value);
 
         // Validate Vendor Address is copied over to new Purchase Invoice
@@ -502,11 +502,11 @@ codeunit 139053 "Office Addin Popout"
     procedure VendorActionPageHandlerForCreditMemo(var VendorCard: TestPage "Vendor Card")
     begin
         // Verify "New Purchase Credit Memo" action is visible.
-        Assert.IsTrue(VendorCard.NewPurchaseCrMemoAddin.Visible, 'New Purchase Credit memo (add-in) should be visible');
-        Assert.IsFalse(VendorCard.NewPurchaseCrMemo.Visible, 'New Purchase Credit memo should not be visible');
+        Assert.IsTrue(VendorCard.NewPurchaseCrMemoAddin.Visible(), 'New Purchase Credit memo (add-in) should be visible');
+        Assert.IsFalse(VendorCard.NewPurchaseCrMemo.Visible(), 'New Purchase Credit memo should not be visible');
         LibraryVariableStorage.Enqueue(VendorCard.Name.Value);
         LibraryVariableStorage.Enqueue(VendorCard.Address.Value);
-        VendorCard.NewPurchaseCrMemo.Invoke;
+        VendorCard.NewPurchaseCrMemo.Invoke();
 
         VendorCard.Close();
     end;
@@ -516,10 +516,10 @@ codeunit 139053 "Office Addin Popout"
     procedure NewPurchaseCreditMemoPageHandler(var PurchaseCreditMemo: TestPage "Purchase Credit Memo")
     begin
         // Validate Vendor Name is copied over to new Purchase Credit Memo
-        PurchaseCreditMemo."Buy-from Vendor Name".AssertEquals(LibraryVariableStorage.DequeueText);
+        PurchaseCreditMemo."Buy-from Vendor Name".AssertEquals(LibraryVariableStorage.DequeueText());
 
         // Validate Vendor Address is copied over to new Purchase Credit Memo
-        PurchaseCreditMemo."Buy-from Address".AssertEquals(LibraryVariableStorage.DequeueText);
+        PurchaseCreditMemo."Buy-from Address".AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 
     [ConfirmHandler]

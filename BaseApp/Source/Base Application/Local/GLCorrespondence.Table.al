@@ -1,6 +1,7 @@
 table 12400 "G/L Correspondence"
 {
     Caption = 'G/L Correspondence';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -53,8 +54,10 @@ table 12400 "G/L Correspondence"
                                                                        "Credit Global Dimension 2 Code" = field("Credit Global Dim. 2 Filter"),
                                                                        "Business Unit Code" = field("Business Unit Filter"),
                                                                        "Posting Date" = field("Date Filter"),
+#pragma warning disable AL0603
                                                                        "Debit Source Type" = field("Debit Source Type Filter"),
                                                                        "Credit Source Type" = field("Credit Source Type Filter"),
+#pragma warning restore AL0603
                                                                        "Debit Source No." = field("Debit Source No. Filter"),
                                                                        "Credit Source No." = field("Credit Source No. Filter")));
             Caption = 'Amount';

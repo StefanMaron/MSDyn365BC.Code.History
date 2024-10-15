@@ -95,7 +95,7 @@ codeunit 137308 "SCM Planning Reports"
         RunPlanningAvailabilityReport(Item."No.", 0D);
 
         // Verify: Check values - Gross Requirement, Scheduled Receipts, and Projected Balance in the Planning Availability report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         if (ReorderingPolicy = Item."Reordering Policy"::"Lot-for-Lot") or
            (ReorderingPolicy = Item."Reordering Policy"::"Fixed Reorder Qty.")
         then
@@ -172,7 +172,7 @@ codeunit 137308 "SCM Planning Reports"
         RunPlanningAvailabilityReport(ProductionOrder."Source No.", 0D);
 
         // Verify: Check values - Gross Requirement, Scheduled Receipts, and Projected Balance in the Planning Availability report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ProjectedBalance', ProductionOrder.Quantity - SalesLine.Quantity);
         VerifySalesGrossRequirement(SalesLine);
         Assert.AreEqual(ProductionOrder.Quantity, SelectScheduledReceipts(ProductionOrder."No."), ScheduledReceiptsErr);
@@ -212,16 +212,16 @@ codeunit 137308 "SCM Planning Reports"
         if Regenerative then
             LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate())
         else
-            LibraryPlanning.CalcNetChangePlanForPlanWksh(Item, WorkDate(), WorkDate, false);
+            LibraryPlanning.CalcNetChangePlanForPlanWksh(Item, WorkDate(), WorkDate(), false);
 
         // Exercise: Generate the Planning Availability report.
         RunPlanningAvailabilityReport(Item."No.", 0D);
 
         // Verify:  Check values - Gross Requirement from Sales Order, but Requisition line is not available in the Planning Availability report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifySalesGrossRequirement(SalesLine);
         LibraryReportDataset.SetRange('PlanningBuffDocType', PlanningBuffer."Document Type"::"Requisition Line");
-        Assert.IsFalse(LibraryReportDataset.GetNextRow, ErrMsgRequisition);
+        Assert.IsFalse(LibraryReportDataset.GetNextRow(), ErrMsgRequisition);
     end;
 
     [Test]
@@ -264,9 +264,9 @@ codeunit 137308 "SCM Planning Reports"
         RunPlanningAvailabilityReport(Item."No.", 0D);
 
         // Verify: Check values - Gross Requirement from Sales Order, and Planned Receipts from Requisition Line in the Planning Availability report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifySalesGrossRequirement(SalesLine);
-        Assert.AreEqual(CalcItemReorderQty(Item, SalesLine.Quantity, 0), SelectPlannedReceipts, PlannedReceiptsErr);
+        Assert.AreEqual(CalcItemReorderQty(Item, SalesLine.Quantity, 0), SelectPlannedReceipts(), PlannedReceiptsErr);
     end;
 
     [Test]
@@ -312,7 +312,7 @@ codeunit 137308 "SCM Planning Reports"
         RunPlanningAvailabilityReport(Item."No.", 0D);
 
         // Verify: Check values - Gross Requirement from Sales Order, and Scheduled Receipts from newly created Purchase or Production Order, in the Planning Availability report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifySalesGrossRequirement(SalesLine);
         VerifyRefOrder(Item);
     end;
@@ -364,13 +364,13 @@ codeunit 137308 "SCM Planning Reports"
         RunPlanningAvailabilityReport(Item."No.", 0D);
 
         // Verify: Check value - Gross Requirement from Sales Order, but newly created Purchase or Production Order are not available in the Planning Availability report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifySalesGrossRequirement(SalesLine);
         LibraryReportDataset.SetRange('PlanningBuffDocType', PlanningBuffer."Document Type"::"Purchase Order");
-        Assert.IsFalse(LibraryReportDataset.GetNextRow, ErrMsgDocument);
+        Assert.IsFalse(LibraryReportDataset.GetNextRow(), ErrMsgDocument);
 
         LibraryReportDataset.SetRange('PlanningBuffDocType', PlanningBuffer."Document Type"::"Firm Planned Prod. Order");
-        Assert.IsFalse(LibraryReportDataset.GetNextRow, ErrMsgDocument);
+        Assert.IsFalse(LibraryReportDataset.GetNextRow(), ErrMsgDocument);
     end;
 
     [Test]
@@ -445,7 +445,7 @@ codeunit 137308 "SCM Planning Reports"
         RunPlanningAvailabilityReport(Item."No.", 0D);
 
         // Verify: Verify Sales Order entries and Scheduled Receipts in the Planning Availability report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('PlanningBuffDocNo', SalesLine."Document No.");
         LibraryReportDataset.AssertElementWithValueExists('PlanningBuffDocNo', SalesLine2."Document No.");
         if ItemReorderingPolicy = Item."Reordering Policy"::"Lot-for-Lot" then
@@ -475,7 +475,7 @@ codeunit 137308 "SCM Planning Reports"
         RunPlanningAvailabilityReport(Item."No.", 0D);
 
         // Verify: Check value - Scheduled Receipts and Planned Receipts in the Planning Availability Report are Zero.
-        Assert.AreEqual(0, SelectPlannedReceipts, PlannedReceiptsErr);
+        Assert.AreEqual(0, SelectPlannedReceipts(), PlannedReceiptsErr);
         Assert.AreEqual(0, SelectScheduledReceipts(ProductionOrder."No."), ScheduledReceiptsErr);
     end;
 
@@ -563,7 +563,7 @@ codeunit 137308 "SCM Planning Reports"
         RunPlanningAvailabilityReport(ItemNo, 0D);
 
         // Verify: Check values- Scheduled Receipts from Production Order and Projected Balance in the Planning Availability Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         if BOMVersionItem then
             Assert.AreEqual(PurchaseLine3.Quantity, SelectScheduledReceipts(PurchaseLine3."Document No."), ScheduledReceiptsErr)
         else
@@ -590,10 +590,10 @@ codeunit 137308 "SCM Planning Reports"
         RunPlanningAvailabilityReport(Item."No.", 0D);
 
         // Verify: Check value - Gross Requirement, Projected Balance and Planned receipts from Requisition Line in the Planning Availability Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ProjectedBalance', -SalesLine.Quantity);
         VerifySalesGrossRequirement(SalesLine);
-        Assert.AreEqual(CalcItemReorderQty(Item, SalesLine.Quantity, 0), SelectPlannedReceipts, PlannedReceiptsErr);
+        Assert.AreEqual(CalcItemReorderQty(Item, SalesLine.Quantity, 0), SelectPlannedReceipts(), PlannedReceiptsErr);
     end;
 
     [Test]
@@ -631,15 +631,15 @@ codeunit 137308 "SCM Planning Reports"
         CreateSalesOrder(SalesLine, Item."No.");
 
         // Planning Worksheet -> Calculate Net Change Plan.
-        LibraryPlanning.CalcNetChangePlanForPlanWksh(Item, WorkDate(), WorkDate, false);
+        LibraryPlanning.CalcNetChangePlanForPlanWksh(Item, WorkDate(), WorkDate(), false);
 
         // Exercise: Generate the Planning Availability report.
         RunPlanningAvailabilityReport(Item."No.", 0D);
 
         // Verify: Check values - Gross Requirement from Sales Order, and Planned Receipts from Requisition Line in the Planning Availability report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifySalesGrossRequirement(SalesLine);
-        Assert.AreEqual(SalesLine.Quantity + CalcItemReorderQty(Item, SalesLine.Quantity, 0), SelectPlannedReceipts, PlannedReceiptsErr);
+        Assert.AreEqual(SalesLine.Quantity + CalcItemReorderQty(Item, SalesLine.Quantity, 0), SelectPlannedReceipts(), PlannedReceiptsErr);
     end;
 
     [Test]
@@ -725,11 +725,11 @@ codeunit 137308 "SCM Planning Reports"
 
         // Exercise: Generate the Planning Availability Report with Calculate Net Change plan as required.
         if CalculateNetChangePlan then
-            LibraryPlanning.CalcNetChangePlanForPlanWksh(Item, WorkDate(), WorkDate, false);
+            LibraryPlanning.CalcNetChangePlanForPlanWksh(Item, WorkDate(), WorkDate(), false);
         RunPlanningAvailabilityReport(ItemNo, 0D);
 
         // Verify: Check values- Scheduled Receipts from Production Order and Projected Balance in the Planning Availability Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         if BOMVersionItem then
             Assert.AreEqual(PurchaseLine3.Quantity, SelectScheduledReceipts(PurchaseLine3."Document No."), ScheduledReceiptsErr)
         else
@@ -776,7 +776,7 @@ codeunit 137308 "SCM Planning Reports"
         RunPlanningAvailabilityReport(Item."No.", 0D);
 
         // Verify: Check values - Gross Requirement,Production scheduled Receipts, Projected Balance in the Planning Availability report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyGrossReqAndProjectedBalanceForMultipleSales(SalesLine, SalesLine2, ProductionOrder);
         Assert.AreEqual(ProductionOrder.Quantity, SelectScheduledReceipts(ProductionOrder."No."), ScheduledReceiptsErr);
     end;
@@ -824,13 +824,13 @@ codeunit 137308 "SCM Planning Reports"
         RunPlanningAvailabilityReport(Item."No.", 0D);
 
         // Verify: Check values - Gross Requirement,Projected Balance,Planned Receipts from Requisition Line in the Planning Availability report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyGrossReqAndProjectedBalanceForMultipleSales(SalesLine, SalesLine2, ProductionOrder);
         if ReorderingPolicy = Item."Reordering Policy"::"Maximum Qty." then
             Assert.AreEqual(ProductionOrder.Quantity, SelectScheduledReceipts(ProductionOrder."No."), ScheduledReceiptsErr)
         else
             Assert.AreEqual(SalesLine.Quantity + SalesLine2.Quantity - SelectScheduledReceipts(ProductionOrder."No."),
-              SelectPlannedReceipts, PlannedReceiptsErr);
+              SelectPlannedReceipts(), PlannedReceiptsErr);
     end;
 
     [Test]
@@ -877,7 +877,7 @@ codeunit 137308 "SCM Planning Reports"
         RunPlanningAvailabilityReport(Item."No.", 0D);
 
         // Verify: Check values - Gross Requirements, Scheduled Receipts, Projected Balance in the Planning Availability report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyGrossReqAndProjectedBalanceForMultipleSales(SalesLine, SalesLine2, ProductionOrder);
         LibraryReportDataset.Reset();
         if ReorderingPolicy = Item."Reordering Policy"::"Maximum Qty." then
@@ -920,7 +920,7 @@ codeunit 137308 "SCM Planning Reports"
         RunPlanningAvailabilityReport(Item."No.", 0D);
 
         // Verify: Check values - Gross Requirement, Projected Balance in the Planning Availability report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ProjectedBalance', ProductionOrder.Quantity - SalesLine.Quantity);
         VerifySalesGrossRequirement(SalesLine);
     end;
@@ -995,10 +995,10 @@ codeunit 137308 "SCM Planning Reports"
         RunPlanningAvailabilityReport(Item."No.", 0D);
 
         // Verify: Check values - Gross Requirement,Projected Balance,Planned Receipts from Requisition Line in the Planning Availability report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ProjectedBalance', -SalesLine.Quantity);
         VerifySalesGrossRequirement(SalesLine);
-        Assert.AreEqual(CalcItemReorderQty(Item, SalesLine.Quantity, 0), SelectPlannedReceipts, PlannedReceiptsErr);
+        Assert.AreEqual(CalcItemReorderQty(Item, SalesLine.Quantity, 0), SelectPlannedReceipts(), PlannedReceiptsErr);
     end;
 
     [Test]
@@ -1041,7 +1041,7 @@ codeunit 137308 "SCM Planning Reports"
         RunPlanningAvailabilityReport(Item."No.", 0D);
 
         // Verify: Check values - Gross Requirement, Scheduled Receipts,Projected Balance in the Planning Availability report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifySalesGrossRequirement(SalesLine);
         ProductionOrder.Get(ProductionOrder.Status, ProductionOrder."No.");
         Assert.AreEqual(ProductionOrder.Quantity, SelectScheduledReceipts(ProductionOrder."No."), ScheduledReceiptsErr);
@@ -1084,7 +1084,7 @@ codeunit 137308 "SCM Planning Reports"
         RunPlanningAvailabilityReport(Item."No.", 0D);
 
         // Verify: Check values - Planned Receipts, Scheduled Receipts and Projected Balance in the Planning Availability report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyMultiplePurchaseReceipts(SalesLine, Item."Reorder Quantity", CarryOutActionMessage);
     end;
 
@@ -1126,17 +1126,17 @@ codeunit 137308 "SCM Planning Reports"
         if CarryOutActionMessage then begin
             SelectRequisitionLineForReqWksht(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
             repeat
-                RequisitionLine.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+                RequisitionLine.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
                 UpdateActionMessageRequisitionLine(RequisitionLine);
             until RequisitionLine.Next() = 0;
-            LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
+            LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
         end;
 
         // Exercise: Generate the Planning Availability report.
         RunPlanningAvailabilityReport(Item."No.", 0D);
 
         // Verify: Check values - Planned Receipts, Scheduled Receipts and Projected Balance in the Planning Availability report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyMultiplePurchaseReceipts(SalesLine, Item."Reorder Quantity", CarryOutActionMessage);
     end;
 
@@ -1183,10 +1183,10 @@ codeunit 137308 "SCM Planning Reports"
         RunPlanningAvailabilityReport(Item."No.", 0D);
 
         // Verify: Check values - Sales Requirement and Production Scheduled Receipts, and Planned Receipts in the Planning Availability report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifySalesGrossRequirement(SalesLine);
         Assert.AreEqual(ProductionOrder.Quantity, SelectScheduledReceipts(ProductionOrder."No."), ScheduledReceiptsErr);
-        Assert.AreEqual(SalesLine.Quantity - ProductionOrder.Quantity, SelectPlannedReceipts, PlannedReceiptsErr);
+        Assert.AreEqual(SalesLine.Quantity - ProductionOrder.Quantity, SelectPlannedReceipts(), PlannedReceiptsErr);
     end;
 
     [Test]
@@ -1200,7 +1200,7 @@ codeunit 137308 "SCM Planning Reports"
         Initialize();
         PlanningAvailabilityReportForProdOrderStatusUpdate(ProductionOrder.Status::"Firm Planned");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1214,7 +1214,7 @@ codeunit 137308 "SCM Planning Reports"
         Initialize();
         PlanningAvailabilityReportForProdOrderStatusUpdate(ProductionOrder.Status::Released);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure PlanningAvailabilityReportForProdOrderStatusUpdate(ProductionOrderStatus: Enum "Production Order Status")
@@ -1230,8 +1230,7 @@ codeunit 137308 "SCM Planning Reports"
         // Change status of the Production Order, Firm Planned -> Released, or Released -> Finished.
         if ProductionOrderStatus = ProductionOrder.Status::"Firm Planned" then
             NewReleasedProdOrderNo :=
-              LibraryManufacturing.ChangeStatusFirmPlanToReleased(
-                ProductionOrder."No.", ProductionOrder.Status::"Firm Planned", ProductionOrder.Status::Released)
+              LibraryManufacturing.ChangeStatusFirmPlanToReleased(ProductionOrder."No.")
         else begin
             LibraryVariableStorage.Enqueue(OutputMissingConfirmMessage);
             LibraryVariableStorage.Enqueue(ConsumptionMissingConfirmQst);
@@ -1250,15 +1249,15 @@ codeunit 137308 "SCM Planning Reports"
         RunPlanningAvailabilityReport(ProductionOrder."Source No.", 0D);
 
         // Verify: Check values - Gross Requirement, Prod. Scheduled Receipts, and Planned Receipts in the Planning Availability report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         if ProductionOrderStatus = ProductionOrder.Status::"Firm Planned" then begin
             VerifySalesGrossRequirement(SalesLine);
             ProductionOrder.Get(ProductionOrder.Status::Released, NewReleasedProdOrderNo);
             Assert.AreEqual(ProductionOrder.Quantity, SelectScheduledReceipts(ProductionOrder."No."), ScheduledReceiptsErr);
-            Assert.AreEqual(SalesLine.Quantity - ProductionOrder.Quantity, SelectPlannedReceipts, PlannedReceiptsErr);
+            Assert.AreEqual(SalesLine.Quantity - ProductionOrder.Quantity, SelectPlannedReceipts(), PlannedReceiptsErr);
         end else begin
             VerifySalesGrossRequirement(SalesLine);
-            Assert.AreEqual(SalesLine.Quantity, SelectPlannedReceipts, PlannedReceiptsErr);
+            Assert.AreEqual(SalesLine.Quantity, SelectPlannedReceipts(), PlannedReceiptsErr);
         end;
     end;
 
@@ -1301,7 +1300,7 @@ codeunit 137308 "SCM Planning Reports"
 
         LibraryVariableStorage.Clear();
 
-        LibraryApplicationArea.EnableEssentialSetup;
+        LibraryApplicationArea.EnableEssentialSetup();
 
         if isInitialized then
             exit;
@@ -1310,7 +1309,7 @@ codeunit 137308 "SCM Planning Reports"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         NoSeriesSetup();
-        ItemJournalSetup;
+        ItemJournalSetup();
 
         isInitialized := true;
         Commit();
@@ -1323,11 +1322,11 @@ codeunit 137308 "SCM Planning Reports"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
 
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
     end;
 
@@ -1335,7 +1334,7 @@ codeunit 137308 "SCM Planning Reports"
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
     end;
 
@@ -1492,8 +1491,8 @@ codeunit 137308 "SCM Planning Reports"
         ChildItemNo: Code[20];
         ChildItemNo2: Code[20];
     begin
-        ChildItemNo := CreateChildItemWithInventory;
-        ChildItemNo2 := CreateChildItemWithInventory;
+        ChildItemNo := CreateChildItemWithInventory();
+        ChildItemNo2 := CreateChildItemWithInventory();
 
         // Create Production BOM.
         LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, ChildItemNo, ChildItemNo2, 100);  // Quantity per Value important.
@@ -1618,7 +1617,7 @@ codeunit 137308 "SCM Planning Reports"
         SelectRequisitionLineForItem(RequisitionLine, ItemNo);
         repeat
             if RequisitionLine."Ref. Order Type" = RequisitionLine."Ref. Order Type"::Purchase then
-                RequisitionLine.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+                RequisitionLine.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
             UpdateActionMessageRequisitionLine(RequisitionLine);
         until RequisitionLine.Next() = 0;
     end;
@@ -1811,8 +1810,6 @@ codeunit 137308 "SCM Planning Reports"
     end;
 
     local procedure FindReservEntry(var ReservationEntry: Record "Reservation Entry"; PurchaseLine: Record "Purchase Line")
-    var
-        PurchLineReserve: Codeunit "Purch. Line-Reserve";
     begin
         ReservationEngineMgt.InitFilterAndSortingLookupFor(ReservationEntry, true);
         PurchaseLine.SetReservationFilters(ReservationEntry);
@@ -1822,7 +1819,7 @@ codeunit 137308 "SCM Planning Reports"
     local procedure VerifySalesGrossRequirement(SalesLine: Record "Sales Line")
     begin
         LibraryReportDataset.SetRange('PlanningBuffDocNo', SalesLine."Document No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('PlngBuffGrossRequirement', SalesLine.Quantity);
     end;
 
@@ -1928,7 +1925,7 @@ codeunit 137308 "SCM Planning Reports"
             LibraryReportDataset.AssertElementWithValueExists('PlngBuffScheduledReceipts', ItemReorderQuantity);
         end else begin
             LibraryReportDataset.AssertElementWithValueExists('ProjectedBalance', ItemReorderQuantity);
-            Assert.AreEqual(SalesLine.Quantity + ItemReorderQuantity, SelectPlannedReceipts, PlannedReceiptsErr);
+            Assert.AreEqual(SalesLine.Quantity + ItemReorderQuantity, SelectPlannedReceipts(), PlannedReceiptsErr);
         end;
     end;
 
@@ -1948,7 +1945,7 @@ codeunit 137308 "SCM Planning Reports"
     [Scope('OnPrem')]
     procedure ConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, ConfirmMessage);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), ConfirmMessage);
         Reply := true;
     end;
 
@@ -1962,7 +1959,7 @@ codeunit 137308 "SCM Planning Reports"
         ManufacturingSetup.Validate("Current Production Forecast", ProductionForecastName.Name);
         ManufacturingSetup.Modify(true);
 
-        EventDate := GenerateRandomDateNextYear;
+        EventDate := GenerateRandomDateNextYear();
         LibraryManufacturing.CreateProductionForecastEntry(
           ProductionForecastEntry, ProductionForecastName.Name, Item."No.", '', EventDate, false);
         ProductionForecastEntry.Validate("Forecast Quantity (Base)", LibraryRandom.RandInt(50));
@@ -1977,9 +1974,9 @@ codeunit 137308 "SCM Planning Reports"
     [Normal]
     local procedure VerifyProductionForecastGrossRequirement(ProductionForecastEntry: Record "Production Forecast Entry")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('PlanningBuffDocNo', ProductionForecastEntry."Production Forecast Name");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('PlngBuffGrossRequirement', ProductionForecastEntry."Forecast Quantity (Base)");
     end;
 
@@ -1987,7 +1984,7 @@ codeunit 137308 "SCM Planning Reports"
     [Scope('OnPrem')]
     procedure PlanningAvailabilityRequestPageHandler(var PlanningAvailability: TestRequestPage "Planning Availability")
     begin
-        PlanningAvailability.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PlanningAvailability.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

@@ -38,6 +38,7 @@ permissionset 681 "D365 JOURNALS, POST"
                   tabledata "Detailed Vendor Ledg. Entry" = imd,
                   tabledata "Employee Ledger Entry" = imd,
                   tabledata "G/L Account" = RIMD,
+                  tabledata "G/L Account Source Currency" = RIMD,
                   tabledata "G/L - Item Ledger Relation" = RIMD,
                   tabledata "G/L Entry - VAT Entry Link" = Ri,
                   tabledata "G/L Entry" = Rimd,

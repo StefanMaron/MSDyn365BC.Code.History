@@ -111,7 +111,7 @@ codeunit 920 "Period Form Lines Mgt."
         BufferField: FieldRef;
     begin
         BufferField := RecRef.Field(FieldNo);
-        Result := BufferField.Value;
+        Result := BufferField.Value();
     end;
 
     local procedure GetFieldInteger(var RecRef: RecordRef; FieldNo: Integer) Result: Integer
@@ -119,7 +119,7 @@ codeunit 920 "Period Form Lines Mgt."
         BufferField: FieldRef;
     begin
         BufferField := RecRef.Field(FieldNo);
-        Result := BufferField.Value;
+        Result := BufferField.Value();
     end;
 
     local procedure SetFieldFilter(var RecRef: RecordRef; FieldNo: Integer; FieldFilter: Variant)

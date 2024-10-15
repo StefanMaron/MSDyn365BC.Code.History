@@ -10,6 +10,7 @@ table 5603 "FA Setup"
 {
     Caption = 'FA Setup';
     Permissions = TableData "Ins. Coverage Ledger Entry" = r;
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -562,33 +562,32 @@ codeunit 311 "Item-Check Avail."
         CompanyInfo: Record "Company Information";
         IsHandled: Boolean;
     begin
-        with AssemblyHeader do begin
-            UseOrderPromise := true;
+        UseOrderPromise := true;
 
-            if "Due Date" = 0D then
-                "Due Date" := WorkDate();
-            SetFilterOnItem(Item, "Item No.", "Variant Code", "Location Code", "Due Date");
-            CompanyInfo.Get();
-            QtyAvailToPromise(Item, CompanyInfo);
+        if AssemblyHeader."Due Date" = 0D then
+            AssemblyHeader."Due Date" := WorkDate();
+        SetFilterOnItem(Item, AssemblyHeader."Item No.", AssemblyHeader."Variant Code", AssemblyHeader."Location Code", AssemblyHeader."Due Date");
+        CompanyInfo.Get();
+        QtyAvailToPromise(Item, CompanyInfo);
 
-            OldAssemblyHeader := AssemblyHeader;
-            if OldAssemblyHeader.Find() then // Find previous quantity
-                if (OldAssemblyHeader."Document Type" = OldAssemblyHeader."Document Type"::Order) and
-                   (OldAssemblyHeader."No." = "No.") and
-                   (OldAssemblyHeader."Item No." = "Item No.") and
-                   (OldAssemblyHeader."Variant Code" = "Variant Code") and
-                   (OldAssemblyHeader."Location Code" = "Location Code") and
-                   (OldAssemblyHeader."Bin Code" = "Bin Code")
-                then begin
-                    IsHandled := false;
-                    OnAsmOrderCalculateOnAfterFindingPrevAsmOrderCalculateWithinPeriod(AssemblyHeader, OldAssemblyHeader, IsHandled);
-                    if not IsHandled then begin
-                        OldAssemblyHeader.CalcFields("Reserved Qty. (Base)");
-                        SchedRcpt :=
-                        SchedRcpt - ConvertQty(OldAssemblyHeader."Remaining Quantity (Base)" - OldAssemblyHeader."Reserved Qty. (Base)");
-                    end;
+        OldAssemblyHeader := AssemblyHeader;
+        if OldAssemblyHeader.Find() then
+            // Find previous quantity
+            if (OldAssemblyHeader."Document Type" = OldAssemblyHeader."Document Type"::Order) and
+               (OldAssemblyHeader."No." = AssemblyHeader."No.") and
+               (OldAssemblyHeader."Item No." = AssemblyHeader."Item No.") and
+               (OldAssemblyHeader."Variant Code" = AssemblyHeader."Variant Code") and
+               (OldAssemblyHeader."Location Code" = AssemblyHeader."Location Code") and
+               (OldAssemblyHeader."Bin Code" = AssemblyHeader."Bin Code")
+            then begin
+                IsHandled := false;
+                OnAsmOrderCalculateOnAfterFindingPrevAsmOrderCalculateWithinPeriod(AssemblyHeader, OldAssemblyHeader, IsHandled);
+                if not IsHandled then begin
+                    OldAssemblyHeader.CalcFields("Reserved Qty. (Base)");
+                    SchedRcpt :=
+                      SchedRcpt - ConvertQty(OldAssemblyHeader."Remaining Quantity (Base)" - OldAssemblyHeader."Reserved Qty. (Base)");
                 end;
-        end;
+            end;
         FetchCalculation2(InventoryQty2, GrossReq2, ReservedReq2, SchedRcpt2, ReservedRcpt2);
     end;
 

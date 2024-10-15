@@ -1,4 +1,4 @@
-﻿xmlport 26552 "Account Schedules"
+xmlport 26552 "Account Schedules"
 {
     Caption = 'Account Schedules';
     Encoding = UTF8;
@@ -418,8 +418,6 @@
 
     [Scope('OnPrem')]
     procedure ImportData()
-    var
-        UpdateValue: Boolean;
     begin
         "Acc. Schedule Name".Reset();
         if "Acc. Schedule Name".FindSet() then

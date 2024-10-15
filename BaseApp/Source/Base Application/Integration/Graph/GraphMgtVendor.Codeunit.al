@@ -18,8 +18,7 @@ codeunit 5472 "Graph Mgt - Vendor"
     var
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
     begin
-        with Vendor do
-            GraphMgtComplexTypes.GetPostalAddressJSON(Address, "Address 2", City, County, "Country/Region Code", "Post Code", JSON);
+        GraphMgtComplexTypes.GetPostalAddressJSON(Vendor.Address, Vendor."Address 2", Vendor.City, Vendor.County, Vendor."Country/Region Code", Vendor."Post Code", JSON);
     end;
 
     procedure UpdatePostalAddress(PostalAddressJSON: Text; var Vendor: Record Vendor)
@@ -30,12 +29,10 @@ codeunit 5472 "Graph Mgt - Vendor"
         if PostalAddressJSON = '' then
             exit;
 
-        with Vendor do begin
-            RecRef.GetTable(Vendor);
-            GraphMgtComplexTypes.ApplyPostalAddressFromJSON(PostalAddressJSON, RecRef,
-              FieldNo(Address), FieldNo("Address 2"), FieldNo(City), FieldNo(County), FieldNo("Country/Region Code"), FieldNo("Post Code"));
-            RecRef.SetTable(Vendor);
-        end;
+        RecRef.GetTable(Vendor);
+        GraphMgtComplexTypes.ApplyPostalAddressFromJSON(PostalAddressJSON, RecRef,
+          Vendor.FieldNo(Address), Vendor.FieldNo("Address 2"), Vendor.FieldNo(City), Vendor.FieldNo(County), Vendor.FieldNo("Country/Region Code"), Vendor.FieldNo("Post Code"));
+        RecRef.SetTable(Vendor);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]
@@ -55,7 +52,7 @@ codeunit 5472 "Graph Mgt - Vendor"
         APIDataUpgrade: Codeunit "API Data Upgrade";
         RecordCount: Integer;
     begin
-        if not Vendor.FindSet(true, false) then
+        if not Vendor.FindSet(true) then
             exit;
 
         repeat

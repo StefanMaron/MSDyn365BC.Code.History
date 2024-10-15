@@ -73,7 +73,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(PmtGenJournalLine); // Will ask for export again
 
         // Verify
-        ValidatePaymentFile(PmtExportMgtGenJnlLine.GetServerTempFileName, MessageToRecipient);
+        ValidatePaymentFile(PmtExportMgtGenJnlLine.GetServerTempFileName(), MessageToRecipient);
         ValidateExportedPmtJnlLine(GenJournalBatch);
         ValidateCreditTransferRegister(DataExchMapping."Data Exch. Def Code", GenJournalBatch."Bal. Account No.");
     end;
@@ -231,7 +231,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(PmtGenJournalLine);
 
         // Verify
-        ValidatePaymentFile(PmtExportMgtGenJnlLine.GetServerTempFileName, MessageToRecipient);
+        ValidatePaymentFile(PmtExportMgtGenJnlLine.GetServerTempFileName(), MessageToRecipient);
         ValidateExportedPmtJnlLine(GenJournalBatch);
         ValidateCreditTransferRegister(DataExchMapping."Data Exch. Def Code", GenJournalBatch."Bal. Account No.");
     end;
@@ -293,7 +293,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(PmtGenJournalLine);
 
         // Verify
-        ValidatePaymentFile(PmtExportMgtGenJnlLine.GetServerTempFileName, MessageToRecipient);
+        ValidatePaymentFile(PmtExportMgtGenJnlLine.GetServerTempFileName(), MessageToRecipient);
         ValidateExportedPmtJnlLine(GenJournalBatch);
         ValidateCreditTransferRegister(DataExchMapping."Data Exch. Def Code", GenJournalBatch."Bal. Account No.");
     end;
@@ -321,7 +321,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         // [GIVEN] Vendor, Vendor Bank Account and Bank Account created with Country/Region code
         LibraryERM.CreateCountryRegion(CountryRegion);
         PaymentType := LibraryUtility.GenerateGUID();
-        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
         Currency.Get(CurrencyCode);
         Currency.Validate("Currency Factor", LibraryRandom.RandDecInRange(5, 10, 2));
         CreateVendorWithBankAccountAndCountryRegion(Vendor, PaymentType, CountryRegion.Code);
@@ -619,7 +619,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
           CODEUNIT::"Exp. Validation Gen. Jnl.", CODEUNIT::"Exp. Writing Gen. Jnl.", XMLPORT::"Export Generic CSV",
           CODEUNIT::"Save Data Exch. Blob Sample", CODEUNIT::"Exp. User Feedback Gen. Jnl.");
 
-        DataExchLineDef.InsertRec(DataExchDef.Code, PaymentType, LibraryUtility.GenerateGUID, 3);
+        DataExchLineDef.InsertRec(DataExchDef.Code, PaymentType, LibraryUtility.GenerateGUID(), 3);
 
         LibraryPaymentFormat.CreateDataExchColumnDef(DataExchColumnDef, DataExchDef.Code, DataExchLineDef.Code);
 
@@ -703,7 +703,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
 
     local procedure CreateExportGenJournalBatch(var GenJnlBatch: Record "Gen. Journal Batch"; BalAccountNo: Code[20])
     begin
-        LibraryERM.CreateGenJournalBatch(GenJnlBatch, LibraryPaymentExport.SelectPaymentJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJnlBatch, LibraryPaymentExport.SelectPaymentJournalTemplate());
         GenJnlBatch.Validate("Bal. Account Type", GenJnlBatch."Bal. Account Type"::"Bank Account");
         GenJnlBatch.Validate("Bal. Account No.", BalAccountNo);
         GenJnlBatch.Validate("Allow Payment Export", true);
@@ -729,7 +729,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
 
     local procedure CreateCurrencyWithFactor(var Currency: Record Currency)
     begin
-        Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates);
+        Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates());
         Currency.Validate("Currency Factor", LibraryRandom.RandDecInRange(5, 10, 2));
         Currency.Modify(true);
     end;

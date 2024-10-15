@@ -110,9 +110,9 @@ codeunit 147110 "SCM Item Charge Assignment"
     begin
         if IsInitialized then
             exit;
-        ModifyUserSetup;
+        ModifyUserSetup();
 
-        LibraryERMCountryData.UpdateGenProdPostingGroup;
+        LibraryERMCountryData.UpdateGenProdPostingGroup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
@@ -414,7 +414,7 @@ codeunit 147110 "SCM Item Charge Assignment"
             if FindSet() then begin
                 FindFirst();
                 ModifyItemChargeAssPurchLine(ItemChargeAssPurch, QtyToAssign[1], AmtToAssign[1]);
-                Next;
+                Next();
                 ModifyItemChargeAssPurchLine(ItemChargeAssPurch, QtyToAssign[2], AmtToAssign[2]);
             end;
         end;
@@ -442,7 +442,7 @@ codeunit 147110 "SCM Item Charge Assignment"
             if FindSet() then begin
                 FindFirst();
                 ModifyItemChargeAssSalesLine(ItemChargeAssSales, QtyToAssign[1], AmtToAssign[1]);
-                Next;
+                Next();
                 ModifyItemChargeAssSalesLine(ItemChargeAssSales, QtyToAssign[2], AmtToAssign[2]);
             end;
         end;
@@ -534,7 +534,7 @@ codeunit 147110 "SCM Item Charge Assignment"
                 Assert.AreNearlyEqual(QtyToAssign[i], "Qty. to Assign", 0.01, '');
                 Assert.AreNearlyEqual(AmtToAssign[i], "Amount to Assign", 0.01, '');
                 i += 1;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -571,7 +571,7 @@ codeunit 147110 "SCM Item Charge Assignment"
                 Assert.AreEqual(QtyToAssign[i], "Qty. to Assign", '');
                 Assert.AreEqual(AmtToAssign[i], "Amount to Assign", '');
                 i += 1;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 

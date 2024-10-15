@@ -79,44 +79,42 @@ report 12425 "Copy Pay Document"
 
         FromCheckLedgerEntry.Get(EntryNo);
 
-        with GenJournalLine do begin
-            Init();
-            "Journal Template Name" := xGenJournalLine."Journal Template Name";
-            "Journal Batch Name" := xGenJournalLine."Journal Batch Name";
-            xGenJournalLine.SetRange("Journal Template Name", xGenJournalLine."Journal Template Name");
-            xGenJournalLine.SetRange("Journal Batch Name", xGenJournalLine."Journal Batch Name");
+        GenJournalLine.Init();
+        GenJournalLine."Journal Template Name" := xGenJournalLine."Journal Template Name";
+        GenJournalLine."Journal Batch Name" := xGenJournalLine."Journal Batch Name";
+        xGenJournalLine.SetRange("Journal Template Name", xGenJournalLine."Journal Template Name");
+        xGenJournalLine.SetRange("Journal Batch Name", xGenJournalLine."Journal Batch Name");
 
-            if xGenJournalLine.Find('+') then
-                "Line No." := xGenJournalLine."Line No." + 10000
-            else
-                "Line No." := 10000;
+        if xGenJournalLine.Find('+') then
+            GenJournalLine."Line No." := xGenJournalLine."Line No." + 10000
+        else
+            GenJournalLine."Line No." := 10000;
 
-            SetUpNewLine(xGenJournalLine, 0, true);
+        GenJournalLine.SetUpNewLine(xGenJournalLine, 0, true);
 
-            Validate("Account Type", FromCheckLedgerEntry."Bal. Account Type");
-            Validate("Account No.", FromCheckLedgerEntry."Bal. Account No.");
-            Validate("Document Type", FromCheckLedgerEntry."Document Type");
-            Validate("Document No.", '');
-            Validate(Description, FromCheckLedgerEntry.Description);
+        GenJournalLine.Validate("Account Type", FromCheckLedgerEntry."Bal. Account Type");
+        GenJournalLine.Validate("Account No.", FromCheckLedgerEntry."Bal. Account No.");
+        GenJournalLine.Validate("Document Type", FromCheckLedgerEntry."Document Type");
+        GenJournalLine.Validate("Document No.", '');
+        GenJournalLine.Validate(Description, FromCheckLedgerEntry.Description);
 
-            if BankAccountLedgerEntry.Get(FromCheckLedgerEntry."Bank Account Ledger Entry No.") then
-                if BankAccountLedgerEntry."Currency Code" <> "Currency Code" then
-                    Error(Text001, "Currency Code", BankAccountLedgerEntry."Currency Code");
+        if BankAccountLedgerEntry.Get(FromCheckLedgerEntry."Bank Account Ledger Entry No.") then
+            if BankAccountLedgerEntry."Currency Code" <> GenJournalLine."Currency Code" then
+                Error(Text001, GenJournalLine."Currency Code", BankAccountLedgerEntry."Currency Code");
 
-            Validate(Amount, -FromCheckLedgerEntry.Amount);
-            Validate("Bank Payment Type", 1);
-            Validate("Beneficiary Bank Code", FromCheckLedgerEntry."Beneficiary Bank Code");
-            Validate("Payment Purpose", FromCheckLedgerEntry."Payment Purpose");
-            Validate("Cash Order Including", FromCheckLedgerEntry."Cash Order Including");
-            Validate("Cash Order Supplement", FromCheckLedgerEntry."Cash Order Supplement");
-            Validate("Payment Method", FromCheckLedgerEntry."Payment Method");
-            Validate("Payment Date", FromCheckLedgerEntry."Payment Before Date");
-            Validate("Payment Subsequence", FromCheckLedgerEntry."Payment Subsequence");
-            Validate("Payment Code", FromCheckLedgerEntry."Payment Code");
-            Validate("Payment Assignment", FromCheckLedgerEntry."Payment Assignment");
-            Validate("Payment Type", FromCheckLedgerEntry."Payment Type");
-            Insert();
-        end;
+        GenJournalLine.Validate(Amount, -FromCheckLedgerEntry.Amount);
+        GenJournalLine.Validate("Bank Payment Type", 1);
+        GenJournalLine.Validate("Beneficiary Bank Code", FromCheckLedgerEntry."Beneficiary Bank Code");
+        GenJournalLine.Validate("Payment Purpose", FromCheckLedgerEntry."Payment Purpose");
+        GenJournalLine.Validate("Cash Order Including", FromCheckLedgerEntry."Cash Order Including");
+        GenJournalLine.Validate("Cash Order Supplement", FromCheckLedgerEntry."Cash Order Supplement");
+        GenJournalLine.Validate("Payment Method", FromCheckLedgerEntry."Payment Method");
+        GenJournalLine.Validate("Payment Date", FromCheckLedgerEntry."Payment Before Date");
+        GenJournalLine.Validate("Payment Subsequence", FromCheckLedgerEntry."Payment Subsequence");
+        GenJournalLine.Validate("Payment Code", FromCheckLedgerEntry."Payment Code");
+        GenJournalLine.Validate("Payment Assignment", FromCheckLedgerEntry."Payment Assignment");
+        GenJournalLine.Validate("Payment Type", FromCheckLedgerEntry."Payment Type");
+        GenJournalLine.Insert();
     end;
 
     var

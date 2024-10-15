@@ -3,6 +3,7 @@ table 26554 "Stat. Report Table Column"
     Caption = 'Stat. Report Table Column';
     DrillDownPageID = "Report Table Columns";
     LookupPageID = "Report Table Columns";
+    DataClassification = CustomerContent;
 
     fields
     {

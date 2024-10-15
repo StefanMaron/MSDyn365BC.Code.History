@@ -324,7 +324,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         FindProdOrderLine(ProdOrderLine, ProductionOrder);
         LibraryPatterns.MAKEOutputJournalLine(ItemJnlBatch, ProdOrderLine, WorkDate(), Quantity, UnitCost);
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
-        FirstOutputEntryNo := FindLastItemLedgEntry;
+        FirstOutputEntryNo := FindLastItemLedgEntry();
         LibraryPatterns.MAKEOutputJournalLine(ItemJnlBatch, ProdOrderLine, WorkDate(), Quantity, UnitCost);
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
 
@@ -341,7 +341,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         // Post consumption negative quantity applied from entry negative output
         LibraryPatterns.MAKEConsumptionJournalLine(ItemJnlBatch, ProdOrderLine, Item, WorkDate(), '', '', -Quantity, UnitCost);
         FindLastJournalLine(ItemJnlBatch, ItemJnlLine);
-        NegativeOutputEntryNo := FindLastItemLedgEntry;
+        NegativeOutputEntryNo := FindLastItemLedgEntry();
         ItemJnlLine."Applies-from Entry" := NegativeOutputEntryNo;
         ItemJnlLine.Modify();
         asserterror LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
@@ -498,7 +498,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Costing Rollup Sev 1");
 
-        LibraryPatterns.SETNoSeries;
+        LibraryPatterns.SetNoSeries();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
@@ -651,7 +651,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         InTransitLocation.Modify();
 
         LibraryPatterns.POSTTransferOrder(
-          TransferHeader, Item, FromLocation, ToLocation, InTransitLocation, '', Qty, WorkDate(), WorkDate, true, true);
+          TransferHeader, Item, FromLocation, ToLocation, InTransitLocation, '', Qty, WorkDate(), WorkDate(), true, true);
     end;
 
     local procedure PostNegativePurchase(var PurchaseHeader: Record "Purchase Header"; var Item: Record Item; var Location: Record Location; Qty: Decimal)
@@ -681,9 +681,9 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
     begin
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
         LibraryPatterns.CalculateInventoryValueRun(
-          ItemJournalBatch, Item, RevaluationDate, 0, Item."Costing Method" <> Item."Costing Method"::Average,
+          ItemJournalBatch, Item, RevaluationDate, "Inventory Value Calc. Per"::"Item Ledger Entry", Item."Costing Method" <> Item."Costing Method"::Average,
           Item."Costing Method" <> Item."Costing Method"::Average,
-          false, 0, false, '', '');
+          false, "Inventory Value Calc. Base"::" ", false, '', '');
 
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
@@ -767,7 +767,6 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         MissingExCostRevLink: Boolean;
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
-        LibrarySales.SetCorrDocNoSales(SalesHeader);
 
         // Get Posted Document Line to Reverse
         SalesInvoiceLine.SetCurrentKey("Sell-to Customer No.", Type, "Document No.");

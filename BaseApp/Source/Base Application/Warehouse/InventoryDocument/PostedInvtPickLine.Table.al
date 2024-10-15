@@ -22,6 +22,7 @@ table 7343 "Posted Invt. Pick Line"
 {
     Caption = 'Posted Invt. Pick Line';
     LookupPageID = "Posted Invt. Pick Lines";
+    DataClassification = CustomerContent;
 
     fields
     {

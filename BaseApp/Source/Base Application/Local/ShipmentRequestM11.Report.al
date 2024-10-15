@@ -347,46 +347,44 @@ report 12471 "Shipment Request M-11"
         InventoryPostingSetup: Record "Inventory Posting Setup";
         TransferLine: Record "Transfer Line";
     begin
-        with TransferHeader do begin
-            TransferLine.SetRange("Document No.", "No.");
-            TransferLine.SetRange("Derived From Line No.", 0);
-            LineCount := TransferLine.Count();
+        TransferLine.SetRange("Document No.", TransferHeader."No.");
+        TransferLine.SetRange("Derived From Line No.", 0);
+        LineCount := TransferLine.Count();
 
-            if TransferLine.FindSet() then
-                repeat
-                    LineBuffer.Init();
-                    LineBuffer."Line No." := TransferLine."Line No.";
-                    LineBuffer."Document No." := "No.";
-                    LineBuffer."Posting Date" := "Posting Date";
-                    LineBuffer."Location Code" := "Transfer-from Code";
-                    LineBuffer."New Location Code" := "Transfer-to Code";
-                    LineBuffer.Description := TransferLine.Description;
-                    LineBuffer."Item No." := TransferLine."Item No.";
-                    LineBuffer."Unit of Measure Code" := TransferLine."Unit of Measure Code";
-                    LineBuffer.Quantity := TransferLine.Quantity;
+        if TransferLine.FindSet() then
+            repeat
+                LineBuffer.Init();
+                LineBuffer."Line No." := TransferLine."Line No.";
+                LineBuffer."Document No." := TransferHeader."No.";
+                LineBuffer."Posting Date" := TransferHeader."Posting Date";
+                LineBuffer."Location Code" := TransferHeader."Transfer-from Code";
+                LineBuffer."New Location Code" := TransferHeader."Transfer-to Code";
+                LineBuffer.Description := TransferLine.Description;
+                LineBuffer."Item No." := TransferLine."Item No.";
+                LineBuffer."Unit of Measure Code" := TransferLine."Unit of Measure Code";
+                LineBuffer.Quantity := TransferLine.Quantity;
 
-                    if QuantityType = 0 then
-                        LineBuffer."Invoiced Quantity" := TransferLine."Qty. to Ship"
-                    else
-                        LineBuffer."Invoiced Quantity" := TransferLine."Quantity Shipped";
+                if QuantityType = 0 then
+                    LineBuffer."Invoiced Quantity" := TransferLine."Qty. to Ship"
+                else
+                    LineBuffer."Invoiced Quantity" := TransferLine."Quantity Shipped";
 
-                    Item.Get(TransferLine."Item No.");
-                    if not WithoutAmount then
-                        LineBuffer."Unit Cost" := Item."Unit Cost";
+                Item.Get(TransferLine."Item No.");
+                if not WithoutAmount then
+                    LineBuffer."Unit Cost" := Item."Unit Cost";
 
-                    if InventoryPostingSetup.Get("Transfer-to Code", Item."Inventory Posting Group") then
-                        LineBuffer."Shortcut Dimension 1 Code" := InventoryPostingSetup."Inventory Account";
-                    if DimSetEntry.Get(TransferLine."Dimension Set ID", KindOperationCode) then
-                        LineBuffer."Shortcut Dimension 2 Code" := DimSetEntry."Dimension Value Code";
+                if InventoryPostingSetup.Get(TransferHeader."Transfer-to Code", Item."Inventory Posting Group") then
+                    LineBuffer."Shortcut Dimension 1 Code" := InventoryPostingSetup."Inventory Account";
+                if DimSetEntry.Get(TransferLine."Dimension Set ID", KindOperationCode) then
+                    LineBuffer."Shortcut Dimension 2 Code" := DimSetEntry."Dimension Value Code";
 
-                    InventoryPostingSetup.Get("Transfer-from Code", Item."Inventory Posting Group");
-                    HeaderBufferInsert(LineBuffer."Shortcut Dimension 2 Code",
-                      TransferLine."Unit of Measure Code",
-                      InventoryPostingSetup."Inventory Account");
+                InventoryPostingSetup.Get(TransferHeader."Transfer-from Code", Item."Inventory Posting Group");
+                HeaderBufferInsert(LineBuffer."Shortcut Dimension 2 Code",
+                  TransferLine."Unit of Measure Code",
+                  InventoryPostingSetup."Inventory Account");
 
-                    LineBuffer.Insert();
-                until TransferLine.Next() = 0;
-        end;
+                LineBuffer.Insert();
+            until TransferLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -394,42 +392,40 @@ report 12471 "Shipment Request M-11"
     var
         InventoryPostingSetup: Record "Inventory Posting Setup";
     begin
-        with ItemJournalLine do begin
-            LineCount := Count;
+        LineCount := ItemJournalLine.Count;
 
-            if FindSet() then
-                repeat
-                    LineBuffer.Init();
-                    LineBuffer."Journal Template Name" := "Journal Template Name";
-                    LineBuffer."Journal Batch Name" := "Journal Batch Name";
-                    LineBuffer."Line No." := "Line No.";
-                    LineBuffer."Document No." := "Document No.";
-                    LineBuffer."Posting Date" := "Posting Date";
-                    LineBuffer."Location Code" := "Location Code";
-                    LineBuffer."New Location Code" := "New Location Code";
-                    LineBuffer.Description := Description;
-                    LineBuffer."Item No." := "Item No.";
-                    LineBuffer."Unit of Measure Code" := "Unit of Measure Code";
-                    LineBuffer.Quantity := Quantity;
-                    LineBuffer."Invoiced Quantity" := "Invoiced Quantity";
+        if ItemJournalLine.FindSet() then
+            repeat
+                LineBuffer.Init();
+                LineBuffer."Journal Template Name" := ItemJournalLine."Journal Template Name";
+                LineBuffer."Journal Batch Name" := ItemJournalLine."Journal Batch Name";
+                LineBuffer."Line No." := ItemJournalLine."Line No.";
+                LineBuffer."Document No." := ItemJournalLine."Document No.";
+                LineBuffer."Posting Date" := ItemJournalLine."Posting Date";
+                LineBuffer."Location Code" := ItemJournalLine."Location Code";
+                LineBuffer."New Location Code" := ItemJournalLine."New Location Code";
+                LineBuffer.Description := ItemJournalLine.Description;
+                LineBuffer."Item No." := ItemJournalLine."Item No.";
+                LineBuffer."Unit of Measure Code" := ItemJournalLine."Unit of Measure Code";
+                LineBuffer.Quantity := ItemJournalLine.Quantity;
+                LineBuffer."Invoiced Quantity" := ItemJournalLine."Invoiced Quantity";
 
-                    if not WithoutAmount then
-                        LineBuffer."Unit Cost" := "Unit Cost";
+                if not WithoutAmount then
+                    LineBuffer."Unit Cost" := ItemJournalLine."Unit Cost";
 
-                    Item.Get("Item No.");
-                    if InventoryPostingSetup.Get("New Location Code", Item."Inventory Posting Group") then
-                        LineBuffer."Shortcut Dimension 1 Code" := InventoryPostingSetup."Inventory Account";
-                    if DimSetEntry.Get("Dimension Set ID", KindOperationCode) then
-                        LineBuffer."Shortcut Dimension 2 Code" := DimSetEntry."Dimension Value Code";
+                Item.Get(ItemJournalLine."Item No.");
+                if InventoryPostingSetup.Get(ItemJournalLine."New Location Code", Item."Inventory Posting Group") then
+                    LineBuffer."Shortcut Dimension 1 Code" := InventoryPostingSetup."Inventory Account";
+                if DimSetEntry.Get(ItemJournalLine."Dimension Set ID", KindOperationCode) then
+                    LineBuffer."Shortcut Dimension 2 Code" := DimSetEntry."Dimension Value Code";
 
-                    InventoryPostingSetup.Get("Location Code", Item."Inventory Posting Group");
-                    HeaderBufferInsert(LineBuffer."Shortcut Dimension 2 Code",
-                      "Unit of Measure Code",
-                      InventoryPostingSetup."Inventory Account");
+                InventoryPostingSetup.Get(ItemJournalLine."Location Code", Item."Inventory Posting Group");
+                HeaderBufferInsert(LineBuffer."Shortcut Dimension 2 Code",
+                  ItemJournalLine."Unit of Measure Code",
+                  InventoryPostingSetup."Inventory Account");
 
-                    LineBuffer.Insert();
-                until Next() = 0;
-        end;
+                LineBuffer.Insert();
+            until ItemJournalLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -438,44 +434,42 @@ report 12471 "Shipment Request M-11"
         InventoryPostingSetup: Record "Inventory Posting Setup";
         TransferReceiptLine: Record "Transfer Receipt Line";
     begin
-        with TransferReceiptHeader do begin
-            TransferReceiptLine.SetRange("Document No.", "No.");
-            LineCount := TransferReceiptLine.Count();
+        TransferReceiptLine.SetRange("Document No.", TransferReceiptHeader."No.");
+        LineCount := TransferReceiptLine.Count();
 
-            if TransferReceiptLine.FindSet() then
-                repeat
-                    LineBuffer.Init();
-                    LineBuffer."Line No." := TransferReceiptLine."Line No.";
-                    LineBuffer."Document No." := "No.";
-                    LineBuffer."Posting Date" := "Posting Date";
-                    LineBuffer."Location Code" := "Transfer-from Code";
-                    LineBuffer."New Location Code" := "Transfer-to Code";
-                    LineBuffer.Description := TransferReceiptLine.Description;
-                    LineBuffer."Item No." := TransferReceiptLine."Item No.";
-                    LineBuffer."Unit of Measure Code" := TransferReceiptLine."Unit of Measure Code";
-                    LineBuffer.Quantity := TransferReceiptLine.Quantity;
-                    LineBuffer."Invoiced Quantity" := TransferReceiptLine.Quantity;
+        if TransferReceiptLine.FindSet() then
+            repeat
+                LineBuffer.Init();
+                LineBuffer."Line No." := TransferReceiptLine."Line No.";
+                LineBuffer."Document No." := TransferReceiptHeader."No.";
+                LineBuffer."Posting Date" := TransferReceiptHeader."Posting Date";
+                LineBuffer."Location Code" := TransferReceiptHeader."Transfer-from Code";
+                LineBuffer."New Location Code" := TransferReceiptHeader."Transfer-to Code";
+                LineBuffer.Description := TransferReceiptLine.Description;
+                LineBuffer."Item No." := TransferReceiptLine."Item No.";
+                LineBuffer."Unit of Measure Code" := TransferReceiptLine."Unit of Measure Code";
+                LineBuffer.Quantity := TransferReceiptLine.Quantity;
+                LineBuffer."Invoiced Quantity" := TransferReceiptLine.Quantity;
 
-                    if not WithoutAmount then
-                        LineBuffer."Unit Cost" := GetUnitCost(LineBuffer);
+                if not WithoutAmount then
+                    LineBuffer."Unit Cost" := GetUnitCost(LineBuffer);
 
-                    Item.Get(LineBuffer."Item No.");
-                    if InventoryPostingSetup.Get("Transfer-to Code", Item."Inventory Posting Group") then
-                        LineBuffer."Shortcut Dimension 1 Code" := InventoryPostingSetup."Inventory Account";
-                    if DimSetEntry.Get(TransferReceiptLine."Dimension Set ID", KindOperationCode) then
-                        LineBuffer."Shortcut Dimension 2 Code" := DimSetEntry."Dimension Value Code";
+                Item.Get(LineBuffer."Item No.");
+                if InventoryPostingSetup.Get(TransferReceiptHeader."Transfer-to Code", Item."Inventory Posting Group") then
+                    LineBuffer."Shortcut Dimension 1 Code" := InventoryPostingSetup."Inventory Account";
+                if DimSetEntry.Get(TransferReceiptLine."Dimension Set ID", KindOperationCode) then
+                    LineBuffer."Shortcut Dimension 2 Code" := DimSetEntry."Dimension Value Code";
 
-                    LineBuffer."Item Shpt. Entry No." := GetItemLedgerEntryNo(LineBuffer."Item No.",
-                        LineBuffer."Document No.", LineBuffer."Line No.");
+                LineBuffer."Item Shpt. Entry No." := GetItemLedgerEntryNo(LineBuffer."Item No.",
+                    LineBuffer."Document No.", LineBuffer."Line No.");
 
-                    InventoryPostingSetup.Get("Transfer-from Code", Item."Inventory Posting Group");
-                    HeaderBufferInsert(LineBuffer."Shortcut Dimension 2 Code",
-                      TransferReceiptLine."Unit of Measure Code",
-                      InventoryPostingSetup."Inventory Account");
+                InventoryPostingSetup.Get(TransferReceiptHeader."Transfer-from Code", Item."Inventory Posting Group");
+                HeaderBufferInsert(LineBuffer."Shortcut Dimension 2 Code",
+                  TransferReceiptLine."Unit of Measure Code",
+                  InventoryPostingSetup."Inventory Account");
 
-                    LineBuffer.Insert();
-                until TransferReceiptLine.Next() = 0;
-        end;
+                LineBuffer.Insert();
+            until TransferReceiptLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -484,41 +478,39 @@ report 12471 "Shipment Request M-11"
         InventoryPostingSetup: Record "Inventory Posting Setup";
         TransferShipmentLine: Record "Transfer Shipment Line";
     begin
-        with TransferShipmentHeader do begin
-            TransferShipmentLine.SetRange("Document No.", "No.");
-            LineCount := TransferShipmentLine.Count();
+        TransferShipmentLine.SetRange("Document No.", TransferShipmentHeader."No.");
+        LineCount := TransferShipmentLine.Count();
 
-            if TransferShipmentLine.FindSet() then
-                repeat
-                    LineBuffer.Init();
-                    LineBuffer."Line No." := TransferShipmentLine."Line No.";
-                    LineBuffer."Document No." := "No.";
-                    LineBuffer."Posting Date" := "Posting Date";
-                    LineBuffer."Location Code" := "Transfer-from Code";
-                    LineBuffer."New Location Code" := "Transfer-to Code";
-                    LineBuffer.Description := TransferShipmentLine.Description;
-                    LineBuffer."Item No." := TransferShipmentLine."Item No.";
-                    LineBuffer."Unit of Measure Code" := TransferShipmentLine."Unit of Measure Code";
-                    LineBuffer.Quantity := TransferShipmentLine.Quantity;
-                    LineBuffer."Invoiced Quantity" := TransferShipmentLine.Quantity;
+        if TransferShipmentLine.FindSet() then
+            repeat
+                LineBuffer.Init();
+                LineBuffer."Line No." := TransferShipmentLine."Line No.";
+                LineBuffer."Document No." := TransferShipmentHeader."No.";
+                LineBuffer."Posting Date" := TransferShipmentHeader."Posting Date";
+                LineBuffer."Location Code" := TransferShipmentHeader."Transfer-from Code";
+                LineBuffer."New Location Code" := TransferShipmentHeader."Transfer-to Code";
+                LineBuffer.Description := TransferShipmentLine.Description;
+                LineBuffer."Item No." := TransferShipmentLine."Item No.";
+                LineBuffer."Unit of Measure Code" := TransferShipmentLine."Unit of Measure Code";
+                LineBuffer.Quantity := TransferShipmentLine.Quantity;
+                LineBuffer."Invoiced Quantity" := TransferShipmentLine.Quantity;
 
-                    if not WithoutAmount then
-                        LineBuffer."Unit Cost" := GetUnitCost(LineBuffer);
+                if not WithoutAmount then
+                    LineBuffer."Unit Cost" := GetUnitCost(LineBuffer);
 
-                    Item.Get(LineBuffer."Item No.");
-                    if InventoryPostingSetup.Get("Transfer-to Code", Item."Inventory Posting Group") then
-                        LineBuffer."Shortcut Dimension 1 Code" := InventoryPostingSetup."Inventory Account";
-                    if DimSetEntry.Get(TransferShipmentLine."Dimension Set ID", KindOperationCode) then
-                        LineBuffer."Shortcut Dimension 2 Code" := DimSetEntry."Dimension Value Code";
+                Item.Get(LineBuffer."Item No.");
+                if InventoryPostingSetup.Get(TransferShipmentHeader."Transfer-to Code", Item."Inventory Posting Group") then
+                    LineBuffer."Shortcut Dimension 1 Code" := InventoryPostingSetup."Inventory Account";
+                if DimSetEntry.Get(TransferShipmentLine."Dimension Set ID", KindOperationCode) then
+                    LineBuffer."Shortcut Dimension 2 Code" := DimSetEntry."Dimension Value Code";
 
-                    InventoryPostingSetup.Get("Transfer-from Code", Item."Inventory Posting Group");
-                    HeaderBufferInsert(LineBuffer."Shortcut Dimension 2 Code",
-                      TransferShipmentLine."Unit of Measure Code",
-                      InventoryPostingSetup."Inventory Account");
+                InventoryPostingSetup.Get(TransferShipmentHeader."Transfer-from Code", Item."Inventory Posting Group");
+                HeaderBufferInsert(LineBuffer."Shortcut Dimension 2 Code",
+                  TransferShipmentLine."Unit of Measure Code",
+                  InventoryPostingSetup."Inventory Account");
 
-                    LineBuffer.Insert();
-                until TransferShipmentLine.Next() = 0;
-        end;
+                LineBuffer.Insert();
+            until TransferShipmentLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -619,19 +611,17 @@ report 12471 "Shipment Request M-11"
     var
         BodyArr: array[11] of Text;
     begin
-        with LineBuffer do begin
-            BodyArr[1] := "Shortcut Dimension 1 Code";
-            BodyArr[2] := "Shortcut Dimension 2 Code";
-            BodyArr[3] := Description;
-            BodyArr[4] := "Item No.";
-            BodyArr[5] := "Unit of Measure Code";
-            BodyArr[6] := StdRepMgt.GetUoMDesc("Unit of Measure Code");
-            BodyArr[7] := Format(Quantity);
-            BodyArr[8] := Format("Invoiced Quantity");
-            BodyArr[9] := FormatAmount("Unit Cost");
-            BodyArr[10] := FormatAmount("Invoiced Quantity" * "Unit Cost");
-            BodyArr[11] := Format("Item Shpt. Entry No.");
-        end;
+        BodyArr[1] := LineBuffer."Shortcut Dimension 1 Code";
+        BodyArr[2] := LineBuffer."Shortcut Dimension 2 Code";
+        BodyArr[3] := LineBuffer.Description;
+        BodyArr[4] := LineBuffer."Item No.";
+        BodyArr[5] := LineBuffer."Unit of Measure Code";
+        BodyArr[6] := StdRepMgt.GetUoMDesc(LineBuffer."Unit of Measure Code");
+        BodyArr[7] := Format(LineBuffer.Quantity);
+        BodyArr[8] := Format(LineBuffer."Invoiced Quantity");
+        BodyArr[9] := FormatAmount(LineBuffer."Unit Cost");
+        BodyArr[10] := FormatAmount(LineBuffer."Invoiced Quantity" * LineBuffer."Unit Cost");
+        BodyArr[11] := Format(LineBuffer."Item Shpt. Entry No.");
 
         InventoryReportsHelper.FillM11Body(BodyArr);
     end;

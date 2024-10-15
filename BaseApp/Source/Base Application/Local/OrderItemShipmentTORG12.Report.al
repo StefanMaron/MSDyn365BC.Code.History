@@ -101,6 +101,8 @@ report 12407 "Order Item Shipment TORG-12"
                 end;
 
                 trigger OnPreDataItem()
+                var
+                    NoSeries: Codeunit "No. Series";
                 begin
                     if not SalesLine1.Find('-') then
                         CurrReport.Break();
@@ -108,8 +110,10 @@ report 12407 "Order Item Shipment TORG-12"
                     if Header."Shipping No." = '' then
                         if (Header."Shipping No. Series" = '') or (Header."Shipping No. Series" = Header."Posting No. Series") then
                             if Header."Posting No." = '' then begin
-                                Header."Posting No." := NoSeriesManagement.GetNextNo(
-                                    Header."Posting No. Series", Header."Posting Date", not Preview);
+                                if Preview then
+                                    Header."Posting No." := NoSeriesBatch.GetNextNo(Header."Posting No. Series", Header."Posting Date")
+                                else
+                                    Header."Posting No." := NoSeries.GetNextNo(Header."Posting No. Series", Header."Posting Date");
                                 Header."Shipping No." := Header."Posting No.";
                                 if not Preview then
                                     Header.Modify();
@@ -117,10 +121,13 @@ report 12407 "Order Item Shipment TORG-12"
                                 Header."Shipping No." := Header."Posting No.";
                                 if not Preview then
                                     Header.Modify();
-                            end else begin
-                            Clear(NoSeriesManagement);
-                            Header."Shipping No." := NoSeriesManagement.GetNextNo(
-                                Header."Shipping No. Series", Header."Posting Date", not Preview);
+                            end
+                        else begin
+                            Clear(NoSeriesBatch);
+                            if Preview then
+                                Header."Shipping No." := NoSeriesBatch.GetNextNo(Header."Shipping No. Series", Header."Posting Date")
+                            else
+                                Header."Shipping No." := NoSeries.GetNextNo(Header."Shipping No. Series", Header."Posting Date");
                             if not Preview then
                                 Header.Modify();
                         end;
@@ -160,10 +167,10 @@ report 12407 "Order Item Shipment TORG-12"
                             ReasonData := "Posting Date";
                         end;
                     else begin
-                            ReasonType := '';
-                            ReasonNo := '';
-                            ReasonData := 0D;
-                        end;
+                        ReasonType := '';
+                        ReasonNo := '';
+                        ReasonData := 0D;
+                    end;
                 end;
 
                 if "Agreement No." <> '' then begin
@@ -317,7 +324,7 @@ report 12407 "Order Item Shipment TORG-12"
         Currency: Record Currency;
         LocMgt: Codeunit "Localisation Management";
         StdRepMgt: Codeunit "Local Report Management";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         ArchiveManagement: Codeunit ArchiveManagement;
         SegManagement: Codeunit SegManagement;
         TORG12Helper: Codeunit "TORG-12 Report Helper";
@@ -429,14 +436,12 @@ report 12407 "Order Item Shipment TORG-12"
 
     local procedure TransferAmounts(SalesLine: Record "Sales Line"; var AmountValues: array[6] of Decimal)
     begin
-        with SalesLine do begin
-            AmountValues[1] := Amount;
-            AmountValues[2] := "Amount Including VAT" - Amount;
-            AmountValues[3] := "Amount Including VAT";
-            AmountValues[4] := "Qty. to Invoice";
-            AmountValues[5] := "Qty. to Invoice" * "Gross Weight";
-            AmountValues[6] := "Qty. to Invoice" * "Net Weight";
-        end;
+        AmountValues[1] := SalesLine.Amount;
+        AmountValues[2] := SalesLine."Amount Including VAT" - SalesLine.Amount;
+        AmountValues[3] := SalesLine."Amount Including VAT";
+        AmountValues[4] := SalesLine."Qty. to Invoice";
+        AmountValues[5] := SalesLine."Qty. to Invoice" * SalesLine."Gross Weight";
+        AmountValues[6] := SalesLine."Qty. to Invoice" * SalesLine."Net Weight";
     end;
 
     local procedure TransferFooterValues()

@@ -73,6 +73,12 @@ page 301 "Ship-to Address List"
                     ToolTip = 'Specifies the name of the person you contact about orders shipped to this address.';
                     Visible = false;
                 }
+                field("Salesperson Code"; Rec."Salesperson Code")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies a code for the salesperson who normally handles this customer''s recipient.';
+                    Visible = false;
+                }
                 field(GLN; Rec.GLN)
                 {
                     ApplicationArea = Basic, Suite;

@@ -128,40 +128,38 @@ page 17322 "Tax Calc. Accum. Subform"
         TaxCalcItemEntry: Record "Tax Calc. Item Entry";
         TaxCalcFAEntry: Record "Tax Calc. FA Entry";
     begin
-        with TaxCalcHeader do begin
-            if ("Page ID" = 0) or
-               ("Table ID" = 0) or
-               ("Storing Method" = "Storing Method"::Calculation)
-            then
-                exit;
-        end;
+        if (TaxCalcHeader."Page ID" = 0) or
+            (TaxCalcHeader."Table ID" = 0) or
+            (TaxCalcHeader."Storing Method" = TaxCalcHeader."Storing Method"::Calculation)
+        then
+            exit;
 
         case TaxCalcHeader."Table ID" of
             DATABASE::"Tax Calc. G/L Entry":
-                with TaxCalcEntry do begin
-                    FilterGroup(2);
-                    SetFilter("Section Code", Rec."Section Code");
-                    SetFilter("Where Used Register IDs", '*~' + TaxCalcHeader."Register ID" + '~*');
-                    FilterGroup(0);
-                    SetFilter("Date Filter", DateFilter);
+                begin
+                    TaxCalcEntry.FilterGroup(2);
+                    TaxCalcEntry.SetFilter("Section Code", Rec."Section Code");
+                    TaxCalcEntry.SetFilter("Where Used Register IDs", '*~' + TaxCalcHeader."Register ID" + '~*');
+                    TaxCalcEntry.FilterGroup(0);
+                    TaxCalcEntry.SetFilter("Date Filter", DateFilter);
                     PAGE.RunModal(TaxCalcHeader."Page ID", TaxCalcEntry);
                 end;
             DATABASE::"Tax Calc. Item Entry":
-                with TaxCalcItemEntry do begin
-                    FilterGroup(2);
-                    SetFilter("Section Code", Rec."Section Code");
-                    SetFilter("Where Used Register IDs", '*~' + TaxCalcHeader."Register ID" + '~*');
-                    FilterGroup(0);
-                    SetFilter("Date Filter", DateFilter);
+                begin
+                    TaxCalcItemEntry.FilterGroup(2);
+                    TaxCalcItemEntry.SetFilter("Section Code", Rec."Section Code");
+                    TaxCalcItemEntry.SetFilter("Where Used Register IDs", '*~' + TaxCalcHeader."Register ID" + '~*');
+                    TaxCalcItemEntry.FilterGroup(0);
+                    TaxCalcItemEntry.SetFilter("Date Filter", DateFilter);
                     PAGE.RunModal(TaxCalcHeader."Page ID", TaxCalcItemEntry);
                 end;
             DATABASE::"Tax Calc. FA Entry":
-                with TaxCalcFAEntry do begin
-                    FilterGroup(2);
-                    SetFilter("Section Code", Rec."Section Code");
-                    SetFilter("Where Used Register IDs", '*~' + TaxCalcHeader."Register ID" + '~*');
-                    FilterGroup(0);
-                    SetFilter("Date Filter", DateFilter);
+                begin
+                    TaxCalcFAEntry.FilterGroup(2);
+                    TaxCalcFAEntry.SetFilter("Section Code", Rec."Section Code");
+                    TaxCalcFAEntry.SetFilter("Where Used Register IDs", '*~' + TaxCalcHeader."Register ID" + '~*');
+                    TaxCalcFAEntry.FilterGroup(0);
+                    TaxCalcFAEntry.SetFilter("Date Filter", DateFilter);
                     PAGE.RunModal(TaxCalcHeader."Page ID", TaxCalcFAEntry);
                 end;
         end;

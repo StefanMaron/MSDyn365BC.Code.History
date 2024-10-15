@@ -360,7 +360,6 @@ report 14928 "Unrealized VAT Analysis"
         DocNoURL: RecordRef;
         IsVendor: Boolean;
         ContractorName: Text[250];
-        DocumentNoURL: Integer;
         CollapseAll: Boolean;
         ViewBy: Option "G/L Account",Invoice;
         ViewByCaption: Text[250];
@@ -388,11 +387,9 @@ report 14928 "Unrealized VAT Analysis"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VATEntry do begin
-            if Type = Type::Purchase then
-                if VendorLedgerEntry.Get("CV Ledg. Entry No.") then
-                    exit(VendorLedgerEntry."Vendor VAT Invoice Date");
-        end;
+        if VATEntry.Type = VATEntry.Type::Purchase then
+            if VendorLedgerEntry.Get(VATEntry."CV Ledg. Entry No.") then
+                exit(VendorLedgerEntry."Vendor VAT Invoice Date");
     end;
 
     [Scope('OnPrem')]
@@ -402,23 +399,22 @@ report 14928 "Unrealized VAT Analysis"
         Vendor: Record Vendor;
         Customer: Record Customer;
     begin
-        with VATEntry do
-            case Type of
-                Type::Purchase:
-                    begin
-                        IsVendor := true;
-                        ContractorName := LocRepMgt.GetVendorName("Bill-to/Pay-to No.");
-                        if Vendor.Get("Bill-to/Pay-to No.") then
-                            VendorURL.SetPosition(Vendor.GetPosition());
-                    end;
-                Type::Sale:
-                    begin
-                        IsVendor := false;
-                        ContractorName := LocRepMgt.GetCustName("Bill-to/Pay-to No.");
-                        if Customer.Get("Bill-to/Pay-to No.") then
-                            CustomerURL.SetPosition(Customer.GetPosition());
-                    end;
-            end;
+        case VATEntry.Type of
+            VATEntry.Type::Purchase:
+                begin
+                    IsVendor := true;
+                    ContractorName := LocRepMgt.GetVendorName(VATEntry."Bill-to/Pay-to No.");
+                    if Vendor.Get(VATEntry."Bill-to/Pay-to No.") then
+                        VendorURL.SetPosition(Vendor.GetPosition());
+                end;
+            VATEntry.Type::Sale:
+                begin
+                    IsVendor := false;
+                    ContractorName := LocRepMgt.GetCustName(VATEntry."Bill-to/Pay-to No.");
+                    if Customer.Get(VATEntry."Bill-to/Pay-to No.") then
+                        CustomerURL.SetPosition(Customer.GetPosition());
+                end;
+        end;
     end;
 
     [Scope('OnPrem')]

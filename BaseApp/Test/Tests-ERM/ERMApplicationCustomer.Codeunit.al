@@ -42,7 +42,7 @@ codeunit 134010 "ERM Application Customer"
                 CustomerInvPmt("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
             end;
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -65,7 +65,7 @@ codeunit 134010 "ERM Application Customer"
                 DeltaAssert.Reset();
             end;
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -85,7 +85,7 @@ codeunit 134010 "ERM Application Customer"
                 CustomerInvPmtVAT("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
             end;
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -105,7 +105,7 @@ codeunit 134010 "ERM Application Customer"
                 CustomerInvPmtCorrection("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
             end;
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -130,7 +130,7 @@ codeunit 134010 "ERM Application Customer"
                   1.1, DtldCustLedgEntry."Entry Type"::"Realized Loss");
             end;
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -155,7 +155,7 @@ codeunit 134010 "ERM Application Customer"
                   0.9, DtldCustLedgEntry."Entry Type"::"Realized Gain");
             end;
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -181,7 +181,7 @@ codeunit 134010 "ERM Application Customer"
                   1.1, DtldCustLedgEntry."Entry Type"::"Realized Loss");
             end;
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -207,7 +207,7 @@ codeunit 134010 "ERM Application Customer"
                   0.9, DtldCustLedgEntry."Entry Type"::"Realized Gain");
             end;
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -234,7 +234,7 @@ codeunit 134010 "ERM Application Customer"
         // [SCENARIO] Currency Adjustment job posts Detailed Customer Ledger Entries linked by "Transaction No." with related G/L Entries
         Initialize();
 
-        // [GIVEN] Currency "FCY" with different rates on Workdate and on (WorkDate + 1)
+        // [GIVEN] Currency "FCY" with different rates on Workdate and on (WorkDate() + 1)
         CurrencyCode := SetExchRateForCurrency(2);
 
         LibrarySales.CreateCustomer(Customer);
@@ -247,31 +247,31 @@ codeunit 134010 "ERM Application Customer"
                 DocumentNo :=
                   CreateJournalLine(
                     GenJournalLine, GenJournalBatch, "Document Type"::Invoice, "Account Type"::Customer,
-                    Customer."No.", InvAmount, '<0D>', CurrencyCode, LibraryUtility.GenerateGUID, '');
+                    Customer."No.", InvAmount, '<0D>', CurrencyCode, LibraryUtility.GenerateGUID(), '');
                 RunGenJnlPostLine(GenJournalLine);
 
                 // [GIVEN] Post 1st partial Payment in "FCY" on WorkDate with application to Invoice
                 CreateJournalLine(
                   GenJournalLine, GenJournalBatch, "Document Type"::Payment, "Account Type"::Customer,
-                  Customer."No.", -InvAmount / (i + 1), '<0D>', CurrencyCode, LibraryUtility.GenerateGUID, '');
+                  Customer."No.", -InvAmount / (i + 1), '<0D>', CurrencyCode, LibraryUtility.GenerateGUID(), '');
                 Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
                 Validate("Applies-to Doc. No.", DocumentNo);
                 Modify();
                 RunGenJnlPostLine(GenJournalLine);
 
-                // [GIVEN] Post 2nd partial Payment in "FCY" on (WorkDate + 2) with application to Invoice
+                // [GIVEN] Post 2nd partial Payment in "FCY" on (WorkDate() + 2) with application to Invoice
                 CreateJournalLine(
                   GenJournalLine, GenJournalBatch, "Document Type"::Payment, "Account Type"::Customer,
-                  Customer."No.", -InvAmount - Amount, '<2D>', CurrencyCode, LibraryUtility.GenerateGUID, '');
+                  Customer."No.", -InvAmount - Amount, '<2D>', CurrencyCode, LibraryUtility.GenerateGUID(), '');
                 Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
                 Validate("Applies-to Doc. No.", DocumentNo);
                 Modify();
                 RunGenJnlPostLine(GenJournalLine);
             end;
 
-        LastTransactionNo[1] := GetLastTransactionNo;
+        LastTransactionNo[1] := GetLastTransactionNo();
 
-        // [WHEN] Run the Adjust Exchange Rates Batch job on (Workdate + 1)
+        // [WHEN] Run the Adjust Exchange Rates Batch job on (WorkDate() + 1)
 #if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(
           CurrencyCode, CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
@@ -282,7 +282,7 @@ codeunit 134010 "ERM Application Customer"
 
         // [THEN] posted G/L Entries on different dates have different "Transaction No."
         // [THEN] Dtld. Customer Ledger Entries have same "Transaction No." with related G/L Entries
-        LastTransactionNo[2] := GetLastTransactionNo;
+        LastTransactionNo[2] := GetLastTransactionNo();
         CustomerPostingGroup.Get(Customer."Customer Posting Group");
         for TransactionNo := LastTransactionNo[1] + 1 to LastTransactionNo[2] do begin
             GLEntry.SetRange("Transaction No.", TransactionNo);
@@ -1105,7 +1105,6 @@ codeunit 134010 "ERM Application Customer"
         GenJournalLine: Record "Gen. Journal Line";
         CustLedgerEntry: array[3] of Record "Cust. Ledger Entry";
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
-        AppliesToId: Code[20];
         Index: Integer;
     begin
         // [FEATURE] [General Journal]
@@ -1190,7 +1189,7 @@ codeunit 134010 "ERM Application Customer"
         CreateCustomerWithPaymentTerms(Customer, GetPaymentTerms('0'));
 
         // Find currency code with realized gaisn/losses account
-        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup);
+        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
 
         // Create new exchange rate
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
@@ -1214,7 +1213,7 @@ codeunit 134010 "ERM Application Customer"
 
         CustomerApplyUnapply(Desc, Stepwise);
 
-        LibraryERMCustomerWatch.AssertCustomer;
+        LibraryERMCustomerWatch.AssertCustomer();
     end;
 
     local procedure CustomerUnrealizedAdjust(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean; CurrencyAdjustFactor: Decimal; DtldLedgerType: Enum "Detailed CV Ledger Entry Type")
@@ -1254,7 +1253,7 @@ codeunit 134010 "ERM Application Customer"
 
         CustomerApplyUnapply(Desc, Stepwise);
 
-        LibraryERMCustomerWatch.AssertCustomer;
+        LibraryERMCustomerWatch.AssertCustomer();
     end;
 
     local procedure CustomerInvPmt(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean)
@@ -1280,7 +1279,7 @@ codeunit 134010 "ERM Application Customer"
         Desc := GenerateDocument(GenJournalBatch, Customer, PmtType, InvType, Amount, Amount, '<0D>', '', '');
         CustomerApplyUnapply(Desc, Stepwise);
 
-        LibraryERMCustomerWatch.AssertCustomer;
+        LibraryERMCustomerWatch.AssertCustomer();
     end;
 
     local procedure CustomerInvPmtDisc(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean)
@@ -1305,7 +1304,7 @@ codeunit 134010 "ERM Application Customer"
         Desc := GenerateDocument(GenJournalBatch, Customer, PmtType, InvType, Amount - DiscountAmount, Amount, '<0D>', '', '');
         CustomerApplyUnapply(Desc, Stepwise);
 
-        LibraryERMCustomerWatch.AssertCustomer;
+        LibraryERMCustomerWatch.AssertCustomer();
     end;
 
     local procedure CustomerInvPmtVAT(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean)
@@ -1340,7 +1339,7 @@ codeunit 134010 "ERM Application Customer"
         Desc := GenerateDocument(GenJournalBatch, Customer, PmtType, InvType, Amount, Amount, '<0D>', '', '');
         CustomerApplyUnapply(Desc, Stepwise);
 
-        LibraryERMCustomerWatch.AssertCustomer;
+        LibraryERMCustomerWatch.AssertCustomer();
     end;
 
     local procedure CustomerInvPmtCorrection(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean)
@@ -1375,7 +1374,7 @@ codeunit 134010 "ERM Application Customer"
         Desc := GenerateDocument(GenJournalBatch, Customer, PmtType, InvType, Amount, Amount, '<0D>', Currency.Code, Currency.Code);
         CustomerApplyUnapply(Desc, Stepwise);
 
-        LibraryERMCustomerWatch.AssertCustomer;
+        LibraryERMCustomerWatch.AssertCustomer();
     end;
 
     local procedure CustomerApplyUnapply(Desc: Text[30]; Stepwise: Boolean)
@@ -1677,7 +1676,7 @@ codeunit 134010 "ERM Application Customer"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         // Find currency code with realized gaisn/losses account
-        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup);
+        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
 
         // Create new exchange rates
         LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
@@ -1735,7 +1734,7 @@ codeunit 134010 "ERM Application Customer"
         // Create a GL balanced batch.
         LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
         GenJnlBatch.Validate("Bal. Account Type", GenJnlBatch."Bal. Account Type"::"G/L Account");
-        GenJnlBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJnlBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJnlBatch.Modify(true);
     end;
 
@@ -1862,7 +1861,7 @@ codeunit 134010 "ERM Application Customer"
 
     local procedure TearDown()
     begin
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
     end;
 
     [ModalPageHandler]

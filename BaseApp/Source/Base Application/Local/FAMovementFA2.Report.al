@@ -89,7 +89,6 @@ report 14986 "FA Movement FA-2"
         FAComment: Record "FA Comment";
         DocSignMgt: Codeunit "Doc. Signature Management";
         FA2ReportHelper: Codeunit "FA-2 Report Helper";
-        ExcelReportBuilderManager: Codeunit "Excel Report Builder Manager";
         Appendix: array[5] of Text[80];
         FileName: Text;
         LineNo: Integer;

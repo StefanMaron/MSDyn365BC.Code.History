@@ -1,6 +1,7 @@
 table 12430 "Document Print Buffer"
 {
     Caption = 'Document Print Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

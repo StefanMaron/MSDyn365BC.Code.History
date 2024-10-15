@@ -30,7 +30,6 @@ using Microsoft.Sales.Comment;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Pricing;
-using Microsoft.Sales.Receivables;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Structure;
 using System.Reflection;
@@ -44,6 +43,7 @@ table 113 "Sales Invoice Line"
     Permissions = TableData "Item Ledger Entry" = r,
                   TableData "Sales Invoice Line" = rm,
                   TableData "Value Entry" = r;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -206,7 +206,7 @@ table 113 "Sales Invoice Line"
         }
         field(45; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             TableRelation = Job;
         }
         field(52; "Work Type Code"; Code[10])
@@ -426,13 +426,13 @@ table 113 "Sales Invoice Line"
         }
         field(1001; "Job Task No."; Code[20])
         {
-            Caption = 'Job Task No.';
+            Caption = 'Project Task No.';
             Editable = false;
             TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
         }
         field(1002; "Job Contract Entry No."; Integer)
         {
-            Caption = 'Job Contract Entry No.';
+            Caption = 'Project Contract Entry No.';
             Editable = false;
         }
         field(1700; "Deferral Code"; Code[10])
@@ -1022,7 +1022,6 @@ table 113 "Sales Invoice Line"
     var
         TempVATAmountLine: Record "VAT Amount Line" temporary;
         VATPostingSetup: Record "VAT Posting Setup";
-        CustLedgEntry: Record "Cust. Ledger Entry";
         NewAmount: Decimal;
         VATAmount: Decimal;
         NewVATAmount: Decimal;

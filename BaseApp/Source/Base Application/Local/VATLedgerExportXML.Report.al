@@ -196,7 +196,7 @@ report 12461 "VAT Ledger Export XML"
     trigger OnPostReport()
     begin
         if not TempErrorMessage.HasErrors(false) then begin
-            if SaveXMLFile(XmlDoc, '.xml') then
+            if SaveXMLFile(XmlDoc) then
                 Message(CompletedMsg);
         end;
 
@@ -410,15 +410,13 @@ report 12461 "VAT Ledger Export XML"
         else
             XMLAddComplexElement(KnigaPokupTxt);
 
-        with VATLedgerLine do begin
-            SetRange(Type, VATLedger.Type);
-            SetRange(Code, VATLedger.Code);
-            SetRange("Additional Sheet", AddSheet);
-            if FindSet() then
-                repeat
-                    TotalVATLCY += Amount10 + Amount18 + Amount20;
-                until Next() = 0;
-        end;
+        VATLedgerLine.SetRange(Type, VATLedger.Type);
+        VATLedgerLine.SetRange(Code, VATLedger.Code);
+        VATLedgerLine.SetRange("Additional Sheet", AddSheet);
+        if VATLedgerLine.FindSet() then
+            repeat
+                TotalVATLCY += VATLedgerLine.Amount10 + VATLedgerLine.Amount18 + VATLedgerLine.Amount20;
+            until VATLedgerLine.Next() = 0;
 
         if AddSheet then begin
             XMLAddAttribute(XMLCurrNode, SumNDSItKPkTxt, VATLedger."Total VAT Amt VAT Purch Ledger");
@@ -435,54 +433,49 @@ report 12461 "VAT Ledger Export XML"
             XMLAddComplexElement(KnPokDLStrTxt)
         else
             XMLAddComplexElement(KnPokStrTxt);
-
         // purchase line
-        with VATLedgerLine do begin
-            XMLAddAttribute(XMLCurrNode, NomerPorTxt, Format(LineNo));
-            XMLAddAttribute(XMLCurrNode, NomScFProdTxt, Format("Document No."));
-            XMLAddOptionalAttribute(XMLCurrNode, DataScFProdTxt, GetFormattedDate("Document Date"));
-            XMLAddOptionalAttribute(XMLCurrNode, NomIsprScFTxt, Format("Revision No."));
-            XMLAddOptionalAttribute(XMLCurrNode, DataIsprScFTxt, GetFormattedDate("Revision Date"));
-            XMLAddOptionalAttribute(XMLCurrNode, NomKScFProdTxt, Format("Correction No."));
-            XMLAddOptionalAttribute(XMLCurrNode, DataKScFProdTxt, GetFormattedDate("Correction Date"));
-            XMLAddOptionalAttribute(XMLCurrNode, NomIsprKScFTxt, Format("Revision of Corr. No."));
-            XMLAddOptionalAttribute(XMLCurrNode, DataIsprKScFTxt, GetFormattedDate("Revision of Corr. Date"));
+        XMLAddAttribute(XMLCurrNode, NomerPorTxt, Format(LineNo));
+        XMLAddAttribute(XMLCurrNode, NomScFProdTxt, Format(VATLedgerLine."Document No."));
+        XMLAddOptionalAttribute(XMLCurrNode, DataScFProdTxt, GetFormattedDate(VATLedgerLine."Document Date"));
+        XMLAddOptionalAttribute(XMLCurrNode, NomIsprScFTxt, Format(VATLedgerLine."Revision No."));
+        XMLAddOptionalAttribute(XMLCurrNode, DataIsprScFTxt, GetFormattedDate(VATLedgerLine."Revision Date"));
+        XMLAddOptionalAttribute(XMLCurrNode, NomKScFProdTxt, Format(VATLedgerLine."Correction No."));
+        XMLAddOptionalAttribute(XMLCurrNode, DataKScFProdTxt, GetFormattedDate(VATLedgerLine."Correction Date"));
+        XMLAddOptionalAttribute(XMLCurrNode, NomIsprKScFTxt, Format(VATLedgerLine."Revision of Corr. No."));
+        XMLAddOptionalAttribute(XMLCurrNode, DataIsprKScFTxt, GetFormattedDate(VATLedgerLine."Revision of Corr. Date"));
 
-            case true of
-                LocalReportMgt.IsForeignCurrency("Currency Code") and
-                not LocalReportMgt.IsConventionalCurrency("Currency Code") and
-                not LocalReportMgt.HasRelationalCurrCode("Currency Code", "Document Date"):
-                    begin
-                        XMLAddOptionalAttribute(XMLCurrNode, OKVTxt, Format(GetCurrencyInfo("Currency Code")));
-                        XMLAddAttribute(XMLCurrNode, StoimPokupVTxt, LocalReportMgt.FormatAmount(Amount));
-                    end;
-                LocalReportMgt.IsCustomerPrepayment(VATLedgerLine):
-                    XMLAddAttribute(XMLCurrNode, StoimPokupVTxt, LocalReportMgt.FormatAmount(Amount));
-                else
-                    XMLAddAttribute(XMLCurrNode, StoimPokupVTxt, LocalReportMgt.GetVATLedgerAmounInclVATFCY(VATLedgerLine));
-            end;
-
-            if AddSheet then
-                XMLAddAttribute(XMLCurrNode, SumNDSTxt, Amount10 + Amount18 + Amount20)
+        case true of
+            LocalReportMgt.IsForeignCurrency(VATLedgerLine."Currency Code") and
+            not LocalReportMgt.IsConventionalCurrency(VATLedgerLine."Currency Code") and
+            not LocalReportMgt.HasRelationalCurrCode(VATLedgerLine."Currency Code", VATLedgerLine."Document Date"):
+                begin
+                    XMLAddOptionalAttribute(XMLCurrNode, OKVTxt, Format(GetCurrencyInfo(VATLedgerLine."Currency Code")));
+                    XMLAddAttribute(XMLCurrNode, StoimPokupVTxt, LocalReportMgt.FormatAmount(VATLedgerLine.Amount));
+                end;
+            LocalReportMgt.IsCustomerPrepayment(VATLedgerLine):
+                XMLAddAttribute(XMLCurrNode, StoimPokupVTxt, LocalReportMgt.FormatAmount(VATLedgerLine.Amount));
             else
-                XMLAddAttribute(XMLCurrNode, SumNDSVicTxt, Amount10 + Amount18 + Amount20);
-            XMLAddSimpleElement(KodVidOperTxt, "VAT Entry Type");
+                XMLAddAttribute(XMLCurrNode, StoimPokupVTxt, LocalReportMgt.GetVATLedgerAmounInclVATFCY(VATLedgerLine));
+        end;
 
-            CreateCDNoList(VATLedgerLine);
-            if "Tariff No." <> '' then
-                XMLAddSimpleElement(KodVidTovarTxt, "Tariff No.");
+        if AddSheet then
+            XMLAddAttribute(XMLCurrNode, SumNDSTxt, VATLedgerLine.Amount10 + VATLedgerLine.Amount18 + VATLedgerLine.Amount20)
+        else
+            XMLAddAttribute(XMLCurrNode, SumNDSVicTxt, VATLedgerLine.Amount10 + VATLedgerLine.Amount18 + VATLedgerLine.Amount20);
+        XMLAddSimpleElement(KodVidOperTxt, VATLedgerLine."VAT Entry Type");
 
-            // payment document
-            CreatePurchPaymentDocElement(VATLedgerLine);
-            ItemRealizeDate := LocalReportMgt.GetVATLedgerItemRealizeDate(VATLedgerLine);
-            if ItemRealizeDate <> 0D then
-                XMLAddSimpleElement(DataUcTovTxt, GetFormattedDate(ItemRealizeDate));
-
-            // C/V info element
-            if not ("VAT Entry Type" in ['19', '20', '27', '28']) then begin
-                CreatePurchaseCVInfoElement();
-                XMLCurrNode := XMLCurrNode.ParentNode();
-            end;
+        CreateCDNoList(VATLedgerLine);
+        if VATLedgerLine."Tariff No." <> '' then
+            XMLAddSimpleElement(KodVidTovarTxt, VATLedgerLine."Tariff No.");
+        // payment document
+        CreatePurchPaymentDocElement(VATLedgerLine);
+        ItemRealizeDate := LocalReportMgt.GetVATLedgerItemRealizeDate(VATLedgerLine);
+        if ItemRealizeDate <> 0D then
+            XMLAddSimpleElement(DataUcTovTxt, GetFormattedDate(ItemRealizeDate));
+        // C/V info element
+        if not (VATLedgerLine."VAT Entry Type" in ['19', '20', '27', '28']) then begin
+            CreatePurchaseCVInfoElement();
+            XMLCurrNode := XMLCurrNode.ParentNode();
         end;
         XMLCurrNode := XMLCurrNode.ParentNode;
         LineNo += 1;
@@ -492,29 +485,28 @@ report 12461 "VAT Ledger Export XML"
     var
         TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
     begin
-        with VATLedgerLine do
-            case true of
-                "Full VAT Amount" <> 0:
-                    begin
-                        GetPmtVendorDtldLedgerLines(VATLedger."End Date", TempVendorLedgerEntry);
-                        if TempVendorLedgerEntry.FindSet() then
-                            repeat
-                                XMLAddComplexElement(DocPdtvUplTxt);
-                                XMLAddAttribute(XMLCurrNode, NomDocPdtvUplTxt, TempVendorLedgerEntry."External Document No.");
-                                XMLAddAttribute(XMLCurrNode, DataDocPdtvUplTxt, GetFormattedDate(TempVendorLedgerEntry."Posting Date"));
-                                XMLCurrNode := XMLCurrNode.ParentNode;
-                            until TempVendorLedgerEntry.Next() = 0;
-                        exit;
-                    end;
-                Prepayment,
-                LocalReportMgt.IsVATAgentVendor("C/V No.", "C/V Type"):
-                    begin
-                        XMLAddComplexElement(DocPdtvUplTxt);
-                        XMLAddAttribute(XMLCurrNode, NomDocPdtvUplTxt, "External Document No.");
-                        XMLAddAttribute(XMLCurrNode, DataDocPdtvUplTxt, GetFormattedDate("Payment Date"));
-                        XMLCurrNode := XMLCurrNode.ParentNode;
-                    end;
-            end;
+        case true of
+            VATLedgerLine."Full VAT Amount" <> 0:
+                begin
+                    VATLedgerLine.GetPmtVendorDtldLedgerLines(VATLedger."End Date", TempVendorLedgerEntry);
+                    if TempVendorLedgerEntry.FindSet() then
+                        repeat
+                            XMLAddComplexElement(DocPdtvUplTxt);
+                            XMLAddAttribute(XMLCurrNode, NomDocPdtvUplTxt, TempVendorLedgerEntry."External Document No.");
+                            XMLAddAttribute(XMLCurrNode, DataDocPdtvUplTxt, GetFormattedDate(TempVendorLedgerEntry."Posting Date"));
+                            XMLCurrNode := XMLCurrNode.ParentNode;
+                        until TempVendorLedgerEntry.Next() = 0;
+                    exit;
+                end;
+            VATLedgerLine.Prepayment,
+            LocalReportMgt.IsVATAgentVendor(VATLedgerLine."C/V No.", VATLedgerLine."C/V Type"):
+                begin
+                    XMLAddComplexElement(DocPdtvUplTxt);
+                    XMLAddAttribute(XMLCurrNode, NomDocPdtvUplTxt, VATLedgerLine."External Document No.");
+                    XMLAddAttribute(XMLCurrNode, DataDocPdtvUplTxt, GetFormattedDate(VATLedgerLine."Payment Date"));
+                    XMLCurrNode := XMLCurrNode.ParentNode;
+                end;
+        end;
     end;
 
     local procedure CreateSalesCVInfoElement()
@@ -551,51 +543,49 @@ report 12461 "VAT Ledger Export XML"
             XMLAddComplexElement(KnigaProdTxt);
 
         Commit();
-        with VATLedgerLine do begin
-            SetRange(Type, VATLedger.Type);
-            SetRange(Code, VATLedger.Code);
-            SetRange("Additional Sheet", AddSheet);
-            if FindSet() then
-                repeat
-                    if not Prepayment then begin
-                        TotalBase20 += Base20;
-                        TotalBase18 += Base18;
-                        TotalBase10 += Base10;
-                        TotalBase0 += Base0;
-                    end;
-                    TotalAmount0 += "Base VAT Exempt";
-                    TotalAmount20 += Amount20;
-                    TotalAmount18 += Amount18;
-                    TotalAmount10 += Amount10;
-                until Next() = 0;
+        VATLedgerLine.SetRange(Type, VATLedger.Type);
+        VATLedgerLine.SetRange(Code, VATLedger.Code);
+        VATLedgerLine.SetRange("Additional Sheet", AddSheet);
+        if VATLedgerLine.FindSet() then
+            repeat
+                if not VATLedgerLine.Prepayment then begin
+                    TotalBase20 += VATLedgerLine.Base20;
+                    TotalBase18 += VATLedgerLine.Base18;
+                    TotalBase10 += VATLedgerLine.Base10;
+                    TotalBase0 += VATLedgerLine.Base0;
+                end;
+                TotalAmount0 += VATLedgerLine."Base VAT Exempt";
+                TotalAmount20 += VATLedgerLine.Amount20;
+                TotalAmount18 += VATLedgerLine.Amount18;
+                TotalAmount10 += VATLedgerLine.Amount10;
+            until VATLedgerLine.Next() = 0;
 
-            if AddSheet then begin
-                XMLAddOptionalAttribute(XMLCurrNode, ItStProdKPrTxt + '20', VATLedger."Tot Base20 Amt VAT Sales Ledg");
-                XMLAddOptionalAttribute(XMLCurrNode, ItStProdKPrTxt + '18', VATLedger."Tot Base18 Amt VAT Sales Ledg");
-                XMLAddOptionalAttribute(XMLCurrNode, ItStProdKPrTxt + '10', VATLedger."Tot Base 10 Amt VAT Sales Ledg");
-                XMLAddOptionalAttribute(XMLCurrNode, ItStProdKPrTxt + '0', VATLedger."Tot Base 0 Amt VAT Sales Ledg");
-                XMLAddOptionalAttribute(XMLCurrNode, SumNDSItKPrTxt + '20', VATLedger."Total VAT20 Amt VAT Sales Ledg");
-                XMLAddOptionalAttribute(XMLCurrNode, SumNDSItKPrTxt + '18', VATLedger."Total VAT18 Amt VAT Sales Ledg");
-                XMLAddOptionalAttribute(XMLCurrNode, SumNDSItKPrTxt + '10', VATLedger."Total VAT10 Amt VAT Sales Ledg");
-                XMLAddOptionalAttribute(XMLCurrNode, ItStProdOsvKPrTxt, VATLedger."Total VATExempt Amt VAT S Ledg");
-                XMLAddOptionalAttribute(XMLCurrNode, StProdVsP1R9Txt + '_20', VATLedger."Tot Base20 Amt VAT Sales Ledg" + TotalBase20);
-                XMLAddOptionalAttribute(XMLCurrNode, StProdVsP1R9Txt + '_18', VATLedger."Tot Base18 Amt VAT Sales Ledg" + TotalBase18);
-                XMLAddOptionalAttribute(XMLCurrNode, StProdVsP1R9Txt + '_10', VATLedger."Tot Base 10 Amt VAT Sales Ledg" + TotalBase10);
-                XMLAddOptionalAttribute(XMLCurrNode, StProdVsP1R9Txt + '_0', VATLedger."Tot Base 0 Amt VAT Sales Ledg" + TotalBase0);
-                XMLAddOptionalAttribute(XMLCurrNode, SumNDSVsP1R9Txt + '_20', VATLedger."Total VAT20 Amt VAT Sales Ledg" + TotalAmount20);
-                XMLAddOptionalAttribute(XMLCurrNode, SumNDSVsP1R9Txt + '_18', VATLedger."Total VAT18 Amt VAT Sales Ledg" + TotalAmount18);
-                XMLAddOptionalAttribute(XMLCurrNode, SumNDSVsP1R9Txt + '_10', VATLedger."Total VAT10 Amt VAT Sales Ledg" + TotalAmount10);
-                XMLAddOptionalAttribute(XMLCurrNode, StProdOsvP1R9VsTxt, VATLedger."Total VATExempt Amt VAT S Ledg" + TotalAmount0);
-            end else begin
-                XMLAddOptionalAttribute(XMLCurrNode, StProdBezNDSTxt + '20', TotalBase20);
-                XMLAddOptionalAttribute(XMLCurrNode, StProdBezNDSTxt + '18', TotalBase18);
-                XMLAddOptionalAttribute(XMLCurrNode, StProdBezNDSTxt + '10', TotalBase10);
-                XMLAddOptionalAttribute(XMLCurrNode, StProdBezNDSTxt + '0', TotalBase0);
-                XMLAddOptionalAttribute(XMLCurrNode, SumNDSVsKPrTxt + '20', TotalAmount20);
-                XMLAddOptionalAttribute(XMLCurrNode, SumNDSVsKPrTxt + '18', TotalAmount18);
-                XMLAddOptionalAttribute(XMLCurrNode, SumNDSVsKPrTxt + '10', TotalAmount10);
-                XMLAddOptionalAttribute(XMLCurrNode, StProdOsvVsKPrTxt, TotalAmount0);
-            end;
+        if AddSheet then begin
+            XMLAddOptionalAttribute(XMLCurrNode, ItStProdKPrTxt + '20', VATLedger."Tot Base20 Amt VAT Sales Ledg");
+            XMLAddOptionalAttribute(XMLCurrNode, ItStProdKPrTxt + '18', VATLedger."Tot Base18 Amt VAT Sales Ledg");
+            XMLAddOptionalAttribute(XMLCurrNode, ItStProdKPrTxt + '10', VATLedger."Tot Base 10 Amt VAT Sales Ledg");
+            XMLAddOptionalAttribute(XMLCurrNode, ItStProdKPrTxt + '0', VATLedger."Tot Base 0 Amt VAT Sales Ledg");
+            XMLAddOptionalAttribute(XMLCurrNode, SumNDSItKPrTxt + '20', VATLedger."Total VAT20 Amt VAT Sales Ledg");
+            XMLAddOptionalAttribute(XMLCurrNode, SumNDSItKPrTxt + '18', VATLedger."Total VAT18 Amt VAT Sales Ledg");
+            XMLAddOptionalAttribute(XMLCurrNode, SumNDSItKPrTxt + '10', VATLedger."Total VAT10 Amt VAT Sales Ledg");
+            XMLAddOptionalAttribute(XMLCurrNode, ItStProdOsvKPrTxt, VATLedger."Total VATExempt Amt VAT S Ledg");
+            XMLAddOptionalAttribute(XMLCurrNode, StProdVsP1R9Txt + '_20', VATLedger."Tot Base20 Amt VAT Sales Ledg" + TotalBase20);
+            XMLAddOptionalAttribute(XMLCurrNode, StProdVsP1R9Txt + '_18', VATLedger."Tot Base18 Amt VAT Sales Ledg" + TotalBase18);
+            XMLAddOptionalAttribute(XMLCurrNode, StProdVsP1R9Txt + '_10', VATLedger."Tot Base 10 Amt VAT Sales Ledg" + TotalBase10);
+            XMLAddOptionalAttribute(XMLCurrNode, StProdVsP1R9Txt + '_0', VATLedger."Tot Base 0 Amt VAT Sales Ledg" + TotalBase0);
+            XMLAddOptionalAttribute(XMLCurrNode, SumNDSVsP1R9Txt + '_20', VATLedger."Total VAT20 Amt VAT Sales Ledg" + TotalAmount20);
+            XMLAddOptionalAttribute(XMLCurrNode, SumNDSVsP1R9Txt + '_18', VATLedger."Total VAT18 Amt VAT Sales Ledg" + TotalAmount18);
+            XMLAddOptionalAttribute(XMLCurrNode, SumNDSVsP1R9Txt + '_10', VATLedger."Total VAT10 Amt VAT Sales Ledg" + TotalAmount10);
+            XMLAddOptionalAttribute(XMLCurrNode, StProdOsvP1R9VsTxt, VATLedger."Total VATExempt Amt VAT S Ledg" + TotalAmount0);
+        end else begin
+            XMLAddOptionalAttribute(XMLCurrNode, StProdBezNDSTxt + '20', TotalBase20);
+            XMLAddOptionalAttribute(XMLCurrNode, StProdBezNDSTxt + '18', TotalBase18);
+            XMLAddOptionalAttribute(XMLCurrNode, StProdBezNDSTxt + '10', TotalBase10);
+            XMLAddOptionalAttribute(XMLCurrNode, StProdBezNDSTxt + '0', TotalBase0);
+            XMLAddOptionalAttribute(XMLCurrNode, SumNDSVsKPrTxt + '20', TotalAmount20);
+            XMLAddOptionalAttribute(XMLCurrNode, SumNDSVsKPrTxt + '18', TotalAmount18);
+            XMLAddOptionalAttribute(XMLCurrNode, SumNDSVsKPrTxt + '10', TotalAmount10);
+            XMLAddOptionalAttribute(XMLCurrNode, StProdOsvVsKPrTxt, TotalAmount0);
         end;
     end;
 
@@ -606,83 +596,76 @@ report 12461 "VAT Ledger Export XML"
         else
             XMLAddComplexElement(KnProdStrTxt);
 
-        with VATLedgerLineLocal do begin
-            XMLAddAttribute(XMLCurrNode, NomerPorTxt, Format(LineNo));
-            XMLAddAttribute(XMLCurrNode, NomScFProdTxt, Format("Document No."));
-            XMLAddAttribute(XMLCurrNode, DataScFProdTxt, GetFormattedDate("Document Date"));
-            XMLAddOptionalAttribute(XMLCurrNode, NomIsprScFTxt, Format("Revision No."));
-            XMLAddOptionalAttribute(XMLCurrNode, DataIsprScFTxt, GetFormattedDate("Revision Date"));
-            XMLAddOptionalAttribute(XMLCurrNode, NomKScFProdTxt, Format("Correction No."));
-            XMLAddOptionalAttribute(XMLCurrNode, DataKScFProdTxt, GetFormattedDate("Correction Date"));
-            XMLAddOptionalAttribute(XMLCurrNode, NomIsprKScFTxt, Format("Revision of Corr. No."));
-            XMLAddOptionalAttribute(XMLCurrNode, DataIsprKScFTxt, GetFormattedDate("Revision of Corr. Date"));
+        XMLAddAttribute(XMLCurrNode, NomerPorTxt, Format(LineNo));
+        XMLAddAttribute(XMLCurrNode, NomScFProdTxt, Format(VATLedgerLineLocal."Document No."));
+        XMLAddAttribute(XMLCurrNode, DataScFProdTxt, GetFormattedDate(VATLedgerLineLocal."Document Date"));
+        XMLAddOptionalAttribute(XMLCurrNode, NomIsprScFTxt, Format(VATLedgerLineLocal."Revision No."));
+        XMLAddOptionalAttribute(XMLCurrNode, DataIsprScFTxt, GetFormattedDate(VATLedgerLineLocal."Revision Date"));
+        XMLAddOptionalAttribute(XMLCurrNode, NomKScFProdTxt, Format(VATLedgerLineLocal."Correction No."));
+        XMLAddOptionalAttribute(XMLCurrNode, DataKScFProdTxt, GetFormattedDate(VATLedgerLineLocal."Correction Date"));
+        XMLAddOptionalAttribute(XMLCurrNode, NomIsprKScFTxt, Format(VATLedgerLineLocal."Revision of Corr. No."));
+        XMLAddOptionalAttribute(XMLCurrNode, DataIsprKScFTxt, GetFormattedDate(VATLedgerLineLocal."Revision of Corr. Date"));
 
-            if LocalReportMgt.IsForeignCurrency("Currency Code") and
-               not LocalReportMgt.IsConventionalCurrency("Currency Code") and
-               not LocalReportMgt.HasRelationalCurrCode("Currency Code", "Document Date")
-            then begin
-                XMLAddOptionalAttribute(XMLCurrNode, OKVTxt, Format(GetCurrencyInfo("Currency Code")));
-                XMLAddOptionalAttribute(XMLCurrNode, StoimProdSFVTxt, LocalReportMgt.FormatAmount(Abs(Amount)));
-            end;
-
-            XMLAddOptionalAttribute(XMLCurrNode, StoimProdSFTxt, LocalReportMgt.GetVATLedgerAmounInclVATFCY(VATLedgerLineLocal));
-            XMLAddOptionalAttribute(XMLCurrNode, StoimProdSFTxt + '20', GetBaseValue(Base20, Prepayment));
-            XMLAddOptionalAttribute(XMLCurrNode, StoimProdSFTxt + '18', GetBaseValue(Base18, Prepayment));
-            XMLAddOptionalAttribute(XMLCurrNode, StoimProdSFTxt + '10', GetBaseValue(Base10, Prepayment));
-            XMLAddOptionalAttribute(XMLCurrNode, StoimProdSFTxt + '0', GetBaseValue(Base0, Prepayment));
-
-            if Base20 <> 0 then
-                XMLAddOptionalAttribute(XMLCurrNode, SumNDSSFTxt + '20', Amount20);
-
-            if Base18 <> 0 then
-                XMLAddOptionalAttribute(XMLCurrNode, SumNDSSFTxt + '18', Amount18);
-
-            if Base10 <> 0 then
-                XMLAddOptionalAttribute(XMLCurrNode, SumNDSSFTxt + '10', Amount10);
-
-            XMLAddOptionalAttribute(XMLCurrNode, StoimProdOsvTxt, "Base VAT Exempt");
-            XMLAddSimpleElement(KodVidOperTxt, "VAT Entry Type");
-
-            CreateCDNoList(VATLedgerLineLocal);
-            if "Tariff No." <> '' then
-                XMLAddSimpleElement(KodVidTovarTxt, "Tariff No.");
-
-            // payment document
-            CreateSalesPaymentDocElement(VATLedgerLineLocal);
-
-            // C/V info element
-            CreateSalesCVInfoElement();
-
-            XMLCurrNode := XMLCurrNode.ParentNode;
+        if LocalReportMgt.IsForeignCurrency(VATLedgerLineLocal."Currency Code") and
+           not LocalReportMgt.IsConventionalCurrency(VATLedgerLineLocal."Currency Code") and
+           not LocalReportMgt.HasRelationalCurrCode(VATLedgerLineLocal."Currency Code", VATLedgerLineLocal."Document Date")
+        then begin
+            XMLAddOptionalAttribute(XMLCurrNode, OKVTxt, Format(GetCurrencyInfo(VATLedgerLineLocal."Currency Code")));
+            XMLAddOptionalAttribute(XMLCurrNode, StoimProdSFVTxt, LocalReportMgt.FormatAmount(Abs(VATLedgerLineLocal.Amount)));
         end;
+
+        XMLAddOptionalAttribute(XMLCurrNode, StoimProdSFTxt, LocalReportMgt.GetVATLedgerAmounInclVATFCY(VATLedgerLineLocal));
+        XMLAddOptionalAttribute(XMLCurrNode, StoimProdSFTxt + '20', GetBaseValue(VATLedgerLineLocal.Base20, VATLedgerLineLocal.Prepayment));
+        XMLAddOptionalAttribute(XMLCurrNode, StoimProdSFTxt + '18', GetBaseValue(VATLedgerLineLocal.Base18, VATLedgerLineLocal.Prepayment));
+        XMLAddOptionalAttribute(XMLCurrNode, StoimProdSFTxt + '10', GetBaseValue(VATLedgerLineLocal.Base10, VATLedgerLineLocal.Prepayment));
+        XMLAddOptionalAttribute(XMLCurrNode, StoimProdSFTxt + '0', GetBaseValue(VATLedgerLineLocal.Base0, VATLedgerLineLocal.Prepayment));
+
+        if VATLedgerLineLocal.Base20 <> 0 then
+            XMLAddOptionalAttribute(XMLCurrNode, SumNDSSFTxt + '20', VATLedgerLineLocal.Amount20);
+
+        if VATLedgerLineLocal.Base18 <> 0 then
+            XMLAddOptionalAttribute(XMLCurrNode, SumNDSSFTxt + '18', VATLedgerLineLocal.Amount18);
+
+        if VATLedgerLineLocal.Base10 <> 0 then
+            XMLAddOptionalAttribute(XMLCurrNode, SumNDSSFTxt + '10', VATLedgerLineLocal.Amount10);
+
+        XMLAddOptionalAttribute(XMLCurrNode, StoimProdOsvTxt, VATLedgerLineLocal."Base VAT Exempt");
+        XMLAddSimpleElement(KodVidOperTxt, VATLedgerLineLocal."VAT Entry Type");
+
+        CreateCDNoList(VATLedgerLineLocal);
+        if VATLedgerLineLocal."Tariff No." <> '' then
+            XMLAddSimpleElement(KodVidTovarTxt, VATLedgerLineLocal."Tariff No.");
+        // payment document
+        CreateSalesPaymentDocElement(VATLedgerLineLocal);
+        // C/V info element
+        CreateSalesCVInfoElement();
+
+        XMLCurrNode := XMLCurrNode.ParentNode;
         XMLCurrNode := XMLCurrNode.ParentNode;
         LineNo += 1;
     end;
 
     local procedure CreateSalesPaymentDocElement(VATLedgerLine: Record "VAT Ledger Line")
     begin
-        with VATLedgerLine do
-            if Prepayment or LocalReportMgt.IsVATAgentVendor("C/V No.", "C/V Type") then begin
-                XMLAddComplexElement(DocPdtvOplTxt);
-                XMLAddAttribute(XMLCurrNode, NomDocPdtvOplTxt, "External Document No.");
-                XMLAddAttribute(XMLCurrNode, DataDocPdtvOplTxt, GetFormattedDate("Payment Date"));
-                XMLCurrNode := XMLCurrNode.ParentNode;
-            end;
+        if VATLedgerLine.Prepayment or LocalReportMgt.IsVATAgentVendor(VATLedgerLine."C/V No.", VATLedgerLine."C/V Type") then begin
+            XMLAddComplexElement(DocPdtvOplTxt);
+            XMLAddAttribute(XMLCurrNode, NomDocPdtvOplTxt, VATLedgerLine."External Document No.");
+            XMLAddAttribute(XMLCurrNode, DataDocPdtvOplTxt, GetFormattedDate(VATLedgerLine."Payment Date"));
+            XMLCurrNode := XMLCurrNode.ParentNode;
+        end;
     end;
 
     local procedure CreateCDNoList(VATLedgerLine: Record "VAT Ledger Line")
     var
         VATLedgerLineCDNo: Record "VAT Ledger Line CD No.";
     begin
-        with VATLedgerLineCDNo do begin
-            SetFilterVATLedgerLine(VATLedgerLine);
-            if FindSet() then
-                repeat
-                    XMLAddComplexElement(SvRegNomTxt);
-                    XMLAddAttribute(XMLCurrNode, RegNomProslTxt, Format("CD No."));
-                    XMLCurrNode := XMLCurrNode.ParentNode;
-                until Next() = 0;
-        end;
+        VATLedgerLineCDNo.SetFilterVATLedgerLine(VATLedgerLine);
+        if VATLedgerLineCDNo.FindSet() then
+            repeat
+                XMLAddComplexElement(SvRegNomTxt);
+                XMLAddAttribute(XMLCurrNode, RegNomProslTxt, Format(VATLedgerLineCDNo."CD No."));
+                XMLCurrNode := XMLCurrNode.ParentNode;
+            until VATLedgerLineCDNo.Next() = 0;
     end;
 
     local procedure CreateXMLDoc(var XmlDoc: DotNet XmlDocument; var ProcInstr: DotNet XmlProcessingInstruction)
@@ -759,7 +742,7 @@ report 12461 "VAT Ledger Export XML"
         exit('')
     end;
 
-    local procedure SaveXMLFile(var XmlDoc: DotNet XmlDocument; FileName: Text[360]): Boolean
+    local procedure SaveXMLFile(var XmlDoc: DotNet XmlDocument): Boolean
     var
         dotNetFile: DotNet File;
         Encoding: DotNet Encoding;

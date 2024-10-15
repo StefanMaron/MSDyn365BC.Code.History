@@ -220,45 +220,43 @@ codeunit 448 "Job Queue Dispatcher"
         NoOfDays: Integer;
         Found: Boolean;
     begin
-        with JobQueueEntry do begin
-            TestField("Recurring Job");
-            RunOnDate[1] := "Run on Mondays";
-            RunOnDate[2] := "Run on Tuesdays";
-            RunOnDate[3] := "Run on Wednesdays";
-            RunOnDate[4] := "Run on Thursdays";
-            RunOnDate[5] := "Run on Fridays";
-            RunOnDate[6] := "Run on Saturdays";
-            RunOnDate[7] := "Run on Sundays";
-            OnCalcRunTimeForRecurringJobOnAfterInitDays(JobQueueEntry, StartingDateTime);
-            NewRunDateTime := StartingDateTime;
-            NoOfDays := 0;
-            if ("Ending Time" <> 0T) and (NewRunDateTime > GetEndingDateTime(NewRunDateTime)) then begin
-                NewRunDateTime := GetStartingDateTime(NewRunDateTime);
-                NoOfDays := NoOfDays + 1;
-            end;
-
-            StartingWeekDay := Date2DWY(DT2Date(StartingDateTime), 1);
-            Found := RunOnDate[(StartingWeekDay - 1 + NoOfDays) mod 7 + 1];
-            OnCalcRunTimeForRecurringJob(JobQueueEntry, RunOnDate, Found, StartingWeekDay, NoOfDays);
-            NoOfExtraDays := 0;
-            while not Found and (NoOfExtraDays < 7) do begin
-                NoOfExtraDays := NoOfExtraDays + 1;
-                NoOfDays := NoOfDays + 1;
-                Found := RunOnDate[(StartingWeekDay - 1 + NoOfDays) mod 7 + 1];
-            end;
-
-            if ("Starting Time" <> 0T) and (NewRunDateTime < GetStartingDateTime(NewRunDateTime)) then
-                NewRunDateTime := GetStartingDateTime(NewRunDateTime);
-
-            if (NoOfDays > 0) and (NewRunDateTime > GetStartingDateTime(NewRunDateTime)) then
-                NewRunDateTime := GetStartingDateTime(NewRunDateTime);
-
-            if ("Starting Time" = 0T) and (NoOfExtraDays > 0) and ("No. of Minutes between Runs" <> 0) then
-                NewRunDateTime := CreateDateTime(DT2Date(NewRunDateTime), 0T);
-
-            if Found then
-                NewRunDateTime := CreateDateTime(DT2Date(NewRunDateTime) + NoOfDays, DT2Time(NewRunDateTime));
+        JobQueueEntry.TestField("Recurring Job");
+        RunOnDate[1] := JobQueueEntry."Run on Mondays";
+        RunOnDate[2] := JobQueueEntry."Run on Tuesdays";
+        RunOnDate[3] := JobQueueEntry."Run on Wednesdays";
+        RunOnDate[4] := JobQueueEntry."Run on Thursdays";
+        RunOnDate[5] := JobQueueEntry."Run on Fridays";
+        RunOnDate[6] := JobQueueEntry."Run on Saturdays";
+        RunOnDate[7] := JobQueueEntry."Run on Sundays";
+        OnCalcRunTimeForRecurringJobOnAfterInitDays(JobQueueEntry, StartingDateTime);
+        NewRunDateTime := StartingDateTime;
+        NoOfDays := 0;
+        if (JobQueueEntry."Ending Time" <> 0T) and (NewRunDateTime > JobQueueEntry.GetEndingDateTime(NewRunDateTime)) then begin
+            NewRunDateTime := JobQueueEntry.GetStartingDateTime(NewRunDateTime);
+            NoOfDays := NoOfDays + 1;
         end;
+
+        StartingWeekDay := Date2DWY(DT2Date(StartingDateTime), 1);
+        Found := RunOnDate[(StartingWeekDay - 1 + NoOfDays) mod 7 + 1];
+        OnCalcRunTimeForRecurringJob(JobQueueEntry, RunOnDate, Found, StartingWeekDay, NoOfDays);
+        NoOfExtraDays := 0;
+        while not Found and (NoOfExtraDays < 7) do begin
+            NoOfExtraDays := NoOfExtraDays + 1;
+            NoOfDays := NoOfDays + 1;
+            Found := RunOnDate[(StartingWeekDay - 1 + NoOfDays) mod 7 + 1];
+        end;
+
+        if (JobQueueEntry."Starting Time" <> 0T) and (NewRunDateTime < JobQueueEntry.GetStartingDateTime(NewRunDateTime)) then
+            NewRunDateTime := JobQueueEntry.GetStartingDateTime(NewRunDateTime);
+
+        if (NoOfDays > 0) and (NewRunDateTime > JobQueueEntry.GetStartingDateTime(NewRunDateTime)) then
+            NewRunDateTime := JobQueueEntry.GetStartingDateTime(NewRunDateTime);
+
+        if (JobQueueEntry."Starting Time" = 0T) and (NoOfExtraDays > 0) and (JobQueueEntry."No. of Minutes between Runs" <> 0) then
+            NewRunDateTime := CreateDateTime(DT2Date(NewRunDateTime), 0T);
+
+        if Found then
+            NewRunDateTime := CreateDateTime(DT2Date(NewRunDateTime) + NoOfDays, DT2Time(NewRunDateTime));
 
         OnAfterCalcRunTimeForRecurringJob(JobQueueEntry, Found, StartingDateTime, NewRunDateTime);
     end;

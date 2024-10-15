@@ -1,6 +1,7 @@
 table 14941 "G/L Corr. Analysis View Filter"
 {
     Caption = 'G/L Corr. Analysis View Filter';
+    DataClassification = CustomerContent;
 
     fields
     {

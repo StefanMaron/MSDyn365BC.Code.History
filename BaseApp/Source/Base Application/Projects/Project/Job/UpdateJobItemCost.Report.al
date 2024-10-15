@@ -7,8 +7,9 @@ using Microsoft.Projects.Project.Planning;
 
 report 1095 "Update Job Item Cost"
 {
+    AdditionalSearchTerms = 'Update Job Item Cost';
     ApplicationArea = Jobs;
-    Caption = 'Update Job Item Cost';
+    Caption = 'Update Project Item Cost';
     Permissions = TableData "Job Ledger Entry" = rm,
                   TableData "Value Entry" = rm;
     ProcessingOnly = true;
@@ -165,9 +166,9 @@ report 1095 "Update Job Item Cost"
     end;
 
     var
-        Text001: Label 'The job ledger entry item costs have now been updated to equal the related item ledger entry actual costs.\\The number of job ledger entries modified = %1.', Comment = 'The Job Ledger Entry item costs have now been updated to equal the related item ledger entry actual costs.\\Number of Job Ledger Entries modified = 2.';
+        Text001: Label 'The project ledger entry item costs have now been updated to equal the related item ledger entry actual costs.\\The number of project ledger entries modified = %1.', Comment = 'The Project Ledger Entry item costs have now been updated to equal the related item ledger entry actual costs.\\Number of Project Ledger Entries modified = 2.';
         NoOfJobLedgEntry: Integer;
-        Text003: Label 'There were no job ledger entries that needed to be updated.';
+        Text003: Label 'There were no project ledger entries that needed to be updated.';
         HideResult: Boolean;
 
     procedure SetProperties(SuppressSummary: Boolean)

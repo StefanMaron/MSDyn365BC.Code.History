@@ -11,6 +11,7 @@ table 1205 "Credit Transfer Register"
     DataCaptionFields = Identifier, "Created Date-Time";
     DrillDownPageID = "Credit Transfer Registers";
     LookupPageID = "Credit Transfer Registers";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -52,7 +53,7 @@ table 1205 "Credit Transfer Register"
         }
         field(8; "From Bank Account Name"; Text[100])
         {
-            CalcFormula = Lookup("Bank Account".Name where("No." = field("From Bank Account No.")));
+            CalcFormula = lookup("Bank Account".Name where("No." = field("From Bank Account No.")));
             Caption = 'From Bank Account Name';
             FieldClass = FlowField;
         }

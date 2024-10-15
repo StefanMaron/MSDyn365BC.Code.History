@@ -22,6 +22,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryAssembly: Codeunit "Library - Assembly";
@@ -217,8 +218,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         FindProductionBOMLine(ProductionBOMLine, Item."Production BOM No.");
         CalcRegenPlanAndCarryOutActionMsg(Item, SalesLine."Location Code");
         FindProductionOrderLine(ProdOrderLine, ProdOrderLine.Status::"Firm Planned", SalesLine."No.", SalesLine."Location Code");
-        LibraryManufacturing.ChangeStatusFirmPlanToReleased(
-          ProdOrderLine."Prod. Order No.", ProdOrderLine.Status::"Firm Planned", ProdOrderLine.Status::Released);
+        LibraryManufacturing.ChangeStatusFirmPlanToReleased(ProdOrderLine."Prod. Order No.");
         FindProductionOrderLine(ProdOrderLine, ProdOrderLine.Status::Released, SalesLine."No.", SalesLine."Location Code");
         ProductionOrder.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.");
         ProductionOrder.SetHideValidationDialog(true);
@@ -278,7 +278,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         LibraryVariableStorage.Enqueue(FirmPlannedProdMessage);
         SalesReceivablesSetup.Get();
         UpdateSalesReceivableSetup(SalesReceivablesSetup."Credit Warnings"::"No Warning", false);
-        ItemNo := CreateItemWithRoutingAndBOM;
+        ItemNo := CreateItemWithRoutingAndBOM();
         PostItemJournalLine(ItemNo, LibraryRandom.RandInt(100), '');  // Using Random value for Quantity.
 
         // Create Sales Order and Auto Reserve.
@@ -289,8 +289,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
 
         // Exercise: Change Status to Released from Firm Planned using Update Unit Cost as TRUE.
         ProdOrderNo :=
-          LibraryManufacturing.ChangeStatusFirmPlanToReleased(
-            ProductionOrder."No.", ProductionOrder.Status, ProductionOrder.Status::Released);
+          LibraryManufacturing.ChangeStatusFirmPlanToReleased(ProductionOrder."No.");
 
         // Verify : Verify Unit Cost on Sales Line.
         FindSalesLine(SalesLine, SalesHeader);
@@ -315,7 +314,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         Initialize();
         SalesReceivablesSetup.Get();
         UpdateSalesReceivableSetup(SalesReceivablesSetup."Credit Warnings"::"No Warning", false);
-        ItemNo := CreateItemWithRoutingAndBOM;
+        ItemNo := CreateItemWithRoutingAndBOM();
         ProdOrderNo := CreateAndRefreshProductionOrder(ItemNo);
 
         // Create Consumption Journal, Delete Released production Order line and Post Consumption Journal.
@@ -1051,7 +1050,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     end;
 
     [Test]
-    [HandlerFunctions('DummyMessageHandler,AvailabilityWindowHandler')]
+    [HandlerFunctions('DummyMessageHandler')]
     [Scope('OnPrem')]
     procedure DestinationForInventoryMovementFromAssemblyOrder()
     var
@@ -1075,6 +1074,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
 
         // [THEN] "Warehouse Activity Line"."Destination No." is equal to "Item No." of Assembly Order
         WarehouseActivityLine.TestField("Destination No.", AssemblyHeader."Item No.");
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -1122,7 +1122,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         LibraryWarehouse.CreateLocationWMS(Location, false, true, false, false, false);
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order",
-          LibrarySales.CreateCustomerNo, LibraryInventory.CreateItemNo,
+          LibrarySales.CreateCustomerNo(), LibraryInventory.CreateItemNo(),
           LibraryRandom.RandInt(10), Location.Code, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
@@ -1154,7 +1154,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
 
         // [GIVEN] Create and release Purchase Order
         LibraryWarehouse.CreateLocationWMS(Location, false, true, false, false, false);
-        CreatePurchaseOrder(PurchaseLine, LibraryInventory.CreateItemNo, Location.Code);
+        CreatePurchaseOrder(PurchaseLine, LibraryInventory.CreateItemNo(), Location.Code);
         PurchaseHeader.Get(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.");
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
@@ -1223,7 +1223,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         WhiteLocationSetup(Bin);
 
         // [GIVEN] Item with lot tracking
-        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, '', CreateItemTrackingCode);
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', CreateItemTrackingCode());
 
         // [GIVEN] Warehouse Item Journal Line 10000 with Quantity = 6 and Item Tracking Line for Lot No. "L01"
         // [GIVEN] Warehouse Item Journal Line 20000 with Quantity = 3 and Item Tracking Line for Lot No. "L02"
@@ -1301,7 +1301,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         WhiteLocationSetup(Bin);
 
         // [GIVEN] Item with lot tracking
-        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, '', CreateItemTrackingCode);
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', CreateItemTrackingCode());
 
         // [GIVEN] Warehouse Item Journal Line 10000 with Quantity = 6 and Item Tracking Line for Lot No. "L01"
         // [GIVEN] Warehouse Item Journal Line 20000 with Quantity = 3 and Item Tracking Line for Lot No. "L01"
@@ -1868,7 +1868,6 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         WarehouseEmployee: Record "Warehouse Employee";
         WarehouseJournalBatch: Record "Warehouse Journal Batch";
         WarehouseJournalLine: Record "Warehouse Journal Line";
-        ItemJournalLine: Record "Item Journal Line";
         SalesHeader: Record "Sales Header";
         SalesLine: array[2] of Record "Sales Line";
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
@@ -1908,10 +1907,10 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
 
         // [GIVEN] Create Positive Adjustment Warehouse Journal Line for Item in "Base Unit of Measure" for Quantity = InputQtyBaseUoM.
         LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, "Warehouse Journal Template Type"::Item, Bin."Location Code");
-        CreateWarehouseJournalLine(WarehouseJournalLine, WarehouseJournalBatch, Bin, "Warehouse Journal Template Type"::Item, Item."No.", Item."Base Unit of Measure", InputQtyBaseUoM);
+        CreateWarehouseJournalLine(WarehouseJournalLine, WarehouseJournalBatch, Bin, Item."No.", Item."Base Unit of Measure", InputQtyBaseUoM);
 
         // [GIVEN] Create Positive Adjustment Warehouse Journal Line for Item in additional "Unit of Measure" for Quantity = InputQtyOtherUoM.
-        CreateWarehouseJournalLine(WarehouseJournalLine, WarehouseJournalBatch, Bin, "Warehouse Journal Template Type"::Item, Item."No.", ItemUnitOfMeasure.Code, InputQtyOtherUoM);
+        CreateWarehouseJournalLine(WarehouseJournalLine, WarehouseJournalBatch, Bin, Item."No.", ItemUnitOfMeasure.Code, InputQtyOtherUoM);
 
         // [GIVEN] Register Warehouse Journal.
         LibraryWarehouse.RegisterWhseJournalLine(WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", Location.Code, true);
@@ -1998,10 +1997,10 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     var
         MovementWorksheet: TestPage "Movement Worksheet";
     begin
-        MovementWorksheet.OpenEdit;
+        MovementWorksheet.OpenEdit();
         MovementWorksheet.FILTER.SetFilter("Item No.", ItemNo);
         Commit();  // Commit required.
-        MovementWorksheet.ItemTrackingLines.Invoke;
+        MovementWorksheet.ItemTrackingLines.Invoke();
     end;
 
     local procedure AssignLotNoWithExpirationDate(var ItemJournalLine: Record "Item Journal Line"; ExpirationDate: Date): Code[20]
@@ -2068,7 +2067,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         WarehouseJournalLine.Validate("Journal Batch Name", WarehouseJournalBatch.Name);
         WarehouseJournalLine.Validate("Location Code", LocationCode);
         BinContent.SetRange("Item No.", ItemNo);
-        LibraryWarehouse.WhseCalculateInventory(WarehouseJournalLine, BinContent, WorkDate(), LibraryUtility.GenerateGUID, false);  // False for Item not on Inventory.
+        LibraryWarehouse.WhseCalculateInventory(WarehouseJournalLine, BinContent, WorkDate(), LibraryUtility.GenerateGUID(), false);  // False for Item not on Inventory.
     end;
 
     local procedure CalcRegenPlanAndCarryOutActionMsg(Item: Record Item; LocationCode: Code[10])
@@ -2192,7 +2191,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     var
         Item: Record Item;
     begin
-        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, '', CreateItemTrackingCode);
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', CreateItemTrackingCode());
         Evaluate(Item."Expiration Calculation", '<' + Format(NoOfDays) + 'D>');
         Item.Modify(true);
         exit(Item."No.");
@@ -2211,19 +2210,19 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     local procedure CreateInventoryPickFromSalesHeader(var SalesHeader: Record "Sales Header")
     begin
         LibraryVariableStorage.Enqueue(NoOfPicksCreatedMsg);
-        SalesHeader.CreateInvtPutAwayPick;
+        SalesHeader.CreateInvtPutAwayPick();
     end;
 
     local procedure CreateInventoryPickFromPurchaseHeader(var PurchaseHeader: Record "Purchase Header")
     begin
         LibraryVariableStorage.Enqueue(NoOfPicksCreatedMsg);
-        PurchaseHeader.CreateInvtPutAwayPick;
+        PurchaseHeader.CreateInvtPutAwayPick();
     end;
 
     local procedure CreateInventoryPickFromTransferHeader(var TransferHeader: Record "Transfer Header")
     begin
         LibraryVariableStorage.Enqueue(NoOfPicksCreatedMsg);
-        TransferHeader.CreateInvtPutAwayPick;
+        TransferHeader.CreateInvtPutAwayPick();
     end;
 
     local procedure CreateInvPickAndPost(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SalesHeader: Record "Sales Header")
@@ -2297,8 +2296,8 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     local procedure CreateItemWithLotTracking(var Item: Record Item)
     begin
         LibraryInventory.CreateItem(Item);
-        Item.Validate("Item Tracking Code", CreateItemTrackingWithExpirLot);
-        Item.Validate("Lot Nos.", LibraryERM.CreateNoSeriesCode);
+        Item.Validate("Item Tracking Code", CreateItemTrackingWithExpirLot());
+        Item.Validate("Lot Nos.", LibraryERM.CreateNoSeriesCode());
         Item.Modify(true);
     end;
 
@@ -2426,10 +2425,10 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     var
         PickWorksheet: TestPage "Pick Worksheet";
     begin
-        PickWorksheet.OpenEdit;
+        PickWorksheet.OpenEdit();
         PickWorksheet.FILTER.SetFilter("Location Code", LocationCode);
-        PickWorksheet.CreatePick.Invoke;
-        PickWorksheet.OK.Invoke;
+        PickWorksheet.CreatePick.Invoke();
+        PickWorksheet.OK().Invoke();
     end;
 
     local procedure CreateProdBOMSetup(var ItemNo: array[2] of Code[20]; var ProdBOMNo: Code[20])
@@ -2782,9 +2781,9 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
 
     local procedure FindNos(NoSeriesCode: Code[20]): Code[20]
     var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
-        exit(NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false));
+        exit(NoSeries.PeekNextNo(NoSeriesCode));
     end;
 
     local procedure FindProductionBOMLine(var ProductionBOMLine: Record "Production BOM Line"; ProductionBOMNo: Code[20])
@@ -2888,9 +2887,9 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     begin
         LibraryVariableStorage.Enqueue(WarehouseShipmentHeader."No.");  // Enqueue for PickSelectionPageHandler.
         LibraryVariableStorage.Enqueue(WarehouseShipmentHeader."Location Code");  // Enqueue PickSelectionPageHandler.
-        PickWorksheet.OpenEdit;
-        PickWorksheet."Get Warehouse Documents".Invoke;
-        PickWorksheet.OK.Invoke;
+        PickWorksheet.OpenEdit();
+        PickWorksheet."Get Warehouse Documents".Invoke();
+        PickWorksheet.OK().Invoke();
     end;
 
     local procedure OpenPhysInventoryJournalToUpdateQuantity(JournalBatchName: Code[10])
@@ -2898,7 +2897,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         PhysInventoryJournal: TestPage "Phys. Inventory Journal";
     begin
         Commit();  // Commit required.
-        PhysInventoryJournal.OpenEdit;
+        PhysInventoryJournal.OpenEdit();
         PhysInventoryJournal.CurrentJnlBatchName.SetValue(JournalBatchName);
         PhysInventoryJournal."Qty. (Phys. Inventory)".SetValue(LibraryRandom.RandDec(10, 2));  // Use Random to update Quantity.
     end;
@@ -3095,7 +3094,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     begin
         CreateItemInventoryAtLocation(ItemNo, LocationCode, Quantity, false, false);
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, ItemNo,
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(), ItemNo,
           Quantity, LocationCode, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
@@ -3109,7 +3108,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     begin
         CreateItemInventoryAtLocation(ItemNo, LocationCode, Quantity, false, false);
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", LibraryPurchase.CreateVendorNo, ItemNo,
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", LibraryPurchase.CreateVendorNo(), ItemNo,
           Quantity, LocationCode, WorkDate());
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
     end;
@@ -3233,7 +3232,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         repeat
             ComponentCost += ProdOrderComponent."Unit Cost";
         until ProdOrderComponent.Next() = 0;
-        Assert.AreNearlyEqual(UnitCost, ComponentCost, LibraryERM.GetAmountRoundingPrecision, CostMustBeSame);
+        Assert.AreNearlyEqual(UnitCost, ComponentCost, LibraryERM.GetAmountRoundingPrecision(), CostMustBeSame);
     end;
 
     local procedure VerifyUnitCostOnItemAfterAdjustment(ProdOrderNo: Code[20]; ItemNo: Code[20])
@@ -3253,7 +3252,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         until ItemLedgerEntry.Next() = 0;
 
         Item.Get(ItemNo);
-        Assert.AreNearlyEqual(Item."Unit Cost", TotalCost / TotalQuantity, LibraryERM.GetAmountRoundingPrecision, CostMustBeSame);
+        Assert.AreNearlyEqual(Item."Unit Cost", TotalCost / TotalQuantity, LibraryERM.GetAmountRoundingPrecision(), CostMustBeSame);
     end;
 
     local procedure VerifyWarehouseEntries(ItemNo: Code[20]; LocationCode: Code[10]; WhseDocumentNo: Code[20]; Quantity: Decimal; EntryType: Integer)
@@ -3296,7 +3295,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         WarehouseEmployee.ModifyAll(Default, false);
     end;
 
-    local procedure CreateWarehouseJournalLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; WarehouseJournalBatch: Record "Warehouse Journal Batch"; Bin: Record Bin; WarehouseJournalTemplateType: Enum "Warehouse Journal Template Type"; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; NewQuantity: Decimal)
+    local procedure CreateWarehouseJournalLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; WarehouseJournalBatch: Record "Warehouse Journal Batch"; Bin: Record Bin; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; NewQuantity: Decimal)
     begin
         LibraryWarehouse.CreateWhseJournalLine(
           WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Bin."Location Code",
@@ -3327,7 +3326,6 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
 
     local procedure CreateReleasedItemServiceOrderFromLocation(var ServiceHeader: Record "Service Header") LocationCode: Code[10];
     var
-        ServiceLine: Record "Service Line";
         ItemNo: Code[20];
         Quantity: Decimal;
         ServiceItemLineNo: Integer;
@@ -3380,9 +3378,9 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         Customer.Get(CustNo);
         CustPostingGroup.Get(Customer."Customer Posting Group");
         if CustPostingGroup."Payment Disc. Debit Acc." = '' then
-            CustPostingGroup.Validate("Payment Disc. Debit Acc.", LibraryERM.CreateGLAccountNo);
+            CustPostingGroup.Validate("Payment Disc. Debit Acc.", LibraryERM.CreateGLAccountNo());
         if CustPostingGroup."Payment Disc. Credit Acc." = '' then
-            CustPostingGroup.Validate("Payment Disc. Credit Acc.", LibraryERM.CreateGLAccountNo);
+            CustPostingGroup.Validate("Payment Disc. Credit Acc.", LibraryERM.CreateGLAccountNo());
         CustPostingGroup.Modify(true);
     end;
 
@@ -3421,14 +3419,14 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     [Scope('OnPrem')]
     procedure CreateWhseMovementPageHandler(var WhseSourceCreateDocument: TestRequestPage "Whse.-Source - Create Document")
     begin
-        WhseSourceCreateDocument.OK.Invoke;
+        WhseSourceCreateDocument.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CreatePickPageHandler(var CreatePick: TestRequestPage "Create Pick")
     begin
-        CreatePick.OK.Invoke;
+        CreatePick.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3444,10 +3442,10 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         TrackingOption := OptionValue;  // To convert Variant into Option.
         case TrackingOption of
             OptionString::SelectEntries:
-                ItemTrackingLines."Select Entries".Invoke;
+                ItemTrackingLines."Select Entries".Invoke();
             OptionString::SetValues:
                 begin
-                    TrackingQuantity := ItemTrackingLines.Quantity3.AsDEcimal;
+                    TrackingQuantity := ItemTrackingLines.Quantity3.AsDecimal();
                     ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID());
                     ItemTrackingLines."Quantity (Base)".SetValue(TrackingQuantity / 2);  // Using half value to assign the Quantity equally in both the ITem Tracking Line.
                     ItemTrackingLines.Next();
@@ -3456,18 +3454,18 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
                 end;
             OptionString::AssignLotNo:
                 begin
-                    ItemTrackingLines."Assign Lot No.".Invoke;
+                    ItemTrackingLines."Assign Lot No.".Invoke();
                     LibraryVariableStorage.Enqueue(ItemTrackingLines."Lot No.".Value);
                 end;
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -3491,7 +3489,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         LibraryVariableStorage.Dequeue(LocationCode);  // Dequeue Variable.
         PickSelection."Document No.".AssertEquals(DocumentNo);
         PickSelection."Location Code".AssertEquals(LocationCode);
-        PickSelection.OK.Invoke;
+        PickSelection.OK().Invoke();
     end;
 
     local procedure UpdateSalesOrderQuantity(SalesOrderNo: Code[20]; NewQuantity: Decimal)
@@ -3511,17 +3509,17 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     [Scope('OnPrem')]
     procedure WhseItemTrackingLinesPageHandler(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
     begin
-        WhseItemTrackingLines."Lot No.".AssistEdit;
-        WhseItemTrackingLines.OK.Invoke;
+        WhseItemTrackingLines."Lot No.".AssistEdit();
+        WhseItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WhseItemTrackingLinesDequeuePageHandler(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
     begin
-        WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-        WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal);
-        WhseItemTrackingLines.OK.Invoke;
+        WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal());
+        WhseItemTrackingLines.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3529,7 +3527,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     procedure CreatePickReportHandler(var CreatePickReqPage: TestRequestPage "Create Invt Put-away/Pick/Mvmt")
     begin
         CreatePickReqPage.CInvtPick.SetValue(true);
-        CreatePickReqPage.OK.Invoke;
+        CreatePickReqPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3537,7 +3535,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     procedure CreatePutawayReportHandler(var CreatePickReqPage: TestRequestPage "Create Invt Put-away/Pick/Mvmt")
     begin
         CreatePickReqPage.CreateInventorytPutAway.SetValue(true);
-        CreatePickReqPage.OK.Invoke;
+        CreatePickReqPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3615,13 +3613,6 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     [Scope('OnPrem')]
     procedure DummyMessageHandler(Message: Text[1024])
     begin
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure AvailabilityWindowHandler(var AsmAvailability: Page "Assembly Availability"; var Response: Action)
-    begin
-        Response := ACTION::Yes; // always confirm
     end;
 }
 

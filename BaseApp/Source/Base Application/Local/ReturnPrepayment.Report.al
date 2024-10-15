@@ -68,13 +68,11 @@ report 12453 "Return Prepayment"
 
     trigger OnPreReport()
     begin
-        with CVLedgEntryBuf do begin
-            VATPrepmtPost.Initialize(PostingType, PostingDate, PostDescription, DocumentNo, EntryType);
-            CVLedgEntryBuf.Positive := not Correction;
-            VATPrepmtPost.PostPrepayment(CVLedgEntryBuf);
-            if CurrReport.UseRequestPage then
-                Message(Text12402, DocumentNo, PostingDate);
-        end;
+        VATPrepmtPost.Initialize(PostingType, PostingDate, PostDescription, DocumentNo, EntryType);
+        CVLedgEntryBuf.Positive := not Correction;
+        VATPrepmtPost.PostPrepayment(CVLedgEntryBuf);
+        if CurrReport.UseRequestPage then
+            Message(Text12402, DocumentNo, PostingDate);
     end;
 
     var

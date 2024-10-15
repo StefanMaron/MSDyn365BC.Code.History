@@ -2,6 +2,7 @@ table 26571 "Page Indication XML Element"
 {
     Caption = 'Page Indication XML Element';
     LookupPageID = "Page Indication XML Elements";
+    DataClassification = CustomerContent;
 
     fields
     {

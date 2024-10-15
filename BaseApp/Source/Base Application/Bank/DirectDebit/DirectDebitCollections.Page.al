@@ -27,7 +27,9 @@ page 1207 "Direct Debit Collections"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies, together with the number series, which direct debit collection a direct-debit collection entry is related to.';
                 }
+#pragma warning disable AA0100
                 field("FORMAT(""Created Date-Time"")"; Format(Rec."Created Date-Time"))
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Suite;
                     Caption = 'Created Date-Time';

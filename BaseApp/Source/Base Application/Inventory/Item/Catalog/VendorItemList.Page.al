@@ -1,6 +1,6 @@
 namespace Microsoft.Inventory.Item.Catalog;
 
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Purchases.Pricing;
 #endif
 
@@ -70,7 +70,7 @@ page 298 "Vendor Item List"
             {
                 Caption = 'Vendor Item';
                 Image = Item;
-#if not CLEAN21
+#if not CLEAN23
                 action("Purch. Prices")
                 {
                     ApplicationArea = Suite;

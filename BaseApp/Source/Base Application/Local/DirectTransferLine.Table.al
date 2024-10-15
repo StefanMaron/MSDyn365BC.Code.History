@@ -5,6 +5,7 @@ table 12459 "Direct Transfer Line"
     ObsoleteState = Pending;
     ObsoleteReason = 'Direct Transfer feature merge to W1.';
     ObsoleteTag = '18.0';
+    DataClassification = CustomerContent;
 
     fields
     {

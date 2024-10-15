@@ -164,6 +164,5 @@ page 12476 "Posted FA Release Act"
     }
 
     var
-        PostedFADocHeader: Record "Posted FA Doc. Header";
 }
 

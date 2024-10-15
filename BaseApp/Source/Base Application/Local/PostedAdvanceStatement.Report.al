@@ -338,38 +338,37 @@ report 12454 "Posted Advance Statement"
     [Scope('OnPrem')]
     procedure GetDebitAccount(PurchesLineLoc: Record "Purch. Inv. Line"): Code[10]
     begin
-        with PurchesLineLoc do
-            case Type of
-                Type::"G/L Account":
-                    exit("No.");
-                Type::Item:
-                    begin
-                        InvPostingSetup.Get("Location Code", "Posting Group");
-                        exit(InvPostingSetup."Inventory Account");
-                    end;
-                Type::"Charge (Item)":
-                    begin
-                        GeneralPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
-                        exit(GeneralPostingSetup."Purch. Account");
-                    end;
-                Type::"Fixed Asset":
-                    begin
-                        FA.Get("No.");
-                        TestField("Depreciation Book Code");
-                        FADeprecationBook.Get("No.", "Depreciation Book Code");
-                        FAPostingGroup.Get(FADeprecationBook."FA Posting Group");
-                        exit(FAPostingGroup."Acquisition Cost Account");
-                    end;
-                Type::"Empl. Purchase":
-                    begin
-                        TestField("Empl. Purchase Vendor No.");
-                        TestField("Empl. Purchase Entry No.");
-                        Vend.Get("Empl. Purchase Vendor No.");
-                        Vend.TestField("Vendor Posting Group");
-                        VendorPostingGroup.Get(Vend."Vendor Posting Group");
-                        exit(VendorPostingGroup."Payables Account");
-                    end;
-            end;
+        case PurchesLineLoc.Type of
+            PurchesLineLoc.Type::"G/L Account":
+                exit(PurchesLineLoc."No.");
+            PurchesLineLoc.Type::Item:
+                begin
+                    InvPostingSetup.Get(PurchesLineLoc."Location Code", PurchesLineLoc."Posting Group");
+                    exit(InvPostingSetup."Inventory Account");
+                end;
+            PurchesLineLoc.Type::"Charge (Item)":
+                begin
+                    GeneralPostingSetup.Get(PurchesLineLoc."Gen. Bus. Posting Group", PurchesLineLoc."Gen. Prod. Posting Group");
+                    exit(GeneralPostingSetup."Purch. Account");
+                end;
+            PurchesLineLoc.Type::"Fixed Asset":
+                begin
+                    FA.Get(PurchesLineLoc."No.");
+                    PurchesLineLoc.TestField("Depreciation Book Code");
+                    FADeprecationBook.Get(PurchesLineLoc."No.", PurchesLineLoc."Depreciation Book Code");
+                    FAPostingGroup.Get(FADeprecationBook."FA Posting Group");
+                    exit(FAPostingGroup."Acquisition Cost Account");
+                end;
+            PurchesLineLoc.Type::"Empl. Purchase":
+                begin
+                    PurchesLineLoc.TestField("Empl. Purchase Vendor No.");
+                    PurchesLineLoc.TestField("Empl. Purchase Entry No.");
+                    Vend.Get(PurchesLineLoc."Empl. Purchase Vendor No.");
+                    Vend.TestField("Vendor Posting Group");
+                    VendorPostingGroup.Get(Vend."Vendor Posting Group");
+                    exit(VendorPostingGroup."Payables Account");
+                end;
+        end;
     end;
 
     [Scope('OnPrem')]
@@ -377,18 +376,16 @@ report 12454 "Posted Advance Statement"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with PurchesLineLoc do begin
-            VATPostingSetup.Reset();
-            VATPostingSetup.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
-            VATPostingSetup.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
-            if VATPostingSetup.FindFirst() then begin
-                if VATPostingSetup."Unrealized VAT Type" <> VATPostingSetup."Unrealized VAT Type"::" " then begin
-                    VATPostingSetup.TestField("Purch. VAT Unreal. Account");
-                    exit(VATPostingSetup."Purch. VAT Unreal. Account");
-                end;
-                VATPostingSetup.TestField("Trans. VAT Account");
-                exit(VATPostingSetup."Trans. VAT Account");
+        VATPostingSetup.Reset();
+        VATPostingSetup.SetRange("VAT Bus. Posting Group", PurchesLineLoc."VAT Bus. Posting Group");
+        VATPostingSetup.SetRange("VAT Prod. Posting Group", PurchesLineLoc."VAT Prod. Posting Group");
+        if VATPostingSetup.FindFirst() then begin
+            if VATPostingSetup."Unrealized VAT Type" <> VATPostingSetup."Unrealized VAT Type"::" " then begin
+                VATPostingSetup.TestField("Purch. VAT Unreal. Account");
+                exit(VATPostingSetup."Purch. VAT Unreal. Account");
             end;
+            VATPostingSetup.TestField("Trans. VAT Account");
+            exit(VATPostingSetup."Trans. VAT Account");
         end;
     end;
 

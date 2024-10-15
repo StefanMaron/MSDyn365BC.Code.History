@@ -3,6 +3,7 @@ table 12471 "Posted FA Doc. Header"
     Caption = 'Posted FA Doc. Header';
     DataCaptionFields = "No.";
     LookupPageID = "Posted FA Document List";
+    DataClassification = CustomerContent;
 
     fields
     {

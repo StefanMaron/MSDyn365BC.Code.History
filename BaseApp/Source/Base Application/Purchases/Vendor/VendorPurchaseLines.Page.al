@@ -47,7 +47,9 @@ page 352 "Vendor Purchase Lines"
                         ShowVendEntriesDue();
                     end;
                 }
+#pragma warning disable AA0100
                 field("Vend.""Purchases (LCY)"""; Rec."Purchases (LCY)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;

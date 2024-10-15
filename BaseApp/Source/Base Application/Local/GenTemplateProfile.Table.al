@@ -2,6 +2,7 @@ table 17237 "Gen. Template Profile"
 {
     Caption = 'Gen. Template Profile';
     LookupPageID = "Tax Register Templates";
+    DataClassification = CustomerContent;
 
     fields
     {

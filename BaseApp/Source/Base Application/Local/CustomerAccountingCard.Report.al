@@ -354,7 +354,6 @@ report 12441 "Customer Accounting Card"
         SignBalanceEnding: Text[10];
         StartingBalance: Decimal;
         EndingBalance: Decimal;
-        Value: Decimal;
         StartingDate: Date;
         EndingDate: Date;
         NewPageForCustomer: Boolean;
@@ -377,17 +376,14 @@ report 12441 "Customer Accounting Card"
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DtldCustLedgEntry do begin
-            SetFilter("Entry Type", '%1|%2', "Entry Type"::"Realized Gain", "Entry Type"::"Realized Loss");
-            SetRange("Transaction No.", TransactionNo);
-            exit(not IsEmpty);
-        end;
+        DtldCustLedgEntry.SetFilter("Entry Type", '%1|%2', DtldCustLedgEntry."Entry Type"::"Realized Gain", DtldCustLedgEntry."Entry Type"::"Realized Loss");
+        DtldCustLedgEntry.SetRange("Transaction No.", TransactionNo);
+        exit(not DtldCustLedgEntry.IsEmpty);
     end;
 
     local procedure IsCurrencyAdjEntry(): Boolean
     begin
-        with "Detailed Cust. Ledg. Entry" do
-            exit((Amount = 0) and ("Amount (LCY)" <> 0));
+        exit(("Detailed Cust. Ledg. Entry".Amount = 0) and ("Detailed Cust. Ledg. Entry"."Amount (LCY)" <> 0));
     end;
 }
 

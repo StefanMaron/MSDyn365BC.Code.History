@@ -13,7 +13,7 @@ using System.Telemetry;
 using System.Text;
 
 page 5601 "Fixed Asset List"
-{
+{ 
     AdditionalSearchTerms = 'FA List, Asset Profile, Property Details, Tangible Asset Info, Asset Data, Capital Good Info, Asset Detail, Ownership Info, Property Data, Asset Log';
     ApplicationArea = FixedAssets;
     Caption = 'Fixed Assets';
@@ -493,27 +493,9 @@ page 5601 "Fixed Asset List"
                 actionref("Calculate Depreciation_Promoted"; "Calculate Depreciation")
                 {
                 }
-#if not CLEAN21
-                actionref("Fixed Asset G/L Journal_Promoted"; "Fixed Asset G/L Journal")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
                 actionref("C&opy Fixed Asset_Promoted"; "C&opy Fixed Asset")
                 {
                 }
-#if not CLEAN21
-                actionref("FA Posting Types Overview_Promoted"; "FA Posting Types Overview")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
                 actionref("FA G/L Turnover_Promoted"; "FA G/L Turnover")
                 {
                 }

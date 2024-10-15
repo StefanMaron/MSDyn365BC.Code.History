@@ -1,6 +1,7 @@
 table 17449 "Including In Report"
 {
     Caption = 'Including In Report';
+    DataClassification = CustomerContent;
 
     fields
     {

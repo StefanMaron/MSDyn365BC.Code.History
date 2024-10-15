@@ -52,18 +52,17 @@ codeunit 6307 "PBI Aged Inventory Calc."
     var
         i: Integer;
     begin
-        with TempPowerBIChartBuffer do
-            for i := 1 to 5 do begin
-                if FindLast() then
-                    ID += 1
-                else
-                    ID := 1;
-                Value := pInvtValue[i];
-                "Period Type" := TempBusinessChartBuffer."Period Length";
-                Date := AddChartColumns(TempBusinessChartBuffer, -i);
-                "Period Type Sorting" := "Period Type";
-                Insert();
-            end
+        for i := 1 to 5 do begin
+            if TempPowerBIChartBuffer.FindLast() then
+                TempPowerBIChartBuffer.ID += 1
+            else
+                TempPowerBIChartBuffer.ID := 1;
+            TempPowerBIChartBuffer.Value := pInvtValue[i];
+            TempPowerBIChartBuffer."Period Type" := TempBusinessChartBuffer."Period Length";
+            TempPowerBIChartBuffer.Date := AddChartColumns(TempBusinessChartBuffer, -i);
+            TempPowerBIChartBuffer."Period Type Sorting" := TempPowerBIChartBuffer."Period Type";
+            TempPowerBIChartBuffer.Insert();
+        end
     end;
 
     local procedure AddChartColumns(var BusChartBuf: Record "Business Chart Buffer"; I: Integer): Text[30]
@@ -78,22 +77,21 @@ codeunit 6307 "PBI Aged Inventory Calc."
     begin
         I := I + 5;
 
-        with BusChartBuf do begin
-            PeriodLengthOnXAxis := AgedInventoryChartMgt.GetPeriodLengthInDays(BusChartBuf);
-            if PeriodLengthOnXAxis = 365 then begin
-                PeriodLengthOnXAxis := 1;
-                XAxisValueTxt := AgedInventoryChartMgt.FromToYearsTxt();
-                LastXAxisValueTxt := AgedInventoryChartMgt.OverYearsTxt();
-            end else begin
-                XAxisValueTxt := AgedInventoryChartMgt.FromToDaysTxt();
-                LastXAxisValueTxt := AgedInventoryChartMgt.OverDaysTxt();
-            end;
-            if I < 4 then begin
-                J := I + 1;
-                Value1 := I * PeriodLengthOnXAxis;
-                Value2 := J * PeriodLengthOnXAxis;
-                exit(StrSubstNo(XAxisValueTxt, Value1, Value2));  // X-Axis value
-            end;
+        PeriodLengthOnXAxis := AgedInventoryChartMgt.GetPeriodLengthInDays(BusChartBuf);
+        if PeriodLengthOnXAxis = 365 then begin
+            PeriodLengthOnXAxis := 1;
+            XAxisValueTxt := AgedInventoryChartMgt.FromToYearsTxt();
+            LastXAxisValueTxt := AgedInventoryChartMgt.OverYearsTxt();
+        end else begin
+            XAxisValueTxt := AgedInventoryChartMgt.FromToDaysTxt();
+            LastXAxisValueTxt := AgedInventoryChartMgt.OverDaysTxt();
+        end;
+        if I < 4 then begin
+            J := I + 1;
+            Value1 := I * PeriodLengthOnXAxis;
+            Value2 := J * PeriodLengthOnXAxis;
+            exit(StrSubstNo(XAxisValueTxt, Value1, Value2));
+            // X-Axis value
         end;
         exit(StrSubstNo(LastXAxisValueTxt, Format(4 * PeriodLengthOnXAxis)));  // X-Axis value
     end;

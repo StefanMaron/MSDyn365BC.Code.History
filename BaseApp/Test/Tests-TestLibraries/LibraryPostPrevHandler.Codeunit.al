@@ -10,6 +10,8 @@ codeunit 131011 "Library - Post. Prev. Handler"
                   TableData "Bank Account Ledger Entry" = i,
                   TableData "Detailed Cust. Ledg. Entry" = i,
                   TableData "Detailed Vendor Ledg. Entry" = i,
+                  TableData "Employee Ledger Entry" = i,
+                  TableData "Detailed Employee Ledger Entry" = i,
                   TableData "Value Entry" = i;
 
     trigger OnRun()
@@ -42,7 +44,7 @@ codeunit 131011 "Library - Post. Prev. Handler"
     begin
         RecRef.GetTable(RecVar);
         FieldRefValue := RecRef.Field(ValueFieldNo);
-        Value := FieldRefValue.Value;
+        Value := FieldRefValue.Value();
 
         RecRefInsert.Open(RecRef.Number);
         RecRefInsert.Init();
@@ -61,7 +63,7 @@ codeunit 131011 "Library - Post. Prev. Handler"
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
     begin
         InsertRecord(RecVar);
-        Assert.IsTrue(GenJnlPostPreview.IsActive, 'GenJnlPostPreview.IsActive');
+        Assert.IsTrue(GenJnlPostPreview.IsActive(), 'GenJnlPostPreview.IsActive');
         if InvokeCommit then
             asserterror Commit()
         else

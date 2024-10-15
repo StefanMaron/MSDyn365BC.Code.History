@@ -66,6 +66,7 @@ table 38 "Purchase Header"
     DataCaptionFields = "No.", "Buy-from Vendor Name";
     LookupPageID = "Purchase List";
     Permissions = tabledata "Document Print Buffer" = imd;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -193,7 +194,7 @@ table 38 "Purchase Header"
             begin
                 if "No." <> xRec."No." then begin
                     GetPurchSetup();
-                    NoSeriesMgt.TestManual(GetNoSeriesCode());
+                    NoSeries.TestManual(GetNoSeriesCode());
                     "No. Series" := '';
                 end;
             end;
@@ -318,7 +319,7 @@ table 38 "Purchase Header"
                 if "Pay-to Vendor No." <> '' then
                     Vendor.Get("Pay-to Vendor No.");
 
-                if Vendor.LookupVendor(Vendor) then begin
+                if Vendor.SelectVendor(Vendor) then begin
                     xRec := Rec;
                     "Pay-to Name" := Vendor.Name;
                     Validate("Pay-to Vendor No.", Vendor."No.");
@@ -507,7 +508,7 @@ table 38 "Purchase Header"
             begin
                 IsHandled := false;
                 OnBeforeValidateOrderDate(Rec, xRec, IsHandled);
-                If IsHandled then
+                if IsHandled then
                     exit;
 
                 if ("Document Type" in ["Document Type"::Quote, "Document Type"::Order]) and
@@ -542,7 +543,7 @@ table 38 "Purchase Header"
                   "Prepmt. Cr. Memo No.", "Prepmt. Cr. Memo No. Series",
                   FieldCaption("Prepmt. Cr. Memo No."), FieldCaption("Prepmt. Cr. Memo No. Series"));
 
-                CheckCorrPostingDate;
+                CheckCorrPostingDate();
 
                 GLSetup.Get();
                 GLSetup.UpdateVATDate("Posting Date", Enum::"VAT Reporting Date"::"Posting Date", "VAT Reporting Date");
@@ -589,7 +590,7 @@ table 38 "Purchase Header"
             begin
                 IsHandled := false;
                 OnBeforeValidateExpectedReceiptDate(Rec, xRec, IsHandled, CurrFieldNo);
-                If IsHandled then
+                if IsHandled then
                     exit;
 
                 if "Expected Receipt Date" <> 0D then
@@ -717,7 +718,8 @@ table 38 "Purchase Header"
 
                 UpdateShipToAddress();
                 UpdateInboundWhseHandlingTime();
-                CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
+                if "Location Code" <> xRec."Location Code" then
+                    CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
             end;
         }
         field(29; "Shortcut Dimension 1 Code"; Code[20])
@@ -1649,14 +1651,12 @@ table 38 "Purchase Header"
 
             trigger OnLookup()
             begin
-                with PurchHeader do begin
-                    PurchHeader := Rec;
-                    GetPurchSetup();
-                    TestNoSeries();
-                    if NoSeriesMgt.LookupSeries(GetPostingNoSeriesCode(), "Posting No. Series") then
-                        Validate("Posting No. Series");
-                    Rec := PurchHeader;
-                end;
+                PurchHeader := Rec;
+                GetPurchSetup();
+                PurchHeader.TestNoSeries();
+                if NoSeries.LookupRelatedNoSeries(GetPostingNoSeriesCode(), PurchHeader."Posting No. Series") then
+                    PurchHeader.Validate("Posting No. Series");
+                Rec := PurchHeader;
             end;
 
             trigger OnValidate()
@@ -1664,7 +1664,7 @@ table 38 "Purchase Header"
                 if "Posting No. Series" <> '' then begin
                     GetPurchSetup();
                     TestNoSeries();
-                    NoSeriesMgt.TestSeries(GetPostingNoSeriesCode(), "Posting No. Series");
+                    NoSeries.TestAreRelated(GetPostingNoSeriesCode(), "Posting No. Series");
                 end;
                 TestField("Posting No.", '');
             end;
@@ -1683,14 +1683,12 @@ table 38 "Purchase Header"
                 if IsHandled then
                     exit;
 
-                with PurchHeader do begin
-                    PurchHeader := Rec;
-                    GetPurchSetup();
-                    PurchSetup.TestField("Posted Receipt Nos.");
-                    if NoSeriesMgt.LookupSeries(PurchSetup."Posted Receipt Nos.", "Receiving No. Series") then
-                        Validate("Receiving No. Series");
-                    Rec := PurchHeader;
-                end;
+                PurchHeader := Rec;
+                GetPurchSetup();
+                PurchSetup.TestField("Posted Receipt Nos.");
+                if NoSeries.LookupRelatedNoSeries(PurchSetup."Posted Receipt Nos.", PurchHeader."Receiving No. Series") then
+                    PurchHeader.Validate("Receiving No. Series");
+                Rec := PurchHeader;
             end;
 
             trigger OnValidate()
@@ -1705,7 +1703,7 @@ table 38 "Purchase Header"
                 if "Receiving No. Series" <> '' then begin
                     GetPurchSetup();
                     PurchSetup.TestField("Posted Receipt Nos.");
-                    NoSeriesMgt.TestSeries(PurchSetup."Posted Receipt Nos.", "Receiving No. Series");
+                    NoSeries.TestAreRelated(PurchSetup."Posted Receipt Nos.", "Receiving No. Series");
                 end;
                 TestField("Receiving No.", '');
             end;
@@ -1831,7 +1829,7 @@ table 38 "Purchase Header"
             begin
                 IsHandled := false;
                 OnBeforeValidateSendICDocument(Rec, xRec, IsHandled);
-                If IsHandled then
+                if IsHandled then
                     exit;
 
                 if "Send IC Document" then begin
@@ -1911,14 +1909,12 @@ table 38 "Purchase Header"
 
             trigger OnLookup()
             begin
-                with PurchHeader do begin
-                    PurchHeader := Rec;
-                    GetPurchSetup();
-                    PurchSetup.TestField("Posted Prepmt. Inv. Nos.");
-                    if NoSeriesMgt.LookupSeries(GetPostingPrepaymentNoSeriesCode(), "Prepayment No. Series") then
-                        Validate("Prepayment No. Series");
-                    Rec := PurchHeader;
-                end;
+                PurchHeader := Rec;
+                GetPurchSetup();
+                PurchSetup.TestField("Posted Prepmt. Inv. Nos.");
+                if NoSeries.LookupRelatedNoSeries(GetPostingPrepaymentNoSeriesCode(), PurchHeader."Prepayment No. Series") then
+                    PurchHeader.Validate("Prepayment No. Series");
+                Rec := PurchHeader;
             end;
 
             trigger OnValidate()
@@ -1926,7 +1922,7 @@ table 38 "Purchase Header"
                 if "Prepayment No. Series" <> '' then begin
                     GetPurchSetup();
                     PurchSetup.TestField("Posted Prepmt. Inv. Nos.");
-                    NoSeriesMgt.TestSeries(GetPostingPrepaymentNoSeriesCode(), "Prepayment No. Series");
+                    NoSeries.TestAreRelated(GetPostingPrepaymentNoSeriesCode(), "Prepayment No. Series");
                 end;
                 TestField("Prepayment No.", '');
             end;
@@ -1947,14 +1943,12 @@ table 38 "Purchase Header"
 
             trigger OnLookup()
             begin
-                with PurchHeader do begin
-                    PurchHeader := Rec;
-                    GetPurchSetup();
-                    PurchSetup.TestField("Posted Prepmt. Cr. Memo Nos.");
-                    if NoSeriesMgt.LookupSeries(GetPostingPrepaymentNoSeriesCode(), "Prepmt. Cr. Memo No. Series") then
-                        Validate("Prepmt. Cr. Memo No. Series");
-                    Rec := PurchHeader;
-                end;
+                PurchHeader := Rec;
+                GetPurchSetup();
+                PurchSetup.TestField("Posted Prepmt. Cr. Memo Nos.");
+                if NoSeries.LookupRelatedNoSeries(GetPostingPrepaymentNoSeriesCode(), PurchHeader."Prepmt. Cr. Memo No. Series") then
+                    PurchHeader.Validate("Prepmt. Cr. Memo No. Series");
+                Rec := PurchHeader;
             end;
 
             trigger OnValidate()
@@ -1962,7 +1956,7 @@ table 38 "Purchase Header"
                 if "Prepmt. Cr. Memo No. Series" <> '' then begin
                     GetPurchSetup();
                     PurchSetup.TestField("Posted Prepmt. Cr. Memo Nos.");
-                    NoSeriesMgt.TestSeries(GetPostingPrepaymentNoSeriesCode(), "Prepmt. Cr. Memo No. Series");
+                    NoSeries.TestAreRelated(GetPostingPrepaymentNoSeriesCode(), "Prepmt. Cr. Memo No. Series");
                 end;
                 TestField("Prepmt. Cr. Memo No.", '');
             end;
@@ -2049,12 +2043,10 @@ table 38 "Purchase Header"
             Caption = 'Quote No.';
             Editable = false;
         }
-        field(160; "Job Queue Status"; Option)
+        field(160; "Job Queue Status"; Enum "Document Job Queue Status")
         {
             Caption = 'Job Queue Status';
             Editable = false;
-            OptionCaption = ' ,Scheduled for Posting,Error,Posting';
-            OptionMembers = " ","Scheduled for Posting",Error,Posting;
 
             trigger OnLookup()
             var
@@ -2348,6 +2340,17 @@ table 38 "Purchase Header"
             FieldClass = FlowFilter;
             TableRelation = Location;
         }
+        field(5755; "Received Not Invoiced"; Boolean)
+        {
+            CalcFormula = min("Purchase Line"."Completely Received" where("Document Type" = field("Document Type"),
+                                                       "Document No." = field("No."),
+                                                       Type = filter(<> " "),
+                                                       "Location Code" = field("Location Filter"),
+                                                       "Quantity Invoiced" = filter(= 0)));
+            Caption = 'Received Not Invoiced';
+            Editable = false;
+            FieldClass = FlowField;
+        }
         field(5790; "Requested Receipt Date"; Date)
         {
             Caption = 'Requested Receipt Date';
@@ -2440,14 +2443,12 @@ table 38 "Purchase Header"
                 if IsHandled then
                     exit;
 
-                with PurchHeader do begin
-                    PurchHeader := Rec;
-                    GetPurchSetup();
-                    PurchSetup.TestField("Posted Return Shpt. Nos.");
-                    if NoSeriesMgt.LookupSeries(PurchSetup."Posted Return Shpt. Nos.", "Return Shipment No. Series") then
-                        Validate("Return Shipment No. Series");
-                    Rec := PurchHeader;
-                end;
+                PurchHeader := Rec;
+                GetPurchSetup();
+                PurchSetup.TestField("Posted Return Shpt. Nos.");
+                if NoSeries.LookupRelatedNoSeries(PurchSetup."Posted Return Shpt. Nos.", PurchHeader."Return Shipment No. Series") then
+                    PurchHeader.Validate("Return Shipment No. Series");
+                Rec := PurchHeader;
             end;
 
             trigger OnValidate()
@@ -2462,7 +2463,7 @@ table 38 "Purchase Header"
                 if "Return Shipment No. Series" <> '' then begin
                     GetPurchSetup();
                     PurchSetup.TestField("Posted Return Shpt. Nos.");
-                    NoSeriesMgt.TestSeries(PurchSetup."Posted Return Shpt. Nos.", "Return Shipment No. Series");
+                    NoSeries.TestAreRelated(PurchSetup."Posted Return Shpt. Nos.", "Return Shipment No. Series");
                 end;
                 TestField("Return Shipment No.", '');
             end;
@@ -2701,7 +2702,7 @@ table 38 "Purchase Header"
             trigger OnValidate()
             begin
                 if "Corrective Doc. Type" <> "Corrective Doc. Type"::" " then
-                    CheckCorrectiveDocument;
+                    CheckCorrectiveDocument();
             end;
         }
         field(12447; "Revision No."; Code[20])
@@ -2711,7 +2712,7 @@ table 38 "Purchase Header"
             trigger OnValidate()
             begin
                 if "Revision No." <> '' then
-                    CheckCorrectiveDocument;
+                    CheckCorrectiveDocument();
             end;
         }
         field(12470; "Vendor Receipts No."; Code[20])
@@ -2796,7 +2797,7 @@ table 38 "Purchase Header"
 
                 if (xRec."Agreement No." <> "Agreement No.") then begin
                     if ("Agreement No." <> '') then begin
-                        CheckCorrAgreementNo;
+                        CheckCorrAgreementNo();
                         if HideValidationDialog or (xRec."Agreement No." = '') then
                             Confirmed := true
                         else
@@ -3111,10 +3112,10 @@ table 38 "Purchase Header"
         WhseRequest: Record "Warehouse Request";
         InvtSetup: Record "Inventory Setup";
         GenJournalTemplate: Record "Gen. Journal Template";
-        NoSeries: Record "No. Series";
+        GlobalNoSeries: Record "No. Series";
         VendAgr: Record "Vendor Agreement";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
@@ -3186,6 +3187,11 @@ table 38 "Purchase Header"
 
     procedure InitInsert()
     var
+        PurchaseHeader2: Record "Purchase Header";
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+#endif
+        NoSeriesCode: Code[20];
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -3193,7 +3199,23 @@ table 38 "Purchase Header"
         if not IsHandled then
             if "No." = '' then begin
                 TestNoSeries();
-                NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", "Posting Date", "No.", "No. Series");
+                NoSeriesCode := GetNoSeriesCode();
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(NoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
+                if not IsHandled then begin
+#endif
+                "No. Series" := NoSeriesCode;
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+                PurchaseHeader2.ReadIsolation(IsolationLevel::ReadUncommitted);
+                PurchaseHeader2.SetLoadFields("No.");
+                while PurchaseHeader2.Get("Document Type", "No.") do
+                    "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+#if not CLEAN24
+                    NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", NoSeriesCode, "Posting Date", "No.");
+                end;
+#endif
             end;
 
         OnInitInsertOnBeforeInitRecord(Rec, xRec);
@@ -3273,7 +3295,7 @@ table 38 "Purchase Header"
         OnAfterInitNoSeries(Rec, xRec);
     end;
 
-    local procedure InitPostingDescription()
+    procedure InitPostingDescription()
     var
         IsHandled: Boolean;
     begin
@@ -3306,9 +3328,8 @@ table 38 "Purchase Header"
 
         GetPurchSetup();
         TestNoSeries();
-        if NoSeriesMgt.SelectSeries(GetNoSeriesCode(), OldPurchHeader."No. Series", "No. Series") then begin
-            TestNoSeries();
-            NoSeriesMgt.SetSeries("No.");
+        if NoSeries.LookupRelatedNoSeries(GetNoSeriesCode(), OldPurchHeader."No. Series", "No. Series") then begin
+            "No." := NoSeries.GetNextNo("No. Series");
             exit(true);
         end;
     end;
@@ -3364,8 +3385,8 @@ table 38 "Purchase Header"
                         GenJournalTemplate.Get("Journal Templ. Name");
                 end;
                 GenJournalTemplate.TestField("Posting No. Series");
-                NoSeries.Get(GenJournalTemplate."Posting No. Series");
-                NoSeries.TestField("Default Nos.", true);
+                GlobalNoSeries.Get(GenJournalTemplate."Posting No. Series");
+                GlobalNoSeries.TestField("Default Nos.", true);
             end;
         end;
 
@@ -3401,7 +3422,18 @@ table 38 "Purchase Header"
                 NoSeriesCode := PurchSetup."Blanket Order Nos.";
         end;
         OnAfterGetNoSeriesCode(Rec, PurchSetup, NoSeriesCode);
-        exit(NoSeriesMgt.GetNoSeriesWithCheck(NoSeriesCode, SelectNoSeriesAllowed, "No. Series"));
+
+        if not SelectNoSeriesAllowed then
+            exit(NoSeriesCode);
+
+        if NoSeries.IsAutomatic(NoSeriesCode) then
+            exit(NoSeriesCode);
+
+        if NoSeries.HasRelatedSeries(NoSeriesCode) then
+            if NoSeries.LookupRelatedNoSeries(NoSeriesCode, "No. Series") then
+                exit("No. Series");
+
+        exit(NoSeriesCode);
     end;
 
     local procedure GetNextArchiveDocOccurrenceNo()
@@ -3415,7 +3447,7 @@ table 38 "Purchase Header"
             exit;
 
         "Doc. No. Occurrence" :=
-            ArchiveManagement.GetNextOccurrenceNo(Database::"Purchase Header", Rec."Document Type", Rec."No.");
+            ArchiveManagement.GetNextOccurrenceNo(Database::"Purchase Header", Rec."Document Type".AsInteger(), Rec."No.");
     end;
 
     local procedure GetPostingNoSeriesCode() PostingNos: Code[20]
@@ -3455,12 +3487,12 @@ table 38 "Purchase Header"
     procedure TestNoSeriesDate(No: Code[20]; NoSeriesCode: Code[20]; NoCapt: Text[1024]; NoSeriesCapt: Text[1024])
     begin
         if (No <> '') and (NoSeriesCode <> '') then begin
-            NoSeries.Get(NoSeriesCode);
-            if NoSeries."Date Order" then
+            GlobalNoSeries.Get(NoSeriesCode);
+            if GlobalNoSeries."Date Order" then
                 Error(
                   Text040,
                   FieldCaption("Posting Date"), NoSeriesCapt, NoSeriesCode,
-                  NoSeries.FieldCaption("Date Order"), NoSeries."Date Order", "Document Type",
+                  GlobalNoSeries.FieldCaption("Date Order"), GlobalNoSeries."Date Order", "Document Type",
                   NoCapt, No);
         end;
     end;
@@ -4367,7 +4399,7 @@ table 38 "Purchase Header"
 
         if PurchLine.FindSet() then begin
             ReservMgt.DeleteDocumentReservation(
-                Database::"Purchase Line", "Document Type", "No.", GetHideValidationDialog());
+                Database::"Purchase Line", "Document Type".AsInteger(), "No.", GetHideValidationDialog());
             repeat
                 PurchLine.SuspendStatusCheck(true);
                 PurchLine.Delete(true);
@@ -4461,14 +4493,12 @@ table 38 "Purchase Header"
         if IsHandled then
             exit;
 
-        with PurchHeader do begin
-            if ("Document Type" = "Document Type"::Order) and (xRec."Ship-to Code" <> "Ship-to Code") then begin
-                PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
-                PurchLine.SetRange("Document No.", "No.");
-                PurchLine.SetFilter("Sales Order Line No.", '<>0');
-                if not PurchLine.IsEmpty() then
-                    Error(YouCannotChangeFieldErr, FieldCaption("Ship-to Code"));
-            end;
+        if (PurchHeader."Document Type" = PurchHeader."Document Type"::Order) and (xRec."Ship-to Code" <> PurchHeader."Ship-to Code") then begin
+            PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
+            PurchLine.SetRange("Document No.", PurchHeader."No.");
+            PurchLine.SetFilter("Sales Order Line No.", '<>0');
+            if not PurchLine.IsEmpty() then
+                Error(YouCannotChangeFieldErr, PurchHeader.FieldCaption("Ship-to Code"));
         end;
     end;
 
@@ -4787,7 +4817,7 @@ table 38 "Purchase Header"
         PurchLine.SetFilter("Job No.", '<>%1', '');
         PurchLine.SetFilter("Job Task No.", '<>%1', '');
         PurchLine.LockTable();
-        if PurchLine.FindSet(true, false) then begin
+        if PurchLine.FindSet(true) then begin
             PurchLine.SetPurchHeader(Rec);
             repeat
                 JobUpdatePurchaseLine(SkipJobCurrFactorUpdate);
@@ -5425,7 +5455,7 @@ table 38 "Purchase Header"
         exit(PAGE::"Purchase Statistics");
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     procedure OnCheckPurchasePostRestrictions()
     begin
     end;
@@ -5435,7 +5465,7 @@ table 38 "Purchase Header"
         OnCheckPurchasePostRestrictions();
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnCheckPurchaseReleaseRestrictions()
     begin
     end;
@@ -6058,6 +6088,9 @@ table 38 "Purchase Header"
 
     local procedure InitPostingNoSeries()
     var
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+#endif
         PostingNoSeries: Code[20];
     begin
         GLSetup.GetRecordOnce();
@@ -6081,12 +6114,27 @@ table 38 "Purchase Header"
         case "Document Type" of
             "Document Type"::Quote, "Document Type"::Order:
                 begin
+#if CLEAN24                    
+                    if NoSeries.IsAutomatic(PostingNoSeries) then
+                        "Posting No. Series" := PostingNoSeries;
+                    if NoSeries.IsAutomatic(PurchSetup."Posted Receipt Nos.") then
+                        "Receiving No. Series" := PurchSetup."Posted Receipt Nos.";
+                    if "Document Type" = "Document Type"::Order then begin
+                        if NoSeries.IsAutomatic(PurchSetup."Posted Prepmt. Inv. Nos.") then
+                            "Prepayment No. Series" := PurchSetup."Posted Prepmt. Inv. Nos.";
+                        if NoSeries.IsAutomatic(PurchSetup."Posted Prepmt. Cr. Memo Nos.") then
+                            "Prepmt. Cr. Memo No. Series" := PurchSetup."Posted Prepmt. Cr. Memo Nos.";
+                    end;
+#else
+#pragma warning disable AL0432
                     NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
                     NoSeriesMgt.SetDefaultSeries("Receiving No. Series", PurchSetup."Posted Receipt Nos.");
                     if "Document Type" = "Document Type"::Order then begin
                         NoSeriesMgt.SetDefaultSeries("Prepayment No. Series", PurchSetup."Posted Prepmt. Inv. Nos.");
                         NoSeriesMgt.SetDefaultSeries("Prepmt. Cr. Memo No. Series", PurchSetup."Posted Prepmt. Cr. Memo Nos.");
                     end;
+#pragma warning restore AL0432
+#endif
                 end;
             "Document Type"::Invoice:
                 begin
@@ -6097,14 +6145,37 @@ table 38 "Purchase Header"
                             "Posting No. Series" := PurchSetup."Advance Statement Nos."
                     end else
                         if "Posting No. Series" = '' then
+#if CLEAN24
+                            if NoSeries.IsAutomatic(PostingNoSeries) then
+                                "Posting No. Series" := PostingNoSeries;
+#else
+#pragma warning disable AL0432
                             NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
+#pragma warning restore AL0432
+#endif
                     if PurchSetup."Receipt on Invoice" then
+#if CLEAN24
+                    if NoSeries.IsAutomatic(PurchSetup."Posted Receipt Nos.") then
+                        "Receiving No. Series" := PurchSetup."Posted Receipt Nos.";
+#else
+#pragma warning disable AL0432
                         NoSeriesMgt.SetDefaultSeries("Receiving No. Series", PurchSetup."Posted Receipt Nos.");
+#pragma warning restore AL0432
+#endif
                 end;
             "Document Type"::"Return Order":
                 begin
+#if CLEAN24
+                    if NoSeries.IsAutomatic(PostingNoSeries) then
+                        "Posting No. Series" := PostingNoSeries;
+                    if NoSeries.IsAutomatic(PurchSetup."Posted Return Shpt. Nos.") then
+                        "Return Shipment No. Series" := PurchSetup."Posted Return Shpt. Nos.";
+#else
+#pragma warning disable AL0432
                     NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
                     NoSeriesMgt.SetDefaultSeries("Return Shipment No. Series", PurchSetup."Posted Return Shpt. Nos.");
+#pragma warning restore AL0432
+#endif
                     "Include In Sales VAT Ledger" := true;
                 end;
             "Document Type"::"Credit Memo":
@@ -6112,9 +6183,23 @@ table 38 "Purchase Header"
                     if ("No. Series" <> '') and (PurchSetup."Credit Memo Nos." = PostingNoSeries) then
                         "Posting No. Series" := "No. Series"
                     else
+#if CLEAN24
+                    if NoSeries.IsAutomatic(PostingNoSeries) then
+                        "Posting No. Series" := PostingNoSeries;
+#else
+#pragma warning disable AL0432
                         NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
+#pragma warning restore AL0432
+#endif
                     if PurchSetup."Return Shipment on Credit Memo" then
+#if CLEAN24
+                    if NoSeries.IsAutomatic(PurchSetup."Posted Return Shpt. Nos.") then
+                        "Return Shipment No. Series" := PurchSetup."Posted Return Shpt. Nos.";
+#else
+#pragma warning disable AL0432
                         NoSeriesMgt.SetDefaultSeries("Return Shipment No. Series", PurchSetup."Posted Return Shpt. Nos.");
+#pragma warning restore AL0432
+#endif
                 end;
         end;
 
@@ -6631,7 +6716,7 @@ table 38 "Purchase Header"
                 ReportSelectionsUsage := ReportSelections.Usage::"P.Quote";
         end;
 
-        ReportUsage := ReportSelectionsUsage;
+        ReportUsage := ReportSelectionsUsage.AsInteger();
         OnAfterGetReportSelectionsUsageFromDocumentType(Rec, ReportUsage, DocTxt);
         ReportSelectionsUsage := Enum::"Report Selection Usage".FromInteger(ReportUsage);
     end;
@@ -6828,7 +6913,7 @@ table 38 "Purchase Header"
         if "Buy-from Vendor No." <> '' then
             Vendor.Get("Buy-from Vendor No.");
 
-        if Vendor.LookupVendor(Vendor) then begin
+        if Vendor.SelectVendor(Vendor) then begin
             if Rec."Buy-from Vendor Name" = Vendor.Name then
                 VendorName := SearchVendorName
             else
@@ -6851,7 +6936,7 @@ table 38 "Purchase Header"
         if "Pay-to Vendor No." <> '' then
             Vendor.Get("Pay-To Vendor No.");
 
-        if Vendor.LookupVendor(Vendor) then begin
+        if Vendor.SelectVendor(Vendor) then begin
             if Rec."Pay-To Name" = Vendor.Name then
                 VendorName := SearchVendorName
             else
@@ -6954,7 +7039,7 @@ table 38 "Purchase Header"
         if IsHandled then
             exit;
 
-        PurchCommentLine.DeleteComments("Document Type", "No.");
+        PurchCommentLine.DeleteComments("Document Type".AsInteger(), "No.");
     end;
 
     procedure DeletePurchLines(var PurchLine: Record "Purchase Line")
@@ -7364,7 +7449,7 @@ table 38 "Purchase Header"
     end;
 
 #if not CLEAN22
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     [Obsolete('Replaced by OnValidatePurchaseHeaderPayToVendorNoOnBeforeCheckDocType', '19.0')]
     procedure OnValidatePurchaseHeaderPayToVendorNo(Vendor: Record Vendor; var PurchaseHeader: Record "Purchase Header")
     begin
@@ -7861,12 +7946,12 @@ table 38 "Purchase Header"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeTestStatusOpen(var PurchHeader: Record "Purchase Header"; xPurchHeader: Record "Purchase Header"; CallingFieldNo: Integer)
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterTestStatusOpen()
     begin
     end;
@@ -8271,10 +8356,12 @@ table 38 "Purchase Header"
     begin
     end;
 
+#pragma warning disable AS0077
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetUserSetupPurchaserCode(var PurchaseHeader: Record "Purchase Header"; IsHandled: Boolean)
+    local procedure OnBeforeGetUserSetupPurchaserCode(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
+#pragma warning restore AS0077
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckBuyFromContactOnAfterFindByContact(var PurchHeader: Record "Purchase Header"; var ContBusinessRelation: Record "Contact Business Relation"; var Contact: Record Contact)

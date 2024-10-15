@@ -630,22 +630,18 @@ codeunit 147126 "ERM Manual VAT Settlement"
     begin
         // UT: Check TransferVendLedgEntry/TransferCustLedgerEntry functionality
         CreateVendLedgerEntry(
-          VendLedgEntry, "Gen. Journal Document Type".FromInteger(LibraryRandom.RandInt(6)), LibraryUtility.GenerateGUID, GetNextTransactionNo);
-        with VendLedgEntry do begin
-            "Posting Date" := WorkDate();
-            Description := LibraryUtility.GenerateGUID();
-            Modify();
-        end;
+          VendLedgEntry, "Gen. Journal Document Type".FromInteger(LibraryRandom.RandInt(6)), LibraryUtility.GenerateGUID(), GetNextTransactionNo());
+        VendLedgEntry."Posting Date" := WorkDate();
+        VendLedgEntry.Description := LibraryUtility.GenerateGUID();
+        VendLedgEntry.Modify();
         VATSettlementMgt.TransferVendLedgEntry(VendLedgEntry, CVLedgerEntryBuffer);
         CheckCVLedgEntryVendor(VendLedgEntry, CVLedgerEntryBuffer);
 
         CreateCustLedgerEntry(
-          CustLedgEntry, "Gen. Journal Document Type".FromInteger(LibraryRandom.RandInt(6)), LibraryUtility.GenerateGUID, GetNextTransactionNo);
-        with CustLedgEntry do begin
-            "Posting Date" := WorkDate();
-            Description := LibraryUtility.GenerateGUID();
-            Modify();
-        end;
+          CustLedgEntry, "Gen. Journal Document Type".FromInteger(LibraryRandom.RandInt(6)), LibraryUtility.GenerateGUID(), GetNextTransactionNo());
+        CustLedgEntry."Posting Date" := WorkDate();
+        CustLedgEntry.Description := LibraryUtility.GenerateGUID();
+        CustLedgEntry.Modify();
         VATSettlementMgt.TransferCustLedgEntry(CustLedgEntry, CVLedgerEntryBuffer);
         CheckCVLedgEntryCustomer(CustLedgEntry, CVLedgerEntryBuffer);
         VendLedgEntry.Delete();
@@ -962,9 +958,9 @@ codeunit 147126 "ERM Manual VAT Settlement"
             Assert.AreEqual(
               VendorVATInvoiceNo, "Vendor VAT Invoice No.", FieldCaption("Vendor VAT Invoice No."));
             Assert.AreEqual(
-              WorkDate, "Vendor VAT Invoice Date", FieldCaption("Vendor VAT Invoice Date"));
+              WorkDate(), "Vendor VAT Invoice Date", FieldCaption("Vendor VAT Invoice Date"));
             Assert.AreEqual(
-              WorkDate, "Vendor VAT Invoice Rcvd Date", FieldCaption("Vendor VAT Invoice Rcvd Date"));
+              WorkDate(), "Vendor VAT Invoice Rcvd Date", FieldCaption("Vendor VAT Invoice Rcvd Date"));
         end;
     end;
 
@@ -988,7 +984,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
             VATAmount := LibraryRandom.RandDecInDecimalRange(1, VATBase, 2);
         end;
 
-        EnqueueVendorVATInvoceParam(LibraryUtility.GenerateGUID, VATBase, VATAmount);
+        EnqueueVendorVATInvoceParam(LibraryUtility.GenerateGUID(), VATBase, VATAmount);
         RunChangeVendorVATInvoice(VendLedgEntry, VATPostingSetup."VAT Prod. Posting Group");
         with PurchInvHeader do begin
             SetRange("Buy-from Vendor No.", VendLedgEntry."Vendor No.");
@@ -1303,7 +1299,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
 
         VATAmount := Round(
             GenJnlLine.Amount * LibraryRandom.RandDecInDecimalRange(0, 1, 2),
-            LibraryERM.GetAmountRoundingPrecision);
+            LibraryERM.GetAmountRoundingPrecision());
         ChargeAmount := GenJnlLine.Amount - VATAmount;
 
         LibraryERM.UpdateVATAllocLine(
@@ -1323,14 +1319,13 @@ codeunit 147126 "ERM Manual VAT Settlement"
 
     local procedure CreateCustomer(var Customer: Record Customer; GeneralPostingSetup: Record "General Posting Setup"; VATPostingSetup: Record "VAT Posting Setup")
     begin
-        with Customer do begin
-            Insert(true);
-            Validate(Name, "No."); // Validating Name as No. because value is not important.
-            Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Validate("Customer Posting Group", FindCustomerPostingGroup);
-            Modify(true);
-        end;
+        Customer.Insert(true);
+        Customer.Validate(Name, Customer."No.");
+        // Validating Name as No. because value is not important.
+        Customer.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Validate("Customer Posting Group", FindCustomerPostingGroup());
+        Customer.Modify(true);
     end;
 
     local procedure CreateItem(VATPostingSetup: Record "VAT Posting Setup"): Code[20]
@@ -1843,9 +1838,9 @@ codeunit 147126 "ERM Manual VAT Settlement"
         ExchRateAmount[EntryType::Invoice] :=
           ExchRateAmount[EntryType::Prepayment] * Factor;
         LibraryERM.CreateCurrency(Currency);
-        Currency.Validate("Purch. PD Losses Acc. (TA)", LibraryERM.CreateGLAccountNo);
-        Currency.Validate("Sales PD Losses Acc. (TA)", LibraryERM.CreateGLAccountNo);
-        Currency.Validate("PD Bal. Gain/Loss Acc. (TA)", LibraryERM.CreateGLAccountNo);
+        Currency.Validate("Purch. PD Losses Acc. (TA)", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Sales PD Losses Acc. (TA)", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("PD Bal. Gain/Loss Acc. (TA)", LibraryERM.CreateGLAccountNo());
         Currency.Modify(true);
         LibraryERM.CreateExchangeRate(
           Currency.Code, PostingDate[EntryType::Invoice],
@@ -1976,47 +1971,43 @@ codeunit 147126 "ERM Manual VAT Settlement"
     begin
     end;
 
-    local procedure CreateDtldVendLedgerEntry(GenJnlLine: Record "Gen. Journal Line"; VendLedgEntry: Record "Vendor Ledger Entry"; EntryType: Option; TransactionNo: Integer; var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"): Decimal
+    local procedure CreateDtldVendLedgerEntry(GenJnlLine: Record "Gen. Journal Line"; VendLedgEntry: Record "Vendor Ledger Entry"; EntryType: Enum "Detailed CV Ledger Entry Type"; TransactionNo: Integer; var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"): Decimal
     var
         RecRef: RecordRef;
     begin
-        with DtldVendLedgEntry do begin
-            Init();
-            RecRef.GetTable(DtldVendLedgEntry);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Vendor Ledger Entry No." := VendLedgEntry."Entry No.";
-            "Vendor No." := GenJnlLine."Account No.";
-            "Transaction No." := TransactionNo;
-            "Vendor Ledger Entry No." := VendLedgEntry."Entry No.";
-            "Amount (LCY)" := LibraryRandom.RandDec(100, 2);
-            "Entry Type" := EntryType;
-            "Prepmt. Diff. in TA" := false;
-            "Posting Date" := WorkDate();
-            Insert();
-            exit("Amount (LCY)");
-        end;
+        DtldVendLedgEntry.Init();
+        RecRef.GetTable(DtldVendLedgEntry);
+        DtldVendLedgEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, DtldVendLedgEntry.FieldNo("Entry No."));
+        DtldVendLedgEntry."Vendor Ledger Entry No." := VendLedgEntry."Entry No.";
+        DtldVendLedgEntry."Vendor No." := GenJnlLine."Account No.";
+        DtldVendLedgEntry."Transaction No." := TransactionNo;
+        DtldVendLedgEntry."Vendor Ledger Entry No." := VendLedgEntry."Entry No.";
+        DtldVendLedgEntry."Amount (LCY)" := LibraryRandom.RandDec(100, 2);
+        DtldVendLedgEntry."Entry Type" := EntryType;
+        DtldVendLedgEntry."Prepmt. Diff. in TA" := false;
+        DtldVendLedgEntry."Posting Date" := WorkDate();
+        DtldVendLedgEntry.Insert();
+        exit(DtldVendLedgEntry."Amount (LCY)");
     end;
 
-    local procedure CreateDtldCustLedgerEntry(GenJnlLine: Record "Gen. Journal Line"; CustLedgEntry: Record "Cust. Ledger Entry"; EntryType: Option; TransactionNo: Integer): Decimal
+    local procedure CreateDtldCustLedgerEntry(GenJnlLine: Record "Gen. Journal Line"; CustLedgEntry: Record "Cust. Ledger Entry"; EntryType: Enum "Detailed CV Ledger Entry Type"; TransactionNo: Integer): Decimal
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         RecRef: RecordRef;
     begin
-        with DtldCustLedgEntry do begin
-            Init();
-            RecRef.GetTable(DtldCustLedgEntry);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Cust. Ledger Entry No." := CustLedgEntry."Entry No.";
-            "Customer No." := GenJnlLine."Account No.";
-            "Transaction No." := TransactionNo;
-            "Cust. Ledger Entry No." := CustLedgEntry."Entry No.";
-            "Amount (LCY)" := LibraryRandom.RandDec(100, 2);
-            "Entry Type" := EntryType;
-            "Prepmt. Diff. in TA" := false;
-            "Posting Date" := WorkDate();
-            Insert();
-            exit("Amount (LCY)");
-        end;
+        DtldCustLedgEntry.Init();
+        RecRef.GetTable(DtldCustLedgEntry);
+        DtldCustLedgEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, DtldCustLedgEntry.FieldNo("Entry No."));
+        DtldCustLedgEntry."Cust. Ledger Entry No." := CustLedgEntry."Entry No.";
+        DtldCustLedgEntry."Customer No." := GenJnlLine."Account No.";
+        DtldCustLedgEntry."Transaction No." := TransactionNo;
+        DtldCustLedgEntry."Cust. Ledger Entry No." := CustLedgEntry."Entry No.";
+        DtldCustLedgEntry."Amount (LCY)" := LibraryRandom.RandDec(100, 2);
+        DtldCustLedgEntry."Entry Type" := EntryType;
+        DtldCustLedgEntry."Prepmt. Diff. in TA" := false;
+        DtldCustLedgEntry."Posting Date" := WorkDate();
+        DtldCustLedgEntry.Insert();
+        exit(DtldCustLedgEntry."Amount (LCY)");
     end;
 
     local procedure CreateVendLedgerEntry(var VendLedgEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; TransactionNo: Integer)
@@ -2038,15 +2029,13 @@ codeunit 147126 "ERM Manual VAT Settlement"
     var
         RecRef: RecordRef;
     begin
-        with CustLedgEntry do begin
-            Init();
-            RecRef.GetTable(CustLedgEntry);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Document Type" := DocumentType;
-            "Document No." := DocumentNo;
-            "Transaction No." := TransactionNo;
-            Insert();
-        end;
+        CustLedgEntry.Init();
+        RecRef.GetTable(CustLedgEntry);
+        CustLedgEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, CustLedgEntry.FieldNo("Entry No."));
+        CustLedgEntry."Document Type" := DocumentType;
+        CustLedgEntry."Document No." := DocumentNo;
+        CustLedgEntry."Transaction No." := TransactionNo;
+        CustLedgEntry.Insert();
     end;
 
     local procedure CreateGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
@@ -2057,21 +2046,19 @@ codeunit 147126 "ERM Manual VAT Settlement"
     begin
         LibraryERM.FindGenJournalTemplate(GenJnlTemplate);
         LibraryERM.FindGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
-        with GenJnlLine do begin
-            Init();
-            "Journal Template Name" := GenJnlTemplate.Name;
-            "Journal Batch Name" := GenJnlBatch.Name;
-            RecRef.GetTable(GenJnlLine);
-            "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
-            Insert();
-            "VAT Transaction No." := GetNextTransactionNo;
-            "Account No." := LibraryUtility.GenerateGUID();
-            "Document Type" := "Document Type"::Payment;
-            "Document No." := LibraryUtility.GenerateGUID();
-            "Posting Date" := WorkDate();
-            Amount := LibraryRandom.RandInt(20);
-            Modify();
-        end;
+        GenJnlLine.Init();
+        GenJnlLine."Journal Template Name" := GenJnlTemplate.Name;
+        GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
+        RecRef.GetTable(GenJnlLine);
+        GenJnlLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, GenJnlLine.FieldNo("Line No."));
+        GenJnlLine.Insert();
+        GenJnlLine."VAT Transaction No." := GetNextTransactionNo();
+        GenJnlLine."Account No." := LibraryUtility.GenerateGUID();
+        GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
+        GenJnlLine."Document No." := LibraryUtility.GenerateGUID();
+        GenJnlLine."Posting Date" := WorkDate();
+        GenJnlLine.Amount := LibraryRandom.RandInt(20);
+        GenJnlLine.Modify();
     end;
 
     local procedure UpdatePostingGroupsGLAccount(GeneralPostingSetup: Record "General Posting Setup"; VATPostingSetup: Record "VAT Posting Setup"; GLAccNo: Code[20])
@@ -2090,14 +2077,12 @@ codeunit 147126 "ERM Manual VAT Settlement"
 
     local procedure CheckCVLedgEntry(CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; PostingDate: Date; EntryNo: Integer; CVNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; CVLEDescription: Text[100])
     begin
-        with CVLedgerEntryBuffer do begin
-            TestField("Posting Date", PostingDate);
-            TestField("Entry No.", EntryNo);
-            TestField("CV No.", CVNo);
-            TestField("Document Type", DocumentType);
-            TestField("Document No.", DocumentNo);
-            TestField(Description, CVLEDescription);
-        end;
+        CVLedgerEntryBuffer.TestField("Posting Date", PostingDate);
+        CVLedgerEntryBuffer.TestField("Entry No.", EntryNo);
+        CVLedgerEntryBuffer.TestField("CV No.", CVNo);
+        CVLedgerEntryBuffer.TestField("Document Type", DocumentType);
+        CVLedgerEntryBuffer.TestField("Document No.", DocumentNo);
+        CVLedgerEntryBuffer.TestField(Description, CVLEDescription);
     end;
 
     local procedure CheckCVLedgEntryVendor(VendLedgEntry: Record "Vendor Ledger Entry"; CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer")
@@ -2122,23 +2107,21 @@ codeunit 147126 "ERM Manual VAT Settlement"
     var
         RecRef: RecordRef;
     begin
-        with VATEntry do begin
-            Init();
-            RecRef.GetTable(VATEntry);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Transaction No." := GetNextTransactionNo;
-            "Object Type" := "Gen. Journal Account Type".FromInteger(GenJnlLine."Object Type");
-            "Object No." := GenJnlLine."Object No.";
-            "Unrealized VAT Entry No." := LibraryRandom.RandInt(100);
-            "Posting Date" := WorkDate();
-            "Remaining Unrealized Amount" := LibraryRandom.RandIntInRange(20, 50);
-            "Unrealized Base" := LibraryRandom.RandIntInRange(51, 100);
-            Type := VATEntryType;
-            "Document Type" := "Document Type"::Payment;
-            if UnrealizedVATEntryNo <> 0 then
-                "Unrealized VAT Entry No." := UnrealizedVATEntryNo;
-            Insert();
-        end;
+        VATEntry.Init();
+        RecRef.GetTable(VATEntry);
+        VATEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, VATEntry.FieldNo("Entry No."));
+        VATEntry."Transaction No." := GetNextTransactionNo();
+        VATEntry."Object Type" := "Gen. Journal Account Type".FromInteger(GenJnlLine."Object Type");
+        VATEntry."Object No." := GenJnlLine."Object No.";
+        VATEntry."Unrealized VAT Entry No." := LibraryRandom.RandInt(100);
+        VATEntry."Posting Date" := WorkDate();
+        VATEntry."Remaining Unrealized Amount" := LibraryRandom.RandIntInRange(20, 50);
+        VATEntry."Unrealized Base" := LibraryRandom.RandIntInRange(51, 100);
+        VATEntry.Type := VATEntryType;
+        VATEntry."Document Type" := VATEntry."Document Type"::Payment;
+        if UnrealizedVATEntryNo <> 0 then
+            VATEntry."Unrealized VAT Entry No." := UnrealizedVATEntryNo;
+        VATEntry.Insert();
     end;
 
     local procedure GetNextTransactionNo(): Integer
@@ -2362,7 +2345,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         VendorVATInvoiceReportHandler.InvoiceRcvdDate.SetValue(WorkDate());  // Vendor VAT Invoice Rcvd Date
         VendorVATInvoiceReportHandler.VATBase.SetValue(VATBase);
         VendorVATInvoiceReportHandler.VATAmt.SetValue(VATAmount);
-        VendorVATInvoiceReportHandler.OK.Invoke;
+        VendorVATInvoiceReportHandler.OK().Invoke();
     end;
 
     local procedure VerifyPurchVATSettlementGLCorrEntry(VATPostingSetup: Record "VAT Posting Setup"; VATEntryNo: Integer)

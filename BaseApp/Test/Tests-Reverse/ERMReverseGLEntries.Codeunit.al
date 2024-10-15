@@ -44,7 +44,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         CreateGenJnlLine(GenJournalLine, GenJournalLine."Document Type"::Invoice);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         // [WHEN] Reverse posted transaction.
-        LibraryLowerPermissions.AddAccountReceivables;
+        LibraryLowerPermissions.AddAccountReceivables();
         ReversalEntry.SetHideDialog(true);
         ReversalEntry.ReverseTransaction(GetGLEntryTransactionNo(GenJournalLine."Document No.", GenJournalLine."Account No."));
 
@@ -81,7 +81,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Exercise: Reverse Posted Entry from G/L Entry.
-        LibraryLowerPermissions.AddAccountReceivables;
+        LibraryLowerPermissions.AddAccountReceivables();
         ReversalEntry.SetHideDialog(true);
         asserterror ReversalEntry.ReverseTransaction(GetGLEntryTransactionNo(GenJournalLine."Document No.", GLAccountNo));
 
@@ -108,7 +108,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         BlockGLAccount(GenJournalLine."Account No.", true);
 
         // Reverse Posted Transaction from G/L Entry and Verify Error message.
-        LibraryLowerPermissions.AddAccountReceivables;
+        LibraryLowerPermissions.AddAccountReceivables();
         ReverseAccountAndVerifyMsg(GenJournalLine."Account No.", GenJournalLine."Document No.");
     end;
 
@@ -127,13 +127,13 @@ codeunit 134131 "ERM Reverse GL Entries"
         Initialize();
         CreateGenJnlLine(GenJournalLine, GenJournalLine."Document Type"::Payment);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         BlockGLAccount(GenJournalLine."Bal. Account No.", true);
 
         // Reverse Posted Transaction from G/L Entry and Verify Error message.
-        LibraryLowerPermissions.AddAccountReceivables;
+        LibraryLowerPermissions.AddAccountReceivables();
         ReverseAccountAndVerifyMsg(GenJournalLine."Bal. Account No.", GenJournalLine."Document No.");
     end;
 
@@ -153,7 +153,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         DocumentNo := ReverseSalesEntrySetup(GLAccountNo);
 
         // Exercise: Reverse Posted Entry from G/L Entry.
-        LibraryLowerPermissions.AddAccountReceivables;
+        LibraryLowerPermissions.AddAccountReceivables();
         ReversalEntry.SetHideDialog(true);
         asserterror ReversalEntry.ReverseTransaction(GetGLEntryTransactionNo(DocumentNo, GLAccountNo));
 
@@ -198,7 +198,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         DocumentNo := ReversePurchEntrySetup(GLAccountNo);
 
         // Exercise: Reverse Posted Entry from G/L Entry.
-        LibraryLowerPermissions.AddAccountReceivables;
+        LibraryLowerPermissions.AddAccountReceivables();
         ReversalEntry.SetHideDialog(true);
         asserterror ReversalEntry.ReverseTransaction(GetGLEntryTransactionNo(DocumentNo, GLAccountNo));
 
@@ -219,7 +219,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         ReversePurchEntrySetup(GLAccountNo);
 
         // Exercise: Reverse Posted Entry from G/L Register.
-        LibraryLowerPermissions.AddAccountReceivables;
+        LibraryLowerPermissions.AddAccountReceivables();
         GLRegister.FindLast();
         ReversalEntry.SetHideDialog(true);
         asserterror ReversalEntry.ReverseRegister(GLRegister."No.");
@@ -237,7 +237,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         // Allow Period. Reverse and Verify Error for before allow Period Date transaction from GL Entry.
         Initialize();
 
-        LibraryLowerPermissions.AddAccountReceivables;
+        LibraryLowerPermissions.AddAccountReceivables();
         AllowPeriodTransaction(CalcDate('<-1D>', WorkDate()));
     end;
 
@@ -249,7 +249,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         // Create and Post Payment Entry form General Journal Line after Allow Period Date Range, update General Ledger Setup
         // Allow Period. Reverse and Verify Error for before allow Period Date transaction from GL Entry.
         Initialize();
-        LibraryLowerPermissions.AddAccountReceivables;
+        LibraryLowerPermissions.AddAccountReceivables();
         AllowPeriodTransaction(CalcDate('<1D>', WorkDate()));
     end;
 
@@ -281,7 +281,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         // Create and Post Payment Entry form General Journal Line before Allow Period Date Range, update General Ledger Setup
         // Allow Period. Reverse and Verify Error for before allow Period Date transaction from GL Register.
         Initialize();
-        LibraryLowerPermissions.AddAccountReceivables;
+        LibraryLowerPermissions.AddAccountReceivables();
         AllowPeriodFromRegister(CalcDate('<-1D>', WorkDate()));
     end;
 
@@ -338,16 +338,16 @@ codeunit 134131 "ERM Reverse GL Entries"
 
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Customer,
-          LibrarySales.CreateCustomerNo, -LibraryRandom.RandInt(100));
+          LibrarySales.CreateCustomerNo(), -LibraryRandom.RandInt(100));
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Vendor,
-          LibraryPurchase.CreateVendorNo, LibraryRandom.RandInt(100));
+          LibraryPurchase.CreateVendorNo(), LibraryRandom.RandInt(100));
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"Bank Account",
-          FindBankAccount, LibraryRandom.RandInt(100));
+          FindBankAccount(), LibraryRandom.RandInt(100));
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"Fixed Asset",
-          FindFixedAsset, LibraryRandom.RandInt(100));
+          FindFixedAsset(), LibraryRandom.RandInt(100));
         GenJournalLine.Validate("FA Posting Type", GenJournalLine."FA Posting Type"::Maintenance);
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -381,7 +381,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         WorkDate(LibraryFiscalYear.GetFirstPostingDate(true));
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Customer,
-          LibrarySales.CreateCustomerNo, -LibraryRandom.RandInt(100));
+          LibrarySales.CreateCustomerNo(), -LibraryRandom.RandInt(100));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         DateCompressForGLEntries(GenJournalLine."Document No.");
         WorkDate(SaveWorkDate);
@@ -413,7 +413,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         WorkDate(LibraryFiscalYear.GetFirstPostingDate(true));
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Vendor,
-          LibraryPurchase.CreateVendorNo, LibraryRandom.RandInt(100));
+          LibraryPurchase.CreateVendorNo(), LibraryRandom.RandInt(100));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         DateCompressForGLEntries(GenJournalLine."Document No.");
         WorkDate(SaveWorkDate);
@@ -445,7 +445,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         WorkDate(LibraryFiscalYear.GetFirstPostingDate(true));
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"Bank Account",
-          FindBankAccount, LibraryRandom.RandInt(100));
+          FindBankAccount(), LibraryRandom.RandInt(100));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         DateCompressForGLEntries(GenJournalLine."Document No.");
         WorkDate(SaveWorkDate);
@@ -479,7 +479,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         WorkDate(LibraryFiscalYear.GetFirstPostingDate(true));
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"Fixed Asset",
-          FindFixedAsset, LibraryRandom.RandInt(100));
+          FindFixedAsset(), LibraryRandom.RandInt(100));
         GenJournalLine.Validate("FA Posting Type", GenJournalLine."FA Posting Type"::Maintenance);
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -512,7 +512,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         Initialize();
         CreateAndPostGenJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
           GenJournalLine."Bank Payment Type"::" ", '', CreateBankAccount(''), -LibraryRandom.RandDecInRange(100, 200, 2), '');
         DocumentNo := GenJournalLine."Document No.";
         CreateAndPostGenJournalLineWithAppliesToDoc(GenJournalLine, GenJournalLine."Document Type"::Payment,
@@ -543,7 +543,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         Initialize();
         CreateAndPostGenJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           GenJournalLine."Bank Payment Type"::" ", '', CreateBankAccount(''), -LibraryRandom.RandDecInRange(100, 200, 2), '');
         DocumentNo := GenJournalLine."Document No.";
         CreateAndPostGenJournalLineWithAppliesToDoc(GenJournalLine, GenJournalLine."Document Type"::" ",
@@ -573,7 +573,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         Initialize();
         CreateAndPostGenJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
           GenJournalLine."Bank Payment Type"::" ", '', CreateBankAccount(''), -LibraryRandom.RandDecInRange(100, 200, 2), '');
         CreateAndPostGenJournalLineWithAppliesToDoc(GenJournalLine, GenJournalLine."Document Type"::Payment,
           GenJournalLine."Applies-to Doc. Type"::Invoice, GenJournalLine."Account Type"::Vendor, GenJournalLine."Document No.");
@@ -601,7 +601,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         Initialize();
         CreateAndPostGenJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           GenJournalLine."Bank Payment Type"::" ", '', CreateBankAccount(''), -LibraryRandom.RandDecInRange(100, 200, 2), '');
         CreateAndPostGenJournalLineWithAppliesToDoc(GenJournalLine, GenJournalLine."Document Type"::Refund,
           GenJournalLine."Account Type"::Customer, GenJournalLine."Applies-to Doc. Type"::"Credit Memo", GenJournalLine."Document No.");
@@ -722,9 +722,9 @@ codeunit 134131 "ERM Reverse GL Entries"
         CreatePaymentLedgerEntryWithCheckEntry(GenJournalBatch);
 
         // [WHEN] Void check ledger entry.
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        PaymentJournal."Void Check".Invoke;
+        PaymentJournal."Void Check".Invoke();
 
         // [THEN] Document No and Document Date are cleared
         VerifyDocNoAndDocDateAreEmpty(GenJournalBatch, PaymentJournal);
@@ -889,7 +889,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         AllowPostingFrom := GeneralLedgerSetup."Allow Posting From";
         AllowPostingTo := GeneralLedgerSetup."Allow Posting To";
         UpdateGeneralLedgerSetup(0D, 0D); // Update General Ledger Setup Date Range fields with OD value.
-        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"G/L Account",
           GLAccountNo, LibraryRandom.RandInt(100)); // Using RANDOM for Amount field.
@@ -903,7 +903,7 @@ codeunit 134131 "ERM Reverse GL Entries"
     begin
         CreateGeneralJournalLine(
           GenJournalLine, DocumentType, GenJournalLine."Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(100));
+          LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
     end;
 
     local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BankPaymentType: Enum "Bank Payment Type"; CurrencyCode: Code[10]; BalAccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20])
@@ -998,7 +998,7 @@ codeunit 134131 "ERM Reverse GL Entries"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         SalesLine.Validate("Unit Price", SalesLine.Quantity);  // Value is not important, Unit Price updating with Quantity.
         SalesLine.Modify(true);
         GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
@@ -1017,7 +1017,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", PurchaseLine.Quantity);
         PurchaseLine.Modify(true);
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
@@ -1032,8 +1032,8 @@ codeunit 134131 "ERM Reverse GL Entries"
         Currency.Get(
           LibraryERM.CreateCurrencyWithExchangeRate(Date1, LibraryRandom.RandDecInRange(10, 20, 2), LibraryRandom.RandDecInRange(10, 20, 2)));
         LibraryERM.CreateExchangeRate(Currency.Code, Date2, LibraryRandom.RandDecInRange(20, 30, 2), LibraryRandom.RandDecInRange(20, 30, 2));
-        Currency.Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo);
-        Currency.Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo);
+        Currency.Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo());
         Currency.Modify(true);
         exit(Currency.Code);
     end;
@@ -1113,7 +1113,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         DateComprRetainFields."Retain Quantity" := false;
         DateComprRetainFields."Retain Journal Template Name" := false;	
         DateCompressGeneralLedger.InitializeRequest(
-          WorkDate, WorkDate(), DateComprRegister."Period Length"::Day, '', DateComprRetainFields, InsertDimSelectionBuffer, false);
+          WorkDate(), WorkDate(), DateComprRegister."Period Length"::Day, '', DateComprRetainFields, InsertDimSelectionBuffer(), false);
         DateCompressGeneralLedger.UseRequestPage(false);
         DateCompressGeneralLedger.Run();
     end;
@@ -1337,8 +1337,8 @@ codeunit 134131 "ERM Reverse GL Entries"
     [Scope('OnPrem')]
     procedure GeneralJournalTemplateListModalPageHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
     begin
-        GeneralJournalTemplateList.First;
-        GeneralJournalTemplateList.OK.Invoke;
+        GeneralJournalTemplateList.First();
+        GeneralJournalTemplateList.OK().Invoke();
     end;
 
     [ConfirmHandler]

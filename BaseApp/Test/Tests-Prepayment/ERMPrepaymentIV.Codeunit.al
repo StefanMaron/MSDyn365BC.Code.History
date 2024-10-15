@@ -42,7 +42,7 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Setup.
         Initialize();
-        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
         SalesPrepmtAccount := CreateAndPostSalesPrepaymentInvoice(SalesHeader, SalesLine, GLAccountNo);
         Amount := Round((SalesLine."Qty. to Ship" * SalesLine."Unit Price") * SalesLine."Prepayment %" / 100);
 
@@ -50,7 +50,7 @@ codeunit 134103 "ERM Prepayment IV"
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Verify: Verify Prepayment Amount on GL Entry after Posting Partial Shipment.
-        VerifyGLEntry(DocumentNo, Amount, GLAccountNo, LibraryERM.GetAmountRoundingPrecision);
+        VerifyGLEntry(DocumentNo, Amount, GLAccountNo, LibraryERM.GetAmountRoundingPrecision());
 
         // Tear Down.
         UpdateSalesPrepmtAccount(SalesPrepmtAccount, SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
@@ -71,7 +71,7 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Setup.
         Initialize();
-        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
         SalesPrepmtAccount := CreateSalesOrder(SalesHeader, SalesLine, GLAccountNo);
         ModifyQtyToShipOnSalesLine(SalesLine);
         PostSalesPrepaymentInvoice(SalesHeader);
@@ -81,7 +81,7 @@ codeunit 134103 "ERM Prepayment IV"
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Verify: Verify Prepayment Amount on GL Entry after Posting Partial Shipment.
-        VerifyGLEntry(DocumentNo, Amount, GLAccountNo, LibraryERM.GetAmountRoundingPrecision);
+        VerifyGLEntry(DocumentNo, Amount, GLAccountNo, LibraryERM.GetAmountRoundingPrecision());
 
         // Tear Down.
         UpdateSalesPrepmtAccount(SalesPrepmtAccount, SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
@@ -102,7 +102,7 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Setup.
         Initialize();
-        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
         SalesPrepmtAccount := CreateAndPostSalesPrepaymentInvoice(SalesHeader, SalesLine, GLAccountNo);
         Amount := Round(((SalesLine.Quantity - SalesLine."Qty. to Ship") * SalesLine."Unit Price") * SalesLine."Prepayment %" / 100);
 
@@ -111,7 +111,7 @@ codeunit 134103 "ERM Prepayment IV"
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Verify: Verify Prepayment Amount on GL Entry after Posting Partial Shipment.
-        VerifyGLEntry(DocumentNo, Amount, GLAccountNo, LibraryERM.GetAmountRoundingPrecision);
+        VerifyGLEntry(DocumentNo, Amount, GLAccountNo, LibraryERM.GetAmountRoundingPrecision());
 
         // Tear Down.
         UpdateSalesPrepmtAccount(SalesPrepmtAccount, SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
@@ -136,7 +136,7 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Setup: Create Sales Order and Post it.
         Initialize();
-        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
         SalesPrepmtAccount := CreateAndPostSalesPrepaymentInvoice(SalesHeader, SalesLine, GLAccountNo);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -151,12 +151,12 @@ codeunit 134103 "ERM Prepayment IV"
         DocumentNo := GetPostedDocumentNo(SalesHeader."Prepayment No. Series");
 
         // Exercise: Post Prepayment Invoice through Page.
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
-        SalesOrder.PostPrepaymentInvoice.Invoke;
+        SalesOrder.PostPrepaymentInvoice.Invoke();
 
         // Verify: Verify Prepayment Amount after Modify Prepayment % on Sales Header with GL Entry.
-        VerifyGLEntry(DocumentNo, -Amount, GLAccountNo, LibraryERM.GetAmountRoundingPrecision);
+        VerifyGLEntry(DocumentNo, -Amount, GLAccountNo, LibraryERM.GetAmountRoundingPrecision());
 
         // Tear Down.
         UpdateSalesPrepmtAccount(SalesPrepmtAccount, SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
@@ -177,7 +177,7 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Setup: Create Purchase Order and Post Prepayment Invoice.
         Initialize();
-        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup();
         PurchasePrepmtAccount := CreateAndPostPurchasePrepaymentInvoice(PurchaseHeader, PurchaseLine, GLAccountNo);
 
         // Exercise: Post Purchase Order with Partial Qty. to Receive after Posting Prepayment Invoice.
@@ -185,7 +185,7 @@ codeunit 134103 "ERM Prepayment IV"
         DocumentNo := PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify Prepayment Amount on GL Entry after Posting Partial Shipment.
-        VerifyGLEntry(DocumentNo, -Amount, GLAccountNo, LibraryERM.GetAmountRoundingPrecision);
+        VerifyGLEntry(DocumentNo, -Amount, GLAccountNo, LibraryERM.GetAmountRoundingPrecision());
 
         // Tear Down.
         UpdatePurchasePrepmtAccount(
@@ -207,7 +207,7 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Setup: Create Purchase Order and Post Prepayment Invoice.
         Initialize();
-        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup();
         PurchasePrepmtAccount := CreatePurchaseOrder(PurchaseHeader, PurchaseLine, GLAccountNo);
         ModifyQtyToReceiveOnPurchaseLine(PurchaseLine);
         PostPurchasePrepaymentInvoice(PurchaseHeader);
@@ -217,7 +217,7 @@ codeunit 134103 "ERM Prepayment IV"
         DocumentNo := PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify Prepayment Amount on GL Entry after Posting Partial Shipment.
-        VerifyGLEntry(DocumentNo, -Amount, GLAccountNo, LibraryERM.GetAmountRoundingPrecision);
+        VerifyGLEntry(DocumentNo, -Amount, GLAccountNo, LibraryERM.GetAmountRoundingPrecision());
 
         // Tear Down.
         UpdatePurchasePrepmtAccount(
@@ -239,7 +239,7 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Setup: Create Purchase Order and Post Prepayment Invoice.
         Initialize();
-        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup();
         PurchasePrepmtAccount := CreateAndPostPurchasePrepaymentInvoice(PurchaseHeader, PurchaseLine, GLAccountNo);
 
         // Exercise: Post Purchase Order with Partial Qty. to Receive after Posting Prepayment Invoice.
@@ -252,7 +252,7 @@ codeunit 134103 "ERM Prepayment IV"
         DocumentNo := PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify Prepayment Amount on GL Entry after Posting Partial Shipment.
-        VerifyGLEntry(DocumentNo, -Amount, GLAccountNo, LibraryERM.GetAmountRoundingPrecision);
+        VerifyGLEntry(DocumentNo, -Amount, GLAccountNo, LibraryERM.GetAmountRoundingPrecision());
 
         // Tear Down.
         UpdatePurchasePrepmtAccount(
@@ -278,7 +278,7 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Setup: Create Purchase Order, Post Prepayment Invoice and Modify Purchase Line for Partial Shipment.
         Initialize();
-        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup();
         PurchasePrepmtAccount := CreateAndPostPurchasePrepaymentInvoice(PurchaseHeader, PurchaseLine, GLAccountNo);
 
         // Modify Purchase Line for Partial Receive and Post.
@@ -299,12 +299,12 @@ codeunit 134103 "ERM Prepayment IV"
         ModifyVendorInvoiceNoOnPurchaseHeader(PurchaseHeader);
 
         // Exercise: Post Prepayment Invoice through Page.
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
-        PurchaseOrder.PostPrepaymentInvoice.Invoke;
+        PurchaseOrder.PostPrepaymentInvoice.Invoke();
 
         // Verify: Verify Prepayment Amount after Modify Prepayment % on Purchase Header with GL Entry.
-        VerifyGLEntry(DocumentNo, Amount, GLAccountNo, LibraryERM.GetAmountRoundingPrecision);
+        VerifyGLEntry(DocumentNo, Amount, GLAccountNo, LibraryERM.GetAmountRoundingPrecision());
 
         // Tear Down.
         UpdatePurchasePrepmtAccount(
@@ -329,8 +329,8 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Setup: Create Purchase Order, Post Prepayment Invoice and Modify Purchase Line for Partial Shipment.
         Initialize();
-        CurrencyCode := CreateCurrency;
-        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
+        CurrencyCode := CreateCurrency();
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup();
         CreateExchangeRate(CurrencyCode, WorkDate());
         PurchasePrepmtAccount := CreatePurchaseOrder(PurchaseHeader, PurchaseLine, GLAccountNo);
         ModifyCurrencyOnPurchaseHeader(PurchaseHeader, CurrencyCode);
@@ -374,9 +374,9 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Setup: Create Purchase Order and Currency with New Starting Date. Take Random Date for New Starting Date.
         Initialize();
-        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup();
         StartingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         CreateExchangeRate(CurrencyCode, WorkDate());
         CreateExchangeRate(CurrencyCode, StartingDate);
         PurchasePrepmtAccount := CreatePurchaseOrder(PurchaseHeader, PurchaseLine, GLAccountNo);
@@ -398,8 +398,8 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Verify: Verify GL Entry for Prepayment Amount and Source Type for Vendor.
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
-        VerifyGLEntry(DocumentNo, -Amount, GLAccountNo, LibraryERM.GetAmountRoundingPrecision);
-        VerifyGLEntry(DocumentNo, Amount2, GeneralPostingSetup."Purch. Account", LibraryERM.GetAmountRoundingPrecision);
+        VerifyGLEntry(DocumentNo, -Amount, GLAccountNo, LibraryERM.GetAmountRoundingPrecision());
+        VerifyGLEntry(DocumentNo, Amount2, GeneralPostingSetup."Purch. Account", LibraryERM.GetAmountRoundingPrecision());
         VerifyGLEntryForSourceType(DocumentNo, GLAccountNo);
 
         // Tear Down.
@@ -419,7 +419,7 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Setup. Create Sales Order and Post Prepayment Invoice.
         Initialize();
-        SalesPrepmtAccount := CreateAndPostSalesPrepaymentInvoice(SalesHeader, SalesLine, LibraryERM.CreateGLAccountWithSalesSetup);
+        SalesPrepmtAccount := CreateAndPostSalesPrepaymentInvoice(SalesHeader, SalesLine, LibraryERM.CreateGLAccountWithSalesSetup());
 
         // Exercise: Post Sales Order as Ship.
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
@@ -443,7 +443,7 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Setup. Create Sales Order and Post Prepayment Invoice.
         Initialize();
-        SalesPrepmtAccount := CreateAndPostSalesPrepaymentInvoice(SalesHeader, SalesLine, LibraryERM.CreateGLAccountWithSalesSetup);
+        SalesPrepmtAccount := CreateAndPostSalesPrepaymentInvoice(SalesHeader, SalesLine, LibraryERM.CreateGLAccountWithSalesSetup());
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // Exercise: Reopen Posted Sales Order and Modify Quantity on Sales Line with more value previous one.
@@ -473,7 +473,7 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Setup. Create Sales Order and Post Prepayment Invoice and Post as Ship.
         Initialize();
-        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
         SalesPrepmtAccount := CreateAndPostSalesPrepaymentInvoice(SalesHeader, SalesLine, GLAccountNo);
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
         LibrarySales.ReopenSalesDocument(SalesHeader);
@@ -487,8 +487,8 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Verify: Verify that Quantity to Ship has been updated after Modify Quantity on Sales Line.
         GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
-        VerifyGLEntry(DocumentNo, -SalesLine."Line Amount", GeneralPostingSetup."Sales Account", LibraryERM.GetAmountRoundingPrecision);
-        VerifyGLEntry(DocumentNo, PrepaymentAmount, GLAccountNo, LibraryERM.GetAmountRoundingPrecision);
+        VerifyGLEntry(DocumentNo, -SalesLine."Line Amount", GeneralPostingSetup."Sales Account", LibraryERM.GetAmountRoundingPrecision());
+        VerifyGLEntry(DocumentNo, PrepaymentAmount, GLAccountNo, LibraryERM.GetAmountRoundingPrecision());
 
         // Tear Down.
         UpdateSalesPrepmtAccount(SalesPrepmtAccount, SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
@@ -507,7 +507,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Setup. Create Purchase Order and Post Prepayment Invoice.
         Initialize();
         PurchasePrepmtAccount :=
-          CreateAndPostPurchasePrepaymentInvoice(PurchaseHeader, PurchaseLine, LibraryERM.CreateGLAccountWithPurchSetup);
+          CreateAndPostPurchasePrepaymentInvoice(PurchaseHeader, PurchaseLine, LibraryERM.CreateGLAccountWithPurchSetup());
 
         // Exercise: Post Purchase Order as Receive.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -532,7 +532,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Setup. Create Purchase Order and Post with Receive.
         Initialize();
         PurchasePrepmtAccount :=
-          CreateAndPostPurchasePrepaymentInvoice(PurchaseHeader, PurchaseLine, LibraryERM.CreateGLAccountWithPurchSetup);
+          CreateAndPostPurchasePrepaymentInvoice(PurchaseHeader, PurchaseLine, LibraryERM.CreateGLAccountWithPurchSetup());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // Exercise: Reopen Posted Purchase Order and Modify Quantity on Purchase Line with more value previous one.
@@ -562,7 +562,7 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Setup. Create Purchase Order and Post Prepayment Invoice and Post as Receive.
         Initialize();
-        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup();
         PurchasePrepmtAccount := CreateAndPostPurchasePrepaymentInvoice(PurchaseHeader, PurchaseLine, GLAccountNo);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
@@ -576,8 +576,8 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Verify: Verify that Quantity to Receive has been updated after Modify Quantity on Purchase Line.
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
-        VerifyGLEntry(DocumentNo, PurchaseLine."Line Amount", GeneralPostingSetup."Purch. Account", LibraryERM.GetAmountRoundingPrecision);
-        VerifyGLEntry(DocumentNo, -PrepaymentAmount, GLAccountNo, LibraryERM.GetAmountRoundingPrecision);
+        VerifyGLEntry(DocumentNo, PurchaseLine."Line Amount", GeneralPostingSetup."Purch. Account", LibraryERM.GetAmountRoundingPrecision());
+        VerifyGLEntry(DocumentNo, -PrepaymentAmount, GLAccountNo, LibraryERM.GetAmountRoundingPrecision());
 
         // Tear Down.
         UpdateSalesPrepmtAccount(PurchasePrepmtAccount, PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
@@ -714,8 +714,8 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Setup: Create Currency with Multiple Exchange rate. 1M is required for difference only 1 Month in each exchange Rate.
         Initialize();
-        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
-        CurrencyCode := CreateCurrency;
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup();
+        CurrencyCode := CreateCurrency();
         StartingDate := CalcDate('<1M>', WorkDate());
         CreateExchangeRate(CurrencyCode, WorkDate());
         CreateExchangeRate(CurrencyCode, StartingDate);
@@ -726,23 +726,23 @@ codeunit 134103 "ERM Prepayment IV"
         ModifyPurchaseLine(PurchaseLine, CurrencyCode);
 
         // Post Prepayment Invoice with Purchase Order Page.
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseLine."Document No.");
-        PurchaseOrder.PostPrepaymentInvoice.Invoke;
-        PurchaseOrder.OK.Invoke;
+        PurchaseOrder.PostPrepaymentInvoice.Invoke();
+        PurchaseOrder.OK().Invoke();
 
         // Copy Document on New Purchase Order Page with Modify Vendor Invoice No and Posting Date then Post Prepayment Invoice.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader2, PurchaseHeader."Document Type", PurchaseHeader."Buy-from Vendor No.");
         Commit();  // COMMIT is required here.
         PurchaseCopyDocument(PurchaseHeader2, PurchaseHeader."No.", "Purchase Document Type From"::Order);
 
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader2."No.");
         PurchaseOrder."Vendor Invoice No.".SetValue(PurchaseOrder."No.".Value);
         PurchaseOrder."Posting Date".SetValue(StartingDate);
         DocumentNo := GetPostedDocumentNo(PurchaseHeader2."Prepayment No. Series");
-        PurchaseOrder.PostPrepaymentInvoice.Invoke;
-        PurchaseOrder.OK.Invoke;
+        PurchaseOrder.PostPrepaymentInvoice.Invoke();
+        PurchaseOrder.OK().Invoke();
 
         // Exercise.
         PurchaseLine.Get(PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseLine."Line No.");
@@ -778,10 +778,10 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Setup: Create Currency with Multiple Exchange rate. 1M is required for difference only 1 Month in each exchange Rate.
         Initialize();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
-        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
-        CurrencyCode := CreateCurrency;
+        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
+        CurrencyCode := CreateCurrency();
         StartingDate := CalcDate('<1M>', WorkDate());
         CreateExchangeRate(CurrencyCode, WorkDate());
         CreateExchangeRate(CurrencyCode, StartingDate);
@@ -793,22 +793,22 @@ codeunit 134103 "ERM Prepayment IV"
         SalesLine.Modify(true);
 
         // Post Prepayment Invoice with Sales Order Page.
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
-        SalesOrder.PostPrepaymentInvoice.Invoke;
-        SalesOrder.OK.Invoke;
+        SalesOrder.PostPrepaymentInvoice.Invoke();
+        SalesOrder.OK().Invoke();
 
         // Copy Document on New Sales Order Page with Modify Posting Date then Post Prepayment Invoice.
         LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeader."Document Type", SalesHeader."Sell-to Customer No.");
         Commit();  // COMMIT is required here.
         SalesCopyDocument(SalesHeader2, SalesHeader."No.", "Sales Document Type From"::Order);
 
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesHeader2."No.");
         SalesOrder."Posting Date".SetValue(StartingDate);
         DocumentNo := GetPostedDocumentNo(SalesHeader2."Prepayment No. Series");
-        SalesOrder.PostPrepaymentInvoice.Invoke;
-        SalesOrder.OK.Invoke;
+        SalesOrder.PostPrepaymentInvoice.Invoke();
+        SalesOrder.OK().Invoke();
 
         // Exercise.
         SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", SalesLine."Line No.");
@@ -842,17 +842,17 @@ codeunit 134103 "ERM Prepayment IV"
         CreateSOWithTwoPrepmtLines(SalesHeader, Item);
 
         // Post Prepayment Invoice with Sales Order Page.
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
-        SalesOrder.PostPrepaymentInvoice.Invoke;
+        SalesOrder.PostPrepaymentInvoice.Invoke();
 
         // Verify: Verify lines order in Prepayment Invoice.
-        PostedSalesInvoice.Trap;
-        SalesOrder.PagePostedSalesPrepaymentInvoices.Invoke;
+        PostedSalesInvoice.Trap();
+        SalesOrder.PagePostedSalesPrepaymentInvoices.Invoke();
 
-        PostedSalesInvoice.OpenView;
+        PostedSalesInvoice.OpenView();
         PostedSalesInvoice.FILTER.SetFilter("Prepayment Order No.", SalesHeader."No.");
-        PostedSalesInvoice.SalesInvLines.First;
+        PostedSalesInvoice.SalesInvLines.First();
         PostedSalesInvoice.SalesInvLines.Description.AssertEquals(Item[1].Description);
         PostedSalesInvoice.SalesInvLines.Next();
         PostedSalesInvoice.SalesInvLines.Description.AssertEquals(Item[2].Description);
@@ -873,19 +873,19 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Setup: Create Sales Order and Update Sales Prepayment Account.
         Initialize();
-        SalesPrepmtAccount := CreateSalesOrder(SalesHeader, SalesLine, LibraryERM.CreateGLAccountWithSalesSetup);
+        SalesPrepmtAccount := CreateSalesOrder(SalesHeader, SalesLine, LibraryERM.CreateGLAccountWithSalesSetup());
 
         // Exercise: Post Prepayment Invoice and Prepayment Credit Memo from Sales Order page.
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
-        SalesOrder.PostPrepaymentInvoice.Invoke;
-        SalesOrder.PostPrepaymentCreditMemo.Invoke;
-        PostedSalesCreditMemos.Trap;
-        SalesOrder.PagePostedSalesPrepaymentCrMemos.Invoke;
+        SalesOrder.PostPrepaymentInvoice.Invoke();
+        SalesOrder.PostPrepaymentCreditMemo.Invoke();
+        PostedSalesCreditMemos.Trap();
+        SalesOrder.PagePostedSalesPrepaymentCrMemos.Invoke();
         PostedSalesCreditMemos.FILTER.SetFilter("Sell-to Customer No.", SalesLine."Sell-to Customer No.");
 
         // Verify: Verify that Posted Prepayment Credit Memo exist on Posted Sales Credit Memo Page from Sales Order.
-        Assert.IsTrue(PostedSalesCreditMemos.First, PrepaymentCMErr);
+        Assert.IsTrue(PostedSalesCreditMemos.First(), PrepaymentCMErr);
 
         // Tear Down.
         UpdateSalesPrepmtAccount(SalesPrepmtAccount, SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
@@ -906,20 +906,20 @@ codeunit 134103 "ERM Prepayment IV"
 
         // Setup: Create Purchase Order and Update Purchase Prepayment Account.
         Initialize();
-        PurchasePrepmtAccount := CreatePurchaseOrder(PurchaseHeader, PurchaseLine, LibraryERM.CreateGLAccountWithPurchSetup);
+        PurchasePrepmtAccount := CreatePurchaseOrder(PurchaseHeader, PurchaseLine, LibraryERM.CreateGLAccountWithPurchSetup());
         ModifyVendorCreditMemoNoOnPurchaseHeader(PurchaseHeader);
 
         // Exercise: Post Prepayment Invoice and Prepayment Credit Memo from Purchase Order page.
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseLine."Document No.");
-        PurchaseOrder.PostPrepaymentInvoice.Invoke;
-        PurchaseOrder.PostPrepaymentCreditMemo.Invoke;
-        PostedPurchaseCreditMemos.Trap;
-        PurchaseOrder.PostedPrepaymentCrMemos.Invoke;
+        PurchaseOrder.PostPrepaymentInvoice.Invoke();
+        PurchaseOrder.PostPrepaymentCreditMemo.Invoke();
+        PostedPurchaseCreditMemos.Trap();
+        PurchaseOrder.PostedPrepaymentCrMemos.Invoke();
         PostedPurchaseCreditMemos.FILTER.SetFilter("Buy-from Vendor No.", PurchaseLine."Buy-from Vendor No.");
 
         // Verify: Verify that Posted Prepayment Credit Memo exist on Posted Purchase Credit Memo Page from Purchase Order.
-        Assert.IsTrue(PostedPurchaseCreditMemos.First, PrepaymentCMErr);
+        Assert.IsTrue(PostedPurchaseCreditMemos.First(), PrepaymentCMErr);
 
         // Tear Down.
         UpdatePurchasePrepmtAccount(
@@ -1138,7 +1138,7 @@ codeunit 134103 "ERM Prepayment IV"
 
         // 1. Setup: Create Prepayment Account on General Posting Setup.
         Initialize();
-        CurrencyCode := UpdateAdditionalReportingCurrency;
+        CurrencyCode := UpdateAdditionalReportingCurrency();
 
         // 2. Exercise: Create and Post Purchase Prepayment Invoice with CurrencyExchangeRate.
         PrepaymentAmountInLCY := CreateAndPostPurchasePrepaymentInvoiceWithCurrency(GLAccount, PurchaseHeader, CurrencyCode);
@@ -1162,7 +1162,7 @@ codeunit 134103 "ERM Prepayment IV"
 
         // 1. Setup: Create Prepayment Account and Post Purchase Order.
         Initialize();
-        CurrencyCode := UpdateAdditionalReportingCurrency;
+        CurrencyCode := UpdateAdditionalReportingCurrency();
         PrepaymentAmountInLCY := CreateAndPostPurchasePrepaymentInvoiceWithCurrency(GLAccount, PurchaseHeader, CurrencyCode);
 
         // 2. Exercise: Post Purchase Invoice after modifing Vendor Invoice No.
@@ -1186,7 +1186,7 @@ codeunit 134103 "ERM Prepayment IV"
 
         // 1. Setup: Create Prepayment Account on General Posting Setup.
         Initialize();
-        CurrencyCode := UpdateAdditionalReportingCurrency;
+        CurrencyCode := UpdateAdditionalReportingCurrency();
 
         // 2. Exercise: Create and Post Sales Prepayment Invoice with CurrencyExchangeRate.
         PrepaymentAmountInLCY := CreateAndPostSalesPrepaymentInvoiceWithCurrency(GLAccount, SalesHeader, CurrencyCode);
@@ -1210,7 +1210,7 @@ codeunit 134103 "ERM Prepayment IV"
 
         // 1. Setup: Create Prepayment Account and Post Purchase Prepayment Invoice.
         Initialize();
-        CurrencyCode := UpdateAdditionalReportingCurrency;
+        CurrencyCode := UpdateAdditionalReportingCurrency();
         PrepaymentAmountInLCY := CreateAndPostSalesPrepaymentInvoiceWithCurrency(GLAccount, SalesHeader, CurrencyCode);
 
         // 2. Exercise: Post Purchase Invoice.
@@ -1235,7 +1235,7 @@ codeunit 134103 "ERM Prepayment IV"
 
         // 1. Setup: Create Prepayment Account on General Posting Setup.
         Initialize();
-        CurrencyCode := UpdateAdditionalReportingCurrency;
+        CurrencyCode := UpdateAdditionalReportingCurrency();
 
         // 2. Exercise: Create and Post Purchase Prepayment Invoice with CurrencyExchangeRate.
         PrepaymentAmountInLCY :=
@@ -1267,7 +1267,7 @@ codeunit 134103 "ERM Prepayment IV"
 
         // 1. Setup: Create Prepayment Account on General Posting Setup.
         Initialize();
-        CurrencyCode := UpdateAdditionalReportingCurrency;
+        CurrencyCode := UpdateAdditionalReportingCurrency();
 
         // 2. Exercise: Create and Post Purchase Prepayment Invoice with CurrencyExchangeRate.
         PrepaymentAmountInLCY :=
@@ -1360,7 +1360,7 @@ codeunit 134103 "ERM Prepayment IV"
         PostPurchasePrepaymentInvoice(PurchaseHeader);
 
         // [WHEN] Prepayment Credit Memo is posted
-        PurchaseHeader."Vendor Cr. Memo No." := LibraryPurchase.GegVendorLedgerEntryUniqueExternalDocNo;
+        PurchaseHeader."Vendor Cr. Memo No." := LibraryPurchase.GegVendorLedgerEntryUniqueExternalDocNo();
         PostPurchasePrepaymentCreditMemo(PurchaseHeader, WorkDate());
 
         // [THEN] Purchase Order Line: "Prepmt. Amount Inv. (LCY)" = 0, "Prepmt. VAT Amount Inv. (LCY)" = 0
@@ -1720,7 +1720,7 @@ codeunit 134103 "ERM Prepayment IV"
         LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         SetVATPostingSetupCustomPct(LineGLAccount, 25);
         // [GIVEN] Foreign Customer with currency FCY (3.33FCY = 1 LCY)
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         LibraryERM.CreateExchangeRate(CurrencyCode, WorkDate(), 3.33, 3.33);
         CustomerNo :=
           CreateCustomerWithCurrencyAnd100PrepmtPct(
@@ -1758,7 +1758,7 @@ codeunit 134103 "ERM Prepayment IV"
         LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         SetVATPostingSetupCustomPct(LineGLAccount, 25);
         // [GIVEN] Foreign Vendor with currency FCY (3.33FCY = 1 LCY)
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         LibraryERM.CreateExchangeRate(CurrencyCode, WorkDate(), 3.33, 3.33);
         VendorNo :=
           CreateVendorWithCurrencyAnd100PrepmtPct(
@@ -2351,7 +2351,7 @@ codeunit 134103 "ERM Prepayment IV"
         Initialize();
         LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         SetVATPostingSetupCustomPct(LineGLAccount, 10);
-        Currency.Get(CreateCurrency);
+        Currency.Get(CreateCurrency());
         LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), 1 / 14650, 1 / 14650);
 
         // [GIVEN] Sales Order with FCY, "VAT %" = 10, "Prepayment %" = 33
@@ -2388,7 +2388,7 @@ codeunit 134103 "ERM Prepayment IV"
         Initialize();
         LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         SetVATPostingSetupCustomPct(LineGLAccount, 10);
-        Currency.Get(CreateCurrency);
+        Currency.Get(CreateCurrency());
         LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), 1 / 14650, 1 / 14650);
 
         // [GIVEN] Purchase Order with FCY, "VAT %" = 10, "Prepayment %" = 33
@@ -2923,7 +2923,7 @@ codeunit 134103 "ERM Prepayment IV"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] G/L entry with GLAccountNo exists
-        VerifyGLEntry(DocumentNo, -(PurchaseLine.Amount / 100 * PurchaseLine."Prepayment %"), GLAccountNo, LibraryERM.GetAmountRoundingPrecision);
+        VerifyGLEntry(DocumentNo, -(PurchaseLine.Amount / 100 * PurchaseLine."Prepayment %"), GLAccountNo, LibraryERM.GetAmountRoundingPrecision());
     end;
 
     local procedure Initialize()
@@ -3202,7 +3202,7 @@ codeunit 134103 "ERM Prepayment IV"
         ModifySalesHeaderForPrepaymentPct(SalesHeader, LibraryRandom.RandIntInRange(10, 90));
 
         // Exercise: Create Sales Line with Zero Quantity.
-        Item.Get(LibraryInventory.CreateItemNo);
+        Item.Get(LibraryInventory.CreateItemNo());
         UpdatePrepmtPostGroups(SalesHeader."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group", Item."VAT Prod. Posting Group");
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 0);
     end;
@@ -3219,7 +3219,7 @@ codeunit 134103 "ERM Prepayment IV"
         ModifyPrepaymentPctOnPurchaseHeader(PurchaseHeader, LibraryRandom.RandIntInRange(10, 90));
 
         // Exercise: Create Purchase Line with Zero Quantity.
-        Item.Get(LibraryInventory.CreateItemNo);
+        Item.Get(LibraryInventory.CreateItemNo());
         UpdatePrepmtPostGroups(PurchaseHeader."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group", Item."VAT Prod. Posting Group");
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 0);
     end;
@@ -3328,7 +3328,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Create Sales Order with two prepayment lines
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         Item.Get(LibraryInventory.CreateItemNo());
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         CreateExchangeRate(CurrencyCode, WorkDate());
         LibrarySales.CreateSalesHeader(
           SalesHeader, SalesHeader."Document Type"::Order,
@@ -3356,7 +3356,7 @@ codeunit 134103 "ERM Prepayment IV"
         // Create Purchase Order with two prepayment lines
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         Item.Get(LibraryInventory.CreateItemNo());
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         CreateExchangeRate(CurrencyCode, WorkDate());
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader, PurchaseHeader."Document Type"::Order,
@@ -3390,7 +3390,7 @@ codeunit 134103 "ERM Prepayment IV"
         SalesHeader.Modify(true);
 
         for i := 1 to ArrayLen(Item) do begin
-            Item[i].Get(LibraryInventory.CreateItemNo);
+            Item[i].Get(LibraryInventory.CreateItemNo());
             UpdatePrepmtPostGroups(
                 SalesHeader."Gen. Bus. Posting Group", Item[i]."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
             CreateSalesLineWithPrepmtPercentage(SalesLine, SalesHeader, Item[i]."No.", LibraryRandom.RandIntInRange(10, 40));
@@ -3422,7 +3422,7 @@ codeunit 134103 "ERM Prepayment IV"
         Currency: Record Currency;
     begin
         with Currency do begin
-            Get(LibraryERM.CreateCurrencyWithGLAccountSetup);
+            Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
             "Invoice Rounding Precision" := 1; // to match W1
             Modify();
             exit(Code);
@@ -3485,7 +3485,7 @@ codeunit 134103 "ERM Prepayment IV"
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
         PurchaseHeader.Validate("Prepayment %", LibraryRandom.RandIntInRange(10, 40)); // make sure values are big enough, so amounts are not close to rounding precision
         PurchaseHeader.Modify(true);
-        Item.Get(LibraryInventory.CreateItemNo);
+        Item.Get(LibraryInventory.CreateItemNo());
         CreateNewGenProductPostingGroupOnItem(PurchaseHeader."Gen. Bus. Posting Group", Item);
         PurchasePrepmtAccount :=
           UpdatePurchasePrepmtAccount(GLAccountNo, PurchaseHeader."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
@@ -3623,9 +3623,9 @@ codeunit 134103 "ERM Prepayment IV"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         PrepaymentAmount: Decimal;
     begin
-        CurrencyExchangeRate.Get(CurrencyCode, LibraryERM.FindEarliestDateForExhRate);
+        CurrencyExchangeRate.Get(CurrencyCode, LibraryERM.FindEarliestDateForExhRate());
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
-        Item.Get(LibraryInventory.CreateItemNo);
+        Item.Get(LibraryInventory.CreateItemNo());
         UpdatePrepmtPostGroups(PurchaseHeader."Gen. Bus. Posting Group", item."Gen. Prod. Posting Group", item."VAT Prod. Posting Group");
         CreatePurchaseLineItem(PurchaseLine, PurchaseHeader, item."No.");
         PrepaymentAmount := Round(PurchaseLine."Line Amount" * PurchaseHeader."Prepayment %" / 100);
@@ -3698,7 +3698,7 @@ codeunit 134103 "ERM Prepayment IV"
         Currency: Record Currency;
     begin
         with Currency do begin
-            Get(CreateCurrency);
+            Get(CreateCurrency());
             LibraryERM.CreateRandomExchangeRate(Code);
             Validate("Appln. Rounding Precision", LibraryRandom.RandDec(0, 2));
             Validate("Invoice Rounding Precision", LibraryRandom.RandDec(0, 2));
@@ -3714,9 +3714,9 @@ codeunit 134103 "ERM Prepayment IV"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         PrepaymentAmount: Decimal;
     begin
-        CurrencyExchangeRate.Get(CurrencyCode, LibraryERM.FindEarliestDateForExhRate);
+        CurrencyExchangeRate.Get(CurrencyCode, LibraryERM.FindEarliestDateForExhRate());
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
-        Item.Get(LibraryInventory.CreateItemNo);
+        Item.Get(LibraryInventory.CreateItemNo());
         UpdatePrepmtPostGroups(SalesHeader."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group", Item."VAT Prod. Posting Group");
         CreateSalesLineItem(SalesLine, SalesHeader, Item."No.");
         PrepaymentAmount := Round(SalesLine."Line Amount" * SalesHeader."Prepayment %" / 100);
@@ -3973,7 +3973,7 @@ codeunit 134103 "ERM Prepayment IV"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         PrepaymentAmount: Decimal;
     begin
-        CurrencyExchangeRate.Get(CurrencyCode, LibraryERM.FindEarliestDateForExhRate);
+        CurrencyExchangeRate.Get(CurrencyCode, LibraryERM.FindEarliestDateForExhRate());
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
         CreatePurchaseLineGL(PurchaseLine, PurchaseHeader, GLAccountNo);
         PrepaymentAmount := Round(PurchaseLine."Line Amount" * PurchaseHeader."Prepayment %" / 100);
@@ -3985,7 +3985,7 @@ codeunit 134103 "ERM Prepayment IV"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         PrepaymentAmount: Decimal;
     begin
-        CurrencyExchangeRate.Get(CurrencyCode, LibraryERM.FindEarliestDateForExhRate);
+        CurrencyExchangeRate.Get(CurrencyCode, LibraryERM.FindEarliestDateForExhRate());
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         CreateSalesLineGL(SalesLine, SalesHeader, GLAccountNo);
         PrepaymentAmount := Round(SalesLine."Line Amount" * SalesHeader."Prepayment %" / 100);
@@ -4107,10 +4107,9 @@ codeunit 134103 "ERM Prepayment IV"
 
     local procedure GetPostedDocumentNo(NoSeriesCode: Code[20]): Code[20]
     var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
-        Clear(NoSeriesManagement);
-        exit(NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false));
+        exit(NoSeries.PeekNextNo(NoSeriesCode));
     end;
 
     local procedure ModifyCustomerNoOnSalesHeader(var SalesHeader: Record "Sales Header")
@@ -4273,7 +4272,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         PrepmtCrMemoNo := GetPostedDocumentNo(PurchaseHeader."Prepmt. Cr. Memo No. Series");
         PurchaseHeader.Validate("Posting Date", PostingDate);
-        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryPurchase.GegVendorLedgerEntryUniqueExternalDocNo); // Ensure posting doesnt break on error when this field is empty
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryPurchase.GegVendorLedgerEntryUniqueExternalDocNo()); // Ensure posting doesnt break on error when this field is empty
         PurchaseHeader.Modify(true);
         PurchasePostPrepayments.CreditMemo(PurchaseHeader);
         exit(PrepmtCrMemoNo);
@@ -4466,7 +4465,7 @@ codeunit 134103 "ERM Prepayment IV"
     begin
         FindGLEntry(GLEntry, DocumentNo, GLAccountNo);
         Assert.AreNearlyEqual(
-          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 

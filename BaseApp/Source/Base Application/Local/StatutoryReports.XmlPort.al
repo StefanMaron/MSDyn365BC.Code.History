@@ -1,4 +1,4 @@
-﻿xmlport 26550 "Statutory Reports"
+xmlport 26550 "Statutory Reports"
 {
     Caption = 'Statutory Reports';
 
@@ -682,8 +682,6 @@
 
     [Scope('OnPrem')]
     procedure ImportData(PathName: Text[1024])
-    var
-        UpdateValue: Boolean;
     begin
         "Format Version".Reset();
         if "Format Version".FindSet() then

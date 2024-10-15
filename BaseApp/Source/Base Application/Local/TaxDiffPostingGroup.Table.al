@@ -2,6 +2,7 @@ table 17301 "Tax Diff. Posting Group"
 {
     Caption = 'Tax Diff. Posting Group';
     LookupPageID = "Tax Diff. Posting Groups";
+    DataClassification = CustomerContent;
 
     fields
     {

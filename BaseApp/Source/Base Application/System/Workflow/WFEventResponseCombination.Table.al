@@ -4,6 +4,7 @@ table 1509 "WF Event/Response Combination"
 {
     Caption = 'WF Event/Response Combination';
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {

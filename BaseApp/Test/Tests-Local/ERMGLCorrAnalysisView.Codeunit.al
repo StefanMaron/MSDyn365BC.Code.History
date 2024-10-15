@@ -112,7 +112,7 @@
         Initialize();
 
         CreateGeneralLineWithGLAccount(GenJournalLine);
-        GenJournalLine.Validate("Posting Date", FindLastFYClosingDate);
+        GenJournalLine.Validate("Posting Date", FindLastFYClosingDate());
         GenJournalLine.Modify();
         LibraryVariableStorage.Enqueue(0);
 
@@ -137,7 +137,7 @@
 
         // [GIVEN] Create and post general journal line with Currency and AmountLCY = "A"
         CreateGeneralLineWithGLAccount(GenJournalLine);
-        GenJournalLine.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
+        GenJournalLine.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
         GenJournalLine.Modify(true);
         LibraryVariableStorage.Enqueue(-GenJournalLine."Amount (LCY)");
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -281,8 +281,8 @@
         ItemAnalysisMgt: Codeunit "Item Analysis Management";
         DateFilter: Text[30];
         InternalDateFilter: Text[30];
-        DimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        DimOption: Enum "Item Analysis Dimension Type";
+        PeriodType: Enum "Analysis Period Type";
         PeriodStart: Date;
         PeriodEnd: Date;
         PeriodInitialized: Boolean;
@@ -442,16 +442,16 @@
         GLCorrAnalysisViewList: TestPage "G/L Corr. Analysis View List";
         GLCorrAnalysisByDim: TestPage "G/L Corr. Analysis by Dim.";
     begin
-        GLCorrAnalysisViewList.OpenView;
+        GLCorrAnalysisViewList.OpenView();
         GLCorrAnalysisViewList.FILTER.SetFilter(Code, Code);
-        GLCorrAnalysisViewList."&Update".Invoke;
-        GLCorrAnalysisByDim.Trap;
-        GLCorrAnalysisViewList.EditAnalysis.Invoke;
+        GLCorrAnalysisViewList."&Update".Invoke();
+        GLCorrAnalysisByDim.Trap();
+        GLCorrAnalysisViewList.EditAnalysis.Invoke();
         GLCorrAnalysisByDim.RoundingFactor.SetValue(RoundingFactor);
         GLCorrAnalysisByDim.AmountType.SetValue(AmountType);
         GLCorrAnalysisByDim.DebitDim1Filter.SetValue(Dim1Filter);
         GLCorrAnalysisByDim.ClosingEntryFilter.SetValue(ClosingDates);
-        // GLCorrAnalysisByDim.ShowMatrix.INVOKE;
+        // GLCorrAnalysisByDim.ShowMatrix.Invoke();
     end;
 
     local procedure OpenAndVerifyAnalysisByDimension(RoundingFactor: Integer; Precision: Decimal)

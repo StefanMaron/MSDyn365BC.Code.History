@@ -22,6 +22,7 @@ using Microsoft.Warehouse.Structure;
 table 99000853 "Inventory Profile"
 {
     Caption = 'Inventory Profile';
+    DataClassification = CustomerContent;
 
     fields
     {

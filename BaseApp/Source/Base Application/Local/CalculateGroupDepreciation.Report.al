@@ -84,119 +84,115 @@ report 14933 "Calculate Group Depreciation"
                 begin
                     DeprDiff := GroupDeprAmount - TotalDeprAmount;
 
-                    with FAJnlLine do begin
-                        if FAJnlLineTmp.FindSet() then begin
-                            LockTable();
-                            FAJnlSetup.FAJnlName(DeprBook, FAJnlLine, FAJnlNextLineNo);
-                            NoSeries := FAJnlSetup.GetFANoSeries(FAJnlLine);
-                            if DocumentNo = '' then
-                                DocumentNo2 := FAJnlSetup.GetFAJnlDocumentNo(FAJnlLine, DeprUntilDate, true)
-                            else
-                                DocumentNo2 := DocumentNo;
-                        end;
-                        if FAJnlLineTmp.FindSet() then begin
-                            repeat
-                                Init();
-                                "Line No." := 0;
-                                FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
-                                LineNo := LineNo + 1;
-                                Window.Update(3, LineNo);
-                                "Posting Date" := PostingDate;
-                                "FA Posting Date" := DeprUntilDate;
-                                if "Posting Date" = "FA Posting Date" then
-                                    "Posting Date" := 0D;
-                                "FA Posting Type" := FAJnlLineTmp."FA Posting Type";
-                                Validate("FA No.", FAJnlLineTmp."FA No.");
-                                "Document No." := DocumentNo2;
-                                "Posting No. Series" := NoSeries;
-                                Description := PostingDescription;
-                                Validate("Depreciation Book Code", DeprBookCode);
-                                Validate(Amount, FAJnlLineTmp.Amount);
-                                "No. of Depreciation Days" := FAJnlLineTmp."No. of Depreciation Days";
-                                "FA Error Entry No." := FAJnlLineTmp."FA Error Entry No.";
-                                FAJnlNextLineNo := FAJnlNextLineNo + 10000;
-                                "Line No." := FAJnlNextLineNo;
-                                "Location Code" := FAJnlLineTmp."Location Code";
-                                "Employee No." := FAJnlLineTmp."Employee No.";
-                                "Depr. Period Starting Date" := FAJnlLineTmp."Depr. Period Starting Date";
-                                Insert(true);
+                    if FAJnlLineTmp.FindSet() then begin
+                        FAJnlLine.LockTable();
+                        FAJnlSetup.FAJnlName(DeprBook, FAJnlLine, FAJnlNextLineNo);
+                        NoSeries := FAJnlSetup.GetFANoSeries(FAJnlLine);
+                        if DocumentNo = '' then
+                            DocumentNo2 := FAJnlSetup.GetFAJnlDocumentNo(FAJnlLine, DeprUntilDate, true)
+                        else
+                            DocumentNo2 := DocumentNo;
+                    end;
+                    if FAJnlLineTmp.FindSet() then begin
+                        repeat
+                            FAJnlLine.Init();
+                            FAJnlLine."Line No." := 0;
+                            FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
+                            LineNo := LineNo + 1;
+                            Window.Update(3, LineNo);
+                            FAJnlLine."Posting Date" := PostingDate;
+                            FAJnlLine."FA Posting Date" := DeprUntilDate;
+                            if FAJnlLine."Posting Date" = FAJnlLine."FA Posting Date" then
+                                FAJnlLine."Posting Date" := 0D;
+                            FAJnlLine."FA Posting Type" := FAJnlLineTmp."FA Posting Type";
+                            FAJnlLine.Validate("FA No.", FAJnlLineTmp."FA No.");
+                            FAJnlLine."Document No." := DocumentNo2;
+                            FAJnlLine."Posting No. Series" := NoSeries;
+                            FAJnlLine.Description := PostingDescription;
+                            FAJnlLine.Validate("Depreciation Book Code", DeprBookCode);
+                            FAJnlLine.Validate(Amount, FAJnlLineTmp.Amount);
+                            FAJnlLine."No. of Depreciation Days" := FAJnlLineTmp."No. of Depreciation Days";
+                            FAJnlLine."FA Error Entry No." := FAJnlLineTmp."FA Error Entry No.";
+                            FAJnlNextLineNo := FAJnlNextLineNo + 10000;
+                            FAJnlLine."Line No." := FAJnlNextLineNo;
+                            FAJnlLine."Location Code" := FAJnlLineTmp."Location Code";
+                            FAJnlLine."Employee No." := FAJnlLineTmp."Employee No.";
+                            FAJnlLine."Depr. Period Starting Date" := FAJnlLineTmp."Depr. Period Starting Date";
+                            FAJnlLine.Insert(true);
 
-                                if Abs(Amount) >= MaxFAJnlAmount then begin
-                                    MaxFAJnlAmount := Abs(Amount);
-                                    MaxAmountFAJnlLineNo := "Line No.";
-                                end;
-
-                            until FAJnlLineTmp.Next() = 0;
-
-                            if DeprDiff <> 0 then begin
-                                "Line No." := MaxAmountFAJnlLineNo;
-                                Find();
-                                Validate(Amount, Amount - DeprDiff);
-                                Modify();
+                            if Abs(FAJnlLine.Amount) >= MaxFAJnlAmount then begin
+                                MaxFAJnlAmount := Abs(FAJnlLine.Amount);
+                                MaxAmountFAJnlLineNo := FAJnlLine."Line No.";
                             end;
+
+                        until FAJnlLineTmp.Next() = 0;
+
+                        if DeprDiff <> 0 then begin
+                            FAJnlLine."Line No." := MaxAmountFAJnlLineNo;
+                            FAJnlLine.Find();
+                            FAJnlLine.Validate(Amount, FAJnlLine.Amount - DeprDiff);
+                            FAJnlLine.Modify();
                         end;
                     end;
 
-                    with GenJnlLine do begin
-                        if GenJnlLineTmp.FindSet() then begin
-                            LockTable();
-                            FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, GenJnlNextLineNo);
-                            NoSeries := FAJnlSetup.GetGenNoSeries(GenJnlLine);
-                            if DocumentNo = '' then
-                                DocumentNo2 := FAJnlSetup.GetGenJnlDocumentNo(GenJnlLine, DeprUntilDate, true)
-                            else
-                                DocumentNo2 := DocumentNo;
+                    if GenJnlLineTmp.FindSet() then begin
+                        GenJnlLine.LockTable();
+                        FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, GenJnlNextLineNo);
+                        NoSeries := FAJnlSetup.GetGenNoSeries(GenJnlLine);
+                        if DocumentNo = '' then
+                            DocumentNo2 := FAJnlSetup.GetGenJnlDocumentNo(GenJnlLine, DeprUntilDate, true)
+                        else
+                            DocumentNo2 := DocumentNo;
 
-                        end;
-                        if GenJnlLineTmp.FindSet() then begin
-                            repeat
-                                Init();
-                                "Line No." := 0;
-                                FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
-                                LineNo := LineNo + 1;
-                                Window.Update(3, LineNo);
-                                "Posting Date" := PostingDate;
-                                "FA Posting Date" := DeprUntilDate;
-                                if "Posting Date" = "FA Posting Date" then
-                                    "FA Posting Date" := 0D;
-                                "FA Posting Type" := GenJnlLineTmp."FA Posting Type";
-                                "Account Type" := "Account Type"::"Fixed Asset";
-                                Validate("Account No.", GenJnlLineTmp."Account No.");
-                                Description := PostingDescription;
-                                "Document No." := DocumentNo2;
-                                "Posting No. Series" := NoSeries;
-                                Validate("Depreciation Book Code", DeprBookCode);
-                                Validate(Amount, GenJnlLineTmp.Amount);
-                                "No. of Depreciation Days" := GenJnlLineTmp."No. of Depreciation Days";
-                                "FA Error Entry No." := GenJnlLineTmp."FA Error Entry No.";
-                                GenJnlNextLineNo := GenJnlNextLineNo + 10000;
-                                "Line No." := GenJnlNextLineNo;
-                                "Employee No." := GenJnlLineTmp."Employee No.";
-                                "FA Location Code" := GenJnlLineTmp."FA Location Code";
-                                "Depr. Period Starting Date" := GenJnlLineTmp."Depr. Period Starting Date";
-                                Insert(true);
-                                if BalAccount then
-                                    FAInsertGLAcc.GetBalAcc(GenJnlLine, GenJnlNextLineNo);
+                    end;
+                    if GenJnlLineTmp.FindSet() then begin
+                        repeat
+                            GenJnlLine.Init();
+                            GenJnlLine."Line No." := 0;
+                            FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
+                            LineNo := LineNo + 1;
+                            Window.Update(3, LineNo);
+                            GenJnlLine."Posting Date" := PostingDate;
+                            GenJnlLine."FA Posting Date" := DeprUntilDate;
+                            if GenJnlLine."Posting Date" = GenJnlLine."FA Posting Date" then
+                                GenJnlLine."FA Posting Date" := 0D;
+                            GenJnlLine."FA Posting Type" := GenJnlLineTmp."FA Posting Type";
+                            GenJnlLine."Account Type" := GenJnlLine."Account Type"::"Fixed Asset";
+                            GenJnlLine.Validate("Account No.", GenJnlLineTmp."Account No.");
+                            GenJnlLine.Description := PostingDescription;
+                            GenJnlLine."Document No." := DocumentNo2;
+                            GenJnlLine."Posting No. Series" := NoSeries;
+                            GenJnlLine.Validate("Depreciation Book Code", DeprBookCode);
+                            GenJnlLine.Validate(Amount, GenJnlLineTmp.Amount);
+                            GenJnlLine."No. of Depreciation Days" := GenJnlLineTmp."No. of Depreciation Days";
+                            GenJnlLine."FA Error Entry No." := GenJnlLineTmp."FA Error Entry No.";
+                            GenJnlNextLineNo := GenJnlNextLineNo + 10000;
+                            GenJnlLine."Line No." := GenJnlNextLineNo;
+                            GenJnlLine."Employee No." := GenJnlLineTmp."Employee No.";
+                            GenJnlLine."FA Location Code" := GenJnlLineTmp."FA Location Code";
+                            GenJnlLine."Depr. Period Starting Date" := GenJnlLineTmp."Depr. Period Starting Date";
+                            GenJnlLine.Insert(true);
+                            if BalAccount then
+                                FAInsertGLAcc.GetBalAcc(GenJnlLine, GenJnlNextLineNo);
 
-                                if Abs(Amount) >= MaxGenJnlAmount then begin
-                                    MaxGenJnlAmount := Abs(Amount);
-                                    MaxAmountGenJnlLineNo := "Line No.";
-                                    MaxAmountGenJnlBalLineNo := GenJnlNextLineNo;
-                                end;
-                            until GenJnlLineTmp.Next() = 0;
+                            if Abs(GenJnlLine.Amount) >= MaxGenJnlAmount then begin
+                                MaxGenJnlAmount := Abs(GenJnlLine.Amount);
+                                MaxAmountGenJnlLineNo := GenJnlLine."Line No.";
+                                MaxAmountGenJnlBalLineNo := GenJnlNextLineNo;
+                            end;
+                        until GenJnlLineTmp.Next() = 0;
 
-                            if DeprDiff <> 0 then begin
-                                "Line No." := MaxAmountGenJnlLineNo;
-                                Find();
-                                Validate(Amount, Amount - DeprDiff);
-                                Modify();
+                        if DeprDiff <> 0 then begin
+                            GenJnlLine."Line No." := MaxAmountGenJnlLineNo;
+                            GenJnlLine.Find();
+                            GenJnlLine.Validate(Amount, GenJnlLine.Amount - DeprDiff);
+                            GenJnlLine.Modify();
 
-                                if BalAccount then begin
-                                    "Line No." := MaxAmountGenJnlBalLineNo;
-                                    Find();
-                                    Validate(Amount, Amount + DeprDiff);
-                                    Modify();
-                                end;
+                            if BalAccount then begin
+                                GenJnlLine."Line No." := MaxAmountGenJnlBalLineNo;
+                                GenJnlLine.Find();
+                                GenJnlLine.Validate(Amount, GenJnlLine.Amount + DeprDiff);
+                                GenJnlLine.Modify();
                             end;
                         end;
                     end;
@@ -429,7 +425,6 @@ report 14933 "Calculate Group Depreciation"
         Text006: Label 'Group %4 cannot be written off.\';
         Text007: Label 'There is posted depreciation later then %1.\for FA Code %2\FA Depreciation Book Code %3 ';
         Text008: Label '%1 %2 Group Depreciation FA (%3)';
-        Text009: Label 'You must check Change Details to use this field.';
         Text12400: Label 'Previous periods Depreciation was not calculated';
         Text12401: Label 'Depreciation was already calculated';
         Text12402: Label '\for Depr. Period Starting Date %1\FA Code %2\FA Depreciation Book Code %3.';
@@ -498,66 +493,62 @@ report 14933 "Calculate Group Depreciation"
                 if FADeprBook.Get(FixedAsset."No.", DeprBookCode) then
                     if CheckDeprBook() then
                         if not DeprBook."G/L Integration - Depreciation" or FixedAsset."Budgeted Asset" then begin
-                            with FAJnlLine do begin
-                                LockTable();
-                                FAJnlSetup.FAJnlName(DeprBook, FAJnlLine, FAJnlNextLineNo);
-                                NoSeries := FAJnlSetup.GetFANoSeries(FAJnlLine);
-                                if DocumentNo = '' then
-                                    DocumentNo2 := FAJnlSetup.GetFAJnlDocumentNo(FAJnlLine, DeprUntilDate, true)
-                                else
-                                    DocumentNo2 := DocumentNo;
+                            FAJnlLine.LockTable();
+                            FAJnlSetup.FAJnlName(DeprBook, FAJnlLine, FAJnlNextLineNo);
+                            NoSeries := FAJnlSetup.GetFANoSeries(FAJnlLine);
+                            if DocumentNo = '' then
+                                DocumentNo2 := FAJnlSetup.GetFAJnlDocumentNo(FAJnlLine, DeprUntilDate, true)
+                            else
+                                DocumentNo2 := DocumentNo;
 
-                                Init();
-                                FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
-                                "Posting Date" := PostingDate;
-                                "FA Posting Date" := DeprUntilDate;
-                                if "Posting Date" = "FA Posting Date" then
-                                    "Posting Date" := 0D;
-                                Validate("FA Posting Type", "FA Posting Type"::Disposal);
-                                Validate("FA No.", FixedAsset."No.");
-                                "Document No." := DocumentNo2;
-                                "Posting No. Series" := NoSeries;
-                                Description := Text12410;
-                                Validate("Depreciation Book Code", DeprBookCode);
-                                "Location Code" := FixedAsset."FA Location Code";
-                                "Employee No." := FixedAsset."Responsible Employee";
-                                "Depr. Group Elimination" := true;
-                                "Depr. until FA Posting Date" := false;
+                            FAJnlLine.Init();
+                            FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
+                            FAJnlLine."Posting Date" := PostingDate;
+                            FAJnlLine."FA Posting Date" := DeprUntilDate;
+                            if FAJnlLine."Posting Date" = FAJnlLine."FA Posting Date" then
+                                FAJnlLine."Posting Date" := 0D;
+                            FAJnlLine.Validate("FA Posting Type", FAJnlLine."FA Posting Type"::Disposal);
+                            FAJnlLine.Validate("FA No.", FixedAsset."No.");
+                            FAJnlLine."Document No." := DocumentNo2;
+                            FAJnlLine."Posting No. Series" := NoSeries;
+                            FAJnlLine.Description := Text12410;
+                            FAJnlLine.Validate("Depreciation Book Code", DeprBookCode);
+                            FAJnlLine."Location Code" := FixedAsset."FA Location Code";
+                            FAJnlLine."Employee No." := FixedAsset."Responsible Employee";
+                            FAJnlLine."Depr. Group Elimination" := true;
+                            FAJnlLine."Depr. until FA Posting Date" := false;
 
-                                FAJnlPostLine.FAJnlPostLine(FAJnlLine, true);
-                            end;
+                            FAJnlPostLine.FAJnlPostLine(FAJnlLine, true);
                         end else begin
-                            with GenJnlLine do begin
-                                LockTable();
-                                FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, GenJnlNextLineNo);
-                                NoSeries := FAJnlSetup.GetGenNoSeries(GenJnlLine);
-                                if DocumentNo = '' then
-                                    DocumentNo2 := FAJnlSetup.GetGenJnlDocumentNo(GenJnlLine, DeprUntilDate, true)
-                                else
-                                    DocumentNo2 := DocumentNo;
+                            GenJnlLine.LockTable();
+                            FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, GenJnlNextLineNo);
+                            NoSeries := FAJnlSetup.GetGenNoSeries(GenJnlLine);
+                            if DocumentNo = '' then
+                                DocumentNo2 := FAJnlSetup.GetGenJnlDocumentNo(GenJnlLine, DeprUntilDate, true)
+                            else
+                                DocumentNo2 := DocumentNo;
 
-                                Init();
-                                FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
-                                LineNo := LineNo + 1;
-                                Window.Update(3, LineNo);
-                                "Posting Date" := PostingDate;
-                                "FA Posting Date" := DeprUntilDate;
-                                if "Posting Date" = "FA Posting Date" then
-                                    "FA Posting Date" := 0D;
-                                "Account Type" := "Account Type"::"Fixed Asset";
-                                Validate("FA Posting Type", "FA Posting Type"::Disposal);
-                                Validate("Account No.", FixedAsset."No.");
-                                Description := Text12410;
-                                "Document No." := DocumentNo2;
-                                "Posting No. Series" := NoSeries;
-                                Validate("Depreciation Book Code", DeprBookCode);
-                                "Employee No." := FixedAsset."Responsible Employee";
-                                "FA Location Code" := FixedAsset."FA Location Code";
-                                "Depr. Group Elimination" := true;
-                                "Depr. until FA Posting Date" := false;
+                            GenJnlLine.Init();
+                            FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
+                            LineNo := LineNo + 1;
+                            Window.Update(3, LineNo);
+                            GenJnlLine."Posting Date" := PostingDate;
+                            GenJnlLine."FA Posting Date" := DeprUntilDate;
+                            if GenJnlLine."Posting Date" = GenJnlLine."FA Posting Date" then
+                                GenJnlLine."FA Posting Date" := 0D;
+                            GenJnlLine."Account Type" := GenJnlLine."Account Type"::"Fixed Asset";
+                            GenJnlLine.Validate("FA Posting Type", GenJnlLine."FA Posting Type"::Disposal);
+                            GenJnlLine.Validate("Account No.", FixedAsset."No.");
+                            GenJnlLine.Description := Text12410;
+                            GenJnlLine."Document No." := DocumentNo2;
+                            GenJnlLine."Posting No. Series" := NoSeries;
+                            GenJnlLine.Validate("Depreciation Book Code", DeprBookCode);
+                            GenJnlLine."Employee No." := FixedAsset."Responsible Employee";
+                            GenJnlLine."FA Location Code" := FixedAsset."FA Location Code";
+                            GenJnlLine."Depr. Group Elimination" := true;
+                            GenJnlLine."Depr. until FA Posting Date" := false;
 
-                                GenJnlPostLine.RunWithCheck(GenJnlLine);
-                            end;
+                            GenJnlPostLine.RunWithCheck(GenJnlLine);
                         end;
             until FixedAsset.Next() = 0;
     end;
@@ -621,17 +612,17 @@ report 14933 "Calculate Group Depreciation"
         DeprCalculation.SetFAFilter(FALedgEntry, FANo, DeprBookCode, true);
         FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::Depreciation);
         FALedgEntry.SetRange("Depr. Bonus", false);
-        with FALedgEntry do begin
-            SetRange("FA Posting Date", StartDate, CalcDate('<CM>', StartDate));
-            if FindFirst() then
-                NoOfPeriods := 1; // depreciation for current month already exists
-            SetRange("FA Posting Date", CalcDate('<-1M>', StartDate), CalcDate('<-1M+CM>', StartDate));
-            if FindFirst() then
-                NoOfPeriods := NoOfPeriods + 2; // depreciation for previous month already exists
-            SetFilter("FA Posting Date", '%1..', CalcDate('<+1M>', StartDate));
-            if FindFirst() then
-                NoOfPeriods := 4; // depreciation for next month already exists
-        end;
+        FALedgEntry.SetRange("FA Posting Date", StartDate, CalcDate('<CM>', StartDate));
+        if FALedgEntry.FindFirst() then
+            NoOfPeriods := 1;
+        // depreciation for current month already exists
+        FALedgEntry.SetRange("FA Posting Date", CalcDate('<-1M>', StartDate), CalcDate('<-1M+CM>', StartDate));
+        if FALedgEntry.FindFirst() then
+            NoOfPeriods := NoOfPeriods + 2;
+        // depreciation for previous month already exists
+        FALedgEntry.SetFilter("FA Posting Date", '%1..', CalcDate('<+1M>', StartDate));
+        if FALedgEntry.FindFirst() then
+            NoOfPeriods := 4; // depreciation for next month already exists
         exit(NoOfPeriods);
     end;
 

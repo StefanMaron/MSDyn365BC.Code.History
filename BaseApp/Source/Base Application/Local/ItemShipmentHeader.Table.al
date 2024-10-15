@@ -5,6 +5,7 @@ table 12454 "Item Shipment Header"
     ObsoleteState = Pending;
     ObsoleteReason = 'Replaced by Inventory Documents feature.';
     ObsoleteTag = '18.0';
+    DataClassification = CustomerContent;
 
     fields
     {

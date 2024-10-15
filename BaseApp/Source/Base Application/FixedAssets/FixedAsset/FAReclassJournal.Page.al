@@ -1,6 +1,8 @@
 namespace Microsoft.FixedAssets.Journal;
 
+#if not CLEAN24
 using Microsoft.Foundation.Reporting;
+#endif
 
 page 5636 "FA Reclass. Journal"
 {
@@ -285,8 +287,13 @@ page 5636 "FA Reclass. Journal"
 
     protected var
         FAReclassJnlManagement: Codeunit FAReclassJnlManagement;
-        CurrentJnlBatchName: Code[10];
+#if not CLEAN24
+#pragma warning disable AA0137
+        [Obsolete('Unused variable', '24.0')]
         DocPrint: Codeunit "Document-Print";
+#pragma warning restore AA0137
+#endif  
+        CurrentJnlBatchName: Code[10];
         FADescription: Text[100];
         NewFADescription: Text[100];
 

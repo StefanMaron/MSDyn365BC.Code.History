@@ -190,7 +190,6 @@ report 12400 "Bank Payment Order"
         CheckManagement: Codeunit CheckManagement;
         LocMgt: Codeunit "Localisation Management";
         StdRepMgt: Codeunit "Local Report Management";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         BankPaymentOrderHelper: Codeunit "Bank Payment Order Helper";
         DocAmount: Decimal;
         PrintTest: Boolean;
@@ -229,115 +228,115 @@ report 12400 "Bank Payment Order"
     end;
 
     local procedure InsertCheckLedgerEntry(GenJournalLine: Record "Gen. Journal Line")
+    var
+        NoSeries: Codeunit "No. Series";
     begin
-        with GenJournalLine do
-            if Preview or PrintTest then begin
-                if "Document No." = '' then
-                    "Document No." := DocumentNoTxt;
+        if Preview or PrintTest then begin
+            if GenJournalLine."Document No." = '' then
+                GenJournalLine."Document No." := DocumentNoTxt;
 
-                BankAcc.Get("Bal. Account No.");
-                if (("Account Type" = "Account Type"::"Bank Account") or
-                    ("Bal. Account Type" = "Bal. Account Type"::"Bank Account")) and
-                   ((Amount < 0) or (BankAcc."Account Type" = BankAcc."Account Type"::"Cash Account"))
-                then
-                    TestField("Bank Payment Type");
-            end else
-                if "Bank Payment Type" <> "Bank Payment Type"::"Computer Check" then begin
-                    TestField("Document No.");
-                    if "Posting No. Series" <> '' then
-                        if not Confirm(PrintQst,
-                             false, FieldCaption("Posting No. Series"), FieldCaption("Document No."))
-                        then
-                            Error('');
-                end else begin
-                    if "Posting No. Series" <> '' then
-                        FieldError("Posting No. Series",
-                          StrSubstNo(CanNotBeUsedErr,
-                            FieldCaption("Bank Payment Type"), "Bank Payment Type"));
-                    BankAcc.Get("Bal. Account No.");
-                    case PaymentDocType of
-                        PaymentDocType::"Payment Order":
-                            begin
-                                BankAcc.TestField("Bank Payment Order No. Series");
-                                if "Document No." = '' then
-                                    "Document No." := NoSeriesMgt.GetNextNo(BankAcc."Bank Payment Order No. Series", 0D, true)
-                                else begin
-                                    LastNo := NoSeriesMgt.GetNextNo(BankAcc."Bank Payment Order No. Series", 0D, false);
-                                    Clear(NoSeriesMgt);
-                                    if (DelChr("Document No.", '<>', '0123456789') <> DelChr(LastNo, '<>', '0123456789')) or
-                                       ("Document No." > LastNo)
-                                    then
-                                        Error(WrongDocumentNoErr, "Document No.", LastNo);
-                                    if "Document No." = LastNo then
-                                        NoSeriesMgt.GetNextNo(BankAcc."Bank Payment Order No. Series", 0D, true);
-                                end;
-                                TestField("Document No.");
-                            end;
-                        PaymentDocType::"Collection Payment Order":
-                            ;
-                    end;
-                    "Check Printed" := true;
-                    Modify(true);
-                    CheckLedgEntry.Init();
-                    CheckLedgEntry."Bank Account No." := "Bal. Account No.";
-                    CheckLedgEntry."Posting Date" := "Posting Date";
-                    CheckLedgEntry."Check Date" := "Document Date";
-                    CheckLedgEntry."Document Type" := "Document Type";
-                    CheckLedgEntry."Document No." := "Document No.";
-                    CheckLedgEntry.Description :=
-                      CopyStr(Description, 1, MaxStrLen(CheckLedgEntry.Description));
-                    CheckLedgEntry.Description :=
-                      CopyStr(Description, 1, MaxStrLen(CheckLedgEntry.Description));
-                    CheckLedgEntry.Amount := -DocAmount;
-                    CheckLedgEntry.Positive := (CheckLedgEntry.Amount > 0);
-                    if (CheckLedgEntry.Positive and (not Correction)) or
-                       ((not CheckLedgEntry.Positive) and Correction)
+            BankAcc.Get(GenJournalLine."Bal. Account No.");
+            if ((GenJournalLine."Account Type" = GenJournalLine."Account Type"::"Bank Account") or
+                (GenJournalLine."Bal. Account Type" = GenJournalLine."Bal. Account Type"::"Bank Account")) and
+               ((GenJournalLine.Amount < 0) or (BankAcc."Account Type" = BankAcc."Account Type"::"Cash Account"))
+            then
+                GenJournalLine.TestField("Bank Payment Type");
+        end else
+            if GenJournalLine."Bank Payment Type" <> GenJournalLine."Bank Payment Type"::"Computer Check" then begin
+                GenJournalLine.TestField("Document No.");
+                if GenJournalLine."Posting No. Series" <> '' then
+                    if not Confirm(PrintQst,
+                         false, GenJournalLine.FieldCaption("Posting No. Series"), GenJournalLine.FieldCaption("Document No."))
                     then
-                        CheckLedgEntry."Debit Amount" := CheckLedgEntry.Amount
-                    else
-                        CheckLedgEntry."Credit Amount" := -CheckLedgEntry.Amount;
-                    CheckLedgEntry."Check No." := "Document No.";
-                    CheckLedgEntry."Bank Payment Type" := "Bank Payment Type";
-                    CheckLedgEntry."Entry Status" := CheckLedgEntry."Entry Status"::Printed;
-                    CheckLedgEntry."Bal. Account Type" := "Account Type";
-                    CheckLedgEntry."Bal. Account No." := "Account No.";
-                    CheckLedgEntry."Beneficiary Bank Code" := "Beneficiary Bank Code";
-                    CheckLedgEntry."Payment Purpose" := "Payment Purpose";
-                    CheckLedgEntry."Payment Method" := "Payment Method";
-                    CheckLedgEntry."Payment Before Date" := "Payment Date";
-                    CheckLedgEntry."Payment Subsequence" := "Payment Subsequence";
-                    CheckLedgEntry."Payment Code" := "Payment Code";
-                    CheckLedgEntry."Payment Assignment" := "Payment Assignment";
-                    CheckLedgEntry."Payment Type" := "Payment Type";
-                    CheckLedgEntry."Payer BIC" := PayerCode[CodeIndex::BIC];
-                    CheckLedgEntry."Payer Corr. Account No." := PayerCode[CodeIndex::CorrAccNo];
-                    CheckLedgEntry."Payer Bank Account No." := PayerCode[CodeIndex::BankAccNo];
-                    CheckLedgEntry."Payer Name" :=
-                      CopyStr(PayerText[TextIndex::Name], 1, MaxStrLen(CheckLedgEntry."Payer Name"));
-                    CheckLedgEntry."Payer Bank" :=
-                      CopyStr(PayerText[TextIndex::Bank], 1, MaxStrLen(CheckLedgEntry."Payer Bank"));
-                    CheckLedgEntry."Payer VAT Reg. No." := PayerCode[CodeIndex::INN];
-                    CheckLedgEntry."Payer KPP" := PayerCode[CodeIndex::KPP];
-                    CheckLedgEntry."Beneficiary BIC" := BenefCode[CodeIndex::BIC];
-                    CheckLedgEntry."Beneficiary Corr. Acc. No." := BenefCode[CodeIndex::CorrAccNo];
-                    CheckLedgEntry."Beneficiary Bank Acc. No." := BenefCode[CodeIndex::BankAccNo];
-                    CheckLedgEntry."Beneficiary Name" :=
-                      CopyStr(BenefText[TextIndex::Name], 1, MaxStrLen(CheckLedgEntry."Beneficiary Name"));
-                    CheckLedgEntry."Beneficiary VAT Reg No." := BenefCode[CodeIndex::INN];
-                    CheckLedgEntry."Beneficiary KPP" := BenefCode[CodeIndex::KPP];
-                    CheckLedgEntry."Posting Group" := "Posting Group";
-                    CheckLedgEntry.KBK := KBK;
-                    CheckLedgEntry.OKATO := OKATO;
-                    CheckLedgEntry."Period Code" := "Period Code";
-                    CheckLedgEntry."Payment Reason Code" := "Payment Reason Code";
-                    CheckLedgEntry."Reason Document No." := "Reason Document No.";
-                    CheckLedgEntry."Reason Document Date" := "Reason Document Date";
-                    CheckLedgEntry."Reason Document Type" := "Reason Document Type";
-                    CheckLedgEntry."Tax Payment Type" := "Tax Payment Type";
-                    CheckLedgEntry."Tax Period" := "Tax Period";
-                    CheckLedgEntry."Taxpayer Status" := "Taxpayer Status";
-                    CheckManagement.InsertCheck(CheckLedgEntry, RecordId);
+                        Error('');
+            end else begin
+                if GenJournalLine."Posting No. Series" <> '' then
+                    GenJournalLine.FieldError("Posting No. Series",
+                      StrSubstNo(CanNotBeUsedErr,
+                        GenJournalLine.FieldCaption("Bank Payment Type"), GenJournalLine."Bank Payment Type"));
+                BankAcc.Get(GenJournalLine."Bal. Account No.");
+                case PaymentDocType of
+                    PaymentDocType::"Payment Order":
+                        begin
+                            BankAcc.TestField("Bank Payment Order No. Series");
+                            if GenJournalLine."Document No." = '' then
+                                GenJournalLine."Document No." := NoSeries.GetNextNo(BankAcc."Bank Payment Order No. Series")
+                            else begin
+                                LastNo := NoSeries.PeekNextNo(BankAcc."Bank Payment Order No. Series");
+                                if (DelChr(GenJournalLine."Document No.", '<>', '0123456789') <> DelChr(LastNo, '<>', '0123456789')) or
+                                   (GenJournalLine."Document No." > LastNo)
+                                then
+                                    Error(WrongDocumentNoErr, GenJournalLine."Document No.", LastNo);
+                                if GenJournalLine."Document No." = LastNo then
+                                    NoSeries.GetNextNo(BankAcc."Bank Payment Order No. Series");
+                            end;
+                            GenJournalLine.TestField("Document No.");
+                        end;
+                    PaymentDocType::"Collection Payment Order":
+                        ;
                 end;
+                GenJournalLine."Check Printed" := true;
+                GenJournalLine.Modify(true);
+                CheckLedgEntry.Init();
+                CheckLedgEntry."Bank Account No." := GenJournalLine."Bal. Account No.";
+                CheckLedgEntry."Posting Date" := GenJournalLine."Posting Date";
+                CheckLedgEntry."Check Date" := GenJournalLine."Document Date";
+                CheckLedgEntry."Document Type" := GenJournalLine."Document Type";
+                CheckLedgEntry."Document No." := GenJournalLine."Document No.";
+                CheckLedgEntry.Description :=
+                  CopyStr(GenJournalLine.Description, 1, MaxStrLen(CheckLedgEntry.Description));
+                CheckLedgEntry.Description :=
+                  CopyStr(GenJournalLine.Description, 1, MaxStrLen(CheckLedgEntry.Description));
+                CheckLedgEntry.Amount := -DocAmount;
+                CheckLedgEntry.Positive := (CheckLedgEntry.Amount > 0);
+                if (CheckLedgEntry.Positive and (not GenJournalLine.Correction)) or
+                   ((not CheckLedgEntry.Positive) and GenJournalLine.Correction)
+                then
+                    CheckLedgEntry."Debit Amount" := CheckLedgEntry.Amount
+                else
+                    CheckLedgEntry."Credit Amount" := -CheckLedgEntry.Amount;
+                CheckLedgEntry."Check No." := GenJournalLine."Document No.";
+                CheckLedgEntry."Bank Payment Type" := GenJournalLine."Bank Payment Type";
+                CheckLedgEntry."Entry Status" := CheckLedgEntry."Entry Status"::Printed;
+                CheckLedgEntry."Bal. Account Type" := GenJournalLine."Account Type";
+                CheckLedgEntry."Bal. Account No." := GenJournalLine."Account No.";
+                CheckLedgEntry."Beneficiary Bank Code" := GenJournalLine."Beneficiary Bank Code";
+                CheckLedgEntry."Payment Purpose" := GenJournalLine."Payment Purpose";
+                CheckLedgEntry."Payment Method" := GenJournalLine."Payment Method";
+                CheckLedgEntry."Payment Before Date" := GenJournalLine."Payment Date";
+                CheckLedgEntry."Payment Subsequence" := GenJournalLine."Payment Subsequence";
+                CheckLedgEntry."Payment Code" := GenJournalLine."Payment Code";
+                CheckLedgEntry."Payment Assignment" := GenJournalLine."Payment Assignment";
+                CheckLedgEntry."Payment Type" := GenJournalLine."Payment Type";
+                CheckLedgEntry."Payer BIC" := PayerCode[CodeIndex::BIC];
+                CheckLedgEntry."Payer Corr. Account No." := PayerCode[CodeIndex::CorrAccNo];
+                CheckLedgEntry."Payer Bank Account No." := PayerCode[CodeIndex::BankAccNo];
+                CheckLedgEntry."Payer Name" :=
+                  CopyStr(PayerText[TextIndex::Name], 1, MaxStrLen(CheckLedgEntry."Payer Name"));
+                CheckLedgEntry."Payer Bank" :=
+                  CopyStr(PayerText[TextIndex::Bank], 1, MaxStrLen(CheckLedgEntry."Payer Bank"));
+                CheckLedgEntry."Payer VAT Reg. No." := PayerCode[CodeIndex::INN];
+                CheckLedgEntry."Payer KPP" := PayerCode[CodeIndex::KPP];
+                CheckLedgEntry."Beneficiary BIC" := BenefCode[CodeIndex::BIC];
+                CheckLedgEntry."Beneficiary Corr. Acc. No." := BenefCode[CodeIndex::CorrAccNo];
+                CheckLedgEntry."Beneficiary Bank Acc. No." := BenefCode[CodeIndex::BankAccNo];
+                CheckLedgEntry."Beneficiary Name" :=
+                  CopyStr(BenefText[TextIndex::Name], 1, MaxStrLen(CheckLedgEntry."Beneficiary Name"));
+                CheckLedgEntry."Beneficiary VAT Reg No." := BenefCode[CodeIndex::INN];
+                CheckLedgEntry."Beneficiary KPP" := BenefCode[CodeIndex::KPP];
+                CheckLedgEntry."Posting Group" := GenJournalLine."Posting Group";
+                CheckLedgEntry.KBK := GenJournalLine.KBK;
+                CheckLedgEntry.OKATO := GenJournalLine.OKATO;
+                CheckLedgEntry."Period Code" := GenJournalLine."Period Code";
+                CheckLedgEntry."Payment Reason Code" := GenJournalLine."Payment Reason Code";
+                CheckLedgEntry."Reason Document No." := GenJournalLine."Reason Document No.";
+                CheckLedgEntry."Reason Document Date" := GenJournalLine."Reason Document Date";
+                CheckLedgEntry."Reason Document Type" := GenJournalLine."Reason Document Type";
+                CheckLedgEntry."Tax Payment Type" := GenJournalLine."Tax Payment Type";
+                CheckLedgEntry."Tax Period" := GenJournalLine."Tax Period";
+                CheckLedgEntry."Taxpayer Status" := GenJournalLine."Taxpayer Status";
+                CheckManagement.InsertCheck(CheckLedgEntry, GenJournalLine.RecordId);
+            end;
     end;
 
     local procedure TransferLineValues(var LineValue: array[28] of Text; GenGnlLine: Record "Gen. Journal Line")

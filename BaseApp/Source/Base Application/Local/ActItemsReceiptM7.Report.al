@@ -623,32 +623,30 @@ report 14917 "Act Items Receipt M-7"
         TotalAmountLCY: Decimal;
         TotalAmountInclVATLCY: Decimal;
     begin
-        with PurchHeader do begin
-            PurchLine.SetRange("Document Type", "Document Type");
-            PurchLine.SetRange("Document No.", "No.");
-            PurchLine.SetFilter(Type, '>0');
-            PurchLine.SetFilter(Quantity, '<>0');
-            if PurchLine.FindSet() then
-                repeat
-                    TempPurchLine := PurchLine;
-                    if PurchLine."Document Type" = PurchLine."Document Type"::"Credit Memo" then
-                        if PurchLine."Appl.-to Item Entry" <> 0 then begin
-                            ItemLedgerEntry.Get(PurchLine."Appl.-to Item Entry");
-                            ItemLedgerEntry.CalcFields("Cost Amount (Actual)", "Sales Amount (Actual)");
-                            if ItemLedgerEntry."Qty. per Unit of Measure" <> 0 then
-                                TempPurchLine.Quantity := ItemLedgerEntry.Quantity / ItemLedgerEntry."Qty. per Unit of Measure"
-                            else
-                                TempPurchLine.Quantity := ItemLedgerEntry.Quantity;
-                        end else
-                            TempPurchLine.Quantity := 0
-                    else
-                        TempPurchLine.Quantity := TempPurchLine."Qty. to Receive";
-                    TempPurchLine.Insert();
-                until PurchLine.Next() = 0;
+        PurchLine.SetRange("Document Type", PurchHeader."Document Type");
+        PurchLine.SetRange("Document No.", PurchHeader."No.");
+        PurchLine.SetFilter(Type, '>0');
+        PurchLine.SetFilter(Quantity, '<>0');
+        if PurchLine.FindSet() then
+            repeat
+                TempPurchLine := PurchLine;
+                if PurchLine."Document Type" = PurchLine."Document Type"::"Credit Memo" then
+                    if PurchLine."Appl.-to Item Entry" <> 0 then begin
+                        ItemLedgerEntry.Get(PurchLine."Appl.-to Item Entry");
+                        ItemLedgerEntry.CalcFields("Cost Amount (Actual)", "Sales Amount (Actual)");
+                        if ItemLedgerEntry."Qty. per Unit of Measure" <> 0 then
+                            TempPurchLine.Quantity := ItemLedgerEntry.Quantity / ItemLedgerEntry."Qty. per Unit of Measure"
+                        else
+                            TempPurchLine.Quantity := ItemLedgerEntry.Quantity;
+                    end else
+                        TempPurchLine.Quantity := 0
+                else
+                    TempPurchLine.Quantity := TempPurchLine."Qty. to Receive";
+                TempPurchLine.Insert();
+            until PurchLine.Next() = 0;
 
-            PurchasePosting.SumPurchLines2Ex(PurchHeader, PurchLineWithLCYAmtToReceive, TempPurchLine, 0,
-              TotalAmount, TotalAmountInclVAT, TotalAmountLCY, TotalAmountInclVATLCY);
-        end;
+        PurchasePosting.SumPurchLines2Ex(PurchHeader, PurchLineWithLCYAmtToReceive, TempPurchLine, 0,
+          TotalAmount, TotalAmountInclVAT, TotalAmountLCY, TotalAmountInclVATLCY);
     end;
 
     local procedure FillAmounts(PurchLine: Record "Purchase Line"; var Price: Decimal; var Amount: Decimal)
@@ -676,57 +674,55 @@ report 14917 "Act Items Receipt M-7"
 
     local procedure FillSheet1()
     begin
-        with HeaderBuffer do begin
-            ExcelReportBuilderMgr.SetSheet('Sheet1');
-            ExcelReportBuilderMgr.AddSection('PAGE1');
+        ExcelReportBuilderMgr.SetSheet('Sheet1');
+        ExcelReportBuilderMgr.AddSection('PAGE1');
 
-            ExcelReportBuilderMgr.AddDataToSection('DocumentNumber', "No.");
+        ExcelReportBuilderMgr.AddDataToSection('DocumentNumber', HeaderBuffer."No.");
 
-            if CompanyInformation."Director No." <> '' then
-                if Employee.Get(CompanyInformation."Director No.") then begin
-                    ExcelReportBuilderMgr.AddDataToSection('DirectorPosition', Employee.GetJobTitleName());
-                    ExcelReportBuilderMgr.AddDataToSection('DirectorName', CompanyInformation."Director Name");
-                end;
-
-            ExcelReportBuilderMgr.AddDataToSection('CompanyName', LocalReportManagement.GetCompanyName());
-            ExcelReportBuilderMgr.AddDataToSection('OKPO', CompanyInformation."OKPO Code");
-            ExcelReportBuilderMgr.AddDataToSection('DocumentDate', Format("Document Date"));
-
-            if "Buy-from Vendor No." <> '' then begin
-                Vendor.Get("Buy-from Vendor No.");
-                ExcelReportBuilderMgr.AddDataToSection('InvoiceAccountName',
-                  LocalReportManagement.GetVendorName("Buy-from Vendor No.") + ', ' +
-                  "Buy-from Address" + "Buy-from Address 2" + ', ' +
-                  "Buy-from City" + ', ' +
-                  "Buy-from Post Code" + ', ' +
-                  "Buy-from County" + ', ' +
-                  Vendor."Phone No.");
+        if CompanyInformation."Director No." <> '' then
+            if Employee.Get(CompanyInformation."Director No.") then begin
+                ExcelReportBuilderMgr.AddDataToSection('DirectorPosition', Employee.GetJobTitleName());
+                ExcelReportBuilderMgr.AddDataToSection('DirectorName', CompanyInformation."Director Name");
             end;
 
-            if "Pay-to Vendor No." <> '' then begin
-                Vendor.Get("Pay-to Vendor No.");
-                ExcelReportBuilderMgr.AddDataToSection('VendAccountName',
-                  LocalReportManagement.GetVendorName("Pay-to Vendor No.") + ', ' +
-                  "Pay-to Address" + "Pay-to Address 2" + ', ' +
-                  "Pay-to City" + ', ' +
-                  "Pay-to Post Code" + ', ' +
-                  "Pay-to County" + ', ' +
-                  Vendor."Phone No.");
-            end;
+        ExcelReportBuilderMgr.AddDataToSection('CompanyName', LocalReportManagement.GetCompanyName());
+        ExcelReportBuilderMgr.AddDataToSection('OKPO', CompanyInformation."OKPO Code");
+        ExcelReportBuilderMgr.AddDataToSection('DocumentDate', Format(HeaderBuffer."Document Date"));
 
-            ExcelReportBuilderMgr.AddDataToSection('AcceptorAccount',
-              LocalReportManagement.GetCompanyName() + ',' +
-              CompanyInformation.Address + CompanyInformation."Address 2" + ',' +
-              CompanyInformation."Phone No.");
-
-            if "External Agreement No." <> '' then
-                ExcelReportBuilderMgr.AddDataToSection('ContractNumber', "External Agreement No.")
-            else
-                ExcelReportBuilderMgr.AddDataToSection('ContractNumber', "Agreement No.");
-
-            if "Pmt. Discount Date" <> 0D then
-                ExcelReportBuilderMgr.AddDataToSection('ContractDate', LocMgt.Date2Text("Pmt. Discount Date"));
+        if HeaderBuffer."Buy-from Vendor No." <> '' then begin
+            Vendor.Get(HeaderBuffer."Buy-from Vendor No.");
+            ExcelReportBuilderMgr.AddDataToSection('InvoiceAccountName',
+              LocalReportManagement.GetVendorName(HeaderBuffer."Buy-from Vendor No.") + ', ' +
+              HeaderBuffer."Buy-from Address" + HeaderBuffer."Buy-from Address 2" + ', ' +
+              HeaderBuffer."Buy-from City" + ', ' +
+              HeaderBuffer."Buy-from Post Code" + ', ' +
+              HeaderBuffer."Buy-from County" + ', ' +
+              Vendor."Phone No.");
         end;
+
+        if HeaderBuffer."Pay-to Vendor No." <> '' then begin
+            Vendor.Get(HeaderBuffer."Pay-to Vendor No.");
+            ExcelReportBuilderMgr.AddDataToSection('VendAccountName',
+              LocalReportManagement.GetVendorName(HeaderBuffer."Pay-to Vendor No.") + ', ' +
+              HeaderBuffer."Pay-to Address" + HeaderBuffer."Pay-to Address 2" + ', ' +
+              HeaderBuffer."Pay-to City" + ', ' +
+              HeaderBuffer."Pay-to Post Code" + ', ' +
+              HeaderBuffer."Pay-to County" + ', ' +
+              Vendor."Phone No.");
+        end;
+
+        ExcelReportBuilderMgr.AddDataToSection('AcceptorAccount',
+          LocalReportManagement.GetCompanyName() + ',' +
+          CompanyInformation.Address + CompanyInformation."Address 2" + ',' +
+          CompanyInformation."Phone No.");
+
+        if HeaderBuffer."External Agreement No." <> '' then
+            ExcelReportBuilderMgr.AddDataToSection('ContractNumber', HeaderBuffer."External Agreement No.")
+        else
+            ExcelReportBuilderMgr.AddDataToSection('ContractNumber', HeaderBuffer."Agreement No.");
+
+        if HeaderBuffer."Pmt. Discount Date" <> 0D then
+            ExcelReportBuilderMgr.AddDataToSection('ContractDate', LocMgt.Date2Text(HeaderBuffer."Pmt. Discount Date"));
     end;
 
     local procedure FillSheet4()
@@ -735,50 +731,48 @@ report 14917 "Act Items Receipt M-7"
         EmployeeName: Text[50];
         EmployeeDocument: Text[250];
     begin
-        with HeaderBuffer do begin
-            ExcelReportBuilderMgr.SetSheet('Sheet4');
-            ExcelReportBuilderMgr.AddSection('PAGE4');
+        ExcelReportBuilderMgr.SetSheet('Sheet4');
+        ExcelReportBuilderMgr.AddSection('PAGE4');
 
-            ExcelReportBuilderMgr.AddDataToSection('AcceptanceDate', Format("Posting Date"));
+        ExcelReportBuilderMgr.AddDataToSection('AcceptanceDate', Format(HeaderBuffer."Posting Date"));
 
-            ExcelReportBuilderMgr.AddDataToSection('ActNo', Format("No."));
-            ExcelReportBuilderMgr.AddDataToSection('ActDay', Format("Document Date", 0, '<Day,2>'));
+        ExcelReportBuilderMgr.AddDataToSection('ActNo', Format(HeaderBuffer."No."));
+        ExcelReportBuilderMgr.AddDataToSection('ActDay', Format(HeaderBuffer."Document Date", 0, '<Day,2>'));
 
-            ExcelReportBuilderMgr.AddDataToSection('ActMonth', Format(LocMgt.Month2Text("Document Date")));
-            ExcelReportBuilderMgr.AddDataToSection('ActYear', Format("Document Date", 0, '<Year>'));
+        ExcelReportBuilderMgr.AddDataToSection('ActMonth', Format(LocMgt.Month2Text(HeaderBuffer."Document Date")));
+        ExcelReportBuilderMgr.AddDataToSection('ActYear', Format(HeaderBuffer."Document Date", 0, '<Year>'));
 
-            if GetDocSignParameters("No. of Documents", "Document Type".AsInteger(), "No.",
-                 DocumentSignature."Employee Type"::Member1, EmployeePosition, EmployeeName, EmployeeDocument)
-            then begin
-                ExcelReportBuilderMgr.AddDataToSection('CommissionMember1Title', EmployeePosition);
-                ExcelReportBuilderMgr.AddDataToSection('CommissionMember1Name', EmployeeName);
-                ExcelReportBuilderMgr.AddDataToSection('CommissionDocument1', EmployeeDocument);
-            end;
-
-            if GetDocSignParameters("No. of Documents", "Document Type".AsInteger(), "No.",
-                 DocumentSignature."Employee Type"::Member2, EmployeePosition, EmployeeName, EmployeeDocument)
-            then begin
-                ExcelReportBuilderMgr.AddDataToSection('CommissionMember2Title', EmployeePosition);
-                ExcelReportBuilderMgr.AddDataToSection('CommissionMember2Name', EmployeeName);
-                ExcelReportBuilderMgr.AddDataToSection('CommissionDocument2', EmployeeDocument);
-            end;
-
-            if GetDocSignParameters("No. of Documents", "Document Type".AsInteger(), "No.",
-                 DocumentSignature."Employee Type"::Member3, EmployeePosition, EmployeeName, EmployeeDocument)
-            then begin
-                ExcelReportBuilderMgr.AddDataToSection('CommissionMember3Title', EmployeePosition);
-                ExcelReportBuilderMgr.AddDataToSection('CommissionMember3Name', EmployeeName);
-                ExcelReportBuilderMgr.AddDataToSection('CommissionDocument3', EmployeeDocument);
-            end;
-
-            if GetDocSignParameters("No. of Documents", "Document Type".AsInteger(), "No.",
-                 DocumentSignature."Employee Type"::StoredBy, EmployeePosition, EmployeeName, EmployeeDocument)
-            then
-                ExcelReportBuilderMgr.AddDataToSection('Stockkeeper', EmployeeName)
-            else
-                if HeaderLocation.Get("Location Code") then
-                    ExcelReportBuilderMgr.AddDataToSection('Stockkeeper', HeaderLocation.Contact);
+        if GetDocSignParameters(HeaderBuffer."No. of Documents", HeaderBuffer."Document Type".AsInteger(), HeaderBuffer."No.",
+             DocumentSignature."Employee Type"::Member1, EmployeePosition, EmployeeName, EmployeeDocument)
+        then begin
+            ExcelReportBuilderMgr.AddDataToSection('CommissionMember1Title', EmployeePosition);
+            ExcelReportBuilderMgr.AddDataToSection('CommissionMember1Name', EmployeeName);
+            ExcelReportBuilderMgr.AddDataToSection('CommissionDocument1', EmployeeDocument);
         end;
+
+        if GetDocSignParameters(HeaderBuffer."No. of Documents", HeaderBuffer."Document Type".AsInteger(), HeaderBuffer."No.",
+             DocumentSignature."Employee Type"::Member2, EmployeePosition, EmployeeName, EmployeeDocument)
+        then begin
+            ExcelReportBuilderMgr.AddDataToSection('CommissionMember2Title', EmployeePosition);
+            ExcelReportBuilderMgr.AddDataToSection('CommissionMember2Name', EmployeeName);
+            ExcelReportBuilderMgr.AddDataToSection('CommissionDocument2', EmployeeDocument);
+        end;
+
+        if GetDocSignParameters(HeaderBuffer."No. of Documents", HeaderBuffer."Document Type".AsInteger(), HeaderBuffer."No.",
+             DocumentSignature."Employee Type"::Member3, EmployeePosition, EmployeeName, EmployeeDocument)
+        then begin
+            ExcelReportBuilderMgr.AddDataToSection('CommissionMember3Title', EmployeePosition);
+            ExcelReportBuilderMgr.AddDataToSection('CommissionMember3Name', EmployeeName);
+            ExcelReportBuilderMgr.AddDataToSection('CommissionDocument3', EmployeeDocument);
+        end;
+
+        if GetDocSignParameters(HeaderBuffer."No. of Documents", HeaderBuffer."Document Type".AsInteger(), HeaderBuffer."No.",
+             DocumentSignature."Employee Type"::StoredBy, EmployeePosition, EmployeeName, EmployeeDocument)
+        then
+            ExcelReportBuilderMgr.AddDataToSection('Stockkeeper', EmployeeName)
+        else
+            if HeaderLocation.Get(HeaderBuffer."Location Code") then
+                ExcelReportBuilderMgr.AddDataToSection('Stockkeeper', HeaderLocation.Contact);
     end;
 
     local procedure BlankZeroValue(Value: Decimal): Text

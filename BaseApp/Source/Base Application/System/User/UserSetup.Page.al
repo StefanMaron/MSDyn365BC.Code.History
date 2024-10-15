@@ -65,6 +65,11 @@ page 119 "User Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specify if you want user who posts purchase receipt or inventory put-away to be able to post invoice/credit-memo as well.';
                 }
+                field("Service Invoice Posting Policy"; Rec."Service Invoice Posting Policy")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specify if you want user who posts warehouse shipment or service shipments to be able to post invoice/credit-memo as well.';
+                }
                 field("Register Time"; Rec."Register Time")
                 {
                     ApplicationArea = Basic, Suite;

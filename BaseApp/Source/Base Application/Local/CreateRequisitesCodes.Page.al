@@ -12,10 +12,6 @@ page 26576 "Create Requisites Codes"
     }
 
     var
-        StatutoryReportTable: Record "Statutory Report Table";
-        ReportName: Code[20];
-        ReportTableName: Code[20];
-        RowCode: Text[20];
 
     [Scope('OnPrem')]
     procedure SetParameters(NewReportName: Code[20]; NewTableName: Code[20])

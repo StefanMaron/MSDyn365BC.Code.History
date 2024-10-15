@@ -261,41 +261,39 @@ codeunit 144008 "ERM VAT Allocation"
         CreateVATSettlementWithPostingDate(
           TempVATDocEntryBuffer, VATEntry, PostingDate, EndDate, PurchInvNo, PurchInvNo, SettlementType::FA);
 
-        with GenJnlLine do begin
-            SetRange("Journal Template Name", VATPostingSetup."VAT Settlement Template");
-            SetRange("Journal Batch Name", VATPostingSetup."VAT Settlement Batch");
-            SetRange("Document No.", TempVATDocEntryBuffer."Document No.");
-            if FindSet() then
-                repeat
-                    TestField("Unrealized VAT Entry No.");
+        GenJnlLine.SetRange("Journal Template Name", VATPostingSetup."VAT Settlement Template");
+        GenJnlLine.SetRange("Journal Batch Name", VATPostingSetup."VAT Settlement Batch");
+        GenJnlLine.SetRange("Document No.", TempVATDocEntryBuffer."Document No.");
+        if GenJnlLine.FindSet() then
+            repeat
+                GenJnlLine.TestField("Unrealized VAT Entry No.");
+                CreateUpdateVATAllocationLine(GenJnlLine, 0.8, VATAllocationLineRef.Type::Charge);
+            until GenJnlLine.Next() = 0;
+
+        PostVATSettlement(GenJnlLine);
+        CreateVATSettlementWithPostingDate(
+          TempVATDocEntryBuffer, VATEntry, PostingDate, EndDate, PurchInvNo, PurchInvNo2, SettlementType::Purchase);
+
+        GenJnlLine.SetRange("Journal Template Name", VATPostingSetup."VAT Settlement Template");
+        GenJnlLine.SetRange("Journal Batch Name", VATPostingSetup."VAT Settlement Batch");
+        GenJnlLine.SetFilter("Document No.", '%1|%2', PurchInvNo, PurchInvNo2);
+        if GenJnlLine.FindSet() then
+            repeat
+                GenJnlLine.TestField("Unrealized VAT Entry No.");
+                if Abs(GenJnlLine.Amount) = 180 then begin
+                    VATAmount := GenJnlLine.Amount * 0.8;
+                    ChargeAmount := GenJnlLine.Amount * 0.1;
+                    WriteoffAmount := GenJnlLine.Amount - VATAmount - ChargeAmount;
+                    LibraryERM.UpdateVATAllocLine(
+                      GenJnlLine."Unrealized VAT Entry No.", 10000, 0, '', -VATAmount);
+                    LibraryERM.CreateVATAllocLine(
+                      GenJnlLine."Unrealized VAT Entry No.", 20000, 2, '', -ChargeAmount);
+                    LibraryERM.CreateVATAllocLine(
+                      GenJnlLine."Unrealized VAT Entry No.", 30000, 1, LibraryERM.CreateGLAccountNo(), -WriteoffAmount);
+                end else
                     CreateUpdateVATAllocationLine(GenJnlLine, 0.8, VATAllocationLineRef.Type::Charge);
-                until Next = 0;
-
-            PostVATSettlement(GenJnlLine);
-            CreateVATSettlementWithPostingDate(
-              TempVATDocEntryBuffer, VATEntry, PostingDate, EndDate, PurchInvNo, PurchInvNo2, SettlementType::Purchase);
-
-            SetRange("Journal Template Name", VATPostingSetup."VAT Settlement Template");
-            SetRange("Journal Batch Name", VATPostingSetup."VAT Settlement Batch");
-            SetFilter("Document No.", '%1|%2', PurchInvNo, PurchInvNo2);
-            if FindSet() then
-                repeat
-                    TestField("Unrealized VAT Entry No.");
-                    if Abs(Amount) = 180 then begin
-                        VATAmount := Amount * 0.8;
-                        ChargeAmount := Amount * 0.1;
-                        WriteoffAmount := Amount - VATAmount - ChargeAmount;
-                        LibraryERM.UpdateVATAllocLine(
-                          "Unrealized VAT Entry No.", 10000, 0, '', -VATAmount);
-                        LibraryERM.CreateVATAllocLine(
-                          "Unrealized VAT Entry No.", 20000, 2, '', -ChargeAmount);
-                        LibraryERM.CreateVATAllocLine(
-                          "Unrealized VAT Entry No.", 30000, 1, LibraryERM.CreateGLAccountNo, -WriteoffAmount);
-                    end else
-                        CreateUpdateVATAllocationLine(GenJnlLine, 0.8, VATAllocationLineRef.Type::Charge);
-                until Next = 0;
-            PostVATSettlement(GenJnlLine);
-        end;
+            until GenJnlLine.Next() = 0;
+        PostVATSettlement(GenJnlLine);
 
         // VerifyMultilinePurchInvWithItemGLAccFA(PurchInvNo,PurchInvNo2,EndDate,FA."No.",DeprDate);
     end;
@@ -365,10 +363,10 @@ codeunit 144008 "ERM VAT Allocation"
         Vendor.Get(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
 
-        DimSetID := GenerateDimSetID;
+        DimSetID := GenerateDimSetID();
         InvNo :=
           CreatePostAdvanceStatementWithDimension(Vendor, VATPostingSetup."VAT Prod. Posting Group", DimSetID);
-        CreateVATSettlement(VATEntry, WorkDate(), WorkDate, InvNo, SettlementType::Purchase);
+        CreateVATSettlement(VATEntry, WorkDate(), WorkDate(), InvNo, SettlementType::Purchase);
         VerifyDimSetIDInVATAllocLines(VATPostingSetup."Purchase VAT Account", DimSetID);
     end;
 
@@ -393,11 +391,11 @@ codeunit 144008 "ERM VAT Allocation"
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
 
         for i := 1 to 2 do
-            DimSetID[i] := GenerateDimSetID;
+            DimSetID[i] := GenerateDimSetID();
         CreateDefaultVATAllocation(VATPostingSetup, DimSetID[1]);
         InvNo :=
           CreatePostAdvanceStatementWithDimension(Vendor, VATPostingSetup."VAT Prod. Posting Group", DimSetID[2]);
-        CreateVATSettlement(VATEntry, WorkDate(), WorkDate, InvNo, SettlementType::Purchase);
+        CreateVATSettlement(VATEntry, WorkDate(), WorkDate(), InvNo, SettlementType::Purchase);
         VerifyDimSetIDInVATAllocLines(
           VATPostingSetup."Purchase VAT Account", DimMgt.GetCombinedDimensionSetID(DimSetID, GlobalDimensionCode, GlobalDimensionCode));
     end;
@@ -535,23 +533,21 @@ codeunit 144008 "ERM VAT Allocation"
     var
         DefVAtAllocationLine: Record "Default VAT Allocation Line";
     begin
-        with DefVAtAllocationLine do begin
-            Init();
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            "Line No." := 10000;
-            Validate(Type, Type::VAT);
-            Validate("Account No.", LibraryERM.CreateGLAccountNo);
-            Validate("Allocation %", LibraryRandom.RandIntInRange(1, 50));
-            Insert(true);
-            "Line No." += 10000;
-            Validate("Allocation %", 100 - "Allocation %");
-            Insert(true);
-            // Validate "Dimension Set ID" in the end because OnInsert trigger zero out "Dimension Set ID"
-            SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            ModifyAll("Dimension Set ID", DimSetID);
-        end;
+        DefVAtAllocationLine.Init();
+        DefVAtAllocationLine.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        DefVAtAllocationLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        DefVAtAllocationLine."Line No." := 10000;
+        DefVAtAllocationLine.Validate(Type, DefVAtAllocationLine.Type::VAT);
+        DefVAtAllocationLine.Validate("Account No.", LibraryERM.CreateGLAccountNo());
+        DefVAtAllocationLine.Validate("Allocation %", LibraryRandom.RandIntInRange(1, 50));
+        DefVAtAllocationLine.Insert(true);
+        DefVAtAllocationLine."Line No." += 10000;
+        DefVAtAllocationLine.Validate("Allocation %", 100 - DefVAtAllocationLine."Allocation %");
+        DefVAtAllocationLine.Insert(true);
+        // Validate "Dimension Set ID" in the end because OnInsert trigger zero out "Dimension Set ID"
+        DefVAtAllocationLine.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        DefVAtAllocationLine.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        DefVAtAllocationLine.ModifyAll("Dimension Set ID", DimSetID);
     end;
 
     local procedure CreateVATSettlement(var VATEntry: Record "VAT Entry"; FromDate: Date; ToDate: Date; DocNo: Code[20]; SettlementType: Option): Code[20]
@@ -559,35 +555,31 @@ codeunit 144008 "ERM VAT Allocation"
         TempVATDocEntryBuffer: Record "VAT Document Entry Buffer" temporary;
         VATSettlementMgt: Codeunit "VAT Settlement Management";
     begin
-        with TempVATDocEntryBuffer do begin
-            DeleteAll();
-            SetRange("Date Filter", FromDate, ToDate);
-            SetRange("Document No.", DocNo);
-            VATSettlementMgt.Generate(TempVATDocEntryBuffer, SettlementType);
-            SetRange("Document No.", DocNo);
-            VATSettlementMgt.CopyToJnl(TempVATDocEntryBuffer, VATEntry);
-            exit("Document No.");
-        end;
+        TempVATDocEntryBuffer.DeleteAll();
+        TempVATDocEntryBuffer.SetRange("Date Filter", FromDate, ToDate);
+        TempVATDocEntryBuffer.SetRange("Document No.", DocNo);
+        VATSettlementMgt.Generate(TempVATDocEntryBuffer, SettlementType);
+        TempVATDocEntryBuffer.SetRange("Document No.", DocNo);
+        VATSettlementMgt.CopyToJnl(TempVATDocEntryBuffer, VATEntry);
+        exit(TempVATDocEntryBuffer."Document No.");
     end;
 
     local procedure CreateVATSettlementWithPostingDate(var TempVATDocEntryBuffer: Record "VAT Document Entry Buffer"; var VATEntry: Record "VAT Entry"; FromDate: Date; ToDate: Date; DocNo: Code[20]; DocNo2: Code[20]; SettlementType: Option): Code[20]
     var
         VATSettlementMgt: Codeunit "VAT Settlement Management";
     begin
-        with TempVATDocEntryBuffer do begin
-            DeleteAll();
-            SetRange("Date Filter", FromDate, ToDate);
-            SetFilter("Document No.", '%1|%2', DocNo, DocNo2);
-            VATSettlementMgt.Generate(TempVATDocEntryBuffer, SettlementType);
-            SetFilter("Document No.", '%1|%2', DocNo, DocNo2);
-            if FindSet(true) then
-                repeat
-                    "Posting Date" := ToDate;
-                    Modify();
-                until Next = 0;
-            VATSettlementMgt.CopyToJnl(TempVATDocEntryBuffer, VATEntry);
-            exit("Document No.");
-        end;
+        TempVATDocEntryBuffer.DeleteAll();
+        TempVATDocEntryBuffer.SetRange("Date Filter", FromDate, ToDate);
+        TempVATDocEntryBuffer.SetFilter("Document No.", '%1|%2', DocNo, DocNo2);
+        VATSettlementMgt.Generate(TempVATDocEntryBuffer, SettlementType);
+        TempVATDocEntryBuffer.SetFilter("Document No.", '%1|%2', DocNo, DocNo2);
+        if TempVATDocEntryBuffer.FindSet(true) then
+            repeat
+                TempVATDocEntryBuffer."Posting Date" := ToDate;
+                TempVATDocEntryBuffer.Modify();
+            until TempVATDocEntryBuffer.Next() = 0;
+        VATSettlementMgt.CopyToJnl(TempVATDocEntryBuffer, VATEntry);
+        exit(TempVATDocEntryBuffer."Document No.");
     end;
 
     local procedure CreatePurchaseInvoiceHeaderWithDimSetID(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup")
@@ -595,7 +587,7 @@ codeunit 144008 "ERM VAT Allocation"
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
-        PurchaseHeader.Validate("Dimension Set ID", GenerateDimSetID);
+        PurchaseHeader.Validate("Dimension Set ID", GenerateDimSetID());
         PurchaseHeader.Modify(true);
     end;
 
@@ -608,7 +600,7 @@ codeunit 144008 "ERM VAT Allocation"
           LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, DummyGLAccount."Gen. Posting Type"::Purchase),
           LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
-        PurchaseLine.Validate("Dimension Set ID", GenerateDimSetID);
+        PurchaseLine.Validate("Dimension Set ID", GenerateDimSetID());
         PurchaseLine.Modify(true);
         CombineDimSetID := CombineDimSetIDs(PurchaseHeader."Dimension Set ID", PurchaseLine."Dimension Set ID");
     end;
@@ -647,7 +639,7 @@ codeunit 144008 "ERM VAT Allocation"
         PurchaseLine.Validate("Direct Unit Cost", 60);
         PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        exit(VerifyMultilinePurchInvWithItemGLAccFA_VATEntry);
+        exit(VerifyMultilinePurchInvWithItemGLAccFA_VATEntry());
     end;
 
     local procedure PostMultilinePurchInvWithItemGLAccFAAndVerify_2(VendNo: Code[20]; ItemNo: Code[20]; ItemNo2: Code[20]): Code[20]
@@ -673,7 +665,7 @@ codeunit 144008 "ERM VAT Allocation"
         PurchaseLine.Validate("Direct Unit Cost", 300);
         PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        exit(VerifyMultilinePurchInvWithItemGLAccFA_VATEntry_2);
+        exit(VerifyMultilinePurchInvWithItemGLAccFA_VATEntry_2());
     end;
 
     local procedure CreateUpdateVATAllocationLine(GenJnlLine: Record "Gen. Journal Line"; Factor: Decimal; SecondLineType: Option)
@@ -693,11 +685,9 @@ codeunit 144008 "ERM VAT Allocation"
     var
         VATSettlementMgt: Codeunit "VAT Settlement Management";
     begin
-        with TempVATDocEntryBuffer do begin
-            SetRange("Date Filter", WorkDate(), WorkDate());
-            SetRange("Document No.", DocumentNo);
-            VATSettlementMgt.Generate(TempVATDocEntryBuffer, SettlementType);
-        end;
+        TempVATDocEntryBuffer.SetRange("Date Filter", WorkDate(), WorkDate());
+        TempVATDocEntryBuffer.SetRange("Document No.", DocumentNo);
+        VATSettlementMgt.Generate(TempVATDocEntryBuffer, SettlementType);
     end;
 
     local procedure VATSettlementCopyToJnl(var TempVATDocEntryBuffer: Record "VAT Document Entry Buffer" temporary; DocumentNo: Code[20]): Code[20]
@@ -705,11 +695,9 @@ codeunit 144008 "ERM VAT Allocation"
         VATEntry: Record "VAT Entry";
         VATSettlementMgt: Codeunit "VAT Settlement Management";
     begin
-        with TempVATDocEntryBuffer do begin
-            SetRange("Document No.", DocumentNo);
-            VATSettlementMgt.CopyToJnl(TempVATDocEntryBuffer, VATEntry);
-            exit("Document No.");
-        end;
+        TempVATDocEntryBuffer.SetRange("Document No.", DocumentNo);
+        VATSettlementMgt.CopyToJnl(TempVATDocEntryBuffer, VATEntry);
+        exit(TempVATDocEntryBuffer."Document No.");
     end;
 
     local procedure UpdateVATAllocationLineDim(UnrealizedVATEntryNo: Integer; DimValue: Record "Dimension Value"): Integer
@@ -777,28 +765,24 @@ codeunit 144008 "ERM VAT Allocation"
 
     local procedure FindGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup"; DocNo: Code[20])
     begin
-        with GenJnlLine do begin
-            SetRange("Journal Template Name", VATPostingSetup."VAT Settlement Template");
-            SetRange("Journal Batch Name", VATPostingSetup."VAT Settlement Batch");
-            SetRange("Document No.", DocNo);
-            FindFirst();
-            TestField("Unrealized VAT Entry No.");
-        end;
+        GenJnlLine.SetRange("Journal Template Name", VATPostingSetup."VAT Settlement Template");
+        GenJnlLine.SetRange("Journal Batch Name", VATPostingSetup."VAT Settlement Batch");
+        GenJnlLine.SetRange("Document No.", DocNo);
+        GenJnlLine.FindFirst();
+        GenJnlLine.TestField("Unrealized VAT Entry No.");
     end;
 
     local procedure FindVATEntry(VATPostingSetup: Record "VAT Posting Setup"; DocumentNo: Code[20]; UnrealizedVATEntryNo: Integer): Integer
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            SetRange("Unrealized VAT Entry No.", UnrealizedVATEntryNo);
-            FindFirst();
-            exit("Entry No.");
-        end;
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        VATEntry.SetRange("Unrealized VAT Entry No.", UnrealizedVATEntryNo);
+        VATEntry.FindFirst();
+        exit(VATEntry."Entry No.");
     end;
 
     local procedure CreateAndPostFAReleaseDoc(FANo: Code[20]; PostingDate: Date)
@@ -819,32 +803,28 @@ codeunit 144008 "ERM VAT Allocation"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetCurrentKey("Document No.");
-            SetRange("Document No.", DocNo);
-            FindFirst();
+        VATEntry.SetCurrentKey("Document No.");
+        VATEntry.SetRange("Document No.", DocNo);
+        VATEntry.FindFirst();
 
-            VerifyUnrealVATBaseAndAmount(VATEntry, 10000, 1800, 1);
-            VerifyUnrealVATBaseAndAmount(VATEntry, 2340, 421.2, 1);
-            VerifyVATBaseAndAmount(VATEntry, 1638, 294.84);
-            VerifyVATBaseAndAmount(VATEntry, 702, 126.36);
-            VerifyVATBaseAndAmount(VATEntry, 6000, 1080);
-            VerifyVATBaseAndAmount(VATEntry, 4000, 720);
-        end;
+        VerifyUnrealVATBaseAndAmount(VATEntry, 10000, 1800, 1);
+        VerifyUnrealVATBaseAndAmount(VATEntry, 2340, 421.2, 1);
+        VerifyVATBaseAndAmount(VATEntry, 1638, 294.84);
+        VerifyVATBaseAndAmount(VATEntry, 702, 126.36);
+        VerifyVATBaseAndAmount(VATEntry, 6000, 1080);
+        VerifyVATBaseAndAmount(VATEntry, 4000, 720);
     end;
 
     local procedure VerifyMultilinePurchInvWithItemGLAccFA_VATEntry() DocNo: Code[20]
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            FindLast();
-            DocNo := "Document No.";
-            VerifyUnrealVATBaseAndAmount(VATEntry, 1000, 180, -1);
-            VerifyUnrealVATBaseAndAmount(VATEntry, 2000, 360, -1);
-            VerifyUnrealVATBaseAndAmount(VATEntry, 10200, 1836, -1);
-            VerifyUnrealVATBaseAndAmount(VATEntry, 55000, 9900, -1);
-        end;
+        VATEntry.FindLast();
+        DocNo := VATEntry."Document No.";
+        VerifyUnrealVATBaseAndAmount(VATEntry, 1000, 180, -1);
+        VerifyUnrealVATBaseAndAmount(VATEntry, 2000, 360, -1);
+        VerifyUnrealVATBaseAndAmount(VATEntry, 10200, 1836, -1);
+        VerifyUnrealVATBaseAndAmount(VATEntry, 55000, 9900, -1);
         exit(DocNo);
     end;
 
@@ -852,13 +832,11 @@ codeunit 144008 "ERM VAT Allocation"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            FindLast();
-            DocNo := "Document No.";
-            // VerifyUnrealVATBaseAndAmount(VATEntry,3960,712.8,-1);
-            // VerifyUnrealVATBaseAndAmount(VATEntry,1100,198,-1);
-            VerifyUnrealVATBaseAndAmount(VATEntry, 5060, 910.8, -1);
-        end;
+        VATEntry.FindLast();
+        DocNo := VATEntry."Document No.";
+        // VerifyUnrealVATBaseAndAmount(VATEntry,3960,712.8,-1);
+        // VerifyUnrealVATBaseAndAmount(VATEntry,1100,198,-1);
+        VerifyUnrealVATBaseAndAmount(VATEntry, 5060, 910.8, -1);
         exit(DocNo);
     end;
 
@@ -866,39 +844,33 @@ codeunit 144008 "ERM VAT Allocation"
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            Find('+');
-            Assert.AreEqual(
-              ExpectedAmt, "Cost Posted to G/L", StrSubstNo(WrongValueErr, "Cost Posted to G/L", TableName, "Entry No."));
-            Next(-1);
-            Assert.AreEqual(
-              ExpectedAmt2, "Cost Posted to G/L", StrSubstNo(WrongValueErr, "Cost Posted to G/L", TableName, "Entry No."));
-            Next(-1);
-            Assert.AreEqual(
-              ExpectedAmt3, "Cost Posted to G/L", StrSubstNo(WrongValueErr, "Cost Posted to G/L", TableName, "Entry No."));
-        end;
+        ValueEntry.Find('+');
+        Assert.AreEqual(
+          ExpectedAmt, ValueEntry."Cost Posted to G/L", StrSubstNo(WrongValueErr, ValueEntry."Cost Posted to G/L", ValueEntry.TableName, ValueEntry."Entry No."));
+        ValueEntry.Next(-1);
+        Assert.AreEqual(
+          ExpectedAmt2, ValueEntry."Cost Posted to G/L", StrSubstNo(WrongValueErr, ValueEntry."Cost Posted to G/L", ValueEntry.TableName, ValueEntry."Entry No."));
+        ValueEntry.Next(-1);
+        Assert.AreEqual(
+          ExpectedAmt3, ValueEntry."Cost Posted to G/L", StrSubstNo(WrongValueErr, ValueEntry."Cost Posted to G/L", ValueEntry.TableName, ValueEntry."Entry No."));
     end;
 
     local procedure VerifyUnrealVATBaseAndAmount(var VATEntry: Record "VAT Entry"; ExpectedVATBase: Decimal; ExpectedVATAmount: Decimal; Step: Integer)
     begin
-        with VATEntry do begin
-            Assert.AreEqual(
-              ExpectedVATBase, "Unrealized Base", StrSubstNo(WrongValueErr, "Unrealized Base", TableName, "Entry No."));
-            Assert.AreEqual(
-              ExpectedVATAmount, "Unrealized Amount", StrSubstNo(WrongValueErr, "Unrealized Amount", TableName, "Entry No."));
-            Next(Step);
-        end;
+        Assert.AreEqual(
+          ExpectedVATBase, VATEntry."Unrealized Base", StrSubstNo(WrongValueErr, VATEntry."Unrealized Base", VATEntry.TableName, VATEntry."Entry No."));
+        Assert.AreEqual(
+          ExpectedVATAmount, VATEntry."Unrealized Amount", StrSubstNo(WrongValueErr, VATEntry."Unrealized Amount", VATEntry.TableName, VATEntry."Entry No."));
+        VATEntry.Next(Step);
     end;
 
     local procedure VerifyVATBaseAndAmount(var VATEntry: Record "VAT Entry"; ExpectedVATBase: Decimal; ExpectedVATAmount: Decimal)
     begin
-        with VATEntry do begin
-            Assert.AreEqual(
-              ExpectedVATBase, Base, StrSubstNo(WrongValueErr, Base, TableName, "Entry No."));
-            Assert.AreEqual(
-              ExpectedVATAmount, Amount, StrSubstNo(WrongValueErr, Amount, TableName, "Entry No."));
-            Next;
-        end;
+        Assert.AreEqual(
+          ExpectedVATBase, VATEntry.Base, StrSubstNo(WrongValueErr, VATEntry.Base, VATEntry.TableName, VATEntry."Entry No."));
+        Assert.AreEqual(
+          ExpectedVATAmount, VATEntry.Amount, StrSubstNo(WrongValueErr, VATEntry.Amount, VATEntry.TableName, VATEntry."Entry No."));
+        VATEntry.Next();
     end;
 
     local procedure VerifyGLEntriesDimension(AccountNo: Code[20]; DimSetID: Integer)
@@ -919,39 +891,33 @@ codeunit 144008 "ERM VAT Allocation"
     var
         VATAllocLine: Record "VAT Allocation Line";
     begin
-        with VATAllocLine do begin
-            SetRange(Type, Type::VAT);
-            SetRange("Account No.", AccNo);
-            FindSet();
-            repeat
-                Assert.AreEqual(DimSetID, "Dimension Set ID", WrongDimSetIDErr);
-            until Next = 0;
-        end;
+        VATAllocLine.SetRange(Type, VATAllocLine.Type::VAT);
+        VATAllocLine.SetRange("Account No.", AccNo);
+        VATAllocLine.FindSet();
+        repeat
+            Assert.AreEqual(DimSetID, VATAllocLine."Dimension Set ID", WrongDimSetIDErr);
+        until VATAllocLine.Next() = 0;
     end;
 
     local procedure VerifyVATAllocLineDimSetIDByVATEntryNo(VATEntryNo: Integer; ExpectedDimSetID: Integer)
     var
         VATAllocationLine: Record "VAT Allocation Line";
     begin
-        with VATAllocationLine do begin
-            SetRange("VAT Entry No.", VATEntryNo);
-            FindFirst();
-            Assert.AreEqual(ExpectedDimSetID, "Dimension Set ID", FieldCaption("Dimension Set ID"));
-        end;
+        VATAllocationLine.SetRange("VAT Entry No.", VATEntryNo);
+        VATAllocationLine.FindFirst();
+        Assert.AreEqual(ExpectedDimSetID, VATAllocationLine."Dimension Set ID", VATAllocationLine.FieldCaption("Dimension Set ID"));
     end;
 
     local procedure VerifyGenJnlLineDimSetIDByUnrealVATEntryNo(VATPostingSetup: Record "VAT Posting Setup"; DocumentNo: Code[20]; VATEntryNo: Integer; ExpectedDimSetID: Integer)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            SetRange("Journal Template Name", VATPostingSetup."VAT Settlement Template");
-            SetRange("Journal Batch Name", VATPostingSetup."VAT Settlement Batch");
-            SetRange("Document No.", DocumentNo);
-            SetRange("Unrealized VAT Entry No.", VATEntryNo);
-            FindFirst();
-            Assert.AreEqual(ExpectedDimSetID, "Dimension Set ID", FieldCaption("Dimension Set ID"));
-        end;
+        GenJournalLine.SetRange("Journal Template Name", VATPostingSetup."VAT Settlement Template");
+        GenJournalLine.SetRange("Journal Batch Name", VATPostingSetup."VAT Settlement Batch");
+        GenJournalLine.SetRange("Document No.", DocumentNo);
+        GenJournalLine.SetRange("Unrealized VAT Entry No.", VATEntryNo);
+        GenJournalLine.FindFirst();
+        Assert.AreEqual(ExpectedDimSetID, GenJournalLine."Dimension Set ID", GenJournalLine.FieldCaption("Dimension Set ID"));
     end;
 
     local procedure VerifyGLEntryDimSetIDByVATEntryNo(VATEntryNo: Integer; ExpectedDimSetID: Integer)

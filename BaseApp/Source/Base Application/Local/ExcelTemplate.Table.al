@@ -2,6 +2,7 @@ table 14919 "Excel Template"
 {
     Caption = 'Excel Template';
     LookupPageID = "Excel Templates";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -6,8 +6,9 @@ using Microsoft.Sales.Setup;
 
 report 1093 "Job Create Sales Invoice"
 {
+    AdditionalSearchTerms = 'Job Create Sales Invoice';
     ApplicationArea = Jobs;
-    Caption = 'Job Create Sales Invoice';
+    Caption = 'Project Create Sales Invoice';
     ProcessingOnly = true;
     UsageCategory = Tasks;
 
@@ -20,8 +21,16 @@ report 1093 "Job Create Sales Invoice"
 
             trigger OnAfterGetRecord()
             var
+                Job: Record "Job";
                 IsHandled: Boolean;
             begin
+                if Job.Get("Job Task"."Job No.") then
+                    if Job."Task Billing Method" = Job."Task Billing Method"::"Multiple customers" then
+                        InvoicePerTask := true
+                    else
+                        if JobChoice = JobChoice::Job then
+                            InvoicePerTask := false;
+
                 IsHandled := false;
                 OnBeforeJobTaskOnAfterGetRecord("Job Task", IsHandled);
                 if not IsHandled then
@@ -80,8 +89,8 @@ report 1093 "Job Create Sales Invoice"
                     {
                         ApplicationArea = Jobs;
                         Caption = 'Create Invoice per';
-                        OptionCaption = 'Job,Job Task';
-                        ToolTip = 'Specifies, if you select the Job Task option, that you want to create one invoice per job task rather than the one invoice per job that is created by default.';
+                        OptionCaption = 'Project,Project Task';
+                        ToolTip = 'Specifies, if you select the Project Task option, that you want to create one invoice per project task rather than the one invoice per project that is created by default.';
                     }
                 }
             }

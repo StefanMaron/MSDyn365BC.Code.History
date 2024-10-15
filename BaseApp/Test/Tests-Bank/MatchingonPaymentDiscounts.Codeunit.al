@@ -40,7 +40,7 @@ codeunit 134269 "Matching on Payment Discounts"
         BankAccReconciliation.DeleteAll(true);
         BankAccReconciliationLine.DeleteAll(true);
         AppliedPaymentEntry.DeleteAll(true);
-        CloseExistingEntries;
+        CloseExistingEntries();
         if IsInitialized then
             exit;
 
@@ -2177,7 +2177,7 @@ codeunit 134269 "Matching on Payment Discounts"
         BankPmtApplRule."Doc. No./Ext. Doc. No. Matched" := DocNoMatched;
         BankPmtApplRule."Amount Incl. Tolerance Matched" := AmountInclToleranceMatched;
 
-        TempBankPmtApplRule.LoadRules;
+        TempBankPmtApplRule.LoadRules();
         BankPmtApplRule.Score := TempBankPmtApplRule.GetBestMatchScore(BankPmtApplRule);
         BankPmtApplRule."Match Confidence" := TempBankPmtApplRule."Match Confidence";
     end;

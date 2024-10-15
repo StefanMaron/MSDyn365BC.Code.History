@@ -51,10 +51,10 @@ codeunit 134399 "Test Merge Duplicates"
         MergeDuplicatesLineBuffer.Insert();
 
         MergeDuplicatesLineBuffer.Type += 1;
-        Assert.IsTrue(MergeDuplicatesLineBuffer.Insert, 'Cannot insert rec: same ID, diff Type');
+        Assert.IsTrue(MergeDuplicatesLineBuffer.Insert(), 'Cannot insert rec: same ID, diff Type');
 
         MergeDuplicatesLineBuffer."Table ID" := 2;
-        Assert.IsTrue(MergeDuplicatesLineBuffer.Insert, 'Cannot insert rec: same ID, diff Table ID');
+        Assert.IsTrue(MergeDuplicatesLineBuffer.Insert(), 'Cannot insert rec: same ID, diff Table ID');
     end;
 
     [Test]
@@ -73,29 +73,29 @@ codeunit 134399 "Test Merge Duplicates"
         LibrarySales.CreateCustomer(Customer[1]);
         LibrarySales.CreateCustomer(Customer[2]);
         // [GIVEN] Open Customer Card on 'A'
-        CustomerCardPage.OpenEdit;
+        CustomerCardPage.OpenEdit();
         CustomerCardPage.FILTER.SetFilter("No.", Customer[1]."No.");
-        CustomerCardPage.First;
+        CustomerCardPage.First();
 
         // [WHEN] Run action 'Merge Duplicate'
-        MergePage.Trap;
-        CustomerCardPage.MergeDuplicate.Invoke;
+        MergePage.Trap();
+        CustomerCardPage.MergeDuplicate.Invoke();
 
         // [THEN] Open page 'Merge Duplicate', where "Current" is 'A', "Duplicate" is <blank>
         MergePage.Current.AssertEquals(Customer[1]."No.");
-        Assert.IsFalse(MergePage.Current.Editable, 'Current Editable');
+        Assert.IsFalse(MergePage.Current.Editable(), 'Current Editable');
         MergePage.Duplicate.AssertEquals('');
-        Assert.IsTrue(MergePage.Duplicate.Editable, 'Duplicate Editable');
+        Assert.IsTrue(MergePage.Duplicate.Editable(), 'Duplicate Editable');
         // [THEN] Actions "Remove Dupllicate", "Rename Duplicate" are not visible
-        Assert.IsFalse(MergePage."Remove Duplicate".Visible, 'Remove should be invisible');
-        Assert.IsFalse(MergePage."Rename Duplicate".Visible, 'Rename should be invisible');
+        Assert.IsFalse(MergePage."Remove Duplicate".Visible(), 'Remove should be invisible');
+        Assert.IsFalse(MergePage."Rename Duplicate".Visible(), 'Rename should be invisible');
 
         // [WHEN] Lookup "Duplicate" for 'B' and push 'OK'
         LibraryVariableStorage.Enqueue(Customer[2]."No."); // to CustomerListModalHandler
-        MergePage.Duplicate.Lookup;
+        MergePage.Duplicate.Lookup();
         // [THEN] "Duplicate" is 'B'
         MergePage.Duplicate.AssertEquals(Customer[2]."No.");
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -115,25 +115,25 @@ codeunit 134399 "Test Merge Duplicates"
         CreateContact(Contact[2]);
 
         // [GIVEN] Open Merge page for 'A', where the fields part is empty
-        MergePage.Trap;
+        MergePage.Trap();
         MergeDuplicatesBuffer.Show(DATABASE::Contact, Contact[1]."No.");
-        Assert.IsFalse(MergePage.Fields.First, 'there must not be records in Fields part');
+        Assert.IsFalse(MergePage.Fields.First(), 'there must not be records in Fields part');
 
         // [WHEN] Pick 'B' as "Duplicate"
         MergePage.Duplicate.SetValue(Contact[2]."No.");
 
         // [THEN] Fields list is filled, positioned at the first field
-        CurrFieldID := MergePage.Fields.ID.AsInteger;
-        Assert.IsTrue(MergePage.Fields.First, 'there must be records in Fields part');
+        CurrFieldID := MergePage.Fields.ID.AsInteger();
+        Assert.IsTrue(MergePage.Fields.First(), 'there must be records in Fields part');
         MergePage.Fields.ID.AssertEquals(CurrFieldID);
         // [THEN] The first line, where "Name" is 'No.', "In Primary Key" is 'Yes', "Data Type" is 'Code'
         MergePage.Fields.Name.AssertEquals(Contact[1].FieldCaption("No."));
         MergePage.Fields."Data Type".AssertEquals('Code');
         MergePage.Fields."In Primary Key".AssertEquals(0);
         // [THEN] "Alternative Value" field is not editable
-        Assert.IsFalse(MergePage.Fields."Duplicate Value".Editable, 'Duplicate Value.EDITABLE');
+        Assert.IsFalse(MergePage.Fields."Duplicate Value".Editable(), 'Duplicate Value.EDITABLE');
         // [THEN] Records list is empty
-        Assert.IsFalse(MergePage.Tables.First, 'there must not be records in Tables part');
+        Assert.IsFalse(MergePage.Tables.First(), 'there must not be records in Tables part');
     end;
 
     [Test]
@@ -152,9 +152,9 @@ codeunit 134399 "Test Merge Duplicates"
         LibrarySales.CreateCustomer(Customer[2]);
         LibrarySales.CreateCustomer(Customer[3]);
         // [GIVEN] Open Merge page for 'A', where the fields part is empty
-        MergePage.Trap;
+        MergePage.Trap();
         MergeDuplicatesBuffer.Show(DATABASE::Customer, Customer[1]."No.");
-        Assert.IsFalse(MergePage.Fields.First, 'there must not be records in Fields part');
+        Assert.IsFalse(MergePage.Fields.First(), 'there must not be records in Fields part');
         // [GIVEN] Pick 'B' as "Duplicate"
         MergePage.Duplicate.SetValue(Customer[2]."No.");
 
@@ -162,14 +162,14 @@ codeunit 134399 "Test Merge Duplicates"
         MergePage.Duplicate.SetValue(Customer[3]."No.");
 
         // [THEN] Fields list is regenerated, data is taken from 'C'
-        Assert.IsTrue(MergePage.Fields.First, 'there must be records in Fields part');
+        Assert.IsTrue(MergePage.Fields.First(), 'there must be records in Fields part');
         MergePage.Fields."Duplicate Value".AssertEquals(Customer[3]."No.");
         // [THEN] Fields "Table ID", "Table Name", "Old Count", "New Count", Conflicts are invisible
-        Assert.IsFalse(MergePage.Fields."Table ID".Visible, 'Table ID visible');
-        Assert.IsFalse(MergePage.Fields."Table Name".Visible, 'Table Name visible');
-        Assert.IsFalse(MergePage.Fields."Duplicate Count".Visible, 'Old Count visible');
-        Assert.IsFalse(MergePage.Fields."Current Count".Visible, 'New Count visible');
-        Assert.IsFalse(MergePage.Fields.Conflicts.Visible, 'Conflicts.VISIBLE');
+        Assert.IsFalse(MergePage.Fields."Table ID".Visible(), 'Table ID visible');
+        Assert.IsFalse(MergePage.Fields."Table Name".Visible(), 'Table Name visible');
+        Assert.IsFalse(MergePage.Fields."Duplicate Count".Visible(), 'Old Count visible');
+        Assert.IsFalse(MergePage.Fields."Current Count".Visible(), 'New Count visible');
+        Assert.IsFalse(MergePage.Fields.Conflicts.Visible(), 'Conflicts.VISIBLE');
         MergePage.Tables.Conflicts.AssertEquals('0');
     end;
 
@@ -194,7 +194,7 @@ codeunit 134399 "Test Merge Duplicates"
         LibrarySales.CreateCustomer(Customer[2]);
 
         // [GIVEN] Open Merge page for 'A', where the fields part is empty
-        MergePage.Trap;
+        MergePage.Trap();
         MergeDuplicatesBuffer.Show(DATABASE::Customer, Customer[1]."No.");
         // [GIVEN] Pick 'B' as "Duplicate"
         MergePage.Duplicate.SetValue(Customer[2]."No.");
@@ -203,24 +203,24 @@ codeunit 134399 "Test Merge Duplicates"
 
         // [WHEN] Run "Merge" action and answer 'Yes' to confirmation
         LibraryVariableStorage.Enqueue(true); // Reply for ConfirmHandler
-        MergePage.Merge.Invoke;
-        Assert.ExpectedMessage(ConfirmMergeTxt, LibraryVariableStorage.DequeueText);
+        MergePage.Merge.Invoke();
+        Assert.ExpectedMessage(ConfirmMergeTxt, LibraryVariableStorage.DequeueText());
 
         // [THEN] Message 'Customer B has been merged to Customer A' is shown
         Assert.ExpectedMessage(
           StrSubstNo(RecordMergedMsg, MergeDuplicatesBuffer."Table Name", Customer[2]."No.", Customer[1]."No."),
-          LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+          LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
         // [THEN] Customer 'B' does not exist
-        Assert.IsFalse(Customer[2].Find, 'Customer A must not exist');
+        Assert.IsFalse(Customer[2].Find(), 'Customer A must not exist');
         // [THEN] Customer 'A' does exist, where "Name" = 'B', "Address" is 'Moscow'
-        Assert.IsTrue(Customer[1].Find, 'Customer B must exist');
+        Assert.IsTrue(Customer[1].Find(), 'Customer B must exist');
         Customer[1].TestField(Name, Customer[2].Name);
         Customer[1].TestField(Address, ExpectedAddress);
         // [THEN] Page is closed
-        asserterror MergePage.First;
+        asserterror MergePage.First();
         Assert.ExpectedError(TestPageNotOpenErr);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -251,19 +251,19 @@ codeunit 134399 "Test Merge Duplicates"
         CreateCustomer(Customer[2]);
 
         // [GIVEN] Open Merge page for 'A', where the fields part is empty
-        MergePage.Trap;
+        MergePage.Trap();
         MergeDuplicatesBuffer.Show(DATABASE::Customer, Customer[2]."No.");
-        Assert.IsFalse(MergePage.Fields.First, 'there must not be records in Fields part');
+        Assert.IsFalse(MergePage.Fields.First(), 'there must not be records in Fields part');
 
         // [WHEN] Pick 'B' as "Duplicate"
         MergePage.Duplicate.SetValue(Customer[1]."No.");
 
         // [THEN] Fields list is filled
-        Assert.IsTrue(MergePage.Fields.First, 'there must be records in Fields part');
+        Assert.IsTrue(MergePage.Fields.First(), 'there must be records in Fields part');
         // [THEN] Records list with two records, where the first one has: "Table ID" is '287', "Table Name" is 'Customer Bank Account',
         // [THEN] "ID" is '1', "Name" is "Customer No.","In Primary Key" is 'Yes', "Old Count" is '0', "New Count" is '1', Conflicts is '0'
-        CurrTableID := MergePage.Tables."Table ID".AsInteger;
-        Assert.IsTrue(MergePage.Tables.First, 'there must be record in Tables part');
+        CurrTableID := MergePage.Tables."Table ID".AsInteger();
+        Assert.IsTrue(MergePage.Tables.First(), 'there must be record in Tables part');
         MergePage.Tables."Table ID".AssertEquals(CurrTableID);
         MergePage.Tables."Table ID".AssertEquals('287');
         MergePage.Tables."Table Name".AssertEquals(CustomerBankAccount[1].TableCaption());
@@ -272,12 +272,12 @@ codeunit 134399 "Test Merge Duplicates"
         MergePage.Tables."In Primary Key".AssertEquals(0);
         MergePage.Tables."Duplicate Count".AssertEquals('1');
         MergePage.Tables."Current Count".AssertEquals('0');
-        Assert.IsTrue(MergePage.Tables.Conflicts.Visible, 'Conflicts.VISIBLE');
+        Assert.IsTrue(MergePage.Tables.Conflicts.Visible(), 'Conflicts.VISIBLE');
         MergePage.Tables.Conflicts.AssertEquals('0');
         // [THEN] Field "Old Value" and "New Value" are invisible
-        Assert.IsFalse(MergePage.Tables."Duplicate Value".Visible, 'Duplicate Value.VISIBLE');
-        Assert.IsFalse(MergePage.Tables."Current Value".Visible, 'Current Value.VISIBLE');
-        Assert.IsFalse(MergePage.Tables."Data Type".Visible, 'Data Type.VISIBLE');
+        Assert.IsFalse(MergePage.Tables."Duplicate Value".Visible(), 'Duplicate Value.VISIBLE');
+        Assert.IsFalse(MergePage.Tables."Current Value".Visible(), 'Current Value.VISIBLE');
+        Assert.IsFalse(MergePage.Tables."Data Type".Visible(), 'Data Type.VISIBLE');
     end;
 
     [Test]
@@ -298,17 +298,17 @@ codeunit 134399 "Test Merge Duplicates"
         CreateContact(Contact[1]);
 
         // [GIVEN] Open Merge page for 'A', where the fields part is empty
-        MergePage.Trap;
+        MergePage.Trap();
         MergeDuplicatesBuffer.Show(DATABASE::Contact, Contact[2]."No.");
-        Assert.IsFalse(MergePage.Fields.First, 'there must not be records in Fields part');
+        Assert.IsFalse(MergePage.Fields.First(), 'there must not be records in Fields part');
 
         // [WHEN] Pick 'B' as "Duplicate"
         MergePage.Duplicate.SetValue(Contact[1]."No.");
 
         // [THEN] Fields list is filled
-        Assert.IsTrue(MergePage.Fields.First, 'there must be records in Fields part');
+        Assert.IsTrue(MergePage.Fields.First(), 'there must be records in Fields part');
         // [THEN] Tables list is empty
-        Assert.IsFalse(MergePage.Tables.First, 'there must not be record in Tables part');
+        Assert.IsFalse(MergePage.Tables.First(), 'there must not be record in Tables part');
     end;
 
     [Test]
@@ -350,7 +350,7 @@ codeunit 134399 "Test Merge Duplicates"
         // [FEATURE] [Conflict]
         Initialize();
         // [GIVEN] Customer Bank Accounts 'X' and 'Y' for Customer 'A'
-        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount[1], LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount[1], LibrarySales.CreateCustomerNo());
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount[2], CustomerBankAccount[1]."Customer No.");
         // [GIVEN] Customer Bank Account 'X' and 'Y' for Customer 'B'
         CustomerBankAccount[3] := CustomerBankAccount[1];
@@ -375,7 +375,7 @@ codeunit 134399 "Test Merge Duplicates"
         TempMergeDuplicatesBuffer.Insert();
 
         // [WHEN] Run action 'Merge'
-        TempMergeDuplicatesBuffer.Merge;
+        TempMergeDuplicatesBuffer.Merge();
 
         // [THEN] Merge heder, where Conflicts is 3
         TempMergeDuplicatesBuffer.TestField(Conflicts, 3);
@@ -403,7 +403,7 @@ codeunit 134399 "Test Merge Duplicates"
         // [FEATURE] [Conflict]
         Initialize();
         // [GIVEN] Customer Bank Account 'X' for Customer 'A'
-        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount[1], LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount[1], LibrarySales.CreateCustomerNo());
         // [GIVEN] Customer Bank Account 'X' for Customer 'B'
         CustomerBankAccount[2] := CustomerBankAccount[1];
         CustomerBankAccount[2]."Customer No." := LibrarySales.CreateCustomerNo();
@@ -414,11 +414,11 @@ codeunit 134399 "Test Merge Duplicates"
         // [GIVEN] Set "Duplicate" as 'B' and merge, getting a conflict
         TempMergeDuplicatesBuffer.Validate(Duplicate, CustomerBankAccount[2]."Customer No.");
         TempMergeDuplicatesBuffer.Insert();
-        TempMergeDuplicatesBuffer.Merge;
+        TempMergeDuplicatesBuffer.Merge();
         Assert.AreEqual(1, TempMergeDuplicatesBuffer.Conflicts, 'Conflicts after merge.');
 
         // [WHEN] Set "Duplicate" as new customer 'C'
-        TempMergeDuplicatesBuffer.Validate(Duplicate, LibrarySales.CreateCustomerNo);
+        TempMergeDuplicatesBuffer.Validate(Duplicate, LibrarySales.CreateCustomerNo());
 
         // [THEN] Merge lines have no conflicts
         TempMergeDuplicatesBuffer.GetLines(TempMergeDuplicatesLineBuffer, TempMergeDuplicatesConflict);
@@ -437,7 +437,7 @@ codeunit 134399 "Test Merge Duplicates"
         // [FEATURE] [Conflict] [UT]
         Initialize();
         // [GIVEN] Customer Bank Account 'X' for Customer 'A'
-        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount[1], LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount[1], LibrarySales.CreateCustomerNo());
         // [GIVEN] Customer Bank Account 'X' for Customer 'B'
         CustomerBankAccount[2] := CustomerBankAccount[1];
         CustomerBankAccount[2]."Customer No." := LibrarySales.CreateCustomerNo();
@@ -488,30 +488,30 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         // [GIVEN] Customer Bank Account 'X' exists for 2 Customers 'A' and 'B'
         CreateConflictingCustomerBanks(CustomerBankAccount);
         // [GIVEN] Open "Merge Duplicate" on customer 'A'
-        MergeDuplicatePage.Trap;
+        MergeDuplicatePage.Trap();
         TempMergeDuplicatesBuffer.Show(DATABASE::Customer, CustomerBankAccount[1]."Customer No.");
         // [GIVEN] set 'B' as Duplicate and run 'Merge', to see one conflict
         MergeDuplicatePage.Duplicate.SetValue(CustomerBankAccount[2]."Customer No.");
-        MergeDuplicatePage.Merge.Invoke;
-        Assert.IsTrue(MergeDuplicatePage.Conflicts.Visible, 'Conflicts should be visible');
+        MergeDuplicatePage.Merge.Invoke();
+        Assert.IsTrue(MergeDuplicatePage.Conflicts.Visible(), 'Conflicts should be visible');
 
         // [WHEN] DrillDown on "Conflicts"
-        MergeDuplicatePage.Conflicts.DrillDown;
+        MergeDuplicatePage.Conflicts.DrillDown();
 
         // [THEN] Modal page "Merge Conflicts" is open, where two records for Customer Bank Account 'A,X' and 'B,X'
-        Assert.AreEqual(DATABASE::"Customer Bank Account", LibraryVariableStorage.DequeueInteger, 'Conflict.TableID'); // handled by ConflictListModalHandler
+        Assert.AreEqual(DATABASE::"Customer Bank Account", LibraryVariableStorage.DequeueInteger(), 'Conflict.TableID'); // handled by ConflictListModalHandler
         Assert.AreEqual(
           Format(CustomerBankAccount[1].RecordId),
-          StrSubstNo('%1: %2', CustomerBankAccount[1].TableName, LibraryVariableStorage.DequeueText), 'Conflict.Current');
+          StrSubstNo('%1: %2', CustomerBankAccount[1].TableName, LibraryVariableStorage.DequeueText()), 'Conflict.Current');
         Assert.AreEqual(
           Format(CustomerBankAccount[2].RecordId),
-          StrSubstNo('%1: %2', CustomerBankAccount[2].TableName, LibraryVariableStorage.DequeueText), 'Conflict.Duplicate');
+          StrSubstNo('%1: %2', CustomerBankAccount[2].TableName, LibraryVariableStorage.DequeueText()), 'Conflict.Duplicate');
         // [THEN] Tab Related Tables, where "Table ID" = 287, "Conflicts" is '1'
         MergeDuplicatePage.Tables.FILTER.SetFilter("Table ID", '287');
-        MergeDuplicatePage.Tables.First;
+        MergeDuplicatePage.Tables.First();
         MergeDuplicatePage.Tables.Conflicts.AssertEquals(1);
         MergeDuplicatePage.Close();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -529,32 +529,32 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         // [GIVEN] Customer Bank Account 'X' exists for 2 Customers 'A' and 'B'
         CreateConflictingCustomerBanks(CustomerBankAccount);
         // [GIVEN] Open "Merge Duplicate" on customer 'A'
-        MergeDuplicatePage.Trap;
+        MergeDuplicatePage.Trap();
         TempMergeDuplicatesBuffer.Show(DATABASE::Customer, CustomerBankAccount[1]."Customer No.");
         // [GIVEN] set 'B' as Duplicate and run 'Merge', to see one conflict
         MergeDuplicatePage.Duplicate.SetValue(CustomerBankAccount[2]."Customer No.");
-        MergeDuplicatePage.Merge.Invoke;
-        Assert.IsTrue(MergeDuplicatePage.Conflicts.Visible, 'Conflicts should be visible');
+        MergeDuplicatePage.Merge.Invoke();
+        Assert.IsTrue(MergeDuplicatePage.Conflicts.Visible(), 'Conflicts should be visible');
 
         // [GIVEN] DrillDown on "Conflicts"
-        MergeDuplicatePage.Conflicts.DrillDown;
+        MergeDuplicatePage.Conflicts.DrillDown();
         // [WHEN] Run Remove Duplicate (and confirm)
         // handled by RemoveConflictModalHandler and ConfirmYesHandler
 
         // [THEN] "Current" and "Merge With" controls contain primary kee values: 'A,X' and 'B,X'
         Assert.AreEqual(
           Format(CustomerBankAccount[1].RecordId),
-          StrSubstNo('%1: %2', CustomerBankAccount[1].TableName, LibraryVariableStorage.DequeueText), 'Conflict.CurrentRecID');
+          StrSubstNo('%1: %2', CustomerBankAccount[1].TableName, LibraryVariableStorage.DequeueText()), 'Conflict.CurrentRecID');
         Assert.AreEqual(
           Format(CustomerBankAccount[2].RecordId),
-          StrSubstNo('%1: %2', CustomerBankAccount[2].TableName, LibraryVariableStorage.DequeueText), 'Conflict.DuplicateRecID');
+          StrSubstNo('%1: %2', CustomerBankAccount[2].TableName, LibraryVariableStorage.DequeueText()), 'Conflict.DuplicateRecID');
         // [THEN] Tab Conflicts to Resolve is invisible
         MergeDuplicatePage.View().Invoke();
-        Assert.IsFalse(MergeDuplicatePage.Conflicts.Visible, 'Conflicts.VISIBLE');
+        Assert.IsFalse(MergeDuplicatePage.Conflicts.Visible(), 'Conflicts.VISIBLE');
         // [THEN] Tab Related Tables, where "Table ID" = 287, "Conflicts" is '0'
         MergeDuplicatePage.Tables.Conflicts.AssertEquals(0);
         MergeDuplicatePage.Close();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -739,27 +739,27 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         TempMergeDuplicatesLineBuffer[1].Override := false;
         TempMergeDuplicatesLineBuffer[1].Insert();
 
-        Assert.IsFalse(TempMergeDuplicatesLineBuffer[1].HasFieldToOverride, Format(TempMergeDuplicatesLineBuffer[1].ID));
+        Assert.IsFalse(TempMergeDuplicatesLineBuffer[1].HasFieldToOverride(), Format(TempMergeDuplicatesLineBuffer[1].ID));
 
         TempMergeDuplicatesLineBuffer[2] := TempMergeDuplicatesLineBuffer[1];
         TempMergeDuplicatesLineBuffer[2].ID := 2;
         TempMergeDuplicatesLineBuffer[2].Override := true;
         TempMergeDuplicatesLineBuffer[2].Insert();
 
-        Assert.IsTrue(TempMergeDuplicatesLineBuffer[2].HasFieldToOverride, Format(TempMergeDuplicatesLineBuffer[2].ID));
+        Assert.IsTrue(TempMergeDuplicatesLineBuffer[2].HasFieldToOverride(), Format(TempMergeDuplicatesLineBuffer[2].ID));
 
         TempMergeDuplicatesLineBuffer[3] := TempMergeDuplicatesLineBuffer[1];
         TempMergeDuplicatesLineBuffer[3].ID := 3;
         TempMergeDuplicatesLineBuffer[3].Override := false;
         TempMergeDuplicatesLineBuffer[3].Insert();
 
-        Assert.IsTrue(TempMergeDuplicatesLineBuffer[3].HasFieldToOverride, Format(TempMergeDuplicatesLineBuffer[3].ID));
+        Assert.IsTrue(TempMergeDuplicatesLineBuffer[3].HasFieldToOverride(), Format(TempMergeDuplicatesLineBuffer[3].ID));
 
         TempMergeDuplicatesLineBuffer[2].Find();
         TempMergeDuplicatesLineBuffer[2].Override := false;
         TempMergeDuplicatesLineBuffer[2].Modify();
 
-        Assert.IsFalse(TempMergeDuplicatesLineBuffer[1].HasFieldToOverride, Format(4));
+        Assert.IsFalse(TempMergeDuplicatesLineBuffer[1].HasFieldToOverride(), Format(4));
     end;
 
     [Test]
@@ -773,7 +773,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         // [FEATURE] [UT]
         Initialize();
         // [GIVEN] Customer Bank Account 'X' for Customer 'A'
-        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, LibrarySales.CreateCustomerNo());
         MergeDuplicatesBuffer."Table ID" := DATABASE::"Customer Bank Account";
         MergeDuplicatesBuffer.Current := CustomerBankAccount."Customer No.";
         MergeDuplicatesBuffer.Duplicate := CustomerBankAccount."Customer No.";
@@ -856,7 +856,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         Customer.Delete();
 
         // [WHEN] Set "Duplicate" to 'B'
-        asserterror TempMergeDuplicatesBuffer.Validate(Duplicate, LibrarySales.CreateCustomerNo);
+        asserterror TempMergeDuplicatesBuffer.Validate(Duplicate, LibrarySales.CreateCustomerNo());
         // [THEN] Error message: 'Customer A does not exist'
         Assert.ExpectedError(StrSubstNo(CurrentDoesNotExistErr, Customer.TableCaption(), Current))
     end;
@@ -908,15 +908,15 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         TempMergeDuplicatesBuffer.Duplicate := Customer[1]."No.";
         TempMergeDuplicatesBuffer.Current := Customer[2]."No.";
         TempMergeDuplicatesBuffer.Insert();
-        TempMergeDuplicatesBuffer.Merge;
+        TempMergeDuplicatesBuffer.Merge();
 
         // [THEN] Customer 'A' does exist, where Name = 'A', ID is 'AAA'
-        Assert.IsTrue(Customer[1].Find, 'Customer A must exist');
+        Assert.IsTrue(Customer[1].Find(), 'Customer A must exist');
         Customer[1].TestField("No.", xCustomer[1]."No.");
         Customer[1].TestField(Name, Customer[1].Name);
 
         // [THEN] Customer 'B' does exist, where Name = 'B', ID is 'BBB'
-        Assert.IsTrue(Customer[2].Find, 'Customer B must exist');
+        Assert.IsTrue(Customer[2].Find(), 'Customer B must exist');
         Customer[2].TestField("No.", xCustomer[2]."No.");
         Customer[2].TestField(Name, Customer[2].Name);
     end;
@@ -945,7 +945,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         TempMergeDuplicatesConflict.TestField("Table Name", TableName);
 
         // [WHEN] Open Conflicts page
-        MergeDuplicateConflictsPage.Trap;
+        MergeDuplicateConflictsPage.Trap();
         MergeDuplicateConflicts.Set(TempMergeDuplicatesConflict);
         MergeDuplicateConflicts.Run();
         // [THEN] "Table ID" is 287, "Table Name" is 'Customer Bank Account'
@@ -981,14 +981,14 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         SetOverride(MergeDuplicatePage, CustomerBankAccount[1].FieldNo(Name), true);
 
         // [WHEN] run "Remove" action
-        MergeDuplicatePage."Remove Duplicate".Invoke;
+        MergeDuplicatePage."Remove Duplicate".Invoke();
 
         // [THEN] Current record 'C00010,BANK', where "Name" is 'B', "Address" is 'Moscow'
         CustomerBankAccount[1].Find();
         CustomerBankAccount[1].TestField(Name, CustomerBankAccount[2].Name);
         CustomerBankAccount[1].TestField(Address, ExpectedAddress);
         // [THEN] Conflicting record does not exist
-        Assert.IsFalse(CustomerBankAccount[2].Find, 'duplicate record must not exist');
+        Assert.IsFalse(CustomerBankAccount[2].Find(), 'duplicate record must not exist');
         // [THEN] Merge Duplicate page is closed
         Assert.IsFalse(IsMergePageOpen(MergeDuplicatePage), 'Merge page should be closed')
     end;
@@ -1010,20 +1010,20 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         // [GIVEN] Open Merge Duplicate page for conflict
         OpenMergePageForConflictingRecords(MergeDuplicatePage, TempMergeDuplicatesConflict);
         // [GIVEN] Action "Rename" is enabled; "Alternative Value" is editable in "Code" field
-        Assert.IsTrue(MergeDuplicatePage."Rename Duplicate".Enabled, 'Rename should be enabled before');
+        Assert.IsTrue(MergeDuplicatePage."Rename Duplicate".Enabled(), 'Rename should be enabled before');
         VerifyFieldDuplicateValueEditable(MergeDuplicatePage, CustomerBankAccount[1].FieldNo(Code), true);
         // [GIVEN] Action "Remove" is enabled; "Override" controls are editable.
-        Assert.IsTrue(MergeDuplicatePage."Remove Duplicate".Enabled, 'Remove should be enabled before');
+        Assert.IsTrue(MergeDuplicatePage."Remove Duplicate".Enabled(), 'Remove should be enabled before');
         VerifyFieldOverrideEditable(MergeDuplicatePage, CustomerBankAccount[1].FieldNo(Name), true);
 
         // [WHEN] Set "Override" to 'Yes' for the field "Name"
         SetOverride(MergeDuplicatePage, CustomerBankAccount[1].FieldNo(Name), true);
 
         // [THEN] "Remove" action is enabled; "Override" controls are editable.
-        Assert.IsTrue(MergeDuplicatePage."Remove Duplicate".Enabled, 'Remove should be enabled after');
+        Assert.IsTrue(MergeDuplicatePage."Remove Duplicate".Enabled(), 'Remove should be enabled after');
         VerifyFieldOverrideEditable(MergeDuplicatePage, CustomerBankAccount[1].FieldNo(Name), true);
         // [THEN] "Rename" action is enabled; "Alternative Value" is not editable on "Code" field
-        Assert.IsTrue(MergeDuplicatePage."Rename Duplicate".Enabled, 'Rename should be enabled after');
+        Assert.IsTrue(MergeDuplicatePage."Rename Duplicate".Enabled(), 'Rename should be enabled after');
         VerifyFieldDuplicateValueEditable(MergeDuplicatePage, CustomerBankAccount[1].FieldNo(Code), false);
         MergeDuplicatePage.Close();
     end;
@@ -1045,10 +1045,10 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         // [GIVEN] Open Merge Duplicate page for conflict
         OpenMergePageForConflictingRecords(MergeDuplicatePage, TempMergeDuplicatesConflict);
         // [GIVEN] Action "Rename" is enabled; "Alternative Value" is editable
-        Assert.IsTrue(MergeDuplicatePage."Rename Duplicate".Enabled, 'Rename should be enabled before');
+        Assert.IsTrue(MergeDuplicatePage."Rename Duplicate".Enabled(), 'Rename should be enabled before');
         VerifyFieldDuplicateValueEditable(MergeDuplicatePage, CustomerBankAccount[1].FieldNo(Code), true);
         // [GIVEN] Action "Remove" is enabled; "Override" control is editable.
-        Assert.IsTrue(MergeDuplicatePage."Remove Duplicate".Enabled, 'Remove should be enabled before');
+        Assert.IsTrue(MergeDuplicatePage."Remove Duplicate".Enabled(), 'Remove should be enabled before');
         VerifyFieldOverrideEditable(MergeDuplicatePage, CustomerBankAccount[1].FieldNo(Name), true);
 
         // [WHEN] Change "Code" in "Alternative Value" from 'BANK' to 'BANK-X'
@@ -1056,14 +1056,14 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         MergeDuplicatePage.Fields."Duplicate Value".SetValue(CustomerBankAccount[2].Code + '-X');
 
         // [THEN] "Remove" action is enabled; "Override" control is not editable.
-        Assert.IsTrue(MergeDuplicatePage."Remove Duplicate".Enabled, 'Remove should be enabled after');
+        Assert.IsTrue(MergeDuplicatePage."Remove Duplicate".Enabled(), 'Remove should be enabled after');
         VerifyFieldOverrideEditable(MergeDuplicatePage, CustomerBankAccount[1].FieldNo(Name), false);
         // [THEN] "Rename" action is enabled; "Alternative Value" is editable
-        Assert.IsTrue(MergeDuplicatePage."Rename Duplicate".Enabled, 'Rename should be enabled after');
+        Assert.IsTrue(MergeDuplicatePage."Rename Duplicate".Enabled(), 'Rename should be enabled after');
         VerifyFieldDuplicateValueEditable(MergeDuplicatePage, CustomerBankAccount[1].FieldNo(Code), true);
 
         // [WHEN] Run "Remove" action
-        asserterror MergeDuplicatePage."Remove Duplicate".Invoke;
+        asserterror MergeDuplicatePage."Remove Duplicate".Invoke();
         // [THEN] Error message: 'Restore the modified primary key fields.'
         Assert.ExpectedError(RestorePKeyFieldErr);
         MergeDuplicatePage.Close();
@@ -1124,7 +1124,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         VerifyFieldDuplicateValueEditable(MergeDuplicatePage, CustomerBankAccount[1].FieldNo(Code), true);
 
         // [WHEN] Run "Rename" action
-        asserterror MergeDuplicatePage."Rename Duplicate".Invoke;
+        asserterror MergeDuplicatePage."Rename Duplicate".Invoke();
         // [THEN] Error message: 'You must modify one of the primary key fields'
         Assert.ExpectedError(ModifyPKeyFieldErr);
     end;
@@ -1147,26 +1147,26 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         CreateConflict(CustomerBankAccount, TempMergeDuplicatesConflict);
         // [GIVEN] Open page "Merge Duplicate Conflicts", where is record for 'X'
         MergeDuplicateConflicts.Set(TempMergeDuplicatesConflict);
-        MergeDuplicateConflictsPage.Trap;
+        MergeDuplicateConflictsPage.Trap();
         MergeDuplicateConflicts.Run();
         // [GIVEN] Run "View" and then "Remove" action
         LibraryVariableStorage.Enqueue(ConflictResolution::Remove); // Action for MergeDuplicatesConflictingRecordsModalHandler
         LibraryVariableStorage.Enqueue(true); // Reply for ConfirmHandler
-        MergeDuplicateConflictsPage.ViewConflictRecords.Invoke;
+        MergeDuplicateConflictsPage.ViewConflictRecords.Invoke();
         // [WHEN] User answers 'Yes' on confirmation: 'Are you sure you want to remove the record?'
-        Assert.ExpectedMessage(StrSubstNo(ConfirmRemoveTxt, Format(CustomerBankAccount[2].RecordId)), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(StrSubstNo(ConfirmRemoveTxt, Format(CustomerBankAccount[2].RecordId)), LibraryVariableStorage.DequeueText());
 
         // [THEN] The Merge Conflicts page is closed
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Merge Conflicts page should be closed');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Merge Conflicts page should be closed');
         // [THEN] Customer 'B' has no the bank account 'X'
-        Assert.IsFalse(CustomerBankAccount[2].Find, 'Duplicate bank should not exist');
+        Assert.IsFalse(CustomerBankAccount[2].Find(), 'Duplicate bank should not exist');
         // [THEN] Customer 'A' still has the bank account 'X'
-        Assert.IsTrue(CustomerBankAccount[1].Find, 'Current bank should not exist');
+        Assert.IsTrue(CustomerBankAccount[1].Find(), 'Current bank should not exist');
         // [THEN] Conflict line is removed from the list
-        Assert.IsFalse(MergeDuplicateConflictsPage.First, 'should be no conflicts in the list');
+        Assert.IsFalse(MergeDuplicateConflictsPage.First(), 'should be no conflicts in the list');
         MergeDuplicateConflictsPage.Close();
         // [THEN] Page is closed
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1187,25 +1187,25 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         CreateConflict(CustomerBankAccount, TempMergeDuplicatesConflict);
         // [GIVEN] Open page "Merge Duplicate Conflicts", where is record for 'X'
         MergeDuplicateConflicts.Set(TempMergeDuplicatesConflict);
-        MergeDuplicateConflictsPage.Trap;
+        MergeDuplicateConflictsPage.Trap();
         MergeDuplicateConflicts.Run();
         // [GIVEN] Run "View" and then "Remove" action
         LibraryVariableStorage.Enqueue(ConflictResolution::Remove); // Action for MergeDuplicatesConflictingRecordsModalHandler
         LibraryVariableStorage.Enqueue(false); // Reply for ConfirmHandler
-        MergeDuplicateConflictsPage.ViewConflictRecords.Invoke;
+        MergeDuplicateConflictsPage.ViewConflictRecords.Invoke();
         // [WHEN] User answers 'No' on confirmation: 'Are you sure you want to remove the record?'
-        Assert.ExpectedMessage(StrSubstNo(ConfirmRemoveTxt, Format(CustomerBankAccount[2].RecordId)), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(StrSubstNo(ConfirmRemoveTxt, Format(CustomerBankAccount[2].RecordId)), LibraryVariableStorage.DequeueText());
 
         // [THEN] The Merge Conflicts page is open
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Merge Conflicts page should be open');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Merge Conflicts page should be open');
         // [THEN] Conflict line is in the list
-        Assert.IsTrue(MergeDuplicateConflictsPage.First, 'should still be conflict in the list');
+        Assert.IsTrue(MergeDuplicateConflictsPage.First(), 'should still be conflict in the list');
         // [THEN] Customer 'B' has the bank account 'X'
-        Assert.IsTrue(CustomerBankAccount[2].Find, 'Duplicate bank should not exist');
+        Assert.IsTrue(CustomerBankAccount[2].Find(), 'Duplicate bank should not exist');
         // [THEN] Customer 'A' has the bank account 'X'
-        Assert.IsTrue(CustomerBankAccount[1].Find, 'Current bank should not exist');
+        Assert.IsTrue(CustomerBankAccount[1].Find(), 'Current bank should not exist');
         MergeDuplicateConflictsPage.Close();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     // [Test]
@@ -1238,7 +1238,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
 
     //     // [GIVEN] Open page "Merge Duplicate Conflicts", where is record for 'X'
     //     MergeDuplicateConflicts.Set(TempMergeDuplicatesConflict);
-    //     MergeDuplicateConflictsPage.Trap;
+    //     MergeDuplicateConflictsPage.Trap();
     //     MergeDuplicateConflicts.Run();
     //     // [GIVEN] Run "Rename Duplicate" action
     //     LibraryVariableStorage.Enqueue(ConflictResolution::Rename); // Action for MergeDuplicatesConflictingRecordsModalHandler
@@ -1248,18 +1248,18 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
     //     LibraryVariableStorage.Enqueue(TableWithPK16Fields[2].Field15); // New value for PK field
     //     // [WHEN] User answers 'Yes'
     //     LibraryVariableStorage.Enqueue(true); // Reply for ConfirmHandler
-    //     MergeDuplicateConflictsPage.ViewConflictRecords.Invoke;
-    //     Assert.ExpectedMessage(StrSubstNo(ConfirmRenameTxt,Format(RecID)),LibraryVariableStorage.DequeueText);
+    //     MergeDuplicateConflictsPage.ViewConflictRecords.Invoke();
+    //     Assert.ExpectedMessage(StrSubstNo(ConfirmRenameTxt,Format(RecID)),LibraryVariableStorage.DequeueText());
 
     //     // [THEN] The Merge Conflicts page is closed
-    //     Assert.IsFalse(LibraryVariableStorage.DequeueBoolean,'Merge Conflicts page should be closed');
+    //     Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(),'Merge Conflicts page should be closed');
     //     // [THEN] Both TableWithPK16Fields records exist
-    //     Assert.IsTrue(TableWithPK16Fields[2].Find,'Renamed record should exist');
-    //     Assert.IsTrue(TableWithPK16Fields[1].Find,'Current record should exist');
+    //     Assert.IsTrue(TableWithPK16Fields[2].Find(),'Renamed record should exist');
+    //     Assert.IsTrue(TableWithPK16Fields[1].Find(),'Current record should exist');
     //     // [THEN] Conflict line is removed from the list
     //     Assert.IsFalse(MergeDuplicateConflictsPage.First,'should be no conflicts in the list');
     //     MergeDuplicateConflictsPage.Close();
-    //     LibraryVariableStorage.AssertEmpty;
+    //     LibraryVariableStorage.AssertEmpty();
     // end;
 
     [Test]
@@ -1280,7 +1280,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         CreateConflict(CustomerBankAccount, TempMergeDuplicatesConflict);
         // [GIVEN] Open page "Merge Duplicate Conflicts", where is record for 'X'
         MergeDuplicateConflicts.Set(TempMergeDuplicatesConflict);
-        MergeDuplicateConflictsPage.Trap;
+        MergeDuplicateConflictsPage.Trap();
         MergeDuplicateConflicts.Run();
         // [GIVEN] Run "Rename Duplicate" action
         LibraryVariableStorage.Enqueue(ConflictResolution::Rename); // Action for MergeDuplicatesConflictingRecordsModalHandler
@@ -1289,20 +1289,20 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         LibraryVariableStorage.Enqueue(CustomerBankAccount[1].Code + 'X'); // New value for PK field
         // [WHEN] User answers 'No'
         LibraryVariableStorage.Enqueue(false); // Reply for ConfirmHandler
-        MergeDuplicateConflictsPage.ViewConflictRecords.Invoke;
-        Assert.ExpectedMessage(StrSubstNo(ConfirmRenameTxt, Format(CustomerBankAccount[2].RecordId)), LibraryVariableStorage.DequeueText);
+        MergeDuplicateConflictsPage.ViewConflictRecords.Invoke();
+        Assert.ExpectedMessage(StrSubstNo(ConfirmRenameTxt, Format(CustomerBankAccount[2].RecordId)), LibraryVariableStorage.DequeueText());
 
         // [THEN] The Merge Conflicts page is open
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Merge Conflicts page should be open');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Merge Conflicts page should be open');
         // [THEN] Conflict line is in the list
-        Assert.IsTrue(MergeDuplicateConflictsPage.First, 'should still be conflict in the list');
+        Assert.IsTrue(MergeDuplicateConflictsPage.First(), 'should still be conflict in the list');
         // [THEN] Customer 'B' has the bank account 'X'
-        Assert.IsTrue(CustomerBankAccount[2].Find, 'Duplicate bank should not exist');
+        Assert.IsTrue(CustomerBankAccount[2].Find(), 'Duplicate bank should not exist');
         // [THEN] Customer 'A' has the bank account 'X'
-        Assert.IsTrue(CustomerBankAccount[1].Find, 'Current bank should not exist');
+        Assert.IsTrue(CustomerBankAccount[1].Find(), 'Current bank should not exist');
         // [THEN] Page is not closed
         MergeDuplicateConflictsPage.Close();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1337,14 +1337,14 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
 
         // [GIVEN] Open MergeDuplicate page for conflicting records
         MergeDuplicate.SetConflict(MergeDuplicatesConflict);
-        MergeDuplicatePage.Trap;
+        MergeDuplicatePage.Trap();
         MergeDuplicate.Run();
 
         // [GIVEN] Got to the field "Location Code", where "Alternative Value" is editable.
         MergeDuplicatePage.Fields.FILTER.SetFilter(Name, ItemAnalysisViewEntry[1].FieldName("Location Code"));
-        MergeDuplicatePage.Fields.First;
-        Assert.IsTrue(MergeDuplicatePage.Fields."Duplicate Value".Visible, 'Duplicate Value.VISIBLE');
-        Assert.IsTrue(MergeDuplicatePage.Fields."Duplicate Value".Editable, 'Duplicate Value.EDITABLE');
+        MergeDuplicatePage.Fields.First();
+        Assert.IsTrue(MergeDuplicatePage.Fields."Duplicate Value".Visible(), 'Duplicate Value.VISIBLE');
+        Assert.IsTrue(MergeDuplicatePage.Fields."Duplicate Value".Editable(), 'Duplicate Value.EDITABLE');
         // [GIVEN] Location 'X' does not exist
         NotExistingLocationCode := LibraryUtility.GenerateGUID();
         // [WHEN] Set "Alternative Value" to 'X'
@@ -1360,13 +1360,13 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         MergeDuplicatePage.Fields."Duplicate Value".AssertEquals(Location.Code);
 
         // [WHEN] Run "Rename Duplicate" action
-        MergeDuplicatePage."Rename Duplicate".Invoke;
+        MergeDuplicatePage."Rename Duplicate".Invoke();
 
         // [THEN] ItemAnalysisViewEntry, where "Location Code" is 'B'
         ItemAnalysisViewEntry[2]."Location Code" := Location.Code;
-        Assert.IsTrue(ItemAnalysisViewEntry[2].Find, 'renamed record does not exist');
+        Assert.IsTrue(ItemAnalysisViewEntry[2].Find(), 'renamed record does not exist');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1400,26 +1400,26 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
           DefaultDimension, DATABASE::Customer, Customer[2]."No.", DimensionValue[2]."Dimension Code", DimensionValue[2].Code);
 
         // [GIVEN] Open Merge page for 'A'
-        MergePage.Trap;
+        MergePage.Trap();
         MergeDuplicatesBuffer.Show(DATABASE::Customer, Customer[2]."No.");
 
         // [WHEN] Pick 'B' as "Duplicate"
         MergePage.Duplicate.SetValue(Customer[1]."No.");
 
         // [THEN] Related tables list contains record for "Default Dimension", where "Current Count" is 2, "Duplicate Count" is 1
-        Assert.IsTrue(MergePage.Tables.First, 'no related records found');
+        Assert.IsTrue(MergePage.Tables.First(), 'no related records found');
         MergePage.Tables."Table ID".AssertEquals(Format(DATABASE::"Default Dimension"));
         MergePage.Tables."Current Count".AssertEquals(Format(2));
         MergePage.Tables."Duplicate Count".AssertEquals(Format(1));
 
         // [GIVEN] Run "Merge" action
-        MergePage.Merge.Invoke;
+        MergePage.Merge.Invoke();
         // [GIVEN] Drill down on Conflicts and run action View
         LibraryVariableStorage.Enqueue(true); // For ConfirmHandler
-        MergePage.Conflicts.DrillDown;
+        MergePage.Conflicts.DrillDown();
 
         // [WHEN] Answer 'Yes' to confirmation: '... you want to remove record Default Dimension: 18,?'
-        Assert.ExpectedMessage(RemoveDefaultDimMsg, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(RemoveDefaultDimMsg, LibraryVariableStorage.DequeueText());
 
         // [THEN] Default Dimensions for 'A' does exist, for 'B' is removed
         DefaultDimension.Get(DATABASE::Customer, Customer[2]."No.", Dimension[1].Code);
@@ -1457,21 +1457,21 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
           DefaultDimension, DATABASE::Customer, Customer[2]."No.", DimensionValue[2]."Dimension Code", DimensionValue[2].Code);
 
         // [GIVEN] Open Merge page for 'A'
-        MergePage.Trap;
+        MergePage.Trap();
         MergeDuplicatesBuffer.Show(DATABASE::Customer, Customer[2]."No.");
 
         // [WHEN] Pick 'B' as "Duplicate"
         MergePage.Duplicate.SetValue(Customer[1]."No.");
 
         // [THEN] Related tables list contains  record for "Default Dimension"
-        Assert.IsTrue(MergePage.Tables.First, 'no related records found');
+        Assert.IsTrue(MergePage.Tables.First(), 'no related records found');
         MergePage.Tables."Table ID".AssertEquals(Format(DATABASE::"Default Dimension"));
         MergePage.Tables."Current Count".AssertEquals(Format(1));
         MergePage.Tables."Duplicate Count".AssertEquals(Format(1));
 
         // [WHEN] Run "Merge" action
         LibraryVariableStorage.Enqueue(true); // For ConfirmHandler
-        MergePage.Merge.Invoke;
+        MergePage.Merge.Invoke();
 
         // [THEN] Customer 'A' has Default Dimension for 'Project' = 'X', 'Department' = 'Y'
         DefaultDimension.Get(DATABASE::Customer, Customer[2]."No.", DimensionValue[2]."Dimension Code");
@@ -1539,10 +1539,6 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         Customer: array[2] of Record Customer;
         TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
         GenJournalLine: Record "Gen. Journal Line";
-#if not CLEAN21
-        O365CouponClaim: Record "O365 Coupon Claim";
-        O365PostedCouponClaim: Record "O365 Posted Coupon Claim";
-#endif
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
         SalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
         SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer";
@@ -1550,7 +1546,6 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         DefaultDimension: Record "Default Dimension";
         DimensionValue: Record "Dimension Value";
         CommentLine: Record "Comment Line";
-        BlankRecordId: RecordId;
     begin
         // [FEATURE] [Customer]
         // [SCENARIO] Action 'Merge Duplicate' removes one of customers
@@ -1604,16 +1599,6 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         GenJournalLine.Validate("Bal. Account No.", Customer[2]."No.");
         GenJournalLine.Insert();
         GenJournalLine.TestField("Customer Id", Customer[1].SystemId);
-#if not CLEAN21
-        // [GIVEN] O365CouponClaim, where "Customer Id" is 'AAA'
-        O365CouponClaim."Claim ID" := LibraryUtility.GenerateGUID();
-        O365CouponClaim."Customer Id" := Customer[1].SystemId;
-        O365CouponClaim.Insert();
-        // [GIVEN] O365CouponClaim, where "Customer Id" is 'AAA'
-        O365PostedCouponClaim."Claim ID" := LibraryUtility.GenerateGUID();
-        O365PostedCouponClaim."Customer Id" := Customer[1].SystemId;
-        O365PostedCouponClaim.Insert();
-#endif
         // [GIVEN] SalesInvoiceEntityAggregate, where "Sell-to Customer No." is 'A', "Customer Id" is 'AAA'
         SalesInvoiceEntityAggregate."No." := LibraryUtility.GenerateGUID();
         SalesInvoiceEntityAggregate.Validate("Sell-to Customer No.", Customer[1]."No.");
@@ -1642,14 +1627,14 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         TempMergeDuplicatesBuffer.Current := Customer[2]."No.";
         TempMergeDuplicatesBuffer.Insert();
         LibraryVariableStorage.Enqueue(true); // Reply for ConfirmHandler
-        TempMergeDuplicatesBuffer.Merge;
-        Assert.ExpectedMessage(ConfirmMergeTxt, LibraryVariableStorage.DequeueText);
+        TempMergeDuplicatesBuffer.Merge();
+        Assert.ExpectedMessage(ConfirmMergeTxt, LibraryVariableStorage.DequeueText());
 
         // [THEN] Customer 'A' does not exist,
-        Assert.IsFalse(Customer[1].Find, 'Customer A must not exist');
+        Assert.IsFalse(Customer[1].Find(), 'Customer A must not exist');
 
         // [THEN] Customer 'B' does exist, where Name = 'B', ID is 'BBB', SystemID is 'BBB'
-        Assert.IsTrue(Customer[2].Find, 'Customer B must exist');
+        Assert.IsTrue(Customer[2].Find(), 'Customer B must exist');
         Customer[2].TestField(Name, Customer[2].Name);
 
         // [THEN] Customer 'B' has 6 Comment Lines
@@ -1663,14 +1648,6 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         GenJournalLine.TestField("Bal. Account No.", Customer[2]."No.");
         GenJournalLine.TestField("Account No.", Customer[2]."No.");
         GenJournalLine.TestField("Customer Id", Customer[2].SystemId);
-#if not CLEAN21
-        // [THEN] O365CouponClaim, where "Customer Id" is 'BBB'
-        O365CouponClaim.Find();
-        O365CouponClaim.TestField("Customer Id", Customer[2].SystemId);
-        // [THEN] O365PostedCouponClaim, where "Customer Id" is 'BBB'
-        O365PostedCouponClaim.Find();
-        O365PostedCouponClaim.TestField("Customer Id", Customer[2].SystemId);
-#endif
         // [GIVEN] SalesInvoiceEntityAggregate, where "Sell-to Customer No." is 'B', "Customer Id" is 'BBB'
         SalesInvoiceEntityAggregate.Find();
         SalesInvoiceEntityAggregate.TestField("Sell-to Customer No.", Customer[2]."No.");
@@ -1691,7 +1668,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         DefaultDimension.SetRange("No.", Customer[2]."No.");
         DefaultDimension.FindFirst();
         DefaultDimension.TestField(ParentId, Customer[2].SystemId);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1719,14 +1696,14 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         TempMergeDuplicatesBuffer.Current := Customer[1]."No.";
         TempMergeDuplicatesBuffer.Validate(Duplicate, Customer[2]."No.");
         TempMergeDuplicatesBuffer.Insert();
-        TempMergeDuplicatesBuffer.Merge;
+        TempMergeDuplicatesBuffer.Merge();
 
         // [THEN] Conflicts is '1'
         TempMergeDuplicatesBuffer.TestField(Conflicts, 1);
         // [THEN] Customer 'A' does exist
-        Assert.IsTrue(Customer[1].Find, 'Customer A must exist');
+        Assert.IsTrue(Customer[1].Find(), 'Customer A must exist');
         // [THEN] Customer 'B' does exist
-        Assert.IsTrue(Customer[2].Find, 'Customer B must exist');
+        Assert.IsTrue(Customer[2].Find(), 'Customer B must exist');
     end;
 
     [Test]
@@ -1744,11 +1721,11 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         // [GIVEN] Customer 'A'
         Customer.FindFirst();
         // [GIVEN] Open Merge, where "Duplicate" is 'A'
-        MergePage.Trap;
+        MergePage.Trap();
         MergeDuplicatesBuffer.Show(DATABASE::Customer, Customer."No.");
         LibraryVariableStorage.Enqueue(Customer."No."); // to CustomerListModalHandler
         // [WHEN] Lookup the same customer 'A' for "Duplicate"
-        asserterror MergePage.Duplicate.Lookup;
+        asserterror MergePage.Duplicate.Lookup();
         // [THEN] Error: "Current must not be A"
         Assert.ExpectedError(StrSubstNo(NewKeyErr, Customer."No."));
     end;
@@ -1767,7 +1744,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         // [GIVEN] Customer 'A'
         Customer.FindFirst();
         // [GIVEN] Open Merge, where "Duplicate" is 'A'
-        MergePage.Trap;
+        MergePage.Trap();
         MergeDuplicatesBuffer.Show(DATABASE::Customer, Customer."No.");
         LibraryVariableStorage.Enqueue(Customer."No."); // to CustomerListModalHandler
         // [WHEN] Set the same customer 'A' for "Duplicate"
@@ -1845,7 +1822,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         // [THEN] There are no fields, where Old and New values are equal; no conflicts
         MergeDuplicatesBuffer.GetLines(TempMergeDuplicatesLineBuffer, TempMergeDuplicatesConflict);
         TempMergeDuplicatesLineBuffer.SetRange(Type, TempMergeDuplicatesLineBuffer.Type::Field);
-        Assert.IsTrue(TempMergeDuplicatesLineBuffer.FindSet, 'there must be field lines');
+        Assert.IsTrue(TempMergeDuplicatesLineBuffer.FindSet(), 'there must be field lines');
         repeat
             if TempMergeDuplicatesLineBuffer."Current Value" = TempMergeDuplicatesLineBuffer."Duplicate Value" then
                 Error(SameValueErr, TempMergeDuplicatesLineBuffer.ID);
@@ -1886,18 +1863,18 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         BindSubscription(TestMergeDuplicates);
 
         // [WHEN] Open Merge Duplicates page for 'A' and 'B'
-        MergeDuplicatePage.Trap;
+        MergeDuplicatePage.Trap();
         MergeDuplicatesBuffer.Show(DATABASE::Customer, Customer[1]."No.");
         MergeDuplicatePage.Duplicate.SetValue(Customer[2]."No.");
 
         // [THEN] See "Creditor No." of table 81 in the related records list, "Current Count" is 1, "Duplicate Count" is 2.
         MergeDuplicatePage.Tables.FILTER.SetFilter("Table ID", '81');
-        Assert.IsTrue(MergeDuplicatePage.Tables.First, 'Table 81 is not in the list');
+        Assert.IsTrue(MergeDuplicatePage.Tables.First(), 'Table 81 is not in the list');
         MergeDuplicatePage.Tables."Current Count".AssertEquals(Format(1));
         MergeDuplicatePage.Tables."Duplicate Count".AssertEquals(Format(2));
 
         // [WHEN] Run "Merge" action
-        MergeDuplicatePage.Merge.Invoke;
+        MergeDuplicatePage.Merge.Invoke();
 
         // [THEN] 3 Gen. Journal Lines, where "Creditor No." is 'A'
         GenJournalLine.SetRange("Creditor No.", Customer[1]."No.");
@@ -1919,7 +1896,6 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         DefaultDimension: Record "Default Dimension";
         DimensionValue: Record "Dimension Value";
         CommentLine: Record "Comment Line";
-        BlankRecordId: RecordId;
     begin
         // [FEATURE] [Vendor]
         // [SCENARIO] Action 'Merge Duplicate' removes one of vendors
@@ -1985,13 +1961,13 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         TempMergeDuplicatesBuffer.Duplicate := Vendor[1]."No.";
         TempMergeDuplicatesBuffer.Current := Vendor[2]."No.";
         TempMergeDuplicatesBuffer.Insert();
-        TempMergeDuplicatesBuffer.Merge;
+        TempMergeDuplicatesBuffer.Merge();
 
         // [THEN] Vendor 'A' does not exist,
-        Assert.IsFalse(Vendor[1].Find, 'Vendor A must not exist');
+        Assert.IsFalse(Vendor[1].Find(), 'Vendor A must not exist');
 
         // [THEN] Vendor 'B' does exist, where Name = 'B', "Id" is 'BBB', SystemId is 'BBB'
-        Assert.IsTrue(Vendor[2].Find, 'Vendor B must exist');
+        Assert.IsTrue(Vendor[2].Find(), 'Vendor B must exist');
         Vendor[2].TestField(Name, Vendor[2].Name);
 
         // [THEN] Vendor 'B' has 6 Comment Lines
@@ -2012,7 +1988,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         DefaultDimension.SetRange("No.", Vendor[2]."No.");
         DefaultDimension.FindFirst();
         DefaultDimension.TestField(ParentId, Vendor[2].SystemId);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2031,28 +2007,28 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         LibraryPurchase.CreateVendor(Vendor[1]);
         LibraryPurchase.CreateVendor(Vendor[2]);
         // [GIVEN] Open Vendor Card on 'A'
-        VendorCardPage.OpenEdit;
+        VendorCardPage.OpenEdit();
         VendorCardPage.FILTER.SetFilter("No.", Vendor[1]."No.");
 
         // [WHEN] Run action 'Merge Duplicate'
-        MergePage.Trap;
-        VendorCardPage.MergeDuplicate.Invoke;
+        MergePage.Trap();
+        VendorCardPage.MergeDuplicate.Invoke();
 
         // [THEN] Open page 'Merge Duplicate', where "Current" is 'A', "Duplicate" is <blank>
         MergePage.Current.AssertEquals(Vendor[1]."No.");
-        Assert.IsFalse(MergePage.Current.Editable, 'Current Editable');
+        Assert.IsFalse(MergePage.Current.Editable(), 'Current Editable');
         MergePage.Duplicate.AssertEquals('');
-        Assert.IsTrue(MergePage.Duplicate.Editable, 'Duplicate Editable');
+        Assert.IsTrue(MergePage.Duplicate.Editable(), 'Duplicate Editable');
         // [THEN] Actions "Remove Dupllicate", "Rename Duplicate" are not visible
-        Assert.IsFalse(MergePage."Remove Duplicate".Visible, 'Remove should be invisible');
-        Assert.IsFalse(MergePage."Rename Duplicate".Visible, 'Rename should be invisible');
+        Assert.IsFalse(MergePage."Remove Duplicate".Visible(), 'Remove should be invisible');
+        Assert.IsFalse(MergePage."Rename Duplicate".Visible(), 'Rename should be invisible');
 
         // [WHEN] Lookup "Duplicate" for 'B' and push 'OK'
         LibraryVariableStorage.Enqueue(Vendor[2]."No."); // to VendorListModalHandler
-        MergePage.Duplicate.Lookup;
+        MergePage.Duplicate.Lookup();
         // [THEN] "Duplicate" is 'B'
         MergePage.Duplicate.AssertEquals(Vendor[2]."No.");
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2061,7 +2037,6 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
     var
         Vendor: array[2] of Record Vendor;
         TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
-        BlankRecordId: RecordId;
     begin
         // [FEATURE] [Vendor]
         // [SCENARIO 350424] Action 'Merge Duplicate' removes one of vendors while current Integration Record is missed.
@@ -2075,16 +2050,16 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         TempMergeDuplicatesBuffer.Duplicate := Vendor[1]."No.";
         TempMergeDuplicatesBuffer.Current := Vendor[2]."No.";
         TempMergeDuplicatesBuffer.Insert();
-        TempMergeDuplicatesBuffer.Merge;
+        TempMergeDuplicatesBuffer.Merge();
 
         // [THEN] Vendor 'A' does not exist,
-        Assert.IsFalse(Vendor[1].Find, 'Vendor A must not exist');
+        Assert.IsFalse(Vendor[1].Find(), 'Vendor A must not exist');
 
         // [THEN] Vendor 'B' does exist, where Name = 'B', "Id" is 'BBB'
-        Assert.IsTrue(Vendor[2].Find, 'Vendor B must exist');
+        Assert.IsTrue(Vendor[2].Find(), 'Vendor B must exist');
         Vendor[2].TestField(Name, Vendor[2].Name);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2093,7 +2068,6 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
     var
         Vendor: array[2] of Record Vendor;
         TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
-        BlankRecordId: RecordId;
     begin
         // [FEATURE] [Vendor]
         // [SCENARIO 350424] Action 'Merge Duplicate' removes one of vendors while duplicate Integration Record is missed.
@@ -2108,7 +2082,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         TempMergeDuplicatesBuffer.Duplicate := Vendor[1]."No.";
         TempMergeDuplicatesBuffer.Current := Vendor[2]."No.";
         TempMergeDuplicatesBuffer.Insert();
-        TempMergeDuplicatesBuffer.Merge;
+        TempMergeDuplicatesBuffer.Merge();
 
         // [THEN] Vendor 'A' does not exist,
         Assert.IsFalse(Vendor[1].GetBySystemId(Vendor[1].SystemId), 'Vendor A must not exist');
@@ -2118,7 +2092,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         Vendor[2].TestField(Name, Vendor[2].Name);
 
         // [THEN] Integration Record 'BBB', where "Deleted On" is blank, "Record ID" points to 'B'
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2131,7 +2105,6 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         Contact: array[2] of Record Contact;
         Customer: array[2] of Record Customer;
         TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
-        BlankRecordId: RecordId;
     begin
         // [FEATURE] [Contact]
         // [SCENARIO] Action 'Merge Duplicate' removes one of contacts
@@ -2154,7 +2127,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         TempMergeDuplicatesBuffer.Duplicate := Customer[1]."No.";
         TempMergeDuplicatesBuffer.Current := Customer[2]."No.";
         TempMergeDuplicatesBuffer.Insert();
-        TempMergeDuplicatesBuffer.Merge;
+        TempMergeDuplicatesBuffer.Merge();
         // [GIVEN] Customer 'A' is removed, both contacts are related to Customer 'B'
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
         ContactBusinessRelation.SetRange("No.", Customer[2]."No.");
@@ -2171,7 +2144,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         TempMergeDuplicatesBuffer.Duplicate := Contact[1]."No.";
         TempMergeDuplicatesBuffer.Current := Contact[2]."No.";
         TempMergeDuplicatesBuffer.Insert();
-        TempMergeDuplicatesBuffer.Merge;
+        TempMergeDuplicatesBuffer.Merge();
 
         // [THEN] Contact 'CA' does not exist,
         Assert.IsFalse(Contact[1].GetBySystemId(Contact[1].SystemId), 'Contact A must not exist');
@@ -2180,7 +2153,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         Assert.IsTrue(Contact[2].GetBySystemId(Contact[2].SystemId), 'Contact B must exist');
         Contact[2].TestField(Name, Contact[2].Name);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2200,28 +2173,28 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         LibraryMarketing.CreateContactWithCustomer(Contact[1], Customer[1]);
         LibraryMarketing.CreateContactWithCustomer(Contact[2], Customer[2]);
         // [GIVEN] Open Contact Card on 'A'
-        ContactCardPage.OpenEdit;
+        ContactCardPage.OpenEdit();
         ContactCardPage.FILTER.SetFilter("No.", Contact[1]."No.");
 
         // [WHEN] Run action 'Merge Duplicate'
-        MergePage.Trap;
-        ContactCardPage.MergeDuplicate.Invoke;
+        MergePage.Trap();
+        ContactCardPage.MergeDuplicate.Invoke();
 
         // [THEN] Open page 'Merge Duplicate', where "Current" is 'A', "Duplicate" is <blank>
         MergePage.Current.AssertEquals(Contact[1]."No.");
-        Assert.IsFalse(MergePage.Current.Editable, 'Current Editable');
+        Assert.IsFalse(MergePage.Current.Editable(), 'Current Editable');
         MergePage.Duplicate.AssertEquals('');
-        Assert.IsTrue(MergePage.Duplicate.Editable, 'Duplicate Editable');
+        Assert.IsTrue(MergePage.Duplicate.Editable(), 'Duplicate Editable');
         // [THEN] Actions "Remove Dupllicate", "Rename Duplicate" are not visible
-        Assert.IsFalse(MergePage."Remove Duplicate".Visible, 'Remove should be invisible');
-        Assert.IsFalse(MergePage."Rename Duplicate".Visible, 'Rename should be invisible');
+        Assert.IsFalse(MergePage."Remove Duplicate".Visible(), 'Remove should be invisible');
+        Assert.IsFalse(MergePage."Rename Duplicate".Visible(), 'Rename should be invisible');
 
         // [WHEN] Lookup "Duplicate" for 'B' and push 'OK'
         LibraryVariableStorage.Enqueue(Contact[2]."No."); // to ContactListModalHandler
-        MergePage.Duplicate.Lookup;
+        MergePage.Duplicate.Lookup();
         // [THEN] "Duplicate" is 'B'
         MergePage.Duplicate.AssertEquals(Contact[2]."No.");
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2255,14 +2228,12 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
     [Scope('OnPrem')]
     procedure MergeContactsAndVerifyBussRelation()
     var
-        ContactBusinessRelation: Record "Contact Business Relation";
         ContDuplicateSearchString: Record "Cont. Duplicate Search String";
         Contact: array[2] of Record Contact;
         Customer: array[2] of Record Customer;
         Vendor: Record Vendor;
         TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
         ContactNo: Code[20];
-        BlankRecordId: RecordId;
     begin
         // [SCENARIO 441147] To ensure that after "Contact Business Relation" is updated after MergeContact function 
         Initialize();
@@ -2287,7 +2258,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         TempMergeDuplicatesBuffer.Duplicate := Contact[2]."No.";
         TempMergeDuplicatesBuffer.Current := Contact[1]."No.";
         TempMergeDuplicatesBuffer.Insert();
-        TempMergeDuplicatesBuffer.Merge;
+        TempMergeDuplicatesBuffer.Merge();
 
         // [THEN] Contact Business Relation should be "Multiple"
         Contact[1].Get(ContactNo);
@@ -2330,7 +2301,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         TempMergeDuplicatesBuffer.Insert();
 
         // [THEN] Verify that the merge is successful
-        TempMergeDuplicatesBuffer.Merge;
+        TempMergeDuplicatesBuffer.Merge();
     end;
 
     local procedure Initialize()
@@ -2340,7 +2311,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Merge Duplicates");
-        LibraryApplicationArea.EnableEssentialSetup;
+        LibraryApplicationArea.EnableEssentialSetup();
 
         IsInitialized := true;
         Commit();
@@ -2388,7 +2359,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
 
     local procedure CreateConflictingCustomerBanks(var CustomerBankAccount: array[2] of Record "Customer Bank Account")
     begin
-        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount[1], LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount[1], LibrarySales.CreateCustomerNo());
         CustomerBankAccount[2] := CustomerBankAccount[1];
         CustomerBankAccount[2]."Customer No." := LibrarySales.CreateCustomerNo();
         CustomerBankAccount[2].Name := LibraryUtility.GenerateGUID();
@@ -2421,31 +2392,31 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
     [Scope('OnPrem')]
     procedure ContactLookupModalHandler(var ContactListPage: TestPage "Contact List")
     begin
-        ContactListPage.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        ContactListPage.OK.Invoke;
+        ContactListPage.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ContactListPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CustomerLookupModalHandler(var CustomerLookupPage: TestPage "Customer Lookup")
     begin
-        CustomerLookupPage.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        CustomerLookupPage.OK.Invoke;
+        CustomerLookupPage.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        CustomerLookupPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VendorLookupModalHandler(var VendorLookupPage: TestPage "Vendor Lookup")
     begin
-        VendorLookupPage.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        VendorLookupPage.OK.Invoke;
+        VendorLookupPage.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        VendorLookupPage.OK().Invoke();
     end;
 
     [TryFunction]
     [Scope('OnPrem')]
     procedure IsMergePageOpen(var MergeDuplicatePage: TestPage "Merge Duplicate")
     begin
-        MergeDuplicatePage.First;
+        MergeDuplicatePage.First();
     end;
 
     [MessageHandler]
@@ -2465,19 +2436,19 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
     [Scope('OnPrem')]
     procedure ConflictListModalHandler(var MergeDuplicateConflicts: TestPage "Merge Duplicate Conflicts")
     begin
-        Assert.IsTrue(MergeDuplicateConflicts.First, 'there must be first line in conflicts');
-        LibraryVariableStorage.Enqueue(MergeDuplicateConflicts."Table ID".AsInteger);
+        Assert.IsTrue(MergeDuplicateConflicts.First(), 'there must be first line in conflicts');
+        LibraryVariableStorage.Enqueue(MergeDuplicateConflicts."Table ID".AsInteger());
         LibraryVariableStorage.Enqueue(MergeDuplicateConflicts.Current.Value);
         LibraryVariableStorage.Enqueue(MergeDuplicateConflicts.Duplicate.Value);
-        Assert.IsFalse(MergeDuplicateConflicts.Next, 'there must be no second line in conflicts');
+        Assert.IsFalse(MergeDuplicateConflicts.Next(), 'there must be no second line in conflicts');
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ConflictListViewConflictModalHandler(var MergeDuplicateConflicts: TestPage "Merge Duplicate Conflicts")
     begin
-        Assert.IsTrue(MergeDuplicateConflicts.First, 'there must be first line in conflicts');
-        MergeDuplicateConflicts.ViewConflictRecords.Invoke;
+        Assert.IsTrue(MergeDuplicateConflicts.First(), 'there must be first line in conflicts');
+        MergeDuplicateConflicts.ViewConflictRecords.Invoke();
     end;
 
     local procedure CreateDuplContacts(var Contacts: array[2] of Record Contact; var ContactDuplicate: Record "Contact Duplicate")
@@ -2514,7 +2485,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
     var
         MergeDuplicate: Page "Merge Duplicate";
     begin
-        MergeDuplicatePage.Trap;
+        MergeDuplicatePage.Trap();
         MergeDuplicate.SetConflict(MergeDuplicatesConflict);
         MergeDuplicate.Run();
     end;
@@ -2538,7 +2509,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
     begin
         MergeDuplicatePage.Fields.FindFirstField(ID, FieldNo);
         Assert.AreEqual(
-          IsEditable, MergeDuplicatePage.Fields."Duplicate Value".Editable,
+          IsEditable, MergeDuplicatePage.Fields."Duplicate Value".Editable(),
           'Duplicate Value.EDITABLE for field ' + Format(FieldNo));
     end;
 
@@ -2546,7 +2517,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
     begin
         MergeDuplicatePage.Fields.FindFirstField(ID, FieldNo);
         Assert.AreEqual(
-          IsEditable, MergeDuplicatePage.Fields.Override.Editable,
+          IsEditable, MergeDuplicatePage.Fields.Override.Editable(),
           'Override.EDITABLE for field ' + Format(FieldNo));
     end;
 
@@ -2554,7 +2525,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
     begin
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
         LibraryVariableStorage.Enqueue(Question);
     end;
 
@@ -2578,19 +2549,19 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
     var
         ConflictAction: Integer;
     begin
-        ConflictAction := LibraryVariableStorage.DequeueInteger;
+        ConflictAction := LibraryVariableStorage.DequeueInteger();
         case ConflictAction of
             ConflictResolution::None:
-                MergeDuplicate.Cancel.Invoke;
+                MergeDuplicate.Cancel().Invoke();
             ConflictResolution::Rename:
                 begin
-                    MergeDuplicate.Fields.FindFirstField(ID, LibraryVariableStorage.DequeueInteger);
-                    Assert.IsTrue(MergeDuplicate.Fields."Duplicate Value".Editable, '"Duplicate Value".EDITABLE');
-                    MergeDuplicate.Fields."Duplicate Value".SetValue(LibraryVariableStorage.DequeueText);
-                    MergeDuplicate."Rename Duplicate".Invoke;
+                    MergeDuplicate.Fields.FindFirstField(ID, LibraryVariableStorage.DequeueInteger());
+                    Assert.IsTrue(MergeDuplicate.Fields."Duplicate Value".Editable(), '"Duplicate Value".EDITABLE');
+                    MergeDuplicate.Fields."Duplicate Value".SetValue(LibraryVariableStorage.DequeueText());
+                    MergeDuplicate."Rename Duplicate".Invoke();
                 end;
             ConflictResolution::Remove:
-                MergeDuplicate."Remove Duplicate".Invoke;
+                MergeDuplicate."Remove Duplicate".Invoke();
         end;
         LibraryVariableStorage.Enqueue(IsMergePageOpen(MergeDuplicate));
     end;
@@ -2601,14 +2572,14 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
     begin
         LibraryVariableStorage.Enqueue(MergeDuplicatePage.CurrentRecID.Value);
         LibraryVariableStorage.Enqueue(MergeDuplicatePage.DuplicateRecID.Value);
-        MergeDuplicatePage."Remove Duplicate".Invoke;
+        MergeDuplicatePage."Remove Duplicate".Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure RemoveConflictModalSimpleHandler(var MergeDuplicatePage: TestPage "Merge Duplicate")
     begin
-        MergeDuplicatePage."Remove Duplicate".Invoke;
+        MergeDuplicatePage."Remove Duplicate".Invoke();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Merge Duplicates Buffer", 'OnAfterFindRelatedFields', '', false, false)]

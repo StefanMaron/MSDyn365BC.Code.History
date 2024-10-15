@@ -382,96 +382,82 @@ xmlport 17300 "Tax Differences Registers"
     [Scope('OnPrem')]
     procedure ImportData()
     begin
-        with "Tax Calc. Section" do begin
-            Reset();
-            if FindSet() then
-                repeat
+        "Tax Calc. Section".Reset();
+        if "Tax Calc. Section".FindSet() then
+            repeat
+                TaxCalcSection := "Tax Calc. Section";
+                if TaxCalcSection.Find() then begin
+                    TaxCalcSection.Delete(true);
                     TaxCalcSection := "Tax Calc. Section";
-                    if TaxCalcSection.Find() then begin
-                        TaxCalcSection.Delete(true);
-                        TaxCalcSection := "Tax Calc. Section";
-                    end;
-                    TaxCalcSection.Insert();
-                until Next() = 0;
-        end;
+                end;
+                TaxCalcSection.Insert();
+            until "Tax Calc. Section".Next() = 0;
 
-        with "Tax Calc. Header" do begin
-            Reset();
-            if FindSet() then
-                repeat
+        "Tax Calc. Header".Reset();
+        if "Tax Calc. Header".FindSet() then
+            repeat
+                TaxCalcHeader := "Tax Calc. Header";
+                if TaxCalcHeader.Find() then begin
+                    TaxCalcHeader.Delete(true);
                     TaxCalcHeader := "Tax Calc. Header";
-                    if TaxCalcHeader.Find() then begin
-                        TaxCalcHeader.Delete(true);
-                        TaxCalcHeader := "Tax Calc. Header";
-                    end;
-                    TaxCalcHeader.Insert();
-                until Next() = 0;
-        end;
+                end;
+                TaxCalcHeader.Insert();
+            until "Tax Calc. Header".Next() = 0;
 
-        with "Tax Calc. Selection Setup" do begin
-            Reset();
-            if FindSet() then
-                repeat
+        "Tax Calc. Selection Setup".Reset();
+        if "Tax Calc. Selection Setup".FindSet() then
+            repeat
+                TaxCalcSelectionSetup := "Tax Calc. Selection Setup";
+                if TaxCalcSelectionSetup.Find() then begin
+                    TaxCalcSelectionSetup.Delete(true);
                     TaxCalcSelectionSetup := "Tax Calc. Selection Setup";
-                    if TaxCalcSelectionSetup.Find() then begin
-                        TaxCalcSelectionSetup.Delete(true);
-                        TaxCalcSelectionSetup := "Tax Calc. Selection Setup";
-                    end;
-                    TaxCalcSelectionSetup.Insert();
-                until Next() = 0;
-        end;
+                end;
+                TaxCalcSelectionSetup.Insert();
+            until "Tax Calc. Selection Setup".Next() = 0;
 
-        with "Tax Calc. Line" do begin
-            Reset();
-            if FindSet() then
-                repeat
+        "Tax Calc. Line".Reset();
+        if "Tax Calc. Line".FindSet() then
+            repeat
+                TaxCalcLine := "Tax Calc. Line";
+                if TaxCalcLine.Find() then begin
+                    TaxCalcLine.Delete(true);
                     TaxCalcLine := "Tax Calc. Line";
-                    if TaxCalcLine.Find() then begin
-                        TaxCalcLine.Delete(true);
-                        TaxCalcLine := "Tax Calc. Line";
-                    end;
-                    TaxCalcLine.Insert();
-                until Next() = 0;
-        end;
+                end;
+                TaxCalcLine.Insert();
+            until "Tax Calc. Line".Next() = 0;
 
-        with "Tax Calc. Dim. Filter" do begin
-            Reset();
-            if FindSet() then
-                repeat
+        "Tax Calc. Dim. Filter".Reset();
+        if "Tax Calc. Dim. Filter".FindSet() then
+            repeat
+                TaxCalcDimFilter := "Tax Calc. Dim. Filter";
+                if TaxCalcDimFilter.Find() then begin
+                    TaxCalcDimFilter.Delete(true);
                     TaxCalcDimFilter := "Tax Calc. Dim. Filter";
-                    if TaxCalcDimFilter.Find() then begin
-                        TaxCalcDimFilter.Delete(true);
-                        TaxCalcDimFilter := "Tax Calc. Dim. Filter";
-                    end;
-                    TaxCalcDimFilter.Insert();
-                until Next() = 0;
-        end;
+                end;
+                TaxCalcDimFilter.Insert();
+            until "Tax Calc. Dim. Filter".Next() = 0;
 
-        with "Tax Calc. Term" do begin
-            Reset();
-            if FindSet() then
-                repeat
+        "Tax Calc. Term".Reset();
+        if "Tax Calc. Term".FindSet() then
+            repeat
+                TaxCalcTerm := "Tax Calc. Term";
+                if TaxCalcTerm.Find() then begin
+                    TaxCalcTerm.Delete(true);
                     TaxCalcTerm := "Tax Calc. Term";
-                    if TaxCalcTerm.Find() then begin
-                        TaxCalcTerm.Delete(true);
-                        TaxCalcTerm := "Tax Calc. Term";
-                    end;
-                    TaxCalcTerm.Insert();
-                until Next() = 0;
-        end;
+                end;
+                TaxCalcTerm.Insert();
+            until "Tax Calc. Term".Next() = 0;
 
-        with "Tax Calc. Term Formula" do begin
-            Reset();
-            if FindSet() then
-                repeat
+        "Tax Calc. Term Formula".Reset();
+        if "Tax Calc. Term Formula".FindSet() then
+            repeat
+                TaxCalcTermFormula := "Tax Calc. Term Formula";
+                if TaxCalcTermFormula.Find() then begin
+                    TaxCalcTermFormula.Delete(true);
                     TaxCalcTermFormula := "Tax Calc. Term Formula";
-                    if TaxCalcTermFormula.Find() then begin
-                        TaxCalcTermFormula.Delete(true);
-                        TaxCalcTermFormula := "Tax Calc. Term Formula";
-                    end;
-                    TaxCalcTermFormula.Insert();
-                until Next() = 0;
-        end;
+                end;
+                TaxCalcTermFormula.Insert();
+            until "Tax Calc. Term Formula".Next() = 0;
     end;
 }
 

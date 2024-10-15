@@ -14,7 +14,6 @@
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         EntryDoesNotExist: Label 'Cannot find entry in table %1 with filters %2.';
-        NothingToAdjustTxt: Label 'There is nothing to adjust.';
 
     local procedure UpdateGLSetup(NewSummarizeGainsLosses: Boolean)
     var
@@ -209,18 +208,18 @@
     begin
         with Currency do begin
             LibraryERM.CreateCurrency(Currency);
-            Validate("Unrealized Gains Acc.", LibraryERM.CreateGLAccountNo);
-            Validate("Unrealized Losses Acc.", LibraryERM.CreateGLAccountNo);
+            Validate("Unrealized Gains Acc.", LibraryERM.CreateGLAccountNo());
+            Validate("Unrealized Losses Acc.", LibraryERM.CreateGLAccountNo());
             if IsDiffAccounts then begin
-                Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo);
-                Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo);
+                Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo());
+                Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo());
             end else begin
                 Validate("Realized Gains Acc.", "Unrealized Gains Acc.");
                 Validate("Realized Losses Acc.", "Unrealized Losses Acc.");
             end;
-            Validate("Sales PD Gains Acc. (TA)", LibraryERM.CreateGLAccountNo);
-            Validate("Sales PD Losses Acc. (TA)", LibraryERM.CreateGLAccountNo);
-            Validate("PD Bal. Gain/Loss Acc. (TA)", LibraryERM.CreateGLAccountNo);
+            Validate("Sales PD Gains Acc. (TA)", LibraryERM.CreateGLAccountNo());
+            Validate("Sales PD Losses Acc. (TA)", LibraryERM.CreateGLAccountNo());
+            Validate("PD Bal. Gain/Loss Acc. (TA)", LibraryERM.CreateGLAccountNo());
             Modify(true);
             exit(Code);
         end;
@@ -251,7 +250,7 @@
         SalesHeader: Record "Sales Header";
         AccNo: Code[20];
     begin
-        AccNo := LibraryERM.CreateGLAccountWithSalesSetup;
+        AccNo := LibraryERM.CreateGLAccountWithSalesSetup();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustNo);
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Validate("Currency Code", CurrencyCode);
@@ -282,7 +281,7 @@
             Validate("Currency Code", CurrencyCode);
             Validate(Amount, PmtAmount);
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
             Modify(true);
             LibraryERM.PostGeneralJnlLine(GenJnlLine);
             exit("Document No.");
@@ -322,7 +321,7 @@
                 CalcFields("Remaining Amount");
                 Validate("Amount to Apply", "Remaining Amount");
                 Modify(true);
-            until Next = 0;
+            until Next() = 0;
         end;
 
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntryTo);
@@ -422,7 +421,7 @@
                 SetRange("Document No.", DtldCustLedgEntry."Document No.");
                 SetRange("Transaction No.", DtldCustLedgEntry."Transaction No.");
                 Assert.IsTrue(
-                  FindLast, StrSubstNo(EntryDoesNotExist, TableCaption(), GetFilters));
+                  FindLast(), StrSubstNo(EntryDoesNotExist, TableCaption(), GetFilters));
             end;
         end;
     end;

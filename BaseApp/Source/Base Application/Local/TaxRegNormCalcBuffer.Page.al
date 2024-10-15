@@ -120,19 +120,18 @@ page 17286 "Tax Reg. Norm Calc. Buffer"
         AccumulateRecordRef: RecordRef;
         TemplateFieldRef: FieldRef;
     begin
-        with TaxRegNormAccumulation do
-            if TaxRegNormTemplateLine.Get("Norm Jurisdiction Code", "Norm Group Code", "Template Line No.") then begin
-                TemplateRecordRef.GetTable(TaxRegNormTemplateLine);
-                TemplateFieldRef := TemplateRecordRef.Field(TaxRegNormTemplateLine.FieldNo("Date Filter"));
-                TemplateFieldRef.SetRange("Starting Date", "Ending Date");
-                TaxRegNormAccumulation2 := TaxRegNormAccumulation;
-                TaxRegNormAccumulation2.SetCurrentKey("Norm Jurisdiction Code", "Norm Group Code");
-                TaxRegNormAccumulation2.SetRange("Ending Date", TaxRegNormAccumulation2."Ending Date");
-                TaxRegNormAccumulation2.SetRange("Norm Jurisdiction Code", TaxRegNormAccumulation2."Norm Jurisdiction Code");
-                AccumulateRecordRef.GetTable(TaxRegNormAccumulation2);
-                AccumulateRecordRef.SetView(TaxRegNormAccumulation2.GetView(false));
-                TaxRegTermMgt.ShowExpressionValue(TemplateRecordRef, Rec, AccumulateRecordRef);
-            end;
+        if TaxRegNormTemplateLine.Get(TaxRegNormAccumulation."Norm Jurisdiction Code", TaxRegNormAccumulation."Norm Group Code", TaxRegNormAccumulation."Template Line No.") then begin
+            TemplateRecordRef.GetTable(TaxRegNormTemplateLine);
+            TemplateFieldRef := TemplateRecordRef.Field(TaxRegNormTemplateLine.FieldNo("Date Filter"));
+            TemplateFieldRef.SetRange(TaxRegNormAccumulation."Starting Date", TaxRegNormAccumulation."Ending Date");
+            TaxRegNormAccumulation2 := TaxRegNormAccumulation;
+            TaxRegNormAccumulation2.SetCurrentKey("Norm Jurisdiction Code", "Norm Group Code");
+            TaxRegNormAccumulation2.SetRange("Ending Date", TaxRegNormAccumulation2."Ending Date");
+            TaxRegNormAccumulation2.SetRange("Norm Jurisdiction Code", TaxRegNormAccumulation2."Norm Jurisdiction Code");
+            AccumulateRecordRef.GetTable(TaxRegNormAccumulation2);
+            AccumulateRecordRef.SetView(TaxRegNormAccumulation2.GetView(false));
+            TaxRegTermMgt.ShowExpressionValue(TemplateRecordRef, Rec, AccumulateRecordRef);
+        end;
     end;
 
     [Scope('OnPrem')]

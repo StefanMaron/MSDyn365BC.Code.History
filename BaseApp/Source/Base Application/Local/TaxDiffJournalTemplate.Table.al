@@ -2,6 +2,7 @@ table 17303 "Tax Diff. Journal Template"
 {
     Caption = 'Tax Diff. Journal Template';
     LookupPageID = "Tax Diff. Jnl. Template List";
+    DataClassification = CustomerContent;
 
     fields
     {

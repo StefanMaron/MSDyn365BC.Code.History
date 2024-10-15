@@ -8,6 +8,7 @@ table 5777 "Item Reference"
 {
     Caption = 'Item Reference';
     LookupPageID = "Item Reference List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -212,7 +213,7 @@ table 5777 "Item Reference"
     begin
         IsHandled := false;
         OnBeforeUpdateItemVendorNo(ItemReference, IsHandled);
-        If not IsHandled then
+        if not IsHandled then
             if not MultipleItemReferencesExist(ItemReference) then
                 if ItemVend.Get(ItemReference."Reference Type No.", ItemReference."Item No.", ItemReference."Variant Code") then begin
                     ItemVend.Validate("Vendor Item No.", NewItemRefNo);
@@ -237,7 +238,7 @@ table 5777 "Item Reference"
     begin
         IsHandled := false;
         OnBeforeMultipleItemReferencesExist(ItemReference, Result, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit(Result);
 
         ItemReference2.SetRange("Item No.", ItemReference."Item No.");

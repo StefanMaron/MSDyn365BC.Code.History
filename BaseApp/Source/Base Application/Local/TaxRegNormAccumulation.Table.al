@@ -2,6 +2,7 @@ table 17242 "Tax Reg. Norm Accumulation"
 {
     Caption = 'Tax Reg. Norm Accumulation';
     LookupPageID = "Tax Reg. Norm Accum. Lines";
+    DataClassification = CustomerContent;
 
     fields
     {

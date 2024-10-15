@@ -6,6 +6,7 @@ table 109 "Net Balances Parameters"
 {
     Caption = 'Net Balances Parameters';
     Tabletype = Temporary;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -22,8 +23,8 @@ table 109 "Net Balances Parameters"
             Caption = 'Document No.';
             trigger OnValidate()
             begin
-                IF "Document No." <> '' THEN
-                    IF IncStr("Document No.") = '' THEN
+                if "Document No." <> '' then
+                    if IncStr("Document No.") = '' then
                         error(DocNoMustContainNumberErr);
             end;
         }
@@ -64,17 +65,17 @@ table 109 "Net Balances Parameters"
 
     procedure Initialize()
     begin
-        IF "Posting Date" = 0D THEN
+        if "Posting Date" = 0D then
             "Posting Date" := WorkDate();
         Description := CopyStr(DescriptionMsg, 1, MaxStrLen(Description));
     end;
 
     procedure Verify()
     begin
-        IF "Posting Date" = 0D THEN
+        if "Posting Date" = 0D then
             error(PostingDateErr);
 
-        IF "Document No." = '' THEN
+        if "Document No." = '' then
             error(DocumentNoErr);
     end;
 

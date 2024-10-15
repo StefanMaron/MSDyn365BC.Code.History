@@ -59,22 +59,20 @@ codeunit 5479 "Graph Mgt - Customer Payments"
         APIDataUpgrade: Codeunit "API Data Upgrade";
         RecordCount: Integer;
     begin
-        with GenJournalLine do begin
-            SetRange("Account Type", "Account Type"::Customer);
+        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Customer);
 
-            if FindSet() then begin
-                repeat
-                    UpdateCustomerID();
-                    UpdateAppliesToInvoiceID();
-                    UpdateJournalBatchID();
-                    Modify(false);
-                    if WithCommit then
-                        APIDataUpgrade.CountRecordsAndCommit(RecordCount);
-                until Next() = 0;
-
+        if GenJournalLine.FindSet() then begin
+            repeat
+                GenJournalLine.UpdateCustomerID();
+                GenJournalLine.UpdateAppliesToInvoiceID();
+                GenJournalLine.UpdateJournalBatchID();
+                GenJournalLine.Modify(false);
                 if WithCommit then
-                    Commit();
-            end;
+                    APIDataUpgrade.CountRecordsAndCommit(RecordCount);
+            until GenJournalLine.Next() = 0;
+
+            if WithCommit then
+                Commit();
         end;
     end;
 }

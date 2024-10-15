@@ -89,14 +89,14 @@ page 952 "Manager Time Sheet"
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
-                    ToolTip = 'Specifies the number for the job that is associated with the time sheet line.';
+                    ToolTip = 'Specifies the number for the project that is associated with the time sheet line.';
                     Visible = false;
                 }
                 field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
-                    ToolTip = 'Specifies the number of the related job task.';
+                    ToolTip = 'Specifies the number of the related project task.';
                     Visible = false;
                 }
                 field(Description; Rec.Description)
@@ -547,16 +547,32 @@ page 952 "Manager Time Sheet"
         TimeSheetLine: Record "Time Sheet Line";
         TempTimeSheetLine: Record "Time Sheet Line" temporary;
         ActionType: Option Approve,Reopen,Reject;
+        TimeSheetAction: Enum "Time Sheet Action";
     begin
         CurrPage.SaveRecord();
         case Action of
             Action::"Approve All",
-          Action::"Reject All":
+            Action::"Reject All":
                 FilterAllLines(TimeSheetLine, ActionType::Approve);
             Action::"Reopen All":
                 FilterAllLines(TimeSheetLine, ActionType::Reopen);
-            else
-                CurrPage.SetSelectionFilter(TimeSheetLine);
+            Action::"Approve Selected",
+            Action::"Reject Selected":
+                begin
+                    CurrPage.SetSelectionFilter(TimeSheetLine);
+                    TimeSheetLine.FilterGroup(2);
+                    TimeSheetLine.SetFilter(Type, '<>%1', TimeSheetLine.Type::" ");
+                    TimeSheetLine.FilterGroup(0);
+                    TimeSheetLine.SetRange(Status, TimeSheetLine.Status::Submitted);
+                end;
+            Action::"Reopen Selected":
+                begin
+                    CurrPage.SetSelectionFilter(TimeSheetLine);
+                    TimeSheetLine.FilterGroup(2);
+                    TimeSheetLine.SetFilter(Type, '<>%1', TimeSheetLine.Type::" ");
+                    TimeSheetLine.FilterGroup(0);
+                    TimeSheetLine.SetRange(Status, TimeSheetLine.Status::Approved);
+                end;
         end;
         OnProcessOnAfterTimeSheetLinesFiltered(TimeSheetLine, Action);
         TimeSheetMgt.CopyFilteredTimeSheetLinesToBuffer(TimeSheetLine, TempTimeSheetLine);
@@ -564,16 +580,30 @@ page 952 "Manager Time Sheet"
             repeat
                 case Action of
                     Action::"Approve Selected",
-                  Action::"Approve All":
+                    Action::"Approve All":
                         TimeSheetApprovalMgt.Approve(TimeSheetLine);
                     Action::"Reopen Selected",
-                  Action::"Reopen All":
+                    Action::"Reopen All":
                         TimeSheetApprovalMgt.ReopenApproved(TimeSheetLine);
                     Action::"Reject Selected",
-                  Action::"Reject All":
+                    Action::"Reject All":
                         TimeSheetApprovalMgt.Reject(TimeSheetLine);
                 end;
-            until TimeSheetLine.Next() = 0;
+            until TimeSheetLine.Next() = 0
+        else begin
+            case Action of
+                Action::"Approve Selected",
+                Action::"Approve All":
+                    TimeSheetAction := TimeSheetAction::Approve;
+                Action::"Reopen Selected",
+                Action::"Reopen All":
+                    TimeSheetAction := TimeSheetAction::"Reopen Approved";
+                Action::"Reject Selected",
+                Action::"Reject All":
+                    TimeSheetAction := TimeSheetAction::Reject;
+            end;
+            TimeSheetApprovalMgt.NoTimeSheetLinesToProcess(TimeSheetAction);
+        end;
         OnAfterProcess(TempTimeSheetLine, Action);
         CurrPage.Update(false);
     end;
@@ -622,7 +652,7 @@ page 952 "Manager Time Sheet"
         TimeSheetLine: Record "Time Sheet Line";
     begin
         FilterAllLines(TimeSheetLine, ActionType);
-        exit(TimeSheetApprovalMgt.GetManagerTimeSheetDialogText(ActionType, TimeSheetLine.Count));
+        exit(TimeSheetApprovalMgt.GetManagerTimeSheetDialogText(ActionType, TimeSheetLine.Count()));
     end;
 
     local procedure FilterAllLines(var TimeSheetLine: Record "Time Sheet Line"; ActionType: Option Approve,Reopen,Reject)
@@ -634,7 +664,7 @@ page 952 "Manager Time Sheet"
         TimeSheetLine.FilterGroup(0);
         case ActionType of
             ActionType::Approve,
-          ActionType::Reject:
+            ActionType::Reject:
                 TimeSheetLine.SetRange(Status, TimeSheetLine.Status::Submitted);
             ActionType::Reopen:
                 TimeSheetLine.SetRange(Status, TimeSheetLine.Status::Approved);
@@ -645,7 +675,7 @@ page 952 "Manager Time Sheet"
 
     local procedure ShowDialog(ActionType: Option Approve,Reopen,Reject): Integer
     begin
-        exit(StrMenu(GetDialogText(ActionType), 1, TimeSheetApprovalMgt.GetManagerTimeSheetDialogInstruction(ActionType)));
+        exit(StrMenu(GetDialogText(ActionType), 2, TimeSheetApprovalMgt.GetManagerTimeSheetDialogInstruction(ActionType)));
     end;
 
     [IntegrationEvent(false, false)]

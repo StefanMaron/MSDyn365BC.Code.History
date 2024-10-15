@@ -73,6 +73,7 @@ permissionset 9111 "General Ledger Accounts - Edit"
                   tabledata "FA Posting Group" = r,
                   tabledata "G/L Account" = RIMD,
                   tabledata "G/L Account Category" = RIMD,
+                  tabledata "G/L Account Source Currency" = R,
                   tabledata "G/L Budget Entry" = RD,
                   tabledata "G/L Entry" = Rm,
                   tabledata "Gen. Business Posting Group" = R,

@@ -4,6 +4,7 @@ table 12401 "G/L Correspondence Entry"
     DataCaptionFields = "Debit Account No.", "Credit Account No.";
     DrillDownPageID = "G/L Correspondence Entries";
     LookupPageID = "G/L Correspondence Entries";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -89,7 +89,7 @@ page 26587 "XML Element Lines"
                                         XMLElementExpressionLine.SetRange("Base XML Element Line No.", Rec."Line No.");
                                         if XMLElementExpressionLine.FindFirst() then
                                             if Confirm(Text004) then
-                                                XMLElementExpressionLine.DeleteAll
+                                                XMLElementExpressionLine.DeleteAll()
                                             else
                                                 Error('');
                                     end;
@@ -158,7 +158,7 @@ page 26587 "XML Element Lines"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        Rec.LookupRow;
+                        Rec.LookupRow();
                     end;
                 }
                 field("Column Link No."; Rec."Column Link No.")
@@ -168,7 +168,7 @@ page 26587 "XML Element Lines"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        Rec.LookupColumn;
+                        Rec.LookupColumn();
                     end;
                 }
                 field("Excel Mapping Type"; Rec."Excel Mapping Type")
@@ -263,7 +263,7 @@ page 26587 "XML Element Lines"
 
                     trigger OnAction()
                     begin
-                        ShowCompoundElementLines;
+                        ShowCompoundElementLines();
                     end;
                 }
             }
@@ -309,7 +309,7 @@ page 26587 "XML Element Lines"
 
                     trigger OnAction()
                     begin
-                        MoveRight;
+                        MoveRight();
                     end;
                 }
                 action("Move Left")
@@ -320,7 +320,7 @@ page 26587 "XML Element Lines"
 
                     trigger OnAction()
                     begin
-                        MoveLeft;
+                        MoveLeft();
                     end;
                 }
                 separator(Action1210038)
@@ -335,7 +335,7 @@ page 26587 "XML Element Lines"
 
                     trigger OnAction()
                     begin
-                        Rec.UpdateExpression;
+                        Rec.UpdateExpression();
                         CurrPage.SaveRecord();
                     end;
                 }
@@ -416,11 +416,6 @@ page 26587 "XML Element Lines"
     end;
 
     var
-        StatutoryReport: Record "Statutory Report";
-        StatutoryReportTable: Record "Statutory Report Table";
-        FormatVersion: Record "Format Version";
-        Text000: Label 'Excel not found.';
-        Text001: Label 'Excel template is already opened.';
         Text002: Label 'All related expression lines will be deleted. Proceed?';
         Text004: Label 'All related compound element lines will be deleted. Proceed?';
         Text005: Label '%1 cannot be modified because %2 %3 contains report data.';
@@ -460,7 +455,7 @@ page 26587 "XML Element Lines"
             UpperLine.Modify();
         end;
 
-        UpdateLinks;
+        UpdateLinks();
     end;
 
     [Scope('OnPrem')]
@@ -495,7 +490,7 @@ page 26587 "XML Element Lines"
             LowerLine."Sequence No." := SequenceNo;
             LowerLine.Modify();
         end;
-        UpdateLinks;
+        UpdateLinks();
     end;
 
     [Scope('OnPrem')]
@@ -504,7 +499,7 @@ page 26587 "XML Element Lines"
         Rec.CheckReportDataExistence(Text005);
         Rec.Indentation := Rec.Indentation + 1;
         Rec.Modify(true);
-        UpdateLinks;
+        UpdateLinks();
     end;
 
     [Scope('OnPrem')]
@@ -515,7 +510,7 @@ page 26587 "XML Element Lines"
             Rec.Indentation := Rec.Indentation - 1;
             Rec.Modify(true);
         end;
-        UpdateLinks;
+        UpdateLinks();
     end;
 
     [Scope('OnPrem')]

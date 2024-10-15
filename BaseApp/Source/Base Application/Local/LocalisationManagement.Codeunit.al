@@ -59,64 +59,62 @@ codeunit 12400 "Localisation Management"
         DecSymFactorText: Text;
         InvoiceRoundingType: Text;
     begin
-        with Currency do begin
-            Init();
-            InvoiceRoundingType := SetRoundingPrecision(Currency);
-            if CurrencyCode = '' then begin
-                "Unit Kind" := "Unit Kind"::Male;
-                "Unit Name 1" := UnitName1Txt;
-                "Unit Name 2" := UnitName2Txt;
-                "Unit Name 5" := UnitName5Txt;
-                "Hundred Kind" := "Hundred Kind"::Female;
-                "Hundred Name 1" := CentName1Txt;
-                "Hundred Name 2" := CentName2Txt;
-                "Hundred Name 5" := CentName5Txt;
-            end else
-                Get(CurrencyCode);
+        Currency.Init();
+        InvoiceRoundingType := SetRoundingPrecision(Currency);
+        if CurrencyCode = '' then begin
+            Currency."Unit Kind" := Currency."Unit Kind"::Male;
+            Currency."Unit Name 1" := UnitName1Txt;
+            Currency."Unit Name 2" := UnitName2Txt;
+            Currency."Unit Name 5" := UnitName5Txt;
+            Currency."Hundred Kind" := Currency."Hundred Kind"::Female;
+            Currency."Hundred Name 1" := CentName1Txt;
+            Currency."Hundred Name 2" := CentName2Txt;
+            Currency."Hundred Name 5" := CentName5Txt;
+        end else
+            Currency.Get(CurrencyCode);
 
-            if "Hundred Name 1" = '' then
-                DecSymFormat := '/'
-            else
-                DecSymFormat := '';
+        if Currency."Hundred Name 1" = '' then
+            DecSymFormat := '/'
+        else
+            DecSymFormat := '';
 
-            DecSymFactor := Round(1 / "Invoice Rounding Precision", 1, '<');
-            DecSymFactorText := Format(DecSymFactor, 0, '<Integer>');
-            DecSym :=
-              Round(
-                (Round(Amount, "Invoice Rounding Precision", InvoiceRoundingType) - Round(Amount, 1, '<')) *
-                DecSymFactor, 1, '<');
-            DecSymsText := Format(DecSym, 0, '<Integer>');
-            if StrLen(DecSymFactorText) > StrLen(DecSymsText) then
-                DecSymsText := PadStr('', StrLen(DecSymFactorText) - StrLen(DecSymsText) - 1, '0') + DecSymsText;
-            if DecSymFormat = '/' then
-                AmountText :=
-                  Integer2Text(Round(Amount, "Invoice Rounding Precision", InvoiceRoundingType),
-                    "Unit Kind", '', '', '')
-            else
-                AmountText :=
-                  Integer2Text(Round(Amount, "Invoice Rounding Precision", InvoiceRoundingType),
-                    "Unit Kind", "Unit Name 1", "Unit Name 2", "Unit Name 5");
-            if DecSymFormat = '/' then begin
-                if StrLen(DelChr(AmountText, '=', ' ')) > 0 then
-                    AmountText := AmountText + ' ';
-                AmountText := AmountText +
-                  DecSymsText + '/' + DecSymFactorText + ' ' + "Unit Name 2";
-            end else begin
-                if StrLen(DelChr(AmountText, '=', ' ')) > 0 then
-                    AmountText := AmountText + ' ';
-                AmountText := AmountText + DecSymsText + ' ';
-                case true of
-                    (DecSym = 0):
-                        AmountText := AmountText + "Hundred Name 5";
-                    (DecSym > 4) and (DecSym < 21):
-                        AmountText := AmountText + "Hundred Name 5";
-                    ((DecSym mod 10) = 1):
-                        AmountText := AmountText + "Hundred Name 1";
-                    ((DecSym mod 10) > 1) and ((DecSym mod 10) < 5):
-                        AmountText := AmountText + "Hundred Name 2";
-                    else
-                        AmountText := AmountText + "Hundred Name 5";
-                end;
+        DecSymFactor := Round(1 / Currency."Invoice Rounding Precision", 1, '<');
+        DecSymFactorText := Format(DecSymFactor, 0, '<Integer>');
+        DecSym :=
+          Round(
+            (Round(Amount, Currency."Invoice Rounding Precision", InvoiceRoundingType) - Round(Amount, 1, '<')) *
+            DecSymFactor, 1, '<');
+        DecSymsText := Format(DecSym, 0, '<Integer>');
+        if StrLen(DecSymFactorText) > StrLen(DecSymsText) then
+            DecSymsText := PadStr('', StrLen(DecSymFactorText) - StrLen(DecSymsText) - 1, '0') + DecSymsText;
+        if DecSymFormat = '/' then
+            AmountText :=
+              Integer2Text(Round(Amount, Currency."Invoice Rounding Precision", InvoiceRoundingType),
+                Currency."Unit Kind", '', '', '')
+        else
+            AmountText :=
+              Integer2Text(Round(Amount, Currency."Invoice Rounding Precision", InvoiceRoundingType),
+                Currency."Unit Kind", Currency."Unit Name 1", Currency."Unit Name 2", Currency."Unit Name 5");
+        if DecSymFormat = '/' then begin
+            if StrLen(DelChr(AmountText, '=', ' ')) > 0 then
+                AmountText := AmountText + ' ';
+            AmountText := AmountText +
+              DecSymsText + '/' + DecSymFactorText + ' ' + Currency."Unit Name 2";
+        end else begin
+            if StrLen(DelChr(AmountText, '=', ' ')) > 0 then
+                AmountText := AmountText + ' ';
+            AmountText := AmountText + DecSymsText + ' ';
+            case true of
+                (DecSym = 0):
+                    AmountText := AmountText + Currency."Hundred Name 5";
+                (DecSym > 4) and (DecSym < 21):
+                    AmountText := AmountText + Currency."Hundred Name 5";
+                ((DecSym mod 10) = 1):
+                    AmountText := AmountText + Currency."Hundred Name 1";
+                ((DecSym mod 10) > 1) and ((DecSym mod 10) < 5):
+                    AmountText := AmountText + Currency."Hundred Name 2";
+                else
+                    AmountText := AmountText + Currency."Hundred Name 5";
             end;
         end;
     end;
@@ -128,22 +126,20 @@ codeunit 12400 "Localisation Management"
         DecSymFactor: Decimal;
         InvoiceRoundingType: Text;
     begin
-        with Currency do begin
-            Init();
-            InvoiceRoundingType := SetRoundingPrecision(Currency);
-            if CurrencyCode = '' then
-                "Unit Kind" := "Unit Kind"::Male
-            else
-                Get(CurrencyCode);
+        Currency.Init();
+        InvoiceRoundingType := SetRoundingPrecision(Currency);
+        if CurrencyCode = '' then
+            Currency."Unit Kind" := Currency."Unit Kind"::Male
+        else
+            Currency.Get(CurrencyCode);
 
-            DecSymFactor := Round(1 / "Invoice Rounding Precision", 1, '<');
-            HundredAmount :=
-              Round(
-                (Round(Amount, "Invoice Rounding Precision", InvoiceRoundingType) - Round(Amount, 1, '<')) * DecSymFactor, 1, '<');
-            WholeAmountText :=
-              Integer2Text(Round(Amount, "Invoice Rounding Precision", InvoiceRoundingType),
-                "Unit Kind", '', '', '');
-        end;
+        DecSymFactor := Round(1 / Currency."Invoice Rounding Precision", 1, '<');
+        HundredAmount :=
+          Round(
+            (Round(Amount, Currency."Invoice Rounding Precision", InvoiceRoundingType) - Round(Amount, 1, '<')) * DecSymFactor, 1, '<');
+        WholeAmountText :=
+          Integer2Text(Round(Amount, Currency."Invoice Rounding Precision", InvoiceRoundingType),
+            Currency."Unit Kind", '', '', '');
     end;
 
     [Scope('OnPrem')]
@@ -451,18 +447,16 @@ codeunit 12400 "Localisation Management"
 
     local procedure SetRoundingPrecision(var Currency: Record Currency): Text
     begin
-        with Currency do begin
-            InitRoundingPrecision();
-            if not ("Invoice Rounding Precision" in [0.1, 0.01]) then
-                "Invoice Rounding Precision" := 0.01;
-            case "Invoice Rounding Type" of
-                "Invoice Rounding Type"::Up:
-                    exit('>');
-                "Invoice Rounding Type"::Down:
-                    exit('<');
-                else
-                    exit('=');
-            end;
+        Currency.InitRoundingPrecision();
+        if not (Currency."Invoice Rounding Precision" in [0.1, 0.01]) then
+            Currency."Invoice Rounding Precision" := 0.01;
+        case Currency."Invoice Rounding Type" of
+            Currency."Invoice Rounding Type"::Up:
+                exit('>');
+            Currency."Invoice Rounding Type"::Down:
+                exit('<');
+            else
+                exit('=');
         end;
     end;
 

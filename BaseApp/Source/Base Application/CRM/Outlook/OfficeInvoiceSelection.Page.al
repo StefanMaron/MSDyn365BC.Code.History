@@ -7,7 +7,7 @@ using Microsoft.Sales.History;
 page 1632 "Office Invoice Selection"
 {
     Caption = 'Invoice Exists';
-    DataCaptionExpression = CompanyName;
+    DataCaptionExpression = CompanyName();
     DeleteAllowed = false;
     Editable = false;
     InsertAllowed = false;

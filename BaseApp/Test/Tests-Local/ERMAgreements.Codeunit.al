@@ -31,7 +31,6 @@
         RecordNotFoundErr: Label '%1 not found', Comment = '%1=table caption';
         FieldValueIncorrectErr: Label 'Field %1 value is incorrect', Comment = '%1=field caption';
         DeleteAgmtWithLEErr: Label 'You cannot delete agreement if you already have ledger entries.';
-        DeleteAgmtWithLCErr: Label 'You cannot delete agreement if you already have labor contracts.';
         DimValueExistsErr: Label 'Dimension Value should get deleted when %1 is deleted', Comment = '%1=table caption';
         DefaultDimNotExistErr: Label 'Default Dimension does not exist';
         VendorDoesNotExistErr: Label 'The Vendor does not exist. Identification fields and values: No.=%1', Comment = '%1=No.';
@@ -367,7 +366,7 @@
         InitVendorAgreement(VendorAgreement, true);
         CheckVendorAgmtDimensions(VendorAgreement."No.", false);
 
-        ClearPurchSalesSetup;
+        ClearPurchSalesSetup();
     end;
 
     [Test]
@@ -381,7 +380,7 @@
         InitCustomerAgreement(CustomerAgreement, true);
         CheckCustomerAgmtDimensions(CustomerAgreement."No.", false);
 
-        ClearPurchSalesSetup;
+        ClearPurchSalesSetup();
     end;
 
     [Test]
@@ -398,7 +397,7 @@
         BlockVendorAgreement(VendorAgreement, false);
         CheckVendorAgmtDimensions(VendorAgreement."No.", false);
 
-        ClearPurchSalesSetup;
+        ClearPurchSalesSetup();
     end;
 
     [Test]
@@ -415,7 +414,7 @@
         BlockCustomerAgreement(CustomerAgreement, false);
         CheckCustomerAgmtDimensions(CustomerAgreement."No.", false);
 
-        ClearPurchSalesSetup;
+        ClearPurchSalesSetup();
     end;
 
     [Test]
@@ -430,10 +429,10 @@
         VendorAgreement.Delete(true);
 
         Assert.IsFalse(
-          DimValue.Get(GetPurchSetupAgreementDimCode, VendorAgreement."No."),
+          DimValue.Get(GetPurchSetupAgreementDimCode(), VendorAgreement."No."),
           StrSubstNo(DimValueExistsErr, VendorAgreement.TableCaption()));
 
-        ClearPurchSalesSetup;
+        ClearPurchSalesSetup();
     end;
 
     [Test]
@@ -457,7 +456,7 @@
 
         asserterror VendorAgreement.Delete(true);
         Assert.ExpectedError(DeleteAgmtWithLEErr);
-        ClearPurchSalesSetup;
+        ClearPurchSalesSetup();
     end;
 
     [Test]
@@ -472,10 +471,10 @@
         CustomerAgreement.Delete(true);
 
         Assert.IsFalse(
-          DimValue.Get(GetSalesSetupAgreementDimCode, CustomerAgreement."No."),
+          DimValue.Get(GetSalesSetupAgreementDimCode(), CustomerAgreement."No."),
           StrSubstNo(DimValueExistsErr, CustomerAgreement.TableCaption()));
 
-        ClearPurchSalesSetup;
+        ClearPurchSalesSetup();
     end;
 
     [Test]
@@ -499,7 +498,7 @@
 
         asserterror CustomerAgreement.Delete(true);
         Assert.ExpectedError(DeleteAgmtWithLEErr);
-        ClearPurchSalesSetup;
+        ClearPurchSalesSetup();
     end;
 
     [Test]
@@ -1216,8 +1215,6 @@
             Currency.FindFirst();
             Validate("Currency Code", Currency.Code);
             SalesPerson.FindFirst();
-            Validate("Salesperson Code", SalesPerson.Code);
-            PaymentTerms.FindFirst();
             Validate("Payment Terms Code", PaymentTerms.Code);
             PaymentMethod.FindFirst();
             Validate("Payment Method Code", PaymentMethod.Code);
@@ -1307,9 +1304,6 @@
             Assert.AreEqual(
               "Currency Code", CustomerAgreement."Currency Code",
               StrSubstNo(AgrmtFieldValueErr, FieldCaption("Currency Code")));
-            Assert.AreEqual(
-              "Salesperson Code", CustomerAgreement."Salesperson Code",
-              StrSubstNo(AgrmtFieldValueErr, FieldCaption("Salesperson Code")));
             Assert.AreEqual(
               "Payment Terms Code", CustomerAgreement."Payment Terms Code",
               StrSubstNo(AgrmtFieldValueErr, FieldCaption("Payment Terms Code")));
@@ -1443,7 +1437,7 @@
             FindSet();
             repeat
                 Assert.IsFalse(Open, FieldCaption(Open))
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1456,7 +1450,7 @@
             FindSet();
             repeat
                 Assert.IsFalse(Open, FieldCaption(Open))
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1679,37 +1673,37 @@
     [Scope('OnPrem')]
     procedure UnapplyCustomerEntriesModalPageHandler(var UnapplyCustomerEntries: TestPage "Unapply Customer Entries")
     begin
-        UnapplyCustomerEntries.Unapply.Invoke;
+        UnapplyCustomerEntries.Unapply.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure UnapplyVendorEntriesPageHandler(var UnapplyVendorEntries: TestPage "Unapply Vendor Entries")
     begin
-        UnapplyVendorEntries.Unapply.Invoke;
+        UnapplyVendorEntries.Unapply.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyVendorEntriesPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.ActionPostApplication.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.ActionPostApplication.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries."Post Application".Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries."Post Application".Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostApplicationPageHandler(var PostApplication: TestPage "Post Application")
     begin
-        PostApplication.OK.Invoke;
+        PostApplication.OK().Invoke();
     end;
 
     [ConfirmHandler]

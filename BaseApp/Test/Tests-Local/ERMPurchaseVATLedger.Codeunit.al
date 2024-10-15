@@ -32,12 +32,12 @@ codeunit 147131 "ERM Purchase VAT Ledger"
     begin
         // [SCENARIO] Purchase VAT Ledger Line is created when run REP12455 "Create VAT Purchase Ledger" for vendor
         Initialize();
-        LibraryRUReports.UpdateCompanyInfo;
+        LibraryRUReports.UpdateCompanyInfo();
         LibraryRUReports.CreateVendor(Vendor);
 
         // [GIVEN] Posted VAT Entry for vendor "V" with "Full Name" = "X" (250 chars length), "VAT Registration No." = "Y", "KPP Code" = "Z"
         LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019());
         MockPurchaseVATEntry(VATPostingSetup, Vendor."No.", WorkDate(), WorkDate());
 
         // [WHEN] Run "Create VAT Purchase Ledger" report for vendor "V"
@@ -66,7 +66,7 @@ codeunit 147131 "ERM Purchase VAT Ledger"
         Initialize();
 
         LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019());
         VendorNo := LibraryPurchase.CreateVendorNo();
         CreatePurchPrepmtVATEntry(VATPostingSetup, VendorNo, WorkDate(), WorkDate());
 
@@ -88,12 +88,12 @@ codeunit 147131 "ERM Purchase VAT Ledger"
         // [FEATURE] [Sales] [Prepayment]
         // [SCENARIO] Purchase VAT Ledger Line is created when run REP12455 "Create VAT Purchase Ledger" for customer with "Prepayment" vat entry
         Initialize();
-        LibraryRUReports.UpdateCompanyInfo;
+        LibraryRUReports.UpdateCompanyInfo();
         LibraryRUReports.CreateCustomer(Customer);
 
         // [GIVEN] Posted prepayment VAT Entry for customer "C"
         LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019());
         CreateSalesPrepmtVATEntry(VATPostingSetup, Customer."No.", WorkDate(), WorkDate());
 
         // [WHEN] Run "Create VAT Purchase Ledger" report for customer "C"
@@ -126,7 +126,7 @@ codeunit 147131 "ERM Purchase VAT Ledger"
 
         // [GIVEN] Posted "Credit Memo" VAT Entry for customer "C" with "Full Name" = "X", "VAT Registration No." = "Y", "KPP Code" = "Z"
         LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019());
         CreateSalesReturnVATEntry(VATPostingSetup, CustomerNo, WorkDate(), WorkDate());
 
         // [WHEN] Run "Create VAT Purchase Ledger" report for customer "C"
@@ -151,11 +151,11 @@ codeunit 147131 "ERM Purchase VAT Ledger"
     begin
         // [SCENARIO] Purchase VAT Ledger Line is created when run REP12455 "Create VAT Purchase Ledger" for "Non-resident" "VAT Agent" vendor
         Initialize();
-        VendorNo := CreateVATAgentVendorNo;
+        VendorNo := CreateVATAgentVendorNo();
 
         // [GIVEN] Posted VAT Entry for "Non-resident" "VAT Agent" vendor "V" with "Full Name" = "X"
         LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019());
         CreateVATAgentVATEntry(VATPostingSetup, VendorNo, WorkDate(), WorkDate());
 
         // [WHEN] Run "Create VAT Purchase Ledger" report for vendor "V"
@@ -182,7 +182,7 @@ codeunit 147131 "ERM Purchase VAT Ledger"
         Initialize();
 
         LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019());
         VendorNo := LibraryPurchase.CreateVendorNo();
         CreateRevisionVATEntry(VATPostingSetup, VendorNo, WorkDate(), WorkDate());
 
@@ -213,7 +213,7 @@ codeunit 147131 "ERM Purchase VAT Ledger"
 
         // [GIVEN] VAT Purchase Ledger with 2 posted documents "X1" and "X2"
         LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019());
         VendorNo := LibraryPurchase.CreateVendorNo();
         Count := LibraryRandom.RandIntInRange(5, 10);
         for Index := 1 to Count do
@@ -222,13 +222,13 @@ codeunit 147131 "ERM Purchase VAT Ledger"
         VATLedger.Get(VATLedger.Type::Purchase, LibraryPurchase.CreatePurchaseVATLedger(WorkDate(), WorkDate(), VendorNo, false, true));
 
         // [GIVEN] Selected second line for document "X2"
-        VATPurchaseLedgerCard.OpenView;
-        VATPurchaseLedgerCard.PurchSubform.Last;
-        DocumentNo := VATPurchaseLedgerCard.PurchSubform."Document No.".Value;
+        VATPurchaseLedgerCard.OpenView();
+        VATPurchaseLedgerCard.PurchSubform.Last();
+        DocumentNo := VATPurchaseLedgerCard.PurchSubform."Document No.".Value();
 
         // [WHEN] Click "Navigate" on "Purchase VAT Ledger" card
-        Navigate.Trap;
-        VATPurchaseLedgerCard."&Navigate".Invoke; // Navigate
+        Navigate.Trap();
+        VATPurchaseLedgerCard."&Navigate".Invoke(); // Navigate
 
         // [THEN] Navigate window show information for document "X2"
         Navigate.DocNoFilter.AssertEquals(DocumentNo);
@@ -252,9 +252,9 @@ codeunit 147131 "ERM Purchase VAT Ledger"
 
         // [GIVEN] Create 2 VAT different posting setup
         LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019());
         LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup2, VATPostingSetup2."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
+          VATPostingSetup2, VATPostingSetup2."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019());
         VendorNo := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] Create 2 line VAT Entry with Document No = "D1": 1 line VAT Posting Setup Code = "V1" and Amount = "A11"
@@ -293,22 +293,22 @@ codeunit 147131 "ERM Purchase VAT Ledger"
         // [FEATURE] [UI]
         // [SCENARIO 303035] Purchase VAT Ledger Line has visible fields Base20, Amount20
         Initialize();
-        LibraryApplicationArea.EnableBasicSetup;
-        LibraryRUReports.UpdateCompanyInfo;
+        LibraryApplicationArea.EnableBasicSetup();
+        LibraryRUReports.UpdateCompanyInfo();
         LibraryRUReports.CreateVendor(Vendor);
 
         LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019());
         VATEntry.Get(MockPurchaseVATEntry(VATPostingSetup, Vendor."No.", WorkDate(), WorkDate()));
 
         VATLedgerCode := LibraryPurchase.CreatePurchaseVATLedger(WorkDate(), WorkDate(), Vendor."No.", false, true);
         VATLedgerLine.SetRange(Type, VATLedgerLine.Type::Purchase);
         VATLedgerLine.SetRange(Code, VATLedgerCode);
 
-        VATPurchaseLedgerSubform.Trap;
+        VATPurchaseLedgerSubform.Trap();
         PAGE.Run(PAGE::"VAT Purchase Ledger Subform", VATLedgerLine);
-        Assert.IsTrue(VATPurchaseLedgerSubform.Base20.Visible, 'Purchase VAT Ledger Line Base20 field should be visible');
-        Assert.IsTrue(VATPurchaseLedgerSubform.Amount20.Visible, 'Purchase VAT Ledger Line Amount20 field should be visible');
+        Assert.IsTrue(VATPurchaseLedgerSubform.Base20.Visible(), 'Purchase VAT Ledger Line Base20 field should be visible');
+        Assert.IsTrue(VATPurchaseLedgerSubform.Amount20.Visible(), 'Purchase VAT Ledger Line Amount20 field should be visible');
         VATPurchaseLedgerSubform.Base20.AssertEquals(VATEntry.Base);
         VATPurchaseLedgerSubform.Amount20.AssertEquals(VATEntry.Amount);
         VATPurchaseLedgerSubform.Close();

@@ -4,6 +4,7 @@ table 14917 "CD No. Format"
     ObsoleteState = Pending;
     ObsoleteReason = 'Moved to CD Tracking extension table CD Number Header.';
     ObsoleteTag = '18.0';
+    DataClassification = CustomerContent;
 
     fields
     {

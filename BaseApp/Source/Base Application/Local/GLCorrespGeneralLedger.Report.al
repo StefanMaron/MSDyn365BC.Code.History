@@ -509,14 +509,12 @@ report 12431 "G/L Corresp. General Ledger"
         Text003: Label 'Debit';
         CalendarPeriodBegining: Record Date;
         CalendarPeriodEnding: Record Date;
-        DateSelection: Page "Select Reporting Period";
         LocMgt: Codeunit "Localisation Management";
         PeriodReportManagement: Codeunit PeriodReportManagement;
         DateFilterBeg: Date;
         DateFilterEnd: Date;
         DateStartedOfPeriod: Date;
         EndingPeriodDate: Date;
-        OnlyMainAccounts: Boolean;
         WithoutAccountHeaderType: Boolean;
         WithoutAccountCorresp: Boolean;
         WithoutEnclosuredLevels: Boolean;
@@ -527,7 +525,6 @@ report 12431 "G/L Corresp. General Ledger"
         BalanceBegPeriodDebitCredit: Text[30];
         BalanceDebitCreditBegining: Text[30];
         BalanceDebitCreditEnding: Text[30];
-        RequestFilter: Text[250];
         MonthFromPeriod: Text[30];
         "Enclosure Level": Integer;
         PassLinesBeforeAccount: Integer;

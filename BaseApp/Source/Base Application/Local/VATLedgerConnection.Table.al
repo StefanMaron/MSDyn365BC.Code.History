@@ -3,6 +3,7 @@ table 12406 "VAT Ledger Connection"
     Caption = 'VAT Ledger Connection';
     DrillDownPageID = "VAT Ledger Connection";
     LookupPageID = "VAT Ledger Connection";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -37,7 +38,9 @@ table 12406 "VAT Ledger Connection"
         field(6; "VAT Entry No."; Integer)
         {
             Caption = 'VAT Entry No.';
+#pragma warning disable AL0603
             TableRelation = "VAT Entry"."Entry No." where(Type = field("Connection Type"));
+#pragma warning restore AL0603
         }
     }
 

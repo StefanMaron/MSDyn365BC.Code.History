@@ -190,11 +190,11 @@ xmlport 1220 "Data Exch. Import - CSV"
             (FooterTag <> '') and (StrLen(col1) <= FooterTagLength()) and (StrPos(FooterTag, col1) = 1):
                 CurrentLineType := LineType::Footer;
             else begin
-                    if ColumnsAsRows then
-                        IdentifyLineTypeByColumnName()
-                    else
-                        CurrentLineType := LineType::Data;
-                end;
+                if ColumnsAsRows then
+                    IdentifyLineTypeByColumnName()
+                else
+                    CurrentLineType := LineType::Data;
+            end;
         end;
     end;
 
@@ -280,18 +280,16 @@ xmlport 1220 "Data Exch. Import - CSV"
         DataExchColDef: Record "Data Exch. Column Def";
         DataExchFieldMapping: Record "Data Exch. Field Mapping";
     begin
-        with DataExchColDef do begin
-            SetRange("Data Exch. Def Code", DataExchDefCode);
-            SetRange(Name, col1);
-            if FindFirst() then begin
-                DataExchFieldMapping.SetRange("Data Exch. Def Code", "Data Exch. Def Code");
-                DataExchFieldMapping.SetRange("Data Exch. Line Def Code", "Data Exch. Line Def Code");
-                DataExchFieldMapping.SetRange("Column No.", "Column No.");
-                if not DataExchFieldMapping.IsEmpty() then begin
-                    ColumnAsRowNo := "Column No.";
-                    CurrentLineType := LineType::Data;
-                    exit;
-                end;
+        DataExchColDef.SetRange("Data Exch. Def Code", DataExchDefCode);
+        DataExchColDef.SetRange(Name, col1);
+        if DataExchColDef.FindFirst() then begin
+            DataExchFieldMapping.SetRange("Data Exch. Def Code", DataExchColDef."Data Exch. Def Code");
+            DataExchFieldMapping.SetRange("Data Exch. Line Def Code", DataExchColDef."Data Exch. Line Def Code");
+            DataExchFieldMapping.SetRange("Column No.", DataExchColDef."Column No.");
+            if not DataExchFieldMapping.IsEmpty() then begin
+                ColumnAsRowNo := DataExchColDef."Column No.";
+                CurrentLineType := LineType::Data;
+                exit;
             end;
         end;
         CurrentLineType := LineType::Unknown;

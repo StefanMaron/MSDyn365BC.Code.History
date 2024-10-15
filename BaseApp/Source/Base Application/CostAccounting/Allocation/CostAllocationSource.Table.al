@@ -7,6 +7,7 @@ using System.Security.AccessControl;
 table 1106 "Cost Allocation Source"
 {
     Caption = 'Cost Allocation Source';
+    DataClassification = CustomerContent;
     LookupPageID = "Cost Allocation Sources";
 
     fields

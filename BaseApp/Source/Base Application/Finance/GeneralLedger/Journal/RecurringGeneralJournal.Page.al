@@ -900,15 +900,6 @@ page 283 "Recurring General Journal"
                     Caption = 'Post/Print', Comment = 'Generated from the PromotedActionCategories property index 3.';
                     ShowAs = SplitButton;
 
-#if not CLEAN21
-                    actionref("Remove From Job Queue_Promoted"; "Remove From Job Queue")
-                    {
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                        ObsoleteTag = '21.0';
-                    }
-#endif
                     actionref(Post_Promoted; Post)
                     {
                     }
@@ -944,24 +935,6 @@ page 283 "Recurring General Journal"
             {
                 Caption = 'Account', Comment = 'Generated from the PromotedActionCategories property index 5.';
 
-#if not CLEAN21
-                actionref(Card_Promoted; Card)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
-#if not CLEAN21
-                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category7)
             {
@@ -989,7 +962,7 @@ page 283 "Recurring General Journal"
     trigger OnAfterGetRecord()
     begin
         Rec.ShowShortcutDimCode(ShortcutDimCode);
-        GetAccSchedInfo;
+        GetAccSchedInfo();
     end;
 
     trigger OnInit()
@@ -1045,7 +1018,6 @@ page 283 "Recurring General Journal"
         ReportPrint: Codeunit "Test Report-Print";
         ClientTypeManagement: Codeunit "Client Type Management";
         ChangeExchangeRate: Page "Change Exchange Rate";
-        GenJournalLine: Record "Gen. Journal Line";
         AccSchedLineDesc: Text[250];
         ColumnLayoutHeader: Text[50];
         AccName: Text[100];
@@ -1127,14 +1099,14 @@ page 283 "Recurring General Journal"
     begin
         if Rec."Acc. Schedule Name" = '' then
             Rec."Acc. Schedule Line No." := 0;
-        GetAccSchedInfo;
+        GetAccSchedInfo();
     end;
 
     local procedure ColumnLayoutNameOnAfterValidat()
     begin
         if Rec."Column Layout Name" = '' then
             Rec."Column Layout Line No." := 0;
-        GetAccSchedInfo;
+        GetAccSchedInfo();
     end;
 
     local procedure CurrentJnlBatchNameOnAfterVali()

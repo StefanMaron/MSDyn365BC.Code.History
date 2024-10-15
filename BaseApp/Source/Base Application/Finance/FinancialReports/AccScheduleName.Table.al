@@ -10,6 +10,7 @@ table 84 "Acc. Schedule Name"
     Caption = 'Acc. Schedule Name';
     DataCaptionFields = Name, Description;
     LookupPageID = "Account Schedule Names";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -106,14 +107,11 @@ table 84 "Acc. Schedule Name"
         PackageNameTxt: Label 'Row Definition - %1', MaxLength = 40, Comment = '%1 - Rows definition name';
         ClearDimensionTotalingConfirmTxt: Label 'Changing Analysis View will clear differing dimension totaling columns of Account Schedule Lines. \Do you want to continue?';
         PackageImportErr: Label 'The row definitions could not be imported.';
-        Text26550: Label 'Select a filename to import File Settings.';
         FileMgt: Codeunit "File Management";
-        Text12400: Label 'File Name';
 
     [Scope('OnPrem')]
     procedure ExportSettings(var AccScheduleName: Record "Acc. Schedule Name")
     var
-        StatutoryReport: Record "Statutory Report";
         AccountSchedules: XMLport "Account Schedules";
         OutputFile: File;
         OutStr: OutStream;

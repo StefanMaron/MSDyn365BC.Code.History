@@ -2,6 +2,7 @@ table 17300 "Tax Difference"
 {
     Caption = 'Tax Difference';
     LookupPageID = "Tax Differences";
+    DataClassification = CustomerContent;
 
     fields
     {

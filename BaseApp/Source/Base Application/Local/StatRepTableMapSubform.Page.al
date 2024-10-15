@@ -15,8 +15,6 @@ page 26593 "Stat. Rep. Table Map. Subform"
     }
 
     var
-        StatReportTableMapping: Record "Stat. Report Table Mapping";
-        CellValue: Text[250];
 
     [Scope('OnPrem')]
     procedure UpdateForm(ReportCode: Code[20]; TableCode: Code[20])

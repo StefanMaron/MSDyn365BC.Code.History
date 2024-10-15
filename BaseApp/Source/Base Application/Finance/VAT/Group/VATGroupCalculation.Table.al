@@ -9,6 +9,7 @@ table 4801 "VATGroup Calculation"
     ObsoleteState = Removed;
     ObsoleteReason = 'Moved to VAT Group Management extension table 4701 VAT Group Calculation';
     ObsoleteTag = '18.0';
+    DataClassification = CustomerContent;
 
     fields
     {

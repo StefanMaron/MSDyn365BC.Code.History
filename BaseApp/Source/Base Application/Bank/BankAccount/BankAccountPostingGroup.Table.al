@@ -7,6 +7,7 @@ table 277 "Bank Account Posting Group"
     Caption = 'Bank Account Posting Group';
     DrillDownPageID = "Bank Account Posting Groups";
     LookupPageID = "Bank Account Posting Groups";
+    DataClassification = CustomerContent;
 
     fields
     {

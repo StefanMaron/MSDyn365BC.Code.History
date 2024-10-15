@@ -26,15 +26,12 @@ codeunit 144702 "ERM Torg-12 Report"
     procedure Torg12_PrintSalesOrder_NextDocumentNoSeriesChanged()
     var
         SalesHeader: Record "Sales Header";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         ExpectedDocumentNo: Text;
     begin
         ExpectedDocumentNo := CreateSalesOrderAndPrintTorg12Report(SalesHeader, 1, false, 1);
 
-        Assert.AreNotEqual(
-          ExpectedDocumentNo,
-          NoSeriesManagement.GetNextNo(SalesHeader."Shipping No. Series", SalesHeader."Posting Date", false),
-          NoSeriesNotChangedErr);
+        Assert.AreNotEqual(ExpectedDocumentNo, NoSeries.PeekNextNo(SalesHeader."Shipping No. Series", SalesHeader."Posting Date"), NoSeriesNotChangedErr);
     end;
 
     [Test]
@@ -42,15 +39,12 @@ codeunit 144702 "ERM Torg-12 Report"
     procedure Torg12_PreviewSalesOrder_NextDocumentNoSeriesNotChanged()
     var
         SalesHeader: Record "Sales Header";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         ExpectedDocumentNo: Text;
     begin
         ExpectedDocumentNo := CreateSalesOrderAndPrintTorg12Report(SalesHeader, 1, true, 1);
 
-        Assert.AreEqual(
-          ExpectedDocumentNo,
-          NoSeriesManagement.GetNextNo(SalesHeader."Shipping No. Series", SalesHeader."Posting Date", false),
-          NoSeriesChangedErr);
+        Assert.AreEqual(ExpectedDocumentNo, NoSeries.PeekNextNo(SalesHeader."Shipping No. Series", SalesHeader."Posting Date"), NoSeriesChangedErr);
     end;
 
     [Test]
@@ -238,7 +232,7 @@ codeunit 144702 "ERM Torg-12 Report"
     begin
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
-        OrderItemShipmentTORG12.InitializeRequest(LibraryReportValidation.GetFileName, Preview);
+        OrderItemShipmentTORG12.InitializeRequest(LibraryReportValidation.GetFileName(), Preview);
 
         OrderItemShipmentTORG12.UseRequestPage(false);
         SalesHeaderWithFilters.SetRange("Document Type", SalesHeader."Document Type");
@@ -252,13 +246,11 @@ codeunit 144702 "ERM Torg-12 Report"
         SalesShipmentLine: Record "Sales Shipment Line";
     begin
         TotalAmount := 0;
-        with SalesShipmentLine do begin
-            SetRange("Document No.", DocumentNo);
-            if FindSet() then
-                repeat
-                    TotalAmount += Amount;
-                until Next = 0;
-        end;
+        SalesShipmentLine.SetRange("Document No.", DocumentNo);
+        if SalesShipmentLine.FindSet() then
+            repeat
+                TotalAmount += SalesShipmentLine.Amount;
+            until SalesShipmentLine.Next() = 0;
     end;
 
     local procedure GetCrMemoLinesAmount(DocumentNo: Code[20]): Decimal
@@ -286,15 +278,14 @@ codeunit 144702 "ERM Torg-12 Report"
 
     local procedure CreateSalesOrderAndPrintTorg12Report(var SalesHeader: Record "Sales Header"; LineQty: Integer; Preview: Boolean; QtyToShip: Decimal) DocumentNo: Code[20]
     var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         Initialize();
 
         LibraryRUReports.CreateSalesOrder(SalesHeader, SalesHeader."Document Type"::Order, LineQty);
         ChangeQtyInFirstLine(SalesHeader, QtyToShip);
 
-        DocumentNo := NoSeriesManagement.GetNextNo(
-            SalesHeader."Shipping No. Series", SalesHeader."Posting Date", false);
+        DocumentNo := NoSeries.PeekNextNo(SalesHeader."Shipping No. Series", SalesHeader."Posting Date");
 
         PrintTorg12ToExcel(SalesHeader, Preview);
     end;
@@ -316,7 +307,7 @@ codeunit 144702 "ERM Torg-12 Report"
 
         LibraryReportValidation.SetFileName(DocumentNo);
 
-        PostedShipShipmentTORG12.InitializeRequest(LibraryReportValidation.GetFileName, false);
+        PostedShipShipmentTORG12.InitializeRequest(LibraryReportValidation.GetFileName(), false);
         PostedShipShipmentTORG12.SetTableView(SalesShipmentHeader);
         PostedShipShipmentTORG12.UseRequestPage(false);
         PostedShipShipmentTORG12.Run();
@@ -339,7 +330,7 @@ codeunit 144702 "ERM Torg-12 Report"
 
         LibraryReportValidation.SetFileName(DocumentNo);
 
-        PostedInvShipmentTORG12.InitializeRequest(LibraryReportValidation.GetFileName, false);
+        PostedInvShipmentTORG12.InitializeRequest(LibraryReportValidation.GetFileName(), false);
         PostedInvShipmentTORG12.SetTableView(SalesInvoiceHeader);
         PostedInvShipmentTORG12.UseRequestPage(false);
         PostedInvShipmentTORG12.Run();
@@ -362,7 +353,7 @@ codeunit 144702 "ERM Torg-12 Report"
 
         LibraryReportValidation.SetFileName(DocumentNo);
 
-        PostedCrMShipmentTORG12.InitializeRequest(LibraryReportValidation.GetFileName, false);
+        PostedCrMShipmentTORG12.InitializeRequest(LibraryReportValidation.GetFileName(), false);
         PostedCrMShipmentTORG12.SetTableView(SalesCrMemoHeader);
         PostedCrMShipmentTORG12.UseRequestPage(false);
         PostedCrMShipmentTORG12.Run();
@@ -373,9 +364,9 @@ codeunit 144702 "ERM Torg-12 Report"
         SalesLine: Record "Sales Line";
         DocSignature: Record "Document Signature";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
         ClearSignaturesForSalesHeader(SalesHeader."No.");
         ReleasedByEmployeeName := AddDocSignatureEmployee(SalesHeader."No.", DocSignature."Employee Type"::ReleasedBy);
         AccountantEmployeeName := AddDocSignatureEmployee(SalesHeader."No.", DocSignature."Employee Type"::Accountant);
@@ -387,29 +378,25 @@ codeunit 144702 "ERM Torg-12 Report"
     var
         DocSignature: Record "Document Signature";
     begin
-        with DocSignature do begin
-            SetRange("Table ID", DATABASE::"Sales Header");
-            SetRange("Document Type", 1);
-            SetRange("Document No.", DocumentNo);
-            DeleteAll();
-        end;
+        DocSignature.SetRange("Table ID", DATABASE::"Sales Header");
+        DocSignature.SetRange("Document Type", 1);
+        DocSignature.SetRange("Document No.", DocumentNo);
+        DocSignature.DeleteAll();
     end;
 
     local procedure CreateSimpleEmployee(var Employee: Record Employee)
     var
         Option: Option Capitalized,Literal;
     begin
-        with Employee do begin
-            Init();
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Employee);
-            "First Name" :=
-              CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("First Name"), Option::Literal), 1, MaxStrLen("First Name"));
-            "Last Name" :=
-              CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Last Name"), Option::Literal), 1, MaxStrLen("Last Name"));
-            "Middle Name" :=
-              CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Middle Name"), Option::Literal), 1, MaxStrLen("Middle Name"));
-            Insert();
-        end;
+        Employee.Init();
+        Employee."No." := LibraryUtility.GenerateRandomCode(Employee.FieldNo("No."), DATABASE::Employee);
+        Employee."First Name" :=
+          CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Employee."First Name"), Option::Literal), 1, MaxStrLen(Employee."First Name"));
+        Employee."Last Name" :=
+          CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Employee."Last Name"), Option::Literal), 1, MaxStrLen(Employee."Last Name"));
+        Employee."Middle Name" :=
+          CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Employee."Middle Name"), Option::Literal), 1, MaxStrLen(Employee."Middle Name"));
+        Employee.Insert();
     end;
 
     local procedure AddDocSignatureEmployee(DocumentNo: Code[20]; EmployeeType: Option) EmployeeFullName: Text[100]
@@ -419,17 +406,15 @@ codeunit 144702 "ERM Torg-12 Report"
     begin
         CreateSimpleEmployee(Employee);
         EmployeeFullName := Employee.GetFullName();
-        with DocSignature do begin
-            Init();
-            "Table ID" := DATABASE::"Sales Header";
-            "Document Type" := 1;
-            "Document No." := DocumentNo;
-            "Employee No." := Employee."No.";
-            "Employee Type" := EmployeeType;
-            "Employee Job Title" := Employee.GetJobTitleName;
-            "Employee Name" := EmployeeFullName;
-            Insert();
-        end;
+        DocSignature.Init();
+        DocSignature."Table ID" := DATABASE::"Sales Header";
+        DocSignature."Document Type" := 1;
+        DocSignature."Document No." := DocumentNo;
+        DocSignature."Employee No." := Employee."No.";
+        DocSignature."Employee Type" := EmployeeType;
+        DocSignature."Employee Job Title" := Employee.GetJobTitleName();
+        DocSignature."Employee Name" := EmployeeFullName;
+        DocSignature.Insert();
     end;
 }
 

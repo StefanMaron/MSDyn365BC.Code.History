@@ -1,6 +1,7 @@
 table 14927 "VAT Document Entry Buffer"
 {
     Caption = 'VAT Document Entry Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

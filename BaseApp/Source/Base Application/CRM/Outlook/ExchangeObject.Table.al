@@ -1,10 +1,12 @@
 namespace Microsoft.CRM.Outlook;
 
+#if not CLEAN22
 #pragma warning disable AS0109
+#endif
 table 1602 "Exchange Object"
-#pragma warning restore AS0109
 {
     Caption = 'Exchange Object';
+    DataClassification = CustomerContent;
     ReplicateData = false;
     TableType = Temporary;
 

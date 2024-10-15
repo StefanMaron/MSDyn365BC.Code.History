@@ -14,6 +14,7 @@ table 60 "Document Sending Profile"
 {
     Caption = 'Document Sending Profile';
     LookupPageID = "Document Sending Profiles";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -387,8 +388,8 @@ table 60 "Document Sending Profile"
                     repeat
                         RecRefToSend := RecRefSource.Duplicate();
                         RecRefToSend.SetRecFilter();
-                        CustomerNo := RecRefToSend.Field(CustomerFieldNo).Value;
-                        DocumentNo := RecRefToSend.Field(DocumentFieldNo).Value;
+                        CustomerNo := RecRefToSend.Field(CustomerFieldNo).Value();
+                        DocumentNo := RecRefToSend.Field(DocumentFieldNo).Value();
                         OnSendCustomerRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, CustomerNo, RecRefToSend, SingleCustomerSelected, ShowDialog);
                         if DocumentSendingProfile.LookupProfile(CustomerNo, true, ShowDialog) then
                             DocumentSendingProfile.Send(ReportUsage, RecRefToSend, DocumentNo, CustomerNo, DocName, CustomerFieldNo, DocumentFieldNo);
@@ -430,8 +431,8 @@ table 60 "Document Sending Profile"
                 repeat
                     RecRef2 := RecRef.Duplicate();
                     RecRef2.SetRecFilter();
-                    VendorNo := RecRef2.Field(VendorFieldNo).Value;
-                    DocumentNo := RecRef2.Field(DocumentFieldNo).Value;
+                    VendorNo := RecRef2.Field(VendorFieldNo).Value();
+                    DocumentNo := RecRef2.Field(DocumentFieldNo).Value();
                     OnSendVendorRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, VendorNo, RecRef2, SingleVendorSelected, ShowDialog);
                     if DocumentSendingProfile.LookUpProfileVendor(VendorNo, true, ShowDialog) then
                         DocumentSendingProfile.SendVendor(ReportUsage, RecRef2, DocumentNo, VendorNo, DocName, VendorFieldNo, DocumentFieldNo);
@@ -591,8 +592,8 @@ table 60 "Document Sending Profile"
                 repeat
                     RecToSend := RecRef.Duplicate();
                     RecToSend.SetRecFilter();
-                    CustomerVendorNo := RecToSend.Field(CustomerVendorFieldNo).Value;
-                    DocumentNo := RecToSend.Field(DocumentNoFieldNo).Value;
+                    CustomerVendorNo := RecToSend.Field(CustomerVendorFieldNo).Value();
+                    DocumentNo := RecToSend.Field(DocumentNoFieldNo).Value();
                     DocName := ReportDistributionMgt.GetFullDocumentTypeText(RecToSend);
                     if IsCustomer then
                         SendToEMail(ReportUsage, RecToSend, DocumentNo, DocName, CustomerVendorNo, CustomerVendorFieldNo)
@@ -647,7 +648,7 @@ table 60 "Document Sending Profile"
         if RecRef.FindSet() then
             repeat
                 FieldRef := RecRef.Field(CustomerVendorFieldNo);
-                CustomerNo := FieldRef.Value;
+                CustomerNo := FieldRef.Value();
                 if CustomerVendorNos.Add(CustomerNo, CustomerNo) then;
             until RecRef.Next() = 0;
     end;
@@ -895,17 +896,15 @@ table 60 "Document Sending Profile"
 
     procedure GetOfficeAddinDefault(var TempDocumentSendingProfile: Record "Document Sending Profile" temporary; CanAttach: Boolean)
     begin
-        with TempDocumentSendingProfile do begin
-            Init();
-            Code := DefaultCodeTxt;
-            Description := DefaultDescriptionTxt;
-            if CanAttach then
-                "E-Mail" := "E-Mail"::"Yes (Use Default Settings)"
-            else
-                "E-Mail" := "E-Mail"::"Yes (Prompt for Settings)";
-            "E-Mail Attachment" := "E-Mail Attachment"::PDF;
-            Default := false;
-        end;
+        TempDocumentSendingProfile.Init();
+        TempDocumentSendingProfile.Code := DefaultCodeTxt;
+        TempDocumentSendingProfile.Description := DefaultDescriptionTxt;
+        if CanAttach then
+            TempDocumentSendingProfile."E-Mail" := TempDocumentSendingProfile."E-Mail"::"Yes (Use Default Settings)"
+        else
+            TempDocumentSendingProfile."E-Mail" := TempDocumentSendingProfile."E-Mail"::"Yes (Prompt for Settings)";
+        TempDocumentSendingProfile."E-Mail Attachment" := TempDocumentSendingProfile."E-Mail Attachment"::PDF;
+        TempDocumentSendingProfile.Default := false;
     end;
 
     procedure ProfileSelectionMethodDialog(var ProfileSelectionMethod: Option ConfirmDefault,ConfirmPerEach,UseDefault; IsCustomer: Boolean): Boolean
@@ -970,7 +969,7 @@ table 60 "Document Sending Profile"
         DataCompression.CloseZipArchive();
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterSend(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; ToCust: Code[20]; DocName: Text[150]; CustomerFieldNo: Integer; DocumentNoFieldNo: Integer; DocumentSendingProfile: Record "Document Sending Profile")
     begin
     end;
@@ -980,7 +979,7 @@ table 60 "Document Sending Profile"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterSendVendor(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; ToVendor: Code[20]; DocName: Text[150]; VendorNoFieldNo: Integer; DocumentNoFieldNo: Integer; DocumentSendingProfile: Record "Document Sending Profile")
     begin
     end;
@@ -1020,7 +1019,7 @@ table 60 "Document Sending Profile"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeSend(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; ToCust: Code[20]; DocName: Text[150]; CustomerFieldNo: Integer; DocumentNoFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -1030,7 +1029,7 @@ table 60 "Document Sending Profile"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeSendVendor(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; ToVendor: Code[20]; DocName: Text[150]; VendorNoFieldNo: Integer; DocumentNoFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;

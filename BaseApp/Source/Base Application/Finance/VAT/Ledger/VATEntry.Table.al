@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.VAT.Ledger;
+namespace Microsoft.Finance.VAT.Ledger;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.Currency;
@@ -42,6 +42,7 @@ table 254 "VAT Entry"
                     TableData "Purch. Inv. Header" = rm,
                     TableData "Purch. Cr. Memo Hdr." = rm,
                     TableData "G/L Entry" = rm;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -414,6 +415,33 @@ table 254 "VAT Entry"
             AutoFormatType = 1;
             Caption = 'Base Before Pmt. Disc.';
             Editable = false;
+        }
+        field(70; "Source Currency VAT Amount"; Decimal)
+        {
+            AccessByPermission = TableData Currency = R;
+            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatType = 1;
+            Caption = 'Source Currency VAT Amount';
+            Editable = false;
+        }
+        field(71; "Source Currency VAT Base"; Decimal)
+        {
+            AccessByPermission = TableData Currency = R;
+            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatType = 1;
+            Caption = 'Source Currency VAT Base';
+            Editable = false;
+        }
+        field(74; "Source Currency Code"; Code[10])
+        {
+            Caption = 'Source Currency Code';
+            TableRelation = Currency;
+            DataClassification = SystemMetadata;
+        }
+        field(75; "Source Currency Factor"; Decimal)
+        {
+            Caption = 'Source Currency Factor';
+            DataClassification = SystemMetadata;
         }
         field(78; "Journal Templ. Name"; Code[10])
         {
@@ -818,7 +846,7 @@ table 254 "VAT Entry"
             exit(0);
     end;
 
-    local procedure GetUnrealizedVATType() UnrealizedVATType: Integer
+    procedure GetUnrealizedVATType() UnrealizedVATType: Integer
     var
         VATPostingSetup: Record "VAT Posting Setup";
         TaxJurisdiction: Record "Tax Jurisdiction";
@@ -1038,8 +1066,6 @@ table 254 "VAT Entry"
     var
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
-        DtldCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
-        DtldVendLedgEntry2: Record "Detailed Vendor Ledg. Entry";
     begin
         if ("Unrealized VAT Entry No." = 0) then
             exit(false);
@@ -1082,8 +1108,6 @@ table 254 "VAT Entry"
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
-        VATBusinessPostingGroup: Record "VAT Business Posting Group";
-        TempDate: Date;
     begin
         DtldVendLedgEntry.Reset();
         DtldVendLedgEntry.SetCurrentKey("Transaction No.", "Vendor No.", "Entry Type");

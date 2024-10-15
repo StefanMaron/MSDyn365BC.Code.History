@@ -372,14 +372,9 @@ report 12439 "Customer Turnover"
     end;
 
     var
-        Text003: Label 'The zero values are replaced by space bars';
-        Text005: Label 'for period from ';
-        Text006: Label ' to ';
         SalesSetup: Record "Sales & Receivables Setup";
-        CustLedgEntry: Record "Cust. Ledger Entry";
         LocMgt: Codeunit "Localisation Management";
         LineAmount: array[10] of Decimal;
-        TotalAmount: array[10] of Decimal;
         LineText: array[10] of Text[30];
         LineAgrText: array[10] of Text[30];
         TotalText: array[10] of Text[30];
@@ -392,9 +387,7 @@ report 12439 "Customer Turnover"
         SkipZeroValues: Boolean;
         SkipZeroLines: Boolean;
         SkipZeroBalances: Boolean;
-        TotalPrinted: Boolean;
         PrintParameters: Boolean;
-        PrintTotals: Boolean;
         PrintAgreements: Boolean;
         CurrentDate: Text[30];
         RequestFilter: Text;
@@ -405,7 +398,6 @@ report 12439 "Customer Turnover"
         Counter: Integer;
         I: Integer;
         LineAmountAgr: array[10] of Decimal;
-        PrintAgreementsVisible: Boolean;
         "Print by AgreementsVisible": Boolean;
         CustomerCaptionLbl: Label 'Customer';
         PageCaptionLbl: Label 'Page';

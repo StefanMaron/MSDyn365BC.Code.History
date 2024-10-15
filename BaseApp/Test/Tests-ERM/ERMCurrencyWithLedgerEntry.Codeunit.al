@@ -101,7 +101,7 @@ codeunit 134078 "ERM Currency With Ledger Entry"
 
         if PurchaseDocument then begin
             // Setup: Create Currency and Purchase Document as per the option selected after release.
-            CreatePurchaseDocument(PurchaseHeader, CreateCurrencyAndExchangeRate, "Purchase Document Type".FromInteger(DocType));
+            CreatePurchaseDocument(PurchaseHeader, CreateCurrencyAndExchangeRate(), "Purchase Document Type".FromInteger(DocType));
             LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
             PurchaseHeader.CalcFields("Amount Including VAT");
             TotalAmount := PurchaseHeader."Amount Including VAT";
@@ -116,7 +116,7 @@ codeunit 134078 "ERM Currency With Ledger Entry"
                 VerifyVendorLedgerEntry(PostedInvoiceNo, PurchaseHeader."Currency Code", -TotalAmount);
         end else begin
             // Setup: Create Currency and Sales Document as per the option selected after release.
-            CreateSalesDocument(SalesHeader, CreateCurrencyAndExchangeRate, "Purchase Document Type".FromInteger(DocType));
+            CreateSalesDocument(SalesHeader, CreateCurrencyAndExchangeRate(), "Purchase Document Type".FromInteger(DocType));
             LibrarySales.ReleaseSalesDocument(SalesHeader);
             SalesHeader.CalcFields("Amount Including VAT");
             TotalAmount := SalesHeader."Amount Including VAT";
@@ -138,7 +138,7 @@ codeunit 134078 "ERM Currency With Ledger Entry"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Currency With Ledger Entry");
-        ExecuteUIHandler;
+        ExecuteUIHandler();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Currency With Ledger Entry");
@@ -154,7 +154,7 @@ codeunit 134078 "ERM Currency With Ledger Entry"
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; CurrencyCode: Code[10]; DocumentType: Enum "Purchase Document Type"): Code[20]
     var
         PurchaseLine: Record "Purchase Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         Counter: Integer;
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor(CurrencyCode));
@@ -165,7 +165,7 @@ codeunit 134078 "ERM Currency With Ledger Entry"
         // Create multiple Purchase Lines. Make sure that No. of Lines always greater than 2 to better Testability.
         for Counter := 1 to 1 + LibraryRandom.RandInt(8) do begin
             // Required Random Value for Quantity and "Direct Unit Cost" field value is not important.
-            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo,
+            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(),
               LibraryRandom.RandInt(100));
 
             if PurchaseLine."Document Type" = PurchaseLine."Document Type"::"Credit Memo" then
@@ -173,7 +173,7 @@ codeunit 134078 "ERM Currency With Ledger Entry"
             PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
             PurchaseLine.Modify(true);
         end;
-        exit(NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", WorkDate(), false));
+        exit(NoSeries.PeekNextNo(PurchaseHeader."Posting No. Series"));
     end;
 
     [Normal]
@@ -188,7 +188,7 @@ codeunit 134078 "ERM Currency With Ledger Entry"
         for Counter := 1 to 1 + LibraryRandom.RandInt(8) do begin
             // Required Random Value for Quantity and "Unit Price" field value is not important.
             LibrarySales.CreateSalesLine(
-              SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+              SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
             if SalesLine."Document Type" = SalesLine."Document Type"::"Credit Memo" then
                 SalesLine.Validate("Qty. to Ship", 0); // Value not required for Sales Credit Memo.
             SalesLine.Validate("Unit Price", LibraryRandom.RandInt(100));
@@ -221,7 +221,7 @@ codeunit 134078 "ERM Currency With Ledger Entry"
         Currency: Record Currency;
     begin
         LibraryERM.CreateCurrency(Currency);
-        Currency.Validate("Invoice Rounding Precision", LibraryERM.GetInvoiceRoundingPrecisionLCY);
+        Currency.Validate("Invoice Rounding Precision", LibraryERM.GetInvoiceRoundingPrecisionLCY());
         Currency.Modify(true);
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
         exit(Currency.Code);

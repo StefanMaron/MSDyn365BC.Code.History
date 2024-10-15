@@ -1,13 +1,5 @@
 codeunit 143017 "ERM Dimension Subscriber - RU"
 {
-
-    trigger OnRun()
-    begin
-    end;
-
-    var
-        LibraryDim: Codeunit "Library - Dimension";
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Library - Dimension", 'OnGetLocalTablesWithDimSetIDValidationIgnored', '', false, false)]
     local procedure GetCountOfLocalTablesWithDimSetIDValidationIgnored(var CountOfTablesIgnored: Integer)
     begin

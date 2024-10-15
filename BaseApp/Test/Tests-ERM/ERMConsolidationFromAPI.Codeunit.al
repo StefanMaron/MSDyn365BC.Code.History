@@ -20,8 +20,10 @@ codeunit 134105 "ERM Consolidation from API"
     var
         ConsolidationProcess: Record "Consolidation Process";
         BusinessUnit: Record "Business Unit";
+        BusUnitConsolidationData: Record "Bus. Unit Consolidation Data";
         ERMConsolidationFromAPI: Codeunit "ERM Consolidation from API";
         ImportConsolidationFromAPI: Codeunit "Import Consolidation from API";
+        Consolidate: Codeunit Consolidate;
     begin
         // [SCENARIO] A consolidation company with a business unit B01 imports from API it's data. It should be properly consolidated by aggregating each account to an entry.
         Initialize();
@@ -44,7 +46,9 @@ codeunit 134105 "ERM Consolidation from API"
         BusinessUnit."External Company Id" := 'fe51fd61-5b9e-4a42-a6b0-e61af5469daa';
         BusinessUnit.Insert();
         // [WHEN] Running the consolidation
-        ImportConsolidationFromAPI.ImportConsolidationForBusinessUnit(ConsolidationProcess, BusinessUnit);
+        ImportConsolidationFromAPI.ImportConsolidationDataForBusinessUnit(ConsolidationProcess, BusinessUnit, BusUnitConsolidationData);
+        BusUnitConsolidationData.GetConsolidate(Consolidate);
+        Consolidate.Run(BusinessUnit);
         // [THEN] The consolidation entries for both accounts should have the totals
         VerifyConsolidatedGLEntries();
         UnbindSubscription(ERMConsolidationFromAPI);
@@ -55,6 +59,7 @@ codeunit 134105 "ERM Consolidation from API"
     var
         ConsolidationProcess: Record "Consolidation Process";
         BusinessUnit: Record "Business Unit";
+        BusUnitConsolidationData: Record "Bus. Unit Consolidation Data";
         ERMConsolidationFromAPI: Codeunit "ERM Consolidation from API";
         ImportConsolidationFromAPI: Codeunit "Import Consolidation from API";
     begin
@@ -81,7 +86,7 @@ codeunit 134105 "ERM Consolidation from API"
         BusinessUnit.Insert();
         // [WHEN]  Running the consolidation
         // [THEN] It should fail with an error
-        asserterror ImportConsolidationFromAPI.ImportConsolidationForBusinessUnit(ConsolidationProcess, BusinessUnit);
+        asserterror ImportConsolidationFromAPI.ImportConsolidationDataForBusinessUnit(ConsolidationProcess, BusinessUnit, BusUnitConsolidationData);
         UnbindSubscription(ERMConsolidationFromAPI);
     end;
 

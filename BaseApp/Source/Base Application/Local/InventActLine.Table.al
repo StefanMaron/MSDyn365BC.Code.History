@@ -1,6 +1,7 @@
 table 14909 "Invent. Act Line"
 {
     Caption = 'Invent. Act Line';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -10,6 +10,8 @@ report 12402 "Cash Outgoing Order"
             DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", "Line No.");
 
             trigger OnAfterGetRecord()
+            var
+                NoSeries: Codeunit "No. Series";
             begin
                 CurrencyText := CurrencyTxt;
 
@@ -61,16 +63,15 @@ report 12402 "Cash Outgoing Order"
                             BankAcc.TestField("Credit Cash Order No. Series");
 
                             if "Document No." = '' then
-                                "Document No." := NoSeriesMgt.GetNextNo(BankAcc."Credit Cash Order No. Series", 0D, true)
+                                "Document No." := NoSeries.GetNextNo(BankAcc."Credit Cash Order No. Series")
                             else begin
-                                LastNo := NoSeriesMgt.GetNextNo(BankAcc."Credit Cash Order No. Series", 0D, false);
-                                Clear(NoSeriesMgt);
+                                LastNo := NoSeries.PeekNextNo(BankAcc."Credit Cash Order No. Series");
                                 if (DelChr("Document No.", '<>', '0123456789') <> DelChr(LastNo, '<>', '0123456789')) or
                                    ("Document No." > LastNo)
                                 then
                                     Error(WrongDocumentNoErr, "Document No.", LastNo);
                                 if "Document No." = LastNo then
-                                    NoSeriesMgt.GetNextNo(BankAcc."Credit Cash Order No. Series", 0D, true);
+                                    NoSeries.GetNextNo(BankAcc."Credit Cash Order No. Series");
                             end;
                             TestField("Document No.");
                             "Check Printed" := true;
@@ -199,7 +200,6 @@ report 12402 "Cash Outgoing Order"
         EmployeeDirector: Record Employee;
         CheckManagement: Codeunit CheckManagement;
         LocMgt: Codeunit "Localisation Management";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         LocRepMgt: Codeunit "Local Report Management";
         CashOrderReportHelper: Codeunit "Cash Order Report Helper";
         FileName: Text;

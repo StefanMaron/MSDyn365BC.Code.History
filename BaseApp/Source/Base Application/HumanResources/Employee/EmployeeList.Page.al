@@ -366,7 +366,7 @@ page 5201 "Employee List"
                 RunObject = Page "Employee Ledger Entries";
                 RunPageLink = "Employee No." = field("No.");
                 RunPageView = sorting("Employee No.")
-                              order(Descending);
+                              order(descending);
                 ShortCutKey = 'Ctrl+F7';
                 ToolTip = 'View the history of transactions that have been posted for the selected record.';
             }
@@ -510,3 +510,4 @@ page 5201 "Employee List"
         CanSendEmail: Boolean;
 
 }
+

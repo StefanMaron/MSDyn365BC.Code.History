@@ -24,7 +24,7 @@ codeunit 144710 "ERM INV-18 Report"
         Initialize();
         MockFixedAsset(FixedAsset);
         MockFAJournalLines(TempFAJournalLine, FixedAsset."No.");
-        RunINV18Report;
+        RunINV18Report();
         VerifyReportValuesFromBuffer(TempFAJournalLine);
     end;
 
@@ -112,20 +112,16 @@ codeunit 144710 "ERM INV-18 Report"
     begin
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         FilterFAJournalLineWithEmptyBatch(FAJournalLine);
-        with INV18Rep do begin
-            SetFileNameSilent(LibraryReportValidation.GetFileName);
-            SetTableView(FAJournalLine);
-            UseRequestPage(false);
-            Run;
-        end;
+        INV18Rep.SetFileNameSilent(LibraryReportValidation.GetFileName());
+        INV18Rep.SetTableView(FAJournalLine);
+        INV18Rep.UseRequestPage(false);
+        INV18Rep.Run();
     end;
 
     local procedure FilterFAJournalLineWithEmptyBatch(var FAJournalLine: Record "FA Journal Line")
     begin
-        with FAJournalLine do begin
-            SetRange("Journal Template Name", '');
-            SetRange("Journal Batch Name", '');
-        end;
+        FAJournalLine.SetRange("Journal Template Name", '');
+        FAJournalLine.SetRange("Journal Batch Name", '');
     end;
 
     local procedure VerifyReportValuesFromBuffer(var TempFAJournalLine: Record "FA Journal Line" temporary)
@@ -155,7 +151,7 @@ codeunit 144710 "ERM INV-18 Report"
                   RowShift, Description, FixedAsset."Manufacturing Year", FixedAsset."Inventory Number", FixedAsset."Factory No.",
                   FixedAsset."Passport No.", ValueArray[1], false);
                 RowShift += 1;
-            until Next = 0;
+            until Next() = 0;
             // Verify Footer
             VerifyLineValue(
               RowShift, '', '', '', '', '', ValueArray[2], true);

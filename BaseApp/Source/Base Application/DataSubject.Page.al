@@ -22,7 +22,7 @@ page 1754 "Data Subject"
                     ApplicationArea = All;
                     ShowCaption = false;
                     Style = StandardAccent;
-                    StyleExpr = TRUE;
+                    StyleExpr = true;
 
                     trigger OnDrillDown()
                     begin

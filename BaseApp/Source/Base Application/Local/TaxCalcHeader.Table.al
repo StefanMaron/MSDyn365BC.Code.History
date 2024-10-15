@@ -2,6 +2,7 @@ table 17308 "Tax Calc. Header"
 {
     Caption = 'Tax Calc. Header';
     LookupPageID = "Tax Calc. List";
+    DataClassification = CustomerContent;
 
     fields
     {

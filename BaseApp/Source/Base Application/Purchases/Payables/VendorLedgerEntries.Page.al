@@ -26,7 +26,7 @@ page 29 "Vendor Ledger Entries"
     PageType = List;
     Permissions = TableData "Vendor Ledger Entry" = m;
     SourceTable = "Vendor Ledger Entry";
-    SourceTableView = sorting("Vendor No.", "Posting Date") order(Descending);
+    SourceTableView = sorting("Vendor No.", "Posting Date") order(descending);
     UsageCategory = History;
     AdditionalSearchTerms = 'Vendor Check, Pay Vendor, Vendor Bills';
 
@@ -643,7 +643,7 @@ page 29 "Vendor Ledger Entries"
 
                     trigger OnAction()
                     begin
-                        ChangeVendVATInvoice;
+                        ChangeVendVATInvoice();
                     end;
                 }
                 action("Return Prepayment")
@@ -690,7 +690,7 @@ page 29 "Vendor Ledger Entries"
                         AccessByPermission = TableData "Incoming Document" = R;
                         ApplicationArea = Basic, Suite;
                         Caption = 'Select Incoming Document';
-                        Enabled = NOT HasIncomingDocument;
+                        Enabled = not HasIncomingDocument;
                         Image = SelectLineToApply;
                         ToolTip = 'Select an incoming document record and file attachment that you want to link to the entry or document.';
 
@@ -706,7 +706,7 @@ page 29 "Vendor Ledger Entries"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Create Incoming Document from File';
                         Ellipsis = true;
-                        Enabled = NOT HasIncomingDocument;
+                        Enabled = not HasIncomingDocument;
                         Image = Attach;
                         ToolTip = 'Create an incoming document record by selecting a file to attach, and then link the incoming document record to the entry or document.';
 
@@ -942,7 +942,6 @@ page 29 "Vendor Ledger Entries"
     [Scope('OnPrem')]
     procedure ChangeVendVATInvoice()
     var
-        VendLedgEntry: Record "Vendor Ledger Entry";
         ChangeVendVATInvoice: Report "Change Vendor VAT Invoice";
     begin
         ChangeVendVATInvoice.SetVendLedgEntry(Rec);

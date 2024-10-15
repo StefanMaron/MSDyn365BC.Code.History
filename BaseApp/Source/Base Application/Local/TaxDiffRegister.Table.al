@@ -1,6 +1,7 @@
 table 17302 "Tax Diff. Register"
 {
     Caption = 'Tax Diff. Register';
+    DataClassification = CustomerContent;
 
     fields
     {

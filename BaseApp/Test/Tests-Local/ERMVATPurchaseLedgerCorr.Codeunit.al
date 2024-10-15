@@ -754,9 +754,9 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         LibraryPurch.CreateVendor(Vendor);
         LibraryPurch.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
 
-        PurchaseOrderPage.OpenEdit;
+        PurchaseOrderPage.OpenEdit();
         PurchaseOrderPage.FILTER.SetFilter("No.", PurchaseHeader."No.");
-        PurchaseOrderPage."VAT Entry Type".Lookup;
+        PurchaseOrderPage."VAT Entry Type".Lookup();
         LibraryVariableStorage.Dequeue(SelectedVATEntryType);
         PurchaseOrderPage."VAT Entry Type".AssertEquals(Format(SelectedVATEntryType));
     end;
@@ -774,8 +774,8 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         // [SCENARIO 363180] Change VAT Entry Type in opened posted Customer Ledger Entry
         Initialize();
         // [GIVEN] Two VAT Entry Type - "X" and "Y"
-        VATEntryTypeCodeX := CreateVATEntryTypeNo;
-        VATEntryTypeCodeY := CreateVATEntryTypeNo;
+        VATEntryTypeCodeX := CreateVATEntryTypeNo();
+        VATEntryTypeCodeY := CreateVATEntryTypeNo();
         // [GIVEN] "Cust. Ledger Entry" with "VAT Entry Type" = "X" and "Open" = TRUE
         MockCustLedgEntry(CustLedgEntry, VATEntryTypeCodeX, true);
         // [WHEN] Execute "Cust. Entry-Edit" to set "VAT Entry Type" = "Y"
@@ -799,8 +799,8 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         // [SCENARIO 363180] Change VAT Entry Type in opened posted Vendor Ledger Entry
         Initialize();
         // [GIVEN] Two VAT Entry Type - "X" and "Y"
-        VATEntryTypeCodeX := CreateVATEntryTypeNo;
-        VATEntryTypeCodeY := CreateVATEntryTypeNo;
+        VATEntryTypeCodeX := CreateVATEntryTypeNo();
+        VATEntryTypeCodeY := CreateVATEntryTypeNo();
         // [GIVEN] "Vendor Ledger Entry" with "VAT Entry Type" = "X" and "Open" = TRUE
         MockVendLedgEntry(VendLedgEntry, VATEntryTypeCodeX, true);
         // [WHEN] Execute "Vend. Entry-Edit" to set "VAT Entry Type" = "Y"
@@ -824,8 +824,8 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         // [SCENARIO 363458] Change VAT Entry Type in closed posted Customer Ledger Entry
         Initialize();
         // [GIVEN] Two VAT Entry Type - "X" and "Y"
-        VATEntryTypeCodeX := CreateVATEntryTypeNo;
-        VATEntryTypeCodeY := CreateVATEntryTypeNo;
+        VATEntryTypeCodeX := CreateVATEntryTypeNo();
+        VATEntryTypeCodeY := CreateVATEntryTypeNo();
         // [GIVEN] "Cust. Ledger Entry" with "VAT Entry Type" = "X" and "Open" = FALSE
         MockCustLedgEntry(CustLedgEntry, VATEntryTypeCodeX, false);
         // [WHEN] Execute "Cust. Entry-Edit" to set "VAT Entry Type" = "Y"
@@ -849,8 +849,8 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         // [SCENARIO 363458] Change VAT Entry Type in closed posted Vendor Ledger Entry
         Initialize();
         // [GIVEN] Two VAT Entry Type - "X" and "Y"
-        VATEntryTypeCodeX := CreateVATEntryTypeNo;
-        VATEntryTypeCodeY := CreateVATEntryTypeNo;
+        VATEntryTypeCodeX := CreateVATEntryTypeNo();
+        VATEntryTypeCodeY := CreateVATEntryTypeNo();
         // [GIVEN] "Vendor Ledger Entry" with "VAT Entry Type" = "X" and "Open" = FALSE
         MockVendLedgEntry(VendLedgEntry, VATEntryTypeCodeX, false);
         // [WHEN] Execute "Vend. Entry-Edit" to set "VAT Entry Type" = "Y"
@@ -1090,8 +1090,8 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
 
     local procedure CreateVendorGLAccount(var VendorNo: Code[20]; var GLAccountNo: Code[20])
     begin
-        VendorNo := LibraryPurch.CreateVendorNo;
-        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
+        VendorNo := LibraryPurch.CreateVendorNo();
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup();
     end;
 
     local procedure CreateVATEntryType(VATEntryCount: Integer)
@@ -1118,7 +1118,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         for Counter := 1 to MaxCount do
             VATEntryTypePage.Next();
         LibraryVariableStorage.Enqueue(VATEntryTypePage.Code.Value);
-        VATEntryTypePage.OK.Invoke;
+        VATEntryTypePage.OK().Invoke();
     end;
 
     local procedure Initialize()

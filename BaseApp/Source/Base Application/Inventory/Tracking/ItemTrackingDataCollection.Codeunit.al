@@ -1352,15 +1352,14 @@ codeunit 6501 "Item Tracking Data Collection"
     var
         PurchLine: Record "Purchase Line";
     begin
-        with TrackingSpecification do
-            if ("Source Type" = Database::"Purchase Line") and ("Source Subtype" = "Source Subtype"::"3") then begin
-                PurchLine.Reset();
-                PurchLine.SetRange("Document Type", "Source Subtype");
-                PurchLine.SetRange("Document No.", "Source ID");
-                PurchLine.SetRange("Line No.", "Source Ref. No.");
-                if PurchLine.FindFirst() then
-                    exit(PurchLine."Job No." <> '');
-            end;
+        if (TrackingSpecification."Source Type" = Database::"Purchase Line") and (TrackingSpecification."Source Subtype" = TrackingSpecification."Source Subtype"::"3") then begin
+            PurchLine.Reset();
+            PurchLine.SetRange("Document Type", TrackingSpecification."Source Subtype");
+            PurchLine.SetRange("Document No.", TrackingSpecification."Source ID");
+            PurchLine.SetRange("Line No.", TrackingSpecification."Source Ref. No.");
+            if PurchLine.FindFirst() then
+                exit(PurchLine."Job No." <> '');
+        end;
     end;
 
     procedure FindLotNoBySN(TrackingSpecification: Record "Tracking Specification"): Code[50]
@@ -1464,16 +1463,15 @@ codeunit 6501 "Item Tracking Data Collection"
         if IsHandled then
             exit(Result);
 
-        with TempReservEntry do
-            if ("Reservation Status" = "Reservation Status"::Prospect) and
-               ("Source Type" = Database::"Sales Line") and
-               ("Source Subtype" = 2)
-            then begin
-                SalesLine.SetLoadFields("Shipment No.");
-                SalesLine.Get("Source Subtype", "Source ID", "Source Ref. No.");
-                if SalesLine."Shipment No." <> '' then
-                    exit(false);
-            end;
+        if (TempReservEntry."Reservation Status" = TempReservEntry."Reservation Status"::Prospect) and
+               (TempReservEntry."Source Type" = Database::"Sales Line") and
+               (TempReservEntry."Source Subtype" = 2)
+        then begin
+            SalesLine.SetLoadFields("Shipment No.");
+            SalesLine.Get(TempReservEntry."Source Subtype", TempReservEntry."Source ID", TempReservEntry."Source Ref. No.");
+            if SalesLine."Shipment No." <> '' then
+                exit(false);
+        end;
 
         exit(true);
     end;

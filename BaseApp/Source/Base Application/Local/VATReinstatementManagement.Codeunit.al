@@ -112,58 +112,58 @@ codeunit 12418 "VAT Reinstatement Management"
         PostingDate: Date;
         CVEntryType: Option " ",Purchase,Sale;
     begin
-        with TempVATDocBuf do begin
-            VATDocEntryBuffer.CopyFilters(TempVATDocBuf);
-            DeleteAll();
-            Window.Open('@1@@@@@@@@@@@@@@@');
+        VATDocEntryBuffer.CopyFilters(TempVATDocBuf);
+        TempVATDocBuf.DeleteAll();
+        Window.Open('@1@@@@@@@@@@@@@@@');
 
-            VATEntry.Reset();
-            VATEntry.SetRange(Type, VATEntry.Type::Purchase);
-            VATEntry.SetRange(Reversed, false);
-            VATEntry.SetFilter(Amount, '<>0');
-            if DateFilter <> '' then
-                VATEntry.SetFilter("Posting Date", DateFilter);
-            if VATBusPostingGroupFilter <> '' then
-                VATEntry.SetFilter("VAT Bus. Posting Group", VATBusPostingGroupFilter);
-            if VATProdPostingGroupFilter <> '' then
-                VATEntry.SetFilter("VAT Prod. Posting Group", VATProdPostingGroupFilter);
-            VATEntry.SetFilter("Unrealized VAT Entry No.", '<>0');
+        VATEntry.Reset();
+        VATEntry.SetRange(Type, VATEntry.Type::Purchase);
+        VATEntry.SetRange(Reversed, false);
+        VATEntry.SetFilter(Amount, '<>0');
+        if DateFilter <> '' then
+            VATEntry.SetFilter("Posting Date", DateFilter);
+        if VATBusPostingGroupFilter <> '' then
+            VATEntry.SetFilter("VAT Bus. Posting Group", VATBusPostingGroupFilter);
+        if VATProdPostingGroupFilter <> '' then
+            VATEntry.SetFilter("VAT Prod. Posting Group", VATProdPostingGroupFilter);
+        VATEntry.SetFilter("Unrealized VAT Entry No.", '<>0');
 
-            I := 0;
-            VATCount := VATEntry.Count();// APPROX;
-            if VATEntry.FindSet() then
-                repeat
-                    I += 1;
-                    Window.Update(1, Round(I / VATCount * 10000, 1));
-                    if DateFilter <> '' then begin
-                        SetFilter("Date Filter", DateFilter);
-                        PostingDate := GetRangeMax("Date Filter");
-                    end else
-                        PostingDate := WorkDate();
-                    if VATPostingSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group") then
-                        if VATEntry.FindCVEntry(CVEntryType, CVEntryNo) and
-                           IsAllowedVATCalcTypeForReinstatement(VATEntry.Base, VATPostingSetup."VAT Calculation Type")
-                        then begin
-                            VendLedgEntry.Get(CVEntryNo);
-                            VendLedgEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)");
-                            TransferFields(VendLedgEntry);
-                            "Entry Type" := CVEntryType;
-                            CalcFields("Realized VAT Amount");
-                            if "Realized VAT Amount" <> 0 then begin
-                                "Amount (LCY)" := VendLedgEntry."Amount (LCY)";
-                                "Remaining Amt. (LCY)" := VendLedgEntry."Remaining Amt. (LCY)";
-                                "Table ID" := DATABASE::"Vendor Ledger Entry";
-                                Vend.Get(VendLedgEntry."Vendor No.");
-                                "CV Name" := Vend.Name;
-                                "Document Date" := "Posting Date";
-                                if PostingDate > "Posting Date" then
-                                    "Posting Date" := PostingDate;
-                                if Insert() then;
-                            end;
+        I := 0;
+        VATCount := VATEntry.Count();// APPROX;
+        if VATEntry.FindSet() then
+            repeat
+                I += 1;
+                Window.Update(1, Round(I / VATCount * 10000, 1));
+                if DateFilter <> '' then begin
+                    TempVATDocBuf.SetFilter("Date Filter", DateFilter);
+                    PostingDate := TempVATDocBuf.GetRangeMax("Date Filter");
+                end else
+                    PostingDate := WorkDate();
+                if VATPostingSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group") then
+#pragma warning disable AL0603
+                    if VATEntry.FindCVEntry(CVEntryType, CVEntryNo) and
+#pragma warning restore AL0603
+                       IsAllowedVATCalcTypeForReinstatement(VATEntry.Base, VATPostingSetup."VAT Calculation Type")
+                    then begin
+                        VendLedgEntry.Get(CVEntryNo);
+                        VendLedgEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)");
+                        TempVATDocBuf.TransferFields(VendLedgEntry);
+                        TempVATDocBuf."Entry Type" := "General Posting Type".FromInteger(CVEntryType);
+                        TempVATDocBuf.CalcFields("Realized VAT Amount");
+                        if TempVATDocBuf."Realized VAT Amount" <> 0 then begin
+                            TempVATDocBuf."Amount (LCY)" := VendLedgEntry."Amount (LCY)";
+                            TempVATDocBuf."Remaining Amt. (LCY)" := VendLedgEntry."Remaining Amt. (LCY)";
+                            TempVATDocBuf."Table ID" := DATABASE::"Vendor Ledger Entry";
+                            Vend.Get(VendLedgEntry."Vendor No.");
+                            TempVATDocBuf."CV Name" := Vend.Name;
+                            TempVATDocBuf."Document Date" := TempVATDocBuf."Posting Date";
+                            if PostingDate > TempVATDocBuf."Posting Date" then
+                                TempVATDocBuf."Posting Date" := PostingDate;
+                            if TempVATDocBuf.Insert() then;
                         end;
-                until VATEntry.Next() = 0;
-            Window.Close();
-        end;
+                    end;
+            until VATEntry.Next() = 0;
+        Window.Close();
     end;
 
     [Scope('OnPrem')]
@@ -202,25 +202,23 @@ codeunit 12418 "VAT Reinstatement Management"
         UnrealizedVATEntry: Record "VAT Entry";
         AvailableAmount: Decimal;
     begin
-        with GenJournalLine do begin
-            VATEntry.Get("Reinstatement VAT Entry No.");
-            TestField(Amount);
+        VATEntry.Get(GenJournalLine."Reinstatement VAT Entry No.");
+        GenJournalLine.TestField(Amount);
 
-            if Abs(Amount) > Abs(VATEntry.Amount) then
-                Error(Text002, FieldCaption(Amount), VATEntry.Amount, GetJnlLineDescription(GenJournalLine));
-            UnrealizedVATEntry.Get(VATEntry."Unrealized VAT Entry No.");
-            if Abs(Amount) > Abs(UnrealizedVATEntry."Unrealized Amount") then
-                Error(Text002, FieldCaption(Amount), UnrealizedVATEntry."Unrealized Amount", GetJnlLineDescription(GenJournalLine));
-            if UnrealizedVATEntry."Unrealized Amount" = UnrealizedVATEntry."Remaining Unrealized Amount" then
-                Error(
-                  Text004,
-                  UnrealizedVATEntry.TableCaption(),
-                  UnrealizedVATEntry.FieldCaption("Entry No."),
-                  UnrealizedVATEntry."Entry No.");
-            AvailableAmount := UnrealizedVATEntry."Unrealized Amount" - UnrealizedVATEntry."Remaining Unrealized Amount";
-            if Abs(Amount) > Abs(AvailableAmount) then
-                Error(Text002, FieldCaption(Amount), AvailableAmount, GetJnlLineDescription(GenJournalLine));
-        end;
+        if Abs(GenJournalLine.Amount) > Abs(VATEntry.Amount) then
+            Error(Text002, GenJournalLine.FieldCaption(Amount), VATEntry.Amount, GetJnlLineDescription(GenJournalLine));
+        UnrealizedVATEntry.Get(VATEntry."Unrealized VAT Entry No.");
+        if Abs(GenJournalLine.Amount) > Abs(UnrealizedVATEntry."Unrealized Amount") then
+            Error(Text002, GenJournalLine.FieldCaption(Amount), UnrealizedVATEntry."Unrealized Amount", GetJnlLineDescription(GenJournalLine));
+        if UnrealizedVATEntry."Unrealized Amount" = UnrealizedVATEntry."Remaining Unrealized Amount" then
+            Error(
+              Text004,
+              UnrealizedVATEntry.TableCaption(),
+              UnrealizedVATEntry.FieldCaption("Entry No."),
+              UnrealizedVATEntry."Entry No.");
+        AvailableAmount := UnrealizedVATEntry."Unrealized Amount" - UnrealizedVATEntry."Remaining Unrealized Amount";
+        if Abs(GenJournalLine.Amount) > Abs(AvailableAmount) then
+            Error(Text002, GenJournalLine.FieldCaption(Amount), AvailableAmount, GetJnlLineDescription(GenJournalLine));
     end;
 
     [Scope('OnPrem')]
@@ -228,11 +226,9 @@ codeunit 12418 "VAT Reinstatement Management"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with GenJournalLine do begin
-            VATEntry.Get("Reinstatement VAT Entry No.");
-            if "Posting Date" < VATEntry."Posting Date" then
-                Error(Text003, FieldCaption("Posting Date"), VATEntry."Posting Date", GetJnlLineDescription(GenJournalLine));
-        end;
+        VATEntry.Get(GenJournalLine."Reinstatement VAT Entry No.");
+        if GenJournalLine."Posting Date" < VATEntry."Posting Date" then
+            Error(Text003, GenJournalLine.FieldCaption("Posting Date"), VATEntry."Posting Date", GetJnlLineDescription(GenJournalLine));
     end;
 
     local procedure GetJnlLineDescription(GenJournalLine: Record "Gen. Journal Line"): Text[250]

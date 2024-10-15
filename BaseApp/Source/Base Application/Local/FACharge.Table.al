@@ -2,6 +2,7 @@ table 14907 "FA Charge"
 {
     Caption = 'FA Charge';
     LookupPageID = "FA Charge List";
+    DataClassification = CustomerContent;
 
     fields
     {

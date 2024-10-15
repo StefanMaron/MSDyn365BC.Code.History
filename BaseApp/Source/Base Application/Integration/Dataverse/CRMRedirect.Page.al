@@ -77,7 +77,7 @@ page 5329 "CRM Redirect"
             Error(InvalidFilterErr);
         GroupCollectionHelper := MatchHelper.Groups;
         GroupHelper := GroupCollectionHelper.Item(1);
-        CRMInfo := GroupHelper.Value;
+        CRMInfo := GroupHelper.Value();
     end;
 
     procedure ExtractPartsFromCRMInfo(CRMInfo: Text; var CRMID: Guid; var CRMEntityTypeName: Text)
@@ -99,7 +99,7 @@ page 5329 "CRM Redirect"
         if not Evaluate(CRMID, GroupHelper.Value) then
             Error(InvalidCRMIDErr, CRMProductName.CDSServiceName());
         GroupHelper := GroupCollectionHelper.Item(2);
-        CRMEntityTypeName := GroupHelper.Value;
+        CRMEntityTypeName := GroupHelper.Value();
     end;
 }
 

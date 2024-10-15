@@ -79,7 +79,7 @@ page 130150 "Generate Test Data"
 
                 trigger OnAction()
                 begin
-                    GenerateTestDataMgt.GetLines;
+                    GenerateTestDataMgt.GetLines();
                     CurrPage.Update(false);
                 end;
             }
@@ -122,7 +122,7 @@ page 130150 "Generate Test Data"
     begin
         RecordsToAdd := 100;
         if IsEmpty() then
-            GenerateTestDataMgt.GetLines;
+            GenerateTestDataMgt.GetLines();
     end;
 
     var

@@ -40,8 +40,8 @@ codeunit 144716 "ERM FA Inventory Test"
         // [SCENARIO 252751] Print REP 12486 "FA Phys. Inventory INV-1"
         Initialize();
         InventoryDocNo := LibraryUtility.GenerateGUID();
-        EmployeeNo := CreateEmployee;
-        FALocationCode := CreateFALocation(CreateEmployee);
+        EmployeeNo := CreateEmployee();
+        FALocationCode := CreateFALocation(CreateEmployee());
 
         CreateFAJournalBatch(FAJournalBatch);
         LineQty := LibraryRandom.RandIntInRange(2, 5);
@@ -56,7 +56,7 @@ codeunit 144716 "ERM FA Inventory Test"
         VerifyINV1SecondPageValues(LineQty, TotalArr);
         VerifyINV1ThirdPageValues(FALocationCode, Chairman, Commision, WhoCheck);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -99,10 +99,10 @@ codeunit 144716 "ERM FA Inventory Test"
         DocumentDate := LibraryRandom.RandDate(LibraryRandom.RandInt(100));
         StartingDate := LibraryRandom.RandDate(LibraryRandom.RandInt(100));
         EndingDate := LibraryRandom.RandDateFrom(StartingDate, 100);
-        Chairman := CreateEmployee;
+        Chairman := CreateEmployee();
         for i := 1 to ArrayLen(Commision) do
-            Commision[i] := CreateEmployee;
-        WhoCheck := CreateEmployee;
+            Commision[i] := CreateEmployee();
+        WhoCheck := CreateEmployee();
 
         LibraryVariableStorage.Enqueue(InventoryDate);
         LibraryVariableStorage.Enqueue(DocumentNo);
@@ -138,7 +138,7 @@ codeunit 144716 "ERM FA Inventory Test"
             "Journal Batch Name" := FAJournalBatch.Name;
             "Line No." := LibraryUtility.GetNewRecNo(FAJournalLine, FieldNo("Line No."));
             "Document No." := DocumentNo;
-            "FA No." := CreateFixedAsset;
+            "FA No." := CreateFixedAsset();
             "Employee No." := EmployeeNo;
             "Location Code" := FALocationCode;
 
@@ -235,7 +235,7 @@ codeunit 144716 "ERM FA Inventory Test"
         FAJournalLine.SetRange("Location Code", FALocationCode);
 
         Clear(FAPhysInventoryINV1);
-        FAPhysInventoryINV1.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        FAPhysInventoryINV1.SetFileNameSilent(LibraryReportValidation.GetFileName());
         FAPhysInventoryINV1.SetTableView(FAJournalLine);
         FAPhysInventoryINV1.UseRequestPage(true);
         Commit();
@@ -251,7 +251,7 @@ codeunit 144716 "ERM FA Inventory Test"
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         FilterFAJnlLine(FAJournalLine, FAJournalBatch);
         Clear(FAPhysInventoryINV1a);
-        FAPhysInventoryINV1a.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        FAPhysInventoryINV1a.SetFileNameSilent(LibraryReportValidation.GetFileName());
         FAPhysInventoryINV1a.SetTableView(FAJournalLine);
         FAPhysInventoryINV1a.UseRequestPage(false);
         FAPhysInventoryINV1a.Run();
@@ -315,17 +315,17 @@ codeunit 144716 "ERM FA Inventory Test"
     [Scope('OnPrem')]
     procedure FAPhysInventoryINV1RPH(var FAPhysInventoryINV1: TestRequestPage "FA Phys. Inventory INV-1")
     begin
-        FAPhysInventoryINV1.InventoryDate.SetValue(LibraryVariableStorage.DequeueDate);
-        FAPhysInventoryINV1.DocumentNo.SetValue(LibraryVariableStorage.DequeueText);
-        FAPhysInventoryINV1.DocumentDate.SetValue(LibraryVariableStorage.DequeueDate);
-        FAPhysInventoryINV1.StartDate.SetValue(LibraryVariableStorage.DequeueDate);
-        FAPhysInventoryINV1.EndDate.SetValue(LibraryVariableStorage.DequeueDate);
-        FAPhysInventoryINV1.Chairman.SetValue(LibraryVariableStorage.DequeueText);
-        FAPhysInventoryINV1.Commission1.SetValue(LibraryVariableStorage.DequeueText);
-        FAPhysInventoryINV1.Commission2.SetValue(LibraryVariableStorage.DequeueText);
-        FAPhysInventoryINV1.Commission3.SetValue(LibraryVariableStorage.DequeueText);
-        FAPhysInventoryINV1.WhoCheck.SetValue(LibraryVariableStorage.DequeueText);
-        FAPhysInventoryINV1.OK.Invoke;
+        FAPhysInventoryINV1.InventoryDate.SetValue(LibraryVariableStorage.DequeueDate());
+        FAPhysInventoryINV1.DocumentNo.SetValue(LibraryVariableStorage.DequeueText());
+        FAPhysInventoryINV1.DocumentDate.SetValue(LibraryVariableStorage.DequeueDate());
+        FAPhysInventoryINV1.StartDate.SetValue(LibraryVariableStorage.DequeueDate());
+        FAPhysInventoryINV1.EndDate.SetValue(LibraryVariableStorage.DequeueDate());
+        FAPhysInventoryINV1.Chairman.SetValue(LibraryVariableStorage.DequeueText());
+        FAPhysInventoryINV1.Commission1.SetValue(LibraryVariableStorage.DequeueText());
+        FAPhysInventoryINV1.Commission2.SetValue(LibraryVariableStorage.DequeueText());
+        FAPhysInventoryINV1.Commission3.SetValue(LibraryVariableStorage.DequeueText());
+        FAPhysInventoryINV1.WhoCheck.SetValue(LibraryVariableStorage.DequeueText());
+        FAPhysInventoryINV1.OK().Invoke();
     end;
 }
 

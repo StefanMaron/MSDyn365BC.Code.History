@@ -3,6 +3,7 @@ namespace Microsoft.Inventory.Item;
 table 729 "Copy Item Buffer"
 {
     Caption = 'Copy Item Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

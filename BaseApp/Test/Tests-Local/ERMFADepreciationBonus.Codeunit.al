@@ -38,7 +38,7 @@ codeunit 144507 "ERM FA Depreciation Bonus"
           FixedAssetNo, FALedgerEntry, FALedgerEntry."FA Posting Type"::Depreciation);
         VerifyFALedgerEntry(
           FALedgerEntry,
-          Round(-FAPurchAmount * (FADeprBonusPct / 100), LibraryERM.GetAmountRoundingPrecision),
+          Round(-FAPurchAmount * (FADeprBonusPct / 100), LibraryERM.GetAmountRoundingPrecision()),
           true);
     end;
 
@@ -111,7 +111,7 @@ codeunit 144507 "ERM FA Depreciation Bonus"
         FindFADeprLedgerEntry(FixedAssetNo, FALedgerEntry, FALedgerEntry."FA Posting Type"::Depreciation);
         VerifyFALedgerEntry(
           FALedgerEntry,
-          Round(-FAPurchAmount * (FADeprBonusPct / 100), LibraryERM.GetAmountRoundingPrecision),
+          Round(-FAPurchAmount * (FADeprBonusPct / 100), LibraryERM.GetAmountRoundingPrecision()),
           true);
     end;
 
@@ -261,7 +261,7 @@ codeunit 144507 "ERM FA Depreciation Bonus"
         // Set Depr. Bonus % for specific Group
         // Assing the Group to Fixed Asset
         // Validate correct Depr. Bonus % from Group Assigned to Fixed Assset
-        Setup;
+        Setup();
 
         FADeprGroup.FindFirst();
         FADeprBonusPct := LibraryRandom.RandDec(99, 2);
@@ -335,7 +335,7 @@ codeunit 144507 "ERM FA Depreciation Bonus"
         ComparingDeprBookEntries.SetTableView(FixedAsset);
         ComparingDeprBookEntries.Run();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'Totals_1_Index__Acquisition_', FAPurchAmount1 + FAPurchAmount2);
         LibraryReportDataset.AssertElementWithValueExists(
@@ -375,7 +375,7 @@ codeunit 144507 "ERM FA Depreciation Bonus"
             Validate("Posting Date", PostingDate);
             Validate("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
             Modify(true);
         end;
 
@@ -390,7 +390,7 @@ codeunit 144507 "ERM FA Depreciation Bonus"
         FAReleaseDate: Date;
         FADeprDate: Date;
     begin
-        Setup;
+        Setup();
         FAReleaseDate := CalcDate('<CM+1M>', WorkDate());
         FADeprDate := CalcDate('<CM+2M>', WorkDate());
         LibraryPurchase.CreateVendor(Vendor);
@@ -433,17 +433,17 @@ codeunit 144507 "ERM FA Depreciation Bonus"
         FAJournalTemplate.SetRange(Recurring, false);
         LibraryFixedAsset.FindFAJournalTemplate(FAJournalTemplate);
         LibraryFixedAsset.CreateFAJournalBatch(FAJournalBatch, FAJournalTemplate.Name);
-        FAJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode);
+        FAJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode());
         FAJournalBatch.Modify(true);
     end;
 
     local procedure GetDocumentNo(FAJournalBatch: Record "FA Journal Batch"): Code[20]
     var
         NoSeries: Record "No. Series";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesCodeunit: Codeunit "No. Series";
     begin
         NoSeries.Get(FAJournalBatch."No. Series");
-        exit(NoSeriesManagement.GetNextNo(FAJournalBatch."No. Series", WorkDate(), false));
+        exit(NoSeriesCodeunit.PeekNextNo(FAJournalBatch."No. Series"));
     end;
 
     local procedure CalcDepreciation(FixedAssetNo: Code[20]; DeprBook: Code[10]; PostingDate: Date; Post: Boolean): Decimal
@@ -549,7 +549,7 @@ codeunit 144507 "ERM FA Depreciation Bonus"
     [Scope('OnPrem')]
     procedure ComparingDeprBookEntriesHandler(var ComparingDeprBookEntries: TestRequestPage "Comparing Depr. Book Entries")
     begin
-        ComparingDeprBookEntries.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ComparingDeprBookEntries.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

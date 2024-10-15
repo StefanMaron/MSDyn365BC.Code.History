@@ -181,8 +181,8 @@ codeunit 139453 "O365 Customer Permission Test"
 
         // [GIVEN] A user with O365 Basic and Customer Edit permissions
         Initialize();
-        LibraryLowerPermissions.SetCustomerEdit;
-        ExcludedTables := ExcludedTables.List;
+        LibraryLowerPermissions.SetCustomerEdit();
+        ExcludedTables := ExcludedTables.List();
         InsertTablesExcludedFromCustomerCreate(ExcludedTables);
 
         // [THEN] The user can insert/delete Customers
@@ -210,14 +210,14 @@ codeunit 139453 "O365 Customer Permission Test"
 
         RecordRefWithAllRelations.Open(DATABASE::Customer);
         LibraryPermissionsVerify.CreateRecWithRelatedFields(RecordRefWithAllRelations);
-        ExcludedTables := ExcludedTables.List;
+        ExcludedTables := ExcludedTables.List();
         InsertTablesExcludedFromCustomerView(ExcludedTables);
 
-        LibraryLowerPermissions.SetCustomerView;
+        LibraryLowerPermissions.SetCustomerView();
         RecordRef.Open(DATABASE::Customer);
 
         // [THEN] The user can read from the record and related tables
-        LibraryLowerPermissions.SetCustomerView;
+        LibraryLowerPermissions.SetCustomerView();
         LibraryPermissionsVerify.CheckReadAccessToRelatedTables(ExcludedTables, RecordRef);
     end;
 

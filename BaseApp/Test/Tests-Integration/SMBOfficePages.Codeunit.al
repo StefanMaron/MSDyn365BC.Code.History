@@ -58,7 +58,7 @@ codeunit 139048 "SMB Office Pages"
         CompanyInformation.Modify();
 
         // [GIVEN] A customer and a posted sales invoice exists.
-        Email := RandomEmail;
+        Email := RandomEmail();
         CreateContactFromCustomer(Email, ContactNo, BusRelCode, false);
         LibrarySales.CreateSalesInvoice(SalesHeader);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, false, true));
@@ -66,16 +66,16 @@ codeunit 139048 "SMB Office Pages"
         // [WHEN] The user opens the add-in for the given customer in the context of an appointment.
         OfficeAddinContext.SetRange(Email, Email);
         OfficeAddinContext.SetRange("Item Type", OfficeAddinContext."Item Type"::Appointment);
-        CustomerCard.Trap;
+        CustomerCard.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // [WHEN] The user tries to send the invoice to the customer.
-        PostedSalesInvoice.Trap;
+        PostedSalesInvoice.Trap();
         PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvoiceHeader);
 
         // [THEN] The user gets an error with no option to download the attachment.
         // Fix for 202270: Russian calls another code, the error is thrown. But it is depended on demodata. Let's make test workable
-        asserterror PostedSalesInvoice.Email.Invoke;
+        asserterror PostedSalesInvoice.Email.Invoke();
         Assert.ExpectedError(MustSelectAndEmailBodyOrAttahmentErr);
     end;
 
@@ -96,7 +96,7 @@ codeunit 139048 "SMB Office Pages"
         OfficeAddinContext.SetRange(Email, TestEmail);
 
         // [WHEN] Add-in is opened
-        OfficeWelcomeDlg.Trap;
+        OfficeWelcomeDlg.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] Office Welcome Dlg page is shown to the user
@@ -118,11 +118,11 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] New email is created but not assigned to contact
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         OfficeAddinContext.SetFilter(Email, TestEmail);
 
         // [WHEN] Outlook Mail Engine gives message to add contact
-        OfficeNewContactDlg.Trap;
+        OfficeNewContactDlg.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] User doesn't choose an action - handler validates message
@@ -145,7 +145,7 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] New email is created but not assigned to contact
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         OfficeAddinContext.SetRange(Email, TestEmail);
 
         // [WHEN] Outlook Mail Engine shows dialog page
@@ -176,7 +176,7 @@ codeunit 139048 "SMB Office Pages"
         CreateContact(Contact1, Contact1.Type::Person);
 
         // [GIVEN] New email is created but not assigned to contact
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         OfficeAddinContext.SetRange(Email, TestEmail);
 
         // [WHEN] Outlook Mail Engine shows dialog page
@@ -210,25 +210,25 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] New email is created but not assigned to contact
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         OfficeAddinContext.SetRange(Email, TestEmail);
 
         // [GIVEN] New Customer is created with random email
-        CustomerNo := CreateContactFromCustomer(RandomEmail, ContactNo, NewBusRelCode, false);
+        CustomerNo := CreateContactFromCustomer(RandomEmail(), ContactNo, NewBusRelCode, false);
 
         CompanyContact.Get(ContactNo);
-        CompanyContact.Validate(Name, CopyStr(CreateGuid, 2, 20));
+        CompanyContact.Validate(Name, CopyStr(CreateGuid(), 2, 20));
         CompanyContact.Modify();
         LibraryVariableStorage.Enqueue(CompanyContact."Company Name");
         LibraryVariableStorage.Enqueue(TestEmail);
         LibraryVariableStorage.Enqueue(CustomerNo);
 
         // [WHEN] Outlook Mail Engine shows new contact dialog page
-        OfficeNewContactDlg.Trap;
+        OfficeNewContactDlg.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // User chooses to create contact (ContactDetailsDlgHandlerAssociateToCompany)
-        asserterror OfficeNewContactDlg.NewPersonContact.DrillDown;
+        asserterror OfficeNewContactDlg.NewPersonContact.DrillDown();
 
         // [THEN] Create New Contact card is opened (ContactDetailsDlgHandlerAssociateToCompany page handler)
         // Verify customer number on customer card (SingleCustomerEngineHandler page handler)
@@ -251,22 +251,22 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] New email is created but not assigned to contact
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         OfficeAddinContext.SetRange(Email, TestEmail);
 
         // [GIVEN] New company is created with random email
         CreateContact(CompanyContact, CompanyContact.Type::Company);
-        CompanyContact.Validate(Name, CopyStr(CreateGuid, 2, 20));
+        CompanyContact.Validate(Name, CopyStr(CreateGuid(), 2, 20));
         CompanyContact.Modify();
         LibraryVariableStorage.Enqueue(CompanyContact."Company Name");
 
         // [WHEN] Outlook Mail Engine shows new contact dialog page
-        OfficeNewContactDlg.Trap;
+        OfficeNewContactDlg.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // User chooses to create contact (ContactDetailsDlgHandlerAssociateToCompany)
-        ContactCard.Trap;
-        asserterror OfficeNewContactDlg.NewPersonContact.DrillDown;
+        ContactCard.Trap();
+        asserterror OfficeNewContactDlg.NewPersonContact.DrillDown();
 
         // [THEN] Create New Contact card is opened (ContactDetailsDlgHandlerAssociateToCompany page handler)
         ContactCard."E-Mail".AssertEquals(TestEmail);
@@ -288,16 +288,16 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] New email is created but not assigned to contact
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         OfficeAddinContext.SetRange(Email, TestEmail);
 
         // [WHEN] Outlook Mail Engine shows new contact dialog page
-        OfficeNewContactDlg.Trap;
+        OfficeNewContactDlg.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // User chooses to create contact as company (ContactDetailsDlgHandlerNoAssociateToCompany)
         // [WHEN] User sets the type to company
-        asserterror OfficeNewContactDlg.NewPersonContact.DrillDown;
+        asserterror OfficeNewContactDlg.NewPersonContact.DrillDown();
 
         // [THEN] Associate to company and company name fields are disabled
     end;
@@ -326,7 +326,7 @@ codeunit 139048 "SMB Office Pages"
 
         // [WHEN] Outlook add-in is opened for the contact email address
         OfficeAddinContext.SetRange(Email, TestEmail);
-        ContactCard.Trap;
+        ContactCard.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] The a person contact is opened
@@ -338,8 +338,8 @@ codeunit 139048 "SMB Office Pages"
     procedure ContactDetailsDlgHandlerAssociateToCompany(var OfficeContactDetailsDlg: TestPage "Office Contact Details Dlg")
     begin
         OfficeContactDetailsDlg."Associate to Company".SetValue(true);
-        OfficeContactDetailsDlg."Company Name".SetValue(LibraryVariableStorage.DequeueText);
-        OfficeContactDetailsDlg.OK.Invoke;
+        OfficeContactDetailsDlg."Company Name".SetValue(LibraryVariableStorage.DequeueText());
+        OfficeContactDetailsDlg.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -350,9 +350,9 @@ codeunit 139048 "SMB Office Pages"
     begin
         OfficeContactDetailsDlg.Type.SetValue(DummyContact.Type::Company);
         OfficeContactDetailsDlg."Associate to Company".SetValue(false);
-        Assert.IsFalse(OfficeContactDetailsDlg."Associate to Company".Enabled, 'Associate to company not allowed for company contact.');
-        Assert.IsFalse(OfficeContactDetailsDlg."Company Name".Enabled, 'A company contact can''t be assigned to another company.');
-        OfficeContactDetailsDlg.OK.Invoke;
+        Assert.IsFalse(OfficeContactDetailsDlg."Associate to Company".Enabled(), 'Associate to company not allowed for company contact.');
+        Assert.IsFalse(OfficeContactDetailsDlg."Company Name".Enabled(), 'A company contact can''t be assigned to another company.');
+        OfficeContactDetailsDlg.OK().Invoke();
     end;
 
     [Test]
@@ -373,7 +373,7 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] New email is created but not assigned to contact
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         OfficeAddinContext.SetRange(Email, TestEmail);
 
         // [GIVEN] Several company contacts exist
@@ -382,7 +382,7 @@ codeunit 139048 "SMB Office Pages"
 
         // [WHEN] Outlook Mail Engine shows dialog page
         // User chooses to create contact (OfficeContactDlgHandlerCreateCompanyContact)
-        ContactCard.Trap;
+        ContactCard.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // [WHEN] Company No. is changed on the contact
@@ -410,14 +410,14 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] New email is created but not assigned to contact
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         OfficeAddinContext.SetRange(Email, TestEmail);
         OfficeAddinContext.SetRange(Name, TestEmail);
 
         // [WHEN] Outlook Mail Engine shows the OfficeNewContactDlg page
         // [WHEN] User clicks the field to show the contact list (OfficeContactDlgHandlerShowList)
         LibraryVariableStorage.Enqueue(TestEmail);
-        ContactList.Trap;
+        ContactList.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] Verify the page was open
@@ -451,7 +451,7 @@ codeunit 139048 "SMB Office Pages"
 
         // [WHEN] Outlook add-in is opened in the context of the given email address.
         OfficeAddinContext.SetRange(Email, TestEmail);
-        ContactCard.Trap;
+        ContactCard.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] The contact card for the person contact is opened.
@@ -486,7 +486,7 @@ codeunit 139048 "SMB Office Pages"
         OfficeAddinContext.SetRange(Email, TestEmail);
 
         // [THEN] Contact card is opened for associated email
-        ContactCard.Trap;
+        ContactCard.Trap();
         RunMailEngine(OfficeAddinContext);
         ContactCard."E-Mail".AssertEquals(TestEmail);
     end;
@@ -507,7 +507,7 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] New contact with email is created and assigned to customer
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         LibraryVariableStorage.Enqueue(CreateContactFromCustomer(TestEmail, ContactNo, NewBusRelCode, true));
 
         // [WHEN] Outlook Main Engine finds email and contact/customer it is assigned to
@@ -536,7 +536,7 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] New contact with email is created and assigned to vendor
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         LibraryVariableStorage.Enqueue(CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode, true));
 
         // [WHEN] Outlook Main Engine finds email and contact/vendor it is assigned to
@@ -565,7 +565,7 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] New contact with email is created and assigned to customer
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         CreateContactFromCustomer(TestEmail, ContactNo, NewBusRelCode, true);
         LibraryVariableStorage.Enqueue(true);
 
@@ -595,7 +595,7 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] New contact with email is created and assigned to vendor
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode, true);
         LibraryVariableStorage.Enqueue(true);
 
@@ -624,10 +624,10 @@ codeunit 139048 "SMB Office Pages"
         // [SCENARIO 147177] Stan cannot view customer fact box information on customer in NAV
         // Setup
         Initialize();
-        SetOfficeHostUnAvailable;
+        SetOfficeHostUnAvailable();
 
         // [GIVEN] New contact with email is created and assigned to customer
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         CustomerNo := CreateContactFromCustomer(TestEmail, ContactNo, NewBusRelCode, true);
         LibraryVariableStorage.Enqueue(false);
 
@@ -656,10 +656,10 @@ codeunit 139048 "SMB Office Pages"
         // [SCENARIO 147178] Stan cannot view vendor information on Vendor card in NAV
         // Setup
         Initialize();
-        SetOfficeHostUnAvailable;
+        SetOfficeHostUnAvailable();
 
         // [GIVEN] New contact with email is created and assigned to vendor
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         VendorNo := CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode, true);
         LibraryVariableStorage.Enqueue(false);
 
@@ -691,7 +691,7 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] New contact with email is created and assigned to customer and vendor
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         CreateContactFromCustomer(TestEmail, CustContactNo, NewCustBusRelCode, true);
         CreateContactFromVendor(TestEmail, VendContactNo, NewVendBusRelCode, true);
 
@@ -725,7 +725,7 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] New contact with email is created/assigned to customer and vendor and que customer zoom info
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         CustomerNo := CreateContactFromCustomer(TestEmail, CustContactNo, NewCustBusRelCode, true);
         CreateContactFromVendor(TestEmail, VendContactNo, NewVendBusRelCode, true);
         LibraryVariableStorage.Enqueue(CustomerNo);
@@ -761,7 +761,7 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] New contact with email is created/assigned to customer and vendor and que vendor zoom info
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         CreateContactFromCustomer(TestEmail, CustContactNo, NewCustBusRelCode, true);
         VendorNo := CreateContactFromVendor(TestEmail, VendContactNo, NewVendBusRelCode, true);
         LibraryVariableStorage.Enqueue(VendorNo);
@@ -801,7 +801,7 @@ codeunit 139048 "SMB Office Pages"
         for i := 1 to RecRef.FieldCount do begin
             FieldRef := RecRef.FieldIndex(i);
             if FieldRef.Type <> FieldType::Option then begin
-                FieldValue := CopyStr(CreateGuid, 1, FieldRef.Length);
+                FieldValue := CopyStr(CreateGuid(), 1, FieldRef.Length);
                 LibraryVariableStorage.Enqueue(FieldValue);
             end else begin
                 OptionValue := Random(2);
@@ -816,7 +816,7 @@ codeunit 139048 "SMB Office Pages"
         OfficeAddinContext.SetRange(Version, OfficeAddin.Version);
 
         // Exercise
-        OfficeNewContactDlg.Trap;
+        OfficeNewContactDlg.Trap();
         RunMailEngine(OfficeAddinContext);
         OfficeManagement.GetContext(NewOfficeAddinContext);
 
@@ -826,7 +826,7 @@ codeunit 139048 "SMB Office Pages"
         RecRef.GetTable(NewOfficeAddinContext);
         for i := 1 to RecRef.FieldCount do begin
             FieldRef := RecRef.FieldIndex(i);
-            Assert.AreEqual(LibraryVariableStorage.DequeueText, Format(FieldRef.Value), 'Unexpected value.');
+            Assert.AreEqual(LibraryVariableStorage.DequeueText(), Format(FieldRef.Value), 'Unexpected value.');
         end;
     end;
 
@@ -840,7 +840,7 @@ codeunit 139048 "SMB Office Pages"
         // [SCENARIO 144958] Stan can select a contact to interact with from the add-in
         // [GIVEN] No contact is selected
         Initialize();
-        ContactList.Trap;
+        ContactList.Trap();
 
         // [WHEN] User launches the add-in
         RunMailEngine(OfficeAddinContext);
@@ -868,16 +868,16 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] A customer exists with an email address
-        Email := RandomEmail;
+        Email := RandomEmail();
         CustomerNo := CreateContactFromCustomer(Email, SelectedNo, NewBusRelCode, false);
 
         // [WHEN] User launches the add-in
-        ContactList.Trap;
+        ContactList.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // [WHEN] User selects the contact from the list
         ContactList.FILTER.SetFilter("No.", SelectedNo);
-        ContactList.First;
+        ContactList.First();
         SelectedContact.Get(SelectedNo);
 
         // [THEN] Contact is added to the recipient line in Outlook
@@ -887,7 +887,7 @@ codeunit 139048 "SMB Office Pages"
         LibraryVariableStorage.Enqueue('');
 
         // [THEN] Customer card is opened for the selected contact
-        CustomerCard.Trap;
+        CustomerCard.Trap();
         ContactList.Close();
         CustomerCard."No.".AssertEquals(CustomerNo);
     end;
@@ -907,11 +907,11 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] Both a customer and vendor company exist
-        CreateContactFromCustomer(RandomEmail, CustomerContactNo, NewBusRelCode, false);
-        CreateContactFromVendor(RandomEmail, VendorContactNo, NewBusRelCode, false);
+        CreateContactFromCustomer(RandomEmail(), CustomerContactNo, NewBusRelCode, false);
+        CreateContactFromVendor(RandomEmail(), VendorContactNo, NewBusRelCode, false);
 
         // [WHEN] User launches the add-in for a sales command
-        ContactList.Trap;
+        ContactList.Trap();
         OfficeAddinContext.SetRange(Command, CommandType.NewSalesInvoice);
         RunMailEngine(OfficeAddinContext);
 
@@ -920,7 +920,7 @@ codeunit 139048 "SMB Office Pages"
 
         // [THEN] The customer does appear in the list to choose from
         Assert.IsTrue(ContactList.FindFirstField("No.", CustomerContactNo), 'Customer should be in contact list.');
-        SetOfficeHostUnAvailable;
+        SetOfficeHostUnAvailable();
         ContactList.Close();
     end;
 
@@ -939,11 +939,11 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] Both a customer and vendor company exist
-        CreateContactFromVendor(RandomEmail, VendorContactNo, NewBusRelCode, false);
-        CreateContactFromCustomer(RandomEmail, CustomerContactNo, NewBusRelCode, false);
+        CreateContactFromVendor(RandomEmail(), VendorContactNo, NewBusRelCode, false);
+        CreateContactFromCustomer(RandomEmail(), CustomerContactNo, NewBusRelCode, false);
 
         // [WHEN] User launches the add-in for a purchase command
-        ContactList.Trap;
+        ContactList.Trap();
         OfficeAddinContext.SetRange(Command, CommandType.NewPurchaseInvoice);
         RunMailEngine(OfficeAddinContext);
 
@@ -952,7 +952,7 @@ codeunit 139048 "SMB Office Pages"
 
         // [THEN] The customer does not appear in the list to choose from
         Assert.IsFalse(ContactList.FindFirstField("No.", CustomerContactNo), 'Customer should not be in contact list.');
-        SetOfficeHostUnAvailable;
+        SetOfficeHostUnAvailable();
         ContactList.Close();
     end;
 
@@ -971,11 +971,11 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] Both a customer and vendor company exist
-        CreateContactFromVendor(RandomEmail, VendorContactNo, NewBusRelCode, false);
-        CreateContactFromCustomer(RandomEmail, CustomerContactNo, NewBusRelCode, false);
+        CreateContactFromVendor(RandomEmail(), VendorContactNo, NewBusRelCode, false);
+        CreateContactFromCustomer(RandomEmail(), CustomerContactNo, NewBusRelCode, false);
 
         // [WHEN] User launches the add-in from an appointment with a duration
-        ContactList.Trap;
+        ContactList.Trap();
         OfficeAddinContext.SetRange(Duration, '5');
         OfficeAddinContext.SetRange("Item Type", OfficeAddinContext."Item Type"::Appointment);
         RunMailEngine(OfficeAddinContext);
@@ -985,7 +985,7 @@ codeunit 139048 "SMB Office Pages"
 
         // [THEN] The customer does appear in the list to choose from
         Assert.IsTrue(ContactList.FindFirstField("No.", CustomerContactNo), 'Customer should be in contact list.');
-        SetOfficeHostUnAvailable;
+        SetOfficeHostUnAvailable();
         ContactList.Close();
     end;
 
@@ -1001,11 +1001,11 @@ codeunit 139048 "SMB Office Pages"
 
         // Setup
         Initialize();
-        OfficeAddinContext.SetFilter(Email, CreateGuid);
+        OfficeAddinContext.SetFilter(Email, CreateGuid());
         OfficeAddinContext.SetFilter(Name, '''&Jones123&%5''');
 
         // Exercise
-        OfficeNewContactDlg.Trap;
+        OfficeNewContactDlg.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // Verify
@@ -1025,11 +1025,11 @@ codeunit 139048 "SMB Office Pages"
 
         // Setup
         Initialize();
-        OfficeAddinContext.SetFilter(Email, CreateGuid);
+        OfficeAddinContext.SetFilter(Email, CreateGuid());
         OfficeAddinContext.SetFilter(Name, '''John Smith''');
 
         // Exercise
-        OfficeNewContactDlg.Trap;
+        OfficeNewContactDlg.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // Verify
@@ -1049,11 +1049,11 @@ codeunit 139048 "SMB Office Pages"
 
         // Setup
         Initialize();
-        OfficeAddinContext.SetFilter(Email, CreateGuid);
+        OfficeAddinContext.SetFilter(Email, CreateGuid());
         OfficeAddinContext.SetFilter(Name, 'John Smith');
 
         // Exercise
-        OfficeNewContactDlg.Trap;
+        OfficeNewContactDlg.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // Verify
@@ -1077,18 +1077,18 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] New contact with email is created and assigned to vendor
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode, true);
 
         // [WHEN] Outlook Main Engine finds email and contact/vendor it is assigned to
         OfficeAddinContext.SetRange(Email, TestEmail);
 
-        Vendor.Trap;
+        Vendor.Trap();
         // [THEN] Vendor card is opened for associated email
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] Contact action is visible
-        Assert.IsTrue(Vendor.ContactBtn.Visible, 'Contact button should be visible.');
+        Assert.IsTrue(Vendor.ContactBtn.Visible(), 'Contact button should be visible.');
     end;
 
     [Test]
@@ -1105,20 +1105,20 @@ codeunit 139048 "SMB Office Pages"
     begin
         // [FEATURE] [Contact] [Vendor]
         // [SCENARIO 159886] Stan can click on Contact from the vendor with no office managment setup which opens Contact List
-        SetOfficeHostUnAvailable;
+        SetOfficeHostUnAvailable();
 
         // [GIVEN] New contact with email is created and assigned to customer
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         VendorNo := CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode, true);
 
         // [GIVEN] Vendor card is opened
-        VendorCard.Trap;
+        VendorCard.Trap();
         Vendor.Get(VendorNo);
         PAGE.Run(PAGE::"Vendor Card", Vendor);
 
         // [WHEN] Contact action is invoked on Vendor card
-        ContactList.Trap;
-        VendorCard.ContactBtn.Invoke;
+        ContactList.Trap();
+        VendorCard.ContactBtn.Invoke();
 
         // [THEN] The contact list is opened
         ContactList."No.".AssertEquals(ContactNo);
@@ -1156,12 +1156,12 @@ codeunit 139048 "SMB Office Pages"
 
         // [WHEN] Outlook add-in is opened for the contact email address
         OfficeAddinContext.SetRange(Email, TestEmail);
-        VendorCard.Trap;
+        VendorCard.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // [WHEN] User invokes the Contact action
-        ContactList.Trap;
-        VendorCard.ContactBtn.Invoke;
+        ContactList.Trap();
+        VendorCard.ContactBtn.Invoke();
 
         // [THEN] The contact list is opened
         Assert.IsTrue(ContactList.GotoKey(ContactNo), 'Contact is not present on the list');
@@ -1186,16 +1186,16 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] New contact with email is created and assigned to vendor
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         CreateContactFromVendor(TestEmail, ContactNo, NewBusRelCode, true);
         OfficeAddinContext.SetRange(Email, TestEmail);
 
-        VendorPage.Trap;
+        VendorPage.Trap();
         // [WHEN] Vendor card is opened for associated email
         RunMailEngine(OfficeAddinContext);
 
-        Contact.Trap;
-        VendorPage.ContactBtn.Invoke;
+        Contact.Trap();
+        VendorPage.ContactBtn.Invoke();
 
         // [THEN] Contact Page is opened
         Contact."No.".AssertEquals(ContactNo);
@@ -1218,16 +1218,16 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] New contact with email is created and assigned to customer
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         CustomerNo := CreateContactFromCustomer(TestEmail, ContactNo, NewBusRelCode, true);
 
         // [WHEN] Customer is opened on Customer Card
-        CustomerPage.Trap;
+        CustomerPage.Trap();
         Customer.Get(CustomerNo);
         PAGE.Run(PAGE::"Customer Card", Customer);
 
         // [THEN] Contact action is visible
-        Assert.IsTrue(CustomerPage.Contact.Visible, 'Contact button should be visible.');
+        Assert.IsTrue(CustomerPage.Contact.Visible(), 'Contact button should be visible.');
     end;
 
     [Test]
@@ -1244,20 +1244,20 @@ codeunit 139048 "SMB Office Pages"
     begin
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 159886] Stan can click on Contact from the customer with no office managment setup which opens Contact List
-        SetOfficeHostUnAvailable;
+        SetOfficeHostUnAvailable();
 
         // [GIVEN] New contact with email is created and assigned to customer
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         CustomerNo := CreateContactFromCustomer(TestEmail, ContactNo, NewBusRelCode, true);
         LibraryVariableStorage.Enqueue(false);
 
-        CustomerPage.Trap;
+        CustomerPage.Trap();
         Customer.Get(CustomerNo);
         PAGE.Run(PAGE::"Customer Card", Customer);
 
-        ContactList.Trap;
+        ContactList.Trap();
         // [WHEN] Contact List is opened from the Customer Card
-        CustomerPage.Contact.Invoke;
+        CustomerPage.Contact.Invoke();
 
         // [THEN] Verify the Contact List was open
         ContactList."No.".AssertEquals(ContactNo);
@@ -1296,12 +1296,12 @@ codeunit 139048 "SMB Office Pages"
 
         // [WHEN] Outlook add-in is opened for the contact email address
         OfficeAddinContext.SetRange(Email, TestEmail);
-        CustomerCard.Trap;
+        CustomerCard.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // [WHEN] User invokes the Contact action
-        ContactList.Trap;
-        CustomerCard.Contact.Invoke;
+        ContactList.Trap();
+        CustomerCard.Contact.Invoke();
 
         // [THEN] The contact list is opened
         Assert.IsTrue(ContactList.GotoKey(ContactNo), 'Contact is not present on the list');
@@ -1326,16 +1326,16 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] New contact with email is created and assigned to customer
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         CreateContactFromCustomer(TestEmail, ContactNo, NewBusRelCode, true);
         OfficeAddinContext.SetFilter(Email, '=%1', TestEmail);
 
-        CustomerPage.Trap;
+        CustomerPage.Trap();
         // [WHEN] Customer card is opened for associated email
         RunMailEngine(OfficeAddinContext);
 
-        Contact.Trap;
-        CustomerPage.Contact.Invoke;
+        Contact.Trap();
+        CustomerPage.Contact.Invoke();
 
         // [THEN] Contact Page is opened
         Contact."No.".AssertEquals(ContactNo);
@@ -1359,7 +1359,7 @@ codeunit 139048 "SMB Office Pages"
         OfficeManagement: Codeunit "Office Management";
     begin
         InitializeWithHostType(HostType);
-        Assert.AreEqual(Expected, OfficeManagement.AttachAvailable, StrSubstNo(AttachAvailableErr, HostType));
+        Assert.AreEqual(Expected, OfficeManagement.AttachAvailable(), StrSubstNo(AttachAvailableErr, HostType));
     end;
 
     [Test]
@@ -1377,11 +1377,9 @@ codeunit 139048 "SMB Office Pages"
     var
         TempBlob: Codeunit "Temp Blob";
         Base64Convert: Codeunit "Base64 Convert";
-        FileMgt: Codeunit "File Management";
         OfficeManagement: Codeunit "Office Management";
         InStream: InStream;
         OutStream: OutStream;
-        ServerPath: Text;
         FileName: Text;
         FileContents: Text;
         EmailBody: Text;
@@ -1390,7 +1388,7 @@ codeunit 139048 "SMB Office Pages"
         InitializeWithHostType(HostType);
 
         // Generate a random file
-        FileName := StrSubstNo('%1.txt', CreateGuid);
+        FileName := StrSubstNo('%1.txt', CreateGuid());
         TempBlob.CreateOutStream(OutStream);
         OutStream.WriteText(Format(CreateGuid()));
         TempBlob.CreateInStream(InStream);
@@ -1400,9 +1398,8 @@ codeunit 139048 "SMB Office Pages"
         else
             FileContents := Base64Convert.ToBase64(InStream);
 
-        // Store the file on the server
-        ServerPath := FileMgt.ServerTempFileName('txt');
-        FileMgt.BLOBExportToServerFile(TempBlob, ServerPath);
+        // Get Stream to attach
+        TempBlob.CreateInStream(InStream);
 
         // Generate email body text
         EmailBody := CreateGuid();
@@ -1413,7 +1410,7 @@ codeunit 139048 "SMB Office Pages"
         LibraryVariableStorage.Enqueue(FileName);
         LibraryVariableStorage.Enqueue(EmailBody);
         LibraryVariableStorage.Enqueue(Subject);
-        OfficeManagement.AttachDocument(ServerPath, FileName, EmailBody, Subject);
+        OfficeManagement.AttachDocument(InStream, FileName, EmailBody, Subject);
     end;
 
     [Test]
@@ -1426,7 +1423,7 @@ codeunit 139048 "SMB Office Pages"
     begin
         // Setup
         ErrorText := CreateGuid();
-        OfficeErrorDlg.Trap;
+        OfficeErrorDlg.Trap();
 
         // Exercise
         OfficeErrorEngine.ShowError(ErrorText);
@@ -1457,7 +1454,7 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] A customer exists
-        CustomerNo := CreateContactFromCustomer(RandomEmail, CustomerContactNo, NewBusRelCode, true);
+        CustomerNo := CreateContactFromCustomer(RandomEmail(), CustomerContactNo, NewBusRelCode, true);
         CreateContact(Contact1, Contact1.Type::Person);
         Contact2Email := CreateContact(Contact2, Contact2.Type::Person);
 
@@ -1480,12 +1477,12 @@ codeunit 139048 "SMB Office Pages"
 
         // [WHEN] Office add-in is ran with the email address of contact2
         OfficeAddinContext.SetRange(Email, Contact2Email);
-        CustomerCard.Trap;
+        CustomerCard.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // [WHEN] The user chooses to create a new sales quote for the customer
-        SalesQuote.Trap;
-        CustomerCard.NewSalesQuote.Invoke;
+        SalesQuote.Trap();
+        CustomerCard.NewSalesQuote.Invoke();
 
         // [THEN] The sales quote contact information is set to contact2
         SalesQuote."Sell-to Contact".AssertEquals(Contact2.Name);
@@ -1515,7 +1512,7 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] A vendor exists
-        VendorNo := CreateContactFromVendor(RandomEmail, VendorContactNo, NewBusRelCode, true);
+        VendorNo := CreateContactFromVendor(RandomEmail(), VendorContactNo, NewBusRelCode, true);
         CreateContact(Contact1, Contact1.Type::Person);
         Contact2Email := CreateContact(Contact2, Contact2.Type::Person);
 
@@ -1538,12 +1535,12 @@ codeunit 139048 "SMB Office Pages"
 
         // [WHEN] Office add-in is ran with the email address of contact2
         OfficeAddinContext.SetRange(Email, Contact2Email);
-        VendorCard.Trap;
+        VendorCard.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // [WHEN] The user chooses to create a new purchase invoice for the vendor
-        PurchaseInvoice.Trap;
-        VendorCard.NewPurchaseInvoice.Invoke;
+        PurchaseInvoice.Trap();
+        VendorCard.NewPurchaseInvoice.Invoke();
 
         // [THEN] The purchase invoice contact information is set to contact2
         PurchaseInvoice."Buy-from Contact".AssertEquals(Contact2.Name);
@@ -1619,8 +1616,8 @@ codeunit 139048 "SMB Office Pages"
         CreateOfficeInvoiceRecord(CustomerCard."No.".Value, ItemId, SalesHeader);
 
         // [WHEN] New invoice action is invoked
-        OfficeInvoiceSelection.Trap;
-        CustomerCard.NewSalesInvoice.Invoke;
+        OfficeInvoiceSelection.Trap();
+        CustomerCard.NewSalesInvoice.Invoke();
 
         // [THEN] Office invoice selection page is shown
         OfficeInvoiceSelection."No.".AssertEquals(SalesHeader."No.");
@@ -1646,7 +1643,7 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] Customer exists with email address
-        CustEmail := RandomEmail;
+        CustEmail := RandomEmail();
         CustNo := CreateContactFromCustomer(CustEmail, CustContactNo, NewBusRelCode, false);
 
         // [GIVEN] Office invoice record exists for the appointment
@@ -1660,8 +1657,8 @@ codeunit 139048 "SMB Office Pages"
         OfficeAddinContext.SetRange("Item Type", OfficeAddinContext."Item Type"::Appointment);
         OfficeAddinContext.SetRange(Command, CommandType.NewSalesInvoice);
 
-        OfficeInvoiceSelection.Trap;
-        CustomerCard.Trap;
+        OfficeInvoiceSelection.Trap();
+        CustomerCard.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] Office invoice selection page is shown
@@ -1692,12 +1689,12 @@ codeunit 139048 "SMB Office Pages"
         CreateOfficeInvoiceRecord(CustomerCard."No.".Value, ItemId, SalesHeader);
 
         // [WHEN] New invoice action is invoked
-        OfficeInvoiceSelection.Trap;
-        CustomerCard.NewSalesInvoice.Invoke;
+        OfficeInvoiceSelection.Trap();
+        CustomerCard.NewSalesInvoice.Invoke();
 
         // [WHEN] Create new invoice link is clicked on the page
-        SalesInvoice.Trap;
-        asserterror OfficeInvoiceSelection.NewInvoice.DrillDown; // Need asserterror because this action causes the page to close.
+        SalesInvoice.Trap();
+        asserterror OfficeInvoiceSelection.NewInvoice.DrillDown(); // Need asserterror because this action causes the page to close.
 
         // [THEN] New invoice is created for the customer
         SalesInvoice.Control1900316107."No.".AssertEquals(CustomerCard."No.".Value);
@@ -1726,12 +1723,12 @@ codeunit 139048 "SMB Office Pages"
         CreateOfficeInvoiceRecord(CustomerCard."No.".Value, ItemId, SalesHeader);
 
         // [WHEN] New invoice action is invoked
-        OfficeInvoiceSelection.Trap;
-        CustomerCard.NewSalesInvoice.Invoke;
+        OfficeInvoiceSelection.Trap();
+        CustomerCard.NewSalesInvoice.Invoke();
 
         // [WHEN] "No." field is clicked on the page to drill into that invoice
-        SalesInvoice.Trap;
-        OfficeInvoiceSelection."No.".DrillDown;
+        SalesInvoice.Trap();
+        OfficeInvoiceSelection."No.".DrillDown();
 
         // [THEN] The correct sales invoice is opened
         SalesInvoice."No.".AssertEquals(SalesHeader."No.");
@@ -1760,13 +1757,13 @@ codeunit 139048 "SMB Office Pages"
         OfficeInvoice.Insert(true);
 
         // [WHEN] New invoice action is invoked
-        OfficeInvoiceSelection.Trap;
+        OfficeInvoiceSelection.Trap();
         PAGE.Run(PAGE::"Office Invoice Selection", OfficeInvoice);
 
         // [WHEN] "No." field is clicked on the page to drill into that posted invoice
-        PostedSalesInvoice.Trap;
-        InvoiceNo := OfficeInvoiceSelection."No.".Value;
-        OfficeInvoiceSelection."No.".DrillDown;
+        PostedSalesInvoice.Trap();
+        InvoiceNo := OfficeInvoiceSelection."No.".Value();
+        OfficeInvoiceSelection."No.".DrillDown();
 
         // [THEN] The correct posted sales invoice is opened
         PostedSalesInvoice."No.".AssertEquals(InvoiceNo);
@@ -1794,8 +1791,8 @@ codeunit 139048 "SMB Office Pages"
     begin
         RunWithCustomer(CustomerCard, ItemId, CustEmail, IsAppointment);
 
-        SalesInvoice.Trap;
-        CustomerCard.NewSalesInvoice.Invoke;
+        SalesInvoice.Trap();
+        CustomerCard.NewSalesInvoice.Invoke();
         SalesInvoice.Status.SetValue(0);
     end;
 
@@ -1805,7 +1802,7 @@ codeunit 139048 "SMB Office Pages"
         CustContactNo: Code[20];
         NewBusRelCode: Code[10];
     begin
-        CustEmail := RandomEmail;
+        CustEmail := RandomEmail();
         CreateContactFromCustomer(CustEmail, CustContactNo, NewBusRelCode, false);
 
         if ItemId = '' then
@@ -1818,7 +1815,7 @@ codeunit 139048 "SMB Office Pages"
         end;
         OfficeAddinContext.SetRange(Email, CustEmail);
 
-        CustomerCard.Trap;
+        CustomerCard.Trap();
         RunMailEngine(OfficeAddinContext);
     end;
 
@@ -1832,7 +1829,7 @@ codeunit 139048 "SMB Office Pages"
         AddinManifestManagement.GetAddinByHostType(OfficeAddin, OfficeHostType.OutlookItemRead);
         OfficeAddinContext.SetRange(Version, OfficeAddin.Version);
 
-        OutlookMailEngine.Trap;
+        OutlookMailEngine.Trap();
         PAGE.Run(PAGE::"Outlook Mail Engine", OfficeAddinContext);
     end;
 
@@ -1852,11 +1849,11 @@ codeunit 139048 "SMB Office Pages"
         ExtractComponent(Message, ActualEmailBody);
         ActualSubject := Message;
 
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, ActualAction, 'Incorrect JavaScript action called from C/AL.');
-        Assert.AreEqual(1, StrPos(FileUrl, LibraryVariableStorage.DequeueText), 'Unexpected file content passed to JS function.');
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, ActualFileName, 'Unexpected file name passed to JS function.');
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, ActualEmailBody, 'Unexpected email body passed to JS function.');
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, ActualSubject, 'Unexpected subject passed to JS function.');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), ActualAction, 'Incorrect JavaScript action called from C/AL.');
+        Assert.AreEqual(1, StrPos(FileUrl, LibraryVariableStorage.DequeueText()), 'Unexpected file content passed to JS function.');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), ActualFileName, 'Unexpected file name passed to JS function.');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), ActualEmailBody, 'Unexpected email body passed to JS function.');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), ActualSubject, 'Unexpected subject passed to JS function.');
     end;
 
     [MessageHandler]
@@ -1871,9 +1868,9 @@ codeunit 139048 "SMB Office Pages"
         ExtractComponent(Message, ContactName);
         ExtractComponent(Message, Email);
 
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, ActualAction, 'Incorrect JavaScript action called from C/AL.');
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, Email, 'Unexpected email passed to JS function.');
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, ContactName, 'Unexpected contact name passed to JS function.');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), ActualAction, 'Incorrect JavaScript action called from C/AL.');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), Email, 'Unexpected email passed to JS function.');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), ContactName, 'Unexpected contact name passed to JS function.');
     end;
 
     [Scope('OnPrem')]
@@ -1901,14 +1898,14 @@ codeunit 139048 "SMB Office Pages"
     [Scope('OnPrem')]
     procedure SingleCustomerEngineHandler(var CustomerCard: TestPage "Customer Card")
     begin
-        CustomerCard."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+        CustomerCard."No.".AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure SingleVendorEngineHandler(var VendorCard: TestPage "Vendor Card")
     begin
-        VendorCard."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+        VendorCard."No.".AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 
     [PageHandler]
@@ -1918,7 +1915,7 @@ codeunit 139048 "SMB Office Pages"
         OfficeManagement: Codeunit "Office Management";
     begin
         Assert.AreEqual(
-          LibraryVariableStorage.DequeueBoolean, OfficeManagement.IsAvailable, 'Customer Fact Boxes visible property not correct');
+          LibraryVariableStorage.DequeueBoolean(), OfficeManagement.IsAvailable(), 'Customer Fact Boxes visible property not correct');
     end;
 
     [PageHandler]
@@ -1928,14 +1925,14 @@ codeunit 139048 "SMB Office Pages"
         OfficeManagement: Codeunit "Office Management";
     begin
         Assert.AreEqual(
-          LibraryVariableStorage.DequeueBoolean, OfficeManagement.IsAvailable, 'Vendor Fact Boxes visible property not correct');
+          LibraryVariableStorage.DequeueBoolean(), OfficeManagement.IsAvailable(), 'Vendor Fact Boxes visible property not correct');
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure ContactPageHandler(var ContactCard: TestPage "Contact Card")
     begin
-        ContactCard."E-Mail".AssertEquals(LibraryVariableStorage.DequeueText);
+        ContactCard."E-Mail".AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 
     [PageHandler]
@@ -1953,7 +1950,7 @@ codeunit 139048 "SMB Office Pages"
     begin
         LibraryVariableStorage.Dequeue(LinkNo);
         OfficeContactAssociations.FindFirstField("No.", LinkNo);
-        OfficeContactAssociations."Customer/Vendor".Invoke;
+        OfficeContactAssociations."Customer/Vendor".Invoke();
         OfficeContactAssociations.Close();
     end;
 
@@ -1962,7 +1959,7 @@ codeunit 139048 "SMB Office Pages"
     procedure ContactDetailsDlgHandler(var OfficeContactDetailsDlg: TestPage "Office Contact Details Dlg")
     begin
         OfficeContactDetailsDlg."Associate to Company".SetValue(false);
-        OfficeContactDetailsDlg.OK.Invoke;
+        OfficeContactDetailsDlg.OK().Invoke();
     end;
 
     [Scope('OnPrem')]
@@ -2100,7 +2097,7 @@ codeunit 139048 "SMB Office Pages"
         OfficeHost: DotNet OfficeHost;
     begin
         OfficeAddinContext.DeleteAll();
-        SetOfficeHostUnAvailable;
+        SetOfficeHostUnAvailable();
         SetOfficeHostProvider(CODEUNIT::"Library - Office Host Provider");
         OfficeManagement.InitializeHost(OfficeHost, HostType);
     end;
@@ -2110,7 +2107,7 @@ codeunit 139048 "SMB Office Pages"
         NameValueBuffer: Record "Name/Value Buffer";
     begin
         // Test Providers checks whether we have registered Host in NameValueBuffer or not
-        if NameValueBuffer.Get(SessionId) then begin
+        if NameValueBuffer.Get(SessionId()) then begin
             NameValueBuffer.Delete();
             Commit();
         end;
@@ -2118,7 +2115,7 @@ codeunit 139048 "SMB Office Pages"
 
     local procedure RandomEmail(): Text[80]
     begin
-        exit(StrSubstNo('%1@%2', CreateGuid, 'example.com'));
+        exit(StrSubstNo('%1@%2', CreateGuid(), 'example.com'));
     end;
 
     local procedure CreateContact(var Contact: Record Contact; Type: Enum "Contact Type"): Text[80]
@@ -2133,7 +2130,7 @@ codeunit 139048 "SMB Office Pages"
         Contact.Insert(true);
         Contact.Validate(Name, Contact."No.");  // Validating Name as No. because value is not important.
         Contact.Validate("Salesperson Code", SalespersonPurchaser.Code);
-        Contact.Validate("E-Mail", RandomEmail);
+        Contact.Validate("E-Mail", RandomEmail());
         Contact.Modify(true);
         exit(Contact."E-Mail");
     end;
@@ -2147,15 +2144,15 @@ codeunit 139048 "SMB Office Pages"
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Stockout Warning" := false;
         if SalesReceivablesSetup."Blanket Order Nos." = '' then
-            SalesReceivablesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            SalesReceivablesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if SalesReceivablesSetup."Return Order Nos." = '' then
-            SalesReceivablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            SalesReceivablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if SalesReceivablesSetup."Order Nos." = '' then
-            SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if SalesReceivablesSetup."Quote Nos." = '' then
-            SalesReceivablesSetup.Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            SalesReceivablesSetup.Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if SalesReceivablesSetup."Customer Nos." = '' then
-            SalesReceivablesSetup.Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            SalesReceivablesSetup.Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify();
     end;
 
@@ -2167,7 +2164,7 @@ codeunit 139048 "SMB Office Pages"
     begin
         MarketingSetup.Get();
         if MarketingSetup."Contact Nos." = '' then
-            MarketingSetup.Validate("Contact Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            MarketingSetup.Validate("Contact Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         MarketingSetup.Modify();
     end;
 
@@ -2198,22 +2195,22 @@ codeunit 139048 "SMB Office Pages"
     procedure OfficeContactDlgHandlerCreatePersonContact(var OfficeNewContactDlg: TestPage "Office New Contact Dlg")
     begin
         // Creating a new contact closes the dlg page, so we expect an error here.
-        asserterror OfficeNewContactDlg.NewPersonContact.DrillDown;
+        asserterror OfficeNewContactDlg.NewPersonContact.DrillDown();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure OfficeContactDlgHandlerShowList(var OfficeNewContactDlg: TestPage "Office New Contact Dlg")
     begin
-        OfficeNewContactDlg.LinkContact.DrillDown;
+        OfficeNewContactDlg.LinkContact.DrillDown();
     end;
 
     local procedure BindActiveDirectoryMockEvents()
     begin
-        if ActiveDirectoryMockEvents.Enabled then
+        if ActiveDirectoryMockEvents.Enabled() then
             exit;
         BindSubscription(ActiveDirectoryMockEvents);
-        ActiveDirectoryMockEvents.Enable;
+        ActiveDirectoryMockEvents.Enable();
     end;
 }
 

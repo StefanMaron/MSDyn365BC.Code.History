@@ -33,7 +33,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         Initialize();
 
         // [GIVEN] Create and post sales invoice with new customer VAT 18%
-        InvNo := CreateAndPostSalesInvoice(SalesHeader, '', VATLedgerMgt.GetVATPctRate2018, false);
+        InvNo := CreateAndPostSalesInvoice(SalesHeader, '', VATLedgerMgt.GetVATPctRate2018(), false);
 
         // [WHEN] Run report Sales VAT Ledger Export
         RunVATLedgerExportReport(SalesHeader."Sell-to Customer No.", false);
@@ -54,7 +54,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         Initialize();
 
         // [GIVEN] Create and post sales invoice with new customer VAT 20%
-        InvNo := CreateAndPostSalesInvoice(SalesHeader, '', VATLedgerMgt.GetVATPctRate2019, false);
+        InvNo := CreateAndPostSalesInvoice(SalesHeader, '', VATLedgerMgt.GetVATPctRate2019(), false);
 
         // [WHEN] Run report Sales VAT Ledger Export
         RunVATLedgerExportReport(SalesHeader."Sell-to Customer No.", false);
@@ -97,7 +97,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         Initialize();
 
         // [GIVEN] Create and post sales invoice with 3 lines VAT 18%, 10% and 0%
-        InvNo := CreateAndPostSalesInvoiceMultiLines(CustomerNo, '', VATLedgerMgt.GetVATPctRate2018);
+        InvNo := CreateAndPostSalesInvoiceMultiLines(CustomerNo, '', VATLedgerMgt.GetVATPctRate2018());
 
         // [WHEN] Run report Sales VAT Ledger Export
         RunVATLedgerExportReport(CustomerNo, false);
@@ -118,7 +118,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         Initialize();
 
         // [GIVEN] Create and post sales invoice with 3 lines VAT 20%, 10% and 0%
-        InvNo := CreateAndPostSalesInvoiceMultiLines(CustomerNo, '', VATLedgerMgt.GetVATPctRate2019);
+        InvNo := CreateAndPostSalesInvoiceMultiLines(CustomerNo, '', VATLedgerMgt.GetVATPctRate2019());
 
         // [WHEN] Run report Sales VAT Ledger Export
         RunVATLedgerExportReport(CustomerNo, false);
@@ -138,7 +138,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         Initialize();
 
         // [GIVEN] Create and post sales invoice for new customer with currency
-        InvNo := CreateAndPostSalesInvoice(SalesHeader, CreateCurrency(false), VATLedgerMgt.GetVATPctRate2018, false);
+        InvNo := CreateAndPostSalesInvoice(SalesHeader, CreateCurrency(false), VATLedgerMgt.GetVATPctRate2018(), false);
 
         // [WHEN] Run report Sales VAT Ledger Export
         RunVATLedgerExportReport(SalesHeader."Sell-to Customer No.", false);
@@ -159,7 +159,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         Initialize();
 
         // [GIVEN] Create and post sales invoice for new customer with currency
-        InvNo := CreateAndPostSalesInvoice(SalesHeader, CreateCurrency(false), VATLedgerMgt.GetVATPctRate2019, false);
+        InvNo := CreateAndPostSalesInvoice(SalesHeader, CreateCurrency(false), VATLedgerMgt.GetVATPctRate2019(), false);
 
         // [WHEN] Run report Sales VAT Ledger Export
         RunVATLedgerExportReport(SalesHeader."Sell-to Customer No.", false);
@@ -180,7 +180,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
 
         // [GIVEN] Create and post sales invoice "X" for new customer with conventional currency
         // [GIVEN] where "Amount Including VAT (LCY)" = "A", "Amount (LCY)" = "B".
-        InvNo := CreateAndPostSalesInvoice(SalesHeader, CreateCurrency(true), VATLedgerMgt.GetVATPctRate2018, false);
+        InvNo := CreateAndPostSalesInvoice(SalesHeader, CreateCurrency(true), VATLedgerMgt.GetVATPctRate2018(), false);
 
         // [WHEN] Run report Sales VAT Ledger Export
         RunVATLedgerExportReport(SalesHeader."Sell-to Customer No.", false);
@@ -205,7 +205,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
 
         // [GIVEN] Create and post sales invoice "X" for new customer with conventional currency
         // [GIVEN] where "Amount Including VAT (LCY)" = "A", "Amount (LCY)" = "B".
-        InvNo := CreateAndPostSalesInvoice(SalesHeader, CreateCurrency(true), VATLedgerMgt.GetVATPctRate2019, false);
+        InvNo := CreateAndPostSalesInvoice(SalesHeader, CreateCurrency(true), VATLedgerMgt.GetVATPctRate2019(), false);
 
         // [WHEN] Run report Sales VAT Ledger Export
         RunVATLedgerExportReport(SalesHeader."Sell-to Customer No.", false);
@@ -230,7 +230,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
 
         // [GIVEN] Posted Sales Invoice "X" with FCY having Relational Currency Code
         // [GIVEN] where "Amount Including VAT (LCY)" = 118, "Amount (LCY)" = 100
-        InvNo := CreateAndPostSalesInvoice(SalesHeader, CreateCurrWithRelationalCurrCode, VATLedgerMgt.GetVATPctRate2018, false);
+        InvNo := CreateAndPostSalesInvoice(SalesHeader, CreateCurrWithRelationalCurrCode(), VATLedgerMgt.GetVATPctRate2018(), false);
 
         // [WHEN] Run report Sales VAT Ledger Export
         RunVATLedgerExportReport(SalesHeader."Sell-to Customer No.", false);
@@ -255,7 +255,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
 
         // [GIVEN] Posted Sales Invoice "X" with FCY having Relational Currency Code
         // [GIVEN] where "Amount Including VAT (LCY)" = 120, "Amount (LCY)" = 100
-        InvNo := CreateAndPostSalesInvoice(SalesHeader, CreateCurrWithRelationalCurrCode, VATLedgerMgt.GetVATPctRate2019, false);
+        InvNo := CreateAndPostSalesInvoice(SalesHeader, CreateCurrWithRelationalCurrCode(), VATLedgerMgt.GetVATPctRate2019(), false);
 
         // [WHEN] Run report Sales VAT Ledger Export
         RunVATLedgerExportReport(SalesHeader."Sell-to Customer No.", false);
@@ -282,7 +282,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         Initialize();
 
         // [GIVEN] Create new customer
-        VATRate := VATLedgerMgt.GetVATPctRate2019;
+        VATRate := VATLedgerMgt.GetVATPctRate2019();
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATRate);
         CustomerNo := CreateCustomer(VATPostingSetup);
@@ -317,7 +317,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         Initialize();
 
         // [GIVEN] Released Sales Invoice with VAT Base = "A"
-        VATRate := VATLedgerMgt.GetVATPctRate2019;
+        VATRate := VATLedgerMgt.GetVATPctRate2019();
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATRate);
         CustomerNo := CreateCustomer(VATPostingSetup);
@@ -355,7 +355,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         Initialize();
 
         // [GIVEN] Create and post sales invoice with new customer VAT 18%
-        VATRate := VATLedgerMgt.GetVATPctRate2019;
+        VATRate := VATLedgerMgt.GetVATPctRate2019();
         InvNo := CreateAndPostSalesInvoice(SalesHeader, '', VATRate, true);
 
         // [WHEN] Run report Sales VAT Ledger Export
@@ -379,7 +379,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         Initialize();
 
         // [GIVEN] Create and post corrective sales invoice
-        InvNo := CreateAndPostSalesInvoice(SalesHeader, '', VATLedgerMgt.GetVATPctRate2019, false);
+        InvNo := CreateAndPostSalesInvoice(SalesHeader, '', VATLedgerMgt.GetVATPctRate2019(), false);
         CorInvNo := CreatePostCorrSalesInvoice(CorSalesHeader, SalesHeader, InvNo);
 
         // [WHEN] Run report Sales VAT Ledger Export
@@ -403,7 +403,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         Initialize();
 
         // [GIVEN] Create and post revision sales invoice
-        InvNo := CreateAndPostSalesInvoice(SalesHeader, '', VATLedgerMgt.GetVATPctRate2019, false);
+        InvNo := CreateAndPostSalesInvoice(SalesHeader, '', VATLedgerMgt.GetVATPctRate2019(), false);
         RevInvNo := CreatePostRevisionSalesInvoice(RevSalesHeader, SalesHeader, InvNo);
 
         // [WHEN] Run report Sales VAT Ledger Export
@@ -429,7 +429,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         Initialize();
 
         // [GIVEN] Create and post revision sales invoice for correction
-        InvNo := CreateAndPostSalesInvoice(SalesHeader, '', VATLedgerMgt.GetVATPctRate2019, false);
+        InvNo := CreateAndPostSalesInvoice(SalesHeader, '', VATLedgerMgt.GetVATPctRate2019(), false);
         CorInvNo := CreatePostCorrSalesInvoice(CorSalesHeader, SalesHeader, InvNo);
         RevInvNo := CreatePostRevisionSalesInvoice(RevSalesHeader, CorSalesHeader, CorInvNo);
 
@@ -503,7 +503,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         // [FEATURE] [Purchase]
         // [SCENARIO 378466] Payment document no. and date are exported in column 11 in case of VAT Agent payment after manual VAT Settlement
         Initialize();
-        DeleteVATEntriesOnDate(WorkDate() - 1, WorkDate + 1);
+        DeleteVATEntriesOnDate(WorkDate() - 1, WorkDate() + 1);
 
         // [GIVEN] VAT Agent vendor with manual VAT Settlement VAT Posting Setup
         CreatePurchaseInvoiceVendorVATAgent(PurchaseHeader);
@@ -535,7 +535,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         // [FEATURE] [Purchase] [Prepayment]
         // [SCENARIO 378466] Prepayment document no. and date are exported in column 11 in case of VAT Agent prepayment after manual VAT Settlement
         Initialize();
-        DeleteVATEntriesOnDate(WorkDate() - 1, WorkDate + 1);
+        DeleteVATEntriesOnDate(WorkDate() - 1, WorkDate() + 1);
 
         // [GIVEN] VAT Agent vendor with manual VAT Settlement VAT Posting Setup
         CreatePurchaseInvoiceVendorVATAgent(PurchaseHeader);
@@ -565,10 +565,10 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
             exit;
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        UpdateStockOutAndCreditWarnings;
+        UpdateStockOutAndCreditWarnings();
         // "Posted VAT Agent No. Series" is blank in standard DB
         // We need keep the same series for the whole codeunit scope to avoid numbering conflict
-        UpdatePostedVATAgentNoSeriesInPurchSetup(LibraryERM.CreateNoSeriesCode);
+        UpdatePostedVATAgentNoSeriesInPurchSetup(LibraryERM.CreateNoSeriesCode());
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
         SalesReceivablesSetup.Modify();
@@ -600,10 +600,10 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorVATAgent);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorVATAgent());
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandInt(5));
+          LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(5));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(10));
         PurchaseLine.Modify(true);
     end;
@@ -612,7 +612,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
     var
         Currency: Record Currency;
     begin
-        Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates);
+        Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates());
         Currency.Validate(Conventional, IsConventional);
         Currency.Modify(true);
         exit(Currency.Code);
@@ -629,7 +629,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         UpdateVATLedgerLineWithRandomCDNoAndTariffNo(VATLedgerCode, CustomerNo);
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
         LibrarySales.ExportSalesVATLedger(VATLedgerCode, AddSheet, FileName);
     end;
 
@@ -678,8 +678,8 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         Currency: Record Currency;
         RelationalCurrency: Record Currency;
     begin
-        Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates);
-        RelationalCurrency.Get(LibraryERM.CreateCurrencyWithRandomExchRates);
+        Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates());
+        RelationalCurrency.Get(LibraryERM.CreateCurrencyWithRandomExchRates());
         UpdateCurrExchRateWithRelationalCurrCode(Currency.Code, RelationalCurrency.Code);
         exit(Currency.Code);
     end;
@@ -697,11 +697,9 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            FindSet();
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindSet();
     end;
 
     local procedure FormatValue(Value: Decimal): Text
@@ -732,8 +730,8 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
 
     local procedure MockTwoVATLedgerLineCDNos(VATLedgerLine: Record "VAT Ledger Line")
     begin
-        LibraryVATLedger.MockVATLedgerLineCDNo(VATLedgerLine, LibraryVATLedger.GenerateCDNoValue);
-        LibraryVATLedger.MockVATLedgerLineCDNo(VATLedgerLine, LibraryVATLedger.GenerateCDNoValue);
+        LibraryVATLedger.MockVATLedgerLineCDNo(VATLedgerLine, LibraryVATLedger.GenerateCDNoValue());
+        LibraryVATLedger.MockVATLedgerLineCDNo(VATLedgerLine, LibraryVATLedger.GenerateCDNoValue());
     end;
 
     local procedure SalesVATLedgerAddSheetTwoPeriodsScenario(var CustomeNo: Code[20]; var InvNo: array[2] of Code[20])
@@ -742,7 +740,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         VATPostingSetup: Record "VAT Posting Setup";
         VATRate: Decimal;
     begin
-        VATRate := VATLedgerMgt.GetVATPctRate2019;
+        VATRate := VATLedgerMgt.GetVATPctRate2019();
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATRate);
         CustomeNo := CreateCustomer(VATPostingSetup);
@@ -761,10 +759,8 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
 
     local procedure UpdateQuantityInSalesLine(var SalesLine: Record "Sales Line"; Multiplier: Decimal)
     begin
-        with SalesLine do begin
-            Validate("Quantity (After)", Round("Quantity (After)" * Multiplier, 1));
-            Modify(true);
-        end;
+        SalesLine.Validate("Quantity (After)", Round(SalesLine."Quantity (After)" * Multiplier, 1));
+        SalesLine.Modify(true);
     end;
 
     local procedure UpdateCurrExchRateWithRelationalCurrCode(CurrCode: Code[10]; RelationalCurrCode: Code[10])
@@ -781,12 +777,10 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Get();
-            Validate("Credit Warnings", "Credit Warnings"::"No Warning");
-            "Stockout Warning" := false;
-            Modify(true);
-        end;
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Credit Warnings", SalesReceivablesSetup."Credit Warnings"::"No Warning");
+        SalesReceivablesSetup."Stockout Warning" := false;
+        SalesReceivablesSetup.Modify(true);
     end;
 
     local procedure UpdatePostedVATAgentNoSeriesInPurchSetup(SeriesCode: Code[20])
@@ -804,10 +798,8 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
     begin
         LibraryRUReports.FindVATLedgerLine(VATLedgerLine, VATLedgerLine.Type::Sales, VATLedgerCode, CVNo);
         MockTwoVATLedgerLineCDNos(VATLedgerLine);
-        with VATLedgerLine do begin
-            Validate("Tariff No.", LibraryVATLedger.MockTariffNo);
-            Modify(true);
-        end;
+        VATLedgerLine.Validate("Tariff No.", LibraryVATLedger.MockTariffNo());
+        VATLedgerLine.Modify(true);
     end;
 
     local procedure PostAndApplyPurchasePrepayment(var PurchaseHeader: Record "Purchase Header")
@@ -868,16 +860,14 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
     var
         Customer: Record Customer;
     begin
-        with SalesInvHeader do begin
-            Customer.Get("Sell-to Customer No.");
-            VerifyColumn1(RowNo, Format(LineNo));
-            VerifyColumn2(RowNo, "VAT Entry Type");
-            VerifyColumn3(RowNo, "No." + '; ' + Format("Document Date"));
-            VerifyColumn7(RowNo, Customer.Name);
-            VerifyColumn9(RowNo, '');
-            VerifyColumn10(RowNo, '');
-            VerifyColumn12(RowNo, '');
-        end;
+        Customer.Get(SalesInvHeader."Sell-to Customer No.");
+        VerifyColumn1(RowNo, Format(LineNo));
+        VerifyColumn2(RowNo, SalesInvHeader."VAT Entry Type");
+        VerifyColumn3(RowNo, SalesInvHeader."No." + '; ' + Format(SalesInvHeader."Document Date"));
+        VerifyColumn7(RowNo, Customer.Name);
+        VerifyColumn9(RowNo, '');
+        VerifyColumn10(RowNo, '');
+        VerifyColumn12(RowNo, '');
     end;
 
     local procedure VerifyVATLedgExportBasic20(InvNo: Code[20]; AddSheet: Boolean; LineNo: Integer)
@@ -918,7 +908,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         VerifyRepCommonValues(SalesInvHeader, RowNo, 1);
 
         LibraryRUReports.FindVATLedgerLine(VATLedgerLine, VATLedgerLine.Type::Sales, VATLedgerCode, SalesInvHeader."Sell-to Customer No.");
-        VerifyColumn20(RowNo, VATLedgerLine.GetCDNoListString);
+        VerifyColumn20(RowNo, VATLedgerLine.GetCDNoListString());
         VerifyColumn3a(RowNo, VATLedgerLine."Tariff No.");
 
         VerifyColumn13a(RowNo, '');
@@ -944,7 +934,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         VerifyRepCommonValues(SalesInvHeader, RowNo, 1);
         VerifyColumn13b(RowNo, FormatValue(SalesInvHeader."Amount Including VAT"));
 
-        SalesInvLine.SetRange("VAT %", VATLedgerMgt.GetVATPctRate2019);
+        SalesInvLine.SetRange("VAT %", VATLedgerMgt.GetVATPctRate2019());
         SalesInvLine.FindFirst();
         VerifyColumn14(RowNo, FormatValue(SalesInvLine.Amount));
         VerifyColumn17(RowNo, FormatValue(SalesInvLine."Amount Including VAT" - SalesInvLine.Amount));
@@ -974,7 +964,7 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         VerifyRepCommonValues(SalesInvHeader, RowNo, 1);
         VerifyColumn13b(RowNo, FormatValue(SalesInvHeader."Amount Including VAT"));
 
-        SalesInvLine.SetRange("VAT %", VATLedgerMgt.GetVATPctRate2018);
+        SalesInvLine.SetRange("VAT %", VATLedgerMgt.GetVATPctRate2018());
         SalesInvLine.FindFirst();
         VerifyColumn14a(RowNo, FormatValue(SalesInvLine.Amount));
         VerifyColumn17a(RowNo, FormatValue(SalesInvLine."Amount Including VAT" - SalesInvLine.Amount));

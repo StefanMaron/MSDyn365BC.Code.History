@@ -13,9 +13,9 @@ report 1010 "Job WIP To G/L"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './Projects/Project/Reports/JobWIPToGL.rdlc';
-    AdditionalSearchTerms = 'work in process to general ledger,work in progress to general ledger';
+    AdditionalSearchTerms = 'work in process to general ledger,work in progress to general ledger, Job WIP To G/L';
     ApplicationArea = Jobs;
-    Caption = 'Job WIP To G/L';
+    Caption = 'Project WIP To G/L';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -209,11 +209,11 @@ report 1010 "Job WIP To G/L"
         GLAccJobTotal: Decimal;
         GLJobTotal: Decimal;
         GLTotal: Decimal;
-        Job_WIP_To_G_LCaptionLbl: Label 'Job WIP To G/L';
+        Job_WIP_To_G_LCaptionLbl: Label 'Project WIP To G/L';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         G_L_Acc__No_CaptionLbl: Label 'G/L Acc. No.';
         DescriptionCaptionLbl: Label 'Description';
-        Job_Posting_GroupCaptionLbl: Label 'Job Posting Group';
+        Job_Posting_GroupCaptionLbl: Label 'Project Posting Group';
         AccountCaptionLbl: Label 'Account';
         WIP_AmountCaptionLbl: Label 'WIP Amount';
         G_L_BalanceCaptionLbl: Label 'G/L Balance';

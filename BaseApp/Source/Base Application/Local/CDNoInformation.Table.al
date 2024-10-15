@@ -5,6 +5,7 @@ table 12408 "CD No. Information"
     ObsoleteState = Pending;
     ObsoleteReason = 'Replaced by Package No. Information and FA CD No. Information tables.';
     ObsoleteTag = '18.0';
+    DataClassification = CustomerContent;
 
     fields
     {

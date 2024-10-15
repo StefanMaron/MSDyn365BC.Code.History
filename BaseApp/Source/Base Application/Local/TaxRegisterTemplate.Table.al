@@ -2,6 +2,7 @@ table 17202 "Tax Register Template"
 {
     Caption = 'Tax Register Template';
     LookupPageID = "Tax Register Templates";
+    DataClassification = CustomerContent;
 
     fields
     {

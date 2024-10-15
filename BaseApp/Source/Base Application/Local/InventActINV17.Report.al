@@ -123,7 +123,6 @@ report 14914 "Invent. Act INV-17"
         Member1: Record "Document Signature";
         Member2: Record "Document Signature";
         LastInvActLine: Record "Invent. Act Line";
-        DocSignMgt: Codeunit "Doc. Signature Management";
         StdRepMgt: Codeunit "Local Report Management";
         INV17Helper: Codeunit "INV-17 Report Helper";
         PageTotal: array[4] of Decimal;
@@ -132,33 +131,29 @@ report 14914 "Invent. Act INV-17"
 
     local procedure FillLine(InvActLine: Record "Invent. Act Line"; Finalize: Boolean)
     begin
-        with InvActLine do
-            if LastInvActLine."Act No." <> '' then
-                if IsGroupChanged(InvActLine) or Finalize then begin
-                    INV17Helper.FillLine(LastInvActLine."Contractor Name", LastInvActLine."G/L Account No.", PageTotal, LastTotal, Category);
-                    Clear(PageTotal);
-                end;
+        if LastInvActLine."Act No." <> '' then
+            if IsGroupChanged(InvActLine) or Finalize then begin
+                INV17Helper.FillLine(LastInvActLine."Contractor Name", LastInvActLine."G/L Account No.", PageTotal, LastTotal, InvActLine.Category);
+                Clear(PageTotal);
+            end;
         LastInvActLine := InvActLine;
     end;
 
     local procedure IsGroupChanged(InvActLine: Record "Invent. Act Line"): Boolean
     begin
-        with InvActLine do
-            exit(
-              (LastInvActLine."Contractor Type" <> "Contractor Type") or
-              (LastInvActLine."Contractor No." <> "Contractor No.") or
-              (LastInvActLine."G/L Account No." <> "G/L Account No.") or
-              (LastInvActLine.Category <> Category));
+        exit(
+              (LastInvActLine."Contractor Type" <> InvActLine."Contractor Type") or
+              (LastInvActLine."Contractor No." <> InvActLine."Contractor No.") or
+              (LastInvActLine."G/L Account No." <> InvActLine."G/L Account No.") or
+              (LastInvActLine.Category <> InvActLine.Category));
     end;
 
     local procedure SummarizeTotal(var TotalAmount: array[4] of Decimal; InvActLine: Record "Invent. Act Line")
     begin
-        with InvActLine do begin
-            TotalAmount[1] += "Total Amount";
-            TotalAmount[2] += "Confirmed Amount";
-            TotalAmount[3] += "Not Confirmed Amount";
-            TotalAmount[4] += "Overdue Amount";
-        end;
+        TotalAmount[1] += InvActLine."Total Amount";
+        TotalAmount[2] += InvActLine."Confirmed Amount";
+        TotalAmount[3] += InvActLine."Not Confirmed Amount";
+        TotalAmount[4] += InvActLine."Overdue Amount";
     end;
 
     [Scope('OnPrem')]

@@ -310,9 +310,9 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     begin
         Initialize();
         LibrarySales.CreateCustomer(Customer);
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.FILTER.SetFilter("No.", Customer."No.");
-        CustomerCard.First;
+        CustomerCard.First();
         asserterror CustomerCard."Invoice Disc. Code".SetValue('');
         ExpectedErr := StrSubstNo(InvDiscCodeErr, Customer.FieldCaption("Invoice Disc. Code"));
         Assert.AreEqual(ExpectedErr, CustomerCard.GetValidationError(1), UnexpectedErr);
@@ -328,9 +328,9 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     begin
         Initialize();
         LibraryPurchase.CreateVendor(Vendor);
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.FILTER.SetFilter("No.", Vendor."No.");
-        VendorCard.First;
+        VendorCard.First();
         asserterror VendorCard."Invoice Disc. Code".SetValue('');
         ExpectedErr := StrSubstNo(InvDiscCodeErr, Vendor.FieldCaption("Invoice Disc. Code"));
         Assert.AreEqual(ExpectedErr, VendorCard.GetValidationError(1), UnexpectedErr);
@@ -500,7 +500,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
 
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryPurchase.CreatePurchHeader(
-          PurchHeader, PurchHeader."Document Type"::Invoice, CreateVendorWithDiscount);
+          PurchHeader, PurchHeader."Document Type"::Invoice, CreateVendorWithDiscount());
         UpdateCurrencyRoundingPrecision(PurchHeader."Currency Code");
 
         // Create Sales line and modify Line Discount Amount.
@@ -630,7 +630,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         SalesLine.Find(); // Update Prices Including VAT has changed amount on Sales Line.
         Assert.AreNearlyEqual(
           SalesLine.Amount * ((1 - SalesHeader."VAT Base Discount %" / 100) * SalesLine."VAT %" / 100 + 1),
-          SalesLine."Amount Including VAT", LibraryERM.GetAmountRoundingPrecision, AmtInclVATErr);
+          SalesLine."Amount Including VAT", LibraryERM.GetAmountRoundingPrecision(), AmtInclVATErr);
     end;
 
     [Test]
@@ -655,7 +655,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         PurchaseLine.Find(); // Update Prices Including VAT has changed amount on Purchase Line.
         Assert.AreNearlyEqual(
           PurchaseLine.Amount * ((1 - PurchaseHeader."VAT Base Discount %" / 100) * PurchaseLine."VAT %" / 100 + 1),
-          PurchaseLine."Amount Including VAT", LibraryERM.GetAmountRoundingPrecision, AmtInclVATErr);
+          PurchaseLine."Amount Including VAT", LibraryERM.GetAmountRoundingPrecision(), AmtInclVATErr);
     end;
 
     [Test]
@@ -774,7 +774,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // [GIVEN] FCY Sales Order with 3+ lines with equal amount each and some Amount Rounding Precision for currency
         Initialize();
         InitializeSalesMultipleLinesEqualAmountsScenario(
-          SalesHeader, InvoiceDiscountAmount, LibraryERM.CreateCurrencyWithRounding);
+          SalesHeader, InvoiceDiscountAmount, LibraryERM.CreateCurrencyWithRounding());
         // [WHEN] We set -Currency."Amount Rounding Precision" to Invoice Discount Amount
         UpdateInvDiscAmtOnSalesOrder(SalesHeader, InvoiceDiscountAmount);
         // [THEN] Then it must not be changed and/or dropped to 0
@@ -793,7 +793,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // [GIVEN] FCY Purchase Order with 3+ lines with equal amount each and some Amount Rounding Precision for currency
         Initialize();
         InitializePurchaseMultipleLinesEqualAmountsScenario(
-          PurchaseHeader, InvoiceDiscountAmount, LibraryERM.CreateCurrencyWithRounding);
+          PurchaseHeader, InvoiceDiscountAmount, LibraryERM.CreateCurrencyWithRounding());
         // [WHEN] We set -Currency."Amount Rounding Precision" to Invoice Discount Amount
         UpdateInvDiscAmtOnPurchaseOrder(PurchaseHeader, InvoiceDiscountAmount);
         // [THEN] Then it must not be changed and/or dropped to 0
@@ -1246,16 +1246,16 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         Initialize();
 
         // [GIVEN] Purchase Invoice
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] Purchase Line 1 with Amount of 100
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
         Base += PurchaseLine.Amount;
 
         // [GIVEN] Purchase Line 2 with Amount of 200
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
         Base += PurchaseLine.Amount;
@@ -1284,7 +1284,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         Initialize();
 
         // [GIVEN] Purchase Header.
-        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] Purchase Line "PL1" with Invoice Discount allowed.
         CreatePurchLineAndSetAllowInvDiscount(PurchLine, PurchHeader, true);
@@ -1314,7 +1314,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         Initialize();
 
         // [GIVEN] Sales Header.
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
 
         // [GIVEN] Sales Line "SL1" with Invoice Discount allowed.
         CreateSalesLineAndSetAllowInvDiscount(SalesLine, SalesHeader, true);
@@ -1576,7 +1576,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
-        LibraryERMCountryData.UpdateFAPostingType;
+        LibraryERMCountryData.UpdateFAPostingType();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -1938,7 +1938,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
 
     local procedure CreateSalesOrderWithInvoiceDiscountCalculation(var SalesHeader: Record "Sales Header"; InvoiceDiscountCalculation: Option)
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Invoice Discount Calculation", InvoiceDiscountCalculation);
         SalesHeader.Validate("Prices Including VAT", false);
         SalesHeader.Modify(true);
@@ -1946,7 +1946,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
 
     local procedure CreateSalesLineAndSetAllowInvDiscount(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; AllowInvDiscount: Boolean)
     begin
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Validate("Allow Invoice Disc.", AllowInvDiscount);
         SalesLine.Modify(true);
@@ -2016,7 +2016,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
 
     local procedure CreatePurchaseOrderWithInvoiceDiscountCalculation(var PurchHeader: Record "Purchase Header"; InvoiceDiscountCalculation: Option)
     begin
-        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         PurchHeader.Validate("Invoice Discount Calculation", InvoiceDiscountCalculation);
         PurchHeader.Validate("Prices Including VAT", false);
         PurchHeader.Modify(true);
@@ -2024,7 +2024,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
 
     local procedure CreatePurchLineAndSetAllowInvDiscount(var PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header"; AllowInvDiscount: Boolean)
     begin
-        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchLine.Validate("Allow Invoice Disc.", AllowInvDiscount);
         PurchLine.Modify(true);
@@ -2104,7 +2104,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     begin
         CreateCurrency(Currency, Decimals);
         with Vendor do begin
-            VendorNo := CreateVendor;
+            VendorNo := CreateVendor();
             Get(VendorNo);
             Validate("Currency Code", Currency.Code);
             Modify(true);
@@ -2194,7 +2194,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"Fixed Asset", CreateFixedAsset, LibraryRandom.RandInt(10));  // Use random value for Quantity.
+          SalesLine, SalesHeader, SalesLine.Type::"Fixed Asset", CreateFixedAsset(), LibraryRandom.RandInt(10));  // Use random value for Quantity.
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
         SalesLine.Validate("Line Discount %", LibraryRandom.RandInt(10));
         SalesLine.Modify(true);
@@ -2338,7 +2338,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     begin
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         FindFAPostingGroup(FAPostingGroup);
-        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", LibraryFixedAsset.GetDefaultDeprBook);
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", LibraryFixedAsset.GetDefaultDeprBook());
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroup.Code);
         FADepreciationBook.Validate("Acquisition Date", WorkDate());  // Take WORKDATE because value is not important.
         FADepreciationBook.Modify(true);
@@ -2420,7 +2420,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     begin
         // Setup: Update Sales & Receivables Setup
         // Create and post a Sales Invoice with Multiple lines, set and Calculate Invoice Discount
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
         DocumentNo := CreateSalesInvoiceWithMultilinesInvoiceDiscount(InvDiscountAmount);
         FromDocType := "Sales Document Type From"::Invoice;
@@ -2588,7 +2588,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
 
     local procedure CreatePurchaseInvoiceHeader(var PurchaseHeader: Record "Purchase Header")
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor());
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
     end;
@@ -2697,10 +2697,10 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     begin
         // Needed for CZ
         GenPostingSetup.Get(GenBusPostingGroupCode, GenProdPostingGroupCode);
-        GenPostingSetup.Validate("Sales Account", LibraryERM.CreateGLAccountNo);
-        GenPostingSetup.Validate("Sales Line Disc. Account", LibraryERM.CreateGLAccountNo);
-        GenPostingSetup.Validate("Purch. Account", LibraryERM.CreateGLAccountNo);
-        GenPostingSetup.Validate("Purch. Line Disc. Account", LibraryERM.CreateGLAccountNo);
+        GenPostingSetup.Validate("Sales Account", LibraryERM.CreateGLAccountNo());
+        GenPostingSetup.Validate("Sales Line Disc. Account", LibraryERM.CreateGLAccountNo());
+        GenPostingSetup.Validate("Purch. Account", LibraryERM.CreateGLAccountNo());
+        GenPostingSetup.Validate("Purch. Line Disc. Account", LibraryERM.CreateGLAccountNo());
         GenPostingSetup.Modify(true);
     end;
 
@@ -2809,7 +2809,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
             SetFilter("Quantity Invoiced", '<>%1', 0);
             Find('-');
             repeat
-            until (Next = 0) or (Quantity = "Quantity Invoiced");
+            until (Next() = 0) or (Quantity = "Quantity Invoiced");
             Assert.AreEqual(
               Quantity, "Quantity Invoiced", StrSubstNo(WrongFieldValueErr, FieldCaption("Quantity Invoiced")));
         end;
@@ -2824,7 +2824,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
             SetFilter("Quantity Invoiced", '<>%1', 0);
             Find('-');
             repeat
-            until (Next = 0) or (Quantity = "Quantity Invoiced");
+            until (Next() = 0) or (Quantity = "Quantity Invoiced");
             Assert.AreEqual(
               Quantity, "Quantity Invoiced", StrSubstNo(WrongFieldValueErr, FieldCaption("Quantity Invoiced")));
         end;
@@ -2859,11 +2859,11 @@ codeunit 134027 "ERM Invoice Discount And VAT"
 
         // Verify the Invoice Discount Amount and Amount Including VAT.
         Assert.AreNearlyEqual(
-          PurchaseLine."Inv. Discount Amount", InvDiscAmount, LibraryERM.GetInvoiceRoundingPrecisionLCY,
+          PurchaseLine."Inv. Discount Amount", InvDiscAmount, LibraryERM.GetInvoiceRoundingPrecisionLCY(),
           StrSubstNo(AmtMustBeErr, PurchaseLine.FieldCaption("Inv. Discount Amount"), InvDiscAmount, PurchaseLine.TableCaption()));
 
         Assert.AreNearlyEqual(
-          PurchaseLine."Amount Including VAT", AmtIncludingVAT, LibraryERM.GetInvoiceRoundingPrecisionLCY,
+          PurchaseLine."Amount Including VAT", AmtIncludingVAT, LibraryERM.GetInvoiceRoundingPrecisionLCY(),
           StrSubstNo(AmtMustBeErr, PurchaseLine.FieldCaption("Amount Including VAT"), AmtIncludingVAT, PurchaseLine.TableCaption()));
     end;
 
@@ -2876,11 +2876,11 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         GLEntry.FindFirst();
 
         Assert.AreNearlyEqual(
-          GLEntry.Amount, Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY,
+          GLEntry.Amount, Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY(),
           StrSubstNo(AmtMustBeErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
 
         Assert.AreNearlyEqual(
-          GLEntry."VAT Amount", VATAmount, LibraryERM.GetInvoiceRoundingPrecisionLCY,
+          GLEntry."VAT Amount", VATAmount, LibraryERM.GetInvoiceRoundingPrecisionLCY(),
           StrSubstNo(AmtMustBeErr, GLEntry.FieldCaption("VAT Amount"), Amount, GLEntry.TableCaption()));
     end;
 
@@ -2917,7 +2917,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
                 repeat
                     VerifySalesLineAmountsAgainstDiscounts(SalesLine);
                     TotalInvDiscountAmount += "Inv. Discount Amount";
-                until Next = 0;
+                until Next() = 0;
 
             Assert.AreEqual(
               InvDiscountAmount,
@@ -2938,7 +2938,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
                 repeat
                     VerifyPurchaseLineAmountsAgainstDiscounts(PurchLine);
                     TotalInvDiscountAmount += "Inv. Discount Amount";
-                until Next = 0;
+                until Next() = 0;
 
             Assert.AreEqual(
               InvDiscountAmount,
@@ -2952,10 +2952,10 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         SalesLine.Find(); // Update Price Including VAT has changed amount on SalesLine
         Assert.AreNearlyEqual(
           (SalesLine."Line Amount" - SalesLine."Inv. Discount Amount") / (1 + SalesLine."VAT %" / 100),
-          SalesLine.Amount, LibraryERM.GetAmountRoundingPrecision, IncorrectAmtErr);
+          SalesLine.Amount, LibraryERM.GetAmountRoundingPrecision(), IncorrectAmtErr);
         Assert.AreNearlyEqual(
           SalesLine."Line Amount" - SalesLine."Inv. Discount Amount", SalesLine."Amount Including VAT",
-          LibraryERM.GetAmountRoundingPrecision, AmtInclVATErr);
+          LibraryERM.GetAmountRoundingPrecision(), AmtInclVATErr);
     end;
 
     local procedure VerifyAmountAndAmountIncludingVATOnPurchaseLine(PurchaseLine: Record "Purchase Line")
@@ -2963,10 +2963,10 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         PurchaseLine.Find(); // Update Price Including VAT has changed amount on PurchaseLine
         Assert.AreNearlyEqual(
           (PurchaseLine."Line Amount" - PurchaseLine."Inv. Discount Amount") / (1 + PurchaseLine."VAT %" / 100),
-          PurchaseLine.Amount, LibraryERM.GetAmountRoundingPrecision, IncorrectAmtErr);
+          PurchaseLine.Amount, LibraryERM.GetAmountRoundingPrecision(), IncorrectAmtErr);
         Assert.AreNearlyEqual(
           PurchaseLine."Line Amount" - PurchaseLine."Inv. Discount Amount", PurchaseLine."Amount Including VAT",
-          LibraryERM.GetAmountRoundingPrecision, AmtInclVATErr);
+          LibraryERM.GetAmountRoundingPrecision(), AmtInclVATErr);
     end;
 
     [ConfirmHandler]
@@ -2998,7 +2998,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // if page will have the same value as InvDiscountAmount further setting will not affect
         SalesOrderStatisticsTestPage.InvDiscountAmount_General.SetValue(0);
         SalesOrderStatisticsTestPage.InvDiscountAmount_General.SetValue(InvDiscountAmount);
-        SalesOrderStatisticsTestPage.OK.Invoke;
+        SalesOrderStatisticsTestPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3017,21 +3017,21 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // if page will have the same value as InvDiscountAmount further setting will not affect
         PurchaseOrderStatisticsTestPage.InvDiscountAmount_General.SetValue(0);
         PurchaseOrderStatisticsTestPage.InvDiscountAmount_General.SetValue(InvDiscountAmount);
-        PurchaseOrderStatisticsTestPage.OK.Invoke;
+        PurchaseOrderStatisticsTestPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderWithCustomerDiscountStatisticsPageHandler(var SalesOrderStatisticsTestPage: TestPage "Sales Order Statistics")
     begin
-        SalesOrderStatisticsTestPage.OK.Invoke;
+        SalesOrderStatisticsTestPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderWithVendorDiscountStatisticsPageHandler(var PurchaseOrderStatisticsTestPage: TestPage "Purchase Order Statistics")
     begin
-        PurchaseOrderStatisticsTestPage.OK.Invoke;
+        PurchaseOrderStatisticsTestPage.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -3108,7 +3108,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
             SetRange("G/L Account No.", AccNo);
             FindSet();
             TestField(Amount, FirstExpectedAmt);
-            Next;
+            Next();
             TestField(Amount, SecondExpectedAmt)
         end;
     end;
@@ -3135,7 +3135,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         ItemTrackingCode.Modify(true);
 
         // Create Item with Item Tracking Code
-        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, '', ItemTrackingCode.Code);
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
         Item.Validate("Allow Invoice Disc.", AllowInvDisc);
         Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
         Item.Validate("Unit Price", 10 + LibraryRandom.RandInt(100));
@@ -3163,7 +3163,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     [Scope('OnPrem')]
     procedure ItemTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             ItemTrackingMode::"Assign Lot No.":
                 ItemTrackingLines."Assign Lot No.".Invoke();
             ItemTrackingMode::"Select Entries":

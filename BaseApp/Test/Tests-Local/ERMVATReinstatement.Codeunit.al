@@ -474,7 +474,7 @@ codeunit 144007 "ERM VAT Reinstatement"
             exit;
 
         LibraryERM.CreateReinstmtVATPostingSetup(ReinstmtVATPostingSetup);
-        LibraryERMCountryData.UpdateVATPostingSetup;
+        LibraryERMCountryData.UpdateVATPostingSetup();
         LibraryERMCountryData.UpdateLocalData();
         IsInitialized := true;
         Commit();
@@ -556,9 +556,9 @@ codeunit 144007 "ERM VAT Reinstatement"
         InvPostingDate := CalcDate('<1M>', WorkDate());
         InvExchRateAmount := PrepmtExchRateAmount * Factor;
         LibraryERM.CreateCurrency(Currency);
-        Currency.Validate("Purch. PD Losses Acc. (TA)", LibraryERM.CreateGLAccountNo);
-        Currency.Validate("Sales PD Losses Acc. (TA)", LibraryERM.CreateGLAccountNo);
-        Currency.Validate("PD Bal. Gain/Loss Acc. (TA)", LibraryERM.CreateGLAccountNo);
+        Currency.Validate("Purch. PD Losses Acc. (TA)", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Sales PD Losses Acc. (TA)", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("PD Bal. Gain/Loss Acc. (TA)", LibraryERM.CreateGLAccountNo());
         Currency.Modify(true);
         LibraryERM.CreateExchangeRate(
           Currency.Code, InvPostingDate, InvExchRateAmount, InvExchRateAmount);
@@ -869,13 +869,11 @@ codeunit 144007 "ERM VAT Reinstatement"
 
     local procedure FindDocNosFromGenJnlLine(var DocNo: array[2] of Code[20]; var GenJnlLine: Record "Gen. Journal Line"; VendNo: Code[20])
     begin
-        with GenJnlLine do begin
-            SetRange("Account No.", VendNo);
-            FindFirst();
-            DocNo[1] := "Document No.";
-            Next;
-            DocNo[2] := "Document No.";
-        end;
+        GenJnlLine.SetRange("Account No.", VendNo);
+        GenJnlLine.FindFirst();
+        DocNo[1] := GenJnlLine."Document No.";
+        GenJnlLine.Next();
+        DocNo[2] := GenJnlLine."Document No.";
     end;
 
     local procedure FindVATSettlementVATEntry(GenJnlLine: Record "Gen. Journal Line"; PrepmtDiff: Boolean; EntryType: Enum "General Posting Type"): Integer
@@ -1052,7 +1050,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         VATLedgerLine.SetRange(Type, VATLedgerLine.Type::Sales);
         VATLedgerLine.SetRange(Code, VATLedgerNo);
         VATLedgerLine.SetRange("C/V No.", VendNo);
-        Assert.IsTrue(VATLedgerLine.FindFirst, SalesVATLedgerErr);
+        Assert.IsTrue(VATLedgerLine.FindFirst(), SalesVATLedgerErr);
     end;
 
     local procedure VerifyVATEntriesOfFA(FixedAsset: array[3] of Record "Fixed Asset")

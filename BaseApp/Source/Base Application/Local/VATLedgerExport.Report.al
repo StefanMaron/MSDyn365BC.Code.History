@@ -152,8 +152,6 @@ report 12460 "VAT Ledger Export"
 
             trigger OnPreDataItem()
             var
-                MinDate: Date;
-                MaxDate: Date;
             begin
                 AddSheetCounter := 0;
 
@@ -350,93 +348,89 @@ report 12460 "VAT Ledger Export"
         PartialText: Text;
     begin
         PartialText := '';
-        with VATLedgerLine do begin
-            if Partial then
-                PartialText := LowerCase(FieldCaption(Partial));
-            ExcelReportBuilderManager.AddDataToSection('LineNumber', Format(LineNo));
-            ExcelReportBuilderManager.AddDataToSection('OperationTypeCode', "VAT Entry Type");
+        if VATLedgerLine.Partial then
+            PartialText := LowerCase(VATLedgerLine.FieldCaption(Partial));
+        ExcelReportBuilderManager.AddDataToSection('LineNumber', Format(LineNo));
+        ExcelReportBuilderManager.AddDataToSection('OperationTypeCode', VATLedgerLine."VAT Entry Type");
+        ExcelReportBuilderManager.AddDataToSection(
+          'DocumentNoAndDate', LocalReportMgt.FormatCompoundExpr(VATLedgerLine."Document No.", Format(VATLedgerLine."Document Date")));
+        ExcelReportBuilderManager.AddDataToSection('CDNo', VATLedgerLine.GetCDNoListString());
+        ExcelReportBuilderManager.AddDataToSection('TariffNo', VATLedgerLine."Tariff No.");
+        if VATLedgerLine."Print Revision" then begin
             ExcelReportBuilderManager.AddDataToSection(
-              'DocumentNoAndDate', LocalReportMgt.FormatCompoundExpr("Document No.", Format("Document Date")));
-            ExcelReportBuilderManager.AddDataToSection('CDNo', GetCDNoListString());
-            ExcelReportBuilderManager.AddDataToSection('TariffNo', "Tariff No.");
-            if "Print Revision" then begin
-                ExcelReportBuilderManager.AddDataToSection(
-                  'RevisionNoAndDate', LocalReportMgt.FormatCompoundExpr("Revision No.", Format("Revision Date")));
-                ExcelReportBuilderManager.AddDataToSection(
-                  'RevisionOfCorrectionNoAndDate',
-                  LocalReportMgt.FormatCompoundExpr("Revision of Corr. No.", Format("Revision of Corr. Date")));
-            end;
+              'RevisionNoAndDate', LocalReportMgt.FormatCompoundExpr(VATLedgerLine."Revision No.", Format(VATLedgerLine."Revision Date")));
             ExcelReportBuilderManager.AddDataToSection(
-              'CorrectionNoAndDate', LocalReportMgt.FormatCompoundExpr("Correction No.", Format("Correction Date")));
-            ExcelReportBuilderManager.AddDataToSection('Name', "C/V Name");
-            ExcelReportBuilderManager.AddDataToSection('VATRegNoAndKPP', VATInvJnlMgt.GetCVVATRegKPP("C/V No.", "C/V Type", VATLedgerType));
-            if Prepayment or LocalReportMgt.IsVATAgentVendor("C/V No.", "C/V Type") then
-                ExcelReportBuilderManager.AddDataToSection(
-                  'ExternalDocNoAndDate', LocalReportMgt.FormatCompoundExpr("External Document No.", Format("Payment Date")));
-            if LocalReportMgt.IsForeignCurrency("Currency Code") and
-               not LocalReportMgt.IsConventionalCurrency("Currency Code") and
-               not LocalReportMgt.HasRelationalCurrCode("Currency Code", "Document Date")
-            then begin
-                ExcelReportBuilderManager.AddDataToSection('CurrencyInfo', GetCurrencyInfo("Currency Code"));
-                ExcelReportBuilderManager.AddDataToSection('AmountFCY', FormatValue(Abs(Amount)));
-            end;
-            ExcelReportBuilderManager.AddDataToSection(
-              'AmountLCY', LocalReportMgt.FormatCompoundExpr(FormatValue("Amount Including VAT"), PartialText));
-            ExcelReportBuilderManager.AddDataToSection('Base20', FormatBaseValue(Base20, Prepayment));
-            ExcelReportBuilderManager.AddDataToSection('Base18', FormatBaseValue(Base18, Prepayment));
-            ExcelReportBuilderManager.AddDataToSection('Base10', FormatBaseValue(Base10, Prepayment));
-            ExcelReportBuilderManager.AddDataToSection('Amount20', FormatValue(Amount20));
-            ExcelReportBuilderManager.AddDataToSection('Amount18', FormatValue(Amount18));
-            ExcelReportBuilderManager.AddDataToSection('Amount10', FormatValue(Amount10));
-            ExcelReportBuilderManager.AddDataToSection('Base0', FormatBaseValue(Base0, Prepayment));
-            ExcelReportBuilderManager.AddDataToSection('BaseVATExempt', FormatValue("Base VAT Exempt"));
+              'RevisionOfCorrectionNoAndDate',
+              LocalReportMgt.FormatCompoundExpr(VATLedgerLine."Revision of Corr. No.", Format(VATLedgerLine."Revision of Corr. Date")));
         end;
+        ExcelReportBuilderManager.AddDataToSection(
+          'CorrectionNoAndDate', LocalReportMgt.FormatCompoundExpr(VATLedgerLine."Correction No.", Format(VATLedgerLine."Correction Date")));
+        ExcelReportBuilderManager.AddDataToSection('Name', VATLedgerLine."C/V Name");
+        ExcelReportBuilderManager.AddDataToSection('VATRegNoAndKPP', VATInvJnlMgt.GetCVVATRegKPP(VATLedgerLine."C/V No.", VATLedgerLine."C/V Type", VATLedgerType));
+        if VATLedgerLine.Prepayment or LocalReportMgt.IsVATAgentVendor(VATLedgerLine."C/V No.", VATLedgerLine."C/V Type") then
+            ExcelReportBuilderManager.AddDataToSection(
+              'ExternalDocNoAndDate', LocalReportMgt.FormatCompoundExpr(VATLedgerLine."External Document No.", Format(VATLedgerLine."Payment Date")));
+        if LocalReportMgt.IsForeignCurrency(VATLedgerLine."Currency Code") and
+           not LocalReportMgt.IsConventionalCurrency(VATLedgerLine."Currency Code") and
+           not LocalReportMgt.HasRelationalCurrCode(VATLedgerLine."Currency Code", VATLedgerLine."Document Date")
+        then begin
+            ExcelReportBuilderManager.AddDataToSection('CurrencyInfo', GetCurrencyInfo(VATLedgerLine."Currency Code"));
+            ExcelReportBuilderManager.AddDataToSection('AmountFCY', FormatValue(Abs(VATLedgerLine.Amount)));
+        end;
+        ExcelReportBuilderManager.AddDataToSection(
+          'AmountLCY', LocalReportMgt.FormatCompoundExpr(FormatValue(VATLedgerLine."Amount Including VAT"), PartialText));
+        ExcelReportBuilderManager.AddDataToSection('Base20', FormatBaseValue(VATLedgerLine.Base20, VATLedgerLine.Prepayment));
+        ExcelReportBuilderManager.AddDataToSection('Base18', FormatBaseValue(VATLedgerLine.Base18, VATLedgerLine.Prepayment));
+        ExcelReportBuilderManager.AddDataToSection('Base10', FormatBaseValue(VATLedgerLine.Base10, VATLedgerLine.Prepayment));
+        ExcelReportBuilderManager.AddDataToSection('Amount20', FormatValue(VATLedgerLine.Amount20));
+        ExcelReportBuilderManager.AddDataToSection('Amount18', FormatValue(VATLedgerLine.Amount18));
+        ExcelReportBuilderManager.AddDataToSection('Amount10', FormatValue(VATLedgerLine.Amount10));
+        ExcelReportBuilderManager.AddDataToSection('Base0', FormatBaseValue(VATLedgerLine.Base0, VATLedgerLine.Prepayment));
+        ExcelReportBuilderManager.AddDataToSection('BaseVATExempt', FormatValue(VATLedgerLine."Base VAT Exempt"));
         UpdateTotals(VATLedgerLine);
     end;
 
     local procedure ExportPurchVATLedgerLine(VATLedgerLine: Record "VAT Ledger Line"; LineNo: Integer)
     begin
-        with VATLedgerLine do begin
-            ExcelReportBuilderManager.AddDataToSection('LineNumber', Format(LineNo));
-            ExcelReportBuilderManager.AddDataToSection('OperationTypeCode', "VAT Entry Type");
+        ExcelReportBuilderManager.AddDataToSection('LineNumber', Format(LineNo));
+        ExcelReportBuilderManager.AddDataToSection('OperationTypeCode', VATLedgerLine."VAT Entry Type");
+        ExcelReportBuilderManager.AddDataToSection(
+          'DocumentNoAndDate', LocalReportMgt.FormatCompoundExpr(VATLedgerLine."Document No.", Format(VATLedgerLine."Document Date")));
+        if VATLedgerLine."Print Revision" then begin
             ExcelReportBuilderManager.AddDataToSection(
-              'DocumentNoAndDate', LocalReportMgt.FormatCompoundExpr("Document No.", Format("Document Date")));
-            if "Print Revision" then begin
-                ExcelReportBuilderManager.AddDataToSection(
-                  'RevisionNoAndDate', LocalReportMgt.FormatCompoundExpr("Revision No.", Format("Revision Date")));
-                ExcelReportBuilderManager.AddDataToSection(
-                  'RevisionOfCorrectionNoAndDate',
-                  LocalReportMgt.FormatCompoundExpr("Revision of Corr. No.", Format("Revision of Corr. Date")));
-            end;
+              'RevisionNoAndDate', LocalReportMgt.FormatCompoundExpr(VATLedgerLine."Revision No.", Format(VATLedgerLine."Revision Date")));
             ExcelReportBuilderManager.AddDataToSection(
-              'CorrectionNoAndDate', LocalReportMgt.FormatCompoundExpr("Correction No.", Format("Correction Date")));
-            if Prepayment or LocalReportMgt.IsVATAgentVendor("C/V No.", "C/V Type") then
-                ExcelReportBuilderManager.AddDataToSection(
-                  'ExternalDocNoAndDate', LocalReportMgt.FormatCompoundExpr("External Document No.", Format("Payment Date")))
-            else
-                if "Full VAT Amount" <> 0 then
-                    ExcelReportBuilderManager.AddDataToSection('ExternalDocNoAndDate', GetPurchasePaymentDocNoDate(VATLedgerLine));
-            ExcelReportBuilderManager.AddDataToSection(
-              'UnrealVATEntryDate', ShowDate(LocalReportMgt.GetVATLedgerItemRealizeDate(VATLedgerLine)));
-            ExcelReportBuilderManager.AddDataToSection('Name', "C/V Name");
-            ExcelReportBuilderManager.AddDataToSection('VATRegNoAndKPP', VATInvJnlMgt.GetCVVATRegKPP("C/V No.", "C/V Type", VATLedgerType));
-            ExcelReportBuilderManager.AddDataToSection('CDNo', GetCDNoListString());
-
-            case true of
-                LocalReportMgt.IsForeignCurrency("Currency Code") and
-                not LocalReportMgt.IsConventionalCurrency("Currency Code") and
-                not LocalReportMgt.HasRelationalCurrCode("Currency Code", "Document Date"):
-                    begin
-                        ExcelReportBuilderManager.AddDataToSection('CurrencyInfo', GetCurrencyInfo("Currency Code"));
-                        ExcelReportBuilderManager.AddDataToSection('DocAmount', FormatValue(Amount));
-                    end;
-                LocalReportMgt.IsCustomerPrepayment(VATLedgerLine):
-                    ExcelReportBuilderManager.AddDataToSection('DocAmount', FormatValue(Amount));
-                else
-                    ExcelReportBuilderManager.AddDataToSection('DocAmount', FormatValue("Amount Including VAT"));
-            end;
-            ExcelReportBuilderManager.AddDataToSection('VATAmount', FormatValue(Amount10 + Amount18 + Amount20));
+              'RevisionOfCorrectionNoAndDate',
+              LocalReportMgt.FormatCompoundExpr(VATLedgerLine."Revision of Corr. No.", Format(VATLedgerLine."Revision of Corr. Date")));
         end;
+        ExcelReportBuilderManager.AddDataToSection(
+          'CorrectionNoAndDate', LocalReportMgt.FormatCompoundExpr(VATLedgerLine."Correction No.", Format(VATLedgerLine."Correction Date")));
+        if VATLedgerLine.Prepayment or LocalReportMgt.IsVATAgentVendor(VATLedgerLine."C/V No.", VATLedgerLine."C/V Type") then
+            ExcelReportBuilderManager.AddDataToSection(
+              'ExternalDocNoAndDate', LocalReportMgt.FormatCompoundExpr(VATLedgerLine."External Document No.", Format(VATLedgerLine."Payment Date")))
+        else
+            if VATLedgerLine."Full VAT Amount" <> 0 then
+                ExcelReportBuilderManager.AddDataToSection('ExternalDocNoAndDate', GetPurchasePaymentDocNoDate(VATLedgerLine));
+        ExcelReportBuilderManager.AddDataToSection(
+          'UnrealVATEntryDate', ShowDate(LocalReportMgt.GetVATLedgerItemRealizeDate(VATLedgerLine)));
+        ExcelReportBuilderManager.AddDataToSection('Name', VATLedgerLine."C/V Name");
+        ExcelReportBuilderManager.AddDataToSection('VATRegNoAndKPP', VATInvJnlMgt.GetCVVATRegKPP(VATLedgerLine."C/V No.", VATLedgerLine."C/V Type", VATLedgerType));
+        ExcelReportBuilderManager.AddDataToSection('CDNo', VATLedgerLine.GetCDNoListString());
+
+        case true of
+            LocalReportMgt.IsForeignCurrency(VATLedgerLine."Currency Code") and
+            not LocalReportMgt.IsConventionalCurrency(VATLedgerLine."Currency Code") and
+            not LocalReportMgt.HasRelationalCurrCode(VATLedgerLine."Currency Code", VATLedgerLine."Document Date"):
+                begin
+                    ExcelReportBuilderManager.AddDataToSection('CurrencyInfo', GetCurrencyInfo(VATLedgerLine."Currency Code"));
+                    ExcelReportBuilderManager.AddDataToSection('DocAmount', FormatValue(VATLedgerLine.Amount));
+                end;
+            LocalReportMgt.IsCustomerPrepayment(VATLedgerLine):
+                ExcelReportBuilderManager.AddDataToSection('DocAmount', FormatValue(VATLedgerLine.Amount));
+            else
+                ExcelReportBuilderManager.AddDataToSection('DocAmount', FormatValue(VATLedgerLine."Amount Including VAT"));
+        end;
+        ExcelReportBuilderManager.AddDataToSection('VATAmount', FormatValue(VATLedgerLine.Amount10 + VATLedgerLine.Amount18 + VATLedgerLine.Amount20));
         UpdateTotals(VATLedgerLine);
     end;
 
@@ -600,83 +594,79 @@ report 12460 "VAT Ledger Export"
         VATLedgerLineBuffer: Record "VAT Ledger Line" temporary;
         AdjustingVATLedgerLine: Record "VAT Ledger Line";
     begin
-        with VATLedgerLineBuffer do begin
-            VATLedgerLine.SetRange(Type, VATLedger.Type);
-            VATLedgerLine.SetRange(Code, VATLedger.Code);
-            VATLedgerLine.SetRange("Additional Sheet", true);
-            VATLedgerLine.SetRange("Corr. VAT Entry Posting Date", PeriodStartDate, PeriodEndDate);
-            if VATLedgerLine.FindSet() then
-                repeat
-                    VATLedgerConnection.Reset();
-                    VATLedgerConnection.SetRange("Connection Type", VATLedgerConnection."Connection Type"::Purchase);
-                    VATLedgerConnection.SetRange("Purch. Ledger Code", VATLedger.Code);
-                    VATLedgerConnection.SetRange("Purch. Ledger Line No.", VATLedgerLine."Line No.");
-                    if VATLedgerConnection.FindFirst() then begin
-                        SourceVATEntry.Get(VATLedgerConnection."VAT Entry No.");
-                        TransferFields(VATLedgerLine);
+        VATLedgerLine.SetRange(Type, VATLedger.Type);
+        VATLedgerLine.SetRange(Code, VATLedger.Code);
+        VATLedgerLine.SetRange("Additional Sheet", true);
+        VATLedgerLine.SetRange("Corr. VAT Entry Posting Date", PeriodStartDate, PeriodEndDate);
+        if VATLedgerLine.FindSet() then
+            repeat
+                VATLedgerConnection.Reset();
+                VATLedgerConnection.SetRange("Connection Type", VATLedgerConnection."Connection Type"::Purchase);
+                VATLedgerConnection.SetRange("Purch. Ledger Code", VATLedger.Code);
+                VATLedgerConnection.SetRange("Purch. Ledger Line No.", VATLedgerLine."Line No.");
+                if VATLedgerConnection.FindFirst() then begin
+                    SourceVATEntry.Get(VATLedgerConnection."VAT Entry No.");
+                    VATLedgerLineBuffer.TransferFields(VATLedgerLine);
 
-                        if SourceVATEntry."Adjusted VAT Entry No." = 0 then begin
-                            AdjustingVATEntry.SetRange("Adjusted VAT Entry No.", SourceVATEntry."Entry No.");
-                            AdjustingVATEntry.SetRange("Posting Date", PeriodStartDate, PeriodEndDate);
-                            if AdjustingVATEntry.FindFirst() then begin
-                                VATLedgerConnection.SetRange("Purch. Ledger Line No.");
-                                VATLedgerConnection.SetRange("VAT Entry No.", AdjustingVATEntry."Entry No.");
-                                if VATLedgerConnection.FindFirst() then begin
-                                    if AdjustingVATLedgerLine.Get(
-                                      VATLedger.Type, VATLedger.Code, VATLedgerConnection."Purch. Ledger Line No.")
-                                    then begin
-                                        "Amount Including VAT" += AdjustingVATLedgerLine."Amount Including VAT";
-                                        Base10 += AdjustingVATLedgerLine.Base10;
-                                        Amount10 += AdjustingVATLedgerLine.Amount10;
-                                        Base0 += AdjustingVATLedgerLine.Base0;
-                                        "Base VAT Exempt" += AdjustingVATLedgerLine."Base VAT Exempt";
-                                        "Full VAT Amount" += AdjustingVATLedgerLine."Full VAT Amount";
-                                        Base18 += AdjustingVATLedgerLine.Base18;
-                                        Amount18 += AdjustingVATLedgerLine.Amount18;
-                                        Base20 += AdjustingVATLedgerLine.Base20;
-                                        Amount20 += AdjustingVATLedgerLine.Amount20;
-                                        AdjustingVATEntryBuffer.TransferFields(AdjustingVATEntry);
-                                        AdjustingVATEntryBuffer.Insert();
-                                    end;
+                    if SourceVATEntry."Adjusted VAT Entry No." = 0 then begin
+                        AdjustingVATEntry.SetRange("Adjusted VAT Entry No.", SourceVATEntry."Entry No.");
+                        AdjustingVATEntry.SetRange("Posting Date", PeriodStartDate, PeriodEndDate);
+                        if AdjustingVATEntry.FindFirst() then begin
+                            VATLedgerConnection.SetRange("Purch. Ledger Line No.");
+                            VATLedgerConnection.SetRange("VAT Entry No.", AdjustingVATEntry."Entry No.");
+                            if VATLedgerConnection.FindFirst() then begin
+                                if AdjustingVATLedgerLine.Get(
+                                  VATLedger.Type, VATLedger.Code, VATLedgerConnection."Purch. Ledger Line No.")
+                                then begin
+                                    VATLedgerLineBuffer."Amount Including VAT" += AdjustingVATLedgerLine."Amount Including VAT";
+                                    VATLedgerLineBuffer.Base10 += AdjustingVATLedgerLine.Base10;
+                                    VATLedgerLineBuffer.Amount10 += AdjustingVATLedgerLine.Amount10;
+                                    VATLedgerLineBuffer.Base0 += AdjustingVATLedgerLine.Base0;
+                                    VATLedgerLineBuffer."Base VAT Exempt" += AdjustingVATLedgerLine."Base VAT Exempt";
+                                    VATLedgerLineBuffer."Full VAT Amount" += AdjustingVATLedgerLine."Full VAT Amount";
+                                    VATLedgerLineBuffer.Base18 += AdjustingVATLedgerLine.Base18;
+                                    VATLedgerLineBuffer.Amount18 += AdjustingVATLedgerLine.Amount18;
+                                    VATLedgerLineBuffer.Base20 += AdjustingVATLedgerLine.Base20;
+                                    VATLedgerLineBuffer.Amount20 += AdjustingVATLedgerLine.Amount20;
+                                    AdjustingVATEntryBuffer.TransferFields(AdjustingVATEntry);
+                                    AdjustingVATEntryBuffer.Insert();
                                 end;
                             end;
-
                         end;
 
-                        if not AdjustingVATEntryBuffer.Get(SourceVATEntry."Entry No.") then
-                            Insert();
                     end;
-                until VATLedgerLine.Next() = 0;
-        end;
 
-        with GroupBuffer do begin
-            Reset();
-            DeleteAll();
+                    if not AdjustingVATEntryBuffer.Get(SourceVATEntry."Entry No.") then
+                        VATLedgerLineBuffer.Insert();
+                end;
+            until VATLedgerLine.Next() = 0;
 
-            if VATLedgerLineBuffer.FindSet() then
-                repeat
-                    SetRange("Payment Date", VATLedgerLineBuffer."Payment Date");
-                    SetRange("Document No.", VATLedgerLineBuffer."Document No.");
-                    SetRange("C/V No.", VATLedgerLineBuffer."C/V No.");
-                    SetRange(Correction, VATLedgerLineBuffer.Correction);
-                    if not FindFirst() then begin
-                        TransferFields(VATLedgerLineBuffer);
-                        Insert();
-                    end else begin
-                        "Amount Including VAT" += VATLedgerLineBuffer."Amount Including VAT";
-                        Base10 += VATLedgerLineBuffer.Base10;
-                        Amount10 += VATLedgerLineBuffer.Amount10;
-                        Base0 += VATLedgerLineBuffer.Base0;
-                        "Base VAT Exempt" += VATLedgerLineBuffer."Base VAT Exempt";
-                        "Full VAT Amount" += VATLedgerLineBuffer."Full VAT Amount";
-                        Base18 += VATLedgerLineBuffer.Base18;
-                        Amount18 += VATLedgerLineBuffer.Amount18;
-                        Base20 += VATLedgerLineBuffer.Base20;
-                        Amount20 += VATLedgerLineBuffer.Amount20;
-                        Modify();
-                    end;
-                until VATLedgerLineBuffer.Next() = 0;
-        end;
+        GroupBuffer.Reset();
+        GroupBuffer.DeleteAll();
+
+        if VATLedgerLineBuffer.FindSet() then
+            repeat
+                GroupBuffer.SetRange("Payment Date", VATLedgerLineBuffer."Payment Date");
+                GroupBuffer.SetRange("Document No.", VATLedgerLineBuffer."Document No.");
+                GroupBuffer.SetRange("C/V No.", VATLedgerLineBuffer."C/V No.");
+                GroupBuffer.SetRange(Correction, VATLedgerLineBuffer.Correction);
+                if not GroupBuffer.FindFirst() then begin
+                    GroupBuffer.TransferFields(VATLedgerLineBuffer);
+                    GroupBuffer.Insert();
+                end else begin
+                    GroupBuffer."Amount Including VAT" += VATLedgerLineBuffer."Amount Including VAT";
+                    GroupBuffer.Base10 += VATLedgerLineBuffer.Base10;
+                    GroupBuffer.Amount10 += VATLedgerLineBuffer.Amount10;
+                    GroupBuffer.Base0 += VATLedgerLineBuffer.Base0;
+                    GroupBuffer."Base VAT Exempt" += VATLedgerLineBuffer."Base VAT Exempt";
+                    GroupBuffer."Full VAT Amount" += VATLedgerLineBuffer."Full VAT Amount";
+                    GroupBuffer.Base18 += VATLedgerLineBuffer.Base18;
+                    GroupBuffer.Amount18 += VATLedgerLineBuffer.Amount18;
+                    GroupBuffer.Base20 += VATLedgerLineBuffer.Base20;
+                    GroupBuffer.Amount20 += VATLedgerLineBuffer.Amount20;
+                    GroupBuffer.Modify();
+                end;
+            until VATLedgerLineBuffer.Next() = 0;
 
         GroupBuffer.Reset();
         exit(not GroupBuffer.IsEmpty);
@@ -704,26 +694,24 @@ report 12460 "VAT Ledger Export"
 
     local procedure UpdateTotals(VATLedgLine: Record "VAT Ledger Line")
     begin
-        with VATLedgLine do begin
-            Totals[1] [1] += "Amount Including VAT";
-            Totals[1] [2] += Abs("Amount Including VAT");
-            Totals[2] [1] += Base18;
-            Totals[2] [2] += Abs(Base18);
-            Totals[3] [1] += Amount18;
-            Totals[3] [2] += Abs(Amount18);
-            Totals[4] [1] += Base10;
-            Totals[4] [2] += Abs(Base10);
-            Totals[5] [1] += Amount10;
-            Totals[5] [2] += Abs(Amount10);
-            Totals[6] [1] += Base0;
-            Totals[6] [2] += Abs(Base0);
-            Totals[7] [1] += "Base VAT Exempt";
-            Totals[7] [2] += Abs("Base VAT Exempt");
-            Totals[8] [1] += Base20;
-            Totals[8] [2] += Abs(Base20);
-            Totals[9] [1] += Amount20;
-            Totals[9] [2] += Abs(Amount20);
-        end;
+        Totals[1] [1] += VATLedgLine."Amount Including VAT";
+        Totals[1] [2] += Abs(VATLedgLine."Amount Including VAT");
+        Totals[2] [1] += VATLedgLine.Base18;
+        Totals[2] [2] += Abs(VATLedgLine.Base18);
+        Totals[3] [1] += VATLedgLine.Amount18;
+        Totals[3] [2] += Abs(VATLedgLine.Amount18);
+        Totals[4] [1] += VATLedgLine.Base10;
+        Totals[4] [2] += Abs(VATLedgLine.Base10);
+        Totals[5] [1] += VATLedgLine.Amount10;
+        Totals[5] [2] += Abs(VATLedgLine.Amount10);
+        Totals[6] [1] += VATLedgLine.Base0;
+        Totals[6] [2] += Abs(VATLedgLine.Base0);
+        Totals[7] [1] += VATLedgLine."Base VAT Exempt";
+        Totals[7] [2] += Abs(VATLedgLine."Base VAT Exempt");
+        Totals[8] [1] += VATLedgLine.Base20;
+        Totals[8] [2] += Abs(VATLedgLine.Base20);
+        Totals[9] [1] += VATLedgLine.Amount20;
+        Totals[9] [2] += Abs(VATLedgLine.Amount20);
     end;
 
     [Scope('OnPrem')]

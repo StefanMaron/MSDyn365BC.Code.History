@@ -204,18 +204,16 @@ report 12483 "Posted Purchase Receipt M-4"
     var
         ReportHeaderArr: array[10] of Text;
     begin
-        with "Purch. Inv. Header" do begin
-            ReportHeaderArr[1] := StdRepMgt.GetCompanyName();
-            ReportHeaderArr[2] := ReceivedBy."Employee Org. Unit";
-            ReportHeaderArr[3] := CompanyInfo."OKPO Code";
-            ReportHeaderArr[4] := "No.";
-            ReportHeaderArr[5] := Format("Document Date");
-            ReportHeaderArr[6] := "Location Code";
-            ReportHeaderArr[7] := StdRepMgt.GetVendorName("Buy-from Vendor No.");
-            ReportHeaderArr[8] := "Buy-from Vendor No.";
-            ReportHeaderArr[9] := AccNo;
-            ReportHeaderArr[10] := "Vendor Invoice No.";
-        end;
+        ReportHeaderArr[1] := StdRepMgt.GetCompanyName();
+        ReportHeaderArr[2] := ReceivedBy."Employee Org. Unit";
+        ReportHeaderArr[3] := CompanyInfo."OKPO Code";
+        ReportHeaderArr[4] := "Purch. Inv. Header"."No.";
+        ReportHeaderArr[5] := Format("Purch. Inv. Header"."Document Date");
+        ReportHeaderArr[6] := "Purch. Inv. Header"."Location Code";
+        ReportHeaderArr[7] := StdRepMgt.GetVendorName("Purch. Inv. Header"."Buy-from Vendor No.");
+        ReportHeaderArr[8] := "Purch. Inv. Header"."Buy-from Vendor No.";
+        ReportHeaderArr[9] := AccNo;
+        ReportHeaderArr[10] := "Purch. Inv. Header"."Vendor Invoice No.";
 
         InventoryReportsHelper.FillM4ReportTitle(ReportHeaderArr);
     end;
@@ -225,18 +223,16 @@ report 12483 "Posted Purchase Receipt M-4"
     var
         PageHeaderArr: array[10] of Text;
     begin
-        with "Purch. Inv. Line" do begin
-            PageHeaderArr[1] := Description + "Description 2";
-            PageHeaderArr[2] := "No.";
-            PageHeaderArr[3] := "Unit of Measure Code";
-            PageHeaderArr[4] := "Unit of Measure";
-            PageHeaderArr[5] := Format(Quantity);
-            PageHeaderArr[6] := Format(Quantity);
-            PageHeaderArr[7] := FormatAmount(UnitCost);
-            PageHeaderArr[8] := FormatAmount(Amount);
-            PageHeaderArr[9] := LineVATText[2];
-            PageHeaderArr[10] := FormatAmount("Amount Including VAT");
-        end;
+        PageHeaderArr[1] := "Purch. Inv. Line".Description + "Purch. Inv. Line"."Description 2";
+        PageHeaderArr[2] := "Purch. Inv. Line"."No.";
+        PageHeaderArr[3] := "Purch. Inv. Line"."Unit of Measure Code";
+        PageHeaderArr[4] := "Purch. Inv. Line"."Unit of Measure";
+        PageHeaderArr[5] := Format("Purch. Inv. Line".Quantity);
+        PageHeaderArr[6] := Format("Purch. Inv. Line".Quantity);
+        PageHeaderArr[7] := FormatAmount(UnitCost);
+        PageHeaderArr[8] := FormatAmount("Purch. Inv. Line".Amount);
+        PageHeaderArr[9] := LineVATText[2];
+        PageHeaderArr[10] := FormatAmount("Purch. Inv. Line"."Amount Including VAT");
 
         InventoryReportsHelper.FillM4Body(PageHeaderArr);
     end;

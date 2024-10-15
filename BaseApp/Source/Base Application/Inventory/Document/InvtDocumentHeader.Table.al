@@ -17,6 +17,7 @@ table 5850 "Invt. Document Header"
     Caption = 'Item Document Header';
     DataCaptionFields = "Document Type", "No.";
     LookupPageID = "Invt. Document List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -31,7 +32,7 @@ table 5850 "Invt. Document Header"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    NoSeriesMgt.TestManual(GetNoSeriesCode());
+                    NoSeries.TestManual(GetNoSeriesCode());
                     "No. Series" := '';
                 end;
             end;
@@ -140,14 +141,12 @@ table 5850 "Invt. Document Header"
 
             trigger OnLookup()
             begin
-                with InvtDocHeader do begin
-                    InvtDocHeader := Rec;
-                    InvtSetup.Get();
-                    TestNoSeries();
-                    if NoSeriesMgt.LookupSeries(GetPostingNoSeriesCode(), "Posting No. Series") then
-                        Validate("Posting No. Series");
-                    Rec := InvtDocHeader;
-                end;
+                InvtDocHeader := Rec;
+                InvtSetup.Get();
+                TestNoSeries();
+                if NoSeries.LookupRelatedNoSeries(GetPostingNoSeriesCode(), InvtDocHeader."Posting No. Series") then
+                    InvtDocHeader.Validate("Posting No. Series");
+                Rec := InvtDocHeader;
             end;
 
             trigger OnValidate()
@@ -155,7 +154,7 @@ table 5850 "Invt. Document Header"
                 if "Posting No. Series" <> '' then begin
                     InvtSetup.Get();
                     TestNoSeries();
-                    NoSeriesMgt.TestSeries(GetPostingNoSeriesCode(), "Posting No. Series");
+                    NoSeries.TestAreRelated(GetPostingNoSeriesCode(), "Posting No. Series");
                 end;
             end;
         }
@@ -253,15 +252,38 @@ table 5850 "Invt. Document Header"
                 InvtDocLine.SuspendStatusCheck(true);
                 InvtDocLine.Delete(true);
             until InvtDocLine.Next() = 0;
-        end;    
+        end;
     end;
 
     trigger OnInsert()
+    var
+#if not CLEAN24
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        DefaultNoSeriesCode: Code[20];
+        IsHandled: Boolean;
+#endif
     begin
         InvtSetup.Get();
         if "No." = '' then begin
             TestNoSeries();
-            NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", "Posting Date", "No.", "No. Series");
+#if not CLEAN24
+            DefaultNoSeriesCode := GetNoSeriesCode();
+            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(DefaultNoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+                if NoSeries.AreRelated(DefaultNoSeriesCode, xRec."No. Series") then
+                    "No. Series" := xRec."No. Series"
+                else
+                    "No. Series" := DefaultNoSeriesCode;
+                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", DefaultNoSeriesCode, "Posting Date", "No.");
+            end;
+#else
+            if NoSeries.AreRelated(GetNoSeriesCode(), xRec."No. Series") then
+                "No. Series" := xRec."No. Series"
+            else
+                "No. Series" := GetNoSeriesCode();
+            "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+#endif
         end;
         InitRecord();
 
@@ -279,7 +301,7 @@ table 5850 "Invt. Document Header"
         InvtSetup: Record "Inventory Setup";
         Location: Record Location;
         DimMgt: Codeunit DimensionManagement;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         DocSignMgt: Codeunit "Doc. Signature Management";
         HideValidationDialog: Boolean;
         CannotRenameErr: Label 'You cannot rename a %1.', Comment = '%1 - table caption';
@@ -287,6 +309,10 @@ table 5850 "Invt. Document Header"
         DocumentTxt: Label '%1 %2', Locked = true;
 
     procedure InitRecord()
+#if not CLEAN24
+    var
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+#endif
     begin
         case "Document Type" of
             "Document Type"::Receipt:
@@ -296,7 +322,14 @@ table 5850 "Invt. Document Header"
                     "Posting No. Series" := "No. Series"
                 else
                     if "Posting No. Series" = '' then
+#if CLEAN24
+                        if NoSeries.IsAutomatic(InvtSetup."Posted Invt. Receipt Nos.") then
+                            "Posting No. Series" := InvtSetup."Posted Invt. Receipt Nos.";
+#else
+#pragma warning disable AL0432
                         NoSeriesMgt.SetDefaultSeries("Posting No. Series", InvtSetup."Posted Invt. Receipt Nos.");
+#pragma warning restore AL0432
+#endif    
             "Document Type"::Shipment:
                 if ("No. Series" <> '') and
                     (InvtSetup."Invt. Shipment Nos." = InvtSetup."Posted Invt. Shipment Nos.")
@@ -304,25 +337,30 @@ table 5850 "Invt. Document Header"
                     "Posting No. Series" := "No. Series"
                 else
                     if "Posting No. Series" = '' then
+#if CLEAN24
+                        if NoSeries.IsAutomatic(InvtSetup."Posted Invt. Shipment Nos.") then
+                            "Posting No. Series" := InvtSetup."Posted Invt. Shipment Nos.";
+#else
+#pragma warning disable AL0432
                         NoSeriesMgt.SetDefaultSeries("Posting No. Series", InvtSetup."Posted Invt. Shipment Nos.");
+#pragma warning restore AL0432
+#endif
         end;
 
         "Posting Description" := Format("Document Type") + ' ' + "No.";
-
 
         "Posting Date" := WorkDate();
         "Document Date" := "Posting Date";
         OnAfterInitRecord(Rec);
     end;
 
+
     procedure AssistEdit(OldInvtDocHeader: Record "Invt. Document Header"): Boolean
     begin
         InvtSetup.Get();
         TestNoSeries();
-        if NoSeriesMgt.SelectSeries(GetNoSeriesCode(), OldInvtDocHeader."No. Series", "No. Series") then begin
-            InvtSetup.Get();
-            TestNoSeries();
-            NoSeriesMgt.SetSeries("No.");
+        if NoSeries.LookupRelatedNoSeries(GetNoSeriesCode(), OldInvtDocHeader."No. Series", "No. Series") then begin
+            "No." := NoSeries.GetNextNo("No. Series");
             exit(true);
         end;
     end;
@@ -430,7 +468,7 @@ table 5850 "Invt. Document Header"
         InvtDocLine.LockTable();
         InvtDocLine.SetRange("Document Type", "Document Type");
         InvtDocLine.SetRange("Document No.", "No.");
-        if InvtDocLine.FindSet(true, false) then
+        if InvtDocLine.FindSet(true) then
             repeat
                 case FieldRef of
                     FieldNo("Location Code"):

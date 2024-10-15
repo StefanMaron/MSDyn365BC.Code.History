@@ -39,14 +39,14 @@ codeunit 134764 TestPowerBIQueries
         // [WHEN] The query is opened and read.
         // [THEN] Various fields are validated.
 
-        PowerBICustomerList.Open;
+        PowerBICustomerList.Open();
 
         VerifyPowerBICustomerList(PowerBICustomerList, '1', 1000, 300, Today, 1, 100, 1, 1);
         VerifyPowerBICustomerList(PowerBICustomerList, '1', 1000, 300, Today, 1, 200, 1, 2);
         VerifyPowerBICustomerList(PowerBICustomerList, '2', 2000, 700, Today, 2, 300, 2, 3);
         VerifyPowerBICustomerList(PowerBICustomerList, '2', 2000, 700, Today, 2, 400, 2, 4);
 
-        Assert.IsFalse(PowerBICustomerList.Read, 'Unexpected record in Query PowerBICustomerList');
+        Assert.IsFalse(PowerBICustomerList.Read(), 'Unexpected record in Query PowerBICustomerList');
     end;
 
     [Test]
@@ -76,14 +76,14 @@ codeunit 134764 TestPowerBIQueries
         // [WHEN] The query is opened and read.
         // [THEN] Various fields are validated.
 
-        PowerBIVendorList.Open;
+        PowerBIVendorList.Open();
 
         VerifyPowerBIVendorList(PowerBIVendorList, '1', 10, -300, Today, 1, -100, 1, 1);
         VerifyPowerBIVendorList(PowerBIVendorList, '1', 20, -300, Today, 1, -200, 1, 2);
         VerifyPowerBIVendorList(PowerBIVendorList, '2', 30, -700, Today, 2, -300, 2, 3);
         VerifyPowerBIVendorList(PowerBIVendorList, '2', 40, -700, Today, 2, -400, 2, 4);
 
-        Assert.IsFalse(PowerBIVendorList.Read, 'Unexpected record in Query PowerBIVendorList');
+        Assert.IsFalse(PowerBIVendorList.Read(), 'Unexpected record in Query PowerBIVendorList');
     end;
 
     [Test]
@@ -111,12 +111,12 @@ codeunit 134764 TestPowerBIQueries
         // [WHEN] The query is opened and read.
         // [THEN] Various fields are validated.
 
-        PowerBIItemPurchasesList.Open;
+        PowerBIItemPurchasesList.Open();
 
         VerifyPowerBIItemPurchasesList(PowerBIItemPurchasesList, '1', 10, 1, Today);
         VerifyPowerBIItemPurchasesList(PowerBIItemPurchasesList, '2', 100, 2, Today + 1);
 
-        Assert.IsFalse(PowerBIItemPurchasesList.Read, 'Unexpected record in Query.');
+        Assert.IsFalse(PowerBIItemPurchasesList.Read(), 'Unexpected record in Query.');
     end;
 
     [Test]
@@ -144,12 +144,12 @@ codeunit 134764 TestPowerBIQueries
         // [WHEN] The query is opened and read.
         // [THEN] Various fields are validated.
 
-        PowerBIItemSalesList.Open;
+        PowerBIItemSalesList.Open();
 
         VerifyPowerBIItemSalesList(PowerBIItemSalesList, '1', -25, 1, Today);
         VerifyPowerBIItemSalesList(PowerBIItemSalesList, '2', -50, 2, Today + 1);
 
-        Assert.IsFalse(PowerBIItemSalesList.Read, 'Unexpected record in Query.');
+        Assert.IsFalse(PowerBIItemSalesList.Read(), 'Unexpected record in Query.');
     end;
 
     [Test]
@@ -177,12 +177,12 @@ codeunit 134764 TestPowerBIQueries
         // [WHEN] The query is opened and read.
         // [THEN] Various fields are validated.
 
-        PowerBIJobsList.Open;
+        PowerBIJobsList.Open();
 
         VerifyPowerBIJobList(PowerBIJobsList, '1', true, Job1.Status::Completed, Today, 100, 1);
         VerifyPowerBIJobList(PowerBIJobsList, '2', false, Job1.Status::Open, Today, 200, 2);
 
-        Assert.IsFalse(PowerBIJobsList.Read, 'Unexpected record in Query.');
+        Assert.IsFalse(PowerBIJobsList.Read(), 'Unexpected record in Query.');
     end;
 
     [Test]
@@ -212,14 +212,14 @@ codeunit 134764 TestPowerBIQueries
         // [WHEN] The query is opened and read.
         // [THEN] Various fields are validated.
 
-        PowerBISalesList.Open;
+        PowerBISalesList.Open();
 
         VerifyPowerBISalesList(PowerBISalesList, '1', Today, Today + 10, Today + 20, 1, 10);
         VerifyPowerBISalesList(PowerBISalesList, '1', Today, Today + 10, Today + 20, 2, 20);
         VerifyPowerBISalesList(PowerBISalesList, '2', Today + 1, Today + 11, Today + 21, 3, 30);
         VerifyPowerBISalesList(PowerBISalesList, '2', Today + 1, Today + 11, Today + 21, 4, 40);
 
-        Assert.IsFalse(PowerBISalesList.Read, 'Unexpected record in Query.');
+        Assert.IsFalse(PowerBISalesList.Read(), 'Unexpected record in Query.');
     end;
 
     [Test]
@@ -249,14 +249,14 @@ codeunit 134764 TestPowerBIQueries
         // [WHEN] The query is opened and read.
         // [THEN] Various fields are validated.
 
-        PowerBIPurchaseList.Open;
+        PowerBIPurchaseList.Open();
 
         VerifyPowerBIPurchaseList(PowerBIPurchaseList, '1', Today, Today + 10, Today + 20, Today + 30, 1, 10);
         VerifyPowerBIPurchaseList(PowerBIPurchaseList, '1', Today, Today + 10, Today + 20, Today + 30, 2, 20);
         VerifyPowerBIPurchaseList(PowerBIPurchaseList, '2', Today + 1, Today + 11, Today + 21, Today + 31, 3, 30);
         VerifyPowerBIPurchaseList(PowerBIPurchaseList, '2', Today + 1, Today + 11, Today + 21, Today + 31, 4, 40);
 
-        Assert.IsFalse(PowerBIPurchaseList.Read, 'Unexpected record in Query.');
+        Assert.IsFalse(PowerBIPurchaseList.Read(), 'Unexpected record in Query.');
     end;
 
     [Test]
@@ -284,12 +284,12 @@ codeunit 134764 TestPowerBIQueries
         // [WHEN] The query is opened and read.
         // [THEN] Various fields are validated.
 
-        PowerBIGLAmountList.Open;
+        PowerBIGLAmountList.Open();
 
         VerifyPowerBIGLAmountList(PowerBIGLAmountList, '1', Today, 10, 1);
         VerifyPowerBIGLAmountList(PowerBIGLAmountList, '2', Today + 1, 20, 2);
 
-        Assert.IsFalse(PowerBIGLAmountList.Read, 'Unexpected record in Query.');
+        Assert.IsFalse(PowerBIGLAmountList.Read(), 'Unexpected record in Query.');
     end;
 
     [Test]
@@ -317,12 +317,12 @@ codeunit 134764 TestPowerBIQueries
         // [WHEN] The query is opened and read.
         // [THEN] Various fields are validated.
 
-        PowerBIGLBudgetedAmountList.Open;
+        PowerBIGLBudgetedAmountList.Open();
 
         VerifyPowerBIGLBudgetedAmountList(PowerBIGLBudgetedAmountList, '1', Today, 10);
         VerifyPowerBIGLBudgetedAmountList(PowerBIGLBudgetedAmountList, '2', Today + 1, 20);
 
-        Assert.IsFalse(PowerBIGLBudgetedAmountList.Read, 'Unexpected record in Query.');
+        Assert.IsFalse(PowerBIGLBudgetedAmountList.Read(), 'Unexpected record in Query.');
     end;
 
     [Test]
@@ -564,7 +564,7 @@ codeunit 134764 TestPowerBIQueries
 
     local procedure VerifyPowerBICustomerList(PowerBICustomerList: Query "Power BI Customer List"; No: Code[20]; CreditLimit: Decimal; BalanceDue: Decimal; PostDate: Date; CustLedgEntry: Integer; Amount: Decimal; TransactionNo: Integer; EntryNo: Integer)
     begin
-        Assert.IsTrue(PowerBICustomerList.Read, 'Expected record in Query PowerBICustomerList');
+        Assert.IsTrue(PowerBICustomerList.Read(), 'Expected record in Query PowerBICustomerList');
         Assert.AreEqual(No, PowerBICustomerList.Customer_No, 'Unexpected Customer No value PowerBICustomerList');
         Assert.AreEqual(No, PowerBICustomerList.Customer_Name, 'Unexpected Customer Name value PowerBICustomerList');
         Assert.AreEqual(CreditLimit, PowerBICustomerList.Credit_Limit, 'Unexpected Customer credit limit value PowerBICustomerList');
@@ -579,7 +579,7 @@ codeunit 134764 TestPowerBIQueries
 
     local procedure VerifyPowerBIVendorList(PowerBIVendorList: Query "Power BI Vendor List"; No: Code[20]; RemainPmtDisc: Decimal; BalanceDue: Decimal; PostDate: Date; CustLedgEntry: Integer; Amount: Decimal; TransactionNo: Integer; EntryNo: Integer)
     begin
-        Assert.IsTrue(PowerBIVendorList.Read, 'Expected record in Query PowerBIVendorList');
+        Assert.IsTrue(PowerBIVendorList.Read(), 'Expected record in Query PowerBIVendorList');
         Assert.AreEqual(No, PowerBIVendorList.Vendor_No, 'Unexpected Vendor No value PowerBIVendorList');
         Assert.AreEqual(No, PowerBIVendorList.Vendor_Name, 'Unexpected Vendor Name value PowerBIVendorList');
         Assert.AreEqual(TransactionNo, PowerBIVendorList.Transaction_No, 'Unexpected Transaction No value PowerBIVendorList');
@@ -595,7 +595,7 @@ codeunit 134764 TestPowerBIQueries
 
     local procedure VerifyPowerBIItemPurchasesList(PowerBIItemPurchaseList: Query "Power BI Item Purchase List"; No: Code[20]; PurchQty: Decimal; PurchaseNo: Integer; PostDate: Date)
     begin
-        Assert.IsTrue(PowerBIItemPurchaseList.Read, 'Expected record in Query PowerBIItemPurchasesList');
+        Assert.IsTrue(PowerBIItemPurchaseList.Read(), 'Expected record in Query PowerBIItemPurchasesList');
         Assert.AreEqual(No, PowerBIItemPurchaseList.Item_No, 'Unexpected item no PowerBIItemPurchasesList');
         Assert.AreEqual(No, PowerBIItemPurchaseList.Search_Description, 'Unexpected search description PowerBIItemPurchasesList');
         Assert.AreEqual(PurchQty, PowerBIItemPurchaseList.Purchased_Quantity, 'Unexpected purchase qty PowerBIItemPurchasesList');
@@ -605,7 +605,7 @@ codeunit 134764 TestPowerBIQueries
 
     local procedure VerifyPowerBIItemSalesList(PowerBIItemSalesList: Query "Power BI Item Sales List"; No: Code[20]; SaleQty: Decimal; SaleNo: Integer; PostDate: Date)
     begin
-        Assert.IsTrue(PowerBIItemSalesList.Read, 'Expected record in Query PowerBIItemSalesList');
+        Assert.IsTrue(PowerBIItemSalesList.Read(), 'Expected record in Query PowerBIItemSalesList');
         Assert.AreEqual(No, PowerBIItemSalesList.Item_No, 'Unexpected item no PowerBIItemSalesList');
         Assert.AreEqual(No, PowerBIItemSalesList.Search_Description, 'Unexpected search description PowerBIItemSalesList');
         Assert.AreEqual(SaleQty, PowerBIItemSalesList.Sold_Quantity, 'Unexpected sold qty PowerBIItemSalesList');
@@ -615,7 +615,7 @@ codeunit 134764 TestPowerBIQueries
 
     local procedure VerifyPowerBIJobList(PowerBIJobsList: Query "Power BI Jobs List"; No: Code[20]; Complete: Boolean; Status: Enum "Job Status"; PostDate: Date; TotalCost: Decimal; EntryNo: Integer)
     begin
-        Assert.IsTrue(PowerBIJobsList.Read, 'Expected record in Query PowerBIJobsList');
+        Assert.IsTrue(PowerBIJobsList.Read(), 'Expected record in Query PowerBIJobsList');
         Assert.AreEqual(No, PowerBIJobsList.Job_No, 'Unexpected Job No PowerBIJobsList');
         Assert.AreEqual(No, PowerBIJobsList.Search_Description, 'Unexpected search description PowerBIJobsList');
         Assert.AreEqual(Complete, PowerBIJobsList.Complete, 'Unexpected Complete value PowerBIJobsList');
@@ -627,7 +627,7 @@ codeunit 134764 TestPowerBIQueries
 
     local procedure VerifyPowerBISalesList(PowerBISalesList: Query "Power BI Sales List"; No: Code[20]; ReqShipDate: Date; ShipmentDate: Date; DueDate: Date; Quantity: Decimal; Amount: Decimal)
     begin
-        Assert.IsTrue(PowerBISalesList.Read, 'Expected record in Query PowerBISalesList');
+        Assert.IsTrue(PowerBISalesList.Read(), 'Expected record in Query PowerBISalesList');
         Assert.AreEqual(No, PowerBISalesList.Document_No, 'Unexpected value for No PowerBISalesList');
         Assert.AreEqual(ReqShipDate, PowerBISalesList.Requested_Delivery_Date, 'Unexpected requested delivery date PowerBISalesList');
         Assert.AreEqual(ShipmentDate, PowerBISalesList.Shipment_Date, 'Unexpected shipment date PowerBISalesList');
@@ -638,7 +638,7 @@ codeunit 134764 TestPowerBIQueries
 
     local procedure VerifyPowerBIPurchaseList(PowerBIPurchaseList: Query "Power BI Purchase List"; No: Code[20]; OrderDate: Date; ExpRecDate: Date; DueDate: Date; PmtDiscDate: Date; Quantity: Decimal; Amount: Decimal)
     begin
-        Assert.IsTrue(PowerBIPurchaseList.Read, 'Expected record in Query PowerBIPurchaseList');
+        Assert.IsTrue(PowerBIPurchaseList.Read(), 'Expected record in Query PowerBIPurchaseList');
         Assert.AreEqual(No, PowerBIPurchaseList.Document_No, 'Unexpected purchase no PowerBIPurchaseList');
         Assert.AreEqual(OrderDate, PowerBIPurchaseList.Order_Date, 'Unexpected order date PowerBIPurchaseList');
         Assert.AreEqual(ExpRecDate, PowerBIPurchaseList.Expected_Receipt_Date, 'Unexpected expected receipt date PowerBIPurchaseList');
@@ -650,7 +650,7 @@ codeunit 134764 TestPowerBIQueries
 
     local procedure VerifyPowerBIGLAmountList(PowerBIGLAmountList: Query "Power BI GL Amount List"; No: Code[20]; PostDate: Date; Amount: Decimal; EntryNo: Integer)
     begin
-        Assert.IsTrue(PowerBIGLAmountList.Read, 'Expected record in query PowerBIGLAmountList');
+        Assert.IsTrue(PowerBIGLAmountList.Read(), 'Expected record in query PowerBIGLAmountList');
         Assert.AreEqual(No, PowerBIGLAmountList.GL_Account_No, 'Unexpected account no PowerBIGLAmountList');
         Assert.AreEqual(No, PowerBIGLAmountList.Name, 'Unexpected name PowerBIGLAmountList');
         Assert.AreEqual(PostDate, PowerBIGLAmountList.Posting_Date, 'Unexpected posting date PowerBIGLAmountList');
@@ -660,7 +660,7 @@ codeunit 134764 TestPowerBIQueries
 
     local procedure VerifyPowerBIGLBudgetedAmountList(PowerBIGLBudgetedAmount: Query "Power BI GL Budgeted Amount"; No: Code[20]; BudgetDate: Date; Amount: Decimal)
     begin
-        Assert.IsTrue(PowerBIGLBudgetedAmount.Read, 'Expected record in query PowerBIGLBudgetedAmountList');
+        Assert.IsTrue(PowerBIGLBudgetedAmount.Read(), 'Expected record in query PowerBIGLBudgetedAmountList');
         Assert.AreEqual(No, PowerBIGLBudgetedAmount.GL_Account_No, 'Unexpected account no PowerBIGLBudgetedAmountList');
         Assert.AreEqual(No, PowerBIGLBudgetedAmount.Name, 'Unexpected name PowerBIGLBudgetedAmountList');
         Assert.AreEqual(BudgetDate, PowerBIGLBudgetedAmount.Date, 'Unexpected date PowerBIGLBudgetedAmountList');

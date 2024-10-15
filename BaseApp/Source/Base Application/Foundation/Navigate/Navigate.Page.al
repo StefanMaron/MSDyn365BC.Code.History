@@ -664,9 +664,6 @@ page 344 Navigate
         SourceType: Text[30];
         SourceNo: Code[20];
         SourceName: Text[100];
-        Text12470: Label 'Posted FA Writeoff';
-        Text12471: Label 'Posted FA Release';
-        Text12472: Label 'Posted FA Movement';
         NewHROrderNo: Code[20];
         NewHROrderDate: Date;
         ShowEnable: Boolean;
@@ -968,7 +965,7 @@ page 344 Navigate
             PostedFADocHeader.Reset();
             PostedFADocHeader.SetFilter("No.", DocNoFilter);
             PostedFADocHeader.SetFilter("FA Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Posted FA Doc. Header", 0, PostedFADocHeader.TableCaption(), PostedFADocHeader.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Posted FA Doc. Header", PostedFADocHeader.TableCaption(), PostedFADocHeader.Count);
         end;
         if VATLedgLinePurch.ReadPermission() then begin
             VATLedgLinePurch.Reset();
@@ -2354,14 +2351,6 @@ page 344 Navigate
         Window.Close();
     end;
 
-    [Obsolete('Replaced by SetTracking with ItemTrackingSetup parameter.', '18.0')]
-    procedure SetTracking(SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[30])
-    begin
-        NewItemTrackingSetup."Serial No." := SerialNo;
-        NewItemTrackingSetup."Lot No." := LotNo;
-        NewItemTrackingSetup."Package No." := CDNo;
-    end;
-
     procedure SetTracking(ItemTrackingSetup: Record "Item Tracking Setup")
     begin
         NewItemTrackingSetup := ItemTrackingSetup;
@@ -2552,14 +2541,6 @@ page 344 Navigate
     local procedure OnAfterFindPurchRcptHeader(var DocumentEntry: Record "Document Entry"; var PurchRcptHeader: Record "Purch. Rcpt. Header"; DocNoFilter: Text; PostingDateFilter: Text)
     begin
     end;
-
-#if not CLEAN21
-    [Obsolete('No. of documents is not checked anymore', '21.0')]
-    [IntegrationEvent(true, false)]
-    local procedure OnAfterGetDocumentCount(var DocCount: Integer)
-    begin
-    end;
-#endif    
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterNavigateFindExtRecords(var DocumentEntry: Record "Document Entry"; ContactType: Enum "Navigate Contact Type"; ContactNo: Code[250]; ExtDocNo: Code[250]; var FoundRecords: Boolean)

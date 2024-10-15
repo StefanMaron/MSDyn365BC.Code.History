@@ -45,6 +45,7 @@ table 114 "Sales Cr.Memo Header"
     DataCaptionFields = "No.", "Sell-to Customer Name";
     DrillDownPageID = "Posted Sales Credit Memos";
     LookupPageID = "Posted Sales Credit Memos";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -296,6 +297,11 @@ table 114 "Sales Cr.Memo Header"
         {
             Caption = 'VAT Registration No.';
         }
+        field(72; "Registration Number"; Text[50])
+        {
+            Caption = 'Registration No.';
+            DataClassification = CustomerContent;
+        }
         field(73; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';
@@ -441,10 +447,22 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'Shipping Agent Code';
             TableRelation = "Shipping Agent";
         }
+#if not CLEAN24
         field(106; "Package Tracking No."; Text[30])
         {
             Caption = 'Package Tracking No.';
+            ObsoleteReason = 'Field length will be increased to 50.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
         }
+#else
+#pragma warning disable AS0086
+        field(106; "Package Tracking No."; Text[50])
+        {
+            Caption = 'Package Tracking No.';
+        }
+#pragma warning restore AS0086
+#endif
         field(107; "Pre-Assigned No. Series"; Code[20])
         {
             Caption = 'Pre-Assigned No. Series';
@@ -568,7 +586,7 @@ table 114 "Sales Cr.Memo Header"
         }
         field(1302; Paid; Boolean)
         {
-            CalcFormula = - Exist("Cust. Ledger Entry" where("Entry No." = field("Cust. Ledger Entry No."),
+            CalcFormula = - exist("Cust. Ledger Entry" where("Entry No." = field("Cust. Ledger Entry No."),
                                                              Open = filter(true)));
             Caption = 'Paid';
             Editable = false;
@@ -857,7 +875,6 @@ table 114 "Sales Cr.Memo Header"
     var
         ReportSelection: Record "Report Selections";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        ReportSelectionTmp: Record "Report Selections" temporary;
         TempSalesHeader: Record "Sales Header" temporary;
         CorrDocMgt: Codeunit "Corrective Document Mgt.";
         ReportDistributionMgt: Codeunit "Report Distribution Management";
@@ -868,25 +885,23 @@ table 114 "Sales Cr.Memo Header"
         if IsHandled then
             exit;
 
-        with SalesCrMemoHeader do begin
-            Copy(Rec);
-            CorrDocMgt.FillSalesCrMemoCorrHeader(TempSalesHeader, SalesCrMemoHeader);
-            if CorrDocMgt.IsCorrDocument(TempSalesHeader) then begin
-                if SendAsEmail then
-                    ReportSelection.SendEmailToCust(
-                      ReportSelection.Usage::CSCM.AsInteger(), SalesCrMemoHeader, "No.", '', ShowRequestForm, "Bill-to Customer No.")
-                else
-                    ReportSelection.PrintWithDialogForCust(
-                      ReportSelection.Usage::CSCM, SalesCrMemoHeader, ShowRequestForm, FieldNo("Bill-to Customer No."));
-            end else begin
-                if SendAsEmail then
-                    ReportSelection.SendEmailToCust(
-                      ReportSelection.Usage::"S.Cr.Memo".AsInteger(), SalesCrMemoHeader, "No.",
-                      ReportDistributionMgt.GetFullDocumentTypeText(SalesCrMemoHeader), ShowRequestForm, "Bill-to Customer No.")
-                else
-                    ReportSelection.PrintWithDialogForCust(
-                      ReportSelection.Usage::"S.Cr.Memo", SalesCrMemoHeader, ShowRequestForm, FieldNo("Bill-to Customer No."));
-            end;
+        SalesCrMemoHeader.Copy(Rec);
+        CorrDocMgt.FillSalesCrMemoCorrHeader(TempSalesHeader, SalesCrMemoHeader);
+        if CorrDocMgt.IsCorrDocument(TempSalesHeader) then begin
+            if SendAsEmail then
+                ReportSelection.SendEmailToCust(
+                  ReportSelection.Usage::CSCM.AsInteger(), SalesCrMemoHeader, SalesCrMemoHeader."No.", '', ShowRequestForm, SalesCrMemoHeader."Bill-to Customer No.")
+            else
+                ReportSelection.PrintWithDialogForCust(
+                  ReportSelection.Usage::CSCM, SalesCrMemoHeader, ShowRequestForm, SalesCrMemoHeader.FieldNo("Bill-to Customer No."));
+        end else begin
+            if SendAsEmail then
+                ReportSelection.SendEmailToCust(
+                  ReportSelection.Usage::"S.Cr.Memo".AsInteger(), SalesCrMemoHeader, SalesCrMemoHeader."No.",
+                  ReportDistributionMgt.GetFullDocumentTypeText(SalesCrMemoHeader), ShowRequestForm, SalesCrMemoHeader."Bill-to Customer No.")
+            else
+                ReportSelection.PrintWithDialogForCust(
+                  ReportSelection.Usage::"S.Cr.Memo", SalesCrMemoHeader, ShowRequestForm, SalesCrMemoHeader.FieldNo("Bill-to Customer No."));
         end;
     end;
 
@@ -1057,7 +1072,6 @@ table 114 "Sales Cr.Memo Header"
         ValueEntry: Record "Value Entry";
         ItemLedgEntry: Record "Item Ledger Entry";
         ReturnReceiptHeader: Record "Return Receipt Header";
-        ReturnReceiptLine: Record "Return Receipt Line";
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
         DocNoFilter: Text[250];
         I: Integer;

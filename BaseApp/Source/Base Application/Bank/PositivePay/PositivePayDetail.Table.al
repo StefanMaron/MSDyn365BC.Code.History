@@ -5,6 +5,7 @@ using System.IO;
 table 1241 "Positive Pay Detail"
 {
     Caption = 'Positive Pay Detail';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -44,6 +45,7 @@ table 1241 "Positive Pay Detail"
         field(9; Payee; Text[100])
         {
             Caption = 'Payee';
+            DataClassification = EndUserIdentifiableInformation;
         }
         field(10; "Currency Code"; Code[10])
         {

@@ -2,6 +2,7 @@ table 14920 "Assessed Tax Allowance"
 {
     Caption = 'Assessed Tax Allowance';
     LookupPageID = "Assessed Tax Allowances";
+    DataClassification = CustomerContent;
 
     fields
     {

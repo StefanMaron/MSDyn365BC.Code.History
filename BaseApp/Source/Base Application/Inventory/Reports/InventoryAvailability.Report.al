@@ -246,54 +246,52 @@ report 705 "Inventory Availability"
 
     procedure CalcNeed(Item: Record Item; LocationFilter: Text; VariantFilter: Text; ReorderPoint: Decimal)
     begin
-        with Item do begin
-            SetFilter("Location Filter", LocationFilter);
-            SetFilter("Variant Filter", VariantFilter);
-            SetRange("Drop Shipment Filter", false);
+        Item.SetFilter("Location Filter", LocationFilter);
+        Item.SetFilter("Variant Filter", VariantFilter);
+        Item.SetRange("Drop Shipment Filter", false);
 
-            SetRange("Date Filter", 0D, WorkDate());
-            CalcFields(
-              "Qty. on Purch. Order",
-              "Planning Receipt (Qty.)",
-              "Scheduled Receipt (Qty.)",
-              "Planned Order Receipt (Qty.)",
-              "Purch. Req. Receipt (Qty.)",
-              "Qty. in Transit",
-              "Trans. Ord. Receipt (Qty.)",
-              "Reserved Qty. on Inventory");
-            GlobalBackOrderQty :=
-              "Qty. on Purch. Order" + "Scheduled Receipt (Qty.)" + "Planned Order Receipt (Qty.)" +
-              "Qty. in Transit" + "Trans. Ord. Receipt (Qty.)" +
-              "Planning Receipt (Qty.)" + "Purch. Req. Receipt (Qty.)";
+        Item.SetRange("Date Filter", 0D, WorkDate());
+        Item.CalcFields(
+          "Qty. on Purch. Order",
+          "Planning Receipt (Qty.)",
+          "Scheduled Receipt (Qty.)",
+          "Planned Order Receipt (Qty.)",
+          "Purch. Req. Receipt (Qty.)",
+          "Qty. in Transit",
+          "Trans. Ord. Receipt (Qty.)",
+          "Reserved Qty. on Inventory");
+        GlobalBackOrderQty :=
+          Item."Qty. on Purch. Order" + Item."Scheduled Receipt (Qty.)" + Item."Planned Order Receipt (Qty.)" +
+          Item."Qty. in Transit" + Item."Trans. Ord. Receipt (Qty.)" +
+          Item."Planning Receipt (Qty.)" + Item."Purch. Req. Receipt (Qty.)";
 
-            SetRange("Date Filter", 0D, DMY2Date(31, 12, 9999));
-            GlobalGrossRequirement :=
-              AvailToPromise.CalcGrossRequirement(Item);
-            GlobalScheduledReceipt :=
-              AvailToPromise.CalcScheduledReceipt(Item);
+        Item.SetRange("Date Filter", 0D, DMY2Date(31, 12, 9999));
+        GlobalGrossRequirement :=
+          AvailToPromise.CalcGrossRequirement(Item);
+        GlobalScheduledReceipt :=
+          AvailToPromise.CalcScheduledReceipt(Item);
 
-            CalcFields(
-              Inventory,
-              "Planning Receipt (Qty.)",
-              "Planned Order Receipt (Qty.)",
-              "Purch. Req. Receipt (Qty.)",
-              "Res. Qty. on Req. Line");
+        Item.CalcFields(
+          Inventory,
+          "Planning Receipt (Qty.)",
+          "Planned Order Receipt (Qty.)",
+          "Purch. Req. Receipt (Qty.)",
+          "Res. Qty. on Req. Line");
 
-            GlobalScheduledReceipt := GlobalScheduledReceipt - "Planned Order Receipt (Qty.)";
+        GlobalScheduledReceipt := GlobalScheduledReceipt - Item."Planned Order Receipt (Qty.)";
 
-            GlobalPlannedOrderReceipt :=
-              "Planned Order Receipt (Qty.)" +
-              "Purch. Req. Receipt (Qty.)";
+        GlobalPlannedOrderReceipt :=
+          Item."Planned Order Receipt (Qty.)" +
+          Item."Purch. Req. Receipt (Qty.)";
 
-            GlobalProjAvailBalance :=
-              Inventory +
-              GlobalScheduledReceipt -
-              GlobalGrossRequirement +
-              "Purch. Req. Receipt (Qty.)" -
-              "Res. Qty. on Req. Line";
+        GlobalProjAvailBalance :=
+          Item.Inventory +
+          GlobalScheduledReceipt -
+          GlobalGrossRequirement +
+          Item."Purch. Req. Receipt (Qty.)" -
+          Item."Res. Qty. on Req. Line";
 
-            GlobalInvtReorder := GlobalProjAvailBalance < ReorderPoint;
-        end;
+        GlobalInvtReorder := GlobalProjAvailBalance < ReorderPoint;
     end;
 
     procedure InitializeRequest(NewUseStockkeepingUnit: Boolean)

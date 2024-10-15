@@ -34,9 +34,9 @@ codeunit 144712 "ERM TORG-29 Report"
         PostingDate: Date;
     begin
         Initialize();
-        PostingDate := GetLastValueEntryDate;
-        ItemNo := MockItem;
-        LocationCode := MockSimpleLocation;
+        PostingDate := GetLastValueEntryDate();
+        ItemNo := MockItem();
+        LocationCode := MockSimpleLocation();
         MockCostAmountValueEntries(TempValueEntryResid, ItemNo, LocationCode, PostingDate, 1);
         PostingDate := CalcDate('<1M>', PostingDate);
         MockCostAmountValueEntries(TempValueEntryRcpt, ItemNo, LocationCode, PostingDate, 1);
@@ -46,7 +46,7 @@ codeunit 144712 "ERM TORG-29 Report"
           TempValueEntryResid, TempValueEntryRcpt, TempValueEntryShpt);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure ResidOnStartWithPriceAmountType()
@@ -150,7 +150,7 @@ codeunit 144712 "ERM TORG-29 Report"
           StrSubstNo(WrongValueErr, TempRcptValueEntry.FieldCaption("Valued Quantity")));
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure ReceiptsWithPriceAmountType()
@@ -255,7 +255,7 @@ codeunit 144712 "ERM TORG-29 Report"
           StrSubstNo(WrongValueErr, TempShptValueEntry.FieldCaption("Valued Quantity")));
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure ShptsWithPriceAmountType()
@@ -332,9 +332,9 @@ codeunit 144712 "ERM TORG-29 Report"
     local procedure InitData(var PostingDate: Date; var ItemNo: Code[20]; var LocationCode: Code[10])
     begin
         Initialize();
-        PostingDate := CalcDate('<1M>', GetLastValueEntryDate);
-        ItemNo := MockItem;
-        LocationCode := MockSimpleLocation;
+        PostingDate := CalcDate('<1M>', GetLastValueEntryDate());
+        ItemNo := MockItem();
+        LocationCode := MockSimpleLocation();
     end;
 
     local procedure MockItem(): Code[20]
@@ -362,7 +362,7 @@ codeunit 144712 "ERM TORG-29 Report"
         exit(PriceListLine."Unit Price");
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure MockSalesPrice(ItemNo: Code[20]; PostingDate: Date): Decimal
     var
         SalesPrice: Record "Sales Price";
@@ -475,9 +475,9 @@ codeunit 144712 "ERM TORG-29 Report"
         SalesType: Option "Customer Price Group","All Customers",Campaign;
     begin
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        TORG29Rep.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        TORG29Rep.SetFileNameSilent(LibraryReportValidation.GetFileName());
         TORG29Rep.InitializeRequest(
-          LocationCode, '', MockEmployee, MockEmployee, PostingDate, PostingDate, '', 0, ReceiptsDetailing::Document, ShipmentDetailing::Document,
+          LocationCode, '', MockEmployee(), MockEmployee(), PostingDate, PostingDate, '', 0, ReceiptsDetailing::Document, ShipmentDetailing::Document,
           AmountType::Cost, SalesType::"All Customers", '', true, true);
         TORG29Rep.UseRequestPage(false);
         TORG29Rep.RunModal();
@@ -510,7 +510,7 @@ codeunit 144712 "ERM TORG-29 Report"
             repeat
                 VerifyLineValue(
                   RowShift, Format("Posting Date"), "Document No.", Format("Cost Amount (Actual)"), Format(-"Cost Amount (Actual)"));
-            until Next = 0;
+            until Next() = 0;
             LineRowId := 28 + RowShift;
             CalcSums("Cost Amount (Actual)");
             LibraryReportValidation.VerifyCellValue(LineRowId, 13, Format("Cost Amount (Actual)"));
@@ -524,7 +524,7 @@ codeunit 144712 "ERM TORG-29 Report"
             repeat
                 VerifyLineValue(
                   RowShift, Format("Posting Date"), "Document No.", Format(-"Cost Amount (Actual)"), Format(-"Cost Amount (Actual)"));
-            until Next = 0;
+            until Next() = 0;
             LineRowId := 28 + RowShift;
             CalcSums("Cost Amount (Actual)");
             LibraryReportValidation.VerifyCellValue(LineRowId, 13, Format(-"Cost Amount (Actual)"));
@@ -558,7 +558,7 @@ codeunit 144712 "ERM TORG-29 Report"
                 ErrorBuffer.TestField("Item No.", "Item No.");
                 ErrorBuffer.TestField("Posting Date", "Posting Date");
                 ErrorBuffer.TestField(Description, NoPriceFoundTxt);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 }

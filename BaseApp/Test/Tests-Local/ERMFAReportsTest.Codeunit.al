@@ -26,14 +26,14 @@ codeunit 144714 "ERM FA Reports Test"
     [Scope('OnPrem')]
     procedure FAMovementAct()
     begin
-        FAMovement;
+        FAMovement();
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure PostedFAMovementAct()
     begin
-        PostedFAMovement;
+        PostedFAMovement();
     end;
 
     [Test]
@@ -307,11 +307,11 @@ codeunit 144714 "ERM FA Reports Test"
         Initialize();
 
         // [GIVEN] FA Journal page.
-        FixedAssetJournal.OpenEdit;
+        FixedAssetJournal.OpenEdit();
 
         // [WHEN] Push "Print" on the page ribbon.
         EnqueueReportsNos(ReportSelections.Usage::FAJ.AsInteger());
-        FixedAssetJournal.Print.Invoke;
+        FixedAssetJournal.Print.Invoke();
 
         // [THEN] List of reports set for FA Journal is shown.
         // Verification is done in ReportSelectionPrintPageHandler.
@@ -370,8 +370,8 @@ codeunit 144714 "ERM FA Reports Test"
             Insert(true);
             "Posting Date" := WorkDate();
             "FA Posting Date" := WorkDate();
-            "FA Location Code" := CreateLocation;
-            "New FA Location Code" := CreateLocation;
+            "FA Location Code" := CreateLocation();
+            "New FA Location Code" := CreateLocation();
             Modify();
         end;
     end;
@@ -402,8 +402,8 @@ codeunit 144714 "ERM FA Reports Test"
             "No." := LibraryUtility.GenerateGUID();
             "Posting Date" := WorkDate();
             "FA Posting Date" := WorkDate();
-            "FA Location Code" := CreateLocation;
-            "New FA Location Code" := CreateLocation;
+            "FA Location Code" := CreateLocation();
+            "New FA Location Code" := CreateLocation();
             Insert();
         end;
     end;
@@ -458,7 +458,7 @@ codeunit 144714 "ERM FA Reports Test"
 
         FADocHeader.SetRange("No.", FADocNo);
         FA2Report.SetTableView(FADocHeader);
-        FA2Report.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        FA2Report.SetFileNameSilent(LibraryReportValidation.GetFileName());
         FA2Report.UseRequestPage(false);
         FA2Report.Run();
     end;
@@ -472,7 +472,7 @@ codeunit 144714 "ERM FA Reports Test"
 
         PostedFADocHeader.SetRange("No.", PostedFADocNo);
         PostedFA2Report.SetTableView(PostedFADocHeader);
-        PostedFA2Report.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        PostedFA2Report.SetFileNameSilent(LibraryReportValidation.GetFileName());
         PostedFA2Report.UseRequestPage(false);
         PostedFA2Report.Run();
     end;
@@ -495,7 +495,7 @@ codeunit 144714 "ERM FA Reports Test"
 
         PurchHeader.SetRange("No.", DocumentNo);
         FA14Report.SetTableView(PurchHeader);
-        FA14Report.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        FA14Report.SetFileNameSilent(LibraryReportValidation.GetFileName());
         FA14Report.UseRequestPage(false);
         FA14Report.Run();
 
@@ -511,7 +511,7 @@ codeunit 144714 "ERM FA Reports Test"
 
         PurchInvHeader.SetRange("No.", DocumentNo);
         FA14Report.SetTableView(PurchInvHeader);
-        FA14Report.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        FA14Report.SetFileNameSilent(LibraryReportValidation.GetFileName());
         FA14Report.UseRequestPage(false);
         FA14Report.Run();
 
@@ -572,7 +572,7 @@ codeunit 144714 "ERM FA Reports Test"
         FixedAsset: Record "Fixed Asset";
     begin
         LibraryFixedAsset.CreateFixedAssetWithSetup(FixedAsset);
-        FixedAsset."FA Location Code" := CreateFALocation;
+        FixedAsset."FA Location Code" := CreateFALocation();
         FixedAsset.Modify();
         FADeprBook.SetRange("FA No.", FixedAsset."No.");
         FADeprBook.SetRange("Depreciation Book Code", LibraryRUReports.GetFirstFADeprBook(FixedAsset."No."));
@@ -612,7 +612,7 @@ codeunit 144714 "ERM FA Reports Test"
         FixedAsset.SetRange("No.", FANo);
         FAInvCardFA6.SetTableView(FixedAsset);
         FAInvCardFA6.InitializeRequest(WorkDate(), LibraryRUReports.GetFirstFADeprBook(FANo));
-        FAInvCardFA6.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        FAInvCardFA6.SetFileNameSilent(LibraryReportValidation.GetFileName());
         FAInvCardFA6.UseRequestPage(false);
         FAInvCardFA6.Run();
     end;
@@ -634,7 +634,7 @@ codeunit 144714 "ERM FA Reports Test"
             FindSet();
             repeat
                 LibraryVariableStorage.Enqueue("Report ID");
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -656,7 +656,7 @@ codeunit 144714 "ERM FA Reports Test"
                 Quantity := LibraryRandom.RandDecInRange(2, 5, 2);
                 "Reclassification Entry" := not InitialAcquisition;
                 Modify();
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -679,7 +679,7 @@ codeunit 144714 "ERM FA Reports Test"
                 i += 1;
                 LibraryReportValidation.VerifyCellValue(58 + i, 39, FormatAmount(FADeprBook."Acquisition Cost" + FADeprBook.Depreciation));
                 LibraryReportValidation.VerifyCellValue(58 + i, 10, TransferOperationTypeTxt);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -692,7 +692,7 @@ codeunit 144714 "ERM FA Reports Test"
 
         FADocumentHeader.SetRange("No.", DocumentNo);
         FAMovementFA15.SetTableView(FADocumentHeader);
-        FAMovementFA15.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        FAMovementFA15.SetFileNameSilent(LibraryReportValidation.GetFileName());
         FAMovementFA15.UseRequestPage(false);
         FAMovementFA15.Run();
     end;
@@ -706,7 +706,7 @@ codeunit 144714 "ERM FA Reports Test"
 
         PostedFADocHeader.SetRange("No.", DocumentNo);
         PostedFAMovementFA15.SetTableView(PostedFADocHeader);
-        PostedFAMovementFA15.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        PostedFAMovementFA15.SetFileNameSilent(LibraryReportValidation.GetFileName());
         PostedFAMovementFA15.UseRequestPage(false);
         PostedFAMovementFA15.Run();
     end;
@@ -722,32 +722,32 @@ codeunit 144714 "ERM FA Reports Test"
     [Scope('OnPrem')]
     procedure ReportSelectionPrintPageHandler(var ReportSelectionPrint: TestPage "Report Selection - Print")
     begin
-        ReportSelectionPrint.Last;
+        ReportSelectionPrint.Last();
         repeat
-            ReportSelectionPrint."Report ID".AssertEquals(LibraryVariableStorage.DequeueInteger);
-        until not ReportSelectionPrint.Previous;
-        ReportSelectionPrint.OK.Invoke;
+            ReportSelectionPrint."Report ID".AssertEquals(LibraryVariableStorage.DequeueInteger());
+        until not ReportSelectionPrint.Previous();
+        ReportSelectionPrint.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure FAJournalTemplateListPageHandler(var FAJournalTemplateList: TestPage "FA Journal Template List")
     begin
-        FAJournalTemplateList.OK.Invoke;
+        FAJournalTemplateList.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure FAPhysInventoryINV1aRequestPageHandler(var FAPhysInventoryINV1a: TestRequestPage "FA Phys. Inventory INV-1a")
     begin
-        FAPhysInventoryINV1a.Cancel.Invoke;
+        FAPhysInventoryINV1a.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure FAComparativeSheetINV18RequestPageHandler(var FAComparativeSheetINV18: TestRequestPage "FA Comparative Sheet INV-18")
     begin
-        FAComparativeSheetINV18.Cancel.Invoke;
+        FAComparativeSheetINV18.Cancel().Invoke();
     end;
 }
 

@@ -25,6 +25,7 @@ codeunit 1336 "Item Templ. Mgt."
     procedure CreateItemFromTemplate(var Item: Record Item; var IsHandled: Boolean; ItemTemplCode: Code[20]) Result: Boolean
     var
         ItemTempl: Record "Item Templ.";
+        InventorySetup: Record "Inventory Setup";
     begin
         IsHandled := false;
         OnBeforeCreateItemFromTemplate(Item, Result, IsHandled);
@@ -43,6 +44,11 @@ codeunit 1336 "Item Templ. Mgt."
 
         Item.Init();
         InitItemNo(Item, ItemTempl);
+	
+        InventorySetup.SetLoadFields("Default Costing Method");
+        InventorySetup.Get();
+        Item."Costing Method" := InventorySetup."Default Costing Method";
+	
         Item.Insert(true);
 
         ApplyItemTemplate(Item, ItemTempl, true);
@@ -109,7 +115,7 @@ codeunit 1336 "Item Templ. Mgt."
                 if (not UpdateExistingValues and (ItemFldRef.Value = EmptyItemFldRef.Value) and (ItemTemplFldRef.Value <> EmptyItemTemplFldRef.Value)) or
                    (UpdateExistingValues and (ItemTemplFldRef.Value <> EmptyItemTemplFldRef.Value))
                 then begin
-                    ItemFldRef.Value := ItemTemplFldRef.Value;
+                    ItemFldRef.Value := ItemTemplFldRef.Value();
                     FieldValidationList.Add(ItemTemplFldRef.Number);
                 end;
             end;
@@ -410,8 +416,7 @@ codeunit 1336 "Item Templ. Mgt."
 
     local procedure InitItemNo(var Item: Record Item; ItemTempl: Record "Item Templ.")
     var
-        InventorySetup: Record "Inventory Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -422,10 +427,14 @@ codeunit 1336 "Item Templ. Mgt."
         if ItemTempl."No. Series" = '' then
             exit;
 
-        InventorySetup.SetLoadFields("Default Costing Method");
-        InventorySetup.Get();
-        NoSeriesManagement.InitSeries(ItemTempl."No. Series", '', 0D, Item."No.", Item."No. Series");
-        Item."Costing Method" := InventorySetup."Default Costing Method";
+        Item."No. Series" := ItemTempl."No. Series";
+        if Item."No." <> '' then begin
+            NoSeries.TestManual(Item."No. Series");
+            exit;
+        end;
+
+        NoSeries.TestAutomatic(Item."No. Series");
+        Item."No." := NoSeries.GetNextNo(Item."No. Series");
     end;
 
     local procedure GetUnitOfMeasureCode(): Code[10]
@@ -630,18 +639,19 @@ codeunit 1336 "Item Templ. Mgt."
     procedure FillItemKeyFromInitSeries(var RecRef: RecordRef; ConfigTemplateHeader: Record "Config. Template Header")
     var
         Item: Record Item;
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         FldRef: FieldRef;
     begin
         if RecRef.Number = Database::Item then begin
             if ConfigTemplateHeader."Instance No. Series" = '' then
                 exit;
 
-            NoSeriesManagement.InitSeries(ConfigTemplateHeader."Instance No. Series", '', 0D, Item."No.", Item."No. Series");
+            NoSeries.TestAutomatic(ConfigTemplateHeader."Instance No. Series");
+
             FldRef := RecRef.Field(Item.FieldNo("No."));
-            FldRef.Value := Item."No.";
+            FldRef.Value := NoSeries.GetNextNo(ConfigTemplateHeader."Instance No. Series");
             FldRef := RecRef.Field(Item.FieldNo("No. Series"));
-            FldRef.Value := Item."No. Series";
+            FldRef.Value := ConfigTemplateHeader."Instance No. Series";
         end;
     end;
 

@@ -38,7 +38,7 @@ codeunit 144101 "ERM G/L Reports"
         GLCorrGeneralLedger.SetTableView(GLAccount);
         GLCorrGeneralLedger.Run();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('GLAcc_No_', DebitGLAccNo);
         LibraryReportDataset.AssertElementWithValueExists('NetChangeDebit', Amount);
     end;
@@ -60,7 +60,7 @@ codeunit 144101 "ERM G/L Reports"
         GLCorrJournalOrder.SetTableView(GLAccount);
         GLCorrJournalOrder.Run();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('GLAcc_No_', DebitGLAccNo);
         LibraryReportDataset.AssertElementWithValueExists('BalanceEnding', Amount);
     end;
@@ -85,7 +85,7 @@ codeunit 144101 "ERM G/L Reports"
         GLCorrEntriesAnalysis.SetTableView(GLAccount);
         GLCorrEntriesAnalysis.Run();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('GLAccForReport_No_', DebitGLAccNo);
         LibraryReportDataset.AssertElementWithValueExists('CorrespByDebit_Amount', DebitAmount);
         LibraryReportDataset.AssertElementWithValueExists('CorrespByCredit_Amount', CreditAmount);
@@ -112,7 +112,7 @@ codeunit 144101 "ERM G/L Reports"
         GLAccountTurnover.SetTableView(GLAccount);
         GLAccountTurnover.Run();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('GLAccNo', DebitGLAccNo);
         LibraryReportDataset.AssertElementWithValueExists('LineText_3_', FormatValue(DebitAmount, 3));
         LibraryReportDataset.AssertElementWithValueExists('LineText_4_', FormatValue(CreditAmount, 3));
@@ -139,7 +139,7 @@ codeunit 144101 "ERM G/L Reports"
         GLAccountCard.SetTableView(GLAccount);
         GLAccountCard.Run();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('GLAcc_No_', DebitGLAccNo);
         LibraryReportDataset.AssertElementWithValueExists('DebetAmount', DebitAmount);
         LibraryReportDataset.AssertElementWithValueExists('CreditAmount', CreditAmount);
@@ -166,7 +166,7 @@ codeunit 144101 "ERM G/L Reports"
         GLAccountEntriesAnalysis.SetTableView(GLAccount);
         GLAccountEntriesAnalysis.Run();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('G_L_Account_No_', DebitGLAccNo);
         LibraryReportDataset.AssertElementWithValueExists('DebitAmountText', FormatValue(DebitAmount, 3));
         LibraryReportDataset.AssertElementWithValueExists('CreditAmountText', FormatValue(CreditAmount, 3));
@@ -188,7 +188,7 @@ codeunit 144101 "ERM G/L Reports"
         BankAccountGLTurnover.SetTableView(BankAccount);
         BankAccountGLTurnover.Run();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Bank_Account__No__', BankAccount."No.");
         LibraryReportDataset.AssertElementWithValueExists('NetChangeDebit', Amount);
     end;
@@ -208,7 +208,7 @@ codeunit 144101 "ERM G/L Reports"
         CustomerGLTurnover.SetTableView(Customer);
         CustomerGLTurnover.Run();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Customer__No__', Customer."No.");
         LibraryReportDataset.AssertElementWithValueExists('Customer__G_L_Debit_Amount_', Amount);
     end;
@@ -228,7 +228,7 @@ codeunit 144101 "ERM G/L Reports"
         VendorGLTurnover.SetTableView(Vendor);
         VendorGLTurnover.Run();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Vendor__No__', Vendor."No.");
         LibraryReportDataset.AssertElementWithValueExists('Vendor__G_L_Debit_Amount_', Amount);
     end;
@@ -248,7 +248,7 @@ codeunit 144101 "ERM G/L Reports"
         FAGLTurnover.SetTableView(FixedAsset);
         FAGLTurnover.Run();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Fixed_Asset__No__', FixedAsset."No.");
         LibraryReportDataset.AssertElementWithValueExists('LineText_3_', FormatValue(Amount, 3));
     end;
@@ -268,7 +268,7 @@ codeunit 144101 "ERM G/L Reports"
         CustomerTurnover.SetTableView(Customer);
         CustomerTurnover.Run();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Customer__No__', Customer."No.");
         LibraryReportDataset.AssertElementWithValueExists('LineText_3_', FormatValue(Amount, 3));
     end;
@@ -288,9 +288,9 @@ codeunit 144101 "ERM G/L Reports"
         CustomerPostGrTurnover.SetTableView(Customer);
         CustomerPostGrTurnover.Run();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Customer_Posting_Group_Code', Customer."Customer Posting Group");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('LineAmount_5_', Amount);
     end;
 
@@ -309,7 +309,7 @@ codeunit 144101 "ERM G/L Reports"
         VendorTurnover.SetTableView(Vendor);
         VendorTurnover.Run();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Vendor__No__', Vendor."No.");
         LibraryReportDataset.AssertElementWithValueExists('LineText_3_', FormatValue(Amount, 3));
     end;
@@ -329,9 +329,9 @@ codeunit 144101 "ERM G/L Reports"
         VendorPostGrTurnover.SetTableView(Vendor);
         VendorPostGrTurnover.Run();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('VendorPostingGroup_Code', Vendor."Vendor Posting Group");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('LineAmount_3_', Amount);
     end;
 
@@ -354,7 +354,7 @@ codeunit 144101 "ERM G/L Reports"
 
         // [THEN] Fixed Asset has been printed with: Acquisition = 1000, Book Value = 1000
         // [THEN] Total line has been printed with: Acquisition = 1000, Book Value = 1000
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         VerifyFATurnoverValues(21, FixedAsset."No.", Amount, Amount);
         VerifyFATurnoverTotalValues(22, Amount, Amount);
     end;
@@ -389,7 +389,7 @@ codeunit 144101 "ERM G/L Reports"
         // [THEN] Fixed Asset "FA1" has been printed with: Acquisition = 1000, Book Value = 1000
         // [THEN] Fixed Asset "FA3" has been printed with: Acquisition = 2000, Book Value = 2000
         // [THEN] Total line has been printed with: Acquisition = 3000, Book Value = 3000
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         VerifyFATurnoverValues(21, FixedAsset[1]."No.", Amount[1], Amount[1]);
         VerifyFATurnoverValues(22, FixedAsset[3]."No.", Amount[2], Amount[2]);
         VerifyFATurnoverTotalValues(23, Amount[1] + Amount[2], Amount[1] + Amount[2]);
@@ -421,7 +421,7 @@ codeunit 144101 "ERM G/L Reports"
         ItemTurnover.SetTableView(Item);
         ItemTurnover.Run();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Item__No__', Item."No.");
         LibraryReportDataset.AssertElementWithValueExists('EndingQtyText', FormatValue(Qty, 4));
     end;
@@ -441,7 +441,7 @@ codeunit 144101 "ERM G/L Reports"
         CustomerAccountingCard.SetTableView(Customer);
         CustomerAccountingCard.Run();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Customer_No_', Customer."No.");
         LibraryReportDataset.AssertElementWithValueExists('Detailed_Cust__Ledg__Entry__Debit_Amount__LCY__', Amount);
     end;
@@ -461,7 +461,7 @@ codeunit 144101 "ERM G/L Reports"
         CustomerEntriesAnalysis.SetTableView(Customer);
         CustomerEntriesAnalysis.Run();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Customer_No_', Customer."No.");
         LibraryReportDataset.AssertElementWithValueExists('DocAmount', Amount);
     end;
@@ -481,7 +481,7 @@ codeunit 144101 "ERM G/L Reports"
         VendorAccountingCard.SetTableView(Vendor);
         VendorAccountingCard.Run();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Vendor_No_', Vendor."No.");
         LibraryReportDataset.AssertElementWithValueExists('Detailed_Vendor_Ledg__Entry__Debit_Amount__LCY__', Amount);
     end;
@@ -501,7 +501,7 @@ codeunit 144101 "ERM G/L Reports"
         VendorEntriesAnalysis.SetTableView(Vendor);
         VendorEntriesAnalysis.Run();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Vendor_No_', Vendor."No.");
         LibraryReportDataset.AssertElementWithValueExists('DocAmount', Amount);
     end;
@@ -521,7 +521,7 @@ codeunit 144101 "ERM G/L Reports"
         BankAccountCard.SetTableView(BankAccount);
         BankAccountCard.Run();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Bank_Account_No_', BankAccount."No.");
         LibraryReportDataset.AssertElementWithValueExists('Bank_Account_Ledger_Entry__Debit_Amount__LCY__', Amount);
     end;
@@ -555,7 +555,7 @@ codeunit 144101 "ERM G/L Reports"
         GLAccountCard.Run();
 
         // [THEN] 'TotalDebetAmount' = "P", 'TotalCreditAmount' = "N", BalanceEnding = "ABS(P-N)"
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('TotalDebetAmount', DebitAmount);
         LibraryReportDataset.AssertElementWithValueExists('TotalCreditAmount', CreditAmount);
         LibraryReportDataset.AssertElementWithValueExists('BalanceEnding', Abs(DebitAmount - CreditAmount));
@@ -649,10 +649,10 @@ codeunit 144101 "ERM G/L Reports"
         // [GIVEN] StartingDebitAmount = "A", StartingCreditAmount = "B" and StartingTotalAmount = "C" with "G/L Account Filter" = "RA".
         CalculateCustomerStartingBalance(
           Customer, StartingDebitAmount, StartingCreditAmount, StartingTotalAmount,
-          CustomerPostingGroup."Receivables Account", WorkDate + 1);
+          CustomerPostingGroup."Receivables Account", WorkDate() + 1);
 
         // [WHEN] Run "Customer G/L Turnover" report with "G/L Account Filter" = "RA" on 11/01/2017.
-        RunCustomerGLTurnover(CustomerPostingGroup."Receivables Account", WorkDate + 1, true);
+        RunCustomerGLTurnover(CustomerPostingGroup."Receivables Account", WorkDate() + 1, true);
 
         // [THEN] The totaling fields in the report read "Starting Debit Amount" = "A", "Starting Credit Amount" = "B", "Starting Total Amount" = "C".
         // [THEN] "Ending Debit Amount" = "A", "Ending Credit Amount" = "B", "Ending Total Amount" = "C".
@@ -739,7 +739,7 @@ codeunit 144101 "ERM G/L Reports"
           "G/L Account Filter", '%1|%2',
           CustomerPostingGroup."Receivables Account", CustomerPostingGroup."Prepayment Account");
         Customer.CalcFields("G/L Debit Amount", "G/L Credit Amount");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('TotalGLDebitAmount', Customer."G/L Debit Amount");
         LibraryReportDataset.AssertElementWithValueExists('TotalGLCreditAmount', Customer."G/L Credit Amount");
     end;
@@ -783,7 +783,7 @@ codeunit 144101 "ERM G/L Reports"
           "G/L Account Filter", '%1|%2',
           VendorPostingGroup."Payables Account", VendorPostingGroup."Prepayment Account");
         Vendor.CalcFields("G/L Debit Amount", "G/L Credit Amount");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('TotalGLDebitAmount', Vendor."G/L Debit Amount");
         LibraryReportDataset.AssertElementWithValueExists('TotalGLCreditAmount', Vendor."G/L Credit Amount");
     end;
@@ -818,7 +818,7 @@ codeunit 144101 "ERM G/L Reports"
         RunGLAccountCardReport(GLAccount);
 
         // [THEN] In the report G/L Account No equals to "Z" and Balance Ending equals Debit Amount "X"
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('GLAcc_No_', GLAccNo);
         LibraryReportDataset.AssertElementWithValueExists('BalanceEnding', DebitAmount);
     end;
@@ -857,7 +857,7 @@ codeunit 144101 "ERM G/L Reports"
         RunGLAccountCardReport(GLAccount);
 
         // [THEN] In the report G/L Account No equals to "Z" and Balance Ending equals Debit Amount "X"
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('GLAcc_No_', GLAccNo);
         LibraryReportDataset.AssertElementWithValueExists('BalanceEnding', DebitAmount);
     end;
@@ -948,7 +948,7 @@ codeunit 144101 "ERM G/L Reports"
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           "Gen. Journal Document Type"::" ", AccType, AccNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, Amount * Sign);
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), Amount * Sign);
         UpdateFAPostingType(GenJournalLine);
     end;
 
@@ -980,7 +980,7 @@ codeunit 144101 "ERM G/L Reports"
 
     local procedure CreateVendorWithPostingGroup(var Vendor: Record Vendor; VendorPostingGroupCode: Code[20])
     begin
-        Vendor.Get(LibraryPurchase.CreateVendorNo);
+        Vendor.Get(LibraryPurchase.CreateVendorNo());
         Vendor.Validate("Vendor Posting Group", VendorPostingGroupCode);
         Vendor.Modify(true);
     end;
@@ -1003,7 +1003,7 @@ codeunit 144101 "ERM G/L Reports"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
-        VendorPostingGroup.Validate("Payables Account", LibraryERM.CreateGLAccountNo);
+        VendorPostingGroup.Validate("Payables Account", LibraryERM.CreateGLAccountNo());
         VendorPostingGroup.Modify(true);
         Vendor.Validate("Vendor Posting Group", VendorPostingGroup.Code);
         Vendor.Validate("Agreement Posting", Vendor."Agreement Posting"::Mandatory);
@@ -1186,7 +1186,7 @@ codeunit 144101 "ERM G/L Reports"
                 StartingDebitAmount += "G/L Debit Amount";
                 StartingCreditAmount += "G/L Credit Amount";
                 StartingTotalAmount += "G/L Balance to Date";
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1261,7 +1261,7 @@ codeunit 144101 "ERM G/L Reports"
         CustomerAccountingCard: Report "Customer Accounting Card";
     begin
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName);
+        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName());
         Commit();
 
         Customer.SetRange("No.", CustomerNo);
@@ -1280,7 +1280,7 @@ codeunit 144101 "ERM G/L Reports"
     begin
         LibraryVariableStorage.Enqueue(SkipZeroLines);
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName);
+        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName());
         Commit();
 
         Customer.SetRange("Date Filter", ReportDate);
@@ -1305,7 +1305,7 @@ codeunit 144101 "ERM G/L Reports"
         Vendor: Record Vendor;
     begin
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName);
+        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName());
         Commit();
 
         Vendor.SetRange("Date Filter", ReportDate);
@@ -1329,7 +1329,7 @@ codeunit 144101 "ERM G/L Reports"
 
     local procedure VerifyPositiveCustomerAccountingCardValues(StartingBalance: Decimal; Amount: Decimal)
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValue(11, 5, LibraryReportValidation.FormatDecimalValue(StartingBalance));
         LibraryReportValidation.VerifyCellValue(11, 6, '');
         LibraryReportValidation.VerifyCellValue(18, 5, LibraryReportValidation.FormatDecimalValue(StartingBalance + Amount));
@@ -1338,7 +1338,7 @@ codeunit 144101 "ERM G/L Reports"
 
     local procedure VerifyNegativeCustomerAccountingCardValues(StartingBalance: Decimal; Amount: Decimal)
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValue(11, 5, '');
         LibraryReportValidation.VerifyCellValue(11, 6, LibraryReportValidation.FormatDecimalValue(StartingBalance));
         LibraryReportValidation.VerifyCellValue(18, 5, '');
@@ -1360,7 +1360,7 @@ codeunit 144101 "ERM G/L Reports"
 
     local procedure VerifyGLTurnoverValues(StartingDebitAmount: Decimal; StartingCreditAmount: Decimal; StartTotalAmount: Decimal; Offset: Integer)
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
 
         // beginning period detailed total
         LibraryReportValidation.VerifyCellValue(16 + Offset, 9, LibraryReportValidation.FormatDecimalValue(StartingDebitAmount));
@@ -1381,18 +1381,18 @@ codeunit 144101 "ERM G/L Reports"
     [Scope('OnPrem')]
     procedure GLCorrGLReportHandler(var GLCorrGeneralLedgerReport: TestRequestPage "G/L Corresp. General Ledger")
     begin
-        GLCorrGeneralLedgerReport.PeriodBegining.Lookup;
-        GLCorrGeneralLedgerReport.PeriodEnding.Lookup;
-        GLCorrGeneralLedgerReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLCorrGeneralLedgerReport.PeriodBegining.Lookup();
+        GLCorrGeneralLedgerReport.PeriodEnding.Lookup();
+        GLCorrGeneralLedgerReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure GLCorrJnlOrderReportHandler(var GLCorrJournalOrderReport: TestRequestPage "G/L Corresp. Journal Order")
     begin
-        GLCorrJournalOrderReport.PeriodBegining.Lookup;
-        GLCorrJournalOrderReport.PeriodEnding.Lookup;
-        GLCorrJournalOrderReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLCorrJournalOrderReport.PeriodBegining.Lookup();
+        GLCorrJournalOrderReport.PeriodEnding.Lookup();
+        GLCorrJournalOrderReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1402,28 +1402,28 @@ codeunit 144101 "ERM G/L Reports"
         GLCorrEntriesAnalysisReport.PeriodBeginning.SetValue(WorkDate());
         GLCorrEntriesAnalysisReport.EndingOfPeriod.SetValue(WorkDate());
         GLCorrEntriesAnalysisReport.DebitCreditSeparately.SetValue(WorkDate());
-        GLCorrEntriesAnalysisReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLCorrEntriesAnalysisReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure GLAccountTurnoverHandler(var GLAccountTurnoverReport: TestRequestPage "G/L Account Turnover")
     begin
-        GLAccountTurnoverReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLAccountTurnoverReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure GLAccountCardHandler(var GLAccountCard: TestRequestPage "G/L Account Card")
     begin
-        GLAccountCard.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLAccountCard.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure GLAccountEntriesAnalysisHandler(var GLAccountEntriesAnalysis: TestRequestPage "G/L Account Entries Analysis")
     begin
-        GLAccountEntriesAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLAccountEntriesAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1432,28 +1432,28 @@ codeunit 144101 "ERM G/L Reports"
     begin
         BankAccountGLTurnover."Starting Date".SetValue(WorkDate());
         BankAccountGLTurnover."Ending Date".SetValue(WorkDate());
-        BankAccountGLTurnover.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BankAccountGLTurnover.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CustomerGLTurnoverHandler(var CustomerGLTurnover: TestRequestPage "Customer G/L Turnover")
     begin
-        CustomerGLTurnover.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerGLTurnover.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure VendorGLTurnoverHandler(var VendorGLTurnover: TestRequestPage "Vendor G/L Turnover")
     begin
-        VendorGLTurnover.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorGLTurnover.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure FAGLTurnoverHandler(var FAGLTurnover: TestRequestPage "Fixed Asset G/L Turnover")
     begin
-        FAGLTurnover.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FAGLTurnover.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
@@ -1464,35 +1464,35 @@ codeunit 144101 "ERM G/L Reports"
     begin
         SelectReportingPeriod.FILTER.SetFilter("Period Type", Format(DatePeriod."Period Type"::Month));
         SelectReportingPeriod.FILTER.SetFilter("Period End", Format(ClosingDate(CalcDate('<CM>', WorkDate()))));
-        SelectReportingPeriod.OK.Invoke;
+        SelectReportingPeriod.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CustomerTurnoverHandler(var CustomerTurnover: TestRequestPage "Customer Turnover")
     begin
-        CustomerTurnover.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerTurnover.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CustomerPostGrTurnoverHandler(var CustomerPostGrTurnover: TestRequestPage "Customer Post. Gr. Turnover")
     begin
-        CustomerPostGrTurnover.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerPostGrTurnover.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure VendorTurnoverHandler(var VendorTurnover: TestRequestPage "Vendor Turnover")
     begin
-        VendorTurnover.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorTurnover.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure VendorPostGrTurnoverHandler(var VendorPostGrTurnover: TestRequestPage "Vendor Post. Gr. Turnover")
     begin
-        VendorPostGrTurnover.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorPostGrTurnover.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1501,51 +1501,51 @@ codeunit 144101 "ERM G/L Reports"
     begin
         FATurnover."Starting Date".SetValue(WorkDate());
         FATurnover."Ending Date".SetValue(WorkDate());
-        FATurnover."Depreciation Book Code".SetValue(LibraryVariableStorage.DequeueText);
+        FATurnover."Depreciation Book Code".SetValue(LibraryVariableStorage.DequeueText());
         FATurnover."Skip zero lines".SetValue(true);
-        FATurnover.SaveAsExcel(LibraryReportValidation.GetFileName);
+        FATurnover.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ItemTurnoverHandler(var ItemTurnover: TestRequestPage "Item Turnover (Qty.)")
     begin
-        ItemTurnover.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ItemTurnover.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CustomerAccountingCardHandler(var CustomerAccountingCard: TestRequestPage "Customer Accounting Card")
     begin
-        CustomerAccountingCard.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerAccountingCard.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CustomerEntriesAnalysisHandler(var CustomerEntriesAnalysis: TestRequestPage "Customer Entries Analysis")
     begin
-        CustomerEntriesAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerEntriesAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure VendorAccountingCardHandler(var VendorAccountingCard: TestRequestPage "Vendor Accounting Card")
     begin
-        VendorAccountingCard.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorAccountingCard.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure VendorEntriesAnalysisHandler(var VendorEntriesAnalysis: TestRequestPage "Vendor Entries Analysis")
     begin
-        VendorEntriesAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorEntriesAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure BankAccountCardHandler(var BankAccountCard: TestRequestPage "Bank Account Card")
     begin
-        BankAccountCard.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BankAccountCard.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1553,16 +1553,16 @@ codeunit 144101 "ERM G/L Reports"
     procedure CustomerAccountingCardRequestPageHandler(var CustomerAccountingCard: TestRequestPage "Customer Accounting Card")
     begin
         CustomerAccountingCard.Customer.SetFilter("Date Filter", Format(WorkDate()));
-        CustomerAccountingCard.Customer.SetFilter("G/L Account Filter", LibraryVariableStorage.DequeueText);
-        CustomerAccountingCard.SaveAsExcel(LibraryVariableStorage.DequeueText);
+        CustomerAccountingCard.Customer.SetFilter("G/L Account Filter", LibraryVariableStorage.DequeueText());
+        CustomerAccountingCard.SaveAsExcel(LibraryVariableStorage.DequeueText());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CustomerGLTurnoverRequestPageHandler(var CustomerGLTurnover: TestRequestPage "Customer G/L Turnover")
     begin
-        CustomerGLTurnover."Skip zero lines".SetValue(LibraryVariableStorage.DequeueBoolean);
-        CustomerGLTurnover.SaveAsExcel(LibraryVariableStorage.DequeueText);
+        CustomerGLTurnover."Skip zero lines".SetValue(LibraryVariableStorage.DequeueBoolean());
+        CustomerGLTurnover.SaveAsExcel(LibraryVariableStorage.DequeueText());
     end;
 
     [RequestPageHandler]
@@ -1570,7 +1570,7 @@ codeunit 144101 "ERM G/L Reports"
     procedure VendorGLTurnoverExcelPageHandler(var VendorGLTurnover: TestRequestPage "Vendor G/L Turnover")
     begin
         VendorGLTurnover."Skip zero lines".SetValue(true);
-        VendorGLTurnover.SaveAsExcel(LibraryVariableStorage.DequeueText);
+        VendorGLTurnover.SaveAsExcel(LibraryVariableStorage.DequeueText());
     end;
 }
 

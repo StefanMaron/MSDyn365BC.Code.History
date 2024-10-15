@@ -2,6 +2,7 @@ table 26556 "Table Individual Requisite"
 {
     Caption = 'Table Individual Requisite';
     LookupPageID = "Table Individual Requisites";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -69,61 +69,59 @@ codeunit 64 "Sales-Get Shipment"
         if IsHandled then
             exit;
 
-        with SalesShptLine2 do begin
-            SetFilter("Qty. Shipped Not Invoiced", '<>0');
-            OnCreateInvLinesOnBeforeFind(SalesShptLine2, SalesHeader);
-            if FindSet() then begin
-                SalesLine.LockTable();
-                SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-                SalesLine.SetRange("Document No.", SalesHeader."No.");
-                OnCreateInvLinesOnAfterSalesShptLineSetFilters(SalesShptLine2, SalesHeader);
-                SalesLine."Document Type" := SalesHeader."Document Type";
-                SalesLine."Document No." := SalesHeader."No.";
-                Window.Open(Text002 + Text003);
-                OnBeforeInsertLines(SalesHeader);
+        SalesShptLine2.SetFilter("Qty. Shipped Not Invoiced", '<>0');
+        OnCreateInvLinesOnBeforeFind(SalesShptLine2, SalesHeader);
+        if SalesShptLine2.FindSet() then begin
+            SalesLine.LockTable();
+            SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+            SalesLine.SetRange("Document No.", SalesHeader."No.");
+            OnCreateInvLinesOnAfterSalesShptLineSetFilters(SalesShptLine2, SalesHeader);
+            SalesLine."Document Type" := SalesHeader."Document Type";
+            SalesLine."Document No." := SalesHeader."No.";
+            Window.Open(Text002 + Text003);
+            OnBeforeInsertLines(SalesHeader);
 
-                repeat
-                    LineCount := LineCount + 1;
-                    Window.Update(1, LineCount);
-                    if SalesShptHeader."No." <> "Document No." then begin
-                        SalesShptHeader.Get("Document No.");
-                        TransferLine := true;
-                        if SalesShptHeader."Currency Code" <> SalesHeader."Currency Code" then begin
-                            Message(
-                              Text001,
-                              SalesHeader.FieldCaption("Currency Code"),
-                              SalesHeader.TableCaption(), SalesHeader."No.",
-                              SalesShptHeader.TableCaption(), SalesShptHeader."No.");
-                            TransferLine := false;
-                        end;
-                        if SalesShptHeader."Bill-to Customer No." <> SalesHeader."Bill-to Customer No." then begin
-                            Message(
-                              Text001,
-                              SalesHeader.FieldCaption("Bill-to Customer No."),
-                              SalesHeader.TableCaption(), SalesHeader."No.",
-                              SalesShptHeader.TableCaption(), SalesShptHeader."No.");
-                            TransferLine := false;
-                        end;
-                        OnBeforeTransferLineToSalesDoc(SalesShptHeader, SalesShptLine2, SalesHeader, TransferLine);
+            repeat
+                LineCount := LineCount + 1;
+                Window.Update(1, LineCount);
+                if SalesShptHeader."No." <> SalesShptLine2."Document No." then begin
+                    SalesShptHeader.Get(SalesShptLine2."Document No.");
+                    TransferLine := true;
+                    if SalesShptHeader."Currency Code" <> SalesHeader."Currency Code" then begin
+                        Message(
+                          Text001,
+                          SalesHeader.FieldCaption("Currency Code"),
+                          SalesHeader.TableCaption(), SalesHeader."No.",
+                          SalesShptHeader.TableCaption(), SalesShptHeader."No.");
+                        TransferLine := false;
                     end;
-                    InsertInvoiceLineFromShipmentLine(SalesShptLine2, TransferLine, PrepmtAmtToDeductRounding);
-                    OnAfterInsertLine(SalesShptLine, SalesLine, SalesShptLine2, TransferLine, SalesHeader);
-                    if SalesShptLine2."Order No." <> '' then
-                        if not OrderNoList.Contains(SalesShptLine2."Order No.") then
-                            OrderNoList.Add(SalesShptLine2."Order No.");
-                until Next() = 0;
+                    if SalesShptHeader."Bill-to Customer No." <> SalesHeader."Bill-to Customer No." then begin
+                        Message(
+                          Text001,
+                          SalesHeader.FieldCaption("Bill-to Customer No."),
+                          SalesHeader.TableCaption(), SalesHeader."No.",
+                          SalesShptHeader.TableCaption(), SalesShptHeader."No.");
+                        TransferLine := false;
+                    end;
+                    OnBeforeTransferLineToSalesDoc(SalesShptHeader, SalesShptLine2, SalesHeader, TransferLine);
+                end;
+                InsertInvoiceLineFromShipmentLine(SalesShptLine2, TransferLine, PrepmtAmtToDeductRounding);
+                OnAfterInsertLine(SalesShptLine, SalesLine, SalesShptLine2, TransferLine, SalesHeader);
+                if SalesShptLine2."Order No." <> '' then
+                    if not OrderNoList.Contains(SalesShptLine2."Order No.") then
+                        OrderNoList.Add(SalesShptLine2."Order No.");
+            until SalesShptLine2.Next() = 0;
 
-                UpdateItemChargeLines();
+            UpdateItemChargeLines();
 
-                if SalesLine.Find() then;
+            if SalesLine.Find() then;
 
-                OnAfterInsertLines(SalesHeader, SalesLine);
-                CalcInvoiceDiscount(SalesLine);
+            OnAfterInsertLines(SalesHeader, SalesLine);
+            CalcInvoiceDiscount(SalesLine);
 
-                if TransferLine then
-                    AdjustPrepmtAmtToDeductRounding(SalesLine, PrepmtAmtToDeductRounding);
-                CopyDocumentAttachments(OrderNoList, SalesHeader);
-            end;
+            if TransferLine then
+                AdjustPrepmtAmtToDeductRounding(SalesLine, PrepmtAmtToDeductRounding);
+            CopyDocumentAttachments(OrderNoList, SalesHeader);
         end;
         OnAfterCreateInvLines(SalesShptLine2, SalesHeader, SalesLine, SalesShptHeader);
     end;
@@ -218,69 +216,67 @@ codeunit 64 "Sales-Get Shipment"
         if IsHandled then
             exit;
 
-        with SalesOrderLine do begin
-            ItemChargeAssgntSales.SetRange("Document Type", "Document Type");
-            ItemChargeAssgntSales.SetRange("Document No.", "Document No.");
-            ItemChargeAssgntSales.SetRange("Document Line No.", "Line No.");
-            if ItemChargeAssgntSales.FindSet() then
-                repeat
-                    if ItemChargeAssgntSales."Qty. to Assign" <> 0 then begin
-                        ItemChargeAssgntSales2 := ItemChargeAssgntSales;
-                        ItemChargeAssgntSales2."Qty. to Assign" :=
-                          Round(QtyFactor * ItemChargeAssgntSales2."Qty. to Assign", UOMMgt.QtyRndPrecision());
-                        ItemChargeAssgntSales2.Validate("Qty. to Handle", ItemChargeAssgntSales2."Qty. to Assign");
-                        SalesLine2.SetRange("Shipment No.", SalesShptLine."Document No.");
-                        SalesLine2.SetRange("Shipment Line No.", SalesShptLine."Line No.");
-                        if SalesLine2.FindSet() then
-                            repeat
-                                SalesLine2.CalcFields("Qty. to Assign");
-                                InsertChargeAssgnt := SalesLine2."Qty. to Assign" <> SalesLine2.Quantity;
-                            until (SalesLine2.Next() = 0) or InsertChargeAssgnt;
+        ItemChargeAssgntSales.SetRange("Document Type", SalesOrderLine."Document Type");
+        ItemChargeAssgntSales.SetRange("Document No.", SalesOrderLine."Document No.");
+        ItemChargeAssgntSales.SetRange("Document Line No.", SalesOrderLine."Line No.");
+        if ItemChargeAssgntSales.FindSet() then
+            repeat
+                if ItemChargeAssgntSales."Qty. to Assign" <> 0 then begin
+                    ItemChargeAssgntSales2 := ItemChargeAssgntSales;
+                    ItemChargeAssgntSales2."Qty. to Assign" :=
+                      Round(QtyFactor * ItemChargeAssgntSales2."Qty. to Assign", UOMMgt.QtyRndPrecision());
+                    ItemChargeAssgntSales2.Validate("Qty. to Handle", ItemChargeAssgntSales2."Qty. to Assign");
+                    SalesLine2.SetRange("Shipment No.", SalesShptLine."Document No.");
+                    SalesLine2.SetRange("Shipment Line No.", SalesShptLine."Line No.");
+                    if SalesLine2.FindSet() then
+                        repeat
+                            SalesLine2.CalcFields("Qty. to Assign");
+                            InsertChargeAssgnt := SalesLine2."Qty. to Assign" <> SalesLine2.Quantity;
+                        until (SalesLine2.Next() = 0) or InsertChargeAssgnt;
 
+                    if InsertChargeAssgnt then begin
+                        ItemChargeAssgntSales2."Document Type" := SalesLine2."Document Type";
+                        ItemChargeAssgntSales2."Document No." := SalesLine2."Document No.";
+                        ItemChargeAssgntSales2."Document Line No." := SalesLine2."Line No.";
+                        ItemChargeAssgntSales2."Qty. Assigned" := 0;
+                        LineQtyToAssign :=
+                          ItemChargeAssgntSales2."Qty. to Assign" - GetQtyAssignedInNewLine(ItemChargeAssgntSales2);
+                        InsertChargeAssgnt := LineQtyToAssign <> 0;
                         if InsertChargeAssgnt then begin
-                            ItemChargeAssgntSales2."Document Type" := SalesLine2."Document Type";
-                            ItemChargeAssgntSales2."Document No." := SalesLine2."Document No.";
-                            ItemChargeAssgntSales2."Document Line No." := SalesLine2."Line No.";
-                            ItemChargeAssgntSales2."Qty. Assigned" := 0;
-                            LineQtyToAssign :=
-                              ItemChargeAssgntSales2."Qty. to Assign" - GetQtyAssignedInNewLine(ItemChargeAssgntSales2);
-                            InsertChargeAssgnt := LineQtyToAssign <> 0;
-                            if InsertChargeAssgnt then begin
-                                if Abs(QtyToAssign) < Abs(LineQtyToAssign) then
-                                    ItemChargeAssgntSales2."Qty. to Assign" := QtyToAssign;
-                                if Abs(SalesLine2.Quantity - SalesLine2."Qty. to Assign") <
-                                   Abs(LineQtyToAssign)
-                                then
-                                    ItemChargeAssgntSales2."Qty. to Assign" :=
-                                      SalesLine2.Quantity - SalesLine2."Qty. to Assign";
-                                ItemChargeAssgntSales2.Validate("Unit Cost");
+                            if Abs(QtyToAssign) < Abs(LineQtyToAssign) then
+                                ItemChargeAssgntSales2."Qty. to Assign" := QtyToAssign;
+                            if Abs(SalesLine2.Quantity - SalesLine2."Qty. to Assign") <
+                               Abs(LineQtyToAssign)
+                            then
+                                ItemChargeAssgntSales2."Qty. to Assign" :=
+                                  SalesLine2.Quantity - SalesLine2."Qty. to Assign";
+                            ItemChargeAssgntSales2.Validate("Unit Cost");
 
-                                if ItemChargeAssgntSales2."Applies-to Doc. Type" = "Document Type" then begin
-                                    ItemChargeAssgntSales2."Applies-to Doc. Type" := SalesLine2."Document Type";
-                                    ItemChargeAssgntSales2."Applies-to Doc. No." := SalesLine2."Document No.";
-                                    SetShipmentLineFilters(SalesShptLine2, ItemChargeAssgntSales, SalesLine2);
-                                    if SalesShptLine2.FindFirst() then begin
-                                        SalesLine2.SetCurrentKey("Document Type", "Shipment No.", "Shipment Line No.");
-                                        SalesLine2.SetRange("Document Type", "Document Type"::Invoice);
-                                        SalesLine2.SetRange("Shipment No.", SalesShptLine2."Document No.");
-                                        SalesLine2.SetRange("Shipment Line No.", SalesShptLine2."Line No.");
-                                        if SalesLine2.FindFirst() and (SalesLine2.Quantity <> 0) then
-                                            ItemChargeAssgntSales2."Applies-to Doc. Line No." := SalesLine2."Line No."
-                                        else
-                                            InsertChargeAssgnt := false;
-                                    end else
+                            if ItemChargeAssgntSales2."Applies-to Doc. Type" = SalesOrderLine."Document Type" then begin
+                                ItemChargeAssgntSales2."Applies-to Doc. Type" := SalesLine2."Document Type";
+                                ItemChargeAssgntSales2."Applies-to Doc. No." := SalesLine2."Document No.";
+                                SetShipmentLineFilters(SalesShptLine2, ItemChargeAssgntSales, SalesLine2);
+                                if SalesShptLine2.FindFirst() then begin
+                                    SalesLine2.SetCurrentKey("Document Type", "Shipment No.", "Shipment Line No.");
+                                    SalesLine2.SetRange("Document Type", SalesOrderLine."Document Type"::Invoice);
+                                    SalesLine2.SetRange("Shipment No.", SalesShptLine2."Document No.");
+                                    SalesLine2.SetRange("Shipment Line No.", SalesShptLine2."Line No.");
+                                    if SalesLine2.FindFirst() and (SalesLine2.Quantity <> 0) then
+                                        ItemChargeAssgntSales2."Applies-to Doc. Line No." := SalesLine2."Line No."
+                                    else
                                         InsertChargeAssgnt := false;
-                                end;
+                                end else
+                                    InsertChargeAssgnt := false;
                             end;
                         end;
-
-                        if InsertChargeAssgnt and (ItemChargeAssgntSales2."Qty. to Assign" <> 0) then begin
-                            ItemChargeAssgntSales2.Insert();
-                            QtyToAssign := QtyToAssign - ItemChargeAssgntSales2."Qty. to Assign";
-                        end;
                     end;
-                until ItemChargeAssgntSales.Next() = 0;
-        end;
+
+                    if InsertChargeAssgnt and (ItemChargeAssgntSales2."Qty. to Assign" <> 0) then begin
+                        ItemChargeAssgntSales2.Insert();
+                        QtyToAssign := QtyToAssign - ItemChargeAssgntSales2."Qty. to Assign";
+                    end;
+                end;
+            until ItemChargeAssgntSales.Next() = 0;
     end;
 
     local procedure SetShipmentLineFilters(var SalesShptLine2: Record "Sales Shipment Line"; var ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; var SalesLine2: Record "Sales Line")
@@ -310,16 +306,14 @@ codeunit 64 "Sales-Get Shipment"
 
     local procedure GetQtyAssignedInNewLine(ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"): Decimal
     begin
-        with ItemChargeAssgntSales do begin
-            SetRange("Document Type", "Document Type");
-            SetRange("Document No.", "Document No.");
-            SetRange("Document Line No.", "Document Line No.");
-            SetRange("Applies-to Doc. Type", "Applies-to Doc. Type");
-            SetRange("Applies-to Doc. No.", "Applies-to Doc. No.");
-            SetRange("Applies-to Doc. Line No.", "Applies-to Doc. Line No.");
-            CalcSums("Qty. to Assign");
-            exit("Qty. to Assign");
-        end;
+        ItemChargeAssgntSales.SetRange("Document Type", ItemChargeAssgntSales."Document Type");
+        ItemChargeAssgntSales.SetRange("Document No.", ItemChargeAssgntSales."Document No.");
+        ItemChargeAssgntSales.SetRange("Document Line No.", ItemChargeAssgntSales."Document Line No.");
+        ItemChargeAssgntSales.SetRange("Applies-to Doc. Type", ItemChargeAssgntSales."Applies-to Doc. Type");
+        ItemChargeAssgntSales.SetRange("Applies-to Doc. No.", ItemChargeAssgntSales."Applies-to Doc. No.");
+        ItemChargeAssgntSales.SetRange("Applies-to Doc. Line No.", ItemChargeAssgntSales."Applies-to Doc. Line No.");
+        ItemChargeAssgntSales.CalcSums("Qty. to Assign");
+        exit(ItemChargeAssgntSales."Qty. to Assign");
     end;
 
     procedure CalcInvoiceDiscount(var SalesLine: Record "Sales Line")
@@ -334,7 +328,7 @@ codeunit 64 "Sales-Get Shipment"
         end;
     end;
 
-    local procedure CalcUpdatePrepmtAmtToDeductRounding(SalesShptLine: Record "Sales Shipment Line"; SalesLine: Record "Sales Line"; var RoundingAmount: Decimal)
+    procedure CalcUpdatePrepmtAmtToDeductRounding(SalesShptLine: Record "Sales Shipment Line"; SalesLine: Record "Sales Line"; var RoundingAmount: Decimal)
     var
         SalesOrderLine: Record "Sales Line";
         Fraction: Decimal;
@@ -367,7 +361,7 @@ codeunit 64 "Sales-Get Shipment"
         end;
     end;
 
-    local procedure CheckSalesShptLineVATBusPostingGroup(SalesShptLine: Record "Sales Shipment Line"; SalesHeader: Record "Sales Header")
+    procedure CheckSalesShptLineVATBusPostingGroup(SalesShptLine: Record "Sales Shipment Line"; SalesHeader: Record "Sales Header")
     var
         IsHandled: Boolean;
     begin
@@ -398,7 +392,7 @@ codeunit 64 "Sales-Get Shipment"
         end;
     end;
 
-    local procedure CopyDocumentAttachments(var SalesShipmentLine: Record "Sales Shipment Line"; var SalesLine2: Record "Sales Line")
+    procedure CopyDocumentAttachments(var SalesShipmentLine: Record "Sales Shipment Line"; var SalesLine2: Record "Sales Line")
     var
         OrderSalesLine: Record "Sales Line";
         DocumentAttachmentMgmt: Codeunit "Document Attachment Mgmt";

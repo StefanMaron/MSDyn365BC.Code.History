@@ -15,12 +15,10 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryRandom: Codeunit "Library - Random";
         LibraryReportValidation: Codeunit "Library - Report Validation";
         LibraryRUReports: Codeunit "Library RU Reports";
         Assert: Codeunit Assert;
-        SalesDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         IsInitialized: Boolean;
         SalesVATLedgerKPPErr: Label 'Sales VAT Ledger Line incorrect Reg. Reason Code';
 
@@ -158,7 +156,7 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         FacturaInvoiceExcelExport(SalesHeader, true);
 
         // [THEN] Exported Proforma has correct Company Bank Payment details
-        VerifyProformaBankPaymentSection;
+        VerifyProformaBankPaymentSection();
     end;
 
     local procedure Initialize()
@@ -171,8 +169,8 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
             exit;
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        UpdateStockOutWarning;
-        UpdateCompanyInformation;
+        UpdateStockOutWarning();
+        UpdateCompanyInformation();
         IsInitialized := true;
     end;
 
@@ -182,7 +180,7 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         with Customer do begin
             Address := LibraryUtility.GenerateGUID();
             "Address 2" := LibraryUtility.GenerateGUID();
-            "KPP Code" := GenerateKPPCode;
+            "KPP Code" := GenerateKPPCode();
             County := LibraryUtility.GenerateGUID();
             Modify(true);
             AddShipToAddress("No.", ShipToAddress1);
@@ -203,7 +201,7 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         ShipToAddress.Address := LibraryUtility.GenerateGUID();
         ShipToAddress."Address 2" := LibraryUtility.GenerateGUID();
         ShipToAddress.County := LibraryUtility.GenerateGUID();
-        ShipToAddress."KPP Code" := GenerateKPPCode;
+        ShipToAddress."KPP Code" := GenerateKPPCode();
         ShipToAddress.Modify(true);
     end;
 
@@ -212,7 +210,7 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, CustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemNoWithTariff, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemNoWithTariff(), 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandInt(5));
         SalesLine.Modify(true);
         SalesHeader.Validate("Ship-to Code", ShipToCode);
@@ -238,7 +236,7 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         with Item do begin
             Validate(Description, CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Description), 0), 1, MaxStrLen(Description)));
             Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
-            Validate("Tariff No.", CreateTariffNo);
+            Validate("Tariff No.", CreateTariffNo());
             Modify(true);
             exit("No.");
         end;
@@ -262,7 +260,7 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         OrderFacturaInvoice: Report "Order Factura-Invoice (A)";
     begin
         LibraryReportValidation.SetFileName(SalesHeader."No.");
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
         Commit();
         SalesHeader.SetRange("No.", SalesHeader."No.");
         OrderFacturaInvoice.SetTableView(SalesHeader);
@@ -278,7 +276,7 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         PostedFacturaInvoice: Report "Posted Factura-Invoice (A)";
     begin
         LibraryReportValidation.SetFileName(DocumentNo);
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
         Commit();
         SalesInvHeader.SetRange("No.", DocumentNo);
         PostedFacturaInvoice.SetTableView(SalesInvHeader);
@@ -342,10 +340,10 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
             "Bank BIC" := LibraryUtility.GenerateGUID();
             "Bank Corresp. Account No." := LibraryUtility.GenerateGUID();
             "Bank Account No." := LibraryUtility.GenerateGUID();
-            "Country/Region Code" := LibraryVATLedger.MockCountryEAEU;
+            "Country/Region Code" := LibraryVATLedger.MockCountryEAEU();
             Modify();
         end;
-        LibraryRUReports.UpdateCompanyAddress;
+        LibraryRUReports.UpdateCompanyAddress();
     end;
 
     local procedure FormatAmount(DecimalValue: Decimal): Text
@@ -358,7 +356,7 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         LocalReportMgt: Codeunit "Local Report Management";
         FileName: Text;
     begin
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
         with ShipToAddress do
             LibraryRUReports.VerifyFactura_ConsigneeAndAddress(
               FileName,
@@ -376,7 +374,7 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
             FindSet();
             repeat
                 Assert.AreEqual(KPPCode, "Reg. Reason Code", SalesVATLedgerKPPErr);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -423,7 +421,7 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
     begin
         Offset := LineNo - 22;
         Item.Get(ItemNo);
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
         LibraryRUReports.VerifyFactura_LineNo(FileName, '1', 0);
         LibraryRUReports.VerifyFactura_ItemNo(FileName, Item.Description, 0);
         LibraryRUReports.VerifyFactura_TariffNo(FileName, Item."Tariff No.", 0);
@@ -443,9 +441,9 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         LocalReportMgt: Codeunit "Local Report Management";
         FileName: Text;
     begin
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
         LibraryRUReports.VerifyFactura_SellerName(FileName, LocalReportMgt.GetCompanyName());
-        LibraryRUReports.VerifyFactura_SellerAddress(FileName, LocalReportMgt.GetLegalAddress);
+        LibraryRUReports.VerifyFactura_SellerAddress(FileName, LocalReportMgt.GetLegalAddress());
         CompanyInformation.Get();
         LibraryRUReports.VerifyFactura_SellerINN(
           FileName, CompanyInformation."VAT Registration No." + ' / ' + CompanyInformation."KPP Code");

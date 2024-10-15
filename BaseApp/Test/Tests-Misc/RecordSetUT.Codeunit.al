@@ -140,7 +140,7 @@ codeunit 134235 "Record Set UT"
         TypeHelper.SortRecordRef(RecRef, Key, false);
 
         // Verify
-        Assert.IsFalse(TempCustomer.FindLast, 'No records should exist');
+        Assert.IsFalse(TempCustomer.FindLast(), 'No records should exist');
         Assert.IsTrue(StrPos(RecRef.GetView(), 'Descending') > 0, 'Record was not sorted descending');
     end;
 
@@ -2200,7 +2200,6 @@ codeunit 134235 "Record Set UT"
         RecRef: RecordRef;
         xSecurityFilter: SecurityFilter;
         ExpectedLastEntryNo: Integer;
-        EntryNo: Integer;
     begin
         // [FEATURE] [Find Record Management]
         // [SCENARIO 333173] FindLastEntryIgnoringSecurityFilter() reposition RecRef to last entry and keeps SecurityFiltering
@@ -2232,9 +2231,7 @@ codeunit 134235 "Record Set UT"
         GLEntry: Record "G/L Entry";
         FindRecordManagement: Codeunit "Find Record Management";
         RecRef: RecordRef;
-        xSecurityFilter: SecurityFilter;
         ExpectedLastEntryNo: Integer;
-        EntryNo: Integer;
     begin
         // [FEATURE] [Find Record Management]
         // [SCENARIO 333173] FindLastEntryIgnoringSecurityFilter() reposition RecRef to last entry considering current filters
@@ -2262,8 +2259,6 @@ codeunit 134235 "Record Set UT"
     procedure GLEntry_GetLastEntryNo()
     var
         GLEntry: Record "G/L Entry";
-        FindRecordManagement: Codeunit "Find Record Management";
-        RecRef: RecordRef;
         ExpectedLastEntryNo: Integer;
         LastEntryNo: Integer;
     begin
@@ -2291,8 +2286,6 @@ codeunit 134235 "Record Set UT"
     var
         GLEntry: Record "G/L Entry";
         TempGLEntry: Record "G/L Entry" temporary;
-        FindRecordManagement: Codeunit "Find Record Management";
-        RecRef: RecordRef;
         ExpectedLastEntryNo: Integer;
         LastEntryNo: Integer;
     begin
@@ -2323,8 +2316,6 @@ codeunit 134235 "Record Set UT"
     procedure GLEntry_GetLastEntry()
     var
         GLEntry: Record "G/L Entry";
-        FindRecordManagement: Codeunit "Find Record Management";
-        RecRef: RecordRef;
         ExpectedLastEntryNo: Integer;
         ExpectedLastTransactionNo: Integer;
         LastEntryNo: Integer;
@@ -2842,7 +2833,7 @@ codeunit 134235 "Record Set UT"
         end;
     end;
 
-    local procedure MockGLAccount(NewNo: Code[20]; NewName: Text[50]; DirectPosting: Boolean; AccountType: Option; NewBlockedValue: Boolean)
+    local procedure MockGLAccount(NewNo: Code[20]; NewName: Text[50]; DirectPosting: Boolean; AccountType: Enum "G/L Account Type"; NewBlockedValue: Boolean)
     var
         GLAccount: Record "G/L Account";
     begin
@@ -2926,7 +2917,7 @@ codeunit 134235 "Record Set UT"
             RecordSetTree.SetRange("Table No.", SetRecordRef.Number);
             RecordSetTree.SetRange(Value, SetRecordRef.RecordId);
             RecordSetTree.SetRange("Parent Node ID", RecordSetTree."Node ID");
-            Assert.IsTrue(RecordSetTree.FindFirst, 'Could not find the value in the Record Set Tree table');
+            Assert.IsTrue(RecordSetTree.FindFirst(), 'Could not find the value in the Record Set Tree table');
             Assert.IsTrue(
               RecordSetDefinition.Get(RecordSetTree."Table No.", SetID, RecordSetTree."Node ID"),
               'Could not find the value in the Record Set Definiton Table');

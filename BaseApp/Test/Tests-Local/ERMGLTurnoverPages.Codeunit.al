@@ -239,7 +239,7 @@
         GLAccountTurnover.Close();
 
         // [WHEN] Open Page 12405 "G/L Account Turnover" again
-        GLAccountTurnover.OpenEdit;
+        GLAccountTurnover.OpenEdit();
 
         // [THEN] "Debit Amount" = 0, "Credit Amount" = 100, "Balance at End Period" = -100
         VerifyGLAccountTurnoverPageValues(GLAccountTurnover, 0, CreditAmount[1], -CreditAmount[1]);
@@ -275,7 +275,7 @@
         OpenGLAccountTurnoverPage(GLAccountTurnover, GLAccountNo, SourceType::" ", '');
 
         // [WHEN] Run REP 12438 "G/L Account Entries Analysis" from the G/L Account Turnover page
-        GLAccountTurnover.GLAccountEntries.Invoke;
+        GLAccountTurnover.GLAccountEntries.Invoke();
         GLAccountTurnover.Close();
 
         // [THEN] The report prints:
@@ -315,7 +315,7 @@
         OpenGLAccountTurnoverPage(GLAccountTurnover, GLAccountNo, SourceType::Customer, '');
 
         // [WHEN] Run REP 12438 "G/L Account Entries Analysis" from the G/L Account Turnover page
-        GLAccountTurnover.GLAccountEntries.Invoke;
+        GLAccountTurnover.GLAccountEntries.Invoke();
         GLAccountTurnover.Close();
 
         // [THEN] The report prints:
@@ -355,7 +355,7 @@
         OpenGLAccountTurnoverPage(GLAccountTurnover, GLAccountNo, SourceType::Vendor, '');
 
         // [WHEN] Run REP 12438 "G/L Account Entries Analysis" from the G/L Account Turnover page
-        GLAccountTurnover.GLAccountEntries.Invoke;
+        GLAccountTurnover.GLAccountEntries.Invoke();
         GLAccountTurnover.Close();
 
         // [THEN] The report prints:
@@ -395,7 +395,7 @@
         OpenGLAccountTurnoverPage(GLAccountTurnover, GLAccountNo, SourceType::" ", CustomerNo[2]);
 
         // [WHEN] Run REP 12438 "G/L Account Entries Analysis" from the G/L Account Turnover page
-        GLAccountTurnover.GLAccountEntries.Invoke;
+        GLAccountTurnover.GLAccountEntries.Invoke();
         GLAccountTurnover.Close();
 
         // [THEN] The report prints:
@@ -435,7 +435,7 @@
         OpenGLAccountTurnoverPage(GLAccountTurnover, GLAccountNo, SourceType::" ", VendorNo[2]);
 
         // [WHEN] Run REP 12438 "G/L Account Entries Analysis" from the G/L Account Turnover page
-        GLAccountTurnover.GLAccountEntries.Invoke;
+        GLAccountTurnover.GLAccountEntries.Invoke();
         GLAccountTurnover.Close();
 
         // [THEN] The report prints:
@@ -475,7 +475,7 @@
         OpenGLAccountTurnoverPage(GLAccountTurnover, GLAccountNo, SourceType::Customer, CustomerNo[1]);
 
         // [WHEN] Run REP 12438 "G/L Account Entries Analysis" from the G/L Account Turnover page
-        GLAccountTurnover.GLAccountEntries.Invoke;
+        GLAccountTurnover.GLAccountEntries.Invoke();
         GLAccountTurnover.Close();
 
         // [THEN] The report prints:
@@ -515,7 +515,7 @@
         OpenGLAccountTurnoverPage(GLAccountTurnover, GLAccountNo, SourceType::Vendor, VendorNo[1]);
 
         // [WHEN] Run REP 12438 "G/L Account Entries Analysis" from the G/L Account Turnover page
-        GLAccountTurnover.GLAccountEntries.Invoke;
+        GLAccountTurnover.GLAccountEntries.Invoke();
         GLAccountTurnover.Close();
 
         // [THEN] The report prints:
@@ -584,7 +584,7 @@
 
     local procedure CreatePostGenJnlLine(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; AgrNo: Code[20]; Sign: Integer): Decimal
     begin
-        exit(CreatePostGenJnlLineWithGivenBalanceGLAccount(AccType, AccNo, AgrNo, Sign, LibraryERM.CreateGLAccountNo));
+        exit(CreatePostGenJnlLineWithGivenBalanceGLAccount(AccType, AccNo, AgrNo, Sign, LibraryERM.CreateGLAccountNo()));
     end;
 
     local procedure CreatePostGenJnlLineWithGivenBalanceGLAccount(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; AgrNo: Code[20]; Sign: Integer; BalanceGLAccNo: Code[20]): Decimal
@@ -628,7 +628,7 @@
 
     local procedure OpenGLAccountTurnoverPage(var GLAccountTurnover: TestPage "G/L Account Turnover"; GLAccountNo: Code[20]; SourceType: Option; SourceNo: Code[20])
     begin
-        GLAccountTurnover.OpenEdit;
+        GLAccountTurnover.OpenEdit();
         GLAccountTurnover."G/L Account Filter".SetValue(GLAccountNo);
         GLAccountTurnover.SourceType.SetValue(SourceType);
         GLAccountTurnover.SourceNo.SetValue(SourceNo);
@@ -648,7 +648,7 @@
 
     local procedure VerifyGLAccountEntriesAnalysisReportValues(Debit: Decimal; Credit: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.MoveToRow(1);
         LibraryReportDataset.AssertCurrentRowValueEquals('DebitAmountText', FormatDecimal(Debit));
         LibraryReportDataset.AssertCurrentRowValueEquals('CreditAmountText', '');
@@ -661,7 +661,7 @@
         LibraryReportDataset.AssertCurrentRowValueEquals('NetChangeDebitGLAcc', Debit);
         LibraryReportDataset.AssertCurrentRowValueEquals('NetChangeCreditGLAcc', Credit);
 
-        LibraryReportDataset.GetLastRow;
+        LibraryReportDataset.GetLastRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('BalanceEnding', Abs(Debit - Credit));
     end;
 
@@ -673,14 +673,14 @@
         CreditAmount: Variant;
     begin
         GLAccountTurnover.PeriodType.SetValue(0);
-        GLAccountTurnover.First;
+        GLAccountTurnover.First();
         LibraryVariableStorage.Dequeue(DebitAmount);
-        Assert.AreEqual(DebitAmount, GLAccountTurnover."Debit Amount".AsDEcimal, 'incorrect debit amount');
-        GLAccountTurnover."Debit Amount".DrillDown;
+        Assert.AreEqual(DebitAmount, GLAccountTurnover."Debit Amount".AsDecimal(), 'incorrect debit amount');
+        GLAccountTurnover."Debit Amount".DrillDown();
         LibraryVariableStorage.Dequeue(CreditAmount);
-        Assert.AreEqual(CreditAmount, GLAccountTurnover."Credit Amount".AsDEcimal, 'incorrect credit amount');
-        GLAccountTurnover."Credit Amount".DrillDown;
-        GLAccountTurnover.OK.Invoke;
+        Assert.AreEqual(CreditAmount, GLAccountTurnover."Credit Amount".AsDecimal(), 'incorrect credit amount');
+        GLAccountTurnover."Credit Amount".DrillDown();
+        GLAccountTurnover.OK().Invoke();
     end;
 
     [PageHandler]
@@ -690,11 +690,11 @@
         Amount: Variant;
     begin
         CustomerGLTurnover.PeriodType.SetValue(0);
-        CustomerGLTurnover.First;
+        CustomerGLTurnover.First();
         LibraryVariableStorage.Dequeue(Amount);
-        Assert.AreEqual(Amount, CustomerGLTurnover."G/L Debit Amount".AsDEcimal, 'incorrect amount');
-        CustomerGLTurnover."G/L Debit Amount".DrillDown;
-        CustomerGLTurnover.OK.Invoke;
+        Assert.AreEqual(Amount, CustomerGLTurnover."G/L Debit Amount".AsDecimal(), 'incorrect amount');
+        CustomerGLTurnover."G/L Debit Amount".DrillDown();
+        CustomerGLTurnover.OK().Invoke();
     end;
 
     [PageHandler]
@@ -704,11 +704,11 @@
         Amount: Variant;
     begin
         VendorGLTurnover.PeriodType.SetValue(0);
-        VendorGLTurnover.First;
+        VendorGLTurnover.First();
         LibraryVariableStorage.Dequeue(Amount);
-        Assert.AreEqual(Amount, VendorGLTurnover."G/L Debit Amount".AsDEcimal, 'incorrect amount');
-        VendorGLTurnover."G/L Debit Amount".DrillDown;
-        VendorGLTurnover.OK.Invoke;
+        Assert.AreEqual(Amount, VendorGLTurnover."G/L Debit Amount".AsDecimal(), 'incorrect amount');
+        VendorGLTurnover."G/L Debit Amount".DrillDown();
+        VendorGLTurnover.OK().Invoke();
     end;
 
     [PageHandler]
@@ -718,11 +718,11 @@
         Amount: Variant;
     begin
         FAGLTurnover.PeriodType.SetValue(0);
-        FAGLTurnover.First;
+        FAGLTurnover.First();
         LibraryVariableStorage.Dequeue(Amount);
-        Assert.AreEqual(Amount, FAGLTurnover."G/L Debit Amount".AsDEcimal, 'incorrect amount');
-        FAGLTurnover."G/L Debit Amount".DrillDown;
-        FAGLTurnover.OK.Invoke;
+        Assert.AreEqual(Amount, FAGLTurnover."G/L Debit Amount".AsDecimal(), 'incorrect amount');
+        FAGLTurnover."G/L Debit Amount".DrillDown();
+        FAGLTurnover.OK().Invoke();
     end;
 
     [PageHandler]
@@ -730,9 +730,9 @@
     procedure ItemTurnoverPageHandler(var ItemGLTurnover: TestPage "Item G/L Turnover")
     begin
         ItemGLTurnover.PeriodType.SetValue(0);
-        ItemGLTurnover.First;
-        ItemGLTurnover.DebitQuantity.DrillDown;
-        ItemGLTurnover.OK.Invoke;
+        ItemGLTurnover.First();
+        ItemGLTurnover.DebitQuantity.DrillDown();
+        ItemGLTurnover.OK().Invoke();
     end;
 
     [PageHandler]
@@ -742,11 +742,11 @@
         Amount: Variant;
     begin
         CustomerGLTurnoverAgr.PeriodType.SetValue(0);
-        CustomerGLTurnoverAgr.First;
+        CustomerGLTurnoverAgr.First();
         LibraryVariableStorage.Dequeue(Amount);
-        Assert.AreEqual(Amount, CustomerGLTurnoverAgr."G/L Debit Amount".AsDEcimal, 'incorrect amount');
-        CustomerGLTurnoverAgr."G/L Debit Amount".DrillDown;
-        CustomerGLTurnoverAgr.OK.Invoke;
+        Assert.AreEqual(Amount, CustomerGLTurnoverAgr."G/L Debit Amount".AsDecimal(), 'incorrect amount');
+        CustomerGLTurnoverAgr."G/L Debit Amount".DrillDown();
+        CustomerGLTurnoverAgr.OK().Invoke();
     end;
 
     [PageHandler]
@@ -756,32 +756,32 @@
         Amount: Variant;
     begin
         VendorGLTurnoverAgr.PeriodType.SetValue(0);
-        VendorGLTurnoverAgr.First;
+        VendorGLTurnoverAgr.First();
         LibraryVariableStorage.Dequeue(Amount);
-        Assert.AreEqual(Amount, VendorGLTurnoverAgr."G/L Debit Amount".AsDEcimal, 'incorrect amount');
-        VendorGLTurnoverAgr."G/L Debit Amount".DrillDown;
-        VendorGLTurnoverAgr.OK.Invoke;
+        Assert.AreEqual(Amount, VendorGLTurnoverAgr."G/L Debit Amount".AsDecimal(), 'incorrect amount');
+        VendorGLTurnoverAgr."G/L Debit Amount".DrillDown();
+        VendorGLTurnoverAgr.OK().Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure GLEntriesPageHandler(var GeneralLedgerEntries: TestPage "General Ledger Entries")
     begin
-        GeneralLedgerEntries.OK.Invoke;
+        GeneralLedgerEntries.OK().Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure ValueEntriesPageHandler(var ValueEntries: TestPage "Value Entries")
     begin
-        ValueEntries.OK.Invoke;
+        ValueEntries.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure GLAccountEntriesAnalysisRPH(var GLAccountEntriesAnalysis: TestRequestPage "G/L Account Entries Analysis")
     begin
-        GLAccountEntriesAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLAccountEntriesAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

@@ -29,7 +29,7 @@ codeunit 144510 "ERM FA Charges Allocation"
         FAChargeAmount: Decimal;
     begin
         // Verify FA Ledger Entries for FA Charge 1 Item
-        FAChargeCode := CreateFACharge;
+        FAChargeCode := CreateFACharge();
 
         CreateVendFAPurch(PurchaseHeader, FixedAssetNo, 1);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -53,7 +53,7 @@ codeunit 144510 "ERM FA Charges Allocation"
         FixedAssetNo: array[4] of Code[20];
     begin
         // Verify FA Ledger Entries for FA Charge and Credit Memo
-        FAChargeCode := CreateFACharge;
+        FAChargeCode := CreateFACharge();
 
         CreateVendFAPurch(PurchaseHeader, FixedAssetNo, 4);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -104,7 +104,7 @@ codeunit 144510 "ERM FA Charges Allocation"
         DeprDate: Date;
     begin
         // Verify Correct (Bonus) Depreciations Amounts after FA Charge
-        FAChargeCode := CreateFACharge;
+        FAChargeCode := CreateFACharge();
 
         PurchAmount := CreateVendFAPurch(PurchaseHeader, FixedAssetNo, 1);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -117,23 +117,23 @@ codeunit 144510 "ERM FA Charges Allocation"
         CreateAndPostFAReleaseDoc(FixedAssetNo[1], FAReleaseDate);
 
         DeprDate := CalcDate('<CM+2M>', WorkDate());
-        CalcBonusDepreciation(FixedAssetNo[1], GetTaxAccDeprBook, DeprDate, true);
-        CalcReleaseTaxDepr(FixedAssetNo[1], GetReleaseDeprBook, GetTaxAccDeprBook, DeprDate, true);
+        CalcBonusDepreciation(FixedAssetNo[1], GetTaxAccDeprBook(), DeprDate, true);
+        CalcReleaseTaxDepr(FixedAssetNo[1], GetReleaseDeprBook(), GetTaxAccDeprBook(), DeprDate, true);
 
         DeprDate := CalcDate('<CM+3M>', WorkDate());
-        CalcReleaseTaxDepr(FixedAssetNo[1], GetReleaseDeprBook, GetTaxAccDeprBook, DeprDate, true);
+        CalcReleaseTaxDepr(FixedAssetNo[1], GetReleaseDeprBook(), GetTaxAccDeprBook(), DeprDate, true);
 
-        DeprBonusAmount := Round(-PurchAndChargeAmount * (DeprBonusPct / 100), LibraryERM.GetAmountRoundingPrecision);
+        DeprBonusAmount := Round(-PurchAndChargeAmount * (DeprBonusPct / 100), LibraryERM.GetAmountRoundingPrecision());
         TaxDeprAmount :=
           -Round((PurchAndChargeAmount + DeprBonusAmount) /
-            GetDeprMonths(FixedAssetNo[1], GetTaxAccDeprBook), LibraryERM.GetAmountRoundingPrecision);
+            GetDeprMonths(FixedAssetNo[1], GetTaxAccDeprBook()), LibraryERM.GetAmountRoundingPrecision());
         DeprAmount :=
           -Round(PurchAndChargeAmount /
-            GetDeprMonths(FixedAssetNo[1], GetReleaseDeprBook), LibraryERM.GetAmountRoundingPrecision);
+            GetDeprMonths(FixedAssetNo[1], GetReleaseDeprBook()), LibraryERM.GetAmountRoundingPrecision());
 
-        VerifyDeprLedgerEntry(FixedAssetNo[1], 1, true, GetTaxAccDeprBook, DeprBonusAmount);
-        VerifyDeprLedgerEntry(FixedAssetNo[1], 2, false, GetTaxAccDeprBook, TaxDeprAmount);
-        VerifyDeprLedgerEntry(FixedAssetNo[1], 2, false, GetReleaseDeprBook, DeprAmount);
+        VerifyDeprLedgerEntry(FixedAssetNo[1], 1, true, GetTaxAccDeprBook(), DeprBonusAmount);
+        VerifyDeprLedgerEntry(FixedAssetNo[1], 2, false, GetTaxAccDeprBook(), TaxDeprAmount);
+        VerifyDeprLedgerEntry(FixedAssetNo[1], 2, false, GetReleaseDeprBook(), DeprAmount);
     end;
 
     [Test]
@@ -148,7 +148,7 @@ codeunit 144510 "ERM FA Charges Allocation"
         FixedAssetNo: array[4] of Code[20];
     begin
         // Verify FA Ledger Entry and GL Entry correct dimensions from FA Charge
-        FAChargeNo := CreateFACharge;
+        FAChargeNo := CreateFACharge();
 
         CreateDimensionDimValue(FAChargeNo, DimensionCode[1], DimensionValueCode[1]);
 
@@ -169,7 +169,7 @@ codeunit 144510 "ERM FA Charges Allocation"
     begin
         LibraryFixedAsset.CreateFixedAssetWithSetup(FixedAsset);
         SetRandFADeprBonus(FixedAsset."No.");
-        DeprBook.Get(GetReleaseDeprBook);
+        DeprBook.Get(GetReleaseDeprBook());
         DeprBook.Validate("Default Final Rounding Amount", 0);
         DeprBook.Modify(true);
         exit(FixedAsset."No.");
@@ -179,7 +179,7 @@ codeunit 144510 "ERM FA Charges Allocation"
     var
         FADeprBook: Record "FA Depreciation Book";
     begin
-        FADeprBook.Get(FixedAssetNo, GetTaxAccDeprBook);
+        FADeprBook.Get(FixedAssetNo, GetTaxAccDeprBook());
         FADeprBook.Validate("Depr. Bonus %", LibraryRandom.RandIntInRange(1, 99));
         FADeprBook.Modify(true);
     end;
@@ -188,7 +188,7 @@ codeunit 144510 "ERM FA Charges Allocation"
     var
         FADeprBook: Record "FA Depreciation Book";
     begin
-        FADeprBook.Get(FixedAssetNo, GetTaxAccDeprBook);
+        FADeprBook.Get(FixedAssetNo, GetTaxAccDeprBook());
         exit(FADeprBook."Depr. Bonus %");
     end;
 
@@ -222,11 +222,11 @@ codeunit 144510 "ERM FA Charges Allocation"
         Vendor: Record Vendor;
         Counter: Integer;
     begin
-        Setup;
+        Setup();
 
         LibraryPurchase.CreateVendor(Vendor);
         for Counter := 1 to Count do
-            FixedAssetNo[Counter] := CreateFA;
+            FixedAssetNo[Counter] := CreateFA();
 
         CreatePurchInv(PurchaseHeader, Vendor."No.", FixedAssetNo, Count);
 
@@ -244,7 +244,7 @@ codeunit 144510 "ERM FA Charges Allocation"
         TaxRegisterSetup."Calculate TD for each FA" := false;
         TaxRegisterSetup."Rel. Act as Depr. Bonus Base" := true;
         TaxRegisterSetup.Modify(true);
-        DeprBook.Get(GetTaxAccDeprBook);
+        DeprBook.Get(GetTaxAccDeprBook());
         DeprBook."Allow Identical Document No." := true;
         DeprBook.Modify();
         PurchasePayablesSetup.Get();
@@ -371,7 +371,7 @@ codeunit 144510 "ERM FA Charges Allocation"
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin
-        FindFADeprLedgerEntry(FANo, FALedgerEntry, FAChargeCode, GetTaxAccDeprBook);
+        FindFADeprLedgerEntry(FANo, FALedgerEntry, FAChargeCode, GetTaxAccDeprBook());
         CountFAChargeLELines(FALedgerEntry, LinesNo);
         VerifyFALedgerEntryAmount(FALedgerEntry, Sum);
     end;

@@ -58,11 +58,9 @@ codeunit 17204 "Create Tax Register CV Entry"
         Clear(CVDebitBalance);
         Clear(CVCreditBalance);
 
-        with Vendor do begin
-            SetFilter("Vendor Type", '%1|%2', "Vendor Type"::Vendor, "Vendor Type"::"Resp. Employee");
-            SetFilter("Vendor Type", '%1', "Vendor Type"::Vendor);
-            Total := Count;
-        end;
+        Vendor.SetFilter("Vendor Type", '%1|%2', Vendor."Vendor Type"::Vendor, Vendor."Vendor Type"::"Resp. Employee");
+        Vendor.SetFilter("Vendor Type", '%1', Vendor."Vendor Type"::Vendor);
+        Total := Vendor.Count;
 
         Window.Update(4, Customer.TableCaption());
         Total += Customer.Count();
@@ -79,60 +77,58 @@ codeunit 17204 "Create Tax Register CV Entry"
                 TaxRegCVEntry."C/V No." := Customer."No.";
                 TaxRegCVEntry."Object Type" := TaxRegCVEntry."Object Type"::Customer;
 
-                with DtldCustLedgEntry do begin
-                    CustLedgEntry.SetRange(Positive, true);
-                    ExistEntry := CustLedgEntry.FindFirst();
+                CustLedgEntry.SetRange(Positive, true);
+                ExistEntry := CustLedgEntry.FindFirst();
 
-                    Reset();
-                    SetCurrentKey("Customer No.", "Initial Entry Positive", "Initial Entry Due Date", "Posting Date");
-                    SetRange("Customer No.", Customer."No.");
-                    SetRange("Initial Entry Positive", true);
-                    SetFilter("Posting Date", '..%1', EndDate);
-                    CalcSums("Amount (LCY)");
-                    if ExistEntry or ("Amount (LCY)" <> 0) then begin
-                        TaxRegCVEntry."Register Type" := TaxRegCVEntry."Register Type"::"Debit Balance";
-                        TaxRegCVEntry."CV Debit Balance Amnt 1" := "Amount (LCY)";
-                        SetFilter("Initial Entry Due Date", FiterDueDate45Days90Days);
-                        CalcSums("Amount (LCY)");
-                        TaxRegCVEntry."CV Debit Balance Amnt 2" := "Amount (LCY)";
-                        SetFilter("Initial Entry Due Date", FilterDueDate90Days3Years);
-                        CalcSums("Amount (LCY)");
-                        TaxRegCVEntry."CV Debit Balance Amnt 3" := "Amount (LCY)";
-                        SetFilter("Initial Entry Due Date", FilterDueDate3YearsDebit);
-                        CalcSums("Amount (LCY)");
-                        TaxRegCVEntry."CV Debit Balance Amnt 4" := "Amount (LCY)";
-                        TaxRegCVEntry."CV Debit Balance Amnt 2-4" :=
-                          TaxRegCVEntry."CV Debit Balance Amnt 2" +
-                          TaxRegCVEntry."CV Debit Balance Amnt 3" +
-                          TaxRegCVEntry."CV Debit Balance Amnt 4";
-                        TaxRegCVEntry."Entry No." += 1;
-                        TaxRegCVEntry.Insert();
-                        CVDebitBalance[1] += TaxRegCVEntry."CV Debit Balance Amnt 1";
-                        CVDebitBalance[2] += TaxRegCVEntry."CV Debit Balance Amnt 2";
-                        CVDebitBalance[3] += TaxRegCVEntry."CV Debit Balance Amnt 3";
-                        CVDebitBalance[4] += TaxRegCVEntry."CV Debit Balance Amnt 4";
-                    end;
+                DtldCustLedgEntry.Reset();
+                DtldCustLedgEntry.SetCurrentKey("Customer No.", "Initial Entry Positive", "Initial Entry Due Date", "Posting Date");
+                DtldCustLedgEntry.SetRange("Customer No.", Customer."No.");
+                DtldCustLedgEntry.SetRange("Initial Entry Positive", true);
+                DtldCustLedgEntry.SetFilter("Posting Date", '..%1', EndDate);
+                DtldCustLedgEntry.CalcSums("Amount (LCY)");
+                if ExistEntry or (DtldCustLedgEntry."Amount (LCY)" <> 0) then begin
+                    TaxRegCVEntry."Register Type" := TaxRegCVEntry."Register Type"::"Debit Balance";
+                    TaxRegCVEntry."CV Debit Balance Amnt 1" := DtldCustLedgEntry."Amount (LCY)";
+                    DtldCustLedgEntry.SetFilter("Initial Entry Due Date", FiterDueDate45Days90Days);
+                    DtldCustLedgEntry.CalcSums("Amount (LCY)");
+                    TaxRegCVEntry."CV Debit Balance Amnt 2" := DtldCustLedgEntry."Amount (LCY)";
+                    DtldCustLedgEntry.SetFilter("Initial Entry Due Date", FilterDueDate90Days3Years);
+                    DtldCustLedgEntry.CalcSums("Amount (LCY)");
+                    TaxRegCVEntry."CV Debit Balance Amnt 3" := DtldCustLedgEntry."Amount (LCY)";
+                    DtldCustLedgEntry.SetFilter("Initial Entry Due Date", FilterDueDate3YearsDebit);
+                    DtldCustLedgEntry.CalcSums("Amount (LCY)");
+                    TaxRegCVEntry."CV Debit Balance Amnt 4" := DtldCustLedgEntry."Amount (LCY)";
+                    TaxRegCVEntry."CV Debit Balance Amnt 2-4" :=
+                      TaxRegCVEntry."CV Debit Balance Amnt 2" +
+                      TaxRegCVEntry."CV Debit Balance Amnt 3" +
+                      TaxRegCVEntry."CV Debit Balance Amnt 4";
+                    TaxRegCVEntry."Entry No." += 1;
+                    TaxRegCVEntry.Insert();
+                    CVDebitBalance[1] += TaxRegCVEntry."CV Debit Balance Amnt 1";
+                    CVDebitBalance[2] += TaxRegCVEntry."CV Debit Balance Amnt 2";
+                    CVDebitBalance[3] += TaxRegCVEntry."CV Debit Balance Amnt 3";
+                    CVDebitBalance[4] += TaxRegCVEntry."CV Debit Balance Amnt 4";
+                end;
 
-                    CustLedgEntry.SetRange(Positive, false);
-                    ExistEntry := CustLedgEntry.FindFirst();
+                CustLedgEntry.SetRange(Positive, false);
+                ExistEntry := CustLedgEntry.FindFirst();
 
-                    Reset();
-                    SetCurrentKey("Customer No.", "Initial Entry Positive", "Initial Entry Due Date", "Posting Date");
-                    SetRange("Customer No.", Customer."No.");
-                    SetRange("Initial Entry Positive", false);
-                    SetFilter("Posting Date", '..%1', EndDate);
-                    CalcSums("Amount (LCY)");
-                    if ExistEntry or ("Amount (LCY)" <> 0) then begin
-                        TaxRegCVEntry."Register Type" := TaxRegCVEntry."Register Type"::"Credit Balance";
-                        TaxRegCVEntry."CV Credit Balance Amnt 1" := "Amount (LCY)";
-                        SetFilter("Initial Entry Due Date", FilterDueDate3YearsCredit);
-                        CalcSums("Amount (LCY)");
-                        TaxRegCVEntry."CV Credit Balance Amnt 2" := "Amount (LCY)";
-                        TaxRegCVEntry."Entry No." += 1;
-                        TaxRegCVEntry.Insert();
-                        CVCreditBalance[1] += TaxRegCVEntry."CV Credit Balance Amnt 1";
-                        CVCreditBalance[2] += TaxRegCVEntry."CV Credit Balance Amnt 2";
-                    end;
+                DtldCustLedgEntry.Reset();
+                DtldCustLedgEntry.SetCurrentKey("Customer No.", "Initial Entry Positive", "Initial Entry Due Date", "Posting Date");
+                DtldCustLedgEntry.SetRange("Customer No.", Customer."No.");
+                DtldCustLedgEntry.SetRange("Initial Entry Positive", false);
+                DtldCustLedgEntry.SetFilter("Posting Date", '..%1', EndDate);
+                DtldCustLedgEntry.CalcSums("Amount (LCY)");
+                if ExistEntry or (DtldCustLedgEntry."Amount (LCY)" <> 0) then begin
+                    TaxRegCVEntry."Register Type" := TaxRegCVEntry."Register Type"::"Credit Balance";
+                    TaxRegCVEntry."CV Credit Balance Amnt 1" := DtldCustLedgEntry."Amount (LCY)";
+                    DtldCustLedgEntry.SetFilter("Initial Entry Due Date", FilterDueDate3YearsCredit);
+                    DtldCustLedgEntry.CalcSums("Amount (LCY)");
+                    TaxRegCVEntry."CV Credit Balance Amnt 2" := DtldCustLedgEntry."Amount (LCY)";
+                    TaxRegCVEntry."Entry No." += 1;
+                    TaxRegCVEntry.Insert();
+                    CVCreditBalance[1] += TaxRegCVEntry."CV Credit Balance Amnt 1";
+                    CVCreditBalance[2] += TaxRegCVEntry."CV Credit Balance Amnt 2";
                 end;
 
             until Customer.Next() = 0;
@@ -150,60 +146,58 @@ codeunit 17204 "Create Tax Register CV Entry"
                 TaxRegCVEntry."C/V No." := Vendor."No.";
                 TaxRegCVEntry."Object Type" := TaxRegCVEntry."Object Type"::Vendor;
 
-                with DtldVendLedgEntry do begin
-                    VendLedgEntry.SetRange(Positive, true);
-                    ExistEntry := VendLedgEntry.FindFirst();
+                VendLedgEntry.SetRange(Positive, true);
+                ExistEntry := VendLedgEntry.FindFirst();
 
-                    Reset();
-                    SetCurrentKey("Vendor No.", "Initial Entry Positive", "Initial Entry Due Date", "Posting Date");
-                    SetRange("Vendor No.", Vendor."No.");
-                    SetRange("Initial Entry Positive", true);
-                    SetFilter("Posting Date", '..%1', EndDate);
-                    CalcSums("Amount (LCY)");
-                    if ExistEntry or ("Amount (LCY)" <> 0) then begin
-                        TaxRegCVEntry."Register Type" := TaxRegCVEntry."Register Type"::"Debit Balance";
-                        TaxRegCVEntry."CV Debit Balance Amnt 1" := "Amount (LCY)";
-                        SetFilter("Initial Entry Due Date", FiterDueDate45Days90Days);
-                        CalcSums("Amount (LCY)");
-                        TaxRegCVEntry."CV Debit Balance Amnt 2" := "Amount (LCY)";
-                        SetFilter("Initial Entry Due Date", FilterDueDate90Days3Years);
-                        CalcSums("Amount (LCY)");
-                        TaxRegCVEntry."CV Debit Balance Amnt 3" := "Amount (LCY)";
-                        SetFilter("Initial Entry Due Date", FilterDueDate3YearsDebit);
-                        CalcSums("Amount (LCY)");
-                        TaxRegCVEntry."CV Debit Balance Amnt 4" := "Amount (LCY)";
-                        TaxRegCVEntry."CV Debit Balance Amnt 2-4" :=
-                          TaxRegCVEntry."CV Debit Balance Amnt 2" +
-                          TaxRegCVEntry."CV Debit Balance Amnt 3" +
-                          TaxRegCVEntry."CV Debit Balance Amnt 4";
-                        TaxRegCVEntry."Entry No." += 1;
-                        TaxRegCVEntry.Insert();
-                        CVDebitBalance[1] += TaxRegCVEntry."CV Debit Balance Amnt 1";
-                        CVDebitBalance[2] += TaxRegCVEntry."CV Debit Balance Amnt 2";
-                        CVDebitBalance[3] += TaxRegCVEntry."CV Debit Balance Amnt 3";
-                        CVDebitBalance[4] += TaxRegCVEntry."CV Debit Balance Amnt 4";
-                    end;
+                DtldVendLedgEntry.Reset();
+                DtldVendLedgEntry.SetCurrentKey("Vendor No.", "Initial Entry Positive", "Initial Entry Due Date", "Posting Date");
+                DtldVendLedgEntry.SetRange("Vendor No.", Vendor."No.");
+                DtldVendLedgEntry.SetRange("Initial Entry Positive", true);
+                DtldVendLedgEntry.SetFilter("Posting Date", '..%1', EndDate);
+                DtldVendLedgEntry.CalcSums("Amount (LCY)");
+                if ExistEntry or (DtldVendLedgEntry."Amount (LCY)" <> 0) then begin
+                    TaxRegCVEntry."Register Type" := TaxRegCVEntry."Register Type"::"Debit Balance";
+                    TaxRegCVEntry."CV Debit Balance Amnt 1" := DtldVendLedgEntry."Amount (LCY)";
+                    DtldVendLedgEntry.SetFilter("Initial Entry Due Date", FiterDueDate45Days90Days);
+                    DtldVendLedgEntry.CalcSums("Amount (LCY)");
+                    TaxRegCVEntry."CV Debit Balance Amnt 2" := DtldVendLedgEntry."Amount (LCY)";
+                    DtldVendLedgEntry.SetFilter("Initial Entry Due Date", FilterDueDate90Days3Years);
+                    DtldVendLedgEntry.CalcSums("Amount (LCY)");
+                    TaxRegCVEntry."CV Debit Balance Amnt 3" := DtldVendLedgEntry."Amount (LCY)";
+                    DtldVendLedgEntry.SetFilter("Initial Entry Due Date", FilterDueDate3YearsDebit);
+                    DtldVendLedgEntry.CalcSums("Amount (LCY)");
+                    TaxRegCVEntry."CV Debit Balance Amnt 4" := DtldVendLedgEntry."Amount (LCY)";
+                    TaxRegCVEntry."CV Debit Balance Amnt 2-4" :=
+                      TaxRegCVEntry."CV Debit Balance Amnt 2" +
+                      TaxRegCVEntry."CV Debit Balance Amnt 3" +
+                      TaxRegCVEntry."CV Debit Balance Amnt 4";
+                    TaxRegCVEntry."Entry No." += 1;
+                    TaxRegCVEntry.Insert();
+                    CVDebitBalance[1] += TaxRegCVEntry."CV Debit Balance Amnt 1";
+                    CVDebitBalance[2] += TaxRegCVEntry."CV Debit Balance Amnt 2";
+                    CVDebitBalance[3] += TaxRegCVEntry."CV Debit Balance Amnt 3";
+                    CVDebitBalance[4] += TaxRegCVEntry."CV Debit Balance Amnt 4";
+                end;
 
-                    VendLedgEntry.SetRange(Positive, false);
-                    ExistEntry := VendLedgEntry.FindFirst();
+                VendLedgEntry.SetRange(Positive, false);
+                ExistEntry := VendLedgEntry.FindFirst();
 
-                    Reset();
-                    SetCurrentKey("Vendor No.", "Initial Entry Positive", "Initial Entry Due Date", "Posting Date");
-                    SetRange("Vendor No.", Vendor."No.");
-                    SetRange("Initial Entry Positive", false);
-                    SetFilter("Posting Date", '..%1', EndDate);
-                    CalcSums("Amount (LCY)");
-                    if ExistEntry or ("Amount (LCY)" <> 0) then begin
-                        TaxRegCVEntry."Register Type" := TaxRegCVEntry."Register Type"::"Credit Balance";
-                        TaxRegCVEntry."CV Credit Balance Amnt 1" := "Amount (LCY)";
-                        SetFilter("Initial Entry Due Date", FilterDueDate3YearsCredit);
-                        CalcSums("Amount (LCY)");
-                        TaxRegCVEntry."CV Credit Balance Amnt 2" := "Amount (LCY)";
-                        TaxRegCVEntry."Entry No." += 1;
-                        TaxRegCVEntry.Insert();
-                        CVCreditBalance[1] += TaxRegCVEntry."CV Credit Balance Amnt 1";
-                        CVCreditBalance[2] += TaxRegCVEntry."CV Credit Balance Amnt 2";
-                    end;
+                DtldVendLedgEntry.Reset();
+                DtldVendLedgEntry.SetCurrentKey("Vendor No.", "Initial Entry Positive", "Initial Entry Due Date", "Posting Date");
+                DtldVendLedgEntry.SetRange("Vendor No.", Vendor."No.");
+                DtldVendLedgEntry.SetRange("Initial Entry Positive", false);
+                DtldVendLedgEntry.SetFilter("Posting Date", '..%1', EndDate);
+                DtldVendLedgEntry.CalcSums("Amount (LCY)");
+                if ExistEntry or (DtldVendLedgEntry."Amount (LCY)" <> 0) then begin
+                    TaxRegCVEntry."Register Type" := TaxRegCVEntry."Register Type"::"Credit Balance";
+                    TaxRegCVEntry."CV Credit Balance Amnt 1" := DtldVendLedgEntry."Amount (LCY)";
+                    DtldVendLedgEntry.SetFilter("Initial Entry Due Date", FilterDueDate3YearsCredit);
+                    DtldVendLedgEntry.CalcSums("Amount (LCY)");
+                    TaxRegCVEntry."CV Credit Balance Amnt 2" := DtldVendLedgEntry."Amount (LCY)";
+                    TaxRegCVEntry."Entry No." += 1;
+                    TaxRegCVEntry.Insert();
+                    CVCreditBalance[1] += TaxRegCVEntry."CV Credit Balance Amnt 1";
+                    CVCreditBalance[2] += TaxRegCVEntry."CV Credit Balance Amnt 2";
                 end;
             until Vendor.Next() = 0;
 

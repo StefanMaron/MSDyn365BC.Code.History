@@ -15,14 +15,15 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
         ConfigValidateManagement: Codeunit "Config. Validate Management";
-        LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         isInitialized: Boolean;
         SingleEntryRecNo: Integer;
+#if not CLEAN23
         MigrationError: Label 'There are errors in Migration Data Error.';
         NoMigrationError: Label 'There must be errors in Migration Data Error.';
+#endif
         NoDataInTableAfterApply: Label 'There is no data in table after apply procedure.';
         DataIsInvalidAfterApply: Label 'Invalid data in field %1.';
         PackageValidationError: Label 'Package validation errors.';
@@ -48,7 +49,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM RS Fld. Validate and Apply");
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CreateResource(var Resource: Record Resource; var ResourcePrice: Record "Resource Price")
     var
         LibraryResource: Codeunit "Library - Resource";
@@ -221,7 +222,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         CheckGetOptionNo(Format(SalesCrMemoLine."IC Partner Ref. Type"), OptionNo.AsInteger());
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure TableValidation_ValidateTableWithWrongOrderInPK_PackageErrorGenerated()
@@ -402,7 +403,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         Assert.IsTrue(ConfigPackageError.IsEmpty, PackageValidationError);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure TableValidation_ValidateTableWhenValidatedRecordExists()
@@ -519,10 +520,10 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
     begin
         LibraryERM.FindGLAccount(GLAccount);
 
-        ConfigPackageRecords.First;
+        ConfigPackageRecords.First();
         ConfigPackageRecords.Field2.SetValue(GLAccount."No.");
 
-        Assert.IsFalse(ConfigPackageRecords.First, StrSubstNo(ListMustBeEmpty, ConfigPackageRecords.Caption));
+        Assert.IsFalse(ConfigPackageRecords.First(), StrSubstNo(ListMustBeEmpty, ConfigPackageRecords.Caption));
     end;
 
     [Test]
@@ -556,11 +557,11 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         ConfigPackageData.SetRange(Invalid, false);
         Assert.IsTrue(ConfigPackageData.IsEmpty, InvalidDataExpected);
 
-        ConfigPackageCard.OpenView;
+        ConfigPackageCard.OpenView();
         ConfigPackageCard.GotoRecord(ConfigPackage);
         ConfigPackageCard.Control10.GotoKey(ConfigPackage.Code, DATABASE::"Customer Posting Group");
 
-        ConfigPackageCard.Control10.PackageErrors.Invoke;
+        ConfigPackageCard.Control10.PackageErrors.Invoke();
 
         ConfigPackageData.Get(
           ConfigPackage.Code, DATABASE::"Customer Posting Group", 1, CustomerPostingGroup.FieldNo("Receivables Account"));
@@ -678,7 +679,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         Initialize();
 
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(
-            WorkDate - LibraryRandom.RandInt(365),
+            WorkDate() - LibraryRandom.RandInt(365),
             LibraryRandom.RandDec(2, 2),
             LibraryRandom.RandDec(2, 2));
         LibrarySales.CreateCustomer(Customer);
@@ -761,7 +762,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         Assert.AreEqual(0, ConfigPackageTable."No. of Package Errors", ConfigPackContErr);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure UT_SalesPriceTableProcessingOrder()

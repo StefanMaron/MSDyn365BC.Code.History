@@ -1,6 +1,7 @@
 table 26572 "XML Element Expression Line"
 {
     Caption = 'XML Element Expression Line';
+    DataClassification = CustomerContent;
 
     fields
     {

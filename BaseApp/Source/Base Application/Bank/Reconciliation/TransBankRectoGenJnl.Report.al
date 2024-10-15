@@ -43,8 +43,7 @@ report 1497 "Trans. Bank Rec. to Gen. Jnl."
                         GenJnlLine."Document No." := "Document No."
                     else
                         if GenJnlBatch."No. Series" <> '' then
-                            GenJnlLine."Document No." := NoSeriesMgt.GetNextNo(
-                                GenJnlBatch."No. Series", "Transaction Date", false);
+                            GenJnlLine."Document No." := NoSeriesBatch.GetNextNo(GenJnlBatch."No. Series", "Transaction Date");
                     GenJnlLine."Posting No. Series" := GenJnlBatch."Posting No. Series";
 
                     if (GenJnlBatch."Bal. Account No." <> '') and
@@ -106,7 +105,9 @@ report 1497 "Trans. Bank Rec. to Gen. Jnl."
                 group(Options)
                 {
                     Caption = 'Options';
+#pragma warning disable AA0100
                     field("GenJnlLine.""Journal Template Name"""; GenJnlLine."Journal Template Name")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Gen. Journal Template';
@@ -114,7 +115,9 @@ report 1497 "Trans. Bank Rec. to Gen. Jnl."
                         TableRelation = "Gen. Journal Template";
                         ToolTip = 'Specifies the general journal template that the entries are placed in.';
                     }
+#pragma warning disable AA0100
                     field("GenJnlLine.""Journal Batch Name"""; GenJnlLine."Journal Batch Name")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Gen. Journal Batch';
@@ -169,7 +172,7 @@ report 1497 "Trans. Bank Rec. to Gen. Jnl."
         GenJnlLine: Record "Gen. Journal Line";
         BankAccRecon: Record "Bank Acc. Reconciliation";
         GenJnlManagement: Codeunit GenJnlManagement;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
 
     procedure SetBankAccRecon(var UseBankAccRecon: Record "Bank Acc. Reconciliation")
     begin

@@ -3,18 +3,26 @@
     "name":  "Base Application",
     "publisher":  "Microsoft",
     "description":  "Provides business processes that are typical for small and mid-sized companies, such as sales and purchasing, and customer and vendor management, plus complex processes, such as assembly, manufacturing, service, and directed warehouse management. https://go.microsoft.com/fwlink/?LinkId=2205496",
-    "version":  "23.5.16502.16757",
+    "brief":  "Base Application (RU)",
+    "version":  "24.0.16410.18056",
     "logo":  "ExtensionLogo.png",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
     "EULA":  "https://go.microsoft.com/fwlink/?linkid=2009120",
     "help":  "https://go.microsoft.com/fwlink/?linkid=2104024",
     "url":  "https://go.microsoft.com/fwlink/?LinkId=724011",
+    "propagateDependencies":  true,
     "dependencies":  [
                          {
                              "id":  "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
                              "name":  "System Application",
                              "publisher":  "Microsoft",
-                             "version":  "23.5.0.0"
+                             "version":  "24.0.0.0"
+                         },
+                         {
+                             "id":  "f3552374-a1f2-4356-848e-196002525837",
+                             "name":  "Business Foundation",
+                             "publisher":  "Microsoft",
+                             "version":  "24.0.0.0"
                          }
                      ],
     "internalsVisibleTo":  [
@@ -89,6 +97,11 @@
                                    "publisher":  "Microsoft"
                                },
                                {
+                                   "id":  "1a424ad5-63df-4a3c-9e35-e347f644a831",
+                                   "name":  "Tests-Integration-Internal",
+                                   "publisher":  "Microsoft"
+                               },
+                               {
                                    "id":  "d0e99b97-089b-449f-a0f5-a2ab994dbfd7",
                                    "name":  "Tests-Upgrade",
                                    "publisher":  "Microsoft"
@@ -109,7 +122,7 @@
                                    "publisher":  "Microsoft"
                                }
                            ],
-    "platform":  "23.0.0.0",
+    "platform":  "24.0.0.0",
     "idRanges":  [
                      {
                          "from":  1,
@@ -161,7 +174,6 @@
                      }
                  ],
     "target":  "OnPrem",
-    "runtime":  "12.1",
     "features":  [
                      "NoImplicitWith"
                  ],
@@ -169,6 +181,5 @@
                                    "allowDebugging":  true,
                                    "allowDownloadingSource":  true,
                                    "includeSourceInSymbolFile":  true
-                               },
-    "brief":  "Base Application (RU)"
+                               }
 }

@@ -3,6 +3,7 @@ namespace Microsoft.Sales.History;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Sales.Document;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Sales.Setup;
 using Microsoft.Utilities;
 
@@ -41,67 +42,65 @@ codeunit 363 "PostSales-Delete"
         if IsHandled then
             exit;
 
-        with SalesHeader do begin
-            SourceCodeSetup.Get();
-            SourceCodeSetup.TestField("Deleted Document");
-            SourceCode.Get(SourceCodeSetup."Deleted Document");
+        SourceCodeSetup.Get();
+        SourceCodeSetup.TestField("Deleted Document");
+        SourceCode.Get(SourceCodeSetup."Deleted Document");
 
-            InitDeleteHeader(
-              SalesHeader, SalesShptHeader, SalesInvHeader, SalesCrMemoHeader,
-              ReturnRcptHeader, SalesInvHeaderPrePmt, SalesCrMemoHeaderPrePmt, SourceCode.Code);
+        InitDeleteHeader(
+          SalesHeader, SalesShptHeader, SalesInvHeader, SalesCrMemoHeader,
+          ReturnRcptHeader, SalesInvHeaderPrePmt, SalesCrMemoHeaderPrePmt, SourceCode.Code);
 
-            if SalesShptHeader."No." <> '' then begin
-                SalesShptHeader.Insert();
-                SalesShptLine.Init();
-                SalesShptLine."Document No." := SalesShptHeader."No.";
-                SalesShptLine."Line No." := 10000;
-                SalesShptLine.Description := SourceCode.Description;
-                SalesShptLine.Insert();
-            end;
+        if SalesShptHeader."No." <> '' then begin
+            SalesShptHeader.Insert();
+            SalesShptLine.Init();
+            SalesShptLine."Document No." := SalesShptHeader."No.";
+            SalesShptLine."Line No." := 10000;
+            SalesShptLine.Description := SourceCode.Description;
+            SalesShptLine.Insert();
+        end;
 
-            if ReturnRcptHeader."No." <> '' then begin
-                ReturnRcptHeader.Insert();
-                ReturnRcptLine.Init();
-                ReturnRcptLine."Document No." := ReturnRcptHeader."No.";
-                ReturnRcptLine."Line No." := 10000;
-                ReturnRcptLine.Description := SourceCode.Description;
-                ReturnRcptLine.Insert();
-            end;
+        if ReturnRcptHeader."No." <> '' then begin
+            ReturnRcptHeader.Insert();
+            ReturnRcptLine.Init();
+            ReturnRcptLine."Document No." := ReturnRcptHeader."No.";
+            ReturnRcptLine."Line No." := 10000;
+            ReturnRcptLine.Description := SourceCode.Description;
+            ReturnRcptLine.Insert();
+        end;
 
-            if SalesInvHeader."No." <> '' then begin
-                SalesInvHeader.Insert();
-                SalesInvLine.Init();
-                SalesInvLine."Document No." := SalesInvHeader."No.";
-                SalesInvLine."Line No." := 10000;
-                SalesInvLine.Description := SourceCode.Description;
-                SalesInvLine.Insert();
-            end;
+        if SalesInvHeader."No." <> '' then begin
+            SalesInvHeader.Insert();
+            SalesInvLine.Init();
+            SalesInvLine."Document No." := SalesInvHeader."No.";
+            SalesInvLine."Line No." := 10000;
+            SalesInvLine.Description := SourceCode.Description;
+            SalesInvLine.Insert();
+        end;
 
-            if SalesCrMemoHeader."No." <> '' then begin
-                SalesCrMemoHeader.Insert();
-                SalesCrMemoLine.Init();
-                SalesCrMemoLine."Document No." := SalesCrMemoHeader."No.";
-                SalesCrMemoLine."Line No." := 10000;
-                SalesCrMemoLine.Description := SourceCode.Description;
-                SalesCrMemoLine.Insert();
-            end;
+        if SalesCrMemoHeader."No." <> '' then begin
+            SalesCrMemoHeader.Insert();
+            SalesCrMemoLine.Init();
+            SalesCrMemoLine."Document No." := SalesCrMemoHeader."No.";
+            SalesCrMemoLine."Line No." := 10000;
+            SalesCrMemoLine.Description := SourceCode.Description;
+            SalesCrMemoLine.Insert();
+        end;
 
-            if SalesInvHeaderPrePmt."No." <> '' then begin
-                SalesInvHeaderPrePmt.Insert();
-                SalesInvLine."Document No." := SalesInvHeaderPrePmt."No.";
-                SalesInvLine."Line No." := 10000;
-                SalesInvLine.Description := SourceCode.Description;
-                SalesInvLine.Insert();
-            end;
+        if SalesInvHeaderPrePmt."No." <> '' then begin
+            SalesInvHeaderPrePmt.Insert();
+            SalesInvLine."Document No." := SalesInvHeaderPrePmt."No.";
+            SalesInvLine."Line No." := 10000;
+            SalesInvLine.Description := SourceCode.Description;
+            SalesInvLine.Insert();
+        end;
 
-            if SalesCrMemoHeaderPrePmt."No." <> '' then begin
-                SalesCrMemoHeaderPrePmt.Insert();
-                SalesCrMemoLine.Init();
-                SalesCrMemoLine."Document No." := SalesCrMemoHeaderPrePmt."No.";
-                SalesCrMemoLine."Line No." := 10000;
-                SalesCrMemoLine.Description := SourceCode.Description;
-                SalesCrMemoLine.Insert();
-            end;
+        if SalesCrMemoHeaderPrePmt."No." <> '' then begin
+            SalesCrMemoHeaderPrePmt.Insert();
+            SalesCrMemoLine.Init();
+            SalesCrMemoLine."Document No." := SalesCrMemoHeaderPrePmt."No.";
+            SalesCrMemoLine."Line No." := 10000;
+            SalesCrMemoLine.Description := SourceCode.Description;
+            SalesCrMemoLine.Insert();
         end;
 
         OnAfterDeleteHeader(
@@ -193,79 +192,77 @@ codeunit 363 "PostSales-Delete"
           SalesHeader, SalesShptHeader, SalesInvHeader, SalesCrMemoHeader, ReturnRcptHeader, SalesInvHeaderPrePmt, SalesCrMemoHeaderPrePmt,
           SourceCode);
 
-        with SalesHeader do begin
-            Clear(SalesShptHeader);
-            Clear(SalesInvHeader);
-            Clear(SalesCrMemoHeader);
-            Clear(ReturnRcptHeader);
-            SalesSetup.Get();
+        Clear(SalesShptHeader);
+        Clear(SalesInvHeader);
+        Clear(SalesCrMemoHeader);
+        Clear(ReturnRcptHeader);
+        SalesSetup.Get();
 
-            if ("Shipping No. Series" <> '') and ("Shipping No." <> '') then begin
-                SalesShptHeader.TransferFields(SalesHeader);
-                SalesShptHeader."No." := "Shipping No.";
-                SalesShptHeader."Posting Date" := Today;
-                SalesShptHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(SalesShptHeader."User ID"));
-                SalesShptHeader."Source Code" := SourceCode;
-            end;
+        if (SalesHeader."Shipping No. Series" <> '') and (SalesHeader."Shipping No." <> '') then begin
+            SalesShptHeader.TransferFields(SalesHeader);
+            SalesShptHeader."No." := SalesHeader."Shipping No.";
+            SalesShptHeader."Posting Date" := Today;
+            SalesShptHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(SalesShptHeader."User ID"));
+            SalesShptHeader."Source Code" := SourceCode;
+        end;
 
-            if ("Return Receipt No. Series" <> '') and ("Return Receipt No." <> '') then begin
-                ReturnRcptHeader.TransferFields(SalesHeader);
-                ReturnRcptHeader."No." := "Return Receipt No.";
-                ReturnRcptHeader."Posting Date" := Today;
-                ReturnRcptHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(ReturnRcptHeader."User ID"));
-                ReturnRcptHeader."Source Code" := SourceCode;
-            end;
+        if (SalesHeader."Return Receipt No. Series" <> '') and (SalesHeader."Return Receipt No." <> '') then begin
+            ReturnRcptHeader.TransferFields(SalesHeader);
+            ReturnRcptHeader."No." := SalesHeader."Return Receipt No.";
+            ReturnRcptHeader."Posting Date" := Today;
+            ReturnRcptHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(ReturnRcptHeader."User ID"));
+            ReturnRcptHeader."Source Code" := SourceCode;
+        end;
 
-            if ("Posting No. Series" <> '') and
-               (("Document Type" in ["Document Type"::Order, "Document Type"::Invoice]) and
-                ("Posting No." <> '') or
-                ("Document Type" = "Document Type"::Invoice) and
-                ("No. Series" = "Posting No. Series"))
-            then
-                InitSalesInvHeader(SalesInvHeader, SalesHeader, SourceCode);
+        if (SalesHeader."Posting No. Series" <> '') and
+           ((SalesHeader."Document Type" in [SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Invoice]) and
+            (SalesHeader."Posting No." <> '') or
+            (SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice) and
+            (SalesHeader."No. Series" = SalesHeader."Posting No. Series"))
+        then
+            InitSalesInvHeader(SalesInvHeader, SalesHeader, SourceCode);
 
-            if ("Posting No. Series" <> '') and
-               (("Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"]) and
-                ("Posting No." <> '') or
-                ("Document Type" = "Document Type"::"Credit Memo") and
-                ("No. Series" = "Posting No. Series"))
-            then begin
-                SalesCrMemoHeader.TransferFields(SalesHeader);
-                OnInitDeleteHeaderOnAfterSalesCrMemoHeaderTransferFields(SalesCrMemoHeader);
-                if "Posting No." <> '' then
-                    SalesCrMemoHeader."No." := "Posting No.";
-                SalesCrMemoHeader."Pre-Assigned No. Series" := "No. Series";
-                SalesCrMemoHeader."Pre-Assigned No." := "No.";
-                SalesCrMemoHeader."Posting Date" := Today;
-                SalesCrMemoHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(SalesCrMemoHeader."User ID"));
-                SalesCrMemoHeader."Source Code" := SourceCode;
-            end;
-            if ("Prepayment No. Series" <> '') and ("Prepayment No." <> '') then begin
-                TestField("Document Type", "Document Type"::Order);
-                SalesInvHeaderPrePmt.TransferFields(SalesHeader);
-                SalesInvHeaderPrePmt."No." := "Prepayment No.";
-                SalesInvHeaderPrePmt."Order No. Series" := "No. Series";
-                SalesInvHeaderPrePmt."Prepayment Order No." := "No.";
-                SalesInvHeaderPrePmt."Posting Date" := Today;
-                SalesInvHeaderPrePmt."Pre-Assigned No. Series" := '';
-                SalesInvHeaderPrePmt."Pre-Assigned No." := '';
-                SalesInvHeaderPrePmt."User ID" := CopyStr(UserId(), 1, MaxStrLen(SalesInvHeaderPrePmt."User ID"));
-                SalesInvHeaderPrePmt."Source Code" := SourceCode;
-                SalesInvHeaderPrePmt."Prepayment Invoice" := true;
-            end;
+        if (SalesHeader."Posting No. Series" <> '') and
+           ((SalesHeader."Document Type" in [SalesHeader."Document Type"::"Return Order", SalesHeader."Document Type"::"Credit Memo"]) and
+            (SalesHeader."Posting No." <> '') or
+            (SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo") and
+            (SalesHeader."No. Series" = SalesHeader."Posting No. Series"))
+        then begin
+            SalesCrMemoHeader.TransferFields(SalesHeader);
+            OnInitDeleteHeaderOnAfterSalesCrMemoHeaderTransferFields(SalesCrMemoHeader);
+            if SalesHeader."Posting No." <> '' then
+                SalesCrMemoHeader."No." := SalesHeader."Posting No.";
+            SalesCrMemoHeader."Pre-Assigned No. Series" := SalesHeader."No. Series";
+            SalesCrMemoHeader."Pre-Assigned No." := SalesHeader."No.";
+            SalesCrMemoHeader."Posting Date" := Today;
+            SalesCrMemoHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(SalesCrMemoHeader."User ID"));
+            SalesCrMemoHeader."Source Code" := SourceCode;
+        end;
+        if (SalesHeader."Prepayment No. Series" <> '') and (SalesHeader."Prepayment No." <> '') then begin
+            SalesHeader.TestField("Document Type", SalesHeader."Document Type"::Order);
+            SalesInvHeaderPrePmt.TransferFields(SalesHeader);
+            SalesInvHeaderPrePmt."No." := SalesHeader."Prepayment No.";
+            SalesInvHeaderPrePmt."Order No. Series" := SalesHeader."No. Series";
+            SalesInvHeaderPrePmt."Prepayment Order No." := SalesHeader."No.";
+            SalesInvHeaderPrePmt."Posting Date" := Today;
+            SalesInvHeaderPrePmt."Pre-Assigned No. Series" := '';
+            SalesInvHeaderPrePmt."Pre-Assigned No." := '';
+            SalesInvHeaderPrePmt."User ID" := CopyStr(UserId(), 1, MaxStrLen(SalesInvHeaderPrePmt."User ID"));
+            SalesInvHeaderPrePmt."Source Code" := SourceCode;
+            SalesInvHeaderPrePmt."Prepayment Invoice" := true;
+        end;
 
-            if ("Prepmt. Cr. Memo No. Series" <> '') and ("Prepmt. Cr. Memo No." <> '') then begin
-                TestField("Document Type", "Document Type"::Order);
-                SalesCrMemoHeaderPrePmt.TransferFields(SalesHeader);
-                SalesCrMemoHeaderPrePmt."No." := "Prepmt. Cr. Memo No.";
-                SalesCrMemoHeaderPrePmt."Prepayment Order No." := "No.";
-                SalesCrMemoHeaderPrePmt."Posting Date" := Today;
-                SalesCrMemoHeaderPrePmt."Pre-Assigned No. Series" := '';
-                SalesCrMemoHeaderPrePmt."Pre-Assigned No." := '';
-                SalesCrMemoHeaderPrePmt."User ID" := CopyStr(UserId(), 1, MaxStrLen(SalesCrMemoHeaderPrePmt."User ID"));
-                SalesCrMemoHeaderPrePmt."Source Code" := SourceCode;
-                SalesCrMemoHeaderPrePmt."Prepayment Credit Memo" := true;
-            end;
+        if (SalesHeader."Prepmt. Cr. Memo No. Series" <> '') and (SalesHeader."Prepmt. Cr. Memo No." <> '') then begin
+            SalesHeader.TestField("Document Type", SalesHeader."Document Type"::Order);
+            SalesCrMemoHeaderPrePmt.TransferFields(SalesHeader);
+            SalesCrMemoHeaderPrePmt."No." := SalesHeader."Prepmt. Cr. Memo No.";
+            SalesCrMemoHeaderPrePmt."Prepayment Order No." := SalesHeader."No.";
+            SalesCrMemoHeaderPrePmt."Posting Date" := Today;
+            SalesCrMemoHeaderPrePmt."Pre-Assigned No. Series" := '';
+            SalesCrMemoHeaderPrePmt."Pre-Assigned No." := '';
+            SalesCrMemoHeaderPrePmt."User ID" := CopyStr(UserId(), 1, MaxStrLen(SalesCrMemoHeaderPrePmt."User ID"));
+            SalesCrMemoHeaderPrePmt."Source Code" := SourceCode;
+            SalesCrMemoHeaderPrePmt."Prepayment Credit Memo" := true;
         end;
 
         OnAfterInitDeleteHeader(
@@ -274,23 +271,21 @@ codeunit 363 "PostSales-Delete"
 
     local procedure InitSalesInvHeader(var SalesInvHeader: Record "Sales Invoice Header"; SalesHeader: Record "Sales Header"; SourceCode: Code[10])
     begin
-        with SalesHeader do begin
-            SalesInvHeader.TransferFields(SalesHeader);
-            if "Posting No." <> '' then
-                SalesInvHeader."No." := "Posting No.";
-            if "Document Type" = "Document Type"::Invoice then begin
-                SalesInvHeader."Pre-Assigned No. Series" := "No. Series";
-                SalesInvHeader."Pre-Assigned No." := "No.";
-            end else begin
-                SalesInvHeader."Pre-Assigned No. Series" := '';
-                SalesInvHeader."Pre-Assigned No." := '';
-                SalesInvHeader."Order No. Series" := "No. Series";
-                SalesInvHeader."Order No." := "No.";
-            end;
-            SalesInvHeader."Posting Date" := Today;
-            SalesInvHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(SalesInvHeader."User ID"));
-            SalesInvHeader."Source Code" := SourceCode;
+        SalesInvHeader.TransferFields(SalesHeader);
+        if SalesHeader."Posting No." <> '' then
+            SalesInvHeader."No." := SalesHeader."Posting No.";
+        if SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice then begin
+            SalesInvHeader."Pre-Assigned No. Series" := SalesHeader."No. Series";
+            SalesInvHeader."Pre-Assigned No." := SalesHeader."No.";
+        end else begin
+            SalesInvHeader."Pre-Assigned No. Series" := '';
+            SalesInvHeader."Pre-Assigned No." := '';
+            SalesInvHeader."Order No. Series" := SalesHeader."No. Series";
+            SalesInvHeader."Order No." := SalesHeader."No.";
         end;
+        SalesInvHeader."Posting Date" := Today;
+        SalesInvHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(SalesInvHeader."User ID"));
+        SalesInvHeader."Source Code" := SourceCode;
 
         OnAfterInitSalesInvHeader(SalesInvHeader, SalesHeader);
     end;
@@ -298,7 +293,13 @@ codeunit 363 "PostSales-Delete"
     procedure IsDocumentDeletionAllowed(PostingDate: Date)
     var
         SalesSetup: Record "Sales & Receivables Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        DocumentsRetentionPeriod: Interface "Documents - Retention Period";
     begin
+        GeneralLedgerSetup.Get();
+        DocumentsRetentionPeriod := GeneralLedgerSetup."Document Retention Period";
+        DocumentsRetentionPeriod.CheckDocumentDeletionAllowedByLaw(PostingDate);
+
         SalesSetup.Get();
         SalesSetup.TestField("Allow Document Deletion Before");
         if PostingDate >= SalesSetup."Allow Document Deletion Before" then

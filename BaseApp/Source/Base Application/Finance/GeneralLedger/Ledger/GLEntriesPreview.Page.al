@@ -62,7 +62,7 @@ page 122 "G/L Entries Preview"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
                 field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
@@ -113,6 +113,13 @@ page 122 "G/L Entries Preview"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
+                    Visible = false;
+                }
+                field("Source Currency Amount"; Rec."Source Currency Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the source currency amount for G/L entries.';
                     Visible = false;
                 }
                 field("Additional-Currency Amount"; Rec."Additional-Currency Amount")

@@ -26,7 +26,7 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
         // Setup
         Initialize();
         Commit();
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
 
         ApprovalWorkflowWizard."For All Batches" := false;
         ApprovalWorkflowWizard."Journal Batch Name" := CopyStr(PaymentJournal.FILTER.GetFilter("Journal Batch Name"),
@@ -36,7 +36,7 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
         LibraryVariableStorage.Enqueue(ApprovalWorkflowWizard);
 
         // Execute
-        PaymentJournal.CreateApprovalWorkflow.Invoke;
+        PaymentJournal.CreateApprovalWorkflow.Invoke();
 
         // Verification is done in the handler
     end;
@@ -51,11 +51,11 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
         // Setup
         Initialize();
 
-        PmtAppWorkflowSetupWzrd.OpenEdit;
-        PmtAppWorkflowSetupWzrd.NextPage.Invoke;
+        PmtAppWorkflowSetupWzrd.OpenEdit();
+        PmtAppWorkflowSetupWzrd.NextPage.Invoke();
 
         // Execute & Verify
-        asserterror PmtAppWorkflowSetupWzrd.NextPage.Invoke;
+        asserterror PmtAppWorkflowSetupWzrd.NextPage.Invoke();
         Assert.ExpectedError('You must select an approver before continuing.');
     end;
 
@@ -83,7 +83,7 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
         AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
     begin
         LibraryVariableStorage.Clear();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
         GenJournalTemplate.FindFirst();
         GenJournalBatch.SetRange("Journal Template Name", GenJournalTemplate.Name);
@@ -103,7 +103,7 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
         ApprovalWorkflowWizard := ApprovalWorkflowWizardVar;
 
         // Ship the first instructional page
-        PmtAppWorkflowSetupWzrd.NextPage.Invoke;
+        PmtAppWorkflowSetupWzrd.NextPage.Invoke();
 
         Assert.ExpectedMessage(ApprovalWorkflowWizard."Journal Batch Name", PmtAppWorkflowSetupWzrd.CurrentBatchIsLabel.Value);
         if ApprovalWorkflowWizard."For All Batches" then
@@ -124,10 +124,10 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
         ApprovalWorkflowWizard := ApprovalWorkflowWizardVar;
 
         // Skip the first instructional page
-        PmtAppWorkflowSetupWzrd.NextPage.Invoke;
+        PmtAppWorkflowSetupWzrd.NextPage.Invoke();
 
         LibraryVariableStorage.Enqueue := ApprovalWorkflowWizard."Approver ID";
-        PmtAppWorkflowSetupWzrd."Approver ID".Lookup;
+        PmtAppWorkflowSetupWzrd."Approver ID".Lookup();
         // PmtAppWorkflowSetupWzrd."Approver ID".VALUE := ApprovalWorkflowWizard."Approver ID";
         // PmtAppWorkflowSetupWzrd."Approver ID".VALUE :
 
@@ -136,8 +136,8 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
         else
             PmtAppWorkflowSetupWzrd.BatchSelection.Value := PmtAppWorkflowSetupWzrd.BatchSelection.GetOption(1);
 
-        PmtAppWorkflowSetupWzrd.NextPage.Invoke;
-        PmtAppWorkflowSetupWzrd.Finish.Invoke;
+        PmtAppWorkflowSetupWzrd.NextPage.Invoke();
+        PmtAppWorkflowSetupWzrd.Finish.Invoke();
         Commit();
     end;
 
@@ -145,7 +145,7 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
     [Scope('OnPrem')]
     procedure GenJnlTemplateListHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
     begin
-        GeneralJournalTemplateList.OK.Invoke;
+        GeneralJournalTemplateList.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -164,8 +164,8 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
         WorkflowDefinition.SetRange(Enabled, true);
         WorkflowDefinition.SetRange(Type, WorkflowDefinition.Type::"Event");
         WorkflowDefinition.SetFilter(Function_Name, EventFilter);
-        WorkflowDefinition.Open;
-        exit(WorkflowDefinition.Read);
+        WorkflowDefinition.Open();
+        exit(WorkflowDefinition.Read());
     end;
 
     [Scope('OnPrem')]
@@ -185,13 +185,14 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
         Initialize();
         LibraryDocumentApprovals.CreateMockupUserSetup(UserSetup);
         Assert.IsFalse(FindWorkflowEnabledEntryPoints(DATABASE::"Gen. Journal Line",
-            WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode,
+            WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode(),
             WorkflowDefinition), 'Workflow already exists');
         Commit();
 
         // Execute
         Commit();
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
+
         if ForAllBatches then
             ApprovalWorkflowWizard."For All Batches" := true
         else
@@ -204,11 +205,11 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
         ApprovalWorkflowWizard."Approver ID" := UserSetup."User ID";
         LibraryVariableStorage.Enqueue(ApprovalWorkflowWizard);
 
-        PaymentJournal.CreateApprovalWorkflow.Invoke;
+        PaymentJournal.CreateApprovalWorkflow.Invoke();
 
         // Verify that the workflow is created
         Assert.IsTrue(FindWorkflowEnabledEntryPoints(DATABASE::"Gen. Journal Line",
-            WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode,
+            WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode(),
             WorkflowDefinition), 'Workflow is not created');
 
         // Verify that the evnet conditions are set correctly
@@ -216,13 +217,13 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
         if not ForAllBatches then
             GenJournalLine.SetRange("Journal Batch Name", ApprovalWorkflowWizard."Journal Batch Name");
         WorkflowStepArgument.Get(WorkflowDefinition.Argument);
-        Assert.ExpectedMessage(GenJournalLine.GetView(false), WorkflowStepArgument.GetEventFilters);
+        Assert.ExpectedMessage(GenJournalLine.GetView(false), WorkflowStepArgument.GetEventFilters());
 
         // Verify that the response options are set correctly
         WorkflowStep.SetRange(Type, WorkflowStep.Type::Response);
         WorkflowStep.SetRange("Workflow Code", WorkflowDefinition.Code);
         WorkflowStep.SetRange("Entry Point", false);
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode);
+        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode());
 
         Assert.AreEqual(1, WorkflowStep.Count, 'More than 1 expected response found.');
 
@@ -245,7 +246,7 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
     begin
         LibraryVariableStorage.Dequeue(ApprovalUserId);
         ApprovalUserSetup.GotoKey(ApprovalUserId);
-        ApprovalUserSetup.OK.Invoke;
+        ApprovalUserSetup.OK().Invoke();
     end;
 }
 

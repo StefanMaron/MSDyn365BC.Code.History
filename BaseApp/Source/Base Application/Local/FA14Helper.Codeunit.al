@@ -97,15 +97,13 @@ codeunit 14951 "FA-14 Helper"
         TempFADocHeader: Record "FA Document Header";
         FAComment: Record "FA Comment";
     begin
-        with TempFADocHeader do begin
-            "No." := DocumentNo;
-            "Document Type" := DocumentType;
-            GetFAComments(Reason, FAComment.Type::Reason);
-            GetFAComments(Package, FAComment.Type::Package);
-            GetFAComments(Complect, FAComment.Type::Complect);
-            GetFAComments(Conclusion, FAComment.Type::Conclusion);
-            GetFAComments(Appendix, FAComment.Type::Appendix);
-        end;
+        TempFADocHeader."No." := DocumentNo;
+        TempFADocHeader."Document Type" := DocumentType;
+        TempFADocHeader.GetFAComments(Reason, FAComment.Type::Reason);
+        TempFADocHeader.GetFAComments(Package, FAComment.Type::Package);
+        TempFADocHeader.GetFAComments(Complect, FAComment.Type::Complect);
+        TempFADocHeader.GetFAComments(Conclusion, FAComment.Type::Conclusion);
+        TempFADocHeader.GetFAComments(Appendix, FAComment.Type::Appendix);
     end;
 
     [Scope('OnPrem')]
@@ -113,15 +111,13 @@ codeunit 14951 "FA-14 Helper"
     var
         TempPostFADocHeader: Record "Posted FA Doc. Header";
     begin
-        with TempPostFADocHeader do begin
-            "No." := DocumentNo;
-            "Document Type" := DocumentType;
-            GetFAComments(Reason, PostedFAComment.Type::Reason);
-            GetFAComments(Package, PostedFAComment.Type::Package);
-            GetFAComments(Complect, PostedFAComment.Type::Complect);
-            GetFAComments(Conclusion, PostedFAComment.Type::Conclusion);
-            GetFAComments(Appendix, PostedFAComment.Type::Appendix);
-        end;
+        TempPostFADocHeader."No." := DocumentNo;
+        TempPostFADocHeader."Document Type" := DocumentType;
+        TempPostFADocHeader.GetFAComments(Reason, PostedFAComment.Type::Reason);
+        TempPostFADocHeader.GetFAComments(Package, PostedFAComment.Type::Package);
+        TempPostFADocHeader.GetFAComments(Complect, PostedFAComment.Type::Complect);
+        TempPostFADocHeader.GetFAComments(Conclusion, PostedFAComment.Type::Conclusion);
+        TempPostFADocHeader.GetFAComments(Appendix, PostedFAComment.Type::Appendix);
     end;
 
     [Scope('OnPrem')]
@@ -193,15 +189,13 @@ codeunit 14951 "FA-14 Helper"
         TotalAmountLCY: Decimal;
         TotalAmountInclVATLCY: Decimal;
     begin
-        with PurchHeader do begin
-            PurchLine.SetRange("Document Type", "Document Type");
-            PurchLine.SetRange("Document No.", "No.");
-            PurchLine.SetFilter(Type, '>0');
-            PurchLine.SetFilter(Quantity, '<>0');
+        PurchLine.SetRange("Document Type", PurchHeader."Document Type");
+        PurchLine.SetRange("Document No.", PurchHeader."No.");
+        PurchLine.SetFilter(Type, '>0');
+        PurchLine.SetFilter(Quantity, '<>0');
 
-            PurchasePosting.SumPurchLines2Ex(PurchHeader, PurchLineWithLCYAmt, PurchLine, 0,
-              TotalAmount, TotalAmountInclVAT, TotalAmountLCY, TotalAmountInclVATLCY);
-        end;
+        PurchasePosting.SumPurchLines2Ex(PurchHeader, PurchLineWithLCYAmt, PurchLine, 0,
+          TotalAmount, TotalAmountInclVAT, TotalAmountLCY, TotalAmountInclVATLCY);
     end;
 
     [Scope('OnPrem')]

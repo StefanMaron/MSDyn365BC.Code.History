@@ -108,7 +108,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         VATRateChangeSetup.DeleteAll();
 
         // Exercise: Open VAT Rate change setup page.
-        VATRateChangeSetupPage.OpenView;
+        VATRateChangeSetupPage.OpenView();
 
         // Verify: Verify that VAT Rate change setup is created.
         VATRateChangeSetup.Validate("Perform Conversion", true);
@@ -135,7 +135,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         ShowActionVATRateChangeLogEntries(Format(RecRef.Number));
 
         // Tear Down: Delete VAT Rate Change log Entries.
-        DeleteConvAndLogEntries;
+        DeleteConvAndLogEntries();
     end;
 
     [Test]
@@ -158,7 +158,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         ShowActionVATRateChangeLogEntries(Format(RecRef.Number));
 
         // Tear Down: Delete VAT Rate Change log Entries.
-        DeleteConvAndLogEntries;
+        DeleteConvAndLogEntries();
     end;
 
     [Test]
@@ -181,7 +181,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         ShowActionVATRateChangeLogEntries(Format(RecRef.Number));
 
         // Tear Down: Delete VAT Rate Change log Entries.
-        DeleteConvAndLogEntries;
+        DeleteConvAndLogEntries();
     end;
 
     [Test]
@@ -204,7 +204,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         ShowActionVATRateChangeLogEntries(Format(RecRef.Number));
 
         // Tear Down: Delete VAT Rate Change log Entries.
-        DeleteConvAndLogEntries;
+        DeleteConvAndLogEntries();
     end;
 
     [Test]
@@ -228,7 +228,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         ShowActionVATRateChangeLogEntries(Format(RecRef.Number));
 
         // Tear Down: Delete VAT Rate Change log Entries.
-        DeleteConvAndLogEntries;
+        DeleteConvAndLogEntries();
     end;
 
     [Test]
@@ -252,7 +252,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         ShowActionVATRateChangeLogEntries(Format(RecRef.Number));
 
         // Tear Down: Delete VAT Rate Change log Entries.
-        DeleteConvAndLogEntries;
+        DeleteConvAndLogEntries();
     end;
 
     [Test]
@@ -276,7 +276,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         ShowActionVATRateChangeLogEntries(Format(RecRef.Number));
 
         // Tear Down: Delete VAT Rate Change log Entries.
-        DeleteConvAndLogEntries;
+        DeleteConvAndLogEntries();
     end;
 
     [Test]
@@ -300,7 +300,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         ShowActionVATRateChangeLogEntries(Format(RecRef.Number));
 
         // Tear Down: Delete VAT Rate Change log Entries.
-        DeleteConvAndLogEntries;
+        DeleteConvAndLogEntries();
     end;
 
     [Test]
@@ -324,7 +324,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         ShowActionVATRateChangeLogEntries(Format(RecRef.Number));
 
         // Tear Down: Delete VAT Rate Change log Entries.
-        DeleteConvAndLogEntries;
+        DeleteConvAndLogEntries();
     end;
 
     [Test]
@@ -347,7 +347,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         ShowActionVATRateChangeLogEntries(Format(RecRef.Number));
 
         // Tear Down: Delete VAT Rate Change log Entries.
-        DeleteConvAndLogEntries;
+        DeleteConvAndLogEntries();
     end;
 
     [Test]
@@ -371,7 +371,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         ShowActionVATRateChangeLogEntries(Format(RecRef.Number));
 
         // Tear Down: Delete VAT Rate Change log Entries.
-        DeleteConvAndLogEntries;
+        DeleteConvAndLogEntries();
     end;
 
     [Test]
@@ -395,7 +395,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         ShowActionVATRateChangeLogEntries(Format(RecRef.Number));
 
         // Tear Down: Delete VAT Rate Change log Entries.
-        DeleteConvAndLogEntries;
+        DeleteConvAndLogEntries();
     end;
 
     [Test]
@@ -419,7 +419,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         ShowActionVATRateChangeLogEntries(Format(RecRef.Number));
 
         // Tear Down: Delete VAT Rate Change log Entries.
-        DeleteConvAndLogEntries;
+        DeleteConvAndLogEntries();
     end;
 
     [Test]
@@ -443,7 +443,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         ShowActionVATRateChangeLogEntries(Format(RecRef.Number));
 
         // Tear Down: Delete VAT Rate Change log Entries.
-        DeleteConvAndLogEntries;
+        DeleteConvAndLogEntries();
     end;
 
     [Test]
@@ -467,7 +467,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         ShowActionVATRateChangeLogEntries(Format(RecRef.Number));
 
         // Tear Down: Delete VAT Rate Change log Entries.
-        DeleteConvAndLogEntries;
+        DeleteConvAndLogEntries();
     end;
 
     [Test]
@@ -491,7 +491,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         ShowActionVATRateChangeLogEntries(Format(RecRef.Number));
 
         // Tear Down: Delete VAT Rate Change log Entries.
-        DeleteConvAndLogEntries;
+        DeleteConvAndLogEntries();
     end;
 
     [Test]
@@ -515,7 +515,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         ShowActionVATRateChangeLogEntries(Format(RecRef.Number));
 
         // Tear Down: Delete VAT Rate Change log Entries.
-        DeleteConvAndLogEntries;
+        DeleteConvAndLogEntries();
     end;
 
     [Test]
@@ -539,7 +539,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         ShowActionVATRateChangeLogEntries(Format(RecRef.Number));
 
         // Tear Down: Delete VAT Rate Change log Entries.
-        DeleteConvAndLogEntries;
+        DeleteConvAndLogEntries();
     end;
 
     [Test]
@@ -557,14 +557,14 @@ codeunit 134061 "ERM VAT Tool - UT"
         UpdateGeneralLedgerSetup(false, false);
 
         // [WHEN] Open page "VAT Entries"
-        VATEntries.Trap;
-        VATEntries.OpenView;
+        VATEntries.Trap();
+        VATEntries.OpenView();
 
         // [THEN] Fields "Unrealized Amount", "Unrealized Base", "Remaining Unrealize Amount", "Remaining Unrealized Base" should be hidden
-        Assert.IsFalse(VATEntries."Unrealized Amount".Visible, FieldHideErr);
-        Assert.IsFalse(VATEntries."Unrealized Base".Visible, FieldHideErr);
-        Assert.IsFalse(VATEntries."Remaining Unrealized Amount".Visible, FieldHideErr);
-        Assert.IsFalse(VATEntries."Remaining Unrealized Base".Visible, FieldHideErr);
+        Assert.IsFalse(VATEntries."Unrealized Amount".Visible(), FieldHideErr);
+        Assert.IsFalse(VATEntries."Unrealized Base".Visible(), FieldHideErr);
+        Assert.IsFalse(VATEntries."Remaining Unrealized Amount".Visible(), FieldHideErr);
+        Assert.IsFalse(VATEntries."Remaining Unrealized Base".Visible(), FieldHideErr);
     end;
 
     [Test]
@@ -582,14 +582,14 @@ codeunit 134061 "ERM VAT Tool - UT"
         UpdateGeneralLedgerSetup(true, false);
 
         // [WHEN] Open page "VAT Entries"
-        VATEntries.Trap;
-        VATEntries.OpenView;
+        VATEntries.Trap();
+        VATEntries.OpenView();
 
         // [THEN] Fields "Unrealized Amount", "Unrealized Base", "Remaining Unrealize Amount", "Remaining Unrealized Base" should be shown
-        Assert.IsTrue(VATEntries."Unrealized Amount".Visible, FieldShowErr);
-        Assert.IsTrue(VATEntries."Unrealized Base".Visible, FieldShowErr);
-        Assert.IsTrue(VATEntries."Remaining Unrealized Amount".Visible, FieldShowErr);
-        Assert.IsTrue(VATEntries."Remaining Unrealized Base".Visible, FieldShowErr);
+        Assert.IsTrue(VATEntries."Unrealized Amount".Visible(), FieldShowErr);
+        Assert.IsTrue(VATEntries."Unrealized Base".Visible(), FieldShowErr);
+        Assert.IsTrue(VATEntries."Remaining Unrealized Amount".Visible(), FieldShowErr);
+        Assert.IsTrue(VATEntries."Remaining Unrealized Base".Visible(), FieldShowErr);
     end;
 
     [Test]
@@ -607,14 +607,14 @@ codeunit 134061 "ERM VAT Tool - UT"
         UpdateGeneralLedgerSetup(true, true);
 
         // [WHEN] Open page "VAT Entries"
-        VATEntries.Trap;
-        VATEntries.OpenView;
+        VATEntries.Trap();
+        VATEntries.OpenView();
 
         // [THEN] Fields "Unrealized Amount", "Unrealized Base", "Remaining Unrealize Amount", "Remaining Unrealized Base" should be shown
-        Assert.IsTrue(VATEntries."Unrealized Amount".Visible, FieldShowErr);
-        Assert.IsTrue(VATEntries."Unrealized Base".Visible, FieldShowErr);
-        Assert.IsTrue(VATEntries."Remaining Unrealized Amount".Visible, FieldShowErr);
-        Assert.IsTrue(VATEntries."Remaining Unrealized Base".Visible, FieldShowErr);
+        Assert.IsTrue(VATEntries."Unrealized Amount".Visible(), FieldShowErr);
+        Assert.IsTrue(VATEntries."Unrealized Base".Visible(), FieldShowErr);
+        Assert.IsTrue(VATEntries."Remaining Unrealized Amount".Visible(), FieldShowErr);
+        Assert.IsTrue(VATEntries."Remaining Unrealized Base".Visible(), FieldShowErr);
     end;
 
     [Test]
@@ -632,14 +632,14 @@ codeunit 134061 "ERM VAT Tool - UT"
         UpdateGeneralLedgerSetup(false, true);
 
         // [WHEN] Open page "VAT Entries"
-        VATEntries.Trap;
-        VATEntries.OpenView;
+        VATEntries.Trap();
+        VATEntries.OpenView();
 
         // [THEN] Fields "Unrealized Amount", "Unrealized Base", "Remaining Unrealize Amount", "Remaining Unrealized Base" should be shown
-        Assert.IsTrue(VATEntries."Unrealized Amount".Visible, FieldShowErr);
-        Assert.IsTrue(VATEntries."Unrealized Base".Visible, FieldShowErr);
-        Assert.IsTrue(VATEntries."Remaining Unrealized Amount".Visible, FieldShowErr);
-        Assert.IsTrue(VATEntries."Remaining Unrealized Base".Visible, FieldShowErr);
+        Assert.IsTrue(VATEntries."Unrealized Amount".Visible(), FieldShowErr);
+        Assert.IsTrue(VATEntries."Unrealized Base".Visible(), FieldShowErr);
+        Assert.IsTrue(VATEntries."Remaining Unrealized Amount".Visible(), FieldShowErr);
+        Assert.IsTrue(VATEntries."Remaining Unrealized Base".Visible(), FieldShowErr);
     end;
 
     [Test]
@@ -666,8 +666,8 @@ codeunit 134061 "ERM VAT Tool - UT"
         Assert.IsFalse(UnrealizedVATVisible, WrongVATUnrealizeVisibilityErr);
 
         // [THEN] Fields "Unrealized VAT Type", "Sales VAT Unreal. Account", "Purch. VAT Unreal. Account", "Reverse Chrg. VAT Unreal. Acc." should be hidden
-        VerifyHideUnrealizedVATFieldsVATPostingSetupPage;
-        VerifyHideUnrealizedVATFieldsVATPostingSetupCardPage;
+        VerifyHideUnrealizedVATFieldsVATPostingSetupPage();
+        VerifyHideUnrealizedVATFieldsVATPostingSetupCardPage();
     end;
 
     [Test]
@@ -694,8 +694,8 @@ codeunit 134061 "ERM VAT Tool - UT"
         Assert.IsTrue(UnrealizedVATVisible, WrongVATUnrealizeVisibilityErr);
 
         // [THEN] Fields "Unrealized VAT Type", "Sales VAT Unreal. Account", "Purch. VAT Unreal. Account", "Reverse Chrg. VAT Unreal. Acc." should be shown
-        VerifyShowUnrealizedVATFieldsVATPostingSetupPage;
-        VerifyShowUnrealizedVATFieldsVATPostingSetupCardPage;
+        VerifyShowUnrealizedVATFieldsVATPostingSetupPage();
+        VerifyShowUnrealizedVATFieldsVATPostingSetupCardPage();
     end;
 
     [Test]
@@ -722,8 +722,8 @@ codeunit 134061 "ERM VAT Tool - UT"
         Assert.IsTrue(UnrealizedVATVisible, WrongVATUnrealizeVisibilityErr);
 
         // [THEN] Fields "Unrealized VAT Type", "Sales VAT Unreal. Account", "Purch. VAT Unreal. Account", "Reverse Chrg. VAT Unreal. Acc." should be shown
-        VerifyShowUnrealizedVATFieldsVATPostingSetupPage;
-        VerifyShowUnrealizedVATFieldsVATPostingSetupCardPage;
+        VerifyShowUnrealizedVATFieldsVATPostingSetupPage();
+        VerifyShowUnrealizedVATFieldsVATPostingSetupCardPage();
     end;
 
     [Test]
@@ -750,8 +750,8 @@ codeunit 134061 "ERM VAT Tool - UT"
         Assert.IsTrue(UnrealizedVATVisible, WrongVATUnrealizeVisibilityErr);
 
         // [THEN] Fields "Unrealized VAT Type", "Sales VAT Unreal. Account", "Purch. VAT Unreal. Account", "Reverse Chrg. VAT Unreal. Acc." should be shown
-        VerifyShowUnrealizedVATFieldsVATPostingSetupPage;
-        VerifyShowUnrealizedVATFieldsVATPostingSetupCardPage;
+        VerifyShowUnrealizedVATFieldsVATPostingSetupPage();
+        VerifyShowUnrealizedVATFieldsVATPostingSetupCardPage();
     end;
 
     local procedure Initialize()
@@ -826,9 +826,9 @@ codeunit 134061 "ERM VAT Tool - UT"
     var
         VATRateChangeLogEntriesPage: TestPage "VAT Rate Change Log Entries";
     begin
-        VATRateChangeLogEntriesPage.OpenView;
+        VATRateChangeLogEntriesPage.OpenView();
         VATRateChangeLogEntriesPage.FILTER.SetFilter("Table ID", TableID);
-        VATRateChangeLogEntriesPage.Show.Invoke;
+        VATRateChangeLogEntriesPage.Show.Invoke();
     end;
 
     local procedure UpdateGeneralLedgerSetup(UnrealizedVAT: Boolean; PrepaymentUnrealizedVAT: Boolean)
@@ -845,12 +845,12 @@ codeunit 134061 "ERM VAT Tool - UT"
     var
         VATPostingSetup: TestPage "VAT Posting Setup";
     begin
-        VATPostingSetup.Trap;
+        VATPostingSetup.Trap();
         VATPostingSetup.OpenNew();
-        Assert.IsTrue(VATPostingSetup."Unrealized VAT Type".Visible, FieldShowErr);
-        Assert.IsTrue(VATPostingSetup."Sales VAT Unreal. Account".Visible, FieldShowErr);
-        Assert.IsTrue(VATPostingSetup."Purch. VAT Unreal. Account".Visible, FieldShowErr);
-        Assert.IsTrue(VATPostingSetup."Reverse Chrg. VAT Unreal. Acc.".Visible, FieldShowErr);
+        Assert.IsTrue(VATPostingSetup."Unrealized VAT Type".Visible(), FieldShowErr);
+        Assert.IsTrue(VATPostingSetup."Sales VAT Unreal. Account".Visible(), FieldShowErr);
+        Assert.IsTrue(VATPostingSetup."Purch. VAT Unreal. Account".Visible(), FieldShowErr);
+        Assert.IsTrue(VATPostingSetup."Reverse Chrg. VAT Unreal. Acc.".Visible(), FieldShowErr);
         VATPostingSetup.Close();
     end;
 
@@ -858,12 +858,12 @@ codeunit 134061 "ERM VAT Tool - UT"
     var
         VATPostingSetup: TestPage "VAT Posting Setup";
     begin
-        VATPostingSetup.Trap;
+        VATPostingSetup.Trap();
         VATPostingSetup.OpenNew();
-        Assert.IsFalse(VATPostingSetup."Unrealized VAT Type".Visible, FieldHideErr);
-        Assert.IsFalse(VATPostingSetup."Sales VAT Unreal. Account".Visible, FieldHideErr);
-        Assert.IsFalse(VATPostingSetup."Purch. VAT Unreal. Account".Visible, FieldHideErr);
-        Assert.IsFalse(VATPostingSetup."Reverse Chrg. VAT Unreal. Acc.".Visible, FieldHideErr);
+        Assert.IsFalse(VATPostingSetup."Unrealized VAT Type".Visible(), FieldHideErr);
+        Assert.IsFalse(VATPostingSetup."Sales VAT Unreal. Account".Visible(), FieldHideErr);
+        Assert.IsFalse(VATPostingSetup."Purch. VAT Unreal. Account".Visible(), FieldHideErr);
+        Assert.IsFalse(VATPostingSetup."Reverse Chrg. VAT Unreal. Acc.".Visible(), FieldHideErr);
         VATPostingSetup.Close();
     end;
 
@@ -871,12 +871,12 @@ codeunit 134061 "ERM VAT Tool - UT"
     var
         VATPostingSetupCard: TestPage "VAT Posting Setup Card";
     begin
-        VATPostingSetupCard.Trap;
+        VATPostingSetupCard.Trap();
         VATPostingSetupCard.OpenNew();
-        Assert.IsTrue(VATPostingSetupCard."Unrealized VAT Type".Visible, FieldShowErr);
-        Assert.IsTrue(VATPostingSetupCard."Sales VAT Unreal. Account".Visible, FieldShowErr);
-        Assert.IsTrue(VATPostingSetupCard."Purch. VAT Unreal. Account".Visible, FieldShowErr);
-        Assert.IsTrue(VATPostingSetupCard."Reverse Chrg. VAT Unreal. Acc.".Visible, FieldShowErr);
+        Assert.IsTrue(VATPostingSetupCard."Unrealized VAT Type".Visible(), FieldShowErr);
+        Assert.IsTrue(VATPostingSetupCard."Sales VAT Unreal. Account".Visible(), FieldShowErr);
+        Assert.IsTrue(VATPostingSetupCard."Purch. VAT Unreal. Account".Visible(), FieldShowErr);
+        Assert.IsTrue(VATPostingSetupCard."Reverse Chrg. VAT Unreal. Acc.".Visible(), FieldShowErr);
         VATPostingSetupCard.Close();
     end;
 
@@ -884,12 +884,12 @@ codeunit 134061 "ERM VAT Tool - UT"
     var
         VATPostingSetupCard: TestPage "VAT Posting Setup Card";
     begin
-        VATPostingSetupCard.Trap;
+        VATPostingSetupCard.Trap();
         VATPostingSetupCard.OpenNew();
-        Assert.IsFalse(VATPostingSetupCard."Unrealized VAT Type".Visible, FieldHideErr);
-        Assert.IsFalse(VATPostingSetupCard."Sales VAT Unreal. Account".Visible, FieldHideErr);
-        Assert.IsFalse(VATPostingSetupCard."Purch. VAT Unreal. Account".Visible, FieldHideErr);
-        Assert.IsFalse(VATPostingSetupCard."Reverse Chrg. VAT Unreal. Acc.".Visible, FieldHideErr);
+        Assert.IsFalse(VATPostingSetupCard."Unrealized VAT Type".Visible(), FieldHideErr);
+        Assert.IsFalse(VATPostingSetupCard."Sales VAT Unreal. Account".Visible(), FieldHideErr);
+        Assert.IsFalse(VATPostingSetupCard."Purch. VAT Unreal. Account".Visible(), FieldHideErr);
+        Assert.IsFalse(VATPostingSetupCard."Reverse Chrg. VAT Unreal. Acc.".Visible(), FieldHideErr);
         VATPostingSetupCard.Close();
     end;
 
@@ -897,133 +897,133 @@ codeunit 134061 "ERM VAT Tool - UT"
     [Scope('OnPrem')]
     procedure GLAccountHandler(var GLAccount: TestPage "G/L Account Card")
     begin
-        GLAccount.OK.Invoke;
+        GLAccount.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemListHandler(var ItemList: TestPage "Item List")
     begin
-        ItemList.OK.Invoke;
+        ItemList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemCardHandler(var ItemCard: TestPage "Item Card")
     begin
-        ItemCard.OK.Invoke;
+        ItemCard.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemCategoryCardHandler(var ItemCategoryCard: TestPage "Item Category Card")
     begin
-        ItemCategoryCard.OK.Invoke;
+        ItemCategoryCard.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemChargeHandler(var ItemCharge: TestPage "Item Charges")
     begin
-        ItemCharge.OK.Invoke;
+        ItemCharge.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ResourceListHandler(var ResourceList: TestPage "Resource List")
     begin
-        ResourceList.OK.Invoke;
+        ResourceList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ResourceCardHandler(var ResourceCard: TestPage "Resource Card")
     begin
-        ResourceCard.OK.Invoke;
+        ResourceCard.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AccountListHandler(var AccountList: TestPage "G/L Account List")
     begin
-        AccountList.OK.Invoke;
+        AccountList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseQuoteHandler(var PurchaseQuote: TestPage "Purchase Quote")
     begin
-        PurchaseQuote.OK.Invoke;
+        PurchaseQuote.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseInvoiceHandler(var PurchaseInvoice: TestPage "Purchase Invoice")
     begin
-        PurchaseInvoice.OK.Invoke;
+        PurchaseInvoice.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseCrMemoHandler(var PurchaseCrMemo: TestPage "Purchase Credit Memo")
     begin
-        PurchaseCrMemo.OK.Invoke;
+        PurchaseCrMemo.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderHandler(var PurchaseOrder: TestPage "Purchase Order")
     begin
-        PurchaseOrder.OK.Invoke;
+        PurchaseOrder.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ServiceOrderHandler(var ServiceOrder: TestPage "Service Order")
     begin
-        ServiceOrder.OK.Invoke;
+        ServiceOrder.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ServiceQuoteHandler(var ServiceQuote: TestPage "Service Quote")
     begin
-        ServiceQuote.OK.Invoke;
+        ServiceQuote.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ServiceInvoiceHandler(var ServiceInvoice: TestPage "Service Invoice")
     begin
-        ServiceInvoice.OK.Invoke;
+        ServiceInvoice.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrdertHandler(var SalesOrder: TestPage "Sales Order")
     begin
-        SalesOrder.OK.Invoke;
+        SalesOrder.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesQuotetHandler(var SalesQuote: TestPage "Sales Quote")
     begin
-        SalesQuote.OK.Invoke;
+        SalesQuote.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesInvoicetHandler(var SalesInvoice: TestPage "Sales Invoice")
     begin
-        SalesInvoice.OK.Invoke;
+        SalesInvoice.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesCrMemotHandler(var SalesCrMemo: TestPage "Sales Credit Memo")
     begin
-        SalesCrMemo.OK.Invoke;
+        SalesCrMemo.OK().Invoke();
     end;
 }
 

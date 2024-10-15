@@ -2,6 +2,7 @@ table 12404 "VAT Ledger"
 {
     Caption = 'VAT Ledger';
     LookupPageID = "VAT Ledger List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -16,14 +17,16 @@ table 12404 "VAT Ledger"
             Caption = 'Code';
 
             trigger OnValidate()
+            var
+                NoSeries: Codeunit "No. Series";
             begin
                 if Code <> xRec.Code then begin
                     CheckVATLedgerStatus();
                     GLSetup.Get();
                     if Type = Type::Purchase then
-                        NoSeriesMgt.TestManual(GLSetup."VAT Purch. Ledger No. Series")
+                        NoSeries.TestManual(GLSetup."VAT Purch. Ledger No. Series")
                     else
-                        NoSeriesMgt.TestManual(GLSetup."VAT Sales Ledger No. Series");
+                        NoSeries.TestManual(GLSetup."VAT Sales Ledger No. Series");
                     "No. Series" := '';
                 end;
             end;
@@ -331,15 +334,43 @@ table 12404 "VAT Ledger"
     end;
 
     trigger OnInsert()
+    var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         if Code = '' then begin
             GLSetup.Get();
             if Type = Type::Purchase then begin
                 GLSetup.TestField("VAT Purch. Ledger No. Series");
-                NoSeriesMgt.InitSeries(GLSetup."VAT Purch. Ledger No. Series", xRec."No. Series", 0D, Code, "No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(GLSetup."VAT Purch. Ledger No. Series", xRec."No. Series", 0D, Code, "No. Series", IsHandled);
+                if not IsHandled then begin
+#endif
+                    "No. Series" := GLSetup."VAT Purch. Ledger No. Series";
+                    if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                        "No. Series" := xRec."No. Series";
+                    Code := NoSeries.GetNextNo("No. Series");
+#if not CLEAN24
+                    NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GLSetup."VAT Purch. Ledger No. Series", 0D, Code);
+                end;
+#endif
             end else begin
                 GLSetup.TestField("VAT Sales Ledger No. Series");
-                NoSeriesMgt.InitSeries(GLSetup."VAT Sales Ledger No. Series", xRec."No. Series", 0D, Code, "No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(GLSetup."VAT Sales Ledger No. Series", xRec."No. Series", 0D, Code, "No. Series", IsHandled);
+                if not IsHandled then begin
+#endif
+                    "No. Series" := GLSetup."VAT Sales Ledger No. Series";
+                    if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                        "No. Series" := xRec."No. Series";
+                    Code := NoSeries.GetNextNo("No. Series");
+#if not CLEAN24
+                    NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GLSetup."VAT Sales Ledger No. Series", 0D, Code);
+                end;
+#endif
             end;
         end;
     end;
@@ -354,32 +385,27 @@ table 12404 "VAT Ledger"
         Text12405: Label 'Please create next accounting period.';
         Text12406: Label 'VAT Purchase Ledger for period from %1 to %2';
         Text12407: Label 'VAT Sales Ledger for period from %1 to %2';
-        NoSeriesMgt: Codeunit NoSeriesManagement;
 
     [Scope('OnPrem')]
     procedure AssistEdit(OldVATLedger: Record "VAT Ledger"): Boolean
+    var
+        NoSeries: Codeunit "No. Series";
     begin
-        with VATLedger do begin
-            VATLedger := Rec;
-            GLSetup.Get();
-            if Type = Type::Purchase then begin
-                GLSetup.TestField("VAT Purch. Ledger No. Series");
-                if NoSeriesMgt.SelectSeries(GLSetup."VAT Purch. Ledger No. Series", OldVATLedger."No. Series", "No. Series") then begin
-                    GLSetup.Get();
-                    GLSetup.TestField("VAT Purch. Ledger No. Series");
-                    NoSeriesMgt.SetSeries(Code);
-                    Rec := VATLedger;
-                    exit(true);
-                end;
-            end else begin
-                GLSetup.TestField("VAT Sales Ledger No. Series");
-                if NoSeriesMgt.SelectSeries(GLSetup."VAT Sales Ledger No. Series", OldVATLedger."No. Series", "No. Series") then begin
-                    GLSetup.Get();
-                    GLSetup.TestField("VAT Purch. Ledger No. Series");
-                    NoSeriesMgt.SetSeries(Code);
-                    Rec := VATLedger;
-                    exit(true);
-                end;
+        VATLedger := Rec;
+        GLSetup.Get();
+        if VATLedger.Type = VATLedger.Type::Purchase then begin
+            GLSetup.TestField("VAT Purch. Ledger No. Series");
+            if NoSeries.LookupRelatedNoSeries(GLSetup."VAT Purch. Ledger No. Series", OldVATLedger."No. Series", VATLedger."No. Series") then begin
+                VATLedger.Code := NoSeries.GetNextNo(VATLedger."No. Series");
+                Rec := VATLedger;
+                exit(true);
+            end;
+        end else begin
+            GLSetup.TestField("VAT Sales Ledger No. Series");
+            if NoSeries.LookupRelatedNoSeries(GLSetup."VAT Sales Ledger No. Series", OldVATLedger."No. Series", VATLedger."No. Series") then begin
+                VATLedger.Code := NoSeries.GetNextNo(VATLedger."No. Series");
+                Rec := VATLedger;
+                exit(true);
             end;
         end;
     end;

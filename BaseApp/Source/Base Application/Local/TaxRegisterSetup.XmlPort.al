@@ -585,148 +585,126 @@
     [Scope('OnPrem')]
     procedure ImportData()
     begin
-        with "Tax Register Section" do begin
-            Reset();
-            if FindSet() then
-                repeat
+        "Tax Register Section".Reset();
+        if "Tax Register Section".FindSet() then
+            repeat
+                TaxRegisterSection := "Tax Register Section";
+                if TaxRegisterSection.Find() then begin
+                    TaxRegisterSection.Delete(true);
                     TaxRegisterSection := "Tax Register Section";
-                    if TaxRegisterSection.Find() then begin
-                        TaxRegisterSection.Delete(true);
-                        TaxRegisterSection := "Tax Register Section";
-                    end;
-                    TaxRegisterSection.Insert();
-                until Next() = 0;
-        end;
+                end;
+                TaxRegisterSection.Insert();
+            until "Tax Register Section".Next() = 0;
 
-        with "Tax Register" do begin
-            Reset();
-            if FindSet() then
-                repeat
+        "Tax Register".Reset();
+        if "Tax Register".FindSet() then
+            repeat
+                TaxRegisterName := "Tax Register";
+                if TaxRegisterName.Find() then begin
+                    TaxRegisterName.Delete(true);
                     TaxRegisterName := "Tax Register";
-                    if TaxRegisterName.Find() then begin
-                        TaxRegisterName.Delete(true);
-                        TaxRegisterName := "Tax Register";
-                    end;
-                    TaxRegisterName.Insert();
-                until Next() = 0;
-        end;
+                end;
+                TaxRegisterName.Insert();
+            until "Tax Register".Next() = 0;
 
-        with "Tax Register Line Setup" do begin
-            Reset();
-            if FindSet() then
-                repeat
+        "Tax Register Line Setup".Reset();
+        if "Tax Register Line Setup".FindSet() then
+            repeat
+                TaxRegisterLineSetup := "Tax Register Line Setup";
+                if TaxRegisterLineSetup.Find() then begin
+                    TaxRegisterLineSetup.Delete(true);
                     TaxRegisterLineSetup := "Tax Register Line Setup";
-                    if TaxRegisterLineSetup.Find() then begin
-                        TaxRegisterLineSetup.Delete(true);
-                        TaxRegisterLineSetup := "Tax Register Line Setup";
-                    end;
-                    TaxRegisterLineSetup.Insert();
-                until Next() = 0;
-        end;
+                end;
+                TaxRegisterLineSetup.Insert();
+            until "Tax Register Line Setup".Next() = 0;
 
-        with "Tax Register Template" do begin
-            Reset();
-            if FindSet() then
-                repeat
+        "Tax Register Template".Reset();
+        if "Tax Register Template".FindSet() then
+            repeat
+                TaxRegisterTemplate := "Tax Register Template";
+                if TaxRegisterTemplate.Find() then begin
+                    TaxRegisterTemplate.Delete(true);
                     TaxRegisterTemplate := "Tax Register Template";
-                    if TaxRegisterTemplate.Find() then begin
-                        TaxRegisterTemplate.Delete(true);
-                        TaxRegisterTemplate := "Tax Register Template";
-                    end;
-                    TaxRegisterTemplate.Insert();
-                until Next() = 0;
-        end;
+                end;
+                TaxRegisterTemplate.Insert();
+            until "Tax Register Template".Next() = 0;
 
-        with "Tax Register Dim. Comb." do begin
-            Reset();
-            if FindSet() then
-                repeat
+        "Tax Register Dim. Comb.".Reset();
+        if "Tax Register Dim. Comb.".FindSet() then
+            repeat
+                TaxRegDimCombination := "Tax Register Dim. Comb.";
+                if TaxRegDimCombination.Find() then begin
+                    TaxRegDimCombination.Delete(true);
                     TaxRegDimCombination := "Tax Register Dim. Comb.";
-                    if TaxRegDimCombination.Find() then begin
-                        TaxRegDimCombination.Delete(true);
-                        TaxRegDimCombination := "Tax Register Dim. Comb.";
-                    end;
-                    TaxRegDimCombination.Insert();
-                until Next() = 0;
-        end;
+                end;
+                TaxRegDimCombination.Insert();
+            until "Tax Register Dim. Comb.".Next() = 0;
 
-        with "Tax Register Dim. Value Comb." do begin
-            Reset();
-            if FindSet() then
-                repeat
+        "Tax Register Dim. Value Comb.".Reset();
+        if "Tax Register Dim. Value Comb.".FindSet() then
+            repeat
+                TaxRegDimValueCombination := "Tax Register Dim. Value Comb.";
+                if TaxRegDimValueCombination.Find() then begin
+                    TaxRegDimValueCombination.Delete(true);
                     TaxRegDimValueCombination := "Tax Register Dim. Value Comb.";
-                    if TaxRegDimValueCombination.Find() then begin
-                        TaxRegDimValueCombination.Delete(true);
-                        TaxRegDimValueCombination := "Tax Register Dim. Value Comb.";
-                    end;
-                    TaxRegDimValueCombination.Insert();
-                until Next() = 0;
-        end;
+                end;
+                TaxRegDimValueCombination.Insert();
+            until "Tax Register Dim. Value Comb.".Next() = 0;
 
-        with "Tax Register Dim. Def. Value" do begin
-            Reset();
-            if FindSet() then
-                repeat
+        "Tax Register Dim. Def. Value".Reset();
+        if "Tax Register Dim. Def. Value".FindSet() then
+            repeat
+                TaxRegDimDefaultValue := "Tax Register Dim. Def. Value";
+                if TaxRegDimDefaultValue.Find() then begin
+                    TaxRegDimDefaultValue.Delete(true);
                     TaxRegDimDefaultValue := "Tax Register Dim. Def. Value";
-                    if TaxRegDimDefaultValue.Find() then begin
-                        TaxRegDimDefaultValue.Delete(true);
-                        TaxRegDimDefaultValue := "Tax Register Dim. Def. Value";
-                    end;
-                    TaxRegDimDefaultValue.Insert();
-                until Next() = 0;
-        end;
+                end;
+                TaxRegDimDefaultValue.Insert();
+            until "Tax Register Dim. Def. Value".Next() = 0;
 
-        with "Tax Register Dim. Filter" do begin
-            Reset();
-            if FindSet() then
-                repeat
+        "Tax Register Dim. Filter".Reset();
+        if "Tax Register Dim. Filter".FindSet() then
+            repeat
+                TaxRegDimFilter := "Tax Register Dim. Filter";
+                if TaxRegDimFilter.Find() then begin
+                    TaxRegDimFilter.Delete(true);
                     TaxRegDimFilter := "Tax Register Dim. Filter";
-                    if TaxRegDimFilter.Find() then begin
-                        TaxRegDimFilter.Delete(true);
-                        TaxRegDimFilter := "Tax Register Dim. Filter";
-                    end;
-                    TaxRegDimFilter.Insert();
-                until Next() = 0;
-        end;
+                end;
+                TaxRegDimFilter.Insert();
+            until "Tax Register Dim. Filter".Next() = 0;
 
-        with "Tax Reg. G/L Corr. Dim. Filter" do begin
-            Reset();
-            if FindSet() then
-                repeat
+        "Tax Reg. G/L Corr. Dim. Filter".Reset();
+        if "Tax Reg. G/L Corr. Dim. Filter".FindSet() then
+            repeat
+                TaxRegGLCorrDimFilter := "Tax Reg. G/L Corr. Dim. Filter";
+                if TaxRegGLCorrDimFilter.Find() then begin
+                    TaxRegGLCorrDimFilter.Delete(true);
                     TaxRegGLCorrDimFilter := "Tax Reg. G/L Corr. Dim. Filter";
-                    if TaxRegGLCorrDimFilter.Find() then begin
-                        TaxRegGLCorrDimFilter.Delete(true);
-                        TaxRegGLCorrDimFilter := "Tax Reg. G/L Corr. Dim. Filter";
-                    end;
-                    TaxRegGLCorrDimFilter.Insert();
-                until Next() = 0;
-        end;
+                end;
+                TaxRegGLCorrDimFilter.Insert();
+            until "Tax Reg. G/L Corr. Dim. Filter".Next() = 0;
 
-        with "Tax Register Term" do begin
-            Reset();
-            if FindSet() then
-                repeat
+        "Tax Register Term".Reset();
+        if "Tax Register Term".FindSet() then
+            repeat
+                TaxRegisterTermName := "Tax Register Term";
+                if TaxRegisterTermName.Find() then begin
+                    TaxRegisterTermName.Delete(true);
                     TaxRegisterTermName := "Tax Register Term";
-                    if TaxRegisterTermName.Find() then begin
-                        TaxRegisterTermName.Delete(true);
-                        TaxRegisterTermName := "Tax Register Term";
-                    end;
-                    TaxRegisterTermName.Insert();
-                until Next() = 0;
-        end;
+                end;
+                TaxRegisterTermName.Insert();
+            until "Tax Register Term".Next() = 0;
 
-        with "Tax Register Term Formula" do begin
-            Reset();
-            if FindSet() then
-                repeat
+        "Tax Register Term Formula".Reset();
+        if "Tax Register Term Formula".FindSet() then
+            repeat
+                TaxRegisterTermLine := "Tax Register Term Formula";
+                if TaxRegisterTermLine.Find() then begin
+                    TaxRegisterTermLine.Delete(true);
                     TaxRegisterTermLine := "Tax Register Term Formula";
-                    if TaxRegisterTermLine.Find() then begin
-                        TaxRegisterTermLine.Delete(true);
-                        TaxRegisterTermLine := "Tax Register Term Formula";
-                    end;
-                    TaxRegisterTermLine.Insert();
-                until Next() = 0;
-        end;
+                end;
+                TaxRegisterTermLine.Insert();
+            until "Tax Register Term Formula".Next() = 0;
     end;
 }
 

@@ -1,6 +1,7 @@
 table 12477 "FA Document Line"
 {
     Caption = 'FA Document Line';
+    DataClassification = CustomerContent;
 
     fields
     {

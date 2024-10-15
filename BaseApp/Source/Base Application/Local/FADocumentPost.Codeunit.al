@@ -6,6 +6,8 @@ codeunit 12471 "FA Document-Post"
     TableNo = "FA Document Header";
 
     trigger OnRun()
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         FADocHeader.Copy(Rec);
 
@@ -25,8 +27,7 @@ codeunit 12471 "FA Document-Post"
             if FADocHeader."No. Series" = FADocHeader."Posting No. Series" then
                 PostedFADocHeader."No." := FADocHeader."No."
             else
-                PostedFADocHeader."No." :=
-                  NoSeriesMgt.GetNextNo(FADocHeader."Posting No. Series", Rec."Posting Date", true);
+                PostedFADocHeader."No." := NoSeries.GetNextNo(FADocHeader."Posting No. Series", Rec."Posting Date");
 
         DocSignMgt.CheckDocSignatures(DATABASE::"FA Document Header", Rec."Document Type", Rec."No.");
 
@@ -106,7 +107,6 @@ codeunit 12471 "FA Document-Post"
         FAReclassTransferLine: Codeunit "FA Reclass. Transfer Line";
         FAReclassCheckLine: Codeunit "FA Reclass. Check Line";
         Text001: Label '%1 must be last Operation.';
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         DocSignMgt: Codeunit "Doc. Signature Management";
         InvtRcptPost: Codeunit "Invt. Doc.-Post Receipt";
         ReclassDone: Boolean;
@@ -118,12 +118,10 @@ codeunit 12471 "FA Document-Post"
     [Scope('OnPrem')]
     procedure InsertFADocLine(FADocLine: Record "FA Document Line"; PostedDocNo: Code[20])
     begin
-        with PostedFADocLine do begin
-            Init();
-            TransferFields(FADocLine);
-            "Document No." := PostedDocNo;
-            Insert();
-        end;
+        PostedFADocLine.Init();
+        PostedFADocLine.TransferFields(FADocLine);
+        PostedFADocLine."Document No." := PostedDocNo;
+        PostedFADocLine.Insert();
     end;
 
     local procedure CopyCommentLines(DocType: Integer; DocNo: Code[20]; ToDocNo: Code[20])
@@ -143,20 +141,18 @@ codeunit 12471 "FA Document-Post"
     var
         FALedgEntry: Record "FA Ledger Entry";
     begin
-        with FALedgEntry do begin
-            Reset();
-            SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
-            SetRange("FA No.", FANo);
-            SetRange("Depreciation Book Code", FADeprBookCode);
-            SetRange(Reversed, false);
-            SetFilter("FA Posting Date", '>%1', PostingDate);
-            if FindSet() then
-                repeat
-                    if "Canceled from FA No." = '' then
-                        exit(true);
-                until Next() = 0;
-            exit(false);
-        end;
+        FALedgEntry.Reset();
+        FALedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
+        FALedgEntry.SetRange("FA No.", FANo);
+        FALedgEntry.SetRange("Depreciation Book Code", FADeprBookCode);
+        FALedgEntry.SetRange(Reversed, false);
+        FALedgEntry.SetFilter("FA Posting Date", '>%1', PostingDate);
+        if FALedgEntry.FindSet() then
+            repeat
+                if FALedgEntry."Canceled from FA No." = '' then
+                    exit(true);
+            until FALedgEntry.Next() = 0;
+        exit(false);
     end;
 
     local procedure CheckDim()
@@ -215,100 +211,98 @@ codeunit 12471 "FA Document-Post"
         i: Integer;
         Rate: Integer;
     begin
-        with FADocLine do begin
-            if "FA No." = '' then
-                exit;
-            if "Posting Date" = 0D then
-                "Posting Date" := "FA Posting Date";
+        if FADocLine."FA No." = '' then
+            exit;
+        if FADocLine."Posting Date" = 0D then
+            FADocLine."Posting Date" := FADocLine."FA Posting Date";
 
-            FA.LockTable();
-            DepreciationBook.Get("Depreciation Book Code");
-            FA.Get("FA No.");
-            FA.TestField(Blocked, false);
-            FA.TestField(Inactive, false);
-            FADepreciationBook.Get("FA No.", "Depreciation Book Code");
-            FADepreciationBook.SetFilter("FA Posting Date Filter", '..%1', "FA Posting Date");
-            FADepreciationBook.CalcFields(
-              "Acquisition Cost", Depreciation, "Proceeds on Disposal", "Gain/Loss",
-              "Write-Down", Appreciation, "Custom 1", "Custom 2", "Salvage Value",
-              "Book Value on Disposal");
+        FA.LockTable();
+        DepreciationBook.Get(FADocLine."Depreciation Book Code");
+        FA.Get(FADocLine."FA No.");
+        FA.TestField(Blocked, false);
+        FA.TestField(Inactive, false);
+        FADepreciationBook.Get(FADocLine."FA No.", FADocLine."Depreciation Book Code");
+        FADepreciationBook.SetFilter("FA Posting Date Filter", '..%1', FADocLine."FA Posting Date");
+        FADepreciationBook.CalcFields(
+          "Acquisition Cost", Depreciation, "Proceeds on Disposal", "Gain/Loss",
+          "Write-Down", Appreciation, "Custom 1", "Custom 2", "Salvage Value",
+          "Book Value on Disposal");
 
-            Rate := -1;
-            for i := 0 to 1 do begin
-                if i = 1 then
-                    Rate := 1;
+        Rate := -1;
+        for i := 0 to 1 do begin
+            if i = 1 then
+                Rate := 1;
 
-                MakeFALedgEntry.CopyFromFADocLine(FALedgEntry, FADocLine);
-                if i = 0 then begin
-                    FALedgEntry."FA Location Code" := '';
-                    FALedgEntry."Employee No." := '';
-                end;
-                MakeFALedgEntry.CopyFromFACard(FALedgEntry, FA, FADepreciationBook);
-                FALedgEntry."Document No." := PostedFADocHeader."No.";
+            MakeFALedgEntry.CopyFromFADocLine(FALedgEntry, FADocLine);
+            if i = 0 then begin
+                FALedgEntry."FA Location Code" := '';
+                FALedgEntry."Employee No." := '';
+            end;
+            MakeFALedgEntry.CopyFromFACard(FALedgEntry, FA, FADepreciationBook);
+            FALedgEntry."Document No." := PostedFADocHeader."No.";
 
-                if FADepreciationBook."Acquisition Cost" <> 0 then begin
-                    FALedgEntry."FA Posting Category" := FALedgEntry."FA Posting Category"::" ";
-                    FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Acquisition Cost";
-                    FALedgEntry.Amount := Rate * FADepreciationBook."Acquisition Cost";
-                    FALedgEntry.Quantity := Rate * Quantity;
-                    InsertTransferFALedgEntry(FALedgEntry, Rate);
-                end;
-                FALedgEntry.Quantity := 0;
+            if FADepreciationBook."Acquisition Cost" <> 0 then begin
+                FALedgEntry."FA Posting Category" := FALedgEntry."FA Posting Category"::" ";
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Acquisition Cost";
+                FALedgEntry.Amount := Rate * FADepreciationBook."Acquisition Cost";
+                FALedgEntry.Quantity := Rate * FADocLine.Quantity;
+                InsertTransferFALedgEntry(FALedgEntry, Rate);
+            end;
+            FALedgEntry.Quantity := 0;
 
-                if FADepreciationBook.Depreciation <> 0 then begin
-                    FALedgEntry."FA Posting Category" := FALedgEntry."FA Posting Category"::" ";
-                    FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::Depreciation;
-                    FALedgEntry.Amount := Rate * FADepreciationBook.Depreciation;
-                    InsertTransferFALedgEntry(FALedgEntry, Rate);
-                end;
-                if FADepreciationBook."Proceeds on Disposal" <> 0 then begin
-                    FALedgEntry."FA Posting Category" := FALedgEntry."FA Posting Category"::" ";
-                    FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Proceeds on Disposal";
-                    FALedgEntry.Amount := Rate * FADepreciationBook."Proceeds on Disposal";
-                    InsertTransferFALedgEntry(FALedgEntry, Rate);
-                end;
-                if FADepreciationBook."Gain/Loss" <> 0 then begin
-                    FALedgEntry."FA Posting Category" := FALedgEntry."FA Posting Category"::" ";
-                    FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Gain/Loss";
-                    FALedgEntry.Amount := Rate * FADepreciationBook."Gain/Loss";
-                    InsertTransferFALedgEntry(FALedgEntry, Rate);
-                end;
-                if FADepreciationBook."Write-Down" <> 0 then begin
-                    FALedgEntry."FA Posting Category" := FALedgEntry."FA Posting Category"::" ";
-                    FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Write-Down";
-                    FALedgEntry.Amount := Rate * FADepreciationBook."Write-Down";
-                    InsertTransferFALedgEntry(FALedgEntry, Rate);
-                end;
-                if FADepreciationBook.Appreciation <> 0 then begin
-                    FALedgEntry."FA Posting Category" := FALedgEntry."FA Posting Category"::" ";
-                    FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::Appreciation;
-                    FALedgEntry.Amount := Rate * FADepreciationBook.Appreciation;
-                    InsertTransferFALedgEntry(FALedgEntry, Rate);
-                end;
-                if FADepreciationBook."Custom 1" <> 0 then begin
-                    FALedgEntry."FA Posting Category" := FALedgEntry."FA Posting Category"::" ";
-                    FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Custom 1";
-                    FALedgEntry.Amount := Rate * FADepreciationBook."Custom 1";
-                    InsertTransferFALedgEntry(FALedgEntry, Rate);
-                end;
-                if FADepreciationBook."Custom 2" <> 0 then begin
-                    FALedgEntry."FA Posting Category" := FALedgEntry."FA Posting Category"::" ";
-                    FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Custom 2";
-                    FALedgEntry.Amount := Rate * FADepreciationBook."Custom 2";
-                    InsertTransferFALedgEntry(FALedgEntry, Rate);
-                end;
-                if FADepreciationBook."Salvage Value" <> 0 then begin
-                    FALedgEntry."FA Posting Category" := FALedgEntry."FA Posting Category"::" ";
-                    FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Salvage Value";
-                    FALedgEntry.Amount := Rate * FADepreciationBook."Salvage Value";
-                    InsertTransferFALedgEntry(FALedgEntry, Rate);
-                end;
-                if FADepreciationBook."Book Value on Disposal" <> 0 then begin
-                    FALedgEntry."FA Posting Category" := FALedgEntry."FA Posting Category"::Disposal;
-                    FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Book Value on Disposal";
-                    FALedgEntry.Amount := Rate * FADepreciationBook."Book Value on Disposal";
-                    InsertTransferFALedgEntry(FALedgEntry, Rate);
-                end;
+            if FADepreciationBook.Depreciation <> 0 then begin
+                FALedgEntry."FA Posting Category" := FALedgEntry."FA Posting Category"::" ";
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::Depreciation;
+                FALedgEntry.Amount := Rate * FADepreciationBook.Depreciation;
+                InsertTransferFALedgEntry(FALedgEntry, Rate);
+            end;
+            if FADepreciationBook."Proceeds on Disposal" <> 0 then begin
+                FALedgEntry."FA Posting Category" := FALedgEntry."FA Posting Category"::" ";
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Proceeds on Disposal";
+                FALedgEntry.Amount := Rate * FADepreciationBook."Proceeds on Disposal";
+                InsertTransferFALedgEntry(FALedgEntry, Rate);
+            end;
+            if FADepreciationBook."Gain/Loss" <> 0 then begin
+                FALedgEntry."FA Posting Category" := FALedgEntry."FA Posting Category"::" ";
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Gain/Loss";
+                FALedgEntry.Amount := Rate * FADepreciationBook."Gain/Loss";
+                InsertTransferFALedgEntry(FALedgEntry, Rate);
+            end;
+            if FADepreciationBook."Write-Down" <> 0 then begin
+                FALedgEntry."FA Posting Category" := FALedgEntry."FA Posting Category"::" ";
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Write-Down";
+                FALedgEntry.Amount := Rate * FADepreciationBook."Write-Down";
+                InsertTransferFALedgEntry(FALedgEntry, Rate);
+            end;
+            if FADepreciationBook.Appreciation <> 0 then begin
+                FALedgEntry."FA Posting Category" := FALedgEntry."FA Posting Category"::" ";
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::Appreciation;
+                FALedgEntry.Amount := Rate * FADepreciationBook.Appreciation;
+                InsertTransferFALedgEntry(FALedgEntry, Rate);
+            end;
+            if FADepreciationBook."Custom 1" <> 0 then begin
+                FALedgEntry."FA Posting Category" := FALedgEntry."FA Posting Category"::" ";
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Custom 1";
+                FALedgEntry.Amount := Rate * FADepreciationBook."Custom 1";
+                InsertTransferFALedgEntry(FALedgEntry, Rate);
+            end;
+            if FADepreciationBook."Custom 2" <> 0 then begin
+                FALedgEntry."FA Posting Category" := FALedgEntry."FA Posting Category"::" ";
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Custom 2";
+                FALedgEntry.Amount := Rate * FADepreciationBook."Custom 2";
+                InsertTransferFALedgEntry(FALedgEntry, Rate);
+            end;
+            if FADepreciationBook."Salvage Value" <> 0 then begin
+                FALedgEntry."FA Posting Category" := FALedgEntry."FA Posting Category"::" ";
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Salvage Value";
+                FALedgEntry.Amount := Rate * FADepreciationBook."Salvage Value";
+                InsertTransferFALedgEntry(FALedgEntry, Rate);
+            end;
+            if FADepreciationBook."Book Value on Disposal" <> 0 then begin
+                FALedgEntry."FA Posting Category" := FALedgEntry."FA Posting Category"::Disposal;
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Book Value on Disposal";
+                FALedgEntry.Amount := Rate * FADepreciationBook."Book Value on Disposal";
+                InsertTransferFALedgEntry(FALedgEntry, Rate);
             end;
         end;
     end;

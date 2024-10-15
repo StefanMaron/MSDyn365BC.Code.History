@@ -107,32 +107,28 @@ codeunit 26550 "Statutory Report Management"
     [Scope('OnPrem')]
     procedure ReleaseDataHeader(var StatutoryReportDataHeader: Record "Statutory Report Data Header")
     begin
-        with StatutoryReportDataHeader do begin
-            if Status = Status::Released then
-                exit;
+        if StatutoryReportDataHeader.Status = StatutoryReportDataHeader.Status::Released then
+            exit;
 
-            TestField(Status, Status::Open);
+        StatutoryReportDataHeader.TestField(Status, StatutoryReportDataHeader.Status::Open);
 
-            Status := Status::Released;
-            Modify();
-        end;
+        StatutoryReportDataHeader.Status := StatutoryReportDataHeader.Status::Released;
+        StatutoryReportDataHeader.Modify();
     end;
 
     [Scope('OnPrem')]
     procedure ReopenDataHeader(var StatutoryReportDataHeader: Record "Statutory Report Data Header")
     begin
-        with StatutoryReportDataHeader do begin
-            if Status = Status::Open then
-                exit;
+        if StatutoryReportDataHeader.Status = StatutoryReportDataHeader.Status::Open then
+            exit;
 
-            if Status = Status::Sent then
-                Error(Text001);
+        if StatutoryReportDataHeader.Status = StatutoryReportDataHeader.Status::Sent then
+            Error(Text001);
 
-            TestField(Status, Status::Released);
+        StatutoryReportDataHeader.TestField(Status, StatutoryReportDataHeader.Status::Released);
 
-            Status := Status::Open;
-            Modify();
-        end;
+        StatutoryReportDataHeader.Status := StatutoryReportDataHeader.Status::Open;
+        StatutoryReportDataHeader.Modify();
     end;
 
     [Scope('OnPrem')]

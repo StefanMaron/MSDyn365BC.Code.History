@@ -189,6 +189,5 @@ page 12412 "VAT Ledger List"
     }
 
     var
-        VATLedger: Record "VAT Ledger";
 }
 

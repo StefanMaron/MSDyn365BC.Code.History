@@ -2,6 +2,7 @@ table 17322 "Tax Diff. Corr. Dim. Filter"
 {
     Caption = 'Tax Diff. Corr. Dim. Filter';
     LookupPageID = "Tax Dif G/L Corr. Dim. Filters";
+    DataClassification = CustomerContent;
 
     fields
     {

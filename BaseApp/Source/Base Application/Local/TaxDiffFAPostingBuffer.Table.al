@@ -1,6 +1,7 @@
 table 17323 "Tax Diff. FA Posting Buffer"
 {
     Caption = 'Tax Diff. FA Posting Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

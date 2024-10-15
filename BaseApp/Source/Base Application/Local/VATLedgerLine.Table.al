@@ -4,6 +4,7 @@ table 12405 "VAT Ledger Line"
     Permissions = tabledata "VAT Ledger Line Tariff No." = d,
                   tabledata "VAT Ledger Line CD No." = d,
                   tabledata "VAT Ledger Connection" = d;
+    DataClassification = CustomerContent;
 
     fields
     {

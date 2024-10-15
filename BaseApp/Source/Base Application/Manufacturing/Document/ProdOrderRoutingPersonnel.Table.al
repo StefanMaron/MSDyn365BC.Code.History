@@ -5,6 +5,7 @@ using Microsoft.Manufacturing.Routing;
 table 5412 "Prod. Order Routing Personnel"
 {
     Caption = 'Prod. Order Routing Personnel';
+    DataClassification = CustomerContent;
 
     fields
     {

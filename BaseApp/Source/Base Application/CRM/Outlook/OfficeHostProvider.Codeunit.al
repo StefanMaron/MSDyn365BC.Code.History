@@ -148,11 +148,10 @@ codeunit 1633 "Office Host Provider"
         if not CanHandle() then
             exit;
 
-        if not (OfficeHost.CallbackToken in ['', ' ']) then
-            with ExchangeWebServicesServer do begin
-                InitializeWithOAuthToken(OfficeHost.CallbackToken, GetEndpoint());
-                Result := EmailHasAttachments(TempOfficeAddinContextInternal."Item ID");
-            end;
+        if not (OfficeHost.CallbackToken in ['', ' ']) then begin
+            ExchangeWebServicesServer.InitializeWithOAuthToken(OfficeHost.CallbackToken, ExchangeWebServicesServer.GetEndpoint());
+            Result := ExchangeWebServicesServer.EmailHasAttachments(TempOfficeAddinContextInternal."Item ID");
+        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Host Management", 'OnGetEmailAndAttachmentsForEntity', '', false, false)]
@@ -184,11 +183,10 @@ codeunit 1633 "Office Host Provider"
         if not CanHandle() then
             exit;
 
-        if not (OfficeHost.CallbackToken in ['', ' ']) then
-            with ExchangeWebServicesServer do begin
-                InitializeWithOAuthToken(OfficeHost.CallbackToken, GetEndpoint());
-                EmailBody := GetEmailBody(ItemID);
-            end;
+        if not (OfficeHost.CallbackToken in ['', ' ']) then begin
+            ExchangeWebServicesServer.InitializeWithOAuthToken(OfficeHost.CallbackToken, ExchangeWebServicesServer.GetEndpoint());
+            EmailBody := ExchangeWebServicesServer.GetEmailBody(ItemID);
+        end;
     end;
 }
 

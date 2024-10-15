@@ -74,114 +74,112 @@ codeunit 17203 "Create Tax Register GL Entry"
                                         GLCorrAnalysisViewEntry.SetRange("Posting Date", StartDate, EndDate);
                                         TaxDimMgt.SetDimFilters2GLCorrAnViewEntry(
                                           GLCorrAnalysisViewEntry, GLCorrAnalysisView, TaxRegTemplate, TaxRegLineSetup);
-                                        with TaxRegLineSetup do
-                                            case "Account Type" of
-                                                "Account Type"::Correspondence:
-                                                    begin
-                                                        if "Account No." <> '' then
-                                                            GLCorrAnalysisViewEntry.SetFilter("Debit Account No.", "Account No.");
-                                                        if "Bal. Account No." <> '' then
-                                                            GLCorrAnalysisViewEntry.SetFilter("Credit Account No.", "Bal. Account No.");
-                                                        GLCorrAnalysisViewEntry.CalcSums(Amount);
-                                                        TempTaxRegTemplate.Value := TempTaxRegTemplate.Value + GLCorrAnalysisViewEntry.Amount;
-                                                        FillAuxTabFromGLCorrAnViewEntry(
-                                                          GLCorrAnalysisViewEntry, SectionCode, TaxReg."Register ID", StartDate, EndDate);
-                                                    end;
-                                                "Account Type"::"G/L Account":
-                                                    case "Amount Type" of
-                                                        "Amount Type"::Debit:
-                                                            begin
-                                                                if "Account No." <> '' then
-                                                                    GLCorrAnalysisViewEntry.SetFilter("Debit Account No.", "Account No.");
-                                                                GLCorrAnalysisViewEntry.CalcSums(Amount);
-                                                                TempTaxRegTemplate.Value := TempTaxRegTemplate.Value + GLCorrAnalysisViewEntry.Amount;
-                                                                FillAuxTabFromGLCorrAnViewEntry(
-                                                                  GLCorrAnalysisViewEntry, SectionCode, TaxReg."Register ID", StartDate, EndDate);
-                                                            end;
-                                                        "Amount Type"::Credit:
-                                                            begin
-                                                                if "Account No." <> '' then
-                                                                    GLCorrAnalysisViewEntry.SetFilter("Credit Account No.", "Account No.");
-                                                                GLCorrAnalysisViewEntry.CalcSums(Amount);
-                                                                TempTaxRegTemplate.Value := TempTaxRegTemplate.Value + GLCorrAnalysisViewEntry.Amount;
-                                                                FillAuxTabFromGLCorrAnViewEntry(
-                                                                  GLCorrAnalysisViewEntry, SectionCode, TaxReg."Register ID", StartDate, EndDate);
-                                                            end;
-                                                        "Amount Type"::"Net Change":
-                                                            begin
-                                                                if "Account No." <> '' then
-                                                                    GLCorrAnalysisViewEntry.SetFilter("Debit Account No.", "Account No.");
-                                                                GLCorrAnalysisViewEntry.CalcSums(Amount);
-                                                                TempTaxRegTemplate.Value := TempTaxRegTemplate.Value + GLCorrAnalysisViewEntry.Amount;
-                                                                FillAuxTabFromGLCorrAnViewEntry(
-                                                                  GLCorrAnalysisViewEntry, SectionCode, TaxReg."Register ID", StartDate, EndDate);
-                                                                GLCorrAnalysisViewEntry.SetRange("Debit Account No.");
+                                        case TaxRegLineSetup."Account Type" of
+                                            TaxRegLineSetup."Account Type"::Correspondence:
+                                                begin
+                                                    if TaxRegLineSetup."Account No." <> '' then
+                                                        GLCorrAnalysisViewEntry.SetFilter("Debit Account No.", TaxRegLineSetup."Account No.");
+                                                    if TaxRegLineSetup."Bal. Account No." <> '' then
+                                                        GLCorrAnalysisViewEntry.SetFilter("Credit Account No.", TaxRegLineSetup."Bal. Account No.");
+                                                    GLCorrAnalysisViewEntry.CalcSums(Amount);
+                                                    TempTaxRegTemplate.Value := TempTaxRegTemplate.Value + GLCorrAnalysisViewEntry.Amount;
+                                                    FillAuxTabFromGLCorrAnViewEntry(
+                                                      GLCorrAnalysisViewEntry, SectionCode, TaxReg."Register ID", StartDate, EndDate);
+                                                end;
+                                            TaxRegLineSetup."Account Type"::"G/L Account":
+                                                case TaxRegLineSetup."Amount Type" of
+                                                    TaxRegLineSetup."Amount Type"::Debit:
+                                                        begin
+                                                            if TaxRegLineSetup."Account No." <> '' then
+                                                                GLCorrAnalysisViewEntry.SetFilter("Debit Account No.", TaxRegLineSetup."Account No.");
+                                                            GLCorrAnalysisViewEntry.CalcSums(Amount);
+                                                            TempTaxRegTemplate.Value := TempTaxRegTemplate.Value + GLCorrAnalysisViewEntry.Amount;
+                                                            FillAuxTabFromGLCorrAnViewEntry(
+                                                              GLCorrAnalysisViewEntry, SectionCode, TaxReg."Register ID", StartDate, EndDate);
+                                                        end;
+                                                    TaxRegLineSetup."Amount Type"::Credit:
+                                                        begin
+                                                            if TaxRegLineSetup."Account No." <> '' then
+                                                                GLCorrAnalysisViewEntry.SetFilter("Credit Account No.", TaxRegLineSetup."Account No.");
+                                                            GLCorrAnalysisViewEntry.CalcSums(Amount);
+                                                            TempTaxRegTemplate.Value := TempTaxRegTemplate.Value + GLCorrAnalysisViewEntry.Amount;
+                                                            FillAuxTabFromGLCorrAnViewEntry(
+                                                              GLCorrAnalysisViewEntry, SectionCode, TaxReg."Register ID", StartDate, EndDate);
+                                                        end;
+                                                    TaxRegLineSetup."Amount Type"::"Net Change":
+                                                        begin
+                                                            if TaxRegLineSetup."Account No." <> '' then
+                                                                GLCorrAnalysisViewEntry.SetFilter("Debit Account No.", TaxRegLineSetup."Account No.");
+                                                            GLCorrAnalysisViewEntry.CalcSums(Amount);
+                                                            TempTaxRegTemplate.Value := TempTaxRegTemplate.Value + GLCorrAnalysisViewEntry.Amount;
+                                                            FillAuxTabFromGLCorrAnViewEntry(
+                                                              GLCorrAnalysisViewEntry, SectionCode, TaxReg."Register ID", StartDate, EndDate);
+                                                            GLCorrAnalysisViewEntry.SetRange("Debit Account No.");
 
-                                                                if "Account No." <> '' then
-                                                                    GLCorrAnalysisViewEntry.SetFilter("Credit Account No.", "Account No.");
-                                                                GLCorrAnalysisViewEntry.CalcSums(Amount);
-                                                                TempTaxRegTemplate.Value := TempTaxRegTemplate.Value - GLCorrAnalysisViewEntry.Amount;
-                                                                FillAuxTabFromGLCorrAnViewEntry(
-                                                                  GLCorrAnalysisViewEntry, SectionCode, TaxReg."Register ID", StartDate, EndDate);
-                                                            end;
-                                                    end;
-                                            end;
+                                                            if TaxRegLineSetup."Account No." <> '' then
+                                                                GLCorrAnalysisViewEntry.SetFilter("Credit Account No.", TaxRegLineSetup."Account No.");
+                                                            GLCorrAnalysisViewEntry.CalcSums(Amount);
+                                                            TempTaxRegTemplate.Value := TempTaxRegTemplate.Value - GLCorrAnalysisViewEntry.Amount;
+                                                            FillAuxTabFromGLCorrAnViewEntry(
+                                                              GLCorrAnalysisViewEntry, SectionCode, TaxReg."Register ID", StartDate, EndDate);
+                                                        end;
+                                                end;
+                                        end;
                                     end else begin
                                         GLCorrEntry.Reset();
                                         GLCorrEntry.SetCurrentKey("Debit Account No.", "Credit Account No.");
                                         GLCorrEntry.SetRange("Posting Date", StartDate, EndDate);
-                                        with TaxRegLineSetup do
-                                            case "Account Type" of
-                                                "Account Type"::Correspondence:
-                                                    begin
-                                                        if "Account No." <> '' then
-                                                            GLCorrEntry.SetFilter("Debit Account No.", "Account No.");
-                                                        if "Bal. Account No." <> '' then
-                                                            GLCorrEntry.SetFilter("Credit Account No.", "Bal. Account No.");
-                                                        GLCorrEntry.CalcSums(Amount);
-                                                        TempTaxRegTemplate.Value := TempTaxRegTemplate.Value + GLCorrEntry.Amount;
-                                                        FillAuxTableFromGLCorrEntry(
-                                                          GLCorrEntry, SectionCode, TaxReg."Register ID", StartDate, EndDate);
-                                                    end;
-                                                "Account Type"::"G/L Account":
-                                                    case "Amount Type" of
-                                                        "Amount Type"::Debit:
-                                                            begin
-                                                                if "Account No." <> '' then
-                                                                    GLCorrEntry.SetFilter("Debit Account No.", "Account No.");
-                                                                GLCorrEntry.CalcSums(Amount);
-                                                                TempTaxRegTemplate.Value := TempTaxRegTemplate.Value + GLCorrEntry.Amount;
-                                                                FillAuxTableFromGLCorrEntry(
-                                                                  GLCorrEntry, SectionCode, TaxReg."Register ID", StartDate, EndDate);
-                                                            end;
-                                                        "Amount Type"::Credit:
-                                                            begin
-                                                                if "Account No." <> '' then
-                                                                    GLCorrEntry.SetFilter("Credit Account No.", "Account No.");
-                                                                GLCorrEntry.CalcSums(Amount);
-                                                                TempTaxRegTemplate.Value := TempTaxRegTemplate.Value + GLCorrEntry.Amount;
-                                                                FillAuxTableFromGLCorrEntry(
-                                                                  GLCorrEntry, SectionCode, TaxReg."Register ID", StartDate, EndDate);
-                                                            end;
-                                                        "Amount Type"::"Net Change":
-                                                            begin
-                                                                if "Account No." <> '' then
-                                                                    GLCorrEntry.SetFilter("Debit Account No.", "Account No.");
-                                                                GLCorrEntry.CalcSums(Amount);
-                                                                TempTaxRegTemplate.Value := TempTaxRegTemplate.Value + GLCorrEntry.Amount;
-                                                                FillAuxTableFromGLCorrEntry(
-                                                                  GLCorrEntry, SectionCode, TaxReg."Register ID", StartDate, EndDate);
-                                                                GLCorrEntry.SetRange("Debit Account No.");
+                                        case TaxRegLineSetup."Account Type" of
+                                            TaxRegLineSetup."Account Type"::Correspondence:
+                                                begin
+                                                    if TaxRegLineSetup."Account No." <> '' then
+                                                        GLCorrEntry.SetFilter("Debit Account No.", TaxRegLineSetup."Account No.");
+                                                    if TaxRegLineSetup."Bal. Account No." <> '' then
+                                                        GLCorrEntry.SetFilter("Credit Account No.", TaxRegLineSetup."Bal. Account No.");
+                                                    GLCorrEntry.CalcSums(Amount);
+                                                    TempTaxRegTemplate.Value := TempTaxRegTemplate.Value + GLCorrEntry.Amount;
+                                                    FillAuxTableFromGLCorrEntry(
+                                                      GLCorrEntry, SectionCode, TaxReg."Register ID", StartDate, EndDate);
+                                                end;
+                                            TaxRegLineSetup."Account Type"::"G/L Account":
+                                                case TaxRegLineSetup."Amount Type" of
+                                                    TaxRegLineSetup."Amount Type"::Debit:
+                                                        begin
+                                                            if TaxRegLineSetup."Account No." <> '' then
+                                                                GLCorrEntry.SetFilter("Debit Account No.", TaxRegLineSetup."Account No.");
+                                                            GLCorrEntry.CalcSums(Amount);
+                                                            TempTaxRegTemplate.Value := TempTaxRegTemplate.Value + GLCorrEntry.Amount;
+                                                            FillAuxTableFromGLCorrEntry(
+                                                              GLCorrEntry, SectionCode, TaxReg."Register ID", StartDate, EndDate);
+                                                        end;
+                                                    TaxRegLineSetup."Amount Type"::Credit:
+                                                        begin
+                                                            if TaxRegLineSetup."Account No." <> '' then
+                                                                GLCorrEntry.SetFilter("Credit Account No.", TaxRegLineSetup."Account No.");
+                                                            GLCorrEntry.CalcSums(Amount);
+                                                            TempTaxRegTemplate.Value := TempTaxRegTemplate.Value + GLCorrEntry.Amount;
+                                                            FillAuxTableFromGLCorrEntry(
+                                                              GLCorrEntry, SectionCode, TaxReg."Register ID", StartDate, EndDate);
+                                                        end;
+                                                    TaxRegLineSetup."Amount Type"::"Net Change":
+                                                        begin
+                                                            if TaxRegLineSetup."Account No." <> '' then
+                                                                GLCorrEntry.SetFilter("Debit Account No.", TaxRegLineSetup."Account No.");
+                                                            GLCorrEntry.CalcSums(Amount);
+                                                            TempTaxRegTemplate.Value := TempTaxRegTemplate.Value + GLCorrEntry.Amount;
+                                                            FillAuxTableFromGLCorrEntry(
+                                                              GLCorrEntry, SectionCode, TaxReg."Register ID", StartDate, EndDate);
+                                                            GLCorrEntry.SetRange("Debit Account No.");
 
-                                                                if "Account No." <> '' then
-                                                                    GLCorrEntry.SetFilter("Credit Account No.", "Account No.");
-                                                                GLCorrEntry.CalcSums(Amount);
-                                                                TempTaxRegTemplate.Value := TempTaxRegTemplate.Value - GLCorrEntry.Amount;
-                                                                FillAuxTableFromGLCorrEntry(
-                                                                  GLCorrEntry, SectionCode, TaxReg."Register ID", StartDate, EndDate);
-                                                            end;
-                                                    end;
-                                            end;
+                                                            if TaxRegLineSetup."Account No." <> '' then
+                                                                GLCorrEntry.SetFilter("Credit Account No.", TaxRegLineSetup."Account No.");
+                                                            GLCorrEntry.CalcSums(Amount);
+                                                            TempTaxRegTemplate.Value := TempTaxRegTemplate.Value - GLCorrEntry.Amount;
+                                                            FillAuxTableFromGLCorrEntry(
+                                                              GLCorrEntry, SectionCode, TaxReg."Register ID", StartDate, EndDate);
+                                                        end;
+                                                end;
+                                        end;
                                     end;
                                 until TaxRegLineSetup.Next() = 0;
                         end;
@@ -315,57 +313,55 @@ codeunit 17203 "Create Tax Register GL Entry"
     begin
         TaxRegGLCorrEntry := TaxRegGLCorrespond;
         TmpTaxRegDimCorrFilter.Reset();
-        with TaxRegGLCorrespond do begin
-            SetRange("Section Code", "Section Code");
-            SetRange("Debit Account No.", "Debit Account No.");
-            SetRange("Credit Account No.", "Credit Account No.");
-            SetRange("Register Type", "Register Type");
-            if not FindLast() then begin
-                "Tax Register ID Totaling" := '';
-                "Where Used Register IDs" := '~';
-                Insert(true);
-            end;
+        TaxRegGLCorrespond.SetRange("Section Code", TaxRegGLCorrespond."Section Code");
+        TaxRegGLCorrespond.SetRange("Debit Account No.", TaxRegGLCorrespond."Debit Account No.");
+        TaxRegGLCorrespond.SetRange("Credit Account No.", TaxRegGLCorrespond."Credit Account No.");
+        TaxRegGLCorrespond.SetRange("Register Type", TaxRegGLCorrespond."Register Type");
+        if not TaxRegGLCorrespond.FindLast() then begin
+            TaxRegGLCorrespond."Tax Register ID Totaling" := '';
+            TaxRegGLCorrespond."Where Used Register IDs" := '~';
+            TaxRegGLCorrespond.Insert(true);
+        end;
 
-            if StrPos("Where Used Register IDs", '~' + TaxRegGLCorrEntry."Tax Register ID Totaling" + '~') = 0 then
-                "Where Used Register IDs" :=
-                  StrSubstNo('%1%2~', "Where Used Register IDs", TaxRegGLCorrEntry."Tax Register ID Totaling")
-            else begin
-                if TaxRegGLCorrEntry."Starting Date" < "Starting Date" then
-                    "Starting Date" := TaxRegGLCorrEntry."Starting Date";
-                if "Ending Date" < TaxRegGLCorrEntry."Ending Date" then
-                    "Ending Date" := TaxRegGLCorrEntry."Ending Date";
-            end;
-            TmpTaxRegDimCorrFilter.SetRange("Connection Type", TmpTaxRegDimCorrFilter."Connection Type"::Filters);
-            if TmpTaxRegDimCorrFilter.FindFirst() then begin
-                if StrPos("Tax Register ID Totaling", '~' + TaxRegGLCorrEntry."Tax Register ID Totaling" + '~') <> 0 then
-                    Error(Text21000901);
-                case CheckDimValueFilter(TmpTaxRegDimCorrFilter, "Entry No.", TaxRegNo, TaxEntrySetupLineNo) of
-                    -1:
-                        Error(Text21000902, TaxRegiName.TableCaption(), TaxRegNo, TaxEntrySetupLineNo);
-                    1:
+        if StrPos(TaxRegGLCorrespond."Where Used Register IDs", '~' + TaxRegGLCorrEntry."Tax Register ID Totaling" + '~') = 0 then
+            TaxRegGLCorrespond."Where Used Register IDs" :=
+              StrSubstNo('%1%2~', TaxRegGLCorrespond."Where Used Register IDs", TaxRegGLCorrEntry."Tax Register ID Totaling")
+        else begin
+            if TaxRegGLCorrEntry."Starting Date" < TaxRegGLCorrespond."Starting Date" then
+                TaxRegGLCorrespond."Starting Date" := TaxRegGLCorrEntry."Starting Date";
+            if TaxRegGLCorrespond."Ending Date" < TaxRegGLCorrEntry."Ending Date" then
+                TaxRegGLCorrespond."Ending Date" := TaxRegGLCorrEntry."Ending Date";
+        end;
+        TmpTaxRegDimCorrFilter.SetRange("Connection Type", TmpTaxRegDimCorrFilter."Connection Type"::Filters);
+        if TmpTaxRegDimCorrFilter.FindFirst() then begin
+            if StrPos(TaxRegGLCorrespond."Tax Register ID Totaling", '~' + TaxRegGLCorrEntry."Tax Register ID Totaling" + '~') <> 0 then
+                Error(Text21000901);
+            case CheckDimValueFilter(TmpTaxRegDimCorrFilter, TaxRegGLCorrespond."Entry No.", TaxRegNo, TaxEntrySetupLineNo) of
+                -1:
+                    Error(Text21000902, TaxRegiName.TableCaption(), TaxRegNo, TaxEntrySetupLineNo);
+                1:
                     repeat
                         TaxRegDimCorrFilter := TmpTaxRegDimCorrFilter;
-                        TaxRegDimCorrFilter."G/L Corr. Entry No." := "Entry No.";
+                        TaxRegDimCorrFilter."G/L Corr. Entry No." := TaxRegGLCorrespond."Entry No.";
                         TaxRegDimCorrFilter.Insert();
                     until TmpTaxRegDimCorrFilter.Next(1) = 0;
-                end;
-            end else begin
-                if "Tax Register ID Totaling" = '' then
-                    "Tax Register ID Totaling" := '~';
-                if StrPos("Tax Register ID Totaling", '~' + TaxRegGLCorrEntry."Tax Register ID Totaling" + '~') = 0 then
-                    "Tax Register ID Totaling" :=
-                      StrSubstNo('%1%2~', "Tax Register ID Totaling", TaxRegGLCorrEntry."Tax Register ID Totaling");
             end;
-            TmpTaxRegDimCorrFilter.SetRange("Connection Type", TmpTaxRegDimCorrFilter."Connection Type"::Combinations);
-            if TmpTaxRegDimCorrFilter.FindSet() then
-                repeat
-                    TaxRegDimCorrFilter := TmpTaxRegDimCorrFilter;
-                    TaxRegDimCorrFilter."G/L Corr. Entry No." := "Entry No.";
-                    if TaxRegDimCorrFilter.Insert() then;
-                until TmpTaxRegDimCorrFilter.Next(1) = 0;
-            TmpTaxRegDimCorrFilter.SetRange("Connection Type");
-            Modify();
+        end else begin
+            if TaxRegGLCorrespond."Tax Register ID Totaling" = '' then
+                TaxRegGLCorrespond."Tax Register ID Totaling" := '~';
+            if StrPos(TaxRegGLCorrespond."Tax Register ID Totaling", '~' + TaxRegGLCorrEntry."Tax Register ID Totaling" + '~') = 0 then
+                TaxRegGLCorrespond."Tax Register ID Totaling" :=
+                  StrSubstNo('%1%2~', TaxRegGLCorrespond."Tax Register ID Totaling", TaxRegGLCorrEntry."Tax Register ID Totaling");
         end;
+        TmpTaxRegDimCorrFilter.SetRange("Connection Type", TmpTaxRegDimCorrFilter."Connection Type"::Combinations);
+        if TmpTaxRegDimCorrFilter.FindSet() then
+            repeat
+                TaxRegDimCorrFilter := TmpTaxRegDimCorrFilter;
+                TaxRegDimCorrFilter."G/L Corr. Entry No." := TaxRegGLCorrespond."Entry No.";
+                if TaxRegDimCorrFilter.Insert() then;
+            until TmpTaxRegDimCorrFilter.Next(1) = 0;
+        TmpTaxRegDimCorrFilter.SetRange("Connection Type");
+        TaxRegGLCorrespond.Modify();
         TaxRegGLCorrespond := TaxRegGLCorrEntry;
     end;
 

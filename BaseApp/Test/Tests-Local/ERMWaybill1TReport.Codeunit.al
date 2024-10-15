@@ -159,7 +159,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
 
         LibraryReportValidation.SetFileName(DocumentNo);
 
-        PostedShipItemWaybill1T.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        PostedShipItemWaybill1T.SetFileNameSilent(LibraryReportValidation.GetFileName());
         PostedShipItemWaybill1T.SetTableView(SalesShipmentHeader);
         PostedShipItemWaybill1T.UseRequestPage(false);
         PostedShipItemWaybill1T.Run();
@@ -185,7 +185,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
 
         LibraryReportValidation.SetFileName(DocumentNo);
 
-        PostedInvoiceItemWaybill1T.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        PostedInvoiceItemWaybill1T.SetFileNameSilent(LibraryReportValidation.GetFileName());
         PostedInvoiceItemWaybill1T.SetTableView(SalesInvoiceHeader);
         PostedInvoiceItemWaybill1T.UseRequestPage(false);
         PostedInvoiceItemWaybill1T.Run();
@@ -248,7 +248,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
             "Document No." := DocumentNo;
             "Employee No." := Employee."No.";
             "Employee Type" := EmployeeType;
-            "Employee Job Title" := Employee.GetJobTitleName;
+            "Employee Job Title" := Employee.GetJobTitleName();
             "Employee Name" := EmployeeFullName;
             Insert();
         end;
@@ -263,7 +263,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
         SalesHeader.SetRange("No.", SalesHeader."No.");
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type");
 
-        OrderItemWaybill1T.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        OrderItemWaybill1T.SetFileNameSilent(LibraryReportValidation.GetFileName());
         OrderItemWaybill1T.SetTableView(SalesHeader);
         OrderItemWaybill1T.UseRequestPage(false);
         OrderItemWaybill1T.Run();
@@ -278,7 +278,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
         LibraryReportValidation.VerifyCellValue(6, 42, DocumentNo);
         LibraryReportValidation.VerifyCellValue(7, 42, LocMgt.Date2Text(PostingDate));
         LibraryReportValidation.VerifyCellValue(9, 42, CompInfo."OKPO Code");
-        LibraryReportValidation.VerifyCellValue(9, 8, StdRepMgt.GetCompanyName + '. ' + StdRepMgt.GetLegalAddress);
+        LibraryReportValidation.VerifyCellValue(9, 8, StdRepMgt.GetCompanyName() + '. ' + StdRepMgt.GetLegalAddress());
         LibraryReportValidation.VerifyCellValue(11, 8, ShipToAddress);
         LibraryReportValidation.VerifyCellValue(13, 8, BillToAddress);
     end;

@@ -36,7 +36,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
     begin
         // Check the Additional Fee Amount on Issued Reminder for a Customer with LCY.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         CreateReminderWithCurrency(CurrencyCode, CurrencyCode);
     end;
 
@@ -46,7 +46,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
     begin
         // Check the Additional Fee Amount on Issued Reminder for a Customer with FCY.
         Initialize();
-        CreateReminderWithCurrency(CreateCurrency, FindCurrency);
+        CreateReminderWithCurrency(CreateCurrency(), FindCurrency());
     end;
 
     local procedure CreateReminderWithCurrency(CurrencyCode: Code[10]; CurrencyCode2: Code[10])
@@ -117,7 +117,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
 
         // Setup: Create a Customer with Currency and Reminder Terms attached to it. Create and Post Sales Invoice for the Customer with
         // a new Currency. Again post a Sales Invoice with Customer Currency and Create Reminder after Grace Period Date.
-        AdditionalFee := SetupAndPostSalesInvoice(Customer, DocumentDate, CreateCurrency, FindCurrency);
+        AdditionalFee := SetupAndPostSalesInvoice(Customer, DocumentDate, CreateCurrency(), FindCurrency());
         CreateAndPostSalesInvoice(Customer."No.", Customer."Currency Code");
         Amount := Round(LibraryERM.ConvertCurrency(AdditionalFee, '', Customer."Currency Code", WorkDate()));
         CreateSuggestReminderManually(Customer."No.", Customer."Currency Code", DocumentDate);
@@ -385,7 +385,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         // [GIVEN] Created Customer with Currency "USD" and Reminder Terms attached to it
         // [GIVEN] Created and Posted Sales Invoice for the Customer with Currency "USD" selected
         // [GIVEN] Created Reminder for the Customer after Grace Period Date.
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         AdditionalFee := SetupAndPostSalesInvoice(Customer, DocumentDate, CurrencyCode, CurrencyCode);
         Amount := Round(LibraryERM.ConvertCurrency(AdditionalFee, '', CurrencyCode, WorkDate()));
 
@@ -459,20 +459,20 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
 
         // [GIVEN] The New Customer with outstanding balance was created
         LibrarySales.CreateSalesHeader(
-          SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+          SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
         Customer.Get(SalesHeader."Sell-to Customer No.");
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [GIVEN] Customer List page was run
-        CustomerList.OpenEdit;
+        CustomerList.OpenEdit();
         CustomerList.FILTER.SetFilter("No.", Customer."No.");
-        CustomerList.First;
-        Reminder.Trap;
+        CustomerList.First();
+        Reminder.Trap();
 
         // [WHEN] "New Reminder" action is running
-        CustomerList.NewReminder.Invoke;
+        CustomerList.NewReminder.Invoke();
 
         // [THEN] Reminder No. field is not automatically inserted
         Assert.AreEqual(Reminder."No.".Value, '', 'Reminder."No."');
@@ -491,7 +491,6 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         ReminderLine: Record "Reminder Line";
         IssuedReminder: Record "Issued Reminder Header";
         GLSetup: Record "General Ledger Setup";
-        CancelReminder: Codeunit "Cancel Issued Reminder";
         ReminderNo: Code[20];
         IssueNo: Code[20];
         OldReminderLevel: Integer;
@@ -594,12 +593,23 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
+        FeatureKey: Record "Feature Key";
+        FeatureKeyUpdateStatus: Record "Feature Data Update Status";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Issued Reminder Addnl Fee");
         // Clear global variable.
         Clear(ReminderLevelNo);
         DocumentNoVisibility.ClearState();
         LibraryVariableStorage.Clear();
+
+        if FeatureKey.Get('ReminderTermsCommunicationTexts') then begin
+            FeatureKey.Enabled := FeatureKey.Enabled::None;
+            FeatureKey.Modify();
+        end;
+        if FeatureKeyUpdateStatus.Get('ReminderTermsCommunicationTexts', CompanyName()) then begin
+            FeatureKeyUpdateStatus."Feature Status" := FeatureKeyUpdateStatus."Feature Status"::Disabled;
+            FeatureKeyUpdateStatus.Modify();
+        end;
 
         if IsInitialized then
             exit;
@@ -649,7 +659,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
         SalesHeader.Validate("Currency Code", CurrencyCode);
         SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         exit(SalesHeader."Due Date");
     end;
@@ -663,7 +673,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
         SalesHeader.Validate("Due Date", DueDate);
         SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
@@ -680,7 +690,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Currency Code", CurrencyCode);
-        Customer.Validate("Reminder Terms Code", CreateReminderTerms);
+        Customer.Validate("Reminder Terms Code", CreateReminderTerms());
         Customer.Modify(true);
     end;
 
@@ -837,10 +847,10 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
     local procedure IssueReminderWithReminderHeader(ReminderHeader: Record "Reminder Header") IssuedReminderNo: Code[20]
     var
         ReminderIssue: Codeunit "Reminder-Issue";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         ReminderIssue.Set(ReminderHeader, false, ReminderHeader."Document Date");
-        IssuedReminderNo := NoSeriesManagement.GetNextNo(ReminderHeader."Issuing No. Series", WorkDate(), false);
+        IssuedReminderNo := NoSeries.PeekNextNo(ReminderHeader."Issuing No. Series");
         LibraryERM.RunReminderIssue(ReminderIssue);
     end;
 
@@ -850,13 +860,13 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         ReminderHeader: Record "Reminder Header";
         SalesAndReceivablesSetup: Record "Sales & Receivables Setup";
         ReminderIssue: Codeunit "Reminder-Issue";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         SalesAndReceivablesSetup.Get();
         NoSeriesLine.SetRange("Series Code", SalesAndReceivablesSetup."Reminder Nos.");
         NoSeriesLine.FindFirst();
         ReminderHeader.FindLast();
-        IssuedReminderNo := NoSeriesManagement.GetNextNo(ReminderHeader."Issuing No. Series", WorkDate(), false);
+        IssuedReminderNo := NoSeries.PeekNextNo(ReminderHeader."Issuing No. Series");
         ReminderIssue.Set(ReminderHeader, false, DocumentDate);
         LibraryERM.RunReminderIssue(ReminderIssue);
     end;
@@ -871,8 +881,8 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         IssuedReminderHeader.SetRecFilter();
         Reminder.SetTableView(IssuedReminderHeader);
-        Reminder.SaveAsExcel(LibraryReportValidation.GetFileName);
-        LibraryReportValidation.OpenExcelFile;
+        Reminder.SaveAsExcel(LibraryReportValidation.GetFileName());
+        LibraryReportValidation.OpenExcelFile();
     end;
 
     local procedure SuggestReminderManually(ReminderHeaderNo: Code[20])
@@ -971,7 +981,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
             FindSet();
             repeat
                 Assert.AreEqual(NoOfReminders, "No. of Reminders", NoOfRemindersErr);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -995,7 +1005,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         RowNo: Integer;
         ColumnNo: Integer;
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         Assert.IsTrue(LibraryReportValidation.CheckIfValueExists('Additional Fee'), 'Additional Fee must be printed');
         LibraryReportValidation.FindRowNoColumnNoByValueOnWorksheet('Additional Fee', 1, RowNo, ColumnNo);
         ColumnNo := LibraryReportValidation.FindFirstColumnNoByValue('Remaining Amount');
@@ -1019,7 +1029,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
     begin
         UpdateReminderText.ReminderLevelNo.SetValue(ReminderLevelNo);
         UpdateReminderText.UpdateAdditionalFee.SetValue(false);
-        UpdateReminderText.OK.Invoke;
+        UpdateReminderText.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1030,14 +1040,14 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         UseSamePostingDate: Boolean;
         NewPostingDate: Date;
     begin
-        UseSameDocumentNo := LibraryVariableStorage.DequeueBoolean;
-        UseSamePostingDate := LibraryVariableStorage.DequeueBoolean;
-        NewPostingDate := LibraryVariableStorage.DequeueDate;
+        UseSameDocumentNo := LibraryVariableStorage.DequeueBoolean();
+        UseSamePostingDate := LibraryVariableStorage.DequeueBoolean();
+        NewPostingDate := LibraryVariableStorage.DequeueDate();
         BatchCancelIssuedReminders.UseSameDocumentNo.SetValue(UseSameDocumentNo);
         BatchCancelIssuedReminders.UseSamePostingDate.SetValue(UseSamePostingDate);
         if not UseSamePostingDate then
             BatchCancelIssuedReminders.NewPostingDate.SetValue(NewPostingDate);
-        BatchCancelIssuedReminders.OK.Invoke;
+        BatchCancelIssuedReminders.OK().Invoke();
     end;
 }
 

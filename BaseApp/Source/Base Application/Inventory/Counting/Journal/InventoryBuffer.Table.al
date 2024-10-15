@@ -8,6 +8,7 @@ table 307 "Inventory Buffer"
 {
     Caption = 'Inventory Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -3,6 +3,7 @@ table 14926 "Default VAT Allocation Line"
     Caption = 'Default VAT Allocation Line';
     DrillDownPageID = "Default VAT Allocation";
     LookupPageID = "Default VAT Allocation";
+    DataClassification = CustomerContent;
 
     fields
     {

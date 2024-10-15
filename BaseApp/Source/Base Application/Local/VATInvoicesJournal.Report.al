@@ -178,27 +178,26 @@ report 14927 "VAT Invoices Journal"
     begin
         VendorLedgerEntry.Reset();
         VendorLedgerEntry.SetCurrentKey("Vendor VAT Invoice Rcvd Date", "Entry No.");
-        with VendorLedgerEntry do
-            if FindSet() then begin
-                I := 0;
-                VendLedgEntryCount := Count;
-                Window.Open(Text002);
-                repeat
-                    I += 1;
-                    Window.Update(1, Round(I / VendLedgEntryCount * 10000, 1));
+        if VendorLedgerEntry.FindSet() then begin
+            I := 0;
+            VendLedgEntryCount := VendorLedgerEntry.Count;
+            Window.Open(Text002);
+            repeat
+                I += 1;
+                Window.Update(1, Round(I / VendLedgEntryCount * 10000, 1));
 
-                    CopyRow(FirstRow, LineNo);
+                CopyRow(FirstRow, LineNo);
 
-                    VATInvJnlMgt.GetVATInvJnlLineValues(
-                      VendorLedgerEntry, VATLedgerLine, LineNo, ReportType,
-                      AmtInclVATText, VATAmtText, Column, VATInvRcvdDate, VATEntryType, CurrDescr, VATRegNoKPP);
+                VATInvJnlMgt.GetVATInvJnlLineValues(
+                  VendorLedgerEntry, VATLedgerLine, LineNo, ReportType,
+                  AmtInclVATText, VATAmtText, Column, VATInvRcvdDate, VATEntryType, CurrDescr, VATRegNoKPP);
 
-                    FillVATInvJnlLine(
-                      VATLedgerLine, AmtInclVATText, VATAmtText, Column,
-                      VATInvRcvdDate, VATEntryType, CurrDescr, VATRegNoKPP);
-                until Next() = 0;
-                Window.Close();
-            end;
+                FillVATInvJnlLine(
+                  VATLedgerLine, AmtInclVATText, VATAmtText, Column,
+                  VATInvRcvdDate, VATEntryType, CurrDescr, VATRegNoKPP);
+            until VendorLedgerEntry.Next() = 0;
+            Window.Close();
+        end;
     end;
 
     [Scope('OnPrem')]
@@ -219,27 +218,26 @@ report 14927 "VAT Invoices Journal"
     begin
         VendorLedgerEntry.Reset();
         VendorLedgerEntry.SetCurrentKey("Vendor VAT Invoice Rcvd Date", "Entry No.");
-        with VendorLedgerEntry do
-            if FindSet() then begin
-                I := 0;
-                VendLedgEntryCount := Count;
-                Window.Open(Text001);
-                repeat
-                    I += 1;
-                    Window.Update(1, Round(I / VendLedgEntryCount * 10000, 1));
+        if VendorLedgerEntry.FindSet() then begin
+            I := 0;
+            VendLedgEntryCount := VendorLedgerEntry.Count;
+            Window.Open(Text001);
+            repeat
+                I += 1;
+                Window.Update(1, Round(I / VendLedgEntryCount * 10000, 1));
 
-                    CopyRow(FirstRow, LineNo);
+                CopyRow(FirstRow, LineNo);
 
-                    VATInvJnlMgt.GetVATInvJnlLineValues(
-                      VendorLedgerEntry, VATLedgerLine, LineNo, ReportType,
-                      AmtInclVATText, VATAmtText, Column, VATInvRcvdDate, VATEntryType, CurrDescr, VATRegNoKPP);
+                VATInvJnlMgt.GetVATInvJnlLineValues(
+                  VendorLedgerEntry, VATLedgerLine, LineNo, ReportType,
+                  AmtInclVATText, VATAmtText, Column, VATInvRcvdDate, VATEntryType, CurrDescr, VATRegNoKPP);
 
-                    FillVATInvJnlLine(
-                      VATLedgerLine, AmtInclVATText, VATAmtText, Column,
-                      VATInvRcvdDate, VATEntryType, CurrDescr, VATRegNoKPP);
-                until Next() = 0;
-                Window.Close();
-            end;
+                FillVATInvJnlLine(
+                  VATLedgerLine, AmtInclVATText, VATAmtText, Column,
+                  VATInvRcvdDate, VATEntryType, CurrDescr, VATRegNoKPP);
+            until VendorLedgerEntry.Next() = 0;
+            Window.Close();
+        end;
     end;
 
     [Scope('OnPrem')]
@@ -254,48 +252,44 @@ report 14927 "VAT Invoices Journal"
 
     [Scope('OnPrem')]
     procedure FillVATInvJnlLine(VATLedgerLine: Record "VAT Ledger Line"; AmtInclVATText: Text[30]; VATAmtText: Text[30]; Column: Option " ",Decrease,Increase; VATInvRcvdDate: Date; VATEntryType: Code[15]; CurrDescr: Text[40]; VATRegNoKPP: Text[30])
-    var
-        VATInvJnlMgt: Codeunit "VAT Invoice Journal Management";
     begin
-        with VATLedgerLine do begin
-            ExcelMgt.FillCell('A' + Format(RowNo), Format("Line No."));
-            ExcelMgt.FillCell('E' + Format(RowNo), Format(VATInvRcvdDate));
-            ExcelMgt.FillCell('L' + Format(RowNo), VATEntryType);
-            ExcelMgt.FillCell('R' + Format(RowNo), LocRepMgt.FormatCompoundExpr("Document No.", Format("Document Date")));
-            ExcelMgt.FillCell('AH' + Format(RowNo), LocRepMgt.FormatCompoundExpr("Correction No.", Format("Correction Date")));
-            if "Print Revision" then begin
-                if "Revision No." <> '' then
-                    ExcelMgt.FillCell('Z' + Format(RowNo), LocRepMgt.FormatCompoundExpr("Revision No.", Format("Revision Date")));
-                if "Revision of Corr. No." <> '' then
-                    ExcelMgt.FillCell(
-                      'AP' + Format(RowNo), LocRepMgt.FormatCompoundExpr("Revision of Corr. No.", Format("Revision of Corr. Date")));
-            end;
-            ExcelMgt.FillCell('AX' + Format(RowNo), "C/V Name");
-            ExcelMgt.FillCell('BG' + Format(RowNo), VATRegNoKPP);
-            if ReportType = ReportType::Issued then
-                ExcelMgt.FillCell('DC' + Format(RowNo), CurrDescr)
-            else
-                ExcelMgt.FillCell('DB' + Format(RowNo), CurrDescr);
-            case Column of
-                Column::" ":
-                    begin
-                        if ReportType = ReportType::Issued then
-                            ExcelMgt.FillCell('DM' + Format(RowNo), AmtInclVATText)
-                        else
-                            ExcelMgt.FillCell('DL' + Format(RowNo), AmtInclVATText);
-                        ExcelMgt.FillCell('EA' + Format(RowNo), VATAmtText);
-                    end;
-                Column::Decrease:
-                    begin
-                        ExcelMgt.FillCell('EJ' + Format(RowNo), AmtInclVATText);
-                        ExcelMgt.FillCell('EX' + Format(RowNo), VATAmtText);
-                    end;
-                Column::Increase:
-                    begin
-                        ExcelMgt.FillCell('EQ' + Format(RowNo), AmtInclVATText);
-                        ExcelMgt.FillCell('FE' + Format(RowNo), VATAmtText);
-                    end;
-            end;
+        ExcelMgt.FillCell('A' + Format(RowNo), Format(VATLedgerLine."Line No."));
+        ExcelMgt.FillCell('E' + Format(RowNo), Format(VATInvRcvdDate));
+        ExcelMgt.FillCell('L' + Format(RowNo), VATEntryType);
+        ExcelMgt.FillCell('R' + Format(RowNo), LocRepMgt.FormatCompoundExpr(VATLedgerLine."Document No.", Format(VATLedgerLine."Document Date")));
+        ExcelMgt.FillCell('AH' + Format(RowNo), LocRepMgt.FormatCompoundExpr(VATLedgerLine."Correction No.", Format(VATLedgerLine."Correction Date")));
+        if VATLedgerLine."Print Revision" then begin
+            if VATLedgerLine."Revision No." <> '' then
+                ExcelMgt.FillCell('Z' + Format(RowNo), LocRepMgt.FormatCompoundExpr(VATLedgerLine."Revision No.", Format(VATLedgerLine."Revision Date")));
+            if VATLedgerLine."Revision of Corr. No." <> '' then
+                ExcelMgt.FillCell(
+                  'AP' + Format(RowNo), LocRepMgt.FormatCompoundExpr(VATLedgerLine."Revision of Corr. No.", Format(VATLedgerLine."Revision of Corr. Date")));
+        end;
+        ExcelMgt.FillCell('AX' + Format(RowNo), VATLedgerLine."C/V Name");
+        ExcelMgt.FillCell('BG' + Format(RowNo), VATRegNoKPP);
+        if ReportType = ReportType::Issued then
+            ExcelMgt.FillCell('DC' + Format(RowNo), CurrDescr)
+        else
+            ExcelMgt.FillCell('DB' + Format(RowNo), CurrDescr);
+        case Column of
+            Column::" ":
+                begin
+                    if ReportType = ReportType::Issued then
+                        ExcelMgt.FillCell('DM' + Format(RowNo), AmtInclVATText)
+                    else
+                        ExcelMgt.FillCell('DL' + Format(RowNo), AmtInclVATText);
+                    ExcelMgt.FillCell('EA' + Format(RowNo), VATAmtText);
+                end;
+            Column::Decrease:
+                begin
+                    ExcelMgt.FillCell('EJ' + Format(RowNo), AmtInclVATText);
+                    ExcelMgt.FillCell('EX' + Format(RowNo), VATAmtText);
+                end;
+            Column::Increase:
+                begin
+                    ExcelMgt.FillCell('EQ' + Format(RowNo), AmtInclVATText);
+                    ExcelMgt.FillCell('FE' + Format(RowNo), VATAmtText);
+                end;
         end;
     end;
 

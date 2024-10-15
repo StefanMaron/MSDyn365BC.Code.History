@@ -266,51 +266,43 @@ report 14912 "Allocate FA Charges"
                 end;
             SourceDocType::"Posted Receipt":
                 begin
-                    with PurchRcptLine do begin
-                        SetRange("Document No.", SourceDocNo);
-                        SetRange(Type, Type::"Fixed Asset");
-                        if Find('-') then
-                            repeat
-                                SourcePurchLine.TransferFields(PurchRcptLine);
-                                SourcePurchLine.Insert();
-                            until Next() = 0;
-                    end
+                    PurchRcptLine.SetRange("Document No.", SourceDocNo);
+                    PurchRcptLine.SetRange(Type, PurchRcptLine.Type::"Fixed Asset");
+                    if PurchRcptLine.Find('-') then
+                        repeat
+                            SourcePurchLine.TransferFields(PurchRcptLine);
+                            SourcePurchLine.Insert();
+                        until PurchRcptLine.Next() = 0;
                 end;
             SourceDocType::"Posted Invoice":
                 begin
-                    with PurchInvLine do begin
-                        SetRange("Document No.", SourceDocNo);
-                        SetRange(Type, Type::"Fixed Asset");
-                        if Find('-') then
-                            repeat
-                                SourcePurchLine.TransferFields(PurchInvLine);
-                                SourcePurchLine.Insert();
-                            until Next() = 0;
-                    end
+                    PurchInvLine.SetRange("Document No.", SourceDocNo);
+                    PurchInvLine.SetRange(Type, PurchInvLine.Type::"Fixed Asset");
+                    if PurchInvLine.Find('-') then
+                        repeat
+                            SourcePurchLine.TransferFields(PurchInvLine);
+                            SourcePurchLine.Insert();
+                        until PurchInvLine.Next() = 0;
                 end;
             SourceDocType::"Posted Return Shipment":
                 begin
-                    with ReturnShipmentLine do begin
-                        SetRange("Document No.", SourceDocNo);
-                        SetRange(Type, Type::"Fixed Asset");
-                        if Find('-') then
-                            repeat
-                                SourcePurchLine.TransferFields(ReturnShipmentLine);
-                                SourcePurchLine.Insert();
-                            until Next() = 0;
-                    end
+                    ReturnShipmentLine.SetRange("Document No.", SourceDocNo);
+                    ReturnShipmentLine.SetRange(Type, ReturnShipmentLine.Type::"Fixed Asset");
+                    if ReturnShipmentLine.Find('-') then
+                        repeat
+                            SourcePurchLine.TransferFields(ReturnShipmentLine);
+                            SourcePurchLine.Insert();
+                        until ReturnShipmentLine.Next() = 0;
                 end;
             SourceDocType::"Posted Credit Memo":
                 begin
-                    with PurchCrMemoLine do begin
-                        SetRange("Document No.", SourceDocNo);
-                        SetRange(Type, Type::"Fixed Asset");
-                        if Find('-') then
-                            repeat
-                                SourcePurchLine.TransferFields(PurchCrMemoLine);
-                                SourcePurchLine.Insert();
-                            until Next() = 0;
-                    end
+                    PurchCrMemoLine.SetRange("Document No.", SourceDocNo);
+                    PurchCrMemoLine.SetRange(Type, PurchCrMemoLine.Type::"Fixed Asset");
+                    if PurchCrMemoLine.Find('-') then
+                        repeat
+                            SourcePurchLine.TransferFields(PurchCrMemoLine);
+                            SourcePurchLine.Insert();
+                        until PurchCrMemoLine.Next() = 0;
                 end;
         end;
     end;

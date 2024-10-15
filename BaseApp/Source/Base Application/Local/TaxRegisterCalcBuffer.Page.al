@@ -120,19 +120,18 @@ page 17216 "Tax Register Calc. Buffer"
         AccumulateRecordRef: RecordRef;
         TemplateFieldRef: FieldRef;
     begin
-        with TaxRegAccumulation do
-            if TaxRegTemplate.Get("Section Code", "Tax Register No.", "Template Line No.") then begin
-                TemplateRecordRef.GetTable(TaxRegTemplate);
-                TemplateFieldRef := TemplateRecordRef.Field(TaxRegTemplate.FieldNo("Date Filter"));
-                TemplateFieldRef.SetRange("Starting Date", "Ending Date");
-                TaxRegAccumulation2 := TaxRegAccumulation;
-                TaxRegAccumulation2.SetCurrentKey("Section Code", "Tax Register No.");
-                TaxRegAccumulation2.SetRange("Ending Date", TaxRegAccumulation2."Ending Date");
-                TaxRegAccumulation2.SetRange("Section Code", TaxRegAccumulation2."Section Code");
-                AccumulateRecordRef.GetTable(TaxRegAccumulation2);
-                AccumulateRecordRef.SetView(TaxRegAccumulation2.GetView(false));
-                TaxRegTermMgt.ShowExpressionValue(TemplateRecordRef, Rec, AccumulateRecordRef);
-            end;
+        if TaxRegTemplate.Get(TaxRegAccumulation."Section Code", TaxRegAccumulation."Tax Register No.", TaxRegAccumulation."Template Line No.") then begin
+            TemplateRecordRef.GetTable(TaxRegTemplate);
+            TemplateFieldRef := TemplateRecordRef.Field(TaxRegTemplate.FieldNo("Date Filter"));
+            TemplateFieldRef.SetRange(TaxRegAccumulation."Starting Date", TaxRegAccumulation."Ending Date");
+            TaxRegAccumulation2 := TaxRegAccumulation;
+            TaxRegAccumulation2.SetCurrentKey("Section Code", "Tax Register No.");
+            TaxRegAccumulation2.SetRange("Ending Date", TaxRegAccumulation2."Ending Date");
+            TaxRegAccumulation2.SetRange("Section Code", TaxRegAccumulation2."Section Code");
+            AccumulateRecordRef.GetTable(TaxRegAccumulation2);
+            AccumulateRecordRef.SetView(TaxRegAccumulation2.GetView(false));
+            TaxRegTermMgt.ShowExpressionValue(TemplateRecordRef, Rec, AccumulateRecordRef);
+        end;
     end;
 
     [Scope('OnPrem')]

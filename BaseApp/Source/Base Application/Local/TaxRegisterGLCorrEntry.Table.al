@@ -2,6 +2,7 @@ table 17203 "Tax Register G/L Corr. Entry"
 {
     Caption = 'Tax Register G/L Corr. Entry';
     LookupPageID = "Tax Register G/L Corr. Entries";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -677,7 +677,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         ConfigPackageField.SetRange("Package Code", ConfigPackage.Code);
         ConfigPackageField.SetRange("Table ID", TableID);
         ConfigPackageField.SetRange(Dimension, true);
-        Assert.IsTrue(ConfigPackageField.FindFirst, Fields_WrongDimensionField);
+        Assert.IsTrue(ConfigPackageField.FindFirst(), Fields_WrongDimensionField);
     end;
 
     [Test]
@@ -942,7 +942,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         ConfigPackageField."Field ID" := ItemJournalLine.FieldNo("Source No.");
 
         // [WHEN] Invoke "Config. Package Field"."GetRelationTablesID"
-        ActualResult := ConfigPackageField.GetRelationTablesID;
+        ActualResult := ConfigPackageField.GetRelationTablesID();
 
         // [THEN] Result = '18|23|27'.
         Assert.IsTrue(
@@ -994,7 +994,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         ConfigPackageField."Table ID" := DATABASE::Item;
         ConfigPackageField."Field ID" := Item.FieldNo(Type);
 
-        ActualResult := ConfigPackageField.GetRelationTablesID;
+        ActualResult := ConfigPackageField.GetRelationTablesID();
 
         // [THEN] Result = ''
         Assert.AreEqual('', ActualResult, 'Wrong list of related tables.');
@@ -1121,7 +1121,7 @@ codeunit 136610 "ERM RS Package Base Operations"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM RS Package Base Operations");
 
-        HideDialog;
+        HideDialog();
 
         SingleEntryRecNo := 1;
         isInitialized := true;
@@ -1521,30 +1521,30 @@ codeunit 136610 "ERM RS Package Base Operations"
     var
         WithDataOnly: Variant;
     begin
-        GetPackageTables.SelectTables.AssistEdit;
+        GetPackageTables.SelectTables.AssistEdit();
         LibraryVariableStorage.Dequeue(WithDataOnly);
         GetPackageTables.WithDataOnly.SetValue(WithDataOnly);
-        GetPackageTables.OK.Invoke;
+        GetPackageTables.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure Report_GetTables_SelectedTables_SelectionHandler(var ConfigSelection: TestPage "Config. Selection")
     begin
-        ConfigSelection.First;
+        ConfigSelection.First();
         ConfigSelection.Selected.SetValue(true);
-        ConfigSelection.OK.Invoke;
+        ConfigSelection.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure Report_GetTables_SelectedTables_SelectAllHandler(var ConfigSelection: TestPage "Config. Selection")
     begin
-        ConfigSelection.First;
+        ConfigSelection.First();
         repeat
             ConfigSelection.Selected.SetValue(true);
         until ConfigSelection.Next();
-        ConfigSelection.OK.Invoke;
+        ConfigSelection.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1558,7 +1558,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         LibraryVariableStorage.Dequeue(CopyData);
         CopyPackage.Package.SetValue(NewPackageCode);
         CopyPackage.CopyData.SetValue(CopyData);
-        CopyPackage.OK.Invoke;
+        CopyPackage.OK().Invoke();
     end;
 
     [ConfirmHandler]

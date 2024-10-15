@@ -323,7 +323,7 @@ codeunit 14949 "TORG-29 Helper"
     var
         PriceListLine: Record "Price List Line";
     begin
-#if not CLEAN21
+#if not CLEAN23
         if CalcAmountFromSalesPriceV15(ErrorBuffer, ErrorsCount, ValueEntry, SalesPriceType, SalesCode, UpdateFlag, Result) then
             exit(Result);
 #endif
@@ -344,7 +344,7 @@ codeunit 14949 "TORG-29 Helper"
         end;
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CalcAmountFromSalesPriceV15(var ErrorBuffer: Record "Value Entry"; var ErrorsCount: Integer; ValueEntry: Record "Value Entry"; SalesPriceType: Enum "Sales Price Type"; SalesCode: Code[20]; UpdateFlag: Boolean; var Result: Decimal): Boolean;
     var
         SalesPrice: Record "Sales Price";
@@ -379,44 +379,40 @@ codeunit 14949 "TORG-29 Helper"
         LastItemCode: Code[30];
     begin
         LastItemCode := '';
-        with ValueEntryReceipts do begin
-            SetCurrentKey("Item No.", "Posting Date");
-            SetFilter("Posting Date", '<%1', StartDate);
-            SetFilter("Location Code", LocationCode);
-            if FindSet() then
-                repeat
-                    if IsDebit() then
-                        if PassedAmountType = AmountType::Cost then
-                            ResidOnstart := ResidOnstart + Round("Cost Amount (Actual)")
-                        else begin
-                            CurItemCode := "Item No.";
-                            if CurItemCode <> LastItemCode then begin
-                                Item.Get(CurItemCode);
-                                LastItemCode := CurItemCode;
-                            end;
-                            ResidOnstart +=
-                              CalcAmountFromSalesPrice(ErrorBuffer, ErrorsCount, ValueEntryReceipts, PassedSalesType, SalesCode, false);
+        ValueEntryReceipts.SetCurrentKey("Item No.", "Posting Date");
+        ValueEntryReceipts.SetFilter("Posting Date", '<%1', StartDate);
+        ValueEntryReceipts.SetFilter("Location Code", LocationCode);
+        if ValueEntryReceipts.FindSet() then
+            repeat
+                if ValueEntryReceipts.IsDebit() then
+                    if PassedAmountType = AmountType::Cost then
+                        ResidOnstart := ResidOnstart + Round(ValueEntryReceipts."Cost Amount (Actual)")
+                    else begin
+                        CurItemCode := ValueEntryReceipts."Item No.";
+                        if CurItemCode <> LastItemCode then begin
+                            Item.Get(CurItemCode);
+                            LastItemCode := CurItemCode;
                         end;
-                until Next() = 0;
-        end;
+                        ResidOnstart +=
+                          CalcAmountFromSalesPrice(ErrorBuffer, ErrorsCount, ValueEntryReceipts, PassedSalesType, SalesCode, false);
+                    end;
+            until ValueEntryReceipts.Next() = 0;
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure FilterSalesPrice(var SalesPrice: Record "Sales Price"; ValueEntry: Record "Value Entry"; SalesPriceType: Enum "Sales Price Type"; SalesCode: Code[20])
     var
         Item: Record Item;
     begin
-        with SalesPrice do begin
-            SetRange("Item No.", ValueEntry."Item No.");
-            SetRange("Currency Code", '');
-            SetRange("Minimum Quantity", 0);
-            Item.Get(ValueEntry."Item No.");
-            SetRange("Unit of Measure Code", Item."Base Unit of Measure");
-            SetRange("Sales Code", SalesCode);
-            SetRange("Sales Type", SalesPriceType);
-            SetFilter("Starting Date", '<=%1', ValueEntry."Posting Date");
-            SetFilter("Ending Date", '>=%1|''''', ValueEntry."Posting Date");
-        end;
+        SalesPrice.SetRange("Item No.", ValueEntry."Item No.");
+        SalesPrice.SetRange("Currency Code", '');
+        SalesPrice.SetRange("Minimum Quantity", 0);
+        Item.Get(ValueEntry."Item No.");
+        SalesPrice.SetRange("Unit of Measure Code", Item."Base Unit of Measure");
+        SalesPrice.SetRange("Sales Code", SalesCode);
+        SalesPrice.SetRange("Sales Type", SalesPriceType);
+        SalesPrice.SetFilter("Starting Date", '<=%1', ValueEntry."Posting Date");
+        SalesPrice.SetFilter("Ending Date", '>=%1|''''', ValueEntry."Posting Date");
     end;
 #endif
     local procedure FilterSalesPrice(var PriceListLine: Record "Price List Line"; ValueEntry: Record "Value Entry"; SalesPriceType: Enum "Sales Price Type"; SourceNo: Code[20])
@@ -439,7 +435,6 @@ codeunit 14949 "TORG-29 Helper"
     end;
 
     local procedure GetSourceType(SalesPriceType: Enum "Sales Price Type"): Enum "Price Source Type";
-    var
     begin
         case SalesPriceType of
             SalesPriceType::"All Customers":

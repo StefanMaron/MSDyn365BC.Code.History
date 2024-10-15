@@ -28,5 +28,6 @@ permissionset 5269 "D365 COSTACC, VIEW"
                   tabledata "Cost Object" = R,
                   tabledata "Cost Register" = R,
                   tabledata "Cost Type" = R,
-                  tabledata "G/L Account" = R;
+                  tabledata "G/L Account" = R,
+                  tabledata "G/L Account Source Currency" = R;
 }

@@ -36,7 +36,7 @@ codeunit 1320 "Lines Instruction Mgt."
         SalesLine.SetRange(Quantity, 0);
         OnAfterSetSalesLineFilters(SalesLine, SalesHeader);
 
-        if not SalesLine.IsEmpty() AND GuiAllowed() then
+        if not SalesLine.IsEmpty() and GuiAllowed() then
             if MyNotifications.IsEnabled(SalesHeader.GetWarnWhenZeroQuantitySalesLinePosting()) then
                 if Confirm(LinesMissingQuantityConfirmQst, false) then
                     exit
@@ -62,7 +62,7 @@ codeunit 1320 "Lines Instruction Mgt."
         PurchaseLine.SetRange(Quantity, 0);
         OnAfterSetPurchaseLineFilters(PurchaseLine, PurchaseHeader);
 
-        if not PurchaseLine.IsEmpty() AND GuiAllowed() then
+        if not PurchaseLine.IsEmpty() and GuiAllowed() then
             if MyNotifications.IsEnabled(PurchaseHeader.GetWarnWhenZeroQuantityPurchaseLinePosting()) then
                 if Confirm(LinesMissingQuantityConfirmQst, false) then
                     exit

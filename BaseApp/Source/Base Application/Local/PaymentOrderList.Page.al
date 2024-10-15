@@ -428,7 +428,6 @@ page 12424 "Payment Order List"
         AccountName: Text[50];
         BalAccountName: Text[50];
         ExportStatusFilter: Option " ",New,Exported,"Bank Statement Found";
-        Text14701: Label 'There is nothing to export. Only bank payment orders with %1 = New can be exported.';
 
     local procedure SetExportStatusFilter()
     begin

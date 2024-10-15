@@ -130,7 +130,9 @@ page 160 "Sales Statistics"
                     Editable = false;
                     ToolTip = 'Specifies the total quantity of G/L account entries, items, and/or resources in the sales document. If the amount is rounded, because the Invoice Rounding check box is selected in the Sales & Receivables Setup window, this field will contain the quantity of items in the sales document plus one.';
                 }
+#pragma warning disable AA0100
                 field("TotalSalesLine.""Units per Parcel"""; TotalSalesLine."Units per Parcel")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Parcels';
@@ -138,7 +140,9 @@ page 160 "Sales Statistics"
                     Editable = false;
                     ToolTip = 'Specifies the total number of parcels in the sales document.';
                 }
+#pragma warning disable AA0100
                 field("TotalSalesLine.""Net Weight"""; TotalSalesLine."Net Weight")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Net Weight';
@@ -146,7 +150,9 @@ page 160 "Sales Statistics"
                     Editable = false;
                     ToolTip = 'Specifies the total net weight of the items in the sales document.';
                 }
+#pragma warning disable AA0100
                 field("TotalSalesLine.""Gross Weight"""; TotalSalesLine."Gross Weight")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Gross Weight';
@@ -154,7 +160,9 @@ page 160 "Sales Statistics"
                     Editable = false;
                     ToolTip = 'Specifies the total gross weight of the items in the sales document.';
                 }
+#pragma warning disable AA0100
                 field("TotalSalesLine.""Unit Volume"""; TotalSalesLine."Unit Volume")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Volume';
@@ -162,7 +170,9 @@ page 160 "Sales Statistics"
                     Editable = false;
                     ToolTip = 'Specifies the total volume of the items in the sales document.';
                 }
+#pragma warning disable AA0100
                 field("TotalSalesLineLCY.""Unit Cost (LCY)"""; TotalSalesLineLCY."Unit Cost (LCY)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
@@ -178,7 +188,9 @@ page 160 "Sales Statistics"
                     Editable = false;
                     ToolTip = 'Specifies the total cost, in LCY, of the items in the sales document, adjusted for any changes in the original costs of these items. If this field contains zero, it means that there were no entries to calculate, possibly because of date compression or because the adjustment batch job has not yet been run.';
                 }
+#pragma warning disable AA0100
                 field("TotalAdjCostLCY - TotalSalesLineLCY.""Unit Cost (LCY)"""; TotalAdjCostLCY - TotalSalesLineLCY."Unit Cost (LCY)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
@@ -199,7 +211,9 @@ page 160 "Sales Statistics"
             group(Customer)
             {
                 Caption = 'Customer';
+#pragma warning disable AA0100
                 field("Cust.""Balance (LCY)"""; Cust."Balance (LCY)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
@@ -207,7 +221,9 @@ page 160 "Sales Statistics"
                     Editable = false;
                     ToolTip = 'Specifies the balance on the customer''s account.';
                 }
+#pragma warning disable AA0100
                 field("Cust.""Credit Limit (LCY)"""; Cust."Credit Limit (LCY)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;

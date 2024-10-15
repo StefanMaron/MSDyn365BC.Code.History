@@ -353,7 +353,7 @@ codeunit 144014 "ERM Prepayments Local"
         GLAccNo: Code[20];
     begin
         VendNo := LibraryPurchase.CreateVendorNo();
-        GLAccNo := LibraryERM.CreateGLAccountWithPurchSetup;
+        GLAccNo := LibraryERM.CreateGLAccountWithPurchSetup();
         LibraryPurchase.CreatePurchHeader(
           PurchHeader, PurchHeader."Document Type"::Invoice, VendNo);
         PurchHeader.Validate("Posting Date", PostingDate);
@@ -371,7 +371,7 @@ codeunit 144014 "ERM Prepayments Local"
         GLAccNo: Code[20];
     begin
         CustNo := LibrarySales.CreateCustomerNo();
-        GLAccNo := LibraryERM.CreateGLAccountWithSalesSetup;
+        GLAccNo := LibraryERM.CreateGLAccountWithSalesSetup();
         LibrarySales.CreateSalesHeader(
           SalesHeader, SalesHeader."Document Type"::Invoice, CustNo);
         SalesHeader.Validate("Posting Date", PostingDate);
@@ -407,7 +407,7 @@ codeunit 144014 "ERM Prepayments Local"
             InitGenJnlLine(GenJnlLine);
             LibraryJournals.CreateGenJournalLine(
               GenJnlLine, "Journal Template Name", "Journal Batch Name", DocType, AccountType, AccountNo,
-              "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, EntryAmount);
+              "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), EntryAmount);
             Validate(Prepayment, true);
             Validate("Posting Date", PostingDate);
             if PrepmtDocNo <> '' then
@@ -423,7 +423,7 @@ codeunit 144014 "ERM Prepayments Local"
         DimensionValue: Record "Dimension Value";
     begin
         LibraryDimension.CreateDimension(Dimension);
-        LibraryDimension.CreateDimensionValueWithCode(DimensionValue, LibraryUtility.GenerateGUID, Dimension.Code);
+        LibraryDimension.CreateDimensionValueWithCode(DimensionValue, LibraryUtility.GenerateGUID(), Dimension.Code);
         exit(LibraryDimension.CreateDimSet(DimSetID, Dimension.Code, DimensionValue.Code));
     end;
 

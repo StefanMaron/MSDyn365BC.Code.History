@@ -33,39 +33,37 @@ codeunit 17207 "Create Tax Register FE Entry"
         Window.Update(1, StartDate);
         Window.Update(2, EndDate);
 
-        with FADepreciationBook do begin
-            Window.Update(4, TableCaption);
+        Window.Update(4, FADepreciationBook.TableCaption);
 
-            Reset();
-            SetRange("Depreciation Book Code", TaxRegisterSetup."Future Exp. Depreciation Book");
-            Total := Count;
-            Procesing := 0;
+        FADepreciationBook.Reset();
+        FADepreciationBook.SetRange("Depreciation Book Code", TaxRegisterSetup."Future Exp. Depreciation Book");
+        Total := FADepreciationBook.Count;
+        Procesing := 0;
 
-            FALedgEntry.SetRange("FA Posting Date", StartDate, EndDate);
-            if FindSet() then
-                repeat
-                    Procesing += 1;
-                    if (Procesing mod 50) = 1 then
-                        Window.Update(3, Round((Procesing / Total) * 10000, 1));
+        FALedgEntry.SetRange("FA Posting Date", StartDate, EndDate);
+        if FADepreciationBook.FindSet() then
+            repeat
+                Procesing += 1;
+                if (Procesing mod 50) = 1 then
+                    Window.Update(3, Round((Procesing / Total) * 10000, 1));
 
-                    FALedgEntry.SetRange("FA No.", "FA No.");
-                    FALedgEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");
+                FALedgEntry.SetRange("FA No.", FADepreciationBook."FA No.");
+                FALedgEntry.SetRange("Depreciation Book Code", FADepreciationBook."Depreciation Book Code");
 
-                    if FALedgEntry.FindFirst() then begin
-                        TaxRegFEEntry.Init();
-                        TaxRegFEEntry."Section Code" := SectionCode;
-                        TaxRegFEEntry."Starting Date" := StartDate;
-                        TaxRegFEEntry."Ending Date" := EndDate;
-                        TaxRegFEEntry."FE No." := "FA No.";
-                        TaxRegFEEntry."Depreciation Book Code" := "Depreciation Book Code";
-                        TaxRegFEEntry."Entry No." += 1;
-                        TaxRegFEEntry.Insert();
+                if FALedgEntry.FindFirst() then begin
+                    TaxRegFEEntry.Init();
+                    TaxRegFEEntry."Section Code" := SectionCode;
+                    TaxRegFEEntry."Starting Date" := StartDate;
+                    TaxRegFEEntry."Ending Date" := EndDate;
+                    TaxRegFEEntry."FE No." := FADepreciationBook."FA No.";
+                    TaxRegFEEntry."Depreciation Book Code" := FADepreciationBook."Depreciation Book Code";
+                    TaxRegFEEntry."Entry No." += 1;
+                    TaxRegFEEntry.Insert();
 
-                        TaxRegFEEntry.CalcFields(
-                          "Acquisition Cost", "Valuation Changes", "Depreciation Amount");
-                    end;
-                until Next() = 0;
-        end;
+                    TaxRegFEEntry.CalcFields(
+                      "Acquisition Cost", "Valuation Changes", "Depreciation Amount");
+                end;
+            until FADepreciationBook.Next() = 0;
 
         CreateTaxRegAccumulation(StartDate, EndDate, SectionCode);
     end;

@@ -2,6 +2,7 @@ table 17218 "Tax Register Dim. Filter"
 {
     Caption = 'Tax Register Dim. Filter';
     LookupPageID = "Tax Reg Dimension Filters";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -47,12 +47,12 @@ codeunit 137281 "O365 Location Transfers"
         TransferQuantity := LibraryRandom.RandDecInDecimalRange(1, OriginalQuantity, 2);
 
         // Exercise
-        LibraryLowerPermissions.SetO365INVCreate;
+        LibraryLowerPermissions.SetO365INVCreate();
         Clear(TransferLine);
         LibraryInventory.CreateTransferHeader(TransferHeader, LocationFrom, LocationTo, LocationInTransit);
         LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", TransferQuantity);
-        LibraryLowerPermissions.AddO365INVPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.AddO365INVPost();
+        LibraryLowerPermissions.AddJobs();
         LibraryInventory.PostTransferHeader(TransferHeader, true, true);
 
         // Verify
@@ -89,13 +89,13 @@ codeunit 137281 "O365 Location Transfers"
         SecondTransferQuantity := LibraryRandom.RandDecInDecimalRange(1, SecondOriginalQuantity, 2);
 
         // Exercise
-        LibraryLowerPermissions.SetO365INVCreate;
+        LibraryLowerPermissions.SetO365INVCreate();
         Clear(TransferLine);
         LibraryInventory.CreateTransferHeader(TransferHeader, LocationFrom, LocationTo, LocationInTransit);
         LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item1."No.", FirstTransferQuantity);
         LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item2."No.", SecondTransferQuantity);
-        LibraryLowerPermissions.AddO365INVPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.AddO365INVPost();
+        LibraryLowerPermissions.AddJobs();
         LibraryInventory.PostTransferHeader(TransferHeader, true, true);
 
         // Verify
@@ -127,11 +127,11 @@ codeunit 137281 "O365 Location Transfers"
         TransferQuantity := LibraryRandom.RandDecInDecimalRange(1, OriginalQuantity, 2);
 
         // Exercise
-        LibraryLowerPermissions.SetO365INVCreate;
+        LibraryLowerPermissions.SetO365INVCreate();
         CreateDirectTransferHeader(TransferHeader, LocationFrom, LocationTo);
         LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", TransferQuantity);
-        LibraryLowerPermissions.AddO365INVPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.AddO365INVPost();
+        LibraryLowerPermissions.AddJobs();
         LibraryInventory.PostDirectTransferOrder(TransferHeader);
 
         // Verify
@@ -161,8 +161,8 @@ codeunit 137281 "O365 Location Transfers"
         TransferOrder."In-Transit Code".SetValue(InTransitLocation);
 
         // 2. Exercise: Set Item No. to a non-existent item no.
-        LibraryLowerPermissions.SetO365INVCreate;
-        LibraryLowerPermissions.AddItemCreate;
+        LibraryLowerPermissions.SetO365INVCreate();
+        LibraryLowerPermissions.AddItemCreate();
         ItemNo := LibraryUtility.GenerateGUID();
         TransferOrder.TransferLines."Item No.".SetValue(ItemNo);
 
@@ -198,7 +198,7 @@ codeunit 137281 "O365 Location Transfers"
         CreateDirectTransferHeader(TransferHeader, LocationFrom, LocationTo);
 
         // Exercise
-        LibraryLowerPermissions.SetO365INVCreate;
+        LibraryLowerPermissions.SetO365INVCreate();
         LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", OriginalQuantity);
 
         // Verify
@@ -213,8 +213,8 @@ codeunit 137281 "O365 Location Transfers"
 
         // Exercise
         TransferLine.Modify(true);
-        LibraryLowerPermissions.AddO365INVPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.AddO365INVPost();
+        LibraryLowerPermissions.AddJobs();
         TransferOrderPostShipment.SetHideValidationDialog(true);
         TransferOrderPostShipment.Run(TransferHeader);
 
@@ -292,9 +292,9 @@ codeunit 137281 "O365 Location Transfers"
         CreateDirectTransferHeader(TransferHeader, Location[1].Code, Location[2].Code);
         LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", LibraryRandom.RandDec(100, 2));
 
-        LibraryLowerPermissions.SetO365INVCreate;
-        LibraryLowerPermissions.AddO365INVPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetO365INVCreate();
+        LibraryLowerPermissions.AddO365INVPost();
+        LibraryLowerPermissions.AddJobs();
 
         // [WHEN] Post the transfer order
         LibraryInventory.PostDirectTransferOrder(TransferHeader);
@@ -326,8 +326,8 @@ codeunit 137281 "O365 Location Transfers"
         CreateItemJournalLineDirectTransfer(
           ItemJournalLine, Item."No.", 1, '', Location.Code, ItemJournalLine."Document Type"::"Transfer Shipment");
 
-        LibraryLowerPermissions.SetO365INVCreate;
-        LibraryLowerPermissions.AddO365INVPost;
+        LibraryLowerPermissions.SetO365INVCreate();
+        LibraryLowerPermissions.AddO365INVPost();
 
         // [WHEN] Post item journal line
         asserterror LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
@@ -358,8 +358,8 @@ codeunit 137281 "O365 Location Transfers"
         CreateItemJournalLineDirectTransfer(
           ItemJournalLine, Item."No.", 1, Location.Code, '', ItemJournalLine."Document Type"::"Transfer Receipt");
 
-        LibraryLowerPermissions.SetO365INVCreate;
-        LibraryLowerPermissions.AddO365INVPost;
+        LibraryLowerPermissions.SetO365INVCreate();
+        LibraryLowerPermissions.AddO365INVPost();
 
         // [WHEN] Post item journal line
         asserterror LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
@@ -386,25 +386,25 @@ codeunit 137281 "O365 Location Transfers"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[1]);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[2]);
         CreateAndPostItem(Item, Location[1].Code, LibraryRandom.RandIntInRange(100, 200));
-        LibraryLowerPermissions.SetO365INVCreate;
-        LibraryLowerPermissions.AddO365INVPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetO365INVCreate();
+        LibraryLowerPermissions.AddO365INVPost();
+        LibraryLowerPermissions.AddJobs();
 
         // [GIVEN] Create direct transfer order with line
         CreateDirectTransferHeader(TransferHeader, Location[1].Code, Location[2].Code);
         LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", LibraryRandom.RandDec(100, 2));
 
         // [WHEN] Open transfer order card
-        TransferOrder.OpenEdit;
+        TransferOrder.OpenEdit();
         TransferOrder.FILTER.SetFilter("No.", TransferHeader."No.");
 
         // [THEN] "Direct Transfer" is editable
-        Assert.IsTrue(TransferOrder."Direct Transfer".Editable, DirectTransferMustBeEditableErr);
+        Assert.IsTrue(TransferOrder."Direct Transfer".Editable(), DirectTransferMustBeEditableErr);
         // [WHEN] "Direct Transfer" is being changed to No
         TransferOrder."Direct Transfer".SetValue(false);
 
         // [THEN] "Direct Transfer" is still editable
-        Assert.IsTrue(TransferOrder."Direct Transfer".Editable, DirectTransferMustBeEditableErr);
+        Assert.IsTrue(TransferOrder."Direct Transfer".Editable(), DirectTransferMustBeEditableErr);
 
         // [THEN] Transfer order line has "Direct Transfer" = No
         TransferLine.SetRange("Document No.", TransferHeader."No.");
@@ -430,9 +430,9 @@ codeunit 137281 "O365 Location Transfers"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[1]);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[2]);
         CreateAndPostItem(Item, Location[1].Code, LibraryRandom.RandIntInRange(100, 200));
-        LibraryLowerPermissions.SetO365INVCreate;
-        LibraryLowerPermissions.AddO365INVPost;
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.SetO365INVCreate();
+        LibraryLowerPermissions.AddO365INVPost();
+        LibraryLowerPermissions.AddJobs();
 
         // [GIVEN] Create direct transfer order "DTO" with line
         CreateDirectTransferHeader(TransferHeader, Location[1].Code, Location[2].Code);
@@ -446,11 +446,11 @@ codeunit 137281 "O365 Location Transfers"
         LibraryInventory.PostTransferHeader(TransferHeader, true, false);
 
         // [WHEN] Open transfer order card with partially posted order "DTO"
-        TransferOrder.OpenEdit;
+        TransferOrder.OpenEdit();
         TransferOrder.FILTER.SetFilter("No.", TransferHeader."No.");
 
         // [THEN] "Direct Transfer" is not editable
-        Assert.IsFalse(TransferOrder."Direct Transfer".Editable, 'Direct Transfer must not be editable');
+        Assert.IsFalse(TransferOrder."Direct Transfer".Editable(), 'Direct Transfer must not be editable');
     end;
 
     [Test]
@@ -491,8 +491,8 @@ codeunit 137281 "O365 Location Transfers"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Location Transfers");
         LibraryVariableStorage.Clear();
-        LibraryApplicationArea.EnableLocationsSetup;
-        LibraryUtility.GetGlobalNoSeriesCode;
+        LibraryApplicationArea.EnableLocationsSetup();
+        LibraryUtility.GetGlobalNoSeriesCode();
         LibrarySetupStorage.Restore();
 
         if isInitialized then
@@ -503,7 +503,7 @@ codeunit 137281 "O365 Location Transfers"
 
         UpdatePostedDirectTransfersNoSeries();
 
-        if not LibraryFiscalYear.AccountingPeriodsExists then
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
         isInitialized := true;

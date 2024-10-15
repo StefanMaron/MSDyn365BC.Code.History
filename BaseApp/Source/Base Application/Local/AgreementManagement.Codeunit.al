@@ -85,5 +85,13 @@ codeunit 12421 "Agreement Management"
             until DefaultDimension.Next() = 0;
         exit(DimMgt.GetDimensionSetID(TempDimSetEntry));
     end;
+    
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::DimensionManagement, 'OnAfterIsDefaultDimTable', '', false, false)]
+    local procedure OnAfterIsDefaultDimTable(TableID: Integer; var Result: Boolean)
+    begin
+        Result := TableID in
+            [DATABASE::"Vendor Agreement",
+            DATABASE::"Customer Agreement"];
+    end;
 }
 

@@ -19,30 +19,30 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Text006: Label 'There is no record in TempPurchHeader.';
-        Text007: Label 'Job Planning Line table is missing record for the Purchase Line created.';
-        Text008: Label 'There is no Schedule Line created in Job Planning Line for Line Type: Both Schedule and Contract.';
-        Text009: Label 'There is no Contract Line created in Job Planning Line for Line Type: Both Schedule and Contract.';
-        Text010: Label 'Number of Schedule Lines in Job Planning Line is not equal to the Schedule Lines created in Purchase Line.';
-        Text011: Label 'Number of Contract Lines in Job Planning Line is not equal to the Contract Lines created in Purchase Line.';
-        Text012: Label 'There is no matching record in Job Ledger Entry for the Purchase Line.';
-        Text013: Label 'Job Planning Line - (Planning Date) <> Purchase Line - (Posting Date).';
-        Text014: Label 'Job Planning Line - (Job No.) <> Purchase Line - (Job No.).';
-        Text015: Label 'Job Planning Line - (Job Task No.) <> Purchase Line - (Job Task No.).';
-        Text016: Label 'Job Planning Line - (Quantity) <> Purchase Line - (Qty. to Receive).';
-        Text017: Label 'Job Planning Line - (Unit Cost) <> Purchase Line - (Unit Cost).';
-        Text018: Label 'Job Planning Line - (Line Discount Amount) <> Purchase Line - (Job Line Discount Amount).';
-        Text019: Label 'Job Planning Line - (Total Cost) <> Job Planning Line - (Quantity * Unit Cost).';
-        Text020: Label 'Job Planning Line - (Line Amount) <> Job Planning Line - (Quantity * Unit Cost - Line Discount Amount).';
-        Text021: Label 'Job Ledger Entry - (Planning Date) <> Purchase Line - (Posting Date).';
-        Text022: Label 'Job Ledger Entry - (Job No.) <> Purchase Line - (Job No.).';
-        Text023: Label 'Job Ledger Entry - (Job Task No.) <> Purchase Line - (Job Task No.).';
-        Text024: Label 'Job Ledger Entry - (Quantity) <> Purchase Line - (Qty. to Receive).';
-        Text025: Label 'Job Ledger Entry - (Quantity) <> Purchase Line - (Qty. to Invoice).';
-        Text026: Label 'Job Ledger Entry - (Unit Cost) <> Purchase Line - (Unit Cost).';
-        Text027: Label 'Job Ledger Entry - (Line Discount Amount) <> Purchase Line - (Job Line Discount Amount).';
-        Text028: Label 'Job Ledger Entry - (Total Cost) <> Job Ledger Entry - (Quantity * Unit Cost).';
-        Text029: Label 'Job Ledger Entry - (Line Amount) <> Job Ledger Entry - (Quantity * Unit Cost - Line Discount Amount).';
-        Text030: Label 'There should be no record in Job Planning Line for a PO posted with Receive option.';
+        Text007: Label 'Project Planning Line table is missing record for the Purchase Line created.';
+        Text008: Label 'There is no Schedule Line created in Project Planning Line for Line Type: Both Schedule and Contract.';
+        Text009: Label 'There is no Contract Line created in Project Planning Line for Line Type: Both Schedule and Contract.';
+        Text010: Label 'Number of Schedule Lines in Project Planning Line is not equal to the Schedule Lines created in Purchase Line.';
+        Text011: Label 'Number of Contract Lines in Project Planning Line is not equal to the Contract Lines created in Purchase Line.';
+        Text012: Label 'There is no matching record in Project Ledger Entry for the Purchase Line.';
+        Text013: Label 'Project Planning Line - (Planning Date) <> Purchase Line - (Posting Date).';
+        Text014: Label 'Project Planning Line - (Project No.) <> Purchase Line - (Project No.).';
+        Text015: Label 'Project Planning Line - (Project Task No.) <> Purchase Line - (Project Task No.).';
+        Text016: Label 'Project Planning Line - (Quantity) <> Purchase Line - (Qty. to Receive).';
+        Text017: Label 'Project Planning Line - (Unit Cost) <> Purchase Line - (Unit Cost).';
+        Text018: Label 'Project Planning Line - (Line Discount Amount) <> Purchase Line - (Project Line Discount Amount).';
+        Text019: Label 'Project Planning Line - (Total Cost) <> Project Planning Line - (Quantity * Unit Cost).';
+        Text020: Label 'Project Planning Line - (Line Amount) <> Project Planning Line - (Quantity * Unit Cost - Line Discount Amount).';
+        Text021: Label 'Project Ledger Entry - (Planning Date) <> Purchase Line - (Posting Date).';
+        Text022: Label 'Project Ledger Entry - (Project No.) <> Purchase Line - (Project No.).';
+        Text023: Label 'Project Ledger Entry - (Project Task No.) <> Purchase Line - (Project Task No.).';
+        Text024: Label 'Project Ledger Entry - (Quantity) <> Purchase Line - (Qty. to Receive).';
+        Text025: Label 'Project Ledger Entry - (Quantity) <> Purchase Line - (Qty. to Invoice).';
+        Text026: Label 'Project Ledger Entry - (Unit Cost) <> Purchase Line - (Unit Cost).';
+        Text027: Label 'Project Ledger Entry - (Line Discount Amount) <> Purchase Line - (Project Line Discount Amount).';
+        Text028: Label 'Project Ledger Entry - (Total Cost) <> Project Ledger Entry - (Quantity * Unit Cost).';
+        Text029: Label 'Project Ledger Entry - (Line Amount) <> Project Ledger Entry - (Quantity * Unit Cost - Line Discount Amount).';
+        Text030: Label 'There should be no record in Project Planning Line for a PO posted with Receive option.';
         Initialized: Boolean;
         JobNoError: Label '%1 must not be specified when %2 = %3 in Purchase Line', Comment = '%1: Field1;%2:Field2;%3:FieldValue';
         JobTaskTypeErr: Label '%1 must be equal to ''%2''  in %3', Comment = '%1: Field;%2:FieldValue:%3:TableCaption';
@@ -93,7 +93,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         // is encountered.  So the next-in-line testcases will have no data present.
         // Setup.
         Initialize();
-        PurchaseOrderWithDifferentLineType(PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo);
+        PurchaseOrderWithDifferentLineType(PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo());
     end;
 
     [Test]
@@ -190,16 +190,16 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         CreatePurchaseOrderWithMultipleLines(PurchaseHeader, JobTask);
         CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, JobTask, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithPurchSetup, PurchaseLine."Job Line Type"::Budget);
+          LibraryERM.CreateGLAccountWithPurchSetup(), PurchaseLine."Job Line Type"::Budget);
         CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, JobTask, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithPurchSetup, PurchaseLine."Job Line Type"::"Both Budget and Billable");
+          LibraryERM.CreateGLAccountWithPurchSetup(), PurchaseLine."Job Line Type"::"Both Budget and Billable");
         CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, JobTask, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithPurchSetup, PurchaseLine."Job Line Type"::Billable);
+          LibraryERM.CreateGLAccountWithPurchSetup(), PurchaseLine."Job Line Type"::Billable);
         CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, JobTask, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithPurchSetup, PurchaseLine."Job Line Type"::" ");
+          LibraryERM.CreateGLAccountWithPurchSetup(), PurchaseLine."Job Line Type"::" ");
 
         // Make a copy of the Purchase Order before posting it.
         CopyHeaderLines(PurchaseHeader."No.", TempPurchHeader, TempPurchLine);
@@ -231,7 +231,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         // 8. Check that its impossible to post it.
         // ---------------------------------------------------------------------------------------------------------------------------------
         Initialize();
-        PurchaseOrderWithDifferentLineType(PurchaseLine.Type::"Fixed Asset", FindFixedAsset);
+        PurchaseOrderWithDifferentLineType(PurchaseLine.Type::"Fixed Asset", FindFixedAsset());
     end;
 
     [Test]
@@ -266,11 +266,11 @@ codeunit 132521 "JOBs-60SP1-Scripts"
 
         // Create a Purchase Header and 2 Purchase Lines for the first PO
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
-        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
+        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor());
         CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, JobTask, PurchaseLine.Type::Item, CreateItem, PurchaseLine."Job Line Type"::Budget);
+          PurchaseLine, PurchaseHeader, JobTask, PurchaseLine.Type::Item, CreateItem(), PurchaseLine."Job Line Type"::Budget);
         CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, JobTask, PurchaseLine.Type::Item, CreateItem,
+          PurchaseLine, PurchaseHeader, JobTask, PurchaseLine.Type::Item, CreateItem(),
           PurchaseLine."Job Line Type"::"Both Budget and Billable");
 
         // Make a copy of the Purchase Order before posting it.
@@ -282,8 +282,8 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         // Create a Purchase Header and 2 Purchase Lines for the second PO
         CreatePurchaseHeader(PurchaseHeader2, PurchaseHeader."Document Type"::Order, PurchaseHeader."Buy-from Vendor No.");
         CreatePurchaseLine(
-          PurchaseLine2, PurchaseHeader2, JobTask, PurchaseLine.Type::Item, CreateItem, PurchaseLine."Job Line Type"::Billable);
-        CreatePurchaseLine(PurchaseLine2, PurchaseHeader2, JobTask, PurchaseLine.Type::Item, CreateItem, PurchaseLine."Job Line Type"::" ");
+          PurchaseLine2, PurchaseHeader2, JobTask, PurchaseLine.Type::Item, CreateItem(), PurchaseLine."Job Line Type"::Billable);
+        CreatePurchaseLine(PurchaseLine2, PurchaseHeader2, JobTask, PurchaseLine.Type::Item, CreateItem(), PurchaseLine."Job Line Type"::" ");
 
         // Make a copy of the Purchase Order before posting it.
         CopyHeaderLines(PurchaseHeader2."No.", TempPurchHeader, TempPurchLine);
@@ -449,7 +449,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         exit(Item."No.");
     end;
 
-    local procedure CreateJobTask(var JobTask: Record "Job Task"; JobTaskType: Option)
+    local procedure CreateJobTask(var JobTask: Record "Job Task"; JobTaskType: Enum "Job Task Type")
     var
         Job: Record Job;
     begin
@@ -499,14 +499,14 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseOrderWithJob(JobTaskType: Option; LineType: Enum "Purchase Line Type"; No: Code[20]; JobLineType: Enum "Job Line Type")
+    local procedure CreatePurchaseOrderWithJob(JobTaskType: Enum "Job Task Type"; LineType: Enum "Purchase Line Type"; No: Code[20]; JobLineType: Enum "Job Line Type")
     var
         JobTask: Record "Job Task";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
         CreateJobTask(JobTask, JobTaskType);
-        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
+        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor());
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, JobTask, LineType, No, JobLineType);
     end;
 
@@ -514,16 +514,16 @@ codeunit 132521 "JOBs-60SP1-Scripts"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
+        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor());
         CreatePurchaseLineWithPartialQuantity(
-          PurchaseLine, PurchaseHeader, JobTask, PurchaseLine.Type::Item, CreateItem, PurchaseLine."Job Line Type"::Budget);
+          PurchaseLine, PurchaseHeader, JobTask, PurchaseLine.Type::Item, CreateItem(), PurchaseLine."Job Line Type"::Budget);
         CreatePurchaseLineWithPartialQuantity(
-          PurchaseLine, PurchaseHeader, JobTask, PurchaseLine.Type::Item, CreateItem,
+          PurchaseLine, PurchaseHeader, JobTask, PurchaseLine.Type::Item, CreateItem(),
           PurchaseLine."Job Line Type"::"Both Budget and Billable");
         CreatePurchaseLineWithPartialQuantity(
-          PurchaseLine, PurchaseHeader, JobTask, PurchaseLine.Type::Item, CreateItem, PurchaseLine."Job Line Type"::Billable);
+          PurchaseLine, PurchaseHeader, JobTask, PurchaseLine.Type::Item, CreateItem(), PurchaseLine."Job Line Type"::Billable);
         CreatePurchaseLineWithPartialQuantity(
-          PurchaseLine, PurchaseHeader, JobTask, PurchaseLine.Type::Item, CreateItem, PurchaseLine."Job Line Type"::" ");
+          PurchaseLine, PurchaseHeader, JobTask, PurchaseLine.Type::Item, CreateItem(), PurchaseLine."Job Line Type"::" ");
     end;
 
     local procedure CreateVendor(): Code[20]
@@ -546,13 +546,13 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         exit(FixedAsset."No.");
     end;
 
-    local procedure PurchaseOrderWithDifferentJobTaskType(JobTaskType: Option)
+    local procedure PurchaseOrderWithDifferentJobTaskType(JobTaskType: Enum "Job Task Type")
     var
         PurchaseLine: Record "Purchase Line";
         JobTask: Record "Job Task";
     begin
         // Exercise.
-        asserterror CreatePurchaseOrderWithJob(JobTaskType, PurchaseLine.Type::Item, CreateItem, PurchaseLine."Job Line Type"::Budget);
+        asserterror CreatePurchaseOrderWithJob(JobTaskType, PurchaseLine.Type::Item, CreateItem(), PurchaseLine."Job Line Type"::Budget);
 
         // Verify: Verify error message.
         Assert.IsTrue(

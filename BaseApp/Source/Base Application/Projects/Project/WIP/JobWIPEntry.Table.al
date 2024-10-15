@@ -7,9 +7,10 @@ using Microsoft.Utilities;
 
 table 1004 "Job WIP Entry"
 {
-    Caption = 'Job WIP Entry';
+    Caption = 'Project WIP Entry';
     DrillDownPageID = "Job WIP Entries";
     LookupPageID = "Job WIP Entries";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -19,7 +20,7 @@ table 1004 "Job WIP Entry"
         }
         field(2; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             TableRelation = Job;
         }
         field(3; "Document No."; Code[20])
@@ -42,7 +43,7 @@ table 1004 "Job WIP Entry"
         }
         field(7; "Job Posting Group"; Code[20])
         {
-            Caption = 'Job Posting Group';
+            Caption = 'Project Posting Group';
             TableRelation = "Job Posting Group";
         }
         field(8; Type; Enum "Job WIP Buffer Type")
@@ -62,11 +63,11 @@ table 1004 "Job WIP Entry"
         }
         field(11; "Job Complete"; Boolean)
         {
-            Caption = 'Job Complete';
+            Caption = 'Project Complete';
         }
         field(12; "Job WIP Total Entry No."; Integer)
         {
-            Caption = 'Job WIP Total Entry No.';
+            Caption = 'Project WIP Total Entry No.';
             TableRelation = "Job WIP Total";
         }
         field(13; Reverse; Boolean)
@@ -77,7 +78,7 @@ table 1004 "Job WIP Entry"
         field(14; "WIP Posting Method Used"; Option)
         {
             Caption = 'WIP Posting Method Used';
-            OptionCaption = 'Per Job,Per Job Ledger Entry';
+            OptionCaption = 'Per Project,Per Project Ledger Entry';
             OptionMembers = "Per Job","Per Job Ledger Entry";
         }
         field(60; "Global Dimension 1 Code"; Code[20])

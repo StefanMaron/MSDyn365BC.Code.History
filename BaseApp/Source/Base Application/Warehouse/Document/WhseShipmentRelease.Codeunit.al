@@ -28,68 +28,66 @@ codeunit 7310 "Whse.-Shipment Release"
         ATOLink: Record "Assemble-to-Order Link";
         AsmLine: Record "Assembly Line";
     begin
-        with WhseShptHeader do begin
-            if Status = Status::Released then
-                exit;
+        if WhseShptHeader.Status = WhseShptHeader.Status::Released then
+            exit;
 
-            OnBeforeRelease(WhseShptHeader);
+        OnBeforeRelease(WhseShptHeader);
 
-            WhseShptLine.SetRange("No.", "No.");
-            WhseShptLine.SetFilter(Quantity, '<>0');
+        WhseShptLine.SetRange("No.", WhseShptHeader."No.");
+        WhseShptLine.SetFilter(Quantity, '<>0');
 
-            CheckWhseShptLinesNotEmpty(WhseShptHeader, WhseShptLine);
+        CheckWhseShptLinesNotEmpty(WhseShptHeader, WhseShptLine);
 
-            if "Location Code" <> '' then
-                Location.Get("Location Code");
+        if WhseShptHeader."Location Code" <> '' then
+            Location.Get(WhseShptHeader."Location Code");
 
-            repeat
-                WhseShptLine.TestField("Item No.");
-                WhseShptLine.TestField("Unit of Measure Code");
-                OnReleaseOnAfterWhseShptLineTestField(WhseShptLine, Location);
-                if Location."Directed Put-away and Pick" then
-                    WhseShptLine.TestField("Zone Code");
-                if Location."Bin Mandatory" then begin
-                    WhseShptLine.TestField("Bin Code");
-                    if WhseShptLine."Assemble to Order" then begin
-                        ATOLink.AsmExistsForWhseShptLine(WhseShptLine);
-                        AsmLine.SetCurrentKey("Document Type", "Document No.", Type);
-                        AsmLine.SetRange("Document Type", ATOLink."Assembly Document Type");
-                        AsmLine.SetRange("Document No.", ATOLink."Assembly Document No.");
-                        AsmLine.SetRange(Type, AsmLine.Type::Item);
-                        if AsmLine.FindSet() then
-                            repeat
-                                if AsmLine."Location Code" = Location.Code then
-                                    Location2 := Location
-                                else
-                                    if (AsmLine."Location Code" <> '') and (Location2.Code <> AsmLine."Location Code") then
-                                        Location2.Get(AsmLine."Location Code");
+        repeat
+            WhseShptLine.TestField("Item No.");
+            WhseShptLine.TestField("Unit of Measure Code");
+            OnReleaseOnAfterWhseShptLineTestField(WhseShptLine, Location);
+            if Location."Directed Put-away and Pick" then
+                WhseShptLine.TestField("Zone Code");
+            if Location."Bin Mandatory" then begin
+                WhseShptLine.TestField("Bin Code");
+                if WhseShptLine."Assemble to Order" then begin
+                    ATOLink.AsmExistsForWhseShptLine(WhseShptLine);
+                    AsmLine.SetCurrentKey("Document Type", "Document No.", Type);
+                    AsmLine.SetRange("Document Type", ATOLink."Assembly Document Type");
+                    AsmLine.SetRange("Document No.", ATOLink."Assembly Document No.");
+                    AsmLine.SetRange(Type, AsmLine.Type::Item);
+                    if AsmLine.FindSet() then
+                        repeat
+                            if AsmLine."Location Code" = Location.Code then
+                                Location2 := Location
+                            else
+                                if (AsmLine."Location Code" <> '') and (Location2.Code <> AsmLine."Location Code") then
+                                    Location2.Get(AsmLine."Location Code");
 
-                                if (AsmLine."Location Code" <> '') and Location2."Bin Mandatory" then
-                                    if AsmLine.IsInventoriableItem() then
-                                        if AsmLine.CalcQtyToPickBase() > 0 then
-                                            AsmLine.TestField("Bin Code");
-                            until AsmLine.Next() = 0;
-                    end;
+                            if (AsmLine."Location Code" <> '') and Location2."Bin Mandatory" then
+                                if AsmLine.IsInventoriableItem() then
+                                    if AsmLine.CalcQtyToPickBase() > 0 then
+                                        AsmLine.TestField("Bin Code");
+                        until AsmLine.Next() = 0;
                 end;
-            until WhseShptLine.Next() = 0;
+            end;
+        until WhseShptLine.Next() = 0;
 
-            OnAfterTestWhseShptLine(WhseShptHeader, WhseShptLine);
+        OnAfterTestWhseShptLine(WhseShptHeader, WhseShptLine);
 
-            Status := Status::Released;
-            Modify();
+        WhseShptHeader.Status := WhseShptHeader.Status::Released;
+        WhseShptHeader.Modify();
 
-            OnAfterReleaseWarehouseShipment(WhseShptHeader);
+        OnAfterReleaseWarehouseShipment(WhseShptHeader);
 
-            CreateWhsePickRequest(WhseShptHeader);
+        CreateWhsePickRequest(WhseShptHeader);
 
-            WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Shipment);
-            WhsePickRqst.SetRange("Document No.", "No.");
-            WhsePickRqst.SetRange(Status, Status::Open);
-            if not WhsePickRqst.IsEmpty() then
-                WhsePickRqst.DeleteAll(true);
-            if not SuppressCommit then
-                Commit();
-        end;
+        WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Shipment);
+        WhsePickRqst.SetRange("Document No.", WhseShptHeader."No.");
+        WhsePickRqst.SetRange(Status, WhseShptHeader.Status::Open);
+        if not WhsePickRqst.IsEmpty() then
+            WhsePickRqst.DeleteAll(true);
+        if not SuppressCommit then
+            Commit();
 
         OnAfterRelease(WhseShptHeader, WhseShptLine);
     end;
@@ -101,37 +99,35 @@ codeunit 7310 "Whse.-Shipment Release"
         WhseActivLine: Record "Warehouse Activity Line";
         IsHandled: Boolean;
     begin
-        with WhseShptHeader do begin
-            if Status = Status::Open then
-                exit;
+        if WhseShptHeader.Status = WhseShptHeader.Status::Open then
+            exit;
 
-            IsHandled := false;
-            OnBeforeReopen(WhseShptHeader, IsHandled);
-            if IsHandled then
-                exit;
+        IsHandled := false;
+        OnBeforeReopen(WhseShptHeader, IsHandled);
+        if IsHandled then
+            exit;
 
-            PickWkshLine.SetCurrentKey("Whse. Document Type", "Whse. Document No.");
-            PickWkshLine.SetRange("Whse. Document Type", PickWkshLine."Whse. Document Type"::Shipment);
-            PickWkshLine.SetRange("Whse. Document No.", "No.");
-            if not PickWkshLine.IsEmpty() then
-                Error(Text001);
+        PickWkshLine.SetCurrentKey("Whse. Document Type", "Whse. Document No.");
+        PickWkshLine.SetRange("Whse. Document Type", PickWkshLine."Whse. Document Type"::Shipment);
+        PickWkshLine.SetRange("Whse. Document No.", WhseShptHeader."No.");
+        if not PickWkshLine.IsEmpty() then
+            Error(Text001);
 
-            WhseActivLine.SetCurrentKey("Whse. Document No.", "Whse. Document Type", "Activity Type");
-            WhseActivLine.SetRange("Whse. Document No.", "No.");
-            WhseActivLine.SetRange("Whse. Document Type", WhseActivLine."Whse. Document Type"::Shipment);
-            WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type"::Pick);
-            if not WhseActivLine.IsEmpty() then
-                Error(Text002);
+        WhseActivLine.SetCurrentKey("Whse. Document No.", "Whse. Document Type", "Activity Type");
+        WhseActivLine.SetRange("Whse. Document No.", WhseShptHeader."No.");
+        WhseActivLine.SetRange("Whse. Document Type", WhseActivLine."Whse. Document Type"::Shipment);
+        WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type"::Pick);
+        if not WhseActivLine.IsEmpty() then
+            Error(Text002);
 
-            WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Shipment);
-            WhsePickRqst.SetRange("Document No.", "No.");
-            WhsePickRqst.SetRange(Status, Status::Released);
-            if not WhsePickRqst.IsEmpty() then
-                WhsePickRqst.ModifyAll(Status, WhsePickRqst.Status::Open);
+        WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Shipment);
+        WhsePickRqst.SetRange("Document No.", WhseShptHeader."No.");
+        WhsePickRqst.SetRange(Status, WhseShptHeader.Status::Released);
+        if not WhsePickRqst.IsEmpty() then
+            WhsePickRqst.ModifyAll(Status, WhsePickRqst.Status::Open);
 
-            Status := Status::Open;
-            Modify();
-        end;
+        WhseShptHeader.Status := WhseShptHeader.Status::Open;
+        WhseShptHeader.Modify();
 
         OnAfterReopen(WhseShptHeader);
     end;
@@ -141,18 +137,17 @@ codeunit 7310 "Whse.-Shipment Release"
         WhsePickRequest: Record "Whse. Pick Request";
         Location: Record Location;
     begin
-        with WhseShptHeader do
-            if Location.RequirePicking("Location Code") then begin
-                WhsePickRequest."Document Type" := WhsePickRequest."Document Type"::Shipment;
-                WhsePickRequest."Document No." := "No.";
-                WhsePickRequest.Status := Status;
-                WhsePickRequest."Location Code" := "Location Code";
-                WhsePickRequest."Zone Code" := "Zone Code";
-                WhsePickRequest."Bin Code" := "Bin Code";
-                CalcFields("Completely Picked");
-                WhsePickRequest."Completely Picked" := "Completely Picked";
-                WhsePickRequestInsert(WhsePickRequest, WhseShptHeader);
-            end;
+        if Location.RequirePicking(WhseShptHeader."Location Code") then begin
+            WhsePickRequest."Document Type" := WhsePickRequest."Document Type"::Shipment;
+            WhsePickRequest."Document No." := WhseShptHeader."No.";
+            WhsePickRequest.Status := WhseShptHeader.Status;
+            WhsePickRequest."Location Code" := WhseShptHeader."Location Code";
+            WhsePickRequest."Zone Code" := WhseShptHeader."Zone Code";
+            WhsePickRequest."Bin Code" := WhseShptHeader."Bin Code";
+            WhseShptHeader.CalcFields("Completely Picked");
+            WhsePickRequest."Completely Picked" := WhseShptHeader."Completely Picked";
+            WhsePickRequestInsert(WhsePickRequest, WhseShptHeader);
+        end;
     end;
 
     local procedure WhsePickRequestInsert(var WhsePickRequest: Record "Whse. Pick Request"; var WhseShptHeader: Record "Warehouse Shipment Header")

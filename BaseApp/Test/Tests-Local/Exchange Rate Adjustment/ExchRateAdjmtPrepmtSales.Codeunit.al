@@ -22,7 +22,6 @@
         IsInitialized: Boolean;
         WrongValueErr: Label 'Wrong value in %1.%2, Entry No.= %3.', Comment = '%1=table caption,%2=field caption';
         EntryDoesNotExistErr: Label 'Cannot find entry in table %1 with filters %2.';
-        NothingToAdjustTxt: Label 'There is nothing to adjust.';
         ItemTrackingLinesOption: Option NewLot,SetLot;
 
     [Test]
@@ -257,11 +256,11 @@
         // [SCENARIO 371855] Negative Debit G/L Entry with "Sales VAT. Unreal Account" is created when unapply prepayment with unrealized VAT
 
         Initialize();
-        SetCreatePrepmtInvInSalesSetup;
+        SetCreatePrepmtInvInSalesSetup();
         // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option is on
         SetCancelPrepmtAdjmtInGLSetup(true, true);
         // [GIVEN] Posted Prepayment with unrealized VAT Amount = "X" and invoice
-        PrepmtDocNo := GetNextPrepmtInvNo;
+        PrepmtDocNo := GetNextPrepmtInvNo();
         VATAmount := PostInvAndUnrealPrepmt(InvNo, PmtNo, VATPostingSetup);
         // [GIVEN] Application between Prepayment and Invoice
         LibraryERM.ApplyCustomerLedgerEntry(
@@ -369,7 +368,7 @@
 
         // [GIVEN] Sales order "S" with item line and specified currency
         CreateSalesOrderWithTrackedItem(
-          SalesHeader, SalesLine, LibrarySales.CreateCustomerNo, CreateLotItemInventory(LibraryRandom.RandIntInRange(20, 100)),
+          SalesHeader, SalesLine, LibrarySales.CreateCustomerNo(), CreateLotItemInventory(LibraryRandom.RandIntInRange(20, 100)),
           LibraryRandom.RandIntInRange(2, 10), CalcDate('<1M>', WorkDate()),
           PrepareSetup(true, ExchRateAmount, false));
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -408,7 +407,7 @@
 
         // [GIVEN] Sales order "S" with item line and specified currency
         CreateSalesOrderWithTrackedItem(
-          OrderSalesHeader, OrderSalesLine, LibrarySales.CreateCustomerNo, CreateLotItemInventory(LibraryRandom.RandIntInRange(20, 100)),
+          OrderSalesHeader, OrderSalesLine, LibrarySales.CreateCustomerNo(), CreateLotItemInventory(LibraryRandom.RandIntInRange(20, 100)),
           LibraryRandom.RandIntInRange(2, 10), WorkDate(), PrepareSetup(true, ExchRateAmount, false));
 
         // [GIVEN] Post "S" shipment
@@ -422,7 +421,7 @@
         // [GIVEN] Post prepayment "P" for the sales order "S"
         PaymentNo :=
           CreatePostPrepayment(
-            WorkDate, OrderSalesLine, OrderSalesHeader."Currency Code", -OrderSalesLine."Amount Including VAT");
+            WorkDate(), OrderSalesLine, OrderSalesHeader."Currency Code", -OrderSalesLine."Amount Including VAT");
 
         // [WHEN] Apply Prepayment "P" to Invoice "N"
         ApplyCustomerPaymentToInvoice(PaymentNo, InvoiceNo);
@@ -557,7 +556,7 @@
         if IsInitialized then
             exit;
 
-        UpdateSalesSetup;
+        UpdateSalesSetup();
 
         IsInitialized := true;
         Commit();
@@ -948,7 +947,7 @@
     var
         i: Integer;
     begin
-        CurrencyCode := LibraryERM.CreateCurrencyWithGLAccountSetup;
+        CurrencyCode := LibraryERM.CreateCurrencyWithGLAccountSetup();
         for i := 1 to ArrayLen(ExchRateAmount) do begin
             CreateCurrExchRates(CurrencyCode, StartingDate, '', ExchRateAmount[i]);
             StartingDate := CalcDate('<1M>', StartingDate);
@@ -976,7 +975,7 @@
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATRate);
         VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Percentage);
-        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Modify(true);
     end;
 
@@ -1048,17 +1047,17 @@
             Validate(Prepayment, IsPrepayment);
             Validate("Currency Code", CurrencyCode);
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
             Modify(true);
         end;
     end;
 
     local procedure CreateItemSalesDocWithCurrency(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; PostingDate: Date; CurrencyCode: Code[10])
     begin
-        CreateSalesHeaderWithCurrency(SalesHeader, DocumentType, PostingDate, CurrencyCode, LibrarySales.CreateCustomerNo);
+        CreateSalesHeaderWithCurrency(SalesHeader, DocumentType, PostingDate, CurrencyCode, LibrarySales.CreateCustomerNo());
 
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemNo, LibraryRandom.RandIntInRange(2, 10));
+          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemNo(), LibraryRandom.RandIntInRange(2, 10));
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
@@ -1074,7 +1073,7 @@
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
-        ItemNo := CreateLotItemNo;
+        ItemNo := CreateLotItemNo();
         LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, '', '', Quantity);
         LibraryVariableStorage.Enqueue(ItemTrackingLinesOption::NewLot);
         LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
@@ -1173,22 +1172,22 @@
     local procedure GetGenJnlTemplateNextNo(PostingDate: Date): Code[20]
     var
         GenJnlTemplate: Record "Gen. Journal Template";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         GenJnlTemplate.SetRange(Type, GenJnlTemplate.Type::General);
         GenJnlTemplate.SetRange(Recurring, false);
         GenJnlTemplate.FindFirst();
-        exit(NoSeriesMgt.GetNextNo(GenJnlTemplate."No. Series", PostingDate, false));
+        exit(NoSeries.PeekNextNo(GenJnlTemplate."No. Series", PostingDate));
     end;
 
     local procedure GetNextPrepmtInvNo(): Code[20]
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.TestField("Posted Prepayment Nos.");
-        exit(NoSeriesManagement.GetNextNo(SalesReceivablesSetup."Posted Prepayment Nos.", WorkDate(), false));
+        exit(NoSeries.PeekNextNo(SalesReceivablesSetup."Posted Prepayment Nos."));
     end;
 
     local procedure GetShipmentDocNo(CustomerNo: Code[20]; ItemNo: Code[20]): Code[20]
@@ -1288,7 +1287,7 @@
         ExchRateAdjustment.SetTableView(Currency);
         ExchRateAdjustment.SetTableView(Customer);
         ExchRateAdjustment.InitializeRequest2(
-          0D, PostingDate, '', PostingDate, LibraryUtility.GenerateGUID, true, false);
+          0D, PostingDate, '', PostingDate, LibraryUtility.GenerateGUID(), true, false);
         ExchRateAdjustment.UseRequestPage(false);
         ExchRateAdjustment.SetHideUI(true);
         ExchRateAdjustment.Run();
@@ -1308,7 +1307,7 @@
             SetRange("Document No.", DocNo);
             SetRange("Entry Type", EntryType);
             Assert.IsTrue(
-              FindLast, StrSubstNo(EntryDoesNotExistErr, TableCaption(), GetFilters));
+              FindLast(), StrSubstNo(EntryDoesNotExistErr, TableCaption(), GetFilters));
         end;
     end;
 
@@ -1393,7 +1392,7 @@
             SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
             SetRange("Prepmt. Diff.", true);
             Assert.IsTrue(
-              FindLast, StrSubstNo(EntryDoesNotExistErr, TableCaption(), GetFilters));
+              FindLast(), StrSubstNo(EntryDoesNotExistErr, TableCaption(), GetFilters));
             Assert.AreEqual(
               ExpectedAmount, "Amount (LCY)",
               StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Amount (LCY)"), "Entry No."));
@@ -1411,8 +1410,7 @@
             SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
             SetRange("Prepmt. Diff.", true);
             SetRange(Unapplied, true);
-            Assert.IsTrue(
-              FindLast, StrSubstNo(EntryDoesNotExistErr, TableCaption(), GetFilters));
+            Assert.IsTrue(FindLast(), StrSubstNo(EntryDoesNotExistErr, TableCaption(), GetFilters));
             CustPostingGroup.Get(CustLedgEntry."Customer Posting Group");
             VerifyGLEntry(
               DocType, DocNo, CustPostingGroup."Receivables Account", "Amount (LCY)");
@@ -1537,30 +1535,30 @@
     [Scope('OnPrem')]
     procedure ItemTrackingLinesModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             ItemTrackingLinesOption::NewLot:
                 begin
-                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
                 end;
             ItemTrackingLinesOption::SetLot:
-                ItemTrackingLines."Lot No.".AssistEdit;
+                ItemTrackingLines."Lot No.".AssistEdit();
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryModalPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetShipmentLinesModalPageHandler(var GetShipmentLines: TestPage "Get Shipment Lines")
     begin
-        GetShipmentLines.OK.Invoke;
+        GetShipmentLines.OK().Invoke();
     end;
 
     [ConfirmHandler]

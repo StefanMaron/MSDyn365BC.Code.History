@@ -1,6 +1,7 @@
 table 14932 "Excel Template Sheet Buffer"
 {
     Caption = 'Excel Template Sheet Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

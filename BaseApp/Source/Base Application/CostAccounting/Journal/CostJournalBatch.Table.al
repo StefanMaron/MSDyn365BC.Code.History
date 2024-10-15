@@ -6,6 +6,7 @@ using Microsoft.Foundation.AuditCodes;
 table 1102 "Cost Journal Batch"
 {
     Caption = 'Cost Journal Batch';
+    DataClassification = CustomerContent;
 
     fields
     {

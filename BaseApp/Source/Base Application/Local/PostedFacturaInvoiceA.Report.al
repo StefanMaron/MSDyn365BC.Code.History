@@ -323,7 +323,6 @@ report 12418 "Posted Factura-Invoice (A)"
         LocMgt: Codeunit "Localisation Management";
         StdRepMgt: Codeunit "Local Report Management";
         SegManagement: Codeunit SegManagement;
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
         FacturaInvoiceHelper: Codeunit "Factura-Invoice Report Helper";
         CurrencyDescription: Text;
@@ -364,11 +363,9 @@ report 12418 "Posted Factura-Invoice (A)"
     [Scope('OnPrem')]
     procedure IncrAmount(SalesLine2: Record "Sales Invoice Line")
     begin
-        with SalesLine2 do begin
-            TotalAmount[1] := TotalAmount[1] + Amount;
-            TotalAmount[2] := TotalAmount[2] + "Amount Including VAT" - Amount;
-            TotalAmount[3] := TotalAmount[3] + "Amount Including VAT";
-        end;
+        TotalAmount[1] := TotalAmount[1] + SalesLine2.Amount;
+        TotalAmount[2] := TotalAmount[2] + SalesLine2."Amount Including VAT" - SalesLine2.Amount;
+        TotalAmount[3] := TotalAmount[3] + SalesLine2."Amount Including VAT";
     end;
 
     [Scope('OnPrem')]
@@ -462,23 +459,22 @@ report 12418 "Posted Factura-Invoice (A)"
     var
         CorrDocMgt: Codeunit "Corrective Document Mgt.";
     begin
-        with Header do
-            if "Corrective Doc. Type" = "Corrective Doc. Type"::Revision then begin
-                case "Original Doc. Type" of
-                    "Original Doc. Type"::Invoice:
-                        DocDate := LocMgt.Date2Text(CorrDocMgt.GetSalesInvHeaderPostingDate("Original Doc. No."));
-                    "Original Doc. Type"::"Credit Memo":
-                        DocDate := LocMgt.Date2Text(CorrDocMgt.GetSalesCrMHeaderPostingDate("Original Doc. No."));
-                end;
-                DocNo := "Original Doc. No.";
-                RevNo := "Revision No.";
-                RevDate := LocMgt.Date2Text("Document Date");
-            end else begin
-                DocNo := "No.";
-                DocDate := LocMgt.Date2Text("Document Date");
-                RevNo := '-';
-                RevDate := '-';
+        if Header."Corrective Doc. Type" = Header."Corrective Doc. Type"::Revision then begin
+            case Header."Original Doc. Type" of
+                Header."Original Doc. Type"::Invoice:
+                    DocDate := LocMgt.Date2Text(CorrDocMgt.GetSalesInvHeaderPostingDate(Header."Original Doc. No."));
+                Header."Original Doc. Type"::"Credit Memo":
+                    DocDate := LocMgt.Date2Text(CorrDocMgt.GetSalesCrMHeaderPostingDate(Header."Original Doc. No."));
             end;
+            DocNo := Header."Original Doc. No.";
+            RevNo := Header."Revision No.";
+            RevDate := LocMgt.Date2Text(Header."Document Date");
+        end else begin
+            DocNo := Header."No.";
+            DocDate := LocMgt.Date2Text(Header."Document Date");
+            RevNo := '-';
+            RevDate := '-';
+        end;
     end;
 
     local procedure FillHeader()

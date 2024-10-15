@@ -14,7 +14,7 @@ page 5920 "Service Document Log"
     RefreshOnActivate = true;
     SourceTable = "Service Document Log";
     SourceTableView = sorting("Change Date", "Change Time")
-                      order(Descending);
+                      order(descending);
     UsageCategory = Lists;
 
     layout
@@ -48,7 +48,9 @@ page 5920 "Service Document Log"
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("ServLogMgt.ServOrderEventDescription(""Event No."")"; ServLogMgt.ServOrderEventDescription(Rec."Event No."))
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Service;
                     Caption = 'Description';

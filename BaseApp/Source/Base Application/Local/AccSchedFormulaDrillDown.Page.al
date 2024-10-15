@@ -1,4 +1,4 @@
-page 26591 "Acc. Sched. Formula Drill-Down"
+﻿page 26591 "Acc. Sched. Formula Drill-Down"
 {
     Caption = 'Acc. Sched. Formula Drill-Down';
     DeleteAllowed = false;

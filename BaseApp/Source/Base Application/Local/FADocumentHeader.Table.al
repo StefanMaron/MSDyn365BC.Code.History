@@ -3,6 +3,7 @@ table 12470 "FA Document Header"
     Caption = 'FA Document Header';
     DataCaptionFields = "No.";
     LookupPageID = "FA Document List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -92,23 +93,25 @@ table 12470 "FA Document Header"
             TableRelation = "No. Series";
 
             trigger OnLookup()
+            var
+                NoSeries: Codeunit "No. Series";
             begin
-                with FADocHeader do begin
-                    FADocHeader := Rec;
-                    FASetup.Get();
-                    TestNoSeries();
-                    if NoSeriesMgt.LookupSeries(GetPostingNoSeriesCode(), "Posting No. Series") then
-                        Validate("Posting No. Series");
-                    Rec := FADocHeader;
-                end;
+                FADocHeader := Rec;
+                FASetup.Get();
+                TestNoSeries();
+                if NoSeries.LookupRelatedNoSeries(GetPostingNoSeriesCode(), FADocHeader."Posting No. Series") then
+                    FADocHeader.Validate("Posting No. Series");
+                Rec := FADocHeader;
             end;
 
             trigger OnValidate()
+            var
+                NoSeries: Codeunit "No. Series";
             begin
                 if "Posting No. Series" <> '' then begin
                     FASetup.Get();
                     TestNoSeries();
-                    NoSeriesMgt.TestSeries(GetPostingNoSeriesCode(), "Posting No. Series");
+                    NoSeries.TestAreRelated(GetPostingNoSeriesCode(), "Posting No. Series");
                 end;
             end;
         }
@@ -214,11 +217,28 @@ table 12470 "FA Document Header"
     end;
 
     trigger OnInsert()
+    var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         FASetup.Get();
         if "No." = '' then begin
             TestNoSeries();
-            NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", "FA Posting Date", "No.", "No. Series");
+            "No. Series" := GetNoSeriesCode();
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries("No. Series", xRec."No. Series", "FA Posting Date", "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series", "FA Posting Date");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GetNoSeriesCode(), "FA Posting Date", "No.");
+            end;
+#endif
         end;
         InitRecord();
 
@@ -236,12 +256,17 @@ table 12470 "FA Document Header"
         FASetup: Record "FA Setup";
         DimMgt: Codeunit DimensionManagement;
         Text003: Label 'You cannot rename a %1.';
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         DocSignMgt: Codeunit "Doc. Signature Management";
         Text064: Label 'You may have changed a dimension.\\Do you want to update the lines?';
 
     [Scope('OnPrem')]
     procedure InitRecord()
+    var
+#if CLEAN24
+        NoSeries: Codeunit "No. Series";
+#else
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+#endif
     begin
         case "Document Type" of
             "Document Type"::Writeoff:
@@ -252,7 +277,12 @@ table 12470 "FA Document Header"
                         "Posting No. Series" := "No. Series"
                     else
                         if "Posting No. Series" = '' then
+#if CLEAN24
+                            if NoSeries.IsAutomatic(FASetup."Posted Writeoff Nos.") then
+                                "Posting No. Series" := FASetup."Posted Writeoff Nos.";
+#else
                             NoSeriesMgt.SetDefaultSeries("Posting No. Series", FASetup."Posted Writeoff Nos.");
+#endif
                 end;
             "Document Type"::Release:
                 begin
@@ -262,7 +292,12 @@ table 12470 "FA Document Header"
                         "Posting No. Series" := "No. Series"
                     else
                         if "Posting No. Series" = '' then
+#if CLEAN24
+                            if NoSeries.IsAutomatic(FASetup."Posted Release Nos.") then
+                                "Posting No. Series" := FASetup."Posted Release Nos.";
+#else
                             NoSeriesMgt.SetDefaultSeries("Posting No. Series", FASetup."Posted Release Nos.");
+#endif
                 end;
             "Document Type"::Movement:
                 begin
@@ -272,7 +307,12 @@ table 12470 "FA Document Header"
                         "Posting No. Series" := "No. Series"
                     else
                         if "Posting No. Series" = '' then
+#if CLEAN24
+                            if NoSeries.IsAutomatic(FASetup."Posted Disposal Nos.") then
+                                "Posting No. Series" := FASetup."Posted Disposal Nos.";
+#else
                             NoSeriesMgt.SetDefaultSeries("Posting No. Series", FASetup."Posted Disposal Nos.");
+#endif
                 end;
         end;
 
@@ -287,13 +327,13 @@ table 12470 "FA Document Header"
 
     [Scope('OnPrem')]
     procedure AssistEdit(OldFADocHeader: Record "FA Document Header"): Boolean
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         FASetup.Get();
         TestNoSeries();
-        if NoSeriesMgt.SelectSeries(GetNoSeriesCode(), OldFADocHeader."No. Series", "No. Series") then begin
-            FASetup.Get();
-            TestNoSeries();
-            NoSeriesMgt.SetSeries("No.");
+        if NoSeries.LookupRelatedNoSeries(GetNoSeriesCode(), OldFADocHeader."No. Series", "No. Series") then begin
+            "No." := NoSeries.GetNextNo("No. Series");
             exit(true);
         end;
     end;

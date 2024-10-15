@@ -2,6 +2,7 @@ table 26550 "Statutory Report"
 {
     Caption = 'Statutory Report';
     LookupPageID = "Statutory Reports";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -307,18 +308,13 @@ table 26550 "Statutory Report"
         XlWrkShtReader: DotNet WorksheetReader;
         RootNode: DotNet XmlNode;
         Text003: Label 'Tables for %1 already exist and will be deleted. Do you want to continue?';
-        Text007: Label 'You must specify File Name.';
-        Text008: Label 'Stat. Report Requisites Groups for Report %1 already exist and will be deleted. Do you want to continue?';
         Text010: Label 'Import data from Excel...';
         Text011: Label 'You must specify Statutury Report Code.';
         i: Integer;
         EndOfLoop: Integer;
         SequenceNo: Integer;
         LineNo: Integer;
-        Text020: Label 'XML Parser Error:\';
         Text023: Label 'File %1 is not a XML schema.';
-        Text024: Label 'Parent node for "%1" is not instantiated.';
-        Text025: Label 'The "%1" node could not be found as a child node for the "%2" node.';
         Text026: Label 'The existent XML schema will be deleted. Do you want to continue?';
         Text027: Label '%1 does not contain XML schema.';
         Text028: Label 'The existent Excel template settings will be deleted. Do you want to continue?';
@@ -326,7 +322,6 @@ table 26550 "Statutory Report"
         Text030: Label '%1 cannot be changed because %2 %3 contains report data.';
         Text031: Label '%1 cannot be %2 because %3 is not empty.';
         Text032: Label 'This function is allowed for classic client only.';
-        CurrInsCategoryCode: Code[2];
 
     [Scope('OnPrem')]
     procedure CreateReportData(ReportDataNo: Code[20]; StartDate: Date; EndDate: Date; DataSource: Option Database,Excel)
@@ -405,7 +400,9 @@ table 26550 "Statutory Report"
     [Scope('OnPrem')]
     procedure CreateCellFromIntSource(DataHeaderNo: Code[20]; ReportCode: Code[20]; TableCode: Code[20]; RowNo: Integer; ColumnNo: Integer; StartDate: Date; EndDate: Date; SheetName: Text[30])
     var
+#if not CLEAN22
         AccScheduleName: Record "Acc. Schedule Name";
+#endif
         AccScheduleLine: Record "Acc. Schedule Line";
         ColumnLayout: Record "Column Layout";
         TaxRegisterAccumulation: Record "Tax Register Accumulation";
@@ -491,7 +488,6 @@ table 26550 "Statutory Report"
         TempExcelBuffer: Record "Excel Buffer" temporary;
         StatutoryReportTable: Record "Statutory Report Table";
         SectionCellNameBuffer: Record "Statutory Report Buffer" temporary;
-        StatReportExcelSheet: Record "Stat. Report Excel Sheet";
         SheetNames: DotNet ArrayList;
         SheetName: Text[250];
         Window: Dialog;
@@ -1098,7 +1094,7 @@ table 26550 "Statutory Report"
         if IsNull(XMLAttribute) then
             exit(false);
 
-        AttributeValue := XMLAttribute.Value;
+        AttributeValue := XMLAttribute.Value();
         exit(true);
     end;
 

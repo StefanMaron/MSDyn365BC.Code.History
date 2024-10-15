@@ -67,13 +67,11 @@ codeunit 113 "Vend. Entry-Edit"
     [Scope('OnPrem')]
     procedure UpdateVATInvoiceData(var VendLedgEntry: Record "Vendor Ledger Entry"; InvoiceNo: Code[30]; InvoiceDate: Date; InvoiceRcvdDate: Date)
     begin
-        with VendLedgEntry do begin
-            "Vendor VAT Invoice No." := InvoiceNo;
-            "Vendor VAT Invoice Rcvd Date" := 0D;
-            Validate("Vendor VAT Invoice Date", InvoiceDate);
-            Validate("Vendor VAT Invoice Rcvd Date", InvoiceRcvdDate);
-            Modify();
-        end;
+        VendLedgEntry."Vendor VAT Invoice No." := InvoiceNo;
+        VendLedgEntry."Vendor VAT Invoice Rcvd Date" := 0D;
+        VendLedgEntry.Validate("Vendor VAT Invoice Date", InvoiceDate);
+        VendLedgEntry.Validate("Vendor VAT Invoice Rcvd Date", InvoiceRcvdDate);
+        VendLedgEntry.Modify();
     end;
 
     procedure SetOnHold(var VendorLedgerEntry: Record "Vendor Ledger Entry"; NewOnHold: Code[3])

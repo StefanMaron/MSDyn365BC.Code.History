@@ -2,6 +2,7 @@ table 12409 "Bank Directory"
 {
     Caption = 'Bank Directory';
     LookupPageID = "Bank Directory List";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -744,7 +744,7 @@ codeunit 6200 "Non-Deductible VAT"
     /// <param name="NDVATAmountRounding">The remaining rounding difference of Non-Deductible VAT amount</param>
     /// <param name="NDVATBaseRounding">The remaining rounding difference of Non-Deductible VAT base</param>
     /// <param name="PurchHeader">The current purchase header</param>
-    /// <param name="PurchaseLine">The current purchase line</param>
+    /// <param name="PurchaseLine">The current purchase line with LCY amounts</param>
     procedure Calculate(var NonDeductibleBaseAmount: Decimal; var NonDeductibleVATAmount: Decimal; var NonDeductibleVATAmtPerUnit: Decimal; var NonDeductibleVATAmtPerUnitLCY: Decimal; var NDVATAmountRounding: Decimal; var NDVATBaseRounding: Decimal; PurchHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
     begin
         NonDedVATImpl.Calculate(NonDeductibleBaseAmount, NonDeductibleVATAmount, NonDeductibleVATAmtPerUnit, NonDeductibleVATAmtPerUnitLCY, NDVATAmountRounding, NDVATBaseRounding, PurchHeader, PurchaseLine);

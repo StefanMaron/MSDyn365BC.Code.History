@@ -2,6 +2,7 @@ table 14905 "Letter of Attorney Header"
 {
     Caption = 'Letter of Attorney Header';
     LookupPageID = "Letter of Attorney List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -202,11 +203,13 @@ table 14905 "Letter of Attorney Header"
     end;
 
     trigger OnInsert()
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         if "No." = '' then begin
             PurchSetup.Get();
             PurchSetup.TestField("Letter of Attorney Nos.");
-            "No." := NoSeriesManagement.GetNextNo(PurchSetup."Letter of Attorney Nos.", WorkDate(), true);
+            "No." := NoSeries.GetNextNo(PurchSetup."Letter of Attorney Nos.");
         end;
 
         Validate("Document Date", WorkDate());
@@ -235,7 +238,6 @@ table 14905 "Letter of Attorney Header"
         CompanyInformation: Record "Company Information";
         PurchSetup: Record "Purchases & Payables Setup";
         Employee: Record Employee;
-        NoSeriesManagement: Codeunit NoSeriesManagement;
         Text001: Label 'Existing Letter of Attorney Lines will be deleted. Continue?';
         Text002: Label '%1 No. %2 from %3.';
         Text003: Label 'You cannot rename %1.';
@@ -320,11 +322,13 @@ table 14905 "Letter of Attorney Header"
 
     [Scope('OnPrem')]
     procedure AssistEdit(): Boolean
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         PurchSetup.Get();
         PurchSetup.TestField("Letter of Attorney Nos.");
-        if NoSeriesManagement.SelectSeries(PurchSetup."Letter of Attorney Nos.", xRec."No. Series", "No. Series") then begin
-            NoSeriesManagement.SetSeries("No.");
+        if NoSeries.LookupRelatedNoSeries(PurchSetup."Letter of Attorney Nos.", xRec."No. Series", "No. Series") then begin
+            "No." := NoSeries.GetNextNo("No. Series");
             exit(true);
         end;
     end;

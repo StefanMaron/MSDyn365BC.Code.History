@@ -1,4 +1,4 @@
-page 26567 "Table Individ. Rqst. Subform"
+﻿page 26567 "Table Individ. Rqst. Subform"
 {
     Caption = 'Individual Requisites';
     DeleteAllowed = false;

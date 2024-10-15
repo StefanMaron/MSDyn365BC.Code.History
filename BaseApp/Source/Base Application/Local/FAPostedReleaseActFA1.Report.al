@@ -270,7 +270,6 @@ report 12492 "FA Posted Release Act FA-1"
         Chairman: Record "Posted Document Signature";
         Member1: Record "Posted Document Signature";
         Member2: Record "Posted Document Signature";
-        DocSignMgt: Codeunit "Doc. Signature Management";
         FA1Helper: Codeunit "FA-1 Report Helper";
         Characteristics: array[5] of Text[80];
         ExtraWork: array[5] of Text[80];

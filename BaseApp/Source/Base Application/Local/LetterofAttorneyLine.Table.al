@@ -1,6 +1,7 @@
 table 14906 "Letter of Attorney Line"
 {
     Caption = 'Letter of Attorney Line';
+    DataClassification = CustomerContent;
 
     fields
     {

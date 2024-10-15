@@ -464,7 +464,7 @@ codeunit 144704 "ERM INV-17 Report"
     begin
         LibraryReportValidation.SetFileName(InvtActHeader."No.");
         InvtActHeader.SetRecFilter();
-        InvActRep.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        InvActRep.SetFileNameSilent(LibraryReportValidation.GetFileName());
         InvActRep.SetTableView(InvtActHeader);
         InvActRep.UseRequestPage(false);
         InvActRep.Run();
@@ -476,7 +476,7 @@ codeunit 144704 "ERM INV-17 Report"
     begin
         LibraryReportValidation.SetFileName(InvtActHeader."No.");
         InvtActHeader.SetRecFilter();
-        SupplementInvActRep.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        SupplementInvActRep.SetFileNameSilent(LibraryReportValidation.GetFileName());
         SupplementInvActRep.SetTableView(InvtActHeader);
         SupplementInvActRep.UseRequestPage(false);
         SupplementInvActRep.Run();
@@ -520,7 +520,7 @@ codeunit 144704 "ERM INV-17 Report"
                       "Not Confirmed Amount",
                       "Overdue Amount");
                     RowShift += 1;
-                until Next = 0;
+                until Next() = 0;
             end;
             RowShift += 6; // Printing of page header
         end;
@@ -564,7 +564,7 @@ codeunit 144704 "ERM INV-17 Report"
                   Format(DebtsAmount), Format(LiabilitiesAmount),
                   Format("Document Type"), "Document No.", Format("Posting Date"));
                 Counter += 1;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -585,7 +585,7 @@ codeunit 144704 "ERM INV-17 Report"
                   Format(DebtsAmount), Format(LiabilitiesAmount),
                   Format("Document Type"), "Document No.", Format("Posting Date"));
                 Counter += 1;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 

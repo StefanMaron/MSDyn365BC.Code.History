@@ -115,43 +115,26 @@ report 795 "Adjust Cost - Item Entries"
 
     trigger OnPreReport()
     var
-        ItemLedgEntry: Record "Item Ledger Entry";
-        ValueEntry: Record "Value Entry";
-        ItemApplnEntry: Record "Item Application Entry";
         Item: Record Item;
-        AvgCostEntryPointHandler: Codeunit "Avg. Cost Entry Point Handler";
-        UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
-        UpdateAnalysisView: Codeunit "Update Analysis View";
     begin
         OnBeforePreReport(ItemNoFilter, ItemCategoryFilter, PostToGL, Item);
 
-        ItemApplnEntry.LockTable();
-        if not ItemApplnEntry.FindLast() then
-            exit;
-        ItemLedgEntry.LockTable();
-        if not ItemLedgEntry.FindLast() then
-            exit;
-
-        AvgCostEntryPointHandler.LockBuffer();
-
-        ValueEntry.LockTable();
-        if not ValueEntry.FindLast() then
-            exit;
+        if not LockTables() then
+            CurrReport.Quit();
 
         if (ItemNoFilter <> '') and (ItemCategoryFilter <> '') then
-            Error(Text005);
+            Error(ItemOrCategoryFilterErr);
 
         if ItemNoFilter <> '' then
             Item.SetFilter("No.", ItemNoFilter);
         if ItemCategoryFilter <> '' then
             Item.SetFilter("Item Category Code", ItemCategoryFilter);
 
-        InvtAdjmtHandler.SetFilterItem(Item);
-        InvtAdjmtHandler.MakeInventoryAdjustment(false, PostToGL);
-
-        if PostToGL then
-            UpdateAnalysisView.UpdateAll(0, true);
-        UpdateItemAnalysisView.UpdateAll(0, true);
+        InvtSetup.Get();
+        if InvtSetup."Cost Adjustment Logging" <> InvtSetup."Cost Adjustment Logging"::Disabled then
+            RunCostAdjustmentWithLogging(Item)
+        else
+            RunCostAdjustment(Item);
 
         OnAfterPreReport();
     end;
@@ -163,13 +146,75 @@ report 795 "Adjust Cost - Item Entries"
         FilterItemNoEditable: Boolean;
         FilterItemCategoryEditable: Boolean;
 
-        Text005: Label 'You must not use Item No. Filter and Item Category Filter at the same time.';
-        ResynchronizeInfoMsg: Label 'Your general and item ledgers will no longer be synchronized after running the cost adjustment. You must run the %1 report to synchronize them again.';
+        ItemOrCategoryFilterErr: Label 'You must not use Item No. Filter and Item Category Filter at the same time.';
+        ResynchronizeInfoMsg: Label 'Your general and item ledgers will no longer be synchronized after running the cost adjustment. You must run the %1 report to synchronize them again.', Comment = '%1: Adjust Cost - Item Entries';
 
     protected var
         ItemNoFilter: Text[250];
         ItemCategoryFilter: Text[250];
         PostToGL: Boolean;
+
+    local procedure LockTables(): Boolean
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ValueEntry: Record "Value Entry";
+        ItemApplicationEntry: Record "Item Application Entry";
+        AvgCostEntryPointHandler: Codeunit "Avg. Cost Entry Point Handler";
+    begin
+        ItemApplicationEntry.LockTable();
+        if ItemApplicationEntry.GetLastEntryNo() = 0 then
+            exit(false);
+
+        ItemLedgerEntry.LockTable();
+        if ItemLedgerEntry.GetLastEntryNo() = 0 then
+            exit(false);
+
+        ValueEntry.LockTable();
+        if ValueEntry.GetLastEntryNo() = 0 then
+            exit(false);
+
+        AvgCostEntryPointHandler.LockBuffer();
+
+        exit(true);
+    end;
+
+    local procedure RunCostAdjustment(var Item: Record Item)
+    var
+        UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
+        UpdateAnalysisView: Codeunit "Update Analysis View";
+    begin
+        InvtAdjmtHandler.SetFilterItem(Item);
+        InvtAdjmtHandler.MakeInventoryAdjustment(false, PostToGL);
+
+        if PostToGL then
+            UpdateAnalysisView.UpdateAll(0, true);
+        UpdateItemAnalysisView.UpdateAll(0, true);
+    end;
+
+    local procedure RunCostAdjustmentWithLogging(var Item: Record Item)
+    var
+        CostAdjustmentSubscribers: Codeunit "Cost Adjustment Subscribers";
+        CostAdjustmentItemRunner: Codeunit "Cost Adjustment Item Runner";
+        Success: Boolean;
+    begin
+        Commit();
+        BindSubscription(CostAdjustmentSubscribers);
+
+        OnBeforeRunCostAdjustment();
+        CostAdjustmentItemRunner.SetPostToGL(PostToGL);
+        Success := CostAdjustmentItemRunner.Run(Item);
+        if Success then
+            RegisterSuccess()
+        else
+            RegisterFailure();
+        OnAfterRunCostAdjustment(Item);
+
+        Commit();
+        if not Success then
+            Error(GetLastErrorText());
+
+        UnbindSubscription(CostAdjustmentSubscribers);
+    end;
 
     procedure InitializeRequest(NewItemNoFilter: Text[250]; NewItemCategoryFilter: Text[250])
     begin
@@ -182,13 +227,43 @@ report 795 "Adjust Cost - Item Entries"
         PostToGL := NewPostToGL;
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    local procedure RegisterSuccess()
+    begin
+        OnRegisterSuccess();
+    end;
+
+    local procedure RegisterFailure()
+    begin
+        OnRegisterFailure();
+    end;
+
+    [IntegrationEvent(true, false)]
     local procedure OnAfterPreReport()
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforePreReport(ItemNoFilter: Text[250]; ItemCategoryFilter: Text[250]; PostToGL: Boolean; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunCostAdjustment()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRunCostAdjustment(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRegisterSuccess()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRegisterFailure()
     begin
     end;
 }

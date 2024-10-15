@@ -91,7 +91,7 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [Report] [UT]
         // [SCENARIO] COD 12401 "Local Report Management".GetVendorName() returns Vendor.Name in case of Vendor."Name 2" = '', Vendor."Full Name" = ''
-        CreateVendor(Vendor, LibraryUtility.GenerateGUID, '', '');
+        CreateVendor(Vendor, LibraryUtility.GenerateGUID(), '', '');
         Assert.AreEqual(Vendor.Name, LocalReportMgt.GetVendorName(Vendor."No."), '');
     end;
 
@@ -104,7 +104,7 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [Report] [UT]
         // [SCENARIO] COD 12401 "Local Report Management".GetVendorName() returns Vendor.Name + Vendor."Name 2" in case of Vendor."Full Name" = ''
-        CreateVendor(Vendor, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID, '');
+        CreateVendor(Vendor, LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID(), '');
         Assert.AreEqual(Vendor.Name + ' ' + Vendor."Name 2", LocalReportMgt.GetVendorName(Vendor."No."), '');
     end;
 
@@ -117,7 +117,7 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [Report] [UT]
         // [SCENARIO] COD 12401 "Local Report Management".GetVendorName() returns Vendor."Full Name" in case of Vendor."Full Name" <> ''
-        CreateVendor(Vendor, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
+        CreateVendor(Vendor, LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID());
         Assert.AreEqual(Vendor."Full Name", LocalReportMgt.GetVendorName(Vendor."No."), '');
     end;
 
@@ -205,7 +205,7 @@ codeunit 144001 "ERM RU - Base"
         LibraryERM.CreateCurrency(Currency);
 
         GLSetup.Get();
-        GLSetup.Validate("LCY Code", LibraryERM.CreateCurrencyWithRandomExchRates);
+        GLSetup.Validate("LCY Code", LibraryERM.CreateCurrencyWithRandomExchRates());
         GLSetup.Modify();
 
         Assert.IsTrue(LocalReportMgt.IsForeignCurrency(Currency.Code), '');
@@ -245,7 +245,7 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [Report] [UT]
         // [SCENARIO] COD 12401 "Local Report Management".HasRelationalCurrCode() returns FALSE in case of currency without relational currency code
         Assert.IsFalse(
-          LocalReportMgt.HasRelationalCurrCode(LibraryERM.CreateCurrencyWithRandomExchRates, WorkDate()), '');
+          LocalReportMgt.HasRelationalCurrCode(LibraryERM.CreateCurrencyWithRandomExchRates(), WorkDate()), '');
     end;
 
     [Test]
@@ -257,9 +257,9 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [Report] [UT]
         // [SCENARIO] COD 12401 "Local Report Management".HasRelationalCurrCode() returns TRUE in case of currency with relational currency code
-        CurrencyExchangeRate.SetRange("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
+        CurrencyExchangeRate.SetRange("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
         CurrencyExchangeRate.FindFirst();
-        CurrencyExchangeRate.Validate("Relational Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
+        CurrencyExchangeRate.Validate("Relational Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
         CurrencyExchangeRate.Modify();
 
         Assert.IsTrue(
@@ -465,10 +465,10 @@ codeunit 144001 "ERM RU - Base"
         // [SCENARIO 379554] Column Description exists on Page Vendor Posting Groups
 
         // [WHEN] Open Page Vendor Posting Groups
-        VendorPostingGroups.OpenView;
+        VendorPostingGroups.OpenView();
 
         // [THEN] Column Description appears
-        Assert.IsTrue(VendorPostingGroups.Description.Visible, VendorPostingGroupDescriptionErr);
+        Assert.IsTrue(VendorPostingGroups.Description.Visible(), VendorPostingGroupDescriptionErr);
     end;
 
     [Test]
@@ -480,9 +480,9 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [UI] [UT]
         // [SCENARIO 234588] Page 10 "Countries/Regions" shows "EAEU Country/Region Code" field
         Initialize();
-        CountriesRegions.OpenEdit;
-        Assert.IsTrue(CountriesRegions."EAEU Country/Region Code".Visible, '');
-        Assert.IsTrue(CountriesRegions."EAEU Country/Region Code".Enabled, '');
+        CountriesRegions.OpenEdit();
+        Assert.IsTrue(CountriesRegions."EAEU Country/Region Code".Visible(), '');
+        Assert.IsTrue(CountriesRegions."EAEU Country/Region Code".Enabled(), '');
         CountriesRegions.Close();
     end;
 
@@ -499,34 +499,34 @@ codeunit 144001 "ERM RU - Base"
         CompanyInformation.Get();
 
         // Both EAEU, different
-        CountryRegion.Get(LibraryVATLedger.MockCountryEAEU);
-        CompanyInformation.Validate("Country/Region Code", LibraryVATLedger.MockCountryEAEU);
+        CountryRegion.Get(LibraryVATLedger.MockCountryEAEU());
+        CompanyInformation.Validate("Country/Region Code", LibraryVATLedger.MockCountryEAEU());
         CompanyInformation.Modify();
-        Assert.IsTrue(CountryRegion.IsEAEUCountry, '');
+        Assert.IsTrue(CountryRegion.IsEAEUCountry(), '');
 
         // Company non EAEU, target - EAEU
-        CountryRegion.Get(LibraryVATLedger.MockCountryEAEU);
-        CompanyInformation.Validate("Country/Region Code", LibraryVATLedger.MockCountryNonEAEU);
+        CountryRegion.Get(LibraryVATLedger.MockCountryEAEU());
+        CompanyInformation.Validate("Country/Region Code", LibraryVATLedger.MockCountryNonEAEU());
         CompanyInformation.Modify();
-        Assert.IsFalse(CountryRegion.IsEAEUCountry, '');
+        Assert.IsFalse(CountryRegion.IsEAEUCountry(), '');
 
         // Company EAEU, target - non EAEU
-        CountryRegion.Get(LibraryVATLedger.MockCountryNonEAEU);
-        CompanyInformation.Validate("Country/Region Code", LibraryVATLedger.MockCountryEAEU);
+        CountryRegion.Get(LibraryVATLedger.MockCountryNonEAEU());
+        CompanyInformation.Validate("Country/Region Code", LibraryVATLedger.MockCountryEAEU());
         CompanyInformation.Modify();
-        Assert.IsFalse(CountryRegion.IsEAEUCountry, '');
+        Assert.IsFalse(CountryRegion.IsEAEUCountry(), '');
 
         // Both non EAEU
-        CountryRegion.Get(LibraryVATLedger.MockCountryNonEAEU);
-        CompanyInformation.Validate("Country/Region Code", LibraryVATLedger.MockCountryNonEAEU);
+        CountryRegion.Get(LibraryVATLedger.MockCountryNonEAEU());
+        CompanyInformation.Validate("Country/Region Code", LibraryVATLedger.MockCountryNonEAEU());
         CompanyInformation.Modify();
-        Assert.IsFalse(CountryRegion.IsEAEUCountry, '');
+        Assert.IsFalse(CountryRegion.IsEAEUCountry(), '');
 
         // Both EAEU, equals
-        CountryRegion.Get(LibraryVATLedger.MockCountryEAEU);
+        CountryRegion.Get(LibraryVATLedger.MockCountryEAEU());
         CompanyInformation.Validate("Country/Region Code", CountryRegion.Code);
         CompanyInformation.Modify();
-        Assert.IsFalse(CountryRegion.IsEAEUCountry, '');
+        Assert.IsFalse(CountryRegion.IsEAEUCountry(), '');
     end;
 
     [Test]
@@ -550,7 +550,7 @@ codeunit 144001 "ERM RU - Base"
         // [GIVEN] Sales line2: item with tariff "B" and Non-EAEU location
         // [GIVEN] Sales line3: item with tariff "C" and location without specified country\region code
         // [GIVEN] Sales line4: item with tariff "D" and blanked location
-        CustomerNo := LibraryVATLedger.MockCustomerNo(LibraryVATLedger.MockCountryEAEU);
+        CustomerNo := LibraryVATLedger.MockCustomerNo(LibraryVATLedger.MockCountryEAEU());
         ShipToAddress := LibraryVATLedger.MockShipToAddressEAEU(CustomerNo);
         MockSevItemsAndLocations(ItemNo, TariffNo, LocationCode);
         MockSalesHeaderWithSevLines(SalesLine, CustomerNo, ShipToAddress, ItemNo, LocationCode);
@@ -584,7 +584,7 @@ codeunit 144001 "ERM RU - Base"
         // [GIVEN] Sales line2: item with tariff "B" and Non-EAEU location
         // [GIVEN] Sales line3: item with tariff "C" and location without specified country\region code
         // [GIVEN] Sales line4: item with tariff "D" and blanked location
-        CustomerNo := LibraryVATLedger.MockCustomerNo(LibraryVATLedger.MockCountryEAEU);
+        CustomerNo := LibraryVATLedger.MockCustomerNo(LibraryVATLedger.MockCountryEAEU());
         ShipToAddress := LibraryVATLedger.MockShipToAddressNonEAEU(CustomerNo);
         MockSevItemsAndLocations(ItemNo, TariffNo, LocationCode);
         MockSalesHeaderWithSevLines(SalesLine, CustomerNo, ShipToAddress, ItemNo, LocationCode);
@@ -618,7 +618,7 @@ codeunit 144001 "ERM RU - Base"
         // [GIVEN] Sales line2: item with tariff "B" and Non-EAEU location
         // [GIVEN] Sales line3: item with tariff "C" and location without specified country\region code
         // [GIVEN] Sales line4: item with tariff "D" and blanked location
-        CustomerNo := LibraryVATLedger.MockCustomerNo(LibraryVATLedger.MockCountryEAEU);
+        CustomerNo := LibraryVATLedger.MockCustomerNo(LibraryVATLedger.MockCountryEAEU());
         ShipToAddress := LibraryVATLedger.MockShipToAddress(CustomerNo, '');
         MockSevItemsAndLocations(ItemNo, TariffNo, LocationCode);
         MockSalesHeaderWithSevLines(SalesLine, CustomerNo, ShipToAddress, ItemNo, LocationCode);
@@ -652,7 +652,7 @@ codeunit 144001 "ERM RU - Base"
         // [GIVEN] Sales line2: item with tariff "B" and Non-EAEU location
         // [GIVEN] Sales line3: item with tariff "C" and location without specified country\region code
         // [GIVEN] Sales line4: item with tariff "D" and blanked location
-        CustomerNo := LibraryVATLedger.MockCustomerNo(LibraryVATLedger.MockCountryNonEAEU);
+        CustomerNo := LibraryVATLedger.MockCustomerNo(LibraryVATLedger.MockCountryNonEAEU());
         ShipToAddress := LibraryVATLedger.MockShipToAddressEAEU(CustomerNo);
         MockSevItemsAndLocations(ItemNo, TariffNo, LocationCode);
         MockSalesHeaderWithSevLines(SalesLine, CustomerNo, ShipToAddress, ItemNo, LocationCode);
@@ -686,7 +686,7 @@ codeunit 144001 "ERM RU - Base"
         // [GIVEN] Sales line2: item with tariff "B" and Non-EAEU location
         // [GIVEN] Sales line3: item with tariff "C" and location without specified country\region code
         // [GIVEN] Sales line4: item with tariff "D" and blanked location
-        CustomerNo := LibraryVATLedger.MockCustomerNo(LibraryVATLedger.MockCountryNonEAEU);
+        CustomerNo := LibraryVATLedger.MockCustomerNo(LibraryVATLedger.MockCountryNonEAEU());
         ShipToAddress := LibraryVATLedger.MockShipToAddressNonEAEU(CustomerNo);
         MockSevItemsAndLocations(ItemNo, TariffNo, LocationCode);
         MockSalesHeaderWithSevLines(SalesLine, CustomerNo, ShipToAddress, ItemNo, LocationCode);
@@ -720,7 +720,7 @@ codeunit 144001 "ERM RU - Base"
         // [GIVEN] Sales line2: item with tariff "B" and Non-EAEU location
         // [GIVEN] Sales line3: item with tariff "C" and location without specified country\region code
         // [GIVEN] Sales line4: item with tariff "D" and blanked location
-        CustomerNo := LibraryVATLedger.MockCustomerNo(LibraryVATLedger.MockCountryNonEAEU);
+        CustomerNo := LibraryVATLedger.MockCustomerNo(LibraryVATLedger.MockCountryNonEAEU());
         ShipToAddress := LibraryVATLedger.MockShipToAddress(CustomerNo, '');
         MockSevItemsAndLocations(ItemNo, TariffNo, LocationCode);
         MockSalesHeaderWithSevLines(SalesLine, CustomerNo, ShipToAddress, ItemNo, LocationCode);
@@ -856,7 +856,7 @@ codeunit 144001 "ERM RU - Base"
         // [GIVEN] Sales line2: item with tariff "B" and Non-EAEU location
         // [GIVEN] Sales line3: item with tariff "C" and location without specified country\region code
         // [GIVEN] Sales line4: item with tariff "D" and blanked location
-        CustomerNo := LibraryVATLedger.MockCustomerNo(LibraryVATLedger.MockCountryEAEU);
+        CustomerNo := LibraryVATLedger.MockCustomerNo(LibraryVATLedger.MockCountryEAEU());
         ShipToAddress := LibraryVATLedger.MockShipToAddressEAEU(CustomerNo);
         MockSevItemsAndLocations(ItemNo, TariffNo, LocationCode);
         MockSalesInvWithSevLines(SalesInvoiceLine, CustomerNo, ShipToAddress, ItemNo, LocationCode);
@@ -890,7 +890,7 @@ codeunit 144001 "ERM RU - Base"
         // [GIVEN] Sales line2: item with tariff "B" and Non-EAEU location
         // [GIVEN] Sales line3: item with tariff "C" and location without specified country\region code
         // [GIVEN] Sales line4: item with tariff "D" and blanked location
-        CustomerNo := LibraryVATLedger.MockCustomerNo(LibraryVATLedger.MockCountryEAEU);
+        CustomerNo := LibraryVATLedger.MockCustomerNo(LibraryVATLedger.MockCountryEAEU());
         ShipToAddress := LibraryVATLedger.MockShipToAddressEAEU(CustomerNo);
         MockSevItemsAndLocations(ItemNo, TariffNo, LocationCode);
         MockSalesCrMemoWithSevLines(SalesCrMemoLine, CustomerNo, ShipToAddress, ItemNo, LocationCode);
@@ -924,7 +924,7 @@ codeunit 144001 "ERM RU - Base"
         // [GIVEN] Sales line2: item with tariff "B" and Non-EAEU location
         // [GIVEN] Sales line3: item with tariff "C" and location without specified country\region code
         // [GIVEN] Sales line4: item with tariff "D" and blanked location
-        CustomerNo := LibraryVATLedger.MockCustomerNo(LibraryVATLedger.MockCountryEAEU);
+        CustomerNo := LibraryVATLedger.MockCustomerNo(LibraryVATLedger.MockCountryEAEU());
         ShipToAddress := LibraryVATLedger.MockShipToAddressEAEU(CustomerNo);
         MockSevItemsAndLocations(ItemNo, TariffNo, LocationCode);
         MockSalesInvWithSevLines(SalesInvoiceLine, CustomerNo, ShipToAddress, ItemNo, LocationCode);
@@ -958,7 +958,7 @@ codeunit 144001 "ERM RU - Base"
         // [GIVEN] Sales line2: item with tariff "B" and Non-EAEU location
         // [GIVEN] Sales line3: item with tariff "C" and location without specified country\region code
         // [GIVEN] Sales line4: item with tariff "D" and blanked location
-        CustomerNo := LibraryVATLedger.MockCustomerNo(LibraryVATLedger.MockCountryEAEU);
+        CustomerNo := LibraryVATLedger.MockCustomerNo(LibraryVATLedger.MockCountryEAEU());
         ShipToAddress := LibraryVATLedger.MockShipToAddressEAEU(CustomerNo);
         MockSevItemsAndLocations(ItemNo, TariffNo, LocationCode);
         MockSalesCrMemoWithSevLines(SalesCrMemoLine, CustomerNo, ShipToAddress, ItemNo, LocationCode);
@@ -980,11 +980,9 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [Address] [UT] [Post Code]
         // [SCENARIO 251306] COD 140316 "Library RU Reports".CreatePostCode()
         LibraryRUReports.CreatePostCode(PostCode);
-        with PostCode do begin
-            TestField("Country/Region Code");
-            TestField(City);
-            TestField(County);
-        end;
+        PostCode.TestField("Country/Region Code");
+        PostCode.TestField(City);
+        PostCode.TestField(County);
     end;
 
     [Test]
@@ -996,13 +994,11 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [Address] [UT] [Vendor]
         // [SCENARIO 251306] COD 140316 "Library RU Reports".CreateVendor()
         LibraryRUReports.CreateVendor(Vendor);
-        with Vendor do begin
-            TestField("Country/Region Code");
-            TestField(City);
-            TestField(County);
-            TestField(Address);
-            TestField("Address 2");
-        end;
+        Vendor.TestField("Country/Region Code");
+        Vendor.TestField(City);
+        Vendor.TestField(County);
+        Vendor.TestField(Address);
+        Vendor.TestField("Address 2");
     end;
 
     [Test]
@@ -1014,13 +1010,11 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [Address] [UT] [Customer]
         // [SCENARIO 251306] COD 140316 "Library RU Reports".CreateCustomer()
         LibraryRUReports.CreateCustomer(Customer);
-        with Customer do begin
-            TestField("Country/Region Code");
-            TestField(City);
-            TestField(County);
-            TestField(Address);
-            TestField("Address 2");
-        end;
+        Customer.TestField("Country/Region Code");
+        Customer.TestField(City);
+        Customer.TestField(County);
+        Customer.TestField(Address);
+        Customer.TestField("Address 2");
     end;
 
     [Test]
@@ -1031,16 +1025,14 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [Address] [UT] [Company Information]
         // [SCENARIO 251306] COD 140316 "Library RU Reports".UpdateCompanyAddress()
-        LibraryRUReports.UpdateCompanyAddress;
-        with CompanyAddress do begin
-            FindFirst();
-            TestField("Country/Region Code");
-            TestField(City);
-            TestField("Region Name");
-            TestField(County);
-            TestField(Address);
-            TestField("Address 2");
-        end;
+        LibraryRUReports.UpdateCompanyAddress();
+        CompanyAddress.FindFirst();
+        CompanyAddress.TestField("Country/Region Code");
+        CompanyAddress.TestField(City);
+        CompanyAddress.TestField("Region Name");
+        CompanyAddress.TestField(County);
+        CompanyAddress.TestField(Address);
+        CompanyAddress.TestField("Address 2");
     end;
 
     [Test]
@@ -1054,10 +1046,9 @@ codeunit 144001 "ERM RU - Base"
         // [SCENARIO 251306] COD 140316 "Library RU Reports".GetCustomerFullAddress()
         LibraryRUReports.CreateCustomer(Customer);
 
-        with Customer do
-            Assert.AreEqual(
-              LocalReportMgt.GetFullAddr("Post Code", City, Address, "Address 2", '', County),
-              LibraryRUReports.GetCustomerFullAddress("No."), '');
+        Assert.AreEqual(
+            LocalReportMgt.GetFullAddr(Customer."Post Code", Customer.City, Customer.Address, Customer."Address 2", '', Customer.County),
+            LibraryRUReports.GetCustomerFullAddress(Customer."No."), '');
     end;
 
     [Test]
@@ -1072,10 +1063,10 @@ codeunit 144001 "ERM RU - Base"
         Initialize();
         LibraryRUReports.CreatePostCode(PostCode);
 
-        PostCodes.OpenEdit;
+        PostCodes.OpenEdit();
         PostCodes.GotoRecord(PostCode);
-        Assert.IsTrue(PostCodes.County.Visible, '');
-        Assert.IsTrue(PostCodes.County.Editable, '');
+        Assert.IsTrue(PostCodes.County.Visible(), '');
+        Assert.IsTrue(PostCodes.County.Editable(), '');
         PostCodes.County.AssertEquals(PostCode.County);
         PostCodes.Close();
     end;
@@ -1102,10 +1093,10 @@ codeunit 144001 "ERM RU - Base"
 
         SetCountryRegionAddressFormat(Customer."Country/Region Code", AddressFormat::"City+County+Post Code");
 
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
-        Assert.IsTrue(CustomerCard.County.Visible, '');
-        Assert.IsTrue(CustomerCard.County.Editable, '');
+        Assert.IsTrue(CustomerCard.County.Visible(), '');
+        Assert.IsTrue(CustomerCard.County.Editable(), '');
         CustomerCard.County.AssertEquals(Customer.County);
 
         NewCountyValue := LibraryUtility.GenerateGUID();
@@ -1133,9 +1124,9 @@ codeunit 144001 "ERM RU - Base"
         Customer.Modify(true);
         SetCountryRegionAddressFormat(Customer."Country/Region Code", AddressFormat::"City+Post Code");
 
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
-        Assert.IsFalse(CustomerCard.County.Visible, '');
+        Assert.IsFalse(CustomerCard.County.Visible(), '');
     end;
 
     [Test]
@@ -1160,10 +1151,10 @@ codeunit 144001 "ERM RU - Base"
 
         SetCountryRegionAddressFormat(Vendor."Country/Region Code", AddressFormat::"City+County+Post Code");
 
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
-        Assert.IsTrue(VendorCard.County.Visible, '');
-        Assert.IsTrue(VendorCard.County.Editable, '');
+        Assert.IsTrue(VendorCard.County.Visible(), '');
+        Assert.IsTrue(VendorCard.County.Editable(), '');
         VendorCard.County.AssertEquals(Vendor.County);
 
         NewCountyValue := LibraryUtility.GenerateGUID();
@@ -1191,9 +1182,9 @@ codeunit 144001 "ERM RU - Base"
         Vendor.Modify(true);
         SetCountryRegionAddressFormat(Vendor."Country/Region Code", AddressFormat::"City+Post Code");
 
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
-        Assert.IsFalse(VendorCard.County.Visible, '');
+        Assert.IsFalse(VendorCard.County.Visible(), '');
     end;
 
     [Test]
@@ -1211,10 +1202,10 @@ codeunit 144001 "ERM RU - Base"
         CompanyAddress.Validate(County, LibraryUtility.GenerateGUID());
         CompanyAddress.Modify(true);
 
-        CompanyAddressPage.OpenEdit;
+        CompanyAddressPage.OpenEdit();
         CompanyAddressPage.GotoRecord(CompanyAddress);
-        Assert.IsTrue(CompanyAddressPage.County.Visible, '');
-        Assert.IsTrue(CompanyAddressPage.County.Editable, '');
+        Assert.IsTrue(CompanyAddressPage.County.Visible(), '');
+        Assert.IsTrue(CompanyAddressPage.County.Editable(), '');
         CompanyAddressPage.County.AssertEquals(CompanyAddress.County);
     end;
 
@@ -1257,10 +1248,9 @@ codeunit 144001 "ERM RU - Base"
         Initialize();
         LibraryRUReports.CreateVendor(Vendor);
 
-        with Vendor do
-            Assert.AreEqual(
-              LocalReportMgt.GetFullAddr("Post Code", City, Address, "Address 2", '', County),
-              LocalReportMgt.GetVendorAddress("No."), '');
+        Assert.AreEqual(
+            LocalReportMgt.GetFullAddr(Vendor."Post Code", Vendor.City, Vendor.Address, Vendor."Address 2", '', Vendor.County),
+            LocalReportMgt.GetVendorAddress(Vendor."No."), '');
     end;
 
     [Test]
@@ -1273,14 +1263,12 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [Address] [UT] [Company Information]
         // [SCENARIO 251306] COD 12401 "Local Report Management".GetLegalAddress()
         Initialize();
-        LibraryRUReports.UpdateCompanyAddress;
+        LibraryRUReports.UpdateCompanyAddress();
 
-        with CompanyAddress do begin
-            FindFirst();
-            Assert.AreEqual(
-              LocalReportMgt.GetFullAddr("Post Code", City, Address, "Address 2", "Region Name", County),
-              LocalReportMgt.GetLegalAddress, '');
-        end;
+        CompanyAddress.FindFirst();
+        Assert.AreEqual(
+          LocalReportMgt.GetFullAddr(CompanyAddress."Post Code", CompanyAddress.City, CompanyAddress.Address, CompanyAddress."Address 2", CompanyAddress."Region Name", CompanyAddress.County),
+          LocalReportMgt.GetLegalAddress(), '');
     end;
 
     [Test]
@@ -1432,10 +1420,10 @@ codeunit 144001 "ERM RU - Base"
             exit;
         IsInitialized := true;
 
-        LibraryVATLedger.UpdateCompanyInformationEAEU;
+        LibraryVATLedger.UpdateCompanyInformationEAEU();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Company Information");
-        LibraryERM.DisableMyNotifications(UserId, DummySalesHeader.GetModifyBillToCustomerAddressNotificationId);
+        LibraryERM.DisableMyNotifications(UserId, DummySalesHeader.GetModifyBillToCustomerAddressNotificationId());
     end;
 
     local procedure CreateGenJournalBatchWithBalAccount(var GenJournalTemplateName: Code[10]; var GenJournalBatchName: Code[10])
@@ -1447,7 +1435,7 @@ codeunit 144001 "ERM RU - Base"
         GenJournalTemplateName := GenJournalTemplate.Name;
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplateName);
         GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
-        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateBankAccountNo);
+        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateBankAccountNo());
         GenJournalBatch.Modify();
         GenJournalBatchName := GenJournalBatch.Name;
     end;
@@ -1460,21 +1448,19 @@ codeunit 144001 "ERM RU - Base"
         CreateGenJournalBatchWithBalAccount(GenJournalTemplateName, GenJournalBatchName);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplateName, GenJournalBatchName, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           LibraryRandom.RandDec(100, 2));
         GenJournalLine.Validate("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Computer Check");
-        GenJournalLine.Validate("Payment Purpose", CreateStandardText);
+        GenJournalLine.Validate("Payment Purpose", CreateStandardText());
         GenJournalLine.Modify();
     end;
 
     local procedure InitVATLedgerLine(var VATLedgerLine: Record "VAT Ledger Line"; CVType: Option; IsPrepayment: Boolean; DocumentType: Enum "Gen. Journal Document Type")
     begin
-        with VATLedgerLine do begin
-            Init();
-            "C/V Type" := CVType;
-            Prepayment := IsPrepayment;
-            "Document Type" := DocumentType;
-        end;
+        VATLedgerLine.Init();
+        VATLedgerLine."C/V Type" := CVType;
+        VATLedgerLine.Prepayment := IsPrepayment;
+        VATLedgerLine."Document Type" := DocumentType;
     end;
 
     local procedure ExecuteBankPaymentOrderReport(GenJournalLine: Record "Gen. Journal Line")
@@ -1484,7 +1470,7 @@ codeunit 144001 "ERM RU - Base"
         Commit();
         GenJournalLine.SetRecFilter();
         BankPaymentOrder.SetTableView(GenJournalLine);
-        BankPaymentOrder.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        BankPaymentOrder.SetFileNameSilent(LibraryReportValidation.GetFileName());
         BankPaymentOrder.RunModal();
     end;
 
@@ -1492,24 +1478,20 @@ codeunit 144001 "ERM RU - Base"
     var
         StandardText: Record "Standard Text";
     begin
-        with StandardText do begin
-            Init();
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Standard Text");
-            Description := LibraryUtility.GenerateGUID();
-            Insert();
-            exit(Description);
-        end
+        StandardText.Init();
+        StandardText.Code := LibraryUtility.GenerateRandomCode(StandardText.FieldNo(Code), DATABASE::"Standard Text");
+        StandardText.Description := LibraryUtility.GenerateGUID();
+        StandardText.Insert();
+        exit(StandardText.Description);
     end;
 
     local procedure CreateVendor(var Vendor: Record Vendor; NewName: Text[50]; NewName2: Text[50]; NewFullName: Text[50])
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            Validate(Name, NewName);
-            Validate("Name 2", NewName2);
-            Validate("Full Name", NewFullName);
-            Modify(true);
-        end;
+        Vendor.Validate(Name, NewName);
+        Vendor.Validate("Name 2", NewName2);
+        Vendor.Validate("Full Name", NewFullName);
+        Vendor.Modify(true);
     end;
 
     local procedure CreateSalesDocWithDiffSellToShipToBillTo(var SalesHeader: Record "Sales Header"; var SellToCustomerNo: Code[20]; var ShipToCustomerNo: Code[20]; var BillToCustomerNo: Code[20]; DocumentType: Enum "Sales Document Type")
@@ -1517,21 +1499,19 @@ codeunit 144001 "ERM RU - Base"
         SalesLine: Record "Sales Line";
         ShipToCustomer: Record Customer;
     begin
-        SellToCustomerNo := LibraryRUReports.CreateCustomerNo;
+        SellToCustomerNo := LibraryRUReports.CreateCustomerNo();
         LibraryRUReports.CreateCustomer(ShipToCustomer);
         ShipToCustomerNo := ShipToCustomer."No.";
-        BillToCustomerNo := LibraryRUReports.CreateCustomerNo;
+        BillToCustomerNo := LibraryRUReports.CreateCustomerNo();
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, SellToCustomerNo);
-        with SalesHeader do begin
-            SetHideValidationDialog(true);
-            Validate("Bill-to Customer No.", BillToCustomerNo);
-            Validate("Ship-to Post Code", ShipToCustomer."Post Code");
-            Validate("Ship-to Address", ShipToCustomer.Address);
-            Validate("Ship-to Address 2", ShipToCustomer."Address 2");
-            Modify(true);
-        end;
+        SalesHeader.SetHideValidationDialog(true);
+        SalesHeader.Validate("Bill-to Customer No.", BillToCustomerNo);
+        SalesHeader.Validate("Ship-to Post Code", ShipToCustomer."Post Code");
+        SalesHeader.Validate("Ship-to Address", ShipToCustomer.Address);
+        SalesHeader.Validate("Ship-to Address 2", ShipToCustomer."Address 2");
+        SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
     end;
 
     local procedure CreatePostSalesDocWithDiffSellToShipToBillTo(var SellToCustomerNo: Code[20]; var ShipToCustomerNo: Code[20]; var BillToCustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"): Code[20]
@@ -1578,11 +1558,11 @@ codeunit 144001 "ERM RU - Base"
         i: Integer;
     begin
         for i := 1 to ArrayLen(ItemNo) do begin
-            TariffNo[i] := LibraryVATLedger.MockTariffNo;
+            TariffNo[i] := LibraryVATLedger.MockTariffNo();
             ItemNo[i] := LibraryVATLedger.MockItemNo(TariffNo[i]);
         end;
-        LocationCode[1] := LibraryVATLedger.MockLocationEAEU;
-        LocationCode[2] := LibraryVATLedger.MockLocationNonEAEU;
+        LocationCode[1] := LibraryVATLedger.MockLocationEAEU();
+        LocationCode[2] := LibraryVATLedger.MockLocationNonEAEU();
         LocationCode[3] := LibraryVATLedger.MockLocation('');
         LocationCode[4] := '';
     end;
@@ -1637,19 +1617,17 @@ codeunit 144001 "ERM RU - Base"
     var
         CompanyInformation: Record "Company Information";
     begin
-        with CompanyInformation do begin
-            Get();
-            if IsIndividualPerson then begin
-                "VAT Registration No." := CopyStr(LibraryUtility.GenerateRandomXMLText(12), 1, 12);
-                Validate("KPP Code", '');
-            end else begin
-                "VAT Registration No." := CopyStr(LibraryUtility.GenerateRandomXMLText(10), 1, 10);
-                Validate("KPP Code", CopyStr(LibraryUtility.GenerateRandomXMLText(9), 1, 9));
-            end;
-            "Admin. Tax Authority SONO" := SONOAdmin;
-            "Recipient Tax Authority SONO" := SONOReceipt;
-            Modify();
+        CompanyInformation.Get();
+        if IsIndividualPerson then begin
+            CompanyInformation."VAT Registration No." := CopyStr(LibraryUtility.GenerateRandomXMLText(12), 1, 12);
+            CompanyInformation.Validate("KPP Code", '');
+        end else begin
+            CompanyInformation."VAT Registration No." := CopyStr(LibraryUtility.GenerateRandomXMLText(10), 1, 10);
+            CompanyInformation.Validate("KPP Code", CopyStr(LibraryUtility.GenerateRandomXMLText(9), 1, 9));
         end;
+        CompanyInformation."Admin. Tax Authority SONO" := SONOAdmin;
+        CompanyInformation."Recipient Tax Authority SONO" := SONOReceipt;
+        CompanyInformation.Modify();
     end;
 
     local procedure VerifyEAEUItemTariffNo_FourSalesLines(SalesLine: array[4] of Record "Sales Line"; ExpectedTariffNo1: Code[20]; ExpectedTariffNo2: Code[20]; ExpectedTariffNo3: Code[20]; ExpectedTariffNo4: Code[20])
@@ -1775,7 +1753,7 @@ codeunit 144001 "ERM RU - Base"
     begin
         BankPaymentOrderReqPage.SetPreview.SetValue(true);
         BankPaymentOrderReqPage.PaymentDocType.SetValue(PaymentDocType::"Payment Order");
-        BankPaymentOrderReqPage.OK.Invoke;
+        BankPaymentOrderReqPage.OK().Invoke();
     end;
 }
 

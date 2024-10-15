@@ -6,7 +6,6 @@ codeunit 12408 "XML-Excel Reports Mgt."
     end;
 
     var
-        RepPathNotFoundTxt: Label 'Reporting Path %1 not found.';
         XMLReport: DotNet XmlDocument;
 
     [Scope('OnPrem')]

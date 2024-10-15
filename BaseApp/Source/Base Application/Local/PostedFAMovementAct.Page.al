@@ -189,6 +189,5 @@ page 12480 "Posted FA Movement Act"
     }
 
     var
-        PostedFADocHeader: Record "Posted FA Doc. Header";
 }
 

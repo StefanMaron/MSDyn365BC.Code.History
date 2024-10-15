@@ -17,6 +17,7 @@ using System.Text;
 table 303 "Finance Charge Memo Line"
 {
     Caption = 'Finance Charge Memo Line';
+    DataClassification = CustomerContent;
 
     fields
     {

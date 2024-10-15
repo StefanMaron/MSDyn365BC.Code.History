@@ -429,4 +429,3 @@ page 5666 "FA Depreciation Books Subform"
         exit(Rec."Book Value");
     end;
 }
-

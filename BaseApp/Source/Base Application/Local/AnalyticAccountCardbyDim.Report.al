@@ -527,7 +527,7 @@ report 14940 "Analytic Account Card by Dim."
         SheetNo: Integer;
         LastSheetName: Text[30];
     begin
-        FillSheetBuffer;
+        FillSheetBuffer();
 
         Window.Open(Text006);
 

@@ -1,6 +1,7 @@
 table 14929 "Journal Posting Preview Setup"
 {
     Caption = 'Journal Posting Preview Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

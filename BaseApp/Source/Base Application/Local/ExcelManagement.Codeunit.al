@@ -9,9 +9,6 @@ codeunit 12416 "Excel Management"
         TempExcelBuffer: Record "Excel Buffer" temporary;
         FileMgt: Codeunit "File Management";
         FileStream: InStream;
-        EmptyFileNameErr: Label 'You must specify the File Name.';
-        ExcelNotFoundErr: Label 'Excel not found.';
-        WorksheetNotFoundErr: Label 'The Excel worksheet %1 does not exist.';
         ExcelFilesFilterTxt: Label 'Excel Files (*.xlsx;)|*.xlsx;', Comment = '{Split=r''\|''}{Locked=s''1''}';
         ServerFileName: Text;
         ActiveSheetName: Text;
@@ -97,10 +94,6 @@ codeunit 12416 "Excel Management"
 
     [Scope('OnPrem')]
     procedure OpenSheet(SheetName: Text[30])
-    var
-        i: Integer;
-        EndOfLoop: Integer;
-        Found: Boolean;
     begin
         TempExcelBuffer.DeleteAll();
         TempExcelBuffer.SetActiveWriterSheet(SheetName);
@@ -109,8 +102,6 @@ codeunit 12416 "Excel Management"
 
     [Scope('OnPrem')]
     procedure OpenSheetByNumber(SheetNo: Integer)
-    var
-        SheetsQty: Integer;
     begin
         TempExcelBuffer.DeleteAll();
         TempExcelBuffer.GetWriterSheetNameByNumber(SheetNo);
@@ -160,14 +151,6 @@ codeunit 12416 "Excel Management"
 
     [Scope('OnPrem')]
     procedure FillCellsGroup2(ExceCellName: Text[30]; HorizCellsQty: Integer; VertCellsQty: Integer; Value: Text[250]; EmptyCellValue: Text[1]; Align: Option Right,Left)
-    var
-        CurrCellName: Text[30];
-        NextRowFirstCellName: Text[30];
-        GroupType: Option Row,Column,"Area";
-        CellsQty: Integer;
-        index: Integer;
-        i: Integer;
-        j: Integer;
     begin
         FillCellsArea(
           ExceCellName,
@@ -455,7 +438,6 @@ codeunit 12416 "Excel Management"
     var
         NVInStream: InStream;
         NVOutStream: OutStream;
-        UploadResult: Boolean;
         ServerFileName: Text;
         ServerFile: File;
     begin

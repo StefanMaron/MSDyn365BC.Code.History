@@ -365,17 +365,14 @@ report 12445 "Vendor Accounting Card"
     var
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with DtldVendLedgEntry do begin
-            SetFilter("Entry Type", '%1|%2', "Entry Type"::"Realized Gain", "Entry Type"::"Realized Loss");
-            SetRange("Transaction No.", TransactionNo);
-            exit(not IsEmpty);
-        end;
+        DtldVendLedgEntry.SetFilter("Entry Type", '%1|%2', DtldVendLedgEntry."Entry Type"::"Realized Gain", DtldVendLedgEntry."Entry Type"::"Realized Loss");
+        DtldVendLedgEntry.SetRange("Transaction No.", TransactionNo);
+        exit(not DtldVendLedgEntry.IsEmpty);
     end;
 
     local procedure IsCurrencyAdjEntry(): Boolean
     begin
-        with "Detailed Vendor Ledg. Entry" do
-            exit((Amount = 0) and ("Amount (LCY)" <> 0));
+        exit(("Detailed Vendor Ledg. Entry".Amount = 0) and ("Detailed Vendor Ledg. Entry"."Amount (LCY)" <> 0));
     end;
 }
 

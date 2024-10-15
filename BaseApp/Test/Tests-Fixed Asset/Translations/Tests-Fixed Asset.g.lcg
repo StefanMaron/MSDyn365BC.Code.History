@@ -437,15 +437,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Journal - NamedType AllowCorrectionError)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1562764938 - NamedType 2420549545" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The depreciation has been calculated.\\1 fixed asset G/L journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[The depreciation has been calculated.\\2 fixed asset G/L  journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?]D;]A;(LookupHint=Codeunit ERM Fixed Assets Journal - NamedType CompletionStatsGenJnlQst)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1562764938 - NamedType 4233274581" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be equal to %2.]]></Val>
@@ -1002,15 +993,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - II - NamedType BlankDatesErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1242095561 - NamedType 3128920879" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The depreciation has been calculated.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - II - NamedType CompletionStatsTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1242095561 - NamedType 494508486" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

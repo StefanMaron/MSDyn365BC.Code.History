@@ -350,7 +350,6 @@ page 12409 "Posted Gen. Journals"
 
     var
         GenJnlLine: Record "Gen. Journal Line";
-        GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlManagement: Codeunit GenJnlManagement;
         ChangeExchangeRate: Page "Change Exchange Rate";

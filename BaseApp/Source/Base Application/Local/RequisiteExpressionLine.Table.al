@@ -4,6 +4,7 @@ table 26560 "Requisite Expression Line"
     ObsoleteReason = 'Obsolete functionality';
     ObsoleteState = Removed;
     ObsoleteTag = '19.0';
+    DataClassification = CustomerContent;
 
     fields
     {

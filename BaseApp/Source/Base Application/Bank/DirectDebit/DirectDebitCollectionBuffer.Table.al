@@ -11,23 +11,19 @@ table 1255 "Direct Debit Collection Buffer"
         {
             Caption = 'Direct Debit Collection No.';
             TableRelation = "Direct Debit Collection";
-            DataClassification = CustomerContent;
         }
         field(2; "Entry No."; Integer)
         {
             Caption = 'Entry No.';
-            DataClassification = CustomerContent;
         }
         field(4; "Applies-to Entry No."; Integer)
         {
             Caption = 'Applies-to Entry No.';
-            DataClassification = CustomerContent;
         }
         field(8; "Transaction ID"; Text[35])
         {
             Caption = 'Transaction ID';
             Editable = false;
-            DataClassification = CustomerContent;
         }
         field(10; Status; Option)
         {
@@ -35,7 +31,6 @@ table 1255 "Direct Debit Collection Buffer"
             Editable = false;
             OptionCaption = 'New,File Created,Rejected,Posted';
             OptionMembers = New,"File Created",Rejected,Posted;
-            DataClassification = CustomerContent;
         }
     }
 

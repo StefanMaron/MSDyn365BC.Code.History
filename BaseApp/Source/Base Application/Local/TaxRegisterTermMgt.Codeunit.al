@@ -66,7 +66,7 @@ codeunit 17200 "Tax Register Term Mgt."
         GenTermProfile.TestField("Expression Type (Hdr)");
         FieldRefValue(TermFieldRef, TermNameRecordRef, GenTermProfile."Expression Type (Hdr)");
 
-        ExpressionType := TermFieldRef.Value;
+        ExpressionType := TermFieldRef.Value();
         if ExpressionType = ExpressionType::"Multiply/Divide" then
             Output := 1
         else
@@ -78,7 +78,7 @@ codeunit 17200 "Tax Register Term Mgt."
 
         GenTermProfile.TestField("Section Code (Hdr)");
         FieldRefValue(TermFieldRef, TermNameRecordRef, GenTermProfile."Section Code (Hdr)");
-        SectionCode := TermFieldRef.Value;
+        SectionCode := TermFieldRef.Value();
 
         GenTermProfile.TestField("Section Code (Line)");
         FieldRefValue(TermLineFieldRef, TermLineRecordRef, GenTermProfile."Section Code (Line)");
@@ -86,7 +86,7 @@ codeunit 17200 "Tax Register Term Mgt."
 
         GenTermProfile.TestField("Term Code (Hdr)");
         FieldRefValue(TermFieldRef, TermNameRecordRef, GenTermProfile."Term Code (Hdr)");
-        TermCode := TermFieldRef.Value;
+        TermCode := TermFieldRef.Value();
 
         GenTermProfile.TestField("Term Code (Line)");
         FieldRefValue(TermLineFieldRef, TermLineRecordRef, GenTermProfile."Term Code (Line)");
@@ -100,7 +100,7 @@ codeunit 17200 "Tax Register Term Mgt."
         if TermLineRecordRef.FindSet() then
             repeat
                 FieldRefValue(TermLineFieldRef, TermLineRecordRef, GenTermProfile."Account Type (Line)");
-                TermLineAccountType := TermLineFieldRef.Value;
+                TermLineAccountType := TermLineFieldRef.Value();
 
                 if TermLineAccountType in [
                                            TermLineAccountType::"GL Acc",
@@ -117,104 +117,104 @@ codeunit 17200 "Tax Register Term Mgt."
                             Message(ErrorConst, SectionCode, TermCode, TermLineFieldRef.Value);
                         end;
                     TermLineAccountType::"Net Change":
-                        with GLCorrespondEntry do begin
+                        begin
                             if TempGLEntryGlobalDimFilter.GetFilters = '' then begin
-                                SetCurrentKey("Debit Account No.", "Credit Account No.", "Posting Date");
-                                SetFilter("Debit Account No.", Format(TermLineFieldRef.Value));
+                                GLCorrespondEntry.SetCurrentKey("Debit Account No.", "Credit Account No.", "Posting Date");
+                                GLCorrespondEntry.SetFilter("Debit Account No.", Format(TermLineFieldRef.Value));
                             end else begin
-                                SetCurrentKey(
+                                GLCorrespondEntry.SetCurrentKey(
                                   "Debit Account No.", "Credit Account No.",
                                   "Debit Global Dimension 1 Code", "Debit Global Dimension 2 Code",
                                   "Business Unit Code", "Posting Date");
-                                SetFilter("Debit Account No.", Format(TermLineFieldRef.Value));
-                                TempGLEntryGlobalDimFilter.CopyFilter("Global Dimension 1 Code", "Debit Global Dimension 1 Code");
-                                TempGLEntryGlobalDimFilter.CopyFilter("Global Dimension 2 Code", "Debit Global Dimension 2 Code");
+                                GLCorrespondEntry.SetFilter("Debit Account No.", Format(TermLineFieldRef.Value));
+                                TempGLEntryGlobalDimFilter.CopyFilter("Global Dimension 1 Code", GLCorrespondEntry."Debit Global Dimension 1 Code");
+                                TempGLEntryGlobalDimFilter.CopyFilter("Global Dimension 2 Code", GLCorrespondEntry."Debit Global Dimension 2 Code");
                             end;
 
                             GenTermProfile.TestField("Bal. Account No. (Line)");
                             FieldRefValue(TermLineFieldRef, TermLineRecordRef, GenTermProfile."Bal. Account No. (Line)");
-                            SetFilter("Credit Account No.", Format(TermLineFieldRef.Value));
+                            GLCorrespondEntry.SetFilter("Credit Account No.", Format(TermLineFieldRef.Value));
 
                             FieldRefValue(TermFieldRef, TermNameRecordRef, GenTermProfile."Date Filter (Hdr)");
                             if TermFieldRef.Class = FieldClass::FlowFilter then
-                                SetFilter("Posting Date", TermFieldRef.GetFilter)
+                                GLCorrespondEntry.SetFilter("Posting Date", TermFieldRef.GetFilter)
                             else
-                                SetFilter("Posting Date", Format(TermFieldRef.Value));
+                                GLCorrespondEntry.SetFilter("Posting Date", Format(TermFieldRef.Value));
 
                             if NoGlobalDimFilterNeed then begin
                                 Operand := 0;
-                                if FindSet() then
+                                if GLCorrespondEntry.FindSet() then
                                     repeat
-                                        if ValidateGLEntryDimFilters("Debit Dimension Set ID", TempDimBuf) then
-                                            Operand += Amount;
-                                    until Next(1) = 0;
+                                        if ValidateGLEntryDimFilters(GLCorrespondEntry."Debit Dimension Set ID", TempDimBuf) then
+                                            Operand += GLCorrespondEntry.Amount;
+                                    until GLCorrespondEntry.Next(1) = 0;
                             end else begin
-                                CalcSums(Amount);
-                                Operand := Amount;
+                                GLCorrespondEntry.CalcSums(Amount);
+                                Operand := GLCorrespondEntry.Amount;
                             end;
                         end;
                     TermLineAccountType::"GL Acc":
-                        with GLEntry do begin
+                        begin
                             if TempGLEntryGlobalDimFilter.GetFilters = '' then begin
-                                SetCurrentKey("G/L Account No.", "Posting Date");
-                                SetFilter("G/L Account No.", Format(TermLineFieldRef.Value));
+                                GLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
+                                GLEntry.SetFilter("G/L Account No.", Format(TermLineFieldRef.Value));
                             end else begin
-                                SetCurrentKey(
+                                GLEntry.SetCurrentKey(
                                   "G/L Account No.", "Business Unit Code",
                                   "Global Dimension 1 Code", "Global Dimension 2 Code");
-                                SetFilter("G/L Account No.", Format(TermLineFieldRef.Value));
-                                TempGLEntryGlobalDimFilter.CopyFilter("Global Dimension 1 Code", "Global Dimension 1 Code");
-                                TempGLEntryGlobalDimFilter.CopyFilter("Global Dimension 2 Code", "Global Dimension 2 Code");
+                                GLEntry.SetFilter("G/L Account No.", Format(TermLineFieldRef.Value));
+                                TempGLEntryGlobalDimFilter.CopyFilter("Global Dimension 1 Code", GLEntry."Global Dimension 1 Code");
+                                TempGLEntryGlobalDimFilter.CopyFilter("Global Dimension 2 Code", GLEntry."Global Dimension 2 Code");
                             end;
 
                             FieldRefValue(TermFieldRef, TermNameRecordRef, GenTermProfile."Date Filter (Hdr)");
                             if TermFieldRef.Class = FieldClass::FlowFilter then
-                                SetFilter("Posting Date", TermFieldRef.GetFilter)
+                                GLEntry.SetFilter("Posting Date", TermFieldRef.GetFilter)
                             else
-                                SetFilter("Posting Date", Format(TermFieldRef.Value));
+                                GLEntry.SetFilter("Posting Date", Format(TermFieldRef.Value));
 
                             FieldRefValue(TermLineFieldRef, TermLineRecordRef, GenTermProfile."Amount Type (Line)");
-                            TermLineAmountType := TermLineFieldRef.Value;
+                            TermLineAmountType := TermLineFieldRef.Value();
                             if NoGlobalDimFilterNeed then begin
                                 case TermLineAmountType of
                                     TermLineAmountType::"Net Change":
-                                        SetFilter(Amount, '<>0');
+                                        GLEntry.SetFilter(Amount, '<>0');
                                     TermLineAmountType::Debit:
-                                        SetFilter("Debit Amount", '<>0');
+                                        GLEntry.SetFilter("Debit Amount", '<>0');
                                     TermLineAmountType::Credit:
-                                        SetFilter("Credit Amount", '<>0');
+                                        GLEntry.SetFilter("Credit Amount", '<>0');
                                     else
                                         Error(ErrorType, SectionCode, TermCode, TermLineFieldRef.Value);
                                 end;
                                 Operand := 0;
-                                if FindSet() then
+                                if GLEntry.FindSet() then
                                     repeat
-                                        if ValidateGLEntryDimFilters("Dimension Set ID", TempDimBuf) then
+                                        if ValidateGLEntryDimFilters(GLEntry."Dimension Set ID", TempDimBuf) then
                                             case TermLineAmountType of
                                                 TermLineAmountType::"Net Change":
-                                                    Operand += Amount;
+                                                    Operand += GLEntry.Amount;
                                                 TermLineAmountType::Debit:
-                                                    Operand += "Debit Amount";
+                                                    Operand += GLEntry."Debit Amount";
                                                 TermLineAmountType::Credit:
-                                                    Operand += "Credit Amount";
+                                                    Operand += GLEntry."Credit Amount";
                                             end;
-                                    until Next(1) = 0;
+                                    until GLEntry.Next(1) = 0;
                             end else
                                 case TermLineAmountType of
                                     TermLineAmountType::"Net Change":
                                         begin
-                                            CalcSums(Amount);
-                                            Operand := Amount;
+                                            GLEntry.CalcSums(Amount);
+                                            Operand := GLEntry.Amount;
                                         end;
                                     TermLineAmountType::Debit:
                                         begin
-                                            CalcSums("Debit Amount");
-                                            Operand := "Debit Amount";
+                                            GLEntry.CalcSums("Debit Amount");
+                                            Operand := GLEntry."Debit Amount";
                                         end;
                                     TermLineAmountType::Credit:
                                         begin
-                                            CalcSums("Credit Amount");
-                                            Operand := "Credit Amount";
+                                            GLEntry.CalcSums("Credit Amount");
+                                            Operand := GLEntry."Credit Amount";
                                         end;
                                     else
                                         Error(ErrorType, SectionCode, TermCode, TermLineFieldRef.Value);
@@ -266,7 +266,7 @@ codeunit 17200 "Tax Register Term Mgt."
                 if TermLineAccountType <> TermLineAccountType::Termin then
                     if GenTermProfile."Process Sign (Line)" <> 0 then begin
                         FieldRefValue(TermLineFieldRef, TermLineRecordRef, GenTermProfile."Process Sign (Line)");
-                        ValidateSign := TermLineFieldRef.Value;
+                        ValidateSign := TermLineFieldRef.Value();
                         case ValidateSign of
                             ValidateSign::"Skip Negative":
                                 if Operand < 0 then
@@ -284,43 +284,43 @@ codeunit 17200 "Tax Register Term Mgt."
                 if CreateCalcBuf then begin
                     if GenTermProfile."Expression Type (Hdr)" <> 0 then begin
                         FieldRefValue(TermFieldRef, TermNameRecordRef, GenTermProfile."Expression Type (Hdr)");
-                        TempTaxRegCalcBuf."Term Type" := TermFieldRef.Value;
+                        TempTaxRegCalcBuf."Term Type" := TermFieldRef.Value();
                     end;
                     if GenTermProfile."Operation (Line)" <> 0 then begin
                         FieldRefValue(TermLineFieldRef, TermLineRecordRef, GenTermProfile."Operation (Line)");
-                        TempTaxRegCalcBuf.Operation := TermLineFieldRef.Value;
+                        TempTaxRegCalcBuf.Operation := TermLineFieldRef.Value();
                     end;
                     if GenTermProfile."Account Type (Line)" <> 0 then begin
                         FieldRefValue(TermLineFieldRef, TermLineRecordRef, GenTermProfile."Account Type (Line)");
-                        TempTaxRegCalcBuf."Account Type" := TermLineFieldRef.Value;
+                        TempTaxRegCalcBuf."Account Type" := TermLineFieldRef.Value();
                     end;
                     if GenTermProfile."Account No. (Line)" <> 0 then begin
                         FieldRefValue(TermLineFieldRef, TermLineRecordRef, GenTermProfile."Account No. (Line)");
-                        TempTaxRegCalcBuf."Account No." := TermLineFieldRef.Value;
+                        TempTaxRegCalcBuf."Account No." := TermLineFieldRef.Value();
                     end;
                     if GenTermProfile."Amount Type (Line)" <> 0 then begin
                         FieldRefValue(TermLineFieldRef, TermLineRecordRef, GenTermProfile."Amount Type (Line)");
-                        TempTaxRegCalcBuf."Amount Type" := TermLineFieldRef.Value;
+                        TempTaxRegCalcBuf."Amount Type" := TermLineFieldRef.Value();
                     end;
                     if GenTermProfile."Bal. Account No. (Line)" <> 0 then begin
                         FieldRefValue(TermLineFieldRef, TermLineRecordRef, GenTermProfile."Bal. Account No. (Line)");
-                        TempTaxRegCalcBuf."Bal. Account No." := TermLineFieldRef.Value;
+                        TempTaxRegCalcBuf."Bal. Account No." := TermLineFieldRef.Value();
                     end;
                     if GenTermProfile."Process Sign (Line)" <> 0 then begin
                         FieldRefValue(TermLineFieldRef, TermLineRecordRef, GenTermProfile."Process Sign (Line)");
-                        TempTaxRegCalcBuf."Process Sign" := TermLineFieldRef.Value;
+                        TempTaxRegCalcBuf."Process Sign" := TermLineFieldRef.Value();
                     end;
                     if GenTermProfile."Line No. (Line)" <> 0 then begin
                         FieldRefValue(TermLineFieldRef, TermLineRecordRef, GenTermProfile."Line No. (Line)");
-                        TempTaxRegCalcBuf."Term Line No." := TermLineFieldRef.Value;
+                        TempTaxRegCalcBuf."Term Line No." := TermLineFieldRef.Value();
                     end;
                     if GenTermProfile."Description (Hdr)" <> 0 then begin
                         FieldRefValue(TermFieldRef, TermNameRecordRef, GenTermProfile."Description (Hdr)");
-                        TempTaxRegCalcBuf.Description := TermFieldRef.Value;
+                        TempTaxRegCalcBuf.Description := TermFieldRef.Value();
                     end;
                     if GenTermProfile."Term Code (Hdr)" <> 0 then begin
                         FieldRefValue(TermFieldRef, TermNameRecordRef, GenTermProfile."Term Code (Hdr)");
-                        TempTaxRegCalcBuf.Expression := TermFieldRef.Value;
+                        TempTaxRegCalcBuf.Expression := TermFieldRef.Value();
                     end;
                     TempTaxRegCalcBuf."Line Code" := '';
                     TempTaxRegCalcBuf."Section Code" := GlobalSectionCode;
@@ -335,7 +335,7 @@ codeunit 17200 "Tax Register Term Mgt."
 
                 GenTermProfile.TestField("Operation (Line)");
                 FieldRefValue(TermLineFieldRef, TermLineRecordRef, GenTermProfile."Operation (Line)");
-                LineOperation := TermLineFieldRef.Value;
+                LineOperation := TermLineFieldRef.Value();
                 case LineOperation of
                     LineOperation::"+":
                         Output := Output + Operand;
@@ -349,7 +349,7 @@ codeunit 17200 "Tax Register Term Mgt."
                         else
                             if GenTermProfile."Process Division by Zero(Line)" <> 0 then begin
                                 FieldRefValue(TermLineFieldRef, TermLineRecordRef, GenTermProfile."Process Division by Zero(Line)");
-                                ResultOfZeroDivided := TermLineFieldRef.Value;
+                                ResultOfZeroDivided := TermLineFieldRef.Value();
                                 case ResultOfZeroDivided of
                                     ResultOfZeroDivided::Zero:
                                         Output := 0;
@@ -402,7 +402,7 @@ codeunit 17200 "Tax Register Term Mgt."
 
         if GenTermProfile."Process Sign (Hdr)" <> 0 then begin
             FieldRefValue(TermFieldRef, TermNameRecordRef, GenTermProfile."Process Sign (Hdr)");
-            ValidateSign := TermFieldRef.Value;
+            ValidateSign := TermFieldRef.Value();
             case ValidateSign of
                 ValidateSign::"Skip Negative":
                     if Output < 0 then
@@ -419,7 +419,7 @@ codeunit 17200 "Tax Register Term Mgt."
 
         if GenTermProfile."Rounding Precision (Hdr)" <> 0 then begin
             FieldRefValue(TermFieldRef, TermNameRecordRef, GenTermProfile."Rounding Precision (Hdr)");
-            RoundingPrecision := TermFieldRef.Value;
+            RoundingPrecision := TermFieldRef.Value();
             if RoundingPrecision <> 0 then
                 Output := Round(Output, RoundingPrecision);
         end;
@@ -443,18 +443,18 @@ codeunit 17200 "Tax Register Term Mgt."
     begin
         GenTemplateProfile.TestField(Code);
         FieldRefValue(TemplateFieldRef, TemplateRecordRef, GenTemplateProfile.Code);
-        TemplateCode := TemplateFieldRef.Value;
+        TemplateCode := TemplateFieldRef.Value();
         GenTemplateProfile.TestField("Line No.");
         FieldRefValue(TemplateFieldRef, TemplateRecordRef, GenTemplateProfile."Line No.");
-        TemplateLine := TemplateFieldRef.Value;
+        TemplateLine := TemplateFieldRef.Value();
         if not TaxRegValueBuffer.Get(TemplateCode, TemplateLine) then begin
             TaxRegValueBuffer.Quantity := 0;
             GenTemplateProfile.TestField("Expression Type");
             FieldRefValue(TemplateFieldRef, TemplateRecordRef, GenTemplateProfile."Expression Type");
-            ExpressionType := TemplateFieldRef.Value;
+            ExpressionType := TemplateFieldRef.Value();
             GenTemplateProfile.TestField(Expression);
             FieldRefValue(TemplateFieldRef, TemplateRecordRef, GenTemplateProfile.Expression);
-            Expression := TemplateFieldRef.Value;
+            Expression := TemplateFieldRef.Value();
             if Expression <> '' then begin
                 case ExpressionType of
                     ExpressionType::Norm:
@@ -520,7 +520,7 @@ codeunit 17200 "Tax Register Term Mgt."
                             LinkTableFieldRef.SetRange(Expression);
                             if LinkTableRecordRef.FindFirst() then begin
                                 FieldRefValue(LinkTableFieldRef, LinkTableRecordRef, GenTemplateProfile."Value (Link)");
-                                TaxRegValueBuffer.Quantity := LinkTableFieldRef.Value;
+                                TaxRegValueBuffer.Quantity := LinkTableFieldRef.Value();
                             end;
                         end;
                     ExpressionType::Total:
@@ -528,7 +528,7 @@ codeunit 17200 "Tax Register Term Mgt."
                 end;
                 if GenTemplateProfile."Rounding Precision" <> 0 then begin
                     FieldRefValue(TemplateFieldRef, TemplateRecordRef, GenTemplateProfile."Rounding Precision");
-                    RoundingPrecision := TemplateFieldRef.Value;
+                    RoundingPrecision := TemplateFieldRef.Value();
                     if RoundingPrecision <> 0 then
                         TaxRegValueBuffer.Quantity := Round(TaxRegValueBuffer.Quantity, RoundingPrecision);
                 end;
@@ -551,11 +551,11 @@ codeunit 17200 "Tax Register Term Mgt."
                 TempTaxRegCalcBuf."Date Filter" := CopyStr(GlobalDateFilter, 1, MaxStrLen(TempTaxRegCalcBuf."Date Filter"));
                 if GenTemplateProfile.Description <> 0 then begin
                     FieldRefValue(TemplateFieldRef, TemplateRecordRef, GenTemplateProfile.Description);
-                    TempTaxRegCalcBuf.Description := TemplateFieldRef.Value;
+                    TempTaxRegCalcBuf.Description := TemplateFieldRef.Value();
                 end;
                 if GenTemplateProfile."Line Code (Line)" <> 0 then begin
                     FieldRefValue(TemplateFieldRef, TemplateRecordRef, GenTemplateProfile."Line Code (Line)");
-                    TempTaxRegCalcBuf."Line Code" := TemplateFieldRef.Value;
+                    TempTaxRegCalcBuf."Line Code" := TemplateFieldRef.Value();
                 end;
                 TempTaxRegCalcBuf."Section Code" := GlobalSectionCode;
                 TempTaxRegCalcBuf."Expression Type" := ExpressionType;
@@ -805,7 +805,7 @@ codeunit 17200 "Tax Register Term Mgt."
                     if TermLineRecordRef.FindSet() then
                         repeat
                             TermLineFieldRef := TermLineRecordRef.Field(GenTermProfile."Account Type (Line)");
-                            AccountType := TermLineFieldRef.Value;
+                            AccountType := TermLineFieldRef.Value();
                             if AccountType = AccountType::Termin then begin
                                 TermNameFieldRef1 := TermNameRecordRef1.Field(GenTermProfile."Section Code (Hdr)");
                                 TermNameFieldRef1.SetRange(SectionCode);
@@ -819,7 +819,7 @@ codeunit 17200 "Tax Register Term Mgt."
                             end;
                             if not FoundTerm then begin
                                 TermLineFieldRef := TermLineRecordRef.Field(GenTermProfile."Operation (Line)");
-                                LineOperation := TermLineFieldRef.Value;
+                                LineOperation := TermLineFieldRef.Value();
                                 if LineOperation in [LineOperation::Negative .. LineOperation::Positive] then begin
                                     TermNameFieldRef1 := TermNameRecordRef1.Field(GenTermProfile."Section Code (Hdr)");
                                     TermNameFieldRef1.SetRange(SectionCode);
@@ -981,11 +981,11 @@ codeunit 17200 "Tax Register Term Mgt."
         GenTermProfile.Get(GenTemplateProfile."Term Header Table No.");
 
         FieldRefValue(TemplateFieldRef, TemplateRecordRef, GenTemplateProfile."Section Code");
-        GlobalSectionCode := TemplateFieldRef.Value;
+        GlobalSectionCode := TemplateFieldRef.Value();
         FieldRefValue(TemplateFieldRef, TemplateRecordRef, GenTemplateProfile.Code);
-        GlobalTemplateCode := TemplateFieldRef.Value;
+        GlobalTemplateCode := TemplateFieldRef.Value();
         FieldRefValue(TemplateFieldRef, TemplateRecordRef, GenTemplateProfile."Line No.");
-        GlobalTemplateLineNo := TemplateFieldRef.Value;
+        GlobalTemplateLineNo := TemplateFieldRef.Value();
         FieldRefValue(TemplateFieldRef, TemplateRecordRef, GenTemplateProfile."Date Filter");
         GlobalDateFilter := TemplateFieldRef.GetFilter;
 
@@ -1010,7 +1010,7 @@ codeunit 17200 "Tax Register Term Mgt."
         if TemplateRecordRef1.FindSet() then
             repeat
                 FieldRefValue(TemplateFieldRef, TemplateRecordRef1, GenTemplateProfile.Period);
-                TemplatePeriod := TemplateFieldRef.Value;
+                TemplatePeriod := TemplateFieldRef.Value();
                 GlobalDateFilter :=
                   CalcIntervalDate(MinRangeDateFilter, MaxRangeDateFilter, TemplatePeriod);
 
@@ -1037,11 +1037,11 @@ codeunit 17200 "Tax Register Term Mgt."
         GenTermProfile.Get(GenTemplateProfile."Term Header Table No.");
 
         FieldRefValue(TemplateFieldRef, TemplateRecordRef, GenTemplateProfile."Section Code");
-        GlobalSectionCode := TemplateFieldRef.Value;
+        GlobalSectionCode := TemplateFieldRef.Value();
         FieldRefValue(TemplateFieldRef, TemplateRecordRef, GenTemplateProfile.Code);
-        GlobalTemplateCode := TemplateFieldRef.Value;
+        GlobalTemplateCode := TemplateFieldRef.Value();
         FieldRefValue(TemplateFieldRef, TemplateRecordRef, GenTemplateProfile."Line No.");
-        GlobalTemplateLineNo := TemplateFieldRef.Value;
+        GlobalTemplateLineNo := TemplateFieldRef.Value();
         FieldRefValue(TemplateFieldRef, TemplateRecordRef, GenTemplateProfile."Date Filter");
         GlobalDateFilter := TemplateFieldRef.GetFilter;
 
@@ -1071,7 +1071,7 @@ codeunit 17200 "Tax Register Term Mgt."
         if TemplateRecordRef1.FindSet() then
             repeat
                 FieldRefValue(TemplateFieldRef, TemplateRecordRef1, GenTemplateProfile.Period);
-                TemplatePeriod := TemplateFieldRef.Value;
+                TemplatePeriod := TemplateFieldRef.Value();
                 GlobalDateFilter :=
                   CalcIntervalDate(MinRangeDateFilter, MaxRangeDateFilter, TemplatePeriod);
 
@@ -1106,13 +1106,13 @@ codeunit 17200 "Tax Register Term Mgt."
         GenTermProfile.Get(GenTemplateProfile."Term Header Table No.");
 
         FieldRefValue(TemplateFieldRef, TemplateRecordRef, GenTemplateProfile."Section Code");
-        GlobalSectionCode := TemplateFieldRef.Value;
+        GlobalSectionCode := TemplateFieldRef.Value();
         FieldRefValue(TemplateFieldRef, TemplateRecordRef, GenTemplateProfile.Code);
-        GlobalTemplateCode := TemplateFieldRef.Value;
+        GlobalTemplateCode := TemplateFieldRef.Value();
         FieldRefValue(TemplateFieldRef, TemplateRecordRef, GenTemplateProfile."Line No.");
-        GlobalTemplateLineNo := TemplateFieldRef.Value;
+        GlobalTemplateLineNo := TemplateFieldRef.Value();
         FieldRefValue(TemplateFieldRef, TemplateRecordRef, GenTemplateProfile.Period);
-        TemplatePeriod := TemplateFieldRef.Value;
+        TemplatePeriod := TemplateFieldRef.Value();
         FieldRefValue(TemplateFieldRef, TemplateRecordRef, GenTemplateProfile."Date Filter");
         Evaluate(MinRangeDateFilter, Format(TemplateFieldRef.GetRangeMin));
         Evaluate(MaxRangeDateFilter, Format(TemplateFieldRef.GetRangeMax));
@@ -1139,9 +1139,9 @@ codeunit 17200 "Tax Register Term Mgt."
 
         TempTaxRegCalcBuf.Amount := 0;
         FieldRefValue(TemplateFieldRef, TemplateRecordRef, GenTemplateProfile."Expression Type");
-        ExpressionType := TemplateFieldRef.Value;
+        ExpressionType := TemplateFieldRef.Value();
         FieldRefValue(TemplateFieldRef, TemplateRecordRef, GenTemplateProfile.Expression);
-        Expression := TemplateFieldRef.Value;
+        Expression := TemplateFieldRef.Value();
         if Expression <> '' then
             case ExpressionType of
                 ExpressionType::Norm:
@@ -1199,9 +1199,9 @@ codeunit 17200 "Tax Register Term Mgt."
         TempTaxRegCalcBuf."Tax Register No." := GlobalTemplateCode;
         TempTaxRegCalcBuf."Date Filter" := CopyStr(GlobalDateFilter, 1, MaxStrLen(TempTaxRegCalcBuf."Date Filter"));
         FieldRefValue(TemplateFieldRef, TemplateRecordRef, GenTemplateProfile.Description);
-        TempTaxRegCalcBuf.Description := TemplateFieldRef.Value;
+        TempTaxRegCalcBuf.Description := TemplateFieldRef.Value();
         FieldRefValue(TemplateFieldRef, TemplateRecordRef, GenTemplateProfile."Line Code (Line)");
-        TempTaxRegCalcBuf."Line Code" := TemplateFieldRef.Value;
+        TempTaxRegCalcBuf."Line Code" := TemplateFieldRef.Value();
         TempTaxRegCalcBuf."Section Code" := GlobalSectionCode;
         TempTaxRegCalcBuf."Expression Type" := ExpressionType;
         TempTaxRegCalcBuf.Expression := Expression;
@@ -1549,14 +1549,14 @@ codeunit 17200 "Tax Register Term Mgt."
             GLSetup.Get();
             repeat
                 FieldRefValue(DimFilterFieldRef, DimFilterRecordRef, GenTemplateProfile."Dimension Code (Dim)");
-                DimensionCode := DimFilterFieldRef.Value;
+                DimensionCode := DimFilterFieldRef.Value();
                 if DimensionCode in [GLSetup."Global Dimension 1 Code", GLSetup."Global Dimension 2 Code"] then
                     TempDimBuf."Entry No." := 0
                 else
                     TempDimBuf."Entry No." := 1;
                 TempDimBuf."Dimension Code" := DimensionCode;
                 FieldRefValue(DimFilterFieldRef, DimFilterRecordRef, GenTemplateProfile."Dimension Value Filter (Dim)");
-                TempDimBuf."Dimension Value Code" := DimFilterFieldRef.Value;
+                TempDimBuf."Dimension Value Code" := DimFilterFieldRef.Value();
                 TempDimBuf.Insert();
             until DimFilterRecordRef.Next(1) = 0;
         end;

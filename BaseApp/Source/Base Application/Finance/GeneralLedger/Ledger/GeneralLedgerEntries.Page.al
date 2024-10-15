@@ -11,6 +11,9 @@ using Microsoft.Foundation.Navigate;
 using Microsoft.Inventory.Item;
 using System.Diagnostics;
 using System.Security.User;
+#if not CLEAN24
+using System.Environment.Configuration;
+#endif
 
 page 20 "General Ledger Entries"
 {
@@ -75,7 +78,7 @@ page 20 "General Ledger Entries"
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
                 field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
@@ -151,6 +154,24 @@ page 20 "General Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies the Amount of the entry.';
                     Visible = AmountVisible;
+                }
+                field("Source Currency Code"; Rec."Source Currency Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the source currency code for general ledger entries.';
+#if not CLEAN24
+                    Visible = SourceCurrencyVisible;
+#endif
+                }
+                field("Source Currency Amount"; Rec."Source Currency Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the source currency amount for general ledger entries.';
+#if not CLEAN24
+                    Visible = SourceCurrencyVisible;
+#endif
                 }
                 field("Debit Amount"; Rec."Debit Amount")
                 {
@@ -243,6 +264,20 @@ page 20 "General Ledger Entries"
                     ToolTip = 'Specifies the source code that specifies where the entry was created.';
                     Visible = false;
                 }
+                field("Source Type"; Rec."Source Type")
+                {
+                    ApplicationArea = Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the source type that applies to the source number that is shown in the Source No. field.';
+                    Visible = false;
+                }
+                field("Source No."; Rec."Source No.")
+                {
+                    ApplicationArea = Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the number of the source document that the entry originates from.';
+                    Visible = false;
+                }
                 field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Suite;
@@ -284,18 +319,6 @@ page 20 "General Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies the number of the fixed asset entry.';
                     Visible = false;
-                }
-                field("Source Type"; Rec."Source Type")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the source type that applies to the source number that is shown in the Source No. field.';
-                }
-                field("Source No."; Rec."Source No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the number of the source document that the entry originates from.';
                 }
                 field("Entry No."; Rec."Entry No.")
                 {
@@ -540,7 +563,7 @@ page 20 "General Ledger Entries"
                         if Rec.Reversed then
                             ReversalEntry.AlreadyReversedEntry(Rec.TableCaption, Rec."Entry No.");
                         CheckEntryPostedFromJournal();
-                        Rec.TestField(Rec."Transaction No.");
+                        Rec.TestField("Transaction No.");
                         ReversalEntry.ReverseTransaction(Rec."Transaction No.")
                     end;
                 }
@@ -568,7 +591,7 @@ page 20 "General Ledger Entries"
                         AccessByPermission = TableData "Incoming Document" = R;
                         ApplicationArea = Basic, Suite;
                         Caption = 'Select Incoming Document';
-                        Enabled = NOT HasIncomingDocument;
+                        Enabled = not HasIncomingDocument;
                         Image = SelectLineToApply;
                         ToolTip = 'Select an incoming document record and file attachment that you want to link to the entry or document.';
 
@@ -584,7 +607,7 @@ page 20 "General Ledger Entries"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Create Incoming Document from File';
                         Ellipsis = true;
-                        Enabled = NOT HasIncomingDocument;
+                        Enabled = not HasIncomingDocument;
                         Image = Attach;
                         ToolTip = 'Create an incoming document record by selecting a file to attach, and then link the incoming document record to the entry or document.';
 
@@ -672,15 +695,6 @@ page 20 "General Ledger Entries"
                     actionref(GLDimensionOverview_Promoted; GLDimensionOverview)
                     {
                     }
-#if not CLEAN21
-                    actionref(DimensionChangeHistory_Promoted; DimensionChangeHistory)
-                    {
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                        ObsoleteTag = '21.0';
-                    }
-#endif
                     actionref(SetDimensionFilter_Promoted; SetDimensionFilter)
                     {
                     }
@@ -739,6 +753,9 @@ page 20 "General Ledger Entries"
         AmountVisible: Boolean;
         DebitCreditVisible: Boolean;
         IsVATDateEnabled: Boolean;
+#if not CLEAN24
+        SourceCurrencyVisible: Boolean;
+#endif
 
     protected var
         Dim1Visible: Boolean;
@@ -772,16 +789,22 @@ page 20 "General Ledger Entries"
             if not GLAcc.Get(Rec."G/L Account No.") then
                 if Rec.GetFilter("G/L Account No.") <> '' then
                     if GLAcc.Get(Rec.GetRangeMin("G/L Account No.")) then;
-        exit(StrSubstNo('%1 %2', GLAcc."No.", GLAcc.Name))
+        exit(StrSubstNo('%1 %2', GLAcc."No.", GLAcc.Name));
     end;
 
     local procedure SetControlVisibility()
     var
         GLSetup: Record "General Ledger Setup";
+#if not CLEAN24
+        FeatureKeyManagement: Codeunit "Feature Key Management";
+#endif
     begin
         GLSetup.Get();
         AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
+#if not CLEAN24
+        SourceCurrencyVisible := FeatureKeyManagement.IsGLCurrencyRevaluationEnabled();
+#endif
     end;
 
     local procedure CheckEntryPostedFromJournal()

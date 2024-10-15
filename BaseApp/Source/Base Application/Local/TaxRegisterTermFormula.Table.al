@@ -2,6 +2,7 @@ table 17205 "Tax Register Term Formula"
 {
     Caption = 'Tax Register Term Formula';
     LookupPageID = "Tax Register Term Lines";
+    DataClassification = CustomerContent;
 
     fields
     {

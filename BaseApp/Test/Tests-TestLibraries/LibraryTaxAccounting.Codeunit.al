@@ -41,7 +41,7 @@ codeunit 143015 "Library - Tax Accounting"
             Validate("Journal Template Name", TaxDiffJnlTemplateName);
             Validate(Name, GenerateRandomCode(DATABASE::"Tax Diff. Journal Batch", FieldNo(Name)));
             Validate(Description, Name);
-            Validate("No. Series", LibraryERM.CreateNoSeriesCode);
+            Validate("No. Series", LibraryERM.CreateNoSeriesCode());
             Insert(true);
         end;
     end;
@@ -95,20 +95,20 @@ codeunit 143015 "Library - Tax Accounting"
         with TaxDiffPostingGroup do begin
             Init();
             Validate(Code, GenerateRandomCode(DATABASE::"Tax Diff. Posting Group", FieldNo(Code)));
-            Validate("CTA Tax Account", LibraryERM.CreateGLAccountNo);
-            Validate("CTL Tax Account", LibraryERM.CreateGLAccountNo);
-            Validate("DTA Tax Account", LibraryERM.CreateGLAccountNo);
-            Validate("DTL Tax Account", LibraryERM.CreateGLAccountNo);
-            Validate("CTA Account", LibraryERM.CreateGLAccountNo);
-            Validate("CTL Account", LibraryERM.CreateGLAccountNo);
-            Validate("DTA Account", LibraryERM.CreateGLAccountNo);
-            Validate("DTL Account", LibraryERM.CreateGLAccountNo);
-            Validate("DTA Disposal Account", LibraryERM.CreateGLAccountNo);
-            Validate("DTL Disposal Account", LibraryERM.CreateGLAccountNo);
-            Validate("DTA Transfer Bal. Account", LibraryERM.CreateGLAccountNo);
-            Validate("DTL Transfer Bal. Account", LibraryERM.CreateGLAccountNo);
-            Validate("CTA Transfer Tax Account", LibraryERM.CreateGLAccountNo);
-            Validate("CTL Transfer Tax Account", LibraryERM.CreateGLAccountNo);
+            Validate("CTA Tax Account", LibraryERM.CreateGLAccountNo());
+            Validate("CTL Tax Account", LibraryERM.CreateGLAccountNo());
+            Validate("DTA Tax Account", LibraryERM.CreateGLAccountNo());
+            Validate("DTL Tax Account", LibraryERM.CreateGLAccountNo());
+            Validate("CTA Account", LibraryERM.CreateGLAccountNo());
+            Validate("CTL Account", LibraryERM.CreateGLAccountNo());
+            Validate("DTA Account", LibraryERM.CreateGLAccountNo());
+            Validate("DTL Account", LibraryERM.CreateGLAccountNo());
+            Validate("DTA Disposal Account", LibraryERM.CreateGLAccountNo());
+            Validate("DTL Disposal Account", LibraryERM.CreateGLAccountNo());
+            Validate("DTA Transfer Bal. Account", LibraryERM.CreateGLAccountNo());
+            Validate("DTL Transfer Bal. Account", LibraryERM.CreateGLAccountNo());
+            Validate("CTA Transfer Tax Account", LibraryERM.CreateGLAccountNo());
+            Validate("CTL Transfer Tax Account", LibraryERM.CreateGLAccountNo());
             Insert(true);
         end;
     end;
@@ -132,7 +132,7 @@ codeunit 143015 "Library - Tax Accounting"
     begin
         CreateAccDeprBook(DepreciationBook);
         FASetup.Get();
-        FASetup.Validate("Fixed Asset Nos.", LibraryERM.CreateNoSeriesCode);
+        FASetup.Validate("Fixed Asset Nos.", LibraryERM.CreateNoSeriesCode());
         FASetup.Validate("Release Depr. Book", DepreciationBook.Code);
         FASetup.Modify(true);
 

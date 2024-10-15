@@ -82,8 +82,8 @@ codeunit 144717 "ERM FA-4 Report Test"
     begin
         Initialize();
         for i := 1 to ArrayLen(FANo) do
-            FANo[i] := MockFixedAsset;
-        ReceiptNo := MockInvtDocumentLines;
+            FANo[i] := MockFixedAsset();
+        ReceiptNo := MockInvtDocumentLines();
         MockFADocument(FADocHeader, FANo, ReceiptNo, MultipleLine);
         RunReport(FADocHeader, ReportID);
         VerifyResults(FADocHeader, ReportID);
@@ -98,8 +98,8 @@ codeunit 144717 "ERM FA-4 Report Test"
     begin
         Initialize();
         for i := 1 to ArrayLen(FANo) do
-            FANo[i] := MockFixedAsset;
-        ReceiptNo := MockInvtRcptLines;
+            FANo[i] := MockFixedAsset();
+        ReceiptNo := MockInvtRcptLines();
         MockPostedFADocument(PostedFADocHeader, FANo, ReceiptNo, MultipleLine);
         RunPostedReport(PostedFADocHeader, ReportID);
         VerifyPostedResults(PostedFADocHeader, ReportID);
@@ -112,7 +112,7 @@ codeunit 144717 "ERM FA-4 Report Test"
         if isInitialized then
             exit;
 
-        RemoveMandatorySignSetup;
+        RemoveMandatorySignSetup();
 
         isInitialized := true;
     end;
@@ -130,9 +130,9 @@ codeunit 144717 "ERM FA-4 Report Test"
             Description := LibraryUtility.GenerateGUID();
             "Description 2" := LibraryUtility.GenerateGUID();
             "Initial Release Date" := WorkDate();
-            "FA Location Code" := LibraryRUReports.MockFALocation;
-            "Depreciation Code" := LibraryRUReports.MockDepreciationCode;
-            "Depreciation Group" := LibraryRUReports.MockDepreciationGroup;
+            "FA Location Code" := LibraryRUReports.MockFALocation();
+            "Depreciation Code" := LibraryRUReports.MockDepreciationCode();
+            "Depreciation Group" := LibraryRUReports.MockDepreciationGroup();
             "Inventory Number" := LibraryUtility.GenerateGUID();
             "Factory No." := LibraryUtility.GenerateGUID();
             "Manufacturing Year" := Format(Date2DMY(WorkDate(), 3));
@@ -141,7 +141,7 @@ codeunit 144717 "ERM FA-4 Report Test"
             "Vehicle Engine No." := LibraryUtility.GenerateGUID();
             "Vehicle Chassis No." := LibraryUtility.GenerateGUID();
             "Is Vehicle" := true;
-            "Vehicle Writeoff Date" := GetRandomDate;
+            "Vehicle Writeoff Date" := GetRandomDate();
             "Run after Release Date" := LibraryRandom.RandInt(100);
             "Run after Renovation Date" := LibraryRandom.RandInt(100);
             Modify();
@@ -164,12 +164,10 @@ codeunit 144717 "ERM FA-4 Report Test"
     var
         Item: Record Item;
     begin
-        with Item do begin
-            Init();
-            "No." := LibraryUtility.GenerateGUID();
-            Insert();
-            exit("No.");
-        end;
+        Item.Init();
+        Item."No." := LibraryUtility.GenerateGUID();
+        Item.Insert();
+        exit(Item."No.");
     end;
 
     local procedure MockFADocument(var FADocHeader: Record "FA Document Header"; FANo: array[2] of Code[20]; ReceiptNo: Code[20]; MultipleLine: Boolean)
@@ -188,14 +186,12 @@ codeunit 144717 "ERM FA-4 Report Test"
 
     local procedure MockFAHeader(var FADocHeader: Record "FA Document Header")
     begin
-        with FADocHeader do begin
-            Init();
-            "Document Type" := "Document Type"::Writeoff;
-            "No." := LibraryUtility.GenerateGUID();
-            Insert();
-            "Posting Date" := WorkDate();
-            Modify();
-        end;
+        FADocHeader.Init();
+        FADocHeader."Document Type" := FADocHeader."Document Type"::Writeoff;
+        FADocHeader."No." := LibraryUtility.GenerateGUID();
+        FADocHeader.Insert();
+        FADocHeader."Posting Date" := WorkDate();
+        FADocHeader.Modify();
     end;
 
     local procedure MockFALine(FADocHeader: Record "FA Document Header"; FANo: Code[20]; ReceiptNo: Code[20])
@@ -203,19 +199,17 @@ codeunit 144717 "ERM FA-4 Report Test"
         FADocLine: Record "FA Document Line";
         RecRef: RecordRef;
     begin
-        with FADocLine do begin
-            Init();
-            "Document Type" := FADocHeader."Document Type";
-            "Document No." := FADocHeader."No.";
-            RecRef.GetTable(FADocLine);
-            "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
-            Insert();
-            "FA No." := FANo;
-            "Depreciation Book Code" := LibraryRUReports.GetFirstFADeprBook("FA No.");
-            "FA Posting Group" := LibraryRUReports.MockFAPostingGroup;
-            "Item Receipt No." := ReceiptNo;
-            Modify();
-        end;
+        FADocLine.Init();
+        FADocLine."Document Type" := FADocHeader."Document Type";
+        FADocLine."Document No." := FADocHeader."No.";
+        RecRef.GetTable(FADocLine);
+        FADocLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, FADocLine.FieldNo("Line No."));
+        FADocLine.Insert();
+        FADocLine."FA No." := FANo;
+        FADocLine."Depreciation Book Code" := LibraryRUReports.GetFirstFADeprBook(FADocLine."FA No.");
+        FADocLine."FA Posting Group" := LibraryRUReports.MockFAPostingGroup();
+        FADocLine."Item Receipt No." := ReceiptNo;
+        FADocLine.Modify();
     end;
 
     local procedure MockPostedFADocument(var PostedFADocHeader: Record "Posted FA Doc. Header"; FANo: array[2] of Code[20]; ReceiptNo: Code[20]; MultipleLine: Boolean)
@@ -234,14 +228,12 @@ codeunit 144717 "ERM FA-4 Report Test"
 
     local procedure MockPostedFAHeader(var PostedFADocHeader: Record "Posted FA Doc. Header")
     begin
-        with PostedFADocHeader do begin
-            Init();
-            "Document Type" := "Document Type"::Writeoff;
-            "No." := LibraryUtility.GenerateGUID();
-            Insert();
-            "Posting Date" := WorkDate();
-            Modify();
-        end;
+        PostedFADocHeader.Init();
+        PostedFADocHeader."Document Type" := PostedFADocHeader."Document Type"::Writeoff;
+        PostedFADocHeader."No." := LibraryUtility.GenerateGUID();
+        PostedFADocHeader.Insert();
+        PostedFADocHeader."Posting Date" := WorkDate();
+        PostedFADocHeader.Modify();
     end;
 
     local procedure MockPostedFALine(PostedFADocHeader: Record "Posted FA Doc. Header"; FANo: Code[20]; ReceiptNo: Code[20])
@@ -249,19 +241,17 @@ codeunit 144717 "ERM FA-4 Report Test"
         PostedFADocLine: Record "Posted FA Doc. Line";
         RecRef: RecordRef;
     begin
-        with PostedFADocLine do begin
-            Init();
-            "Document Type" := PostedFADocHeader."Document Type";
-            "Document No." := PostedFADocHeader."No.";
-            RecRef.GetTable(PostedFADocLine);
-            "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
-            Insert();
-            "FA No." := FANo;
-            "Depreciation Book Code" := LibraryRUReports.GetFirstFADeprBook("FA No.");
-            "FA Posting Group" := LibraryRUReports.MockFAPostingGroup;
-            "Item Receipt No." := ReceiptNo;
-            Modify();
-        end;
+        PostedFADocLine.Init();
+        PostedFADocLine."Document Type" := PostedFADocHeader."Document Type";
+        PostedFADocLine."Document No." := PostedFADocHeader."No.";
+        RecRef.GetTable(PostedFADocLine);
+        PostedFADocLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, PostedFADocLine.FieldNo("Line No."));
+        PostedFADocLine.Insert();
+        PostedFADocLine."FA No." := FANo;
+        PostedFADocLine."Depreciation Book Code" := LibraryRUReports.GetFirstFADeprBook(PostedFADocLine."FA No.");
+        PostedFADocLine."FA Posting Group" := LibraryRUReports.MockFAPostingGroup();
+        PostedFADocLine."Item Receipt No." := ReceiptNo;
+        PostedFADocLine.Modify();
     end;
 
     local procedure MockInvtDocumentLines(): Code[20]
@@ -271,7 +261,7 @@ codeunit 144717 "ERM FA-4 Report Test"
         InvtDocumentLine.Init();
         InvtDocumentLine."Document No." := LibraryUtility.GenerateGUID();
         InvtDocumentLine.Description := InvtDocumentLine."Document No.";
-        InvtDocumentLine."Item No." := MockItem;
+        InvtDocumentLine."Item No." := MockItem();
         InvtDocumentLine.Quantity := LibraryRandom.RandInt(100);
         InvtDocumentLine."Unit Amount" := LibraryRandom.RandDec(100, 2);
         InvtDocumentLine.Amount := LibraryRandom.RandDec(100, 2);
@@ -286,7 +276,7 @@ codeunit 144717 "ERM FA-4 Report Test"
         InvtReceiptLine.Init();
         InvtReceiptLine."Document No." := LibraryUtility.GenerateGUID();
         InvtReceiptLine.Description := InvtReceiptLine."Document No.";
-        InvtReceiptLine."Item No." := MockItem;
+        InvtReceiptLine."Item No." := MockItem();
         InvtReceiptLine.Quantity := LibraryRandom.RandInt(100);
         InvtReceiptLine."Unit Amount" := LibraryRandom.RandDec(100, 2);
         InvtReceiptLine.Amount := LibraryRandom.RandDec(100, 2);
@@ -320,12 +310,10 @@ codeunit 144717 "ERM FA-4 Report Test"
     begin
         LibraryReportValidation.SetFileName(FADocHeader."No.");
         FADocHeader.SetRecFilter();
-        with FAWriteoffActFA4 do begin
-            SetFileNameSilent(LibraryReportValidation.GetFileName);
-            SetTableView(FADocHeader);
-            UseRequestPage(false);
-            Run;
-        end;
+        FAWriteoffActFA4.SetFileNameSilent(LibraryReportValidation.GetFileName());
+        FAWriteoffActFA4.SetTableView(FADocHeader);
+        FAWriteoffActFA4.UseRequestPage(false);
+        FAWriteoffActFA4.Run();
     end;
 
     local procedure RunPostedFAWriteOffFA4(PostedFADocHeader: Record "Posted FA Doc. Header")
@@ -334,12 +322,10 @@ codeunit 144717 "ERM FA-4 Report Test"
     begin
         LibraryReportValidation.SetFileName(PostedFADocHeader."No.");
         PostedFADocHeader.SetRecFilter();
-        with PostedFAWriteoffActFA4 do begin
-            SetFileNameSilent(LibraryReportValidation.GetFileName);
-            SetTableView(PostedFADocHeader);
-            UseRequestPage(false);
-            Run;
-        end;
+        PostedFAWriteoffActFA4.SetFileNameSilent(LibraryReportValidation.GetFileName());
+        PostedFAWriteoffActFA4.SetTableView(PostedFADocHeader);
+        PostedFAWriteoffActFA4.UseRequestPage(false);
+        PostedFAWriteoffActFA4.Run();
     end;
 
     local procedure RunFAWriteOffFA4a(FADocHeader: Record "FA Document Header")
@@ -348,12 +334,10 @@ codeunit 144717 "ERM FA-4 Report Test"
     begin
         LibraryReportValidation.SetFileName(FADocHeader."No.");
         FADocHeader.SetRecFilter();
-        with FAWriteoffActFA4a do begin
-            SetFileNameSilent(LibraryReportValidation.GetFileName);
-            SetTableView(FADocHeader);
-            UseRequestPage(false);
-            Run;
-        end;
+        FAWriteoffActFA4a.SetFileNameSilent(LibraryReportValidation.GetFileName());
+        FAWriteoffActFA4a.SetTableView(FADocHeader);
+        FAWriteoffActFA4a.UseRequestPage(false);
+        FAWriteoffActFA4a.Run();
     end;
 
     local procedure RunPostedFAWriteOffFA4a(PostedFADocHeader: Record "Posted FA Doc. Header")
@@ -362,12 +346,10 @@ codeunit 144717 "ERM FA-4 Report Test"
     begin
         LibraryReportValidation.SetFileName(PostedFADocHeader."No.");
         PostedFADocHeader.SetRecFilter();
-        with PostedFAWriteoffActFA4a do begin
-            SetFileNameSilent(LibraryReportValidation.GetFileName);
-            SetTableView(PostedFADocHeader);
-            UseRequestPage(false);
-            Run;
-        end;
+        PostedFAWriteoffActFA4a.SetFileNameSilent(LibraryReportValidation.GetFileName());
+        PostedFAWriteoffActFA4a.SetTableView(PostedFADocHeader);
+        PostedFAWriteoffActFA4a.UseRequestPage(false);
+        PostedFAWriteoffActFA4a.Run();
     end;
 
     local procedure RemoveMandatorySignSetup()
@@ -389,23 +371,21 @@ codeunit 144717 "ERM FA-4 Report Test"
         FADocLine: Record "FA Document Line";
         RowShift: Integer;
     begin
-        with FADocLine do begin
-            SetRange("Document Type", FADocHeader."Document Type");
-            SetRange("Document No.", FADocHeader."No.");
-            FindSet();
-            RowShift := 0;
-            repeat
-                case ReportID of
-                    Report::"FA Write-off Act FA-4":
-                        VerifyFAWriteoffFA4Results(
-                          "FA No.", Description, "Depreciation Book Code", "Item Receipt No.", ReportID, RowShift);
-                    Report::"FA Writeoff Act FA-4a":
-                        VerifyFAWriteoffFA4aResults(
-                          "FA No.", "Depreciation Book Code", "Item Receipt No.", ReportID, RowShift);
-                end;
-                RowShift += 1;
-            until Next = 0;
-        end;
+        FADocLine.SetRange("Document Type", FADocHeader."Document Type");
+        FADocLine.SetRange("Document No.", FADocHeader."No.");
+        FADocLine.FindSet();
+        RowShift := 0;
+        repeat
+            case ReportID of
+                Report::"FA Write-off Act FA-4":
+                    VerifyFAWriteoffFA4Results(
+                      FADocLine."FA No.", FADocLine.Description, FADocLine."Depreciation Book Code", FADocLine."Item Receipt No.", ReportID, RowShift);
+                Report::"FA Writeoff Act FA-4a":
+                    VerifyFAWriteoffFA4aResults(
+                      FADocLine."FA No.", FADocLine."Depreciation Book Code", FADocLine."Item Receipt No.", ReportID, RowShift);
+            end;
+            RowShift += 1;
+        until FADocLine.Next() = 0;
     end;
 
     local procedure VerifyPostedResults(PostedFADocHeader: Record "Posted FA Doc. Header"; ReportID: Integer)
@@ -413,23 +393,21 @@ codeunit 144717 "ERM FA-4 Report Test"
         PostedFADocLine: Record "Posted FA Doc. Line";
         RowShift: Integer;
     begin
-        with PostedFADocLine do begin
-            SetRange("Document Type", PostedFADocHeader."Document Type");
-            SetRange("Document No.", PostedFADocHeader."No.");
-            FindSet();
-            RowShift := 0;
-            repeat
-                case ReportID of
-                    Report::"FA Posted Writeoff Act FA-4":
-                        VerifyFAWriteoffFA4Results(
-                          "FA No.", Description, "Depreciation Book Code", "Item Receipt No.", ReportID, RowShift);
-                    Report::"Posted FA Writeoff Act FA-4a":
-                        VerifyFAWriteoffFA4aResults(
-                          "FA No.", "Depreciation Book Code", "Item Receipt No.", ReportID, RowShift);
-                end;
-                RowShift += 1;
-            until Next = 0;
-        end;
+        PostedFADocLine.SetRange("Document Type", PostedFADocHeader."Document Type");
+        PostedFADocLine.SetRange("Document No.", PostedFADocHeader."No.");
+        PostedFADocLine.FindSet();
+        RowShift := 0;
+        repeat
+            case ReportID of
+                Report::"FA Posted Writeoff Act FA-4":
+                    VerifyFAWriteoffFA4Results(
+                      PostedFADocLine."FA No.", PostedFADocLine.Description, PostedFADocLine."Depreciation Book Code", PostedFADocLine."Item Receipt No.", ReportID, RowShift);
+                Report::"Posted FA Writeoff Act FA-4a":
+                    VerifyFAWriteoffFA4aResults(
+                      PostedFADocLine."FA No.", PostedFADocLine."Depreciation Book Code", PostedFADocLine."Item Receipt No.", ReportID, RowShift);
+            end;
+            RowShift += 1;
+        until PostedFADocLine.Next() = 0;
     end;
 
     local procedure VerifyFAWriteoffFA4Results(FANo: Code[20]; Description: Text; DeprBookCode: Code[10]; ReceiptNo: Code[20]; ReportID: Integer; RowShift: Integer)
@@ -512,46 +490,40 @@ codeunit 144717 "ERM FA-4 Report Test"
     var
         MainAssetComponent: Record "Main Asset Component";
     begin
-        with MainAssetComponent do begin
-            SetRange("Main Asset No.", FANo);
-            FindSet();
-            repeat
-                CheckIfValueExistsOnSpecificWorksheet(2, Description);
-                CheckIfValueExistsOnSpecificWorksheet(2, StdRepMgt.FormatReportValue(Quantity, 2));
-            until Next = 0;
-        end;
+        MainAssetComponent.SetRange("Main Asset No.", FANo);
+        MainAssetComponent.FindSet();
+        repeat
+            CheckIfValueExistsOnSpecificWorksheet(2, MainAssetComponent.Description);
+            CheckIfValueExistsOnSpecificWorksheet(2, StdRepMgt.FormatReportValue(MainAssetComponent.Quantity, 2));
+        until MainAssetComponent.Next() = 0;
     end;
 
     local procedure VerifyItemFAPreciousMetal(FANo: Code[20])
     var
         ItemFAPreciousMetal: Record "Item/FA Precious Metal";
     begin
-        with ItemFAPreciousMetal do begin
-            SetRange("Item Type", "Item Type"::FA);
-            SetRange("No.", FANo);
-            FindSet();
-            repeat
-                CalcFields(Name);
-                CheckIfValueExistsOnSpecificWorksheet(2, Name);
-                CheckIfValueExistsOnSpecificWorksheet(2, "Precious Metals Code");
-                CheckIfValueExistsOnSpecificWorksheet(2, StdRepMgt.FormatReportValue(Quantity, 2));
-                CheckIfValueExistsOnSpecificWorksheet(2, StdRepMgt.FormatReportValue(Mass, 2));
-            until Next = 0;
-        end;
+        ItemFAPreciousMetal.SetRange("Item Type", ItemFAPreciousMetal."Item Type"::FA);
+        ItemFAPreciousMetal.SetRange("No.", FANo);
+        ItemFAPreciousMetal.FindSet();
+        repeat
+            ItemFAPreciousMetal.CalcFields(Name);
+            CheckIfValueExistsOnSpecificWorksheet(2, ItemFAPreciousMetal.Name);
+            CheckIfValueExistsOnSpecificWorksheet(2, ItemFAPreciousMetal."Precious Metals Code");
+            CheckIfValueExistsOnSpecificWorksheet(2, StdRepMgt.FormatReportValue(ItemFAPreciousMetal.Quantity, 2));
+            CheckIfValueExistsOnSpecificWorksheet(2, StdRepMgt.FormatReportValue(ItemFAPreciousMetal.Mass, 2));
+        until ItemFAPreciousMetal.Next() = 0;
     end;
 
     local procedure VerifyFAChars(FANo: Code[20])
     var
         FA: Record "Fixed Asset";
     begin
-        with FA do begin
-            Get(FANo);
-            CheckIfValueExistsOnSpecificWorksheet(2, "Vehicle Reg. No.");
-            CheckIfValueExistsOnSpecificWorksheet(2, "Vehicle Engine No.");
-            CheckIfValueExistsOnSpecificWorksheet(2, "Vehicle Chassis No.");
-            CheckIfValueExistsOnSpecificWorksheet(2, StdRepMgt.FormatReportValue("Vehicle Capacity", 2));
-            CheckIfValueExistsOnSpecificWorksheet(2, StdRepMgt.FormatReportValue("Vehicle Passport Weight", 2));
-        end;
+        FA.Get(FANo);
+        CheckIfValueExistsOnSpecificWorksheet(2, FA."Vehicle Reg. No.");
+        CheckIfValueExistsOnSpecificWorksheet(2, FA."Vehicle Engine No.");
+        CheckIfValueExistsOnSpecificWorksheet(2, FA."Vehicle Chassis No.");
+        CheckIfValueExistsOnSpecificWorksheet(2, StdRepMgt.FormatReportValue(FA."Vehicle Capacity", 2));
+        CheckIfValueExistsOnSpecificWorksheet(2, StdRepMgt.FormatReportValue(FA."Vehicle Passport Weight", 2));
     end;
 
     local procedure VerifyItemDocLine(ReceiptNo: Code[20]; WorksheetNo: Integer)

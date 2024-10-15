@@ -9,6 +9,7 @@ table 596 "Exch. Rate Adjmt. Parameters"
     Caption = 'Exch. Rate Adjmt. Parameters';
     ReplicateData = false;
     TableType = Temporary;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -72,6 +73,11 @@ table 596 "Exch. Rate Adjmt. Parameters"
             Caption = 'Adjust Per Entry';
             DataClassification = SystemMetadata;
         }
+        field(13; "Adjust Employees"; Boolean)
+        {
+            Caption = 'Adjust Employees';
+            DataClassification = SystemMetadata;
+        }
         field(14; "Dimension Posting"; Enum "Exch. Rate Adjmt. Dimensions")
         {
             Caption = 'Dimension Posting';
@@ -90,6 +96,10 @@ table 596 "Exch. Rate Adjmt. Parameters"
             FieldClass = FlowFilter;
         }
         field(23; "Vendor Filter"; Text[2048])
+        {
+            FieldClass = FlowFilter;
+        }
+        field(24; "Employee Filter"; Text[2048])
         {
             FieldClass = FlowFilter;
         }

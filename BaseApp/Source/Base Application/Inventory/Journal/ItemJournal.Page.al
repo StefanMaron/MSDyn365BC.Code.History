@@ -864,7 +864,6 @@ page 40 "Item Journal"
 
                 trigger OnAction()
                 var
-                    ItemJnlLine: Record "Item Journal Line";
                 begin
                     DocPrint.PrintItemJnlDoc(Rec, false);
                 end;
@@ -994,38 +993,11 @@ page 40 "Item Journal"
                     {
                     }
                 }
-#if not CLEAN21
-                actionref("Bin Contents_Promoted"; "Bin Contents")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category7)
             {
                 Caption = 'Item', Comment = 'Generated from the PromotedActionCategories property index 6.';
 
-#if not CLEAN21
-                actionref(Card_Promoted; Card)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
-#if not CLEAN21
-                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category4)
             {

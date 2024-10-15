@@ -6,9 +6,9 @@ using Microsoft.Projects.Project.Job;
 page 463 "Jobs Setup"
 {
     AccessByPermission = TableData Job = R;
-    AdditionalSearchTerms = 'project setup';
+    AdditionalSearchTerms = 'project setup, Jobs Setup';
     ApplicationArea = Jobs;
-    Caption = 'Jobs Setup';
+    Caption = 'Projects Setup';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Card;
@@ -25,33 +25,38 @@ page 463 "Jobs Setup"
                 field("Automatic Update Job Item Cost"; Rec."Automatic Update Job Item Cost")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies in the Jobs Setup window that cost changes are automatically adjusted each time the Adjust Cost - Item Entries batch job is run. The adjustment process and its results are the same as when you run the Update Job Item Cost Batch Job.';
+                    ToolTip = 'Specifies in the Projects Setup window that cost changes are automatically adjusted each time the Adjust Cost - Item Entries batch job is run. The adjustment process and its results are the same as when you run the Update Project Item Cost batch job.';
                 }
                 field("Apply Usage Link by Default"; Rec."Apply Usage Link by Default")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether job ledger entries are linked to job planning lines by default. Select this check box if you want to apply this setting to all new jobs that you create.';
+                    ToolTip = 'Specifies whether project ledger entries are linked to project planning lines by default. Select this check box if you want to apply this setting to all new projects that you create.';
                 }
                 field("Allow Sched/Contract Lines Def"; Rec."Allow Sched/Contract Lines Def")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Allow Budget/Billable Lines Def';
-                    ToolTip = 'Specifies whether job lines can be of type Both Budget and Billable by default. Select this check box if you want to apply this setting to all new jobs that you create.';
+                    ToolTip = 'Specifies whether project lines can be of type Both Budget and Billable by default. Select this check box if you want to apply this setting to all new projects that you create.';
                 }
                 field("Default WIP Method"; Rec."Default WIP Method")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the default method to be used for calculating work in process (WIP). It is applied whenever you create a new job, but you can modify the value on the job card.';
+                    ToolTip = 'Specifies the default method to be used for calculating work in process (WIP). It is applied whenever you create a new project, but you can modify the value on the project card.';
                 }
                 field("Default WIP Posting Method"; Rec."Default WIP Posting Method")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies how the default WIP method is to be applied when posting Work in Process (WIP) to the general ledger. By default, it is applied per job.';
+                    ToolTip = 'Specifies how the default WIP method is to be applied when posting Work in Process (WIP) to the general ledger. By default, it is applied per project.';
                 }
                 field("Default Job Posting Group"; Rec."Default Job Posting Group")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the default posting group to be applied when you create a new job. This group is used whenever you create a job, but you can modify the value on the job card.';
+                    ToolTip = 'Specifies the default posting group to be applied when you create a new project. This group is used whenever you create a project, but you can modify the value on the project card.';
+                }
+                field("Default Task Billing Method"; Rec."Default Task Billing Method")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specify whether to use the customer specified for the project for all tasks or allow people to specify different customers. One customer lets you invoice only the customer specified for the project. Multiple customers lets you invoice customers specified on each task, which can be different customers.';
                 }
                 field("Logo Position on Documents"; Rec."Logo Position on Documents")
                 {
@@ -62,7 +67,7 @@ page 463 "Jobs Setup"
                 field("Document No. Is Job No."; Rec."Document No. Is Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies that the job number is also the document number in the ledger entries posted for the job.';
+                    ToolTip = 'Specifies that the project number is also the document number in the ledger entries posted for the project.';
                 }
             }
             group(Prices)
@@ -86,18 +91,28 @@ page 463 "Jobs Setup"
                 field("Job Nos."; Rec."Job Nos.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the code for the number series that will be used to assign numbers to jobs. To see the number series that have been set up in the No. Series table, click the drop-down arrow in the field.';
+                    ToolTip = 'Specifies the code for the number series that will be used to assign numbers to projects. To see the number series that have been set up in the No. Series table, click the drop-down arrow in the field.';
                 }
                 field("Job WIP Nos."; Rec."Job WIP Nos.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the code for the number series that will be used to assign numbers to job WIP documents. To see the number series that have been set up in the No. Series table, click the drop-down arrow in the field.';
+                    ToolTip = 'Specifies the code for the number series that will be used to assign numbers to project WIP documents. To see the number series that have been set up in the No. Series table, click the drop-down arrow in the field.';
                 }
                 field("Price List Nos."; Rec."Price List Nos.")
                 {
                     ApplicationArea = Jobs;
                     Visible = ExtendedPriceEnabled;
-                    ToolTip = 'Specifies the code for the number series that will be used to assign numbers to job price lists.';
+                    ToolTip = 'Specifies the code for the number series that will be used to assign numbers to project price lists.';
+                }
+            }
+            group(Archiving)
+            {
+                Caption = 'Archiving';
+
+                field("Archive Orders"; Rec."Archive Jobs")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies if you want to automatically archive projects.';
                 }
             }
         }

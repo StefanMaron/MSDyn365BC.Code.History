@@ -6,13 +6,8 @@ codeunit 131920 "Library - Job"
     end;
 
     var
-        Prefix: Label 'ZZZ';
-        TemplateName: Label 'T';
         Assert: Codeunit Assert;
         LibraryUtility: Codeunit "Library - Utility";
-        NoSeriesCode: Label 'JOBTEST';
-        ErrorMsg: Label 'Unsupported type.';
-        JobNoError: Label 'GLEntry."Job No."';
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -21,10 +16,13 @@ codeunit 131920 "Library - Job"
         LibraryService: Codeunit "Library - Service";
         LibraryInventory: Codeunit "Library - Inventory";
         ConsumptionSource: Option Job,Service,GenJournal,Purchase;
+        Prefix: Label 'ZZZ';
+        TemplateName: Label 'T';
+        NoSeriesCode: Label 'JOBTEST';
+        ErrorMsg: Label 'Unsupported type.';
+        JobNoErr: Label 'GLEntry."Job No."';
 
     procedure CreateJob(var Job: Record Job)
-    var
-        JobNo: Code[20];
     begin
         CreateJob(Job, CreateCustomer());
     end;
@@ -45,7 +43,7 @@ codeunit 131920 "Library - Job"
         Job.Validate("No.", JobNo);
         Job.Insert(true);
         Job.Validate("Sell-to Customer No.", SellToCustomerNo);
-        Job.Validate("Job Posting Group", FindJobPostingGroup);
+        Job.Validate("Job Posting Group", FindJobPostingGroup());
         Job.Modify(true)
     end;
 
@@ -88,7 +86,7 @@ codeunit 131920 "Library - Job"
         if JobPlanningLine.Type <> JobPlanningLine.Type::Text then begin
             JobPlanningLine.Validate("No.", FindConsumable(Type));
             JobPlanningLine.Validate(Quantity, LibraryRandom.RandInt(100)); // 1 <= Quantity <= 100
-            if Type = GLAccountType then begin
+            if Type = GLAccountType() then begin
                 JobPlanningLine.Validate("Unit Cost", LibraryRandom.RandInt(10)); // 1 <= Unit Cost <= 10
                 JobPlanningLine.Validate("Unit Price", JobPlanningLine."Unit Cost" * (LibraryRandom.RandIntInRange(2, 10) / 10)); // 10% <= Markup <= 100%
             end;
@@ -104,39 +102,36 @@ codeunit 131920 "Library - Job"
     var
         JobJournalTemplate: Record "Job Journal Template";
         JobJournalBatch: Record "Job Journal Batch";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         // Create a job journal line for a job task.
         // This helper function allows to easily create multiple journal lines in a single batch.
+        JobJournalLine.SetRange("Job No.", JobTask."Job No.");
+        // Setup primary keys and filters.
+        if JobJournalLine.FindLast() then
+            // A job journal line for this task already exists: increase line and document nos.
+            JobJournalLine.Validate("Line No.", JobJournalLine."Line No." + 1)
+        else begin
+            // No job journal lines exist for this task: setup the first one.
+            CreateJobJournalBatch(GetJobJournalTemplate(JobJournalTemplate), JobJournalBatch);
+            JobJournalLine.Validate("Journal Template Name", JobJournalTemplate.Name);
+            JobJournalLine.Validate("Journal Batch Name", JobJournalBatch.Name);
+            JobJournalLine.Validate("Line No.", 1);
+            // Only use these template and batch.
+            JobJournalLine.SetRange("Journal Template Name", JobJournalLine."Journal Template Name");
+            JobJournalLine.SetRange("Journal Batch Name", JobJournalLine."Journal Batch Name");
+        end;
 
-        with JobJournalLine do begin
-            SetRange("Job No.", JobTask."Job No.");
-            // Setup primary keys and filters.
-            if FindLast() then
-                // A job journal line for this task already exists: increase line and document nos.
-                Validate("Line No.", "Line No." + 1)
-            else begin
-                // No job journal lines exist for this task: setup the first one.
-                CreateJobJournalBatch(GetJobJournalTemplate(JobJournalTemplate), JobJournalBatch);
-                Validate("Journal Template Name", JobJournalTemplate.Name);
-                Validate("Journal Batch Name", JobJournalBatch.Name);
-                Validate("Line No.", 1);
-                // Only use these template and batch.
-                SetRange("Journal Template Name", "Journal Template Name");
-                SetRange("Journal Batch Name", "Journal Batch Name");
-            end;
+        JobJournalLine.Init();
+        JobJournalLine.Insert(true);
 
-            Init();
-            Insert(true);
-
-            Validate("Line Type", LineType);
-            Validate("Posting Date", WorkDate());
-            Validate("Job No.", JobTask."Job No.");
-            Validate("Job Task No.", JobTask."Job Task No.");
-            JobJournalBatch.Get(GetJobJournalTemplate(JobJournalTemplate), "Journal Batch Name");
-            Validate("Document No.", NoSeriesMgt.GetNextNo(JobJournalBatch."No. Series", "Posting Date", false));
-            Modify(true)
-        end
+        JobJournalLine.Validate("Line Type", LineType);
+        JobJournalLine.Validate("Posting Date", WorkDate());
+        JobJournalLine.Validate("Job No.", JobTask."Job No.");
+        JobJournalLine.Validate("Job Task No.", JobTask."Job Task No.");
+        JobJournalBatch.Get(GetJobJournalTemplate(JobJournalTemplate), JobJournalLine."Journal Batch Name");
+        JobJournalLine.Validate("Document No.", NoSeries.PeekNextNo(JobJournalBatch."No. Series", JobJournalLine."Posting Date"));
+        JobJournalLine.Modify(true)
     end;
 
     procedure CreateJobJournalLineForType(LineType: Enum "Job Line Type"; ConsumableType: Enum "Job Planning Line Type"; JobTask: Record "Job Task"; var JobJournalLine: Record "Job Journal Line")
@@ -158,19 +153,17 @@ codeunit 131920 "Library - Job"
 
         JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
         CreateJobJournalLine(UsageLineType, JobTask, JobJournalLine);
-        with JobJournalLine do begin
-            Validate(Type, JobPlanningLine.Type);
-            Validate("No.", JobPlanningLine."No.");
-            Validate(Description, LibraryUtility.GenerateGUID());
-            Validate(Quantity, Round(Fraction * JobPlanningLine."Remaining Qty."));
-            // unit costs, prices may change (e.g., +/- 10%)
-            if not IsStandardCosting(Type, "No.") then begin
-                ChangeFactor := Round((1 + (LibraryRandom.RandInt(21) - 11) / 100));
-                Validate("Unit Cost", Round(ChangeFactor * JobPlanningLine."Unit Cost") / JobPlanningLine.Quantity);
-                Validate("Unit Price", Round(ChangeFactor * JobPlanningLine."Unit Price") / JobPlanningLine.Quantity)
-            end;
-            Modify(true)
-        end
+        JobJournalLine.Validate(Type, JobPlanningLine.Type);
+        JobJournalLine.Validate("No.", JobPlanningLine."No.");
+        JobJournalLine.Validate(Description, LibraryUtility.GenerateGUID());
+        JobJournalLine.Validate(Quantity, Round(Fraction * JobPlanningLine."Remaining Qty."));
+        // unit costs, prices may change (e.g., +/- 10%)
+        if not IsStandardCosting(JobJournalLine.Type, JobJournalLine."No.") then begin
+            ChangeFactor := Round((1 + (LibraryRandom.RandInt(21) - 11) / 100));
+            JobJournalLine.Validate("Unit Cost", Round(ChangeFactor * JobPlanningLine."Unit Cost") / JobPlanningLine.Quantity);
+            JobJournalLine.Validate("Unit Price", Round(ChangeFactor * JobPlanningLine."Unit Price") / JobPlanningLine.Quantity)
+        end;
+        JobJournalLine.Modify(true)
     end;
 
     procedure CreateGenJournalLineForPlan(JobPlanningLine: Record "Job Planning Line"; UsageLineType: Enum "Job Line Type"; Fraction: Decimal; var GenJournalLine: Record "Gen. Journal Line")
@@ -182,13 +175,11 @@ codeunit 131920 "Library - Job"
         JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
         CreateJobGLJournalLine(UsageLineType, JobTask, GenJournalLine);
 
-        with GenJournalLine do begin
-            "Account No." := JobPlanningLine."No.";
-            Validate(Description, LibraryUtility.GenerateGUID());
-            Validate("Job Planning Line No.", JobPlanningLine."Line No.");
-            Validate("Job Quantity", Round(Fraction * JobPlanningLine."Remaining Qty."));
-            Modify(true)
-        end
+        GenJournalLine."Account No." := JobPlanningLine."No.";
+        GenJournalLine.Validate(Description, LibraryUtility.GenerateGUID());
+        GenJournalLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
+        GenJournalLine.Validate("Job Quantity", Round(Fraction * JobPlanningLine."Remaining Qty."));
+        GenJournalLine.Modify(true)
     end;
 
     procedure CreateJobWIPMethod(var JobWIPMethod: Record "Job WIP Method")
@@ -216,17 +207,14 @@ codeunit 131920 "Library - Job"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Job2PurchaseConsumableType(JobPlanningLine.Type),
           JobPlanningLine."No.", Round(Fraction * JobPlanningLine."Remaining Qty."));
-
-        with PurchaseLine do begin
-            // VALIDATE(Description,LibraryUtility.GenerateGUID());
-            Validate(Description, JobPlanningLine."No.");
-            Validate("Unit of Measure Code", JobPlanningLine."Unit of Measure Code");
-            Validate("Job Line Type", UsageLineType);
-            Validate("Job No.", JobPlanningLine."Job No.");
-            Validate("Job Task No.", JobPlanningLine."Job Task No.");
-            Validate("Job Planning Line No.", JobPlanningLine."Line No.");
-            Modify(true)
-        end
+        // VALIDATE(Description,LibraryUtility.GenerateGUID());
+        PurchaseLine.Validate(Description, JobPlanningLine."No.");
+        PurchaseLine.Validate("Unit of Measure Code", JobPlanningLine."Unit of Measure Code");
+        PurchaseLine.Validate("Job Line Type", UsageLineType);
+        PurchaseLine.Validate("Job No.", JobPlanningLine."Job No.");
+        PurchaseLine.Validate("Job Task No.", JobPlanningLine."Job Task No.");
+        PurchaseLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
+        PurchaseLine.Modify(true)
     end;
 
     procedure CreateServiceLineForPlan(JobPlanningLine: Record "Job Planning Line"; UsageLineType: Enum "Job Line Type"; Fraction: Decimal; var ServiceLine: Record "Service Line")
@@ -246,22 +234,20 @@ codeunit 131920 "Library - Job"
         LibraryService.CreateServiceLine(
           ServiceLine, ServiceHeader, Job2ServiceConsumableType(JobPlanningLine.Type), JobPlanningLine."No.");
 
-        with ServiceLine do begin
-            Validate("Service Item Line No.", ServiceItemLine."Line No.");
-            Validate(Description, LibraryUtility.GenerateGUID());
-            Validate("Location Code", FindLocationForPostingGroup(ServiceLine));
-            Validate(Quantity, Round(Fraction * JobPlanningLine."Remaining Qty."));
-            Validate("Unit of Measure Code", JobPlanningLine."Unit of Measure Code");
-            Validate("Qty. to Consume", Quantity);
-            Validate("Job No.", JobPlanningLine."Job No.");
-            Validate("Job Task No.", JobPlanningLine."Job Task No.");
-            Validate("Job Line Type", UsageLineType);
-            Validate("Job Planning Line No.", JobPlanningLine."Line No.");
-            Modify(true)
-        end
+        ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
+        ServiceLine.Validate(Description, LibraryUtility.GenerateGUID());
+        ServiceLine.Validate("Location Code", FindLocationForPostingGroup(ServiceLine));
+        ServiceLine.Validate(Quantity, Round(Fraction * JobPlanningLine."Remaining Qty."));
+        ServiceLine.Validate("Unit of Measure Code", JobPlanningLine."Unit of Measure Code");
+        ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity);
+        ServiceLine.Validate("Job No.", JobPlanningLine."Job No.");
+        ServiceLine.Validate("Job Task No.", JobPlanningLine."Job Task No.");
+        ServiceLine.Validate("Job Line Type", UsageLineType);
+        ServiceLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
+        ServiceLine.Modify(true)
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     procedure CreateJobGLAccountPrice(var JobGLAccountPrice: Record "Job G/L Account Price"; JobNo: Code[20]; JobTaskNo: Code[20]; GLAccountNo: Code[20]; CurrencyCode: Code[10])
     begin
         JobGLAccountPrice.Init();
@@ -326,20 +312,20 @@ codeunit 131920 "Library - Job"
         Clear(JobPostingGroup);
         JobPostingGroup.Validate(Code,
           LibraryUtility.GenerateRandomCode(JobPostingGroup.FieldNo(Code), DATABASE::"Job Posting Group"));
-        JobPostingGroup.Validate("WIP Costs Account", LibraryERM.CreateGLAccountNo);
-        JobPostingGroup.Validate("WIP Accrued Costs Account", LibraryERM.CreateGLAccountNo);
-        JobPostingGroup.Validate("Job Costs Applied Account", LibraryERM.CreateGLAccountNo);
-        JobPostingGroup.Validate("Job Costs Adjustment Account", LibraryERM.CreateGLAccountNo);
-        JobPostingGroup.Validate("G/L Expense Acc. (Contract)", LibraryERM.CreateGLAccountNo);
-        JobPostingGroup.Validate("Job Sales Adjustment Account", LibraryERM.CreateGLAccountNo);
-        JobPostingGroup.Validate("WIP Accrued Sales Account", LibraryERM.CreateGLAccountNo);
-        JobPostingGroup.Validate("WIP Invoiced Sales Account", LibraryERM.CreateGLAccountNo);
-        JobPostingGroup.Validate("Job Sales Applied Account", LibraryERM.CreateGLAccountNo);
-        JobPostingGroup.Validate("Recognized Costs Account", LibraryERM.CreateGLAccountNo);
-        JobPostingGroup.Validate("Recognized Sales Account", LibraryERM.CreateGLAccountNo);
-        JobPostingGroup.Validate("Item Costs Applied Account", LibraryERM.CreateGLAccountNo);
-        JobPostingGroup.Validate("Resource Costs Applied Account", LibraryERM.CreateGLAccountNo);
-        JobPostingGroup.Validate("G/L Costs Applied Account", LibraryERM.CreateGLAccountNo);
+        JobPostingGroup.Validate("WIP Costs Account", LibraryERM.CreateGLAccountNo());
+        JobPostingGroup.Validate("WIP Accrued Costs Account", LibraryERM.CreateGLAccountNo());
+        JobPostingGroup.Validate("Job Costs Applied Account", LibraryERM.CreateGLAccountNo());
+        JobPostingGroup.Validate("Job Costs Adjustment Account", LibraryERM.CreateGLAccountNo());
+        JobPostingGroup.Validate("G/L Expense Acc. (Contract)", LibraryERM.CreateGLAccountNo());
+        JobPostingGroup.Validate("Job Sales Adjustment Account", LibraryERM.CreateGLAccountNo());
+        JobPostingGroup.Validate("WIP Accrued Sales Account", LibraryERM.CreateGLAccountNo());
+        JobPostingGroup.Validate("WIP Invoiced Sales Account", LibraryERM.CreateGLAccountNo());
+        JobPostingGroup.Validate("Job Sales Applied Account", LibraryERM.CreateGLAccountNo());
+        JobPostingGroup.Validate("Recognized Costs Account", LibraryERM.CreateGLAccountNo());
+        JobPostingGroup.Validate("Recognized Sales Account", LibraryERM.CreateGLAccountNo());
+        JobPostingGroup.Validate("Item Costs Applied Account", LibraryERM.CreateGLAccountNo());
+        JobPostingGroup.Validate("Resource Costs Applied Account", LibraryERM.CreateGLAccountNo());
+        JobPostingGroup.Validate("G/L Costs Applied Account", LibraryERM.CreateGLAccountNo());
         JobPostingGroup.Insert(true);
     end;
 
@@ -351,7 +337,7 @@ codeunit 131920 "Library - Job"
             JobJournalTemplate.Insert(true)
         end;
 
-        JobJournalTemplate.Validate("No. Series", GetJobTestNoSeries);
+        JobJournalTemplate.Validate("No. Series", GetJobTestNoSeries());
         JobJournalTemplate.Modify(true);
         exit(JobJournalTemplate.Name)
     end;
@@ -369,45 +355,43 @@ codeunit 131920 "Library - Job"
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
         GLAccount: Record "G/L Account";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         // Create a general journal line for a job task.
         // This helper function allows to easily create multiple journal lines in a single batch.
         // These journal lines can be traced using their document number and batch.
         LibraryERM.CreateGLAccount(GLAccount);
-        with GenJournalLine do begin
-            SetRange("Job No.", JobTask."Job No.");
-            if FindLast() then
-                Validate("Line No.", "Line No." + 1)
-            else begin
-                Clear(GenJournalLine);
-                CreateGenJournalBatch(GetGenJournalTemplate(GenJournalTemplate), GenJournalBatch);
-                Validate("Journal Template Name", GenJournalTemplate.Name);
-                Validate("Journal Batch Name", GenJournalBatch.Name);
-                Validate("Line No.", 1);
-                SetRange("Journal Template Name", "Journal Template Name");
-                SetRange("Journal Batch Name", "Journal Batch Name");
-            end;
+        GenJournalLine.SetRange("Job No.", JobTask."Job No.");
+        if GenJournalLine.FindLast() then
+            GenJournalLine.Validate("Line No.", GenJournalLine."Line No." + 1)
+        else begin
+            Clear(GenJournalLine);
+            CreateGenJournalBatch(GetGenJournalTemplate(GenJournalTemplate), GenJournalBatch);
+            GenJournalLine.Validate("Journal Template Name", GenJournalTemplate.Name);
+            GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
+            GenJournalLine.Validate("Line No.", 1);
+            GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+            GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        end;
 
-            Init();
-            Insert(true);
+        GenJournalLine.Init();
+        GenJournalLine.Insert(true);
 
-            Validate("Posting Date", WorkDate());
-            Validate("Account Type", "Account Type"::"G/L Account");
-            Validate("Account No.", GLAccount."No.");
-            Validate(Description, GLAccount."No.");
-            LibraryERM.CreateGLAccount(GLAccount);
-            Validate("Bal. Account No.", GLAccount."No.");
-            Validate(Amount, LibraryRandom.RandDec(100, 2));
-            Validate("Job Line Type", JobLineType);
-            Validate("Job No.", JobTask."Job No.");
-            Validate("Job Task No.", JobTask."Job Task No.");
-            Validate("Job Quantity", LibraryRandom.RandInt(10));
-            GenJournalBatch.Get(GetGenJournalTemplate(GenJournalTemplate), "Journal Batch Name");
-            Validate("Document No.", NoSeriesMgt.GetNextNo(GenJournalBatch."No. Series", "Posting Date", false));
-            Validate("Source Code", GenJournalTemplate."Source Code");
-            Modify(true)
-        end
+        GenJournalLine.Validate("Posting Date", WorkDate());
+        GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"G/L Account");
+        GenJournalLine.Validate("Account No.", GLAccount."No.");
+        GenJournalLine.Validate(Description, GLAccount."No.");
+        LibraryERM.CreateGLAccount(GLAccount);
+        GenJournalLine.Validate("Bal. Account No.", GLAccount."No.");
+        GenJournalLine.Validate(Amount, LibraryRandom.RandDec(100, 2));
+        GenJournalLine.Validate("Job Line Type", JobLineType);
+        GenJournalLine.Validate("Job No.", JobTask."Job No.");
+        GenJournalLine.Validate("Job Task No.", JobTask."Job Task No.");
+        GenJournalLine.Validate("Job Quantity", LibraryRandom.RandInt(10));
+        GenJournalBatch.Get(GetGenJournalTemplate(GenJournalTemplate), GenJournalLine."Journal Batch Name");
+        GenJournalLine.Validate("Document No.", NoSeries.PeekNextNo(GenJournalBatch."No. Series", GenJournalLine."Posting Date"));
+        GenJournalLine.Validate("Source Code", GenJournalTemplate."Source Code");
+        GenJournalLine.Modify(true)
     end;
 
     procedure CreateGenJournalBatch(GenJournalTemplateName: Code[10]; var GenJournalBatch: Record "Gen. Journal Batch")
@@ -442,7 +426,7 @@ codeunit 131920 "Library - Job"
             GenJournalTemplate.Insert(true)
         end;
 
-        GenJournalTemplate.Validate("No. Series", GetJobTestNoSeries);
+        GenJournalTemplate.Validate("No. Series", GetJobTestNoSeries());
         GenJournalTemplate.Modify(true);
 
         exit(GenJournalTemplate.Name)
@@ -491,7 +475,7 @@ codeunit 131920 "Library - Job"
                     ItemUnitOfMeasure.Insert(true);
                     exit(Item."No.")
                 end;
-            GLAccountType:
+            GLAccountType():
                 begin
                     GLAccount.Get(FindConsumable(Type));
                     GLAccount."No." := '';
@@ -506,40 +490,31 @@ codeunit 131920 "Library - Job"
     procedure Attach2PurchaseLine(ConsumableType: Enum "Purchase Line Type"; var PurchaseLine: Record "Purchase Line")
     begin
         // Attach a random number of random consumables to the purchase line.
-
-        with PurchaseLine do begin
-            Validate(Type, ConsumableType);
-            Validate("No.", FindConsumable(Purchase2JobConsumableType(ConsumableType)));
-            Validate(Quantity, LibraryRandom.RandInt(100));
-            if Type = Type::"G/L Account" then
-                Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
-            Modify(true)
-        end
+        PurchaseLine.Validate(Type, ConsumableType);
+        PurchaseLine.Validate("No.", FindConsumable(Purchase2JobConsumableType(ConsumableType)));
+        PurchaseLine.Validate(Quantity, LibraryRandom.RandInt(100));
+        if PurchaseLine.Type = PurchaseLine.Type::"G/L Account" then
+            PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
+        PurchaseLine.Modify(true)
     end;
 
     local procedure Attach2JobJournalLine(ConsumableType: Enum "Job Planning Line Type"; var JobJournalLine: Record "Job Journal Line")
     begin
         // Attach a random number of random consumables to the job journal line.
-
-        with JobJournalLine do begin
-            Validate(Type, ConsumableType);
-            Validate("No.", FindConsumable(ConsumableType));
-            Validate(Quantity, LibraryRandom.RandInt(100));
-            if Type = Type::"G/L Account" then
-                Validate("Unit Price", LibraryRandom.RandInt(100));
-            Modify(true)
-        end
+        JobJournalLine.Validate(Type, ConsumableType);
+        JobJournalLine.Validate("No.", FindConsumable(ConsumableType));
+        JobJournalLine.Validate(Quantity, LibraryRandom.RandInt(100));
+        if JobJournalLine.Type = JobJournalLine.Type::"G/L Account" then
+            JobJournalLine.Validate("Unit Price", LibraryRandom.RandInt(100));
+        JobJournalLine.Modify(true)
     end;
 
     procedure AttachJobTask2PurchaseLine(JobTask: Record "Job Task"; var PurchaseLine: Record "Purchase Line")
     begin
         // Attach the job task to the purchase line.
-
-        with PurchaseLine do begin
-            Validate("Job No.", JobTask."Job No.");
-            Validate("Job Task No.", JobTask."Job Task No.");
-            Modify(true)
-        end
+        PurchaseLine.Validate("Job No.", JobTask."Job No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.Modify(true)
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -554,11 +529,11 @@ codeunit 131920 "Library - Job"
     begin
         case Type of
             "Job Planning Line Type"::Resource:
-                exit(LibraryResource.CreateResourceNo);
+                exit(LibraryResource.CreateResourceNo());
             "Job Planning Line Type"::Item:
-                exit(FindItem);
+                exit(FindItem());
             "Job Planning Line Type"::"G/L Account":
-                exit(LibraryERM.CreateGLAccountWithSalesSetup);
+                exit(LibraryERM.CreateGLAccountWithSalesSetup());
             else
                 Error(ErrorMsg);
         end
@@ -604,14 +579,14 @@ codeunit 131920 "Library - Job"
         Invoice: Boolean;
     begin
         case Source of
-            JobConsumption:
+            JobConsumption():
                 begin
                     CreateJobJournalLineForPlan(JobPlanningLine, UsageLineType, Fraction, JobJournalLine);
                     JobJournalLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
                     JobJournalLine.Modify(true);
                     PostJobJournal(JobJournalLine)
                 end;
-            ServiceConsumption:
+            ServiceConsumption():
                 begin
                     Ship := true;
                     Consume := true;
@@ -619,46 +594,40 @@ codeunit 131920 "Library - Job"
                     CreateServiceLineForPlan(JobPlanningLine, UsageLineType, Fraction, ServiceLine);
                     ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
                     ServicePost.PostWithLines(ServiceHeader, TempServiceLine, Ship, Consume, Invoice);
-                    with ServiceLine do begin
-                        JobJournalLine."Line Type" := "Job Line Type";
-                        JobJournalLine."Remaining Qty." := "Job Remaining Qty.";
-                        JobJournalLine.Quantity := "Qty. to Consume";
-                        JobJournalLine.Description := Description;
-                        JobJournalLine."Total Cost" := Round("Qty. to Consume" * "Unit Cost");
-                        JobJournalLine."Total Cost (LCY)" := Round("Qty. to Consume" * "Unit Cost (LCY)");
-                        JobJournalLine."Line Amount" := "Qty. to Consume" * "Unit Price"
-                    end
+                    JobJournalLine."Line Type" := ServiceLine."Job Line Type";
+                    JobJournalLine."Remaining Qty." := ServiceLine."Job Remaining Qty.";
+                    JobJournalLine.Quantity := ServiceLine."Qty. to Consume";
+                    JobJournalLine.Description := ServiceLine.Description;
+                    JobJournalLine."Total Cost" := Round(ServiceLine."Qty. to Consume" * ServiceLine."Unit Cost");
+                    JobJournalLine."Total Cost (LCY)" := Round(ServiceLine."Qty. to Consume" * ServiceLine."Unit Cost (LCY)");
+                    JobJournalLine."Line Amount" := ServiceLine."Qty. to Consume" * ServiceLine."Unit Price"
                 end;
-            GenJournalConsumption:
+            GenJournalConsumption():
                 begin
-                    Assert.AreEqual(GLAccountType, JobPlanningLine.Type, 'Can only consume G/L Account via Job Gen. Journal.');
+                    Assert.AreEqual(GLAccountType(), JobPlanningLine.Type, 'Can only consume G/L Account via Job Gen. Journal.');
                     CreateGenJournalLineForPlan(JobPlanningLine, UsageLineType, Fraction, GenJournalLine);
                     LibraryERM.PostGeneralJnlLine(GenJournalLine);
-                    with GenJournalLine do begin
-                        JobJournalLine."Line Type" := "Job Line Type";
-                        JobJournalLine."Remaining Qty." := "Job Remaining Qty.";
-                        JobJournalLine.Quantity := "Job Quantity";
-                        JobJournalLine.Description := Description;
-                        JobJournalLine."Total Cost" := "Job Total Cost";
-                        JobJournalLine."Total Cost (LCY)" := "Job Total Cost (LCY)";
-                        JobJournalLine."Line Amount" := "Job Line Amount";
-                    end
+                    JobJournalLine."Line Type" := GenJournalLine."Job Line Type";
+                    JobJournalLine."Remaining Qty." := GenJournalLine."Job Remaining Qty.";
+                    JobJournalLine.Quantity := GenJournalLine."Job Quantity";
+                    JobJournalLine.Description := GenJournalLine.Description;
+                    JobJournalLine."Total Cost" := GenJournalLine."Job Total Cost";
+                    JobJournalLine."Total Cost (LCY)" := GenJournalLine."Job Total Cost (LCY)";
+                    JobJournalLine."Line Amount" := GenJournalLine."Job Line Amount";
                 end;
-            PurchaseConsumption:
+            PurchaseConsumption():
                 begin
                     CreatePurchaseLineForPlan(JobPlanningLine, UsageLineType, Fraction, PurchaseLine);
                     PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
                     LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-                    with PurchaseLine do begin
-                        JobJournalLine."Line Type" := "Job Line Type";
-                        JobJournalLine."Remaining Qty." := "Job Remaining Qty.";
-                        JobJournalLine.Quantity := "Qty. to Invoice";
-                        JobJournalLine.Description := Description;
-                        JobJournalLine."Total Cost" := "Qty. to Invoice" * "Unit Cost (LCY)";
-                        JobJournalLine."Total Cost (LCY)" := "Qty. to Invoice" * "Unit Cost (LCY)";
-                        JobJournalLine."Total Price" := "Job Total Price";
-                        JobJournalLine."Line Amount" := "Job Line Amount";
-                    end
+                    JobJournalLine."Line Type" := PurchaseLine."Job Line Type";
+                    JobJournalLine."Remaining Qty." := PurchaseLine."Job Remaining Qty.";
+                    JobJournalLine.Quantity := PurchaseLine."Qty. to Invoice";
+                    JobJournalLine.Description := PurchaseLine.Description;
+                    JobJournalLine."Total Cost" := PurchaseLine."Qty. to Invoice" * PurchaseLine."Unit Cost (LCY)";
+                    JobJournalLine."Total Cost (LCY)" := PurchaseLine."Qty. to Invoice" * PurchaseLine."Unit Cost (LCY)";
+                    JobJournalLine."Total Price" := PurchaseLine."Job Total Price";
+                    JobJournalLine."Line Amount" := PurchaseLine."Job Line Amount";
                 end;
             else
                 Assert.Fail('Consumption method not supported')
@@ -700,7 +669,7 @@ codeunit 131920 "Library - Job"
                 Assert.Fail(StrSubstNo('Unsupported entry type: %1', JobLedgerEntry."Ledger Entry Type"));
         end;
 
-        GLEntry.FindFirst
+        GLEntry.FindFirst();
     end;
 
     procedure VerifyGLEntries(var JobLedgerEntry: Record "Job Ledger Entry")
@@ -711,7 +680,7 @@ codeunit 131920 "Library - Job"
         JobLedgerEntry.FindSet();
         repeat
             GetGLEntry(JobLedgerEntry, GLEntry);
-            Assert.AreEqual(JobLedgerEntry."Job No.", GLEntry."Job No.", JobNoError)
+            Assert.AreEqual(JobLedgerEntry."Job No.", GLEntry."Job No.", JobNoErr);
         until JobLedgerEntry.Next() = 0
     end;
 
@@ -726,18 +695,16 @@ codeunit 131920 "Library - Job"
         Job.Get(PurchaseLine."Job No.");
 
         repeat
-            with TempJobJournalLine do begin
-                "Line No." := PurchaseLine."Line No.";
-                "Job No." := PurchaseLine."Job No.";
-                "Job Task No." := PurchaseLine."Job Task No.";
-                Description := PurchaseLine.Description;
-                "Line Type" := PurchaseLine."Job Line Type";
-                Quantity := PurchaseLine.Quantity;
-                "Unit Cost (LCY)" := PurchaseLine."Unit Cost (LCY)";
-                "Unit Price (LCY)" := PurchaseLine."Unit Price (LCY)";
-                "Currency Code" := Job."Currency Code";
-                Insert
-            end
+            TempJobJournalLine."Line No." := PurchaseLine."Line No.";
+            TempJobJournalLine."Job No." := PurchaseLine."Job No.";
+            TempJobJournalLine."Job Task No." := PurchaseLine."Job Task No.";
+            TempJobJournalLine.Description := PurchaseLine.Description;
+            TempJobJournalLine."Line Type" := PurchaseLine."Job Line Type";
+            TempJobJournalLine.Quantity := PurchaseLine.Quantity;
+            TempJobJournalLine."Unit Cost (LCY)" := PurchaseLine."Unit Cost (LCY)";
+            TempJobJournalLine."Unit Price (LCY)" := PurchaseLine."Unit Price (LCY)";
+            TempJobJournalLine."Currency Code" := Job."Currency Code";
+            TempJobJournalLine.Insert();
         until PurchaseLine.Next() = 0;
 
         VerifyJobJournalPosting(false, TempJobJournalLine)
@@ -761,24 +728,21 @@ codeunit 131920 "Library - Job"
         Precision: Decimal;
     begin
         // A posted job journal line gives one corresponding entry in the job ledger.
+        JobLedgerEntry.SetRange(Description, JobJournalLine.Description);
 
-        with JobLedgerEntry do begin
-            SetRange(Description, JobJournalLine.Description);
+        Assert.AreEqual(
+          1, JobLedgerEntry.Count(),
+          StrSubstNo(
+            'Invalid Job Ledger Entry for Batch %1 Document %2', JobJournalLine."Journal Batch Name",
+            JobJournalLine."Document No."));
 
-            Assert.AreEqual(
-              1, Count,
-              StrSubstNo(
-                'Invalid Job Ledger Entry for Batch %1 Document %2', JobJournalLine."Journal Batch Name",
-                JobJournalLine."Document No."));
-
-            FindFirst();
-            Precision := max(GetAmountRoundingPrecision(''), GetAmountRoundingPrecision(JobJournalLine."Currency Code"));
-            Assert.AreEqual(JobJournalLine."Job No.", "Job No.", FieldCaption("Job No."));
-            Assert.AreEqual(JobJournalLine."Job Task No.", "Job Task No.", FieldCaption("Job Task No."));
-            Assert.AreNearlyEqual(JobJournalLine."Unit Cost (LCY)", "Unit Cost (LCY)", Precision * 10, FieldCaption("Unit Cost (LCY)"));
-            Assert.AreNearlyEqual(JobJournalLine."Unit Price (LCY)", "Unit Price (LCY)", Precision, FieldCaption("Unit Price (LCY)"));
-            Assert.AreEqual(JobJournalLine.Quantity, Quantity, FieldCaption(Quantity));
-        end
+        JobLedgerEntry.FindFirst();
+        Precision := max(GetAmountRoundingPrecision(''), GetAmountRoundingPrecision(JobJournalLine."Currency Code"));
+        Assert.AreEqual(JobJournalLine."Job No.", JobLedgerEntry."Job No.", JobLedgerEntry.FieldCaption("Job No."));
+        Assert.AreEqual(JobJournalLine."Job Task No.", JobLedgerEntry."Job Task No.", JobLedgerEntry.FieldCaption("Job Task No."));
+        Assert.AreNearlyEqual(JobJournalLine."Unit Cost (LCY)", JobLedgerEntry."Unit Cost (LCY)", Precision * 10, JobLedgerEntry.FieldCaption("Unit Cost (LCY)"));
+        Assert.AreNearlyEqual(JobJournalLine."Unit Price (LCY)", JobLedgerEntry."Unit Price (LCY)", Precision, JobLedgerEntry.FieldCaption("Unit Price (LCY)"));
+        Assert.AreEqual(JobJournalLine.Quantity, JobLedgerEntry.Quantity, JobLedgerEntry.FieldCaption(Quantity));
     end;
 
     procedure VerifyPlanningLines(JobJournalLine: Record "Job Journal Line"; UsageLink: Boolean)
@@ -791,35 +755,30 @@ codeunit 131920 "Library - Job"
         // 1 (Contract or Schedule), or
         // 2 (Both)
         // corresponding planning lines.
-
-        with JobPlanningLine do begin
-            SetRange(Description, JobJournalLine.Description);
-
-            // Verify line count and type
-            case JobJournalLine."Line Type" of
-                UsageLineTypeBlank:
-                    VerifyPlanningLineCountBlank(JobJournalLine, UsageLink);
-                UsageLineTypeSchedule:
-                    VerifyPlanningLineCountSchedul(JobJournalLine);
-                UsageLineTypeContract:
-                    VerifyPlanningLineCountContrac(JobJournalLine, UsageLink);
-                UsageLineTypeBoth:
-                    VerifyPlanningLineCountBoth(JobJournalLine);
-                else
-                    Assert.Fail('Invalid line type.');
-            end;
-
-            // Verify Unit Cost, Price.
-            Precision := max(GetAmountRoundingPrecision(''), GetAmountRoundingPrecision(JobJournalLine."Currency Code"));
-            if FindSet() then
-                repeat
-                    Assert.AreEqual(JobJournalLine.Quantity, Quantity, FieldCaption(Quantity));
-                    Assert.AreEqual(JobJournalLine."Job No.", "Job No.", FieldCaption("Job No."));
-                    Assert.AreEqual(JobJournalLine."Job Task No.", "Job Task No.", FieldCaption("Job Task No."));
-                    Assert.AreNearlyEqual(JobJournalLine."Unit Cost (LCY)", "Unit Cost (LCY)", Precision * 10, FieldCaption("Unit Cost (LCY)"));
-                    Assert.AreNearlyEqual(JobJournalLine."Unit Price (LCY)", "Unit Price (LCY)", Precision, FieldCaption("Unit Price (LCY)"))
-                until Next = 0
-        end
+        JobPlanningLine.SetRange(Description, JobJournalLine.Description);
+        // Verify line count and type
+        case JobJournalLine."Line Type" of
+            UsageLineTypeBlank():
+                VerifyPlanningLineCountBlank(JobJournalLine, UsageLink);
+            UsageLineTypeSchedule():
+                VerifyPlanningLineCountSchedul(JobJournalLine);
+            UsageLineTypeContract():
+                VerifyPlanningLineCountContrac(JobJournalLine, UsageLink);
+            UsageLineTypeBoth():
+                VerifyPlanningLineCountBoth(JobJournalLine);
+            else
+                Assert.Fail('Invalid line type.');
+        end;
+        // Verify Unit Cost, Price.
+        Precision := max(GetAmountRoundingPrecision(''), GetAmountRoundingPrecision(JobJournalLine."Currency Code"));
+        if JobPlanningLine.FindSet() then
+            repeat
+                Assert.AreEqual(JobJournalLine.Quantity, JobPlanningLine.Quantity, JobPlanningLine.FieldCaption(Quantity));
+                Assert.AreEqual(JobJournalLine."Job No.", JobPlanningLine."Job No.", JobPlanningLine.FieldCaption("Job No."));
+                Assert.AreEqual(JobJournalLine."Job Task No.", JobPlanningLine."Job Task No.", JobPlanningLine.FieldCaption("Job Task No."));
+                Assert.AreNearlyEqual(JobJournalLine."Unit Cost (LCY)", JobPlanningLine."Unit Cost (LCY)", Precision * 10, JobPlanningLine.FieldCaption("Unit Cost (LCY)"));
+                Assert.AreNearlyEqual(JobJournalLine."Unit Price (LCY)", JobPlanningLine."Unit Price (LCY)", Precision, JobPlanningLine.FieldCaption("Unit Price (LCY)"))
+            until JobPlanningLine.Next() = 0
     end;
 
     local procedure VerifyPlanningLineCountBlank(JobJournalLine: Record "Job Journal Line"; UsageLink: Boolean)
@@ -827,28 +786,24 @@ codeunit 131920 "Library - Job"
         JobPlanningLine: Record "Job Planning Line";
         Job: Record Job;
     begin
-        with JobPlanningLine do begin
-            SetRange(Description, JobJournalLine.Description);
-            Job.Get(JobJournalLine."Job No.");
-            if UsageLink then begin
-                Assert.AreEqual(1, Count, StrSubstNo('# planning lines for Line Type %1.', JobJournalLine."Line Type"));
-                FindFirst();
-                Assert.AreEqual(PlanningLineTypeSchedule, "Line Type", FieldCaption("Line Type"))
-            end else
-                Assert.IsTrue(IsEmpty, StrSubstNo('No planning lines should be created for %1.', JobJournalLine."Line Type"));
-        end
+        JobPlanningLine.SetRange(Description, JobJournalLine.Description);
+        Job.Get(JobJournalLine."Job No.");
+        if UsageLink then begin
+            Assert.AreEqual(1, JobPlanningLine.Count, StrSubstNo('# planning lines for Line Type %1.', JobJournalLine."Line Type"));
+            JobPlanningLine.FindFirst();
+            Assert.AreEqual(PlanningLineTypeSchedule(), JobPlanningLine."Line Type", JobPlanningLine.FieldCaption("Line Type"))
+        end else
+            Assert.IsTrue(JobPlanningLine.IsEmpty, StrSubstNo('No planning lines should be created for %1.', JobJournalLine."Line Type"));
     end;
 
     local procedure VerifyPlanningLineCountSchedul(JobJournalLine: Record "Job Journal Line")
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
-        with JobPlanningLine do begin
-            SetRange(Description, JobJournalLine.Description);
-            Assert.AreEqual(1, Count, StrSubstNo('# planning lines for Line Type %1.', JobJournalLine."Line Type"));
-            FindFirst();
-            Assert.AreEqual(PlanningLineTypeSchedule, "Line Type", FieldCaption("Line Type"))
-        end
+        JobPlanningLine.SetRange(Description, JobJournalLine.Description);
+        Assert.AreEqual(1, JobPlanningLine.Count, StrSubstNo('# planning lines for Line Type %1.', JobJournalLine."Line Type"));
+        JobPlanningLine.FindFirst();
+        Assert.AreEqual(PlanningLineTypeSchedule(), JobPlanningLine."Line Type", JobPlanningLine.FieldCaption("Line Type"))
     end;
 
     local procedure VerifyPlanningLineCountContrac(JobJournalLine: Record "Job Journal Line"; UsageLink: Boolean)
@@ -856,26 +811,24 @@ codeunit 131920 "Library - Job"
         Job: Record Job;
         JobPlanningLine: Record "Job Planning Line";
     begin
-        with JobPlanningLine do begin
-            SetRange(Description, JobJournalLine.Description);
-            if UsageLink then begin
-                Job.Get(JobJournalLine."Job No.");
-                if Job."Allow Schedule/Contract Lines" then begin
-                    Assert.AreEqual(1, Count, StrSubstNo('# planning lines for Line Type %1.', JobJournalLine."Line Type"));
-                    FindFirst();
-                    Assert.AreEqual(PlanningLineTypeBoth, "Line Type", FieldCaption("Line Type"))
-                end else begin
-                    Assert.AreEqual(2, Count, StrSubstNo('# planning lines for Line Type %1.', JobJournalLine."Line Type"));
-                    SetRange("Line Type", PlanningLineTypeSchedule);
-                    Assert.AreEqual(1, Count, StrSubstNo('# schedule planning line for Line Type %1.', JobJournalLine."Line Type"));
-                    SetRange("Line Type", PlanningLineTypeContract);
-                    Assert.AreEqual(1, Count, StrSubstNo('# contract planning lines for Line Type %1.', JobJournalLine."Line Type"))
-                end
+        JobPlanningLine.SetRange(Description, JobJournalLine.Description);
+        if UsageLink then begin
+            Job.Get(JobJournalLine."Job No.");
+            if Job."Allow Schedule/Contract Lines" then begin
+                Assert.AreEqual(1, JobPlanningLine.Count, StrSubstNo('# planning lines for Line Type %1.', JobJournalLine."Line Type"));
+                JobPlanningLine.FindFirst();
+                Assert.AreEqual(PlanningLineTypeBoth(), JobPlanningLine."Line Type", JobPlanningLine.FieldCaption("Line Type"))
             end else begin
-                Assert.AreEqual(1, Count, StrSubstNo('# planning lines for Line Type %1.', JobJournalLine."Line Type"));
-                FindFirst();
-                Assert.AreEqual(PlanningLineTypeContract, "Line Type", FieldCaption("Line Type"))
+                Assert.AreEqual(2, JobPlanningLine.Count, StrSubstNo('# planning lines for Line Type %1.', JobJournalLine."Line Type"));
+                JobPlanningLine.SetRange("Line Type", PlanningLineTypeSchedule());
+                Assert.AreEqual(1, JobPlanningLine.Count, StrSubstNo('# schedule planning line for Line Type %1.', JobJournalLine."Line Type"));
+                JobPlanningLine.SetRange("Line Type", PlanningLineTypeContract());
+                Assert.AreEqual(1, JobPlanningLine.Count, StrSubstNo('# contract planning lines for Line Type %1.', JobJournalLine."Line Type"))
             end
+        end else begin
+            Assert.AreEqual(1, JobPlanningLine.Count, StrSubstNo('# planning lines for Line Type %1.', JobJournalLine."Line Type"));
+            JobPlanningLine.FindFirst();
+            Assert.AreEqual(PlanningLineTypeContract(), JobPlanningLine."Line Type", JobPlanningLine.FieldCaption("Line Type"))
         end
     end;
 
@@ -884,20 +837,18 @@ codeunit 131920 "Library - Job"
         Job: Record Job;
         JobPlanningLine: Record "Job Planning Line";
     begin
-        with JobPlanningLine do begin
-            SetRange(Description, JobJournalLine.Description);
-            Job.Get(JobJournalLine."Job No.");
-            if Job."Allow Schedule/Contract Lines" then begin
-                Assert.AreEqual(1, Count, StrSubstNo('# planning lines for Line Type %1.', JobJournalLine."Line Type"));
-                FindFirst();
-                Assert.AreEqual(PlanningLineTypeBoth, "Line Type", FieldCaption("Line Type"))
-            end else begin
-                Assert.AreEqual(2, Count, StrSubstNo('# planning lines for Line Type %1.', JobJournalLine."Line Type"));
-                SetRange("Line Type", PlanningLineTypeSchedule);
-                Assert.AreEqual(1, Count, StrSubstNo('# schedule planning line for Line Type %1.', JobJournalLine."Line Type"));
-                SetRange("Line Type", PlanningLineTypeContract);
-                Assert.AreEqual(1, Count, StrSubstNo('# contract planning lines for Line Type %1.', JobJournalLine."Line Type"))
-            end
+        JobPlanningLine.SetRange(Description, JobJournalLine.Description);
+        Job.Get(JobJournalLine."Job No.");
+        if Job."Allow Schedule/Contract Lines" then begin
+            Assert.AreEqual(1, JobPlanningLine.Count, StrSubstNo('# planning lines for Line Type %1.', JobJournalLine."Line Type"));
+            JobPlanningLine.FindFirst();
+            Assert.AreEqual(PlanningLineTypeBoth(), JobPlanningLine."Line Type", JobPlanningLine.FieldCaption("Line Type"))
+        end else begin
+            Assert.AreEqual(2, JobPlanningLine.Count, StrSubstNo('# planning lines for Line Type %1.', JobJournalLine."Line Type"));
+            JobPlanningLine.SetRange("Line Type", PlanningLineTypeSchedule());
+            Assert.AreEqual(1, JobPlanningLine.Count, StrSubstNo('# schedule planning line for Line Type %1.', JobJournalLine."Line Type"));
+            JobPlanningLine.SetRange("Line Type", PlanningLineTypeContract());
+            Assert.AreEqual(1, JobPlanningLine.Count, StrSubstNo('# contract planning lines for Line Type %1.', JobJournalLine."Line Type"))
         end
     end;
 
@@ -905,22 +856,20 @@ codeunit 131920 "Library - Job"
     var
         GLAccount: Record "G/L Account";
     begin
-        with JobPostingGroup do begin
-            LibraryERM.CreateGLAccount(GLAccount);
-            Validate("WIP Costs Account", GLAccount."No.");
-            Validate("WIP Invoiced Sales Account", GLAccount."No.");
-            Validate("WIP Accrued Costs Account", GLAccount."No.");
-            Validate("WIP Accrued Sales Account", GLAccount."No.");
-            Validate("Job Costs Applied Account", GLAccount."No.");
-            Validate("Job Costs Adjustment Account", GLAccount."No.");
-            Validate("Job Sales Applied Account", GLAccount."No.");
-            Validate("Job Sales Adjustment Account", GLAccount."No.");
-            Validate("Resource Costs Applied Account", GLAccount."No.");
-            Validate("Recognized Costs Account", GLAccount."No.");
-            Validate("Recognized Sales Account", GLAccount."No.");
-            Validate("G/L Costs Applied Account", GLAccount."No.");
-            Modify(true);
-        end;
+        LibraryERM.CreateGLAccount(GLAccount);
+        JobPostingGroup.Validate("WIP Costs Account", GLAccount."No.");
+        JobPostingGroup.Validate("WIP Invoiced Sales Account", GLAccount."No.");
+        JobPostingGroup.Validate("WIP Accrued Costs Account", GLAccount."No.");
+        JobPostingGroup.Validate("WIP Accrued Sales Account", GLAccount."No.");
+        JobPostingGroup.Validate("Job Costs Applied Account", GLAccount."No.");
+        JobPostingGroup.Validate("Job Costs Adjustment Account", GLAccount."No.");
+        JobPostingGroup.Validate("Job Sales Applied Account", GLAccount."No.");
+        JobPostingGroup.Validate("Job Sales Adjustment Account", GLAccount."No.");
+        JobPostingGroup.Validate("Resource Costs Applied Account", GLAccount."No.");
+        JobPostingGroup.Validate("Recognized Costs Account", GLAccount."No.");
+        JobPostingGroup.Validate("Recognized Sales Account", GLAccount."No.");
+        JobPostingGroup.Validate("G/L Costs Applied Account", GLAccount."No.");
+        JobPostingGroup.Modify(true);
     end;
 
     procedure ConfigureGeneralPosting()
@@ -943,19 +892,17 @@ codeunit 131920 "Library - Job"
 
                 RecordRef.GetTable(GeneralPostingSetup);
                 // general posting => income statement
-                SetIncomeStatementGLAccounts(RecordRef)
-            until GenProductPostingGroup.Next() = 0
-        until GenBusinessPostingGroup.Next() = 0
+                SetIncomeStatementGLAccounts(RecordRef);
+            until GenProductPostingGroup.Next() = 0;
+        until GenBusinessPostingGroup.Next() = 0;
     end;
 
     procedure CreateGeneralPostingSetup(GenBusinessPostingGroupCode: Code[20]; GenProductPostingGroupCode: Code[20]; var GeneralPostingSetup: Record "General Posting Setup")
     begin
-        with GeneralPostingSetup do begin
-            "Gen. Bus. Posting Group" := GenBusinessPostingGroupCode;
-            "Gen. Prod. Posting Group" := GenProductPostingGroupCode;
-            Init();
-            Insert(true);
-        end;
+        GeneralPostingSetup."Gen. Bus. Posting Group" := GenBusinessPostingGroupCode;
+        GeneralPostingSetup."Gen. Prod. Posting Group" := GenProductPostingGroupCode;
+        GeneralPostingSetup.Init();
+        GeneralPostingSetup.Insert(true);
     end;
 
     procedure ConfigureVATPosting()
@@ -980,25 +927,24 @@ codeunit 131920 "Library - Job"
 
                 RecordRef.GetTable(VATPostingSetup);
                 // VAT posting => income statement
-                SetIncomeStatementGLAccounts(RecordRef)
-            until VATProductPostingGroup.Next() = 0
-        until VATBusinessPostingGroup.Next() = 0
+                SetIncomeStatementGLAccounts(RecordRef);
+            until VATProductPostingGroup.Next() = 0;
+        until VATBusinessPostingGroup.Next() = 0;
     end;
 
     procedure CreateVATPostingSetup(VATBusinessPostingGroupCode: Code[20]; VATProductPostingGroupCode: Code[20]; var VATPostingSetup: Record "VAT Posting Setup")
     begin
-        with VATPostingSetup do begin
-            "VAT Bus. Posting Group" := VATBusinessPostingGroupCode;
-            "VAT Prod. Posting Group" := VATProductPostingGroupCode;
-            Init();
-            "VAT %" := LibraryRandom.RandIntInRange(10, 25); // 10 <= VAT % <= 25
-            "VAT Identifier" := Format("VAT %");
-            "Sales VAT Account" := LibraryERM.CreateGLAccountWithSalesSetup;
-            "Sales VAT Unreal. Account" := "Sales VAT Account";
-            "Purchase VAT Account" := "Sales VAT Account";
-            "Purch. VAT Unreal. Account" := "Sales VAT Account";
-            Insert(true);
-        end;
+        VATPostingSetup."VAT Bus. Posting Group" := VATBusinessPostingGroupCode;
+        VATPostingSetup."VAT Prod. Posting Group" := VATProductPostingGroupCode;
+        VATPostingSetup.Init();
+        VATPostingSetup."VAT %" := LibraryRandom.RandIntInRange(10, 25);
+        // 10 <= VAT % <= 25
+        VATPostingSetup."VAT Identifier" := Format(VATPostingSetup."VAT %");
+        VATPostingSetup."Sales VAT Account" := LibraryERM.CreateGLAccountWithSalesSetup();
+        VATPostingSetup."Sales VAT Unreal. Account" := VATPostingSetup."Sales VAT Account";
+        VATPostingSetup."Purchase VAT Account" := VATPostingSetup."Sales VAT Account";
+        VATPostingSetup."Purch. VAT Unreal. Account" := VATPostingSetup."Sales VAT Account";
+        VATPostingSetup.Insert(true);
     end;
 
     procedure SetAutomaticUpdateJobItemCost(IsEnabled: Boolean)
@@ -1020,11 +966,11 @@ codeunit 131920 "Library - Job"
         for Idx := 1 to RecordRef.FieldCount do begin
             FieldRef := RecordRef.FieldIndex(Idx);
             if FieldRef.Relation = DATABASE::"G/L Account" then begin
-                GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+                GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
                 GLAccount."Income/Balance" := GLAccount."Income/Balance"::"Income Statement";
                 GLAccount.Modify(true);
                 FieldRef.Value := GLAccount."No.";
-                FieldRef.TestField;
+                FieldRef.TestField();
                 RecordRef.Modify();
             end
         end
@@ -1132,7 +1078,7 @@ codeunit 131920 "Library - Job"
         Currency: Record Currency;
     begin
         if CurrencyCode = '' then
-            exit(LibraryERM.GetUnitAmountRoundingPrecision);
+            exit(LibraryERM.GetUnitAmountRoundingPrecision());
         Currency.Get(CurrencyCode);
         exit(Currency."Unit-Amount Rounding Precision")
     end;
@@ -1142,7 +1088,7 @@ codeunit 131920 "Library - Job"
         Currency: Record Currency;
     begin
         if CurrencyCode = '' then
-            exit(LibraryERM.GetAmountRoundingPrecision);
+            exit(LibraryERM.GetAmountRoundingPrecision());
         Currency.Get(CurrencyCode);
         exit(Currency."Amount Rounding Precision")
     end;
@@ -1166,17 +1112,17 @@ codeunit 131920 "Library - Job"
         ToJobJournalLine.CopyFilters(FromJobJournalLine)
     end;
 
-    procedure UsageLineType(PlanningLineType: Enum "Job Planning Line Line Type"): Enum "Job Line Type"
+    procedure UsageLineType(PlanningLineType2: Enum "Job Planning Line Line Type"): Enum "Job Line Type"
     begin
-        case PlanningLineType of
-            PlanningLineTypeSchedule:
-                exit(UsageLineTypeSchedule);
-            PlanningLineTypeContract:
-                exit(UsageLineTypeContract);
-            PlanningLineTypeBoth:
-                exit(UsageLineTypeBoth);
+        case PlanningLineType2 of
+            PlanningLineTypeSchedule():
+                exit(UsageLineTypeSchedule());
+            PlanningLineTypeContract():
+                exit(UsageLineTypeContract());
+            PlanningLineTypeBoth():
+                exit(UsageLineTypeBoth());
             else
-                Assert.Fail(StrSubstNo('Invalid job planning line type: %1', PlanningLineType))
+                Assert.Fail(StrSubstNo('Invalid job planning line type: %1', PlanningLineType2));
         end
     end;
 
@@ -1208,17 +1154,17 @@ codeunit 131920 "Library - Job"
         exit(JobJournalLine."Line Type"::"Both Budget and Billable")
     end;
 
-    procedure PlanningLineType(UsageLineType: Enum "Job Line Type"): Enum "Job Planning Line Line Type"
+    procedure PlanningLineType(UsageLineType2: Enum "Job Line Type"): Enum "Job Planning Line Line Type"
     begin
-        case UsageLineType of
-            UsageLineTypeSchedule:
-                exit(PlanningLineTypeSchedule);
-            UsageLineTypeContract:
-                exit(PlanningLineTypeContract);
-            UsageLineTypeBoth:
-                exit(PlanningLineTypeContract);
+        case UsageLineType2 of
+            UsageLineTypeSchedule():
+                exit(PlanningLineTypeSchedule());
+            UsageLineTypeContract():
+                exit(PlanningLineTypeContract());
+            UsageLineTypeBoth():
+                exit(PlanningLineTypeContract());
             else
-                Assert.Fail(StrSubstNo('No matching job planning line type exists for job usage line type: %1', UsageLineType))
+                Assert.Fail(StrSubstNo('No matching job planning line type exists for job usage line type: %1', UsageLineType2));
         end
     end;
 
@@ -1329,36 +1275,34 @@ codeunit 131920 "Library - Job"
     [Normal]
     procedure GetJobWIPMethod(var JobWIPMethod: Record "Job WIP Method"; Method: Option "Completed Contract","Cost of Sales","Cost Value",POC,"Sales Value")
     begin
-        with JobWIPMethod do begin
-            case Method of
-                Method::"Completed Contract":
-                    begin
-                        SetRange("Recognized Costs", "Recognized Costs"::"At Completion");
-                        SetRange("Recognized Sales", "Recognized Sales"::"At Completion");
-                    end;
-                Method::"Cost of Sales":
-                    begin
-                        SetRange("Recognized Costs", "Recognized Costs"::"Cost of Sales");
-                        SetRange("Recognized Sales", "Recognized Sales"::"Contract (Invoiced Price)");
-                    end;
-                Method::"Cost Value":
-                    begin
-                        SetRange("Recognized Costs", "Recognized Costs"::"Cost Value");
-                        SetRange("Recognized Sales", "Recognized Sales"::"Contract (Invoiced Price)");
-                    end;
-                Method::POC:
-                    begin
-                        SetRange("Recognized Costs", "Recognized Costs"::"Usage (Total Cost)");
-                        SetRange("Recognized Sales", "Recognized Sales"::"Percentage of Completion");
-                    end;
-                Method::"Sales Value":
-                    begin
-                        SetRange("Recognized Costs", "Recognized Costs"::"Usage (Total Cost)");
-                        SetRange("Recognized Sales", "Recognized Sales"::"Sales Value");
-                    end;
-            end;
-            FindFirst();
+        case Method of
+            Method::"Completed Contract":
+                begin
+                    JobWIPMethod.SetRange("Recognized Costs", JobWIPMethod."Recognized Costs"::"At Completion");
+                    JobWIPMethod.SetRange("Recognized Sales", JobWIPMethod."Recognized Sales"::"At Completion");
+                end;
+            Method::"Cost of Sales":
+                begin
+                    JobWIPMethod.SetRange("Recognized Costs", JobWIPMethod."Recognized Costs"::"Cost of Sales");
+                    JobWIPMethod.SetRange("Recognized Sales", JobWIPMethod."Recognized Sales"::"Contract (Invoiced Price)");
+                end;
+            Method::"Cost Value":
+                begin
+                    JobWIPMethod.SetRange("Recognized Costs", JobWIPMethod."Recognized Costs"::"Cost Value");
+                    JobWIPMethod.SetRange("Recognized Sales", JobWIPMethod."Recognized Sales"::"Contract (Invoiced Price)");
+                end;
+            Method::POC:
+                begin
+                    JobWIPMethod.SetRange("Recognized Costs", JobWIPMethod."Recognized Costs"::"Usage (Total Cost)");
+                    JobWIPMethod.SetRange("Recognized Sales", JobWIPMethod."Recognized Sales"::"Percentage of Completion");
+                end;
+            Method::"Sales Value":
+                begin
+                    JobWIPMethod.SetRange("Recognized Costs", JobWIPMethod."Recognized Costs"::"Usage (Total Cost)");
+                    JobWIPMethod.SetRange("Recognized Sales", JobWIPMethod."Recognized Sales"::"Sales Value");
+                end;
         end;
+        JobWIPMethod.FindFirst();
     end;
 
     procedure RunUpdateJobItemCost(JobNo: Code[20])

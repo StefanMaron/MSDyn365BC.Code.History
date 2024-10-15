@@ -3,6 +3,7 @@ table 12475 "Precious Metal"
     Caption = 'Precious Metal';
     DrillDownPageID = "Precious Metal";
     LookupPageID = "Precious Metal";
+    DataClassification = CustomerContent;
 
     fields
     {

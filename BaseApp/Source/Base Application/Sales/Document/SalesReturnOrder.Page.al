@@ -978,7 +978,9 @@ page 6630 "Sales Return Order"
                     Image = Signature;
                     RunObject = Page "Document Signatures";
                     RunPageLink = "Table ID" = const(36),
+#pragma warning disable AL0603
                                   "Document Type" = field("Document Type"),
+#pragma warning restore AL0603
                                   "Document No." = field("No.");
                 }
                 separator(Action131)
@@ -1459,7 +1461,7 @@ page 6630 "Sales Return Order"
                 {
                     ApplicationArea = SalesReturnOrder;
                     Caption = 'Send A&pproval Request';
-                    Enabled = NOT OpenApprovalEntriesExist;
+                    Enabled = not OpenApprovalEntriesExist;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval of the document.';
 

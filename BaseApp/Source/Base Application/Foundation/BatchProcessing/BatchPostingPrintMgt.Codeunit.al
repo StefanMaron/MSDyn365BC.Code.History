@@ -59,52 +59,51 @@ codeunit 1373 "Batch Posting Print Mgt."
             exit;
 
         SalesReceivablesSetup.Get();
-        with SalesHeader do
-            case "Document Type" of
-                "Document Type"::Order:
-                    begin
-                        if Ship then begin
-                            SalesShipmentHeader."No." := "Last Shipping No.";
-                            SalesShipmentHeader.SetRecFilter();
-                            PrintDocument(
-                                ReportSelections.Usage::"S.Shipment", SalesShipmentHeader,
-                                SalesReceivablesSetup."Post & Print with Job Queue",
-                                SalesReceivablesSetup."Report Output Type");
-                        end;
-                        if Invoice then begin
-                            SalesInvoiceHeader."No." := "Last Posting No.";
-                            SalesInvoiceHeader.SetRecFilter();
-                            PrintDocument(
-                                ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader,
-                                SalesReceivablesSetup."Post & Print with Job Queue",
-                                SalesReceivablesSetup."Report Output Type");
-                        end;
+        case SalesHeader."Document Type" of
+            SalesHeader."Document Type"::Order:
+                begin
+                    if SalesHeader.Ship then begin
+                        SalesShipmentHeader."No." := SalesHeader."Last Shipping No.";
+                        SalesShipmentHeader.SetRecFilter();
+                        PrintDocument(
+                            ReportSelections.Usage::"S.Shipment", SalesShipmentHeader,
+                            SalesReceivablesSetup."Post & Print with Job Queue",
+                            SalesReceivablesSetup."Report Output Type");
                     end;
-                "Document Type"::Invoice:
-                    begin
-                        if "Last Posting No." = '' then
-                            SalesInvoiceHeader."No." := "No."
-                        else
-                            SalesInvoiceHeader."No." := "Last Posting No.";
+                    if SalesHeader.Invoice then begin
+                        SalesInvoiceHeader."No." := SalesHeader."Last Posting No.";
                         SalesInvoiceHeader.SetRecFilter();
                         PrintDocument(
                             ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader,
                             SalesReceivablesSetup."Post & Print with Job Queue",
                             SalesReceivablesSetup."Report Output Type");
                     end;
-                "Document Type"::"Credit Memo":
-                    begin
-                        if "Last Posting No." = '' then
-                            SalesCrMemoHeader."No." := "No."
-                        else
-                            SalesCrMemoHeader."No." := "Last Posting No.";
-                        SalesCrMemoHeader.SetRecFilter();
-                        PrintDocument(
-                            ReportSelections.Usage::"S.Cr.Memo", SalesCrMemoHeader,
-                            SalesReceivablesSetup."Post & Print with Job Queue",
-                            SalesReceivablesSetup."Report Output Type");
-                    end;
-            end;
+                end;
+            SalesHeader."Document Type"::Invoice:
+                begin
+                    if SalesHeader."Last Posting No." = '' then
+                        SalesInvoiceHeader."No." := SalesHeader."No."
+                    else
+                        SalesInvoiceHeader."No." := SalesHeader."Last Posting No.";
+                    SalesInvoiceHeader.SetRecFilter();
+                    PrintDocument(
+                        ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader,
+                        SalesReceivablesSetup."Post & Print with Job Queue",
+                        SalesReceivablesSetup."Report Output Type");
+                end;
+            SalesHeader."Document Type"::"Credit Memo":
+                begin
+                    if SalesHeader."Last Posting No." = '' then
+                        SalesCrMemoHeader."No." := SalesHeader."No."
+                    else
+                        SalesCrMemoHeader."No." := SalesHeader."Last Posting No.";
+                    SalesCrMemoHeader.SetRecFilter();
+                    PrintDocument(
+                        ReportSelections.Usage::"S.Cr.Memo", SalesCrMemoHeader,
+                        SalesReceivablesSetup."Post & Print with Job Queue",
+                        SalesReceivablesSetup."Report Output Type");
+                end;
+        end;
 
         OnAfterPrintSalesDocument(RecRef);
     end;
@@ -127,52 +126,51 @@ codeunit 1373 "Batch Posting Print Mgt."
             exit;
 
         PurchasesPayablesSetup.Get();
-        with PurchaseHeader do
-            case "Document Type" of
-                "Document Type"::Order:
-                    begin
-                        if Receive then begin
-                            PurchRcptHeader."No." := "Last Receiving No.";
-                            PurchRcptHeader.SetRecFilter();
-                            PrintDocument(
-                                ReportSelections.Usage::"P.Receipt", PurchRcptHeader,
-                                PurchasesPayablesSetup."Post & Print with Job Queue",
-                                PurchasesPayablesSetup."Report Output Type");
-                        end;
-                        if Invoice then begin
-                            PurchInvHeader."No." := "Last Posting No.";
-                            PurchInvHeader.SetRecFilter();
-                            PrintDocument(
-                                ReportSelections.Usage::"P.Invoice", PurchInvHeader,
-                                PurchasesPayablesSetup."Post & Print with Job Queue",
-                                PurchasesPayablesSetup."Report Output Type");
-                        end;
+        case PurchaseHeader."Document Type" of
+            PurchaseHeader."Document Type"::Order:
+                begin
+                    if PurchaseHeader.Receive then begin
+                        PurchRcptHeader."No." := PurchaseHeader."Last Receiving No.";
+                        PurchRcptHeader.SetRecFilter();
+                        PrintDocument(
+                            ReportSelections.Usage::"P.Receipt", PurchRcptHeader,
+                            PurchasesPayablesSetup."Post & Print with Job Queue",
+                            PurchasesPayablesSetup."Report Output Type");
                     end;
-                "Document Type"::Invoice:
-                    begin
-                        if "Last Posting No." = '' then
-                            PurchInvHeader."No." := "No."
-                        else
-                            PurchInvHeader."No." := "Last Posting No.";
+                    if PurchaseHeader.Invoice then begin
+                        PurchInvHeader."No." := PurchaseHeader."Last Posting No.";
                         PurchInvHeader.SetRecFilter();
                         PrintDocument(
                             ReportSelections.Usage::"P.Invoice", PurchInvHeader,
                             PurchasesPayablesSetup."Post & Print with Job Queue",
                             PurchasesPayablesSetup."Report Output Type");
                     end;
-                "Document Type"::"Credit Memo":
-                    begin
-                        if "Last Posting No." = '' then
-                            PurchCrMemoHdr."No." := "No."
-                        else
-                            PurchCrMemoHdr."No." := "Last Posting No.";
-                        PurchCrMemoHdr.SetRecFilter();
-                        PrintDocument(
-                            ReportSelections.Usage::"P.Cr.Memo", PurchCrMemoHdr,
-                            PurchasesPayablesSetup."Post & Print with Job Queue",
-                            PurchasesPayablesSetup."Report Output Type");
-                    end;
-            end;
+                end;
+            PurchaseHeader."Document Type"::Invoice:
+                begin
+                    if PurchaseHeader."Last Posting No." = '' then
+                        PurchInvHeader."No." := PurchaseHeader."No."
+                    else
+                        PurchInvHeader."No." := PurchaseHeader."Last Posting No.";
+                    PurchInvHeader.SetRecFilter();
+                    PrintDocument(
+                        ReportSelections.Usage::"P.Invoice", PurchInvHeader,
+                        PurchasesPayablesSetup."Post & Print with Job Queue",
+                        PurchasesPayablesSetup."Report Output Type");
+                end;
+            PurchaseHeader."Document Type"::"Credit Memo":
+                begin
+                    if PurchaseHeader."Last Posting No." = '' then
+                        PurchCrMemoHdr."No." := PurchaseHeader."No."
+                    else
+                        PurchCrMemoHdr."No." := PurchaseHeader."Last Posting No.";
+                    PurchCrMemoHdr.SetRecFilter();
+                    PrintDocument(
+                        ReportSelections.Usage::"P.Cr.Memo", PurchCrMemoHdr,
+                        PurchasesPayablesSetup."Post & Print with Job Queue",
+                        PurchasesPayablesSetup."Report Output Type");
+                end;
+        end;
 
         OnAfterPrintPurchaseDocument(RecRef);
     end;
@@ -191,17 +189,16 @@ codeunit 1373 "Batch Posting Print Mgt."
         GenJnlTemplate.Get(GenJrnlLine."Journal Template Name");
 
         GeneralLedgerSetup.Get();
-        with GenJrnlLine do
-            if GLReg.Get(GenJrnlLine."Line No.") then begin
-                if GenJnlTemplate."Cust. Receipt Report ID" <> 0 then
-                    PrintCustReceiptReport(GLReg, GenJnlTemplate, GeneralLedgerSetup);
+        if GLReg.Get(GenJrnlLine."Line No.") then begin
+            if GenJnlTemplate."Cust. Receipt Report ID" <> 0 then
+                PrintCustReceiptReport(GLReg, GenJnlTemplate, GeneralLedgerSetup);
 
-                if GenJnlTemplate."Vendor Receipt Report ID" <> 0 then
-                    PrintVendorReceiptReport(GLReg, GenJnlTemplate, GeneralLedgerSetup);
+            if GenJnlTemplate."Vendor Receipt Report ID" <> 0 then
+                PrintVendorReceiptReport(GLReg, GenJnlTemplate, GeneralLedgerSetup);
 
-                if GenJnlTemplate."Posting Report ID" <> 0 then
-                    PrintPostingReport(GLReg, GenJnlTemplate, GeneralLedgerSetup);
-            end;
+            if GenJnlTemplate."Posting Report ID" <> 0 then
+                PrintPostingReport(GLReg, GenJnlTemplate, GeneralLedgerSetup);
+        end;
     end;
 
     local procedure PrintCustReceiptReport(GLReg: Record "G/L Register"; GenJnlTemplate: Record "Gen. Journal Template"; GeneralLedgerSetup: Record "General Ledger Setup")
@@ -282,16 +279,14 @@ codeunit 1373 "Batch Posting Print Mgt."
         RecRefToPrint: RecordRef;
     begin
         RecRefToPrint.GetTable(RecVar);
-        with JobQueueEntry do begin
-            Clear(ID);
-            "Object Type to Run" := "Object Type to Run"::Report;
-            "Object ID to Run" := ReportId;
-            "Report Output Type" := ReportOutputType;
-            "Record ID to Process" := RecRefToPrint.RecordId;
-            Description := Format("Report Output Type");
-            CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
-            Commit();
-        end;
+        Clear(JobQueueEntry.ID);
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Report;
+        JobQueueEntry."Object ID to Run" := ReportId;
+        JobQueueEntry."Report Output Type" := "Job Queue Report Output Type".FromInteger(ReportOutputType);
+        JobQueueEntry."Record ID to Process" := RecRefToPrint.RecordId;
+        JobQueueEntry.Description := Format(JobQueueEntry."Report Output Type");
+        CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
+        Commit();
     end;
 
     [IntegrationEvent(false, false)]

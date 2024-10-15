@@ -2,6 +2,7 @@ table 17239 "Tax Reg. Norm Template Line"
 {
     Caption = 'Tax Reg. Norm Template Line';
     LookupPageID = "Tax Reg. Norm Template Lines";
+    DataClassification = CustomerContent;
 
     fields
     {

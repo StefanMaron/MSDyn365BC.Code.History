@@ -411,11 +411,9 @@ report 12466 "FA Turnover"
     end;
 
     var
-        Text003: Label 'Zero values are replaced by spacebar';
         FALedgerEntry: Record "FA Ledger Entry";
         FASetup: Record "FA Setup";
         FADeprBook: Record "FA Depreciation Book";
-        LocMgt: Codeunit "Localisation Management";
         Text005: Label 'for period from ';
         Text006: Label ' to ';
         DepreciationBook: Code[20];
@@ -464,22 +462,8 @@ report 12466 "FA Turnover"
         NumberCaption_Control1000000044Lbl: Label '³', Comment = 'Superscript character"3"';
         Totals_CaptionLbl: Label 'Totals:';
 
-    local procedure TextLineValues(ZeroBySpaces: Boolean)
-    begin
-    end;
-
-    local procedure "Value Text"(Value: Decimal; ZeroBySpaces: Boolean): Text[30]
-    begin
-    end;
-
     [Scope('OnPrem')]
     procedure SetParameters(var parFADeprBook: Record "FA Depreciation Book")
-    var
-        TxtDate: Text[8];
-        Day: Integer;
-        Month: Integer;
-        Year: Integer;
-        Calendar: Record Date;
     begin
         FADeprBook.Copy(parFADeprBook);
         StartingDate := FADeprBook.GetRangeMin("FA Posting Date Filter");

@@ -32,7 +32,7 @@ codeunit 136400 "Resource Employee"
     procedure EmployeeNoIncrement()
     var
         Employee: Record Employee;
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NextEmployeeNo: Code[20];
     begin
         // Covers document number TC00062 - refer to TFS ID 21680.
@@ -40,7 +40,7 @@ codeunit 136400 "Resource Employee"
 
         // 1. Setup: Get next employee no from No Series.
         Initialize();
-        NextEmployeeNo := NoSeriesManagement.GetNextNo(LibraryHumanResource.SetupEmployeeNumberSeries, WorkDate(), false);
+        NextEmployeeNo := NoSeries.PeekNextNo(LibraryHumanResource.SetupEmployeeNumberSeries());
 
         // 2. Exercise:  Create new Employee.
         CreateEmployee(Employee);
@@ -143,7 +143,7 @@ codeunit 136400 "Resource Employee"
         asserterror Employee.Insert(true);
 
         // 3. Verify: Verify that application generates an error message.
-        Assert.AssertRecordAlreadyExists;
+        Assert.AssertRecordAlreadyExists();
     end;
 
     [Test]
@@ -166,7 +166,7 @@ codeunit 136400 "Resource Employee"
         asserterror Employee.Rename(FirstEmployeeNo);
 
         // 3. Verify: Verify that application generates an error message.
-        Assert.AssertRecordAlreadyExists;
+        Assert.AssertRecordAlreadyExists();
     end;
 
     [Test]
@@ -186,7 +186,7 @@ codeunit 136400 "Resource Employee"
 
         commit();
         EmployeeCard.OpenNew();
-        EmployeeCard."No.".AssistEdit; // Get No. Series Code in EmployeeNoSeriesCode.
+        EmployeeCard."No.".AssistEdit(); // Get No. Series Code in EmployeeNoSeriesCode.
 
         // 3. Verify: No. Series Code must match with No. Series Code in Setup.
         HumanResourcesSetup.TestField("Employee Nos.", EmployeeNoSeriesCode);
@@ -205,7 +205,7 @@ codeunit 136400 "Resource Employee"
         Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
 
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard.GotoRecord(Employee);
 
         // Exercise and verify that setting an invalid email triggers error
@@ -229,13 +229,13 @@ codeunit 136400 "Resource Employee"
         LibraryHumanResource.CreateEmployee(Employee);
         Commit();
 
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard.GotoRecord(Employee);
 
         // 2. Exercise: Set E-Mail address to a valid value
         EmployeeCard."Company E-Mail".SetValue(ValidEmailTxt);
         EmployeeCard."E-Mail".SetValue(ValidEmailTxt);
-        EmployeeCard.OK.Invoke;
+        EmployeeCard.OK().Invoke();
 
         // 3. Verify: That the E-Mail address was updated
         Employee.Get(Employee."No.");
@@ -257,13 +257,13 @@ codeunit 136400 "Resource Employee"
         LibraryHumanResource.CreateEmployee(Employee);
         Commit();
 
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard.GotoRecord(Employee);
 
         // 2. Exercise: Set E-Mail address to contain spaces
         EmployeeCard."Company E-Mail".SetValue(' ');
         EmployeeCard."E-Mail".SetValue(StrSubstNo(' %1 ', ValidEmailTxt));
-        EmployeeCard.OK.Invoke;
+        EmployeeCard.OK().Invoke();
 
         // 3. Verify: That the E-Mail address was trimmed
         Employee.Get(Employee."No.");
@@ -287,8 +287,8 @@ codeunit 136400 "Resource Employee"
 
         // 3. Verify: Verify Post Codes Page is non editable.
         // As the fields are non editable so Pages is also non editable.
-        Assert.IsFalse(PostCodes.Code.Editable, StrSubstNo(EditableErr, PostCodes.Code.Caption));
-        Assert.IsFalse(PostCodes.City.Editable, StrSubstNo(EditableErr, PostCodes.City.Caption));
+        Assert.IsFalse(PostCodes.Code.Editable(), StrSubstNo(EditableErr, PostCodes.Code.Caption));
+        Assert.IsFalse(PostCodes.City.Editable(), StrSubstNo(EditableErr, PostCodes.City.Caption));
     end;
 
     [Test]
@@ -303,11 +303,11 @@ codeunit 136400 "Resource Employee"
         Initialize();
 
         // 2. Exercise: Open Country Region Page in View mode.
-        CountriesRegions.OpenView;
+        CountriesRegions.OpenView();
 
         // 3. Verify: Verify Country Region Pages is non editable.
         // As the fields are non editable so Pages is also non editable.
-        Assert.IsFalse(CountriesRegions.Code.Editable, StrSubstNo(EditableErr, CountriesRegions.Code.Caption));
+        Assert.IsFalse(CountriesRegions.Code.Editable(), StrSubstNo(EditableErr, CountriesRegions.Code.Caption));
     end;
 
     [Test]
@@ -322,11 +322,11 @@ codeunit 136400 "Resource Employee"
         Initialize();
 
         // 2. Exercise: Open Causes Of Inactivity Page in View mode.
-        CausesofInactivity.OpenView;
+        CausesofInactivity.OpenView();
 
         // 3. Verify: Verify Causes Of Inactivity Page is non editable.
         // As the fields are non editable so Page is also non editable.
-        Assert.IsFalse(CausesofInactivity.Code.Editable, StrSubstNo(EditableErr, CausesofInactivity.Code.Caption));
+        Assert.IsFalse(CausesofInactivity.Code.Editable(), StrSubstNo(EditableErr, CausesofInactivity.Code.Caption));
     end;
 
     [Test]
@@ -341,11 +341,11 @@ codeunit 136400 "Resource Employee"
         Initialize();
 
         // 2. Exercise: Open Unions Page in View mode.
-        Unions.OpenView;
+        Unions.OpenView();
 
         // 3. Verify: Verify Unions Page is non editable.
         // As the fields are non editable so Page is also non editable.
-        Assert.IsFalse(Unions.Code.Editable, StrSubstNo(EditableErr, Unions.Code.Caption));
+        Assert.IsFalse(Unions.Code.Editable(), StrSubstNo(EditableErr, Unions.Code.Caption));
     end;
 
     [Test]
@@ -422,19 +422,19 @@ codeunit 136400 "Resource Employee"
 
         // [GIVEN] Employee "E" with linked resource "R"
         LibraryHumanResource.CreateEmployee(Employee);
-        Resource.Get(CreateResourceNoOfTypePerson);
+        Resource.Get(CreateResourceNoOfTypePerson());
         Employee.Validate("Resource No.", Resource."No.");
         Employee.Modify(true);
 
         // [WHEN] Employee "E" County is being changed to "COUNTY"
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard.FILTER.SetFilter("No.", Employee."No.");
         EmployeeCard.County.SetValue(
           CopyStr(
             LibraryUtility.GenerateRandomCode(Employee.FieldNo(County), DATABASE::Employee),
             1,
             LibraryUtility.GetFieldLength(DATABASE::Employee, Employee.FieldNo(County))));
-        EmployeeCard.OK.Invoke;
+        EmployeeCard.OK().Invoke();
 
         // [THEN] Resource "R" has County = "COUNTY"
         Employee.Find();
@@ -456,16 +456,16 @@ codeunit 136400 "Resource Employee"
 
         // [GIVEN] Employee "E" with linked resource "R"
         LibraryHumanResource.CreateEmployee(Employee);
-        Resource.Get(CreateResourceNoOfTypePerson);
+        Resource.Get(CreateResourceNoOfTypePerson());
         Employee.Validate("Resource No.", Resource."No.");
         Employee.Modify(true);
 
         // [WHEN] Employee "E" City is being changed to "S"
         LibraryERM.CreatePostCode(PostCode);
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard.FILTER.SetFilter("No.", Employee."No.");
         EmployeeCard.City.SetValue(PostCode.City);
-        EmployeeCard.OK.Invoke;
+        EmployeeCard.OK().Invoke();
 
         // [THEN] Resource "R" has City = "S"
         Employee.Find();
@@ -487,16 +487,16 @@ codeunit 136400 "Resource Employee"
 
         // [GIVEN] Employee "E" with linked resource "R"
         LibraryHumanResource.CreateEmployee(Employee);
-        Resource.Get(CreateResourceNoOfTypePerson);
+        Resource.Get(CreateResourceNoOfTypePerson());
         Employee.Validate("Resource No.", Resource."No.");
         Employee.Modify(true);
 
         // [WHEN] Employee "E" "Country/Region Code" is being changed to "CR"
         LibraryERM.CreateCountryRegion(CountryRegion);
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard.FILTER.SetFilter("No.", Employee."No.");
         EmployeeCard."Country/Region Code".SetValue(CountryRegion.Code);
-        EmployeeCard.OK.Invoke;
+        EmployeeCard.OK().Invoke();
 
         // [THEN] Resource "R" has "Country/Region Code" = "CR"
         Resource.Find();
@@ -518,7 +518,7 @@ codeunit 136400 "Resource Employee"
 
         // [GIVEN] Employee "E" with linked resource "R"
         LibraryHumanResource.CreateEmployee(Employee);
-        Resource.Get(CreateResourceNoOfTypePerson);
+        Resource.Get(CreateResourceNoOfTypePerson());
         Employee."Resource No." := Resource."No.";
         Employee.Modify();
 
@@ -572,7 +572,6 @@ codeunit 136400 "Resource Employee"
     var
         EmployeeTempl: Record "Employee Templ.";
         OnlineMapSetup: Record "Online Map Setup";
-        LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Resource Employee");
         EmployeeTempl.DeleteAll(true);
@@ -583,7 +582,8 @@ codeunit 136400 "Resource Employee"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Resource Employee");
 
         LibraryTemplates.EnableTemplatesFeature();
-        LibraryHumanResource.SetupEmployeeNumberSeries;
+        LibraryHumanResource.SetupEmployeeNumberSeries();
+        LibraryHumanResource.FindEmployeePostingGroup();
         OnlineMapSetup.ModifyAll(Enabled, true);
 
         IsInitialized := true;
@@ -614,7 +614,7 @@ codeunit 136400 "Resource Employee"
         visible: Boolean;
     begin
         visible := NoSeriesList.Code.Visible();
-        EmployeeNoSeriesCode := NoSeriesList.Code.Value;
+        EmployeeNoSeriesCode := NoSeriesList.Code.Value();
     end;
 
     local procedure CreateResourceNoOfTypePerson(): Code[20]

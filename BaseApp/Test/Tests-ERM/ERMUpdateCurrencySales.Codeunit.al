@@ -243,8 +243,8 @@
     begin
         Initialize();
 
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
         CreateOrderWithLCY(SalesHeader);
         ValidateCustWithFCYOnOrder(CurrencyExchangeRate, SalesHeader);
 
@@ -539,7 +539,7 @@
 
         // 2. Exercise: Post Sales Credit Memo.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, Ship, Invoice);
-        ExecuteUIHandler;
+        ExecuteUIHandler();
     end;
 
 #if not CLEAN23
@@ -671,17 +671,17 @@
         VerifyRemaningAmount(GenJournalLine."Account No.");
     end;
 
+#if not CLEAN24
+    [Obsolete('Not used.', '24.0')]
     [Test]
     [Scope('OnPrem')]
     procedure LossAdjustExchangeRateForBank()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         // Check that after Modify Lower Relational Exch. Rate Amount and run Adjust Exchange rate batch job,
         // GL Entry updated with Correct Amount for Bank.
         exit; // Known issue
     end;
+#endif
 
     [Test]
     [HandlerFunctions('StatisticsMessageHandler')]
@@ -896,7 +896,7 @@
 
         // Setup: Find a Customer with Currency attached.
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
+        Customer.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
         Customer.Modify(true);
 
         // Exercise: Create Job For Customer.
@@ -922,14 +922,14 @@
         LibrarySales.CreateCustomer(Customer);
         LibraryResource.FindResource(Resource);
         LibraryERM.FindCurrency(Currency);
-        SalesQuotePage.OpenEdit;
-        SalesQuotePage.New;
+        SalesQuotePage.OpenEdit();
+        SalesQuotePage.New();
         SalesQuotePage."Sell-to Customer Name".Value(Customer.Name);
         SalesQuotePage.SalesLines.Type.Value(Format(SalesLine.Type::Resource));
         SalesQuotePage.SalesLines."No.".Value(Resource."No.");
         SalesQuotePage.SalesLines.Quantity.Value(Format(LibraryRandom.RandInt(5)));
         SalesQuotePage."Currency Code".Value(Currency.Code);
-        DocumentNo := SalesQuotePage."No.".Value;
+        DocumentNo := SalesQuotePage."No.".Value();
         SalesQuotePage.Close();
 
         VerifyCurrencyInSalesLine(SalesLine."Document Type"::Quote, DocumentNo, Resource."No.", Currency.Code);
@@ -950,14 +950,14 @@
         LibrarySales.CreateCustomer(Customer);
         LibraryResource.FindResource(Resource);
         LibraryERM.FindCurrency(Currency);
-        SalesOrderPage.OpenEdit;
-        SalesOrderPage.New;
+        SalesOrderPage.OpenEdit();
+        SalesOrderPage.New();
         SalesOrderPage."Sell-to Customer Name".Value(Customer.Name);
         SalesOrderPage.SalesLines.Type.Value(Format(SalesLine.Type::Resource));
         SalesOrderPage.SalesLines."No.".Value(Resource."No.");
         SalesOrderPage.SalesLines.Quantity.Value(Format(LibraryRandom.RandInt(5)));
         SalesOrderPage."Currency Code".Value(Currency.Code);
-        DocumentNo := SalesOrderPage."No.".Value;
+        DocumentNo := SalesOrderPage."No.".Value();
         SalesOrderPage.Close();
 
         VerifyCurrencyInSalesLine(SalesLine."Document Type"::Order, DocumentNo, Resource."No.", Currency.Code);
@@ -978,14 +978,14 @@
         LibrarySales.CreateCustomer(Customer);
         LibraryResource.FindResource(Resource);
         LibraryERM.FindCurrency(Currency);
-        SalesInvoicePage.OpenEdit;
-        SalesInvoicePage.New;
+        SalesInvoicePage.OpenEdit();
+        SalesInvoicePage.New();
         SalesInvoicePage."Sell-to Customer Name".Value(Customer."No.");
         SalesInvoicePage.SalesLines.Type.Value(Format(SalesLine.Type::Resource));
         SalesInvoicePage.SalesLines."No.".Value(Resource."No.");
         SalesInvoicePage.SalesLines.Quantity.Value(Format(LibraryRandom.RandInt(5)));
         SalesInvoicePage."Currency Code".Value(Currency.Code);
-        DocumentNo := SalesInvoicePage."No.".Value;
+        DocumentNo := SalesInvoicePage."No.".Value();
         SalesInvoicePage.Close();
 
         VerifyCurrencyInSalesLine(SalesLine."Document Type"::Invoice, DocumentNo, Resource."No.", Currency.Code);
@@ -1006,14 +1006,14 @@
         LibrarySales.CreateCustomer(Customer);
         LibraryResource.FindResource(Resource);
         LibraryERM.FindCurrency(Currency);
-        SalesCrMemoPage.OpenEdit;
-        SalesCrMemoPage.New;
+        SalesCrMemoPage.OpenEdit();
+        SalesCrMemoPage.New();
         SalesCrMemoPage."Sell-to Customer Name".Value(Customer."No.");
         SalesCrMemoPage.SalesLines.Type.Value(Format(SalesLine.Type::Resource));
         SalesCrMemoPage.SalesLines."No.".Value(Resource."No.");
         SalesCrMemoPage.SalesLines.Quantity.Value(Format(LibraryRandom.RandInt(5)));
         SalesCrMemoPage."Currency Code".Value(Currency.Code);
-        DocumentNo := SalesCrMemoPage."No.".Value;
+        DocumentNo := SalesCrMemoPage."No.".Value();
         SalesCrMemoPage.Close();
 
         VerifyCurrencyInSalesLine(SalesLine."Document Type"::"Credit Memo", DocumentNo, Resource."No.", Currency.Code);
@@ -1034,14 +1034,14 @@
         LibrarySales.CreateCustomer(Customer);
         LibraryResource.FindResource(Resource);
         LibraryERM.FindCurrency(Currency);
-        BlanketSalesOrderPage.OpenEdit;
-        BlanketSalesOrderPage.New;
+        BlanketSalesOrderPage.OpenEdit();
+        BlanketSalesOrderPage.New();
         BlanketSalesOrderPage."Sell-to Customer Name".Value(Customer."No.");
         BlanketSalesOrderPage.SalesLines.Type.Value(Format(SalesLine.Type::Resource));
         BlanketSalesOrderPage.SalesLines."No.".Value(Resource."No.");
         BlanketSalesOrderPage.SalesLines.Quantity.Value(Format(LibraryRandom.RandInt(5)));
         BlanketSalesOrderPage."Currency Code".Value(Currency.Code);
-        DocumentNo := BlanketSalesOrderPage."No.".Value;
+        DocumentNo := BlanketSalesOrderPage."No.".Value();
         BlanketSalesOrderPage.Close();
 
         VerifyCurrencyInSalesLine(SalesLine."Document Type"::"Blanket Order", DocumentNo, Resource."No.", Currency.Code);
@@ -1062,14 +1062,14 @@
         LibrarySales.CreateCustomer(Customer);
         LibraryResource.FindResource(Resource);
         LibraryERM.FindCurrency(Currency);
-        SalesReturnOrderPage.OpenEdit;
-        SalesReturnOrderPage.New;
+        SalesReturnOrderPage.OpenEdit();
+        SalesReturnOrderPage.New();
         SalesReturnOrderPage."Sell-to Customer Name".Value(Customer."No.");
         SalesReturnOrderPage.SalesLines.Type.Value(Format(SalesLine.Type::Resource));
         SalesReturnOrderPage.SalesLines."No.".Value(Resource."No.");
         SalesReturnOrderPage.SalesLines.Quantity.Value(Format(LibraryRandom.RandInt(5)));
         SalesReturnOrderPage."Currency Code".Value(Currency.Code);
-        DocumentNo := SalesReturnOrderPage."No.".Value;
+        DocumentNo := SalesReturnOrderPage."No.".Value();
         SalesReturnOrderPage.Close();
 
         VerifyCurrencyInSalesLine(SalesLine."Document Type"::"Return Order", DocumentNo, Resource."No.", Currency.Code);
@@ -1117,7 +1117,7 @@
         GenJournalLine.Validate("Applies-to Doc. No.", PostedDocumentNo);
 
         // [THEN] Confirm message appeared: "The Currency Code will be changed from C2 to C1".
-        Assert.ExpectedMessage(ExpectedMsg, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(ExpectedMsg, LibraryVariableStorage.DequeueText());
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -1133,7 +1133,7 @@
         CustLedgerEntry.FindSet();
         repeat
             CustEntrySetApplID.SetApplId(CustLedgerEntry, CustLedgerEntry, GenJournalLine."Document No.");
-            ApplyCustomerEntries.CalcApplnAmount;
+            ApplyCustomerEntries.CalcApplnAmount();
         until CustLedgerEntry.Next() = 0;
         Commit();
         GenJnlApply.Run(GenJournalLine);
@@ -1192,7 +1192,7 @@
         // Create Multiple Lines - Boundary 2 is important.
         for Counter := 2 to 2 + LibraryRandom.RandInt(9) do
             // Required Random Value for Quantity field.
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(100));
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(100));
     end;
 
     local procedure CreateCurrencyWithExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate")
@@ -1237,7 +1237,7 @@
         GenJournalLine.Validate(
           "Document No.", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Document No."), DATABASE::"Gen. Journal Line"));
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Validate("Currency Code", CurrencyCode);
         GenJournalLine.Modify(true);
@@ -1405,7 +1405,7 @@
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder."Sell-to Customer Name".SetValue(CreateCustomerWithCurrencyExchangeRate(CurrencyExchangeRate));
         SalesOrder.Close();
@@ -1672,7 +1672,7 @@
     begin
         Assert.AreEqual(
           Format(NotificationInstance.Id),
-          Format(UpdateCurrencyExchangeRates.GetMissingExchangeRatesNotificationID),
+          Format(UpdateCurrencyExchangeRates.GetMissingExchangeRatesNotificationID()),
           '');
 
         exit(true);

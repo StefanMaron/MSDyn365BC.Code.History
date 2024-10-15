@@ -34,7 +34,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
 
         OldWorkDate := WorkDate();
         WorkDate := CalcDate('<9M-10D>', OldWorkDate);
-        ReleaseDeprBookCode := GetReleaseDeprBookCode;
+        ReleaseDeprBookCode := GetReleaseDeprBookCode();
         CreateReleaseCalculateFAGroup(FADeprGroupCode, NoOfFA, DeprDate, DocumentNo, true, false);
 
         FixedAsset.SetRange("Depreciation Group", FADeprGroupCode);
@@ -65,7 +65,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
 
         OldWorkDate := WorkDate();
         WorkDate := CalcDate('<9M-10D>', OldWorkDate);
-        ReleaseDeprBookCode := GetReleaseDeprBookCode;
+        ReleaseDeprBookCode := GetReleaseDeprBookCode();
         CreateReleaseCalculateFAGroup(FADeprGroupCode, NoOfFA, DeprDate, DocumentNo, true, true);
 
         FALedgerEntry.SetRange("Document No.", DocumentNo);
@@ -108,7 +108,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
     var
         GroupAmount: Decimal;
     begin
-        FADeprGroupCode := CreateFADeprGroup;
+        FADeprGroupCode := CreateFADeprGroup();
         NoOfFA := LibraryRandom.RandIntInRange(5, 10);
         CreateCustFAPostDepr(GroupAmount, FADeprGroupCode, NoOfFA);
         DeprDate := CalcDate('<CM+2M>', WorkDate());
@@ -116,7 +116,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
             SetMinGroupBalanceValue(GroupAmount)
         else
             SetMinGroupBalanceValue(GroupAmount + 0.01);
-        CalcGroupDepreciation(DocumentNo, GetReleaseDeprBookCode, DeprDate, Post, FADeprGroupCode);
+        CalcGroupDepreciation(DocumentNo, GetReleaseDeprBookCode(), DeprDate, Post, FADeprGroupCode);
     end;
 
     local procedure CreateFA(FADeprGroupCode: Code[10]): Code[20]
@@ -139,7 +139,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
 
         IsInitialized := true;
 
-        UpdateTaxRegisterSetup;
+        UpdateTaxRegisterSetup();
     end;
 
     local procedure UpdateTaxRegisterSetup()
@@ -161,7 +161,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
         TaxRegisterSetup.Validate("Use Group Depr. Method from", DMY2Date(1, 1, Date2DMY(WorkDate(), 3)));
         TaxRegisterSetup.Modify(true);
 
-        DeprBook.Get(GetTaxDeprBookCode);
+        DeprBook.Get(GetTaxDeprBookCode());
         DeprBook."Allow Identical Document No." := true;
         DeprBook.Modify(true);
     end;
@@ -182,7 +182,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
             Validate("Posting Date", PostingDate);
             Validate("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
             Modify(true);
         end;
 
@@ -342,7 +342,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
         CalcGroupDeprReqPage.AccountPeriod.SetValue(FieldValue);
         LibraryVariableStorage.Dequeue(FieldValue);
         CalcGroupDeprReqPage.DeprBookCode.SetValue(FieldValue);
-        CalcGroupDeprReqPage.OK.Invoke;
+        CalcGroupDeprReqPage.OK().Invoke();
     end;
 
     local procedure VerifyFAGLJournal(PostingDate: Date; DocumentNo: Code[20]; FANo: Code[20]; FADeprBookCode: Code[10]; ExpectedAmount: Decimal)

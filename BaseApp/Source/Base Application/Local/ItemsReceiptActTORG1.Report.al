@@ -762,33 +762,31 @@ report 14918 "Items Receipt Act TORG-1"
         ItemLedgerEntry: Record "Item Ledger Entry";
         PurchasePosting: Codeunit "Purch.-Post";
     begin
-        with PurchHeader do begin
-            PurchLine.SetRange("Document Type", "Document Type");
-            PurchLine.SetRange("Document No.", "No.");
-            PurchLine.SetFilter(Type, '>0');
-            PurchLine.SetFilter(Quantity, '<>0');
-            if PurchLine.Find('-') then
-                repeat
-                    TempPurchLine := PurchLine;
+        PurchLine.SetRange("Document Type", PurchHeader."Document Type");
+        PurchLine.SetRange("Document No.", PurchHeader."No.");
+        PurchLine.SetFilter(Type, '>0');
+        PurchLine.SetFilter(Quantity, '<>0');
+        if PurchLine.Find('-') then
+            repeat
+                TempPurchLine := PurchLine;
 
-                    if PurchLine."Document Type" = PurchLine."Document Type"::"Credit Memo" then
-                        if PurchLine."Appl.-to Item Entry" <> 0 then begin
-                            ItemLedgerEntry.Get(PurchLine."Appl.-to Item Entry");
-                            ItemLedgerEntry.CalcFields("Cost Amount (Actual)", "Sales Amount (Actual)");
-                            if ItemLedgerEntry."Qty. per Unit of Measure" <> 0 then
-                                TempPurchLine.Quantity := ItemLedgerEntry.Quantity / ItemLedgerEntry."Qty. per Unit of Measure"
-                            else
-                                TempPurchLine.Quantity := ItemLedgerEntry.Quantity;
-                        end else
-                            TempPurchLine.Quantity := 0
-                    else
-                        TempPurchLine.Quantity := TempPurchLine."Qty. to Receive";
-                    TempPurchLine.Insert();
+                if PurchLine."Document Type" = PurchLine."Document Type"::"Credit Memo" then
+                    if PurchLine."Appl.-to Item Entry" <> 0 then begin
+                        ItemLedgerEntry.Get(PurchLine."Appl.-to Item Entry");
+                        ItemLedgerEntry.CalcFields("Cost Amount (Actual)", "Sales Amount (Actual)");
+                        if ItemLedgerEntry."Qty. per Unit of Measure" <> 0 then
+                            TempPurchLine.Quantity := ItemLedgerEntry.Quantity / ItemLedgerEntry."Qty. per Unit of Measure"
+                        else
+                            TempPurchLine.Quantity := ItemLedgerEntry.Quantity;
+                    end else
+                        TempPurchLine.Quantity := 0
+                else
+                    TempPurchLine.Quantity := TempPurchLine."Qty. to Receive";
+                TempPurchLine.Insert();
 
-                until PurchLine.Next() = 0;
-            PurchasePosting.SumPurchLines2Ex(PurchHeader, PurchLineWithLCYAmtToReceive, TempPurchLine, 0,
-              TotalAmount, TotalAmountInclVAT, TotalAmountLCY, TotalAmountInclVATLCY);
-        end;
+            until PurchLine.Next() = 0;
+        PurchasePosting.SumPurchLines2Ex(PurchHeader, PurchLineWithLCYAmtToReceive, TempPurchLine, 0,
+          TotalAmount, TotalAmountInclVAT, TotalAmountLCY, TotalAmountInclVATLCY);
     end;
 
     [Scope('OnPrem')]

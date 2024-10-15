@@ -435,7 +435,7 @@ codeunit 144010 "ERM Future Expences"
             FindSet();
             repeat
                 Assert.AreEqual("VAT Settlement Type"::"Future Expenses", "VAT Settlement Type", FieldCaption("VAT Settlement Type"));
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -451,7 +451,7 @@ codeunit 144010 "ERM Future Expences"
                 i += 1;
                 Assert.AreEqual(DeprAmounts[i], Amount, FieldCaption(Amount));
                 Assert.AreEqual(DeprDates[i], "Posting Date", FieldCaption("Posting Date"));
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -465,12 +465,12 @@ codeunit 144010 "ERM Future Expences"
         LibraryVariableStorage.Dequeue(FADeprBookCode);
 
         CalcFEDepr.DepreciationBookFilter.SetValue(FADeprBookCode);
-        CalcFEDepr.AccountingPeriod.Lookup;
+        CalcFEDepr.AccountingPeriod.Lookup();
 
         LibraryVariableStorage.Dequeue(DeprPostingDate);
         CalcFeDeprUpdateDetails(CalcFEDepr, DeprPostingDate);
 
-        CalcFEDepr.OK.Invoke;
+        CalcFEDepr.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -486,7 +486,7 @@ codeunit 144010 "ERM Future Expences"
 
         SelectReportingPeriod.FILTER.SetFilter("Period Type", Format(DatePeriod."Period Type"::Month));
         SelectReportingPeriod.FILTER.SetFilter("Period End", Format(ClosingDate(EndDate)));
-        SelectReportingPeriod.OK.Invoke;
+        SelectReportingPeriod.OK().Invoke();
     end;
 
     local procedure FindFETemplate(): Code[20]
@@ -534,7 +534,7 @@ codeunit 144010 "ERM Future Expences"
         WriteOffForTaxLedger.UseRequestPage(false);
         WriteOffForTaxLedger.Run();
         FASetup.Get();
-        LibraryVariableStorage.Enqueue(FindFETemplate);
+        LibraryVariableStorage.Enqueue(FindFETemplate());
         LibraryVariableStorage.Enqueue(FASetup."Fixed Asset Nos.");
         LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
         Commit();
@@ -602,7 +602,7 @@ codeunit 144010 "ERM Future Expences"
         CreateFEfromSoldFA.FETemplateNo.SetValue(FETemplate); // FE Template
         CreateFEfromSoldFA.NoSeriesCode.SetValue(FENoSeries); // FE No. Series
         CreateFEfromSoldFA.DocumentNo.SetValue(DocumentNo); // Document No
-        CreateFEfromSoldFA.OK.Invoke;
+        CreateFEfromSoldFA.OK().Invoke();
     end;
 }
 

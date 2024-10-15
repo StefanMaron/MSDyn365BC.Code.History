@@ -342,7 +342,6 @@ page 26552 "Statutory Report Tables"
 
     var
         TableIndividualRequisite: Record "Table Individual Requisite";
-        StatutoryReport: Record "Statutory Report";
         PageIndicRowNo: Code[10];
         Text003: Label '%1 or %2 should be Yes in %3.';
 

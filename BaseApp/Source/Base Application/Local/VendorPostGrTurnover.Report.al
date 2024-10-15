@@ -242,7 +242,6 @@ report 12443 "Vendor Post. Gr. Turnover"
 
             trigger OnAfterGetRecord()
             var
-                "Rounded Value": Decimal;
             begin
                 VendorPostingGroupURL.SetPosition(GetPosition());
             end;
@@ -330,10 +329,6 @@ report 12443 "Vendor Post. Gr. Turnover"
     end;
 
     var
-        Text003: Label 'Zero values are replaced by spacebar';
-        Text005: Label 'for period from ';
-        Text006: Label ' to ';
-        GLSetup: Record "General Ledger Setup";
         LocMgt: Codeunit "Localisation Management";
         LineAmount: array[10] of Decimal;
         TotalAmount: array[10] of Decimal;
@@ -350,8 +345,6 @@ report 12443 "Vendor Post. Gr. Turnover"
         SkipZeroBalances: Boolean;
         TotalPrinted: Boolean;
         PrintParameters: Boolean;
-        PrintTotals: Boolean;
-        CurrRecordSkip: Boolean;
         CurrentDate: Text[30];
         RequestFilter: Text;
         AmountUnit: Text[30];

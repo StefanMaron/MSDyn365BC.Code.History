@@ -1,6 +1,5 @@
 namespace Microsoft.Finance.FinancialReports;
 
-using Microsoft.CashFlow.Account;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.GeneralLedger.Account;
 
@@ -84,7 +83,6 @@ page 104 "Account Schedule"
                         GLSetup: Record "General Ledger Setup";
                         AccScheduleExtension: Record "Acc. Schedule Extension";
                         GLAccList: Page "G/L Account List";
-                        CFAccList: Page "Cash Flow Account List";
                         AccScheduleLines: Page "Acc. Schedule Lines";
                         AccScheduleExtensions: Page "Acc. Schedule Extensions";
                     begin
@@ -468,9 +466,6 @@ page 104 "Account Schedule"
 #if not CLEAN22
         area(reporting)
         {
-            ObsoleteReason = 'Reports are now accesible from the Financial Reports page. Extend that page instead.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
             action(Print)
             {
                 ObsoleteReason = 'AccScheduleName is no longer printable directly as they are only row definitions, print instead related Financial Report by calling directly the Account Schedule Report with SetFinancialReportName or SetFinancialReportNameNonEditable.';

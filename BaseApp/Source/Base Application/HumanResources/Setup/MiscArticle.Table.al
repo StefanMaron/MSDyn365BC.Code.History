@@ -4,6 +4,7 @@ table 5213 "Misc. Article"
 {
     Caption = 'Misc. Article';
     LookupPageID = "Misc. Articles";
+    DataClassification = CustomerContent;
 
     fields
     {

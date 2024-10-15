@@ -26,7 +26,6 @@ codeunit 134394 "ERM Purchase Subform"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryResource: Codeunit "Library - Resource";
-        LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         isInitialized: Boolean;
         ChangeConfirmMsg: Label 'Do you want';
         CalculateInvoiceDiscountQst: Label 'Do you want to calculate the invoice discount?';
@@ -82,7 +81,7 @@ codeunit 134394 "ERM Purchase Subform"
         // prepare dialog
         LibraryVariableStorage.Enqueue('Do you');
         LibraryVariableStorage.Enqueue(true);
-        PurchaseOrder.CalculateInvoiceDiscount.Invoke;
+        PurchaseOrder.CalculateInvoiceDiscount.Invoke();
 
         ValidateOrderInvoiceDiscountAmountIsReadOnly(PurchaseOrder);
         CheckOrderStatistics(PurchaseOrder);
@@ -104,22 +103,22 @@ codeunit 134394 "ERM Purchase Subform"
 
         CreateOrderWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseOrder);
 
-        PurchaseOrder.PurchLines.First;
+        PurchaseOrder.PurchLines.First();
         ItemQuantity := ItemQuantity * 2;
         PurchaseOrder.PurchLines.Quantity.SetValue(ItemQuantity);
         PurchaseOrder.PurchLines.Next();
-        PurchaseOrder.PurchLines.First;
+        PurchaseOrder.PurchLines.First();
         CheckOrderStatistics(PurchaseOrder);
 
         PurchaseOrder.PurchLines."Line Amount".SetValue(
-          Round(PurchaseOrder.PurchLines."Line Amount".AsDEcimal / 2, 1));
+          Round(PurchaseOrder.PurchLines."Line Amount".AsDecimal() / 2, 1));
         PurchaseOrder.PurchLines.Next();
-        PurchaseOrder.PurchLines.First;
+        PurchaseOrder.PurchLines.First();
         CheckOrderStatistics(PurchaseOrder);
 
         PurchaseOrder.PurchLines."No.".SetValue('');
         PurchaseOrder.PurchLines.Next();
-        PurchaseOrder.PurchLines.First;
+        PurchaseOrder.PurchLines.First();
 
         ValidateOrderInvoiceDiscountAmountIsReadOnly(PurchaseOrder);
         CheckOrderStatistics(PurchaseOrder);
@@ -149,11 +148,11 @@ codeunit 134394 "ERM Purchase Subform"
 
         PurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
 
-        PurchaseOrder.PurchLines.First;
+        PurchaseOrder.PurchLines.First();
         ItemQuantity := ItemQuantity * 2;
         PurchaseOrder.PurchLines.Quantity.SetValue(ItemQuantity);
         PurchaseOrder.PurchLines.Next();
-        PurchaseOrder.PurchLines.First;
+        PurchaseOrder.PurchLines.First();
 
         CheckOrderStatistics(PurchaseOrder);
 
@@ -186,7 +185,7 @@ codeunit 134394 "ERM Purchase Subform"
         CreateOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
         OpenPurchaseOrder(PurchaseHeader, PurchaseOrder);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         PurchaseOrder."Buy-from Vendor Name".SetValue(NewVendor."No.");
         PurchaseOrder.PurchLines.Next();
 
@@ -261,7 +260,7 @@ codeunit 134394 "ERM Purchase Subform"
         CreateOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
         OpenPurchaseOrder(PurchaseHeader, PurchaseOrder);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
 
         PurchaseOrder."Buy-from Vendor Name".SetValue(NewVendor."No.");
         PurchaseOrder.PurchLines.Next();
@@ -294,7 +293,7 @@ codeunit 134394 "ERM Purchase Subform"
         OpenPurchaseOrder(PurchaseHeader, PurchaseOrder);
         PurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         PurchaseOrder."Buy-from Vendor Name".SetValue(NewVendor."No.");
         PurchaseOrder.PurchLines.Next();
 
@@ -320,8 +319,8 @@ codeunit 134394 "ERM Purchase Subform"
 
         OpenPurchaseOrder(PurchaseHeader, PurchaseOrder);
 
-        AnswerYesToConfirmDialog;
-        PurchaseOrder."Currency Code".SetValue(GetDifferentCurrencyCode);
+        AnswerYesToConfirmDialog();
+        PurchaseOrder."Currency Code".SetValue(GetDifferentCurrencyCode());
 
         ValidateOrderInvoiceDiscountAmountIsReadOnly(PurchaseOrder);
         CheckOrderStatistics(PurchaseOrder);
@@ -347,8 +346,8 @@ codeunit 134394 "ERM Purchase Subform"
         OpenPurchaseOrder(PurchaseHeader, PurchaseOrder);
         PurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
 
-        AnswerYesToConfirmDialog;
-        PurchaseOrder."Currency Code".SetValue(GetDifferentCurrencyCode);
+        AnswerYesToConfirmDialog();
+        PurchaseOrder."Currency Code".SetValue(GetDifferentCurrencyCode());
 
         CheckOrderStatistics(PurchaseOrder);
     end;
@@ -374,7 +373,7 @@ codeunit 134394 "ERM Purchase Subform"
 
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
 
-        PostedPurchaseInvoice.OpenEdit;
+        PostedPurchaseInvoice.OpenEdit();
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
 
         CheckPostedInvoiceStatistics(PostedPurchaseInvoice);
@@ -398,7 +397,7 @@ codeunit 134394 "ERM Purchase Subform"
 
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
 
-        PostedPurchaseInvoice.OpenEdit;
+        PostedPurchaseInvoice.OpenEdit();
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
 
         CheckPostedInvoiceStatistics(PostedPurchaseInvoice);
@@ -414,14 +413,14 @@ codeunit 134394 "ERM Purchase Subform"
         Initialize();
 
         CreateVendor(Vendor);
-        Vendor."Currency Code" := GetDifferentCurrencyCode;
+        Vendor."Currency Code" := GetDifferentCurrencyCode();
         Vendor.Modify(true);
         PurchaseOrder.OpenNew();
 
         PurchaseOrder."Buy-from Vendor Name".SetValue(Vendor."No.");
         OrderCheckCurrencyOnTotals(PurchaseOrder, Vendor."Currency Code");
 
-        PurchaseOrder.PurchLines.New;
+        PurchaseOrder.PurchLines.New();
         OrderCheckCurrencyOnTotals(PurchaseOrder, Vendor."Currency Code");
 
         PurchaseOrder.PurchLines.Description.SetValue('Test Description');
@@ -442,7 +441,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
-        SetAllowManualDisc;
+        SetAllowManualDisc();
 
         CreateOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
         OpenPurchaseOrder(PurchaseHeader, PurchaseOrder);
@@ -450,7 +449,7 @@ codeunit 134394 "ERM Purchase Subform"
         LibraryVariableStorage.Enqueue(CalculateInvoiceDiscountQst);
         LibraryVariableStorage.Enqueue(true);
 
-        PurchaseOrder.CalculateInvoiceDiscount.Invoke;
+        PurchaseOrder.CalculateInvoiceDiscount.Invoke();
         CheckOrderStatistics(PurchaseOrder);
     end;
 
@@ -512,27 +511,27 @@ codeunit 134394 "ERM Purchase Subform"
 
         CreateInvoiceWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseInvoice);
 
-        PurchaseInvoice.PurchLines.First;
+        PurchaseInvoice.PurchLines.First();
         ItemQuantity := ItemQuantity * 2;
         PurchaseInvoice.PurchLines.Quantity.SetValue(ItemQuantity);
         PurchaseInvoice.PurchLines.Next();
-        PurchaseInvoice.PurchLines.First;
+        PurchaseInvoice.PurchLines.First();
         CheckInvoiceStatistics(PurchaseInvoice);
 
         PurchaseInvoice.PurchLines."Line Amount".SetValue(
-          Round(PurchaseInvoice.PurchLines."Line Amount".AsDEcimal / 2, 1));
+          Round(PurchaseInvoice.PurchLines."Line Amount".AsDecimal() / 2, 1));
         PurchaseInvoice.PurchLines.Next();
-        PurchaseInvoice.PurchLines.First;
+        PurchaseInvoice.PurchLines.First();
         CheckInvoiceStatistics(PurchaseInvoice);
 
         PurchaseInvoice.PurchLines."Line Discount %".SetValue('0');
         PurchaseInvoice.PurchLines.Next();
-        PurchaseInvoice.PurchLines.First;
+        PurchaseInvoice.PurchLines.First();
         CheckInvoiceStatistics(PurchaseInvoice);
 
         PurchaseInvoice.PurchLines."No.".SetValue('');
         PurchaseInvoice.PurchLines.Next();
-        PurchaseInvoice.PurchLines.First;
+        PurchaseInvoice.PurchLines.First();
 
         ValidateInvoiceInvoiceDiscountAmountIsReadOnly(PurchaseInvoice);
         CheckInvoiceStatistics(PurchaseInvoice);
@@ -562,11 +561,11 @@ codeunit 134394 "ERM Purchase Subform"
 
         PurchaseInvoice.PurchLines.InvoiceDiscountAmount.SetValue(InvoiceDiscountAmount);
 
-        PurchaseInvoice.PurchLines.First;
+        PurchaseInvoice.PurchLines.First();
         ItemQuantity := ItemQuantity * 2;
         PurchaseInvoice.PurchLines.Quantity.SetValue(ItemQuantity);
         PurchaseInvoice.PurchLines.Next();
-        PurchaseInvoice.PurchLines.First;
+        PurchaseInvoice.PurchLines.First();
 
         CheckInvoiceStatistics(PurchaseInvoice);
 
@@ -599,7 +598,7 @@ codeunit 134394 "ERM Purchase Subform"
         CreateInvoiceWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
         OpenPurchaseInvoice(PurchaseHeader, PurchaseInvoice);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(NewVendor.Name);
         PurchaseInvoice.PurchLines.Next();
 
@@ -674,7 +673,7 @@ codeunit 134394 "ERM Purchase Subform"
         CreateInvoiceWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
         OpenPurchaseInvoice(PurchaseHeader, PurchaseInvoice);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
 
         PurchaseInvoice."Buy-from Vendor Name".SetValue(NewVendor.Name);
         PurchaseInvoice.PurchLines.Next();
@@ -707,7 +706,7 @@ codeunit 134394 "ERM Purchase Subform"
         OpenPurchaseInvoice(PurchaseHeader, PurchaseInvoice);
         PurchaseInvoice.PurchLines.InvoiceDiscountAmount.SetValue(InvoiceDiscountAmount);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(NewVendor.Name);
         PurchaseInvoice.PurchLines.Next();
 
@@ -733,8 +732,8 @@ codeunit 134394 "ERM Purchase Subform"
 
         OpenPurchaseInvoice(PurchaseHeader, PurchaseInvoice);
 
-        AnswerYesToConfirmDialog;
-        PurchaseInvoice."Currency Code".SetValue(GetDifferentCurrencyCode);
+        AnswerYesToConfirmDialog();
+        PurchaseInvoice."Currency Code".SetValue(GetDifferentCurrencyCode());
 
         ValidateInvoiceInvoiceDiscountAmountIsReadOnly(PurchaseInvoice);
         CheckInvoiceStatistics(PurchaseInvoice);
@@ -760,8 +759,8 @@ codeunit 134394 "ERM Purchase Subform"
         OpenPurchaseInvoice(PurchaseHeader, PurchaseInvoice);
         PurchaseInvoice.PurchLines.InvoiceDiscountAmount.SetValue(InvoiceDiscountAmount);
 
-        AnswerYesToConfirmDialog;
-        PurchaseInvoice."Currency Code".SetValue(GetDifferentCurrencyCode);
+        AnswerYesToConfirmDialog();
+        PurchaseInvoice."Currency Code".SetValue(GetDifferentCurrencyCode());
 
         CheckInvoiceStatistics(PurchaseInvoice);
     end;
@@ -787,7 +786,7 @@ codeunit 134394 "ERM Purchase Subform"
 
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
 
-        PostedPurchaseInvoice.OpenEdit;
+        PostedPurchaseInvoice.OpenEdit();
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
 
         CheckPostedInvoiceStatistics(PostedPurchaseInvoice);
@@ -811,7 +810,7 @@ codeunit 134394 "ERM Purchase Subform"
 
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
 
-        PostedPurchaseInvoice.OpenEdit;
+        PostedPurchaseInvoice.OpenEdit();
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
 
         CheckPostedInvoiceStatistics(PostedPurchaseInvoice);
@@ -827,14 +826,14 @@ codeunit 134394 "ERM Purchase Subform"
         Initialize();
 
         CreateVendor(Vendor);
-        Vendor."Currency Code" := GetDifferentCurrencyCode;
+        Vendor."Currency Code" := GetDifferentCurrencyCode();
         Vendor.Modify(true);
         PurchaseInvoice.OpenNew();
 
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
         InvoiceCheckCurrencyOnTotals(PurchaseInvoice, Vendor."Currency Code");
 
-        PurchaseInvoice.PurchLines.New;
+        PurchaseInvoice.PurchLines.New();
         InvoiceCheckCurrencyOnTotals(PurchaseInvoice, Vendor."Currency Code");
 
         PurchaseInvoice.PurchLines.Description.SetValue('Test Description');
@@ -855,7 +854,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
-        SetAllowManualDisc;
+        SetAllowManualDisc();
 
         CreateInvoiceWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
         OpenPurchaseInvoice(PurchaseHeader, PurchaseInvoice);
@@ -863,7 +862,7 @@ codeunit 134394 "ERM Purchase Subform"
         LibraryVariableStorage.Enqueue(CalculateInvoiceDiscountQst);
         LibraryVariableStorage.Enqueue(true);
 
-        PurchaseInvoice.CalculateInvoiceDiscount.Invoke;
+        PurchaseInvoice.CalculateInvoiceDiscount.Invoke();
         CheckInvoiceStatistics(PurchaseInvoice);
     end;
 
@@ -882,10 +881,10 @@ codeunit 134394 "ERM Purchase Subform"
         CreateInvoiceThroughTestPageForItemWithGivenNumberOfUOMs(PurchaseInvoice, 0);
 
         // [WHEN] Find the Purchase Line.
-        PurchaseInvoice.PurchLines.First;
+        PurchaseInvoice.PurchLines.First();
 
         // [THEN] "Unit of Measure Code" field is not editable.
-        Assert.IsTrue(PurchaseInvoice.PurchLines."Unit of Measure Code".Editable, UnitofMeasureCodeIsEditableMsg);
+        Assert.IsTrue(PurchaseInvoice.PurchLines."Unit of Measure Code".Editable(), UnitofMeasureCodeIsEditableMsg);
     end;
 
     [Test]
@@ -903,10 +902,10 @@ codeunit 134394 "ERM Purchase Subform"
         CreateInvoiceThroughTestPageForItemWithGivenNumberOfUOMs(PurchaseInvoice, LibraryRandom.RandInt(5));
 
         // [WHEN] Find the Purchase Line.
-        PurchaseInvoice.PurchLines.First;
+        PurchaseInvoice.PurchLines.First();
 
         // [THEN] "Unit of Measure Code" field is editable.
-        Assert.IsTrue(PurchaseInvoice.PurchLines."Unit of Measure Code".Editable, UnitofMeasureCodeIsNotEditableMsg);
+        Assert.IsTrue(PurchaseInvoice.PurchLines."Unit of Measure Code".Editable(), UnitofMeasureCodeIsNotEditableMsg);
     end;
 
     [Test]
@@ -967,27 +966,27 @@ codeunit 134394 "ERM Purchase Subform"
 
         CreateCreditMemoWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseCreditMemo);
 
-        PurchaseCreditMemo.PurchLines.First;
+        PurchaseCreditMemo.PurchLines.First();
         ItemQuantity := ItemQuantity * 2;
         PurchaseCreditMemo.PurchLines.Quantity.SetValue(ItemQuantity);
         PurchaseCreditMemo.PurchLines.Next();
-        PurchaseCreditMemo.PurchLines.First;
+        PurchaseCreditMemo.PurchLines.First();
         CheckCreditMemoStatistics(PurchaseCreditMemo);
 
         PurchaseCreditMemo.PurchLines."Line Amount".SetValue(
-          Round(PurchaseCreditMemo.PurchLines."Line Amount".AsDEcimal / 2, 1));
+          Round(PurchaseCreditMemo.PurchLines."Line Amount".AsDecimal() / 2, 1));
         PurchaseCreditMemo.PurchLines.Next();
-        PurchaseCreditMemo.PurchLines.First;
+        PurchaseCreditMemo.PurchLines.First();
         CheckCreditMemoStatistics(PurchaseCreditMemo);
 
         PurchaseCreditMemo.PurchLines."Line Discount %".SetValue('0');
         PurchaseCreditMemo.PurchLines.Next();
-        PurchaseCreditMemo.PurchLines.First;
+        PurchaseCreditMemo.PurchLines.First();
         CheckCreditMemoStatistics(PurchaseCreditMemo);
 
         PurchaseCreditMemo.PurchLines."No.".SetValue('');
         PurchaseCreditMemo.PurchLines.Next();
-        PurchaseCreditMemo.PurchLines.First;
+        PurchaseCreditMemo.PurchLines.First();
 
         ValidateCreditMemoInvoiceDiscountAmountIsReadOnly(PurchaseCreditMemo);
         CheckCreditMemoStatistics(PurchaseCreditMemo);
@@ -1017,11 +1016,11 @@ codeunit 134394 "ERM Purchase Subform"
 
         PurchaseCreditMemo.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
 
-        PurchaseCreditMemo.PurchLines.First;
+        PurchaseCreditMemo.PurchLines.First();
         ItemQuantity := ItemQuantity * 2;
         PurchaseCreditMemo.PurchLines.Quantity.SetValue(ItemQuantity);
         PurchaseCreditMemo.PurchLines.Next();
-        PurchaseCreditMemo.PurchLines.First;
+        PurchaseCreditMemo.PurchLines.First();
 
         CheckCreditMemoStatistics(PurchaseCreditMemo);
 
@@ -1054,7 +1053,7 @@ codeunit 134394 "ERM Purchase Subform"
         CreateCreditMemoWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
         OpenPurchaseCreditMemo(PurchaseHeader, PurchaseCreditMemo);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(NewVendor.Name);
         PurchaseCreditMemo.PurchLines.Next();
 
@@ -1129,7 +1128,7 @@ codeunit 134394 "ERM Purchase Subform"
         CreateCreditMemoWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
         OpenPurchaseCreditMemo(PurchaseHeader, PurchaseCreditMemo);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
 
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(NewVendor.Name);
         PurchaseCreditMemo.PurchLines.Next();
@@ -1162,7 +1161,7 @@ codeunit 134394 "ERM Purchase Subform"
         OpenPurchaseCreditMemo(PurchaseHeader, PurchaseCreditMemo);
         PurchaseCreditMemo.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(NewVendor.Name);
 
         CheckCreditMemoStatistics(PurchaseCreditMemo);
@@ -1187,8 +1186,8 @@ codeunit 134394 "ERM Purchase Subform"
 
         OpenPurchaseCreditMemo(PurchaseHeader, PurchaseCreditMemo);
 
-        AnswerYesToConfirmDialog;
-        PurchaseCreditMemo."Currency Code".SetValue(GetDifferentCurrencyCode);
+        AnswerYesToConfirmDialog();
+        PurchaseCreditMemo."Currency Code".SetValue(GetDifferentCurrencyCode());
 
         ValidateCreditMemoInvoiceDiscountAmountIsReadOnly(PurchaseCreditMemo);
         CheckCreditMemoStatistics(PurchaseCreditMemo);
@@ -1214,8 +1213,8 @@ codeunit 134394 "ERM Purchase Subform"
         OpenPurchaseCreditMemo(PurchaseHeader, PurchaseCreditMemo);
         PurchaseCreditMemo.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
 
-        AnswerYesToConfirmDialog;
-        PurchaseCreditMemo."Currency Code".SetValue(GetDifferentCurrencyCode);
+        AnswerYesToConfirmDialog();
+        PurchaseCreditMemo."Currency Code".SetValue(GetDifferentCurrencyCode());
 
         CheckCreditMemoStatistics(PurchaseCreditMemo);
     end;
@@ -1241,7 +1240,7 @@ codeunit 134394 "ERM Purchase Subform"
 
         PurchCrMemoHdr.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
 
-        PostedPurchaseCreditMemo.OpenEdit;
+        PostedPurchaseCreditMemo.OpenEdit();
         PostedPurchaseCreditMemo.GotoRecord(PurchCrMemoHdr);
 
         CheckPostedCreditMemoStatistics(PostedPurchaseCreditMemo);
@@ -1265,7 +1264,7 @@ codeunit 134394 "ERM Purchase Subform"
 
         PurchCrMemoHdr.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
 
-        PostedPurchaseCreditMemo.OpenEdit;
+        PostedPurchaseCreditMemo.OpenEdit();
         PostedPurchaseCreditMemo.GotoRecord(PurchCrMemoHdr);
 
         CheckPostedCreditMemoStatistics(PostedPurchaseCreditMemo);
@@ -1281,14 +1280,14 @@ codeunit 134394 "ERM Purchase Subform"
         Initialize();
 
         CreateVendor(Vendor);
-        Vendor."Currency Code" := GetDifferentCurrencyCode;
+        Vendor."Currency Code" := GetDifferentCurrencyCode();
         Vendor.Modify(true);
         PurchaseCreditMemo.OpenNew();
 
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vendor.Name);
         CreditMemoCheckCurrencyOnTotals(PurchaseCreditMemo, Vendor."Currency Code");
 
-        PurchaseCreditMemo.PurchLines.New;
+        PurchaseCreditMemo.PurchLines.New();
         CreditMemoCheckCurrencyOnTotals(PurchaseCreditMemo, Vendor."Currency Code");
 
         PurchaseCreditMemo.PurchLines.Description.SetValue('Test Description');
@@ -1309,7 +1308,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
-        SetAllowManualDisc;
+        SetAllowManualDisc();
 
         CreateCreditMemoWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
         OpenPurchaseCreditMemo(PurchaseHeader, PurchaseCreditMemo);
@@ -1317,7 +1316,7 @@ codeunit 134394 "ERM Purchase Subform"
         LibraryVariableStorage.Enqueue(CalculateInvoiceDiscountQst);
         LibraryVariableStorage.Enqueue(true);
 
-        PurchaseCreditMemo.CalculateInvoiceDiscount.Invoke;
+        PurchaseCreditMemo.CalculateInvoiceDiscount.Invoke();
         CheckCreditMemoStatistics(PurchaseCreditMemo);
     end;
 
@@ -1336,10 +1335,10 @@ codeunit 134394 "ERM Purchase Subform"
         CreateCrMemoThroughTestPageForItemWithGivenNumberOfUOMs(PurchaseCreditMemo, 0);
 
         // [WHEN] Find the Purchase Line.
-        PurchaseCreditMemo.PurchLines.First;
+        PurchaseCreditMemo.PurchLines.First();
 
         // [THEN] "Unit of Measure Code" field is not editable.
-        Assert.IsFalse(PurchaseCreditMemo.PurchLines."Unit of Measure Code".Editable, UnitofMeasureCodeIsEditableMsg);
+        Assert.IsFalse(PurchaseCreditMemo.PurchLines."Unit of Measure Code".Editable(), UnitofMeasureCodeIsEditableMsg);
     end;
 
     [Test]
@@ -1357,10 +1356,10 @@ codeunit 134394 "ERM Purchase Subform"
         CreateCrMemoThroughTestPageForItemWithGivenNumberOfUOMs(PurchaseCreditMemo, LibraryRandom.RandInt(5));
 
         // [WHEN] Find the Purchase Line.
-        PurchaseCreditMemo.PurchLines.First;
+        PurchaseCreditMemo.PurchLines.First();
 
         // [THEN] "Unit of Measure Code" field is editable.
-        Assert.IsTrue(PurchaseCreditMemo.PurchLines."Unit of Measure Code".Editable, UnitofMeasureCodeIsNotEditableMsg);
+        Assert.IsTrue(PurchaseCreditMemo.PurchLines."Unit of Measure Code".Editable(), UnitofMeasureCodeIsNotEditableMsg);
     end;
 
     [Test]
@@ -1421,27 +1420,27 @@ codeunit 134394 "ERM Purchase Subform"
 
         CreateQuoteWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseQuote);
 
-        PurchaseQuote.PurchLines.First;
+        PurchaseQuote.PurchLines.First();
         ItemQuantity := ItemQuantity * 2;
         PurchaseQuote.PurchLines.Quantity.SetValue(ItemQuantity);
         PurchaseQuote.PurchLines.Next();
-        PurchaseQuote.PurchLines.First;
+        PurchaseQuote.PurchLines.First();
         CheckQuoteStatistics(PurchaseQuote);
 
         PurchaseQuote.PurchLines."Line Amount".SetValue(
-          Round(PurchaseQuote.PurchLines."Line Amount".AsDEcimal / 2, 1));
+          Round(PurchaseQuote.PurchLines."Line Amount".AsDecimal() / 2, 1));
         PurchaseQuote.PurchLines.Next();
-        PurchaseQuote.PurchLines.First;
+        PurchaseQuote.PurchLines.First();
         CheckQuoteStatistics(PurchaseQuote);
 
         PurchaseQuote.PurchLines."Line Discount %".SetValue('0');
         PurchaseQuote.PurchLines.Next();
-        PurchaseQuote.PurchLines.First;
+        PurchaseQuote.PurchLines.First();
         CheckQuoteStatistics(PurchaseQuote);
 
         PurchaseQuote.PurchLines."No.".SetValue('');
         PurchaseQuote.PurchLines.Next();
-        PurchaseQuote.PurchLines.First;
+        PurchaseQuote.PurchLines.First();
 
         ValidateQuoteInvoiceDiscountAmountIsReadOnly(PurchaseQuote);
         CheckQuoteStatistics(PurchaseQuote);
@@ -1471,11 +1470,11 @@ codeunit 134394 "ERM Purchase Subform"
 
         PurchaseQuote.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
 
-        PurchaseQuote.PurchLines.First;
+        PurchaseQuote.PurchLines.First();
         ItemQuantity := ItemQuantity * 2;
         PurchaseQuote.PurchLines.Quantity.SetValue(ItemQuantity);
         PurchaseQuote.PurchLines.Next();
-        PurchaseQuote.PurchLines.First;
+        PurchaseQuote.PurchLines.First();
 
         CheckQuoteStatistics(PurchaseQuote);
 
@@ -1508,7 +1507,7 @@ codeunit 134394 "ERM Purchase Subform"
         CreateQuoteWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
         OpenPurchaseQuote(PurchaseHeader, PurchaseQuote);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         PurchaseQuote."Buy-from Vendor Name".SetValue(NewVendor."No.");
         PurchaseQuote.PurchLines.Next();
 
@@ -1583,7 +1582,7 @@ codeunit 134394 "ERM Purchase Subform"
         CreateQuoteWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
         OpenPurchaseQuote(PurchaseHeader, PurchaseQuote);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
 
         PurchaseQuote."Buy-from Vendor Name".SetValue(NewVendor."No.");
         PurchaseQuote.PurchLines.Next();
@@ -1616,7 +1615,7 @@ codeunit 134394 "ERM Purchase Subform"
         OpenPurchaseQuote(PurchaseHeader, PurchaseQuote);
         PurchaseQuote.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         PurchaseQuote."Buy-from Vendor Name".SetValue(NewVendor."No.");
         PurchaseQuote.PurchLines.Next();
 
@@ -1642,8 +1641,8 @@ codeunit 134394 "ERM Purchase Subform"
 
         OpenPurchaseQuote(PurchaseHeader, PurchaseQuote);
 
-        AnswerYesToConfirmDialog;
-        PurchaseQuote."Currency Code".SetValue(GetDifferentCurrencyCode);
+        AnswerYesToConfirmDialog();
+        PurchaseQuote."Currency Code".SetValue(GetDifferentCurrencyCode());
 
         ValidateQuoteInvoiceDiscountAmountIsReadOnly(PurchaseQuote);
         CheckQuoteStatistics(PurchaseQuote);
@@ -1669,8 +1668,8 @@ codeunit 134394 "ERM Purchase Subform"
         OpenPurchaseQuote(PurchaseHeader, PurchaseQuote);
         PurchaseQuote.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
 
-        AnswerYesToConfirmDialog;
-        PurchaseQuote."Currency Code".SetValue(GetDifferentCurrencyCode);
+        AnswerYesToConfirmDialog();
+        PurchaseQuote."Currency Code".SetValue(GetDifferentCurrencyCode());
 
         CheckQuoteStatistics(PurchaseQuote);
     end;
@@ -1696,16 +1695,16 @@ codeunit 134394 "ERM Purchase Subform"
 
         OpenPurchaseQuote(PurchaseHeader, PurchaseQuote);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         LibraryVariableStorage.Enqueue(QuoteMsg);
-        PurchaseQuote.MakeOrder.Invoke;
+        PurchaseQuote.MakeOrder.Invoke();
 
         Clear(PurchaseHeader);
         PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
         PurchaseHeader.FindFirst();
         PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
 
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
 
         CheckOrderStatistics(PurchaseOrder);
@@ -1731,16 +1730,16 @@ codeunit 134394 "ERM Purchase Subform"
 
         OpenPurchaseQuote(PurchaseHeader, PurchaseQuote);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         LibraryVariableStorage.Enqueue(QuoteMsg);
-        PurchaseQuote.MakeOrder.Invoke;
+        PurchaseQuote.MakeOrder.Invoke();
 
         Clear(PurchaseHeader);
         PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
         PurchaseHeader.FindFirst();
         PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
 
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
 
         CheckOrderStatistics(PurchaseOrder);
@@ -1756,14 +1755,14 @@ codeunit 134394 "ERM Purchase Subform"
         Initialize();
 
         CreateVendor(Vendor);
-        Vendor."Currency Code" := GetDifferentCurrencyCode;
+        Vendor."Currency Code" := GetDifferentCurrencyCode();
         Vendor.Modify(true);
         PurchaseQuote.OpenNew();
 
         PurchaseQuote."Buy-from Vendor Name".SetValue(Vendor."No.");
         QuoteCheckCurrencyOnTotals(PurchaseQuote, Vendor."Currency Code");
 
-        PurchaseQuote.PurchLines.New;
+        PurchaseQuote.PurchLines.New();
         QuoteCheckCurrencyOnTotals(PurchaseQuote, Vendor."Currency Code");
 
         PurchaseQuote.PurchLines.Description.SetValue('Test Description');
@@ -1784,7 +1783,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
-        SetAllowManualDisc;
+        SetAllowManualDisc();
 
         CreateQuoteWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
         OpenPurchaseQuote(PurchaseHeader, PurchaseQuote);
@@ -1792,7 +1791,7 @@ codeunit 134394 "ERM Purchase Subform"
         LibraryVariableStorage.Enqueue(CalculateInvoiceDiscountQst);
         LibraryVariableStorage.Enqueue(true);
 
-        PurchaseQuote.CalculateInvoiceDiscount.Invoke;
+        PurchaseQuote.CalculateInvoiceDiscount.Invoke();
         CheckQuoteStatistics(PurchaseQuote);
     end;
 
@@ -1811,10 +1810,10 @@ codeunit 134394 "ERM Purchase Subform"
         CreateQuoteThroughTestPageForItemWithGivenNumberOfUOMs(PurchaseQuote, 0);
 
         // [WHEN] Find the Purchase Line.
-        PurchaseQuote.PurchLines.First;
+        PurchaseQuote.PurchLines.First();
 
         // [THEN] "Unit of Measure Code" field is not editable.
-        Assert.IsTrue(PurchaseQuote.PurchLines."Unit of Measure Code".Editable, UnitofMeasureCodeIsEditableMsg);
+        Assert.IsTrue(PurchaseQuote.PurchLines."Unit of Measure Code".Editable(), UnitofMeasureCodeIsEditableMsg);
     end;
 
     [Test]
@@ -1875,27 +1874,27 @@ codeunit 134394 "ERM Purchase Subform"
 
         CreateBlanketOrderWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, BlanketPurchaseOrder);
 
-        BlanketPurchaseOrder.PurchLines.First;
+        BlanketPurchaseOrder.PurchLines.First();
         ItemQuantity := ItemQuantity * 2;
         BlanketPurchaseOrder.PurchLines.Quantity.SetValue(ItemQuantity);
         BlanketPurchaseOrder.PurchLines.Next();
-        BlanketPurchaseOrder.PurchLines.First;
+        BlanketPurchaseOrder.PurchLines.First();
         CheckBlanketOrderStatistics(BlanketPurchaseOrder);
 
         BlanketPurchaseOrder.PurchLines."Line Amount".SetValue(
-          Round(BlanketPurchaseOrder.PurchLines."Line Amount".AsDEcimal / 2, 1));
+          Round(BlanketPurchaseOrder.PurchLines."Line Amount".AsDecimal() / 2, 1));
         BlanketPurchaseOrder.PurchLines.Next();
-        BlanketPurchaseOrder.PurchLines.First;
+        BlanketPurchaseOrder.PurchLines.First();
         CheckBlanketOrderStatistics(BlanketPurchaseOrder);
 
         BlanketPurchaseOrder.PurchLines."Line Discount %".SetValue('0');
         BlanketPurchaseOrder.PurchLines.Next();
-        BlanketPurchaseOrder.PurchLines.First;
+        BlanketPurchaseOrder.PurchLines.First();
         CheckBlanketOrderStatistics(BlanketPurchaseOrder);
 
         BlanketPurchaseOrder.PurchLines."No.".SetValue('');
         BlanketPurchaseOrder.PurchLines.Next();
-        BlanketPurchaseOrder.PurchLines.First;
+        BlanketPurchaseOrder.PurchLines.First();
 
         ValidateBlanketOrderInvoiceDiscountAmountIsReadOnly(BlanketPurchaseOrder);
         CheckBlanketOrderStatistics(BlanketPurchaseOrder);
@@ -1925,11 +1924,11 @@ codeunit 134394 "ERM Purchase Subform"
 
         BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
 
-        BlanketPurchaseOrder.PurchLines.First;
+        BlanketPurchaseOrder.PurchLines.First();
         ItemQuantity := ItemQuantity * 2;
         BlanketPurchaseOrder.PurchLines.Quantity.SetValue(ItemQuantity);
         BlanketPurchaseOrder.PurchLines.Next();
-        BlanketPurchaseOrder.PurchLines.First;
+        BlanketPurchaseOrder.PurchLines.First();
 
         CheckBlanketOrderStatistics(BlanketPurchaseOrder);
 
@@ -1962,7 +1961,7 @@ codeunit 134394 "ERM Purchase Subform"
         CreateBlanketOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
         OpenBlanketPurchaseOrder(PurchaseHeader, BlanketPurchaseOrder);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         BlanketPurchaseOrder."Buy-from Vendor Name".SetValue(NewVendor."No.");
         BlanketPurchaseOrder.PurchLines.Next();
 
@@ -2037,7 +2036,7 @@ codeunit 134394 "ERM Purchase Subform"
         CreateBlanketOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
         OpenBlanketPurchaseOrder(PurchaseHeader, BlanketPurchaseOrder);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
 
         BlanketPurchaseOrder."Buy-from Vendor Name".SetValue(NewVendor."No.");
         BlanketPurchaseOrder.PurchLines.Next();
@@ -2070,7 +2069,7 @@ codeunit 134394 "ERM Purchase Subform"
         OpenBlanketPurchaseOrder(PurchaseHeader, BlanketPurchaseOrder);
         BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         BlanketPurchaseOrder."Buy-from Vendor Name".SetValue(NewVendor."No.");
         BlanketPurchaseOrder.PurchLines.Next();
 
@@ -2096,8 +2095,8 @@ codeunit 134394 "ERM Purchase Subform"
 
         OpenBlanketPurchaseOrder(PurchaseHeader, BlanketPurchaseOrder);
 
-        AnswerYesToConfirmDialog;
-        BlanketPurchaseOrder."Currency Code".SetValue(GetDifferentCurrencyCode);
+        AnswerYesToConfirmDialog();
+        BlanketPurchaseOrder."Currency Code".SetValue(GetDifferentCurrencyCode());
 
         ValidateBlanketOrderInvoiceDiscountAmountIsReadOnly(BlanketPurchaseOrder);
         CheckBlanketOrderStatistics(BlanketPurchaseOrder);
@@ -2123,8 +2122,8 @@ codeunit 134394 "ERM Purchase Subform"
         OpenBlanketPurchaseOrder(PurchaseHeader, BlanketPurchaseOrder);
         BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
 
-        AnswerYesToConfirmDialog;
-        BlanketPurchaseOrder."Currency Code".SetValue(GetDifferentCurrencyCode);
+        AnswerYesToConfirmDialog();
+        BlanketPurchaseOrder."Currency Code".SetValue(GetDifferentCurrencyCode());
 
         CheckBlanketOrderStatistics(BlanketPurchaseOrder);
     end;
@@ -2150,16 +2149,16 @@ codeunit 134394 "ERM Purchase Subform"
 
         OpenBlanketPurchaseOrder(PurchaseHeader, BlanketPurchaseOrder);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         LibraryVariableStorage.Enqueue(BlanketMsg);
-        BlanketPurchaseOrder.MakeOrder.Invoke;
+        BlanketPurchaseOrder.MakeOrder.Invoke();
 
         Clear(PurchaseHeader);
         PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
         PurchaseHeader.FindFirst();
         PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
 
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
 
         CheckOrderStatistics(PurchaseOrder);
@@ -2185,16 +2184,16 @@ codeunit 134394 "ERM Purchase Subform"
 
         OpenBlanketPurchaseOrder(PurchaseHeader, BlanketPurchaseOrder);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         LibraryVariableStorage.Enqueue(BlanketMsg);
-        BlanketPurchaseOrder.MakeOrder.Invoke;
+        BlanketPurchaseOrder.MakeOrder.Invoke();
 
         Clear(PurchaseHeader);
         PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
         PurchaseHeader.FindFirst();
         PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
 
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
 
         CheckOrderStatistics(PurchaseOrder);
@@ -2210,14 +2209,14 @@ codeunit 134394 "ERM Purchase Subform"
         Initialize();
 
         CreateVendor(Vendor);
-        Vendor."Currency Code" := GetDifferentCurrencyCode;
+        Vendor."Currency Code" := GetDifferentCurrencyCode();
         Vendor.Modify(true);
         BlanketPurchaseOrder.OpenNew();
 
         BlanketPurchaseOrder."Buy-from Vendor Name".SetValue(Vendor."No.");
         BlanketPurchaseOrderCheckCurrencyOnTotals(BlanketPurchaseOrder, Vendor."Currency Code");
 
-        BlanketPurchaseOrder.PurchLines.New;
+        BlanketPurchaseOrder.PurchLines.New();
         BlanketPurchaseOrderCheckCurrencyOnTotals(BlanketPurchaseOrder, Vendor."Currency Code");
 
         BlanketPurchaseOrder.PurchLines.Description.SetValue('Test Description');
@@ -2238,7 +2237,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
-        SetAllowManualDisc;
+        SetAllowManualDisc();
 
         CreateBlanketOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
         OpenBlanketPurchaseOrder(PurchaseHeader, BlanketPurchaseOrder);
@@ -2246,7 +2245,7 @@ codeunit 134394 "ERM Purchase Subform"
         LibraryVariableStorage.Enqueue(CalculateInvoiceDiscountQst);
         LibraryVariableStorage.Enqueue(true);
 
-        BlanketPurchaseOrder.CalculateInvoiceDiscount.Invoke;
+        BlanketPurchaseOrder.CalculateInvoiceDiscount.Invoke();
         CheckBlanketOrderStatistics(BlanketPurchaseOrder);
     end;
 
@@ -2308,27 +2307,27 @@ codeunit 134394 "ERM Purchase Subform"
 
         CreateReturnOrderWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseReturnOrder);
 
-        PurchaseReturnOrder.PurchLines.First;
+        PurchaseReturnOrder.PurchLines.First();
         ItemQuantity := ItemQuantity * 2;
         PurchaseReturnOrder.PurchLines.Quantity.SetValue(ItemQuantity);
         PurchaseReturnOrder.PurchLines.Next();
-        PurchaseReturnOrder.PurchLines.First;
+        PurchaseReturnOrder.PurchLines.First();
         CheckReturnOrderStatistics(PurchaseReturnOrder);
 
         PurchaseReturnOrder.PurchLines."Line Amount".SetValue(
-          Round(PurchaseReturnOrder.PurchLines."Line Amount".AsDEcimal / 2, 1));
+          Round(PurchaseReturnOrder.PurchLines."Line Amount".AsDecimal() / 2, 1));
         PurchaseReturnOrder.PurchLines.Next();
-        PurchaseReturnOrder.PurchLines.First;
+        PurchaseReturnOrder.PurchLines.First();
         CheckReturnOrderStatistics(PurchaseReturnOrder);
 
         PurchaseReturnOrder.PurchLines."Line Discount %".SetValue('0');
         PurchaseReturnOrder.PurchLines.Next();
-        PurchaseReturnOrder.PurchLines.First;
+        PurchaseReturnOrder.PurchLines.First();
         CheckReturnOrderStatistics(PurchaseReturnOrder);
 
         PurchaseReturnOrder.PurchLines."No.".SetValue('');
         PurchaseReturnOrder.PurchLines.Next();
-        PurchaseReturnOrder.PurchLines.First;
+        PurchaseReturnOrder.PurchLines.First();
 
         ValidateReturnOrderInvoiceDiscountAmountIsReadOnly(PurchaseReturnOrder);
         CheckReturnOrderStatistics(PurchaseReturnOrder);
@@ -2358,11 +2357,11 @@ codeunit 134394 "ERM Purchase Subform"
 
         PurchaseReturnOrder.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
 
-        PurchaseReturnOrder.PurchLines.First;
+        PurchaseReturnOrder.PurchLines.First();
         ItemQuantity := ItemQuantity * 2;
         PurchaseReturnOrder.PurchLines.Quantity.SetValue(ItemQuantity);
         PurchaseReturnOrder.PurchLines.Next();
-        PurchaseReturnOrder.PurchLines.First;
+        PurchaseReturnOrder.PurchLines.First();
 
         CheckReturnOrderStatistics(PurchaseReturnOrder);
 
@@ -2395,7 +2394,7 @@ codeunit 134394 "ERM Purchase Subform"
         CreateReturnOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
         OpenReturnOrder(PurchaseHeader, PurchaseReturnOrder);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         PurchaseReturnOrder."Buy-from Vendor Name".SetValue(NewVendor."No.");
         PurchaseReturnOrder.PurchLines.Next();
 
@@ -2470,7 +2469,7 @@ codeunit 134394 "ERM Purchase Subform"
         CreateReturnOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
         OpenReturnOrder(PurchaseHeader, PurchaseReturnOrder);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
 
         PurchaseReturnOrder."Buy-from Vendor Name".SetValue(NewVendor."No.");
         PurchaseReturnOrder.PurchLines.Next();
@@ -2503,7 +2502,7 @@ codeunit 134394 "ERM Purchase Subform"
         OpenReturnOrder(PurchaseHeader, PurchaseReturnOrder);
         PurchaseReturnOrder.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         PurchaseReturnOrder."Buy-from Vendor Name".SetValue(NewVendor."No.");
         PurchaseReturnOrder.PurchLines.Next();
 
@@ -2529,8 +2528,8 @@ codeunit 134394 "ERM Purchase Subform"
 
         OpenReturnOrder(PurchaseHeader, PurchaseReturnOrder);
 
-        AnswerYesToConfirmDialog;
-        PurchaseReturnOrder."Currency Code".SetValue(GetDifferentCurrencyCode);
+        AnswerYesToConfirmDialog();
+        PurchaseReturnOrder."Currency Code".SetValue(GetDifferentCurrencyCode());
 
         ValidateReturnOrderInvoiceDiscountAmountIsReadOnly(PurchaseReturnOrder);
         CheckReturnOrderStatistics(PurchaseReturnOrder);
@@ -2556,8 +2555,8 @@ codeunit 134394 "ERM Purchase Subform"
         OpenReturnOrder(PurchaseHeader, PurchaseReturnOrder);
         PurchaseReturnOrder.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
 
-        AnswerYesToConfirmDialog;
-        PurchaseReturnOrder."Currency Code".SetValue(GetDifferentCurrencyCode);
+        AnswerYesToConfirmDialog();
+        PurchaseReturnOrder."Currency Code".SetValue(GetDifferentCurrencyCode());
 
         CheckReturnOrderStatistics(PurchaseReturnOrder);
     end;
@@ -2583,7 +2582,7 @@ codeunit 134394 "ERM Purchase Subform"
 
         PurchCrMemoHdr.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
 
-        PostedPurchaseCreditMemo.OpenEdit;
+        PostedPurchaseCreditMemo.OpenEdit();
         PostedPurchaseCreditMemo.GotoRecord(PurchCrMemoHdr);
 
         CheckPostedCreditMemoStatistics(PostedPurchaseCreditMemo);
@@ -2607,7 +2606,7 @@ codeunit 134394 "ERM Purchase Subform"
 
         PurchCrMemoHdr.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
 
-        PostedPurchaseCreditMemo.OpenEdit;
+        PostedPurchaseCreditMemo.OpenEdit();
         PostedPurchaseCreditMemo.GotoRecord(PurchCrMemoHdr);
 
         CheckPostedCreditMemoStatistics(PostedPurchaseCreditMemo);
@@ -2623,14 +2622,14 @@ codeunit 134394 "ERM Purchase Subform"
         Initialize();
 
         CreateVendor(Vendor);
-        Vendor."Currency Code" := GetDifferentCurrencyCode;
+        Vendor."Currency Code" := GetDifferentCurrencyCode();
         Vendor.Modify(true);
         PurchaseReturnOrder.OpenNew();
 
         PurchaseReturnOrder."Buy-from Vendor Name".SetValue(Vendor."No.");
         ReturnOrderCheckCurrencyOnTotals(PurchaseReturnOrder, Vendor."Currency Code");
 
-        PurchaseReturnOrder.PurchLines.New;
+        PurchaseReturnOrder.PurchLines.New();
         ReturnOrderCheckCurrencyOnTotals(PurchaseReturnOrder, Vendor."Currency Code");
 
         PurchaseReturnOrder.PurchLines.Description.SetValue('Test Description');
@@ -2651,7 +2650,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
-        SetAllowManualDisc;
+        SetAllowManualDisc();
 
         CreateReturnOrderWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
         OpenReturnOrder(PurchaseHeader, PurchaseReturnOrder);
@@ -2659,7 +2658,7 @@ codeunit 134394 "ERM Purchase Subform"
         LibraryVariableStorage.Enqueue(CalculateInvoiceDiscountQst);
         LibraryVariableStorage.Enqueue(true);
 
-        PurchaseReturnOrder.CalculateInvoiceDiscount.Invoke;
+        PurchaseReturnOrder.CalculateInvoiceDiscount.Invoke();
         CheckReturnOrderStatistics(PurchaseReturnOrder);
     end;
 
@@ -2697,7 +2696,7 @@ codeunit 134394 "ERM Purchase Subform"
 
         // [WHEN] Calculate Totals by Open Purchase Credit Memo Page
         PurchaseCreditMemo.Close();
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
         PurchaseCreditMemo.Close();
 
@@ -2729,9 +2728,9 @@ codeunit 134394 "ERM Purchase Subform"
 
         // [WHEN] Invoke Lookup on "Unit of Measure Code" field. Select additional UOM.
         LibraryVariableStorage.Enqueue(AdditionalUOMCode);
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.GotoKey(PurchaseLine."Document Type", PurchaseLine."Document No.");
-        PurchaseQuote.PurchLines."Unit of Measure Code".Lookup;
+        PurchaseQuote.PurchLines."Unit of Measure Code".Lookup();
         PurchaseQuote.Close();
 
         // [THEN] Lookup is available. Unit of Measure Code is changed.
@@ -2755,7 +2754,7 @@ codeunit 134394 "ERM Purchase Subform"
         // [GIVEN] Purchase Line 1 has "Qty. to Ship" = "Qty. to Invoice" = "Quantity"
         // [GIVEN] Purchase Line 2 has "Qty. to Receive" = "Qty. to Invoice" = 0
         // [GIVEN] Purchase Line 1 is posted
-        PurchaseHeaderNo := CreatePurchOrderAndPostOneOfTwoLines;
+        PurchaseHeaderNo := CreatePurchOrderAndPostOneOfTwoLines();
 
         // [GIVEN] "Inv. Discount Amount" is updated in Purchase Order Subform
         LibraryVariableStorage.Enqueue(UpdateInvDiscountQst);
@@ -2789,7 +2788,7 @@ codeunit 134394 "ERM Purchase Subform"
         // [GIVEN] Purchase Line 1 has "Qty. to Ship" = "Qty. to Invoice" = "Quantity"
         // [GIVEN] Purchase Line 2 has "Qty. to Receive" = "Qty. to Invoice" = 0
         // [GIVEN] Purchase Line 1 is posted
-        PurchaseHeaderNo := CreatePurchOrderAndPostOneOfTwoLines;
+        PurchaseHeaderNo := CreatePurchOrderAndPostOneOfTwoLines();
 
         // [GIVEN] "Inv. Discount Amount" is updated in Purchase Order Subform
         LibraryVariableStorage.Enqueue(UpdateInvDiscountQst);
@@ -2821,7 +2820,7 @@ codeunit 134394 "ERM Purchase Subform"
         Initialize();
 
         // [GIVEN] Purchase Order
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] Purchase Line
         CreateItem(Item, LibraryRandom.RandIntInRange(100, 1000));
@@ -2852,7 +2851,7 @@ codeunit 134394 "ERM Purchase Subform"
         CurrencyCode := CreatePurchaseHeaderWithCurrencyCode(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
 
         // [GIVEN] Purchase Invoice Subform with "CC" in Total Amount Captions
-        PurchaseInvoicePage.OpenEdit;
+        PurchaseInvoicePage.OpenEdit();
         PurchaseInvoicePage.FILTER.SetFilter("No.", PurchaseHeader."No.");
         CheckPurchaseInvoiceSubformTotalAmountCaptions(PurchaseInvoicePage, CurrencyCode);
         PurchaseInvoicePage.Close();
@@ -2862,7 +2861,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseHeader.Modify(true);
 
         // [WHEN] Open Purchase Invoice Subform
-        PurchaseInvoicePage.OpenEdit;
+        PurchaseInvoicePage.OpenEdit();
         PurchaseInvoicePage.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [THEN] Total Amount Captions has default Currency Code
@@ -2887,7 +2886,7 @@ codeunit 134394 "ERM Purchase Subform"
         CurrencyCode := CreatePurchaseHeaderWithCurrencyCode(PurchaseHeader, PurchaseHeader."Document Type"::Order);
 
         // [GIVEN] Purchase Order Subform with "CC" in Total Amount Captions
-        PurchaseOrderPage.OpenEdit;
+        PurchaseOrderPage.OpenEdit();
         PurchaseOrderPage.FILTER.SetFilter("No.", PurchaseHeader."No.");
         CheckPurchaseOrderSubformTotalAmountCaptions(PurchaseOrderPage, CurrencyCode);
         PurchaseOrderPage.Close();
@@ -2897,7 +2896,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseHeader.Modify(true);
 
         // [WHEN] Open Purchase Order Subform
-        PurchaseOrderPage.OpenEdit;
+        PurchaseOrderPage.OpenEdit();
         PurchaseOrderPage.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [THEN] Total Amount Captions has default Currency Code
@@ -2922,7 +2921,7 @@ codeunit 134394 "ERM Purchase Subform"
         CurrencyCode := CreatePurchaseHeaderWithCurrencyCode(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
 
         // [GIVEN] Purchase Credit Memo Subform with "CC" in Total Amount Captions
-        PurchaseCreditMemoPage.OpenEdit;
+        PurchaseCreditMemoPage.OpenEdit();
         PurchaseCreditMemoPage.FILTER.SetFilter("No.", PurchaseHeader."No.");
         CheckPurchaseCreditMemoSubformTotalAmountCaptions(PurchaseCreditMemoPage, CurrencyCode);
         PurchaseCreditMemoPage.Close();
@@ -2932,7 +2931,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseHeader.Modify(true);
 
         // [WHEN] Open Purchase Credit Memo Subform
-        PurchaseCreditMemoPage.OpenEdit;
+        PurchaseCreditMemoPage.OpenEdit();
         PurchaseCreditMemoPage.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [THEN] Total Amount Captions has default Currency Code
@@ -2957,7 +2956,7 @@ codeunit 134394 "ERM Purchase Subform"
         CurrencyCode := CreatePurchaseHeaderWithCurrencyCode(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
 
         // [GIVEN] Purchase Quote Subform with "CC" in Total Amount Captions
-        PurchaseQuotePage.OpenEdit;
+        PurchaseQuotePage.OpenEdit();
         PurchaseQuotePage.FILTER.SetFilter("No.", PurchaseHeader."No.");
         CheckPurchaseQuoteSubformTotalAmountCaptions(PurchaseQuotePage, CurrencyCode);
         PurchaseQuotePage.Close();
@@ -2967,7 +2966,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseHeader.Modify(true);
 
         // [WHEN] Open Purchase Quote Subform
-        PurchaseQuotePage.OpenEdit;
+        PurchaseQuotePage.OpenEdit();
         PurchaseQuotePage.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [THEN] Total Amount Captions has default Currency Code
@@ -2992,7 +2991,7 @@ codeunit 134394 "ERM Purchase Subform"
         CurrencyCode := CreatePurchaseHeaderWithCurrencyCode(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order");
 
         // [GIVEN] Blanket Purchase Order Subform with "CC" in Total Amount Captions
-        BlanketPurchaseOrderPage.OpenEdit;
+        BlanketPurchaseOrderPage.OpenEdit();
         BlanketPurchaseOrderPage.FILTER.SetFilter("No.", PurchaseHeader."No.");
         CheckBlanketPurchaseOrderSubformTotalAmountCaptions(BlanketPurchaseOrderPage, CurrencyCode);
         BlanketPurchaseOrderPage.Close();
@@ -3002,7 +3001,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseHeader.Modify(true);
 
         // [WHEN] Open Blanket Purchase Order Subform
-        BlanketPurchaseOrderPage.OpenEdit;
+        BlanketPurchaseOrderPage.OpenEdit();
         BlanketPurchaseOrderPage.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [THEN] Total Amount Captions has default Currency Code
@@ -3019,8 +3018,8 @@ codeunit 134394 "ERM Purchase Subform"
         // [FEATURE] [UT] [UI]
         // [SCENARIO 274634] The Return Qty Shipped field of Return Purchase Order Subform cannot be edited by user
         Initialize();
-        RPOSPage.OpenEdit;
-        Assert.IsFalse(RPOSPage."Return Qty. Shipped".Editable, 'Return Qty. Shipped field must be not editable');
+        RPOSPage.OpenEdit();
+        Assert.IsFalse(RPOSPage."Return Qty. Shipped".Editable(), 'Return Qty. Shipped field must be not editable');
     end;
 
     [Test]
@@ -3040,7 +3039,7 @@ codeunit 134394 "ERM Purchase Subform"
         CurrencyCode := CreatePurchaseHeaderWithCurrencyCode(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
 
         // [GIVEN] Purchase Return Order Subform with "CC" in Total Amount Captions
-        PurchaseReturnOrderPage.OpenEdit;
+        PurchaseReturnOrderPage.OpenEdit();
         PurchaseReturnOrderPage.FILTER.SetFilter("No.", PurchaseHeader."No.");
         CheckPurchaseReturnOrderSubformTotalAmountCaptions(PurchaseReturnOrderPage, CurrencyCode);
         PurchaseReturnOrderPage.Close();
@@ -3050,7 +3049,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseHeader.Modify(true);
 
         // [WHEN] Open Purchase Return Order Subform
-        PurchaseReturnOrderPage.OpenEdit;
+        PurchaseReturnOrderPage.OpenEdit();
         PurchaseReturnOrderPage.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [THEN] Total Amount Captions has default Currency Code
@@ -3071,28 +3070,28 @@ codeunit 134394 "ERM Purchase Subform"
 
         // [GIVEN] Open New Purchase quote page and pick new customer
         PurchaseQuote.OpenNew();
-        PurchaseQuote."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo);
+        PurchaseQuote."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
 
         // [WHEN] Create new line with Type = Item and blank "No."
-        PurchaseQuote.PurchLines.New;
+        PurchaseQuote.PurchLines.New();
         PurchaseQuote.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
 
         // [THEN] Fields Quantity, Location Code, Unit Price, Line Discount % and Line Amount are non editable
         // TFS ID: 339141 Fields remain editable to keep Quick Entry feature functionable
         Assert.IsTrue(
-          PurchaseQuote.PurchLines.Quantity.Editable,
+          PurchaseQuote.PurchLines.Quantity.Editable(),
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName(Quantity)));
         Assert.IsTrue(
-          PurchaseQuote.PurchLines."Location Code".Editable,
+          PurchaseQuote.PurchLines."Location Code".Editable(),
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Location Code")));
         Assert.IsTrue(
-          PurchaseQuote.PurchLines."Direct Unit Cost".Editable,
+          PurchaseQuote.PurchLines."Direct Unit Cost".Editable(),
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Direct Unit Cost")));
         Assert.IsTrue(
-          PurchaseQuote.PurchLines."Line Discount %".Editable,
+          PurchaseQuote.PurchLines."Line Discount %".Editable(),
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Line Discount %")));
         Assert.IsTrue(
-          PurchaseQuote.PurchLines."Line Amount".Editable,
+          PurchaseQuote.PurchLines."Line Amount".Editable(),
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Line Amount")));
     end;
 
@@ -3109,28 +3108,28 @@ codeunit 134394 "ERM Purchase Subform"
 
         // [GIVEN] Open New Purchase quote page and pick new customer
         PurchaseQuote.OpenNew();
-        PurchaseQuote."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo);
+        PurchaseQuote."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
 
         // [WHEN] Create new line with Type = Item
-        PurchaseQuote.PurchLines.New;
+        PurchaseQuote.PurchLines.New();
         PurchaseQuote.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
-        PurchaseQuote.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo);
+        PurchaseQuote.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo());
 
         // [THEN] Fields Quantity, Location Code, Unit Price, Line Discount % and Line Amount are editable
         Assert.IsTrue(
-          PurchaseQuote.PurchLines.Quantity.Editable,
+          PurchaseQuote.PurchLines.Quantity.Editable(),
           StrSubstNo(EditableErr, PurchaseLine.FieldName(Quantity)));
         Assert.IsTrue(
-          PurchaseQuote.PurchLines."Location Code".Editable,
+          PurchaseQuote.PurchLines."Location Code".Editable(),
           StrSubstNo(EditableErr, PurchaseLine.FieldName("Location Code")));
         Assert.IsTrue(
-          PurchaseQuote.PurchLines."Direct Unit Cost".Editable,
+          PurchaseQuote.PurchLines."Direct Unit Cost".Editable(),
           StrSubstNo(EditableErr, PurchaseLine.FieldName("Direct Unit Cost")));
         Assert.IsTrue(
-          PurchaseQuote.PurchLines."Line Discount %".Editable,
+          PurchaseQuote.PurchLines."Line Discount %".Editable(),
           StrSubstNo(EditableErr, PurchaseLine.FieldName("Line Discount %")));
         Assert.IsTrue(
-          PurchaseQuote.PurchLines."Line Amount".Editable,
+          PurchaseQuote.PurchLines."Line Amount".Editable(),
           StrSubstNo(EditableErr, PurchaseLine.FieldName("Line Amount")));
     end;
 
@@ -3147,28 +3146,28 @@ codeunit 134394 "ERM Purchase Subform"
 
         // [GIVEN] Open New Purchase invoice page and pick new customer
         PurchaseInvoice.OpenNew();
-        PurchaseInvoice."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo);
+        PurchaseInvoice."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
 
         // [WHEN] Create new line with Type = Item and blank "No."
-        PurchaseInvoice.PurchLines.New;
+        PurchaseInvoice.PurchLines.New();
         PurchaseInvoice.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
 
         // [THEN] Fields Quantity, Location Code, Unit Price, Line Discount % and Line Amount are non editable
         // TFS ID: 339141 Fields remain editable to keep Quick Entry feature functionable
         Assert.IsTrue(
-          PurchaseInvoice.PurchLines.Quantity.Editable,
+          PurchaseInvoice.PurchLines.Quantity.Editable(),
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName(Quantity)));
         Assert.IsTrue(
-          PurchaseInvoice.PurchLines."Location Code".Editable,
+          PurchaseInvoice.PurchLines."Location Code".Editable(),
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Location Code")));
         Assert.IsTrue(
-          PurchaseInvoice.PurchLines."Direct Unit Cost".Editable,
+          PurchaseInvoice.PurchLines."Direct Unit Cost".Editable(),
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Direct Unit Cost")));
         Assert.IsTrue(
-          PurchaseInvoice.PurchLines."Line Discount %".Editable,
+          PurchaseInvoice.PurchLines."Line Discount %".Editable(),
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Line Discount %")));
         Assert.IsTrue(
-          PurchaseInvoice.PurchLines."Line Amount".Editable,
+          PurchaseInvoice.PurchLines."Line Amount".Editable(),
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Line Amount")));
     end;
 
@@ -3185,28 +3184,28 @@ codeunit 134394 "ERM Purchase Subform"
 
         // [GIVEN] Open New Purchase invoice page and pick new customer
         PurchaseInvoice.OpenNew();
-        PurchaseInvoice."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo);
+        PurchaseInvoice."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
 
         // [WHEN] Create new line with Type = Item
-        PurchaseInvoice.PurchLines.New;
+        PurchaseInvoice.PurchLines.New();
         PurchaseInvoice.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
-        PurchaseInvoice.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo);
+        PurchaseInvoice.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo());
 
         // [THEN] Fields Quantity, Location Code, Unit Price, Line Discount % and Line Amount are editable
         Assert.IsTrue(
-          PurchaseInvoice.PurchLines.Quantity.Editable,
+          PurchaseInvoice.PurchLines.Quantity.Editable(),
           StrSubstNo(EditableErr, PurchaseLine.FieldName(Quantity)));
         Assert.IsTrue(
-          PurchaseInvoice.PurchLines."Location Code".Editable,
+          PurchaseInvoice.PurchLines."Location Code".Editable(),
           StrSubstNo(EditableErr, PurchaseLine.FieldName("Location Code")));
         Assert.IsTrue(
-          PurchaseInvoice.PurchLines."Direct Unit Cost".Editable,
+          PurchaseInvoice.PurchLines."Direct Unit Cost".Editable(),
           StrSubstNo(EditableErr, PurchaseLine.FieldName("Direct Unit Cost")));
         Assert.IsTrue(
-          PurchaseInvoice.PurchLines."Line Discount %".Editable,
+          PurchaseInvoice.PurchLines."Line Discount %".Editable(),
           StrSubstNo(EditableErr, PurchaseLine.FieldName("Line Discount %")));
         Assert.IsTrue(
-          PurchaseInvoice.PurchLines."Line Amount".Editable,
+          PurchaseInvoice.PurchLines."Line Amount".Editable(),
           StrSubstNo(EditableErr, PurchaseLine.FieldName("Line Amount")));
     end;
 
@@ -3223,25 +3222,25 @@ codeunit 134394 "ERM Purchase Subform"
 
         // [GIVEN] Open New Purchase order page and pick new customer
         PurchaseOrder.OpenNew();
-        PurchaseOrder."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo);
+        PurchaseOrder."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
 
         // [WHEN] Create new line with Type = Item and blank "No."
-        PurchaseOrder.PurchLines.New;
+        PurchaseOrder.PurchLines.New();
         PurchaseOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
 
         // [THEN] Fields Quantity, Location Code, Unit Price and Line Amount are non editable
         // TFS ID: 339141 Fields remain editable to keep Quick Entry feature functionable
         Assert.IsTrue(
-          PurchaseOrder.PurchLines.Quantity.Editable,
+          PurchaseOrder.PurchLines.Quantity.Editable(),
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName(Quantity)));
         Assert.IsTrue(
-          PurchaseOrder.PurchLines."Location Code".Editable,
+          PurchaseOrder.PurchLines."Location Code".Editable(),
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Location Code")));
         Assert.IsTrue(
-          PurchaseOrder.PurchLines."Direct Unit Cost".Editable,
+          PurchaseOrder.PurchLines."Direct Unit Cost".Editable(),
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Direct Unit Cost")));
         Assert.IsTrue(
-          PurchaseOrder.PurchLines."Line Amount".Editable,
+          PurchaseOrder.PurchLines."Line Amount".Editable(),
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Line Amount")));
     end;
 
@@ -3258,25 +3257,25 @@ codeunit 134394 "ERM Purchase Subform"
 
         // [GIVEN] Open New Purchase order page and pick new customer
         PurchaseOrder.OpenNew();
-        PurchaseOrder."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo);
+        PurchaseOrder."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
 
         // [WHEN] Create new line with Type = Item
-        PurchaseOrder.PurchLines.New;
+        PurchaseOrder.PurchLines.New();
         PurchaseOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
-        PurchaseOrder.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo);
+        PurchaseOrder.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo());
 
         // [THEN] Fields Quantity, Location Code, Unit Price and Line Amount are editable
         Assert.IsTrue(
-          PurchaseOrder.PurchLines.Quantity.Editable,
+          PurchaseOrder.PurchLines.Quantity.Editable(),
           StrSubstNo(EditableErr, PurchaseLine.FieldName(Quantity)));
         Assert.IsTrue(
-          PurchaseOrder.PurchLines."Location Code".Editable,
+          PurchaseOrder.PurchLines."Location Code".Editable(),
           StrSubstNo(EditableErr, PurchaseLine.FieldName("Location Code")));
         Assert.IsTrue(
-          PurchaseOrder.PurchLines."Direct Unit Cost".Editable,
+          PurchaseOrder.PurchLines."Direct Unit Cost".Editable(),
           StrSubstNo(EditableErr, PurchaseLine.FieldName("Direct Unit Cost")));
         Assert.IsTrue(
-          PurchaseOrder.PurchLines."Line Amount".Editable,
+          PurchaseOrder.PurchLines."Line Amount".Editable(),
           StrSubstNo(EditableErr, PurchaseLine.FieldName("Line Amount")));
     end;
 
@@ -3293,28 +3292,28 @@ codeunit 134394 "ERM Purchase Subform"
 
         // [GIVEN] Open New Purchase credit memo page and pick new customer
         PurchaseCreditMemo.OpenNew();
-        PurchaseCreditMemo."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo);
+        PurchaseCreditMemo."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
 
         // [WHEN] Create new line with Type = Item and blank "No."
-        PurchaseCreditMemo.PurchLines.New;
+        PurchaseCreditMemo.PurchLines.New();
         PurchaseCreditMemo.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
 
         // [THEN] Fields Quantity, Location Code, Unit Price, Line Discount % and Line Amount are non editable
         // TFS ID: 339141 Fields remain editable to keep Quick Entry feature functionable
         Assert.IsTrue(
-          PurchaseCreditMemo.PurchLines.Quantity.Editable,
+          PurchaseCreditMemo.PurchLines.Quantity.Editable(),
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName(Quantity)));
         Assert.IsTrue(
-          PurchaseCreditMemo.PurchLines."Location Code".Editable,
+          PurchaseCreditMemo.PurchLines."Location Code".Editable(),
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Location Code")));
         Assert.IsTrue(
-          PurchaseCreditMemo.PurchLines."Direct Unit Cost".Editable,
+          PurchaseCreditMemo.PurchLines."Direct Unit Cost".Editable(),
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Direct Unit Cost")));
         Assert.IsTrue(
-          PurchaseCreditMemo.PurchLines."Line Discount %".Editable,
+          PurchaseCreditMemo.PurchLines."Line Discount %".Editable(),
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Line Discount %")));
         Assert.IsTrue(
-          PurchaseCreditMemo.PurchLines."Line Amount".Editable,
+          PurchaseCreditMemo.PurchLines."Line Amount".Editable(),
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Line Amount")));
     end;
 
@@ -3331,28 +3330,28 @@ codeunit 134394 "ERM Purchase Subform"
 
         // [GIVEN] Open New Purchase credit memo page and pick new customer
         PurchaseCreditMemo.OpenNew();
-        PurchaseCreditMemo."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo);
+        PurchaseCreditMemo."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
 
         // [WHEN] Create new line with Type = Item
-        PurchaseCreditMemo.PurchLines.New;
+        PurchaseCreditMemo.PurchLines.New();
         PurchaseCreditMemo.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
-        PurchaseCreditMemo.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo);
+        PurchaseCreditMemo.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo());
 
         // [THEN] Fields Quantity, Location Code, Unit Price, Line Discount % and Line Amount are editable
         Assert.IsTrue(
-          PurchaseCreditMemo.PurchLines.Quantity.Editable,
+          PurchaseCreditMemo.PurchLines.Quantity.Editable(),
           StrSubstNo(EditableErr, PurchaseLine.FieldName(Quantity)));
         Assert.IsTrue(
-          PurchaseCreditMemo.PurchLines."Location Code".Editable,
+          PurchaseCreditMemo.PurchLines."Location Code".Editable(),
           StrSubstNo(EditableErr, PurchaseLine.FieldName("Location Code")));
         Assert.IsTrue(
-          PurchaseCreditMemo.PurchLines."Direct Unit Cost".Editable,
+          PurchaseCreditMemo.PurchLines."Direct Unit Cost".Editable(),
           StrSubstNo(EditableErr, PurchaseLine.FieldName("Direct Unit Cost")));
         Assert.IsTrue(
-          PurchaseCreditMemo.PurchLines."Line Discount %".Editable,
+          PurchaseCreditMemo.PurchLines."Line Discount %".Editable(),
           StrSubstNo(EditableErr, PurchaseLine.FieldName("Line Discount %")));
         Assert.IsTrue(
-          PurchaseCreditMemo.PurchLines."Line Amount".Editable,
+          PurchaseCreditMemo.PurchLines."Line Amount".Editable(),
           StrSubstNo(EditableErr, PurchaseLine.FieldName("Line Amount")));
     end;
 
@@ -3369,28 +3368,28 @@ codeunit 134394 "ERM Purchase Subform"
 
         // [GIVEN] Open New Purchase return order page and pick new customer
         PurchaseReturnOrder.OpenNew();
-        PurchaseReturnOrder."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo);
+        PurchaseReturnOrder."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
 
         // [WHEN] Create new line with Type = Item and blank "No."
-        PurchaseReturnOrder.PurchLines.New;
+        PurchaseReturnOrder.PurchLines.New();
         PurchaseReturnOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
 
         // [THEN] Fields Quantity, Location Code, Unit Price, Line Discount % and Line Amount are non editable
         // TFS ID: 339141 Fields remain editable to keep Quick Entry feature functionable
         Assert.IsTrue(
-          PurchaseReturnOrder.PurchLines.Quantity.Editable,
+          PurchaseReturnOrder.PurchLines.Quantity.Editable(),
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName(Quantity)));
         Assert.IsTrue(
-          PurchaseReturnOrder.PurchLines."Location Code".Editable,
+          PurchaseReturnOrder.PurchLines."Location Code".Editable(),
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Location Code")));
         Assert.IsTrue(
-          PurchaseReturnOrder.PurchLines."Direct Unit Cost".Editable,
+          PurchaseReturnOrder.PurchLines."Direct Unit Cost".Editable(),
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Direct Unit Cost")));
         Assert.IsTrue(
-          PurchaseReturnOrder.PurchLines."Line Discount %".Editable,
+          PurchaseReturnOrder.PurchLines."Line Discount %".Editable(),
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Line Discount %")));
         Assert.IsTrue(
-          PurchaseReturnOrder.PurchLines."Line Amount".Editable,
+          PurchaseReturnOrder.PurchLines."Line Amount".Editable(),
           StrSubstNo(NotEditableErr, PurchaseLine.FieldName("Line Amount")));
     end;
 
@@ -3407,28 +3406,28 @@ codeunit 134394 "ERM Purchase Subform"
 
         // [GIVEN] Open New Purchase return order page and pick new customer
         PurchaseReturnOrder.OpenNew();
-        PurchaseReturnOrder."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo);
+        PurchaseReturnOrder."Buy-from Vendor Name".SetValue(LibraryPurchase.CreateVendorNo());
 
         // [WHEN] Create new line with Type = Item
-        PurchaseReturnOrder.PurchLines.New;
+        PurchaseReturnOrder.PurchLines.New();
         PurchaseReturnOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
-        PurchaseReturnOrder.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo);
+        PurchaseReturnOrder.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo());
 
         // [THEN] Fields Quantity, Location Code, Unit Price, Line Discount % and Line Amount are editable
         Assert.IsTrue(
-          PurchaseReturnOrder.PurchLines.Quantity.Editable,
+          PurchaseReturnOrder.PurchLines.Quantity.Editable(),
           StrSubstNo(EditableErr, PurchaseLine.FieldName(Quantity)));
         Assert.IsTrue(
-          PurchaseReturnOrder.PurchLines."Location Code".Editable,
+          PurchaseReturnOrder.PurchLines."Location Code".Editable(),
           StrSubstNo(EditableErr, PurchaseLine.FieldName("Location Code")));
         Assert.IsTrue(
-          PurchaseReturnOrder.PurchLines."Direct Unit Cost".Editable,
+          PurchaseReturnOrder.PurchLines."Direct Unit Cost".Editable(),
           StrSubstNo(EditableErr, PurchaseLine.FieldName("Direct Unit Cost")));
         Assert.IsTrue(
-          PurchaseReturnOrder.PurchLines."Line Discount %".Editable,
+          PurchaseReturnOrder.PurchLines."Line Discount %".Editable(),
           StrSubstNo(EditableErr, PurchaseLine.FieldName("Line Discount %")));
         Assert.IsTrue(
-          PurchaseReturnOrder.PurchLines."Line Amount".Editable,
+          PurchaseReturnOrder.PurchLines."Line Amount".Editable(),
           StrSubstNo(EditableErr, PurchaseLine.FieldName("Line Amount")));
     end;
 
@@ -3621,7 +3620,7 @@ codeunit 134394 "ERM Purchase Subform"
         // [GIVEN] Purchase Document with Buy-from Vendor "V1", that has "Prices Including VAT" = TRUE.
         // [GIVEN] Fields "Direct Unit Cost"/"Line Amount" of Purchase Line have captions "Direct Unit Cost Incl. VAT"/"Line Amount Incl. VAT".
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendorNoPricesIncludingVAT(true));
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         Assert.AreEqual('Direct Unit Cost Incl. VAT', PurchaseLine.FieldCaption("Direct Unit Cost"), 'Caption must contain Incl. VAT');
         Assert.AreEqual('Line Amount Incl. VAT', PurchaseLine.FieldCaption("Line Amount"), 'Caption must contain Incl. VAT');
 
@@ -3648,7 +3647,7 @@ codeunit 134394 "ERM Purchase Subform"
         // [GIVEN] Purchase Document with Pay-to Vendor "V1", that has "Prices Including VAT" = TRUE.
         // [GIVEN] Fields "Direct Unit Cost"/"Line Amount" of Purchase Line have captions "Direct Unit Cost Incl. VAT"/"Line Amount Incl. VAT".
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendorNoPricesIncludingVAT(true));
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         Assert.AreEqual('Direct Unit Cost Incl. VAT', PurchaseLine.FieldCaption("Direct Unit Cost"), 'Caption must contain Incl. VAT');
         Assert.AreEqual('Line Amount Incl. VAT', PurchaseLine.FieldCaption("Line Amount"), 'Caption must contain Incl. VAT');
 
@@ -4264,14 +4263,14 @@ codeunit 134394 "ERM Purchase Subform"
         Initialize();
 
         // [GIVEN] Purchase Order
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] Purchase Line
         CreateItem(Item, LibraryRandom.RandIntInRange(100, 1000));
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
 
         // [WHEN] Pay-To Vendor Updated
-        PurchaseHeader.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Modify(true);
 
         // [WHEN] Description is updated in Purchase Order Subform
@@ -4294,13 +4293,13 @@ codeunit 134394 "ERM Purchase Subform"
         Initialize();
 
         // [GIVEN] Purchase Order
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] Purchase Line
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(10));
 
         // [WHEN] Pay-To Vendor Updated
-        PurchaseHeader.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Modify(true);
 
         // [WHEN] Description is updated in Purchase Order Subform
@@ -4323,13 +4322,13 @@ codeunit 134394 "ERM Purchase Subform"
         Initialize();
 
         // [GIVEN] Purchase Order
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] Purchase Line
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, LibraryResource.CreateResourceNo(), LibraryRandom.RandInt(10));
 
         // [WHEN] Pay-To Vendor Updated
-        PurchaseHeader.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Modify(true);
 
         // [WHEN] Description is updated in Purchase Order Subform
@@ -4352,13 +4351,13 @@ codeunit 134394 "ERM Purchase Subform"
         Initialize();
 
         // [GIVEN] Purchase Order
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] Purchase Line       
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Fixed Asset", '', LibraryRandom.RandInt(10));
 
         // [WHEN] Pay-To Vendor Updated
-        PurchaseHeader.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Modify(true);
 
         // [WHEN] Description is updated in Purchase Order Subform
@@ -4381,13 +4380,13 @@ codeunit 134394 "ERM Purchase Subform"
         Initialize();
 
         // [GIVEN] Purchase Order
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] Purchase Line With Charge (Item)
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), LibraryRandom.RandInt(10));
 
         // [WHEN] Pay-To Vendor Updated
-        PurchaseHeader.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Modify(true);
 
         // [WHEN] Description is updated in Purchase Order Subform
@@ -4490,9 +4489,9 @@ codeunit 134394 "ERM Purchase Subform"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Purchase Subform");
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
-        LibraryPurchase.DisableWarningOnCloseUnpostedDoc;
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId());
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId());
+        LibraryPurchase.DisableWarningOnCloseUnpostedDoc();
 
         // Lazy Setup.
         if isInitialized then
@@ -4501,7 +4500,7 @@ codeunit 134394 "ERM Purchase Subform"
 
         LibraryPurchase.SetCalcInvDiscount(true);
 
-        VendorNoSeries := LibraryUtility.GetGlobalNoSeriesCode;
+        VendorNoSeries := LibraryUtility.GetGlobalNoSeriesCode();
         if PurchasesPayablesSetup."Vendor Nos." <> VendorNoSeries then begin
             PurchasesPayablesSetup.Get();
             PurchasesPayablesSetup.Validate("Vendor Nos.", VendorNoSeries);
@@ -4525,55 +4524,55 @@ codeunit 134394 "ERM Purchase Subform"
     local procedure CheckOrderStatistics(PurchaseOrder: TestPage "Purchase Order")
     begin
         LibraryVariableStorage.Clear();
-        LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal);
-        LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal);
-        LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal);
-        PurchaseOrder.Statistics.Invoke; // opens the statistics page an code "jumps" to modal page handler
+        LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal());
+        LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal());
+        LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Total VAT Amount".AsDecimal());
+        PurchaseOrder.Statistics.Invoke(); // opens the statistics page an code "jumps" to modal page handler
     end;
 
     local procedure CheckInvoiceStatistics(PurchaseInvoice: TestPage "Purchase Invoice")
     begin
         LibraryVariableStorage.Clear();
-        LibraryVariableStorage.Enqueue(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal);
-        LibraryVariableStorage.Enqueue(PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDEcimal);
-        LibraryVariableStorage.Enqueue(PurchaseInvoice.PurchLines."Total VAT Amount".AsDEcimal);
-        PurchaseInvoice.Statistics.Invoke; // opens the statistics page an code "jumps" to modal page handler
+        LibraryVariableStorage.Enqueue(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDecimal());
+        LibraryVariableStorage.Enqueue(PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDecimal());
+        LibraryVariableStorage.Enqueue(PurchaseInvoice.PurchLines."Total VAT Amount".AsDecimal());
+        PurchaseInvoice.Statistics.Invoke(); // opens the statistics page an code "jumps" to modal page handler
     end;
 
     local procedure CheckCreditMemoStatistics(PurchaseCreditMemo: TestPage "Purchase Credit Memo")
     begin
         LibraryVariableStorage.Clear();
-        LibraryVariableStorage.Enqueue(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDEcimal);
-        LibraryVariableStorage.Enqueue(PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDEcimal);
-        LibraryVariableStorage.Enqueue(PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDEcimal);
-        PurchaseCreditMemo.Statistics.Invoke; // opens the statistics page an code "jumps" to modal page handler
+        LibraryVariableStorage.Enqueue(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDecimal());
+        LibraryVariableStorage.Enqueue(PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDecimal());
+        LibraryVariableStorage.Enqueue(PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDecimal());
+        PurchaseCreditMemo.Statistics.Invoke(); // opens the statistics page an code "jumps" to modal page handler
     end;
 
     local procedure CheckQuoteStatistics(PurchaseQuote: TestPage "Purchase Quote")
     begin
         LibraryVariableStorage.Clear();
-        LibraryVariableStorage.Enqueue(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDEcimal);
-        LibraryVariableStorage.Enqueue(PurchaseQuote.PurchLines."Total Amount Incl. VAT".AsDEcimal);
-        LibraryVariableStorage.Enqueue(PurchaseQuote.PurchLines."Total VAT Amount".AsDEcimal);
-        PurchaseQuote.Statistics.Invoke; // opens the statistics page an code "jumps" to modal page handler
+        LibraryVariableStorage.Enqueue(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDecimal());
+        LibraryVariableStorage.Enqueue(PurchaseQuote.PurchLines."Total Amount Incl. VAT".AsDecimal());
+        LibraryVariableStorage.Enqueue(PurchaseQuote.PurchLines."Total VAT Amount".AsDecimal());
+        PurchaseQuote.Statistics.Invoke(); // opens the statistics page an code "jumps" to modal page handler
     end;
 
     local procedure CheckBlanketOrderStatistics(BlanketPurchaseOrder: TestPage "Blanket Purchase Order")
     begin
         LibraryVariableStorage.Clear();
-        LibraryVariableStorage.Enqueue(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal);
-        LibraryVariableStorage.Enqueue(BlanketPurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal);
-        LibraryVariableStorage.Enqueue(BlanketPurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal);
-        BlanketPurchaseOrder.Statistics.Invoke; // opens the statistics page an code "jumps" to modal page handler
+        LibraryVariableStorage.Enqueue(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal());
+        LibraryVariableStorage.Enqueue(BlanketPurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal());
+        LibraryVariableStorage.Enqueue(BlanketPurchaseOrder.PurchLines."Total VAT Amount".AsDecimal());
+        BlanketPurchaseOrder.Statistics.Invoke(); // opens the statistics page an code "jumps" to modal page handler
     end;
 
     local procedure CheckReturnOrderStatistics(PurchaseReturnOrder: TestPage "Purchase Return Order")
     begin
         LibraryVariableStorage.Clear();
-        LibraryVariableStorage.Enqueue(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDEcimal);
-        LibraryVariableStorage.Enqueue(PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal);
-        LibraryVariableStorage.Enqueue(PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDEcimal);
-        PurchaseReturnOrder.Statistics.Invoke; // opens the statistics page an code "jumps" to modal page handler
+        LibraryVariableStorage.Enqueue(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDecimal());
+        LibraryVariableStorage.Enqueue(PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDecimal());
+        LibraryVariableStorage.Enqueue(PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDecimal());
+        PurchaseReturnOrder.Statistics.Invoke(); // opens the statistics page an code "jumps" to modal page handler
     end;
 
     [Normal]
@@ -4583,7 +4582,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
 
         CreateItem(Item, LibraryRandom.RandIntInRange(100, 1000));
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
@@ -4600,37 +4599,37 @@ codeunit 134394 "ERM Purchase Subform"
 
     local procedure ValidateOrderInvoiceDiscountAmountIsReadOnly(var PurchaseOrder: TestPage "Purchase Order")
     begin
-        Assert.IsFalse(PurchaseOrder.PurchLines."Invoice Discount Amount".Editable,
+        Assert.IsFalse(PurchaseOrder.PurchLines."Invoice Discount Amount".Editable(),
           'Invoce discount amount shoud not be editable');
     end;
 
     local procedure ValidateInvoiceInvoiceDiscountAmountIsReadOnly(var PurchaseInvoice: TestPage "Purchase Invoice")
     begin
-        Assert.IsFalse(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.Editable,
+        Assert.IsFalse(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.Editable(),
           'Invoce discount amount shoud not be editable');
     end;
 
     local procedure ValidateCreditMemoInvoiceDiscountAmountIsReadOnly(var PurchaseCreditMemo: TestPage "Purchase Credit Memo")
     begin
-        Assert.IsFalse(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".Editable,
+        Assert.IsFalse(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".Editable(),
           'Invoce discount amount shoud not be editable');
     end;
 
     local procedure ValidateQuoteInvoiceDiscountAmountIsReadOnly(var PurchaseQuote: TestPage "Purchase Quote")
     begin
-        Assert.IsFalse(PurchaseQuote.PurchLines."Invoice Discount Amount".Editable,
+        Assert.IsFalse(PurchaseQuote.PurchLines."Invoice Discount Amount".Editable(),
           'Invoce discount amount shoud not be editable');
     end;
 
     local procedure ValidateBlanketOrderInvoiceDiscountAmountIsReadOnly(var BlanketPurchaseOrder: TestPage "Blanket Purchase Order")
     begin
-        Assert.IsFalse(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".Editable,
+        Assert.IsFalse(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".Editable(),
           'Invoce discount amount shoud not be editable');
     end;
 
     local procedure ValidateReturnOrderInvoiceDiscountAmountIsReadOnly(var PurchaseReturnOrder: TestPage "Purchase Return Order")
     begin
-        Assert.IsFalse(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".Editable,
+        Assert.IsFalse(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".Editable(),
           'Invoce discount amount shoud not be editable');
     end;
 
@@ -4683,7 +4682,7 @@ codeunit 134394 "ERM Purchase Subform"
 
     local procedure GetDifferentCurrencyCode(): Code[10]
     begin
-        exit(LibraryERM.CreateCurrencyWithRandomExchRates);
+        exit(LibraryERM.CreateCurrencyWithRandomExchRates());
     end;
 
     local procedure CreateOrderWithOneLineThroughTestPage(Vendor: Record Vendor; Item: Record Item; ItemQuantity: Integer; var PurchaseOrder: TestPage "Purchase Order")
@@ -4691,7 +4690,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseOrder.OpenNew();
         PurchaseOrder."Buy-from Vendor Name".SetValue(Vendor."No.");
 
-        PurchaseOrder.PurchLines.First;
+        PurchaseOrder.PurchLines.First();
         PurchaseOrder.PurchLines.Type.SetValue('Item');
         PurchaseOrder.PurchLines."No.".SetValue(Item."No.");
         PurchaseOrder.PurchLines.Quantity.SetValue(ItemQuantity);
@@ -4699,7 +4698,7 @@ codeunit 134394 "ERM Purchase Subform"
         if DoesVendorHaveInvDiscounts(Vendor) then begin
             LibraryVariableStorage.Enqueue('Do you');
             LibraryVariableStorage.Enqueue(true);
-            PurchaseOrder.CalculateInvoiceDiscount.Invoke;
+            PurchaseOrder.CalculateInvoiceDiscount.Invoke();
         end;
 
         PurchaseOrder.PurchLines.Next();
@@ -4710,7 +4709,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
 
-        PurchaseInvoice.PurchLines.First;
+        PurchaseInvoice.PurchLines.First();
         PurchaseInvoice.PurchLines.Type.SetValue('Item');
         PurchaseInvoice.PurchLines."No.".SetValue(Item."No.");
         PurchaseInvoice.PurchLines.Quantity.SetValue(ItemQuantity);
@@ -4718,7 +4717,7 @@ codeunit 134394 "ERM Purchase Subform"
         if DoesVendorHaveInvDiscounts(Vendor) then begin
             LibraryVariableStorage.Enqueue('Do you');
             LibraryVariableStorage.Enqueue(true);
-            PurchaseInvoice.CalculateInvoiceDiscount.Invoke;
+            PurchaseInvoice.CalculateInvoiceDiscount.Invoke();
         end;
 
         PurchaseInvoice.PurchLines.Next();
@@ -4729,7 +4728,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseCreditMemo.OpenNew();
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vendor.Name);
 
-        PurchaseCreditMemo.PurchLines.First;
+        PurchaseCreditMemo.PurchLines.First();
         PurchaseCreditMemo.PurchLines.Type.SetValue('Item');
         PurchaseCreditMemo.PurchLines."No.".SetValue(Item."No.");
         PurchaseCreditMemo.PurchLines.Quantity.SetValue(ItemQuantity);
@@ -4737,7 +4736,7 @@ codeunit 134394 "ERM Purchase Subform"
         if DoesVendorHaveInvDiscounts(Vendor) then begin
             LibraryVariableStorage.Enqueue('Do you');
             LibraryVariableStorage.Enqueue(true);
-            PurchaseCreditMemo.CalculateInvoiceDiscount.Invoke;
+            PurchaseCreditMemo.CalculateInvoiceDiscount.Invoke();
         end;
 
         PurchaseCreditMemo.PurchLines.Next();
@@ -4748,7 +4747,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseQuote.OpenNew();
         PurchaseQuote."Buy-from Vendor Name".SetValue(Vendor."No.");
 
-        PurchaseQuote.PurchLines.First;
+        PurchaseQuote.PurchLines.First();
         PurchaseQuote.PurchLines.Type.SetValue('Item');
         PurchaseQuote.PurchLines."No.".SetValue(Item."No.");
         PurchaseQuote.PurchLines.Quantity.SetValue(ItemQuantity);
@@ -4756,7 +4755,7 @@ codeunit 134394 "ERM Purchase Subform"
         if DoesVendorHaveInvDiscounts(Vendor) then begin
             LibraryVariableStorage.Enqueue('Do you');
             LibraryVariableStorage.Enqueue(true);
-            PurchaseQuote.CalculateInvoiceDiscount.Invoke;
+            PurchaseQuote.CalculateInvoiceDiscount.Invoke();
         end;
 
         PurchaseQuote.PurchLines.Next();
@@ -4767,7 +4766,7 @@ codeunit 134394 "ERM Purchase Subform"
         BlanketPurchaseOrder.OpenNew();
         BlanketPurchaseOrder."Buy-from Vendor Name".SetValue(Vendor."No.");
 
-        BlanketPurchaseOrder.PurchLines.First;
+        BlanketPurchaseOrder.PurchLines.First();
         BlanketPurchaseOrder.PurchLines.Type.SetValue('Item');
         BlanketPurchaseOrder.PurchLines."No.".SetValue(Item."No.");
         BlanketPurchaseOrder.PurchLines.Quantity.SetValue(ItemQuantity);
@@ -4775,7 +4774,7 @@ codeunit 134394 "ERM Purchase Subform"
         if DoesVendorHaveInvDiscounts(Vendor) then begin
             LibraryVariableStorage.Enqueue('Do you');
             LibraryVariableStorage.Enqueue(true);
-            BlanketPurchaseOrder.CalculateInvoiceDiscount.Invoke;
+            BlanketPurchaseOrder.CalculateInvoiceDiscount.Invoke();
         end;
 
         BlanketPurchaseOrder.PurchLines.Next();
@@ -4786,7 +4785,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseReturnOrder.OpenNew();
         PurchaseReturnOrder."Buy-from Vendor Name".SetValue(Vendor."No.");
 
-        PurchaseReturnOrder.PurchLines.First;
+        PurchaseReturnOrder.PurchLines.First();
         PurchaseReturnOrder.PurchLines.Type.SetValue('Item');
         PurchaseReturnOrder.PurchLines."No.".SetValue(Item."No.");
         PurchaseReturnOrder.PurchLines.Quantity.SetValue(ItemQuantity);
@@ -4794,7 +4793,7 @@ codeunit 134394 "ERM Purchase Subform"
         if DoesVendorHaveInvDiscounts(Vendor) then begin
             LibraryVariableStorage.Enqueue('Do you');
             LibraryVariableStorage.Enqueue(true);
-            PurchaseReturnOrder.CalculateInvoiceDiscount.Invoke;
+            PurchaseReturnOrder.CalculateInvoiceDiscount.Invoke();
         end;
 
         PurchaseReturnOrder.PurchLines.Next();
@@ -4846,7 +4845,7 @@ codeunit 134394 "ERM Purchase Subform"
     var
         CurrencyCode: Code[10];
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo());
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1);
         PurchaseHeader.Validate("Currency Code", CurrencyCode);
         PurchaseHeader.Modify(true);
@@ -4860,7 +4859,7 @@ codeunit 134394 "ERM Purchase Subform"
 
         CreateItem(Item, LibraryRandom.RandIntInRange(10, 20));
 
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(20, 100));
     end;
@@ -4886,37 +4885,37 @@ codeunit 134394 "ERM Purchase Subform"
 
     local procedure OpenPurchaseOrder(PurchaseHeader: Record "Purchase Header"; var PurchaseOrder: TestPage "Purchase Order")
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
     end;
 
     local procedure OpenPurchaseInvoice(PurchaseHeader: Record "Purchase Header"; var PurchaseInvoice: TestPage "Purchase Invoice")
     begin
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
     end;
 
     local procedure OpenPurchaseCreditMemo(PurchaseHeader: Record "Purchase Header"; var PurchaseCreditMemo: TestPage "Purchase Credit Memo")
     begin
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.FILTER.SetFilter("No.", PurchaseHeader."No.");
     end;
 
     local procedure OpenPurchaseQuote(PurchaseHeader: Record "Purchase Header"; var PurchaseQuote: TestPage "Purchase Quote")
     begin
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.FILTER.SetFilter("No.", PurchaseHeader."No.");
     end;
 
     local procedure OpenBlanketPurchaseOrder(PurchaseHeader: Record "Purchase Header"; var BlanketPurchaseOrder: TestPage "Blanket Purchase Order")
     begin
-        BlanketPurchaseOrder.OpenEdit;
+        BlanketPurchaseOrder.OpenEdit();
         BlanketPurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
     end;
 
     local procedure OpenReturnOrder(PurchaseHeader: Record "Purchase Header"; var PurchaseReturnOrder: TestPage "Purchase Return Order")
     begin
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
     end;
 
@@ -5022,7 +5021,7 @@ codeunit 134394 "ERM Purchase Subform"
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Inv. Rounding Precision (LCY)" := 1;
         GeneralLedgerSetup.Modify();
-        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup();
         VendorPostingGroup.Get(VendorPostingGroupCode);
         VendorPostingGroup.Validate("Invoice Rounding Account", GLAccountNo);
         VendorPostingGroup.Modify(true);
@@ -5055,7 +5054,7 @@ codeunit 134394 "ERM Purchase Subform"
     var
         PurchaseOrderSubform: TestPage "Purchase Order Subform";
     begin
-        PurchaseOrderSubform.OpenEdit;
+        PurchaseOrderSubform.OpenEdit();
         PurchaseOrderSubform.FILTER.SetFilter("Document No.", DocNo);
         InvDiscountAmount := LibraryRandom.RandInt(100);
         PurchaseOrderSubform."Invoice Discount Amount".SetValue(InvDiscountAmount);
@@ -5078,7 +5077,7 @@ codeunit 134394 "ERM Purchase Subform"
 
     local procedure SetupDataForDiscountTypeAmt(var Item: Record Item; var ItemQuantity: Decimal; var Vendor: Record Vendor; var InvoiceDiscountAmount: Decimal)
     begin
-        SetAllowManualDisc;
+        SetAllowManualDisc();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor);
         InvoiceDiscountAmount := LibraryRandom.RandDecInRange(1, Round(Item."Unit Cost" * ItemQuantity, 1, '<'), 2);
     end;
@@ -5129,7 +5128,7 @@ codeunit 134394 "ERM Purchase Subform"
 
     local procedure SetCurrencyOnOrderAndVerify(PurchaseOrder: TestPage "Purchase Order"; CurrencyCode: Code[10]; Item: Record Item; PurchaseLine: Record "Purchase Line"; ExchangeRate: Decimal)
     begin
-        EnqueueChangeCurrencyCodeConfirmation;
+        EnqueueChangeCurrencyCodeConfirmation();
 
         PurchaseOrder."Currency Code".SetValue(CurrencyCode);
         OrderCheckCurrencyOnTotals(PurchaseOrder, GeneralLedgerSetup.GetCurrencyCode(CurrencyCode));
@@ -5139,7 +5138,7 @@ codeunit 134394 "ERM Purchase Subform"
 
     local procedure SetCurrencyOnInvoiceAndVerify(PurchaseInvoice: TestPage "Purchase Invoice"; CurrencyCode: Code[10]; Item: Record Item; PurchaseLine: Record "Purchase Line"; ExchangeRate: Decimal)
     begin
-        EnqueueChangeCurrencyCodeConfirmation;
+        EnqueueChangeCurrencyCodeConfirmation();
 
         PurchaseInvoice."Currency Code".SetValue(CurrencyCode);
         InvoiceCheckCurrencyOnTotals(PurchaseInvoice, GeneralLedgerSetup.GetCurrencyCode(CurrencyCode));
@@ -5149,7 +5148,7 @@ codeunit 134394 "ERM Purchase Subform"
 
     local procedure SetCurrencyOnQuoteAndVerify(PurchaseQuote: TestPage "Purchase Quote"; CurrencyCode: Code[10]; Item: Record Item; PurchaseLine: Record "Purchase Line"; ExchangeRate: Decimal)
     begin
-        EnqueueChangeCurrencyCodeConfirmation;
+        EnqueueChangeCurrencyCodeConfirmation();
 
         PurchaseQuote."Currency Code".SetValue(CurrencyCode);
         QuoteCheckCurrencyOnTotals(PurchaseQuote, GeneralLedgerSetup.GetCurrencyCode(CurrencyCode));
@@ -5159,7 +5158,7 @@ codeunit 134394 "ERM Purchase Subform"
 
     local procedure SetCurrencyOnCreditMemoAndVerify(PurchaseCreditMemo: TestPage "Purchase Credit Memo"; CurrencyCode: Code[10]; Item: Record Item; PurchaseLine: Record "Purchase Line"; ExchangeRate: Decimal)
     begin
-        EnqueueChangeCurrencyCodeConfirmation;
+        EnqueueChangeCurrencyCodeConfirmation();
 
         PurchaseCreditMemo."Currency Code".SetValue(CurrencyCode);
         CreditMemoCheckCurrencyOnTotals(PurchaseCreditMemo, GeneralLedgerSetup.GetCurrencyCode(CurrencyCode));
@@ -5169,7 +5168,7 @@ codeunit 134394 "ERM Purchase Subform"
 
     local procedure SetCurrencyOnBlanketOrderAndVerify(BlanketPurchaseOrder: TestPage "Blanket Purchase Order"; CurrencyCode: Code[10]; Item: Record Item; PurchaseLine: Record "Purchase Line"; ExchangeRate: Decimal)
     begin
-        EnqueueChangeCurrencyCodeConfirmation;
+        EnqueueChangeCurrencyCodeConfirmation();
 
         BlanketPurchaseOrder."Currency Code".SetValue(CurrencyCode);
         BlanketPurchaseOrderCheckCurrencyOnTotals(BlanketPurchaseOrder, GeneralLedgerSetup.GetCurrencyCode(CurrencyCode));
@@ -5179,7 +5178,7 @@ codeunit 134394 "ERM Purchase Subform"
 
     local procedure SetCurrencyOnReturnOrderAndVerify(PurchaseReturnOrder: TestPage "Purchase Return Order"; CurrencyCode: Code[10]; Item: Record Item; PurchaseLine: Record "Purchase Line"; ExchangeRate: Decimal)
     begin
-        EnqueueChangeCurrencyCodeConfirmation;
+        EnqueueChangeCurrencyCodeConfirmation();
 
         PurchaseReturnOrder."Currency Code".SetValue(CurrencyCode);
         ReturnOrderCheckCurrencyOnTotals(PurchaseReturnOrder, GeneralLedgerSetup.GetCurrencyCode(CurrencyCode));
@@ -5209,30 +5208,30 @@ codeunit 134394 "ERM Purchase Subform"
     var
         PurchaseInvoiceStatistics: TestPage "Purchase Invoice Statistics";
     begin
-        PurchaseInvoiceStatistics.Trap;
-        PostedPurchaseInvoice.Statistics.Invoke; // opens the non modal statistics page
+        PurchaseInvoiceStatistics.Trap();
+        PostedPurchaseInvoice.Statistics.Invoke(); // opens the non modal statistics page
 
-        Assert.AreNearlyEqual(PostedPurchaseInvoice.PurchInvLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseInvoiceStatistics.InvDiscAmount.AsDEcimal, 0.1, 'Invoice Discount Amount is not correct');
-        Assert.AreNearlyEqual(PostedPurchaseInvoice.PurchInvLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseInvoiceStatistics.AmountInclVAT.AsDEcimal, 0.1, 'Total Amount Incl. VAT is not correct');
-        Assert.AreNearlyEqual(PostedPurchaseInvoice.PurchInvLines."Total VAT Amount".AsDEcimal,
-          PurchaseInvoiceStatistics.VATAmount.AsDEcimal, 0.1, 'VAT Amount is not correct');
+        Assert.AreNearlyEqual(PostedPurchaseInvoice.PurchInvLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseInvoiceStatistics.InvDiscAmount.AsDecimal(), 0.1, 'Invoice Discount Amount is not correct');
+        Assert.AreNearlyEqual(PostedPurchaseInvoice.PurchInvLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseInvoiceStatistics.AmountInclVAT.AsDecimal(), 0.1, 'Total Amount Incl. VAT is not correct');
+        Assert.AreNearlyEqual(PostedPurchaseInvoice.PurchInvLines."Total VAT Amount".AsDecimal(),
+          PurchaseInvoiceStatistics.VATAmount.AsDecimal(), 0.1, 'VAT Amount is not correct');
     end;
 
     local procedure CheckPostedCreditMemoStatistics(PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo")
     var
         PurchCreditMemoStatistics: TestPage "Purch. Credit Memo Statistics";
     begin
-        PurchCreditMemoStatistics.Trap;
-        PostedPurchaseCreditMemo.Statistics.Invoke; // opens the non modal statistics page
+        PurchCreditMemoStatistics.Trap();
+        PostedPurchaseCreditMemo.Statistics.Invoke(); // opens the non modal statistics page
 
-        Assert.AreNearlyEqual(PostedPurchaseCreditMemo.PurchCrMemoLines."Invoice Discount Amount".AsDEcimal,
-          PurchCreditMemoStatistics.InvDiscAmount.AsDEcimal, 0.1, 'Invoice Discount Amount is not correct');
-        Assert.AreNearlyEqual(PostedPurchaseCreditMemo.PurchCrMemoLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchCreditMemoStatistics.AmountInclVAT.AsDEcimal, 0.1, 'Total Amount Incl. VAT is not correct');
-        Assert.AreNearlyEqual(PostedPurchaseCreditMemo.PurchCrMemoLines."Total VAT Amount".AsDEcimal,
-          PurchCreditMemoStatistics.VATAmount.AsDEcimal, 0.1, 'VAT Amount is not correct');
+        Assert.AreNearlyEqual(PostedPurchaseCreditMemo.PurchCrMemoLines."Invoice Discount Amount".AsDecimal(),
+          PurchCreditMemoStatistics.InvDiscAmount.AsDecimal(), 0.1, 'Invoice Discount Amount is not correct');
+        Assert.AreNearlyEqual(PostedPurchaseCreditMemo.PurchCrMemoLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchCreditMemoStatistics.AmountInclVAT.AsDecimal(), 0.1, 'Total Amount Incl. VAT is not correct');
+        Assert.AreNearlyEqual(PostedPurchaseCreditMemo.PurchCrMemoLines."Total VAT Amount".AsDecimal(),
+          PurchCreditMemoStatistics.VATAmount.AsDecimal(), 0.1, 'VAT Amount is not correct');
     end;
 
     local procedure CheckPurchaseInvoiceSubformTotalAmountCaptions(PurchaseInvoicePage: TestPage "Purchase Invoice"; CurrencyCode: Code[10])
@@ -5306,7 +5305,7 @@ codeunit 134394 "ERM Purchase Subform"
     var
         PurchaseOrderSubform: TestPage "Purchase Order Subform";
     begin
-        PurchaseOrderSubform.OpenEdit;
+        PurchaseOrderSubform.OpenEdit();
         PurchaseOrderSubform.FILTER.SetFilter("Document No.", DocNo);
         PurchaseOrderSubform."Invoice Discount Amount".AssertEquals(InvDiscountAmount);
     end;
@@ -5334,8 +5333,6 @@ codeunit 134394 "ERM Purchase Subform"
     local procedure SetDescriptionInPurchOrderSubPage(DocNo: Code[20]) PurchLineDesc: Text
     var
         PurchaseOrder: TestPage "Purchase Order";
-        PurchaseOrderSubform: TestPage "Purchase Order Subform";
-        PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
     begin
         PurchaseOrder.OpenEdit();
         PurchaseOrder.Filter.SetFilter("No.", DocNo);
@@ -5347,7 +5344,7 @@ codeunit 134394 "ERM Purchase Subform"
     var
         PurchaseOrderSubform: TestPage "Purchase Order Subform";
     begin
-        PurchaseOrderSubform.OpenEdit;
+        PurchaseOrderSubform.OpenEdit();
         PurchaseOrderSubform.FILTER.SetFilter("Document No.", DocNo);
         PurchaseOrderSubform.Description.AssertEquals(PurchLineDesc);
     end;
@@ -5409,11 +5406,11 @@ codeunit 134394 "ERM Purchase Subform"
         LibraryVariableStorage.Dequeue(TotalAmountInclVAT);
         LibraryVariableStorage.Dequeue(VATApplied);
 
-        Assert.AreEqual(InvDiscAmount, PurchaseOrderStatistics.InvDiscountAmount_General.AsDEcimal,
+        Assert.AreEqual(InvDiscAmount, PurchaseOrderStatistics.InvDiscountAmount_General.AsDecimal(),
           'Invoice Discount Amount is not correct');
-        Assert.AreEqual(TotalAmountInclVAT, PurchaseOrderStatistics.TotalInclVAT_General.AsDEcimal,
+        Assert.AreEqual(TotalAmountInclVAT, PurchaseOrderStatistics.TotalInclVAT_General.AsDecimal(),
           'Total Amount Incl. VAT is not correct');
-        Assert.AreEqual(VATApplied, PurchaseOrderStatistics."VATAmount[1]".AsDEcimal,
+        Assert.AreEqual(VATApplied, PurchaseOrderStatistics."VATAmount[1]".AsDecimal(),
           'VAT Amount is not correct');
     end;
 
@@ -5429,11 +5426,11 @@ codeunit 134394 "ERM Purchase Subform"
         LibraryVariableStorage.Dequeue(TotalAmountInclVAT);
         LibraryVariableStorage.Dequeue(VATApplied);
 
-        Assert.AreNearlyEqual(InvDiscAmount, PurchaseStatistics.InvDiscountAmount.AsDEcimal,
+        Assert.AreNearlyEqual(InvDiscAmount, PurchaseStatistics.InvDiscountAmount.AsDecimal(),
           0.5, 'Invoice Discount Amount is not correct');
-        Assert.AreNearlyEqual(TotalAmountInclVAT, PurchaseStatistics.TotalAmount2.AsDEcimal,
+        Assert.AreNearlyEqual(TotalAmountInclVAT, PurchaseStatistics.TotalAmount2.AsDecimal(),
           0.5, 'Total Amount Incl. VAT is not correct');
-        Assert.AreNearlyEqual(VATApplied, PurchaseStatistics.VATAmount.AsDEcimal,
+        Assert.AreNearlyEqual(VATApplied, PurchaseStatistics.VATAmount.AsDecimal(),
           0.5, 'VAT Amount is not correct');
     end;
 
@@ -5445,7 +5442,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         LibraryVariableStorage.Dequeue(UnitofMeasureCode);
         ItemUnitsofMeasure.FILTER.SetFilter(Code, Format(UnitofMeasureCode));
-        ItemUnitsofMeasure.OK.Invoke;
+        ItemUnitsofMeasure.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5454,7 +5451,7 @@ codeunit 134394 "ERM Purchase Subform"
     begin
         ResourceUnitsofMeasure.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText());
         ResourceUnitsofMeasure.First();
-        ResourceUnitsofMeasure.OK.Invoke;
+        ResourceUnitsofMeasure.OK().Invoke();
     end;
 
     [MessageHandler]

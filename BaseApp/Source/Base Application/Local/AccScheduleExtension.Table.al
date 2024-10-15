@@ -2,6 +2,7 @@ table 26584 "Acc. Schedule Extension"
 {
     Caption = 'Acc. Schedule Extension';
     LookupPageID = "Acc. Schedule Extensions";
+    DataClassification = CustomerContent;
 
     fields
     {

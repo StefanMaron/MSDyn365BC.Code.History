@@ -2,6 +2,7 @@ table 26587 "Stat. Report Table Mapping"
 {
     Caption = 'Stat. Report Table Mapping';
     DataCaptionFields = "Report Code", "Table Code", "Table Row Description", "Table Column Header";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -348,7 +348,6 @@ report 12436 "G/L Account Turnover"
     end;
 
     var
-        GLSetup: Record "General Ledger Setup";
         LocMgt: Codeunit "Localisation Management";
         AccRepMgt: Codeunit "Internal Report Management";
         LineAmount: array[10] of Decimal;
@@ -366,7 +365,6 @@ report 12436 "G/L Account Turnover"
         SkipZeroBalances: Boolean;
         TotalPrinted: Boolean;
         PrintParameters: Boolean;
-        PrintTotals: Boolean;
         CurrRecordSkip: Boolean;
         CurrRecordBold: Boolean;
         PrintExcludingIndention: Boolean;

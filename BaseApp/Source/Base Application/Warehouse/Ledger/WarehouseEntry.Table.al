@@ -17,6 +17,7 @@ table 7312 "Warehouse Entry"
     Caption = 'Warehouse Entry';
     DrillDownPageID = "Warehouse Entries";
     LookupPageID = "Warehouse Entries";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -2,6 +2,7 @@ table 17321 "Tax Diff. Group"
 {
     Caption = 'Deferral Group';
     LookupPageID = "Tax Diff. Groups";
+    DataClassification = CustomerContent;
 
     fields
     {

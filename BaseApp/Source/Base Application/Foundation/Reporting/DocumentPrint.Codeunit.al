@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -234,22 +234,20 @@ codeunit 229 "Document-Print"
         DocPrintBuffer: Record "Document Print Buffer";
         ReportDistributionMgt: Codeunit "Report Distribution Management";
     begin
-        with SalesInvHeader do begin
-            Copy(SalesInvoiceHeader);
-            SetRecFilter();
+        SalesInvHeader.Copy(SalesInvoiceHeader);
+        SalesInvHeader.SetRecFilter();
 
-            InsertDocPrintBuffer(DocPrintBuffer, DATABASE::"Sales Invoice Header", 0, "No.");
+        InsertDocPrintBuffer(DocPrintBuffer, DATABASE::"Sales Invoice Header", 0, SalesInvHeader."No.");
 
-            Commit();
-            if SendAsEmail then
-                ReportSelections.SendEmailToCust(
-                  GetSalesInvoiceDocTypeUsage(SalesInvHeader).AsInteger(), SalesInvHeader, "No.",
-                  ReportDistributionMgt.GetFullDocumentTypeText(SalesInvHeader), ShowRequestForm, "Bill-to Customer No.")
-            else
-                ReportSelections.PrintWithDocPrintOption(
-                  GetSalesInvoiceDocTypeUsage(SalesInvHeader).AsInteger(), SalesInvHeader, FieldNo("Bill-to Customer No."),
-                  ShowRequestForm, DATABASE::Customer, DocPrintBuffer);
-        end;
+        Commit();
+        if SendAsEmail then
+            ReportSelections.SendEmailToCust(
+              GetSalesInvoiceDocTypeUsage(SalesInvHeader).AsInteger(), SalesInvHeader, SalesInvHeader."No.",
+              ReportDistributionMgt.GetFullDocumentTypeText(SalesInvHeader), ShowRequestForm, SalesInvHeader."Bill-to Customer No.")
+        else
+            ReportSelections.PrintWithDocPrintOption(
+              GetSalesInvoiceDocTypeUsage(SalesInvHeader).AsInteger(), SalesInvHeader, SalesInvHeader.FieldNo("Bill-to Customer No."),
+              ShowRequestForm, DATABASE::Customer, DocPrintBuffer);
     end;
 
     procedure PrintPurchHeader(PurchHeader: Record "Purchase Header")
@@ -356,25 +354,25 @@ codeunit 229 "Document-Print"
         ReportSelections.PrintReport(ReportSelections.Usage::Inv1, TransHeader);
     end;
 
-    procedure PrintServiceContract(ServiceContract: Record "Service Contract Header")
+    procedure PrintServiceContract(ServiceContractHeader: Record "Service Contract Header")
     var
         ReportSelection: Record "Report Selections";
         ReportUsage: Enum "Report Selection Usage";
         IsPrinted: Boolean;
     begin
-        ReportUsage := GetServContractTypeUsage(ServiceContract);
+        ReportUsage := GetServContractTypeUsage(ServiceContractHeader);
 
-        ServiceContract.SetRange("Contract No.", ServiceContract."Contract No.");
-        OnBeforePrintServiceContract(ServiceContract, ReportUsage.AsInteger(), IsPrinted);
+        ServiceContractHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
+        OnBeforePrintServiceContract(ServiceContractHeader, ReportUsage.AsInteger(), IsPrinted);
         if IsPrinted then
             exit;
 
         ReportSelection.Reset();
         ReportSelection.SetRange(Usage, ReportUsage);
         if ReportSelection.IsEmpty() then
-            Error(Text001, ReportSelection.TableCaption(), Format(ServiceContract."Contract Type"), ServiceContract."Contract No.");
+            Error(Text001, ReportSelection.TableCaption(), Format(ServiceContractHeader."Contract Type"), ServiceContractHeader."Contract No.");
 
-        ReportSelection.PrintForCust(ReportUsage, ServiceContract, ServiceContract.FieldNo("Bill-to Customer No."));
+        ReportSelection.PrintForCust(ReportUsage, ServiceContractHeader, ServiceContractHeader.FieldNo("Bill-to Customer No."));
     end;
 
     procedure PrintServiceHeader(ServiceHeader: Record "Service Header")
@@ -655,15 +653,13 @@ codeunit 229 "Document-Print"
         ItemJnlLine: Record "Item Journal Line";
         ReportSelection: Record "Report Selections";
     begin
-        with ItemJnlLine do begin
-            Copy(NewItemJnlLine);
-            SetRange("Journal Template Name", "Journal Template Name");
-            SetRange("Journal Batch Name", "Journal Batch Name");
-            if Reclass then
-                ReportSelection.PrintReport(ReportSelection.Usage::IRJ, ItemJnlLine)
-            else
-                ReportSelection.PrintReport(ReportSelection.Usage::PIJ, ItemJnlLine);
-        end;
+        ItemJnlLine.Copy(NewItemJnlLine);
+        ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
+        ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
+        if Reclass then
+            ReportSelection.PrintReport(ReportSelection.Usage::IRJ, ItemJnlLine)
+        else
+            ReportSelection.PrintReport(ReportSelection.Usage::PIJ, ItemJnlLine);
     end;
 
     [Scope('OnPrem')]
@@ -673,17 +669,15 @@ codeunit 229 "Document-Print"
         ReportSelection: Record "Report Selections";
         DocPrintBuffer: Record "Document Print Buffer";
     begin
-        with FAJnlLine do begin
-            Copy(NewFAJnlLine);
-            SetRange("Journal Template Name", "Journal Template Name");
-            SetRange("Journal Batch Name", "Journal Batch Name");
+        FAJnlLine.Copy(NewFAJnlLine);
+        FAJnlLine.SetRange("Journal Template Name", FAJnlLine."Journal Template Name");
+        FAJnlLine.SetRange("Journal Batch Name", FAJnlLine."Journal Batch Name");
 
-            InsertJournalPrintBuffer(DocPrintBuffer, DATABASE::"FA Journal Line", "Journal Template Name", "Journal Batch Name");
+        InsertJournalPrintBuffer(DocPrintBuffer, DATABASE::"FA Journal Line", FAJnlLine."Journal Template Name", FAJnlLine."Journal Batch Name");
 
-            Commit();
-            ReportSelection.PrintWithDocPrintOption(
-              ReportSelection.Usage::FAJ.AsInteger(), FAJnlLine, 0, true, DATABASE::Customer, DocPrintBuffer);
-        end;
+        Commit();
+        ReportSelection.PrintWithDocPrintOption(
+          ReportSelection.Usage::FAJ.AsInteger(), FAJnlLine, 0, true, DATABASE::Customer, DocPrintBuffer);
     end;
 
     [Scope('OnPrem')]
@@ -692,39 +686,33 @@ codeunit 229 "Document-Print"
         FAReclassJnlLine: Record "FA Reclass. Journal Line";
         ReportSelection: Record "Report Selections";
     begin
-        with FAReclassJnlLine do begin
-            Copy(NewFAReclassJnlLine);
-            SetRange("Journal Template Name", "Journal Template Name");
-            SetRange("Journal Batch Name", "Journal Batch Name");
-            ReportSelection.PrintReport(ReportSelection.Usage::FARJ, FAReclassJnlLine);
-        end;
+        FAReclassJnlLine.Copy(NewFAReclassJnlLine);
+        FAReclassJnlLine.SetRange("Journal Template Name", FAReclassJnlLine."Journal Template Name");
+        FAReclassJnlLine.SetRange("Journal Batch Name", FAReclassJnlLine."Journal Batch Name");
+        ReportSelection.PrintReport(ReportSelection.Usage::FARJ, FAReclassJnlLine);
     end;
 
     [Scope('OnPrem')]
     procedure InsertDocPrintBuffer(var DocPrintBuffer: Record "Document Print Buffer"; TableID: Integer; DocType: Option; DocNo: Code[20])
     begin
-        with DocPrintBuffer do begin
-            Init();
-            "User ID" := UserId;
-            "Table ID" := TableID;
-            "Document Type" := DocType;
-            "Document No." := DocNo;
-            if not Modify() then
-                Insert();
-        end;
+        DocPrintBuffer.Init();
+        DocPrintBuffer."User ID" := UserId;
+        DocPrintBuffer."Table ID" := TableID;
+        DocPrintBuffer."Document Type" := DocType;
+        DocPrintBuffer."Document No." := DocNo;
+        if not DocPrintBuffer.Modify() then
+            DocPrintBuffer.Insert();
     end;
 
     local procedure InsertJournalPrintBuffer(var DocPrintBuffer: Record "Document Print Buffer"; TableID: Integer; JnlTemplate: Code[10]; JnlBatch: Code[10])
     begin
-        with DocPrintBuffer do begin
-            Init();
-            "User ID" := UserId;
-            "Table ID" := TableID;
-            "Journal Template Name" := JnlTemplate;
-            "Journal Batch Name" := JnlBatch;
-            if not Modify() then
-                Insert();
-        end;
+        DocPrintBuffer.Init();
+        DocPrintBuffer."User ID" := UserId;
+        DocPrintBuffer."Table ID" := TableID;
+        DocPrintBuffer."Journal Template Name" := JnlTemplate;
+        DocPrintBuffer."Journal Batch Name" := JnlBatch;
+        if not DocPrintBuffer.Modify() then
+            DocPrintBuffer.Insert();
     end;
 
     procedure GetSalesDocTypeUsage(SalesHeader: Record "Sales Header") ReportSelectionUsage: Enum "Report Selection Usage"
@@ -1020,6 +1008,51 @@ codeunit 229 "Document-Print"
             ServHeader.Get(ServHeader."Document Type", ServHeader."No.");
             Commit();
         end;
+    end;
+
+    procedure PrintServiceHeaderToDocumentAttachment(var ServiceHeader: Record "Service Header");
+    var
+        ShowNotificationAction: Boolean;
+    begin
+        ShowNotificationAction := ServiceHeader.Count() = 1;
+        if ServiceHeader.FindSet() then
+            repeat
+                DoPrintServiceHeaderToDocumentAttachment(ServiceHeader, ShowNotificationAction);
+            until ServiceHeader.Next() = 0;
+    end;
+
+    local procedure DoPrintServiceHeaderToDocumentAttachment(ServiceHeader: Record "Service Header"; ShowNotificationAction: Boolean);
+    var
+        ReportUsage: Enum "Report Selection Usage";
+    begin
+        ReportUsage := GetServHeaderDocTypeUsage(ServiceHeader);
+
+        ServiceHeader.SetRecFilter();
+        CalcServDisc(ServiceHeader);
+
+        RunSaveAsDocumentAttachment(ReportUsage.AsInteger(), ServiceHeader, ServiceHeader."No.", ServiceHeader."Customer No.", ShowNotificationAction);
+    end;
+
+    procedure PrintServiceContractToDocumentAttachment(var ServiceContractHeader: Record "Service Contract Header");
+    var
+        ShowNotificationAction: Boolean;
+    begin
+        ShowNotificationAction := ServiceContractHeader.Count() = 1;
+        if ServiceContractHeader.FindSet() then
+            repeat
+                DoPrintServiceContractToDocumentAttachment(ServiceContractHeader, ShowNotificationAction);
+            until ServiceContractHeader.Next() = 0;
+    end;
+
+    local procedure DoPrintServiceContractToDocumentAttachment(ServiceContractHeader: Record "Service Contract Header"; ShowNotificationAction: Boolean);
+    var
+        ReportUsage: Enum "Report Selection Usage";
+    begin
+        ReportUsage := GetServContractTypeUsage(ServiceContractHeader);
+
+        ServiceContractHeader.SetRecFilter();
+
+        RunSaveAsDocumentAttachment(ReportUsage.AsInteger(), ServiceContractHeader, ServiceContractHeader."Contract No.", ServiceContractHeader."Bill-to Customer No.", ShowNotificationAction);
     end;
 
     [IntegrationEvent(false, false)]

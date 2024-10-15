@@ -30,6 +30,7 @@ table 5601 "FA Ledger Entry"
     Caption = 'FA Ledger Entry';
     DrillDownPageID = "FA Ledger Entries";
     LookupPageID = "FA Ledger Entries";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -549,7 +550,6 @@ table 5601 "FA Ledger Entry"
 
             trigger OnValidate()
             var
-                c: Text[1];
             begin
             end;
         }
@@ -568,6 +568,7 @@ table 5601 "FA Ledger Entry"
         key(Key2; "FA No.", "Depreciation Book Code", "FA Posting Date")
         {
             SumIndexFields = Amount, Quantity;
+            IncludedFields = Amount;
         }
         key(Key3; "FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "FA Posting Date", "Part of Book Value", "Reclassification Entry", "FA Location Code", "Global Dimension 1 Code", "Global Dimension 2 Code", "Initial Acquisition", "Employee No.", "Depr. Bonus", "Depr. Group Elimination")
         {
@@ -765,20 +766,18 @@ table 5601 "FA Ledger Entry"
         TaxRegisterSetup: Record "Tax Register Setup";
     begin
         FALedgEntry1.Copy(FALedgEntry);
-        with FALedgEntry1 do begin
-            if Find('-') then
-                repeat
-                    if ("FA Posting Type" = "FA Posting Type"::"Acquisition Cost") or
-                       ("FA Posting Type" = "FA Posting Type"::Appreciation)
-                    then begin
-                        TaxRegisterSetup.Get();
-                        TestField("Depreciation Book Code", TaxRegisterSetup."Tax Depreciation Book");
-                        CheckLaterDepreciation(FALedgEntry1);
-                        "Depr. Bonus" := MarkEntry;
-                        CODEUNIT.Run(CODEUNIT::"FA Entry - Edit", FALedgEntry1);
-                    end;
-                until Next() = 0;
-        end;
+        if FALedgEntry1.Find('-') then
+            repeat
+                if (FALedgEntry1."FA Posting Type" = FALedgEntry1."FA Posting Type"::"Acquisition Cost") or
+                   (FALedgEntry1."FA Posting Type" = FALedgEntry1."FA Posting Type"::Appreciation)
+                then begin
+                    TaxRegisterSetup.Get();
+                    FALedgEntry1.TestField("Depreciation Book Code", TaxRegisterSetup."Tax Depreciation Book");
+                    FALedgEntry1.CheckLaterDepreciation(FALedgEntry1);
+                    FALedgEntry1."Depr. Bonus" := MarkEntry;
+                    CODEUNIT.Run(CODEUNIT::"FA Entry - Edit", FALedgEntry1);
+                end;
+            until FALedgEntry1.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -786,26 +785,24 @@ table 5601 "FA Ledger Entry"
     var
         FALedgEntry1: Record "FA Ledger Entry";
     begin
-        with FALedgEntry1 do begin
-            Reset();
-            SetCurrentKey(
-              "FA No.", "Depreciation Book Code", "FA Posting Category",
-              "FA Posting Type", "FA Posting Date", "Depr. Bonus");
-            SetRange("FA No.", FALedgEntry2."FA No.");
-            SetRange("Depreciation Book Code", FALedgEntry2."Depreciation Book Code");
-            SetRange("FA Posting Category", "FA Posting Category"::" ");
-            SetRange("FA Posting Type", "FA Posting Type"::Depreciation);
-            SetRange("Depr. Bonus", false);
-            SetRange("FA Posting Date", FALedgEntry2."FA Posting Date", 99991231D);
-            CalcSums(Amount);
-            if Amount <> 0 then
-                Error(Text17201, FALedgEntry2."Posting Date");
-            SetRange("Depr. Bonus", true);
-            SetRange("FA Posting Date", FALedgEntry2."FA Posting Date", 99991231D);
-            CalcSums(Amount);
-            if Amount <> 0 then
-                Error(Text17202, FALedgEntry2."Posting Date");
-        end;
+        FALedgEntry1.Reset();
+        FALedgEntry1.SetCurrentKey(
+          "FA No.", "Depreciation Book Code", "FA Posting Category",
+          "FA Posting Type", "FA Posting Date", "Depr. Bonus");
+        FALedgEntry1.SetRange("FA No.", FALedgEntry2."FA No.");
+        FALedgEntry1.SetRange("Depreciation Book Code", FALedgEntry2."Depreciation Book Code");
+        FALedgEntry1.SetRange("FA Posting Category", FALedgEntry1."FA Posting Category"::" ");
+        FALedgEntry1.SetRange("FA Posting Type", FALedgEntry1."FA Posting Type"::Depreciation);
+        FALedgEntry1.SetRange("Depr. Bonus", false);
+        FALedgEntry1.SetRange("FA Posting Date", FALedgEntry2."FA Posting Date", 99991231D);
+        FALedgEntry1.CalcSums(Amount);
+        if FALedgEntry1.Amount <> 0 then
+            Error(Text17201, FALedgEntry2."Posting Date");
+        FALedgEntry1.SetRange("Depr. Bonus", true);
+        FALedgEntry1.SetRange("FA Posting Date", FALedgEntry2."FA Posting Date", 99991231D);
+        FALedgEntry1.CalcSums(Amount);
+        if FALedgEntry1.Amount <> 0 then
+            Error(Text17202, FALedgEntry2."Posting Date");
     end;
 
     [Scope('OnPrem')]

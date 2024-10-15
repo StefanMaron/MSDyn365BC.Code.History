@@ -1,6 +1,7 @@
 table 14930 "Excel Template Sheet"
 {
     Caption = 'Excel Template Sheet';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -2,6 +2,7 @@ table 14903 "Agreement Group"
 {
     Caption = 'Agreement Group';
     LookupPageID = "Agreement Groups";
+    DataClassification = CustomerContent;
 
     fields
     {

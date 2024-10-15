@@ -27,11 +27,11 @@ codeunit 144706 "ERM Sales Shipment M-15"
         LineQty: Integer;
     begin
         // check Series No has the same No before and after printing in Preview Mode
-        ExpectedDocumentNo := GetNextShippingNo;
+        ExpectedDocumentNo := GetNextShippingNo();
 
         PrintM15SalesOrder(SalesHeader, LineQty, true);
 
-        Assert.AreEqual(ExpectedDocumentNo, GetNextShippingNo, NoSeriesChangedErr);
+        Assert.AreEqual(ExpectedDocumentNo, GetNextShippingNo(), NoSeriesChangedErr);
     end;
 
     [Test]
@@ -43,11 +43,11 @@ codeunit 144706 "ERM Sales Shipment M-15"
         LineQty: Integer;
     begin
         // check Document No has the same No as in Series No
-        ExpectedDocumentNo := GetNextShippingNo;
+        ExpectedDocumentNo := GetNextShippingNo();
 
         PrintM15SalesOrder(SalesHeader, LineQty, false);
 
-        Assert.AreEqual(IncStr(ExpectedDocumentNo), GetNextShippingNo, NoSeriesNotChangedErr);
+        Assert.AreEqual(IncStr(ExpectedDocumentNo), GetNextShippingNo(), NoSeriesNotChangedErr);
     end;
 
     [Test]
@@ -244,7 +244,7 @@ codeunit 144706 "ERM Sales Shipment M-15"
         SalesHeader.SetRange("No.", SalesHeader."No.");
 
         SalesShipmentM15.SetTableView(SalesHeader);
-        SalesShipmentM15.SetFileNameSilent(LibraryReportValidation.GetFileName, Preview);
+        SalesShipmentM15.SetFileNameSilent(LibraryReportValidation.GetFileName(), Preview);
         SalesShipmentM15.UseRequestPage(false);
         SalesShipmentM15.Run();
         SalesHeader.Find(); // re-read record as there is an assignments inside report
@@ -266,7 +266,7 @@ codeunit 144706 "ERM Sales Shipment M-15"
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         PostedSalesShipmentM15.SetTableView(SalesInvoiceHeader);
-        PostedSalesShipmentM15.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        PostedSalesShipmentM15.SetFileNameSilent(LibraryReportValidation.GetFileName());
         PostedSalesShipmentM15.UseRequestPage(false);
         PostedSalesShipmentM15.Run();
     end;
@@ -310,10 +310,10 @@ codeunit 144706 "ERM Sales Shipment M-15"
     local procedure GetNextShippingNo(): Code[20]
     var
         SalesSetup: Record "Sales & Receivables Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         SalesSetup.Get();
-        exit(NoSeriesMgt.GetNextNo(SalesSetup."Posted Shipment Nos.", WorkDate(), false));
+        exit(NoSeries.PeekNextNo(SalesSetup."Posted Shipment Nos."));
     end;
 
     local procedure FormatAmount(Amount: Decimal): Text

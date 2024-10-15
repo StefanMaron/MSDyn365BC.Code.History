@@ -44,7 +44,6 @@ codeunit 5600 "FA Insert Ledger Entry"
         TempMaintenanceLedgEntry: Record "Maintenance Ledger Entry" temporary;
         FAReg: Record "FA Register";
         FAJnlLine: Record "FA Journal Line";
-        FALedgEntryDeprTransfer: Record "FA Ledger Entry";
         GLSetup: Record "General Ledger Setup";
         FAInsertGLAcc: Codeunit "FA Insert G/L Account";
         FAAutomaticEntry: Codeunit "FA Automatic Entry";
@@ -55,7 +54,6 @@ codeunit 5600 "FA Insert Ledger Entry"
         RegisterInserted: Boolean;
         LastEntryNo: Integer;
         GLRegisterNo: Integer;
-        DeprAmount: Decimal;
         DeprBonus: Boolean;
 
         Text000: Label '%2 = %3 does not exist for %1.';
@@ -269,45 +267,41 @@ codeunit 5600 "FA Insert Ledger Entry"
         end;
         NextMaintenanceEntryNo := NextMaintenanceEntryNo + 1;
         MaintenanceLedgEntry := MaintenanceLedgEntry2;
-        with MaintenanceLedgEntry do begin
-            DeprBook.Get("Depreciation Book Code");
-            OnInsertMaintenanceOnAfterDeprBookGet(DeprBook);
-            FA.Get("FA No.");
-            CheckMainAsset();
-            "Entry No." := NextMaintenanceEntryNo;
-            if "Automatic Entry" then
-                FAAutomaticEntry.AdjustMaintenanceLedgEntry(MaintenanceLedgEntry);
-            "Amount (LCY)" := Round(Amount * GetExchangeRate("FA Exchange Rate"));
-            if (Amount > 0) and not Correction or
-               (Amount < 0) and Correction
-            then begin
-                "Debit Amount" := Amount;
-                "Credit Amount" := 0
-            end else begin
-                "Debit Amount" := 0;
-                "Credit Amount" := -Amount;
-            end;
-            if "G/L Entry No." > 0 then
-                FAInsertGLAcc.InsertMaintenanceAccNo(MaintenanceLedgEntry);
-            Insert(true);
-            SetMaintenanceLastDate(MaintenanceLedgEntry);
+        DeprBook.Get(MaintenanceLedgEntry."Depreciation Book Code");
+        OnInsertMaintenanceOnAfterDeprBookGet(DeprBook);
+        FA.Get(MaintenanceLedgEntry."FA No.");
+        CheckMainAsset();
+        MaintenanceLedgEntry."Entry No." := NextMaintenanceEntryNo;
+        if MaintenanceLedgEntry."Automatic Entry" then
+            FAAutomaticEntry.AdjustMaintenanceLedgEntry(MaintenanceLedgEntry);
+        MaintenanceLedgEntry."Amount (LCY)" := Round(MaintenanceLedgEntry.Amount * GetExchangeRate(MaintenanceLedgEntry."FA Exchange Rate"));
+        if (MaintenanceLedgEntry.Amount > 0) and not MaintenanceLedgEntry.Correction or
+           (MaintenanceLedgEntry.Amount < 0) and MaintenanceLedgEntry.Correction
+        then begin
+            MaintenanceLedgEntry."Debit Amount" := MaintenanceLedgEntry.Amount;
+            MaintenanceLedgEntry."Credit Amount" := 0
+        end else begin
+            MaintenanceLedgEntry."Debit Amount" := 0;
+            MaintenanceLedgEntry."Credit Amount" := -MaintenanceLedgEntry.Amount;
         end;
+        if MaintenanceLedgEntry."G/L Entry No." > 0 then
+            FAInsertGLAcc.InsertMaintenanceAccNo(MaintenanceLedgEntry);
+        MaintenanceLedgEntry.Insert(true);
+        SetMaintenanceLastDate(MaintenanceLedgEntry);
         InsertRegister("FA Register Called From"::Maintenance, NextMaintenanceEntryNo);
     end;
 
     procedure SetMaintenanceLastDate(MaintenanceLedgEntry: Record "Maintenance Ledger Entry")
     begin
-        with MaintenanceLedgEntry do begin
-            SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
-            SetRange("FA No.", "FA No.");
-            SetRange("Depreciation Book Code", "Depreciation Book Code");
-            FADeprBook.Get("FA No.", "Depreciation Book Code");
-            if FindLast() then
-                FADeprBook."Last Maintenance Date" := "FA Posting Date"
-            else
-                FADeprBook."Last Maintenance Date" := 0D;
-            FADeprBook.Modify();
-        end;
+        MaintenanceLedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
+        MaintenanceLedgEntry.SetRange("FA No.", MaintenanceLedgEntry."FA No.");
+        MaintenanceLedgEntry.SetRange("Depreciation Book Code", MaintenanceLedgEntry."Depreciation Book Code");
+        FADeprBook.Get(MaintenanceLedgEntry."FA No.", MaintenanceLedgEntry."Depreciation Book Code");
+        if MaintenanceLedgEntry.FindLast() then
+            FADeprBook."Last Maintenance Date" := MaintenanceLedgEntry."FA Posting Date"
+        else
+            FADeprBook."Last Maintenance Date" := 0D;
+        FADeprBook.Modify();
     end;
 
     local procedure SetFAPostingType(var FALedgerEntry: Record "FA Ledger Entry")
@@ -362,33 +356,31 @@ codeunit 5600 "FA Insert Ledger Entry"
     var
         IsHandled, Result : Boolean;
     begin
-        with FALedgEntry do begin
-            IsHandled := false;
-            Result := false;
-            OnBeforeCalcGLIntegration(FALedgEntry, IsHandled, Result);
-            if IsHandled then
-                exit(Result);
+        IsHandled := false;
+        Result := false;
+        OnBeforeCalcGLIntegration(FALedgEntry, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
 
-            if "G/L Entry No." = 0 then
-                exit(false);
-            if not (FA."Undepreciable FA") then begin
-                case DeprBook."Disposal Calculation Method" of
-                    DeprBook."Disposal Calculation Method"::Net:
-                        if "FA Posting Type" = "FA Posting Type"::"Proceeds on Disposal" then
-                            exit(false);
-                    DeprBook."Disposal Calculation Method"::Gross:
-                        if "FA Posting Type" = "FA Posting Type"::"Gain/Loss" then
-                            exit(false);
-                end;
-            end else begin
-                if "FA Posting Type" = "FA Posting Type"::"Proceeds on Disposal" then
-                    exit(false);
+        if FALedgEntry."G/L Entry No." = 0 then
+            exit(false);
+        if not (FA."Undepreciable FA") then begin
+            case DeprBook."Disposal Calculation Method" of
+                DeprBook."Disposal Calculation Method"::Net:
+                    if FALedgEntry."FA Posting Type" = FALedgEntry."FA Posting Type"::"Proceeds on Disposal" then
+                        exit(false);
+                DeprBook."Disposal Calculation Method"::Gross:
+                    if FALedgEntry."FA Posting Type" = FALedgEntry."FA Posting Type"::"Gain/Loss" then
+                        exit(false);
             end;
-            if "FA Posting Type" = "FA Posting Type"::"Salvage Value" then
+        end else begin
+            if FALedgEntry."FA Posting Type" = FALedgEntry."FA Posting Type"::"Proceeds on Disposal" then
                 exit(false);
-
-            exit(true);
         end;
+        if FALedgEntry."FA Posting Type" = FALedgEntry."FA Posting Type"::"Salvage Value" then
+            exit(false);
+
+        exit(true);
     end;
 
     procedure InsertBalAcc(var FALedgEntry: Record "FA Ledger Entry")
@@ -421,17 +413,15 @@ codeunit 5600 "FA Insert Ledger Entry"
         if FA."Main Asset/Component" = FA."Main Asset/Component"::Component then
             FADeprBook2.Get(FA."Component of Main Asset", DeprBook.Code);
 
-        with FASetup do begin
-            Get();
-            if "Allow Posting to Main Assets" then
-                exit;
-            FA2."Main Asset/Component" := FA2."Main Asset/Component"::"Main Asset";
-            if FA."Main Asset/Component" = FA."Main Asset/Component"::"Main Asset" then
-                Error(
-                  Text002,
-                  FAName(''), FA2."Main Asset/Component", FieldCaption("Allow Posting to Main Assets"),
-                  true, TableCaption);
-        end;
+        FASetup.Get();
+        if FASetup."Allow Posting to Main Assets" then
+            exit;
+        FA2."Main Asset/Component" := FA2."Main Asset/Component"::"Main Asset";
+        if FA."Main Asset/Component" = FA."Main Asset/Component"::"Main Asset" then
+            Error(
+              Text002,
+              FAName(''), FA2."Main Asset/Component", FASetup.FieldCaption("Allow Posting to Main Assets"),
+              true, FASetup.TableCaption);
     end;
 
     procedure CopyRecordLinksToFALedgEntry(GenJnlLine: Record "Gen. Journal Line")
@@ -448,22 +438,22 @@ codeunit 5600 "FA Insert Ledger Entry"
         if (CalledFrom = "FA Register Called From"::Maintenance) and (NextEntryNo <> 0) then
             exit;
 
-        with FAReg do begin
-            LockTable();
-            if FindLast() and (GLRegisterNo <> 0) and (GLRegisterNo = GetLastGLRegisterNo()) then
-                exit;
-            "No." := GetLastEntryNo() + 1;
+        FAReg.LockTable();
+        if FAReg.FindLast() and (GLRegisterNo <> 0) and (GLRegisterNo = FAReg.GetLastGLRegisterNo()) then
+            exit;
+        FAReg."No." := FAReg.GetLastEntryNo() + 1;
 
-            Init();
-            if GLEntryNo = 0 then
-                "Journal Type" := "Journal Type"::"Fixed Asset";
-            "Creation Date" := Today;
-            "Creation Time" := Time;
-            "Source Code" := SourceCode;
-            "Journal Batch Name" := BatchName;
-            "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
-            Insert(true);
-        end;
+        FAReg.Init();
+        if GLEntryNo = 0 then
+            FAReg."Journal Type" := FAReg."Journal Type"::"Fixed Asset";
+#if not CLEAN24            
+        FAReg."Creation Date" := Today;
+        FAReg."Creation Time" := Time;
+#endif
+        FAReg."Source Code" := SourceCode;
+        FAReg."Journal Batch Name" := BatchName;
+        FAReg."User ID" := CopyStr(UserId(), 1, MaxStrLen(FAReg."User ID"));
+        FAReg.Insert(true);
     end;
 
     procedure InsertRegister(CalledFrom: Enum "FA Register Called From"; NextEntryNo: Integer)
@@ -758,8 +748,6 @@ codeunit 5600 "FA Insert Ledger Entry"
 
     [Scope('OnPrem')]
     procedure InsertTransfer(var FALedgEntry3: Record "FA Ledger Entry")
-    var
-        FATransfer: Record "FA Ledger Entry";
     begin
         if NextEntryNo = 0 then begin
             FALedgEntry.LockTable();
@@ -798,13 +786,11 @@ codeunit 5600 "FA Insert Ledger Entry"
     var
         FALedgerEntryLocal: Record "FA Ledger Entry";
         FADepreciationBookLocal: Record "FA Depreciation Book";
-        FADepreciationBookLocal2: Record "FA Depreciation Book";
         TaxRegisterSetup: Record "Tax Register Setup";
         PostedFADocHeader: Record "Posted FA Doc. Header";
         FACharge: Record "FA Charge";
         FALedgEntry1: Record "FA Ledger Entry";
         FACheckConsistency: Codeunit "FA Check Consistency";
-        LastLine: Integer;
         IsDisposal: Boolean;
         Amount: Decimal;
     begin
@@ -963,47 +949,43 @@ codeunit 5600 "FA Insert Ledger Entry"
         FALedgerEntry2: Record "FA Ledger Entry";
         FA: Record "Fixed Asset";
     begin
-        // PS29060.begin
-        with InvtPostBuf do begin
-            if (InvtPostBuf."FA No." <> '') and (InvtPostBuf."FA Entry No." <> 0) and
-              (InvtPostBuf."Account Type" = InvtPostBuf."Account Type"::"Inventory Adjmt.") then begin
-                if FADepreciationBook.Get(InvtPostBuf."FA No.", InvtPostBuf."Depreciation Book Code") then begin
-                    FAPostingGroup.Get(FADepreciationBook."FA Posting Group");
-                    GenJnlLine."Account No." := FAPostingGroup."Acquisition Cost Account";
-                    GenJnlLine."Source Type" := GenJnlLine."Source Type"::"Fixed Asset";
-                    GenJnlLine."Source No." := FADepreciationBook."FA No.";
-                end;
+        if (InvtPostBuf."FA No." <> '') and (InvtPostBuf."FA Entry No." <> 0) and
+           (InvtPostBuf."Account Type" = InvtPostBuf."Account Type"::"Inventory Adjmt.")
+        then begin
+            if FADepreciationBook.Get(InvtPostBuf."FA No.", InvtPostBuf."Depreciation Book Code") then begin
+                FAPostingGroup.Get(FADepreciationBook."FA Posting Group");
+                GenJnlLine."Account No." := FAPostingGroup."Acquisition Cost Account";
+                GenJnlLine."Source Type" := GenJnlLine."Source Type"::"Fixed Asset";
+                GenJnlLine."Source No." := FADepreciationBook."FA No.";
+            end;
 
-                if FALedgerEntry.Get(InvtPostBuf."FA Entry No.") then begin
-                    if GenJnlLine."Additional-Currency Posting" <>
-                      GenJnlLine."Additional-Currency Posting"::"Additional-Currency Amount Only"
-                    then
-                        FALedgerEntry.Amount := FALedgerEntry.Amount + GenJnlLine.Amount;
-                    FALedgerEntry."Debit Amount" := FALedgerEntry.Amount;
-                    FALedgerEntry."Credit Amount" := 0;
-                    FALedgerEntry."Amount (LCY)" := FALedgerEntry.Amount;
-                    FALedgerEntry."Need Cost Posted to G/L" := false;
-                    FALedgerEntry.Modify();
+            if FALedgerEntry.Get(InvtPostBuf."FA Entry No.") then begin
+                if GenJnlLine."Additional-Currency Posting" <>
+                  GenJnlLine."Additional-Currency Posting"::"Additional-Currency Amount Only"
+                then
+                    FALedgerEntry.Amount := FALedgerEntry.Amount + GenJnlLine.Amount;
+                FALedgerEntry."Debit Amount" := FALedgerEntry.Amount;
+                FALedgerEntry."Credit Amount" := 0;
+                FALedgerEntry."Amount (LCY)" := FALedgerEntry.Amount;
+                FALedgerEntry."Need Cost Posted to G/L" := false;
+                FALedgerEntry.Modify();
 
-                    FALedgerEntry2.Reset();
-                    FALedgerEntry2.SetCurrentKey("FA No.");
-                    FALedgerEntry2.SetRange("FA No.", InvtPostBuf."FA No.");
-                    FALedgerEntry2.SetRange("Need Cost Posted to G/L", true);
-                    if not FALedgerEntry2.Find('-') then begin
-                        FA.Get(FALedgerEntry."FA No.");
-                        FA.Blocked := false;
-                        FA.Modify();
-                    end;
+                FALedgerEntry2.Reset();
+                FALedgerEntry2.SetCurrentKey("FA No.");
+                FALedgerEntry2.SetRange("FA No.", InvtPostBuf."FA No.");
+                FALedgerEntry2.SetRange("Need Cost Posted to G/L", true);
+                if not FALedgerEntry2.Find('-') then begin
+                    FA.Get(FALedgerEntry."FA No.");
+                    FA.Blocked := false;
+                    FA.Modify();
                 end;
             end;
         end;
-        // PS29060.end
     end;
 
     [Scope('OnPrem')]
     procedure GetDeprEntryForVATSettlement(var FA: Record "Fixed Asset"; var PostingDate: Date; VATEntryNo: Integer): Integer
     begin
-        // PS24220.begin
         FADeprBook.SetRange("FA No.", FA."No.");
         if FADeprBook.FindSet() then
             repeat
@@ -1029,24 +1011,19 @@ codeunit 5600 "FA Insert Ledger Entry"
                 end;
             until FADeprBook.Next() = 0;
         exit(0);
-        // PS24220.end
     end;
 
     local procedure UpdateDebitCreditAmount(var FALedgEntry: Record "FA Ledger Entry")
     begin
-        // PS51707.begin
-        with FALedgEntry do begin
-            if (Amount > 0) and not Correction or
-               (Amount < 0) and Correction
-            then begin
-                "Debit Amount" := Amount;
-                "Credit Amount" := 0
-            end else begin
-                "Debit Amount" := 0;
-                "Credit Amount" := -Amount;
-            end;
+        if (FALedgEntry.Amount > 0) and not FALedgEntry.Correction or
+           (FALedgEntry.Amount < 0) and FALedgEntry.Correction
+        then begin
+            FALedgEntry."Debit Amount" := FALedgEntry.Amount;
+            FALedgEntry."Credit Amount" := 0
+        end else begin
+            FALedgEntry."Debit Amount" := 0;
+            FALedgEntry."Credit Amount" := -FALedgEntry.Amount;
         end;
-        // PS51707.end
     end;
 
     [Scope('OnPrem')]
@@ -1134,16 +1111,15 @@ codeunit 5600 "FA Insert Ledger Entry"
 
     local procedure UpdateDebitCredit(var FALedgerEntry: Record "FA Ledger Entry")
     begin
-        with FALedgerEntry do
-            if (Amount > 0) and not Correction or
-               (Amount < 0) and Correction
-            then begin
-                "Debit Amount" := Amount;
-                "Credit Amount" := 0
-            end else begin
-                "Debit Amount" := 0;
-                "Credit Amount" := -Amount;
-            end;
+        if (FALedgerEntry.Amount > 0) and not FALedgerEntry.Correction or
+               (FALedgerEntry.Amount < 0) and FALedgerEntry.Correction
+        then begin
+            FALedgerEntry."Debit Amount" := FALedgerEntry.Amount;
+            FALedgerEntry."Credit Amount" := 0
+        end else begin
+            FALedgerEntry."Debit Amount" := 0;
+            FALedgerEntry."Credit Amount" := -FALedgerEntry.Amount;
+        end;
     end;
 
     [IntegrationEvent(false, false)]

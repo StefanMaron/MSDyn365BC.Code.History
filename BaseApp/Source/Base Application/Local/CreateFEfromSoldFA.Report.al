@@ -42,38 +42,36 @@ report 17304 "Create FE from Sold FA"
                 }
 
                 trigger OnPostDataItem()
+                var
+                    NoSeries: Codeunit "No. Series";
                 begin
                     if GainLoss = 0 then
                         exit;
 
-                    with FE do begin
-                        FE := FETemplate;
-                        Blocked := false;
-                        Inactive := false;
-                        "No." := NoSeriesMgt.GetNextNo(NoSeriesCode, Today, true);
-                        "No. Series" := NoSeriesCode;
-                        "FA Type" := "FA Type"::"Future Expense";
-                        "Created by FA No." := "Fixed Asset"."No.";
-                        Insert();
-                        Validate(Description, CopyStr(StrSubstNo(Text1000, "Fixed Asset"."No."), 1, MaxStrLen(Description)));
-                    end;
+                    FE := FETemplate;
+                    FE.Blocked := false;
+                    FE.Inactive := false;
+                    FE."No." := NoSeries.GetNextNo(NoSeriesCode, Today());
+                    FE."No. Series" := NoSeriesCode;
+                    FE."FA Type" := FE."FA Type"::"Future Expense";
+                    FE."Created by FA No." := "Fixed Asset"."No.";
+                    FE.Insert();
+                    FE.Validate(Description, CopyStr(StrSubstNo(Text1000, "Fixed Asset"."No."), 1, MaxStrLen(FE.Description)));
 
-                    with FEDeprBook do begin
-                        FEDeprBook := FEDeprBookAccounting;
-                        "FA No." := FE."No.";
-                        Description := FE.Description;
-                        Insert(true);
-                        Validate("Depreciation Starting Date", 0D);
-                        Modify();
+                    FEDeprBook := FEDeprBookAccounting;
+                    FEDeprBook."FA No." := FE."No.";
+                    FEDeprBook.Description := FE.Description;
+                    FEDeprBook.Insert(true);
+                    FEDeprBook.Validate("Depreciation Starting Date", 0D);
+                    FEDeprBook.Modify();
 
-                        FEDeprBook := FEDeprBookTaxAccounting;
-                        "FA No." := FE."No.";
-                        Description := FE.Description;
-                        Insert(true);
-                        Validate("Depreciation Starting Date", CalcDate('<CM+1D>', DisposalDate));
-                        Validate("Depreciation Ending Date", FATaxDeprBook."Depreciation Ending Date");
-                        Modify();
-                    end;
+                    FEDeprBook := FEDeprBookTaxAccounting;
+                    FEDeprBook."FA No." := FE."No.";
+                    FEDeprBook.Description := FE.Description;
+                    FEDeprBook.Insert(true);
+                    FEDeprBook.Validate("Depreciation Starting Date", CalcDate('<CM+1D>', DisposalDate));
+                    FEDeprBook.Validate("Depreciation Ending Date", FATaxDeprBook."Depreciation Ending Date");
+                    FEDeprBook.Modify();
 
                     if not DeprBookAccounting."G/L Integration - Acq. Cost" then begin
                         FEJnlSetup.FAJnlName(DeprBookAccounting, FEJnlLineTmp, JnlNextLineNo);
@@ -200,41 +198,39 @@ report 17304 "Create FE from Sold FA"
 
     trigger OnPostReport()
     begin
-        with FEJnlLine do begin
-            FEJnlLineTmp.Reset();
-            if FEJnlLineTmp.Find('-') then begin
-                LockTable();
-                repeat
-                    if (FEJnlLineTmp."Journal Template Name" <> "Journal Template Name") or
-                       (FEJnlLineTmp."Journal Batch Name" <> "Journal Batch Name")
-                    then begin
-                        DeprBook.Get(FEJnlLineTmp."Depreciation Book Code");
-                        FEJnlSetup.FAJnlName(DeprBook, FEJnlLine, JnlNextLineNo);
-                        PostingNoSeries := FEJnlSetup.GetFANoSeries(FEJnlLine);
-                        if DocumentNo = '' then
-                            DocumentNo2 := FEJnlSetup.GetFAJnlDocumentNo(FEJnlLine, FEJnlLineTmp."FA Posting Date", true)
-                        else
-                            DocumentNo2 := DocumentNo;
-                    end;
-                    Init();
-                    FEJnlSetup.SetFAJnlTrailCodes(FEJnlLine);
-                    "FA Posting Date" := FEJnlLineTmp."FA Posting Date";
-                    "Posting Date" := 0D;
-                    "FA Posting Type" := FEJnlLineTmp."FA Posting Type";
-                    Validate("FA No.", FEJnlLineTmp."FA No.");
-                    "Document No." := DocumentNo2;
-                    "Posting No. Series" := PostingNoSeries;
-                    Description := FEJnlLineTmp.Description;
-                    Validate("Depreciation Book Code", FEJnlLineTmp."Depreciation Book Code");
-                    Validate(Amount, FEJnlLineTmp.Amount);
-                    "No. of Depreciation Days" := FEJnlLineTmp."No. of Depreciation Days";
-                    JnlNextLineNo := JnlNextLineNo + 10000;
-                    "Line No." := JnlNextLineNo;
-                    "Depr. Period Starting Date" := FEJnlLineTmp."Depr. Period Starting Date";
-                    Insert(true);
-                    FEJnlLineTmp.Delete();
-                until FEJnlLineTmp.Next() = 0;
-            end;
+        FEJnlLineTmp.Reset();
+        if FEJnlLineTmp.Find('-') then begin
+            FEJnlLine.LockTable();
+            repeat
+                if (FEJnlLineTmp."Journal Template Name" <> FEJnlLine."Journal Template Name") or
+                   (FEJnlLineTmp."Journal Batch Name" <> FEJnlLine."Journal Batch Name")
+                then begin
+                    DeprBook.Get(FEJnlLineTmp."Depreciation Book Code");
+                    FEJnlSetup.FAJnlName(DeprBook, FEJnlLine, JnlNextLineNo);
+                    PostingNoSeries := FEJnlSetup.GetFANoSeries(FEJnlLine);
+                    if DocumentNo = '' then
+                        DocumentNo2 := FEJnlSetup.GetFAJnlDocumentNo(FEJnlLine, FEJnlLineTmp."FA Posting Date", true)
+                    else
+                        DocumentNo2 := DocumentNo;
+                end;
+                FEJnlLine.Init();
+                FEJnlSetup.SetFAJnlTrailCodes(FEJnlLine);
+                FEJnlLine."FA Posting Date" := FEJnlLineTmp."FA Posting Date";
+                FEJnlLine."Posting Date" := 0D;
+                FEJnlLine."FA Posting Type" := FEJnlLineTmp."FA Posting Type";
+                FEJnlLine.Validate("FA No.", FEJnlLineTmp."FA No.");
+                FEJnlLine."Document No." := DocumentNo2;
+                FEJnlLine."Posting No. Series" := PostingNoSeries;
+                FEJnlLine.Description := FEJnlLineTmp.Description;
+                FEJnlLine.Validate("Depreciation Book Code", FEJnlLineTmp."Depreciation Book Code");
+                FEJnlLine.Validate(Amount, FEJnlLineTmp.Amount);
+                FEJnlLine."No. of Depreciation Days" := FEJnlLineTmp."No. of Depreciation Days";
+                JnlNextLineNo := JnlNextLineNo + 10000;
+                FEJnlLine."Line No." := JnlNextLineNo;
+                FEJnlLine."Depr. Period Starting Date" := FEJnlLineTmp."Depr. Period Starting Date";
+                FEJnlLine.Insert(true);
+                FEJnlLineTmp.Delete();
+            until FEJnlLineTmp.Next() = 0;
         end;
     end;
 
@@ -242,16 +238,14 @@ report 17304 "Create FE from Sold FA"
     begin
         FETemplate.Get(FETemplateNo);
 
-        with FEDeprBook do begin
-            SetRange("FA No.", FETemplateNo);
-            FEDeprBookAccounting.FindFirst();
-            repeat
-                FEDeprBookAccounting := FEDeprBook;
-                if not DeprBookAccounting.Get("Depreciation Book Code") then
-                    DeprBookAccounting.Init();
-            until (Next(1) = 0) or
-                  (DeprBookAccounting."Posting Book Type" = DeprBookAccounting."Posting Book Type"::Accounting);
-        end;
+        FEDeprBook.SetRange("FA No.", FETemplateNo);
+        FEDeprBookAccounting.FindFirst();
+        repeat
+            FEDeprBookAccounting := FEDeprBook;
+            if not DeprBookAccounting.Get(FEDeprBook."Depreciation Book Code") then
+                DeprBookAccounting.Init();
+        until (FEDeprBook.Next(1) = 0) or
+              (DeprBookAccounting."Posting Book Type" = DeprBookAccounting."Posting Book Type"::Accounting);
 
         if DeprBookAccounting."Posting Book Type" = DeprBookAccounting."Posting Book Type"::Accounting then begin
             FEDeprBookAccounting.TestField("Depreciation Method", FEDeprBookAccounting."Depreciation Method"::"Straight-Line");
@@ -267,15 +261,13 @@ report 17304 "Create FE from Sold FA"
               DeprBookAccounting."Posting Book Type");
         end;
 
-        with FEDeprBook do begin
-            Find('-');
-            repeat
-                FEDeprBookTaxAccounting := FEDeprBook;
-                if not DeprBookTaxAccounting.Get("Depreciation Book Code") then
-                    DeprBookTaxAccounting.Init();
-            until (Next(1) = 0) or
-                  (DeprBookTaxAccounting."Posting Book Type" = DeprBookTaxAccounting."Posting Book Type"::"Tax Accounting");
-        end;
+        FEDeprBook.Find('-');
+        repeat
+            FEDeprBookTaxAccounting := FEDeprBook;
+            if not DeprBookTaxAccounting.Get(FEDeprBook."Depreciation Book Code") then
+                DeprBookTaxAccounting.Init();
+        until (FEDeprBook.Next(1) = 0) or
+              (DeprBookTaxAccounting."Posting Book Type" = DeprBookTaxAccounting."Posting Book Type"::"Tax Accounting");
 
         if DeprBookTaxAccounting."Posting Book Type" = DeprBookTaxAccounting."Posting Book Type"::"Tax Accounting" then begin
             FEDeprBookTaxAccounting.TestField("Depreciation Method", FEDeprBookTaxAccounting."Depreciation Method"::"Straight-Line");
@@ -309,7 +301,6 @@ report 17304 "Create FE from Sold FA"
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlLineTmp: Record "Gen. Journal Line" temporary;
         NoSeries: Record "No. Series";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         FETemplateNo: Code[20];
         DocumentNo: Code[20];
         DocumentNo2: Code[20];

@@ -55,7 +55,9 @@ page 99000892 "Work Center Group Load Lines"
                         PAGE.Run(0, CalendarEntry);
                     end;
                 }
+#pragma warning disable AA0100
                 field("WorkCenterGroup.""Prod. Order Need (Qty.)"""; Rec."Allocated Qty.")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Allocated Qty.';

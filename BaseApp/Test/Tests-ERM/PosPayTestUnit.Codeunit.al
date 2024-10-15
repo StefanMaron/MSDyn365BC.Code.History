@@ -294,5 +294,7 @@ codeunit 134800 "Pos. Pay Test Unit"
         CheckLedgerEntry.TestField("Data Exch. Entry No.", DataExch."Entry No.");
         CheckLedgerEntry.TestField("Data Exch. Voided Entry No.", DataExch."Entry No.");
     end;
+
+    // RU
 }
 

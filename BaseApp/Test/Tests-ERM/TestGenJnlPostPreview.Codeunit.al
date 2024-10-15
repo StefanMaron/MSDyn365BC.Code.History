@@ -68,7 +68,7 @@
         GenJournalLine.Delete();
         Commit();
         asserterror GenJnlPost.Preview(GenJournalLine);
-        VerifyEmptyPreviewError;
+        VerifyEmptyPreviewError();
     end;
 
     [Test]
@@ -92,9 +92,9 @@
         Commit();
 
         // Execute
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror GenJnlPost.Preview(GenJournalLine);
-        VerifyEmptyPreviewError;
+        VerifyEmptyPreviewError();
         VerifyGLEntries(Amount, GLPostingPreview);
         GLPostingPreview.Close();
 
@@ -163,9 +163,9 @@
 
         // Execute
         Commit();
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror GenJnlPost.Preview(GenJournalLine);
-        VerifyEmptyPreviewError;
+        VerifyEmptyPreviewError();
         // Verify
         VerifyGLEntries(Amount, GLPostingPreview);
         GLPostingPreview.Close();
@@ -203,9 +203,9 @@
         Commit();
 
         // Execute
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror GenJnlPost.Preview(GenJournalLine);
-        VerifyEmptyPreviewError;
+        VerifyEmptyPreviewError();
         // Verify
         VerifyCustomerEntries(Amount, GLPostingPreview);
         GLPostingPreview.Close();
@@ -248,9 +248,9 @@
         Commit();
 
         // Execute
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror GenJnlPost.Preview(GenJournalLine);
-        VerifyEmptyPreviewError;
+        VerifyEmptyPreviewError();
         // Verify
         VerifyForeignCustomerEntries(Amount1, Amount2, GLPostingPreview);
         GLPostingPreview.Close();
@@ -294,9 +294,9 @@
         Commit();
 
         // Execute
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror GenJnlPost.Preview(GenJournalLine);
-        VerifyEmptyPreviewError;
+        VerifyEmptyPreviewError();
         // Verify
         VerifyVendorEntries(Amount1, Amount2, GLPostingPreview);
         GLPostingPreview.Close();
@@ -328,9 +328,9 @@
         Commit();
 
         // Execute
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror GenJnlPost.Preview(GenJournalLine);
-        VerifyEmptyPreviewError;
+        VerifyEmptyPreviewError();
         // Verification done in BankAccountEntriesPreviewHandler
         VerifyBankAccountEntries(Amount, GLPostingPreview);
         GLPostingPreview.Close();
@@ -362,11 +362,11 @@
         GenJournalLine.Modify(true);
         Commit();
 
-        GLPostingPreview.Trap;
-        FixedAssetGLJournal.Trap;
+        GLPostingPreview.Trap();
+        FixedAssetGLJournal.Trap();
         PAGE.Run(PAGE::"Fixed Asset G/L Journal");
         FixedAssetGLJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
-        FixedAssetGLJournal.Preview.Invoke;
+        FixedAssetGLJournal.Preview.Invoke();
     end;
 
     [Test]
@@ -400,10 +400,10 @@
         RecordRestrictionMgt.RestrictRecordUsage(GenJournalLine, '');
         Commit();
         RestrictedRecord.SetRange("Record ID", GenJournalLine.RecordId);
-        Assert.IsTrue(RestrictedRecord.FindFirst, 'Missing RestrictedRecord');
+        Assert.IsTrue(RestrictedRecord.FindFirst(), 'Missing RestrictedRecord');
 
         // [WHEN] Preview is executed.
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror GenJnlPost.Preview(GenJournalLine);
         // [THEN] GETLASTERRORTEXT should be null
         Assert.AreEqual('', GetLastErrorText, 'Expected empty error from Preview. Actual error: ' + GetLastErrorText);
@@ -441,7 +441,7 @@
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountNo,
+          LibraryERM.CreateGLAccountNo(),
           0);
         Commit();
 
@@ -483,7 +483,7 @@
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountNo,
+          LibraryERM.CreateGLAccountNo(),
           0);
         Commit();
         GLEntry.FindLast();
@@ -501,7 +501,7 @@
         asserterror GenJnlPost.Preview(GenJournalLine);
 
         // [THEN] Preview successfully ran. No G/L Enries were created
-        VerifyEmptyPreviewError;
+        VerifyEmptyPreviewError();
         GLEntry.FindLast();
         GLEntry.TestField("Entry No.", LastGLEntryNo);
     end;
@@ -523,7 +523,7 @@
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountNo, LibraryRandom.RandInt(100));
+          LibraryERM.CreateGLAccountNo(), LibraryRandom.RandInt(100));
         Commit();
         GLEntry.FindLast();
         LastGLEntryNo := GLEntry."Entry No.";
@@ -533,7 +533,7 @@
         asserterror GenJnlPost.Preview(GenJournalLine);
 
         // [THEN] Preview successfully ran. No G/L Enries were created
-        VerifyEmptyPreviewError;
+        VerifyEmptyPreviewError();
         GLEntry.FindLast();
         GLEntry.TestField("Entry No.", LastGLEntryNo);
     end;
@@ -552,21 +552,21 @@
         BindSubscription(TestGenJnlPostPreview);
 
         // [GIVEN] Payment Line in Payment Journal.
-        DeletePaymentJournalTemplates;
+        DeletePaymentJournalTemplates();
 
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor,
-          LibraryPurchase.CreateVendorNo, LibraryRandom.RandDecInRange(10, 10000, 2));
+          LibraryPurchase.CreateVendorNo(), LibraryRandom.RandDecInRange(10, 10000, 2));
 
         SetPaymentTypeJournalTemplate(GenJournalLine);
 
         Commit();
 
         // [WHEN] Run Posting Preview from a Page.
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.CurrentJnlBatchName.Value := GenJournalLine."Journal Batch Name";
         PaymentJournal.GotoRecord(GenJournalLine);
-        PaymentJournal.Preview.Invoke;
+        PaymentJournal.Preview.Invoke();
 
         // [THEN] Payment Journal has not been changed,
         // [THEN] EventSubscriber OnDeletePmtJournalLine is not called.
@@ -590,7 +590,7 @@
         LibraryJournals.CreateGenJournalLineWithBatch(
             GenJournalLine, GenJournalLine."Document Type"::" ",
             GenJournalLine."Account Type"::"G/L Account",
-            LibraryERM.CreateGLAccountNo, LibraryRandom.RandInt(100));
+            LibraryERM.CreateGLAccountNo(), LibraryRandom.RandInt(100));
 
         // [WHEN] Run posting preview 
         Commit();
@@ -637,7 +637,7 @@
         ExtendedGLPostingPreview.ShowHierarchicalViewControl.SetValue(true);
 
         // [THEN] Extended G/L Posting Preview page shows grouped G/L Entries: Account No. = "A", Amount = 600, Account No. = "B", Amount = -600
-        VerifyGLEntriesExtendedGrouped(GenJournalLine, ExtendedGLPostingPreview, GLAccount."No.", BalGLAccount."No.", TotalAmount);
+        VerifyGLEntriesExtendedGrouped(ExtendedGLPostingPreview, GLAccount."No.", BalGLAccount."No.", TotalAmount);
     end;
 
 
@@ -665,7 +665,7 @@
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
               "Document Type"::Payment, AccountType, AccountNo, 0);
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
             Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
             Modify(true);
         end;
@@ -719,16 +719,16 @@
     var
         GLEntriesPreview: TestPage "G/L Entries Preview";
     begin
-        GLEntriesPreview.Trap;
+        GLEntriesPreview.Trap();
         GLPostingPreview.FILTER.SetFilter("Table ID", Format(DATABASE::"G/L Entry"));
-        GLPostingPreview.Show.Invoke;
+        GLPostingPreview.Show.Invoke();
 
         // Verify
-        GLEntriesPreview.First;
+        GLEntriesPreview.First();
         GLEntriesPreview.Amount.AssertEquals(Amount);
         GLEntriesPreview.Next();
         GLEntriesPreview.Amount.AssertEquals(-Amount);
-        GLEntriesPreview.OK.Invoke;
+        GLEntriesPreview.OK().Invoke();
     end;
 
     local procedure VerifyGLEntriesExtendedFlat(GenJournalLine: Record "Gen. Journal Line"; var ExtendedGLPostingPreview: TestPage "Extended G/L Posting Preview")
@@ -742,7 +742,7 @@
         ExtendedGLPostingPreview.GLEntriesPreviewFlat.Amount.AssertEquals(-GenJournalLine.Amount);
     end;
 
-    local procedure VerifyGLEntriesExtendedGrouped(GenJournalLine: Record "Gen. Journal Line"; var ExtendedGLPostingPreview: TestPage "Extended G/L Posting Preview"; GLAccountNo: Code[20]; BalGLAccountNo: Code[20]; var TotalAmount: Decimal)
+    local procedure VerifyGLEntriesExtendedGrouped(var ExtendedGLPostingPreview: TestPage "Extended G/L Posting Preview"; GLAccountNo: Code[20]; BalGLAccountNo: Code[20]; var TotalAmount: Decimal)
     begin
         ExtendedGLPostingPreview.GLEntriesPreviewHierarchical.Filter.SetFilter("G/L Account No.", GLAccountNo);
         ExtendedGLPostingPreview.GLEntriesPreviewHierarchical.First();
@@ -757,15 +757,15 @@
     var
         CustLedgEntriesPreview: TestPage "Cust. Ledg. Entries Preview";
     begin
-        CustLedgEntriesPreview.Trap;
+        CustLedgEntriesPreview.Trap();
         GLPostingPreview.FILTER.SetFilter("Table ID", Format(DATABASE::"Cust. Ledger Entry"));
-        GLPostingPreview.Show.Invoke;
+        GLPostingPreview.Show.Invoke();
 
         // Verify
         CustLedgEntriesPreview.AmountFCY.AssertEquals(Amount);
         CustLedgEntriesPreview.OriginalAmountFCY.AssertEquals(Amount);
         CustLedgEntriesPreview.RemainingAmountFCY.AssertEquals(Amount);
-        CustLedgEntriesPreview.OK.Invoke;
+        CustLedgEntriesPreview.OK().Invoke();
     end;
 
     [Scope('OnPrem')]
@@ -773,11 +773,11 @@
     var
         CustLedgEntriesPreview: TestPage "Cust. Ledg. Entries Preview";
     begin
-        CustLedgEntriesPreview.Trap;
+        CustLedgEntriesPreview.Trap();
         GLPostingPreview.FILTER.SetFilter("Table ID", Format(DATABASE::"Cust. Ledger Entry"));
-        GLPostingPreview.Show.Invoke;
+        GLPostingPreview.Show.Invoke();
 
-        CustLedgEntriesPreview.First;
+        CustLedgEntriesPreview.First();
         CustLedgEntriesPreview.AmountFCY.AssertEquals(Amount1);
         CustLedgEntriesPreview.OriginalAmountFCY.AssertEquals(Amount1);
         CustLedgEntriesPreview.RemainingAmountFCY.AssertEquals(Amount1);
@@ -787,7 +787,7 @@
         CustLedgEntriesPreview.OriginalAmountFCY.AssertEquals(Amount2);
         CustLedgEntriesPreview.RemainingAmountFCY.AssertEquals(Amount2);
 
-        CustLedgEntriesPreview.OK.Invoke;
+        CustLedgEntriesPreview.OK().Invoke();
     end;
 
     [Scope('OnPrem')]
@@ -795,11 +795,11 @@
     var
         VendLedgEntriesPreview: TestPage "Vend. Ledg. Entries Preview";
     begin
-        VendLedgEntriesPreview.Trap;
+        VendLedgEntriesPreview.Trap();
         GLPostingPreview.FILTER.SetFilter("Table ID", Format(DATABASE::"Vendor Ledger Entry"));
-        GLPostingPreview.Show.Invoke;
+        GLPostingPreview.Show.Invoke();
 
-        VendLedgEntriesPreview.First;
+        VendLedgEntriesPreview.First();
         VendLedgEntriesPreview.AmountFCY.AssertEquals(Amount1);
         VendLedgEntriesPreview.OriginalAmountFCY.AssertEquals(Amount1);
         VendLedgEntriesPreview.RemainingAmountFCY.AssertEquals(Amount1);
@@ -809,7 +809,7 @@
         VendLedgEntriesPreview.OriginalAmountFCY.AssertEquals(Amount2);
         VendLedgEntriesPreview.RemainingAmountFCY.AssertEquals(Amount2);
 
-        VendLedgEntriesPreview.OK.Invoke;
+        VendLedgEntriesPreview.OK().Invoke();
     end;
 
     [Scope('OnPrem')]
@@ -817,12 +817,12 @@
     var
         BankAccLedgEntrPreview: TestPage "Bank Acc. Ledg. Entr. Preview";
     begin
-        BankAccLedgEntrPreview.Trap;
+        BankAccLedgEntrPreview.Trap();
         GLPostingPreview.FILTER.SetFilter("Table ID", Format(DATABASE::"Bank Account Ledger Entry"));
-        GLPostingPreview.Show.Invoke;
+        GLPostingPreview.Show.Invoke();
 
         BankAccLedgEntrPreview.Amount.AssertEquals(Amount);
-        BankAccLedgEntrPreview.OK.Invoke;
+        BankAccLedgEntrPreview.OK().Invoke();
     end;
 
     local procedure VerifyGLEntryWithRegister(AccNo: Code[20]; ExpectedAmount: Decimal)
@@ -856,7 +856,7 @@
     [Scope('OnPrem')]
     procedure GLPostingPreviewPageHandler(var GLPostingPreview: TestPage "G/L Posting Preview")
     begin
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
     end;
 
     [Scope('OnPrem')]

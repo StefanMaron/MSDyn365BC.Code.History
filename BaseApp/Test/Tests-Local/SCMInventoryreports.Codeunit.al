@@ -109,7 +109,7 @@ codeunit 144102 "SCM Inventory reports"
         MockInvtDocHeader(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Shipment);
 
         // [GIVEN] Item Shipment page is opened.
-        InvtShipment.OpenEdit;
+        InvtShipment.OpenEdit();
         InvtShipment.GotoRecord(InvtDocumentHeader);
 
         // [WHEN] Push "Print" on the page ribbon.
@@ -137,12 +137,12 @@ codeunit 144102 "SCM Inventory reports"
         MockInvtDocHeader(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Receipt);
 
         // [GIVEN] Item Receipt page is opened.
-        InvtReceipt.OpenEdit;
+        InvtReceipt.OpenEdit();
         InvtReceipt.GotoRecord(InvtDocumentHeader);
 
         // [WHEN] Push "Print" on the page ribbon.
         EnqueueReportsNos(ReportSelections.Usage::"Inventory Receipt");
-        InvtReceipt.Print.Invoke;
+        InvtReceipt.Print.Invoke();
 
         // [THEN] List of reports set for an item receipt is shown.
         // Verification is done in ReportSelectionPrintPageHandler
@@ -165,12 +165,12 @@ codeunit 144102 "SCM Inventory reports"
         MockPostedSalesInvHeader(SalesInvoiceHeader, false, SalesInvoiceHeader."Corrective Doc. Type"::" ");
 
         // [GIVEN] Posted Sales Invoice page is opened.
-        PostedSalesInvoice.OpenView;
+        PostedSalesInvoice.OpenView();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
 
         // [WHEN] Push "Print" on the page ribbon.
         EnqueueReportsNos(ReportSelections.Usage::"S.Invoice");
-        PostedSalesInvoice.Print.Invoke;
+        PostedSalesInvoice.Print.Invoke();
 
         // [THEN] List of reports set for a posted sales invoice is shown.
         // Verification is done in ReportSelectionPrintPageHandler
@@ -192,12 +192,12 @@ codeunit 144102 "SCM Inventory reports"
         MockPostedSalesInvHeader(SalesInvoiceHeader, true, SalesInvoiceHeader."Corrective Doc. Type"::Correction);
 
         // [GIVEN] Posted Sales Invoice page is opened.
-        PostedSalesInvoice.OpenView;
+        PostedSalesInvoice.OpenView();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
 
         // [WHEN] Push "Print" on the page ribbon.
         LibraryVariableStorage.Enqueue(SalesInvoiceHeader."No.");
-        PostedSalesInvoice.Print.Invoke;
+        PostedSalesInvoice.Print.Invoke();
 
         // [THEN] Corrective sales invoice report is invoked.
         // Verification is done in PstdSalesCorrFactInvRequestPageHandler
@@ -216,7 +216,7 @@ codeunit 144102 "SCM Inventory reports"
         Initialize();
 
         // [GIVEN] Purchase Order
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
 
         LibraryVariableStorage.Enqueue(PurchaseHeader."No.");
         LibraryVariableStorage.Enqueue(PurchaseHeader."Document Type");
@@ -236,7 +236,7 @@ codeunit 144102 "SCM Inventory reports"
         // [THEN] report "Receipt Deviations TORG-2" is invoked
         // Verification is done in VerifyAndCancelTORG2RequestPageHandler
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -257,7 +257,7 @@ codeunit 144102 "SCM Inventory reports"
         for I := 1 to ArrayLen(ItemLedgerEntry) do
             MockItemLedgerEntry(
               ItemLedgerEntry[I], LibraryRandom.RandDateFromInRange(WorkDate(), 10 * (I - 1), 10 * I),
-              LibraryUtility.GenerateGUID, 0, LibraryUtility.GenerateGUID());
+              LibraryUtility.GenerateGUID(), 0, LibraryUtility.GenerateGUID());
 
         // [GIVEN] Item Shipment with an Item Shipment Line
         MockInvtDocHeader(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Shipment);
@@ -273,7 +273,7 @@ codeunit 144102 "SCM Inventory reports"
 
         // [THEN] "DeliveryDate" and "InvoiceDate" = 01.01.2020 and "InvoiceID" = "DOC01" on the first row of the report
         // [THEN] "DeliveryDate" and "InvoiceDate" = 10.01.2020 and "InvoiceID" = "DOC02" on the second row of the report
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         for I := 1 to ArrayLen(ItemLedgerEntry) do begin
             LibraryReportValidation.VerifyCellValue(26 + I - 1, 1, Format(ItemLedgerEntry[I]."Posting Date", 0, 1));
             LibraryReportValidation.VerifyCellValue(26 + I - 1, 20, ItemLedgerEntry[I]."Document No.");
@@ -299,7 +299,7 @@ codeunit 144102 "SCM Inventory reports"
         for I := 1 to ArrayLen(ItemLedgerEntry) do
             MockItemLedgerEntry(
               ItemLedgerEntry[I], LibraryRandom.RandDateFromInRange(WorkDate(), 10 * (I - 1), 10 * I),
-              LibraryUtility.GenerateGUID, 0, LibraryUtility.GenerateGUID());
+              LibraryUtility.GenerateGUID(), 0, LibraryUtility.GenerateGUID());
 
         // [GIVEN] Item Shipment with an Item Shipment Line
         MockInvtShipHeader(InvtShipmentHeader);
@@ -319,7 +319,7 @@ codeunit 144102 "SCM Inventory reports"
 
         // [THEN] "DeliveryDate" and "InvoiceDate" = 01.01.2020 and "InvoiceID" = "DOC01" on the first row of the report
         // [THEN] "DeliveryDate" and "InvoiceDate" = 10.01.2020 and "InvoiceID" = "DOC02" on the second row of the report
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         for I := 1 to ArrayLen(ItemLedgerEntry) do begin
             LibraryReportValidation.VerifyCellValue(26 + I - 1, 1, Format(ItemLedgerEntry[I]."Posting Date", 0, 1));
             LibraryReportValidation.VerifyCellValue(26 + I - 1, 20, ItemLedgerEntry[I]."Document No.");
@@ -414,8 +414,8 @@ codeunit 144102 "SCM Inventory reports"
     begin
         Initialize();
 
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
-        PurchaseHeader."Location Code" := CreateLocation;
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor());
+        PurchaseHeader."Location Code" := CreateLocation();
         PurchaseHeader.Modify(true);
 
         CreatePurchDocLines(PurchaseHeader, TotalQtys);
@@ -436,7 +436,7 @@ codeunit 144102 "SCM Inventory reports"
             Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
             Insert(true);
 
-            Validate("Item No.", LibraryInventory.CreateItemNo);
+            Validate("Item No.", LibraryInventory.CreateItemNo());
             Validate(Quantity, LibraryRandom.RandInt(100));
             Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
             Validate("Unit Amount", LibraryRandom.RandDec(100, 2));
@@ -463,7 +463,7 @@ codeunit 144102 "SCM Inventory reports"
             QtyToInvoice := LibraryRandom.RandIntInRange(1, QtyToReceive);
             with PurchaseLine do begin
                 LibraryPurchase.CreatePurchaseLine(
-                  PurchaseLine, PurchaseHeader, Type::Item, LibraryInventory.CreateItemNo, Qty);
+                  PurchaseLine, PurchaseHeader, Type::Item, LibraryInventory.CreateItemNo(), Qty);
                 Validate("Qty. to Receive", QtyToReceive);
                 Validate("Qty. to Invoice", QtyToInvoice);
                 Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
@@ -563,7 +563,7 @@ codeunit 144102 "SCM Inventory reports"
         with ValueEntryRelation do begin
             Init();
             "Value Entry No." := ValueEntry."Entry No.";
-            "Source RowId" := InvtShipmentLine.RowID1;
+            "Source RowId" := InvtShipmentLine.RowID1();
             Insert();
         end;
     end;
@@ -618,7 +618,7 @@ codeunit 144102 "SCM Inventory reports"
         ItemWriteOffActTorg16.InitializeRequest(
           OperationType, OrderNo, OrderDate, WriteOffSource);
         LibraryReportValidation.SetFileName(ItemDocumentNo);
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
         InvtDocumentHeader.SetRange("No.", ItemDocumentNo);
         ItemWriteOffActTorg16.SetTableView(InvtDocumentHeader);
         ItemWriteOffActTorg16.SetFileNameSilent(FileName);
@@ -635,7 +635,7 @@ codeunit 144102 "SCM Inventory reports"
         PostedItemWriteOffActTorg16.InitializeRequest(
           OperationType, OrderNo, OrderDate, WriteOffSource);
         LibraryReportValidation.SetFileName(ItemShipmentNo);
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
         InvtShipmentHeader.SetRange("No.", ItemShipmentNo);
         PostedItemWriteOffActTorg16.SetTableView(InvtShipmentHeader);
         PostedItemWriteOffActTorg16.SetFileNameSilent(FileName);
@@ -652,7 +652,7 @@ codeunit 144102 "SCM Inventory reports"
         ItemsReceiptActTORG1.InitializeRequest(
           ShowActualQty, ReportNo, ReportDate, ReportOperationType);
         LibraryReportValidation.SetFileName(PurchaseDocNo);
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
         PurchaseHeader.SetRange("No.", PurchaseDocNo);
         ItemsReceiptActTORG1.SetTableView(PurchaseHeader);
         ItemsReceiptActTORG1.SetFileNameSilent(FileName);
@@ -667,7 +667,7 @@ codeunit 144102 "SCM Inventory reports"
     begin
         ReceiptDeviationsTORG2.InitializeRequest(OrderNo, OrderDate, OperationType);
         LibraryReportValidation.SetFileName(DocumentNo);
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
         InsertDocPrintBuffer(TableId, DocumentType, DocumentNo);
 
         Commit();
@@ -718,7 +718,7 @@ codeunit 144102 "SCM Inventory reports"
             "Document Type" := 1;
             "Document No." := DocumentNo;
             "Employee Type" := EmployeeType;
-            "Employee Job Title" := Employee.GetJobTitleName;
+            "Employee Job Title" := Employee.GetJobTitleName();
             "Employee Name" := Employee.GetFullName();
             Insert(true);
             Members[MemberId, 1] := "Employee Job Title";
@@ -736,7 +736,7 @@ codeunit 144102 "SCM Inventory reports"
             FindSet();
             repeat
                 LibraryVariableStorage.Enqueue("Report ID");
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -757,7 +757,7 @@ codeunit 144102 "SCM Inventory reports"
 
     local procedure VerifyTorg1Totals(TotalAmtQtys: array[5] of Decimal)
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.CheckIfValueExistsInSpecifiedColumn('CT', StdRepMgt.FormatReportValue(TotalAmtQtys[2], 3));
     end;
 
@@ -770,7 +770,7 @@ codeunit 144102 "SCM Inventory reports"
         FoundValue: Boolean;
     begin
         Count := TotalQtys[1];
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         for ExcelRowNo := StartRow to (StartRow + Count - 1) do begin
             Evaluate(FieldValue, LibraryReportValidation.GetValueAt(FoundValue, ExcelRowNo, VerifyColumn));
             TotalAmountExcel += FieldValue;
@@ -809,7 +809,7 @@ codeunit 144102 "SCM Inventory reports"
             "Document Type" := DocumentType;
             "Document Date" := WorkDate();
             "Posting Date" := WorkDate();
-            "Location Code" := CreateLocation;
+            "Location Code" := CreateLocation();
             Insert(true);
         end;
         for Counter := 1 to TotalAmtQtys[1] do
@@ -836,18 +836,18 @@ codeunit 144102 "SCM Inventory reports"
     procedure ReportSelectionPrintPageHandlerTORG2Only(var ReportSelectionPrint: TestPage "Report Selection - Print")
     begin
         ReportSelectionPrint."Report ID".SetValue(REPORT::"Receipt Deviations TORG-2");
-        ReportSelectionPrint.OK.Invoke;
+        ReportSelectionPrint.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReportSelectionPrintPageHandler(var ReportSelectionPrint: TestPage "Report Selection - Print")
     begin
-        ReportSelectionPrint.Last;
+        ReportSelectionPrint.Last();
         repeat
-            ReportSelectionPrint."Report ID".AssertEquals(LibraryVariableStorage.DequeueInteger);
-        until not ReportSelectionPrint.Previous;
-        ReportSelectionPrint.OK.Invoke;
+            ReportSelectionPrint."Report ID".AssertEquals(LibraryVariableStorage.DequeueInteger());
+        until not ReportSelectionPrint.Previous();
+        ReportSelectionPrint.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -857,10 +857,10 @@ codeunit 144102 "SCM Inventory reports"
         DocumentPrintBuffer: Record "Document Print Buffer";
     begin
         DocumentPrintBuffer.SetRange("User ID", UserId);
-        DocumentPrintBuffer.SetRange("Document No.", LibraryVariableStorage.DequeueText);
-        DocumentPrintBuffer.SetRange("Document Type", LibraryVariableStorage.DequeueInteger);
+        DocumentPrintBuffer.SetRange("Document No.", LibraryVariableStorage.DequeueText());
+        DocumentPrintBuffer.SetRange("Document Type", LibraryVariableStorage.DequeueInteger());
         Assert.RecordCount(DocumentPrintBuffer, 1);
-        ReceiptDeviationsTORG2.Cancel.Invoke;
+        ReceiptDeviationsTORG2.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
@@ -868,7 +868,7 @@ codeunit 144102 "SCM Inventory reports"
     procedure ItemWriteOffActTORG16RequestPageHandler(var ItemWriteoffactTORG16: TestRequestPage "Item Write-off act TORG-16")
     begin
         Assert.AreEqual(
-          LibraryVariableStorage.DequeueText, ItemWriteoffactTORG16.InvtDocHeader.GetFilter("No."),
+          LibraryVariableStorage.DequeueText(), ItemWriteoffactTORG16.InvtDocHeader.GetFilter("No."),
           'TORG-16 report is not invoked correctly.');
     end;
 
@@ -877,7 +877,7 @@ codeunit 144102 "SCM Inventory reports"
     procedure PstdSalesCorrFactInvRequestPageHandler(var PstdSalesCorrFactInv: TestRequestPage "Pstd. Sales Corr. Fact. Inv.")
     begin
         Assert.AreEqual(
-          LibraryVariableStorage.DequeueText, PstdSalesCorrFactInv.Header.GetFilter("No."),
+          LibraryVariableStorage.DequeueText(), PstdSalesCorrFactInv.Header.GetFilter("No."),
           'Corrective invoice report is not invoked correctly.');
     end;
 
@@ -892,7 +892,7 @@ codeunit 144102 "SCM Inventory reports"
     [Scope('OnPrem')]
     procedure CancelPrintActItemsReceiptM7RequestPageHandler(var ActItemsReceiptM7: TestRequestPage "Act Items Receipt M-7")
     begin
-        ActItemsReceiptM7.Cancel.Invoke;
+        ActItemsReceiptM7.Cancel().Invoke();
     end;
 
     [RequestPageHandler]

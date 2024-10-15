@@ -4,6 +4,7 @@ table 14902 "Customer Agreement"
     DataCaptionFields = "Customer No.", "No.";
     DrillDownPageID = "Customer Agreements";
     LookupPageID = "Customer Agreements";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -17,10 +18,12 @@ table 14902 "Customer Agreement"
             Caption = 'No.';
 
             trigger OnValidate()
+            var
+                NoSeries: Codeunit "No. Series";
             begin
                 if "No." <> xRec."No." then begin
                     Cust.Get("Customer No.");
-                    NoSeriesMgt.TestManual(Cust."Agreement Nos.");
+                    NoSeries.TestManual(Cust."Agreement Nos.");
                     "No. Series" := '';
                 end;
             end;
@@ -497,12 +500,29 @@ table 14902 "Customer Agreement"
     end;
 
     trigger OnInsert()
+    var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         Cust.Get("Customer No.");
         Cust.TestField("Agreement Posting", Cust."Agreement Posting"::Mandatory);
         if "No." = '' then begin
             Cust.TestField("Agreement Nos.");
-            NoSeriesMgt.InitSeries(Cust."Agreement Nos.", xRec."No. Series", WorkDate(), "No.", "No. Series");
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(Cust."Agreement Nos.", xRec."No. Series", WorkDate(), "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                "No. Series" := Cust."Agreement Nos.";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", Cust."Agreement Nos.", WorkDate(), "No.");
+            end;
+#endif
             Description := StrSubstNo('%1 %2', Text12400, "No.");
         end;
 
@@ -567,7 +587,6 @@ table 14902 "Customer Agreement"
         DefaultDim2: Record "Default Dimension";
         CustAgrmt: Record "Customer Agreement";
         ShippingAgentService: Record "Shipping Agent Services";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
         Text003: Label 'You cannot rename %1.';
         Text004: Label 'post';
@@ -582,11 +601,13 @@ table 14902 "Customer Agreement"
 
     [Scope('OnPrem')]
     procedure AssistEdit(OldCustAgreement: Record "Customer Agreement"): Boolean
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         Cust.Get("Customer No.");
         Cust.TestField("Agreement Nos.");
-        if NoSeriesMgt.SelectSeries(Cust."Agreement Nos.", OldCustAgreement."No. Series", "No. Series") then begin
-            NoSeriesMgt.SetSeries("No.");
+        if NoSeries.LookupRelatedNoSeries(Cust."Agreement Nos.", OldCustAgreement."No. Series", "No. Series") then begin
+            "No." := NoSeries.GetNextNo("No. Series");
             exit(true);
         end;
     end;

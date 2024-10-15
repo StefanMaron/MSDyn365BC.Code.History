@@ -116,33 +116,31 @@ codeunit 5604 "Make FA Ledger Entry"
     begin
         OnBeforeCopyFromFACard(FALedgEntry, FA, FADeprBook, xFALedgerEntry);
 
-        with FALedgEntry do begin
-            "FA Class Code" := FA."FA Class Code";
-            "FA Subclass Code" := FA."FA Subclass Code";
-            if "FA Location Code" = '' then
-                "FA Location Code" := FA."FA Location Code";
-            if "Employee No." = '' then
-                "Employee No." := FA."Responsible Employee";
-            "Location Code" := FA."Location Code";
-            "FA Exchange Rate" := FADeprBook.GetExchangeRate();
-            "Depreciation Method" := FADeprBook."Depreciation Method";
-            "Depreciation Starting Date" := FADeprBook."Depreciation Starting Date";
-            "Depreciation Ending Date" := FADeprBook."Depreciation Ending Date";
-            "Straight-Line %" := FADeprBook."Straight-Line %";
-            "No. of Depreciation Years" := FADeprBook."No. of Depreciation Years";
-            "Fixed Depr. Amount" := FADeprBook."Fixed Depr. Amount";
-            "Declining-Balance %" := FADeprBook."Declining-Balance %";
-            "Depreciation Table Code" := FADeprBook."Depreciation Table Code";
-            "Use FA Ledger Check" := FADeprBook."Use FA Ledger Check";
-            "Depr. Starting Date (Custom 1)" := FADeprBook."Depr. Starting Date (Custom 1)";
-            "Depr. Ending Date (Custom 1)" := FADeprBook."Depr. Ending Date (Custom 1)";
-            "Accum. Depr. % (Custom 1)" := FADeprBook."Accum. Depr. % (Custom 1)";
-            "Depr. % this year (Custom 1)" := FADeprBook."Depr. This Year % (Custom 1)";
-            "Property Class (Custom 1)" := FADeprBook."Property Class (Custom 1)";
-            "Belonging to Manufacturing" := FA."Belonging to Manufacturing";
-            "FA Type" := FA."FA Type";
-            "Depreciation Group" := FA."Depreciation Group";
-        end;
+        FALedgEntry."FA Class Code" := FA."FA Class Code";
+        FALedgEntry."FA Subclass Code" := FA."FA Subclass Code";
+        if FALedgEntry."FA Location Code" = '' then
+            FALedgEntry."FA Location Code" := FA."FA Location Code";
+        if FALedgEntry."Employee No." = '' then
+            FALedgEntry."Employee No." := FA."Responsible Employee";
+        FALedgEntry."Location Code" := FA."Location Code";
+        FALedgEntry."FA Exchange Rate" := FADeprBook.GetExchangeRate();
+        FALedgEntry."Depreciation Method" := FADeprBook."Depreciation Method";
+        FALedgEntry."Depreciation Starting Date" := FADeprBook."Depreciation Starting Date";
+        FALedgEntry."Depreciation Ending Date" := FADeprBook."Depreciation Ending Date";
+        FALedgEntry."Straight-Line %" := FADeprBook."Straight-Line %";
+        FALedgEntry."No. of Depreciation Years" := FADeprBook."No. of Depreciation Years";
+        FALedgEntry."Fixed Depr. Amount" := FADeprBook."Fixed Depr. Amount";
+        FALedgEntry."Declining-Balance %" := FADeprBook."Declining-Balance %";
+        FALedgEntry."Depreciation Table Code" := FADeprBook."Depreciation Table Code";
+        FALedgEntry."Use FA Ledger Check" := FADeprBook."Use FA Ledger Check";
+        FALedgEntry."Depr. Starting Date (Custom 1)" := FADeprBook."Depr. Starting Date (Custom 1)";
+        FALedgEntry."Depr. Ending Date (Custom 1)" := FADeprBook."Depr. Ending Date (Custom 1)";
+        FALedgEntry."Accum. Depr. % (Custom 1)" := FADeprBook."Accum. Depr. % (Custom 1)";
+        FALedgEntry."Depr. % this year (Custom 1)" := FADeprBook."Depr. This Year % (Custom 1)";
+        FALedgEntry."Property Class (Custom 1)" := FADeprBook."Property Class (Custom 1)";
+        FALedgEntry."Belonging to Manufacturing" := FA."Belonging to Manufacturing";
+        FALedgEntry."FA Type" := FA."FA Type";
+        FALedgEntry."Depreciation Group" := FA."Depreciation Group";
 
         OnAfterCopyFromFACard(FALedgEntry, FA, FADeprBook, xFALedgerEntry);
     end;
@@ -150,29 +148,27 @@ codeunit 5604 "Make FA Ledger Entry"
     [Scope('OnPrem')]
     procedure CopyFromFADocLine(var FALedgEntry: Record "FA Ledger Entry"; var FADocLine: Record "FA Document Line")
     begin
-        with FALedgEntry do begin
-            Init();
-            "User ID" := UserId;
-            "G/L Entry No." := 0;
-            "Depreciation Book Code" := FADocLine."Depreciation Book Code";
-            "FA No." := FADocLine."FA No.";
-            "FA Posting Date" := FADocLine."FA Posting Date";
-            "Posting Date" := FADocLine."Posting Date";
-            "Document Date" := "Posting Date";
-            "Document No." := FADocLine."Document No.";
-            Description := FADocLine.Description;
-            Amount := FADocLine.Amount;
-            Quantity := FADocLine.Quantity;
-            "Reclassification Entry" := false;
-            "FA Posting Group" := FADocLine."FA Posting Group";
-            "Global Dimension 1 Code" := FADocLine."Shortcut Dimension 1 Code";
-            "Global Dimension 2 Code" := FADocLine."Shortcut Dimension 2 Code";
-            "Reason Code" := FADocLine."Reason Code";
-            "Source Code" := FADocLine."Source Code";
-            "FA Posting Type" := "FA Posting Type"::Transfer;
-            "Employee No." := FADocLine."FA Employee No.";
-            "FA Location Code" := FADocLine."FA Location Code";
-        end;
+        FALedgEntry.Init();
+        FALedgEntry."User ID" := UserId;
+        FALedgEntry."G/L Entry No." := 0;
+        FALedgEntry."Depreciation Book Code" := FADocLine."Depreciation Book Code";
+        FALedgEntry."FA No." := FADocLine."FA No.";
+        FALedgEntry."FA Posting Date" := FADocLine."FA Posting Date";
+        FALedgEntry."Posting Date" := FADocLine."Posting Date";
+        FALedgEntry."Document Date" := FALedgEntry."Posting Date";
+        FALedgEntry."Document No." := FADocLine."Document No.";
+        FALedgEntry.Description := FADocLine.Description;
+        FALedgEntry.Amount := FADocLine.Amount;
+        FALedgEntry.Quantity := FADocLine.Quantity;
+        FALedgEntry."Reclassification Entry" := false;
+        FALedgEntry."FA Posting Group" := FADocLine."FA Posting Group";
+        FALedgEntry."Global Dimension 1 Code" := FADocLine."Shortcut Dimension 1 Code";
+        FALedgEntry."Global Dimension 2 Code" := FADocLine."Shortcut Dimension 2 Code";
+        FALedgEntry."Reason Code" := FADocLine."Reason Code";
+        FALedgEntry."Source Code" := FADocLine."Source Code";
+        FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::Transfer;
+        FALedgEntry."Employee No." := FADocLine."FA Employee No.";
+        FALedgEntry."FA Location Code" := FADocLine."FA Location Code";
     end;
 
     [IntegrationEvent(false, false)]

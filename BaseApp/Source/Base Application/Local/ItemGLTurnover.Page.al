@@ -418,17 +418,16 @@ page 12449 "Item G/L Turnover"
         DebitQty := 0;
         CreditQty := 0;
 
-        with TempValueEntry do
-            if FindSet() then
-                repeat
-                    if IsDebit() then begin
-                        DebitCost := DebitCost + "Cost Amount (Actual)";
-                        DebitQty := DebitQty + "Invoiced Quantity";
-                    end else begin
-                        CreditCost := CreditCost - "Cost Amount (Actual)";
-                        CreditQty := CreditQty - "Invoiced Quantity";
-                    end;
-                until Next() = 0;
+        if TempValueEntry.FindSet() then
+            repeat
+                if TempValueEntry.IsDebit() then begin
+                    DebitCost := DebitCost + TempValueEntry."Cost Amount (Actual)";
+                    DebitQty := DebitQty + TempValueEntry."Invoiced Quantity";
+                end else begin
+                    CreditCost := CreditCost - TempValueEntry."Cost Amount (Actual)";
+                    CreditQty := CreditQty - TempValueEntry."Invoiced Quantity";
+                end;
+            until TempValueEntry.Next() = 0;
     end;
 }
 

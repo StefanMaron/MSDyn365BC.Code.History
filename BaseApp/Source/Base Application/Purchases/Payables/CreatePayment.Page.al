@@ -321,66 +321,64 @@ page 1190 "Create Payment"
           TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type"::Payment);
         if TempVendorPaymentBuffer.Find('-') then
             repeat
-                with GenJnlLine do begin
-                    Init();
-                    Validate("Journal Template Name", JournalTemplateName);
-                    Validate("Journal Batch Name", JournalBatchName);
-                    LastLineNo += 10000;
-                    "Line No." := LastLineNo;
-                    if TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type" = TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type"::Invoice then
-                        "Document Type" := "Document Type"::Payment
+                GenJnlLine.Init();
+                GenJnlLine.Validate("Journal Template Name", JournalTemplateName);
+                GenJnlLine.Validate("Journal Batch Name", JournalBatchName);
+                LastLineNo += 10000;
+                GenJnlLine."Line No." := LastLineNo;
+                if TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type" = TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type"::Invoice then
+                    GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment
+                else
+                    if TempVendorPaymentBuffer.Amount > 0 then
+                        GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment
                     else
-                        if TempVendorPaymentBuffer.Amount > 0 then
-                            "Document Type" := "Document Type"::Payment
-                        else
-                            "Document Type" := "Document Type"::Refund;
-                    "Posting No. Series" := GenJournalBatch."Posting No. Series";
-                    "Document No." := TempVendorPaymentBuffer."Document No.";
-                    "Account Type" := "Account Type"::Vendor;
+                        GenJnlLine."Document Type" := GenJnlLine."Document Type"::Refund;
+                GenJnlLine."Posting No. Series" := GenJournalBatch."Posting No. Series";
+                GenJnlLine."Document No." := TempVendorPaymentBuffer."Document No.";
+                GenJnlLine."Account Type" := GenJnlLine."Account Type"::Vendor;
 
-                    SetHideValidation(true);
-                    Validate("Posting Date", PostingDate);
-                    Validate("Account No.", TempVendorPaymentBuffer."Vendor No.");
+                GenJnlLine.SetHideValidation(true);
+                GenJnlLine.Validate("Posting Date", PostingDate);
+                GenJnlLine.Validate("Account No.", TempVendorPaymentBuffer."Vendor No.");
 
-                    if Vendor."No." <> TempVendorPaymentBuffer."Vendor No." then
-                        Vendor.Get(TempVendorPaymentBuffer."Vendor No.");
-                    Description := Vendor.Name;
+                if Vendor."No." <> TempVendorPaymentBuffer."Vendor No." then
+                    Vendor.Get(TempVendorPaymentBuffer."Vendor No.");
+                GenJnlLine.Description := Vendor.Name;
 
-                    "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
-                    Validate("Bal. Account No.", BalAccountNo);
-                    Validate("Currency Code", TempVendorPaymentBuffer."Currency Code");
+                GenJnlLine."Bal. Account Type" := GenJnlLine."Bal. Account Type"::"Bank Account";
+                GenJnlLine.Validate("Bal. Account No.", BalAccountNo);
+                GenJnlLine.Validate("Currency Code", TempVendorPaymentBuffer."Currency Code");
 
-                    "Message to Recipient" := GetMessageToRecipient(TempVendorPaymentBuffer, DocumentsToApply);
-                    "Bank Payment Type" := BankPaymentType;
-                    "Applies-to ID" := "Document No.";
+                GenJnlLine."Message to Recipient" := GetMessageToRecipient(TempVendorPaymentBuffer, DocumentsToApply);
+                GenJnlLine."Bank Payment Type" := BankPaymentType;
+                GenJnlLine."Applies-to ID" := GenJnlLine."Document No.";
 
-                    "Source Code" := GenJournalTemplate."Source Code";
-                    "Reason Code" := GenJournalBatch."Reason Code";
-                    "Source Line No." := TempVendorPaymentBuffer."Vendor Ledg. Entry No.";
-                    "Shortcut Dimension 1 Code" := TempVendorPaymentBuffer."Global Dimension 1 Code";
-                    "Shortcut Dimension 2 Code" := TempVendorPaymentBuffer."Global Dimension 2 Code";
-                    "Dimension Set ID" := TempVendorPaymentBuffer."Dimension Set ID";
+                GenJnlLine."Source Code" := GenJournalTemplate."Source Code";
+                GenJnlLine."Reason Code" := GenJournalBatch."Reason Code";
+                GenJnlLine."Source Line No." := TempVendorPaymentBuffer."Vendor Ledg. Entry No.";
+                GenJnlLine."Shortcut Dimension 1 Code" := TempVendorPaymentBuffer."Global Dimension 1 Code";
+                GenJnlLine."Shortcut Dimension 2 Code" := TempVendorPaymentBuffer."Global Dimension 2 Code";
+                GenJnlLine."Dimension Set ID" := TempVendorPaymentBuffer."Dimension Set ID";
 
-                    Validate(Amount, TempVendorPaymentBuffer.Amount);
+                GenJnlLine.Validate(Amount, TempVendorPaymentBuffer.Amount);
 
-                    "Applies-to Doc. Type" := TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type";
-                    "Applies-to Doc. No." := TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. No.";
+                GenJnlLine."Applies-to Doc. Type" := TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type";
+                GenJnlLine."Applies-to Doc. No." := TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. No.";
 
-                    Validate("Payment Method Code", TempVendorPaymentBuffer."Payment Method Code");
+                GenJnlLine.Validate("Payment Method Code", TempVendorPaymentBuffer."Payment Method Code");
 
-                    "Remit-to Code" := TempVendorPaymentBuffer."Remit-to Code";
+                GenJnlLine."Remit-to Code" := TempVendorPaymentBuffer."Remit-to Code";
 
-                    TempVendorPaymentBuffer.CopyFieldsToGenJournalLine(GenJnlLine);
+                TempVendorPaymentBuffer.CopyFieldsToGenJournalLine(GenJnlLine);
 
-                    OnBeforeUpdateGnlJnlLineDimensionsFromVendorPayment(GenJnlLine, TempVendorPaymentBuffer);
+                OnBeforeUpdateGnlJnlLineDimensionsFromVendorPayment(GenJnlLine, TempVendorPaymentBuffer);
 #if not CLEAN22
-                    TempPaymentBuffer.CopyFieldsFromVendorPaymentBuffer(TempVendorPaymentBuffer);
-                    OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer(GenJnlLine, TempPaymentBuffer);
-                    TempVendorPaymentBuffer.CopyFieldsFromPaymentBuffer(TempPaymentBuffer);
+                TempPaymentBuffer.CopyFieldsFromVendorPaymentBuffer(TempVendorPaymentBuffer);
+                OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer(GenJnlLine, TempPaymentBuffer);
+                TempVendorPaymentBuffer.CopyFieldsFromPaymentBuffer(TempPaymentBuffer);
 #endif
-                    UpdateDimensions(GenJnlLine, TempVendorPaymentBuffer);
-                    Insert();
-                end;
+                UpdateDimensions(GenJnlLine, TempVendorPaymentBuffer);
+                GenJnlLine.Insert();
             until TempVendorPaymentBuffer.Next() = 0;
     end;
 
@@ -394,33 +392,31 @@ page 1190 "Create Payment"
         NewDimensionID: Integer;
         DimSetIDArr: array[10] of Integer;
     begin
-        with GenJnlLine do begin
-            if "Dimension Set ID" = 0 then begin
-                NewDimensionID := "Dimension Set ID";
+        if GenJnlLine."Dimension Set ID" = 0 then begin
+            NewDimensionID := GenJnlLine."Dimension Set ID";
 
-                DimBuf.Reset();
-                DimBuf.DeleteAll();
-                DimBufMgt.GetDimensions(TempVendorPaymentBuffer."Dimension Entry No.", DimBuf);
-                if DimBuf.FindSet() then
-                    repeat
-                        DimVal.Get(DimBuf."Dimension Code", DimBuf."Dimension Value Code");
-                        TempDimSetEntry."Dimension Code" := DimBuf."Dimension Code";
-                        TempDimSetEntry."Dimension Value Code" := DimBuf."Dimension Value Code";
-                        TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
-                        TempDimSetEntry.Insert();
-                    until DimBuf.Next() = 0;
-                NewDimensionID := DimMgt.GetDimensionSetID(TempDimSetEntry);
-                "Dimension Set ID" := NewDimensionID;
+            DimBuf.Reset();
+            DimBuf.DeleteAll();
+            DimBufMgt.GetDimensions(TempVendorPaymentBuffer."Dimension Entry No.", DimBuf);
+            if DimBuf.FindSet() then
+                repeat
+                    DimVal.Get(DimBuf."Dimension Code", DimBuf."Dimension Value Code");
+                    TempDimSetEntry."Dimension Code" := DimBuf."Dimension Code";
+                    TempDimSetEntry."Dimension Value Code" := DimBuf."Dimension Value Code";
+                    TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
+                    TempDimSetEntry.Insert();
+                until DimBuf.Next() = 0;
+            NewDimensionID := DimMgt.GetDimensionSetID(TempDimSetEntry);
+            GenJnlLine."Dimension Set ID" := NewDimensionID;
 
-                CreateDimFromDefaultDim(0);
-                if NewDimensionID <> "Dimension Set ID" then
-                    AssignCombinedDimensionSetID(GenJnlLine, DimSetIDArr, NewDimensionID);
-            end;
-
-            DimMgt.GetDimensionSet(TempDimSetEntry, "Dimension Set ID");
-            DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code",
-              "Shortcut Dimension 2 Code");
+            GenJnlLine.CreateDimFromDefaultDim(0);
+            if NewDimensionID <> GenJnlLine."Dimension Set ID" then
+                AssignCombinedDimensionSetID(GenJnlLine, DimSetIDArr, NewDimensionID);
         end;
+
+        DimMgt.GetDimensionSet(TempDimSetEntry, GenJnlLine."Dimension Set ID");
+        DimMgt.UpdateGlobalDimFromDimSetID(GenJnlLine."Dimension Set ID", GenJnlLine."Shortcut Dimension 1 Code",
+          GenJnlLine."Shortcut Dimension 2 Code");
         OnAfterUpdateDimensions(GenJnlLine);
     end;
 
@@ -438,7 +434,7 @@ page 1190 "Create Payment"
     local procedure SetNextNo(GenJournalBatchNoSeries: Code[20]; KeepSavedDocumentNo: Boolean)
     var
         GenJournalLine: Record "Gen. Journal Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
     begin
         if (GenJournalBatchNoSeries = '') then begin
             if not KeepSavedDocumentNo then
@@ -449,8 +445,7 @@ page 1190 "Create Payment"
             if GenJournalLine.FindLast() then
                 NextDocNo := IncStr(GenJournalLine."Document No.")
             else
-                NextDocNo := NoSeriesManagement.DoGetNextNo(GenJournalBatchNoSeries, PostingDate, false, true);
-            Clear(NoSeriesManagement);
+                NextDocNo := NoSeriesBatch.GetNextNo(GenJournalBatchNoSeries, PostingDate, true);
         end;
     end;
 

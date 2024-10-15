@@ -506,8 +506,6 @@ report 12469 "Item Turnover (Qty.)"
         Counter: Integer;
         RoundingPrecision: Option "0.001","0.01","1","1000";
         Decimals: Decimal;
-        Value2: Decimal;
-        WasPrintTotal: Boolean;
         RequestFilter: Text;
         AmountUnit: Text[30];
         ValueFormat: Text[50];
@@ -528,16 +526,6 @@ report 12469 "Item Turnover (Qty.)"
         CreditQuantity: Decimal;
         DebitCost: Decimal;
         CreditCost: Decimal;
-        ExcelCapt1: Label 'No.';
-        ExcelCapt2: Label 'Description';
-        ExcelCapt3: Label 'Start of Period';
-        ExcelCapt4: Label 'Period Net Change';
-        ExcelCapt5: Label 'Positive Adj.';
-        ExcelCapt6: Label 'Negative Adj.';
-        ExcelCapt7: Label 'End of Period';
-        ExcelCapt8: Label 'Unit of Measure';
-        ExcelCapt10: Label 'Total:';
-        ExcelCapt20: Label 'Item Turnover Sheet';
         Text12400: Label 'Select Print Quantity or Print Cost or Print Group Totals';
         PeriodText: Text[100];
         Text12401: Label 'Total Cost for %1 %2';
@@ -547,8 +535,6 @@ report 12469 "Item Turnover (Qty.)"
         Credit: Decimal;
         DetailedQtyPositive: Decimal;
         DetailedQtyNegative: Decimal;
-        ExcelCapt9: Label 'Red Storno';
-        ExportToExcelRegionVisible: Boolean;
         Turnover_SheetCaptionLbl: Label 'Turnover Sheet';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         ItemsCaptionLbl: Label 'Items';
@@ -595,17 +581,16 @@ report 12469 "Item Turnover (Qty.)"
         CreditQuantity := 0;
         CreditCost := 0;
 
-        with ValueEntry do
-            if FindSet() then
-                repeat
-                    if IsDebit() then begin
-                        DebitQuantity := DebitQuantity + "Invoiced Quantity";
-                        DebitCost := DebitCost + "Cost Amount (Actual)";
-                    end else begin
-                        CreditQuantity := CreditQuantity - "Invoiced Quantity";
-                        CreditCost := CreditCost - "Cost Amount (Actual)";
-                    end;
-                until ValueEntry.Next() = 0;
+        if ValueEntry.FindSet() then
+            repeat
+                if ValueEntry.IsDebit() then begin
+                    DebitQuantity := DebitQuantity + ValueEntry."Invoiced Quantity";
+                    DebitCost := DebitCost + ValueEntry."Cost Amount (Actual)";
+                end else begin
+                    CreditQuantity := CreditQuantity - ValueEntry."Invoiced Quantity";
+                    CreditCost := CreditCost - ValueEntry."Cost Amount (Actual)";
+                end;
+            until ValueEntry.Next() = 0;
     end;
 
     local procedure EnterCell(RowNo: Integer; ColumnNo: Integer; CellValue: Text[1024]; Bold: Boolean; Italic: Boolean; UnderLine: Boolean)

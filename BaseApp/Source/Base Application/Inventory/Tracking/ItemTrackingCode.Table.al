@@ -1,4 +1,4 @@
-namespace Microsoft.Inventory.Tracking;
+﻿namespace Microsoft.Inventory.Tracking;
 
 using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Item;
@@ -15,6 +15,7 @@ table 6502 "Item Tracking Code"
     DataCaptionFields = "Code", Description;
     DrillDownPageID = "Item Tracking Codes";
     LookupPageID = "Item Tracking Codes";
+    DataClassification = CustomerContent;
 
     fields
     {

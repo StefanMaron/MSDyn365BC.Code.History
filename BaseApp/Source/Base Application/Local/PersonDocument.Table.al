@@ -2,6 +2,7 @@ table 17352 "Person Document"
 {
     Caption = 'Person Document';
     LookupPageID = "Person Documents";
+    DataClassification = CustomerContent;
 
     fields
     {

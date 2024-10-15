@@ -212,7 +212,6 @@ page 26561 "Report Data Card"
     }
 
     var
-        StatutoryReport: Record "Statutory Report";
         StatutoryReportMgt: Codeunit "Statutory Report Management";
 }
 

@@ -49,8 +49,8 @@ codeunit 132472 "Payment Service Extension Mock"
         Customer: Record Customer;
         LastNo: Text;
     begin
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, PaymentServiceSetup.Name, 'Name was not set correctly');
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, PaymentServiceSetup.Description, 'Name was not set correctly');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), PaymentServiceSetup.Name, 'Name was not set correctly');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), PaymentServiceSetup.Description, 'Name was not set correctly');
         TempAccountPaymentServiceSetup.Reset();
         LastNo := TestServiceTemplateKeyTok;
 
@@ -60,10 +60,10 @@ codeunit 132472 "Payment Service Extension Mock"
 
         TempAccountPaymentServiceSetup.TransferFields(PaymentServiceSetup);
         TempAccountPaymentServiceSetup."No." := IncStr(LastNo);
-        TempAccountPaymentServiceSetup.Enabled := LibraryVariableStorage.DequeueBoolean;
+        TempAccountPaymentServiceSetup.Enabled := LibraryVariableStorage.DequeueBoolean();
         LibrarySales.CreateCustomer(Customer);
         TempAccountPaymentServiceSetup."Setup Record ID" := Customer.RecordId;
-        TempAccountPaymentServiceSetup."Always Include on Documents" := LibraryVariableStorage.DequeueBoolean;
+        TempAccountPaymentServiceSetup."Always Include on Documents" := LibraryVariableStorage.DequeueBoolean();
         TempAccountPaymentServiceSetup.Insert(true);
     end;
 
@@ -100,8 +100,8 @@ codeunit 132472 "Payment Service Extension Mock"
 
     procedure AssertQueuesEmpty()
     begin
-        LibraryVariableStorage.AssertEmpty;
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     procedure EnqueueForMockEvent(Variable: Variant)

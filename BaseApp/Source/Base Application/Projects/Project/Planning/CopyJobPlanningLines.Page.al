@@ -4,7 +4,7 @@ using Microsoft.Projects.Project.Job;
 
 page 1042 "Copy Job Planning Lines"
 {
-    Caption = 'Copy Job Planning Lines';
+    Caption = 'Copy Project Planning Lines';
     PageType = StandardDialog;
 
     layout
@@ -17,9 +17,9 @@ page 1042 "Copy Job Planning Lines"
                 field(SourceJobNo; SourceJobNo)
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Job No.';
+                    Caption = 'Project No.';
                     TableRelation = Job;
-                    ToolTip = 'Specifies the job number.';
+                    ToolTip = 'Specifies the project number.';
 
                     trigger OnValidate()
                     var
@@ -34,8 +34,8 @@ page 1042 "Copy Job Planning Lines"
                 field(SourceJobTaskNo; SourceJobTaskNo)
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Job Task No.';
-                    ToolTip = 'Specifies the job task number.';
+                    Caption = 'Project Task No.';
+                    ToolTip = 'Specifies the project task number.';
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -82,9 +82,9 @@ page 1042 "Copy Job Planning Lines"
                 field(TargetJobNo; TargetJobNo)
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Job No.';
+                    Caption = 'Project No.';
                     TableRelation = Job;
-                    ToolTip = 'Specifies the job number.';
+                    ToolTip = 'Specifies the project number.';
 
                     trigger OnValidate()
                     var
@@ -99,8 +99,8 @@ page 1042 "Copy Job Planning Lines"
                 field(TargetJobTaskNo; TargetJobTaskNo)
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Job Task No.';
-                    ToolTip = 'Specifies the job task number.';
+                    Caption = 'Project Task No.';
+                    ToolTip = 'Specifies the project task number.';
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -129,13 +129,13 @@ page 1042 "Copy Job Planning Lines"
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Copy Quantity';
-                    ToolTip = 'Specifies that the quantities will be copied to the new job.';
+                    ToolTip = 'Specifies that the quantities will be copied to the new project.';
                 }
                 field(CopyJobPrices; CopyJobPrices)
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Copy Job Prices';
-                    ToolTip = 'Specifies that item prices, resource prices, and G/L prices will be copied from the job that you specified on the Copy From FastTab.';
+                    Caption = 'Copy Project Prices';
+                    ToolTip = 'Specifies that item prices, resource prices, and G/L prices will be copied from the project that you specified on the Copy From FastTab.';
                 }
             }
         }
@@ -168,8 +168,8 @@ page 1042 "Copy Job Planning Lines"
         SourceJobTaskNo: Code[20];
         TargetJobNo: Code[20];
         TargetJobTaskNo: Code[20];
-        Text001: Label 'The job was successfully copied.';
-        Text003: Label '%1 %2 does not exist.', Comment = 'Job Task 1000 does not exist.';
+        Text001: Label 'The project was successfully copied.';
+        Text003: Label '%1 %2 does not exist.', Comment = 'Project Task 1000 does not exist.';
         PlanningLineType: Option "Budget+Billable",Budget,Billable;
         FromDate: Date;
         ToDate: Date;

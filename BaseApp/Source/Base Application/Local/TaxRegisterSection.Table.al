@@ -2,6 +2,7 @@ table 17207 "Tax Register Section"
 {
     Caption = 'Tax Register Section';
     LookupPageID = "Tax Register Sections";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -2,6 +2,7 @@ table 17312 "Tax Calc. Term Formula"
 {
     Caption = 'Tax Calc. Term Formula';
     LookupPageID = "Tax Calc. Term Lines";
+    DataClassification = CustomerContent;
 
     fields
     {

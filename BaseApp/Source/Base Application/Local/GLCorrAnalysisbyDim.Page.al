@@ -461,7 +461,6 @@ page 14940 "G/L Corr. Analysis by Dim."
     end;
 
     var
-        Text001: Label '<Sign><Integer Thousand><Decimals,2>', Locked = true;
         Text002: Label 'You have not yet defined an analysis view.';
         Text003: Label '%1 is not a valid line definition.';
         Text005: Label '1,6,,Debit Dimension 1 Filter';
@@ -692,15 +691,13 @@ page 14940 "G/L Corr. Analysis by Dim."
 
     local procedure CopyDimValueToBuf(var TheDimVal: Record "Dimension Value"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with TheDimCodeBuf do begin
-            Init();
-            Code := TheDimVal.Code;
-            Name := TheDimVal.Name;
-            Totaling := TheDimVal.Totaling;
-            Indentation := TheDimVal.Indentation;
-            "Show in Bold" :=
-              TheDimVal."Dimension Value Type" <> TheDimVal."Dimension Value Type"::Standard;
-        end;
+        TheDimCodeBuf.Init();
+        TheDimCodeBuf.Code := TheDimVal.Code;
+        TheDimCodeBuf.Name := TheDimVal.Name;
+        TheDimCodeBuf.Totaling := TheDimVal.Totaling;
+        TheDimCodeBuf.Indentation := TheDimVal.Indentation;
+        TheDimCodeBuf."Show in Bold" :=
+          TheDimVal."Dimension Value Type" <> TheDimVal."Dimension Value Type"::Standard;
     end;
 
     local procedure FindPeriod(SearchText: Code[10])
@@ -818,41 +815,39 @@ page 14940 "G/L Corr. Analysis by Dim."
     var
         DateFilter2: Text;
     begin
-        with TheGLCorrAnalysisViewEntry do begin
-            if DateFilter = '' then
-                DateFilter2 := ExcludeClosingDateFilter
+        if DateFilter = '' then
+            DateFilter2 := ExcludeClosingDateFilter
+        else begin
+            if AmountType = AmountType::"Net Change" then
+                DateFilter2 := DateFilter
             else begin
-                if AmountType = AmountType::"Net Change" then
-                    DateFilter2 := DateFilter
-                else begin
-                    SetFilter("Posting Date", DateFilter);
-                    DateFilter2 := StrSubstNo('..%1', GetRangeMax("Posting Date"));
-                end;
-                if ExcludeClosingDateFilter <> '' then
-                    DateFilter2 := DateFilter2 + '&' + ExcludeClosingDateFilter;
+                TheGLCorrAnalysisViewEntry.SetFilter("Posting Date", DateFilter);
+                DateFilter2 := StrSubstNo('..%1', TheGLCorrAnalysisViewEntry.GetRangeMax("Posting Date"));
             end;
-            Reset();
-            SetRange("G/L Corr. Analysis View Code", GLCorrAnalysisView.Code);
-            if BusUnitFilter <> '' then
-                SetFilter("Business Unit Code", BusUnitFilter);
-            if DebitAccFilter <> '' then
-                SetFilter("Debit Account No.", DebitAccFilter);
-            if CreditAccFilter <> '' then
-                SetFilter("Credit Account No.", CreditAccFilter);
-            SetFilter("Posting Date", DateFilter2);
-            if DebitDim1Filter <> '' then
-                SetFilter("Debit Dimension 1 Value Code", DebitDim1Filter);
-            if DebitDim2Filter <> '' then
-                SetFilter("Debit Dimension 2 Value Code", DebitDim2Filter);
-            if DebitDim3Filter <> '' then
-                SetFilter("Debit Dimension 3 Value Code", DebitDim3Filter);
-            if CreditDim1Filter <> '' then
-                SetFilter("Credit Dimension 1 Value Code", CreditDim1Filter);
-            if CreditDim2Filter <> '' then
-                SetFilter("Credit Dimension 2 Value Code", CreditDim2Filter);
-            if CreditDim3Filter <> '' then
-                SetFilter("Credit Dimension 3 Value Code", CreditDim3Filter);
+            if ExcludeClosingDateFilter <> '' then
+                DateFilter2 := DateFilter2 + '&' + ExcludeClosingDateFilter;
         end;
+        TheGLCorrAnalysisViewEntry.Reset();
+        TheGLCorrAnalysisViewEntry.SetRange("G/L Corr. Analysis View Code", GLCorrAnalysisView.Code);
+        if BusUnitFilter <> '' then
+            TheGLCorrAnalysisViewEntry.SetFilter("Business Unit Code", BusUnitFilter);
+        if DebitAccFilter <> '' then
+            TheGLCorrAnalysisViewEntry.SetFilter("Debit Account No.", DebitAccFilter);
+        if CreditAccFilter <> '' then
+            TheGLCorrAnalysisViewEntry.SetFilter("Credit Account No.", CreditAccFilter);
+        TheGLCorrAnalysisViewEntry.SetFilter("Posting Date", DateFilter2);
+        if DebitDim1Filter <> '' then
+            TheGLCorrAnalysisViewEntry.SetFilter("Debit Dimension 1 Value Code", DebitDim1Filter);
+        if DebitDim2Filter <> '' then
+            TheGLCorrAnalysisViewEntry.SetFilter("Debit Dimension 2 Value Code", DebitDim2Filter);
+        if DebitDim3Filter <> '' then
+            TheGLCorrAnalysisViewEntry.SetFilter("Debit Dimension 3 Value Code", DebitDim3Filter);
+        if CreditDim1Filter <> '' then
+            TheGLCorrAnalysisViewEntry.SetFilter("Credit Dimension 1 Value Code", CreditDim1Filter);
+        if CreditDim2Filter <> '' then
+            TheGLCorrAnalysisViewEntry.SetFilter("Credit Dimension 2 Value Code", CreditDim2Filter);
+        if CreditDim3Filter <> '' then
+            TheGLCorrAnalysisViewEntry.SetFilter("Credit Dimension 3 Value Code", CreditDim3Filter);
     end;
 
     local procedure SetDimFilters(var TheGLCorrAnalysisViewEntry: Record "G/L Corr. Analysis View Entry"; DimOption: Option "Debit Dimension 1","Debit Dimension 2","Debit Dimension 3","Credit Dimension 1","Credit Dimension 2","Credit Dimension 3")

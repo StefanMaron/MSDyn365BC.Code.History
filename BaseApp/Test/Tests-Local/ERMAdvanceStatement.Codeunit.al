@@ -80,7 +80,7 @@ codeunit 144707 "ERM Advance Statement"
         // [GIVEN] Invoice "X2" with "Empl. Purch" = Yes
         MockPurchInvoice(AdvStPurchHeader, true);
         // [WHEN] Open "Purchase Invoices" page
-        PurchInvoices.OpenView;
+        PurchInvoices.OpenView();
         // [THEN] "Purchase Invoices" page contains Invoice "X1"
         PurchInvoices.GotoRecord(InvPurchHeader);
         // [THEN] "Purchase Invoices" page does not contain Invoice "X2"
@@ -211,8 +211,8 @@ codeunit 144707 "ERM Advance Statement"
         GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"Bank Account";
         GenJournalBatch.Modify(true);
         LibraryERM.CreateGeneralJnlLineWithBalAcc(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name,
-          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
-          GenJournalLine."Bal. Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo, LibraryRandom.RandDec(1000, 2));
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
+          GenJournalLine."Bal. Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo(), LibraryRandom.RandDec(1000, 2));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -226,7 +226,7 @@ codeunit 144707 "ERM Advance Statement"
         PurchaseHeader.Modify(true);
 
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithPurchSetup, 1);
+          LibraryERM.CreateGLAccountWithPurchSetup(), 1);
         PurchaseLine."Direct Unit Cost" := Amount;
         PurchaseLine.Modify(true);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -239,7 +239,7 @@ codeunit 144707 "ERM Advance Statement"
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         PurchaseHeader.SetRecFilter();
         AdvanceStatement.SetTableView(PurchaseHeader);
-        AdvanceStatement.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        AdvanceStatement.SetFileNameSilent(LibraryReportValidation.GetFileName());
         AdvanceStatement.UseRequestPage(false);
         AdvanceStatement.Run();
     end;
@@ -252,7 +252,7 @@ codeunit 144707 "ERM Advance Statement"
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         PurchInvHeader.SetRange("No.", DocumentNo);
         PostedAdvanceStatement.SetTableView(PurchInvHeader);
-        PostedAdvanceStatement.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        PostedAdvanceStatement.SetFileNameSilent(LibraryReportValidation.GetFileName());
         PostedAdvanceStatement.UseRequestPage(false);
         PostedAdvanceStatement.Run();
     end;

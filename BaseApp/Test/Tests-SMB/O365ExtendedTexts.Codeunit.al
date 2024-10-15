@@ -236,28 +236,28 @@ codeunit 138005 "O365 ExtendedTexts"
         Language.FindFirst();
         CreateLanguageSpecificExtendedTextHeader(ExtendedTextHeader, EntendedTableNameTextType::Item, Item."No.");
         Assert.AreEqual(
-          ExtendedTextHeader.GetCaption,
+          ExtendedTextHeader.GetCaption(),
           CalculateCaption(Item."No.", Item.Description, Language.Code, ExtendedTextHeader."Text No."),
           'Caption is broken');
 
         LibraryResource.CreateResourceNew(Resource);
         CreateLanguageSpecificExtendedTextHeader(ExtendedTextHeader, EntendedTableNameTextType::Resource, Resource."No.");
         Assert.AreEqual(
-          ExtendedTextHeader.GetCaption,
+          ExtendedTextHeader.GetCaption(),
           CalculateCaption(Resource."No.", Resource.Name, Language.Code, ExtendedTextHeader."Text No."),
           'Caption is broken');
 
         LibraryERM.CreateGLAccount(GLAccount);
         CreateLanguageSpecificExtendedTextHeader(ExtendedTextHeader, EntendedTableNameTextType::"G/L Account", GLAccount."No.");
         Assert.AreEqual(
-          ExtendedTextHeader.GetCaption,
+          ExtendedTextHeader.GetCaption(),
           CalculateCaption(GLAccount."No.", GLAccount.Name, Language.Code, ExtendedTextHeader."Text No."),
           'Caption is broken');
 
         // Blank std txt
         CreateLanguageSpecificExtendedTextHeader(ExtendedTextHeader, EntendedTableNameTextType::"Standard Text", '');
         Assert.AreEqual(
-          ExtendedTextHeader.GetCaption,
+          ExtendedTextHeader.GetCaption(),
           CalculateCaption('', '', Language.Code, ExtendedTextHeader."Text No."),
           'Caption is broken');
     end;

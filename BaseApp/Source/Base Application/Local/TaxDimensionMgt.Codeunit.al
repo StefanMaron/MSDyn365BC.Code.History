@@ -14,8 +14,6 @@ codeunit 17202 "Tax Dimension Mgt."
         Text1004: Label 'Entry %1 %2\Debit %3 Credit %4';
         Text1005: Label '\\Skip?';
         TempDimBuf2: Record "Dimension Buffer" temporary;
-        GLSetup: Record "General Ledger Setup";
-        GLSetupReady: Boolean;
         Text1006: Label 'Entry %1 %2 Debit %3';
         Text1007: Label 'Entry %1 %2 Credit %3';
         Text1008: Label 'Entry %1 %2 Line %3';
@@ -263,16 +261,14 @@ codeunit 17202 "Tax Dimension Mgt."
         TaxReg: Record "Tax Register";
         MessageText: Text[250];
     begin
-        with TaxRegEntrySetup do begin
-            MessageText :=
-              StrSubstNo(Text1008,
-                TaxReg.TableCaption(), "Tax Register No.", "Line No.");
-            TaxRegDimFilter.SetRange("Section Code", "Section Code");
-            TaxRegDimFilter.SetRange("Tax Register No.", "Tax Register No.");
-            TaxRegDimFilter.SetRange(Define, TaxRegDimFilter.Define::"Entry Setup");
-            TaxRegDimFilter.SetRange("Line No.", "Line No.");
-            exit(CheckSetupDimFilters(TaxRegDimFilter, MessageText))
-        end;
+        MessageText :=
+          StrSubstNo(Text1008,
+            TaxReg.TableCaption(), TaxRegEntrySetup."Tax Register No.", TaxRegEntrySetup."Line No.");
+        TaxRegDimFilter.SetRange("Section Code", TaxRegEntrySetup."Section Code");
+        TaxRegDimFilter.SetRange("Tax Register No.", TaxRegEntrySetup."Tax Register No.");
+        TaxRegDimFilter.SetRange(Define, TaxRegDimFilter.Define::"Entry Setup");
+        TaxRegDimFilter.SetRange("Line No.", TaxRegEntrySetup."Line No.");
+        exit(CheckSetupDimFilters(TaxRegDimFilter, MessageText))
     end;
 
     [Scope('OnPrem')]

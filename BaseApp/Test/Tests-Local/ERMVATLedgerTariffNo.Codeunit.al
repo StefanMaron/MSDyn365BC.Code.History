@@ -8,7 +8,6 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
 
     var
         LibraryVATLedger: Codeunit "Library - VAT Ledger";
-        LibraryRUReports: Codeunit "Library RU Reports";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
@@ -35,7 +34,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
 
         // [THEN] Page "VAT Ledger Line Tariff No." has been opened and "Tariff No." = ""
         VATLedgerLineTariffNo."Tariff No.".AssertEquals('');
-        Assert.IsFalse(VATLedgerLineTariffNo.Editable, '');
+        Assert.IsFalse(VATLedgerLineTariffNo.Editable(), '');
     end;
 
     [Test]
@@ -103,7 +102,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
 
         // [THEN] Page "VAT Ledger Line Tariff No." has been opened and "Tariff No." = ""
         VATLedgerLineTariffNo."Tariff No.".AssertEquals('');
-        Assert.IsFalse(VATLedgerLineTariffNo.Editable, '');
+        Assert.IsFalse(VATLedgerLineTariffNo.Editable(), '');
     end;
 
     [Test]
@@ -301,7 +300,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         // [GIVEN] VAT Ledger Line
         LibraryVATLedger.MockCustomerVATLedgerLine(VATLedgerLine, CustomerNo);
         DocumentNo := LibraryVATLedger.MockSalesInvHeader(CustomerNo, '');
-        TariffNo := LibraryVATLedger.MockTariffNo;
+        TariffNo := LibraryVATLedger.MockTariffNo();
         LibraryVATLedger.MockCustomerValueEntryWithTariffNo(CustomerNo, DocumentNo, TariffNo);
 
         // [WHEN] Run COD 12423 "VAT Ledger Management".InsertVATLedgerLineTariffNoList() for the given VAT Ledger Line using "Origin. Document No." = "D"
@@ -333,9 +332,9 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         // [GIVEN] VAT Ledger Line
         LibraryVATLedger.MockCustomerVATLedgerLine(VATLedgerLine, CustomerNo);
         DocumentNo := LibraryVATLedger.MockSalesInvHeader(CustomerNo, '');
-        TariffNo[1] := LibraryVATLedger.MockTariffNo;
+        TariffNo[1] := LibraryVATLedger.MockTariffNo();
         LibraryVATLedger.MockCustomerValueEntryWithTariffNo(CustomerNo, DocumentNo, TariffNo[1]);
-        TariffNo[2] := LibraryVATLedger.MockTariffNo;
+        TariffNo[2] := LibraryVATLedger.MockTariffNo();
         LibraryVATLedger.MockCustomerValueEntryWithTariffNo(CustomerNo, DocumentNo, TariffNo[2]);
 
         // [WHEN] Run COD 12423 "VAT Ledger Management".InsertVATLedgerLineTariffNoList() for the given VAT Ledger Line using "Origin. Document No." = "D"
@@ -367,7 +366,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         // [GIVEN] VAT Ledger Line
         LibraryVATLedger.MockCustomerVATLedgerLine(VATLedgerLine, CustomerNo);
         DocumentNo := LibraryVATLedger.MockSalesInvHeader(CustomerNo, '');
-        TariffNo := LibraryVATLedger.MockTariffNo;
+        TariffNo := LibraryVATLedger.MockTariffNo();
         LibraryVATLedger.MockCustomerValueEntryWithTariffNo(CustomerNo, DocumentNo, TariffNo);
         LibraryVATLedger.MockCustomerValueEntryWithTariffNo(CustomerNo, DocumentNo, TariffNo);
 
@@ -402,7 +401,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         LibraryVATLedger.MockCustomerVATLedgerLine(VATLedgerLine, CustomerNo);
         DocumentNo := LibraryVATLedger.MockSalesInvHeader(CustomerNo, '');
         for i := 1 to ArrayLen(TariffNo) do begin
-            TariffNo[i] := LibraryVATLedger.MockTariffNo;
+            TariffNo[i] := LibraryVATLedger.MockTariffNo();
             LibraryVATLedger.MockCustomerValueEntryWithTariffNo(CustomerNo, DocumentNo, TariffNo[i]);
             LibraryVATLedger.MockCustomerValueEntryWithTariffNo(CustomerNo, DocumentNo, TariffNo[i]);
         end;
@@ -914,7 +913,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         if IsInitialized then
             exit;
 
-        LibraryVATLedger.UpdateCompanyInformationEAEU;
+        LibraryVATLedger.UpdateCompanyInformationEAEU();
 
         IsInitialized := true;
     end;
@@ -923,7 +922,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
     begin
         LibraryVATLedger.MockPurchaseVATEntry(DocumentNo, VendorNo);
 
-        TariffNo := LibraryVATLedger.MockTariffNo;
+        TariffNo := LibraryVATLedger.MockTariffNo();
         LibraryVATLedger.MockVendorValueEntryWithTariffNo(VendorNo, DocumentNo, TariffNo);
     end;
 
@@ -934,7 +933,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         LibraryVATLedger.MockPurchaseVATEntry(DocumentNo, VendorNo);
 
         for i := 1 to ArrayLen(TariffNo) do begin
-            TariffNo[i] := LibraryVATLedger.MockTariffNo;
+            TariffNo[i] := LibraryVATLedger.MockTariffNo();
             LibraryVATLedger.MockVendorValueEntryWithTariffNo(VendorNo, DocumentNo, TariffNo[i]);
         end;
     end;
@@ -943,7 +942,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
     begin
         LibraryVATLedger.MockSalesVATEntry(DocumentNo, CustomerNo);
 
-        TariffNo := LibraryVATLedger.MockTariffNo;
+        TariffNo := LibraryVATLedger.MockTariffNo();
         LibraryVATLedger.MockCustomerValueEntryWithTariffNo(CustomerNo, DocumentNo, TariffNo);
     end;
 
@@ -954,7 +953,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         LibraryVATLedger.MockSalesVATEntry(DocumentNo, CustomerNo);
 
         for i := 1 to ArrayLen(TariffNo) do begin
-            TariffNo[i] := LibraryVATLedger.MockTariffNo;
+            TariffNo[i] := LibraryVATLedger.MockTariffNo();
             LibraryVATLedger.MockCustomerValueEntryWithTariffNo(CustomerNo, DocumentNo, TariffNo[i]);
         end;
     end;
@@ -963,7 +962,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
     begin
         LibraryVATLedger.MockPurchaseVATEntryAddSheet(DocumentNo, VendorNo);
 
-        TariffNo := LibraryVATLedger.MockTariffNo;
+        TariffNo := LibraryVATLedger.MockTariffNo();
         LibraryVATLedger.MockVendorValueEntryWithTariffNo(VendorNo, DocumentNo, TariffNo);
     end;
 
@@ -974,7 +973,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         LibraryVATLedger.MockPurchaseVATEntryAddSheet(DocumentNo, VendorNo);
 
         for i := 1 to ArrayLen(TariffNo) do begin
-            TariffNo[i] := LibraryVATLedger.MockTariffNo;
+            TariffNo[i] := LibraryVATLedger.MockTariffNo();
             LibraryVATLedger.MockVendorValueEntryWithTariffNo(VendorNo, DocumentNo, TariffNo[i]);
         end;
     end;
@@ -983,7 +982,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
     begin
         LibraryVATLedger.MockSalesVATEntryAddSheet(DocumentNo, CustomerNo);
 
-        TariffNo := LibraryVATLedger.MockTariffNo;
+        TariffNo := LibraryVATLedger.MockTariffNo();
         LibraryVATLedger.MockCustomerValueEntryWithTariffNo(CustomerNo, DocumentNo, TariffNo);
     end;
 
@@ -994,7 +993,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         LibraryVATLedger.MockSalesVATEntryAddSheet(DocumentNo, CustomerNo);
 
         for i := 1 to ArrayLen(TariffNo) do begin
-            TariffNo[i] := LibraryVATLedger.MockTariffNo;
+            TariffNo[i] := LibraryVATLedger.MockTariffNo();
             LibraryVATLedger.MockCustomerValueEntryWithTariffNo(CustomerNo, DocumentNo, TariffNo[i]);
         end;
     end;
@@ -1007,10 +1006,10 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         LibraryVATLedger.MockVATLedger(VATLedger, VATLedger.Type::Purchase);
 
         LibraryVATLedger.MockVATLedgerLineForTheGivenVATLedger(VATLedgerLine, VATLedger, false);
-        LibraryVATLedger.MockVATLedgerLineTariffNo(VATLedgerLine, LibraryVATLedger.MockTariffNo);
+        LibraryVATLedger.MockVATLedgerLineTariffNo(VATLedgerLine, LibraryVATLedger.MockTariffNo());
 
         LibraryVATLedger.MockVATLedgerLineForTheGivenVATLedger(VATLedgerLine, VATLedger, true);
-        LibraryVATLedger.MockVATLedgerLineTariffNo(VATLedgerLine, LibraryVATLedger.MockTariffNo);
+        LibraryVATLedger.MockVATLedgerLineTariffNo(VATLedgerLine, LibraryVATLedger.MockTariffNo());
 
         VATLedgerLine.SetRange(Type, VATLedger.Type);
         VATLedgerLine.SetRange(Code, VATLedger.Code);
@@ -1024,14 +1023,14 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
     local procedure MockVendorVATLedgerLineWithTwoTariffNo(var VATLedgerLine: Record "VAT Ledger Line"; var TariffNo: array[2] of Code[20])
     begin
         MockVATLedgerLineWithTwoTariffNo(
-          VATLedgerLine, TariffNo, VATLedgerLine.Type::Purchase, VATLedgerLine."C/V Type"::Vendor, LibraryVATLedger.MockVendorNo);
+          VATLedgerLine, TariffNo, VATLedgerLine.Type::Purchase, VATLedgerLine."C/V Type"::Vendor, LibraryVATLedger.MockVendorNo());
     end;
 
     local procedure MockCustomerVATLedgerLineWithTwoTariffNo(var VATLedgerLine: Record "VAT Ledger Line"; var TariffNo: array[2] of Code[20])
     begin
         MockVATLedgerLineWithTwoTariffNo(
           VATLedgerLine, TariffNo, VATLedgerLine.Type::Sales,
-          VATLedgerLine."C/V Type"::Customer, LibraryVATLedger.MockCustomerNo(LibraryVATLedger.MockCountryEAEU));
+          VATLedgerLine."C/V Type"::Customer, LibraryVATLedger.MockCustomerNo(LibraryVATLedger.MockCountryEAEU()));
     end;
 
     local procedure MockVATLedgerLineWithTwoTariffNo(var VATLedgerLine: Record "VAT Ledger Line"; var TariffNo: array[2] of Code[20]; Type: Option; CVType: Option; CVNo: Code[20])
@@ -1040,7 +1039,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
     begin
         LibraryVATLedger.MockVATLedgerLine(VATLedgerLine, Type, CVType, CVNo);
         for i := 1 to ArrayLen(TariffNo) do begin
-            TariffNo[i] := LibraryVATLedger.MockTariffNo;
+            TariffNo[i] := LibraryVATLedger.MockTariffNo();
             LibraryVATLedger.MockVATLedgerLineTariffNo(VATLedgerLine, TariffNo[i]);
         end;
     end;
@@ -1058,20 +1057,20 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
     var
         VATPurchaseLedgerSubform: TestPage "VAT Purchase Ledger Subform";
     begin
-        VATPurchaseLedgerSubform.OpenView;
+        VATPurchaseLedgerSubform.OpenView();
         VATPurchaseLedgerSubform.GotoRecord(VATLedgerLine);
-        VATLedgerLineTariffNo.Trap;
-        VATPurchaseLedgerSubform."Tariff No.".Lookup;
+        VATLedgerLineTariffNo.Trap();
+        VATPurchaseLedgerSubform."Tariff No.".Lookup();
     end;
 
     local procedure LookupSalesVATLedgerLineTariffNoField(var VATLedgerLineTariffNo: TestPage "VAT Ledger Line Tariff No."; VATLedgerLine: Record "VAT Ledger Line")
     var
         VATSalesLedgerSubform: TestPage "VAT Sales Ledger Subform";
     begin
-        VATSalesLedgerSubform.OpenView;
+        VATSalesLedgerSubform.OpenView();
         VATSalesLedgerSubform.GotoRecord(VATLedgerLine);
-        VATLedgerLineTariffNo.Trap;
-        VATSalesLedgerSubform."Tariff No.".Lookup;
+        VATLedgerLineTariffNo.Trap();
+        VATSalesLedgerSubform."Tariff No.".Lookup();
     end;
 
     local procedure VerifyVATLedgerLine(VATLedgerLine: Record "VAT Ledger Line"; ExpectedDocumentNo: Code[20]; ExpectedTariffNo: Code[20]; ExpectedAddSheet: Boolean)
@@ -1121,10 +1120,10 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
     var
         TariffNo: array[2] of Code[20];
     begin
-        TariffNo[1] := VATLedgerLineTariffNo."Tariff No.".Value;
+        TariffNo[1] := VATLedgerLineTariffNo."Tariff No.".Value();
         VATLedgerLineTariffNo.Next();
-        TariffNo[2] := VATLedgerLineTariffNo."Tariff No.".Value;
-        Assert.IsFalse(VATLedgerLineTariffNo.Next, '');
+        TariffNo[2] := VATLedgerLineTariffNo."Tariff No.".Value();
+        Assert.IsFalse(VATLedgerLineTariffNo.Next(), '');
         VerifyTwoVATLedgerLineTariffNo(VATLedgerLine, TariffNo);
     end;
 }

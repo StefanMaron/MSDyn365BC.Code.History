@@ -1,6 +1,7 @@
 table 26568 "Statutory Report Buffer"
 {
     Caption = 'Statutory Report Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

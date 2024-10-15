@@ -1,6 +1,7 @@
 table 17305 "Tax Diff. Journal Line"
 {
     Caption = 'Tax Diff. Journal Line';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -441,7 +442,6 @@ table 17305 "Tax Diff. Journal Line"
         DimMgt: Codeunit DimensionManagement;
         Text1000: Label ' cannot be negative';
         Text1001: Label '%1 can be defined than %2=0 and %3=0 only.';
-        NoSeriesMgt: Codeunit NoSeriesManagement;
 
     local procedure UpdateAmount()
     begin
@@ -641,6 +641,7 @@ table 17305 "Tax Diff. Journal Line"
         TaxDiffJnlTemplate: Record "Tax Diff. Journal Template";
         TaxDiffJnlBatch: Record "Tax Diff. Journal Batch";
         TaxDiffJnlLine: Record "Tax Diff. Journal Line";
+        NoSeries: Codeunit "No. Series";
     begin
         TaxDiffJnlTemplate.Get("Journal Template Name");
         TaxDiffJnlBatch.Get("Journal Template Name", "Journal Batch Name");
@@ -651,10 +652,8 @@ table 17305 "Tax Diff. Journal Line"
             "Document No." := LastTaxDiffJnlLine."Document No.";
         end else begin
             "Posting Date" := WorkDate();
-            if TaxDiffJnlBatch."No. Series" <> '' then begin
-                Clear(NoSeriesMgt);
-                "Document No." := NoSeriesMgt.TryGetNextNo(TaxDiffJnlBatch."No. Series", "Posting Date");
-            end;
+            if TaxDiffJnlBatch."No. Series" <> '' then
+                "Document No." := NoSeries.PeekNextNo(TaxDiffJnlBatch."No. Series", "Posting Date");
         end;
         "Source Code" := TaxDiffJnlTemplate."Source Code";
         "Reason Code" := TaxDiffJnlBatch."Reason Code";

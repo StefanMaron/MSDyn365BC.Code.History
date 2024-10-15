@@ -655,7 +655,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
             "External Document No." := LibraryUtility.GenerateGUID();
             Validate("Prepayment Document No.", PrepmtDocNo);
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
             Modify(true);
         end;
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -732,12 +732,12 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
             SalesHeader."Document Type"::Invoice:
                 begin
                     SalesLine.Validate("Unit Price (After)", SalesLine."Unit Price (Before)" + 250);
-                    SalesLine.Modify
+                    SalesLine.Modify();
                 end;
             SalesHeader."Document Type"::"Credit Memo":
                 begin
                     SalesLine.Validate("Unit Price (After)", SalesLine."Unit Price (Before)" - 250);
-                    SalesLine.Modify
+                    SalesLine.Modify();
                 end;
         end;
     end;
@@ -844,7 +844,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
     local procedure CreateCustomerGLAccount(var CustomerNo: Code[20]; var GLAccountNo: Code[20])
     begin
         CustomerNo := LibrarySales.CreateCustomerNo();
-        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
     end;
 
     local procedure Initialize()

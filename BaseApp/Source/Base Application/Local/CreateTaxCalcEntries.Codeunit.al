@@ -1,4 +1,4 @@
-codeunit 17305 "Create Tax Calc. Entries"
+﻿codeunit 17305 "Create Tax Calc. Entries"
 {
     TableNo = "Tax Calc. G/L Entry";
 
@@ -75,26 +75,22 @@ codeunit 17305 "Create Tax Calc. Entries"
                                           GLCorrAnalysisView,
                                           TaxCalcSelectionSetup,
                                           TaxCalcLine);
-                                        with TaxCalcSelectionSetup do begin
-                                            if "Account No." <> '' then
-                                                GLCorrAnalysisViewEntry.SetFilter("Debit Account No.", "Account No.");
-                                            if "Bal. Account No." <> '' then
-                                                GLCorrAnalysisViewEntry.SetFilter("Credit Account No.", "Bal. Account No.");
-                                            GLCorrAnalysisViewEntry.CalcSums(Amount);
-                                            TempTaxCalcLine.Value := TempTaxCalcLine.Value + GLCorrAnalysisViewEntry.Amount;
-                                        end;
+                                        if TaxCalcSelectionSetup."Account No." <> '' then
+                                            GLCorrAnalysisViewEntry.SetFilter("Debit Account No.", TaxCalcSelectionSetup."Account No.");
+                                        if TaxCalcSelectionSetup."Bal. Account No." <> '' then
+                                            GLCorrAnalysisViewEntry.SetFilter("Credit Account No.", TaxCalcSelectionSetup."Bal. Account No.");
+                                        GLCorrAnalysisViewEntry.CalcSums(Amount);
+                                        TempTaxCalcLine.Value := TempTaxCalcLine.Value + GLCorrAnalysisViewEntry.Amount;
                                     end else begin
                                         GLCorrEntry.Reset();
                                         GLCorrEntry.SetCurrentKey("Debit Account No.", "Credit Account No.");
                                         GLCorrEntry.SetRange("Posting Date", DateBegin, DateEnd);
-                                        with TaxCalcSelectionSetup do begin
-                                            if "Account No." <> '' then
-                                                GLCorrEntry.SetFilter("Debit Account No.", "Account No.");
-                                            if "Bal. Account No." <> '' then
-                                                GLCorrEntry.SetFilter("Credit Account No.", "Bal. Account No.");
-                                            GLCorrEntry.CalcSums(Amount);
-                                            TempTaxCalcLine.Value := TempTaxCalcLine.Value + GLCorrEntry.Amount;
-                                        end;
+                                        if TaxCalcSelectionSetup."Account No." <> '' then
+                                            GLCorrEntry.SetFilter("Debit Account No.", TaxCalcSelectionSetup."Account No.");
+                                        if TaxCalcSelectionSetup."Bal. Account No." <> '' then
+                                            GLCorrEntry.SetFilter("Credit Account No.", TaxCalcSelectionSetup."Bal. Account No.");
+                                        GLCorrEntry.CalcSums(Amount);
+                                        TempTaxCalcLine.Value := TempTaxCalcLine.Value + GLCorrEntry.Amount;
                                     end;
                                 until TaxCalcSelectionSetup.Next() = 0;
                         end;
@@ -231,47 +227,45 @@ codeunit 17305 "Create Tax Calc. Entries"
     begin
         TaxCalcCorrEntry := TaxCalcCorrespEntry;
         TmpTaxCalcDimFilter.Reset();
-        with TaxCalcCorrespEntry do begin
-            SetRange("Section Code", "Section Code");
-            SetRange("Debit Account No.", "Debit Account No.");
-            SetRange("Credit Account No.", "Credit Account No.");
-            if not FindLast() then begin
-                "Tax Register ID Totaling" := '';
-                "Where Used Register IDs" := '~';
-                Insert(true);
-            end;
+        TaxCalcCorrespEntry.SetRange("Section Code", TaxCalcCorrespEntry."Section Code");
+        TaxCalcCorrespEntry.SetRange("Debit Account No.", TaxCalcCorrespEntry."Debit Account No.");
+        TaxCalcCorrespEntry.SetRange("Credit Account No.", TaxCalcCorrespEntry."Credit Account No.");
+        if not TaxCalcCorrespEntry.FindLast() then begin
+            TaxCalcCorrespEntry."Tax Register ID Totaling" := '';
+            TaxCalcCorrespEntry."Where Used Register IDs" := '~';
+            TaxCalcCorrespEntry.Insert(true);
+        end;
 
-            if StrPos("Where Used Register IDs", '~' + TaxCalcCorrEntry."Tax Register ID Totaling" + '~') = 0 then
-                "Where Used Register IDs" :=
-                  StrSubstNo('%1%2~', "Where Used Register IDs", TaxCalcCorrEntry."Tax Register ID Totaling")
-            else begin
-                if TaxCalcCorrEntry."Starting Date" < "Starting Date" then
-                    "Starting Date" := TaxCalcCorrEntry."Starting Date";
-                if "Ending Date" < TaxCalcCorrEntry."Ending Date" then
-                    "Ending Date" := TaxCalcCorrEntry."Ending Date";
-            end;
-            if TmpTaxCalcDimFilter.FindSet() then begin
-                if StrPos("Tax Register ID Totaling", '~' + TaxCalcCorrEntry."Tax Register ID Totaling" + '~') <> 0 then
-                    Error(Text21000901);
-                case CheckDimValueFilter(TmpTaxCalcDimFilter, "Entry No.", TaxCalcNo, TaxCalcSelectionSetupLineNo) of
-                    -1:
-                        Error(Text21000902, TaxCalcHeader.TableCaption(), TaxCalcNo, TaxCalcSelectionSetupLineNo);
-                    1:
+        if StrPos(TaxCalcCorrespEntry."Where Used Register IDs", '~' + TaxCalcCorrEntry."Tax Register ID Totaling" + '~') = 0 then
+            TaxCalcCorrespEntry."Where Used Register IDs" :=
+              StrSubstNo('%1%2~', TaxCalcCorrespEntry."Where Used Register IDs", TaxCalcCorrEntry."Tax Register ID Totaling")
+        else begin
+            if TaxCalcCorrEntry."Starting Date" < TaxCalcCorrespEntry."Starting Date" then
+                TaxCalcCorrespEntry."Starting Date" := TaxCalcCorrEntry."Starting Date";
+            if TaxCalcCorrespEntry."Ending Date" < TaxCalcCorrEntry."Ending Date" then
+                TaxCalcCorrespEntry."Ending Date" := TaxCalcCorrEntry."Ending Date";
+        end;
+        if TmpTaxCalcDimFilter.FindSet() then begin
+            if StrPos(TaxCalcCorrespEntry."Tax Register ID Totaling", '~' + TaxCalcCorrEntry."Tax Register ID Totaling" + '~') <> 0 then
+                Error(Text21000901);
+            case CheckDimValueFilter(TmpTaxCalcDimFilter, TaxCalcCorrespEntry."Entry No.", TaxCalcNo, TaxCalcSelectionSetupLineNo) of
+                -1:
+                    Error(Text21000902, TaxCalcHeader.TableCaption(), TaxCalcNo, TaxCalcSelectionSetupLineNo);
+                1:
                     repeat
                         TaxCalcDimFilter := TmpTaxCalcDimFilter;
-                        TaxCalcDimFilter."Corresp. Entry No." := "Entry No.";
+                        TaxCalcDimFilter."Corresp. Entry No." := TaxCalcCorrespEntry."Entry No.";
                         TaxCalcDimFilter.Insert();
                     until TmpTaxCalcDimFilter.Next() = 0;
-                end;
-            end else begin
-                if "Tax Register ID Totaling" = '' then
-                    "Tax Register ID Totaling" := '~';
-                if StrPos("Tax Register ID Totaling", '~' + TaxCalcCorrEntry."Tax Register ID Totaling" + '~') = 0 then
-                    "Tax Register ID Totaling" :=
-                      StrSubstNo('%1%2~', "Tax Register ID Totaling", TaxCalcCorrEntry."Tax Register ID Totaling");
             end;
-            Modify();
+        end else begin
+            if TaxCalcCorrespEntry."Tax Register ID Totaling" = '' then
+                TaxCalcCorrespEntry."Tax Register ID Totaling" := '~';
+            if StrPos(TaxCalcCorrespEntry."Tax Register ID Totaling", '~' + TaxCalcCorrEntry."Tax Register ID Totaling" + '~') = 0 then
+                TaxCalcCorrespEntry."Tax Register ID Totaling" :=
+                  StrSubstNo('%1%2~', TaxCalcCorrespEntry."Tax Register ID Totaling", TaxCalcCorrEntry."Tax Register ID Totaling");
         end;
+        TaxCalcCorrespEntry.Modify();
         TaxCalcCorrespEntry := TaxCalcCorrEntry;
     end;
 
@@ -369,12 +363,10 @@ codeunit 17305 "Create Tax Calc. Entries"
         TaxCalcEntry.SetRange("Ending Date", EndDate);
 
         LinkAccumulateRecordRef.Open(DATABASE::"Tax Calc. Accumulation");
-        with TaxCalcAccumul do begin
-            SetCurrentKey("Section Code", "Register No.", "Template Line No.");
-            SetRange("Section Code", SectionCode);
-            SetRange("Ending Date", EndDate);
-            LinkAccumulateRecordRef.SetView(GetView(false));
-        end;
+        TaxCalcAccumul.SetCurrentKey("Section Code", "Register No.", "Template Line No.");
+        TaxCalcAccumul.SetRange("Section Code", SectionCode);
+        TaxCalcAccumul.SetRange("Ending Date", EndDate);
+        LinkAccumulateRecordRef.SetView(TaxCalcAccumul.GetView(false));
 
         TaxCalcSelectionSetup.Reset();
         TaxCalcSelectionSetup.SetRange("Section Code", SectionCode);

@@ -27,24 +27,22 @@ report 789 "Delete Phys. Inventory Ledger"
                     InvtPeriod.ShowError("Posting Date");
 
                 PhysInvtLedgEntry2 := "Phys. Inventory Ledger Entry";
-                with PhysInvtLedgEntry2 do begin
-                    SetCurrentKey("Item No.", "Variant Code", "Location Code", "Posting Date");
-                    CopyFilters("Phys. Inventory Ledger Entry");
-                    SetRange("Item No.", "Item No.");
-                    SetFilter("Posting Date", DateComprMgt.GetDateFilter("Posting Date", EntrdDateComprReg, true));
-                    SetRange("Inventory Posting Group", "Inventory Posting Group");
-                    SetRange("Entry Type", "Entry Type");
+                PhysInvtLedgEntry2.SetCurrentKey("Item No.", "Variant Code", "Location Code", "Posting Date");
+                PhysInvtLedgEntry2.CopyFilters("Phys. Inventory Ledger Entry");
+                PhysInvtLedgEntry2.SetRange("Item No.", PhysInvtLedgEntry2."Item No.");
+                PhysInvtLedgEntry2.SetFilter("Posting Date", DateComprMgt.GetDateFilter(PhysInvtLedgEntry2."Posting Date", EntrdDateComprReg, true));
+                PhysInvtLedgEntry2.SetRange("Inventory Posting Group", PhysInvtLedgEntry2."Inventory Posting Group");
+                PhysInvtLedgEntry2.SetRange("Entry Type", PhysInvtLedgEntry2."Entry Type");
 
-                    Window.Update(1);
-                    Window.Update(2);
+                Window.Update(1);
+                Window.Update(2);
 
-                    Delete();
+                PhysInvtLedgEntry2.Delete();
 
-                    InvtPeriodEntry.RemoveItemRegNo("Entry No.", true);
+                InvtPeriodEntry.RemoveItemRegNo(PhysInvtLedgEntry2."Entry No.", true);
 
-                    NoOfDeleted := NoOfDeleted + 1;
-                    Window.Update(3);
-                end;
+                NoOfDeleted := NoOfDeleted + 1;
+                Window.Update(3);
 
                 if NoOfDeleted >= LastNoOfDeleted + 10 then begin
                     LastNoOfDeleted := NoOfDeleted;

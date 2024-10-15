@@ -2,6 +2,7 @@ table 12403 "Gen. Journal Line Archive"
 {
     Caption = 'Gen. Journal Line Archive';
     LookupPageID = "Posted Gen. Journals";
+    DataClassification = CustomerContent;
 
     fields
     {

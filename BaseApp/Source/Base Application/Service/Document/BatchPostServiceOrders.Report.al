@@ -1,6 +1,7 @@
 namespace Microsoft.Service.Document;
 
 using Microsoft.Sales.Setup;
+using System.Security.User;
 using Microsoft.Service.Posting;
 using System.Environment;
 
@@ -68,6 +69,7 @@ report 6001 "Batch Post Service Orders"
                     field(Invoice; InvReq)
                     {
                         ApplicationArea = Service;
+                        Editable = PostInvoiceEditable;
                         Caption = 'Invoice';
                         ToolTip = 'Specifies if the orders are invoiced when posted. If you select this check box, it applies to all the orders that are posted.';
                     }
@@ -118,9 +120,16 @@ report 6001 "Batch Post Service Orders"
         trigger OnOpenPage()
         var
             ClientTypeManagement: Codeunit "Client Type Management";
+            UserSetupManagement: Codeunit "User Setup Management";
+            Ship, Consume, Invoice : Boolean;
         begin
             if ClientTypeManagement.GetCurrentClientType() <> ClientType::Background then
                 InitValues();
+
+            UserSetupManagement.GetServiceInvoicePostingPolicy(Ship, Consume, Invoice);
+            if Ship then
+                InvReq := Invoice;
+            PostInvoiceEditable := not Ship;
         end;
     }
 
@@ -153,6 +162,7 @@ report 6001 "Batch Post Service Orders"
         ReplacePostingDate: Boolean;
         ReplaceDocumentDate: Boolean;
         CalcInvDisc: Boolean;
+        PostInvoiceEditable: Boolean;
 
         Text000: Label 'Enter the posting date.';
         Text001: Label 'Posting orders  #1########## @2@@@@@@@@@@@@@';
@@ -208,7 +218,7 @@ report 6001 "Batch Post Service Orders"
         exit(ServPost.Run(ServiceHeader));
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterPostReport(var ServiceHeader: Record "Service Header")
     begin
     end;
@@ -218,7 +228,7 @@ report 6001 "Batch Post Service Orders"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforePreReport()
     begin
     end;

@@ -31,12 +31,12 @@ codeunit 147130 "ERM Sales VAT Ledger"
     begin
         // [SCENARIO] Sales VAT Ledger Line is created when run REP12456 "Create VAT Sales Ledger" for customer
         Initialize();
-        LibraryRUReports.UpdateCompanyInfo;
+        LibraryRUReports.UpdateCompanyInfo();
         LibraryRUReports.CreateCustomer(Customer);
 
         // [GIVEN] Posted VAT Entry for customer "C" with "Full Name" = "X" (250 chars length), "VAT Registration No." = "Y", "KPP Code" = "Z"
         LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019());
         MockSaleVATEntry(VATPostingSetup, Customer."No.", WorkDate(), WorkDate());
 
         // [WHEN] Run "Create VAT Sales Ledger" report for customer "C"
@@ -63,12 +63,12 @@ codeunit 147130 "ERM Sales VAT Ledger"
         // [FEATURE] [Purchase] [Prepayment]
         // [SCENARIO] Sales VAT Ledger Line is created when run REP12456 "Create VAT Sales Ledger" for vendor with "Prepayment" vat entry
         Initialize();
-        LibraryRUReports.UpdateCompanyInfo;
+        LibraryRUReports.UpdateCompanyInfo();
         LibraryRUReports.CreateVendor(Vendor);
 
         // [GIVEN] Posted prepayment VAT Entry for vendor "V"
         LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019());
         CreatePurchPrepmtVATEntry(VATEntry, VATPostingSetup, Vendor."No.", WorkDate(), WorkDate());
 
         // [WHEN] Run "Create VAT Sales Ledger" report for vendor "V"
@@ -101,7 +101,7 @@ codeunit 147130 "ERM Sales VAT Ledger"
 
         // [GIVEN] Posted "Credit Memo" VAT Entry for vendor "V" with "Full Name" = "X", "VAT Registration No." = "Y", "KPP Code" = "Z"
         LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019());
         CreatePurchReturnVATEntry(VATPostingSetup, VendorNo, WorkDate(), WorkDate());
 
         // [WHEN] Run "Create VAT Sales Ledger" report for vendor "V"
@@ -128,7 +128,7 @@ codeunit 147130 "ERM Sales VAT Ledger"
         Initialize();
 
         LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019());
         VendorNo := LibraryPurchase.CreateVendorNo();
         CreatePurchVATReinstVATEntry(VATPostingSetup, VendorNo, WorkDate(), WorkDate());
 
@@ -151,12 +151,12 @@ codeunit 147130 "ERM Sales VAT Ledger"
         // [FEATURE] [Purchase] [VAT Agent]
         // [SCENARIO] Sales VAT Ledger Line is created when run REP12456 "Create VAT Sales Ledger" for "VAT Agent" vendor
         Initialize();
-        LibraryRUReports.UpdateCompanyInfo;
+        LibraryRUReports.UpdateCompanyInfo();
         LibraryRUReports.CreateVendor(Vendor);
 
         // [GIVEN] Posted VAT Entry for "VAT Agent" vendor "V"
         LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019());
         CreateVATAgentVATEntry(VATEntry, VATPostingSetup, Vendor."No.", WorkDate(), WorkDate());
 
         // [WHEN] Run "Create VAT Sales Ledger" report for vendor "V"
@@ -186,7 +186,7 @@ codeunit 147130 "ERM Sales VAT Ledger"
         Initialize();
 
         LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019());
         VendorNo := LibraryPurchase.CreateVendorNo();
         CreateRevisionVATEntry(VATPostingSetup, VendorNo, WorkDate(), WorkDate());
 
@@ -217,7 +217,7 @@ codeunit 147130 "ERM Sales VAT Ledger"
 
         // [GIVEN] VAT Sales Ledger with 2 posted documents "X1" and "X2"
         LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019());
         CustomerNo := LibrarySales.CreateCustomerNo();
         Count := LibraryRandom.RandIntInRange(5, 10);
         for Index := 1 to Count do
@@ -226,14 +226,14 @@ codeunit 147130 "ERM Sales VAT Ledger"
         VATLedger.Get(VATLedger.Type::Sales, LibrarySales.CreateSalesVATLedger(WorkDate(), WorkDate(), CustomerNo));
 
         // [GIVEN] Selected second line for document "X2"
-        VATSalesLedgerCard.OpenView;
+        VATSalesLedgerCard.OpenView();
         VATSalesLedgerCard.GotoRecord(VATLedger);
-        VATSalesLedgerCard.SalesSubform.Last;
-        DocumentNo := VATSalesLedgerCard.SalesSubform."Document No.".Value;
+        VATSalesLedgerCard.SalesSubform.Last();
+        DocumentNo := VATSalesLedgerCard.SalesSubform."Document No.".Value();
 
         // [WHEN] Click "Navigate" on "Sales VAT Ledger" card
-        Navigate.Trap;
-        VATSalesLedgerCard."&Navigate".Invoke; // Navigate
+        Navigate.Trap();
+        VATSalesLedgerCard."&Navigate".Invoke(); // Navigate
 
         // [THEN] Navigate window show information for document "X2"
         Navigate.DocNoFilter.AssertEquals(DocumentNo);
@@ -255,7 +255,7 @@ codeunit 147130 "ERM Sales VAT Ledger"
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
         CustomerNo := LibrarySales.CreateCustomerNo();
-        InsertSaleVATEntryWithVATAmount(VATEntry, VATPostingSetup, CustomerNo, WorkDate(), WorkDate, LibraryRandom.RandInt(1000), 0);
+        InsertSaleVATEntryWithVATAmount(VATEntry, VATPostingSetup, CustomerNo, WorkDate(), WorkDate(), LibraryRandom.RandInt(1000), 0);
 
         // [WHEN] Create sales VAT ledger
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(WorkDate(), WorkDate(), CustomerNo);
@@ -281,7 +281,7 @@ codeunit 147130 "ERM Sales VAT Ledger"
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
         CustomerNo := LibrarySales.CreateCustomerNo();
-        InsertSaleVATEntryWithVATAmount(VATEntry, VATPostingSetup, CustomerNo, WorkDate(), WorkDate, LibraryRandom.RandInt(1000), 0);
+        InsertSaleVATEntryWithVATAmount(VATEntry, VATPostingSetup, CustomerNo, WorkDate(), WorkDate(), LibraryRandom.RandInt(1000), 0);
         VATEntry.Prepayment := true;
         VATEntry.Modify();
 
@@ -307,7 +307,7 @@ codeunit 147130 "ERM Sales VAT Ledger"
 
         // [GIVEN] Post sales prepayment entry with unrealized VAT
         LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019());
         CustomerNo := LibrarySales.CreateCustomerNo();
         CreateUnrealizedSalesPrepmtVATEntry(VATEntry, VATPostingSetup, CustomerNo, WorkDate(), WorkDate());
 
@@ -334,9 +334,9 @@ codeunit 147130 "ERM Sales VAT Ledger"
 
         // [GIVEN] Create VAT entry with 2 posted documents with lines VAT different setup
         LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup[1], VATPostingSetup[1]."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
+          VATPostingSetup[1], VATPostingSetup[1]."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019());
         LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup[2], VATPostingSetup[2]."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
+          VATPostingSetup[2], VATPostingSetup[2]."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019());
         CustomerNo := LibrarySales.CreateCustomerNo();
 
         DocumentNo[1] := LibraryUtility.GenerateRandomCode(VATEntry.FieldNo("Document No."), DATABASE::"VAT Entry");
@@ -370,12 +370,12 @@ codeunit 147130 "ERM Sales VAT Ledger"
         // [FEATURE] [UI]
         // [SCENARIO 303035] Sales VAT Ledger has visible fields Total Base20, Total Amount20
         Initialize();
-        LibraryApplicationArea.EnableBasicSetup;
-        LibraryRUReports.UpdateCompanyInfo;
+        LibraryApplicationArea.EnableBasicSetup();
+        LibraryRUReports.UpdateCompanyInfo();
         LibraryRUReports.CreateCustomer(Customer);
 
         LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019());
         MockSaleVATEntry(VATPostingSetup, Customer."No.", WorkDate(), WorkDate());
         VATLedgerCode := LibrarySales.CreateSalesVATLedger(WorkDate(), WorkDate(), Customer."No.");
         VATLedger.Get(VATLedger.Type::Sales, VATLedgerCode);
@@ -383,10 +383,10 @@ codeunit 147130 "ERM Sales VAT Ledger"
         Base20 := LibraryRandom.RandDec(1000, 2);
         Amount20 := LibraryRandom.RandDec(1000, 2);
 
-        VATSalesLedgerCard.Trap;
+        VATSalesLedgerCard.Trap();
         PAGE.Run(PAGE::"VAT Sales Ledger Card", VATLedger);
-        Assert.IsTrue(VATSalesLedgerCard."Tot Base20 Amt VAT Sales Ledg".Visible, '"Tot Base20 Amt VAT Sales Ledg" should be visible');
-        Assert.IsTrue(VATSalesLedgerCard."Total VAT20 Amt VAT Sales Ledg".Visible, '"Total VAT20 Amt VAT Sales Ledg" should be visible');
+        Assert.IsTrue(VATSalesLedgerCard."Tot Base20 Amt VAT Sales Ledg".Visible(), '"Tot Base20 Amt VAT Sales Ledg" should be visible');
+        Assert.IsTrue(VATSalesLedgerCard."Total VAT20 Amt VAT Sales Ledg".Visible(), '"Total VAT20 Amt VAT Sales Ledg" should be visible');
         VATSalesLedgerCard."Tot Base20 Amt VAT Sales Ledg".SetValue(Base20);
         VATSalesLedgerCard."Total VAT20 Amt VAT Sales Ledg".SetValue(Amount20);
         VATSalesLedgerCard.Close();

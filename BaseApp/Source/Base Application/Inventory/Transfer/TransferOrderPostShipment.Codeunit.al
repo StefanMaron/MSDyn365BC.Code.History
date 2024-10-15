@@ -24,7 +24,11 @@ using System.Utilities;
 
 codeunit 5704 "TransferOrder-Post Shipment"
 {
-    Permissions = TableData "Item Entry Relation" = i;
+    Permissions =
+                tabledata "G/L Entry" = r,
+                tabledata "Item Entry Relation" = i,
+                tabledata "Transfer Shipment Header" = ri,
+                tabledata "Transfer Shipment Line" = rim;
     TableNo = "Transfer Header";
 
     trigger OnRun()
@@ -55,149 +59,145 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
             OnBeforeTransferOrderPostShipment(TransHeader, SuppressCommit);
 
-            with TransHeader do begin
-                CheckBeforePost();
+            TransHeader.CheckBeforePost();
 
-                WhseReference := "Posting from Whse. Ref.";
-                "Posting from Whse. Ref." := 0;
+            WhseReference := TransHeader."Posting from Whse. Ref.";
+            TransHeader."Posting from Whse. Ref." := 0;
 
-                CheckShippingAdvice(TransHeader);
+            CheckShippingAdvice(TransHeader);
 
-                CheckDim();
-                CheckLines(TransHeader, TransLine);
+            CheckDim();
+            CheckLines(TransHeader, TransLine);
 
-                WhseShip := TempWhseShptHeader.FindFirst();
-                InvtPickPutaway := WhseReference <> 0;
-                CheckItemInInventoryAndWarehouse(TransLine, not (WhseShip or InvtPickPutaway));
+            WhseShip := TempWhseShptHeader.FindFirst();
+            InvtPickPutaway := WhseReference <> 0;
+            CheckItemInInventoryAndWarehouse(TransLine, not (WhseShip or InvtPickPutaway));
 
-                CheckTransferLines(true);
+            TransHeader.CheckTransferLines(true);
 
-                GetLocation("Transfer-from Code");
-                if Location."Bin Mandatory" and not (WhseShip or InvtPickPutaway) then
-                    WhsePosting := true;
+            GetLocation(TransHeader."Transfer-from Code");
+            if Location."Bin Mandatory" and not (WhseShip or InvtPickPutaway) then
+                WhsePosting := true;
 
-                if GuiAllowed then begin
-                    Window.Open(
-                      '#1#################################\\' +
-                      Text003);
+            if GuiAllowed then begin
+                Window.Open(
+                  '#1#################################\\' +
+                  Text003);
 
-                    Window.Update(1, StrSubstNo(Text004, "No."));
-                end;
-
-                SourceCodeSetup.Get();
-                SourceCode := SourceCodeSetup.Transfer;
-                InvtSetup.Get();
-                InvtSetup.TestField("Posted Transfer Shpt. Nos.");
-
-                CheckInvtPostingSetup();
-                OnAfterCheckInvtPostingSetup(TransHeader, TempWhseShptHeader, SourceCode);
-
-                LockTables(InvtSetup."Automatic Cost Posting");
-
-                // Insert shipment header
-                PostedWhseShptHeader.LockTable();
-                TransShptHeader.LockTable();
-                InsertTransShptHeader(TransShptHeader, TransHeader, InvtSetup."Posted Transfer Shpt. Nos.");
-
-                if InvtSetup."Copy Comments Order to Shpt." then begin
-                    InvtCommentLine.CopyCommentLines(
-                        "Inventory Comment Document Type"::"Transfer Order", "No.",
-                        "Inventory Comment Document Type"::"Posted Transfer Shipment", TransShptHeader."No.");
-                    RecordLinkManagement.CopyLinks(TransferHeader2, TransShptHeader);
-                end;
-
-                if WhseShip then begin
-                    WhseShptHeader.Get(TempWhseShptHeader."No.");
-                    WhsePostShpt.CreatePostedShptHeader(PostedWhseShptHeader, WhseShptHeader, TransShptHeader."No.", "Posting Date");
-                end;
-
-                // Insert shipment lines
-                OnRunOnBeforeInsertShipmentLines(WhseShptHeader, WhseShptLine);
-                LineCount := 0;
-                if WhseShip then
-                    PostedWhseShptLine.LockTable();
-                if InvtPickPutaway then
-                    WhseRqst.LockTable();
-                TransShptLine.LockTable();
-                TransLine.SetRange(Quantity);
-                TransLine.SetRange("Qty. to Ship");
-                OnRunOnAfterTransLineSetFiltersForShptLines(TransLine, TransHeader, Location, WhseShip);
-                if TransLine.Find('-') then
-                    repeat
-                        LineCount := LineCount + 1;
-                        if GuiAllowed then
-                            Window.Update(2, LineCount);
-
-                        if (TransLine."Item No." <> '') and (TransLine."Qty. to Ship" <> 0) then begin
-                            Item.Get(TransLine."Item No.");
-                            CheckItemNotBlocked(Item);
-
-                            if TransLine."Variant Code" <> '' then begin
-                                ItemVariant.Get(TransLine."Item No.", TransLine."Variant Code");
-                                CheckItemVariantNotBlocked(ItemVariant);
-                            end;
-                        end;
-
-                        OnCheckTransLine(TransLine, TransHeader, Location, WhseShip, TransShptLine, InvtPickPutaway, WhsePosting);
-
-                        InsertTransShptLine(TransShptHeader);
-                    until TransLine.Next() = 0;
-
-                MakeInventoryAdjustment();
-
-                if WhseShip then
-                    WhseShptLine.LockTable();
-                TransLine.LockTable();
-
-                OnBeforeCopyTransLines(TransHeader);
-
-                TransLine.SetFilter(Quantity, '<>0');
-                TransLine.SetFilter("Qty. to Ship", '<>0');
-                OnAfterSetFilterTransferLine(TransLine);
-                if TransLine.Find('-') then begin
-                    NextLineNo := AssignLineNo(TransLine."Document No.");
-                    repeat
-                        IsHandled := false;
-                        OnBeforeTransLineModify(TransLine, IsHandled);
-                        if not IsHandled then begin
-                            CopyTransLine(TransLine2, TransLine, NextLineNo, TransHeader);
-                            TransferTracking(TransLine, TransLine2, TransLine."Qty. to Ship (Base)");
-                            TransLine.Validate("Quantity Shipped", TransLine."Quantity Shipped" + TransLine."Qty. to Ship");
-                            SetDerivedNoOnTransShptLine(TransLine, TransLine2);
-
-                            OnBeforeUpdateWithWarehouseShipReceive(TransLine);
-                            TransLine.UpdateWithWarehouseShipReceive();
-                            TransLine.Modify();
-                        end;
-                        OnAfterTransLineModify(TransLine, TransHeader);
-                    until TransLine.Next() = 0;
-                end;
-
-                OnRunOnBeforeLockTables(ItemJnlPostLine);
-                if WhseShip then
-                    WhseShptLine.LockTable();
-                LockTable();
-                if WhseShip then begin
-                    WhsePostShpt.PostUpdateWhseDocuments(WhseShptHeader);
-                    TempWhseShptHeader.Delete();
-                end;
-
-                "Last Shipment No." := TransShptHeader."No.";
-                Modify();
-
-                FinalizePosting(TransHeader, TransLine);
-
-                OnRunOnBeforeCommit(TransHeader, TransShptHeader, PostedWhseShptHeader, SuppressCommit);
-                if not (InvtPickPutaway or "Direct Transfer" or SuppressCommit or PreviewMode) then begin
-                    Commit();
-                    UpdateAnalysisView.UpdateAll(0, true);
-                    UpdateItemAnalysisView.UpdateAll(0, true);
-                end;
-                Clear(WhsePostShpt);
-
-                if GuiAllowed() then
-                    Window.Close();
+                Window.Update(1, StrSubstNo(Text004, TransHeader."No."));
             end;
+
+            SourceCodeSetup.Get();
+            SourceCode := SourceCodeSetup.Transfer;
+            InvtSetup.Get();
+            InvtSetup.TestField("Posted Transfer Shpt. Nos.");
+
+            TransHeader.CheckInvtPostingSetup();
+            OnAfterCheckInvtPostingSetup(TransHeader, TempWhseShptHeader, SourceCode);
+
+            LockTables(InvtSetup."Automatic Cost Posting");
+            // Insert shipment header
+            PostedWhseShptHeader.LockTable();
+            TransShptHeader.LockTable();
+            InsertTransShptHeader(TransShptHeader, TransHeader, InvtSetup."Posted Transfer Shpt. Nos.");
+
+            if InvtSetup."Copy Comments Order to Shpt." then begin
+                InvtCommentLine.CopyCommentLines(
+                    "Inventory Comment Document Type"::"Transfer Order", TransHeader."No.",
+                    "Inventory Comment Document Type"::"Posted Transfer Shipment", TransShptHeader."No.");
+                RecordLinkManagement.CopyLinks(TransferHeader2, TransShptHeader);
+            end;
+
+            if WhseShip then begin
+                WhseShptHeader.Get(TempWhseShptHeader."No.");
+                WhsePostShpt.CreatePostedShptHeader(PostedWhseShptHeader, WhseShptHeader, TransShptHeader."No.", TransHeader."Posting Date");
+            end;
+            // Insert shipment lines
+            OnRunOnBeforeInsertShipmentLines(WhseShptHeader, WhseShptLine);
+            LineCount := 0;
+            if WhseShip then
+                PostedWhseShptLine.LockTable();
+            if InvtPickPutaway then
+                WhseRqst.LockTable();
+            TransShptLine.LockTable();
+            TransLine.SetRange(Quantity);
+            TransLine.SetRange("Qty. to Ship");
+            OnRunOnAfterTransLineSetFiltersForShptLines(TransLine, TransHeader, Location, WhseShip);
+            if TransLine.Find('-') then
+                repeat
+                    LineCount := LineCount + 1;
+                    if GuiAllowed then
+                        Window.Update(2, LineCount);
+
+                    if (TransLine."Item No." <> '') and (TransLine."Qty. to Ship" <> 0) then begin
+                        Item.Get(TransLine."Item No.");
+                        CheckItemNotBlocked(Item);
+
+                        if TransLine."Variant Code" <> '' then begin
+                            ItemVariant.Get(TransLine."Item No.", TransLine."Variant Code");
+                            CheckItemVariantNotBlocked(ItemVariant);
+                        end;
+                    end;
+
+                    OnCheckTransLine(TransLine, TransHeader, Location, WhseShip, TransShptLine, InvtPickPutaway, WhsePosting);
+
+                    InsertTransShptLine(TransShptHeader);
+                until TransLine.Next() = 0;
+
+            MakeInventoryAdjustment();
+
+            if WhseShip then
+                WhseShptLine.LockTable();
+            TransLine.LockTable();
+
+            OnBeforeCopyTransLines(TransHeader);
+
+            TransLine.SetFilter(Quantity, '<>0');
+            TransLine.SetFilter("Qty. to Ship", '<>0');
+            OnAfterSetFilterTransferLine(TransLine);
+            if TransLine.Find('-') then begin
+                NextLineNo := AssignLineNo(TransLine."Document No.");
+                repeat
+                    IsHandled := false;
+                    OnBeforeTransLineModify(TransLine, IsHandled);
+                    if not IsHandled then begin
+                        CopyTransLine(TransLine2, TransLine, NextLineNo, TransHeader);
+                        TransferTracking(TransLine, TransLine2, TransLine."Qty. to Ship (Base)");
+                        TransLine.Validate("Quantity Shipped", TransLine."Quantity Shipped" + TransLine."Qty. to Ship");
+                        SetDerivedNoOnTransShptLine(TransLine, TransLine2);
+
+                        OnBeforeUpdateWithWarehouseShipReceive(TransLine);
+                        TransLine.UpdateWithWarehouseShipReceive();
+                        TransLine.Modify();
+                    end;
+                    OnAfterTransLineModify(TransLine, TransHeader);
+                until TransLine.Next() = 0;
+            end;
+
+            OnRunOnBeforeLockTables(ItemJnlPostLine);
+            if WhseShip then
+                WhseShptLine.LockTable();
+            TransHeader.LockTable();
+            if WhseShip then begin
+                WhsePostShpt.PostUpdateWhseDocuments(WhseShptHeader);
+                TempWhseShptHeader.Delete();
+            end;
+
+            TransHeader."Last Shipment No." := TransShptHeader."No.";
+            TransHeader.Modify();
+
+            FinalizePosting(TransHeader, TransLine);
+
+            OnRunOnBeforeCommit(TransHeader, TransShptHeader, PostedWhseShptHeader, SuppressCommit);
+            if not (InvtPickPutaway or TransHeader."Direct Transfer" or SuppressCommit or PreviewMode) then begin
+                Commit();
+                UpdateAnalysisView.UpdateAll(0, true);
+                UpdateItemAnalysisView.UpdateAll(0, true);
+            end;
+            Clear(WhsePostShpt);
+
+            if GuiAllowed() then
+                Window.Close();
 
             TransferHeader2 := TransHeader;
         end;
@@ -264,48 +264,46 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
     local procedure CreateItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; TransferLine: Record "Transfer Line"; TransShptHeader2: Record "Transfer Shipment Header"; TransShptLine2: Record "Transfer Shipment Line")
     begin
-        with ItemJnlLine do begin
-            Init();
-            CopyDocumentFields(
-              "Document Type"::"Transfer Shipment", TransShptHeader2."No.", TransShptHeader2."External Document No.", SourceCode, '');
-            "Posting Date" := TransShptHeader2."Posting Date";
-            "Document Date" := TransShptHeader2."Posting Date";
-            "Document Line No." := TransShptLine2."Line No.";
-            "Order Type" := "Order Type"::Transfer;
-            "Order No." := TransShptHeader2."Transfer Order No.";
-            "Order Line No." := TransferLine."Line No.";
-            "Entry Type" := "Entry Type"::Transfer;
-            "Item No." := TransShptLine2."Item No.";
-            "Variant Code" := TransShptLine2."Variant Code";
-            Description := TransShptLine2.Description;
-            "Location Code" := TransShptHeader2."Transfer-from Code";
-            "New Location Code" := TransHeader."In-Transit Code";
-            "Bin Code" := TransLine."Transfer-from Bin Code";
-            "Shortcut Dimension 1 Code" := TransShptLine2."Shortcut Dimension 1 Code";
-            "New Shortcut Dimension 1 Code" := TransShptLine2."Shortcut Dimension 1 Code";
-            "Shortcut Dimension 2 Code" := TransShptLine2."Shortcut Dimension 2 Code";
-            "New Shortcut Dimension 2 Code" := TransShptLine2."Shortcut Dimension 2 Code";
-            "Dimension Set ID" := TransShptLine2."Dimension Set ID";
-            "New Dimension Set ID" := TransShptLine2."Dimension Set ID";
-            Quantity := TransShptLine2.Quantity;
-            "Invoiced Quantity" := TransShptLine2.Quantity;
-            "Quantity (Base)" := TransShptLine2."Quantity (Base)";
-            "Invoiced Qty. (Base)" := TransShptLine2."Quantity (Base)";
-            "Gen. Prod. Posting Group" := TransShptLine2."Gen. Prod. Posting Group";
-            "Inventory Posting Group" := TransShptLine2."Inventory Posting Group";
-            "Unit of Measure Code" := TransShptLine2."Unit of Measure Code";
-            "Qty. per Unit of Measure" := TransShptLine2."Qty. per Unit of Measure";
-            "Country/Region Code" := TransShptHeader2."Trsf.-from Country/Region Code";
-            "Transaction Type" := TransShptHeader2."Transaction Type";
-            "Transport Method" := TransShptHeader2."Transport Method";
-            "Entry/Exit Point" := TransShptHeader2."Entry/Exit Point";
-            Area := TransShptHeader2.Area;
-            "Transaction Specification" := TransShptHeader2."Transaction Specification";
-            "Item Category Code" := TransferLine."Item Category Code";
-            "Applies-to Entry" := TransferLine."Appl.-to Item Entry";
-            "Shpt. Method Code" := TransShptHeader2."Shipment Method Code";
-            "Direct Transfer" := TransferLine."Direct Transfer";
-        end;
+        ItemJnlLine.Init();
+        ItemJnlLine.CopyDocumentFields(
+          ItemJnlLine."Document Type"::"Transfer Shipment", TransShptHeader2."No.", TransShptHeader2."External Document No.", SourceCode, '');
+        ItemJnlLine."Posting Date" := TransShptHeader2."Posting Date";
+        ItemJnlLine."Document Date" := TransShptHeader2."Posting Date";
+        ItemJnlLine."Document Line No." := TransShptLine2."Line No.";
+        ItemJnlLine."Order Type" := ItemJnlLine."Order Type"::Transfer;
+        ItemJnlLine."Order No." := TransShptHeader2."Transfer Order No.";
+        ItemJnlLine."Order Line No." := TransferLine."Line No.";
+        ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::Transfer;
+        ItemJnlLine."Item No." := TransShptLine2."Item No.";
+        ItemJnlLine."Variant Code" := TransShptLine2."Variant Code";
+        ItemJnlLine.Description := TransShptLine2.Description;
+        ItemJnlLine."Location Code" := TransShptHeader2."Transfer-from Code";
+        ItemJnlLine."New Location Code" := TransHeader."In-Transit Code";
+        ItemJnlLine."Bin Code" := TransLine."Transfer-from Bin Code";
+        ItemJnlLine."Shortcut Dimension 1 Code" := TransShptLine2."Shortcut Dimension 1 Code";
+        ItemJnlLine."New Shortcut Dimension 1 Code" := TransShptLine2."Shortcut Dimension 1 Code";
+        ItemJnlLine."Shortcut Dimension 2 Code" := TransShptLine2."Shortcut Dimension 2 Code";
+        ItemJnlLine."New Shortcut Dimension 2 Code" := TransShptLine2."Shortcut Dimension 2 Code";
+        ItemJnlLine."Dimension Set ID" := TransShptLine2."Dimension Set ID";
+        ItemJnlLine."New Dimension Set ID" := TransShptLine2."Dimension Set ID";
+        ItemJnlLine.Quantity := TransShptLine2.Quantity;
+        ItemJnlLine."Invoiced Quantity" := TransShptLine2.Quantity;
+        ItemJnlLine."Quantity (Base)" := TransShptLine2."Quantity (Base)";
+        ItemJnlLine."Invoiced Qty. (Base)" := TransShptLine2."Quantity (Base)";
+        ItemJnlLine."Gen. Prod. Posting Group" := TransShptLine2."Gen. Prod. Posting Group";
+        ItemJnlLine."Inventory Posting Group" := TransShptLine2."Inventory Posting Group";
+        ItemJnlLine."Unit of Measure Code" := TransShptLine2."Unit of Measure Code";
+        ItemJnlLine."Qty. per Unit of Measure" := TransShptLine2."Qty. per Unit of Measure";
+        ItemJnlLine."Country/Region Code" := TransShptHeader2."Trsf.-from Country/Region Code";
+        ItemJnlLine."Transaction Type" := TransShptHeader2."Transaction Type";
+        ItemJnlLine."Transport Method" := TransShptHeader2."Transport Method";
+        ItemJnlLine."Entry/Exit Point" := TransShptHeader2."Entry/Exit Point";
+        ItemJnlLine."Area" := TransShptHeader2.Area;
+        ItemJnlLine."Transaction Specification" := TransShptHeader2."Transaction Specification";
+        ItemJnlLine."Item Category Code" := TransferLine."Item Category Code";
+        ItemJnlLine."Applies-to Entry" := TransferLine."Appl.-to Item Entry";
+        ItemJnlLine."Shpt. Method Code" := TransShptHeader2."Shipment Method Code";
+        ItemJnlLine."Direct Transfer" := TransferLine."Direct Transfer";
 
         OnAfterCreateItemJnlLine(ItemJnlLine, TransferLine, TransShptHeader2, TransShptLine2);
     end;
@@ -498,14 +496,14 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
     local procedure InsertTransShptHeader(var TransShptHeader: Record "Transfer Shipment Header"; var TransHeader: Record "Transfer Header"; NoSeries: Code[20])
     var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesCodeunit: Codeunit "No. Series";
     begin
         TransShptHeader.Init();
         TransShptHeader.CopyFromTransferHeader(TransHeader);
         TransShptHeader."No. Series" := NoSeries;
         OnBeforeGenNextNo(TransShptHeader, TransHeader);
         if TransShptHeader."No." = '' then
-            TransShptHeader."No." := NoSeriesMgt.GetNextNo(TransShptHeader."No. Series", TransHeader."Posting Date", true);
+            TransShptHeader."No." := NoSeriesCodeunit.GetNextNo(TransShptHeader."No. Series", TransHeader."Posting Date");
         OnBeforeInsertTransShptHeader(TransShptHeader, TransHeader, SuppressCommit);
         TransShptHeader.Insert();
         OnAfterInsertTransShptHeader(TransHeader, TransShptHeader);
@@ -653,23 +651,21 @@ codeunit 5704 "TransferOrder-Post Shipment"
         if IsHandled then
             exit;
 
-        with ItemJnlLine do begin
-            Quantity := OriginalQuantity;
-            "Quantity (Base)" := OriginalQuantityBase;
-            GetLocation("Location Code");
-            if Location."Bin Mandatory" then
-                if WMSMgmt.CreateWhseJnlLine(ItemJnlLine, 1, WhseJnlLine, false) then begin
-                    WMSMgmt.SetTransferLine(TransLine, WhseJnlLine, 0, TransShptHeader."No.");
-                    OnPostWhseJnlLineOnBeforeSplitWhseJnlLine();
-                    ItemTrackingMgt.SplitWhseJnlLine(
-                      WhseJnlLine, TempWhseJnlLine2, TempWhseSplitSpecification, true);
-                    if TempWhseJnlLine2.Find('-') then
-                        repeat
-                            WMSMgmt.CheckWhseJnlLine(TempWhseJnlLine2, 1, 0, true);
-                            WhseJnlRegisterLine.RegisterWhseJnlLine(TempWhseJnlLine2);
-                        until TempWhseJnlLine2.Next() = 0;
-                end;
-        end;
+        ItemJnlLine.Quantity := OriginalQuantity;
+        ItemJnlLine."Quantity (Base)" := OriginalQuantityBase;
+        GetLocation(ItemJnlLine."Location Code");
+        if Location."Bin Mandatory" then
+            if WMSMgmt.CreateWhseJnlLine(ItemJnlLine, 1, WhseJnlLine, false) then begin
+                WMSMgmt.SetTransferLine(TransLine, WhseJnlLine, 0, TransShptHeader."No.");
+                OnPostWhseJnlLineOnBeforeSplitWhseJnlLine();
+                ItemTrackingMgt.SplitWhseJnlLine(
+                  WhseJnlLine, TempWhseJnlLine2, TempWhseSplitSpecification, true);
+                if TempWhseJnlLine2.Find('-') then
+                    repeat
+                        WMSMgmt.CheckWhseJnlLine(TempWhseJnlLine2, 1, 0, true);
+                        WhseJnlRegisterLine.RegisterWhseJnlLine(TempWhseJnlLine2);
+                    until TempWhseJnlLine2.Next() = 0;
+            end;
     end;
 
     procedure SetWhseShptHeader(var WhseShptHeader2: Record "Warehouse Shipment Header")
@@ -704,14 +700,12 @@ codeunit 5704 "TransferOrder-Post Shipment"
         if IsHandled then
             exit;
 
-        with Item do begin
-            Get(TransLine."Item No.");
-            SetRange("Variant Filter", TransLine."Variant Code");
-            SetRange("Location Filter", TransLine."Transfer-from Code");
-            CalcFields(Inventory);
-            if Inventory <= 0 then
-                Error(Text009, TransLine."Item No.");
-        end;
+        Item.Get(TransLine."Item No.");
+        Item.SetRange("Variant Filter", TransLine."Variant Code");
+        Item.SetRange("Location Filter", TransLine."Transfer-from Code");
+        Item.CalcFields(Inventory);
+        if Item.Inventory <= 0 then
+            Error(Text009, TransLine."Item No.");
     end;
 
     local procedure CheckItemInInventoryAndWarehouse(var TransLine: Record "Transfer Line"; NeedCheckWarehouse: Boolean)
@@ -735,15 +729,13 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
     local procedure CheckLines(TransHeader: Record "Transfer Header"; var TransLine: Record "Transfer Line")
     begin
-        with TransHeader do begin
-            TransLine.Reset();
-            TransLine.SetRange("Document No.", "No.");
-            TransLine.SetRange("Derived From Line No.", 0);
-            TransLine.SetFilter(Quantity, '<>0');
-            TransLine.SetFilter("Qty. to Ship", '<>0');
-            if TransLine.IsEmpty() then
-                Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
-        end;
+        TransLine.Reset();
+        TransLine.SetRange("Document No.", TransHeader."No.");
+        TransLine.SetRange("Derived From Line No.", 0);
+        TransLine.SetFilter(Quantity, '<>0');
+        TransLine.SetFilter("Qty. to Ship", '<>0');
+        if TransLine.IsEmpty() then
+            Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
     local procedure CheckShippingAdvice(var TransferHeader: Record "Transfer Header")
@@ -833,7 +825,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
         SuppressCommit := NewSuppressCommit;
     end;
 
-    internal procedure SetPreviewMode(NewPreviewMode: Boolean)
+    procedure SetPreviewMode(NewPreviewMode: Boolean)
     begin
         PreviewMode := NewPreviewMode;
     end;

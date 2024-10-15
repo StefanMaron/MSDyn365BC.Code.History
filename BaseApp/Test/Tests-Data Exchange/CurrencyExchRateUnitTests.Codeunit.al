@@ -397,11 +397,11 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
         MockCurrExchRateUpdateSetup(CurrExchRateUpdateSetup, true);
 
         // [WHEN] Open page Curr. Exch. Rate Service Card for edit
-        CurrExchRateServiceCard.OpenEdit;
+        CurrExchRateServiceCard.OpenEdit();
         CurrExchRateServiceCard.GotoRecord(CurrExchRateUpdateSetup);
 
         // [THEN] All fields are not editable except for field Enabled on page Curr. Exch. Rate Service Card
-        Assert.IsTrue(CurrExchRateServiceCard.Enabled.Editable, '');
+        Assert.IsTrue(CurrExchRateServiceCard.Enabled.Editable(), '');
         VerifyFieldsNotEditableOnCurrExchRateServiceCard(CurrExchRateServiceCard);
         CurrExchRateServiceCard.Close();
     end;
@@ -422,11 +422,11 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
         MockCurrExchRateUpdateSetup(CurrExchRateUpdateSetup, false);
 
         // [WHEN] Open page Curr. Exch. Rate Service Card for edit
-        CurrExchRateServiceCard.OpenEdit;
+        CurrExchRateServiceCard.OpenEdit();
         CurrExchRateServiceCard.GotoRecord(CurrExchRateUpdateSetup);
 
         // [THEN] All fields are editable except for ShowEnableWarning on page Curr. Exch. Rate Service Card
-        Assert.IsFalse(CurrExchRateServiceCard.ShowEnableWarning.Editable, '');
+        Assert.IsFalse(CurrExchRateServiceCard.ShowEnableWarning.Editable(), '');
         VerifyFieldsEditableOnCurrExchRateServiceCard(CurrExchRateServiceCard);
         CurrExchRateServiceCard.Close();
     end;
@@ -446,11 +446,11 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
         MockCurrExchRateUpdateSetup(CurrExchRateUpdateSetup, true);
 
         // [WHEN] Open page Curr. Exch. Rate Service Card in view mode
-        CurrExchRateServiceCard.OpenView;
+        CurrExchRateServiceCard.OpenView();
         CurrExchRateServiceCard.GotoRecord(CurrExchRateUpdateSetup);
 
         // [THEN] All fields aren't editable on page Curr. Exch. Rate Service Card
-        Assert.IsFalse(CurrExchRateServiceCard.Enabled.Editable, '');
+        Assert.IsFalse(CurrExchRateServiceCard.Enabled.Editable(), '');
         VerifyFieldsNotEditableOnCurrExchRateServiceCard(CurrExchRateServiceCard);
         CurrExchRateServiceCard.Close();
     end;
@@ -471,11 +471,11 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
         MockCurrExchRateUpdateSetup(CurrExchRateUpdateSetup, false);
 
         // [WHEN] Open page Curr. Exch. Rate Service Card in view mode
-        CurrExchRateServiceCard.OpenView;
+        CurrExchRateServiceCard.OpenView();
         CurrExchRateServiceCard.GotoRecord(CurrExchRateUpdateSetup);
 
         // [THEN] All fields aren't editable on page Curr. Exch. Rate Service Card
-        Assert.IsFalse(CurrExchRateServiceCard.Enabled.Editable, '');
+        Assert.IsFalse(CurrExchRateServiceCard.Enabled.Editable(), '');
         VerifyFieldsNotEditableOnCurrExchRateServiceCard(CurrExchRateServiceCard);
         CurrExchRateServiceCard.Close();
     end;
@@ -495,11 +495,11 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
         MockCurrExchRateUpdateSetup(CurrExchRateUpdateSetup, true);
 
         // [WHEN] Open page Curr. Exch. Rate Service Card for edit
-        CurrExchRateServiceCard.OpenEdit;
+        CurrExchRateServiceCard.OpenEdit();
         CurrExchRateServiceCard.GotoRecord(CurrExchRateUpdateSetup);
 
         // [THEN] ShowEnableWarning is enabled on page Curr. Exch. Rate Service Card
-        Assert.IsTrue(CurrExchRateServiceCard.ShowEnableWarning.Enabled, '');
+        Assert.IsTrue(CurrExchRateServiceCard.ShowEnableWarning.Enabled(), '');
         CurrExchRateServiceCard.Close();
     end;
 
@@ -519,11 +519,11 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
         MockCurrExchRateUpdateSetup(CurrExchRateUpdateSetup, false);
 
         // [WHEN] Open page Curr. Exch. Rate Service Card for edit
-        CurrExchRateServiceCard.OpenEdit;
+        CurrExchRateServiceCard.OpenEdit();
         CurrExchRateServiceCard.GotoRecord(CurrExchRateUpdateSetup);
 
         // [THEN] ShowEnableWarning is disabled on page Curr. Exch. Rate Service Card
-        Assert.IsFalse(CurrExchRateServiceCard.ShowEnableWarning.Enabled, '');
+        Assert.IsFalse(CurrExchRateServiceCard.ShowEnableWarning.Enabled(), '');
         CurrExchRateServiceCard.Close();
     end;
 
@@ -542,11 +542,11 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
         MockCurrExchRateUpdateSetup(CurrExchRateUpdateSetup, true);
 
         // [WHEN] Open page Curr. Exch. Rate Service Card in view mode
-        CurrExchRateServiceCard.OpenView;
+        CurrExchRateServiceCard.OpenView();
         CurrExchRateServiceCard.GotoRecord(CurrExchRateUpdateSetup);
 
         // [THEN] ShowEnableWarning is disabled on page Curr. Exch. Rate Service Card
-        Assert.IsFalse(CurrExchRateServiceCard.ShowEnableWarning.Enabled, '');
+        Assert.IsFalse(CurrExchRateServiceCard.ShowEnableWarning.Enabled(), '');
         CurrExchRateServiceCard.Close();
     end;
 
@@ -566,11 +566,11 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
         MockCurrExchRateUpdateSetup(CurrExchRateUpdateSetup, false);
 
         // [WHEN] Open page Curr. Exch. Rate Service Card in view mode
-        CurrExchRateServiceCard.OpenView;
+        CurrExchRateServiceCard.OpenView();
         CurrExchRateServiceCard.GotoRecord(CurrExchRateUpdateSetup);
 
         // [THEN] ShowEnableWarning is disabled on page Curr. Exch. Rate Service Card
-        Assert.IsFalse(CurrExchRateServiceCard.ShowEnableWarning.Enabled, '');
+        Assert.IsFalse(CurrExchRateServiceCard.ShowEnableWarning.Enabled(), '');
         CurrExchRateServiceCard.Close();
     end;
 
@@ -866,24 +866,24 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
 
     local procedure VerifyFieldsNotEditableOnCurrExchRateServiceCard(var CurrExchRateServiceCard: TestPage "Curr. Exch. Rate Service Card")
     begin
-        Assert.IsFalse(CurrExchRateServiceCard.ShowEnableWarning.Editable, '');
-        Assert.IsFalse(CurrExchRateServiceCard.Code.Editable, '');
-        Assert.IsFalse(CurrExchRateServiceCard.Description.Editable, '');
-        Assert.IsFalse(CurrExchRateServiceCard.ServiceURL.Editable, '');
-        Assert.IsFalse(CurrExchRateServiceCard."Service Provider".Editable, '');
-        Assert.IsFalse(CurrExchRateServiceCard."Terms of Service".Editable, '');
-        Assert.IsFalse(CurrExchRateServiceCard."Log Web Requests".Editable, '');
+        Assert.IsFalse(CurrExchRateServiceCard.ShowEnableWarning.Editable(), '');
+        Assert.IsFalse(CurrExchRateServiceCard.Code.Editable(), '');
+        Assert.IsFalse(CurrExchRateServiceCard.Description.Editable(), '');
+        Assert.IsFalse(CurrExchRateServiceCard.ServiceURL.Editable(), '');
+        Assert.IsFalse(CurrExchRateServiceCard."Service Provider".Editable(), '');
+        Assert.IsFalse(CurrExchRateServiceCard."Terms of Service".Editable(), '');
+        Assert.IsFalse(CurrExchRateServiceCard."Log Web Requests".Editable(), '');
     end;
 
     local procedure VerifyFieldsEditableOnCurrExchRateServiceCard(var CurrExchRateServiceCard: TestPage "Curr. Exch. Rate Service Card")
     begin
-        Assert.IsTrue(CurrExchRateServiceCard.Enabled.Editable, '');
-        Assert.IsTrue(CurrExchRateServiceCard.Code.Editable, '');
-        Assert.IsTrue(CurrExchRateServiceCard.Description.Editable, '');
-        Assert.IsTrue(CurrExchRateServiceCard.ServiceURL.Editable, '');
-        Assert.IsTrue(CurrExchRateServiceCard."Service Provider".Editable, '');
-        Assert.IsTrue(CurrExchRateServiceCard."Terms of Service".Editable, '');
-        Assert.IsTrue(CurrExchRateServiceCard."Log Web Requests".Editable, '');
+        Assert.IsTrue(CurrExchRateServiceCard.Enabled.Editable(), '');
+        Assert.IsTrue(CurrExchRateServiceCard.Code.Editable(), '');
+        Assert.IsTrue(CurrExchRateServiceCard.Description.Editable(), '');
+        Assert.IsTrue(CurrExchRateServiceCard.ServiceURL.Editable(), '');
+        Assert.IsTrue(CurrExchRateServiceCard."Service Provider".Editable(), '');
+        Assert.IsTrue(CurrExchRateServiceCard."Terms of Service".Editable(), '');
+        Assert.IsTrue(CurrExchRateServiceCard."Log Web Requests".Editable(), '');
     end;
 
     [ConfirmHandler]

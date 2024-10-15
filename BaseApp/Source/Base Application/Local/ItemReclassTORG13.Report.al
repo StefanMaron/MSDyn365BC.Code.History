@@ -114,19 +114,17 @@ report 12477 "Item Reclass. TORG-13"
         AmountValues: array[4] of Decimal;
         BodyDetails: array[6] of Text;
     begin
-        with "Item Journal Line" do begin
-            AmountValues[1] := TotalCost;
-            AmountValues[2] := Quantity;
-            AmountValues[3] := GrossWeight;
-            AmountValues[4] := NetWeight;
+        AmountValues[1] := TotalCost;
+        AmountValues[2] := "Item Journal Line".Quantity;
+        AmountValues[3] := GrossWeight;
+        AmountValues[4] := NetWeight;
 
-            BodyDetails[1] := Description;
-            BodyDetails[2] := "Item No.";
-            BodyDetails[3] := StdRepMgt.GetUoMDesc("Unit of Measure Code");
-            BodyDetails[4] := "Unit of Measure Code";
-            BodyDetails[5] := Format(Item."Units per Parcel");
-            BodyDetails[6] := Format(Item."Unit Cost");
-        end;
+        BodyDetails[1] := "Item Journal Line".Description;
+        BodyDetails[2] := "Item Journal Line"."Item No.";
+        BodyDetails[3] := StdRepMgt.GetUoMDesc("Item Journal Line"."Unit of Measure Code");
+        BodyDetails[4] := "Item Journal Line"."Unit of Measure Code";
+        BodyDetails[5] := Format(Item."Units per Parcel");
+        BodyDetails[6] := Format(Item."Unit Cost");
 
         TORG13Helper.FillLine(BodyDetails, AmountValues);
     end;

@@ -10,6 +10,7 @@ table 1230 "SEPA Direct Debit Mandate"
     DataCaptionFields = ID, "Customer Bank Account Code";
     DrillDownPageID = "SEPA Direct Debit Mandates";
     LookupPageID = "SEPA Direct Debit Mandates";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -20,11 +21,11 @@ table 1230 "SEPA Direct Debit Mandate"
             trigger OnValidate()
             var
                 SalesSetup: Record "Sales & Receivables Setup";
-                NoSeriesMgt: Codeunit NoSeriesManagement;
+                NoSeries: Codeunit "No. Series";
             begin
                 if ID <> xRec.ID then begin
                     SalesSetup.Get();
-                    NoSeriesMgt.TestManual(SalesSetup."Direct Debit Mandate Nos.");
+                    NoSeries.TestManual(SalesSetup."Direct Debit Mandate Nos.");
                     "No. Series" := '';
                 end;
             end;
@@ -185,14 +186,34 @@ table 1230 "SEPA Direct Debit Mandate"
     local procedure InsertNoSeries()
     var
         SalesSetup: Record "Sales & Receivables Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesManagement: Codeunit NoSeriesManagement;
         NewNo: Code[20];
+        IsHandled: Boolean;
+#endif
     begin
         if ID = '' then begin
             SalesSetup.Get();
             SalesSetup.TestField("Direct Debit Mandate Nos.");
-            NoSeriesMgt.InitSeries(SalesSetup."Direct Debit Mandate Nos.", xRec."No. Series", 0D, NewNo, "No. Series");
+#if not CLEAN24
+            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(SalesSetup."Direct Debit Mandate Nos.", xRec."No. Series", 0D, NewNo, "No. Series", IsHandled);
+            if not IsHandled then begin
+                if NoSeries.AreRelated(SalesSetup."Direct Debit Mandate Nos.", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series"
+                else
+                    "No. Series" := SalesSetup."Direct Debit Mandate Nos.";
+                NewNo := NoSeries.GetNextNo("No. Series");
+                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", SalesSetup."Direct Debit Mandate Nos.", 0D, NewNo);
+            end;
             ID := NewNo;
+#else
+			if NoSeries.AreRelated(SalesSetup."Direct Debit Mandate Nos.", xRec."No. Series") then
+				"No. Series" := xRec."No. Series"
+			else
+				"No. Series" := SalesSetup."Direct Debit Mandate Nos.";
+            ID := NoSeries.GetNextNo("No. Series");
+#endif
         end;
     end;
 
@@ -213,18 +234,16 @@ table 1230 "SEPA Direct Debit Mandate"
         SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
         Customer: Record Customer;
     begin
-        with SEPADirectDebitMandate do begin
-            SetRange("Customer No.", CustomerNo);
-            SetFilter("Valid From", '%1|<=%2', 0D, DueDate);
-            SetFilter("Valid To", '%1|>=%2', 0D, DueDate);
-            SetRange(Blocked, false);
-            SetRange(Closed, false);
-            if FindFirst() then;
-            if Customer.Get(CustomerNo) and (Customer."Preferred Bank Account Code" <> '') then
-                SetRange("Customer Bank Account Code", Customer."Preferred Bank Account Code");
-            if FindFirst() then;
-            exit(ID);
-        end;
+        SEPADirectDebitMandate.SetRange("Customer No.", CustomerNo);
+        SEPADirectDebitMandate.SetFilter("Valid From", '%1|<=%2', 0D, DueDate);
+        SEPADirectDebitMandate.SetFilter("Valid To", '%1|>=%2', 0D, DueDate);
+        SEPADirectDebitMandate.SetRange(Blocked, false);
+        SEPADirectDebitMandate.SetRange(Closed, false);
+        if SEPADirectDebitMandate.FindFirst() then;
+        if Customer.Get(CustomerNo) and (Customer."Preferred Bank Account Code" <> '') then
+            SEPADirectDebitMandate.SetRange("Customer Bank Account Code", Customer."Preferred Bank Account Code");
+        if SEPADirectDebitMandate.FindFirst() then;
+        exit(SEPADirectDebitMandate.ID);
     end;
 
     procedure UpdateCounter()

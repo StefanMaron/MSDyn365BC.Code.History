@@ -34,16 +34,13 @@ codeunit 144713 "ERM Letter of Attorney M-2A"
     procedure LetterOfAttorney_PrintPreview_NoSeriesNotChanged()
     var
         PurchaseSetup: Record "Purchases & Payables Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NoBefore: Code[20];
     begin
         NoBefore := GetNoseriesAndPrintM2a(true);
 
         PurchaseSetup.Get();
-        Assert.AreEqual(
-          NoBefore,
-          NoSeriesManagement.GetNextNo(PurchaseSetup."Released Letter of Attor. Nos.", WorkDate(), false),
-          NoSeriesChangedErr);
+        Assert.AreEqual(NoBefore, NoSeries.PeekNextNo(PurchaseSetup."Released Letter of Attor. Nos."), NoSeriesChangedErr);
     end;
 
     [Test]
@@ -58,7 +55,7 @@ codeunit 144713 "ERM Letter of Attorney M-2A"
     procedure LetterOfAttorney_Print_NoSeriesChanged()
     var
         PurchaseSetup: Record "Purchases & Payables Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NoBefore: Code[20];
     begin
         NoBefore := GetNoseriesAndPrintM2a(false);
@@ -66,7 +63,7 @@ codeunit 144713 "ERM Letter of Attorney M-2A"
         PurchaseSetup.Get();
         Assert.AreNotEqual(
           NoBefore,
-          NoSeriesManagement.GetNextNo(PurchaseSetup."Released Letter of Attor. Nos.", WorkDate(), false),
+          NoSeries.PeekNextNo(PurchaseSetup."Released Letter of Attor. Nos."),
           NoSeriesNotChangedErr);
     end;
 
@@ -107,11 +104,11 @@ codeunit 144713 "ERM Letter of Attorney M-2A"
     local procedure GetNoseriesAndPrintM2a(Preview: Boolean) NoSeriesBefore: Code[20]
     var
         PurchaseSetup: Record "Purchases & Payables Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         Initialize();
         PurchaseSetup.Get();
-        NoSeriesBefore := NoSeriesManagement.GetNextNo(PurchaseSetup."Released Letter of Attor. Nos.", WorkDate(), false);
+        NoSeriesBefore := NoSeries.PeekNextNo(PurchaseSetup."Released Letter of Attor. Nos.");
         CreateLetterOfAttorneyAndPrint(Preview);
     end;
 
@@ -126,7 +123,7 @@ codeunit 144713 "ERM Letter of Attorney M-2A"
         Employee.Get(LetterOfAttorneyHeader."Employee No.");
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        LetterOfAttorneyM2A.InitializeRequest(LibraryReportValidation.GetFileName, Preview);
+        LetterOfAttorneyM2A.InitializeRequest(LibraryReportValidation.GetFileName(), Preview);
         LetterOfAttorneyM2A.SetTableView(LetterOfAttorneyHeader);
         LetterOfAttorneyM2A.UseRequestPage(false);
         LetterOfAttorneyM2A.Run();
@@ -136,18 +133,16 @@ codeunit 144713 "ERM Letter of Attorney M-2A"
     var
         Vendor: Record Vendor;
     begin
-        with LetterOfAttorneyHeader do begin
-            Init();
-            "No." :=
-              LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Letter of Attorney Header");
-            Validate(
-              "Employee No.", LibraryHumanResource.CreateEmployeeNo());
+        LetterOfAttorneyHeader.Init();
+        LetterOfAttorneyHeader."No." :=
+          LibraryUtility.GenerateRandomCode(LetterOfAttorneyHeader.FieldNo("No."), DATABASE::"Letter of Attorney Header");
+        LetterOfAttorneyHeader.Validate(
+          "Employee No.", LibraryHumanResource.CreateEmployeeNo());
 
-            Insert(true);
-            LibraryPurchase.CreateVendor(Vendor);
-            Validate("Buy-from Vendor No.", Vendor."No.");
-            Modify(true);
-        end;
+        LetterOfAttorneyHeader.Insert(true);
+        LibraryPurchase.CreateVendor(Vendor);
+        LetterOfAttorneyHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+        LetterOfAttorneyHeader.Modify(true);
     end;
 
     local procedure CreateAttLines(LetterOfAttorneyHeader: Record "Letter of Attorney Header"; var LetterOfAttorneyLine: Record "Letter of Attorney Line"; var PurchaseLine: Record "Purchase Line")
@@ -161,13 +156,11 @@ codeunit 144713 "ERM Letter of Attorney M-2A"
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandDecInRange(10, 20, 2));
 
-        with LetterOfAttorneyHeader do begin
-            Validate("Source Document Type", PurchaseHeader."Document Type".AsInteger() + 1);
-            Validate("Source Document No.", PurchaseHeader."No.");
-            Modify(true);
+        LetterOfAttorneyHeader.Validate("Source Document Type", PurchaseHeader."Document Type".AsInteger() + 1);
+        LetterOfAttorneyHeader.Validate("Source Document No.", PurchaseHeader."No.");
+        LetterOfAttorneyHeader.Modify(true);
 
-            CreateAttorneyLetterLines;
-        end;
+        LetterOfAttorneyHeader.CreateAttorneyLetterLines();
 
         LetterOfAttorneyLine.SetRange("Letter of Attorney No.", LetterOfAttorneyHeader."No.");
         LetterOfAttorneyLine.FindFirst();

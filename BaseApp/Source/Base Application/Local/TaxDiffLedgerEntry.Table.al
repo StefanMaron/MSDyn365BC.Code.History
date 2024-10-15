@@ -3,6 +3,7 @@ table 17306 "Tax Diff. Ledger Entry"
     Caption = 'Tax Diff. Ledger Entry';
     DrillDownPageID = "Tax Diff. Ledger Entries";
     LookupPageID = "Tax Diff. Ledger Entries";
+    DataClassification = CustomerContent;
 
     fields
     {

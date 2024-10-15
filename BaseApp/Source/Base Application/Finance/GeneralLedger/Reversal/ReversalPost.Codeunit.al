@@ -42,7 +42,7 @@ codeunit 179 "Reversal-Post"
 
         Handled := false;
         OnRunOnAfterConfirm(Rec, Handled, PrintRegister, HideDialog);
-        If Handled then
+        if Handled then
             exit;
 
         if Rec."Reversal Type" = Rec."Reversal Type"::Register then begin

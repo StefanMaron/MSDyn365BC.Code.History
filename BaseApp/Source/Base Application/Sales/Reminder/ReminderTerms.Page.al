@@ -8,7 +8,11 @@ page 431 "Reminder Terms"
     Caption = 'Reminder Terms';
     PageType = List;
     SourceTable = "Reminder Terms";
+#if not CLEAN25
     UsageCategory = Administration;
+#else
+    UsageCategory = None;
+#endif
 
     layout
     {
@@ -109,11 +113,19 @@ page 431 "Reminder Terms"
             }
         }
     }
+
     trigger OnOpenPage()
     var
+        ReminderCommunication: Codeunit "Reminder Communication";
         FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
+        if CurrPage.LookupMode() then
+            exit;
         FeatureTelemetry.LogUptake('0000LAY', 'Reminder', Enum::"Feature Uptake Status"::Discovered);
+        if ReminderCommunication.NewReminderCommunicationEnabled() then begin
+            Page.Run(Page::"Reminder Terms List");
+            Error('');
+        end;
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean

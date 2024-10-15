@@ -40,7 +40,7 @@ codeunit 147124 "ERM VAT Lists Reporting"
         end;
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.UpdateVATPostingSetup;
+        LibraryERMCountryData.UpdateVATPostingSetup();
 
         IsInitialized := true;
     end;
@@ -383,8 +383,8 @@ codeunit 147124 "ERM VAT Lists Reporting"
 
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Create Prepayment Invoice" := true;
-        SalesReceivablesSetup.Validate("Posted Prepayment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Validate("Posted PD Doc. Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Posted Prepayment Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Posted PD Doc. Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify();
 
         Period."Period Start" := CalcDate('<-CM>', WorkDate());
@@ -633,7 +633,7 @@ codeunit 147124 "ERM VAT Lists Reporting"
     local procedure ValidateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Amount: Decimal; VendVATInvDate: Date; VendVATInvRcvdDate: Date)
     begin
         Assert.IsTrue(
-          VendorLedgerEntry.FindFirst,
+          VendorLedgerEntry.FindFirst(),
           CannotFindVendLedgEntryErr);
         Assert.IsTrue(
           VendorLedgerEntry."Vendor No." = VendorNo,

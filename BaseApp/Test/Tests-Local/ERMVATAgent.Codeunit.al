@@ -32,7 +32,6 @@ codeunit 144009 "ERM VAT Agent"
         PmtAmtNotEqualInvAmtErr: Label 'Payment amount is not equal invoice amount.';
         VATEntryNoCompletelyRealizedErr: Label 'VAT entry is not completely realized.';
         RowDoesNotExistErr: Label 'The row does not exist on the TestPage';
-        RefGenPostingType: Option " ",Purchase,Sale;
         IncorrectAmountSignErr: Label 'Amount must be greater than zero.';
 
     [Test]
@@ -44,7 +43,7 @@ codeunit 144009 "ERM VAT Agent"
     begin
         SetupEnvironment(VendorNo, GLAccountNo);
         CreatePostPurchInvoice(VendorNo, WorkDate(), GLAccountNo, 100);
-        SuggestVATAgentPayments(VendorNo, GetNextDocNo);
+        SuggestVATAgentPayments(VendorNo, GetNextDocNo());
         VerifyGenJnlLineCount(2);
         VerifyPaymentAndInvoiceAmounts(VendorNo);
     end;
@@ -109,7 +108,7 @@ codeunit 144009 "ERM VAT Agent"
         PmtNo: Code[20];
     begin
         InvNo := CreatePostPurchInvoice(VendorNo, WorkDate(), GLAccountNo, 100);
-        SuggestVATAgentPayments(VendorNo, GetNextDocNo);
+        SuggestVATAgentPayments(VendorNo, GetNextDocNo());
         PmtNo := PostVATAgentPayment(VendorNo);
         if ApplyEntries then
             ApplyVendLedgEntriesAndVerifyClosedState(VendorNo, InvNo, PmtNo);
@@ -118,7 +117,7 @@ codeunit 144009 "ERM VAT Agent"
         VerifyMoreThanFourGLEntry(VendorNo);
         VerifyZeroRealizedVATEntry(VendorNo);
         VerifyUnrealizedVATEntry(VendorNo, 3000, 540);
-        PostTaxAuthorityPayment;
+        PostTaxAuthorityPayment();
     end;
 
     [Test]
@@ -133,8 +132,8 @@ codeunit 144009 "ERM VAT Agent"
 
         Initialize();
         // [GIVEN] Vendor "X" with "Vendor Type" = "Tax Authority"
-        Vendor.Get(LibraryPurchase.CreateVendorTaxAuthority);
-        VendorList.OpenView;
+        Vendor.Get(LibraryPurchase.CreateVendorTaxAuthority());
+        VendorList.OpenView();
 
         // [WHEN] Open "Vendor List" page
         asserterror VendorList.GotoRecord(Vendor);
@@ -181,7 +180,7 @@ codeunit 144009 "ERM VAT Agent"
         RunPstdPurchFacturaInvoiceReport(PurchInvLine, VendorNo);
 
         // [THEN] Prepayment InvoiceNo is printed
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
         LibraryRUReports.VerifyFactura_DocNo(FileName, PurchInvLine."Document No.");
 
         // [THEN] Line for G/L Account No "X" is printed: Quantity and Price with dashes
@@ -578,7 +577,7 @@ codeunit 144009 "ERM VAT Agent"
         if IsInitialized then
             exit;
 
-        InitGenJnlBatch;
+        InitGenJnlBatch();
         LibraryERMCountryData.UpdateLocalData();
         SalesSetup.Get();
         PurchSetup.Get();
@@ -593,7 +592,7 @@ codeunit 144009 "ERM VAT Agent"
         LibraryERM.CreateGenJournalTemplate(GenJnlTemplate);
         LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
         if GenJnlBatch."No. Series" = '' then begin
-            GenJnlBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode);
+            GenJnlBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode());
             GenJnlBatch.Modify(true);
         end;
     end;
@@ -683,7 +682,7 @@ codeunit 144009 "ERM VAT Agent"
             Validate("Prepayment Document No.", ApplyDocNo);
             Validate("External Document No.", ApplyDocNo);
             Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
-            Validate("Bal. Account No.", CreateBankAccount);
+            Validate("Bal. Account No.", CreateBankAccount());
             Validate(Amount, PayAmount);
             Modify(true);
             DocNo := "Document No.";
@@ -704,7 +703,7 @@ codeunit 144009 "ERM VAT Agent"
             Validate("External Document No.", ExternalDocNo);
             Validate("Initial Document No.", InitialDocNo);
             Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
-            Validate("Bal. Account No.", CreateBankAccount);
+            Validate("Bal. Account No.", CreateBankAccount());
             Validate(Amount, PayAmount);
             Modify(true);
             PayAmount := "Amount (LCY)";
@@ -857,20 +856,20 @@ codeunit 144009 "ERM VAT Agent"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         with Vendor do begin
-            Validate("Currency Code", CreateCurrencyWithExchangeRate);
+            Validate("Currency Code", CreateCurrencyWithExchangeRate());
             Validate("VAT Bus. Posting Group", VATBusPostGroupCode);
             Validate("VAT Agent", true);
             Validate("VAT Agent Type", "VAT Agent Type"::"Non-resident");
             Validate("VAT Payment Source Type", "VAT Payment Source Type"::"Internal Funds");
             Validate("VAT Agent Prod. Posting Group", VATAgentProdPostingGroupCode);
-            Validate("Tax Authority No.", CreateTaxAuthority);
+            Validate("Tax Authority No.", CreateTaxAuthority());
             Modify(true);
         end;
     end;
 
     local procedure CreateCurrencyWithExchangeRate() CurrencyCode: Code[10]
     begin
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         CreateCurrencyExchRate(CurrencyCode, WorkDate(), LibraryRandom.RandDec(100, 2));
         CreateCurrencyExchRate(CurrencyCode, CalcDate('<1Y>', WorkDate()), LibraryRandom.RandDec(100, 2));
     end;
@@ -882,8 +881,8 @@ codeunit 144009 "ERM VAT Agent"
             Validate("VAT Identifier", VATProdPostGroupCode);
             Validate("VAT %", VATPercent);
             Validate("Unrealized VAT Type", "Unrealized VAT Type"::Percentage);
-            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
-            Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
+            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+            Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
             Modify();
         end;
     end;
@@ -946,10 +945,9 @@ codeunit 144009 "ERM VAT Agent"
 
     local procedure GetNextDocNo() UseDocNo: Code[20]
     var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
-        UseDocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", WorkDate(), false);
-        Clear(NoSeriesMgt);
+        UseDocNo := NoSeries.PeekNextNo(GenJnlBatch."No. Series");
     end;
 
     local procedure GetLastInvNo(VendorNo: Code[20]): Code[20]
@@ -1015,10 +1013,10 @@ codeunit 144009 "ERM VAT Agent"
             SetGenJnlLine(GenJnlLine);
             InitializeRequest(
               CalcDate('<CM>', WorkDate()), false, 0, false, WorkDate(), DocNo, false,
-              GenJnlLine."Bal. Account Type"::"Bank Account", CreateBankAccount, GenJnlLine."Bank Payment Type"::" ");
+              GenJnlLine."Bal. Account Type"::"Bank Account", CreateBankAccount(), GenJnlLine."Bank Payment Type"::" ");
             InitVATAgentPayment(true);
             SetHideMessage(true);
-            Run;
+            Run();
         end;
     end;
 
@@ -1042,7 +1040,7 @@ codeunit 144009 "ERM VAT Agent"
         CurrencyCode: Code[10];
     begin
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         CreateCurrencyExchRate(CurrencyCode, WorkDate(), 30);
         CreateCurrencyExchRate(CurrencyCode, CalcDate('<1Y>', WorkDate()), 28);
 
@@ -1060,7 +1058,7 @@ codeunit 144009 "ERM VAT Agent"
         Vendor.Validate("VAT Agent", true);
         Vendor.Validate("VAT Agent Type", Vendor."VAT Agent Type"::"Non-resident");
         Vendor.Validate("VAT Agent Prod. Posting Group", VATProdPostingGr.Code);
-        Vendor.Validate("Tax Authority No.", CreateTaxAuthority);
+        Vendor.Validate("Tax Authority No.", CreateTaxAuthority());
         Vendor.Modify(true);
     end;
 
@@ -1078,7 +1076,7 @@ codeunit 144009 "ERM VAT Agent"
             if FindSet() then
                 repeat
                     Assert.IsFalse(Open, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption(Open)));
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -1106,7 +1104,7 @@ codeunit 144009 "ERM VAT Agent"
         Commit();
 
         LibraryReportValidation.SetFileName(PurchInvHeader."No.");
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
         PstdPurchFacturaInvoice.SetTableView(PurchInvHeader);
         PstdPurchFacturaInvoice.InitializeRequest(1, 1);
         PstdPurchFacturaInvoice.SetFileNameSilent(FileName);

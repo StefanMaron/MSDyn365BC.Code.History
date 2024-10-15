@@ -10,6 +10,7 @@ table 1552 "User Callouts"
     ObsoleteState = Removed;
     ObsoleteTag = '22.0';
     ObsoleteReason = 'Use "User Settings" instead.';
+    DataClassification = CustomerContent;
 
     fields
     {

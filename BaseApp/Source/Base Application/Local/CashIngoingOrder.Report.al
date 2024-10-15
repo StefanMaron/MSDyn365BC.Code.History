@@ -10,6 +10,8 @@ report 12403 "Cash Ingoing Order"
             DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", "Line No.");
 
             trigger OnAfterGetRecord()
+            var
+                NoSeries: Codeunit "No. Series";
             begin
                 CurrencyText := EmptyCurrencyTxt;
 
@@ -68,16 +70,15 @@ report 12403 "Cash Ingoing Order"
 
                             BankAcc.TestField("Debit Cash Order No. Series");
                             if "Document No." = '' then
-                                "Document No." := NoSeriesMgt.GetNextNo(BankAcc."Debit Cash Order No. Series", 0D, true)
+                                "Document No." := NoSeries.GetNextNo(BankAcc."Debit Cash Order No. Series")
                             else begin
-                                LastNo := NoSeriesMgt.GetNextNo(BankAcc."Debit Cash Order No. Series", 0D, false);
-                                Clear(NoSeriesMgt);
+                                LastNo := NoSeries.PeekNextNo(BankAcc."Debit Cash Order No. Series");
                                 if (DelChr("Document No.", '<>', '0123456789') <> DelChr(LastNo, '<>', '0123456789')) or
                                    ("Document No." > LastNo)
                                 then
                                     Error(WrongDocumentNoErr, "Document No.", LastNo);
                                 if "Document No." = LastNo then
-                                    NoSeriesMgt.GetNextNo(BankAcc."Debit Cash Order No. Series", 0D, true);
+                                    NoSeries.GetNextNo(BankAcc."Debit Cash Order No. Series");
                             end;
                             TestField("Document No.");
 
@@ -203,7 +204,6 @@ report 12403 "Cash Ingoing Order"
         Currency: Record Currency;
         CheckManagement: Codeunit CheckManagement;
         LocMgt: Codeunit "Localisation Management";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         LocRepMgt: Codeunit "Local Report Management";
         CashOrderReportHelper: Codeunit "Cash Order Report Helper";
         FileName: Text;

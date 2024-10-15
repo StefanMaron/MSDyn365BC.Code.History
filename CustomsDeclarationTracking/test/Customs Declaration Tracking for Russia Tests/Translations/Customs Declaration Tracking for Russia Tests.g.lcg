@@ -88,11 +88,11 @@
   </Item>
   <Item ItemId=";Codeunit 1436882152 - NamedType 919241337" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorrect confirm dialog opened: ]]></Val>
+      <Val><![CDATA[Incorrect confirm dialog opened: %1]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CD Transfer - NamedType IncorrectConfirmDialogOpenedMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 is the question shown in the confirm dialog]D;]A;(LookupHint=Codeunit CD Transfer - NamedType IncorrectConfirmDialogOpenedMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1436882152 - NamedType 3706420865" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -106,11 +106,11 @@
   </Item>
   <Item ItemId=";Codeunit 1436882152 - NamedType 2816168725" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Qty. to Handle (Base) in the item tracking assigned to the document line for item %1 is currently 3. It must be 4.\\Check the assignment for serial number %2, lot number .]]></Val>
+      <Val><![CDATA[Qty. to Handle (Base) in the item tracking assigned to the document line for item %1 is currently 3. It must be 4.\\Check the assignment for serial number %2, lot number %3, package number %4.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CD Transfer - NamedType QtyToHandleMessageErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - Item No., %2 - Serial No., %3 - Lot No., %4 - Package No.]D;]A;(LookupHint=Codeunit CD Transfer - NamedType QtyToHandleMessageErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1436882152 - NamedType 2916953968" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -142,11 +142,11 @@
   </Item>
   <Item ItemId=";Codeunit 1436882152 - NamedType 697785328" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unexpected message: ]]></Val>
+      <Val><![CDATA[Unexpected message: %1]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CD Transfer - NamedType UnexpectedMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 is the message shown in the message dialog]D;]A;(LookupHint=Codeunit CD Transfer - NamedType UnexpectedMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1436882152 - NamedType 377180296" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

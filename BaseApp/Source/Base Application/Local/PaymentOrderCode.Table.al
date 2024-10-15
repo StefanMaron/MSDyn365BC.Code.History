@@ -2,6 +2,7 @@ table 14918 "Payment Order Code"
 {
     Caption = 'Payment Order Code';
     LookupPageID = "Payment Order Codes";
+    DataClassification = CustomerContent;
 
     fields
     {

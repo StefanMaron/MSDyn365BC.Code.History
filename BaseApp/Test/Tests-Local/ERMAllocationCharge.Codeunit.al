@@ -97,7 +97,7 @@ codeunit 144511 "ERM Allocation Charge"
         // Gross Weight Mandartory = TRUE, Unit Volume Mandatory = FALSE
         // Verify correction of Suggest Item Charge Assignment for 1 item
         VerifySuggestItemChargeAssgnt(
-          LibraryRandom.RandDec(100, 2), true, 0, false, ItemChargeAssgntPurch.AssignByWeightMenuText);
+          LibraryRandom.RandDec(100, 2), true, 0, false, ItemChargeAssgntPurch.AssignByWeightMenuText());
     end;
 
     [Test]
@@ -121,7 +121,7 @@ codeunit 144511 "ERM Allocation Charge"
         // Gross Weight Mandartory = TRUE, Unit Volume Mandatory = FALSE
         // Verify correction of Suggest Item Charge Assignment for 2 items
         VerifySuggestItemChargeAssgnt2(
-          LibraryRandom.RandDec(100, 2), true, 0, false, ItemChargeAssgntPurch.AssignByWeightMenuText);
+          LibraryRandom.RandDec(100, 2), true, 0, false, ItemChargeAssgntPurch.AssignByWeightMenuText());
     end;
 
     [Test]
@@ -144,7 +144,7 @@ codeunit 144511 "ERM Allocation Charge"
     begin
         // Check Suggest Item Charge Assignment by Weight
         // for Posted Documents
-        ItemChargeAssgntGetPostedDocs(ItemChargeAssgntPurch.AssignByWeightMenuText);
+        ItemChargeAssgntGetPostedDocs(ItemChargeAssgntPurch.AssignByWeightMenuText());
     end;
 
     [Test]
@@ -385,13 +385,13 @@ codeunit 144511 "ERM Allocation Charge"
         SuggestItemChargeAssgntPurch(PurchaseLine, ItemCharge, SuggestSelectionTxt);
 
         QtyToAssign := Round(PurchaseLine.Quantity / (WeightVolumeMultiplier + 1), QtyToAssignPrecision);
-        AmtToAssign := Round(ChargeAmount / (WeightVolumeMultiplier + 1), LibraryERM.GetAmountRoundingPrecision);
+        AmtToAssign := Round(ChargeAmount / (WeightVolumeMultiplier + 1), LibraryERM.GetAmountRoundingPrecision());
 
         VerifyPurchItemChargeAssgnt(ItemNo1,
           QtyToAssign, AmtToAssign);
         VerifyPurchItemChargeAssgnt(ItemNo2,
           Round(PurchaseLine.Quantity - QtyToAssign, QtyToAssignPrecision),
-          Round(ChargeAmount - AmtToAssign, LibraryERM.GetAmountRoundingPrecision));
+          Round(ChargeAmount - AmtToAssign, LibraryERM.GetAmountRoundingPrecision()));
     end;
 
     local procedure VerifyPurchItemChargeAssgnt(ItemNo: Code[20]; QtyToAssign: Decimal; AmtToAssign: Decimal)
@@ -611,7 +611,7 @@ codeunit 144511 "ERM Allocation Charge"
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGenProdPostingGroup;
+        LibraryERMCountryData.UpdateGenProdPostingGroup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;

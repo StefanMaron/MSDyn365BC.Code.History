@@ -688,18 +688,24 @@ report 5875 "Phys. Invt. Order Diff. List"
 
     procedure CreateDiffListBuffer(PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var NoOfBufferLines: Integer)
     var
+#if not CLEAN24
         ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking";
+#endif
+        ExpInvtOrderTracking: Record "Exp. Invt. Order Tracking";
         PhysInvtRecordLine: Record "Phys. Invt. Record Line";
         ReservEntry: Record "Reservation Entry";
+#if not CLEAN24
+        PhysInvtTrackingMgt: Codeunit "Phys. Invt. Tracking Mgt.";
+#endif
         NextLineNo: Integer;
     begin
-        with PhysInvtOrderLine do begin
-            NoOfBufferLines := 0;
-
+        NoOfBufferLines := 0;
+#if not CLEAN24
+        if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
             NextLineNo := 1;
             ExpPhysInvtTracking.Reset();
-            ExpPhysInvtTracking.SetRange("Order No", "Document No.");
-            ExpPhysInvtTracking.SetRange("Order Line No.", "Line No.");
+            ExpPhysInvtTracking.SetRange("Order No", PhysInvtOrderLine."Document No.");
+            ExpPhysInvtTracking.SetRange("Order Line No.", PhysInvtOrderLine."Line No.");
             if ExpPhysInvtTracking.Find('-') then
                 repeat
                     FindOrCreateDiffListBuffer(NoOfBufferLines, NextLineNo);
@@ -708,42 +714,58 @@ report 5875 "Phys. Invt. Order Diff. List"
                     TempPhysInvtCountBuffer."Exp. Qty. (Base)" := ExpPhysInvtTracking."Quantity (Base)";
                     TempPhysInvtCountBuffer.Modify();
                 until ExpPhysInvtTracking.Next() = 0;
-
+        end else begin
+#endif
             NextLineNo := 1;
-            PhysInvtRecordLine.Reset();
-            PhysInvtRecordLine.SetCurrentKey("Order No.", "Order Line No.");
-            PhysInvtRecordLine.SetRange("Order No.", "Document No.");
-            PhysInvtRecordLine.SetRange("Order Line No.", "Line No.");
-            if PhysInvtRecordLine.Find('-') then
+            ExpInvtOrderTracking.Reset();
+            ExpInvtOrderTracking.SetRange("Order No", PhysInvtOrderLine."Document No.");
+            ExpInvtOrderTracking.SetRange("Order Line No.", PhysInvtOrderLine."Line No.");
+            if ExpInvtOrderTracking.FindSet() then
                 repeat
                     FindOrCreateDiffListBuffer(NoOfBufferLines, NextLineNo);
-                    TempPhysInvtCountBuffer."Rec. No." := PhysInvtRecordLine."Recording No.";
-                    TempPhysInvtCountBuffer."Rec. Line No." := PhysInvtRecordLine."Line No.";
-                    TempPhysInvtCountBuffer."Rec. Serial No." := PhysInvtRecordLine."Serial No.";
-                    TempPhysInvtCountBuffer."Rec. Lot No." := PhysInvtRecordLine."Lot No.";
-                    TempPhysInvtCountBuffer."Rec. Qty. (Base)" := PhysInvtRecordLine."Quantity (Base)";
+                    TempPhysInvtCountBuffer."Exp. Serial No." := ExpInvtOrderTracking."Serial No.";
+                    TempPhysInvtCountBuffer."Exp. Lot No." := ExpInvtOrderTracking."Lot No.";
+                    TempPhysInvtCountBuffer."Exp. Package No." := ExpInvtOrderTracking."Package No.";
+                    TempPhysInvtCountBuffer."Exp. Qty. (Base)" := ExpInvtOrderTracking."Quantity (Base)";
                     TempPhysInvtCountBuffer.Modify();
-                until PhysInvtRecordLine.Next() = 0;
-
-            NextLineNo := 1;
-            ReservEntry.Reset();
-            ReservEntry.SetSourceFilter(DATABASE::"Phys. Invt. Order Line", 0, "Document No.", "Line No.", true);
-            ReservEntry.SetSourceFilter('', 0);
-            if ReservEntry.FindSet() then
-                repeat
-                    FindOrCreateDiffListBuffer(NoOfBufferLines, NextLineNo);
-                    TempPhysInvtCountBuffer."Track. Serial No." := ReservEntry."Serial No.";
-                    TempPhysInvtCountBuffer."Track. Lot No." := ReservEntry."Lot No.";
-                    if ReservEntry.Positive then begin
-                        TempPhysInvtCountBuffer."Track. Qty. Neg. (Base)" := 0;
-                        TempPhysInvtCountBuffer."Track. Qty. Pos. (Base)" := ReservEntry.Quantity;
-                    end else begin
-                        TempPhysInvtCountBuffer."Track. Qty. Neg. (Base)" := ReservEntry.Quantity;
-                        TempPhysInvtCountBuffer."Track. Qty. Pos. (Base)" := 0;
-                    end;
-                    TempPhysInvtCountBuffer.Modify();
-                until ReservEntry.Next() = 0;
+                until ExpInvtOrderTracking.Next() = 0;
+#if not CLEAN24
         end;
+#endif
+        NextLineNo := 1;
+        PhysInvtRecordLine.Reset();
+        PhysInvtRecordLine.SetCurrentKey("Order No.", "Order Line No.");
+        PhysInvtRecordLine.SetRange("Order No.", PhysInvtOrderLine."Document No.");
+        PhysInvtRecordLine.SetRange("Order Line No.", PhysInvtOrderLine."Line No.");
+        if PhysInvtRecordLine.Find('-') then
+            repeat
+                FindOrCreateDiffListBuffer(NoOfBufferLines, NextLineNo);
+                TempPhysInvtCountBuffer."Rec. No." := PhysInvtRecordLine."Recording No.";
+                TempPhysInvtCountBuffer."Rec. Line No." := PhysInvtRecordLine."Line No.";
+                TempPhysInvtCountBuffer."Rec. Serial No." := PhysInvtRecordLine."Serial No.";
+                TempPhysInvtCountBuffer."Rec. Lot No." := PhysInvtRecordLine."Lot No.";
+                TempPhysInvtCountBuffer."Rec. Qty. (Base)" := PhysInvtRecordLine."Quantity (Base)";
+                TempPhysInvtCountBuffer.Modify();
+            until PhysInvtRecordLine.Next() = 0;
+
+        NextLineNo := 1;
+        ReservEntry.Reset();
+        ReservEntry.SetSourceFilter(DATABASE::"Phys. Invt. Order Line", 0, PhysInvtOrderLine."Document No.", PhysInvtOrderLine."Line No.", true);
+        ReservEntry.SetSourceFilter('', 0);
+        if ReservEntry.FindSet() then
+            repeat
+                FindOrCreateDiffListBuffer(NoOfBufferLines, NextLineNo);
+                TempPhysInvtCountBuffer."Track. Serial No." := ReservEntry."Serial No.";
+                TempPhysInvtCountBuffer."Track. Lot No." := ReservEntry."Lot No.";
+                if ReservEntry.Positive then begin
+                    TempPhysInvtCountBuffer."Track. Qty. Neg. (Base)" := 0;
+                    TempPhysInvtCountBuffer."Track. Qty. Pos. (Base)" := ReservEntry.Quantity;
+                end else begin
+                    TempPhysInvtCountBuffer."Track. Qty. Neg. (Base)" := ReservEntry.Quantity;
+                    TempPhysInvtCountBuffer."Track. Qty. Pos. (Base)" := 0;
+                end;
+                TempPhysInvtCountBuffer.Modify();
+            until ReservEntry.Next() = 0;
     end;
 
     procedure FindOrCreateDiffListBuffer(var NoOfBufferLines: Integer; var NextLineNo: Integer)

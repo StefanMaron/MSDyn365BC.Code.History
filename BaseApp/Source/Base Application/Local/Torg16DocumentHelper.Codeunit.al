@@ -139,7 +139,6 @@ codeunit 14939 "Torg-16 Document Helper"
     [Scope('OnPrem')]
     procedure FillItemLedgerLine(ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; InvtDocLine: Record "Invt. Document Line")
     var
-        Amount: Decimal;
         ItemDescription: Text;
         UnitOfMeasureCodeDesc: Text;
         OKEICode: Code[3];
@@ -152,20 +151,18 @@ codeunit 14939 "Torg-16 Document Helper"
         ItemDescription := GetItemDescription(ItemNo);
         GetUOMOKEICode(UnitOfMeasureCode, UnitOfMeasureCodeDesc, OKEICode);
 
-        with InvtDocLine do begin
-            Amount := Round(Quantity * "Unit Cost");
-            TotalAmount += Amount;
-            ExcelReportBuilderMgr.AddDataToSection('ItemName', ItemDescription);
-            ExcelReportBuilderMgr.AddDataToSection('ItemId', "Item No.");
-            ExcelReportBuilderMgr.AddDataToSection('BOMUnitId', UnitOfMeasureCodeDesc);
-            ExcelReportBuilderMgr.AddDataToSection('CodeOkei', OKEICode);
-            ExcelReportBuilderMgr.AddDataToSection('QtyMultiples', Format(Quantity));
-            ExcelReportBuilderMgr.AddDataToSection('Weight', Format("Net Weight"));
-            ExcelReportBuilderMgr.AddDataToSection('GrossWeight', StdRepMgt.FormatReportValue("Net Weight" * Quantity, 3));
-            ExcelReportBuilderMgr.AddDataToSection('PriceUnit', Format("Unit Amount"));
-            ExcelReportBuilderMgr.AddDataToSection('LineAmount', StdRepMgt.FormatReportValue(Amount, 2));
-            ExcelReportBuilderMgr.AddDataToSection('Remark', Format(Description));
-        end;
+        InvtDocLine.Amount := Round(InvtDocLine.Quantity * InvtDocLine."Unit Cost");
+        TotalAmount += InvtDocLine.Amount;
+        ExcelReportBuilderMgr.AddDataToSection('ItemName', ItemDescription);
+        ExcelReportBuilderMgr.AddDataToSection('ItemId', InvtDocLine."Item No.");
+        ExcelReportBuilderMgr.AddDataToSection('BOMUnitId', UnitOfMeasureCodeDesc);
+        ExcelReportBuilderMgr.AddDataToSection('CodeOkei', OKEICode);
+        ExcelReportBuilderMgr.AddDataToSection('QtyMultiples', Format(InvtDocLine.Quantity));
+        ExcelReportBuilderMgr.AddDataToSection('Weight', Format(InvtDocLine."Net Weight"));
+        ExcelReportBuilderMgr.AddDataToSection('GrossWeight', StdRepMgt.FormatReportValue(InvtDocLine."Net Weight" * InvtDocLine.Quantity, 3));
+        ExcelReportBuilderMgr.AddDataToSection('PriceUnit', Format(InvtDocLine."Unit Amount"));
+        ExcelReportBuilderMgr.AddDataToSection('LineAmount', StdRepMgt.FormatReportValue(InvtDocLine.Amount, 2));
+        ExcelReportBuilderMgr.AddDataToSection('Remark', Format(InvtDocLine.Description));
     end;
 
     [Scope('OnPrem')]
@@ -184,19 +181,17 @@ codeunit 14939 "Torg-16 Document Helper"
         ItemDescription := GetItemDescription(ItemNo);
         GetUOMOKEICode(UnitOfMeasureCode, UnitOfMeasureCodeDesc, OKEICode);
         Amount := InvtShptLine.Amount;
-        with InvtShptLine do begin
-            TotalAmount += Amount;
-            ExcelReportBuilderMgr.AddDataToSection('ItemName', ItemDescription);
-            ExcelReportBuilderMgr.AddDataToSection('ItemId', "Item No.");
-            ExcelReportBuilderMgr.AddDataToSection('BOMUnitId', UnitOfMeasureCodeDesc);
-            ExcelReportBuilderMgr.AddDataToSection('CodeOkei', OKEICode);
-            ExcelReportBuilderMgr.AddDataToSection('QtyMultiples', Format(Quantity));
-            ExcelReportBuilderMgr.AddDataToSection('Weight', Format("Net Weight"));
-            ExcelReportBuilderMgr.AddDataToSection('GrossWeight', StdRepMgt.FormatReportValue("Net Weight" * Quantity, 3));
-            ExcelReportBuilderMgr.AddDataToSection('PriceUnit', Format("Unit Amount"));
-            ExcelReportBuilderMgr.AddDataToSection('LineAmount', StdRepMgt.FormatReportValue(Amount, 3));
-            ExcelReportBuilderMgr.AddDataToSection('Remark', Format(Description));
-        end;
+        TotalAmount += InvtShptLine.Amount;
+        ExcelReportBuilderMgr.AddDataToSection('ItemName', ItemDescription);
+        ExcelReportBuilderMgr.AddDataToSection('ItemId', InvtShptLine."Item No.");
+        ExcelReportBuilderMgr.AddDataToSection('BOMUnitId', UnitOfMeasureCodeDesc);
+        ExcelReportBuilderMgr.AddDataToSection('CodeOkei', OKEICode);
+        ExcelReportBuilderMgr.AddDataToSection('QtyMultiples', Format(InvtShptLine.Quantity));
+        ExcelReportBuilderMgr.AddDataToSection('Weight', Format(InvtShptLine."Net Weight"));
+        ExcelReportBuilderMgr.AddDataToSection('GrossWeight', StdRepMgt.FormatReportValue(InvtShptLine."Net Weight" * InvtShptLine.Quantity, 3));
+        ExcelReportBuilderMgr.AddDataToSection('PriceUnit', Format(InvtShptLine."Unit Amount"));
+        ExcelReportBuilderMgr.AddDataToSection('LineAmount', StdRepMgt.FormatReportValue(InvtShptLine.Amount, 3));
+        ExcelReportBuilderMgr.AddDataToSection('Remark', Format(InvtShptLine.Description));
     end;
 
     [Scope('OnPrem')]

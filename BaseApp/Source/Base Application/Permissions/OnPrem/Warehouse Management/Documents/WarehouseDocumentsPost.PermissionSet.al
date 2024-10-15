@@ -55,6 +55,7 @@ permissionset 9425 "Warehouse Documents - Post"
                   tabledata "Warehouse Comment Line" = RIMD,
                   tabledata "Warehouse Employee" = RM,
                   tabledata "Warehouse Entry" = R,
+                  tabledata "Warehouse Reason Code" = RIMD,
                   tabledata "Warehouse Register" = R,
                   tabledata "Warehouse Request" = RMD,
                   tabledata "Warehouse Setup" = Rm,

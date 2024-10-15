@@ -175,7 +175,9 @@ page 6561 "Invt. Receipt"
                     ToolTip = 'View or edit employee signatures.';
                     RunObject = Page "Document Signatures";
                     RunPageLink = "Table ID" = const(12450),
+#pragma warning disable AL0603
                                   "Document Type" = field("Document Type"),
+#pragma warning restore AL0603
                                   "Document No." = field("No.");
                 }
             }

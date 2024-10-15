@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -10,6 +10,7 @@ table 94 "Inventory Posting Group"
 {
     Caption = 'Inventory Posting Group';
     LookupPageID = "Inventory Posting Groups";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -25,7 +26,7 @@ table 94 "Inventory Posting Group"
         field(3; "Used in Items"; Integer)
         {
             BlankZero = true;
-            CalcFormula = Count (Item where("Inventory Posting Group" = field(Code)));
+            CalcFormula = Count(Item where("Inventory Posting Group" = field(Code)));
             Caption = 'Used in Items';
             Editable = false;
             FieldClass = FlowField;
@@ -33,7 +34,7 @@ table 94 "Inventory Posting Group"
         field(4; "Used in Value Entries"; Integer)
         {
             BlankZero = true;
-            CalcFormula = Count ("Value Entry" where("Inventory Posting Group" = field(Code)));
+            CalcFormula = Count("Value Entry" where("Inventory Posting Group" = field(Code)));
             Caption = 'Used in Value Entries';
             Editable = false;
             FieldClass = FlowField;
@@ -94,14 +95,13 @@ table 94 "Inventory Posting Group"
         InvPostingSetup: Record "Inventory Posting Setup";
     begin
         InvPostingSetup.Get(LocationCode, Code);
-        with InvPostingSetup do
-            if NeedGainAccount then begin
-                TestField("Purch. PD Gains Acc.");
-                exit("Purch. PD Gains Acc.");
-            end else begin
-                TestField("Purch. PD Losses Acc.");
-                exit("Purch. PD Losses Acc.");
-            end;
+        if NeedGainAccount then begin
+            InvPostingSetup.TestField("Purch. PD Gains Acc.");
+            exit(InvPostingSetup."Purch. PD Gains Acc.");
+        end else begin
+            InvPostingSetup.TestField("Purch. PD Losses Acc.");
+            exit(InvPostingSetup."Purch. PD Losses Acc.");
+        end;
     end;
 
     local procedure CheckGroupUsage()

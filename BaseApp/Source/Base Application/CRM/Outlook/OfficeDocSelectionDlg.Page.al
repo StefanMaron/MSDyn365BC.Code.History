@@ -38,8 +38,7 @@ page 1606 "Office Doc Selection Dlg"
 
                     trigger OnDrillDown()
                     begin
-                        with DummyOfficeDocumentSelection do
-                            OfficeDocumentHandler.ShowDocumentSelection(Series::Sales, "Document Type"::Quote.AsInteger());
+                        OfficeDocumentHandler.ShowDocumentSelection(DummyOfficeDocumentSelection.Series::Sales, DummyOfficeDocumentSelection."Document Type"::Quote.AsInteger());
                     end;
                 }
                 field(SalesOrders; SalesOrdersLbl)
@@ -51,8 +50,7 @@ page 1606 "Office Doc Selection Dlg"
 
                     trigger OnDrillDown()
                     begin
-                        with DummyOfficeDocumentSelection do
-                            OfficeDocumentHandler.ShowDocumentSelection(Series::Sales, "Document Type"::Order.AsInteger());
+                        OfficeDocumentHandler.ShowDocumentSelection(DummyOfficeDocumentSelection.Series::Sales, DummyOfficeDocumentSelection."Document Type"::Order.AsInteger());
                     end;
                 }
                 field(SalesInvoices; SalesInvoicesLbl)
@@ -64,8 +62,7 @@ page 1606 "Office Doc Selection Dlg"
 
                     trigger OnDrillDown()
                     begin
-                        with DummyOfficeDocumentSelection do
-                            OfficeDocumentHandler.ShowDocumentSelection(Series::Sales, "Document Type"::Invoice.AsInteger());
+                        OfficeDocumentHandler.ShowDocumentSelection(DummyOfficeDocumentSelection.Series::Sales, DummyOfficeDocumentSelection."Document Type"::Invoice.AsInteger());
                     end;
                 }
                 field(SalesCrMemos; SalesCredMemosLbl)
@@ -77,8 +74,7 @@ page 1606 "Office Doc Selection Dlg"
 
                     trigger OnDrillDown()
                     begin
-                        with DummyOfficeDocumentSelection do
-                            OfficeDocumentHandler.ShowDocumentSelection(Series::Sales, "Document Type"::"Credit Memo".AsInteger());
+                        OfficeDocumentHandler.ShowDocumentSelection(DummyOfficeDocumentSelection.Series::Sales, DummyOfficeDocumentSelection."Document Type"::"Credit Memo".AsInteger());
                     end;
                 }
             }
@@ -94,8 +90,7 @@ page 1606 "Office Doc Selection Dlg"
 
                     trigger OnDrillDown()
                     begin
-                        with DummyOfficeDocumentSelection do
-                            OfficeDocumentHandler.ShowDocumentSelection(Series::Purchase, "Document Type"::Order.AsInteger());
+                        OfficeDocumentHandler.ShowDocumentSelection(DummyOfficeDocumentSelection.Series::Purchase, DummyOfficeDocumentSelection."Document Type"::Order.AsInteger());
                     end;
                 }
                 field(PurchaseInvoices; PurchInvoicesLbl)
@@ -107,8 +102,7 @@ page 1606 "Office Doc Selection Dlg"
 
                     trigger OnDrillDown()
                     begin
-                        with DummyOfficeDocumentSelection do
-                            OfficeDocumentHandler.ShowDocumentSelection(Series::Purchase, "Document Type"::Invoice.AsInteger());
+                        OfficeDocumentHandler.ShowDocumentSelection(DummyOfficeDocumentSelection.Series::Purchase, DummyOfficeDocumentSelection."Document Type"::Invoice.AsInteger());
                     end;
                 }
                 field(PurchaseCrMemos; PurchCredMemosLbl)
@@ -120,8 +114,7 @@ page 1606 "Office Doc Selection Dlg"
 
                     trigger OnDrillDown()
                     begin
-                        with DummyOfficeDocumentSelection do
-                            OfficeDocumentHandler.ShowDocumentSelection(Series::Purchase, "Document Type"::"Credit Memo".AsInteger());
+                        OfficeDocumentHandler.ShowDocumentSelection(DummyOfficeDocumentSelection.Series::Purchase, DummyOfficeDocumentSelection."Document Type"::"Credit Memo".AsInteger());
                     end;
                 }
             }

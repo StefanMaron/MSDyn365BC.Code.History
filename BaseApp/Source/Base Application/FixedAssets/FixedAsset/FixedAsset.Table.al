@@ -13,7 +13,6 @@ using Microsoft.FixedAssets.Setup;
 using Microsoft.Foundation.Comment;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.HumanResources.Employee;
-using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
@@ -29,6 +28,7 @@ table 5600 "Fixed Asset"
     LookupPageID = "Fixed Asset List";
     Permissions = TableData "Ins. Coverage Ledger Entry" = r,
                   TableData Employee = r;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -40,7 +40,7 @@ table 5600 "Fixed Asset"
             begin
                 if "No." <> xRec."No." then begin
                     FASetup.Get();
-                    NoSeriesMgt.TestManual(FASetup."Fixed Asset Nos.");
+                    NoSeries.TestManual(FASetup."Fixed Asset Nos.");
                     "No. Series" := '';
                 end;
             end;
@@ -159,8 +159,6 @@ table 5600 "Fixed Asset"
             TableRelation = "FA Location";
 
             trigger OnValidate()
-            var
-                FALocation: Record "FA Location";
             begin
                 if (Status > Status::Inventory) and (xRec."Location Code" <> '') then
                     TestNoEntriesExist(FieldCaption("Location Code"));
@@ -329,6 +327,7 @@ table 5600 "Fixed Asset"
             DataClassification = SystemMetadata;
             TableRelation = Employee.SystemId;
 
+
             trigger OnValidate()
             begin
                 UpdateResponsibleEmployeeCode();
@@ -377,16 +376,16 @@ table 5600 "Fixed Asset"
                     if FASetup."Disposal Depr. Book" <> '' then
                         DeleteFADeprBook("No.", FASetup."Disposal Depr. Book");
                     if FASetup."Future Depr. Book" <> '' then
-                        InsertFADeprBook("No.", FASetup."Future Depr. Book", '', Enum::"FA Depreciation Method"::"Straight-Line", 0)
+                        InsertFADeprBook("No.", FASetup."Future Depr. Book", Enum::"FA Depreciation Method"::"Straight-Line", 0)
                     else
                         Message(Text12400);
                 end else begin
                     if FASetup."Future Depr. Book" <> '' then
                         DeleteFADeprBook("No.", FASetup."Future Depr. Book");
                     if FASetup."Release Depr. Book" <> '' then
-                        InsertFADeprBook("No.", FASetup."Release Depr. Book", '', Enum::"FA Depreciation Method"::"Straight-Line", 0);
+                        InsertFADeprBook("No.", FASetup."Release Depr. Book", Enum::"FA Depreciation Method"::"Straight-Line", 0);
                     if FASetup."Default Depr. Book" <> '' then
-                        InsertFADeprBook("No.", FASetup."Default Depr. Book", '', Enum::"FA Depreciation Method"::"Straight-Line", 0);
+                        InsertFADeprBook("No.", FASetup."Default Depr. Book", Enum::"FA Depreciation Method"::"Straight-Line", 0);
                 end;
             end;
         }
@@ -918,12 +917,13 @@ table 5600 "Fixed Asset"
         MainAssetComp: Record "Main Asset Component";
         InsCoverageLedgEntry: Record "Ins. Coverage Ledger Entry";
         AmortizationCode: Record "Depreciation Code";
+        FALocation: Record "FA Location";
         FALedgEntry: Record "FA Ledger Entry";
         TaxRegisterSetup: Record "Tax Register Setup";
         AssessedTaxCode: Record "Assessed Tax Code";
         OKATO: Record OKATO;
         FAMoveEntries: Codeunit "FA MoveEntries";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         DimMgt: Codeunit DimensionManagement;
 
         Text000: Label 'A main asset cannot be deleted.';
@@ -955,20 +955,22 @@ table 5600 "Fixed Asset"
         if IsHandled then
             exit(Result);
 
-        with FA do begin
-            FA := Rec;
-            FASetup.Get();
-            FASetup.TestField("Fixed Asset Nos.");
-            if NoSeriesMgt.SelectSeries(FASetup."Fixed Asset Nos.", OldFA."No. Series", "No. Series") then begin
-                NoSeriesMgt.SetSeries("No.");
-                Rec := FA;
-                exit(true);
-            end;
+        FA := Rec;
+        FASetup.Get();
+        FASetup.TestField("Fixed Asset Nos.");
+        if NoSeries.LookupRelatedNoSeries(FASetup."Fixed Asset Nos.", OldFA."No. Series", FA."No. Series") then begin
+            FA."No." := NoSeries.GetNextNo(FA."No. Series");
+            Rec := FA;
+            exit(true);
         end;
     end;
 
     local procedure InitFANo()
     var
+        FixedAsset: Record "Fixed Asset";
+#if not CLEAN24
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -979,7 +981,31 @@ table 5600 "Fixed Asset"
         if "No." = '' then begin
             FASetup.Get();
             FASetup.TestField("Fixed Asset Nos.");
-            NoSeriesMgt.InitSeries(FASetup."Fixed Asset Nos.", xRec."No. Series", 0D, "No.", "No. Series");
+#if not CLEAN24
+            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(FASetup."Fixed Asset Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+                if NoSeries.AreRelated(FASetup."Fixed Asset Nos.", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series"
+                else
+                    "No. Series" := FASetup."Fixed Asset Nos.";
+                "No." := NoSeries.GetNextNo("No. Series");
+                FixedAsset.ReadIsolation(IsolationLevel::ReadUncommitted);
+                FixedAsset.SetLoadFields("No.");
+                while FixedAsset.Get("No.") do
+                    "No." := NoSeries.GetNextNo("No. Series");
+                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", FASetup."Fixed Asset Nos.", 0D, "No.");
+            end;
+#else
+			if NoSeries.AreRelated(FASetup."Fixed Asset Nos.", xRec."No. Series") then
+				"No. Series" := xRec."No. Series"
+			else
+				"No. Series" := FASetup."Fixed Asset Nos.";
+            "No." := NoSeries.GetNextNo("No. Series");
+            FixedAsset.ReadIsolation(IsolationLevel::ReadUncommitted);
+            FixedAsset.SetLoadFields("No.");
+            while FixedAsset.Get("No.") do
+                "No." := NoSeries.GetNextNo("No. Series");
+#endif
         end;
     end;
 
@@ -1001,8 +1027,6 @@ table 5600 "Fixed Asset"
 
     [Scope('OnPrem')]
     procedure TestNoEntriesExist(CurrentFieldName: Text[100])
-    var
-        ItemLedgEntry: Record "Item Ledger Entry";
     begin
         FALedgEntry.SetCurrentKey("FA No.");
         FALedgEntry.SetRange("FA No.", "No.");
@@ -1083,33 +1107,31 @@ table 5600 "Fixed Asset"
         if TaxRegisterSetup.Get() then;
         if "FA Type" = "FA Type"::"Future Expense" then begin
             if FASetup."Future Depr. Book" <> '' then
-                InsertFADeprBook("No.", FASetup."Future Depr. Book", Description, Enum::"FA Depreciation Method"::"Straight-Line", 0);
+                InsertFADeprBook("No.", FASetup."Future Depr. Book", Enum::"FA Depreciation Method"::"Straight-Line", 0);
             if TaxRegisterSetup."Future Exp. Depreciation Book" <> '' then
-                InsertFADeprBook("No.", TaxRegisterSetup."Future Exp. Depreciation Book", Description, Enum::"FA Depreciation Method"::"Straight-Line", 0);
+                InsertFADeprBook("No.", TaxRegisterSetup."Future Exp. Depreciation Book", Enum::"FA Depreciation Method"::"Straight-Line", 0);
         end else begin
             if FASetup."Release Depr. Book" <> '' then
-                InsertFADeprBook("No.", FASetup."Release Depr. Book", Description, FADeprBook."Depreciation Method"::"SL-RU", 0);
+                InsertFADeprBook("No.", FASetup."Release Depr. Book", FADeprBook."Depreciation Method"::"SL-RU", 0);
             if FASetup."Default Depr. Book" <> '' then
-                InsertFADeprBook("No.", FASetup."Default Depr. Book", Description, Enum::"FA Depreciation Method"::"Straight-Line", 0);
+                InsertFADeprBook("No.", FASetup."Default Depr. Book", Enum::"FA Depreciation Method"::"Straight-Line", 0);
             if TaxRegisterSetup."Tax Depreciation Book" <> '' then
-                InsertFADeprBook("No.", TaxRegisterSetup."Tax Depreciation Book", Description,
+                InsertFADeprBook("No.", TaxRegisterSetup."Tax Depreciation Book",
                   FADeprBook."Depreciation Method"::"SL-RU", TaxRegisterSetup."Default Depr. Bonus %");
         end;
     end;
 
-    local procedure InsertFADeprBook(FANo: Code[20]; DeprBookCode: Code[10]; Description: Text[100]; DepreciationMethod: Enum "FA Depreciation Method"; DeprBonus: Decimal)
+    local procedure InsertFADeprBook(FANo: Code[20]; DeprBookCode: Code[10]; DepreciationMethod: Enum "FA Depreciation Method"; DeprBonus: Decimal)
     var
         FADeprBook: Record "FA Depreciation Book";
     begin
-        with FADeprBook do begin
-            Init();
-            "FA No." := FANo;
-            "Depreciation Book Code" := DeprBookCode;
-            Description := Description;
-            "Depr. Bonus %" := DeprBonus;
-            "Depreciation Method" := DepreciationMethod;
-            if Insert() then;
-        end;
+        FADeprBook.Init();
+        FADeprBook."FA No." := FANo;
+        FADeprBook."Depreciation Book Code" := DeprBookCode;
+        FADeprBook.Description := FADeprBook.Description;
+        FADeprBook."Depr. Bonus %" := DeprBonus;
+        FADeprBook."Depreciation Method" := DepreciationMethod;
+        if FADeprBook.Insert() then;
     end;
 
     local procedure DeleteFADeprBook(FANo: Code[20]; DeprBookCode: Code[10])

@@ -4,6 +4,7 @@ table 5810 "Rounding Residual Buffer"
 {
     Caption = 'Rounding Residual Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -59,13 +60,12 @@ table 5810 "Rounding Residual Buffer"
         end;
 
         if Retrieve(NewInboundEntryNo) then begin
-            "Adjusted Cost" := "Adjusted Cost" + NewAdjustedCost;
-            "Adjusted Cost (ACY)" := "Adjusted Cost (ACY)" + NewAdjustedCostACY;
+            "Adjusted Cost" += NewAdjustedCost;
+            "Adjusted Cost (ACY)" += NewAdjustedCostACY;
             if not NewCompletelyInvoiced then
                 "Completely Invoiced" := false;
             Modify();
         end else begin
-            Init();
             "Adjusted Cost" := NewAdjustedCost;
             "Adjusted Cost (ACY)" := NewAdjustedCostACY;
             "Completely Invoiced" := NewCompletelyInvoiced;
@@ -81,12 +81,10 @@ table 5810 "Rounding Residual Buffer"
         end;
 
         if Retrieve(NewInboundEntryNo) then begin
-            if ((RdngPrecision >= NewAdjustedCost) or
-                (RndngPrecisionACY >= NewAdjustedCostACY)) and
-               (("Adjusted Cost" * NewAdjustedCost <= 0) and
-                ("Adjusted Cost (ACY)" * NewAdjustedCostACY <= 0))
+            if ((RdngPrecision >= NewAdjustedCost) or (RndngPrecisionACY >= NewAdjustedCostACY)) and
+               (("Adjusted Cost" * NewAdjustedCost <= 0) and ("Adjusted Cost (ACY)" * NewAdjustedCostACY <= 0))
             then
-                "No. of Hits" := "No. of Hits" + 1
+                "No. of Hits" += 1
             else
                 "No. of Hits" := 0;
 
@@ -94,7 +92,6 @@ table 5810 "Rounding Residual Buffer"
             "Adjusted Cost (ACY)" := NewAdjustedCostACY;
             Modify();
         end else begin
-            Init();
             "Adjusted Cost" := NewAdjustedCost;
             "Adjusted Cost (ACY)" := NewAdjustedCostACY;
             Insert();
@@ -103,13 +100,12 @@ table 5810 "Rounding Residual Buffer"
 
     local procedure Retrieve(NewInboundEntryNo: Integer): Boolean
     begin
-        Reset();
+        if Get(NewInboundEntryNo) then
+            exit(true);
+
+        Init();
         "Item Ledger Entry No." := NewInboundEntryNo;
-        if not Find() then begin
-            Init();
-            exit(false);
-        end;
-        exit(true);
+        exit(false);
     end;
 
     local procedure HasNewCost(NewCost: Decimal; NewCostACY: Decimal): Boolean

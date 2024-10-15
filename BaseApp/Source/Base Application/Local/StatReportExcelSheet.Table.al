@@ -2,6 +2,7 @@ table 26562 "Stat. Report Excel Sheet"
 {
     Caption = 'Stat. Report Excel Sheet';
     LookupPageID = "Stat. Report Excel Sheets";
+    DataClassification = CustomerContent;
 
     fields
     {

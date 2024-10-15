@@ -2,6 +2,7 @@ table 12478 "FA Comment"
 {
     Caption = 'FA Comment';
     LookupPageID = "FA Comments";
+    DataClassification = CustomerContent;
 
     fields
     {

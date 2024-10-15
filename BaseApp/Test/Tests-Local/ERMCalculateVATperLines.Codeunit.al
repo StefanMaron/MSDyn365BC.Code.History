@@ -31,7 +31,7 @@ codeunit 144512 "ERM Calculate VAT per Lines"
     [Scope('OnPrem')]
     procedure SalesDocCalcVATPerLineStatFCY()
     begin
-        CheckSalesStatistics(CreateCurrencyWithExchangeRate);
+        CheckSalesStatistics(CreateCurrencyWithExchangeRate());
     end;
 
     [Test]
@@ -45,7 +45,7 @@ codeunit 144512 "ERM Calculate VAT per Lines"
     [Scope('OnPrem')]
     procedure SalesDocCalcVATPerLineFacturaFCY()
     begin
-        SalesDocCalcVATPerLineFactura(CreateCurrencyWithExchangeRate);
+        SalesDocCalcVATPerLineFactura(CreateCurrencyWithExchangeRate());
     end;
 
     [Test]
@@ -61,7 +61,7 @@ codeunit 144512 "ERM Calculate VAT per Lines"
     [Scope('OnPrem')]
     procedure PostedSalesDocCalcVATPerLineStatFCY()
     begin
-        PostAndCheckSalesStatistics(CreateCurrencyWithExchangeRate);
+        PostAndCheckSalesStatistics(CreateCurrencyWithExchangeRate());
     end;
 
     [Test]
@@ -75,7 +75,7 @@ codeunit 144512 "ERM Calculate VAT per Lines"
     [Scope('OnPrem')]
     procedure PostedSalesDocCalcVATPerLineFacturaFCY()
     begin
-        PostedSalesDocCalcVATPerLineFactura(CreateCurrencyWithExchangeRate);
+        PostedSalesDocCalcVATPerLineFactura(CreateCurrencyWithExchangeRate());
     end;
 
     local procedure Initialize()
@@ -142,10 +142,10 @@ codeunit 144512 "ERM Calculate VAT per Lines"
         Counter: Integer;
     begin
         Initialize();
-        SetupSalesReceivablesSetup;
+        SetupSalesReceivablesSetup();
 
         LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2018);
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2018());
         ItemNo := LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group");
         CustomerNo := LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
         CreateSalesHeader(SalesHeader, CustomerNo, false);
@@ -155,7 +155,7 @@ codeunit 144512 "ERM Calculate VAT per Lines"
         for Counter := 1 to ArrayLen(UnitPrices) do
             CreateSalesLineWUnitPrice(SalesHeader, UnitPrices[Counter], 1, ItemNo);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
-        PrepareVerificationAmounts;
+        PrepareVerificationAmounts();
     end;
 
     local procedure CheckSalesStatistics(CurrencyCode: Code[10])
@@ -181,7 +181,7 @@ codeunit 144512 "ERM Calculate VAT per Lines"
                     Assert.AreEqual(LCYFieldValues[Counter + 1], "Amount Including VAT (LCY)",
                       StrSubstNo(IncorrectFieldValueErr, FieldCaption("Amount Including VAT (LCY)")));
                     Counter += 2;
-                until Next = 0;
+                until Next() = 0;
             end;
         end;
     end;
@@ -212,7 +212,7 @@ codeunit 144512 "ERM Calculate VAT per Lines"
                     Assert.AreEqual(LCYFieldValues[Counter + 1], "Amount Including VAT (LCY)",
                       StrSubstNo(IncorrectFieldValueErr, FieldCaption("Amount Including VAT (LCY)")));
                     Counter += 2;
-                until Next = 0;
+                until Next() = 0;
             end;
         end;
     end;
@@ -294,7 +294,7 @@ codeunit 144512 "ERM Calculate VAT per Lines"
         FileName: Text;
     begin
         LibraryReportValidation.SetFileName(SalesHeader."No.");
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type");
         SalesHeader.SetRange("No.", SalesHeader."No.");
         OrderFacturaInvoice.SetTableView(SalesHeader);
@@ -311,7 +311,7 @@ codeunit 144512 "ERM Calculate VAT per Lines"
         FileName: Text;
     begin
         LibraryReportValidation.SetFileName(DocumentNo);
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
         SalesInvHeader.SetRange("No.", DocumentNo);
         PostedFacturaInvoice.SetTableView(SalesInvHeader);
         PostedFacturaInvoice.InitializeRequest(1, 1, false, false);
@@ -326,10 +326,10 @@ codeunit 144512 "ERM Calculate VAT per Lines"
         TotalInclVAT: Decimal;
         FileName: Text;
     begin
-        VATAmount := LibraryVariableStorage.DequeueDecimal;
-        TotalInclVAT := LibraryVariableStorage.DequeueDecimal;
+        VATAmount := LibraryVariableStorage.DequeueDecimal();
+        TotalInclVAT := LibraryVariableStorage.DequeueDecimal();
         CalcCurrencyVATAmount(VATAmount, TotalInclVAT, CurrencyCode);
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
         LibraryRUReports.VerifyFactura_VATAmount(FileName, Format(VATAmount), 7);
         LibraryRUReports.VerifyFactura_AmountInclVAT(FileName, Format(TotalInclVAT), 7);
     end;

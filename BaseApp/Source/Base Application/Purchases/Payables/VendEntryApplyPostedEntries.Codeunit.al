@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.Payables;
+namespace Microsoft.Purchases.Payables;
 
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Currency;
@@ -68,7 +68,6 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         CannotUnapplyExchRateErr: Label 'You cannot unapply the entry with the posting date %1, because the exchange rate for the additional reporting currency has been changed.';
         CannotUnapplyInReversalErr: Label 'You cannot unapply Vendor Ledger Entry No. %1 because the entry is part of a reversal.';
         CannotApplyClosedEntriesErr: Label 'One or more of the entries that you selected is closed. You cannot apply closed entries.';
-        Text12400: Label 'This entry will be unapplied automatically if you first unapply %1 No. %2. ';
 
     procedure Apply(VendLedgEntry: Record "Vendor Ledger Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters"): Boolean
     var
@@ -318,9 +317,6 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         DateComprReg: Record "Date Compr. Register";
         TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
         DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer";
-        VendLedgEntry1: Record "Vendor Ledger Entry";
-        DtldVendLedgEntry1: Record "Detailed Vendor Ledg. Entry";
-        AmtDiffEntryBuffer: Record "CV Ledger Entry Buffer" temporary;
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         Window: Dialog;

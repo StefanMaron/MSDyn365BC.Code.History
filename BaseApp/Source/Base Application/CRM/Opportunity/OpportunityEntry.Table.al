@@ -14,6 +14,7 @@ using Microsoft.Utilities;
 table 5093 "Opportunity Entry"
 {
     Caption = 'Opportunity Entry';
+    DataClassification = CustomerContent;
     DrillDownPageID = "Opportunity Entries";
     LookupPageID = "Opportunity Entries";
 

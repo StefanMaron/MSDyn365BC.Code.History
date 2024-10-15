@@ -11,6 +11,7 @@ table 5339 "Integration Synch. Job Errors"
 {
     Caption = 'Integration Synch. Job Errors';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -97,18 +98,16 @@ table 5339 "Integration Synch. Job Errors"
         IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
         StackTraceOutStream: OutStream;
     begin
-        with IntegrationSynchJobErrors do begin
-            Init();
-            "Integration Synch. Job ID" := IntegrationSynchJobId;
-            "Source Record ID" := SourceRecordId;
-            "Destination Record ID" := DestinationRecordId;
-            "Date/Time" := CurrentDateTime;
-            Message := CopyStr(ErrorMessage, 1, MaxStrLen(Message));
-            "Error Message" := CopyStr(ErrorMessage, 1, MaxStrLen("Error Message"));
-            "Exception Detail".CreateOutStream(StackTraceOutStream);
-            StackTraceOutStream.Write(GetLastErrorCallstack);
-            Insert(true);
-        end;
+        IntegrationSynchJobErrors.Init();
+        IntegrationSynchJobErrors."Integration Synch. Job ID" := IntegrationSynchJobId;
+        IntegrationSynchJobErrors."Source Record ID" := SourceRecordId;
+        IntegrationSynchJobErrors."Destination Record ID" := DestinationRecordId;
+        IntegrationSynchJobErrors."Date/Time" := CurrentDateTime;
+        IntegrationSynchJobErrors.Message := CopyStr(ErrorMessage, 1, MaxStrLen(IntegrationSynchJobErrors.Message));
+        IntegrationSynchJobErrors."Error Message" := CopyStr(ErrorMessage, 1, MaxStrLen(IntegrationSynchJobErrors."Error Message"));
+        IntegrationSynchJobErrors."Exception Detail".CreateOutStream(StackTraceOutStream);
+        StackTraceOutStream.Write(GetLastErrorCallstack);
+        IntegrationSynchJobErrors.Insert(true);
         OnAfterLogSynchError(Rec);
     end;
 

@@ -1,7 +1,8 @@
-table 26570 "XML Element Line"
+﻿table 26570 "XML Element Line"
 {
     Caption = 'XML Element Line';
     LookupPageID = "XML Element Line List";
+    DataClassification = CustomerContent;
 
     fields
     {

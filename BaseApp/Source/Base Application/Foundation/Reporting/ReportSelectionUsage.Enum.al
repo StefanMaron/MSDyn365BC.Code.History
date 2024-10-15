@@ -107,5 +107,6 @@ enum 77 "Report Selection Usage"
     value(126; "UCSD") { Caption = 'Unposted Corrective Sales Document'; }
     value(127; "CSI") { Caption = 'Corrective Sales Invoice'; }
     value(128; "CSCM") { Caption = 'Corrective Sales Credit Memo'; }
+    value(129; "Job Task Quote") { Caption = 'Project Task Quote'; }
 }
 

@@ -18,35 +18,33 @@ codeunit 12424 "VAT Invoice Journal Management"
 
         if Vendor.FindSet() then
             repeat
-                with VendorLedgerEntry do begin
-                    SetRange("Vendor No.", Vendor."No.");
-                    if FindSet() then
-                        repeat
-                            if ("Document Type" = "Document Type"::Payment) and (ReportType = ReportType::Issued) then
-                                if IsVATAgent("Entry No.") then
-                                    InsertVATAgent(VendorLedgerEntry, TempVendorLedgerEntry, DatePeriod, ReportType, ShowCorrection);
+                VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+                if VendorLedgerEntry.FindSet() then
+                    repeat
+                        if (VendorLedgerEntry."Document Type" = VendorLedgerEntry."Document Type"::Payment) and (ReportType = ReportType::Issued) then
+                            if IsVATAgent(VendorLedgerEntry."Entry No.") then
+                                InsertVATAgent(VendorLedgerEntry, TempVendorLedgerEntry, DatePeriod);
 
-                            if ("Vendor VAT Invoice Rcvd Date" >= DatePeriod."Period Start") and
-                               ("Vendor VAT Invoice Rcvd Date" <= DatePeriod."Period End") and
-                               IsVATinfoAvaliable(VendorLedgerEntry)
-                            then
-                                if ReportType = ReportType::Issued then begin
-                                    if "Document Type" = "Document Type"::"Credit Memo" then
-                                        if IsCrMemoIncludedInVatLedg("Document No.", ReportType) then
+                        if (VendorLedgerEntry."Vendor VAT Invoice Rcvd Date" >= DatePeriod."Period Start") and
+                           (VendorLedgerEntry."Vendor VAT Invoice Rcvd Date" <= DatePeriod."Period End") and
+                           IsVATinfoAvaliable(VendorLedgerEntry)
+                        then
+                            if ReportType = ReportType::Issued then begin
+                                if VendorLedgerEntry."Document Type" = VendorLedgerEntry."Document Type"::"Credit Memo" then
+                                    if IsCrMemoIncludedInVatLedg(VendorLedgerEntry."Document No.", ReportType) then
+                                        InsertVendLE(VendorLedgerEntry, TempVendorLedgerEntry, DatePeriod, ReportType, ShowCorrection);
+                            end else
+                                case VendorLedgerEntry."Document Type" of
+                                    VendorLedgerEntry."Document Type"::Invoice:
+                                        InsertVendLE(VendorLedgerEntry, TempVendorLedgerEntry, DatePeriod, ReportType, ShowCorrection);
+                                    VendorLedgerEntry."Document Type"::Payment:
+                                        if VendorLedgerEntry.Prepayment then
                                             InsertVendLE(VendorLedgerEntry, TempVendorLedgerEntry, DatePeriod, ReportType, ShowCorrection);
-                                end else
-                                    case "Document Type" of
-                                        "Document Type"::Invoice:
+                                    VendorLedgerEntry."Document Type"::"Credit Memo":
+                                        if ShowCorrection and not IsCrMemoIncludedInVatLedg(VendorLedgerEntry."Document No.", ReportType::Issued) then
                                             InsertVendLE(VendorLedgerEntry, TempVendorLedgerEntry, DatePeriod, ReportType, ShowCorrection);
-                                        "Document Type"::Payment:
-                                            if Prepayment then
-                                                InsertVendLE(VendorLedgerEntry, TempVendorLedgerEntry, DatePeriod, ReportType, ShowCorrection);
-                                        "Document Type"::"Credit Memo":
-                                            if ShowCorrection and not IsCrMemoIncludedInVatLedg("Document No.", ReportType::Issued) then
-                                                InsertVendLE(VendorLedgerEntry, TempVendorLedgerEntry, DatePeriod, ReportType, ShowCorrection);
-                                    end;
-                        until Next() = 0;
-                end;
+                                end;
+                    until VendorLedgerEntry.Next() = 0;
             until Vendor.Next() = 0;
     end;
 
@@ -60,28 +58,26 @@ codeunit 12424 "VAT Invoice Journal Management"
 
         if Customer.FindSet() then
             repeat
-                with CustomerLedgerEntry do begin
-                    SetRange("Posting Date", DatePeriod."Period Start", DatePeriod."Period End");
-                    SetRange("Customer No.", Customer."No.");
-                    if FindSet() then
-                        repeat
-                            if ReportType = ReportType::Received then begin
-                                if "Document Type" = "Document Type"::"Credit Memo" then
-                                    if IsCrMemoIncludedInVatLedg("Document No.", ReportType) then
+                CustomerLedgerEntry.SetRange("Posting Date", DatePeriod."Period Start", DatePeriod."Period End");
+                CustomerLedgerEntry.SetRange("Customer No.", Customer."No.");
+                if CustomerLedgerEntry.FindSet() then
+                    repeat
+                        if ReportType = ReportType::Received then begin
+                            if CustomerLedgerEntry."Document Type" = CustomerLedgerEntry."Document Type"::"Credit Memo" then
+                                if IsCrMemoIncludedInVatLedg(CustomerLedgerEntry."Document No.", ReportType) then
+                                    InsertCustLE(CustomerLedgerEntry, TempVendorLedgerEntry, DatePeriod, ReportType, ShowCorrection);
+                        end else
+                            case CustomerLedgerEntry."Document Type" of
+                                CustomerLedgerEntry."Document Type"::Invoice:
+                                    InsertCustLE(CustomerLedgerEntry, TempVendorLedgerEntry, DatePeriod, ReportType, ShowCorrection);
+                                CustomerLedgerEntry."Document Type"::Payment:
+                                    if CustomerLedgerEntry.Prepayment then
                                         InsertCustLE(CustomerLedgerEntry, TempVendorLedgerEntry, DatePeriod, ReportType, ShowCorrection);
-                            end else
-                                case "Document Type" of
-                                    "Document Type"::Invoice:
+                                CustomerLedgerEntry."Document Type"::"Credit Memo":
+                                    if not (ShowCorrection or IsCrMemoIncludedInVatLedg(CustomerLedgerEntry."Document No.", ReportType::Received)) then
                                         InsertCustLE(CustomerLedgerEntry, TempVendorLedgerEntry, DatePeriod, ReportType, ShowCorrection);
-                                    "Document Type"::Payment:
-                                        if Prepayment then
-                                            InsertCustLE(CustomerLedgerEntry, TempVendorLedgerEntry, DatePeriod, ReportType, ShowCorrection);
-                                    "Document Type"::"Credit Memo":
-                                        if not (ShowCorrection or IsCrMemoIncludedInVatLedg("Document No.", ReportType::Received)) then
-                                            InsertCustLE(CustomerLedgerEntry, TempVendorLedgerEntry, DatePeriod, ReportType, ShowCorrection);
-                                end;
-                        until Next() = 0;
-                end;
+                            end;
+                    until CustomerLedgerEntry.Next() = 0;
             until Customer.Next() = 0;
     end;
 
@@ -264,15 +260,13 @@ codeunit 12424 "VAT Invoice Journal Management"
     var
         DetailedVendLedgerEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with DetailedVendLedgerEntry do begin
-            SetRange("Entry Type", "Entry Type"::"Initial Entry");
-            SetRange("Vendor Ledger Entry No.", EntryNo);
-            SetRange("Vendor No.", VendorNo);
-            if FindFirst() then begin
-                AmountLCY := "Amount (LCY)";
-                if "Currency Code" <> '' then
-                    AmountFCY := Amount;
-            end;
+        DetailedVendLedgerEntry.SetRange("Entry Type", DetailedVendLedgerEntry."Entry Type"::"Initial Entry");
+        DetailedVendLedgerEntry.SetRange("Vendor Ledger Entry No.", EntryNo);
+        DetailedVendLedgerEntry.SetRange("Vendor No.", VendorNo);
+        if DetailedVendLedgerEntry.FindFirst() then begin
+            AmountLCY := DetailedVendLedgerEntry."Amount (LCY)";
+            if DetailedVendLedgerEntry."Currency Code" <> '' then
+                AmountFCY := DetailedVendLedgerEntry.Amount;
         end;
     end;
 
@@ -281,47 +275,43 @@ codeunit 12424 "VAT Invoice Journal Management"
         DetailedVendLedgerEntry: Record "Detailed Vendor Ledg. Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with DetailedVendLedgerEntry do begin
-            SetRange("Entry Type", "Entry Type"::Application);
-            SetRange("Vendor Ledger Entry No.", EntryNo);
-            SetRange("Vendor No.", VendorNo);
-            SetRange("Posting Date", 0D, PostingDate);
-            SetRange("Initial Document Type", "Initial Document Type"::Invoice);
+        DetailedVendLedgerEntry.SetRange("Entry Type", DetailedVendLedgerEntry."Entry Type"::Application);
+        DetailedVendLedgerEntry.SetRange("Vendor Ledger Entry No.", EntryNo);
+        DetailedVendLedgerEntry.SetRange("Vendor No.", VendorNo);
+        DetailedVendLedgerEntry.SetRange("Posting Date", 0D, PostingDate);
+        DetailedVendLedgerEntry.SetRange("Initial Document Type", DetailedVendLedgerEntry."Initial Document Type"::Invoice);
 
-            if FindSet() then
-                repeat
-                    if VendorLedgerEntry.Get("Applied Vend. Ledger Entry No.") then
-                        case VendorLedgerEntry."Document Type" of
-                            VendorLedgerEntry."Document Type"::"Credit Memo":
-                                if not IsCrMemoIncludedInVatLedg(VendorLedgerEntry."Document No.", ReportType::Issued) then
-                                    if IsCrMemoCorrection(VendorLedgerEntry."Document No.", ReportType::Issued) and ShowCorrection then begin
-                                        AmountLCY += "Amount (LCY)";
-                                        AmountFCY += Amount;
-                                    end;
-                            VendorLedgerEntry."Document Type"::Payment:
-                                if "Prepmt. Diff." then begin
-                                    AmountLCY += "Amount (LCY)";
-                                    AmountFCY += Amount;
-                                end
-                        end;
-                until Next() = 0;
-        end;
+        if DetailedVendLedgerEntry.FindSet() then
+            repeat
+                if VendorLedgerEntry.Get(DetailedVendLedgerEntry."Applied Vend. Ledger Entry No.") then
+                    case VendorLedgerEntry."Document Type" of
+                        VendorLedgerEntry."Document Type"::"Credit Memo":
+                            if not IsCrMemoIncludedInVatLedg(VendorLedgerEntry."Document No.", ReportType::Issued) then
+                                if IsCrMemoCorrection(VendorLedgerEntry."Document No.", ReportType::Issued) and ShowCorrection then begin
+                                    AmountLCY += DetailedVendLedgerEntry."Amount (LCY)";
+                                    AmountFCY += DetailedVendLedgerEntry.Amount;
+                                end;
+                        VendorLedgerEntry."Document Type"::Payment:
+                            if DetailedVendLedgerEntry."Prepmt. Diff." then begin
+                                AmountLCY += DetailedVendLedgerEntry."Amount (LCY)";
+                                AmountFCY += DetailedVendLedgerEntry.Amount;
+                            end
+                    end;
+            until DetailedVendLedgerEntry.Next() = 0;
     end;
 
     local procedure GetInitialCustAmounts(var AmountLCY: Decimal; var AmountFCY: Decimal; EntryNo: Integer; VendorNo: Code[20]): Decimal
     var
         DetailedCustLedgerEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DetailedCustLedgerEntry do begin
-            SetRange("Entry Type", "Entry Type"::"Initial Entry");
-            SetRange("Cust. Ledger Entry No.", EntryNo);
-            SetRange("Customer No.", VendorNo);
+        DetailedCustLedgerEntry.SetRange("Entry Type", DetailedCustLedgerEntry."Entry Type"::"Initial Entry");
+        DetailedCustLedgerEntry.SetRange("Cust. Ledger Entry No.", EntryNo);
+        DetailedCustLedgerEntry.SetRange("Customer No.", VendorNo);
 
-            if FindFirst() then begin
-                AmountLCY := "Amount (LCY)";
-                if "Currency Code" <> '' then
-                    AmountFCY := Amount;
-            end;
+        if DetailedCustLedgerEntry.FindFirst() then begin
+            AmountLCY := DetailedCustLedgerEntry."Amount (LCY)";
+            if DetailedCustLedgerEntry."Currency Code" <> '' then
+                AmountFCY := DetailedCustLedgerEntry.Amount;
         end;
     end;
 
@@ -330,31 +320,29 @@ codeunit 12424 "VAT Invoice Journal Management"
         DetailedCustLedgerEntry: Record "Detailed Cust. Ledg. Entry";
         CustomerLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with DetailedCustLedgerEntry do begin
-            SetRange("Entry Type", "Entry Type"::Application);
-            SetRange("Cust. Ledger Entry No.", EntryNo);
-            SetRange("Customer No.", VendorNo);
-            SetRange("Posting Date", 0D, PostingDate);
-            SetRange("Initial Document Type", "Initial Document Type"::Invoice);
+        DetailedCustLedgerEntry.SetRange("Entry Type", DetailedCustLedgerEntry."Entry Type"::Application);
+        DetailedCustLedgerEntry.SetRange("Cust. Ledger Entry No.", EntryNo);
+        DetailedCustLedgerEntry.SetRange("Customer No.", VendorNo);
+        DetailedCustLedgerEntry.SetRange("Posting Date", 0D, PostingDate);
+        DetailedCustLedgerEntry.SetRange("Initial Document Type", DetailedCustLedgerEntry."Initial Document Type"::Invoice);
 
-            if FindSet() then
-                repeat
-                    if CustomerLedgerEntry.Get("Applied Cust. Ledger Entry No.") then
-                        case CustomerLedgerEntry."Document Type" of
-                            CustomerLedgerEntry."Document Type"::"Credit Memo":
-                                if not IsCrMemoIncludedInVatLedg(CustomerLedgerEntry."Document No.", ReportType::Received) then
-                                    if IsCrMemoCorrection(CustomerLedgerEntry."Document No.", ReportType::Received) and ShowCorrection then begin
-                                        AmountLCY += "Amount (LCY)";
-                                        AmountFCY += Amount;
-                                    end;
-                            CustomerLedgerEntry."Document Type"::Payment:
-                                if "Prepmt. Diff." then begin
-                                    AmountLCY += "Amount (LCY)";
-                                    AmountFCY += Amount;
+        if DetailedCustLedgerEntry.FindSet() then
+            repeat
+                if CustomerLedgerEntry.Get(DetailedCustLedgerEntry."Applied Cust. Ledger Entry No.") then
+                    case CustomerLedgerEntry."Document Type" of
+                        CustomerLedgerEntry."Document Type"::"Credit Memo":
+                            if not IsCrMemoIncludedInVatLedg(CustomerLedgerEntry."Document No.", ReportType::Received) then
+                                if IsCrMemoCorrection(CustomerLedgerEntry."Document No.", ReportType::Received) and ShowCorrection then begin
+                                    AmountLCY += DetailedCustLedgerEntry."Amount (LCY)";
+                                    AmountFCY += DetailedCustLedgerEntry.Amount;
                                 end;
-                        end;
-                until Next() = 0;
-        end;
+                        CustomerLedgerEntry."Document Type"::Payment:
+                            if DetailedCustLedgerEntry."Prepmt. Diff." then begin
+                                AmountLCY += DetailedCustLedgerEntry."Amount (LCY)";
+                                AmountFCY += DetailedCustLedgerEntry.Amount;
+                            end;
+                    end;
+            until DetailedCustLedgerEntry.Next() = 0;
     end;
 
     local procedure GetName(No: Code[20]; EntryType: Option Purchase,Sale): Text[250]
@@ -401,10 +389,10 @@ codeunit 12424 "VAT Invoice Journal Management"
         exit(false);
     end;
 
-    local procedure InsertVATAgent(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var TempVendorLedgerEntry: Record "Vendor Ledger Entry"; DatePeriod: Record Date; ReportType: Option Received,Issued; ShowCorrection: Boolean)
+    local procedure InsertVATAgent(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var TempVendorLedgerEntry: Record "Vendor Ledger Entry"; DatePeriod: Record Date)
     var
-        AmountLCY: Decimal;
         VATEntry: Record "VAT Entry";
+        AmountLCY: Decimal;
     begin
         VATEntry.SetRange("CV Ledg. Entry No.", VendorLedgerEntry."Entry No.");
         VATEntry.SetRange("Posting Date", DatePeriod."Period Start", DatePeriod."Period End");
@@ -702,113 +690,103 @@ codeunit 12424 "VAT Invoice Journal Management"
         RevisionOfCorrDate: Date;
         PrintRevision: Boolean;
     begin
-        with VendLedgEntry do begin
-            VATAgent := IsVATAgent("CV Ledger Entry No.");
-            GetEntryType(
-              EntryType, "Document Type" = "Document Type"::"Credit Memo", "Document No.", ReportType);
-            if VATAgent then
-                EntryType := EntryType::Purchase;
-            Corrective :=
-              IsCorrectiveDocument(
-                VATEntry, "Vendor No.", "Document Type", "Document No.", EntryType);
-            VATExempt :=
-              LocRepMgt.VATExemptLine(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group");
-            GetDocAmounts(
-              AmtInclVATText, VATAmtText, Column, "Document Type", "Document No.", EntryType, VATExempt);
-            if Corrective then
-                VATLedgMgt.GetCorrDocProperties(
-                  VATEntry, DocumentNo, DocumentDate, CorrectionNo, CorrectionDate,
-                  RevisionNo, RevisionDate, RevisionOfCorrNo, RevisionOfCorrDate, PrintRevision);
-            if not Corrective or
-               (((RevisionNo <> '') or (RevisionOfCorrNo <> '')) and not PrintRevision)
-            then begin
-                if ReportType = ReportType::Received then
-                    DocumentNo := "Vendor VAT Invoice No."
-                else
-                    DocumentNo := "Document No.";
-                DocumentDate := "Vendor VAT Invoice Date";
-            end;
-
-            GetCorrVendVATInvNo(DocumentNo, CorrectionNo, "CV Ledger Entry No.", EntryType, PrintRevision);
-
-            VATLedgerLine.Init();
-            VATLedgerLine."Line No." := LineNo;
-            VATLedgerLine."Document No." := DocumentNo;
-            VATLedgerLine."Document Date" := DocumentDate;
-            VATLedgerLine."Correction No." := CorrectionNo;
-            VATLedgerLine."Correction Date" := CorrectionDate;
-            VATLedgerLine."Revision No." := RevisionNo;
-            VATLedgerLine."Revision Date" := RevisionDate;
-            VATLedgerLine."Revision of Corr. No." := RevisionOfCorrNo;
-            VATLedgerLine."Revision of Corr. Date" := RevisionOfCorrDate;
-            VATLedgerLine."Print Revision" := PrintRevision;
-            if not VATAgent then
-                VATLedgerLine."C/V Name" :=
-                  CopyStr(GetName("Vendor No.", EntryType), 1, MaxStrLen(VATLedgerLine."C/V Name"))
+        VATAgent := IsVATAgent(VendLedgEntry."CV Ledger Entry No.");
+        GetEntryType(
+          EntryType, VendLedgEntry."Document Type" = VendLedgEntry."Document Type"::"Credit Memo", VendLedgEntry."Document No.", ReportType);
+        if VATAgent then
+            EntryType := EntryType::Purchase;
+        Corrective :=
+          IsCorrectiveDocument(
+            VATEntry, VendLedgEntry."Vendor No.", VendLedgEntry."Document Type", VendLedgEntry."Document No.", EntryType);
+        VATExempt :=
+          LocRepMgt.VATExemptLine(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group");
+        GetDocAmounts(
+          AmtInclVATText, VATAmtText, Column, VendLedgEntry."Document Type", VendLedgEntry."Document No.", EntryType, VATExempt);
+        if Corrective then
+            VATLedgMgt.GetCorrDocProperties(
+              VATEntry, DocumentNo, DocumentDate, CorrectionNo, CorrectionDate,
+              RevisionNo, RevisionDate, RevisionOfCorrNo, RevisionOfCorrDate, PrintRevision);
+        if not Corrective or
+           (((RevisionNo <> '') or (RevisionOfCorrNo <> '')) and not PrintRevision)
+        then begin
+            if ReportType = ReportType::Received then
+                DocumentNo := VendLedgEntry."Vendor VAT Invoice No."
             else
-                VATLedgerLine."C/V Name" :=
-                  CopyStr(LocRepMgt.GetCompanyName(), 1, MaxStrLen(VATLedgerLine."C/V Name"));
-            VATInvRcvdDate := "Vendor VAT Invoice Rcvd Date";
-            VATEntryType := "VAT Entry Type";
-            CurrDescr := GetCurrencyInfo("Currency Code");
-            VATRegNoKPP := GetCVVATRegKPP("Vendor No.", GetCVType(EntryType), VATLedger.Type::Purchase);
+                DocumentNo := VendLedgEntry."Document No.";
+            DocumentDate := VendLedgEntry."Vendor VAT Invoice Date";
         end;
+
+        GetCorrVendVATInvNo(DocumentNo, CorrectionNo, VendLedgEntry."CV Ledger Entry No.", EntryType, PrintRevision);
+
+        VATLedgerLine.Init();
+        VATLedgerLine."Line No." := LineNo;
+        VATLedgerLine."Document No." := DocumentNo;
+        VATLedgerLine."Document Date" := DocumentDate;
+        VATLedgerLine."Correction No." := CorrectionNo;
+        VATLedgerLine."Correction Date" := CorrectionDate;
+        VATLedgerLine."Revision No." := RevisionNo;
+        VATLedgerLine."Revision Date" := RevisionDate;
+        VATLedgerLine."Revision of Corr. No." := RevisionOfCorrNo;
+        VATLedgerLine."Revision of Corr. Date" := RevisionOfCorrDate;
+        VATLedgerLine."Print Revision" := PrintRevision;
+        if not VATAgent then
+            VATLedgerLine."C/V Name" :=
+              CopyStr(GetName(VendLedgEntry."Vendor No.", EntryType), 1, MaxStrLen(VATLedgerLine."C/V Name"))
+        else
+            VATLedgerLine."C/V Name" :=
+              CopyStr(LocRepMgt.GetCompanyName(), 1, MaxStrLen(VATLedgerLine."C/V Name"));
+        VATInvRcvdDate := VendLedgEntry."Vendor VAT Invoice Rcvd Date";
+        VATEntryType := VendLedgEntry."VAT Entry Type";
+        CurrDescr := GetCurrencyInfo(VendLedgEntry."Currency Code");
+        VATRegNoKPP := GetCVVATRegKPP(VendLedgEntry."Vendor No.", GetCVType(EntryType), VATLedger.Type::Purchase);
     end;
 
     local procedure CalcSalesInvAmount(var AmtInclVAT: Decimal; var VATAmount: Decimal; DocumentNo: Code[20])
     var
         SalesInvLine: Record "Sales Invoice Line";
     begin
-        with SalesInvLine do begin
-            SetRange("Document No.", DocumentNo);
-            if FindSet() then
-                repeat
-                    AmtInclVAT += "Amount Including VAT";
-                    VATAmount += "Amount Including VAT" - Amount;
-                until Next() = 0;
-        end;
+        SalesInvLine.SetRange("Document No.", DocumentNo);
+        if SalesInvLine.FindSet() then
+            repeat
+                AmtInclVAT += SalesInvLine."Amount Including VAT";
+                VATAmount += SalesInvLine."Amount Including VAT" - SalesInvLine.Amount;
+            until SalesInvLine.Next() = 0;
     end;
 
     local procedure CalcSalesCrMemoAmount(var AmtInclVAT: Decimal; var VATAmount: Decimal; DocumentNo: Code[20])
     var
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
-        with SalesCrMemoLine do begin
-            SetRange("Document No.", DocumentNo);
-            if FindSet() then
-                repeat
-                    AmtInclVAT += "Amount Including VAT";
-                    VATAmount += "Amount Including VAT" - Amount;
-                until Next() = 0;
-        end;
+        SalesCrMemoLine.SetRange("Document No.", DocumentNo);
+        if SalesCrMemoLine.FindSet() then
+            repeat
+                AmtInclVAT += SalesCrMemoLine."Amount Including VAT";
+                VATAmount += SalesCrMemoLine."Amount Including VAT" - SalesCrMemoLine.Amount;
+            until SalesCrMemoLine.Next() = 0;
     end;
 
     local procedure CalcPurchInvAmount(var AmtInclVAT: Decimal; var VATAmount: Decimal; DocumentNo: Code[20])
     var
         PurchInvLine: Record "Purch. Inv. Line";
     begin
-        with PurchInvLine do begin
-            SetRange("Document No.", DocumentNo);
-            if FindSet() then
-                repeat
-                    AmtInclVAT += "Amount Including VAT";
-                    VATAmount += "Amount Including VAT" - Amount;
-                until Next() = 0;
-        end;
+        PurchInvLine.SetRange("Document No.", DocumentNo);
+        if PurchInvLine.FindSet() then
+            repeat
+                AmtInclVAT += PurchInvLine."Amount Including VAT";
+                VATAmount += PurchInvLine."Amount Including VAT" - PurchInvLine.Amount;
+            until PurchInvLine.Next() = 0;
     end;
 
     local procedure CalcPurchCrMemoAmount(var AmtInclVAT: Decimal; var VATAmount: Decimal; DocumentNo: Code[20])
     var
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
-        with PurchCrMemoLine do begin
-            SetRange("Document No.", DocumentNo);
-            if FindSet() then
-                repeat
-                    AmtInclVAT += "Amount Including VAT";
-                    VATAmount += "Amount Including VAT" - Amount;
-                until Next() = 0;
-        end;
+        PurchCrMemoLine.SetRange("Document No.", DocumentNo);
+        if PurchCrMemoLine.FindSet() then
+            repeat
+                AmtInclVAT += PurchCrMemoLine."Amount Including VAT";
+                VATAmount += PurchCrMemoLine."Amount Including VAT" - PurchCrMemoLine.Amount;
+            until PurchCrMemoLine.Next() = 0;
     end;
 }
 

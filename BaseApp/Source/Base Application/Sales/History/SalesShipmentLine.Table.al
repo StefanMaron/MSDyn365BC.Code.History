@@ -34,7 +34,6 @@ using Microsoft.Sales.Setup;
 using Microsoft.Service.Item;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Structure;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Security.User;
@@ -47,6 +46,7 @@ table 111 "Sales Shipment Line"
     Permissions = TableData "Item Ledger Entry" = r,
                   TableData "Value Entry" = r,
                   TableData "Sales Shipment Line" = m;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -199,7 +199,7 @@ table 111 "Sales Shipment Line"
         }
         field(45; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             TableRelation = Job;
         }
         field(52; "Work Type Code"; Code[10])
@@ -317,7 +317,7 @@ table 111 "Sales Shipment Line"
         }
         field(91; "Currency Code"; Code[10])
         {
-            CalcFormula = Lookup("Sales Shipment Header"."Currency Code" where("No." = field("Document No.")));
+            CalcFormula = lookup("Sales Shipment Header"."Currency Code" where("No." = field("Document No.")));
             Caption = 'Currency Code';
             Editable = false;
             FieldClass = FlowField;
@@ -383,13 +383,13 @@ table 111 "Sales Shipment Line"
         }
         field(1001; "Job Task No."; Code[20])
         {
-            Caption = 'Job Task No.';
+            Caption = 'Project Task No.';
             Editable = false;
             TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
         }
         field(1002; "Job Contract Entry No."; Integer)
         {
-            Caption = 'Job Contract Entry No.';
+            Caption = 'Project Contract Entry No.';
             Editable = false;
         }
         field(5402; "Variant Code"; Code[10])
@@ -1048,16 +1048,10 @@ table 111 "Sales Shipment Line"
     var
         TempVATAmountLineRemainder: Record "VAT Amount Line" temporary;
         Currency: Record Currency;
-        RecRef: RecordRef;
-        xRecRef: RecordRef;
-        ChangeLogMgt: Codeunit "Change Log Management";
         NewAmount: Decimal;
         NewAmountIncludingVAT: Decimal;
         NewVATBaseAmount: Decimal;
         VATAmount: Decimal;
-        VATDifference: Decimal;
-        InvDiscAmount: Decimal;
-        LineAmountToInvoice: Decimal;
         SalesSetup: Record "Sales & Receivables Setup";
         Totals: array[4] of Decimal;
         LineAmount: Decimal;
@@ -1073,110 +1067,108 @@ table 111 "Sales Shipment Line"
 
         TempVATAmountLineRemainder.DeleteAll();
 
-        with SalesShptLine do begin
-            SetRange("Document No.", SalesShptHeader."No.");
-            SetFilter(Type, '>0');
-            SetFilter(Quantity, '<>0');
-            SalesSetup.Get();
-            LockTable();
-            if Find('-') then
-                repeat
-                    LineDiscountAmount :=
-                      Round(
-                        Round(Quantity * "Unit Price", Currency."Amount Rounding Precision") *
-                        "Line Discount %" / 100, Currency."Amount Rounding Precision");
-                    LineAmount := Round(Quantity * "Unit Price" - LineDiscountAmount, Currency."Amount Rounding Precision");
-                    VATAmountLine.Get(
-                      Format("VAT %"), "VAT Calculation Type", "Tax Group Code", false, LineAmount >= 0);
-                    if VATAmountLine.Modified then begin
-                        if not TempVATAmountLineRemainder.Get(
-                          Format("VAT %"), "VAT Calculation Type", "Tax Group Code", false, LineAmount >= 0)
-                        then begin
-                            TempVATAmountLineRemainder := VATAmountLine;
-                            TempVATAmountLineRemainder.Init();
-                            TempVATAmountLineRemainder.Insert();
-                        end;
+        SalesShptLine.SetRange("Document No.", SalesShptHeader."No.");
+        SalesShptLine.SetFilter(Type, '>0');
+        SalesShptLine.SetFilter(Quantity, '<>0');
+        SalesSetup.Get();
+        SalesShptLine.LockTable();
+        if SalesShptLine.Find('-') then
+            repeat
+                LineDiscountAmount :=
+                  Round(
+                    Round(SalesShptLine.Quantity * SalesShptLine."Unit Price", Currency."Amount Rounding Precision") *
+                    SalesShptLine."Line Discount %" / 100, Currency."Amount Rounding Precision");
+                LineAmount := Round(SalesShptLine.Quantity * SalesShptLine."Unit Price" - LineDiscountAmount, Currency."Amount Rounding Precision");
+                VATAmountLine.Get(
+                  Format(SalesShptLine."VAT %"), SalesShptLine."VAT Calculation Type", SalesShptLine."Tax Group Code", false, LineAmount >= 0);
+                if VATAmountLine.Modified then begin
+                    if not TempVATAmountLineRemainder.Get(
+                      Format(SalesShptLine."VAT %"), SalesShptLine."VAT Calculation Type", SalesShptLine."Tax Group Code", false, LineAmount >= 0)
+                    then begin
+                        TempVATAmountLineRemainder := VATAmountLine;
+                        TempVATAmountLineRemainder.Init();
+                        TempVATAmountLineRemainder.Insert();
+                    end;
 
-                        if SalesShptHeader."Prices Including VAT" then begin
-                            if (VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount" = 0) or
-                               (LineAmount = 0)
-                            then begin
-                                VATAmount := 0;
-                                NewAmountIncludingVAT := 0;
-                            end else begin
-                                if not SalesSetup."Calc. VAT per Line" then
-                                    VATAmount :=
-                                      TempVATAmountLineRemainder."VAT Amount" +
-                                      VATAmountLine."VAT Amount" *
-                                      LineAmount / VATAmountLine."Line Amount"
-                                else
-                                    VATAmount :=
-                                      VATAmountLine."VAT Amount" *
-                                      LineAmount / VATAmountLine."Line Amount";
-                                NewAmountIncludingVAT :=
-                                  TempVATAmountLineRemainder."Amount Including VAT" +
-                                  VATAmountLine."Amount Including VAT" *
+                    if SalesShptHeader."Prices Including VAT" then begin
+                        if (VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount" = 0) or
+                           (LineAmount = 0)
+                        then begin
+                            VATAmount := 0;
+                            NewAmountIncludingVAT := 0;
+                        end else begin
+                            if not SalesSetup."Calc. VAT per Line" then
+                                VATAmount :=
+                                  TempVATAmountLineRemainder."VAT Amount" +
+                                  VATAmountLine."VAT Amount" *
+                                  LineAmount / VATAmountLine."Line Amount"
+                            else
+                                VATAmount :=
+                                  VATAmountLine."VAT Amount" *
                                   LineAmount / VATAmountLine."Line Amount";
-                            end;
-                            NewAmount :=
-                              Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision") -
-                              Round(VATAmount, Currency."Amount Rounding Precision");
+                            NewAmountIncludingVAT :=
+                              TempVATAmountLineRemainder."Amount Including VAT" +
+                              VATAmountLine."Amount Including VAT" *
+                              LineAmount / VATAmountLine."Line Amount";
+                        end;
+                        NewAmount :=
+                          Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision") -
+                          Round(VATAmount, Currency."Amount Rounding Precision");
+                        NewVATBaseAmount :=
+                          Round(
+                            NewAmount * (1 - SalesShptHeader."VAT Base Discount %" / 100),
+                            Currency."Amount Rounding Precision");
+                    end else begin
+                        if SalesShptLine."VAT Calculation Type" = SalesShptLine."VAT Calculation Type"::"Full VAT" then begin
+                            VATAmount := LineAmount;
+                            NewAmount := 0;
+                            NewVATBaseAmount := 0;
+                        end else begin
+                            NewAmount := LineAmount;
                             NewVATBaseAmount :=
                               Round(
                                 NewAmount * (1 - SalesShptHeader."VAT Base Discount %" / 100),
                                 Currency."Amount Rounding Precision");
-                        end else begin
-                            if "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT" then begin
-                                VATAmount := LineAmount;
-                                NewAmount := 0;
-                                NewVATBaseAmount := 0;
-                            end else begin
-                                NewAmount := LineAmount;
-                                NewVATBaseAmount :=
-                                  Round(
-                                    NewAmount * (1 - SalesShptHeader."VAT Base Discount %" / 100),
-                                    Currency."Amount Rounding Precision");
-                                if VATAmountLine."VAT Base" = 0 then
-                                    VATAmount := 0
+                            if VATAmountLine."VAT Base" = 0 then
+                                VATAmount := 0
+                            else
+                                if not SalesSetup."Calc. VAT per Line" then
+                                    VATAmount :=
+                                      TempVATAmountLineRemainder."VAT Amount" +
+                                      VATAmountLine."VAT Amount" * NewAmount / VATAmountLine."VAT Base"
                                 else
-                                    if not SalesSetup."Calc. VAT per Line" then
-                                        VATAmount :=
-                                          TempVATAmountLineRemainder."VAT Amount" +
-                                          VATAmountLine."VAT Amount" * NewAmount / VATAmountLine."VAT Base"
-                                    else
-                                        VATAmount :=
-                                          VATAmountLine."VAT Amount" * NewAmount / VATAmountLine."VAT Base";
-                            end;
-                            NewAmountIncludingVAT := NewAmount + Round(VATAmount, Currency."Amount Rounding Precision");
+                                    VATAmount :=
+                                      VATAmountLine."VAT Amount" * NewAmount / VATAmountLine."VAT Base";
                         end;
-                        Amount := NewAmount;
-                        "Amount Including VAT" := Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision");
-                        "VAT Base Amount" := NewVATBaseAmount;
-                        Totals[1] := Totals[1] + Amount;
-                        Totals[2] := Totals[2] + "Amount Including VAT";
-                        "Amount (LCY)" :=
-                          Round(
-                            CurrExchRate.ExchangeAmtFCYToLCY(
-                              SalesShptHeader."Posting Date", SalesShptHeader."Currency Code",
-                              Totals[1], SalesShptHeader."Currency Factor")) - Totals[3];
-                        "Amount Including VAT (LCY)" :=
-                          Round(
-                            CurrExchRate.ExchangeAmtFCYToLCY(
-                              SalesShptHeader."Posting Date", SalesShptHeader."Currency Code",
-                              Totals[2], SalesShptHeader."Currency Factor")) - Totals[4];
-                        Totals[3] := Totals[3] + "Amount (LCY)";
-                        Totals[4] := Totals[4] + "Amount Including VAT (LCY)";
-                        Modify();
-
-                        TempVATAmountLineRemainder."Amount Including VAT" :=
-                          NewAmountIncludingVAT - Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision");
-                        TempVATAmountLineRemainder."VAT Amount" := VATAmount - NewAmountIncludingVAT + NewAmount;
-                        TempVATAmountLineRemainder.Modify();
+                        NewAmountIncludingVAT := NewAmount + Round(VATAmount, Currency."Amount Rounding Precision");
                     end;
-                until Next() = 0;
-            SetRange(Type);
-            SetRange(Quantity);
-        end;
+                    SalesShptLine.Amount := NewAmount;
+                    SalesShptLine."Amount Including VAT" := Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision");
+                    SalesShptLine."VAT Base Amount" := NewVATBaseAmount;
+                    Totals[1] := Totals[1] + SalesShptLine.Amount;
+                    Totals[2] := Totals[2] + SalesShptLine."Amount Including VAT";
+                    SalesShptLine."Amount (LCY)" :=
+                      Round(
+                        CurrExchRate.ExchangeAmtFCYToLCY(
+                          SalesShptHeader."Posting Date", SalesShptHeader."Currency Code",
+                          Totals[1], SalesShptHeader."Currency Factor")) - Totals[3];
+                    SalesShptLine."Amount Including VAT (LCY)" :=
+                      Round(
+                        CurrExchRate.ExchangeAmtFCYToLCY(
+                          SalesShptHeader."Posting Date", SalesShptHeader."Currency Code",
+                          Totals[2], SalesShptHeader."Currency Factor")) - Totals[4];
+                    Totals[3] := Totals[3] + SalesShptLine."Amount (LCY)";
+                    Totals[4] := Totals[4] + SalesShptLine."Amount Including VAT (LCY)";
+                    SalesShptLine.Modify();
+
+                    TempVATAmountLineRemainder."Amount Including VAT" :=
+                      NewAmountIncludingVAT - Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision");
+                    TempVATAmountLineRemainder."VAT Amount" := VATAmount - NewAmountIncludingVAT + NewAmount;
+                    TempVATAmountLineRemainder.Modify();
+                end;
+            until SalesShptLine.Next() = 0;
+        SalesShptLine.SetRange(Type);
+        SalesShptLine.SetRange(Quantity);
     end;
 
     [Scope('OnPrem')]
@@ -1185,11 +1177,7 @@ table 111 "Sales Shipment Line"
         PrevVatAmountLine: Record "VAT Amount Line";
         Currency: Record Currency;
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
-        QtyFactor: Decimal;
         SalesSetup: Record "Sales & Receivables Setup";
-        SalesLine2: Record "Sales Line";
-        RoundingLineInserted: Boolean;
-        TotalVATAmount: Decimal;
         LineDiscountAmount: Decimal;
     begin
         if SalesShptHeader."Currency Code" = '' then
@@ -1199,174 +1187,171 @@ table 111 "Sales Shipment Line"
 
         VATAmountLine.DeleteAll();
 
-        with SalesShptLine do begin
-            SetRange("Document No.", SalesShptHeader."No.");
-            SetFilter(Type, '>0');
-            SetFilter(Quantity, '<>0');
-            SalesSetup.Get();
-            if Find('-') then
-                repeat
-                    if "VAT Calculation Type" in
-                       ["VAT Calculation Type"::"Reverse Charge VAT", "VAT Calculation Type"::"Sales Tax"]
-                    then
-                        "VAT %" := 0;
-                    if not VATAmountLine.Get(
-                      Format("VAT %"), "VAT Calculation Type", "Tax Group Code", false, Quantity * "Unit Price" >= 0)
-                    then begin
-                        VATAmountLine.Init();
-                        VATAmountLine."VAT Identifier" := Format("VAT %");
-                        VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
-                        VATAmountLine."Tax Group Code" := "Tax Group Code";
-                        VATAmountLine."VAT %" := "VAT %";
-                        VATAmountLine.Modified := true;
-                        VATAmountLine.Positive := Quantity * "Unit Price" >= 0;
-                        VATAmountLine.Insert();
-                    end;
-                    VATAmountLine.Quantity := VATAmountLine.Quantity + Quantity;
-                    LineDiscountAmount :=
-                      Round(
-                        Round(Quantity * "Unit Price", Currency."Amount Rounding Precision") *
-                        "Line Discount %" / 100, Currency."Amount Rounding Precision");
-                    VATAmountLine."Line Amount" :=
-                      VATAmountLine."Line Amount" +
-                      Round(Quantity * "Unit Price" - LineDiscountAmount, Currency."Amount Rounding Precision");
-                    VATAmountLine.Modify();
-                until Next() = 0;
-            SetRange(Type);
-            SetRange(Quantity);
-        end;
+        SalesShptLine.SetRange("Document No.", SalesShptHeader."No.");
+        SalesShptLine.SetFilter(Type, '>0');
+        SalesShptLine.SetFilter(Quantity, '<>0');
+        SalesSetup.Get();
+        if SalesShptLine.Find('-') then
+            repeat
+                if SalesShptLine."VAT Calculation Type" in
+                   [SalesShptLine."VAT Calculation Type"::"Reverse Charge VAT", SalesShptLine."VAT Calculation Type"::"Sales Tax"]
+                then
+                    SalesShptLine."VAT %" := 0;
+                if not VATAmountLine.Get(
+                  Format(SalesShptLine."VAT %"), SalesShptLine."VAT Calculation Type", SalesShptLine."Tax Group Code", false, SalesShptLine.Quantity * SalesShptLine."Unit Price" >= 0)
+                then begin
+                    VATAmountLine.Init();
+                    VATAmountLine."VAT Identifier" := Format(SalesShptLine."VAT %");
+                    VATAmountLine."VAT Calculation Type" := SalesShptLine."VAT Calculation Type";
+                    VATAmountLine."Tax Group Code" := SalesShptLine."Tax Group Code";
+                    VATAmountLine."VAT %" := SalesShptLine."VAT %";
+                    VATAmountLine.Modified := true;
+                    VATAmountLine.Positive := SalesShptLine.Quantity * SalesShptLine."Unit Price" >= 0;
+                    VATAmountLine.Insert();
+                end;
+                VATAmountLine.Quantity := VATAmountLine.Quantity + SalesShptLine.Quantity;
+                LineDiscountAmount :=
+                  Round(
+                    Round(SalesShptLine.Quantity * SalesShptLine."Unit Price", Currency."Amount Rounding Precision") *
+                    SalesShptLine."Line Discount %" / 100, Currency."Amount Rounding Precision");
+                VATAmountLine."Line Amount" :=
+                  VATAmountLine."Line Amount" +
+                  Round(SalesShptLine.Quantity * SalesShptLine."Unit Price" - LineDiscountAmount, Currency."Amount Rounding Precision");
+                VATAmountLine.Modify();
+            until SalesShptLine.Next() = 0;
+        SalesShptLine.SetRange(Type);
+        SalesShptLine.SetRange(Quantity);
 
-        with VATAmountLine do
-            if Find('-') then
-                repeat
-                    if (PrevVatAmountLine."VAT Identifier" <> VATAmountLine."VAT Identifier") or
-                       (PrevVatAmountLine."VAT Calculation Type" <> VATAmountLine."VAT Calculation Type") or
-                       (PrevVatAmountLine."Tax Group Code" <> VATAmountLine."Tax Group Code") or
-                       (PrevVatAmountLine."Use Tax" <> VATAmountLine."Use Tax")
-                    then
-                        PrevVatAmountLine.Init();
-                    if SalesShptHeader."Prices Including VAT" then begin
-                        case "VAT Calculation Type" of
-                            "VAT Calculation Type"::"Normal VAT",
-                            "VAT Calculation Type"::"Reverse Charge VAT":
-                                begin
-                                    "VAT Base" :=
-                                      Round(
-                                        ("Line Amount" - "Invoice Discount Amount") / (1 + "VAT %" / 100),
-                                        Currency."Amount Rounding Precision") - "VAT Difference";
-                                    "VAT Amount" :=
-                                      "VAT Difference" +
+        if VATAmountLine.Find('-') then
+            repeat
+                if (PrevVatAmountLine."VAT Identifier" <> VATAmountLine."VAT Identifier") or
+                   (PrevVatAmountLine."VAT Calculation Type" <> VATAmountLine."VAT Calculation Type") or
+                   (PrevVatAmountLine."Tax Group Code" <> VATAmountLine."Tax Group Code") or
+                   (PrevVatAmountLine."Use Tax" <> VATAmountLine."Use Tax")
+                then
+                    PrevVatAmountLine.Init();
+                if SalesShptHeader."Prices Including VAT" then begin
+                    case VATAmountLine."VAT Calculation Type" of
+                        VATAmountLine."VAT Calculation Type"::"Normal VAT",
+                        VATAmountLine."VAT Calculation Type"::"Reverse Charge VAT":
+                            begin
+                                VATAmountLine."VAT Base" :=
+                                  Round(
+                                    (VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount") / (1 + VATAmountLine."VAT %" / 100),
+                                    Currency."Amount Rounding Precision") - VATAmountLine."VAT Difference";
+                                VATAmountLine."VAT Amount" :=
+                                  VATAmountLine."VAT Difference" +
+                                  Round(
+                                    PrevVatAmountLine."VAT Amount" +
+                                    (VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount" - VATAmountLine."VAT Base" - VATAmountLine."VAT Difference") *
+                                    (1 - SalesShptHeader."VAT Base Discount %" / 100),
+                                    Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+                                if not SalesSetup."Calc. VAT per Line" then
+                                    VATAmountLine."VAT Amount" :=
+                                      VATAmountLine."VAT Difference" +
                                       Round(
                                         PrevVatAmountLine."VAT Amount" +
-                                        ("Line Amount" - "Invoice Discount Amount" - "VAT Base" - "VAT Difference") *
+                                        (VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount" - VATAmountLine."VAT Base" - VATAmountLine."VAT Difference") *
                                         (1 - SalesShptHeader."VAT Base Discount %" / 100),
-                                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
-                                    if not SalesSetup."Calc. VAT per Line" then
-                                        "VAT Amount" :=
-                                          "VAT Difference" +
-                                          Round(
-                                            PrevVatAmountLine."VAT Amount" +
-                                            ("Line Amount" - "Invoice Discount Amount" - "VAT Base" - "VAT Difference") *
-                                            (1 - SalesShptHeader."VAT Base Discount %" / 100),
-                                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection())
-                                    else
-                                        "VAT Amount" :=
-                                        "VAT Difference" +
-                                        PrevVatAmountLine."VAT Amount" +
-                                        ("Line Amount" - "Invoice Discount Amount" - "VAT Base" - "VAT Difference") *
-                                        (1 - SalesShptHeader."VAT Base Discount %" / 100);
-                                    "Amount Including VAT" := "VAT Base" + "VAT Amount";
-                                    if Positive then
-                                        PrevVatAmountLine.Init()
-                                    else begin
-                                        PrevVatAmountLine := VATAmountLine;
-                                        PrevVatAmountLine."VAT Amount" :=
-                                          ("Line Amount" - "Invoice Discount Amount" - "VAT Base" - "VAT Difference") *
-                                          (1 - SalesShptHeader."VAT Base Discount %" / 100);
-                                        PrevVatAmountLine."VAT Amount" :=
-                                          PrevVatAmountLine."VAT Amount" -
-                                          Round(PrevVatAmountLine."VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
-                                    end;
+                                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection())
+                                else
+                                    VATAmountLine."VAT Amount" :=
+                                    VATAmountLine."VAT Difference" +
+                                    PrevVatAmountLine."VAT Amount" +
+                                    (VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount" - VATAmountLine."VAT Base" - VATAmountLine."VAT Difference") *
+                                    (1 - SalesShptHeader."VAT Base Discount %" / 100);
+                                VATAmountLine."Amount Including VAT" := VATAmountLine."VAT Base" + VATAmountLine."VAT Amount";
+                                if VATAmountLine.Positive then
+                                    PrevVatAmountLine.Init()
+                                else begin
+                                    PrevVatAmountLine := VATAmountLine;
+                                    PrevVatAmountLine."VAT Amount" :=
+                                      (VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount" - VATAmountLine."VAT Base" - VATAmountLine."VAT Difference") *
+                                      (1 - SalesShptHeader."VAT Base Discount %" / 100);
+                                    PrevVatAmountLine."VAT Amount" :=
+                                      PrevVatAmountLine."VAT Amount" -
+                                      Round(PrevVatAmountLine."VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                                 end;
-                            "VAT Calculation Type"::"Full VAT":
-                                begin
-                                    "VAT Base" := 0;
-                                    "VAT Amount" := "VAT Difference" + "Line Amount" - "Invoice Discount Amount";
-                                    "Amount Including VAT" := "VAT Amount";
-                                end;
-                            "VAT Calculation Type"::"Sales Tax":
-                                begin
-                                    "Amount Including VAT" := "Line Amount" - "Invoice Discount Amount";
-                                    "VAT Base" :=
-                                      Round(
-                                        SalesTaxCalculate.ReverseCalculateTax(
-                                          SalesShptHeader."Tax Area Code", "Tax Group Code", SalesShptHeader."Tax Liable",
-                                          SalesShptHeader."Posting Date", "Amount Including VAT", Quantity, SalesShptHeader."Currency Factor"),
-                                        Currency."Amount Rounding Precision");
-                                    "VAT Amount" := "VAT Difference" + "Amount Including VAT" - "VAT Base";
-                                    if "VAT Base" = 0 then
-                                        "VAT %" := 0
-                                    else
-                                        "VAT %" := Round(100 * "VAT Amount" / "VAT Base", 0.00001);
-                                end;
-                        end;
-                    end else begin
-                        case "VAT Calculation Type" of
-                            "VAT Calculation Type"::"Normal VAT",
-                            "VAT Calculation Type"::"Reverse Charge VAT":
-                                begin
-                                    "VAT Base" := "Line Amount" - "Invoice Discount Amount";
-                                    if not SalesSetup."Calc. VAT per Line" then
-                                        "VAT Amount" :=
-                                          "VAT Difference" +
-                                          Round(
-                                            PrevVatAmountLine."VAT Amount" +
-                                            "VAT Base" * "VAT %" / 100 * (1 - SalesShptHeader."VAT Base Discount %" / 100),
-                                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection())
-                                    else
-                                        "VAT Amount" :=
-                                          "VAT Difference" +
-                                          PrevVatAmountLine."VAT Amount" +
-                                          "VAT Base" * "VAT %" / 100 * (1 - SalesShptHeader."VAT Base Discount %" / 100);
-                                    "Amount Including VAT" := "Line Amount" - "Invoice Discount Amount" + "VAT Amount";
-                                    if Positive then
-                                        PrevVatAmountLine.Init()
-                                    else begin
-                                        PrevVatAmountLine := VATAmountLine;
-                                        PrevVatAmountLine."VAT Amount" :=
-                                          "VAT Base" * "VAT %" / 100 * (1 - SalesShptHeader."VAT Base Discount %" / 100);
-                                        PrevVatAmountLine."VAT Amount" :=
-                                          PrevVatAmountLine."VAT Amount" -
-                                          Round(PrevVatAmountLine."VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
-                                    end;
-                                end;
-                            "VAT Calculation Type"::"Full VAT":
-                                begin
-                                    "VAT Base" := 0;
-                                    "VAT Amount" := "VAT Difference" + "Line Amount" - "Invoice Discount Amount";
-                                    "Amount Including VAT" := "VAT Amount";
-                                end;
-                            "VAT Calculation Type"::"Sales Tax":
-                                begin
-                                    "VAT Base" := "Line Amount" - "Invoice Discount Amount";
-                                    "VAT Amount" :=
-                                      SalesTaxCalculate.CalculateTax(
-                                        SalesShptHeader."Tax Area Code", "Tax Group Code", SalesShptHeader."Tax Liable",
-                                        SalesShptHeader."Posting Date", "VAT Base", Quantity, SalesShptHeader."Currency Factor");
-                                    if "VAT Base" = 0 then
-                                        "VAT %" := 0
-                                    else
-                                        "VAT %" := Round(100 * "VAT Amount" / "VAT Base", 0.00001);
-                                    "VAT Amount" :=
-                                      "VAT Difference" +
-                                      Round("VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
-                                    "Amount Including VAT" := "VAT Base" + "VAT Amount";
-                                end;
-                        end;
+                            end;
+                        VATAmountLine."VAT Calculation Type"::"Full VAT":
+                            begin
+                                VATAmountLine."VAT Base" := 0;
+                                VATAmountLine."VAT Amount" := VATAmountLine."VAT Difference" + VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount";
+                                VATAmountLine."Amount Including VAT" := VATAmountLine."VAT Amount";
+                            end;
+                        VATAmountLine."VAT Calculation Type"::"Sales Tax":
+                            begin
+                                VATAmountLine."Amount Including VAT" := VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount";
+                                VATAmountLine."VAT Base" :=
+                                  Round(
+                                    SalesTaxCalculate.ReverseCalculateTax(
+                                      SalesShptHeader."Tax Area Code", VATAmountLine."Tax Group Code", SalesShptHeader."Tax Liable",
+                                      SalesShptHeader."Posting Date", VATAmountLine."Amount Including VAT", VATAmountLine.Quantity, SalesShptHeader."Currency Factor"),
+                                    Currency."Amount Rounding Precision");
+                                VATAmountLine."VAT Amount" := VATAmountLine."VAT Difference" + VATAmountLine."Amount Including VAT" - VATAmountLine."VAT Base";
+                                if VATAmountLine."VAT Base" = 0 then
+                                    VATAmountLine."VAT %" := 0
+                                else
+                                    VATAmountLine."VAT %" := Round(100 * VATAmountLine."VAT Amount" / VATAmountLine."VAT Base", 0.00001);
+                            end;
                     end;
-                    "Calculated VAT Amount" := "VAT Amount" - "VAT Difference";
-                    Modify();
-                until Next() = 0;
+                end else begin
+                    case VATAmountLine."VAT Calculation Type" of
+                        VATAmountLine."VAT Calculation Type"::"Normal VAT",
+                        VATAmountLine."VAT Calculation Type"::"Reverse Charge VAT":
+                            begin
+                                VATAmountLine."VAT Base" := VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount";
+                                if not SalesSetup."Calc. VAT per Line" then
+                                    VATAmountLine."VAT Amount" :=
+                                      VATAmountLine."VAT Difference" +
+                                      Round(
+                                        PrevVatAmountLine."VAT Amount" +
+                                        VATAmountLine."VAT Base" * VATAmountLine."VAT %" / 100 * (1 - SalesShptHeader."VAT Base Discount %" / 100),
+                                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection())
+                                else
+                                    VATAmountLine."VAT Amount" :=
+                                      VATAmountLine."VAT Difference" +
+                                      PrevVatAmountLine."VAT Amount" +
+                                      VATAmountLine."VAT Base" * VATAmountLine."VAT %" / 100 * (1 - SalesShptHeader."VAT Base Discount %" / 100);
+                                VATAmountLine."Amount Including VAT" := VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount" + VATAmountLine."VAT Amount";
+                                if VATAmountLine.Positive then
+                                    PrevVatAmountLine.Init()
+                                else begin
+                                    PrevVatAmountLine := VATAmountLine;
+                                    PrevVatAmountLine."VAT Amount" :=
+                                      VATAmountLine."VAT Base" * VATAmountLine."VAT %" / 100 * (1 - SalesShptHeader."VAT Base Discount %" / 100);
+                                    PrevVatAmountLine."VAT Amount" :=
+                                      PrevVatAmountLine."VAT Amount" -
+                                      Round(PrevVatAmountLine."VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+                                end;
+                            end;
+                        VATAmountLine."VAT Calculation Type"::"Full VAT":
+                            begin
+                                VATAmountLine."VAT Base" := 0;
+                                VATAmountLine."VAT Amount" := VATAmountLine."VAT Difference" + VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount";
+                                VATAmountLine."Amount Including VAT" := VATAmountLine."VAT Amount";
+                            end;
+                        VATAmountLine."VAT Calculation Type"::"Sales Tax":
+                            begin
+                                VATAmountLine."VAT Base" := VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount";
+                                VATAmountLine."VAT Amount" :=
+                                  SalesTaxCalculate.CalculateTax(
+                                    SalesShptHeader."Tax Area Code", VATAmountLine."Tax Group Code", SalesShptHeader."Tax Liable",
+                                    SalesShptHeader."Posting Date", VATAmountLine."VAT Base", VATAmountLine.Quantity, SalesShptHeader."Currency Factor");
+                                if VATAmountLine."VAT Base" = 0 then
+                                    VATAmountLine."VAT %" := 0
+                                else
+                                    VATAmountLine."VAT %" := Round(100 * VATAmountLine."VAT Amount" / VATAmountLine."VAT Base", 0.00001);
+                                VATAmountLine."VAT Amount" :=
+                                  VATAmountLine."VAT Difference" +
+                                  Round(VATAmountLine."VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+                                VATAmountLine."Amount Including VAT" := VATAmountLine."VAT Base" + VATAmountLine."VAT Amount";
+                            end;
+                    end;
+                end;
+                VATAmountLine."Calculated VAT Amount" := VATAmountLine."VAT Amount" - VATAmountLine."VAT Difference";
+                VATAmountLine.Modify();
+            until VATAmountLine.Next() = 0;
     end;
 
     procedure InitFromSalesLine(SalesShptHeader: Record "Sales Shipment Header"; SalesLine: Record "Sales Line")

@@ -22,7 +22,6 @@
         WrongValueErr: Label 'Wrong value in %1.%2, Entry No.= %3.', Comment = '%1=table caption,%2=field caption';
         EntryDoesNotExistErr: Label 'Cannot find entry in table %1 with filters %2.';
         EntryExistsErr: Label 'The entry exists in table %1 with filters %2.';
-        NothingToAdjustTxt: Label 'There is nothing to adjust.';
 
     [Test]
     [Scope('OnPrem')]
@@ -273,7 +272,7 @@
         SetCancelPrepmtAdjmtInGLSetup(true, true);
         // [GIVEN] Posted Prepayment with unrealized VAT Amount = "X" and invoice
         InvAmount := PostInvAndUnrealPrepmt(PmtNo, InvNo);
-        PrepmtDocNo := GetNextPrepmtInvNo;
+        PrepmtDocNo := GetNextPrepmtInvNo();
         // [GIVEN] Posted Vendor VAT Invoice for Prepayment
         RunChangeVendorVATInvoice(VATPostingSetup, VendLedgEntry."Document Type"::Payment, PmtNo);
         VATAmount :=
@@ -863,7 +862,7 @@
     var
         i: Integer;
     begin
-        CurrencyCode := LibraryERM.CreateCurrencyWithGLAccountSetup;
+        CurrencyCode := LibraryERM.CreateCurrencyWithGLAccountSetup();
         for i := 1 to ArrayLen(ExchRateAmount) do begin
             CreateCurrExchRates(CurrencyCode, StartingDate, '', ExchRateAmount[i]);
             StartingDate := CalcDate('<1M>', StartingDate);
@@ -891,7 +890,7 @@
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Full VAT", LibraryRandom.RandIntInRange(10, 25));
         VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Percentage);
-        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Modify(true);
     end;
 
@@ -904,13 +903,13 @@
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroupCode, VATProductPostingGroup.Code);
         with VATPostingSetup do begin
             VATIdentifierCode :=
-              CopyStr(LibraryERM.CreateRandomVATIdentifierAndGetCode, 1, MaxStrLen(VATIdentifierCode));
+              CopyStr(LibraryERM.CreateRandomVATIdentifierAndGetCode(), 1, MaxStrLen(VATIdentifierCode));
             Validate("VAT Identifier", VATIdentifierCode);
             Validate("VAT Calculation Type", "VAT Calculation Type"::"Full VAT");
             Validate("VAT %", LibraryRandom.RandIntInRange(10, 25));
-            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
+            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
             Validate("Unrealized VAT Type", "Unrealized VAT Type"::Percentage);
-            Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
+            Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
             Modify(true);
         end;
     end;
@@ -952,17 +951,17 @@
             Validate(Prepayment, IsPrepayment);
             Validate("Currency Code", CurrencyCode);
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
             Modify(true);
         end;
     end;
 
     local procedure CreateItemPurchDocWithCurrency(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; PostingDate: Date; CurrencyCode: Code[10])
     begin
-        CreatePurchHeaderWithCurrency(PurchaseHeader, DocumentType, PostingDate, CurrencyCode, LibraryPurchase.CreateVendorNo);
+        CreatePurchHeaderWithCurrency(PurchaseHeader, DocumentType, PostingDate, CurrencyCode, LibraryPurchase.CreateVendorNo());
 
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(2, 10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(2, 10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(1000, 2000));
         PurchaseLine.Modify(true);
     end;
@@ -1065,22 +1064,22 @@
     local procedure GetGenJnlTemplateNextNo(PostingDate: Date): Code[20]
     var
         GenJnlTemplate: Record "Gen. Journal Template";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         GenJnlTemplate.SetRange(Type, GenJnlTemplate.Type::General);
         GenJnlTemplate.SetRange(Recurring, false);
         GenJnlTemplate.FindFirst();
-        exit(NoSeriesMgt.GetNextNo(GenJnlTemplate."No. Series", PostingDate, false));
+        exit(NoSeries.PeekNextNo(GenJnlTemplate."No. Series", PostingDate));
     end;
 
     local procedure GetNextPrepmtInvNo(): Code[20]
     var
         PurchPayablesSetup: Record "Purchases & Payables Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         PurchPayablesSetup.Get();
         PurchPayablesSetup.TestField("Posted Invoice Nos.");
-        exit(NoSeriesManagement.GetNextNo(PurchPayablesSetup."Posted Invoice Nos.", WorkDate(), false));
+        exit(NoSeries.PeekNextNo(PurchPayablesSetup."Posted Invoice Nos."));
     end;
 
     local procedure GetReceiptDocNo(VendorNo: Code[20]; ItemNo: Code[20]): Code[20]
@@ -1192,12 +1191,11 @@
         Vendor: Record Vendor;
         VendLedgEntry: Record "Vendor Ledger Entry";
         ChangeVendorVATInvoice: Report "Change Vendor VAT Invoice";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.TestField("Posted Invoice Nos.");
-        InvNo :=
-          NoSeriesManagement.GetNextNo(PurchasesPayablesSetup."Posted Invoice Nos.", WorkDate(), false);
+        InvNo := NoSeries.PeekNextNo(PurchasesPayablesSetup."Posted Invoice Nos.");
 
         LibraryERM.FindVendorLedgerEntry(VendLedgEntry, DocType, DocNo);
         Vendor.Get(VendLedgEntry."Vendor No.");
@@ -1248,7 +1246,7 @@
         VendorVATInvoiceReportHandler.InvoiceNo.SetValue(VendVATInvNo); // Vendor VAT Invoice No.
         VendorVATInvoiceReportHandler.InvoiceDate.SetValue(WorkDate());  // Vendor VAT Invoice Date
         VendorVATInvoiceReportHandler.InvoiceRcvdDate.SetValue(WorkDate());  // Vendor VAT Invoice Rcvd Date
-        VendorVATInvoiceReportHandler.OK.Invoke;
+        VendorVATInvoiceReportHandler.OK().Invoke();
     end;
 
     local procedure VerifyZeroRemAmtOnLedgEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
@@ -1317,7 +1315,7 @@
             SetRange("Vendor Ledger Entry No.", VendLedgEntry."Entry No.");
             SetRange("Prepmt. Diff.", true);
             Assert.IsTrue(
-              FindLast, StrSubstNo(EntryDoesNotExistErr, TableCaption(), GetFilters));
+              FindLast(), StrSubstNo(EntryDoesNotExistErr, TableCaption(), GetFilters));
             Assert.AreEqual(
               ExpectedAmount, "Amount (LCY)",
               StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Amount (LCY)"), "Entry No."));
@@ -1336,7 +1334,7 @@
             SetRange("Prepmt. Diff.", true);
             SetRange(Unapplied, true);
             Assert.IsTrue(
-              FindLast, StrSubstNo(EntryDoesNotExistErr, TableCaption(), GetFilters));
+              FindLast(), StrSubstNo(EntryDoesNotExistErr, TableCaption(), GetFilters));
             VendPostingGroup.Get(VendLedgEntry."Vendor Posting Group");
             VerifyGLEntry(
               DocType, DocNo, VendPostingGroup."Payables Account", "Amount (LCY)");
@@ -1474,7 +1472,7 @@
     [Scope('OnPrem')]
     procedure GetReceiptLinesModalPageHandler(var GetReceiptLines: TestPage "Get Receipt Lines")
     begin
-        GetReceiptLines.OK.Invoke;
+        GetReceiptLines.OK().Invoke();
     end;
 }
 

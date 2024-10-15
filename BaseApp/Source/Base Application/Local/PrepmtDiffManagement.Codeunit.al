@@ -109,35 +109,33 @@ codeunit 12412 PrepmtDiffManagement
         SalesPost: Codeunit "Sales-Post";
         PurchPost: Codeunit "Purch.-Post";
     begin
-        with AdvAdjmtEntryBuff do begin
-            Reset();
-            if FindSet() then
-                repeat
-                    case "Gen. Posting Type" of
-                        "Gen. Posting Type"::Purchase:
-                            begin
-                                PurchPost.SetPreviewMode(PreviewMode);
-                                PurchPost.SetIndirectCall(true);
-                                if Unapply then begin
-                                    "Transaction No." := InitialVATTransactionNo;
-                                    PurchPost.CreatePDDocForUnapply(AdvAdjmtEntryBuff);
-                                end else
-                                    PurchPost.CreateCorrDoc(AdvAdjmtEntryBuff, true);
-                            end;
-                        "Gen. Posting Type"::Sale:
-                            begin
-                                PurchPost.SetPreviewMode(PreviewMode);
-                                PurchPost.SetIndirectCall(true);
-                                if Unapply then begin
-                                    "Transaction No." := InitialVATTransactionNo;
-                                    SalesPost.CreatePDDocForUnapply(AdvAdjmtEntryBuff);
-                                end else
-                                    SalesPost.CreateCorrDoc(AdvAdjmtEntryBuff, true);
-                            end;
-                    end;
-                until Next() = 0;
-            DeleteAll();
-        end;
+        AdvAdjmtEntryBuff.Reset();
+        if AdvAdjmtEntryBuff.FindSet() then
+            repeat
+                case AdvAdjmtEntryBuff."Gen. Posting Type" of
+                    AdvAdjmtEntryBuff."Gen. Posting Type"::Purchase:
+                        begin
+                            PurchPost.SetPreviewMode(PreviewMode);
+                            PurchPost.SetIndirectCall(true);
+                            if Unapply then begin
+                                AdvAdjmtEntryBuff."Transaction No." := InitialVATTransactionNo;
+                                PurchPost.CreatePDDocForUnapply(AdvAdjmtEntryBuff);
+                            end else
+                                PurchPost.CreateCorrDoc(AdvAdjmtEntryBuff, true);
+                        end;
+                    AdvAdjmtEntryBuff."Gen. Posting Type"::Sale:
+                        begin
+                            PurchPost.SetPreviewMode(PreviewMode);
+                            PurchPost.SetIndirectCall(true);
+                            if Unapply then begin
+                                AdvAdjmtEntryBuff."Transaction No." := InitialVATTransactionNo;
+                                SalesPost.CreatePDDocForUnapply(AdvAdjmtEntryBuff);
+                            end else
+                                SalesPost.CreateCorrDoc(AdvAdjmtEntryBuff, true);
+                        end;
+                end;
+            until AdvAdjmtEntryBuff.Next() = 0;
+        AdvAdjmtEntryBuff.DeleteAll();
     end;
 
     [Scope('OnPrem')]

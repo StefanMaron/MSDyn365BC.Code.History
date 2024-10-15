@@ -8,8 +8,6 @@ codeunit 14946 "FA-1 Report Helper"
     var
         ExcelReportBuilderManager: Codeunit "Excel Report Builder Manager";
         StdRepMgt: Codeunit "Local Report Management";
-        LocMgt: Codeunit "Localisation Management";
-        SheetNo: Integer;
 
     [Scope('OnPrem')]
     procedure InitReportTemplate()
@@ -86,16 +84,12 @@ codeunit 14946 "FA-1 Report Helper"
 
     [Scope('OnPrem')]
     procedure FillDataPageHeader()
-    var
-        InvActLine: Record "Invent. Act Line";
     begin
         ExcelReportBuilderManager.AddSection('DATAPAGEHEADER');
     end;
 
     [Scope('OnPrem')]
     procedure FillCharPageHeader()
-    var
-        InvActLine: Record "Invent. Act Line";
     begin
         ExcelReportBuilderManager.AddSection('CHARPAGEHEADER');
     end;
@@ -229,11 +223,9 @@ codeunit 14946 "FA-1 Report Helper"
     [Scope('OnPrem')]
     procedure CalcDepreciationRate(FADepreciationBook: Record "FA Depreciation Book"): Decimal
     begin
-        with FADepreciationBook do begin
-            if "No. of Depreciation Years" <> 0 then
-                exit(Round(100 / (12 * "No. of Depreciation Years"), 0.01));
-            exit("Straight-Line %");
-        end;
+        if FADepreciationBook."No. of Depreciation Years" <> 0 then
+            exit(Round(100 / (12 * FADepreciationBook."No. of Depreciation Years"), 0.01));
+        exit(FADepreciationBook."Straight-Line %");
     end;
 
     [Scope('OnPrem')]

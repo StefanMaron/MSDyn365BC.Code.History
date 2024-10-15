@@ -2,6 +2,7 @@ table 17314 "Tax Calc. Accumulation"
 {
     Caption = 'Tax Calc. Accumulation';
     LookupPageID = "Tax Calc. Accumulat. Lines";
+    DataClassification = CustomerContent;
 
     fields
     {

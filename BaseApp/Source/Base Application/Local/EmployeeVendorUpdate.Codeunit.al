@@ -12,16 +12,14 @@ codeunit 12415 "EmployeeVendor-Update"
     [Scope('OnPrem')]
     procedure OnInsert(var Employee: Record Employee)
     begin
-        with Vend do begin
-            if Get(Employee."No.") then
-                Error(Text001, Format("Vendor Type"), Employee."No.");
+        if Vend.Get(Employee."No.") then
+            Error(Text001, Format(Vend."Vendor Type"), Employee."No.");
 
-            Init();
-            "No." := Employee."No.";
-            "Vendor Type" := "Vendor Type"::"Resp. Employee";
-            EmployeeToVendor(Employee, Vend);
-            Insert();
-        end;
+        Vend.Init();
+        Vend."No." := Employee."No.";
+        Vend."Vendor Type" := Vend."Vendor Type"::"Resp. Employee";
+        EmployeeToVendor(Employee, Vend);
+        Vend.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -40,22 +38,20 @@ codeunit 12415 "EmployeeVendor-Update"
     var
         PurchaseSetup: Record "Purchases & Payables Setup";
     begin
-        with Vendor do begin
-            Validate(Name, Employee."Short Name");
-            "Country/Region Code" := Employee."Country/Region Code";
-            Address := Employee.Address;
-            "Address 2" := Employee."Address 2";
-            City := Employee.City;
-            "Phone No." := Employee."Phone No.";
-            "Fax No." := Employee."Fax No.";
-            "Post Code" := Employee."Post Code";
-            "E-Mail" := Employee."E-Mail";
-            "Employee No." := Employee."No.";
-            PurchaseSetup.Get();
-            "Gen. Bus. Posting Group" := PurchaseSetup."Adv. Stmt. Gen.Bus. Posting Gr";
-            "VAT Bus. Posting Group" := PurchaseSetup."Adv. Stmt. VAT Bus. Posting Gr";
-            "Vendor Posting Group" := PurchaseSetup."Adv. Stmt. Vendor Posting Gr.";
-        end;
+        Vendor.Validate(Name, Employee."Short Name");
+        Vendor."Country/Region Code" := Employee."Country/Region Code";
+        Vendor.Address := Employee.Address;
+        Vendor."Address 2" := Employee."Address 2";
+        Vendor.City := Employee.City;
+        Vendor."Phone No." := Employee."Phone No.";
+        Vendor."Fax No." := Employee."Fax No.";
+        Vendor."Post Code" := Employee."Post Code";
+        Vendor."E-Mail" := Employee."E-Mail";
+        Vendor."Employee No." := Employee."No.";
+        PurchaseSetup.Get();
+        Vendor."Gen. Bus. Posting Group" := PurchaseSetup."Adv. Stmt. Gen.Bus. Posting Gr";
+        Vendor."VAT Bus. Posting Group" := PurchaseSetup."Adv. Stmt. VAT Bus. Posting Gr";
+        Vendor."Vendor Posting Group" := PurchaseSetup."Adv. Stmt. Vendor Posting Gr.";
     end;
 
     [Scope('OnPrem')]

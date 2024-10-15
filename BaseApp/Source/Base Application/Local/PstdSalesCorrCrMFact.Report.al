@@ -437,15 +437,14 @@ report 14968 "Pstd. Sales Corr. Cr. M. Fact."
         SalesInvoiceLine: Record "Sales Invoice Line";
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
-        with SalesLine do
-            case "Original Doc. Type" of
-                "Original Doc. Type"::Invoice:
-                    if SalesInvoiceLine.Get("Original Doc. No.", "Original Doc. Line No.") then
-                        exit(SalesInvoiceLine."Unit of Measure Code");
-                "Original Doc. Type"::"Credit Memo":
-                    if SalesCrMemoLine.Get("Original Doc. No.", "Original Doc. Line No.") then
-                        exit(SalesCrMemoLine."Unit of Measure Code");
-            end;
+        case SalesLine."Original Doc. Type" of
+            SalesLine."Original Doc. Type"::Invoice:
+                if SalesInvoiceLine.Get(SalesLine."Original Doc. No.", SalesLine."Original Doc. Line No.") then
+                    exit(SalesInvoiceLine."Unit of Measure Code");
+            SalesLine."Original Doc. Type"::"Credit Memo":
+                if SalesCrMemoLine.Get(SalesLine."Original Doc. No.", SalesLine."Original Doc. Line No.") then
+                    exit(SalesCrMemoLine."Unit of Measure Code");
+        end;
 
         exit('');
     end;
@@ -455,15 +454,14 @@ report 14968 "Pstd. Sales Corr. Cr. M. Fact."
         SalesInvoiceLine: Record "Sales Invoice Line";
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
-        with SalesLine do
-            case "Original Doc. Type" of
-                "Original Doc. Type"::Invoice:
-                    if SalesInvoiceLine.Get("Original Doc. No.", "Original Doc. Line No.") then
-                        exit(SalesInvoiceLine."VAT %");
-                "Original Doc. Type"::"Credit Memo":
-                    if SalesCrMemoLine.Get("Original Doc. No.", "Original Doc. Line No.") then
-                        exit(SalesCrMemoLine."VAT %");
-            end;
+        case SalesLine."Original Doc. Type" of
+            SalesLine."Original Doc. Type"::Invoice:
+                if SalesInvoiceLine.Get(SalesLine."Original Doc. No.", SalesLine."Original Doc. Line No.") then
+                    exit(SalesInvoiceLine."VAT %");
+            SalesLine."Original Doc. Type"::"Credit Memo":
+                if SalesCrMemoLine.Get(SalesLine."Original Doc. No.", SalesLine."Original Doc. Line No.") then
+                    exit(SalesCrMemoLine."VAT %");
+        end;
     end;
 
     local procedure ClearTotalAmountText(var TotalAmountTextArray: array[3] of Text[50])
@@ -488,11 +486,9 @@ report 14968 "Pstd. Sales Corr. Cr. M. Fact."
         TempSalesHeader: Record "Sales Header" temporary;
         CorrDocumentMgt: Codeunit "Corrective Document Mgt.";
     begin
-        with SalesLine do begin
-            CorrDocumentMgt.FillSalesCrMemoCorrHeader(TempSalesHeader, SalesCrMemoHeader);
-            CorrDocumentMgt.GetRevisionCorrectiveDocHeader(TempSalesHeader, TempSalesHeader);
-            SetRange("Document No.", TempSalesHeader."No.");
-        end;
+        CorrDocumentMgt.FillSalesCrMemoCorrHeader(TempSalesHeader, SalesCrMemoHeader);
+        CorrDocumentMgt.GetRevisionCorrectiveDocHeader(TempSalesHeader, TempSalesHeader);
+        SalesLine.SetRange("Document No.", TempSalesHeader."No.");
     end;
 
     local procedure FillHeader(SalesHeader: Record "Sales Cr.Memo Header")

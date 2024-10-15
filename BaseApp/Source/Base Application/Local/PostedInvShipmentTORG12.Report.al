@@ -378,14 +378,12 @@ report 12413 "Posted Inv. Shipment TORG-12"
 
     local procedure TransferAmounts(SalesLine: Record "Sales Invoice Line"; var AmountValues: array[6] of Decimal)
     begin
-        with SalesLine do begin
-            AmountValues[1] := Amount;
-            AmountValues[2] := "Amount Including VAT" - Amount;
-            AmountValues[3] := "Amount Including VAT";
-            AmountValues[4] := Quantity;
-            AmountValues[5] := Quantity * "Gross Weight";
-            AmountValues[6] := Quantity * "Net Weight";
-        end;
+        AmountValues[1] := SalesLine.Amount;
+        AmountValues[2] := SalesLine."Amount Including VAT" - SalesLine.Amount;
+        AmountValues[3] := SalesLine."Amount Including VAT";
+        AmountValues[4] := SalesLine.Quantity;
+        AmountValues[5] := SalesLine.Quantity * SalesLine."Gross Weight";
+        AmountValues[6] := SalesLine.Quantity * SalesLine."Net Weight";
     end;
 
     [Scope('OnPrem')]

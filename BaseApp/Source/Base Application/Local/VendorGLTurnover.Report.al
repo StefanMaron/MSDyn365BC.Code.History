@@ -387,9 +387,6 @@ report 12451 "Vendor G/L Turnover"
 
     var
         Text003: Label 'Zero values are replaced by spacebar';
-        Text005: Label 'for period from ';
-        Text006: Label ' to ';
-        GLSetup: Record "General Ledger Setup";
         VendPostingGr: Record "Vendor Posting Group";
         LocMgt: Codeunit "Localisation Management";
         GLAccFilter: Text;
@@ -399,18 +396,14 @@ report 12451 "Vendor G/L Turnover"
         Decimals: Decimal;
         SkipZeroValues: Boolean;
         SkipZeroLines: Boolean;
-        TotalPrinted: Boolean;
         PrintParameters: Boolean;
-        PrintTotals: Boolean;
         PrintAgreements: Boolean;
         CurrentDate: Text[30];
         RequestFilter: Text;
         AmountUnit: Text[30];
-        ValueFormat: Text[50];
         ReportParameters: array[4] of Text[80];
         PeriodText: Text[100];
         Counter: Integer;
-        I: Integer;
         StartBalanceDebit: Decimal;
         StartBalanceCredit: Decimal;
         EndBalanceDebit: Decimal;

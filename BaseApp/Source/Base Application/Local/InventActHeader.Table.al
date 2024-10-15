@@ -2,6 +2,7 @@ table 14908 "Invent. Act Header"
 {
     Caption = 'Invent. Act Header';
     LookupPageID = "Invent. Act List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -102,11 +103,13 @@ table 14908 "Invent. Act Header"
     end;
 
     trigger OnInsert()
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         if "No." = '' then begin
             GLSetup.Get();
             GLSetup.TestField("Contractor Invent. Act Nos.");
-            "No." := NoSeriesManagement.GetNextNo(GLSetup."Contractor Invent. Act Nos.", WorkDate(), true);
+            "No." := NoSeries.GetNextNo(GLSetup."Contractor Invent. Act Nos.");
         end;
 
         "Act Date" := WorkDate();
@@ -115,7 +118,6 @@ table 14908 "Invent. Act Header"
 
     var
         GLSetup: Record "General Ledger Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
 
     [Scope('OnPrem')]
     procedure Release()
@@ -139,11 +141,13 @@ table 14908 "Invent. Act Header"
 
     [Scope('OnPrem')]
     procedure AssistEdit(): Boolean
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         GLSetup.Get();
         GLSetup.TestField("Contractor Invent. Act Nos.");
-        if NoSeriesManagement.SelectSeries(GLSetup."Contractor Invent. Act Nos.", xRec."No. Series", "No. Series") then begin
-            NoSeriesManagement.SetSeries("No.");
+        if NoSeries.LookupRelatedNoSeries(GLSetup."Contractor Invent. Act Nos.", xRec."No. Series", "No. Series") then begin
+            "No." := NoSeries.GetNextNo("No. Series");
             exit(true);
         end;
     end;

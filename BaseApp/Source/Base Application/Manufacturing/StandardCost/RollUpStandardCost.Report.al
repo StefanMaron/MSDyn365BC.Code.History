@@ -113,31 +113,29 @@ report 5854 "Roll Up Standard Cost"
     var
         Found: Boolean;
     begin
-        with StdCostWksh do begin
-            Found := Get(ToStdCostWkshName, Type::Item, TempItem."No.");
-            Validate("Standard Cost Worksheet Name", ToStdCostWkshName);
-            Validate(Type, Type::Item);
-            Validate("No.", TempItem."No.");
-            "New Standard Cost" := TempItem."Standard Cost";
+        Found := StdCostWksh.Get(ToStdCostWkshName, StdCostWksh.Type::Item, TempItem."No.");
+        StdCostWksh.Validate("Standard Cost Worksheet Name", ToStdCostWkshName);
+        StdCostWksh.Validate(Type, StdCostWksh.Type::Item);
+        StdCostWksh.Validate("No.", TempItem."No.");
+        StdCostWksh."New Standard Cost" := TempItem."Standard Cost";
 
-            "New Single-Lvl Material Cost" := TempItem."Single-Level Material Cost";
-            "New Single-Lvl Cap. Cost" := TempItem."Single-Level Capacity Cost";
-            "New Single-Lvl Subcontrd Cost" := TempItem."Single-Level Subcontrd. Cost";
-            "New Single-Lvl Cap. Ovhd Cost" := TempItem."Single-Level Cap. Ovhd Cost";
-            "New Single-Lvl Mfg. Ovhd Cost" := TempItem."Single-Level Mfg. Ovhd Cost";
+        StdCostWksh."New Single-Lvl Material Cost" := TempItem."Single-Level Material Cost";
+        StdCostWksh."New Single-Lvl Cap. Cost" := TempItem."Single-Level Capacity Cost";
+        StdCostWksh."New Single-Lvl Subcontrd Cost" := TempItem."Single-Level Subcontrd. Cost";
+        StdCostWksh."New Single-Lvl Cap. Ovhd Cost" := TempItem."Single-Level Cap. Ovhd Cost";
+        StdCostWksh."New Single-Lvl Mfg. Ovhd Cost" := TempItem."Single-Level Mfg. Ovhd Cost";
 
-            "New Rolled-up Material Cost" := TempItem."Rolled-up Material Cost";
-            "New Rolled-up Cap. Cost" := TempItem."Rolled-up Capacity Cost";
-            "New Rolled-up Subcontrd Cost" := TempItem."Rolled-up Subcontracted Cost";
-            "New Rolled-up Cap. Ovhd Cost" := TempItem."Rolled-up Cap. Overhead Cost";
-            "New Rolled-up Mfg. Ovhd Cost" := TempItem."Rolled-up Mfg. Ovhd Cost";
-            OnUpdateStdCostWkshOnAfterFieldsPopulated(StdCostWksh, TempItem);
+        StdCostWksh."New Rolled-up Material Cost" := TempItem."Rolled-up Material Cost";
+        StdCostWksh."New Rolled-up Cap. Cost" := TempItem."Rolled-up Capacity Cost";
+        StdCostWksh."New Rolled-up Subcontrd Cost" := TempItem."Rolled-up Subcontracted Cost";
+        StdCostWksh."New Rolled-up Cap. Ovhd Cost" := TempItem."Rolled-up Cap. Overhead Cost";
+        StdCostWksh."New Rolled-up Mfg. Ovhd Cost" := TempItem."Rolled-up Mfg. Ovhd Cost";
+        OnUpdateStdCostWkshOnAfterFieldsPopulated(StdCostWksh, TempItem);
 
-            if Found then
-                Modify(true)
-            else
-                Insert(true);
-        end;
+        if Found then
+            StdCostWksh.Modify(true)
+        else
+            StdCostWksh.Insert(true);
     end;
 
     procedure SetStdCostWksh(NewStdCostWkshName: Code[10])

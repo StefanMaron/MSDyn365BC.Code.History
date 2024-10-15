@@ -3,6 +3,7 @@ table 17304 "Tax Diff. Journal Batch"
     Caption = 'Tax Diff. Journal Batch';
     DataCaptionFields = Name, Description;
     LookupPageID = "Tax Difference Journal Batches";
+    DataClassification = CustomerContent;
 
     fields
     {

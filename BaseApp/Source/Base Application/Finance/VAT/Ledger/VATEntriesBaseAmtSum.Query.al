@@ -5,7 +5,7 @@ using Microsoft.Foundation.Address;
 query 19 "VAT Entries Base Amt. Sum"
 {
     Caption = 'VAT Entries Base Amt. Sum';
-    OrderBy = Ascending(Country_Region_Code), Ascending(VAT_Registration_No);
+    OrderBy = ascending(Country_Region_Code), ascending(VAT_Registration_No);
 
     elements
     {

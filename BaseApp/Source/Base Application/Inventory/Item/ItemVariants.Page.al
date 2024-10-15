@@ -50,6 +50,11 @@ page 5401 "Item Variants"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the item variant cannot be entered on sales documents, except return orders and credit memos, and journals.';
                 }
+                field("Service Blocked"; Rec."Service Blocked")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies that the item variant cannot be entered on service items, service contracts and service documents, except credit memos.';
+                }
                 field("Purchasing Blocked"; Rec."Purchasing Blocked")
                 {
                     ApplicationArea = Basic, Suite;

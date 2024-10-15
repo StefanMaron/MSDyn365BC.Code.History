@@ -6,6 +6,7 @@ using Microsoft.Inventory.Tracking;
 table 6509 "Whse. Item Entry Relation"
 {
     Caption = 'Whse. Item Entry Relation';
+    DataClassification = CustomerContent;
 
     fields
     {

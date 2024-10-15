@@ -1,6 +1,7 @@
 table 26565 "Stat. Report Data Change Log"
 {
     Caption = 'Stat. Report Data Change Log';
+    DataClassification = CustomerContent;
 
     fields
     {

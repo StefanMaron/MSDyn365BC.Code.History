@@ -45,162 +45,158 @@ codeunit 17206 "Create Tax Register Item Entry"
         Window.Update(2, EndDate);
 
         ValueEntryPostedToGL.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
-        with ItemLedgEntry do begin
-            Window.Update(4, TableCaption);
+        Window.Update(4, ItemLedgEntry.TableCaption);
 
-            SetCurrentKey("Item No.", "Posting Date");
-            SetRange("Posting Date", StartDate, EndDate);
+        ItemLedgEntry.SetCurrentKey("Item No.", "Posting Date");
+        ItemLedgEntry.SetRange("Posting Date", StartDate, EndDate);
 
-            SetFilter("Entry Type", '%1|%2|%3|%4',
-              "Entry Type"::Purchase,
-              "Entry Type"::Sale,
-              "Entry Type"::"Positive Adjmt.",
-              "Entry Type"::"Negative Adjmt.");
+        ItemLedgEntry.SetFilter("Entry Type", '%1|%2|%3|%4',
+          ItemLedgEntry."Entry Type"::Purchase,
+          ItemLedgEntry."Entry Type"::Sale,
+          ItemLedgEntry."Entry Type"::"Positive Adjmt.",
+          ItemLedgEntry."Entry Type"::"Negative Adjmt.");
 
-            Total := Count;
-            Procesing := 0;
+        Total := ItemLedgEntry.Count;
+        Procesing := 0;
 
-            if FindSet() then
-                repeat
-                    Procesing += 1;
-                    if (Procesing mod 50) = 1 then
-                        Window.Update(3, Round((Procesing / Total) * 10000, 1));
-                    Item.Get("Item No.");
+        if ItemLedgEntry.FindSet() then
+            repeat
+                Procesing += 1;
+                if (Procesing mod 50) = 1 then
+                    Window.Update(3, Round((Procesing / Total) * 10000, 1));
+                Item.Get(ItemLedgEntry."Item No.");
 
-                    CalcFields("Cost Amount (Actual)");
-                    ValueEntryPostedToGL.SetRange("Item Ledger Entry No.", "Entry No.");
-                    ValueEntryPostedToGL.CalcSums("Cost Posted to G/L");
-                    if "Cost Amount (Actual)" <> ValueEntryPostedToGL."Cost Posted to G/L" then
-                        Error(Text21000902);
-                    TaxRegItemEntry.Init();
-                    TaxRegItemEntry."Section Code" := SectionCode;
-                    TaxRegItemEntry."Starting Date" := StartDate;
-                    TaxRegItemEntry."Ending Date" := EndDate;
-                    TaxRegItemEntry."Posting Date" := "Posting Date";
-                    TaxRegItemEntry."Ledger Entry No." := "Entry No.";
-                    TaxDimMgt.SetLedgEntryDim(SectionCode, "Dimension Set ID");
-                    TaxRegItemEntry."Item No." := Item."No.";
-                    UpdateDescription(ItemLedgEntry, TaxRegItemEntry);
-                    UpdatePostingData(TaxRegItemEntry);
-                    if TaxRegGLCorrEntry.Get(SectionCode, TaxRegItemEntry."Debit Account No.", '', TaxRegGLCorrEntry."Register Type"::Item) or
-                       TaxRegGLCorrEntry.Get(SectionCode, '', TaxRegItemEntry."Credit Account No.", TaxRegGLCorrEntry."Register Type"::Item)
+                ItemLedgEntry.CalcFields("Cost Amount (Actual)");
+                ValueEntryPostedToGL.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
+                ValueEntryPostedToGL.CalcSums("Cost Posted to G/L");
+                if ItemLedgEntry."Cost Amount (Actual)" <> ValueEntryPostedToGL."Cost Posted to G/L" then
+                    Error(Text21000902);
+                TaxRegItemEntry.Init();
+                TaxRegItemEntry."Section Code" := SectionCode;
+                TaxRegItemEntry."Starting Date" := StartDate;
+                TaxRegItemEntry."Ending Date" := EndDate;
+                TaxRegItemEntry."Posting Date" := ItemLedgEntry."Posting Date";
+                TaxRegItemEntry."Ledger Entry No." := ItemLedgEntry."Entry No.";
+                TaxDimMgt.SetLedgEntryDim(SectionCode, ItemLedgEntry."Dimension Set ID");
+                TaxRegItemEntry."Item No." := Item."No.";
+                UpdateDescription(ItemLedgEntry, TaxRegItemEntry);
+                UpdatePostingData(TaxRegItemEntry);
+                if TaxRegGLCorrEntry.Get(SectionCode, TaxRegItemEntry."Debit Account No.", '', TaxRegGLCorrEntry."Register Type"::Item) or
+                   TaxRegGLCorrEntry.Get(SectionCode, '', TaxRegItemEntry."Credit Account No.", TaxRegGLCorrEntry."Register Type"::Item)
+                then
+                    if not TaxDimMgt.WhereUsedByDimensions(TaxRegGLCorrEntry, TaxRegItemEntry."Where Used Register IDs",
+                         TaxRegItemEntry."Dimension 1 Value Code", TaxRegItemEntry."Dimension 2 Value Code",
+                         TaxRegItemEntry."Dimension 3 Value Code", TaxRegItemEntry."Dimension 4 Value Code")
                     then
-                        if not TaxDimMgt.WhereUsedByDimensions(TaxRegGLCorrEntry, TaxRegItemEntry."Where Used Register IDs",
-                             TaxRegItemEntry."Dimension 1 Value Code", TaxRegItemEntry."Dimension 2 Value Code",
-                             TaxRegItemEntry."Dimension 3 Value Code", TaxRegItemEntry."Dimension 4 Value Code")
-                        then
-                            TaxRegItemEntry."Where Used Register IDs" := '';
+                        TaxRegItemEntry."Where Used Register IDs" := '';
 
-                    CheckWhereUsedByCostingMetod(TaxRegItemEntry, Item);
-                    if TaxRegItemEntry."Where Used Register IDs" <> '' then
-                        if Positive then begin
-                            TaxRegItemEntry."Original Amount" := "Cost Amount (Actual)";
-                            TaxRegItemEntry."Qty. (Document)" := Quantity;
-                            AmountForTaxAccounting := CalcAmountForTaxAccounting(ItemLedgEntry);
-                            TaxRegItemEntry."Amount (Document)" := AmountForTaxAccounting;
-                            TaxRegItemEntry."Entry Type" := TaxRegItemEntry."Entry Type"::Incoming;
-                            TaxRegItemEntry."Batch Date" := "Posting Date";
-                            TaxRegItemEntry."Appl. Entry No." := "Entry No.";
-                            TaxRegItemEntry."Batch Qty." := Quantity;
-                            TaxRegItemEntry."Batch Amount" := AmountForTaxAccounting;
-                            TaxRegItemEntry."Debit Unit Cost" :=
-                              Round(AmountForTaxAccounting / Quantity);
-                            TaxRegItemEntry."Credit Qty." := Quantity;
-                            TaxRegItemEntry."Credit Amount" := AmountForTaxAccounting;
-                            TaxRegItemEntry."Entry No." += 1;
-                            TaxRegItemEntry.Insert();
-                        end else begin
-                            DocumentAmountForTaxAccounting := 0;
-                            TaxRegItemEntry."Qty. (Document)" := -Quantity;
-                            TaxRegItemEntry."Amount (Document)" := -"Cost Amount (Actual)";
-                            TaxRegItemEntry."Entry Type" := TaxRegItemEntry."Entry Type"::Spending;
-                            QtyEntry := Quantity;
-                            AmountEntry := "Cost Amount (Actual)";
-                            ItemApplEntry.SetRange("Item Ledger Entry No.", "Entry No.");
-                            SecondaryBatch := false;
-                            if ItemApplEntry.FindSet() then
-                                repeat
-                                    if ItemApplEntry.Quantity < 0 then begin
-                                        if not ItemLedgEntry2.Get(ItemApplEntry."Inbound Item Entry No.") then
-                                            ItemLedgEntry2.Init();
-                                        if ItemLedgEntry2."Entry Type" = ItemLedgEntry2."Entry Type"::Transfer then
-                                            repeat
-                                                ItemApplEntry2.SetRange("Item Ledger Entry No.", ItemLedgEntry2."Entry No.");
-                                                ItemApplEntry2.FindFirst();
-                                                if not ItemLedgEntry2.Get(ItemApplEntry2."Transferred-from Entry No.") then
-                                                    ItemLedgEntry2.Init();
-                                            until ItemLedgEntry2."Entry Type" <> ItemLedgEntry2."Entry Type"::Transfer;
+                CheckWhereUsedByCostingMetod(TaxRegItemEntry, Item);
+                if TaxRegItemEntry."Where Used Register IDs" <> '' then
+                    if ItemLedgEntry.Positive then begin
+                        TaxRegItemEntry."Original Amount" := ItemLedgEntry."Cost Amount (Actual)";
+                        TaxRegItemEntry."Qty. (Document)" := ItemLedgEntry.Quantity;
+                        AmountForTaxAccounting := CalcAmountForTaxAccounting(ItemLedgEntry);
+                        TaxRegItemEntry."Amount (Document)" := AmountForTaxAccounting;
+                        TaxRegItemEntry."Entry Type" := TaxRegItemEntry."Entry Type"::Incoming;
+                        TaxRegItemEntry."Batch Date" := ItemLedgEntry."Posting Date";
+                        TaxRegItemEntry."Appl. Entry No." := ItemLedgEntry."Entry No.";
+                        TaxRegItemEntry."Batch Qty." := ItemLedgEntry.Quantity;
+                        TaxRegItemEntry."Batch Amount" := AmountForTaxAccounting;
+                        TaxRegItemEntry."Debit Unit Cost" :=
+                          Round(AmountForTaxAccounting / ItemLedgEntry.Quantity);
+                        TaxRegItemEntry."Credit Qty." := ItemLedgEntry.Quantity;
+                        TaxRegItemEntry."Credit Amount" := AmountForTaxAccounting;
+                        TaxRegItemEntry."Entry No." += 1;
+                        TaxRegItemEntry.Insert();
+                    end else begin
+                        DocumentAmountForTaxAccounting := 0;
+                        TaxRegItemEntry."Qty. (Document)" := -ItemLedgEntry.Quantity;
+                        TaxRegItemEntry."Amount (Document)" := -ItemLedgEntry."Cost Amount (Actual)";
+                        TaxRegItemEntry."Entry Type" := TaxRegItemEntry."Entry Type"::Spending;
+                        QtyEntry := ItemLedgEntry.Quantity;
+                        AmountEntry := ItemLedgEntry."Cost Amount (Actual)";
+                        ItemApplEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
+                        SecondaryBatch := false;
+                        if ItemApplEntry.FindSet() then
+                            repeat
+                                if ItemApplEntry.Quantity < 0 then begin
+                                    if not ItemLedgEntry2.Get(ItemApplEntry."Inbound Item Entry No.") then
+                                        ItemLedgEntry2.Init();
+                                    if ItemLedgEntry2."Entry Type" = ItemLedgEntry2."Entry Type"::Transfer then
+                                        repeat
+                                            ItemApplEntry2.SetRange("Item Ledger Entry No.", ItemLedgEntry2."Entry No.");
+                                            ItemApplEntry2.FindFirst();
+                                            if not ItemLedgEntry2.Get(ItemApplEntry2."Transferred-from Entry No.") then
+                                                ItemLedgEntry2.Init();
+                                        until ItemLedgEntry2."Entry Type" <> ItemLedgEntry2."Entry Type"::Transfer;
 
-                                        if ItemLedgEntry2.Quantity <> 0 then
-                                            if ItemLedgEntry2."Entry Type" in
-                                               [ItemLedgEntry2."Entry Type"::Purchase, ItemLedgEntry2."Entry Type"::Sale,
-                                                ItemLedgEntry2."Entry Type"::"Positive Adjmt."]
-                                            then begin
-                                                ItemLedgEntry2.CalcFields("Cost Amount (Actual)");
-                                                AmountForTaxAccounting := CalcAmountForTaxAccounting(ItemLedgEntry2);
-                                                TaxRegItemEntry."Batch Date" := ItemLedgEntry2."Posting Date";
-                                                TaxRegItemEntry."Appl. Entry No." := ItemLedgEntry2."Entry No.";
-                                                TaxRegItemEntry."Batch Qty." := ItemLedgEntry2.Quantity;
-                                                TaxRegItemEntry."Batch Amount" := AmountForTaxAccounting;
-                                                TaxRegItemEntry."Debit Unit Cost" :=
-                                                  Round(AmountForTaxAccounting / ItemLedgEntry2.Quantity);
-                                                TaxRegItemEntry."Qty. (Batch)" := ItemApplEntry.Quantity;
-                                                TaxRegItemEntry."Original Amount" :=
-                                                  Round(ItemLedgEntry2."Cost Amount (Actual)" / ItemLedgEntry2.Quantity * ItemApplEntry.Quantity);
-                                                TaxRegItemEntry."Amount (Batch)" :=
-                                                  Round(AmountForTaxAccounting / ItemLedgEntry2.Quantity * ItemApplEntry.Quantity);
-                                                TaxRegItemEntry."Debit Qty." := -TaxRegItemEntry."Qty. (Batch)";
-                                                TaxRegItemEntry."Debit Amount" := -TaxRegItemEntry."Amount (Batch)";
-                                                DocumentAmountForTaxAccounting += TaxRegItemEntry."Amount (Batch)";
-                                                TaxRegItemEntry."Entry Secondary Batch" := SecondaryBatch;
-                                                InsertTaxRegEntry(TaxRegItemEntry, SecondaryBatch);
-                                            end;
-                                        QtyEntry -= -TaxRegItemEntry."Debit Qty.";
-                                        AmountEntry -= TaxRegItemEntry."Original Amount";
-                                        if (QtyEntry = 0) and (AmountEntry <> 0) then begin
-                                            TaxRegItemEntry."Amount (Batch)" += AmountEntry;
+                                    if ItemLedgEntry2.Quantity <> 0 then
+                                        if ItemLedgEntry2."Entry Type" in
+                                           [ItemLedgEntry2."Entry Type"::Purchase, ItemLedgEntry2."Entry Type"::Sale,
+                                            ItemLedgEntry2."Entry Type"::"Positive Adjmt."]
+                                        then begin
+                                            ItemLedgEntry2.CalcFields("Cost Amount (Actual)");
+                                            AmountForTaxAccounting := CalcAmountForTaxAccounting(ItemLedgEntry2);
+                                            TaxRegItemEntry."Batch Date" := ItemLedgEntry2."Posting Date";
+                                            TaxRegItemEntry."Appl. Entry No." := ItemLedgEntry2."Entry No.";
+                                            TaxRegItemEntry."Batch Qty." := ItemLedgEntry2.Quantity;
+                                            TaxRegItemEntry."Batch Amount" := AmountForTaxAccounting;
+                                            TaxRegItemEntry."Debit Unit Cost" :=
+                                              Round(AmountForTaxAccounting / ItemLedgEntry2.Quantity);
+                                            TaxRegItemEntry."Qty. (Batch)" := ItemApplEntry.Quantity;
+                                            TaxRegItemEntry."Original Amount" :=
+                                              Round(ItemLedgEntry2."Cost Amount (Actual)" / ItemLedgEntry2.Quantity * ItemApplEntry.Quantity);
+                                            TaxRegItemEntry."Amount (Batch)" :=
+                                              Round(AmountForTaxAccounting / ItemLedgEntry2.Quantity * ItemApplEntry.Quantity);
+                                            TaxRegItemEntry."Debit Qty." := -TaxRegItemEntry."Qty. (Batch)";
                                             TaxRegItemEntry."Debit Amount" := -TaxRegItemEntry."Amount (Batch)";
                                             DocumentAmountForTaxAccounting += TaxRegItemEntry."Amount (Batch)";
-                                            TaxRegItemEntry.Modify();
-                                            AmountEntry := 0;
+                                            TaxRegItemEntry."Entry Secondary Batch" := SecondaryBatch;
+                                            InsertTaxRegEntry(TaxRegItemEntry, SecondaryBatch);
                                         end;
+                                    QtyEntry -= -TaxRegItemEntry."Debit Qty.";
+                                    AmountEntry -= TaxRegItemEntry."Original Amount";
+                                    if (QtyEntry = 0) and (AmountEntry <> 0) then begin
+                                        TaxRegItemEntry."Amount (Batch)" += AmountEntry;
+                                        TaxRegItemEntry."Debit Amount" := -TaxRegItemEntry."Amount (Batch)";
+                                        DocumentAmountForTaxAccounting += TaxRegItemEntry."Amount (Batch)";
+                                        TaxRegItemEntry.Modify();
+                                        AmountEntry := 0;
                                     end;
-                                until ItemApplEntry.Next(1) = 0;
-                            if QtyEntry <> 0 then begin
-                                TaxRegItemEntry."Batch Date" := 0D;
-                                TaxRegItemEntry."Appl. Entry No." := 0;
-                                TaxRegItemEntry."Batch Qty." := 0;
-                                TaxRegItemEntry."Batch Amount" := 0;
-                                TaxRegItemEntry."Debit Unit Cost" := 0;
-                                TaxRegItemEntry."Qty. (Batch)" := QtyEntry;
-                                TaxRegItemEntry."Amount (Batch)" := AmountEntry;
-                                TaxRegItemEntry."Debit Qty." := -TaxRegItemEntry."Qty. (Batch)";
-                                TaxRegItemEntry."Debit Amount" := -TaxRegItemEntry."Amount (Batch)";
-                                DocumentAmountForTaxAccounting += TaxRegItemEntry."Amount (Batch)";
-                                TaxRegItemEntry."Entry Secondary Batch" := SecondaryBatch;
-                                TaxRegItemEntry."Entry No." += 1;
-                                TaxRegItemEntry.Insert();
-                            end;
-                            ModifyTaxRegEntry(TaxRegItemEntry, DocumentAmountForTaxAccounting);
+                                end;
+                            until ItemApplEntry.Next(1) = 0;
+                        if QtyEntry <> 0 then begin
+                            TaxRegItemEntry."Batch Date" := 0D;
+                            TaxRegItemEntry."Appl. Entry No." := 0;
+                            TaxRegItemEntry."Batch Qty." := 0;
+                            TaxRegItemEntry."Batch Amount" := 0;
+                            TaxRegItemEntry."Debit Unit Cost" := 0;
+                            TaxRegItemEntry."Qty. (Batch)" := QtyEntry;
+                            TaxRegItemEntry."Amount (Batch)" := AmountEntry;
+                            TaxRegItemEntry."Debit Qty." := -TaxRegItemEntry."Qty. (Batch)";
+                            TaxRegItemEntry."Debit Amount" := -TaxRegItemEntry."Amount (Batch)";
+                            DocumentAmountForTaxAccounting += TaxRegItemEntry."Amount (Batch)";
+                            TaxRegItemEntry."Entry Secondary Batch" := SecondaryBatch;
+                            TaxRegItemEntry."Entry No." += 1;
+                            TaxRegItemEntry.Insert();
                         end;
-                until Next(1) = 0;
-        end;
+                        ModifyTaxRegEntry(TaxRegItemEntry, DocumentAmountForTaxAccounting);
+                    end;
+            until ItemLedgEntry.Next(1) = 0;
 
         CreateTaxRegAccumulation(StartDate, EndDate, SectionCode);
     end;
 
     local procedure UpdateDescription(ItemLedgEntry2: Record "Item Ledger Entry"; var TaxRegItemEntry: Record "Tax Register Item Entry")
     begin
-        with ItemLedgEntry2 do begin
-            TaxRegItemEntry."Document No." := "Document No.";
-            TaxRegItemEntry."Document Type" :=
-              SearchDocument(ItemLedgEntry2, TaxRegItemEntry);
-            TaxRegItemEntry.Description :=
-              DelChr(
-                StrSubstNo(
-                  Text21000901,
-                  TaxRegItemEntry."Document Type", TaxRegItemEntry."Document No.", TaxRegItemEntry."Posting Date"));
-        end;
+        TaxRegItemEntry."Document No." := ItemLedgEntry2."Document No.";
+        TaxRegItemEntry."Document Type" :=
+          SearchDocument(ItemLedgEntry2, TaxRegItemEntry);
+        TaxRegItemEntry.Description :=
+          DelChr(
+            StrSubstNo(
+              Text21000901,
+              TaxRegItemEntry."Document Type", TaxRegItemEntry."Document No.", TaxRegItemEntry."Posting Date"));
     end;
 
     local procedure SearchDocument(ItemLedgEntry2: Record "Item Ledger Entry"; var TaxRegItemEntry: Record "Tax Register Item Entry"): Integer
@@ -216,91 +212,90 @@ codeunit 17206 "Create Tax Register Item Entry"
         ReturnShptHeader: Record "Return Shipment Header";
         ReturnRcptHeader: Record "Return Receipt Header";
     begin
-        with ItemLedgEntry2 do
-            case "Entry Type" of
-                "Entry Type"::Purchase:
-                    if "Source Type" = "Source Type"::Vendor then
-                        if Positive then begin
-                            if PurchInvHeader.Get("Document No.") and
-                               (PurchInvHeader."Posting Date" = "Posting Date") and
-                               (PurchInvHeader."Buy-from Vendor No." = "Source No.")
-                            then
+        case ItemLedgEntry2."Entry Type" of
+            ItemLedgEntry2."Entry Type"::Purchase:
+                if ItemLedgEntry2."Source Type" = ItemLedgEntry2."Source Type"::Vendor then
+                    if ItemLedgEntry2.Positive then begin
+                        if PurchInvHeader.Get(ItemLedgEntry2."Document No.") and
+                           (PurchInvHeader."Posting Date" = ItemLedgEntry2."Posting Date") and
+                           (PurchInvHeader."Buy-from Vendor No." = ItemLedgEntry2."Source No.")
+                        then
+                            exit(TaxRegItemEntry."Document Type"::Invoice);
+                        if PurchRcptHeader.Get(ItemLedgEntry2."Document No.") and
+                           (PurchRcptHeader."Posting Date" = ItemLedgEntry2."Posting Date") and
+                           (PurchRcptHeader."Buy-from Vendor No." = ItemLedgEntry2."Source No.")
+                        then begin
+                            PurchInvHeader.SetRange("Posting Description", PurchRcptHeader."Posting Description");
+                            if PurchInvHeader.FindFirst() and
+                               (PurchInvHeader."Posting Date" = ItemLedgEntry2."Posting Date") and
+                               (PurchInvHeader."Buy-from Vendor No." = ItemLedgEntry2."Source No.")
+                            then begin
+                                TaxRegItemEntry."Document No." := PurchInvHeader."No.";
                                 exit(TaxRegItemEntry."Document Type"::Invoice);
-                            if PurchRcptHeader.Get("Document No.") and
-                               (PurchRcptHeader."Posting Date" = "Posting Date") and
-                               (PurchRcptHeader."Buy-from Vendor No." = "Source No.")
-                            then begin
-                                PurchInvHeader.SetRange("Posting Description", PurchRcptHeader."Posting Description");
-                                if PurchInvHeader.FindFirst() and
-                                   (PurchInvHeader."Posting Date" = "Posting Date") and
-                                   (PurchInvHeader."Buy-from Vendor No." = "Source No.")
-                                then begin
-                                    TaxRegItemEntry."Document No." := PurchInvHeader."No.";
-                                    exit(TaxRegItemEntry."Document Type"::Invoice);
-                                end;
-                                exit(TaxRegItemEntry."Document Type"::Receipt);
                             end;
-                        end else begin
-                            if PurchCrMemoHdr.Get("Document No.") and
-                               (PurchCrMemoHdr."Posting Date" = "Posting Date") and
-                               (PurchCrMemoHdr."Buy-from Vendor No." = "Source No.")
-                            then begin
-                                TaxRegItemEntry.Correction := PurchCrMemoHdr.Correction;
-                                exit(TaxRegItemEntry."Document Type"::"Credit Memo");
-                            end;
-                            if ReturnShptHeader.Get("Document No.") and
-                               (ReturnShptHeader."Posting Date" = "Posting Date") and
-                               (ReturnShptHeader."Buy-from Vendor No." = "Source No.")
-                            then
-                                exit(TaxRegItemEntry."Document Type"::"Return Shpt.");
+                            exit(TaxRegItemEntry."Document Type"::Receipt);
                         end;
-                "Entry Type"::Sale:
-                    if "Source Type" = "Source Type"::Customer then
-                        if not Positive then begin
-                            if SalesInvoiceHeader.Get("Document No.") and
-                               (SalesInvoiceHeader."Posting Date" = "Posting Date") and
-                               (SalesInvoiceHeader."Sell-to Customer No." = "Source No.")
-                            then
+                    end else begin
+                        if PurchCrMemoHdr.Get(ItemLedgEntry2."Document No.") and
+                           (PurchCrMemoHdr."Posting Date" = ItemLedgEntry2."Posting Date") and
+                           (PurchCrMemoHdr."Buy-from Vendor No." = ItemLedgEntry2."Source No.")
+                        then begin
+                            TaxRegItemEntry.Correction := PurchCrMemoHdr.Correction;
+                            exit(TaxRegItemEntry."Document Type"::"Credit Memo");
+                        end;
+                        if ReturnShptHeader.Get(ItemLedgEntry2."Document No.") and
+                           (ReturnShptHeader."Posting Date" = ItemLedgEntry2."Posting Date") and
+                           (ReturnShptHeader."Buy-from Vendor No." = ItemLedgEntry2."Source No.")
+                        then
+                            exit(TaxRegItemEntry."Document Type"::"Return Shpt.");
+                    end;
+            ItemLedgEntry2."Entry Type"::Sale:
+                if ItemLedgEntry2."Source Type" = ItemLedgEntry2."Source Type"::Customer then
+                    if not ItemLedgEntry2.Positive then begin
+                        if SalesInvoiceHeader.Get(ItemLedgEntry2."Document No.") and
+                           (SalesInvoiceHeader."Posting Date" = ItemLedgEntry2."Posting Date") and
+                           (SalesInvoiceHeader."Sell-to Customer No." = ItemLedgEntry2."Source No.")
+                        then
+                            exit(TaxRegItemEntry."Document Type"::Invoice);
+                        if SalesShipmentHeader.Get(ItemLedgEntry2."Document No.") and
+                           (SalesShipmentHeader."Posting Date" = ItemLedgEntry2."Posting Date") and
+                           (SalesShipmentHeader."Sell-to Customer No." = ItemLedgEntry2."Source No.")
+                        then begin
+                            SalesInvoiceHeader.SetRange("Posting Description", PurchRcptHeader."Posting Description");
+                            if SalesInvoiceHeader.FindFirst() and
+                               (SalesInvoiceHeader."Posting Date" = ItemLedgEntry2."Posting Date") and
+                               (SalesInvoiceHeader."Sell-to Customer No." = ItemLedgEntry2."Source No.")
+                            then begin
+                                TaxRegItemEntry."Document No." := SalesInvoiceHeader."No.";
                                 exit(TaxRegItemEntry."Document Type"::Invoice);
-                            if SalesShipmentHeader.Get("Document No.") and
-                               (SalesShipmentHeader."Posting Date" = "Posting Date") and
-                               (SalesShipmentHeader."Sell-to Customer No." = "Source No.")
-                            then begin
-                                SalesInvoiceHeader.SetRange("Posting Description", PurchRcptHeader."Posting Description");
-                                if SalesInvoiceHeader.FindFirst() and
-                                   (SalesInvoiceHeader."Posting Date" = "Posting Date") and
-                                   (SalesInvoiceHeader."Sell-to Customer No." = "Source No.")
-                                then begin
-                                    TaxRegItemEntry."Document No." := SalesInvoiceHeader."No.";
-                                    exit(TaxRegItemEntry."Document Type"::Invoice);
-                                end;
-                                exit(TaxRegItemEntry."Document Type"::Shipment);
                             end;
-                        end else begin
-                            if SalesCrMemoHeader.Get("Document No.") and
-                               (SalesCrMemoHeader."Posting Date" = "Posting Date") and
-                               (SalesCrMemoHeader."Sell-to Customer No." = "Source No.")
-                            then begin
-                                TaxRegItemEntry.Correction := SalesCrMemoHeader.Correction;
-                                exit(TaxRegItemEntry."Document Type"::"Credit Memo");
-                            end;
-                            if ReturnRcptHeader.Get("Document No.") and
-                               (ReturnRcptHeader."Posting Date" = "Posting Date") and
-                               (ReturnRcptHeader."Sell-to Customer No." = "Source No.")
-                            then
-                                exit(TaxRegItemEntry."Document Type"::"Return Rcpt.");
+                            exit(TaxRegItemEntry."Document Type"::Shipment);
                         end;
-                "Entry Type"::"Positive Adjmt.":
-                    if ItemRcptHeader.Get("Document No.") and
-                       (ItemRcptHeader."Posting Date" = "Posting Date")
-                    then
-                        exit(TaxRegItemEntry."Document Type"::"Positive Adj.");
-                "Entry Type"::"Negative Adjmt.":
-                    if ItemShptHeader.Get("Document No.") and
-                       (ItemShptHeader."Posting Date" = "Posting Date")
-                    then
-                        exit(TaxRegItemEntry."Document Type"::"Negative Adj.");
-            end;
+                    end else begin
+                        if SalesCrMemoHeader.Get(ItemLedgEntry2."Document No.") and
+                           (SalesCrMemoHeader."Posting Date" = ItemLedgEntry2."Posting Date") and
+                           (SalesCrMemoHeader."Sell-to Customer No." = ItemLedgEntry2."Source No.")
+                        then begin
+                            TaxRegItemEntry.Correction := SalesCrMemoHeader.Correction;
+                            exit(TaxRegItemEntry."Document Type"::"Credit Memo");
+                        end;
+                        if ReturnRcptHeader.Get(ItemLedgEntry2."Document No.") and
+                           (ReturnRcptHeader."Posting Date" = ItemLedgEntry2."Posting Date") and
+                           (ReturnRcptHeader."Sell-to Customer No." = ItemLedgEntry2."Source No.")
+                        then
+                            exit(TaxRegItemEntry."Document Type"::"Return Rcpt.");
+                    end;
+            ItemLedgEntry2."Entry Type"::"Positive Adjmt.":
+                if ItemRcptHeader.Get(ItemLedgEntry2."Document No.") and
+                   (ItemRcptHeader."Posting Date" = ItemLedgEntry2."Posting Date")
+                then
+                    exit(TaxRegItemEntry."Document Type"::"Positive Adj.");
+            ItemLedgEntry2."Entry Type"::"Negative Adjmt.":
+                if ItemShptHeader.Get(ItemLedgEntry2."Document No.") and
+                   (ItemShptHeader."Posting Date" = ItemLedgEntry2."Posting Date")
+                then
+                    exit(TaxRegItemEntry."Document Type"::"Negative Adj.");
+        end;
     end;
 
     local procedure UpdatePostingData(var TaxRegItemEntry: Record "Tax Register Item Entry")

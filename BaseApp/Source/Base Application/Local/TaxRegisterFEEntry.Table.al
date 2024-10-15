@@ -1,6 +1,7 @@
 table 17213 "Tax Register FE Entry"
 {
     Caption = 'Tax Register FE Entry';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -151,7 +152,6 @@ table 17213 "Tax Register FE Entry"
     }
 
     var
-        TaxRegMgt: Codeunit "Tax Register Mgt.";
 
     [Scope('OnPrem')]
     procedure ObjectName(): Text[100]

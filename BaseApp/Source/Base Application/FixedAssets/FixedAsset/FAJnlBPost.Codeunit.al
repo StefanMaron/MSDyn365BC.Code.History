@@ -27,41 +27,39 @@ codeunit 5637 "FA. Jnl.-B.Post"
 
     local procedure "Code"()
     begin
-        with FAJnlBatch do begin
-            FAJnlTemplate.Get("Journal Template Name");
-            FAJnlTemplate.TestField("Force Posting Report", false);
+        FAJnlTemplate.Get(FAJnlBatch."Journal Template Name");
+        FAJnlTemplate.TestField("Force Posting Report", false);
 
-            if not Confirm(Text000, false) then
-                exit;
+        if not Confirm(Text000, false) then
+            exit;
 
-            Find('-');
-            repeat
-                FAJnlLine."Journal Template Name" := "Journal Template Name";
-                FAJnlLine."Journal Batch Name" := Name;
-                FAJnlLine."Line No." := 1;
-                Clear(FAJnlPostBatch);
-                if FAJnlPostBatch.Run(FAJnlLine) then
-                    Mark(false)
-                else begin
-                    Mark(true);
-                    JournalWithErrors := true;
-                end;
-            until Next() = 0;
-
-            if not JournalWithErrors then
-                Message(Text001)
-            else
-                Message(
-                  Text002 +
-                  Text003);
-
-            if not Find('=><') then begin
-                Reset();
-                FilterGroup := 2;
-                SetRange("Journal Template Name", "Journal Template Name");
-                FilterGroup := 0;
-                Name := '';
+        FAJnlBatch.Find('-');
+        repeat
+            FAJnlLine."Journal Template Name" := FAJnlBatch."Journal Template Name";
+            FAJnlLine."Journal Batch Name" := FAJnlBatch.Name;
+            FAJnlLine."Line No." := 1;
+            Clear(FAJnlPostBatch);
+            if FAJnlPostBatch.Run(FAJnlLine) then
+                FAJnlBatch.Mark(false)
+            else begin
+                FAJnlBatch.Mark(true);
+                JournalWithErrors := true;
             end;
+        until FAJnlBatch.Next() = 0;
+
+        if not JournalWithErrors then
+            Message(Text001)
+        else
+            Message(
+              Text002 +
+              Text003);
+
+        if not FAJnlBatch.Find('=><') then begin
+            FAJnlBatch.Reset();
+            FAJnlBatch.FilterGroup := 2;
+            FAJnlBatch.SetRange("Journal Template Name", FAJnlBatch."Journal Template Name");
+            FAJnlBatch.FilterGroup := 0;
+            FAJnlBatch.Name := '';
         end;
     end;
 }

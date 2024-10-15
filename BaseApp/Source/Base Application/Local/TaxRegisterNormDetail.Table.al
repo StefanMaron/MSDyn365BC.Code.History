@@ -2,6 +2,7 @@ table 17222 "Tax Register Norm Detail"
 {
     Caption = 'Tax Register Norm Detail';
     LookupPageID = "Tax Register Norm Details";
+    DataClassification = CustomerContent;
 
     fields
     {

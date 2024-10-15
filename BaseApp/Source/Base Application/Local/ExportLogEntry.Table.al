@@ -1,6 +1,7 @@
 table 26567 "Export Log Entry"
 {
     Caption = 'Export Log Entry';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -96,12 +97,13 @@ table 26567 "Export Log Entry"
     }
 
     trigger OnInsert()
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         if "No." = '' then begin
             SRSetup.Get();
             SRSetup.TestField("Report Export Log Nos");
-            "No." :=
-              NoSeriesManagement.GetNextNo(SRSetup."Report Export Log Nos", Today, true);
+            "No." := NoSeries.GetNextNo(SRSetup."Report Export Log Nos", Today());
         end;
 
         "Export Date" := Today;
@@ -116,6 +118,5 @@ table 26567 "Export Log Entry"
 
     var
         SRSetup: Record "Statutory Report Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
 }
 

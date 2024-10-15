@@ -51,7 +51,7 @@ page 180 "Additional Cust. Terms Setup"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Activate';
-                Enabled = NOT Active;
+                Enabled = not Active;
                 Image = Agreement;
                 ToolTip = 'Activate the current customer terms setup.';
 

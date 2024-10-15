@@ -5,6 +5,7 @@ table 14949 "VAT Entry Type"
                   TableData "Sales Cr.Memo Header" = rm,
                   TableData "Purch. Inv. Header" = rm,
                   TableData "Purch. Cr. Memo Hdr." = rm;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -42,7 +43,6 @@ table 14949 "VAT Entry Type"
     [Scope('OnPrem')]
     procedure LookupSetOfVATEntryCodes(var SetOfVATEntryTypes: Code[20]): Boolean
     var
-        VATEntryType: Record "VAT Entry Type";
         VATEntryTypes: Page "VAT Entry Types";
     begin
         VATEntryTypes.LookupMode := true;

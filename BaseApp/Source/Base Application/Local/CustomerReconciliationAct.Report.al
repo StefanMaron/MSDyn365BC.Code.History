@@ -1078,7 +1078,7 @@ report 14910 "Customer - Reconciliation Act"
     trigger OnPostReport()
     begin
         if FileName = '' then
-            ReconActReportHelper.ExportData
+            ReconActReportHelper.ExportData()
         else
             ReconActReportHelper.ExportDataFile(FileName);
     end;
@@ -1180,19 +1180,17 @@ report 14910 "Customer - Reconciliation Act"
 
     local procedure GetCustApplicationEntry(SourceEntry: Record "Detailed Cust. Ledg. Entry"; var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; GetLedgEntry: Boolean; var CustLedgEntry: Record "Cust. Ledger Entry"; var OtherCurrApplAmount: Decimal)
     begin
-        with SourceEntry do begin
-            DtldCustLedgEntry.Reset();
-            FilterApplDtldCustLedgEntry(DtldCustLedgEntry, "Applied Cust. Ledger Entry No.");
-            DtldCustLedgEntry.SetRange("Transaction No.", "Transaction No.");
-            if DtldCustLedgEntry.FindSet() then
-                repeat
-                    if GetLedgEntry then
-                        CustLedgEntry.Get(DtldCustLedgEntry."Cust. Ledger Entry No.");
-                    if "Currency Code" <> DtldCustLedgEntry."Currency Code" then
-                        OtherCurrApplAmount += Amount;
-                    exit;
-                until DtldCustLedgEntry.Next() = 0;
-        end;
+        DtldCustLedgEntry.Reset();
+        FilterApplDtldCustLedgEntry(DtldCustLedgEntry, SourceEntry."Applied Cust. Ledger Entry No.");
+        DtldCustLedgEntry.SetRange("Transaction No.", SourceEntry."Transaction No.");
+        if DtldCustLedgEntry.FindSet() then
+            repeat
+                if GetLedgEntry then
+                    CustLedgEntry.Get(DtldCustLedgEntry."Cust. Ledger Entry No.");
+                if SourceEntry."Currency Code" <> DtldCustLedgEntry."Currency Code" then
+                    OtherCurrApplAmount += SourceEntry.Amount;
+                exit;
+            until DtldCustLedgEntry.Next() = 0;
     end;
 
     local procedure GetCustPay(var Rec: Record "Cust. Ledger Entry"; CurrencyCode: Code[10]; var DocumentAmount: Decimal; var RemainingAmount: Decimal; var OtherCurrApplAmount: Decimal)
@@ -1200,23 +1198,21 @@ report 14910 "Customer - Reconciliation Act"
         ApplDtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         OtherCurrApplAmount := 0;
-        with Rec do begin
-            GetCustAmounts(Rec, CurrencyCode, DocumentAmount, RemainingAmount);
-            DocumentAmount := -DocumentAmount;
-            RemainingAmount := -RemainingAmount;
-            if CurrencyCode = '' then
-                exit;
-            DtldCustLedgEntry.Reset();
-            DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type", "Posting Date");
-            DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", "Entry No.");
-            DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
-            DtldCustLedgEntry.SetFilter("Posting Date", DateFilter);
-            if DtldCustLedgEntry.FindSet() then
-                repeat
-                    CustLedgEntry.Positive := false;
-                    GetCustApplicationEntry(DtldCustLedgEntry, ApplDtldCustLedgEntry, false, CustLedgEntry, OtherCurrApplAmount);
-                until DtldCustLedgEntry.Next() = 0;
-        end;
+        GetCustAmounts(Rec, CurrencyCode, DocumentAmount, RemainingAmount);
+        DocumentAmount := -DocumentAmount;
+        RemainingAmount := -RemainingAmount;
+        if CurrencyCode = '' then
+            exit;
+        DtldCustLedgEntry.Reset();
+        DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type", "Posting Date");
+        DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", Rec."Entry No.");
+        DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
+        DtldCustLedgEntry.SetFilter("Posting Date", DateFilter);
+        if DtldCustLedgEntry.FindSet() then
+            repeat
+                CustLedgEntry.Positive := false;
+                GetCustApplicationEntry(DtldCustLedgEntry, ApplDtldCustLedgEntry, false, CustLedgEntry, OtherCurrApplAmount);
+            until DtldCustLedgEntry.Next() = 0;
     end;
 
     local procedure GetCustAmounts(var CustLedgEntry: Record "Cust. Ledger Entry"; CurrencyCode: Code[10]; var Amount1: Decimal; var RemainingAmount1: Decimal)
@@ -1226,74 +1222,72 @@ report 14910 "Customer - Reconciliation Act"
         IsInvoice := CustLedgEntry."Document Type" in [CustLedgEntry."Document Type"::" ",
                                                        CustLedgEntry."Document Type"::Invoice,
                                                        CustLedgEntry."Document Type"::"Credit Memo"];
-        with CustLedgEntry do
-            if CurrencyCode = '' then begin
-                CalcFields("Amount (LCY)", "Remaining Amt. (LCY)", "Original Amt. (LCY)");
-                if IsInvoice then
-                    Amount1 := "Original Amt. (LCY)"
-                else
-                    Amount1 := "Amount (LCY)";
-                RemainingAmount1 := "Remaining Amt. (LCY)";
-            end else begin
-                CalcFields(Amount, "Remaining Amount", "Original Amount");
-                if IsInvoice then
-                    Amount1 := "Original Amount"
-                else
-                    Amount1 := Amount;
-                RemainingAmount1 := "Remaining Amount";
-            end;
+        if CurrencyCode = '' then begin
+            CustLedgEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)", "Original Amt. (LCY)");
+            if IsInvoice then
+                Amount1 := CustLedgEntry."Original Amt. (LCY)"
+            else
+                Amount1 := CustLedgEntry."Amount (LCY)";
+            RemainingAmount1 := CustLedgEntry."Remaining Amt. (LCY)";
+        end else begin
+            CustLedgEntry.CalcFields(Amount, "Remaining Amount", "Original Amount");
+            if IsInvoice then
+                Amount1 := CustLedgEntry."Original Amount"
+            else
+                Amount1 := CustLedgEntry.Amount;
+            RemainingAmount1 := CustLedgEntry."Remaining Amount";
+        end;
     end;
 
     local procedure CustPayProcessing(var PayEntry: Record "Detailed Cust. Ledg. Entry"; var InvEntry: Record "Cust. Ledger Entry"; CurrencyCode: Code[10])
     begin
-        with PayEntry do
-            if "Entry Type" <> "Entry Type"::Application then begin
-                if CurrencyCode <> '' then
-                    CurrReport.Skip();
-                PostingDate := "Posting Date";
-                EntryDescription := GetCustEntryDescription(InvEntry);
-                TempAmount := "Amount (LCY)";
-                if "Amount (LCY)" < 0 then begin
-                    DocumentAmount := -"Amount (LCY)";
-                    CreditAppliedAmt := -"Amount (LCY)";
-                    DebitAppliedAmt := 0;
-                    CreditTurnover += -"Amount (LCY)";
-                end else begin
-                    DocumentAmount := "Amount (LCY)";
-                    CreditAppliedAmt := 0;
-                    DebitAppliedAmt := "Amount (LCY)";
-                    DebitTurnover += "Amount (LCY)";
-                end;
+        if PayEntry."Entry Type" <> PayEntry."Entry Type"::Application then begin
+            if CurrencyCode <> '' then
+                CurrReport.Skip();
+            PostingDate := PayEntry."Posting Date";
+            EntryDescription := GetCustEntryDescription(InvEntry);
+            TempAmount := PayEntry."Amount (LCY)";
+            if PayEntry."Amount (LCY)" < 0 then begin
+                DocumentAmount := -PayEntry."Amount (LCY)";
+                CreditAppliedAmt := -PayEntry."Amount (LCY)";
+                DebitAppliedAmt := 0;
+                CreditTurnover += -PayEntry."Amount (LCY)";
             end else begin
-                CustLedgEntry.Get(TempAppDtldCustLedgEntry."Cust. Ledger Entry No.");
-                CustLedgEntry.SetFilter("Date Filter", '..%1', CustLedgEntry."Posting Date");
-                PostingDate := CustLedgEntry."Posting Date";
-                if CustLedgEntry."Currency Code" = '' then
-                    CustLedgEntry."Currency Code" := GLSetup."LCY Code";
-                EntryDescription := GetCustEntryDescription(CustLedgEntry);
-                if CurrencyCode = '' then begin
-                    CustLedgEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)");
-                    DocumentAmount := CustLedgEntry."Amount (LCY)";
-                    TempAmount := -TempAppDtldCustLedgEntry."Amount (LCY)";
-                end else begin
-                    CustLedgEntry.CalcFields(Amount, "Remaining Amount");
-                    DocumentAmount := CustLedgEntry.Amount;
-                    TempAmount := ExchAmount(
-                        -TempAppDtldCustLedgEntry.Amount, CustLedgEntry."Currency Code", CurrencyCode, CustLedgEntry."Posting Date");
-                end;
-                if (CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Payment) or
-                   (CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Refund)
-                then
-                    AppliedToPayment := true;
-                if DocumentAmount > 0 then begin
-                    CreditAppliedAmt := 0;
-                    DebitAppliedAmt := -TempAmount;
-                end else begin
-                    DocumentAmount := -DocumentAmount;
-                    CreditAppliedAmt := TempAmount;
-                    DebitAppliedAmt := 0;
-                end;
+                DocumentAmount := PayEntry."Amount (LCY)";
+                CreditAppliedAmt := 0;
+                DebitAppliedAmt := PayEntry."Amount (LCY)";
+                DebitTurnover += PayEntry."Amount (LCY)";
             end;
+        end else begin
+            CustLedgEntry.Get(TempAppDtldCustLedgEntry."Cust. Ledger Entry No.");
+            CustLedgEntry.SetFilter("Date Filter", '..%1', CustLedgEntry."Posting Date");
+            PostingDate := CustLedgEntry."Posting Date";
+            if CustLedgEntry."Currency Code" = '' then
+                CustLedgEntry."Currency Code" := GLSetup."LCY Code";
+            EntryDescription := GetCustEntryDescription(CustLedgEntry);
+            if CurrencyCode = '' then begin
+                CustLedgEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)");
+                DocumentAmount := CustLedgEntry."Amount (LCY)";
+                TempAmount := -TempAppDtldCustLedgEntry."Amount (LCY)";
+            end else begin
+                CustLedgEntry.CalcFields(Amount, "Remaining Amount");
+                DocumentAmount := CustLedgEntry.Amount;
+                TempAmount := ExchAmount(
+                    -TempAppDtldCustLedgEntry.Amount, CustLedgEntry."Currency Code", CurrencyCode, CustLedgEntry."Posting Date");
+            end;
+            if (CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Payment) or
+               (CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Refund)
+            then
+                AppliedToPayment := true;
+            if DocumentAmount > 0 then begin
+                CreditAppliedAmt := 0;
+                DebitAppliedAmt := -TempAmount;
+            end else begin
+                DocumentAmount := -DocumentAmount;
+                CreditAppliedAmt := TempAmount;
+                DebitAppliedAmt := 0;
+            end;
+        end;
         TotalInvAmount += -TempAmount;
     end;
 
@@ -1360,34 +1354,30 @@ report 14910 "Customer - Reconciliation Act"
 
     local procedure FilterApplDtldCustLedgEntry(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustLedgEntryNo: Integer)
     begin
-        with DtldCustLedgEntry do begin
-            if not RecordLevelLocking then
-                SetCurrentKey("Cust. Ledger Entry No.", "Entry Type", "Posting Date", "Prepmt. Diff. in TA");
-            SetRange("Entry Type", "Entry Type"::Application);
-            SetRange("Cust. Ledger Entry No.", CustLedgEntryNo);
-            SetRange(Unapplied, false);
-        end;
+        if not DtldCustLedgEntry.RecordLevelLocking then
+            DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type", "Posting Date", "Prepmt. Diff. in TA");
+        DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
+        DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntryNo);
+        DtldCustLedgEntry.SetRange(Unapplied, false);
     end;
 
     local procedure CheckCustTransfBetweenAgreements(var CustLedgerEntry: Record "Cust. Ledger Entry"): Boolean
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            CalcFields(Amount, "Remaining Amount");
-            if ("Document Type" <> "Document Type"::" ") or ("Remaining Amount" = 0) then
-                exit(false);
-            CustLedgerEntry2.SetRange("Document Type", "Document Type");
-            CustLedgerEntry2.SetRange("Customer No.", "Customer No.");
-            CustLedgerEntry2.SetRange("Posting Date", "Posting Date");
-            CustLedgerEntry2.SetFilter("Agreement No.", '<>%1&<>%2', '', "Agreement No.");
-            if CustLedgerEntry2.FindSet() then
-                repeat
-                    CustLedgerEntry2.CalcFields(Amount);
-                    if CustLedgerEntry2.Amount = -Amount then
-                        exit(true);
-                until CustLedgerEntry2.Next() = 0;
-        end;
+        CustLedgerEntry.CalcFields(Amount, "Remaining Amount");
+        if (CustLedgerEntry."Document Type" <> CustLedgerEntry."Document Type"::" ") or (CustLedgerEntry."Remaining Amount" = 0) then
+            exit(false);
+        CustLedgerEntry2.SetRange("Document Type", CustLedgerEntry."Document Type");
+        CustLedgerEntry2.SetRange("Customer No.", CustLedgerEntry."Customer No.");
+        CustLedgerEntry2.SetRange("Posting Date", CustLedgerEntry."Posting Date");
+        CustLedgerEntry2.SetFilter("Agreement No.", '<>%1&<>%2', '', CustLedgerEntry."Agreement No.");
+        if CustLedgerEntry2.FindSet() then
+            repeat
+                CustLedgerEntry2.CalcFields(Amount);
+                if CustLedgerEntry2.Amount = -CustLedgerEntry.Amount then
+                    exit(true);
+            until CustLedgerEntry2.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1412,32 +1402,29 @@ report 14910 "Customer - Reconciliation Act"
     begin
         if CurrencyCode <> '' then
             exit;
-        with DtldCustLedgEntryPrepmtDiff do begin
-            SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
-            SetRange("Entry Type", "Entry Type"::Application);
-            SetRange("Prepmt. Diff.", true);
-            SetFilter("Posting Date", CustLedgEntry.GetFilter("Date Filter"));
-            CalcSums("Amount (LCY)");
-            PrepmtDiffAmount += "Amount (LCY)";
-        end;
+        DtldCustLedgEntryPrepmtDiff.SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
+        DtldCustLedgEntryPrepmtDiff.SetRange("Entry Type", DtldCustLedgEntryPrepmtDiff."Entry Type"::Application);
+        DtldCustLedgEntryPrepmtDiff.SetRange("Prepmt. Diff.", true);
+        DtldCustLedgEntryPrepmtDiff.SetFilter("Posting Date", CustLedgEntry.GetFilter("Date Filter"));
+        DtldCustLedgEntryPrepmtDiff.CalcSums("Amount (LCY)");
+        PrepmtDiffAmount += DtldCustLedgEntryPrepmtDiff."Amount (LCY)";
     end;
 
     local procedure GetVendApplicationEntry(SourceEntry: Record "Detailed Vendor Ledg. Entry"; var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; GetLedgEntry: Boolean; var VendLedgEntry: Record "Vendor Ledger Entry"; var OtherCurrApplAmount: Decimal)
     begin
-        with SourceEntry do begin
-            DtldVendLedgEntry.Reset();
-            DtldVendLedgEntry.SetFilter("Entry No.", '%1|%2', "Entry No." - 1, "Entry No." + 1);
-            DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
-            DtldVendLedgEntry.SetRange("Transaction No.", "Transaction No.");
-            if DtldVendLedgEntry.FindSet() then
-                repeat
-                    if GetLedgEntry then // Positive is just temporary flag
-                        VendLedgEntry.Get(DtldVendLedgEntry."Vendor Ledger Entry No.");
-                    if "Currency Code" <> DtldVendLedgEntry."Currency Code" then
-                        OtherCurrApplAmount += Amount;
-                    exit;
-                until DtldVendLedgEntry.Next() = 0;
-        end;
+        DtldVendLedgEntry.Reset();
+        DtldVendLedgEntry.SetFilter("Entry No.", '%1|%2', SourceEntry."Entry No." - 1, SourceEntry."Entry No." + 1);
+        DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
+        DtldVendLedgEntry.SetRange("Transaction No.", SourceEntry."Transaction No.");
+        if DtldVendLedgEntry.FindSet() then
+            repeat
+                if GetLedgEntry then
+                    // Positive is just temporary flag
+                    VendLedgEntry.Get(DtldVendLedgEntry."Vendor Ledger Entry No.");
+                if SourceEntry."Currency Code" <> DtldVendLedgEntry."Currency Code" then
+                    OtherCurrApplAmount += SourceEntry.Amount;
+                exit;
+            until DtldVendLedgEntry.Next() = 0;
     end;
 
     local procedure GetVendPay(var Rec: Record "Vendor Ledger Entry"; CurrencyCode: Code[10]; var DocumentAmount: Decimal; var RemainingAmount: Decimal; var OtherCurrApplAmount: Decimal)
@@ -1445,20 +1432,18 @@ report 14910 "Customer - Reconciliation Act"
         ApplDtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         OtherCurrApplAmount := 0;
-        with Rec do begin
-            GetVendAmounts(Rec, CurrencyCode, DocumentAmount, RemainingAmount);
-            if CurrencyCode = '' then
-                exit;
-            DtldVendLedgEntry.Reset();
-            DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type", "Posting Date");
-            DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", "Entry No.");
-            DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
-            DtldVendLedgEntry.SetFilter("Posting Date", DateFilter);
-            if DtldVendLedgEntry.FindSet() then
-                repeat
-                    GetVendApplicationEntry(DtldVendLedgEntry, ApplDtldVendLedgEntry, false, VendLedgEntry, OtherCurrApplAmount);
-                until DtldVendLedgEntry.Next() = 0;
-        end;
+        GetVendAmounts(Rec, CurrencyCode, DocumentAmount, RemainingAmount);
+        if CurrencyCode = '' then
+            exit;
+        DtldVendLedgEntry.Reset();
+        DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type", "Posting Date");
+        DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", Rec."Entry No.");
+        DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
+        DtldVendLedgEntry.SetFilter("Posting Date", DateFilter);
+        if DtldVendLedgEntry.FindSet() then
+            repeat
+                GetVendApplicationEntry(DtldVendLedgEntry, ApplDtldVendLedgEntry, false, VendLedgEntry, OtherCurrApplAmount);
+            until DtldVendLedgEntry.Next() = 0;
     end;
 
     local procedure GetVendAmounts(var VendLedgEntry: Record "Vendor Ledger Entry"; CurrencyCode: Code[10]; var NewAmount: Decimal; var NewRemainingAmount: Decimal)
@@ -1466,89 +1451,87 @@ report 14910 "Customer - Reconciliation Act"
         IsInvoice: Boolean;
     begin
         IsInvoice := IsVendorInvoice(VendLedgEntry);
-        with VendLedgEntry do
-            if CurrencyCode = '' then begin
-                CalcFields("Amount (LCY)", "Remaining Amt. (LCY)", "Original Amt. (LCY)");
-                if IsInvoice then
-                    NewAmount := "Original Amt. (LCY)"
-                else
-                    NewAmount := "Amount (LCY)";
-                NewRemainingAmount := "Remaining Amt. (LCY)";
-            end else begin
-                CalcFields(Amount, "Remaining Amount", "Original Amount");
-                if IsInvoice then
-                    NewAmount := "Original Amount"
-                else
-                    NewAmount := Amount;
-                NewRemainingAmount := "Remaining Amount";
-            end;
+        if CurrencyCode = '' then begin
+            VendLedgEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)", "Original Amt. (LCY)");
+            if IsInvoice then
+                NewAmount := VendLedgEntry."Original Amt. (LCY)"
+            else
+                NewAmount := VendLedgEntry."Amount (LCY)";
+            NewRemainingAmount := VendLedgEntry."Remaining Amt. (LCY)";
+        end else begin
+            VendLedgEntry.CalcFields(Amount, "Remaining Amount", "Original Amount");
+            if IsInvoice then
+                NewAmount := VendLedgEntry."Original Amount"
+            else
+                NewAmount := VendLedgEntry.Amount;
+            NewRemainingAmount := VendLedgEntry."Remaining Amount";
+        end;
     end;
 
     local procedure VendPayProcessing(var PayEntry: Record "Detailed Vendor Ledg. Entry"; var InvEntry: Record "Vendor Ledger Entry"; CurrentPeriod: Boolean; CurrencyCode: Code[10])
     begin
-        with PayEntry do
-            if "Entry Type" <> "Entry Type"::Application then begin
-                VendLedgEntry.Get("Vendor Ledger Entry No.");
-                if CurrencyCode <> '' then
-                    CurrReport.Skip();
-                PostingDate := "Posting Date";
-                EntryDescription := Format(InvEntry."Document Type") + ' ' + InvEntry."Document No." + ' ' + InvEntry.Description;
-                TempAmount := -"Amount (LCY)";
-                if "Amount (LCY)" < 0 then begin
-                    DocumentAmount := -"Amount (LCY)";
-                    CreditAppliedAmt := -"Amount (LCY)";
-                    DebitAppliedAmt := 0;
-                end else begin
-                    DocumentAmount := "Amount (LCY)";
-                    CreditAppliedAmt := 0;
-                    DebitAppliedAmt := "Amount (LCY)";
-                end;
+        if PayEntry."Entry Type" <> PayEntry."Entry Type"::Application then begin
+            VendLedgEntry.Get(PayEntry."Vendor Ledger Entry No.");
+            if CurrencyCode <> '' then
+                CurrReport.Skip();
+            PostingDate := PayEntry."Posting Date";
+            EntryDescription := Format(InvEntry."Document Type") + ' ' + InvEntry."Document No." + ' ' + InvEntry.Description;
+            TempAmount := -PayEntry."Amount (LCY)";
+            if PayEntry."Amount (LCY)" < 0 then begin
+                DocumentAmount := -PayEntry."Amount (LCY)";
+                CreditAppliedAmt := -PayEntry."Amount (LCY)";
+                DebitAppliedAmt := 0;
             end else begin
-                VendLedgEntry.Get(TempAppDtldVendLedgEntry."Vendor Ledger Entry No.");
-                VendLedgEntry.SetFilter("Date Filter", '..%1', VendLedgEntry."Posting Date");
-                PostingDate := VendLedgEntry."Posting Date";
-                if VendLedgEntry."Currency Code" = '' then
-                    VendLedgEntry."Currency Code" := GLSetup."LCY Code";
-                if TempAppDtldVendLedgEntry."Prepmt. Diff." then
-                    EntryDescription :=
-                      StrSubstNo(
-                        '%1 %2 %3', Format(InvEntry."Document Type"),
-                        InvEntry."Document No.", InvEntry.Description)
-                else
-                    EntryDescription :=
-                      StrSubstNo(
-                        '%1 %2 %3', Format(VendLedgEntry."Document Type"), VendLedgEntry."Document No.",
-                        VendLedgEntry.Description);
-                if CurrencyCode = '' then begin
-                    VendLedgEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)");
-                    DocumentAmount := VendLedgEntry."Amount (LCY)";
-                    TempAmount := -TempAppDtldVendLedgEntry."Amount (LCY)";
-                end else begin
-                    VendLedgEntry.CalcFields(Amount, "Remaining Amount");
-                    DocumentAmount := VendLedgEntry.Amount;
-                    TempAmount := ExchAmount(
-                        -TempAppDtldVendLedgEntry.Amount,
-                        TempAppDtldVendLedgEntry."Currency Code",
-                        CurrencyCode,
-                        VendLedgEntry."Posting Date");
-                end;
-                if TempAppDtldVendLedgEntry."Prepmt. Diff." then begin
-                    if TempAmount = 0 then
-                        CurrReport.Skip();
+                DocumentAmount := PayEntry."Amount (LCY)";
+                CreditAppliedAmt := 0;
+                DebitAppliedAmt := PayEntry."Amount (LCY)";
+            end;
+        end else begin
+            VendLedgEntry.Get(TempAppDtldVendLedgEntry."Vendor Ledger Entry No.");
+            VendLedgEntry.SetFilter("Date Filter", '..%1', VendLedgEntry."Posting Date");
+            PostingDate := VendLedgEntry."Posting Date";
+            if VendLedgEntry."Currency Code" = '' then
+                VendLedgEntry."Currency Code" := GLSetup."LCY Code";
+            if TempAppDtldVendLedgEntry."Prepmt. Diff." then
+                EntryDescription :=
+                  StrSubstNo(
+                    '%1 %2 %3', Format(InvEntry."Document Type"),
+                    InvEntry."Document No.", InvEntry.Description)
+            else
+                EntryDescription :=
+                  StrSubstNo(
+                    '%1 %2 %3', Format(VendLedgEntry."Document Type"), VendLedgEntry."Document No.",
+                    VendLedgEntry.Description);
+            if CurrencyCode = '' then begin
+                VendLedgEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)");
+                DocumentAmount := VendLedgEntry."Amount (LCY)";
+                TempAmount := -TempAppDtldVendLedgEntry."Amount (LCY)";
+            end else begin
+                VendLedgEntry.CalcFields(Amount, "Remaining Amount");
+                DocumentAmount := VendLedgEntry.Amount;
+                TempAmount := ExchAmount(
+                    -TempAppDtldVendLedgEntry.Amount,
+                    TempAppDtldVendLedgEntry."Currency Code",
+                    CurrencyCode,
+                    VendLedgEntry."Posting Date");
+            end;
+            if TempAppDtldVendLedgEntry."Prepmt. Diff." then begin
+                if TempAmount = 0 then
+                    CurrReport.Skip();
+                DebitAppliedAmt := 0;
+                CreditAppliedAmt := TempAmount;
+            end else
+                if (VendLedgEntry."Document Type" in [VendLedgEntry."Document Type"::Invoice,
+                                                      VendLedgEntry."Document Type"::"Credit Memo"])
+                then begin
+                    DocumentAmount := -DocumentAmount;
                     DebitAppliedAmt := 0;
                     CreditAppliedAmt := TempAmount;
-                end else
-                    if (VendLedgEntry."Document Type" in [VendLedgEntry."Document Type"::Invoice,
-                                                          VendLedgEntry."Document Type"::"Credit Memo"])
-                    then begin
-                        DocumentAmount := -DocumentAmount;
-                        DebitAppliedAmt := 0;
-                        CreditAppliedAmt := TempAmount;
-                    end else begin
-                        CreditAppliedAmt := 0;
-                        DebitAppliedAmt := -TempAmount;
-                    end;
-            end;
+                end else begin
+                    CreditAppliedAmt := 0;
+                    DebitAppliedAmt := -TempAmount;
+                end;
+        end;
         if (not WasProcessedInPrevPeriod(PayEntry, CurrentPeriod)) and (PostingDate in [MinDate .. MaxDate]) then begin
             DebitTurnover2 += DebitAppliedAmt;
             CreditTurnover2 += CreditAppliedAmt;
@@ -1564,24 +1547,20 @@ report 14910 "Customer - Reconciliation Act"
         if not FindBankAccountLedgerEntry(VendLedgEntry, BankAccountLedgerEntry) then
             exit(false);
 
-        with CheckLedgerEntry do begin
-            SetRange("Bank Account Ledger Entry No.", BankAccountLedgerEntry."Entry No.");
-            SetRange("Document No.", BankAccountLedgerEntry."Document No.");
-            SetRange("Entry Status", "Entry Status"::"Financially Voided");
-            exit(not IsEmpty);
-        end;
+        CheckLedgerEntry.SetRange("Bank Account Ledger Entry No.", BankAccountLedgerEntry."Entry No.");
+        CheckLedgerEntry.SetRange("Document No.", BankAccountLedgerEntry."Document No.");
+        CheckLedgerEntry.SetRange("Entry Status", CheckLedgerEntry."Entry Status"::"Financially Voided");
+        exit(not CheckLedgerEntry.IsEmpty);
     end;
 
     local procedure FindBankAccountLedgerEntry(VendLedgEntry: Record "Vendor Ledger Entry"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"): Boolean
     begin
-        with BankAccountLedgerEntry do begin
-            SetRange("Transaction No.", VendLedgEntry."Transaction No.");
-            if FindFirst() then begin
-                SetRange("Document Type", "Document Type"::Payment);
-                SetRange("Document No.", "Document No.");
-                SetFilter("Transaction No.", '<>%1', VendLedgEntry."Transaction No.");
-                exit(FindFirst);
-            end;
+        BankAccountLedgerEntry.SetRange("Transaction No.", VendLedgEntry."Transaction No.");
+        if BankAccountLedgerEntry.FindFirst() then begin
+            BankAccountLedgerEntry.SetRange("Document Type", BankAccountLedgerEntry."Document Type"::Payment);
+            BankAccountLedgerEntry.SetRange("Document No.", BankAccountLedgerEntry."Document No.");
+            BankAccountLedgerEntry.SetFilter("Transaction No.", '<>%1', VendLedgEntry."Transaction No.");
+            exit(BankAccountLedgerEntry.FindFirst());
         end;
 
         exit(false);
@@ -1591,13 +1570,11 @@ report 14910 "Customer - Reconciliation Act"
     var
         ApplDtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with ApplDtldVendLedgEntry do begin
-            SetRange("Vendor Ledger Entry No.", EntryNo);
-            SetRange("Entry Type", "Entry Type"::Application);
-            SetRange("Posting Date", MinDate, MaxDate);
-            SetRange(Unapplied, false);
-            exit(not IsEmpty);
-        end;
+        ApplDtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", EntryNo);
+        ApplDtldVendLedgEntry.SetRange("Entry Type", ApplDtldVendLedgEntry."Entry Type"::Application);
+        ApplDtldVendLedgEntry.SetRange("Posting Date", MinDate, MaxDate);
+        ApplDtldVendLedgEntry.SetRange(Unapplied, false);
+        exit(not ApplDtldVendLedgEntry.IsEmpty);
     end;
 
     local procedure GetInvRemAmtAtDate(EntryNo: Integer): Decimal
@@ -1605,23 +1582,21 @@ report 14910 "Customer - Reconciliation Act"
         InvVendLedgEntry: Record "Vendor Ledger Entry";
         InvoiceRemainingAmount: Decimal;
     begin
-        with InvVendLedgEntry do begin
-            Get(EntryNo);
-            if "Posting Date" in [MinDate .. MaxDate] then begin
-                SetFilter("Date Filter", '..%1', "Posting Date");
-                CalcFields("Original Amount", "Original Amt. (LCY)");
-                if CurrencyCode <> '' then
-                    InvoiceRemainingAmount := "Original Amount"
-                else
-                    InvoiceRemainingAmount := "Original Amt. (LCY)";
-            end else begin
-                SetFilter("Date Filter", '..%1', FirstDate);
-                CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
-                if CurrencyCode <> '' then
-                    InvoiceRemainingAmount := "Remaining Amount"
-                else
-                    InvoiceRemainingAmount := "Remaining Amt. (LCY)";
-            end;
+        InvVendLedgEntry.Get(EntryNo);
+        if InvVendLedgEntry."Posting Date" in [MinDate .. MaxDate] then begin
+            InvVendLedgEntry.SetFilter("Date Filter", '..%1', InvVendLedgEntry."Posting Date");
+            InvVendLedgEntry.CalcFields("Original Amount", "Original Amt. (LCY)");
+            if CurrencyCode <> '' then
+                InvoiceRemainingAmount := InvVendLedgEntry."Original Amount"
+            else
+                InvoiceRemainingAmount := InvVendLedgEntry."Original Amt. (LCY)";
+        end else begin
+            InvVendLedgEntry.SetFilter("Date Filter", '..%1', FirstDate);
+            InvVendLedgEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
+            if CurrencyCode <> '' then
+                InvoiceRemainingAmount := InvVendLedgEntry."Remaining Amount"
+            else
+                InvoiceRemainingAmount := InvVendLedgEntry."Remaining Amt. (LCY)";
         end;
         exit(InvoiceRemainingAmount);
     end;
@@ -1677,72 +1652,64 @@ report 14910 "Customer - Reconciliation Act"
 
     local procedure GetInitialDebitCreditBalance(var InitialDebitAmount: Decimal; var InitialCreditAmount: Decimal)
     begin
-        with DtldVendLedgEntry do begin
-            Reset();
-            SetCurrentKey(
-              "Vendor No.", "Initial Document Type", "Document Type",
-              "Entry Type", "Posting Date", "Currency Code");
-            SetRange("Vendor No.", Vendor."No.");
-            SetFilter("Agreement No.", Vendor.GetFilter("Agreement Filter"));
-            SetFilter("Posting Date", '..%1', FirstDate);
-            SetRange("Prepmt. Diff. in TA", false);
-            if CurrencyCode <> '' then
-                SetRange("Currency Code", CurrencyCode);
+        DtldVendLedgEntry.Reset();
+        DtldVendLedgEntry.SetCurrentKey(
+          "Vendor No.", "Initial Document Type", "Document Type",
+          "Entry Type", "Posting Date", "Currency Code");
+        DtldVendLedgEntry.SetRange("Vendor No.", Vendor."No.");
+        DtldVendLedgEntry.SetFilter("Agreement No.", Vendor.GetFilter("Agreement Filter"));
+        DtldVendLedgEntry.SetFilter("Posting Date", '..%1', FirstDate);
+        DtldVendLedgEntry.SetRange("Prepmt. Diff. in TA", false);
+        if CurrencyCode <> '' then
+            DtldVendLedgEntry.SetRange("Currency Code", CurrencyCode);
 
-            GetInitialCreditBalance(DtldVendLedgEntry, CurrencyCode, InitialCreditAmount);
-            GetInitialDebitBalance(DtldVendLedgEntry, CurrencyCode, InitialDebitAmount);
-            UpdInitialDebitCreditBalance(DtldVendLedgEntry, CurrencyCode, InitialDebitAmount, InitialCreditAmount);
-        end;
+        GetInitialCreditBalance(DtldVendLedgEntry, CurrencyCode, InitialCreditAmount);
+        GetInitialDebitBalance(DtldVendLedgEntry, CurrencyCode, InitialDebitAmount);
+        UpdInitialDebitCreditBalance(DtldVendLedgEntry, CurrencyCode, InitialDebitAmount, InitialCreditAmount);
     end;
 
     local procedure GetInitialCreditBalance(var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; CurrencyCode: Code[10]; var InitialCreditAmount: Decimal)
     begin
-        with DtldVendLedgEntry do begin
-            SetFilter(
-              "Initial Document Type", '%1|%2',
-              "Initial Document Type"::Invoice,
-              "Initial Document Type"::"Credit Memo");
-            if CurrencyCode <> '' then begin
-                SetRange("Currency Code", CurrencyCode);
-                CalcSums(Amount);
-                InitialCreditAmount := -Amount;
-            end else begin
-                CalcSums("Amount (LCY)");
-                InitialCreditAmount := -"Amount (LCY)";
-            end;
+        DtldVendLedgEntry.SetFilter(
+            "Initial Document Type", '%1|%2',
+            DtldVendLedgEntry."Initial Document Type"::Invoice,
+            DtldVendLedgEntry."Initial Document Type"::"Credit Memo");
+        if CurrencyCode <> '' then begin
+            DtldVendLedgEntry.SetRange("Currency Code", CurrencyCode);
+            DtldVendLedgEntry.CalcSums(Amount);
+            InitialCreditAmount := -DtldVendLedgEntry.Amount;
+        end else begin
+            DtldVendLedgEntry.CalcSums("Amount (LCY)");
+            InitialCreditAmount := -DtldVendLedgEntry."Amount (LCY)";
         end;
     end;
 
     local procedure GetInitialDebitBalance(var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; CurrencyCode: Code[10]; var InitialDebitAmount: Decimal)
     begin
-        with DtldVendLedgEntry do begin
-            SetFilter(
-              "Initial Document Type", '%1|%2',
-              "Initial Document Type"::Payment,
-              "Initial Document Type"::Refund);
-            if CurrencyCode <> '' then begin
-                SetRange("Currency Code", CurrencyCode);
-                CalcSums(Amount);
-                InitialDebitAmount := Amount;
-            end else begin
-                CalcSums("Amount (LCY)");
-                InitialDebitAmount := "Amount (LCY)";
-            end;
+        DtldVendLedgEntry.SetFilter(
+            "Initial Document Type", '%1|%2',
+            DtldVendLedgEntry."Initial Document Type"::Payment,
+            DtldVendLedgEntry."Initial Document Type"::Refund);
+        if CurrencyCode <> '' then begin
+            DtldVendLedgEntry.SetRange("Currency Code", CurrencyCode);
+            DtldVendLedgEntry.CalcSums(Amount);
+            InitialDebitAmount := DtldVendLedgEntry.Amount;
+        end else begin
+            DtldVendLedgEntry.CalcSums("Amount (LCY)");
+            InitialDebitAmount := DtldVendLedgEntry."Amount (LCY)";
         end;
     end;
 
     local procedure UpdInitialDebitCreditBalance(var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; CurrencyCode: Code[10]; var InitialDebitAmount: Decimal; var InitialCreditAmount: Decimal)
     begin
-        with DtldVendLedgEntry do begin
-            SetRange("Initial Document Type", "Initial Document Type"::" ");
-            if FindSet() then
-                repeat
-                    if CurrencyCode <> '' then
-                        HandleInitialDebitCreditBal(Amount, InitialDebitAmount, InitialCreditAmount)
-                    else
-                        HandleInitialDebitCreditBal("Amount (LCY)", InitialDebitAmount, InitialCreditAmount);
-                until Next() = 0;
-        end;
+        DtldVendLedgEntry.SetRange("Initial Document Type", DtldVendLedgEntry."Initial Document Type"::" ");
+        if DtldVendLedgEntry.FindSet() then
+            repeat
+                if CurrencyCode <> '' then
+                    HandleInitialDebitCreditBal(DtldVendLedgEntry.Amount, InitialDebitAmount, InitialCreditAmount)
+                else
+                    HandleInitialDebitCreditBal(DtldVendLedgEntry."Amount (LCY)", InitialDebitAmount, InitialCreditAmount);
+            until DtldVendLedgEntry.Next() = 0;
     end;
 
     local procedure HandleInitialDebitCreditBal(Amount: Decimal; var InitialDebitAmount: Decimal; var InitialCreditAmount: Decimal)
@@ -1806,29 +1773,24 @@ report 14910 "Customer - Reconciliation Act"
 
     local procedure IsVendorInvoice(InvVendLedgEntry: Record "Vendor Ledger Entry"): Boolean
     begin
-        with InvVendLedgEntry do begin
-            CalcFields("Original Amount");
-            if IsReturnPrepayment(InvVendLedgEntry) or IsCheckVoiding(InvVendLedgEntry) then
-                exit(false);
-            exit(
-              (("Document Type" = "Document Type"::Invoice) or
-               ("Document Type" = "Document Type"::"Credit Memo")) or
-              (("Document Type" = "Document Type"::" ") and ("Original Amount" < 0)));
-        end;
+        InvVendLedgEntry.CalcFields("Original Amount");
+        if IsReturnPrepayment(InvVendLedgEntry) or IsCheckVoiding(InvVendLedgEntry) then
+            exit(false);
+        exit(
+          ((InvVendLedgEntry."Document Type" = InvVendLedgEntry."Document Type"::Invoice) or
+           (InvVendLedgEntry."Document Type" = InvVendLedgEntry."Document Type"::"Credit Memo")) or
+          ((InvVendLedgEntry."Document Type" = InvVendLedgEntry."Document Type"::" ") and (InvVendLedgEntry."Original Amount" < 0)));
     end;
 
     local procedure IsReturnPrepayment(VendorLedgerEntry: Record "Vendor Ledger Entry"): Boolean
     begin
-        with VendorLedgerEntry do
-            exit(("Document Type" = "Document Type"::" ") and Prepayment);
+        exit((VendorLedgerEntry."Document Type" = VendorLedgerEntry."Document Type"::" ") and VendorLedgerEntry.Prepayment);
     end;
 
     local procedure IsCustCorrection(CustLedgerEntry: Record "Cust. Ledger Entry"): Boolean
     begin
-        with CustLedgerEntry do begin
-            CalcFields("Debit Amount", "Credit Amount");
-            exit(("Debit Amount" < 0) or ("Credit Amount" < 0));
-        end;
+        CustLedgerEntry.CalcFields("Debit Amount", "Credit Amount");
+        exit((CustLedgerEntry."Debit Amount" < 0) or (CustLedgerEntry."Credit Amount" < 0));
     end;
 
     local procedure ExcludeCustDoc(var CustLedgEntry1: Record "Cust. Ledger Entry"; CurrencyCode: Code[10]): Boolean
@@ -1979,32 +1941,28 @@ report 14910 "Customer - Reconciliation Act"
 
     local procedure GetCustEntryDescription(var CustLedgEntry: Record "Cust. Ledger Entry") EntryDescr: Text
     begin
-        with CustLedgEntry do begin
-            EntryDescr := "Document No." + ' ' + Description;
-            if not Prepayment and ("Document Type" <> "Document Type"::" ") then
-                EntryDescr := Format("Document Type") + ' ' + EntryDescr;
-            if Prepayment and ("Document Type" = "Document Type"::" ") then
-                EntryDescr := FieldCaption(Prepayment) + ' ' + Format("Document Type"::Refund) + ' ' + EntryDescr;
-            if Prepayment and ("Document Type" = "Document Type"::Payment) then
-                EntryDescr := FieldCaption(Prepayment) + ' ' + EntryDescr;
-            if (not OneAgreement) and ("Agreement No." <> '') then
-                EntryDescr := EntryDescr + ' (' + "Agreement No." + ')';
-        end;
+        EntryDescr := CustLedgEntry."Document No." + ' ' + CustLedgEntry.Description;
+        if not CustLedgEntry.Prepayment and (CustLedgEntry."Document Type" <> CustLedgEntry."Document Type"::" ") then
+            EntryDescr := Format(CustLedgEntry."Document Type") + ' ' + EntryDescr;
+        if CustLedgEntry.Prepayment and (CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::" ") then
+            EntryDescr := CustLedgEntry.FieldCaption(Prepayment) + ' ' + Format(CustLedgEntry."Document Type"::Refund) + ' ' + EntryDescr;
+        if CustLedgEntry.Prepayment and (CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Payment) then
+            EntryDescr := CustLedgEntry.FieldCaption(Prepayment) + ' ' + EntryDescr;
+        if (not OneAgreement) and (CustLedgEntry."Agreement No." <> '') then
+            EntryDescr := EntryDescr + ' (' + CustLedgEntry."Agreement No." + ')';
     end;
 
     local procedure GetVendEntryDescription(var VendLedgEntry: Record "Vendor Ledger Entry") EntryDescr: Text[1024]
     begin
-        with VendLedgEntry do begin
-            EntryDescr := "Document No." + ' ' + Description;
-            if not Prepayment and ("Document Type" <> "Document Type"::" ") then
-                EntryDescr := Format("Document Type") + ' ' + EntryDescr;
-            if Prepayment and ("Document Type" = "Document Type"::" ") then
-                EntryDescr := FieldCaption(Prepayment) + ' ' + Format("Document Type"::Refund) + ' ' + EntryDescr;
-            if Prepayment and ("Document Type" = "Document Type"::Payment) then
-                EntryDescr := FieldCaption(Prepayment) + ' ' + EntryDescr;
-            if (not OneAgreement) and ("Agreement No." <> '') then
-                EntryDescr := EntryDescr + ' (' + "Agreement No." + ')';
-        end;
+        EntryDescr := VendLedgEntry."Document No." + ' ' + VendLedgEntry.Description;
+        if not VendLedgEntry.Prepayment and (VendLedgEntry."Document Type" <> VendLedgEntry."Document Type"::" ") then
+            EntryDescr := Format(VendLedgEntry."Document Type") + ' ' + EntryDescr;
+        if VendLedgEntry.Prepayment and (VendLedgEntry."Document Type" = VendLedgEntry."Document Type"::" ") then
+            EntryDescr := VendLedgEntry.FieldCaption(Prepayment) + ' ' + Format(VendLedgEntry."Document Type"::Refund) + ' ' + EntryDescr;
+        if VendLedgEntry.Prepayment and (VendLedgEntry."Document Type" = VendLedgEntry."Document Type"::Payment) then
+            EntryDescr := VendLedgEntry.FieldCaption(Prepayment) + ' ' + EntryDescr;
+        if (not OneAgreement) and (VendLedgEntry."Agreement No." <> '') then
+            EntryDescr := EntryDescr + ' (' + VendLedgEntry."Agreement No." + ')';
     end;
 
     local procedure ShowCustRemAmount(CustLedgEntry: Record "Cust. Ledger Entry"; CurrencyCode: Code[10]; var RemainingDebitAmount: Decimal; var RemainingCreditAmount: Decimal)
@@ -2036,19 +1994,17 @@ report 14910 "Customer - Reconciliation Act"
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DtldCustLedgEntry do begin
-            SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
-            SetRange("Entry Type", "Entry Type"::Application);
-            SetRange("Posting Date", 0D, MaxDate);
-            SetFilter("Currency Code", CurrencyCode);
-            CalcSums(Amount, "Amount (LCY)");
-            if CurrencyCode = '' then begin
-                CustLedgEntry.CalcFields("Amount (LCY)");
-                exit(CustLedgEntry."Amount (LCY)" + "Amount (LCY)" = 0);
-            end;
-            CustLedgEntry.CalcFields(Amount);
-            exit(CustLedgEntry.Amount + Amount = 0);
-        end
+        DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
+        DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
+        DtldCustLedgEntry.SetRange("Posting Date", 0D, MaxDate);
+        DtldCustLedgEntry.SetFilter("Currency Code", CurrencyCode);
+        DtldCustLedgEntry.CalcSums(Amount, "Amount (LCY)");
+        if CurrencyCode = '' then begin
+            CustLedgEntry.CalcFields("Amount (LCY)");
+            exit(CustLedgEntry."Amount (LCY)" + DtldCustLedgEntry."Amount (LCY)" = 0);
+        end;
+        CustLedgEntry.CalcFields(Amount);
+        exit(CustLedgEntry.Amount + DtldCustLedgEntry.Amount = 0);
     end;
 
     local procedure FillBody(LineNo: Text; DocDate: Text; DocDescription: Text; DocAmount: Text; DebitAmount: Decimal; CreditAmount: Decimal; Correction: Boolean)

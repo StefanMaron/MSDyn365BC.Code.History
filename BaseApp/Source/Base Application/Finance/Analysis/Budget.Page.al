@@ -1046,34 +1046,33 @@ page 113 Budget
         UpdateAnalysisView: Codeunit "Update Analysis View";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        if ConfirmManagement.GetResponseOrDefault(Text003, true) then
-            with GLBudgetEntry do begin
-                SetRange("Budget Name", BudgetName);
-                if BusUnitFilter <> '' then
-                    SetFilter("Business Unit Code", BusUnitFilter);
-                if GLAccFilter <> '' then
-                    SetFilter("G/L Account No.", GLAccFilter);
-                if DateFilter <> '' then
-                    SetFilter(Date, DateFilter);
-                if GlobalDim1Filter <> '' then
-                    SetFilter("Global Dimension 1 Code", GlobalDim1Filter);
-                if GlobalDim2Filter <> '' then
-                    SetFilter("Global Dimension 2 Code", GlobalDim2Filter);
-                if BudgetDim1Filter <> '' then
-                    SetFilter("Budget Dimension 1 Code", BudgetDim1Filter);
-                if BudgetDim2Filter <> '' then
-                    SetFilter("Budget Dimension 2 Code", BudgetDim2Filter);
-                if BudgetDim3Filter <> '' then
-                    SetFilter("Budget Dimension 3 Code", BudgetDim3Filter);
-                if BudgetDim4Filter <> '' then
-                    SetFilter("Budget Dimension 4 Code", BudgetDim4Filter);
-                OnDeleteBudgetOnAfterGLBudgetEntrySetFilters(GLBudgetEntry);
-                SetCurrentKey("Entry No.");
-                if FindFirst() then
-                    UpdateAnalysisView.SetLastBudgetEntryNo("Entry No." - 1);
-                SetCurrentKey("Budget Name");
-                DeleteAll(true);
-            end;
+        if ConfirmManagement.GetResponseOrDefault(Text003, true) then begin
+            GLBudgetEntry.SetRange("Budget Name", BudgetName);
+            if BusUnitFilter <> '' then
+                GLBudgetEntry.SetFilter("Business Unit Code", BusUnitFilter);
+            if GLAccFilter <> '' then
+                GLBudgetEntry.SetFilter("G/L Account No.", GLAccFilter);
+            if DateFilter <> '' then
+                GLBudgetEntry.SetFilter(Date, DateFilter);
+            if GlobalDim1Filter <> '' then
+                GLBudgetEntry.SetFilter("Global Dimension 1 Code", GlobalDim1Filter);
+            if GlobalDim2Filter <> '' then
+                GLBudgetEntry.SetFilter("Global Dimension 2 Code", GlobalDim2Filter);
+            if BudgetDim1Filter <> '' then
+                GLBudgetEntry.SetFilter("Budget Dimension 1 Code", BudgetDim1Filter);
+            if BudgetDim2Filter <> '' then
+                GLBudgetEntry.SetFilter("Budget Dimension 2 Code", BudgetDim2Filter);
+            if BudgetDim3Filter <> '' then
+                GLBudgetEntry.SetFilter("Budget Dimension 3 Code", BudgetDim3Filter);
+            if BudgetDim4Filter <> '' then
+                GLBudgetEntry.SetFilter("Budget Dimension 4 Code", BudgetDim4Filter);
+            OnDeleteBudgetOnAfterGLBudgetEntrySetFilters(GLBudgetEntry);
+            GLBudgetEntry.SetCurrentKey(GLBudgetEntry."Entry No.");
+            if GLBudgetEntry.FindFirst() then
+                UpdateAnalysisView.SetLastBudgetEntryNo(GLBudgetEntry."Entry No." - 1);
+            GLBudgetEntry.SetCurrentKey(GLBudgetEntry."Budget Name");
+            GLBudgetEntry.DeleteAll(true);
+        end;
     end;
 
     local procedure ValidateBudgetName()

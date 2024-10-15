@@ -196,6 +196,13 @@ page 132 "Posted Sales Invoice"
                     Importance = Promoted;
                     ToolTip = 'Specifies the date on which the invoice is due for payment.';
                 }
+                field("Promised Pay Date"; Rec."Promised Pay Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the date on which the customer have promised to pay this invoice.';
+                }
                 group(Control3)
                 {
                     ShowCaption = false;
@@ -299,6 +306,14 @@ page 132 "Posted Sales Invoice"
                     AboutTitle = 'Closed means paid';
                     AboutText = 'A sales invoice is marked as *Closed* when the invoice is paid in full, or when a credit memo is applied for the remaining amount.';
                     ToolTip = 'Specifies if the posted invoice is paid. The check box will also be selected if a credit memo for the remaining amount has been applied.';
+                }
+                field("Dispute Status"; Rec."Dispute Status")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    DrillDown = false;
+                    Importance = Promoted;
+                    Tooltip = 'Specifies if there is an ongoing dispute for this Invoice';
                 }
                 group("Work Description")
                 {
@@ -726,7 +741,7 @@ page 132 "Posted Sales Invoice"
             {
                 ApplicationArea = Basic, Suite;
                 ShowFilter = false;
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
             }
             systempart(Control1900383207; Links)
             {
@@ -881,7 +896,7 @@ page 132 "Posted Sales Invoice"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Create Invoice in Dynamics 365 Sales';
-                    Enabled = NOT CRMIsCoupledToRecord;
+                    Enabled = not CRMIsCoupledToRecord;
                     Image = NewSalesInvoice;
                     ToolTip = 'Create a sales invoice in Dynamics 365 Sales that is connected to this posted sales invoice.';
 
@@ -934,7 +949,7 @@ page 132 "Posted Sales Invoice"
                 Ellipsis = true;
                 Image = Print;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
 
                 trigger OnAction()
                 var
@@ -987,7 +1002,7 @@ page 132 "Posted Sales Invoice"
                 AboutTitle = 'Get detailed posting details';
                 AboutText = 'Here, you can look up the ledger entries that were created when this invoice was posted, as well as any related documents.';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
 
                 trigger OnAction()
                 begin
@@ -1046,7 +1061,7 @@ page 132 "Posted Sales Invoice"
                     AccessByPermission = TableData "Incoming Document" = R;
                     ApplicationArea = Basic, Suite;
                     Caption = 'Select Incoming Document';
-                    Enabled = NOT HasIncomingDocument;
+                    Enabled = not HasIncomingDocument;
                     Image = SelectLineToApply;
                     ToolTip = 'Select an incoming document record and file attachment that you want to link to the entry or document.';
 
@@ -1062,7 +1077,7 @@ page 132 "Posted Sales Invoice"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Create Incoming Document from File';
                     Ellipsis = true;
-                    Enabled = NOT HasIncomingDocument;
+                    Enabled = not HasIncomingDocument;
                     Image = Attach;
                     ToolTip = 'Create an incoming document record by selecting a file to attach, and then link the incoming document record to the entry or document.';
 

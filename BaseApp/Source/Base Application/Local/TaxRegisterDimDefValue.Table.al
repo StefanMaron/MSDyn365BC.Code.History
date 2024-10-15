@@ -2,6 +2,7 @@ table 17217 "Tax Register Dim. Def. Value"
 {
     Caption = 'Tax Register Dim. Def. Value';
     LookupPageID = "Tax Reg. FA Template Subform";
+    DataClassification = CustomerContent;
 
     fields
     {

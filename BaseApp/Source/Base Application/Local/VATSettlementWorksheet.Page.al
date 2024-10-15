@@ -24,7 +24,7 @@ page 14925 "VAT Settlement Worksheet"
 
                     trigger OnValidate()
                     begin
-                        TypeValidation;
+                        TypeValidation();
                         TypeOnAfterValidate();
                     end;
                 }
@@ -70,7 +70,7 @@ page 14925 "VAT Settlement Worksheet"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownVATAllocation;
+                        DrillDownVATAllocation();
                         Rec.CalcFields("VAT Amount To Allocate");
                         Rec."Allocated VAT Amount" := Rec."VAT Amount To Allocate";
                         CurrPage.Update(true);
@@ -289,7 +289,7 @@ page 14925 "VAT Settlement Worksheet"
                     trigger OnAction()
                     begin
                         VATSettlementMgt.Generate(Rec, Type);
-                        UpdateForm;
+                        UpdateForm();
                     end;
                 }
                 separator(Action1210002)
@@ -304,7 +304,7 @@ page 14925 "VAT Settlement Worksheet"
 
                     trigger OnAction()
                     begin
-                        SetGroupVATAlloc;
+                        SetGroupVATAlloc();
                     end;
                 }
                 action("Change Vendor VAT &Invoices")
@@ -333,7 +333,7 @@ page 14925 "VAT Settlement Worksheet"
                         VATSettlementJnl: Page "VAT Settlement Journal";
                     begin
                         Clear(VATSettlementJnl);
-                        CopySelectionToJnl;
+                        CopySelectionToJnl();
                         VATSettlementJnl.Run();
                     end;
                 }
@@ -383,7 +383,7 @@ page 14925 "VAT Settlement Worksheet"
 
     trigger OnAfterGetRecord()
     begin
-        CalcVATAmount;
+        CalcVATAmount();
     end;
 
     trigger OnInit()
@@ -399,7 +399,7 @@ page 14925 "VAT Settlement Worksheet"
         Type := Type::Purchase;
         PeriodType := PeriodType::Month;
         AmountType := AmountType::"Balance at Date";
-        TypeValidation;
+        TypeValidation();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -499,7 +499,7 @@ page 14925 "VAT Settlement Worksheet"
         CurrPage.SetSelectionFilter(Rec);
         if Rec.FindSet() then
             repeat
-                CalcVATAmount;
+                CalcVATAmount();
                 if Rec."Allocated VAT Amount" <> 0 then begin
                     EntryToPost := Rec;
                     EntryToPost.Insert();

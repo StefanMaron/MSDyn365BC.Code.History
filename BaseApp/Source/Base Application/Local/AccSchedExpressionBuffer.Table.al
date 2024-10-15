@@ -1,6 +1,7 @@
 table 26585 "Acc. Sched. Expression Buffer"
 {
     Caption = 'Acc. Sched. Expression Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

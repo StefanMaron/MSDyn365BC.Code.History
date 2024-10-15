@@ -5,36 +5,34 @@ codeunit 17302 "Tax Diff.-Post Jnl. Batch"
     trigger OnRun()
     begin
         ClearAll();
-        with TaxDiffJnlLine do begin
-            Copy(Rec);
-            if FindSet() then begin
-                Wnd.Open(Text1001 + Text1002);
-                Total := Count;
+        TaxDiffJnlLine.Copy(Rec);
+        if TaxDiffJnlLine.FindSet() then begin
+            Wnd.Open(Text1001 + Text1002);
+            Total := TaxDiffJnlLine.Count;
+            repeat
+                if not TaxDiffJnlLine."Partial Disposal" then begin
+                    Processing += 1;
+                    Wnd.Update(1, TaxDiffJnlLine."Journal Batch Name");
+                    Wnd.Update(2, Processing);
+                    Wnd.Update(3, Round((Processing / Total) * 10000, 1));
+                    if not EmptyLine() then
+                        TaxDiffPostJnlLine.RunWithCheck(TaxDiffJnlLine);
+                    TaxDiffJnlLine.Delete();
+                end;
+            until TaxDiffJnlLine.Next() = 0;
+            if TaxDiffJnlLine.FindSet() then
                 repeat
-                    if not "Partial Disposal" then begin
+                    if TaxDiffJnlLine."Partial Disposal" then begin
                         Processing += 1;
-                        Wnd.Update(1, "Journal Batch Name");
+                        Wnd.Update(1, TaxDiffJnlLine."Journal Batch Name");
                         Wnd.Update(2, Processing);
                         Wnd.Update(3, Round((Processing / Total) * 10000, 1));
                         if not EmptyLine() then
                             TaxDiffPostJnlLine.RunWithCheck(TaxDiffJnlLine);
-                        Delete();
+                        TaxDiffJnlLine.Delete();
                     end;
-                until Next() = 0;
-                if FindSet() then
-                    repeat
-                        if "Partial Disposal" then begin
-                            Processing += 1;
-                            Wnd.Update(1, "Journal Batch Name");
-                            Wnd.Update(2, Processing);
-                            Wnd.Update(3, Round((Processing / Total) * 10000, 1));
-                            if not EmptyLine() then
-                                TaxDiffPostJnlLine.RunWithCheck(TaxDiffJnlLine);
-                            Delete();
-                        end;
-                    until Next() = 0;
-                Wnd.Close();
-            end;
+                until TaxDiffJnlLine.Next() = 0;
+            Wnd.Close();
         end;
     end;
 
@@ -49,11 +47,10 @@ codeunit 17302 "Tax Diff.-Post Jnl. Batch"
 
     local procedure EmptyLine(): Boolean
     begin
-        with TaxDiffJnlLine do
-            exit(
-              ("Asset Tax Amount" = 0) and
-              ("Liability Tax Amount" = 0) and
-              ("Disposal Mode" = "Disposal Mode"::" "));
+        exit(
+              (TaxDiffJnlLine."Asset Tax Amount" = 0) and
+              (TaxDiffJnlLine."Liability Tax Amount" = 0) and
+              (TaxDiffJnlLine."Disposal Mode" = TaxDiffJnlLine."Disposal Mode"::" "));
     end;
 }
 

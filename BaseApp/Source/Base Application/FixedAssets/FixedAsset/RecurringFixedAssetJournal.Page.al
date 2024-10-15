@@ -38,7 +38,7 @@ page 5634 "Recurring Fixed Asset Journal"
                 trigger OnValidate()
                 begin
                     FAJnlManagement.CheckName(CurrentJnlBatchName, Rec);
-                    CurrentJnlBatchNameOnAfterVali();
+                    CurrentJnlBatchNameOnAfterValidate();
                 end;
             }
             repeater(Control1)
@@ -521,7 +521,7 @@ page 5634 "Recurring Fixed Asset Journal"
         DimVisible7: Boolean;
         DimVisible8: Boolean;
 
-    local procedure CurrentJnlBatchNameOnAfterVali()
+    protected procedure CurrentJnlBatchNameOnAfterValidate()
     begin
         CurrPage.SaveRecord();
         FAJnlManagement.SetName(CurrentJnlBatchName, Rec);

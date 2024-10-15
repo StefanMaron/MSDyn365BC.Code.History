@@ -7,7 +7,6 @@ codeunit 17209 "Lookup Management"
 
     var
         Text1001: Label ' - Option List';
-        Text1002: Label ' - Key List';
         Text1003: Label 'Description';
         Text1004: Label 'Name';
         Text1010: Label 'Illegal using of symbol `point`.';

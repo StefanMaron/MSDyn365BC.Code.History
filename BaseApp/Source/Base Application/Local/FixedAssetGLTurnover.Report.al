@@ -258,17 +258,10 @@ report 12464 "Fixed Asset G/L Turnover"
     end;
 
     var
-        Text003: Label 'Zero values are replaced by spacebar';
-        Text005: Label 'for period from ';
-        Text006: Label ' to ';
-        GLSetup: Record "General Ledger Setup";
-        FAPostingGr: Record "FA Posting Group";
         LocMgt: Codeunit "Localisation Management";
         LineAmount: array[10] of Decimal;
-        TotalAmount: array[10] of Decimal;
         LineText: array[10] of Text[30];
         TotalText: array[10] of Text[30];
-        GLAccFilter: Text[100];
         RoundedValue: Decimal;
         StartDate: Date;
         EndDate: Date;
@@ -276,9 +269,7 @@ report 12464 "Fixed Asset G/L Turnover"
         Decimals: Decimal;
         SkipZeroValues: Boolean;
         SkipZeroLines: Boolean;
-        TotalPrinted: Boolean;
         PrintParameters: Boolean;
-        PrintTotals: Boolean;
         CurrentDate: Text[30];
         RequestFilter: Text;
         AmountUnit: Text[30];

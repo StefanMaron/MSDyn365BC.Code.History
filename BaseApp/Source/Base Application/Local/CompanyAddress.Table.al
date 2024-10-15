@@ -2,6 +2,7 @@ table 12425 "Company Address"
 {
     Caption = 'Company Address';
     LookupPageID = "Company Address List";
+    DataClassification = CustomerContent;
 
     fields
     {

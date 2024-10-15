@@ -46,6 +46,7 @@ permissionset 4123 "General Ledger Accounts - View"
                   tabledata "G/L Account" = R,
                   tabledata "G/L Account Category" = R,
                   tabledata "G/L Account Where-Used" = R,
+                  tabledata "G/L Account Source Currency" = R,
                   tabledata "G/L Entry - VAT Entry Link" = R,
                   tabledata "G/L Entry" = R,
                   tabledata "Gen. Jnl. Allocation" = R,

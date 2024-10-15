@@ -66,7 +66,6 @@ report 12412 "Order Item Waybill 1-T"
 
                     trigger OnPostDataItem()
                     var
-                        FooterValues: array[9] of Text;
                     begin
                         if QtyNotItem < 1 then
                             AddendumSheets := ''
@@ -114,6 +113,8 @@ report 12412 "Order Item Waybill 1-T"
                 end;
 
                 trigger OnPreDataItem()
+                var
+                    NoSeries: Codeunit "No. Series";
                 begin
                     if not SalesLine1.Find('-') then
                         CurrReport.Break();
@@ -121,8 +122,10 @@ report 12412 "Order Item Waybill 1-T"
                     if Header."Shipping No." = '' then begin
                         if (Header."Shipping No. Series" = '') or (Header."Shipping No. Series" = Header."Posting No. Series") then
                             if Header."Posting No." = '' then begin
-                                Header."Posting No." :=
-                                  NoSeriesManagement.GetNextNo(Header."Posting No. Series", Header."Posting Date", not CurrReport.Preview);
+                                if CurrReport.Preview then
+                                    Header."Posting No." := NoSeriesBatch.GetNextNo(Header."Posting No. Series", Header."Posting Date")
+                                else
+                                    Header."Posting No." := NoSeries.GetNextNo(Header."Posting No. Series", Header."Posting Date");
                                 Header."Shipping No." := Header."Posting No.";
                                 if not CurrReport.Preview then
                                     Header.Modify();
@@ -130,10 +133,13 @@ report 12412 "Order Item Waybill 1-T"
                                 Header."Shipping No." := Header."Posting No.";
                                 if not CurrReport.Preview then
                                     Header.Modify();
-                            end else begin
-                            Clear(NoSeriesManagement);
-                            Header."Shipping No." :=
-                              NoSeriesManagement.GetNextNo(Header."Shipping No. Series", Header."Posting Date", not CurrReport.Preview);
+                            end
+                        else begin
+                            Clear(NoSeriesBatch);
+                            if CurrReport.Preview then
+                                Header."Shipping No." := NoSeriesBatch.GetNextNo(Header."Shipping No. Series", Header."Posting Date")
+                            else
+                                Header."Shipping No." := NoSeries.GetNextNo(Header."Shipping No. Series", Header."Posting Date");
                             if not CurrReport.Preview then
                                 Header.Modify();
                         end;
@@ -274,7 +280,7 @@ report 12412 "Order Item Waybill 1-T"
         SalesLine1: Record "Sales Line";
         Item: Record Item;
         Currency: Record Currency;
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         ArchiveManagement: Codeunit ArchiveManagement;
         SegManagement: Codeunit SegManagement;
         LocMgt: Codeunit "Localisation Management";

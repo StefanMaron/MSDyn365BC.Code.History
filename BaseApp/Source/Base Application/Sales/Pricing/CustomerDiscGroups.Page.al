@@ -60,7 +60,7 @@ page 512 "Customer Disc. Groups"
             {
                 Caption = 'Cust. &Disc. Groups';
                 Image = Group;
-#if not CLEAN21
+#if not CLEAN23
                 action(SalesLineDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -128,7 +128,7 @@ page 512 "Customer Disc. Groups"
             group(Category_Category4)
             {
                 Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 3.';
-#if not CLEAN21
+#if not CLEAN23
                 actionref(SalesLineDiscounts_Promoted; SalesLineDiscounts)
                 {
                     ObsoleteState = Pending;

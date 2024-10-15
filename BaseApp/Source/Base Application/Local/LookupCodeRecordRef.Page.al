@@ -59,8 +59,8 @@ page 17249 "Lookup Code (RecordRef)"
                 xFieldRefCode := xRecordRef.Field(FieldCodeID);
                 xFieldRefText := xRecordRef.Field(FieldTextID);
                 repeat
-                    Rec.Code := xFieldRefCode.Value;
-                    Rec.Text := xFieldRefText.Value;
+                    Rec.Code := xFieldRefCode.Value();
+                    Rec.Text := xFieldRefText.Value();
                     Rec.Insert();
                 until xRecordRef.Next() = 0;
             end;

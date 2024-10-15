@@ -32,59 +32,55 @@ report 14934 "Write-off for Tax Ledger"
                         CurrReport.Skip();
 
                     if not DeprBook."G/L Integration - Disposal" or FixedAsset."Budgeted Asset" then begin
-                        with FAJnlLine do begin
-                            LockTable();
-                            FAJnlSetup.FAJnlName(DeprBook, FAJnlLine, FAJnlNextLineNo);
-                            Init();
-                            FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
-                            FAJnlNextLineNo := FAJnlNextLineNo + 10000;
-                            "Line No." := FAJnlNextLineNo;
-                            "Posting Date" := PostingDate;
-                            "FA Posting Date" := PostingDate;
-                            if "Posting Date" = "FA Posting Date" then
-                                "Posting Date" := 0D;
-                            Validate("FA Posting Type", "FA Posting Type"::Disposal);
-                            Validate("FA No.", FixedAsset."No.");
-                            "Document No." := "Posted FA Doc. Header"."No.";
-                            Validate("Depreciation Book Code", DeprBookCode);
-                            Validate("Depr. until FA Posting Date", not DeprBook."G/L Integration - Depreciation");
-                            Validate(Amount, BookValue);
-                            "Location Code" := FixedAsset."FA Location Code";
-                            "Employee No." := FixedAsset."Responsible Employee";
-                            CreateDimFromDefaultDim();
-                            if Post then
-                                FAJnlPostLine.FAJnlPostLine(FAJnlLine, true)
-                            else
-                                Insert(true);
-                        end;
+                        FAJnlLine.LockTable();
+                        FAJnlSetup.FAJnlName(DeprBook, FAJnlLine, FAJnlNextLineNo);
+                        FAJnlLine.Init();
+                        FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
+                        FAJnlNextLineNo := FAJnlNextLineNo + 10000;
+                        FAJnlLine."Line No." := FAJnlNextLineNo;
+                        FAJnlLine."Posting Date" := PostingDate;
+                        FAJnlLine."FA Posting Date" := PostingDate;
+                        if FAJnlLine."Posting Date" = FAJnlLine."FA Posting Date" then
+                            FAJnlLine."Posting Date" := 0D;
+                        FAJnlLine.Validate("FA Posting Type", FAJnlLine."FA Posting Type"::Disposal);
+                        FAJnlLine.Validate("FA No.", FixedAsset."No.");
+                        FAJnlLine."Document No." := "Posted FA Doc. Header"."No.";
+                        FAJnlLine.Validate("Depreciation Book Code", DeprBookCode);
+                        FAJnlLine.Validate("Depr. until FA Posting Date", not DeprBook."G/L Integration - Depreciation");
+                        FAJnlLine.Validate(Amount, BookValue);
+                        FAJnlLine."Location Code" := FixedAsset."FA Location Code";
+                        FAJnlLine."Employee No." := FixedAsset."Responsible Employee";
+                        FAJnlLine.CreateDimFromDefaultDim();
+                        if Post then
+                            FAJnlPostLine.FAJnlPostLine(FAJnlLine, true)
+                        else
+                            FAJnlLine.Insert(true);
                     end else begin
-                        with GenJnlLine do begin
-                            LockTable();
-                            FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, GenJnlNextLineNo);
+                        GenJnlLine.LockTable();
+                        FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, GenJnlNextLineNo);
 
-                            Init();
-                            FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
-                            GenJnlNextLineNo := GenJnlNextLineNo + 1000;
-                            "Line No." := GenJnlNextLineNo;
-                            "Posting Date" := PostingDate;
-                            "FA Posting Date" := PostingDate;
-                            if "Posting Date" = "FA Posting Date" then
-                                "FA Posting Date" := 0D;
-                            "Account Type" := "Account Type"::"Fixed Asset";
-                            Validate("FA Posting Type", "FA Posting Type"::Disposal);
-                            Validate("Account No.", FixedAsset."No.");
-                            "Document No." := "Posted FA Doc. Header"."No.";
-                            Validate("Depreciation Book Code", DeprBookCode);
-                            Validate(Amount, BookValue);
-                            "Employee No." := FixedAsset."Responsible Employee";
-                            "FA Location Code" := FixedAsset."FA Location Code";
-                            DimMgt.AddDimSource(DefaultDimSource, DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.");
-                            CreateDim(DefaultDimSource);
-                            if Post then
-                                GenJnlPostLine.RunWithCheck(GenJnlLine)
-                            else
-                                Insert(true);
-                        end;
+                        GenJnlLine.Init();
+                        FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
+                        GenJnlNextLineNo := GenJnlNextLineNo + 1000;
+                        GenJnlLine."Line No." := GenJnlNextLineNo;
+                        GenJnlLine."Posting Date" := PostingDate;
+                        GenJnlLine."FA Posting Date" := PostingDate;
+                        if GenJnlLine."Posting Date" = GenJnlLine."FA Posting Date" then
+                            GenJnlLine."FA Posting Date" := 0D;
+                        GenJnlLine."Account Type" := GenJnlLine."Account Type"::"Fixed Asset";
+                        GenJnlLine.Validate("FA Posting Type", GenJnlLine."FA Posting Type"::Disposal);
+                        GenJnlLine.Validate("Account No.", FixedAsset."No.");
+                        GenJnlLine."Document No." := "Posted FA Doc. Header"."No.";
+                        GenJnlLine.Validate("Depreciation Book Code", DeprBookCode);
+                        GenJnlLine.Validate(Amount, BookValue);
+                        GenJnlLine."Employee No." := FixedAsset."Responsible Employee";
+                        GenJnlLine."FA Location Code" := FixedAsset."FA Location Code";
+                        DimMgt.AddDimSource(DefaultDimSource, DimMgt.TypeToTableID1(GenJnlLine."Account Type".AsInteger()), GenJnlLine."Account No.");
+                        GenJnlLine.CreateDim(DefaultDimSource);
+                        if Post then
+                            GenJnlPostLine.RunWithCheck(GenJnlLine)
+                        else
+                            GenJnlLine.Insert(true);
                     end;
                 end;
             }
@@ -178,7 +174,6 @@ report 14934 "Write-off for Tax Ledger"
         Text000: Label 'You must specify New Posting Date.';
         Text001: Label 'Processing';
         Text002: Label 'Fixed Asset #1##########';
-        NewPostingDateTextBoxEnable: Boolean;
 
     [Scope('OnPrem')]
     procedure InitializeRequest(UseNewPostDate2: Boolean; NewPostingDate2: Date; Post2: Boolean)

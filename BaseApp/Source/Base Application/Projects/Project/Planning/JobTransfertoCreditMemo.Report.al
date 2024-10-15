@@ -6,7 +6,7 @@ using Microsoft.Sales.Setup;
 
 report 1092 "Job Transfer to Credit Memo"
 {
-    Caption = 'Job Transfer to Credit Memo';
+    Caption = 'Project Transfer to Credit Memo';
     ProcessingOnly = true;
 
     dataset
@@ -82,7 +82,7 @@ report 1092 "Job Transfer to Credit Memo"
                             Clear(SalesHeader);
                             SalesHeader.FilterGroup := 2;
                             SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
-                            SalesHeader.SetRange("Bill-to Customer No.", Job."Bill-to Customer No.");
+                            SalesHeader.SetRange("Bill-to Customer No.", BillToCustomerNo);
                             SalesHeader.FilterGroup := 0;
                             if PAGE.RunModal(0, SalesHeader) = ACTION::LookupOK then
                                 CreditMemoNo := SalesHeader."No.";
@@ -153,6 +153,7 @@ report 1092 "Job Transfer to Credit Memo"
 
     var
         SalesHeader: Record "Sales Header";
+        BillToCustomerNo: Code[20];
         PostingDate: Date;
         DocumentDate: Date;
         CrMemoPostingDate: Date;
@@ -192,6 +193,21 @@ report 1092 "Job Transfer to Credit Memo"
     procedure SetCustomer(JobNo: Code[20])
     begin
         Job.Get(JobNo);
+    end;
+
+    procedure SetCustomer(JobPlanningLine: Record "Job Planning Line")
+    var
+        JobTask: Record "Job Task";
+    begin
+        Job.Get(JobPlanningLine."Job No.");
+        BillToCustomerNo := Job."Bill-to Customer No.";
+
+        if Job."Task Billing Method" = Job."Task Billing Method"::"One customer" then
+            exit;
+
+        JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
+        if (JobTask."Bill-to Customer No." <> '') and (JobTask."Bill-to Customer No." <> Job."Bill-to Customer No.") then
+            BillToCustomerNo := JobTask."Bill-to Customer No.";
     end;
 
     procedure SetPostingDate(PostingDate2: Date)

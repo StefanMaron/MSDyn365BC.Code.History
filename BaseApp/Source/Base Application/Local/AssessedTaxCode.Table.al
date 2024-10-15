@@ -3,6 +3,7 @@ table 14921 "Assessed Tax Code"
     Caption = 'Assessed Tax Code';
     DrillDownPageID = "Assessed Tax Code List";
     LookupPageID = "Assessed Tax Code List";
+    DataClassification = CustomerContent;
 
     fields
     {

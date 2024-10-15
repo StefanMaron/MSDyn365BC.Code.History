@@ -13,6 +13,7 @@ using Microsoft.Manufacturing.Document;
 table 5813 "Inventory Posting Setup"
 {
     Caption = 'Inventory Posting Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

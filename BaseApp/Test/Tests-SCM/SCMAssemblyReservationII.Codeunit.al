@@ -86,7 +86,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         MockReservEntry(ReservEntry, DATABASE::"Assembly Header", 'ANY', AssemblyHeader."Document Type".AsInteger(), 0, 0, 0);
 
         // Offset for Assembly Header is 141 and subtype (as integer) is added
-        Assert.AreEqual(142, ReservEntry.SummEntryNo, 'Assembly Header has the wrong offset in Reservation');
+        Assert.AreEqual(142, ReservEntry.SummEntryNo(), 'Assembly Header has the wrong offset in Reservation');
 
         asserterror Error('') // roll back
     end;
@@ -625,7 +625,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         MockReservEntry(ReservEntry, DATABASE::"Assembly Line", 'ANY', AssemblyLine."Document Type".AsInteger(), 0, 0, 0);
 
         // Offset for Assembly Line is 151 and subtype (as integer) is added
-        Assert.AreEqual(152, ReservEntry.SummEntryNo, 'Assembly Line has the wrong offset in Reservation');
+        Assert.AreEqual(152, ReservEntry.SummEntryNo(), 'Assembly Line has the wrong offset in Reservation');
 
         asserterror Error('') // roll back
     end;
@@ -1512,19 +1512,19 @@ codeunit 137925 "SCM Assembly Reservation II"
     local procedure IDcode20(Prefix: Code[5]): Code[20]
     begin
         // ID for test methods and mocking data.
-        exit(Prefix + ID);
+        exit(Prefix + ID());
     end;
 
     local procedure IDcode10(Prefix: Code[2]): Code[10]
     begin
         // ID for test methods and mocking data.
-        exit(Prefix + ID);
+        exit(Prefix + ID());
     end;
 
     local procedure ID(): Code[8]
     begin
         // ID is build on Day of the week and current time in XML format to make it independent of regional settings and locale
-        exit(CurrentDayInWeek1to7 + CurrentTimeXMLFormat);
+        exit(CurrentDayInWeek1to7() + CurrentTimeXMLFormat());
     end;
 
     local procedure CurrentDayInWeek1to7(): Code[1]
@@ -1536,7 +1536,7 @@ codeunit 137925 "SCM Assembly Reservation II"
     var
         TimeStrXML: Text[30];
     begin
-        TimeStrXML := Format(Time, 0, XMLFormat); // Format: hh:mm::ss.milliseconds (16:55:48.253)
+        TimeStrXML := Format(Time, 0, XMLFormat()); // Format: hh:mm::ss.milliseconds (16:55:48.253)
 
         exit(CopyStr(DelChr(TimeStrXML, '=', ':.'), 1, 7)); // Format: hhmmssmilliseconds (1655482)
     end;

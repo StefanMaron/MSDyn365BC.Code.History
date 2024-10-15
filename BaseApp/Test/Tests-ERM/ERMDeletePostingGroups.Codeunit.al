@@ -18,6 +18,7 @@ codeunit 134070 "ERM Delete Posting Groups"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         YouCannotDeleteErr: Label 'You cannot delete %1 %2.';
+        YouCannotDeleteOrModifyErr: Label 'You cannot modify or delete VAT posting setup %1 %2 as it has been used to generate GL entries. Changing the setup now can cause inconsistencies in your financial data.';
 
     [Test]
     [Scope('OnPrem')]
@@ -186,6 +187,39 @@ codeunit 134070 "ERM Delete Posting Groups"
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
+    procedure ModifyVATPostingSetupWithLedgerEntries()
+    var
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup, VATProductPostingGroup2: Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLEntry: Record "G/L Entry";
+    begin
+        // [FEATURE] [VAT]
+        // [GIVEN] new VAT Posting Setup, where "VAT Bus. Posting Group" = 'A',"VAT Prod. Posting Group" = 'B'
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup2);
+        LibraryERM.CreateVATPostingSetup(
+          VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
+
+        // [GIVEN] Posted a G/L Entry, where "VAT Bus. Posting Group" = 'A',"VAT Prod. Posting Group" = 'B'
+        if GLEntry.FindLast() then;
+        GLEntry."Entry No." += 1;
+        GLEntry."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+        GLEntry."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+        GLEntry.Insert();
+
+        // [WHEN] Rename VAT Posting Setup we throw error
+        asserterror VATPostingSetup.Rename(VATBusinessPostingGroup.Code, VATProductPostingGroup2.Code);
+
+        // [THEN] Error: 'You cannot delete/modify A B ...'
+        Assert.ExpectedError(
+          StrSubstNo(YouCannotDeleteOrModifyErr, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code));
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
     procedure DeleteVATPostingSetupWithLedgerEntries()
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
@@ -209,9 +243,9 @@ codeunit 134070 "ERM Delete Posting Groups"
 
         // [WHEN] Delete VAT Posting Setup
         asserterror VATPostingSetup.Delete(true);
-        // [THEN] Error: 'You cannot delete A B'
+        // [THEN] Error: 'You cannot delete/modify A B ...'
         Assert.ExpectedError(
-          StrSubstNo(YouCannotDeleteErr, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code));
+          StrSubstNo(YouCannotDeleteOrModifyErr, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code));
     end;
 
     local procedure Initialize()

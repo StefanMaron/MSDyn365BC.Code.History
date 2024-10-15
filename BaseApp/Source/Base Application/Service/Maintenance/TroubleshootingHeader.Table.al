@@ -10,6 +10,7 @@ table 5943 "Troubleshooting Header"
 {
     Caption = 'Troubleshooting Header';
     LookupPageID = "Troubleshooting List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -21,7 +22,7 @@ table 5943 "Troubleshooting Header"
             begin
                 if "No." <> xRec."No." then begin
                     ServMgtSetup.Get();
-                    NoSeriesMgt.TestManual(ServMgtSetup."Troubleshooting Nos.");
+                    NoSeries.TestManual(ServMgtSetup."Troubleshooting Nos.");
                     "No. Series" := '';
                 end;
             end;
@@ -51,11 +52,27 @@ table 5943 "Troubleshooting Header"
     }
 
     trigger OnInsert()
+#if not CLEAN24
+    var
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         ServMgtSetup.Get();
         if "No." = '' then begin
             ServMgtSetup.TestField("Troubleshooting Nos.");
-            NoSeriesMgt.InitSeries(ServMgtSetup."Troubleshooting Nos.", xRec."No. Series", 0D, "No.", "No. Series");
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(ServMgtSetup."Troubleshooting Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                "No. Series" := ServMgtSetup."Troubleshooting Nos.";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", ServMgtSetup."Troubleshooting Nos.", 0D, "No.");
+            end;
+#endif
         end;
     end;
 
@@ -64,23 +81,21 @@ table 5943 "Troubleshooting Header"
         TblshtgHeader: Record "Troubleshooting Header";
         TblshtgHeader2: Record "Troubleshooting Header";
         TblshtgSetup: Record "Troubleshooting Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        Tblshtg: Page Troubleshooting;
+        NoSeries: Codeunit "No. Series";
+        Troubleshooting: Page Troubleshooting;
 
         Text000: Label 'No %1 was found.';
         Text001: Label 'No %1 was found for %2 %3.';
 
     procedure AssistEdit(OldTblshtHeader: Record "Troubleshooting Header"): Boolean
     begin
-        with TblshtgHeader do begin
-            TblshtgHeader := Rec;
-            ServMgtSetup.Get();
-            ServMgtSetup.TestField("Troubleshooting Nos.");
-            if NoSeriesMgt.SelectSeries(ServMgtSetup."Troubleshooting Nos.", OldTblshtHeader."No. Series", "No. Series") then begin
-                NoSeriesMgt.SetSeries("No.");
-                Rec := TblshtgHeader;
-                exit(true);
-            end;
+        TblshtgHeader := Rec;
+        ServMgtSetup.Get();
+        ServMgtSetup.TestField("Troubleshooting Nos.");
+        if NoSeries.LookupRelatedNoSeries(ServMgtSetup."Troubleshooting Nos.", OldTblshtHeader."No. Series", TblshtgHeader."No. Series") then begin
+            TblshtgHeader."No." := NoSeries.GetNextNo(TblshtgHeader."No. Series");
+            Rec := TblshtgHeader;
+            exit(true);
         end;
     end;
 
@@ -175,12 +190,12 @@ table 5943 "Troubleshooting Header"
         TblshtgHeader.Get(TblshtgSetup."Troubleshooting No.");
         MarkTroubleShtgHeader(TblshtgSetup);
         TblshtgHeader2.MarkedOnly(true);
-        Clear(Tblshtg);
-        Tblshtg.SetCaption(Format(TblshtgSetup.Type), TblshtgSetup."No.");
-        Tblshtg.SetRecord(TblshtgHeader);
-        Tblshtg.SetTableView(TblshtgHeader2);
-        Tblshtg.Editable := false;
-        Tblshtg.Run();
+        Clear(Troubleshooting);
+        Troubleshooting.SetCaption(Format(TblshtgSetup.Type), TblshtgSetup."No.");
+        Troubleshooting.SetRecord(TblshtgHeader);
+        Troubleshooting.SetTableView(TblshtgHeader2);
+        Troubleshooting.Editable := false;
+        Troubleshooting.Run();
         TblshtgHeader2.Reset();
     end;
 

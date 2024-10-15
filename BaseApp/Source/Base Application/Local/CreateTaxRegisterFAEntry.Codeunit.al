@@ -51,71 +51,70 @@ codeunit 17205 "Create Tax Register FA Entry"
                 if TaxRegTemplate.FindSet() then
                     repeat
                         TempTaxRegTemplate := TaxRegTemplate;
-                        with TaxRegTemplate do
-                            if Expression <> '' then begin
-                                SetFALedgerEntryFilters(FALedgEntry, TaxRegTemplate, StartDate, EndDate, 0);
-                                case "Sum Field No." of
-                                    TaxRegFAEntry.FieldNo("Acquisition Cost"):
-                                        begin
-                                            FALedgEntry.CalcSums(Amount);
-                                            TempTaxRegTemplate.Value := FALedgEntry.Amount;
-                                        end;
-                                    TaxRegFAEntry.FieldNo("Valuation Changes"):
-                                        begin
-                                            FALedgEntry.CalcSums(Amount);
-                                            TempTaxRegTemplate.Value := FALedgEntry.Amount;
-                                        end;
-                                    TaxRegFAEntry.FieldNo("Depreciation Amount"):
-                                        begin
-                                            FALedgEntry.CalcSums(Amount);
-                                            TempTaxRegTemplate.Value := -FALedgEntry.Amount;
-                                        end;
-                                    TaxRegFAEntry.FieldNo("Sales Gain/Loss"):
-                                        case "Result on Disposal" of
-                                            "Result on Disposal"::Gain:
-                                                begin
-                                                    FALedgEntry.CalcSums("Sales Gain Amount");
-                                                    TempTaxRegTemplate.Value := FALedgEntry."Sales Gain Amount";
-                                                end;
-                                            "Result on Disposal"::Loss:
-                                                begin
-                                                    FALedgEntry.CalcSums("Sales Loss Amount");
-                                                    TempTaxRegTemplate.Value := FALedgEntry."Sales Loss Amount";
-                                                end;
-                                            else begin
-                                                    FALedgEntry.CalcSums(Amount);
-                                                    TempTaxRegTemplate.Value := -FALedgEntry.Amount;
-                                                end;
-                                        end;
-                                    TaxRegFAEntry.FieldNo("Sales Amount"):
-                                        begin
+                        if TaxRegTemplate.Expression <> '' then begin
+                            SetFALedgerEntryFilters(FALedgEntry, TaxRegTemplate, StartDate, EndDate, 0);
+                            case TaxRegTemplate."Sum Field No." of
+                                TaxRegFAEntry.FieldNo("Acquisition Cost"):
+                                    begin
+                                        FALedgEntry.CalcSums(Amount);
+                                        TempTaxRegTemplate.Value := FALedgEntry.Amount;
+                                    end;
+                                TaxRegFAEntry.FieldNo("Valuation Changes"):
+                                    begin
+                                        FALedgEntry.CalcSums(Amount);
+                                        TempTaxRegTemplate.Value := FALedgEntry.Amount;
+                                    end;
+                                TaxRegFAEntry.FieldNo("Depreciation Amount"):
+                                    begin
+                                        FALedgEntry.CalcSums(Amount);
+                                        TempTaxRegTemplate.Value := -FALedgEntry.Amount;
+                                    end;
+                                TaxRegFAEntry.FieldNo("Sales Gain/Loss"):
+                                    case TaxRegTemplate."Result on Disposal" of
+                                        TaxRegTemplate."Result on Disposal"::Gain:
+                                            begin
+                                                FALedgEntry.CalcSums("Sales Gain Amount");
+                                                TempTaxRegTemplate.Value := FALedgEntry."Sales Gain Amount";
+                                            end;
+                                        TaxRegTemplate."Result on Disposal"::Loss:
+                                            begin
+                                                FALedgEntry.CalcSums("Sales Loss Amount");
+                                                TempTaxRegTemplate.Value := FALedgEntry."Sales Loss Amount";
+                                            end;
+                                        else begin
                                             FALedgEntry.CalcSums(Amount);
                                             TempTaxRegTemplate.Value := -FALedgEntry.Amount;
                                         end;
-                                    TaxRegFAEntry.FieldNo("Depr. Group Elimination"):
-                                        begin
-                                            FALedgEntry.CalcSums(Amount);
-                                            TempTaxRegTemplate.Value := -FALedgEntry.Amount;
-                                        end;
-                                    TaxRegFAEntry.FieldNo("Depreciation Bonus Amount"):
-                                        begin
-                                            FALedgEntry.CalcSums(Amount);
-                                            TempTaxRegTemplate.Value := -FALedgEntry.Amount;
-                                        end;
-                                    TaxRegFAEntry.FieldNo("Depr. Bonus Recovery Amount"):
-                                        begin
-                                            FALedgEntry.CalcSums(Amount);
-                                            TempTaxRegTemplate.Value := -FALedgEntry.Amount;
-                                        end;
-                                    TaxRegFAEntry.FieldNo("Sold FA Qty"):
-                                        TempTaxRegTemplate.Value := FALedgEntry.Count();
-                                    TaxRegFAEntry.FieldNo("Acquis. Cost for Released FA"):
-                                        begin
-                                            FALedgEntry.CalcSums(Amount);
-                                            TempTaxRegTemplate.Value := FALedgEntry.Amount;
-                                        end;
-                                end;
+                                    end;
+                                TaxRegFAEntry.FieldNo("Sales Amount"):
+                                    begin
+                                        FALedgEntry.CalcSums(Amount);
+                                        TempTaxRegTemplate.Value := -FALedgEntry.Amount;
+                                    end;
+                                TaxRegFAEntry.FieldNo("Depr. Group Elimination"):
+                                    begin
+                                        FALedgEntry.CalcSums(Amount);
+                                        TempTaxRegTemplate.Value := -FALedgEntry.Amount;
+                                    end;
+                                TaxRegFAEntry.FieldNo("Depreciation Bonus Amount"):
+                                    begin
+                                        FALedgEntry.CalcSums(Amount);
+                                        TempTaxRegTemplate.Value := -FALedgEntry.Amount;
+                                    end;
+                                TaxRegFAEntry.FieldNo("Depr. Bonus Recovery Amount"):
+                                    begin
+                                        FALedgEntry.CalcSums(Amount);
+                                        TempTaxRegTemplate.Value := -FALedgEntry.Amount;
+                                    end;
+                                TaxRegFAEntry.FieldNo("Sold FA Qty"):
+                                    TempTaxRegTemplate.Value := FALedgEntry.Count();
+                                TaxRegFAEntry.FieldNo("Acquis. Cost for Released FA"):
+                                    begin
+                                        FALedgEntry.CalcSums(Amount);
+                                        TempTaxRegTemplate.Value := FALedgEntry.Amount;
+                                    end;
                             end;
+                        end;
 
                         TempTaxRegTemplate.Insert();
                     until TaxRegTemplate.Next() = 0;
@@ -170,97 +169,96 @@ codeunit 17205 "Create Tax Register FA Entry"
     var
         TaxRegFAEntry: Record "Tax Register FA Entry";
     begin
-        with TaxRegTemplate do
-            if Expression <> '' then begin
-                FALedgEntry.Reset();
-                FALedgEntry.SetCurrentKey(
-                  "Depreciation Book Code", "FA Posting Date", "FA Posting Category", "FA Posting Type",
-                  "Belonging to Manufacturing", "FA Type", "Depreciation Group", "Depr. Bonus");
-                FALedgEntry.SetFilter("Depreciation Book Code", "Depr. Book Filter");
-                FALedgEntry.SetRange("FA Posting Date", StartDate, EndDate);
-                if "Belonging to Manufacturing" <> "Belonging to Manufacturing"::" " then
-                    FALedgEntry.SetRange("Belonging to Manufacturing", "Belonging to Manufacturing");
-                case "FA Type" of
-                    "FA Type"::"Fixed Assets":
-                        FALedgEntry.SetRange("FA Type", FALedgEntry."FA Type"::"Fixed Assets");
-                    "FA Type"::"Intangible Assets":
-                        FALedgEntry.SetRange("FA Type", FALedgEntry."FA Type"::"Intangible Asset");
-                end;
-                if "Depreciation Group" <> '' then
-                    FALedgEntry.SetRange("Depreciation Group", "Depreciation Group");
-                FALedgEntry.SetRange("FA Posting Category", FALedgEntry."FA Posting Category"::" ");
-                if "Tax Difference Code Filter" <> '' then
-                    FALedgEntry.SetFilter("Tax Difference Code", "Tax Difference Code Filter");
+        if TaxRegTemplate.Expression <> '' then begin
+            FALedgEntry.Reset();
+            FALedgEntry.SetCurrentKey(
+              "Depreciation Book Code", "FA Posting Date", "FA Posting Category", "FA Posting Type",
+              "Belonging to Manufacturing", "FA Type", "Depreciation Group", "Depr. Bonus");
+            FALedgEntry.SetFilter("Depreciation Book Code", TaxRegTemplate."Depr. Book Filter");
+            FALedgEntry.SetRange("FA Posting Date", StartDate, EndDate);
+            if TaxRegTemplate."Belonging to Manufacturing" <> TaxRegTemplate."Belonging to Manufacturing"::" " then
+                FALedgEntry.SetRange("Belonging to Manufacturing", TaxRegTemplate."Belonging to Manufacturing");
+            case TaxRegTemplate."FA Type" of
+                TaxRegTemplate."FA Type"::"Fixed Assets":
+                    FALedgEntry.SetRange("FA Type", FALedgEntry."FA Type"::"Fixed Assets");
+                TaxRegTemplate."FA Type"::"Intangible Assets":
+                    FALedgEntry.SetRange("FA Type", FALedgEntry."FA Type"::"Intangible Asset");
+            end;
+            if TaxRegTemplate."Depreciation Group" <> '' then
+                FALedgEntry.SetRange("Depreciation Group", TaxRegTemplate."Depreciation Group");
+            FALedgEntry.SetRange("FA Posting Category", FALedgEntry."FA Posting Category"::" ");
+            if TaxRegTemplate."Tax Difference Code Filter" <> '' then
+                FALedgEntry.SetFilter("Tax Difference Code", TaxRegTemplate."Tax Difference Code Filter");
 
-                case "Sum Field No." of
-                    TaxRegFAEntry.FieldNo("Acquisition Cost"):
-                        FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Acquisition Cost");
-                    TaxRegFAEntry.FieldNo("Valuation Changes"):
-                        FALedgEntry.SetRange("FA Posting Type",
-                          FALedgEntry."FA Posting Type"::"Write-Down", FALedgEntry."FA Posting Type"::Appreciation);
-                    TaxRegFAEntry.FieldNo("Depreciation Amount"):
-                        begin
-                            FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::Depreciation);
-                            FALedgEntry.SetRange("Depr. Bonus", false);
-                        end;
-                    TaxRegFAEntry.FieldNo("Sales Gain/Loss"):
-                        begin
-                            FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Gain/Loss");
-                            FALedgEntry.SetRange("Depr. Group Elimination", false);
-                            if Mode = Mode::Drilldown then
-                                case "Result on Disposal" of
-                                    "Result on Disposal"::Gain:
-                                        begin
-                                            FALedgEntry.SetFilter("Sales Gain Amount", '>=%1', 0);
-                                            FALedgEntry.SetRange("Sales Loss Amount", 0);
-                                        end;
-                                    "Result on Disposal"::Loss:
-                                        FALedgEntry.SetFilter("Sales Loss Amount", '>%1', 0);
-                                end;
-                        end;
-                    TaxRegFAEntry.FieldNo("Sales Amount"):
-                        FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Proceeds on Disposal");
-                    TaxRegFAEntry.FieldNo("Depr. Group Elimination"):
-                        begin
-                            FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Gain/Loss");
-                            FALedgEntry.SetRange("Depr. Group Elimination", true);
-                        end;
-                    TaxRegFAEntry.FieldNo("Depreciation Bonus Amount"):
-                        begin
-                            FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::Depreciation);
-                            FALedgEntry.SetRange("Depr. Bonus", true);
-                            if "Depr. Bonus % Filter" <> '' then
-                                FALedgEntry.SetFilter("Depr. Bonus %", "Depr. Bonus % Filter");
-                        end;
-                    TaxRegFAEntry.FieldNo("Depr. Bonus Recovery Amount"):
-                        begin
-                            FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::Depreciation);
-                            FALedgEntry.SetRange("Depr. Bonus", true);
-                            FALedgEntry.SetRange("FA Posting Date");
-                            FALedgEntry.SetRange("Depr. Bonus Recovery Date", StartDate, EndDate);
-                        end;
-                    TaxRegFAEntry.FieldNo("Sold FA Qty"):
-                        begin
-                            FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Gain/Loss");
-                            FALedgEntry.SetRange("Result on Disposal", FALedgEntry."Result on Disposal"::Gain);
-                            case "Result on Disposal" of
-                                "Result on Disposal"::Gain:
+            case TaxRegTemplate."Sum Field No." of
+                TaxRegFAEntry.FieldNo("Acquisition Cost"):
+                    FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Acquisition Cost");
+                TaxRegFAEntry.FieldNo("Valuation Changes"):
+                    FALedgEntry.SetRange("FA Posting Type",
+                      FALedgEntry."FA Posting Type"::"Write-Down", FALedgEntry."FA Posting Type"::Appreciation);
+                TaxRegFAEntry.FieldNo("Depreciation Amount"):
+                    begin
+                        FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::Depreciation);
+                        FALedgEntry.SetRange("Depr. Bonus", false);
+                    end;
+                TaxRegFAEntry.FieldNo("Sales Gain/Loss"):
+                    begin
+                        FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Gain/Loss");
+                        FALedgEntry.SetRange("Depr. Group Elimination", false);
+                        if Mode = Mode::Drilldown then
+                            case TaxRegTemplate."Result on Disposal" of
+                                TaxRegTemplate."Result on Disposal"::Gain:
                                     begin
                                         FALedgEntry.SetFilter("Sales Gain Amount", '>=%1', 0);
                                         FALedgEntry.SetRange("Sales Loss Amount", 0);
                                     end;
-                                "Result on Disposal"::Loss:
+                                TaxRegTemplate."Result on Disposal"::Loss:
                                     FALedgEntry.SetFilter("Sales Loss Amount", '>%1', 0);
                             end;
+                    end;
+                TaxRegFAEntry.FieldNo("Sales Amount"):
+                    FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Proceeds on Disposal");
+                TaxRegFAEntry.FieldNo("Depr. Group Elimination"):
+                    begin
+                        FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Gain/Loss");
+                        FALedgEntry.SetRange("Depr. Group Elimination", true);
+                    end;
+                TaxRegFAEntry.FieldNo("Depreciation Bonus Amount"):
+                    begin
+                        FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::Depreciation);
+                        FALedgEntry.SetRange("Depr. Bonus", true);
+                        if TaxRegTemplate."Depr. Bonus % Filter" <> '' then
+                            FALedgEntry.SetFilter("Depr. Bonus %", TaxRegTemplate."Depr. Bonus % Filter");
+                    end;
+                TaxRegFAEntry.FieldNo("Depr. Bonus Recovery Amount"):
+                    begin
+                        FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::Depreciation);
+                        FALedgEntry.SetRange("Depr. Bonus", true);
+                        FALedgEntry.SetRange("FA Posting Date");
+                        FALedgEntry.SetRange("Depr. Bonus Recovery Date", StartDate, EndDate);
+                    end;
+                TaxRegFAEntry.FieldNo("Sold FA Qty"):
+                    begin
+                        FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Gain/Loss");
+                        FALedgEntry.SetRange("Result on Disposal", FALedgEntry."Result on Disposal"::Gain);
+                        case TaxRegTemplate."Result on Disposal" of
+                            TaxRegTemplate."Result on Disposal"::Gain:
+                                begin
+                                    FALedgEntry.SetFilter("Sales Gain Amount", '>=%1', 0);
+                                    FALedgEntry.SetRange("Sales Loss Amount", 0);
+                                end;
+                            TaxRegTemplate."Result on Disposal"::Loss:
+                                FALedgEntry.SetFilter("Sales Loss Amount", '>%1', 0);
                         end;
-                    TaxRegFAEntry.FieldNo("Acquis. Cost for Released FA"):
-                        begin
-                            FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Acquisition Cost");
-                            FALedgEntry.SetRange("Reclassification Entry", true);
-                            FALedgEntry.SetRange(Quantity, 1);
-                        end;
-                end;
+                    end;
+                TaxRegFAEntry.FieldNo("Acquis. Cost for Released FA"):
+                    begin
+                        FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Acquisition Cost");
+                        FALedgEntry.SetRange("Reclassification Entry", true);
+                        FALedgEntry.SetRange(Quantity, 1);
+                    end;
             end;
+        end;
     end;
 
     local procedure FillInTaxRegFALedgerEntry(StartDate: Date; EndDate: Date; SectionCode: Code[10])

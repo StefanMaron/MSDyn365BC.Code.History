@@ -22,12 +22,10 @@ report 5194 "Create Conts. from Vendors"
             begin
                 Window.Update(1);
 
-                with ContBusRel do begin
-                    SetRange("Link to Table", "Link to Table"::Vendor);
-                    SetRange("No.", Vendor."No.");
-                    if FindFirst() then
-                        CurrReport.Skip();
-                end;
+                ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Vendor);
+                ContBusRel.SetRange("No.", Vendor."No.");
+                if ContBusRel.FindFirst() then
+                    CurrReport.Skip();
 
                 Cont.Init();
                 Cont.TransferFields(Vendor);
@@ -41,14 +39,12 @@ report 5194 "Create Conts. from Vendors"
                 if not DuplicateContactExist then
                     DuplicateContactExist := DuplMgt.DuplicateExist(Cont);
 
-                with ContBusRel do begin
-                    Init();
-                    "Contact No." := Cont."No.";
-                    "Business Relation Code" := RMSetup."Bus. Rel. Code for Vendors";
-                    "Link to Table" := "Link to Table"::Vendor;
-                    "No." := Vendor."No.";
-                    Insert();
-                end;
+                ContBusRel.Init();
+                ContBusRel."Contact No." := Cont."No.";
+                ContBusRel."Business Relation Code" := RMSetup."Bus. Rel. Code for Vendors";
+                ContBusRel."Link to Table" := ContBusRel."Link to Table"::Vendor;
+                ContBusRel."No." := Vendor."No.";
+                ContBusRel.Insert();
 
                 InsertNewContactIfNeeded(Vendor);
                 Modify(true);
@@ -93,7 +89,7 @@ report 5194 "Create Conts. from Vendors"
         RMSetup.TestField("Bus. Rel. Code for Vendors");
         cnt := Vendor.Count();
         if GuiAllowed then
-            if cnt > 200 then
+            if cnt > 100 then
                 if not Confirm(StrSubstNo(TooManyRecordsQst, cnt)) then
                     CurrReport.Quit();
     end;
@@ -109,7 +105,7 @@ report 5194 "Create Conts. from Vendors"
         Text000: Label 'Processing vendors...\\';
         Text001: Label 'Vendor No.      #1##########';
         TooManyRecordsQst: Label 'This process will take several minutes because it involves %1 vendors. It is recommended that you schedule the process to run as a background task.\\Do you want to start the process immediately anyway?', Comment = '%1 = number of records';
-        
+
     local procedure InsertNewContactIfNeeded(var Vendor: Record Vendor)
     var
         VendContUpdate: Codeunit "VendCont-Update";

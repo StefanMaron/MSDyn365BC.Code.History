@@ -1,6 +1,7 @@
 table 17219 "Tax Register Dim. Corr. Filter"
 {
     Caption = 'Tax Register Dim. Corr. Filter';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -352,18 +352,11 @@ report 12444 "Vendor Turnover"
     end;
 
     var
-        Text003: Label 'Zero values are replaced by spacebar';
-        Text005: Label 'for period from ';
-        Text006: Label ' to ';
-        PurchSetup: Record "Purchases & Payables Setup";
-        VendLedgEntry: Record "Vendor Ledger Entry";
         LocMgt: Codeunit "Localisation Management";
         LineAmount: array[10] of Decimal;
-        TotalAmount: array[10] of Decimal;
         LineText: array[10] of Text[30];
         LineAgrText: array[10] of Text[30];
         TotalText: array[10] of Text[30];
-        RoundedValue: Decimal;
         StartDate: Date;
         EndDate: Date;
         RoundingPrecision: Option "0.01","1.00","1000";
@@ -374,7 +367,6 @@ report 12444 "Vendor Turnover"
         SkipZeroBalances: Boolean;
         TotalPrinted: Boolean;
         PrintParameters: Boolean;
-        PrintTotals: Boolean;
         CurrentDate: Text[30];
         RequestFilter: Text;
         AmountUnit: Text[30];

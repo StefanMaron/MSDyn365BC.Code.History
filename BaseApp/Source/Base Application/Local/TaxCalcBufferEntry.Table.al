@@ -1,6 +1,7 @@
 table 17316 "Tax Calc. Buffer Entry"
 {
     Caption = 'Tax Calc. Buffer Entry';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -27,89 +27,86 @@ codeunit 14941 GLCorrAnViewEntrToGLCorrEntr
         StartDate := GLCorrAnalysisViewEntry."Posting Date";
         EndDate := StartDate;
 
-        with GLCorrAnalysisView do
-            if StartDate < "Starting Date" then
-                StartDate := 0D
-            else
-                if (GLCorrAnalysisViewEntry."Posting Date" = NormalDate(GLCorrAnalysisViewEntry."Posting Date")) and
-                   not ("Date Compression" in ["Date Compression"::None, "Date Compression"::Day])
-                then
-                    case "Date Compression" of
-                        "Date Compression"::Week:
-                            EndDate := CalcDate('<-CW+6D>', StartDate);
-                        "Date Compression"::Month:
-                            EndDate := CalcDate('<+1M-1D>', StartDate);
-                        "Date Compression"::Quarter:
-                            EndDate := CalcDate('<+3M-1D>', StartDate);
-                        "Date Compression"::Year:
-                            EndDate := CalcDate('<+1Y-1D>', StartDate);
-                        "Date Compression"::Period:
-                            begin
-                                AccountingPeriod."Starting Date" := StartDate;
-                                if AccountingPeriod.Next() <> 0 then
-                                    EndDate := CalcDate('<-1D>', AccountingPeriod."Starting Date")
-                                else
-                                    EndDate := 99991231D
-                            end;
-                    end;
+        if StartDate < GLCorrAnalysisView."Starting Date" then
+            StartDate := 0D
+        else
+            if (GLCorrAnalysisViewEntry."Posting Date" = NormalDate(GLCorrAnalysisViewEntry."Posting Date")) and
+               not (GLCorrAnalysisView."Date Compression" in [GLCorrAnalysisView."Date Compression"::None, GLCorrAnalysisView."Date Compression"::Day])
+            then
+                case GLCorrAnalysisView."Date Compression" of
+                    GLCorrAnalysisView."Date Compression"::Week:
+                        EndDate := CalcDate('<-CW+6D>', StartDate);
+                    GLCorrAnalysisView."Date Compression"::Month:
+                        EndDate := CalcDate('<+1M-1D>', StartDate);
+                    GLCorrAnalysisView."Date Compression"::Quarter:
+                        EndDate := CalcDate('<+3M-1D>', StartDate);
+                    GLCorrAnalysisView."Date Compression"::Year:
+                        EndDate := CalcDate('<+1Y-1D>', StartDate);
+                    GLCorrAnalysisView."Date Compression"::Period:
+                        begin
+                            AccountingPeriod."Starting Date" := StartDate;
+                            if AccountingPeriod.Next() <> 0 then
+                                EndDate := CalcDate('<-1D>', AccountingPeriod."Starting Date")
+                            else
+                                EndDate := 99991231D
+                        end;
+                end;
 
-        with GLCorrEntry do begin
-            SetCurrentKey("Debit Account No.", "Credit Account No.", "Posting Date");
-            SetRange("Debit Account No.", GLCorrAnalysisViewEntry."Debit Account No.");
-            SetRange("Credit Account No.", GLCorrAnalysisViewEntry."Credit Account No.");
-            SetRange("Posting Date", StartDate, EndDate);
-            SetRange("Entry No.", 0, GLCorrAnalysisView."Last Entry No.");
+        GLCorrEntry.SetCurrentKey("Debit Account No.", "Credit Account No.", "Posting Date");
+        GLCorrEntry.SetRange("Debit Account No.", GLCorrAnalysisViewEntry."Debit Account No.");
+        GLCorrEntry.SetRange("Credit Account No.", GLCorrAnalysisViewEntry."Credit Account No.");
+        GLCorrEntry.SetRange("Posting Date", StartDate, EndDate);
+        GLCorrEntry.SetRange("Entry No.", 0, GLCorrAnalysisView."Last Entry No.");
 
-            if GetDebitGlobalDimValue(GLSetup."Global Dimension 1 Code", GLCorrAnalysisViewEntry, GlobalDimValue) then
-                SetRange("Debit Global Dimension 1 Code", GlobalDimValue)
-            else
-                if GLCorrAnalysisViewFilter.Get(GLCorrAnalysisViewEntry."G/L Corr. Analysis View Code", 0, GLSetup."Global Dimension 1 Code")
-                then
-                    SetFilter("Debit Global Dimension 1 Code", GLCorrAnalysisViewFilter."Dimension Value Filter");
+        if GetDebitGlobalDimValue(GLSetup."Global Dimension 1 Code", GLCorrAnalysisViewEntry, GlobalDimValue) then
+            GLCorrEntry.SetRange("Debit Global Dimension 1 Code", GlobalDimValue)
+        else
+            if GLCorrAnalysisViewFilter.Get(GLCorrAnalysisViewEntry."G/L Corr. Analysis View Code", 0, GLSetup."Global Dimension 1 Code")
+            then
+                GLCorrEntry.SetFilter("Debit Global Dimension 1 Code", GLCorrAnalysisViewFilter."Dimension Value Filter");
 
-            if GetDebitGlobalDimValue(GLSetup."Global Dimension 2 Code", GLCorrAnalysisViewEntry, GlobalDimValue) then
-                SetRange("Debit Global Dimension 2 Code", GlobalDimValue)
-            else
-                if GLCorrAnalysisViewFilter.Get(GLCorrAnalysisViewEntry."G/L Corr. Analysis View Code", 0, GLSetup."Global Dimension 2 Code")
-                then
-                    SetFilter("Debit Global Dimension 2 Code", GLCorrAnalysisViewFilter."Dimension Value Filter");
+        if GetDebitGlobalDimValue(GLSetup."Global Dimension 2 Code", GLCorrAnalysisViewEntry, GlobalDimValue) then
+            GLCorrEntry.SetRange("Debit Global Dimension 2 Code", GlobalDimValue)
+        else
+            if GLCorrAnalysisViewFilter.Get(GLCorrAnalysisViewEntry."G/L Corr. Analysis View Code", 0, GLSetup."Global Dimension 2 Code")
+            then
+                GLCorrEntry.SetFilter("Debit Global Dimension 2 Code", GLCorrAnalysisViewFilter."Dimension Value Filter");
 
-            if GetCreditGlobalDimValue(GLSetup."Global Dimension 1 Code", GLCorrAnalysisViewEntry, GlobalDimValue) then
-                SetRange("Credit Global Dimension 1 Code", GlobalDimValue)
-            else
-                if GLCorrAnalysisViewFilter.Get(GLCorrAnalysisViewEntry."G/L Corr. Analysis View Code", 1, GLSetup."Global Dimension 1 Code")
-                then
-                    SetFilter("Credit Global Dimension 1 Code", GLCorrAnalysisViewFilter."Dimension Value Filter");
+        if GetCreditGlobalDimValue(GLSetup."Global Dimension 1 Code", GLCorrAnalysisViewEntry, GlobalDimValue) then
+            GLCorrEntry.SetRange("Credit Global Dimension 1 Code", GlobalDimValue)
+        else
+            if GLCorrAnalysisViewFilter.Get(GLCorrAnalysisViewEntry."G/L Corr. Analysis View Code", 1, GLSetup."Global Dimension 1 Code")
+            then
+                GLCorrEntry.SetFilter("Credit Global Dimension 1 Code", GLCorrAnalysisViewFilter."Dimension Value Filter");
 
-            if GetCreditGlobalDimValue(GLSetup."Global Dimension 2 Code", GLCorrAnalysisViewEntry, GlobalDimValue) then
-                SetRange("Credit Global Dimension 2 Code", GlobalDimValue)
-            else
-                if GLCorrAnalysisViewFilter.Get(GLCorrAnalysisViewEntry."G/L Corr. Analysis View Code", 1, GLSetup."Global Dimension 2 Code")
-                then
-                    SetFilter("Credit Global Dimension 2 Code", GLCorrAnalysisViewFilter."Dimension Value Filter");
+        if GetCreditGlobalDimValue(GLSetup."Global Dimension 2 Code", GLCorrAnalysisViewEntry, GlobalDimValue) then
+            GLCorrEntry.SetRange("Credit Global Dimension 2 Code", GlobalDimValue)
+        else
+            if GLCorrAnalysisViewFilter.Get(GLCorrAnalysisViewEntry."G/L Corr. Analysis View Code", 1, GLSetup."Global Dimension 2 Code")
+            then
+                GLCorrEntry.SetFilter("Credit Global Dimension 2 Code", GLCorrAnalysisViewFilter."Dimension Value Filter");
 
-            if FindSet() then
-                repeat
-                    if DimEntryOK("Debit Dimension Set ID", GLCorrAnalysisView."Debit Dimension 1 Code",
-                         GLCorrAnalysisViewEntry."Debit Dimension 1 Value Code") and
-                       DimEntryOK("Debit Dimension Set ID", GLCorrAnalysisView."Debit Dimension 2 Code",
-                         GLCorrAnalysisViewEntry."Debit Dimension 2 Value Code") and
-                       DimEntryOK("Debit Dimension Set ID", GLCorrAnalysisView."Debit Dimension 3 Code",
-                         GLCorrAnalysisViewEntry."Debit Dimension 3 Value Code") and
-                       DimEntryOK("Credit Dimension Set ID", GLCorrAnalysisView."Credit Dimension 1 Code",
-                         GLCorrAnalysisViewEntry."Credit Dimension 1 Value Code") and
-                       DimEntryOK("Credit Dimension Set ID", GLCorrAnalysisView."Credit Dimension 2 Code",
-                         GLCorrAnalysisViewEntry."Credit Dimension 2 Value Code") and
-                       DimEntryOK("Credit Dimension Set ID", GLCorrAnalysisView."Credit Dimension 3 Code",
-                         GLCorrAnalysisViewEntry."Credit Dimension 3 Value Code") and
-                       UpdateGLCorrAnalysisView.DimSetIDInFilter("Debit Dimension Set ID", GLCorrAnalysisView) and
-                       UpdateGLCorrAnalysisView.DimSetIDInFilter("Credit Dimension Set ID", GLCorrAnalysisView)
-                    then begin
-                        TempGLCorrEntry := GLCorrEntry;
-                        if TempGLCorrEntry.Insert() then;
-                    end;
-                until Next() = 0;
-        end;
+        if GLCorrEntry.FindSet() then
+            repeat
+                if DimEntryOK(GLCorrEntry."Debit Dimension Set ID", GLCorrAnalysisView."Debit Dimension 1 Code",
+                     GLCorrAnalysisViewEntry."Debit Dimension 1 Value Code") and
+                   DimEntryOK(GLCorrEntry."Debit Dimension Set ID", GLCorrAnalysisView."Debit Dimension 2 Code",
+                     GLCorrAnalysisViewEntry."Debit Dimension 2 Value Code") and
+                   DimEntryOK(GLCorrEntry."Debit Dimension Set ID", GLCorrAnalysisView."Debit Dimension 3 Code",
+                     GLCorrAnalysisViewEntry."Debit Dimension 3 Value Code") and
+                   DimEntryOK(GLCorrEntry."Credit Dimension Set ID", GLCorrAnalysisView."Credit Dimension 1 Code",
+                     GLCorrAnalysisViewEntry."Credit Dimension 1 Value Code") and
+                   DimEntryOK(GLCorrEntry."Credit Dimension Set ID", GLCorrAnalysisView."Credit Dimension 2 Code",
+                     GLCorrAnalysisViewEntry."Credit Dimension 2 Value Code") and
+                   DimEntryOK(GLCorrEntry."Credit Dimension Set ID", GLCorrAnalysisView."Credit Dimension 3 Code",
+                     GLCorrAnalysisViewEntry."Credit Dimension 3 Value Code") and
+                   UpdateGLCorrAnalysisView.DimSetIDInFilter(GLCorrEntry."Debit Dimension Set ID", GLCorrAnalysisView) and
+                   UpdateGLCorrAnalysisView.DimSetIDInFilter(GLCorrEntry."Credit Dimension Set ID", GLCorrAnalysisView)
+                then begin
+                    TempGLCorrEntry := GLCorrEntry;
+                    if TempGLCorrEntry.Insert() then;
+                end;
+            until GLCorrEntry.Next() = 0;
     end;
 
     local procedure DimEntryOK(DimSetID: Integer; Dim: Code[20]; DimValue: Code[20]): Boolean

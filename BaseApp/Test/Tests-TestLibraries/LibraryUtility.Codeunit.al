@@ -145,8 +145,8 @@ codeunit 131000 "Library - Utility"
                     if FieldRef1.Value <> FieldRef2.Value then begin
                         MismatchCount := MismatchCount + 1;
                         FieldNumbersNotMatched[MismatchCount] := FieldRef1.Number;
-                        Value1[MismatchCount] := FieldRef1.Value;
-                        Value2[MismatchCount] := FieldRef2.Value;
+                        Value1[MismatchCount] := FieldRef1.Value();
+                        Value2[MismatchCount] := FieldRef2.Value();
                     end;
                 index1 := index1 + 1;
                 index2 := index2 + 1;
@@ -315,7 +315,7 @@ codeunit 131000 "Library - Utility"
 
         if RecRef2.FindLast() then begin
             FieldRef := RecRef2.Field(FieldNo);
-            FieldCount := FieldRef.Value;
+            FieldCount := FieldRef.Value();
         end else
             FieldCount := 0;
         exit(FieldCount + 10000);  // Add 10000 to the last Line No.
@@ -343,8 +343,10 @@ codeunit 131000 "Library - Utility"
     var
         NoSeries: Record "No. Series";
     begin
-        NoSeries.Get(NoSeriesCode);
-        NoSeries.TestField("Date Order", false); // Use of Date Order is only tested on IT
+        if NoSeriesCode <> '' then begin
+            NoSeries.Get(NoSeriesCode);
+            NoSeries.TestField("Date Order", false); // Use of Date Order is only tested on IT
+        end;
         exit(WorkDate());
     end;
 
@@ -352,8 +354,10 @@ codeunit 131000 "Library - Utility"
     var
         NoSeries: Record "No. Series";
     begin
-        NoSeries.Get(NoSeriesCode);
-        NoSeries.TestField("Date Order", false); // Use of Date Order is only tested on IT
+        if NoSeriesCode <> '' then begin
+            NoSeries.Get(NoSeriesCode);
+            NoSeries.TestField("Date Order", false); // Use of Date Order is only tested on IT
+        end;
         exit(WorkDate());
     end;
 
@@ -407,9 +411,9 @@ codeunit 131000 "Library - Utility"
 
     procedure GetNextNoFromNoSeries(NoSeriesCode: Code[20]; PostingDate: Date): Code[20]
     var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
-        exit(NoSeriesManagement.GetNextNo(NoSeriesCode, PostingDate, false));
+        exit(NoSeries.PeekNextNo(NoSeriesCode, PostingDate));
     end;
 
     procedure GenerateRandomCode(FieldNo: Integer; TableNo: Integer): Code[10]
@@ -424,9 +428,9 @@ codeunit 131000 "Library - Utility"
 
         repeat
             if FieldRef.Length < 10 then
-                FieldRef.SetRange(CopyStr(GenerateGUID, 10 - FieldRef.Length + 1)) // Cut characters on the left side.
+                FieldRef.SetRange(CopyStr(GenerateGUID(), 10 - FieldRef.Length + 1)) // Cut characters on the left side.
             else
-                FieldRef.SetRange(GenerateGUID);
+                FieldRef.SetRange(GenerateGUID());
         until RecRef.IsEmpty();
 
         exit(FieldRef.GetFilter)
@@ -460,7 +464,7 @@ codeunit 131000 "Library - Utility"
         Clear(FieldRef);
         FieldRef := RecRef.Field(FieldNo);
         repeat
-            FieldRef.SetRange(PadStr(GenerateGUID, FieldRef.Length, '0'));
+            FieldRef.SetRange(PadStr(GenerateGUID(), FieldRef.Length, '0'));
         until RecRef.IsEmpty();
 
         exit(FieldRef.GetFilter);
@@ -596,7 +600,7 @@ codeunit 131000 "Library - Utility"
     var
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesCodeunit: Codeunit "No. Series";
     begin
         if not NoSeries.Get('GUID') then begin
             NoSeries.Init();
@@ -608,7 +612,7 @@ codeunit 131000 "Library - Utility"
             CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
         end;
 
-        exit(NoSeriesMgt.GetNextNo(NoSeries.Code, WorkDate(), true));
+        exit(NoSeriesCodeunit.GetNextNo(NoSeries.Code));
     end;
 
     procedure GetEmptyGuid(): Guid
@@ -713,7 +717,7 @@ codeunit 131000 "Library - Utility"
         RecRef.Open(TableID);
         RecRef.Find();
         FieldRef := RecRef.Field(FieldID);
-        NoSeriesCode := GetGlobalNoSeriesCode;
+        NoSeriesCode := GetGlobalNoSeriesCode();
         if Format(FieldRef.Value) <> NoSeriesCode then begin
             FieldRef.Value(NoSeriesCode);
             RecRef.Modify();
@@ -832,11 +836,10 @@ codeunit 131000 "Library - Utility"
         exit(NewStr);
     end;
 
-    procedure GetNoSeriesLine(noSeries: Code[20]; var noSeriesLine: Record "No. Series Line"): Boolean
+    procedure GetNoSeriesLine(noSeriesCode: Code[20]; var noSeriesLine: Record "No. Series Line"): Boolean
     var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
-        NoSeriesMgt.SetNoSeriesLineFilter(noSeriesLine, noSeries, WorkDate());
-        exit(noSeriesLine.FindFirst());
+        exit(NoSeries.GetNoSeriesLine(noSeriesLine, noSeriesCode, WorkDate(), true));
     end;
 }

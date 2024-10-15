@@ -2,6 +2,7 @@ table 17201 "Tax Register Line Setup"
 {
     Caption = 'Tax Register Line Setup';
     LookupPageID = "Tax Register Line List";
+    DataClassification = CustomerContent;
 
     fields
     {

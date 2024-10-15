@@ -21,7 +21,6 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         AmountErr: Label '%1 must be %2 in \\%3 %4=%5.';
-        NothingToAdjustTxt: Label 'There is nothing to adjust.';
 
     [Test]
     [Scope('OnPrem')]
@@ -38,14 +37,14 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         Initialize();
 
         // [GIVEN] Currency "X" is set as Additional Currency in G/L Setup
-        AddCurrencyCode := CreateCurrency;
+        AddCurrencyCode := CreateCurrency();
         LibraryERM.SetAddReportingCurrency(AddCurrencyCode);
         // [GIVEN] Posted Sales Invoice in Currency "Y"
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         ClearGeneralJournalLine(GenJournalBatch);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer,
-          CreateCustomer, CurrencyCode, LibraryRandom.RandDec(100, 2), WorkDate() - 1);
+          CreateCustomer(), CurrencyCode, LibraryRandom.RandDec(100, 2), WorkDate() - 1);
         // [GIVEN] Posted Payment in Currency "Y" on another date with higher exchange rate
         CreateCurrencyExchRate(CurrencyCode, WorkDate(), 1.1);
         CreateGeneralJournalLine(
@@ -77,14 +76,14 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         Initialize();
 
         // [GIVEN] Currency "X" is set as Additional Currency in G/L Setup
-        AddCurrencyCode := CreateCurrency;
+        AddCurrencyCode := CreateCurrency();
         LibraryERM.SetAddReportingCurrency(AddCurrencyCode);
         // [GIVEN] Posted Purchase Invoice in Currency "Y"
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         ClearGeneralJournalLine(GenJournalBatch);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor,
-          CreateVendor, CurrencyCode, -LibraryRandom.RandDec(100, 2), WorkDate() - 1);
+          CreateVendor(), CurrencyCode, -LibraryRandom.RandDec(100, 2), WorkDate() - 1);
         // [GIVEN] Posted Payment in Currency "Y" on another date with higher exchange rate
         CreateCurrencyExchRate(CurrencyCode, WorkDate(), 1.1);
         CreateGeneralJournalLine(
@@ -164,7 +163,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         ClearGeneralJournalLine(GenJournalBatch);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer,
-          CreateCustomer, '', LibraryRandom.RandDec(100, 2), WorkDate());
+          CreateCustomer(), '', LibraryRandom.RandDec(100, 2), WorkDate());
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer,
           GenJournalLine."Account No.", '', -GenJournalLine.Amount, WorkDate());
@@ -236,7 +235,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         // [SCENARIO 309945] Unrealized Loss of Purchase Invoice has positive value after Exch. Rate adjustment
         Initialize();
 
-        // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 110 on workdate
+        // [GIVEN] Currency with Exch.rate = 100 before WorkDate(), Exch.rate = 110 on workdate
         // [GIVEN] FCY Purchase Invoice is posted with Amount LCY = 1000
         Currency.Get(CreateCurrencyWithExchRate(-LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
@@ -267,7 +266,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         // [SCENARIO 309945] Unrealized Loss of Vendor Payment has positive value after Exch. Rate adjustment
         Initialize();
 
-        // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 90 on workdate
+        // [GIVEN] Currency with Exch.rate = 100 before WorkDate(), Exch.rate = 90 on workdate
         // [GIVEN] FCY Purchase Invoice is posted with Amount LCY = 1000
         Currency.Get(CreateCurrencyWithExchRate(LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
@@ -298,7 +297,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         // [SCENARIO 309945] Unrealized Gain of Purchase Invoice has positive value after Exch. Rate adjustment
         Initialize();
 
-        // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 90 on workdate
+        // [GIVEN] Currency with Exch.rate = 100 before WorkDate(), Exch.rate = 90 on workdate
         // [GIVEN] FCY Purchase Invoice is posted with Amount LCY = 1000
         Currency.Get(CreateCurrencyWithExchRate(LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
@@ -329,7 +328,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         // [SCENARIO 309945] Unrealized Gain of Vendor Payment has positive value after Exch. Rate adjustment
         Initialize();
 
-        // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 110 on workdate
+        // [GIVEN] Currency with Exch.rate = 100 before WorkDate(), Exch.rate = 110 on workdate
         // [GIVEN] FCY Purchase Invoice is posted with Amount LCY = 1000
         Currency.Get(CreateCurrencyWithExchRate(-LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
@@ -360,7 +359,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         // [SCENARIO 309945] Unrealized Loss of Sales Invoice has positive value after Exch. Rate adjustment
         Initialize();
 
-        // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 90 on workdate
+        // [GIVEN] Currency with Exch.rate = 100 before WorkDate(), Exch.rate = 90 on workdate
         // [GIVEN] FCY Sales Invoice is posted with Amount LCY = 1000
         Currency.Get(CreateCurrencyWithExchRate(LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
@@ -391,7 +390,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         // [SCENARIO 309945] Unrealized Loss of Customer Payment has positive value after Exch. Rate adjustment
         Initialize();
 
-        // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 110 on workdate
+        // [GIVEN] Currency with Exch.rate = 100 before WorkDate(), Exch.rate = 110 on workdate
         // [GIVEN] FCY Sales Invoice is posted with Amount LCY = 1000
         Currency.Get(CreateCurrencyWithExchRate(-LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
@@ -422,7 +421,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         // [SCENARIO 309945] Unrealized Gain of Sales Invoice has positive value after Exch. Rate adjustment
         Initialize();
 
-        // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 110 on workdate
+        // [GIVEN] Currency with Exch.rate = 100 before WorkDate(), Exch.rate = 110 on workdate
         // [GIVEN] FCY Sales Invoice is posted with Amount LCY = 1000
         Currency.Get(CreateCurrencyWithExchRate(-LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
@@ -453,7 +452,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         // [SCENARIO 309945] Unrealized Gain of Customer Payment has positive value after Exch. Rate adjustment
         Initialize();
 
-        // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 90 on workdate
+        // [GIVEN] Currency with Exch.rate = 100 before WorkDate(), Exch.rate = 90 on workdate
         // [GIVEN] FCY Sales Invoice is posted with Amount LCY = 1000
         Currency.Get(CreateCurrencyWithExchRate(LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
@@ -484,7 +483,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         // [SCENARIO 309945] Unrealized Loss of Purchase Invoice with correction has negative value after Exch. Rate adjustment
         Initialize();
 
-        // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 110 on workdate
+        // [GIVEN] Currency with Exch.rate = 100 before WorkDate(), Exch.rate = 110 on workdate
         // [GIVEN] FCY Purchase Invoice is posted with Amount LCY = 1000
         Currency.Get(CreateCurrencyWithExchRate(-LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
@@ -515,7 +514,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         // [SCENARIO 309945] Unrealized Loss of Vendor Payment with correction has negative value after Exch. Rate adjustment
         Initialize();
 
-        // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 90 on workdate
+        // [GIVEN] Currency with Exch.rate = 100 before WorkDate(), Exch.rate = 90 on workdate
         // [GIVEN] FCY Purchase Invoice is posted with Amount LCY = 1000
         Currency.Get(CreateCurrencyWithExchRate(LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
@@ -546,7 +545,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         // [SCENARIO 309945] Unrealized Gain of Purchase Invoice with correction has negative value after Exch. Rate adjustment
         Initialize();
 
-        // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 90 on workdate
+        // [GIVEN] Currency with Exch.rate = 100 before WorkDate(), Exch.rate = 90 on workdate
         // [GIVEN] FCY Purchase Invoice is posted with Amount LCY = 1000
         Currency.Get(CreateCurrencyWithExchRate(LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
@@ -577,7 +576,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         // [SCENARIO 309945] Unrealized Gain of Vendor Payment with correction has negative value after Exch. Rate adjustment
         Initialize();
 
-        // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 110 on workdate
+        // [GIVEN] Currency with Exch.rate = 100 before WorkDate(), Exch.rate = 110 on workdate
         // [GIVEN] FCY Purchase Invoice is posted with Amount LCY = 1000
         Currency.Get(CreateCurrencyWithExchRate(-LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
@@ -608,7 +607,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         // [SCENARIO 309945] Unrealized Loss of Sales Invoice with correction has negative value after Exch. Rate adjustment
         Initialize();
 
-        // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 90 on workdate
+        // [GIVEN] Currency with Exch.rate = 100 before WorkDate(), Exch.rate = 90 on workdate
         // [GIVEN] FCY Sales Invoice is posted with Amount LCY = 1000
         Currency.Get(CreateCurrencyWithExchRate(LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
@@ -639,7 +638,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         // [SCENARIO 309945] Unrealized Loss of Customer Payment with correction has negative value after Exch. Rate adjustment
         Initialize();
 
-        // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 110 on workdate
+        // [GIVEN] Currency with Exch.rate = 100 before WorkDate(), Exch.rate = 110 on workdate
         // [GIVEN] FCY Sales Invoice is posted with Amount LCY = 1000
         Currency.Get(CreateCurrencyWithExchRate(-LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
@@ -670,7 +669,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         // [SCENARIO 309945] Unrealized Gain of Sales Invoice with correction has negative value after Exch. Rate adjustment
         Initialize();
 
-        // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 110 on workdate
+        // [GIVEN] Currency with Exch.rate = 100 before WorkDate(), Exch.rate = 110 on workdate
         // [GIVEN] FCY Sales Invoice is posted with Amount LCY = 1000
         Currency.Get(CreateCurrencyWithExchRate(-LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
@@ -701,7 +700,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         // [SCENARIO 309945] Unrealized Gain of Customer Payment with correction has negative value after Exch. Rate adjustment
         Initialize();
 
-        // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 90 on workdate
+        // [GIVEN] Currency with Exch.rate = 100 before WorkDate(), Exch.rate = 90 on workdate
         // [GIVEN] FCY Sales Invoice is posted with Amount LCY = 1000
         Currency.Get(CreateCurrencyWithExchRate(LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 1)));
         CreatePostGenJnlLine(
@@ -752,7 +751,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         ClearGeneralJournalLine(GenJournalBatch);
         DocumentNo :=
           RefundCreditMemoGeneralLine(
-            TempGenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Customer, CreateCustomer,
+            TempGenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Customer, CreateCustomer(),
             -LibraryRandom.RandDec(100, 2), ExchangeRateAmount);
         Amount := ComputeExhangeRate(TempGenJournalLine."Currency Code", TempGenJournalLine.Amount, ExchangeRateAmount);
 
@@ -775,7 +774,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         // Create Rfund and Credit Memo General Line and Modify Exchange Rate.
         ClearGeneralJournalLine(GenJournalBatch);
         DocumentNo := RefundCreditMemoGeneralLine(
-            TempGenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Vendor, CreateVendor,
+            TempGenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Vendor, CreateVendor(),
             LibraryRandom.RandDec(100, 2), ExchangeRateAmount);
 
         // Apply Vendor Ledger Entry and Verify them.
@@ -792,7 +791,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         // Setup: Create and Post General Journal Line for Refund and Credit Memo with Difference Currency Exchange Rate Amount.
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::"Credit Memo", AccountType, AccountNo,
-          CreateCurrency, Amount, WorkDate());
+          CreateCurrency(), Amount, WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Create New Exchange Rate and Run Adjust Exchange Rate Report.
@@ -820,7 +819,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         Amount :=
           CreateGenLineAndModifyExchRate(
             GenJournalLine, DocumentNo, ExchRateAmount, GenJournalLine."Account Type"::Customer,
-            CreateCustomer, LibraryRandom.RandDec(100, 2));
+            CreateCustomer(), LibraryRandom.RandDec(100, 2));
 
         // Exercise: Apply Invoice and Post Customer Entry and Run Adjust Exchange Rate Batch.
         ApplyAndPostCustomerEntry(
@@ -843,7 +842,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         Amount :=
           CreateGenLineAndModifyExchRate(
             GenJournalLine, DocumentNo, ExchRateAmount, GenJournalLine."Account Type"::Vendor,
-            CreateVendor, -LibraryRandom.RandDec(100, 2));
+            CreateVendor(), -LibraryRandom.RandDec(100, 2));
 
         // Exercise: Apply Invoice and Post Vendor Entry and Run Adjust Exchange Rate Batch.
         ApplyAndPostVendorEntry(GenJournalLine."Document No.", GenJournalLine.Amount, DocumentNo,
@@ -862,7 +861,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         GenJournalLine: Record "Gen. Journal Line";
         CurrencyCode: Code[10];
     begin
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         LibraryERM.SetAddReportingCurrency(CurrencyCode);
         ClearGeneralJournalLine(GenJournalBatch);
         CreateGeneralJournalLine(
@@ -944,7 +943,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     var
         Customer: Record Customer;
     begin
-        Customer.Get(CreateCustomer);
+        Customer.Get(CreateCustomer());
         Customer.Validate("Currency Code", CurrencyCode);
         Customer.Modify(true);
         exit(Customer."No.");
@@ -962,7 +961,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     var
         Vendor: Record Vendor;
     begin
-        Vendor.Get(CreateVendor);
+        Vendor.Get(CreateVendor());
         Vendor.Validate("Currency Code", CurrencyCode);
         Vendor.Modify(true);
         exit(Vendor."No.");
@@ -993,7 +992,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
 
     local procedure CreateCurrencyWithExchRate(Delta: Decimal) CurrencyCode: Code[10]
     begin
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         CreateCurrencyExchRate(CurrencyCode, WorkDate(), 1 + Delta);
     end;
 
@@ -1022,7 +1021,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         exit(Amount * ExchangeRateAmount / CurrencyExchangeRate."Exchange Rate Amount");
     end;
 
@@ -1043,7 +1042,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     local procedure ModifyExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; ExchRateAmt: Decimal)
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", CurrencyExchangeRate."Relational Exch. Rate Amount" + ExchRateAmt);
         CurrencyExchangeRate.Modify(true);
     end;
@@ -1053,7 +1052,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         CurrencyExchangeRate2: Record "Currency Exchange Rate";
     begin
         CurrencyExchangeRate2.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate2.FindFirst;
+        CurrencyExchangeRate2.FindFirst();
         LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, StartingDate);
         CurrencyExchangeRate.Validate("Exchange Rate Amount", CurrencyExchangeRate2."Exchange Rate Amount");
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate2."Adjustment Exch. Rate Amount");
@@ -1091,7 +1090,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
                     CurrExchRate.ExchangeAmtLCYToFCY(
                       "Posting Date", AddCurrencyCode, Amount, CurrExchRate.ExchangeRate("Posting Date", AddCurrencyCode)));
                 Assert.AreEqual(ExpectedACYAmount, "Additional-Currency Amount", FieldName("Additional-Currency Amount"));
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1102,7 +1101,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, DocumentNo);
         CustLedgerEntry.SetRange("Closed by Entry No.", CustLedgerEntry."Entry No.");
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
     end;
 
     local procedure VerifyDetailedLedgerEntryCust(DocumentNo: Code[20]; Amount: Decimal; EntryType: Enum "Detailed CV Ledger Entry Type")
@@ -1112,7 +1111,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     begin
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         Currency.Get(DetailedCustLedgEntry."Currency Code");
         Assert.AreNearlyEqual(
           Amount, DetailedCustLedgEntry."Amount (LCY)", Currency."Amount Rounding Precision",
@@ -1127,7 +1126,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     begin
         DetailedVendorLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedVendorLedgEntry.SetRange("Entry Type", EntryType);
-        DetailedVendorLedgEntry.FindFirst;
+        DetailedVendorLedgEntry.FindFirst();
         Currency.Get(DetailedVendorLedgEntry."Currency Code");
         Assert.AreNearlyEqual(
           Amount, DetailedVendorLedgEntry."Amount (LCY)", Currency."Amount Rounding Precision",
@@ -1141,7 +1140,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     begin
         DetailedVendorLedgEntry.SetRange("Vendor No.", VendorNo);
         DetailedVendorLedgEntry.SetRange("Entry Type", EntryType);
-        DetailedVendorLedgEntry.FindFirst;
+        DetailedVendorLedgEntry.FindFirst();
         DetailedVendorLedgEntry.TestField("Debit Amount (LCY)", DebitAmount);
         DetailedVendorLedgEntry.TestField("Credit Amount (LCY)", CreditAmount);
     end;
@@ -1152,7 +1151,7 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     begin
         DetailedCustLedgEntry.SetRange("Customer No.", CustomerNo);
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         DetailedCustLedgEntry.TestField("Debit Amount (LCY)", DebitAmount);
         DetailedCustLedgEntry.TestField("Credit Amount (LCY)", CreditAmount);
     end;

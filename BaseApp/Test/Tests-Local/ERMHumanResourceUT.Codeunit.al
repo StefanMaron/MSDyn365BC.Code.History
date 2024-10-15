@@ -32,12 +32,12 @@ codeunit 147202 "ERM Human Resource UT"
 
         Vendor.SetRecFilter();
 
-        ResponsibleEmployees.OpenView;
+        ResponsibleEmployees.OpenView();
         ResponsibleEmployees.GotoRecord(Vendor);
-        ResponsibleEmployees.Control1903435607.CuePostedInvoices.DrillDown;
+        ResponsibleEmployees.Control1903435607.CuePostedInvoices.DrillDown();
 
         VerifyVendorNoAndDocumentNo(Vendor."No.", PurchInvHeader."No.");
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -56,12 +56,12 @@ codeunit 147202 "ERM Human Resource UT"
         MockVendorWithPurchInvHeader(Vendor, PurchInvHeader);
 
         Vendor.SetRecFilter();
-        Vendors.OpenView;
+        Vendors.OpenView();
         Vendors.GotoRecord(Vendor);
-        Vendors.Control1903435607.CuePostedInvoices.DrillDown;
+        Vendors.Control1903435607.CuePostedInvoices.DrillDown();
 
         VerifyVendorNoAndDocumentNo(Vendor."No.", PurchInvHeader."No.");
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -96,8 +96,8 @@ codeunit 147202 "ERM Human Resource UT"
 
     local procedure VerifyVendorNoAndDocumentNo(VendorNo: Code[20]; PurchInvDocNo: Code[20])
     begin
-        Assert.AreEqual(PurchInvDocNo, LibraryVariableStorage.DequeueText, 'Purch Inv. Document "No." must match');
-        Assert.AreEqual(VendorNo, LibraryVariableStorage.DequeueText, 'Vendor "No." must match');
+        Assert.AreEqual(PurchInvDocNo, LibraryVariableStorage.DequeueText(), 'Purch Inv. Document "No." must match');
+        Assert.AreEqual(VendorNo, LibraryVariableStorage.DequeueText(), 'Vendor "No." must match');
     end;
 
     [PageHandler]

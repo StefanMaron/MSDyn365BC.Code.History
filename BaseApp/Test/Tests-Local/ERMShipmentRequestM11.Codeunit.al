@@ -267,14 +267,14 @@ codeunit 144705 "ERM Shipment Request M-11"
         Initialize();
 
         for i := 1 to LineQty do begin
-            ItemNo[i] := LibraryRUReports.CreateItemWithCost;
+            ItemNo[i] := LibraryRUReports.CreateItemWithCost();
             Qty[i] := LibraryRandom.RandDecInRange(5, 10, 2);
         end;
         CreateTransferOrder(TransferHeader, LibraryRUReports.CreateLocation(false), ItemNo, Qty, LineQty);
 
         TransferHeader.SetRange("No.", TransferHeader."No.");
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        ShipmentRequestM11.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        ShipmentRequestM11.SetFileNameSilent(LibraryReportValidation.GetFileName());
         ShipmentRequestM11.SetTableView(TransferHeader);
         ShipmentRequestM11.UseRequestPage(false);
         ShipmentRequestM11.Run();
@@ -301,7 +301,7 @@ codeunit 144705 "ERM Shipment Request M-11"
         TransferShipmentHeader.FindFirst();
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        ShipmentRequestM11.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        ShipmentRequestM11.SetFileNameSilent(LibraryReportValidation.GetFileName());
         ShipmentRequestM11.SetTableView(TransferShipmentHeader);
         ShipmentRequestM11.UseRequestPage(false);
         ShipmentRequestM11.Run();
@@ -328,7 +328,7 @@ codeunit 144705 "ERM Shipment Request M-11"
         TransferReceiptHeader.FindFirst();
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        ShipmentRequestM11.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        ShipmentRequestM11.SetFileNameSilent(LibraryReportValidation.GetFileName());
         ShipmentRequestM11.SetTableView(TransferReceiptHeader);
         ShipmentRequestM11.UseRequestPage(false);
         ShipmentRequestM11.Run();
@@ -336,13 +336,9 @@ codeunit 144705 "ERM Shipment Request M-11"
         exit(TransferReceiptHeader."No.");
     end;
 
-    local procedure PrintM11ItemReclassJnl(LineQty: Integer) DocumentNo: Code[20]
+    local procedure PrintM11ItemReclassJnl(LineQty: Integer): Code[20]
     var
-        ItemJnlLine: Record "Item Journal Line";
-        ShipmentRequestM11: Report "Shipment Request M-11";
         ItemNo: array[22] of Code[20];
-        Qty: array[22] of Decimal;
-        i: Integer;
     begin
         exit(PrintM11ItemReclassJnlItemNo(LineQty, ItemNo))
     end;
@@ -359,7 +355,7 @@ codeunit 144705 "ERM Shipment Request M-11"
         DocumentNo := LibraryUtility.GenerateGUID();
 
         for i := 1 to LineQty do begin
-            ItemNo[i] := LibraryRUReports.CreateItemWithCost;
+            ItemNo[i] := LibraryRUReports.CreateItemWithCost();
             Qty[i] := LibraryRandom.RandDecInRange(5, 10, 2);
             CreateReclassItemJournalLine(DocumentNo, ItemNo[i], Qty[i], i = 1);
         end;
@@ -367,7 +363,7 @@ codeunit 144705 "ERM Shipment Request M-11"
         ItemJnlLine.SetRange("Document No.", DocumentNo);
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        ShipmentRequestM11.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        ShipmentRequestM11.SetFileNameSilent(LibraryReportValidation.GetFileName());
         ShipmentRequestM11.SetTableView(ItemJnlLine);
         ShipmentRequestM11.UseRequestPage(false);
         ShipmentRequestM11.Run();
@@ -398,7 +394,7 @@ codeunit 144705 "ERM Shipment Request M-11"
     begin
         FromLocationCode := LibraryRUReports.CreateLocation(false);
         for i := 1 to LineQty do begin
-            ItemNo[i] := LibraryRUReports.CreateItemWithCost;
+            ItemNo[i] := LibraryRUReports.CreateItemWithCost();
             Qty[i] := LibraryRandom.RandDecInRange(5, 10, 2);
             LibraryRUReports.CreateAndPostItemJournalLine(FromLocationCode, ItemNo[i], Qty[i], i = 1);
         end;
@@ -613,7 +609,7 @@ codeunit 144705 "ERM Shipment Request M-11"
 
         with TransferLine do begin
             "Document No." := TransferHeader."No.";
-            "Item No." := LibraryRUReports.CreateItemWithCost;
+            "Item No." := LibraryRUReports.CreateItemWithCost();
             "Dimension Set ID" := LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code);
             Insert();
         end;
@@ -631,7 +627,7 @@ codeunit 144705 "ERM Shipment Request M-11"
 
         with TransferShipmentLine do begin
             "Document No." := TransferShipmentHeader."No.";
-            "Item No." := LibraryRUReports.CreateItemWithCost;
+            "Item No." := LibraryRUReports.CreateItemWithCost();
             "Dimension Set ID" := LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code);
             Insert();
         end;
@@ -649,7 +645,7 @@ codeunit 144705 "ERM Shipment Request M-11"
 
         with TransferReceiptLine do begin
             "Document No." := TransferReceiptHeader."No.";
-            "Item No." := LibraryRUReports.CreateItemWithCost;
+            "Item No." := LibraryRUReports.CreateItemWithCost();
             "Dimension Set ID" := LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code);
             Insert();
         end;
@@ -661,7 +657,7 @@ codeunit 144705 "ERM Shipment Request M-11"
 
         with ItemJnlLine do begin
             "Journal Template Name" := LibraryUtility.GenerateGUID();
-            "Item No." := LibraryRUReports.CreateItemWithCost;
+            "Item No." := LibraryRUReports.CreateItemWithCost();
             "Dimension Set ID" := LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code);
             Insert();
             SetRange("Journal Template Name", "Journal Template Name");

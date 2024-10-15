@@ -58,8 +58,6 @@ codeunit 14947 "INV-18 Report Helper"
 
     [Scope('OnPrem')]
     procedure FillPageHeader()
-    var
-        InvActLine: Record "Invent. Act Line";
     begin
         ExcelReportBuilderManager.AddSection('PAGEHEADER');
     end;

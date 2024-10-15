@@ -2,6 +2,7 @@ table 17241 "Tax Reg. Norm Term Formula"
 {
     Caption = 'Tax Reg. Norm Term Formula';
     LookupPageID = "Tax Reg. Norm Term Formula";
+    DataClassification = CustomerContent;
 
     fields
     {

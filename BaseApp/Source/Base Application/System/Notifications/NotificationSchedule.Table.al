@@ -10,6 +10,7 @@ table 1513 "Notification Schedule"
     DrillDownPageID = "Notification Schedule";
     LookupPageID = "Notification Schedule";
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -139,12 +140,6 @@ table 1513 "Notification Schedule"
         NotificationTelemetryCategoryTxt: Label 'Notifications', Locked = true;
         SchedulingNotificationTelemetryTxt: Label 'Scheduling notification', Locked = true;
         ScheduleLaterRecipientIDErr: Label 'Recipient User ID is empty', Locked = true;
-
-    [Obsolete('Replaced by CreateNewRecord().', '17.0')]
-    procedure NewRecord(NewUserID: Code[50]; NewNotificationType: Option)
-    begin
-        CreateNewRecord(NewUserID, "Notification Entry Type".FromInteger(NewNotificationType));
-    end;
 
     procedure CreateNewRecord(NewUserID: Code[50]; NewNotificationType: Enum "Notification Entry Type")
     begin
@@ -340,14 +335,14 @@ table 1513 "Notification Schedule"
     var
         JobQueueEntry: Record "Job Queue Entry";
         JobQueueCategory: Record "Job Queue Category";
-        AzureADGraphUser: Codeunit "Azure AD Graph User";
+        AzureAdUserManagement: Codeunit "Azure AD User Management";
     begin
         CheckRequiredPermissions();
 
         if JobQueueEntry.ReuseExistingJobFromCategoryAndUser(NotifyNowLbl, UserId(), OneMinuteFromNow()) then
             exit;
 
-        if AzureADGraphUser.IsUserDelegatedAdmin() or AzureADGraphUser.IsUserDelegatedHelpdesk() then // can't use JQ
+        if AzureAdUserManagement.IsUserDelegated(UserSecurityId()) then // can't use JQ
             SendNotificationInForeground()
         else begin
             JobQueueCategory.InsertRec(NotifyNowLbl, NotifyNowDescriptionTxt);
@@ -360,7 +355,7 @@ table 1513 "Notification Schedule"
     var
         JobQueueEntry: Record "Job Queue Entry";
         NotificationEntry: Record "Notification Entry";
-        AzureADGraphUser: Codeunit "Azure AD Graph User";
+        AzureAdUserManagement: Codeunit "Azure AD User Management";
         ExecutionDateTime: DateTime;
     begin
         CheckRequiredPermissions();
@@ -374,7 +369,7 @@ table 1513 "Notification Schedule"
 
         ExecutionDateTime := CalculateExecutionTime(CurrentDateTime);
 
-        if AzureADGraphUser.IsUserDelegatedAdmin() or AzureADGraphUser.IsUserDelegatedHelpdesk() then // can't use JQ
+        if AzureAdUserManagement.IsUserDelegated(UserSecurityId()) then // can't use JQ
             SendNotificationInForeground();
 
         NotificationEntry.SetRange("Recipient User ID", RecipientUserID);

@@ -127,7 +127,7 @@
         FindPurchaseLine(PurchaseLine, PurchaseHeader."No.");
         VATAmount := (ServiceCharge * PurchaseLine."VAT %") / 100;
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        ExecuteUIHandler;
+        ExecuteUIHandler();
 
         // Verify: Verify GL Entry for Posted Purchase Credit memo.
         VerifyGLEntryForPurchase(PurchaseHeader."No.", VATAmount);
@@ -607,7 +607,7 @@
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         SalesHeader.Validate("Prices Including VAT", true);
         SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), 1);
         // 1 Fix Qty Required to Keep Price Static.
         SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Modify(true);
@@ -620,7 +620,7 @@
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
         // 1 Fix Qty Required to Keep Price Static.
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, 1);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), 1);
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
         PurchaseLine.Modify(true);
     end;
@@ -677,12 +677,12 @@
         CustomerPostingGroup: Record "Customer Posting Group";
         Amount: Decimal;
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Prepayment %", PrepaymentPct);
         SalesHeader.Modify(true);
         Amount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         SalesLine.Validate("Unit Price", Amount);
         SalesLine.Modify(true);
         CreateCustInvoiceDiscount(SalesHeader."Sell-to Customer No.", ServiceCharge, SalesLine.Amount);
@@ -698,13 +698,13 @@
         VendorPostingGroup: Record "Vendor Posting Group";
         Amount: Decimal;
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Prepayment %", PrepaymentPct);
         PurchaseHeader.Validate("Prepmt. Payment Terms Code", PurchaseHeader."Payment Terms Code");
         PurchaseHeader.Modify(true);
         Amount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", Amount);
         PurchaseLine.Modify(true);
         CreateVendInvoiceDiscount(PurchaseHeader."Pay-to Vendor No.", ServiceCharge, PurchaseLine.Amount);
@@ -854,7 +854,7 @@
     begin
         FindSalesLineWithType(SalesLine, SalesHeader, SalesLine.Type::"G/L Account");
         SalesLine.TestField("Prepayment %", PrepaymentPct);
-        Assert.AreNearlyEqual(PrepmtLineAmt, SalesLine."Prepmt. Line Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY, '');
+        Assert.AreNearlyEqual(PrepmtLineAmt, SalesLine."Prepmt. Line Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY(), '');
     end;
 
     local procedure VerifyServChargePurchaseLines(PurchaseHeader: Record "Purchase Header"; PrepaymentPct: Decimal; PrepmtLineAmt: Decimal)
@@ -863,7 +863,7 @@
     begin
         FindPurchaseLineWithType(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account");
         PurchaseLine.TestField("Prepayment %", PrepaymentPct);
-        Assert.AreNearlyEqual(PrepmtLineAmt, PurchaseLine."Prepmt. Line Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY, '');
+        Assert.AreNearlyEqual(PrepmtLineAmt, PurchaseLine."Prepmt. Line Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY(), '');
     end;
 
     local procedure ExecuteUIHandler()

@@ -39,23 +39,23 @@ codeunit 134306 "Copy Workflow Tests"
         EventConditions :=
           CreateTwoStepsWorkflow(
             FromWorkflow, WorkflowEvent,
-            WorkflowResponseHandling.CreateNotificationEntryCode);
+            WorkflowResponseHandling.CreateNotificationEntryCode());
         FromWorkflow.Validate(Template, true);
         FromWorkflow.Modify();
 
-        WorkflowTemplatesPage.OpenView;
+        WorkflowTemplatesPage.OpenView();
         WorkflowTemplatesPage.FILTER.SetFilter(Description, FromWorkflow.Description);
-        WorkflowTemplatesPage.First;
+        WorkflowTemplatesPage.First();
 
         // Exercise.
-        WorkflowPage.Trap;
-        WorkflowTemplatesPage."New Workflow from Template".Invoke;
+        WorkflowPage.Trap();
+        WorkflowTemplatesPage."New Workflow from Template".Invoke();
 
         // Verify.
         ToWorkflow.Get(WorkflowPage.Code.Value);
         ToWorkflow.TestField(Description, FromWorkflow.Description);
         VerifyWorkflowSteps(ToWorkflow, WorkflowStep.Type::"Event", WorkflowEvent."Function Name", EventConditions);
-        VerifyWorkflowSteps(ToWorkflow, WorkflowStep.Type::Response, WorkflowResponseHandling.CreateNotificationEntryCode, '');
+        VerifyWorkflowSteps(ToWorkflow, WorkflowStep.Type::Response, WorkflowResponseHandling.CreateNotificationEntryCode(), '');
         VerifyWorkflowRules(ToWorkflow, FromWorkflow);
     end;
 
@@ -83,23 +83,23 @@ codeunit 134306 "Copy Workflow Tests"
         EventConditions :=
           CreateTwoStepsWorkflow(
             FromWorkflow, WorkflowEvent,
-            WorkflowResponseHandling.CreateNotificationEntryCode);
+            WorkflowResponseHandling.CreateNotificationEntryCode());
         FromWorkflow.Validate(Template, false);
         FromWorkflow.Modify();
 
-        WorkflowsPage.OpenView;
+        WorkflowsPage.OpenView();
         WorkflowsPage.FILTER.SetFilter(Description, FromWorkflow.Description);
-        WorkflowsPage.First;
+        WorkflowsPage.First();
 
         // Exercise.
-        WorkflowPage.Trap;
-        WorkflowsPage.CopyWorkflow.Invoke;
+        WorkflowPage.Trap();
+        WorkflowsPage.CopyWorkflow.Invoke();
 
         // Verify.
         ToWorkflow.Get(WorkflowPage.Code.Value);
         ToWorkflow.TestField(Description, FromWorkflow.Description);
         VerifyWorkflowSteps(ToWorkflow, WorkflowStep.Type::"Event", WorkflowEvent."Function Name", EventConditions);
-        VerifyWorkflowSteps(ToWorkflow, WorkflowStep.Type::Response, WorkflowResponseHandling.CreateNotificationEntryCode, '');
+        VerifyWorkflowSteps(ToWorkflow, WorkflowStep.Type::Response, WorkflowResponseHandling.CreateNotificationEntryCode(), '');
         VerifyWorkflowRules(ToWorkflow, FromWorkflow);
     end;
 
@@ -128,26 +128,26 @@ codeunit 134306 "Copy Workflow Tests"
         EventConditions :=
           CreateTwoStepsWorkflow(
             FromWorkflow, WorkflowEvent,
-            WorkflowResponseHandling.CreateNotificationEntryCode);
+            WorkflowResponseHandling.CreateNotificationEntryCode());
         FromWorkflow.Validate(Template, false);
         FromWorkflow.Modify();
         FromWorkflow.Enabled := true;
         FromWorkflow.Modify();
 
-        WorkflowsPage.OpenView;
+        WorkflowsPage.OpenView();
         WorkflowsPage.FILTER.SetFilter(Description, FromWorkflow.Description);
-        WorkflowsPage.First;
+        WorkflowsPage.First();
 
         // Exercise.
-        WorkflowPage.Trap;
-        WorkflowsPage.CopyWorkflow.Invoke;
+        WorkflowPage.Trap();
+        WorkflowsPage.CopyWorkflow.Invoke();
 
         // Verify.
         ToWorkflow.Get(WorkflowPage.Code.Value);
         ToWorkflow.TestField(Enabled, false);
         ToWorkflow.TestField(Description, FromWorkflow.Description);
         VerifyWorkflowSteps(ToWorkflow, WorkflowStep.Type::"Event", WorkflowEvent."Function Name", EventConditions);
-        VerifyWorkflowSteps(ToWorkflow, WorkflowStep.Type::Response, WorkflowResponseHandling.CreateNotificationEntryCode, '');
+        VerifyWorkflowSteps(ToWorkflow, WorkflowStep.Type::Response, WorkflowResponseHandling.CreateNotificationEntryCode(), '');
         VerifyWorkflowRules(ToWorkflow, FromWorkflow);
     end;
 
@@ -177,14 +177,14 @@ codeunit 134306 "Copy Workflow Tests"
         EventConditions :=
           CreateTwoStepsWorkflow(
             FromWorkflow, WorkflowEvent,
-            WorkflowResponseHandling.CreateNotificationEntryCode);
+            WorkflowResponseHandling.CreateNotificationEntryCode());
         FromWorkflow.Validate(Template, false);
         FromWorkflow.Modify();
 
         EventConditions :=
           CreateTwoStepsWorkflow(
             FromWorkflow, WorkflowEvent,
-            WorkflowResponseHandling.CreateNotificationEntryCode);
+            WorkflowResponseHandling.CreateNotificationEntryCode());
         FromWorkflow.Validate(Template, false);
         FromWorkflow.Modify();
 
@@ -192,23 +192,23 @@ codeunit 134306 "Copy Workflow Tests"
         EventConditions :=
           CreateTwoStepsWorkflow(
             FromWorkflow, WorkflowEvent,
-            WorkflowResponseHandling.CreateNotificationEntryCode);
+            WorkflowResponseHandling.CreateNotificationEntryCode());
         FromWorkflow.Validate(Template, true);
         FromWorkflow.Modify();
 
-        WorkflowTemplatesPage.OpenView;
+        WorkflowTemplatesPage.OpenView();
         WorkflowTemplatesPage.FILTER.SetFilter(Description, FromWorkflow.Description);
-        WorkflowTemplatesPage.First;
+        WorkflowTemplatesPage.First();
 
         // Exercise.
-        WorkflowPage.Trap;
-        WorkflowTemplatesPage."New Workflow from Template".Invoke;
+        WorkflowPage.Trap();
+        WorkflowTemplatesPage."New Workflow from Template".Invoke();
 
         // Verify.
         ToWorkflow.Get(WorkflowPage.Code.Value);
         ToWorkflow.TestField(Description, FromWorkflow.Description);
         VerifyWorkflowSteps(ToWorkflow, WorkflowStep.Type::"Event", WorkflowEvent."Function Name", EventConditions);
-        VerifyWorkflowSteps(ToWorkflow, WorkflowStep.Type::Response, WorkflowResponseHandling.CreateNotificationEntryCode, '');
+        VerifyWorkflowSteps(ToWorkflow, WorkflowStep.Type::Response, WorkflowResponseHandling.CreateNotificationEntryCode(), '');
         VerifyWorkflowRules(ToWorkflow, FromWorkflow);
     end;
 
@@ -237,14 +237,14 @@ codeunit 134306 "Copy Workflow Tests"
         EventConditions :=
           CreateTwoStepsWorkflow(
             FromWorkflow, WorkflowEvent,
-            WorkflowResponseHandling.CreateNotificationEntryCode);
+            WorkflowResponseHandling.CreateNotificationEntryCode());
         FromWorkflow.Validate(Template, false);
         FromWorkflow.Modify();
 
         EventConditions :=
           CreateTwoStepsWorkflow(
             FromWorkflow, WorkflowEvent,
-            WorkflowResponseHandling.CreateNotificationEntryCode);
+            WorkflowResponseHandling.CreateNotificationEntryCode());
         FromWorkflow.Validate(Template, false);
         FromWorkflow.Modify();
 
@@ -252,23 +252,23 @@ codeunit 134306 "Copy Workflow Tests"
         EventConditions :=
           CreateTwoStepsWorkflow(
             FromWorkflow, WorkflowEvent,
-            WorkflowResponseHandling.CreateNotificationEntryCode);
+            WorkflowResponseHandling.CreateNotificationEntryCode());
         FromWorkflow.Validate(Template, false);
         FromWorkflow.Modify();
 
-        WorkflowsPage.OpenView;
+        WorkflowsPage.OpenView();
         WorkflowsPage.FILTER.SetFilter(Description, FromWorkflow.Description);
-        WorkflowsPage.First;
+        WorkflowsPage.First();
 
         // Exercise.
-        WorkflowPage.Trap;
-        WorkflowsPage.CopyWorkflow.Invoke;
+        WorkflowPage.Trap();
+        WorkflowsPage.CopyWorkflow.Invoke();
 
         // Verify.
         ToWorkflow.Get(WorkflowPage.Code.Value);
         ToWorkflow.TestField(Description, FromWorkflow.Description);
         VerifyWorkflowSteps(ToWorkflow, WorkflowStep.Type::"Event", WorkflowEvent."Function Name", EventConditions);
-        VerifyWorkflowSteps(ToWorkflow, WorkflowStep.Type::Response, WorkflowResponseHandling.CreateNotificationEntryCode, '');
+        VerifyWorkflowSteps(ToWorkflow, WorkflowStep.Type::Response, WorkflowResponseHandling.CreateNotificationEntryCode(), '');
         VerifyWorkflowRules(ToWorkflow, FromWorkflow);
     end;
 
@@ -292,17 +292,17 @@ codeunit 134306 "Copy Workflow Tests"
 
         CreateTwoStepsWorkflow(
           FromWorkflow, WorkflowEvent,
-          WorkflowResponseHandling.CreateNotificationEntryCode);
+          WorkflowResponseHandling.CreateNotificationEntryCode());
         FromWorkflow.Validate(Template, false);
         FromWorkflow.Modify();
 
-        WorkflowsPage.OpenView;
+        WorkflowsPage.OpenView();
         WorkflowsPage.FILTER.SetFilter("Workflow Code", '');
-        WorkflowsPage.First;
+        WorkflowsPage.First();
 
         // Exercise.
         ClearLastError();
-        WorkflowsPage.CopyWorkflow.Invoke;
+        WorkflowsPage.CopyWorkflow.Invoke();
 
         // Verify.
         Assert.AreEqual('', GetLastErrorText, 'An unexpected error was thrown');
@@ -331,17 +331,17 @@ codeunit 134306 "Copy Workflow Tests"
 
         CreateTwoStepsWorkflow(
           FromWorkflow, WorkflowEvent,
-          WorkflowResponseHandling.CreateNotificationEntryCode);
+          WorkflowResponseHandling.CreateNotificationEntryCode());
         FromWorkflow.Validate(Template, true);
         FromWorkflow.Modify();
 
-        WorkflowTemplatesPage.OpenView;
+        WorkflowTemplatesPage.OpenView();
         WorkflowTemplatesPage.FILTER.SetFilter("Workflow Code", '');
-        WorkflowTemplatesPage.First;
+        WorkflowTemplatesPage.First();
 
         // Exercise.
         ClearLastError();
-        WorkflowTemplatesPage."New Workflow from Template".Invoke;
+        WorkflowTemplatesPage."New Workflow from Template".Invoke();
 
         // Verify.
         Assert.AreEqual('', GetLastErrorText, 'An unexpected error was thrown.');
@@ -352,7 +352,7 @@ codeunit 134306 "Copy Workflow Tests"
 
     local procedure Initialize()
     begin
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
     end;
 
     local procedure CreateTwoStepsWorkflow(var Workflow: Record Workflow; var WorkflowEvent: Record "Workflow Event"; ResponseFunctionName: Code[128]) EventConditions: Text

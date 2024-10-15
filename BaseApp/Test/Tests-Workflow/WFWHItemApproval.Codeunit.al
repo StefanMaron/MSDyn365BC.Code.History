@@ -61,7 +61,7 @@ codeunit 134214 "WFWH Item Approval"
         // [THEN] Workflow table relations for item and workflow webhook entry exist.
 
         // Setup
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
 
         // Excercise
         WorkflowSetup.InitWorkflow();
@@ -115,7 +115,7 @@ codeunit 134214 "WFWH Item Approval"
         // Setup
         Initialize();
         CreateAndEnableItemWorkflowDefinition(UserId);
-        MakeCurrentUserAnApprover;
+        MakeCurrentUserAnApprover();
         LibraryInventory.CreateItem(Item);
 
         // Setup - A approval
@@ -150,7 +150,7 @@ codeunit 134214 "WFWH Item Approval"
         // Setup
         Initialize();
         CreateAndEnableItemWorkflowDefinition(UserId);
-        MakeCurrentUserAnApprover;
+        MakeCurrentUserAnApprover();
         LibraryInventory.CreateItem(Item);
 
         // Setup - A approval
@@ -185,7 +185,7 @@ codeunit 134214 "WFWH Item Approval"
         // Setup
         Initialize();
         CreateAndEnableItemWorkflowDefinition(UserId);
-        MakeCurrentUserAnApprover;
+        MakeCurrentUserAnApprover();
         LibraryInventory.CreateItem(Item);
 
         // Setup - A approval
@@ -221,7 +221,7 @@ codeunit 134214 "WFWH Item Approval"
         // Setup
         Initialize();
         CreateAndEnableItemWorkflowDefinition(UserId);
-        MakeCurrentUserAnApprover;
+        MakeCurrentUserAnApprover();
 
         // Setup - an existing approval
         LibraryInventory.CreateItem(Item);
@@ -259,7 +259,7 @@ codeunit 134214 "WFWH Item Approval"
         // Setup
         Initialize();
         WorkflowCode := CreateAndEnableItemWorkflowDefinition(UserId);
-        MakeCurrentUserAnApprover;
+        MakeCurrentUserAnApprover();
 
         // Setup - an existing approval
         LibraryInventory.CreateItem(Item);
@@ -295,16 +295,16 @@ codeunit 134214 "WFWH Item Approval"
         // [GIVEN] Item record exists, with enabled workflow and a Flow approval request already open.
         LibraryInventory.CreateItem(Item);
         Commit();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.ItemWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.ItemWorkflowCode());
         WebhookHelper.CreatePendingFlowApproval(Item.RecordId);
 
         // [WHEN] Item card is opened.
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         // [THEN] Cancel is enabled and Send is disabled.
-        Assert.IsFalse(ItemCard.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(ItemCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(ItemCard.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(ItemCard.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Cleanup
         ItemCard.Close();
@@ -326,16 +326,16 @@ codeunit 134214 "WFWH Item Approval"
         // [GIVEN] v record exists, with enabled workflow and a Flow approval request already open.
         LibraryInventory.CreateItem(Item);
         Commit();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.ItemWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.ItemWorkflowCode());
         WebhookHelper.CreatePendingFlowApproval(Item.RecordId);
 
         // [WHEN] Item list is opened.
-        ItemList.OpenEdit;
+        ItemList.OpenEdit();
         ItemList.GotoRecord(Item);
 
         // [THEN] Cancel is enabled and Send is disabled.
-        Assert.IsFalse(ItemList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(ItemList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(ItemList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(ItemList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Cleanup
         ItemList.Close();
@@ -359,9 +359,9 @@ codeunit 134214 "WFWH Item Approval"
         WebhookHelper.CreatePendingFlowApproval(Item.RecordId);
 
         // [WHEN] Item card is opened and Cancel button is clicked.
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
-        ItemCard.CancelApprovalRequest.Invoke;
+        ItemCard.CancelApprovalRequest.Invoke();
 
         // [THEN] Workflow Webhook Entry record is cancelled
         WorkflowWebhookEntry.FindFirst();
@@ -389,9 +389,9 @@ codeunit 134214 "WFWH Item Approval"
         WebhookHelper.CreatePendingFlowApproval(Item.RecordId);
 
         // [WHEN] Item list is opened and Cancel button is clicked.
-        ItemList.OpenEdit;
+        ItemList.OpenEdit();
         ItemList.GotoRecord(Item);
-        ItemList.CancelApprovalRequest.Invoke;
+        ItemList.CancelApprovalRequest.Invoke();
 
         // [THEN] Workflow Webhook Entry record is cancelled
         WorkflowWebhookEntry.FindFirst();
@@ -405,9 +405,9 @@ codeunit 134214 "WFWH Item Approval"
     var
         ItemCard: TestPage "Item Card";
     begin
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
-        ItemCard.SendApprovalRequest.Invoke;
+        ItemCard.SendApprovalRequest.Invoke();
         ItemCard.Close();
     end;
 
@@ -418,10 +418,10 @@ codeunit 134214 "WFWH Item Approval"
     begin
         LibraryVariableStorage.Clear();
         LibraryERMCountryData.CreateVATData();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         UserSetup.DeleteAll();
         ClearWorkflowWebhookEntry.DeleteAll();
-        RemoveBogusUser;
+        RemoveBogusUser();
         if IsInitialized then
             exit;
         IsInitialized := true;
@@ -437,7 +437,7 @@ codeunit 134214 "WFWH Item Approval"
         WorkflowCode: Code[20];
     begin
         WorkflowCode :=
-          WorkflowWebhookSetup.CreateWorkflowDefinition(WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode,
+          WorkflowWebhookSetup.CreateWorkflowDefinition(WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode(),
             '', DynamicRequestPageParametersItemTxt, ResponseUserID);
         Workflow.Get(WorkflowCode);
         LibraryWorkflow.EnableWorkflow(Workflow);

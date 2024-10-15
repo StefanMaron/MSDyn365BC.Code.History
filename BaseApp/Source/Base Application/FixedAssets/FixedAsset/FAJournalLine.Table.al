@@ -17,6 +17,7 @@ using Microsoft.HumanResources.Employee;
 table 5621 "FA Journal Line"
 {
     Caption = 'FA Journal Line';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -393,7 +394,7 @@ table 5621 "FA Journal Line"
         }
         field(12403; "New Shortcut Dimension 1 Code"; Code[20])
         {
-            CaptionClass = '1,2,1,' + Text007;
+            CaptionClass = '1,2,1,' + Text12401;
             Caption = 'New Shortcut Dimension 1 Code';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
 
@@ -404,7 +405,7 @@ table 5621 "FA Journal Line"
         }
         field(12404; "New Shortcut Dimension 2 Code"; Code[20])
         {
-            CaptionClass = '1,2,2,' + Text007;
+            CaptionClass = '1,2,2,' + Text12401;
             Caption = 'New Shortcut Dimension 2 Code';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
 
@@ -541,43 +542,42 @@ table 5621 "FA Journal Line"
         FAJnlSetup: Record "FA Journal Setup";
         FADeprBook: Record "FA Depreciation Book";
         GLSetup: Record "General Ledger Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
-        Text007: Label 'New ';
+        Text12401: Label 'New ';
         Text12400: Label 'You can''t create Acquisition.\Inventory is only for Write-Off.';
 
     procedure ConvertToLedgEntry(var FAJnlLine: Record "FA Journal Line"): Option
     var
         FALedgEntry: Record "FA Ledger Entry";
     begin
-        with FALedgEntry do begin
-            case FAJnlLine."FA Posting Type" of
-                FAJnlLine."FA Posting Type"::"Acquisition Cost":
-                    "FA Posting Type" := "FA Posting Type"::"Acquisition Cost";
-                FAJnlLine."FA Posting Type"::Depreciation:
-                    "FA Posting Type" := "FA Posting Type"::Depreciation;
-                FAJnlLine."FA Posting Type"::"Write-Down":
-                    "FA Posting Type" := "FA Posting Type"::"Write-Down";
-                FAJnlLine."FA Posting Type"::Appreciation:
-                    "FA Posting Type" := "FA Posting Type"::Appreciation;
-                FAJnlLine."FA Posting Type"::"Custom 1":
-                    "FA Posting Type" := "FA Posting Type"::"Custom 1";
-                FAJnlLine."FA Posting Type"::"Custom 2":
-                    "FA Posting Type" := "FA Posting Type"::"Custom 2";
-                FAJnlLine."FA Posting Type"::Disposal:
-                    "FA Posting Type" := "FA Posting Type"::"Proceeds on Disposal";
-                FAJnlLine."FA Posting Type"::"Salvage Value":
-                    "FA Posting Type" := "FA Posting Type"::"Salvage Value";
-                FAJnlLine."FA Posting Type"::Transfer:
-                    "FA Posting Type" := "FA Posting Type"::Transfer;
-                else
-                    OnConvertToLedgEntryCase(FALedgEntry, FAJnlLine);
-            end;
-            exit("FA Posting Type".AsInteger());
+        case FAJnlLine."FA Posting Type" of
+            FAJnlLine."FA Posting Type"::"Acquisition Cost":
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Acquisition Cost";
+            FAJnlLine."FA Posting Type"::Depreciation:
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::Depreciation;
+            FAJnlLine."FA Posting Type"::"Write-Down":
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Write-Down";
+            FAJnlLine."FA Posting Type"::Appreciation:
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::Appreciation;
+            FAJnlLine."FA Posting Type"::"Custom 1":
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Custom 1";
+            FAJnlLine."FA Posting Type"::"Custom 2":
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Custom 2";
+            FAJnlLine."FA Posting Type"::Disposal:
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Proceeds on Disposal";
+            FAJnlLine."FA Posting Type"::"Salvage Value":
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Salvage Value";
+            FAJnlLine."FA Posting Type"::Transfer:
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::Transfer;
+            else
+                OnConvertToLedgEntryCase(FALedgEntry, FAJnlLine);
         end;
+        exit(FALedgEntry."FA Posting Type".AsInteger());
     end;
 
     procedure SetUpNewLine(LastFAJnlLine: Record "FA Journal Line")
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         FAJnlTemplate.Get("Journal Template Name");
         FAJnlBatch.Get("Journal Template Name", "Journal Batch Name");
@@ -588,10 +588,8 @@ table 5621 "FA Journal Line"
             "Document No." := LastFAJnlLine."Document No.";
         end else begin
             "FA Posting Date" := WorkDate();
-            if FAJnlBatch."No. Series" <> '' then begin
-                Clear(NoSeriesMgt);
-                "Document No." := NoSeriesMgt.TryGetNextNo(FAJnlBatch."No. Series", "FA Posting Date");
-            end;
+            if FAJnlBatch."No. Series" <> '' then 
+                "Document No." := NoSeries.PeekNextNo(FAJnlBatch."No. Series", "FA Posting Date");
         end;
         "Recurring Method" := LastFAJnlLine."Recurring Method";
         "Source Code" := FAJnlTemplate."Source Code";

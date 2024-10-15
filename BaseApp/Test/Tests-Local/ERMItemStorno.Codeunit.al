@@ -21,7 +21,6 @@ codeunit 144006 "ERM Item Storno"
         LibraryCosting: Codeunit "Library - Costing";
         LibraryRandom: Codeunit "Library - Random";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
-        DocTypeRef: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         isInitialized: Boolean;
         ValuesAreNotEqualErr: Label 'Values are not equal in table %1, field %2';
         ApplyEntryNoExpectedErr: Label '%1 must have a value in Item Journal Line: Journal Template Name=, Journal Batch Name=, Line No.=0. It cannot be zero or empty.';
@@ -315,9 +314,9 @@ codeunit 144006 "ERM Item Storno"
 
         // [GIVEN] Inventory Setup "Enable Red Storno" = TRUE.
         // [GIVEN] Posted Sales Invoice "I".
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, WorkDate(), false);
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), WorkDate(), false);
         for i := 1 to ArrayLen(ItemNo) do begin
-            ItemNo[i] := CreateItemNo;
+            ItemNo[i] := CreateItemNo();
             LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo[i], LibraryRandom.RandIntInRange(100, 200));
         end;
         InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -338,9 +337,9 @@ codeunit 144006 "ERM Item Storno"
             exit;
 
         UpdateGLSetup();
-        UpdateInventorySetup;
+        UpdateInventorySetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.UpdateVATPostingSetup;
+        LibraryERMCountryData.UpdateVATPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -368,7 +367,7 @@ codeunit 144006 "ERM Item Storno"
         VerifyValueEntries(ItemNo, WorkDate(), ExpectedSign * Round(UnitAmt * Quantity), RedStorno);
         VerifyItemLedgerEntries(ItemNo, WorkDate(), CorrEntryType, ExpectedSign * Quantity);
 
-        VerifyGLEntries('', GetLastCostDocumentNo, CalcExpectedSign(RedStorno) * Round(UnitAmt * Quantity), Sorting);
+        VerifyGLEntries('', GetLastCostDocumentNo(), CalcExpectedSign(RedStorno) * Round(UnitAmt * Quantity), Sorting);
     end;
 
     local procedure CorrectionForItemJournal(EntryType: Enum "Item Ledger Entry Type"; CorrEntryType: Enum "Item Ledger Entry Type"; RedStorno: Boolean)
@@ -397,7 +396,7 @@ codeunit 144006 "ERM Item Storno"
         VerifyItemLedgerEntries(ItemNo, WorkDate(), CorrEntryType.AsInteger(), ExpectedSign * Quantity);
 
         Sorting := (ExpectedSign = -1) xor RedStorno;
-        VerifyGLEntries('', GetLastCostDocumentNo, CorrSign * CostAmt, Sorting);
+        VerifyGLEntries('', GetLastCostDocumentNo(), CorrSign * CostAmt, Sorting);
     end;
 
     local procedure CorrectionForSalesDocument(RedStorno: Boolean)
@@ -462,7 +461,7 @@ codeunit 144006 "ERM Item Storno"
         CreateAndPostRevaluationItemJnlLine(Item."No.", WorkDate(), RevalAmt, RedStorno);
 
         VerifyValueEntries(Item."No.", WorkDate(), -(CostAmt - RevalAmt), RedStorno);
-        VerifyGLEntries('', GetLastCostDocumentNo, CalcExpectedSign(RedStorno) * (CostAmt - RevalAmt), not RedStorno);
+        VerifyGLEntries('', GetLastCostDocumentNo(), CalcExpectedSign(RedStorno) * (CostAmt - RevalAmt), not RedStorno);
     end;
 
     local procedure CorrectionForReclassification(RedStorno: Boolean)
@@ -485,8 +484,8 @@ codeunit 144006 "ERM Item Storno"
         VerifyValueEntries(ItemNo, WorkDate(), CostAmt, RedStorno);
         VerifyItemLedgerEntries(ItemNo, WorkDate(), ItemLedgerEntry."Entry Type"::Transfer.AsInteger(), Quantity);
 
-        VerifyGLEntries(GetInventoryAdjAccountNo(ItemNo), GetLastCostDocumentNo, CalcExpectedSign(RedStorno) * CostAmt, not RedStorno);
-        VerifyGLEntries(GetInventoryAccountNoFilter(ItemNo), GetLastCostDocumentNo, CalcExpectedSign(RedStorno) * CostAmt, RedStorno);
+        VerifyGLEntries(GetInventoryAdjAccountNo(ItemNo), GetLastCostDocumentNo(), CalcExpectedSign(RedStorno) * CostAmt, not RedStorno);
+        VerifyGLEntries(GetInventoryAccountNoFilter(ItemNo), GetLastCostDocumentNo(), CalcExpectedSign(RedStorno) * CostAmt, RedStorno);
     end;
 
     local procedure CorrectionForFA(RedStorno: Boolean)
@@ -605,22 +604,19 @@ codeunit 144006 "ERM Item Storno"
         ItemJnlLine: Record "Item Journal Line";
         ItemJournalTemplate: Record "Item Journal Template";
         Item: Record Item;
-        CalculatePer: Option "Item Ledger Entry",Item;
     begin
         InitItemJournalLine(ItemJnlLine, ItemJournalTemplate.Type::Revaluation);
         Item.SetRange("No.", ItemNo);
         LibraryCosting.CalculateInventoryValue(
-          ItemJnlLine, Item, PostingDate, LibraryUtility.GenerateGUID,
-          CalculatePer::"Item Ledger Entry", false, false, false, 0, false);
+          ItemJnlLine, Item, PostingDate, LibraryUtility.GenerateGUID(),
+          "Inventory Value Calc. Per"::"Item Ledger Entry", false, false, false, "Inventory Value Calc. Base"::" ", false);
 
-        with ItemJnlLine do begin
-            SetRange("Journal Template Name", "Journal Template Name");
-            SetRange("Journal Batch Name", "Journal Batch Name");
-            FindFirst();
-            Validate("Red Storno", RedStorno);
-            Validate("Inventory Value (Revalued)", RevalCost);
-            Modify(true);
-        end;
+        ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
+        ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
+        ItemJnlLine.FindFirst();
+        ItemJnlLine.Validate("Red Storno", RedStorno);
+        ItemJnlLine.Validate("Inventory Value (Revalued)", RevalCost);
+        ItemJnlLine.Modify(true);
 
         LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
     end;
@@ -628,21 +624,18 @@ codeunit 144006 "ERM Item Storno"
     local procedure CreateAndPostReclassItemJnlLine(ItemNo: Code[20]; PostingDate: Date; Qty: Decimal; ApplyEntryNo: Integer; RedStorno: Boolean)
     var
         ItemJnlLine: Record "Item Journal Line";
-        ItemJournalTemplate: Record "Item Journal Template";
     begin
         InitItemJournalLine(ItemJnlLine, "Item Journal Template Type"::Transfer);
         LibraryInventory.CreateItemJournalLine(
           ItemJnlLine, ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name",
           ItemJnlLine."Entry Type"::Transfer, ItemNo, 0);
 
-        with ItemJnlLine do begin
-            Validate("Posting Date", PostingDate);
-            Validate(Quantity, Qty);
-            Validate("Applies-to Entry", ApplyEntryNo);
-            Validate("New Location Code", FindLocationCode);
-            Validate("Red Storno", RedStorno);
-            Modify(true);
-        end;
+        ItemJnlLine.Validate("Posting Date", PostingDate);
+        ItemJnlLine.Validate(Quantity, Qty);
+        ItemJnlLine.Validate("Applies-to Entry", ApplyEntryNo);
+        ItemJnlLine.Validate("New Location Code", FindLocationCode());
+        ItemJnlLine.Validate("Red Storno", RedStorno);
+        ItemJnlLine.Modify(true);
 
         LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
     end;
@@ -822,7 +815,7 @@ codeunit 144006 "ERM Item Storno"
     begin
         FindFAGenJournalBatch(GenJnlBatch, DeprBookCode, true);
 
-        FANo := LibraryFixedAsset.CreateFixedAssetNo;
+        FANo := LibraryFixedAsset.CreateFixedAssetNo();
         LibraryERM.FindGLAccount(GLAccount);
         with GenJnlLine do begin
             LibraryERM.CreateGeneralJnlLineWithBalAcc(
@@ -913,7 +906,7 @@ codeunit 144006 "ERM Item Storno"
             repeat
                 Validate("Quantity (After)", "Quantity (Before)" / LibraryRandom.RandIntInRange(3, 5));
                 Modify(true);
-            until Next = 0;
+            until Next() = 0;
     end;
 
     local procedure SetStornoOnDefaultDeprBook(Correction: Boolean): Code[10]
@@ -994,7 +987,7 @@ codeunit 144006 "ERM Item Storno"
         with InvPostingSetup do begin
             Get('', Item."Inventory Posting Group");
             InvAccountNoFilter := "Inventory Account";
-            Get(FindLocationCode, Item."Inventory Posting Group");
+            Get(FindLocationCode(), Item."Inventory Posting Group");
             InvAccountNoFilter += '|' + "Inventory Account";
         end;
     end;
@@ -1065,7 +1058,7 @@ codeunit 144006 "ERM Item Storno"
             SetRange("Document Type", "Document Type"::" ");
             FindSet();
             VerifyGLDebitCredit(GLEntry, 0, ExpectedAmount);
-            Next;
+            Next();
             VerifyGLDebitCredit(GLEntry, ExpectedAmount, 0);
         end;
     end;

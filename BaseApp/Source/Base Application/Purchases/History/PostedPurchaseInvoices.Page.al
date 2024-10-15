@@ -14,7 +14,7 @@ page 146 "Posted Purchase Invoices"
     ApplicationArea = Basic, Suite;
     Caption = 'Posted Purchase Invoices';
     CardPageID = "Posted Purchase Invoice";
-    Editable = false;
+    Editable = false; 
     PageType = List;
     QueryCategory = 'Posted Purchase Invoices';
     SourceTable = "Purch. Inv. Header";

@@ -3,7 +3,7 @@ namespace System.Automation;
 query 1502 "Workflow Definition"
 {
     Caption = 'Workflow Definition';
-    OrderBy = Ascending(Sequence_No);
+    OrderBy = ascending(Sequence_No);
 
     elements
     {

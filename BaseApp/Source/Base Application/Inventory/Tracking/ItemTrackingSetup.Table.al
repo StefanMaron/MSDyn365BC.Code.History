@@ -15,9 +15,8 @@ table 6565 "Item Tracking Setup"
 {
     Caption = 'Item Tracking Setup';
     DataCaptionFields = "Code";
-#pragma warning disable AS0034
     TableType = Temporary;
-#pragma warning restore AS0034
+    DataClassification = CustomerContent;
 
     fields
     {

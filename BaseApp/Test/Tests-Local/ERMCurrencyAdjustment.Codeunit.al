@@ -21,7 +21,6 @@ codeunit 144103 "ERM Currency Adjustment"
         IncorrectDimensionValueErr: Label '%1 has incorrect Dimension Value';
         GLEntryCountErr: Label 'Wrong G/L Entry number of records';
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
-        NothingToAdjustTxt: Label 'There is nothing to adjust.';
         CurrentSaveValuesId: Integer;
 
     [Test]
@@ -43,7 +42,7 @@ codeunit 144103 "ERM Currency Adjustment"
         // [GIVEN] Currency A with exchange Rate R1 and Rate R2 (R1 < R2)
         CurrencyCode :=
           CreateCurrencyWithExchangeRates(
-            WorkDate + 1, 0D, true);
+            WorkDate() + 1, 0D, true);
         // [GIVEN] Posted Gen. Journal Line with Currency and Rate R1
         VendorNo := LibraryPurchase.CreateVendorNo();
         CreatePostGenJournalLine(
@@ -51,7 +50,7 @@ codeunit 144103 "ERM Currency Adjustment"
           GenJournalLine."Account Type"::Vendor, VendorNo,
           CurrencyCode, WorkDate());
         // [WHEN] Adjust Exchange Rate, "Dimension For Positive" = X with value Y and "Dimension for Negative" = X with value Z.
-        ExchRateAdjPostingDate := WorkDate + 1;
+        ExchRateAdjPostingDate := WorkDate() + 1;
         RunExchangeRateAdjWithSelectedDimensions(
           CurrencyCode, ExchRateAdjPostingDate, DimensionValueY, DimensionValueZ);
         // [THEN] Exchange Rate G/L Entries have Dimension X, Dim Value Z.
@@ -77,7 +76,7 @@ codeunit 144103 "ERM Currency Adjustment"
         // [GIVEN] Currency A with exchange Rate R1 and Rate R2 (R1 > R2)
         CurrencyCode :=
           CreateCurrencyWithExchangeRates(
-            WorkDate + 1, 0D, false);
+            WorkDate() + 1, 0D, false);
         // [GIVEN] Posted Gen. Journal Line with Currency and Rate R1
         VendorNo := LibraryPurchase.CreateVendorNo();
         CreatePostGenJournalLine(
@@ -85,7 +84,7 @@ codeunit 144103 "ERM Currency Adjustment"
           GenJournalLine."Account Type"::Vendor, VendorNo,
           CurrencyCode, WorkDate());
         // [WHEN] Adjust Exchange Rate, "Dimension For Positive" = X with value Y and "Dimension for Negative" = X with value Z.
-        ExchRateAdjPostingDate := WorkDate + 1;
+        ExchRateAdjPostingDate := WorkDate() + 1;
         RunExchangeRateAdjWithSelectedDimensions(
           CurrencyCode, ExchRateAdjPostingDate, DimensionValueY, DimensionValueZ);
         // [THEN] Exchange Rate G/L Entries have Dimension X, Dim Value Y
@@ -112,7 +111,7 @@ codeunit 144103 "ERM Currency Adjustment"
         // [GIVEN] Currency with exchange rates (R1 > R3 < R2)
         CurrencyCode :=
           CreateCurrencyWithExchangeRates(
-            WorkDate + 1, WorkDate + 2, true);
+            WorkDate() + 1, WorkDate() + 2, true);
         // [GIVEN] Posted Gen. Journal Line for Vendor A at Rate R1
         VendorANo := LibraryPurchase.CreateVendorNo();
         CreatePostGenJournalLine(
@@ -124,9 +123,9 @@ codeunit 144103 "ERM Currency Adjustment"
         CreatePostGenJournalLine(
           GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Vendor, VendorBNo,
-          CurrencyCode, WorkDate + 1);
+          CurrencyCode, WorkDate() + 1);
         // [WHEN] Adjust Exchange Rate, "Dimension For Positive" = X with value Y and "Dimension for Negative" = X with value Z.
-        ExchRateAdjPostingDate := WorkDate + 2;
+        ExchRateAdjPostingDate := WorkDate() + 2;
         RunExchangeRateAdjWithSelectedDimensions(
           CurrencyCode, ExchRateAdjPostingDate, DimensionValueY, DimensionValueZ);
         // [THEN] Exchange Rate G/L Entries for Vendor A have Dimension X = Y, Vendor B - Dimension X = Z.
@@ -146,13 +145,13 @@ codeunit 144103 "ERM Currency Adjustment"
         // [SCENARIO 374814] Post FCY payment through the journal with balancing bank account and run Exchange Rate Adjustment
         Initialize();
         // [GIVEN] FCY
-        CurrencyCode := CreateCurrencyWithExchangeRates(WorkDate + 1, 0D, true);
+        CurrencyCode := CreateCurrencyWithExchangeRates(WorkDate() + 1, 0D, true);
         // [GIVEN] Bank Account with FCY
         BankAccNo := CreateBankAccountFCY(CurrencyCode);
         // [GIVEN] Posted FCY payment through Gen. Jnl. Line with balance Bank Account
         PostFCYPaymentWithBankBalAccount(CurrencyCode, BankAccNo);
         // [WHEN] Adjust Exchange Rates for Bank Account only
-        RunBankAccountExchRateAdjmt(CurrencyCode, BankAccNo, WorkDate(), WorkDate + 1, DocNo);
+        RunBankAccountExchRateAdjmt(CurrencyCode, BankAccNo, WorkDate(), WorkDate() + 1, DocNo);
         // [THEN] Two adjustment G/L Entries for Bank Account created
         VerifyAdjustmentGLEntry(DocNo);
     end;
@@ -172,7 +171,7 @@ codeunit 144103 "ERM Currency Adjustment"
 
         // [GIVEN] Currency A with exchange Rate R1 and Rate R2 (R1 < R2)
         CurrencyCode :=
-          CreateCurrencyWithExchangeRates(WorkDate + 1, 0D, true);
+          CreateCurrencyWithExchangeRates(WorkDate() + 1, 0D, true);
         // [GIVEN] Posted Gen. Journal Line with Bank Account, Currency and Rate R1.
         BankAccountNo := CreateBankAccount(CurrencyCode);
         CreatePostGenJournalLine(
@@ -180,7 +179,7 @@ codeunit 144103 "ERM Currency Adjustment"
           BankAccountNo, CurrencyCode, WorkDate());
 
         // [WHEN] Run Adjust Exchange Rate.
-        ExchRateAdjPostingDate := WorkDate + 1;
+        ExchRateAdjPostingDate := WorkDate() + 1;
         RunExchangeRateAdjWithoutDimensions(CurrencyCode, ExchRateAdjPostingDate);
 
         // [THEN] Exchange Rate G/L Entries are created.
@@ -220,10 +219,10 @@ codeunit 144103 "ERM Currency Adjustment"
         Currency: Record Currency;
         ExchRateAmount: array[3] of Decimal;
     begin
-        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup);
-        Currency.Validate("Unrealized Losses Acc.", LibraryERM.CreateGLAccountNo);
-        Currency.Validate("Unrealized Gains Acc.", LibraryERM.CreateGLAccountNo);
-        Currency.Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo);
+        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
+        Currency.Validate("Unrealized Losses Acc.", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Unrealized Gains Acc.", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo());
         Currency.Modify(true);
 
         ExchRateAmount[1] := LibraryRandom.RandIntInRange(10, 100);
@@ -255,7 +254,7 @@ codeunit 144103 "ERM Currency Adjustment"
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name,
           DocType, AccountType, AccountNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
           LibraryRandom.RandIntInRange(100, 1000));
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Validate("Currency Code", CurrencyCode);
@@ -348,7 +347,7 @@ codeunit 144103 "ERM Currency Adjustment"
                 Assert.AreEqual(
                   DimensionValue."Dimension Value ID", DimensionSetEntry."Dimension Value ID",
                   StrSubstNo(IncorrectDimensionValueErr, TableCaption));
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -384,18 +383,18 @@ codeunit 144103 "ERM Currency Adjustment"
         CurrentSaveValuesId := REPORT::"Exch. Rate Adjustment";
         LibraryVariableStorage.Dequeue(CurrencyCode);
         LibraryVariableStorage.Dequeue(EndingPostingDate);
-        IgnoreDimensions := LibraryVariableStorage.DequeueBoolean;
+        IgnoreDimensions := LibraryVariableStorage.DequeueBoolean();
         ExchRateAdjustment.StartingDate.SetValue(WorkDate());
         ExchRateAdjustment.EndingDate.SetValue(EndingPostingDate);
         ExchRateAdjustment.PostingDateReq.SetValue(EndingPostingDate);
         ExchRateAdjustment.DocumentNo.SetValue(LibraryUtility.GenerateRandomText(5));
         ExchRateAdjustment.CurrencyFilter.SetFilter(Code, CurrencyCode);
         if not IgnoreDimensions then begin
-            ExchRateAdjustment.DimForPositive.AssistEdit;
-            ExchRateAdjustment.DimForNegative.AssistEdit;
+            ExchRateAdjustment.DimForPositive.AssistEdit();
+            ExchRateAdjustment.DimForNegative.AssistEdit();
         end;
         ExchRateAdjustment.PreviewPost.SetValue(false);
-        ExchRateAdjustment.OK.Invoke;
+        ExchRateAdjustment.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -405,16 +404,16 @@ codeunit 144103 "ERM Currency Adjustment"
         EndingDate: Variant;
     begin
         CurrentSaveValuesId := REPORT::"Exch. Rate Adjustment";
-        ExchRateAdjustment.CurrencyFilter.SetFilter(Code, LibraryVariableStorage.DequeueText);
-        ExchRateAdjustment.BankAccountFilter.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        ExchRateAdjustment.StartingDate.SetValue(LibraryVariableStorage.DequeueDate);
+        ExchRateAdjustment.CurrencyFilter.SetFilter(Code, LibraryVariableStorage.DequeueText());
+        ExchRateAdjustment.BankAccountFilter.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ExchRateAdjustment.StartingDate.SetValue(LibraryVariableStorage.DequeueDate());
         LibraryVariableStorage.Dequeue(EndingDate);
         ExchRateAdjustment.EndingDate.SetValue(EndingDate);
         ExchRateAdjustment.PostingDateReq.SetValue(EndingDate);
-        ExchRateAdjustment.DocumentNo.SetValue(LibraryVariableStorage.DequeueText);
+        ExchRateAdjustment.DocumentNo.SetValue(LibraryVariableStorage.DequeueText());
         ExchRateAdjustment.AdjBankAcc.SetValue(true);
         ExchRateAdjustment.PreviewPost.SetValue(false);
-        ExchRateAdjustment.OK.Invoke;
+        ExchRateAdjustment.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -427,9 +426,9 @@ codeunit 144103 "ERM Currency Adjustment"
         LibraryVariableStorage.Dequeue(DimensionCode);
         LibraryVariableStorage.Dequeue(DimensionValueCode);
         DimensionSelectChange.FILTER.SetFilter(Code, DimensionCode);
-        DimensionSelectChange.First;
+        DimensionSelectChange.First();
         DimensionSelectChange."New Dimension Value Code".SetValue(DimensionValueCode);
-        DimensionSelectChange.OK.Invoke;
+        DimensionSelectChange.OK().Invoke();
     end;
 
     [MessageHandler]

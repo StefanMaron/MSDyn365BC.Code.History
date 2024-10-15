@@ -2,6 +2,7 @@ table 17309 "Tax Calc. Selection Setup"
 {
     Caption = 'Tax Calc. Selection Setup';
     LookupPageID = "Tax Calc. Selection Setup";
+    DataClassification = CustomerContent;
 
     fields
     {

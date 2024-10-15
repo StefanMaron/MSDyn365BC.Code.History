@@ -154,205 +154,204 @@ codeunit 12423 "VAT Ledger Management"
         RevisionOfCorrDate := 0D;
         PrintRevision := false;
 
-        with CorrVATEntry do
-            case Type of
-                Type::Sale:
-                    case "Document Type" of
-                        "Document Type"::Invoice:
-                            begin
-                                SalesInvHeader.Get("Document No.");
-                                IsInvoice := SalesInvHeader."Original Doc. Type" = SalesInvHeader."Original Doc. Type"::Invoice;
-                                CorrDocMgt.GetSalesDocData(
-                                  DocumentNo, DocumentDate, IsInvoice, SalesInvHeader."Original Doc. No.");
-                                if SalesInvHeader."Corrective Doc. Type" =
-                                   SalesInvHeader."Corrective Doc. Type"::Correction
-                                then begin
-                                    CorrectionNo := SalesInvHeader."No.";
-                                    CorrectionDate := SalesInvHeader."Posting Date";
-                                end else begin
-                                    case SalesInvHeader."Corrected Doc. Type" of
-                                        SalesInvHeader."Corrected Doc. Type"::Invoice:
-                                            begin
-                                                PrintRevision := true;
-                                                CorrSalesInvHeader.Get(SalesInvHeader."Corrected Doc. No.");
-                                                if CorrSalesInvHeader."Corrective Doc. Type" <>
-                                                   CorrSalesInvHeader."Corrective Doc. Type"::Correction
-                                                then begin
-                                                    RevisionNo := SalesInvHeader."Revision No.";
-                                                    RevisionDate := SalesInvHeader."Posting Date";
-                                                end else begin
-                                                    RevisionOfCorrNo := SalesInvHeader."Revision No.";
-                                                    RevisionOfCorrDate := SalesInvHeader."Posting Date";
-                                                    CorrectionNo := CorrSalesInvHeader."No.";
-                                                    CorrectionDate := CorrSalesInvHeader."Posting Date";
-                                                end;
+        case CorrVATEntry.Type of
+            CorrVATEntry.Type::Sale:
+                case CorrVATEntry."Document Type" of
+                    CorrVATEntry."Document Type"::Invoice:
+                        begin
+                            SalesInvHeader.Get(CorrVATEntry."Document No.");
+                            IsInvoice := SalesInvHeader."Original Doc. Type" = SalesInvHeader."Original Doc. Type"::Invoice;
+                            CorrDocMgt.GetSalesDocData(
+                              DocumentNo, DocumentDate, IsInvoice, SalesInvHeader."Original Doc. No.");
+                            if SalesInvHeader."Corrective Doc. Type" =
+                               SalesInvHeader."Corrective Doc. Type"::Correction
+                            then begin
+                                CorrectionNo := SalesInvHeader."No.";
+                                CorrectionDate := SalesInvHeader."Posting Date";
+                            end else begin
+                                case SalesInvHeader."Corrected Doc. Type" of
+                                    SalesInvHeader."Corrected Doc. Type"::Invoice:
+                                        begin
+                                            PrintRevision := true;
+                                            CorrSalesInvHeader.Get(SalesInvHeader."Corrected Doc. No.");
+                                            if CorrSalesInvHeader."Corrective Doc. Type" <>
+                                               CorrSalesInvHeader."Corrective Doc. Type"::Correction
+                                            then begin
+                                                RevisionNo := SalesInvHeader."Revision No.";
+                                                RevisionDate := SalesInvHeader."Posting Date";
+                                            end else begin
+                                                RevisionOfCorrNo := SalesInvHeader."Revision No.";
+                                                RevisionOfCorrDate := SalesInvHeader."Posting Date";
+                                                CorrectionNo := CorrSalesInvHeader."No.";
+                                                CorrectionDate := CorrSalesInvHeader."Posting Date";
                                             end;
-                                        SalesInvHeader."Corrected Doc. Type"::"Credit Memo":
-                                            begin
-                                                PrintRevision := false;
-                                                CorrSalesCrMemoHeader.Get(SalesInvHeader."Corrected Doc. No.");
-                                                if CorrSalesCrMemoHeader."Corrective Doc. Type" <>
-                                                   CorrSalesCrMemoHeader."Corrective Doc. Type"::Correction
-                                                then begin
-                                                    RevisionNo := SalesInvHeader."Revision No.";
-                                                    RevisionDate := SalesInvHeader."Posting Date";
-                                                end else begin
-                                                    RevisionOfCorrNo := SalesInvHeader."Revision No.";
-                                                    RevisionOfCorrDate := SalesInvHeader."Posting Date";
-                                                    CorrectionNo := CorrSalesCrMemoHeader."No.";
-                                                    CorrectionDate := CorrSalesCrMemoHeader."Posting Date";
-                                                end;
+                                        end;
+                                    SalesInvHeader."Corrected Doc. Type"::"Credit Memo":
+                                        begin
+                                            PrintRevision := false;
+                                            CorrSalesCrMemoHeader.Get(SalesInvHeader."Corrected Doc. No.");
+                                            if CorrSalesCrMemoHeader."Corrective Doc. Type" <>
+                                               CorrSalesCrMemoHeader."Corrective Doc. Type"::Correction
+                                            then begin
+                                                RevisionNo := SalesInvHeader."Revision No.";
+                                                RevisionDate := SalesInvHeader."Posting Date";
+                                            end else begin
+                                                RevisionOfCorrNo := SalesInvHeader."Revision No.";
+                                                RevisionOfCorrDate := SalesInvHeader."Posting Date";
+                                                CorrectionNo := CorrSalesCrMemoHeader."No.";
+                                                CorrectionDate := CorrSalesCrMemoHeader."Posting Date";
                                             end;
-                                    end;
+                                        end;
                                 end;
                             end;
-                        "Document Type"::"Credit Memo":
-                            begin
-                                SalesCrMemoHeader.Get("Document No.");
-                                IsInvoice := SalesCrMemoHeader."Original Doc. Type" = SalesCrMemoHeader."Original Doc. Type"::Invoice;
-                                CorrDocMgt.GetSalesDocData(
-                                  DocumentNo, DocumentDate, IsInvoice, SalesCrMemoHeader."Original Doc. No.");
-                                if SalesCrMemoHeader."Corrective Doc. Type" =
-                                   SalesCrMemoHeader."Corrective Doc. Type"::Correction
-                                then begin
-                                    CorrectionNo := SalesCrMemoHeader."No.";
-                                    CorrectionDate := SalesCrMemoHeader."Posting Date";
-                                end else begin
-                                    case SalesCrMemoHeader."Corrected Doc. Type" of
-                                        SalesCrMemoHeader."Corrected Doc. Type"::Invoice:
-                                            begin
-                                                PrintRevision := false;
-                                                CorrSalesInvHeader.Get(SalesCrMemoHeader."Corrected Doc. No.");
-                                                if CorrSalesInvHeader."Corrective Doc. Type" <>
-                                                   CorrSalesInvHeader."Corrective Doc. Type"::Correction
-                                                then begin
-                                                    RevisionNo := SalesCrMemoHeader."Revision No.";
-                                                    RevisionDate := SalesCrMemoHeader."Posting Date";
-                                                end else begin
-                                                    RevisionOfCorrNo := SalesCrMemoHeader."Revision No.";
-                                                    RevisionOfCorrDate := SalesCrMemoHeader."Posting Date";
-                                                    CorrectionNo := CorrSalesInvHeader."No.";
-                                                    CorrectionDate := CorrSalesInvHeader."Posting Date";
-                                                end;
+                        end;
+                    CorrVATEntry."Document Type"::"Credit Memo":
+                        begin
+                            SalesCrMemoHeader.Get(CorrVATEntry."Document No.");
+                            IsInvoice := SalesCrMemoHeader."Original Doc. Type" = SalesCrMemoHeader."Original Doc. Type"::Invoice;
+                            CorrDocMgt.GetSalesDocData(
+                              DocumentNo, DocumentDate, IsInvoice, SalesCrMemoHeader."Original Doc. No.");
+                            if SalesCrMemoHeader."Corrective Doc. Type" =
+                               SalesCrMemoHeader."Corrective Doc. Type"::Correction
+                            then begin
+                                CorrectionNo := SalesCrMemoHeader."No.";
+                                CorrectionDate := SalesCrMemoHeader."Posting Date";
+                            end else begin
+                                case SalesCrMemoHeader."Corrected Doc. Type" of
+                                    SalesCrMemoHeader."Corrected Doc. Type"::Invoice:
+                                        begin
+                                            PrintRevision := false;
+                                            CorrSalesInvHeader.Get(SalesCrMemoHeader."Corrected Doc. No.");
+                                            if CorrSalesInvHeader."Corrective Doc. Type" <>
+                                               CorrSalesInvHeader."Corrective Doc. Type"::Correction
+                                            then begin
+                                                RevisionNo := SalesCrMemoHeader."Revision No.";
+                                                RevisionDate := SalesCrMemoHeader."Posting Date";
+                                            end else begin
+                                                RevisionOfCorrNo := SalesCrMemoHeader."Revision No.";
+                                                RevisionOfCorrDate := SalesCrMemoHeader."Posting Date";
+                                                CorrectionNo := CorrSalesInvHeader."No.";
+                                                CorrectionDate := CorrSalesInvHeader."Posting Date";
                                             end;
-                                        SalesCrMemoHeader."Corrected Doc. Type"::"Credit Memo":
-                                            begin
-                                                PrintRevision := true;
-                                                CorrSalesCrMemoHeader.Get(SalesCrMemoHeader."Corrected Doc. No.");
-                                                if CorrSalesCrMemoHeader."Corrective Doc. Type" <>
-                                                   CorrSalesCrMemoHeader."Corrective Doc. Type"::Correction
-                                                then begin
-                                                    RevisionNo := SalesCrMemoHeader."Revision No.";
-                                                    RevisionDate := SalesCrMemoHeader."Posting Date";
-                                                end else begin
-                                                    RevisionOfCorrNo := SalesCrMemoHeader."Revision No.";
-                                                    RevisionOfCorrDate := SalesCrMemoHeader."Posting Date";
-                                                    CorrectionNo := CorrSalesCrMemoHeader."No.";
-                                                    CorrectionDate := CorrSalesCrMemoHeader."Posting Date";
-                                                end;
+                                        end;
+                                    SalesCrMemoHeader."Corrected Doc. Type"::"Credit Memo":
+                                        begin
+                                            PrintRevision := true;
+                                            CorrSalesCrMemoHeader.Get(SalesCrMemoHeader."Corrected Doc. No.");
+                                            if CorrSalesCrMemoHeader."Corrective Doc. Type" <>
+                                               CorrSalesCrMemoHeader."Corrective Doc. Type"::Correction
+                                            then begin
+                                                RevisionNo := SalesCrMemoHeader."Revision No.";
+                                                RevisionDate := SalesCrMemoHeader."Posting Date";
+                                            end else begin
+                                                RevisionOfCorrNo := SalesCrMemoHeader."Revision No.";
+                                                RevisionOfCorrDate := SalesCrMemoHeader."Posting Date";
+                                                CorrectionNo := CorrSalesCrMemoHeader."No.";
+                                                CorrectionDate := CorrSalesCrMemoHeader."Posting Date";
                                             end;
-                                    end;
+                                        end;
                                 end;
                             end;
-                    end;
-                Type::Purchase:
-                    case "Document Type" of
-                        "Document Type"::Invoice:
-                            begin
-                                PurchInvHeader.Get("Document No.");
-                                IsInvoice := PurchInvHeader."Original Doc. Type" = PurchInvHeader."Original Doc. Type"::Invoice;
-                                CorrDocMgt.GetPurchDocData(
-                                  DocumentNo, DocumentDate, IsInvoice, PurchInvHeader."Original Doc. No.");
-                                if PurchInvHeader."Corrective Doc. Type" =
-                                   PurchInvHeader."Corrective Doc. Type"::Correction
-                                then
-                                    CorrDocMgt.GetPurchDocData(CorrectionNo, CorrectionDate, true, "Document No.")
-                                else begin
-                                    case PurchInvHeader."Corrected Doc. Type" of
-                                        PurchInvHeader."Corrected Doc. Type"::Invoice:
-                                            begin
-                                                PrintRevision := true;
-                                                CorrPurchInvHeader.Get(PurchInvHeader."Corrected Doc. No.");
-                                                if CorrPurchInvHeader."Corrective Doc. Type" <>
-                                                   CorrPurchInvHeader."Corrective Doc. Type"::Correction
-                                                then begin
-                                                    RevisionNo := PurchInvHeader."Revision No.";
-                                                    RevisionDate := PurchInvHeader."Posting Date";
-                                                end else begin
-                                                    RevisionOfCorrNo := PurchInvHeader."Revision No.";
-                                                    RevisionOfCorrDate := PurchInvHeader."Posting Date";
-                                                    CorrDocMgt.GetPurchDocData(
-                                                      CorrectionNo, CorrectionDate, true, PurchInvHeader."Corrected Doc. No.");
-                                                end;
+                        end;
+                end;
+            CorrVATEntry.Type::Purchase:
+                case CorrVATEntry."Document Type" of
+                    CorrVATEntry."Document Type"::Invoice:
+                        begin
+                            PurchInvHeader.Get(CorrVATEntry."Document No.");
+                            IsInvoice := PurchInvHeader."Original Doc. Type" = PurchInvHeader."Original Doc. Type"::Invoice;
+                            CorrDocMgt.GetPurchDocData(
+                              DocumentNo, DocumentDate, IsInvoice, PurchInvHeader."Original Doc. No.");
+                            if PurchInvHeader."Corrective Doc. Type" =
+                               PurchInvHeader."Corrective Doc. Type"::Correction
+                            then
+                                CorrDocMgt.GetPurchDocData(CorrectionNo, CorrectionDate, true, CorrVATEntry."Document No.")
+                            else begin
+                                case PurchInvHeader."Corrected Doc. Type" of
+                                    PurchInvHeader."Corrected Doc. Type"::Invoice:
+                                        begin
+                                            PrintRevision := true;
+                                            CorrPurchInvHeader.Get(PurchInvHeader."Corrected Doc. No.");
+                                            if CorrPurchInvHeader."Corrective Doc. Type" <>
+                                               CorrPurchInvHeader."Corrective Doc. Type"::Correction
+                                            then begin
+                                                RevisionNo := PurchInvHeader."Revision No.";
+                                                RevisionDate := PurchInvHeader."Posting Date";
+                                            end else begin
+                                                RevisionOfCorrNo := PurchInvHeader."Revision No.";
+                                                RevisionOfCorrDate := PurchInvHeader."Posting Date";
+                                                CorrDocMgt.GetPurchDocData(
+                                                  CorrectionNo, CorrectionDate, true, PurchInvHeader."Corrected Doc. No.");
                                             end;
-                                        PurchInvHeader."Corrected Doc. Type"::"Credit Memo":
-                                            begin
-                                                PrintRevision := false;
-                                                CorrPurchCrMemoHeader.Get(PurchInvHeader."Corrected Doc. No.");
-                                                if CorrPurchCrMemoHeader."Corrective Doc. Type" <>
-                                                   CorrPurchCrMemoHeader."Corrective Doc. Type"::Correction
-                                                then begin
-                                                    RevisionNo := PurchInvHeader."Revision No.";
-                                                    RevisionDate := PurchInvHeader."Posting Date";
-                                                end else begin
-                                                    RevisionOfCorrNo := PurchInvHeader."Revision No.";
-                                                    RevisionOfCorrDate := PurchInvHeader."Posting Date";
-                                                    CorrDocMgt.GetPurchDocData(
-                                                      CorrectionNo, CorrectionDate, false, PurchInvHeader."Corrected Doc. No.");
-                                                end;
+                                        end;
+                                    PurchInvHeader."Corrected Doc. Type"::"Credit Memo":
+                                        begin
+                                            PrintRevision := false;
+                                            CorrPurchCrMemoHeader.Get(PurchInvHeader."Corrected Doc. No.");
+                                            if CorrPurchCrMemoHeader."Corrective Doc. Type" <>
+                                               CorrPurchCrMemoHeader."Corrective Doc. Type"::Correction
+                                            then begin
+                                                RevisionNo := PurchInvHeader."Revision No.";
+                                                RevisionDate := PurchInvHeader."Posting Date";
+                                            end else begin
+                                                RevisionOfCorrNo := PurchInvHeader."Revision No.";
+                                                RevisionOfCorrDate := PurchInvHeader."Posting Date";
+                                                CorrDocMgt.GetPurchDocData(
+                                                  CorrectionNo, CorrectionDate, false, PurchInvHeader."Corrected Doc. No.");
                                             end;
-                                    end;
+                                        end;
                                 end;
                             end;
-                        "Document Type"::"Credit Memo":
-                            begin
-                                PurchCrMemoHeader.Get("Document No.");
-                                IsInvoice := PurchCrMemoHeader."Original Doc. Type" = PurchCrMemoHeader."Original Doc. Type"::Invoice;
-                                CorrDocMgt.GetPurchDocData(
-                                  DocumentNo, DocumentDate, IsInvoice, PurchCrMemoHeader."Original Doc. No.");
-                                if PurchCrMemoHeader."Corrective Doc. Type" =
-                                   PurchCrMemoHeader."Corrective Doc. Type"::Correction
-                                then
-                                    CorrDocMgt.GetPurchDocData(CorrectionNo, CorrectionDate, false, "Document No.")
-                                else begin
-                                    case PurchCrMemoHeader."Corrected Doc. Type" of
-                                        PurchCrMemoHeader."Corrected Doc. Type"::Invoice:
-                                            begin
-                                                PrintRevision := false;
-                                                CorrPurchInvHeader.Get(PurchCrMemoHeader."Corrected Doc. No.");
-                                                if CorrPurchInvHeader."Corrective Doc. Type" <>
-                                                   CorrPurchInvHeader."Corrective Doc. Type"::Correction
-                                                then begin
-                                                    RevisionNo := PurchCrMemoHeader."Revision No.";
-                                                    RevisionDate := PurchCrMemoHeader."Posting Date";
-                                                end else begin
-                                                    RevisionOfCorrNo := PurchCrMemoHeader."Revision No.";
-                                                    RevisionOfCorrDate := PurchCrMemoHeader."Posting Date";
-                                                    CorrDocMgt.GetPurchDocData(
-                                                      CorrectionNo, CorrectionDate, true, PurchCrMemoHeader."Corrected Doc. No.");
-                                                end;
+                        end;
+                    CorrVATEntry."Document Type"::"Credit Memo":
+                        begin
+                            PurchCrMemoHeader.Get(CorrVATEntry."Document No.");
+                            IsInvoice := PurchCrMemoHeader."Original Doc. Type" = PurchCrMemoHeader."Original Doc. Type"::Invoice;
+                            CorrDocMgt.GetPurchDocData(
+                              DocumentNo, DocumentDate, IsInvoice, PurchCrMemoHeader."Original Doc. No.");
+                            if PurchCrMemoHeader."Corrective Doc. Type" =
+                               PurchCrMemoHeader."Corrective Doc. Type"::Correction
+                            then
+                                CorrDocMgt.GetPurchDocData(CorrectionNo, CorrectionDate, false, CorrVATEntry."Document No.")
+                            else begin
+                                case PurchCrMemoHeader."Corrected Doc. Type" of
+                                    PurchCrMemoHeader."Corrected Doc. Type"::Invoice:
+                                        begin
+                                            PrintRevision := false;
+                                            CorrPurchInvHeader.Get(PurchCrMemoHeader."Corrected Doc. No.");
+                                            if CorrPurchInvHeader."Corrective Doc. Type" <>
+                                               CorrPurchInvHeader."Corrective Doc. Type"::Correction
+                                            then begin
+                                                RevisionNo := PurchCrMemoHeader."Revision No.";
+                                                RevisionDate := PurchCrMemoHeader."Posting Date";
+                                            end else begin
+                                                RevisionOfCorrNo := PurchCrMemoHeader."Revision No.";
+                                                RevisionOfCorrDate := PurchCrMemoHeader."Posting Date";
+                                                CorrDocMgt.GetPurchDocData(
+                                                  CorrectionNo, CorrectionDate, true, PurchCrMemoHeader."Corrected Doc. No.");
                                             end;
-                                        PurchCrMemoHeader."Corrected Doc. Type"::"Credit Memo":
-                                            begin
-                                                PrintRevision := true;
-                                                CorrPurchCrMemoHeader.Get(PurchCrMemoHeader."Corrected Doc. No.");
-                                                if CorrPurchCrMemoHeader."Corrective Doc. Type" <>
-                                                   CorrPurchCrMemoHeader."Corrective Doc. Type"::Correction
-                                                then begin
-                                                    RevisionNo := PurchCrMemoHeader."Revision No.";
-                                                    RevisionDate := PurchCrMemoHeader."Posting Date";
-                                                end else begin
-                                                    RevisionOfCorrNo := PurchCrMemoHeader."Revision No.";
-                                                    RevisionOfCorrDate := PurchCrMemoHeader."Posting Date";
-                                                    CorrDocMgt.GetPurchDocData(
-                                                      CorrectionNo, CorrectionDate, false, PurchCrMemoHeader."Corrected Doc. No.");
-                                                end;
+                                        end;
+                                    PurchCrMemoHeader."Corrected Doc. Type"::"Credit Memo":
+                                        begin
+                                            PrintRevision := true;
+                                            CorrPurchCrMemoHeader.Get(PurchCrMemoHeader."Corrected Doc. No.");
+                                            if CorrPurchCrMemoHeader."Corrective Doc. Type" <>
+                                               CorrPurchCrMemoHeader."Corrective Doc. Type"::Correction
+                                            then begin
+                                                RevisionNo := PurchCrMemoHeader."Revision No.";
+                                                RevisionDate := PurchCrMemoHeader."Posting Date";
+                                            end else begin
+                                                RevisionOfCorrNo := PurchCrMemoHeader."Revision No.";
+                                                RevisionOfCorrDate := PurchCrMemoHeader."Posting Date";
+                                                CorrDocMgt.GetPurchDocData(
+                                                  CorrectionNo, CorrectionDate, false, PurchCrMemoHeader."Corrected Doc. No.");
                                             end;
-                                    end;
+                                        end;
                                 end;
                             end;
-                    end;
-            end;
+                        end;
+                end;
+        end;
     end;
 
     [Scope('OnPrem')]
@@ -395,14 +394,12 @@ codeunit 12423 "VAT Ledger Management"
     var
         VATLedgerLineCDNo: Record "VAT Ledger Line CD No.";
     begin
-        with VATLedgerLineCDNo do begin
-            Init();
-            Type := VATLedgerLine.Type;
-            Code := VATLedgerLine.Code;
-            "Line No." := VATLedgerLine."Line No.";
-            "CD No." := CDNo;
-            if Insert() then;
-        end;
+        VATLedgerLineCDNo.Init();
+        VATLedgerLineCDNo.Type := VATLedgerLine.Type;
+        VATLedgerLineCDNo.Code := VATLedgerLine.Code;
+        VATLedgerLineCDNo."Line No." := VATLedgerLine."Line No.";
+        VATLedgerLineCDNo."CD No." := CDNo;
+        if VATLedgerLineCDNo.Insert() then;
     end;
 
     [Scope('OnPrem')]
@@ -451,14 +448,12 @@ codeunit 12423 "VAT Ledger Management"
     var
         VATLedgerLineTariffNo: Record "VAT Ledger Line Tariff No.";
     begin
-        with VATLedgerLineTariffNo do begin
-            Init();
-            Type := VATLedgerLine.Type;
-            Code := VATLedgerLine.Code;
-            "Line No." := VATLedgerLine."Line No.";
-            "Tariff No." := TariffNo;
-            if Insert() then;
-        end;
+        VATLedgerLineTariffNo.Init();
+        VATLedgerLineTariffNo.Type := VATLedgerLine.Type;
+        VATLedgerLineTariffNo.Code := VATLedgerLine.Code;
+        VATLedgerLineTariffNo."Line No." := VATLedgerLine."Line No.";
+        VATLedgerLineTariffNo."Tariff No." := TariffNo;
+        if VATLedgerLineTariffNo.Insert() then;
     end;
 
     [Scope('OnPrem')]

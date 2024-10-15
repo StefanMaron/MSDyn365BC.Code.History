@@ -514,7 +514,6 @@ report 12446 "Vendor Entries Analysis"
         PaymentDate: Date;
         NewPageForCustomer: Boolean;
         FirstPage: Boolean;
-        FirstHeader: Boolean;
         ReportCurrency: Option LCY,"Entry Currency";
         PageCounter: Integer;
         Vendor_Entries_AnalysisCaptionLbl: Label 'Vendor Entries Analysis';

@@ -1,4 +1,4 @@
-page 35623 "_Scalable Table Data Subform"
+﻿page 35623 "_Scalable Table Data Subform"
 {
     Caption = '_Scalable Table Data Subform';
     PageType = Worksheet;

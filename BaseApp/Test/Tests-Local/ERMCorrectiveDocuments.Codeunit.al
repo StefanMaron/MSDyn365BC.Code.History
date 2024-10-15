@@ -302,7 +302,7 @@ codeunit 144017 "ERM Corrective Documents"
 
         // [GIVEN] Item had Unit of Measure (Base) = PCS, Sales Unit of Measure = BOX, BOX = 2 PCS
         LibraryInventory.CreateItemUnitOfMeasureCode(
-          ItemUnitOfMeasure, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(2, 10));
+          ItemUnitOfMeasure, LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(2, 10));
 
         // [GIVEN] Posted Sales Invoice with Qty = 3, Unit of Measure = BOX
         CreateSalesInvoiceWithQtyAndUoM(SalesHeader, QtyBase, ItemUnitOfMeasure."Item No.", ItemUnitOfMeasure.Code, QtyUoM);
@@ -337,7 +337,7 @@ codeunit 144017 "ERM Corrective Documents"
 
         // [GIVEN] Item had Unit of Measure (Base) = PCS, Sales Unit of Measure = BOX, BOX = 2 PCS
         LibraryInventory.CreateItemUnitOfMeasureCode(
-          ItemUnitOfMeasure, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(2, 10));
+          ItemUnitOfMeasure, LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(2, 10));
 
         // [GIVEN] Posted Sales Invoice with Qty = 3, Unit of Measure = BOX
         CreateSalesInvoiceWithQtyAndUoM(SalesHeader, QtyBase, ItemUnitOfMeasure."Item No.", ItemUnitOfMeasure.Code, QtyUoM);
@@ -376,7 +376,7 @@ codeunit 144017 "ERM Corrective Documents"
 
         // [GIVEN] Item had Unit of Measure (Base) = PCS, Sales Unit of Measure = BOX, BOX = 2 PCS
         LibraryInventory.CreateItemUnitOfMeasureCode(
-          ItemUnitOfMeasure, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(2, 10));
+          ItemUnitOfMeasure, LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(2, 10));
 
         // [GIVEN] Posted Sales Invoice with Qty = 3, Unit of Measure = BOX
         CreateSalesInvoiceWithQtyAndUoM(
@@ -426,7 +426,7 @@ codeunit 144017 "ERM Corrective Documents"
 
         // [GIVEN] Item had Unit of Measure (Base) = PCS, Sales Unit of Measure = BOX, BOX = 2 PCS
         LibraryInventory.CreateItemUnitOfMeasureCode(
-          ItemUnitOfMeasure, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(2, 10));
+          ItemUnitOfMeasure, LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(2, 10));
 
         // [GIVEN] Posted Sales Invoice with Qty = 3, Unit of Measure = BOX
         CreateSalesInvoiceWithQtyAndUoM(SalesHeader, QtyBase, ItemUnitOfMeasure."Item No.", ItemUnitOfMeasure.Code, InitialQtyUoM);
@@ -478,7 +478,7 @@ codeunit 144017 "ERM Corrective Documents"
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, QtyUoM);
         SalesLine.Validate("Unit of Measure Code", UoMCode);
         SalesLine.Modify(true);
@@ -575,7 +575,7 @@ codeunit 144017 "ERM Corrective Documents"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, DocumentType,
-          LibrarySales.CreateCustomerNo, '', LibraryRandom.RandInt(10), '', WorkDate());
+          LibrarySales.CreateCustomerNo(), '', LibraryRandom.RandInt(10), '', WorkDate());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, SalesLine."No.", LibraryRandom.RandInt(10));
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, false));
     end;
@@ -587,7 +587,7 @@ codeunit 144017 "ERM Corrective Documents"
     begin
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, LibraryRandom.RandDec(1000, 2), LibraryRandom.RandDec(1000, 2));
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, DocumentType,
-          LibrarySales.CreateCustomerNo, Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
+          LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
         UpdateSalesCorrDocChargeForItem(SalesLine."No.");
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, SalesLine."No.", LibraryRandom.RandInt(10));
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, false));

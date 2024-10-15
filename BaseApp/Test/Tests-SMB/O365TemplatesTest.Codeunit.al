@@ -13,7 +13,6 @@ codeunit 138012 "O365 Templates Test"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
-        LibraryService: Codeunit "Library - Service";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
@@ -26,7 +25,6 @@ codeunit 138012 "O365 Templates Test"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryMarketing: Codeunit "Library - Marketing";
-        LibraryRapidStart: Codeunit "Library - Rapid Start";
         LibraryTemplates: Codeunit "Library - Templates";
         isInitialized: Boolean;
         NewActionTok: Label 'New';
@@ -34,14 +32,8 @@ codeunit 138012 "O365 Templates Test"
         EditActionTok: Label 'Edit';
         NoActionTok: Label 'NoAction';
         OKActionTok: Label 'OK';
-        CouldNotFindDimensionWithCodeErr: Label 'Could not find Dimension Template Header with code %1.';
         GlobalTemplateName: Text[50];
-        TemplateSelectionAction: Option SelectTemplate,VerifyDefaultSelection;
-        WrongTemplatesCountErr: Label 'Wrong no. of configuration templates in the list';
-        UnexpectedTemplateInListErr: Label 'Configuration template %1 should not be displayed in the list.';
         TemplateMustBeEnabledErr: Label 'New configuration template must be enabled';
-        RelationErr: Label 'A template cannot relate to itself. Specify a different template.';
-        DuplicateRelationErr: Label 'The template %1 is already in this hierarchy.';
         StartingNumberTxt: Label 'ABC00010D';
         EndingNumberTxt: Label 'ABC00090D';
         InsertedItemErr: Label 'Item inserted with wrong data';
@@ -560,7 +552,7 @@ codeunit 138012 "O365 Templates Test"
         CustomerCard.OpenNew();
 
         CustomerCard.Name.SetValue('Test');
-        CustomerNo := CustomerCard."No.".Value;
+        CustomerNo := CustomerCard."No.".Value();
         CustomerCard.Close();
 
         // [THEN] Fields in new customer matches template's fields, no dimensions assigned
@@ -596,7 +588,7 @@ codeunit 138012 "O365 Templates Test"
         VendorCard.OpenNew();
         VendorCard.Name.SetValue('Test');
 
-        VendorNo := VendorCard."No.".Value;
+        VendorNo := VendorCard."No.".Value();
         VendorCard.Close();
 
         // [THEN] Fields in new vendor matches template's fields, no dimensions assigned
@@ -631,7 +623,7 @@ codeunit 138012 "O365 Templates Test"
         // [WHEN] Create new Item from the template
         ItemCard.OpenNew();
         ItemCard.Description.SetValue('Test');
-        ItemNo := ItemCard."No.".Value;
+        ItemNo := ItemCard."No.".Value();
         ItemCard.Close();
 
         // [THEN] Fields in new item matches template's fields, no dimensions assigned
@@ -662,7 +654,7 @@ codeunit 138012 "O365 Templates Test"
 
         CustomerCard.OpenNew();
         CustomerCard.Name.SetValue('Test');
-        CustomerNo := CustomerCard."No.".Value;
+        CustomerNo := CustomerCard."No.".Value();
         CustomerCard.Close();
 
         CustomerFromTemplate.Get(CustomerNo);
@@ -695,7 +687,7 @@ codeunit 138012 "O365 Templates Test"
         VendorCard.OpenNew();
 
         VendorCard.Name.SetValue('Test');
-        VendorNo := VendorCard."No.".Value;
+        VendorNo := VendorCard."No.".Value();
         VendorCard.Close();
 
         VendorFromTemplate.Get(VendorNo);
@@ -728,7 +720,7 @@ codeunit 138012 "O365 Templates Test"
         ItemCard.OpenNew();
         ItemCard.Description.SetValue('Test');
 
-        ItemNo := ItemCard."No.".Value;
+        ItemNo := ItemCard."No.".Value();
         ItemCard.Close();
 
         ItemFromTemplate.Get(ItemNo);
@@ -750,7 +742,7 @@ codeunit 138012 "O365 Templates Test"
         Initialize();
 
         // [GIVEN] Customer Template
-        UpdateMarketingSetup;
+        UpdateMarketingSetup();
         LibraryTemplates.CreateCustomerTemplate(CustomerTempl);
         LibraryVariableStorage.Enqueue(CustomerTempl.Code);
         ContactsCount := Contact.Count();
@@ -758,7 +750,7 @@ codeunit 138012 "O365 Templates Test"
         // [WHEN] Create Customer from Template
         CustomerCard.OpenNew();
         CustomerCard.Name.SetValue('Test');
-        CustomerNo := CustomerCard."No.".Value;
+        CustomerNo := CustomerCard."No.".Value();
         CustomerCard.Close();
 
         // [THEN] One Contact created for Customer
@@ -780,7 +772,7 @@ codeunit 138012 "O365 Templates Test"
         Initialize();
 
         // [GIVEN] Vendor Template
-        UpdateMarketingSetup;
+        UpdateMarketingSetup();
         LibraryTemplates.CreateVendorTemplate(VendorTempl);
         LibraryVariableStorage.Enqueue(VendorTempl.Code);
         ContactsCount := Contact.Count();
@@ -788,7 +780,7 @@ codeunit 138012 "O365 Templates Test"
         // [WHEN] Create Vendor from Template
         VendorCard.OpenNew();
         VendorCard.Name.SetValue('Test');
-        VendorNo := VendorCard."No.".Value;
+        VendorNo := VendorCard."No.".Value();
         VendorCard.Close();
 
         // [THEN] One Contact created for Vendor
@@ -817,7 +809,7 @@ codeunit 138012 "O365 Templates Test"
 
         CustomerCard.OpenNew();
         CustomerCard.Name.SetValue('Test');
-        CustomerNo := CustomerCard."No.".Value;
+        CustomerNo := CustomerCard."No.".Value();
         CustomerCard.Close();
 
         CustomerFromTemplate.Get(CustomerNo);
@@ -846,7 +838,7 @@ codeunit 138012 "O365 Templates Test"
 
         VendorCard.OpenNew();
         VendorCard.Name.SetValue('Test');
-        VendorNo := VendorCard."No.".Value;
+        VendorNo := VendorCard."No.".Value();
         VendorCard.Close();
 
         VendorFromTemplate.Get(VendorNo);
@@ -870,14 +862,14 @@ codeunit 138012 "O365 Templates Test"
         CreateItemWithDimensions(Item);
         CreateTemplateFromItem(Item, ItemConfigTemplateHeaderCode);
 
-        ItemCard.Trap;
+        ItemCard.Trap();
 
         LibraryVariableStorage.Enqueue(NoActionTok);
         LibraryVariableStorage.Enqueue(OKActionTok);
 
         ItemCard.OpenNew();
         ItemCard.Description.SetValue('Test');
-        ItemNo := ItemCard."No.".Value;
+        ItemNo := ItemCard."No.".Value();
         ItemCard.Close();
 
         ItemFromTemplate.Get(ItemNo);
@@ -893,10 +885,10 @@ codeunit 138012 "O365 Templates Test"
     begin
         Initialize();
 
-        ConfigTemplates.OpenView;
-        ConfigTemplateHeaderPage.Trap;
-        ConfigTemplates.NewConfigTemplate.Invoke;
-        Assert.IsTrue(ConfigTemplateHeaderPage.Code.Editable, 'Template page opened in read-only mode.');
+        ConfigTemplates.OpenView();
+        ConfigTemplateHeaderPage.Trap();
+        ConfigTemplates.NewConfigTemplate.Invoke();
+        Assert.IsTrue(ConfigTemplateHeaderPage.Code.Editable(), 'Template page opened in read-only mode.');
         Assert.AreEqual('', ConfigTemplateHeaderPage.Code.Value, 'Template not opened in new mode.');
         ConfigTemplateHeaderPage.Close();
         ConfigTemplates.Close();
@@ -933,47 +925,47 @@ codeunit 138012 "O365 Templates Test"
         // [WHEN] Assigning a non-existing "Base Unit of Measure"
         asserterror ItemTemplate.Validate("Base Unit of Measure", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Inventory Posting Group"
         asserterror ItemTemplate.Validate("Inventory Posting Group", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Item Disc. Group"
         asserterror ItemTemplate.Validate("Item Disc. Group", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Gen. Prod. Posting Group"
         asserterror ItemTemplate.Validate("Gen. Prod. Posting Group", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Tax Group Code"
         asserterror ItemTemplate.Validate("Tax Group Code", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "VAT Prod. Posting Group"
         asserterror ItemTemplate.Validate("VAT Prod. Posting Group", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Item Category Code"
         asserterror ItemTemplate.Validate("Item Category Code", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Service Item Group"
         asserterror ItemTemplate.Validate("Service Item Group", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Warehouse Class Code"
         asserterror ItemTemplate.Validate("Warehouse Class Code", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
     end;
 
     [Test]
@@ -990,62 +982,62 @@ codeunit 138012 "O365 Templates Test"
         // [WHEN] Assigning a non-existing "Customer Posting Group"
         asserterror CustomerTempl.Validate("Customer Posting Group", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown.
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Currency Code"
         asserterror CustomerTempl.Validate("Currency Code", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown.
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Customer Price Group"
         asserterror CustomerTempl.Validate("Customer Price Group", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown.
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Language Code"
         asserterror CustomerTempl.Validate("Language Code", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown.
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Payment Terms Code"
         asserterror CustomerTempl.Validate("Payment Terms Code", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown.
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Fin. Charge Terms Code"
         asserterror CustomerTempl.Validate("Fin. Charge Terms Code", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown.
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Customer Disc. Group"
         asserterror CustomerTempl.Validate("Customer Disc. Group", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown.
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Country/Region Code"
         asserterror CustomerTempl.Validate("Country/Region Code", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown.
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Payment Method Code"
         asserterror CustomerTempl.Validate("Payment Method Code", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown.
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Gen. Bus. Posting Group"
         asserterror CustomerTempl.Validate("Gen. Bus. Posting Group", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown.
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Reminder Terms Code"
         asserterror CustomerTempl.Validate("Reminder Terms Code", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown.
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "VAT Bus. Posting Group"
         asserterror CustomerTempl.Validate("VAT Bus. Posting Group", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown.
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
     end;
 
     [Test]
@@ -1062,52 +1054,52 @@ codeunit 138012 "O365 Templates Test"
         // [WHEN] Assigning a non-existing "Vendor Posting Group"
         asserterror VendorTempl.Validate("Vendor Posting Group", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown.
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Currency Code"
         asserterror VendorTempl.Validate("Currency Code", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown.
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Language Code"
         asserterror VendorTempl.Validate("Language Code", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown.
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Payment Terms Code"
         asserterror VendorTempl.Validate("Payment Terms Code", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown.
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Fin. Charge Terms Code"
         asserterror VendorTempl.Validate("Fin. Charge Terms Code", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown.
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Invoice Disc. Code"
         asserterror VendorTempl.Validate("Invoice Disc. Code", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown.
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Country/Region Code"
         asserterror VendorTempl.Validate("Country/Region Code", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown.
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Payment Method Code"
         asserterror VendorTempl.Validate("Payment Method Code", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown.
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "Gen. Bus. Posting Group"
         asserterror VendorTempl.Validate("Gen. Bus. Posting Group", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown.
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
 
         // [WHEN] Assigning a non-existing "VAT Bus. Posting Group"
         asserterror VendorTempl.Validate("VAT Bus. Posting Group", LibraryUtility.GenerateGUID());
         // [THEN] An error is thrown.
-        Assert.AssertPrimRecordNotFound;
+        Assert.AssertPrimRecordNotFound();
     end;
 
     [Test]
@@ -1206,7 +1198,7 @@ codeunit 138012 "O365 Templates Test"
         // [GIVEN] Configuration Template for blank Item with No. Series = "S" and next No. = "N"
         CreateBlankItem(Item);
         CreateTemplateFromItem(Item, ConfigTemplHeaderCode);
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
         ItemTempl.Get(ConfigTemplHeaderCode);
         ItemTempl."No. Series" := NoSeriesCode;
         ItemTempl.Modify(true);
@@ -1214,7 +1206,7 @@ codeunit 138012 "O365 Templates Test"
 
         // [WHEN] Create new Item
         ItemCard.OpenNew();
-        ItemNo := ItemCard."No.".Value;
+        ItemNo := ItemCard."No.".Value();
         ItemCard.Close();
 
         // [THEN] Item is created with No. = "N" and "No. Series" = "S"
@@ -1241,7 +1233,7 @@ codeunit 138012 "O365 Templates Test"
         // [GIVEN] Configuration Template for blank Customer with No. Series = "S" and next No. = "N"
         CreateBlankCustomer(Customer);
         CreateTemplateFromCustomer(Customer, ConfigTemplHeaderCode);
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
         CustomerTempl.Get(ConfigTemplHeaderCode);
         CustomerTempl."No. Series" := NoSeriesCode;
         CustomerTempl.Modify(true);
@@ -1249,7 +1241,7 @@ codeunit 138012 "O365 Templates Test"
 
         // [WHEN] Create new Customer
         CustomerCard.OpenNew();
-        CustomerNo := CustomerCard."No.".Value;
+        CustomerNo := CustomerCard."No.".Value();
         CustomerCard.Close();
 
         // [THEN] Customer is created with No. = "N" and "No. Series" = "S"
@@ -1276,7 +1268,7 @@ codeunit 138012 "O365 Templates Test"
         // [GIVEN] Configuration Template for blank Vendor with No. Series = "S" and next No. = "N"
         CreateBlankVendor(Vendor);
         CreateTemplateFromVendor(Vendor, ConfigTemplHeaderCode);
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
         VendorTempl.Get(ConfigTemplHeaderCode);
         VendorTempl."No. Series" := NoSeriesCode;
         VendorTempl.Modify(true);
@@ -1284,7 +1276,7 @@ codeunit 138012 "O365 Templates Test"
 
         // [WHEN] Create new Vendor
         VendorCard.OpenNew();
-        VendorNo := VendorCard."No.".Value;
+        VendorNo := VendorCard."No.".Value();
         VendorCard.Close();
 
         // [THEN] Vendor is created with No. = "N" and "No. Series" = "S"
@@ -1315,12 +1307,12 @@ codeunit 138012 "O365 Templates Test"
         // [WHEN] Lookup for City field is being invoked and Post Code record with "PC", "CITY" picked
         LibraryVariableStorage.Enqueue(PostCode.Code);
         LibraryVariableStorage.Enqueue(PostCode.City);
-        CustTemplateCard.City.Lookup;
+        CustTemplateCard.City.Lookup();
 
         // [THEN] Customer template Post Code = "PC", Country/Region Code = "CRC"
         CustTemplateCard."Post Code".AssertEquals(PostCode.Code);
         CustTemplateCard."Country/Region Code".AssertEquals(PostCode."Country/Region Code");
-        CustTemplateCard.OK.Invoke;
+        CustTemplateCard.OK().Invoke();
     end;
 
     [Test]
@@ -1347,12 +1339,12 @@ codeunit 138012 "O365 Templates Test"
         // [WHEN] Lookup for Post Code field is being invoked and Post Code record with "PC", "CITY" picked
         LibraryVariableStorage.Enqueue(PostCode.Code);
         LibraryVariableStorage.Enqueue(PostCode.City);
-        CustTemplateCard."Post Code".Lookup;
+        CustTemplateCard."Post Code".Lookup();
 
         // [THEN] Customer template City = "CITY", Country/Region Code = "CRC"
         CustTemplateCard.City.AssertEquals(PostCode.City);
         CustTemplateCard."Country/Region Code".AssertEquals(PostCode."Country/Region Code");
-        CustTemplateCard.OK.Invoke;
+        CustTemplateCard.OK().Invoke();
     end;
 
     [Test]
@@ -1379,7 +1371,7 @@ codeunit 138012 "O365 Templates Test"
         // [GIVEN] Lookup for Post Code field is being invoked and Post Code record with "PC", "CITY" picked
         LibraryVariableStorage.Enqueue(PostCode.Code);
         LibraryVariableStorage.Enqueue(PostCode.City);
-        CustTemplateCard."Post Code".Lookup;
+        CustTemplateCard."Post Code".Lookup();
 
         // [WHEN] Country/Region Code is being cleared
         CustTemplateCard."Country/Region Code".SetValue('');
@@ -1387,7 +1379,7 @@ codeunit 138012 "O365 Templates Test"
         // [THEN] Customer template City = '', Post Code = ''
         CustTemplateCard.City.AssertEquals('');
         CustTemplateCard."Post Code".AssertEquals('');
-        CustTemplateCard.OK.Invoke;
+        CustTemplateCard.OK().Invoke();
     end;
 
     [Test]
@@ -1414,12 +1406,12 @@ codeunit 138012 "O365 Templates Test"
         // [WHEN] Lookup for City field is being invoked and Post Code record with "PC", "CITY" picked
         LibraryVariableStorage.Enqueue(PostCode.Code);
         LibraryVariableStorage.Enqueue(PostCode.City);
-        VendorTemplateCard.City.Lookup;
+        VendorTemplateCard.City.Lookup();
 
         // [THEN] Vendor Template Post Code = "PC", Country/Region Code = "CRC"
         VendorTemplateCard."Post Code".AssertEquals(PostCode.Code);
         VendorTemplateCard."Country/Region Code".AssertEquals(PostCode."Country/Region Code");
-        VendorTemplateCard.OK.Invoke;
+        VendorTemplateCard.OK().Invoke();
     end;
 
     [Test]
@@ -1446,12 +1438,12 @@ codeunit 138012 "O365 Templates Test"
         // [WHEN] Lookup for Post Code field is being invoked and Post Code record with "PC", "CITY" picked
         LibraryVariableStorage.Enqueue(PostCode.Code);
         LibraryVariableStorage.Enqueue(PostCode.City);
-        VendorTemplateCard."Post Code".Lookup;
+        VendorTemplateCard."Post Code".Lookup();
 
         // [THEN] Vendor Template City = "CITY", Country/Region Code = "CRC"
         VendorTemplateCard.City.AssertEquals(PostCode.City);
         VendorTemplateCard."Country/Region Code".AssertEquals(PostCode."Country/Region Code");
-        VendorTemplateCard.OK.Invoke;
+        VendorTemplateCard.OK().Invoke();
     end;
 
     [Test]
@@ -1478,7 +1470,7 @@ codeunit 138012 "O365 Templates Test"
         // [GIVEN] Lookup for Post Code field is being invoked and Post Code record with "PC", "CITY" picked
         LibraryVariableStorage.Enqueue(PostCode.Code);
         LibraryVariableStorage.Enqueue(PostCode.City);
-        VendorTemplateCard."Post Code".Lookup;
+        VendorTemplateCard."Post Code".Lookup();
 
         // [WHEN] Country/Region Code is being cleared
         VendorTemplateCard."Country/Region Code".SetValue('');
@@ -1486,7 +1478,7 @@ codeunit 138012 "O365 Templates Test"
         // [THEN] Vendor Template City = '', Post Code = ''
         VendorTemplateCard.City.AssertEquals('');
         VendorTemplateCard."Post Code".AssertEquals('');
-        VendorTemplateCard.OK.Invoke;
+        VendorTemplateCard.OK().Invoke();
     end;
 
     [Test]
@@ -1500,16 +1492,14 @@ codeunit 138012 "O365 Templates Test"
         ItemCard: TestPage "Item Card";
         ItemNo: Variant;
         ConfigTemplHeaderCode: Code[20];
-        LastNoUsed: Code[20];
-        NewLastNoUsed: Code[20];
     begin
         // [SCENARIO 446206] No Series Lines are no longer automatically closing when the last number is reached.
         Initialize();
 
         // [GIVEN] Create No. Series and No. Series Line 
         CreateNewNumberSeries(NoSeries);
-        CreateNumberSeriesLine(NoSeries, StartingNumberTxt, StartingNumberTxt, 1, 10000, false);
-        CreateNumberSeriesLine(NoSeries, EndingNumberTxt, EndingNumberTxt, 1, 20000, false);
+        CreateNumberSeriesLine(NoSeries, StartingNumberTxt, StartingNumberTxt, 1, 10000, Enum::"No. Series Implementation"::Normal);
+        CreateNumberSeriesLine(NoSeries, EndingNumberTxt, EndingNumberTxt, 1, 20000, Enum::"No. Series Implementation"::Normal);
 
         // [GIVEN] Configuration Template for blank Item with No. Series.
         CreateBlankItem(Item);
@@ -1520,7 +1510,7 @@ codeunit 138012 "O365 Templates Test"
 
         // [WHEN] Create new Item
         ItemCard.OpenNew();
-        ItemNo := ItemCard."No.".Value;
+        ItemNo := ItemCard."No.".Value();
         ItemCard.Close();
 
         // [VERIFY] Item is created with No. = "ABC00010D" 
@@ -1528,7 +1518,7 @@ codeunit 138012 "O365 Templates Test"
 
         // [WHEN] Create new Item
         ItemCard.OpenNew();
-        ItemNo := ItemCard."No.".Value;
+        ItemNo := ItemCard."No.".Value();
         ItemCard.Close();
 
         // [VERIFy] Item is created with No. = "ABC00090D".
@@ -1609,7 +1599,7 @@ codeunit 138012 "O365 Templates Test"
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Templates Test");
-        DeleteConfigurationTemplates;
+        DeleteConfigurationTemplates();
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
 
@@ -1628,7 +1618,7 @@ codeunit 138012 "O365 Templates Test"
         ClearTable(DATABASE::"Service Item Component");
         ClearTable(DATABASE::"Troubleshooting Setup");
 
-        if not LibraryFiscalYear.AccountingPeriodsExists then
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
         LibraryApplicationArea.EnableFoundationSetup();
@@ -1693,7 +1683,7 @@ codeunit 138012 "O365 Templates Test"
             DATABASE::"Service Item Component":
                 ServiceItemComponent.DeleteAll();
         end;
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
     end;
 
     local procedure TemplateFieldDefinitionsMatchTableFields(RecRef: RecordRef; FieldRefArray: array[100] of FieldRef)
@@ -1925,7 +1915,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplateHeader.Code.SetValue(DefaultDimension."No.");
         ConfigTemplateHeader."Table ID".SetValue(DATABASE::"Default Dimension");
         ConfigTemplateHeader.Description.SetValue(DefaultDimension."No.");
-        ConfigTemplateHeader.OK.Invoke;
+        ConfigTemplateHeader.OK().Invoke();
     end;
 
     local procedure CreateBlankCustomerTemplateFromCustomer(var CustomerTemplateCode: Code[20]; var BlankCustomerTemplateCode: Code[20])
@@ -2182,7 +2172,7 @@ codeunit 138012 "O365 Templates Test"
             'Field ' +
             MismatchType +
             ' on fields ' +
-            FieldRef1.Record.Name + '.' + FieldRef1.Name + ' and ' + FieldRef2.Record.Name + '.' + FieldRef2.Name + ' do not match.'));
+            FieldRef1.Record().Name() + '.' + FieldRef1.Name + ' and ' + FieldRef2.Record().Name() + '.' + FieldRef2.Name + ' do not match.'));
     end;
 
     local procedure ValidateCustCity(CityName: Code[10]; ExpectedPostCode: Code[10]; ExpectedCountryRegionCode: Code[10])
@@ -2296,7 +2286,7 @@ codeunit 138012 "O365 Templates Test"
         if ExpectedNumberOfTemplates > 0 then
             Assert.AreEqual(ExpectedNumberOfTemplates, ConfigTemplateLine.Count, 'Wrong number of related templates found')
         else
-            Assert.IsFalse(ConfigTemplateLine.FindFirst, 'There shoudl be no templates in the system');
+            Assert.IsFalse(ConfigTemplateLine.FindFirst(), 'There shoudl be no templates in the system');
     end;
 
     local procedure AddDefaultDimensionsToRecord(RecordNo: Code[20]; TableID: Integer; NumberOfDimensions: Integer)
@@ -2673,7 +2663,7 @@ codeunit 138012 "O365 Templates Test"
         ItemCard.OpenNew();
 
         ItemCard.Description.SetValue('Test');
-        ItemNo := ItemCard."No.".Value;
+        ItemNo := ItemCard."No.".Value();
         ItemCard.Close();
 
         NewItem.Get(ItemNo);
@@ -2705,7 +2695,7 @@ codeunit 138012 "O365 Templates Test"
                                            EndingNumber: Code[20];
                                            IncrementBy: Integer;
                                            LineNo: Integer;
-                                           AllowGaps: Boolean)
+                                           Implementation: Enum "No. Series Implementation")
     var
         NoSeriesLine: Record "No. Series Line";
     begin
@@ -2715,7 +2705,7 @@ codeunit 138012 "O365 Templates Test"
         NoSeriesLine.Validate("Ending No.", EndingNumber);
         NoSeriesLine."Increment-by No." := IncrementBy;
         NoSeriesLine.Insert();
-        NoSeriesLine.Validate("Allow Gaps in Nos.", AllowGaps);
+        NoSeriesLine.Validate(Implementation, Implementation);
         NoSeriesLine.Modify();
     end;
 
@@ -2796,7 +2786,7 @@ codeunit 138012 "O365 Templates Test"
     procedure VendorTemplateCardHandler(var VendorTemplateCard: TestPage "Vendor Templ. Card")
     begin
         VendorTemplateCard.Description.SetValue(GlobalTemplateName);
-        VendorTemplateCard.OK.Invoke;
+        VendorTemplateCard.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2804,7 +2794,7 @@ codeunit 138012 "O365 Templates Test"
     procedure CustomerTemplateCardHandler(var CustTemplateCard: TestPage "Customer Templ. Card")
     begin
         CustTemplateCard.Description.SetValue(GlobalTemplateName);
-        CustTemplateCard.OK.Invoke;
+        CustTemplateCard.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2812,7 +2802,7 @@ codeunit 138012 "O365 Templates Test"
     procedure ItemTemplateCardHandler(var ItemTemplateCard: TestPage "Item Templ. Card")
     begin
         ItemTemplateCard.Description.SetValue(GlobalTemplateName);
-        ItemTemplateCard.OK.Invoke;
+        ItemTemplateCard.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2821,7 +2811,7 @@ codeunit 138012 "O365 Templates Test"
     var
         CustomerTempl: Record "Customer Templ.";
     begin
-        CustomerTempl.Get(LibraryVariableStorage.DequeueText);
+        CustomerTempl.Get(LibraryVariableStorage.DequeueText());
         SelectTemplList.GotoRecord(CustomerTempl);
         SelectTemplList.OK().Invoke();
     end;
@@ -2832,7 +2822,7 @@ codeunit 138012 "O365 Templates Test"
     var
         VendorTempl: Record "Vendor Templ.";
     begin
-        VendorTempl.Get(LibraryVariableStorage.DequeueText);
+        VendorTempl.Get(LibraryVariableStorage.DequeueText());
         SelectTemplList.GotoRecord(VendorTempl);
         SelectTemplList.OK().Invoke();
     end;
@@ -2843,7 +2833,7 @@ codeunit 138012 "O365 Templates Test"
     var
         ItemTempl: Record "Item Templ.";
     begin
-        ItemTempl.Get(LibraryVariableStorage.DequeueText);
+        ItemTempl.Get(LibraryVariableStorage.DequeueText());
         SelectTemplList.GotoRecord(ItemTempl);
         SelectTemplList.OK().Invoke();
     end;
@@ -2852,17 +2842,17 @@ codeunit 138012 "O365 Templates Test"
     [Scope('OnPrem')]
     procedure PostCodeModalPageHandler(var PostCodes: TestPage "Post Codes")
     begin
-        PostCodes.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
-        PostCodes.FILTER.SetFilter(City, LibraryVariableStorage.DequeueText);
-        PostCodes.OK.Invoke;
+        PostCodes.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText());
+        PostCodes.FILTER.SetFilter(City, LibraryVariableStorage.DequeueText());
+        PostCodes.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ConfigTemplateListModalPageHandler(var ConfigTemplateList: TestPage "Config. Template List")
     begin
-        ConfigTemplateList.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
-        ConfigTemplateList.OK.Invoke;
+        ConfigTemplateList.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText());
+        ConfigTemplateList.OK().Invoke();
     end;
 
     [ConfirmHandler]

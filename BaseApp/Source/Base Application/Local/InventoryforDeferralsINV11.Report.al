@@ -290,125 +290,123 @@ report 14926 "Inventory for Deferrals INV-11"
         InventoryAmount: Decimal;
         CalcDepreciationAmount: Decimal;
     begin
-        with FAJournalLine do begin
-            FixedAsset.Get("FA No.");
+        FixedAsset.Get(FAJournalLine."FA No.");
 
-            FADepreciationBook.CalcFields("Acquisition Cost", Depreciation);
-            FADepreciationBook.TestField("No. of Depreciation Months");
-            NumberOfDepreciationMonths := FADepreciationBook."No. of Depreciation Months";
+        FADepreciationBook.CalcFields("Acquisition Cost", Depreciation);
+        FADepreciationBook.TestField("No. of Depreciation Months");
+        NumberOfDepreciationMonths := FADepreciationBook."No. of Depreciation Months";
 
-            TotalAmounts[1] := TotalAmounts[1] + FADepreciationBook."Acquisition Cost";
-            CalcDepreciationAmount :=
-              Round(FADepreciationBook."Acquisition Cost" / NumberOfDepreciationMonths, 0.01);
+        TotalAmounts[1] := TotalAmounts[1] + FADepreciationBook."Acquisition Cost";
+        CalcDepreciationAmount :=
+          Round(FADepreciationBook."Acquisition Cost" / NumberOfDepreciationMonths, 0.01);
 
-            TotalAmounts[2] := TotalAmounts[2] + CalcDepreciationAmount;
-            TotalAmounts[3] := TotalAmounts[3] + Abs(FADepreciationBook.Depreciation);
-            TotalAmounts[4] := TotalAmounts[4] + FADepreciationBook."Acquisition Cost" - Abs(FADepreciationBook.Depreciation);
+        TotalAmounts[2] := TotalAmounts[2] + CalcDepreciationAmount;
+        TotalAmounts[3] := TotalAmounts[3] + Abs(FADepreciationBook.Depreciation);
+        TotalAmounts[4] := TotalAmounts[4] + FADepreciationBook."Acquisition Cost" - Abs(FADepreciationBook.Depreciation);
 
-            NumberOfMonths := Date2DMY(InvStartDate, 2) - Date2DMY(FADepreciationBook."Acquisition Date", 2);
-            AmortizeMonths :=
-              NumberOfMonths + (Date2DMY(InvStartDate, 3) - Date2DMY(FADepreciationBook."Acquisition Date", 3)) * 12;
+        NumberOfMonths := Date2DMY(InvStartDate, 2) - Date2DMY(FADepreciationBook."Acquisition Date", 2);
+        AmortizeMonths :=
+          NumberOfMonths + (Date2DMY(InvStartDate, 3) - Date2DMY(FADepreciationBook."Acquisition Date", 3)) * 12;
 
-            if AmortizeMonths = 0 then begin
-                AmortizeMonths := 1;
-                NumberOfMonths := 1;
-            end;
+        if AmortizeMonths = 0 then begin
+            AmortizeMonths := 1;
+            NumberOfMonths := 1;
+        end;
 
-            if Date2DMY(InvStartDate, 3) - Date2DMY(FADepreciationBook."Acquisition Date", 3) <> 0 then
-                NumberOfMonths := Date2DMY(InvStartDate, 2) - 1;
+        if Date2DMY(InvStartDate, 3) - Date2DMY(FADepreciationBook."Acquisition Date", 3) <> 0 then
+            NumberOfMonths := Date2DMY(InvStartDate, 2) - 1;
 
-            DepreciationAmountPerMonth := Round("Actual Amount" / NumberOfDepreciationMonths, 0.01);
-            TotalAmounts[5] := TotalAmounts[5] + DepreciationAmountPerMonth;
+        DepreciationAmountPerMonth := Round(FAJournalLine."Actual Amount" / NumberOfDepreciationMonths, 0.01);
+        TotalAmounts[5] := TotalAmounts[5] + DepreciationAmountPerMonth;
+        if NumberOfMonths * DepreciationAmountPerMonth >
+           FADepreciationBook."Acquisition Cost" - Abs(FADepreciationBook.Depreciation)
+        then
+            TotalAmounts[6] := TotalAmounts[6] + FADepreciationBook."Acquisition Cost" - Abs(FADepreciationBook.Depreciation)
+        else
+            TotalAmounts[6] := TotalAmounts[6] + NumberOfMonths * DepreciationAmountPerMonth;
+        TotalAmounts[7] := TotalAmounts[7] + FAJournalLine."Actual  Remaining Amount";
+
+        InventoryAmount := FAJournalLine."Actual  Remaining Amount" - FADepreciationBook."Acquisition Cost" +
+          Abs(FADepreciationBook.Depreciation);
+        if InventoryAmount < 0 then
+            TotalAmounts[8] := TotalAmounts[8] - InventoryAmount
+        else
+            TotalAmounts[9] := TotalAmounts[9] + InventoryAmount;
+
+        if FirstTable then begin
+            ExcelReportBuilderMgr.AddDataToSection('LineNo', Format(TableLineCounter));
+            ExcelReportBuilderMgr.AddDataToSection('Name', FixedAsset.Description);
+            ExcelReportBuilderMgr.AddDataToSection('Code', FAJournalLine."FA No.");
+            ExcelReportBuilderMgr.AddDataToSection('DeferralsAmount',
+              FormatDecimal(FADepreciationBook."Acquisition Cost"));
+            ExcelReportBuilderMgr.AddDataToSection('AcquisitionDate', Format(FADepreciationBook."Acquisition Date"));
+            ExcelReportBuilderMgr.AddDataToSection('LifeTime', Format(NumberOfDepreciationMonths));
+
+            ExcelReportBuilderMgr.AddDataToSection('CalcWritingOffAmount',
+              FormatDecimal(CalcDepreciationAmount));
+            ExcelReportBuilderMgr.AddDataToSection('WritingOffAmount',
+              FormatDecimal(Abs(FADepreciationBook.Depreciation)));
+            ExcelReportBuilderMgr.AddDataToSection(
+              'RemainAmount',
+              FormatDecimal(FADepreciationBook."Acquisition Cost" - Abs(FADepreciationBook.Depreciation)));
+
+            ExcelReportBuilderMgr.AddDataToSection('Months', Format(AmortizeMonths));
+            ExcelReportBuilderMgr.AddDataToSection('WritingOffReportMonth',
+              FormatDecimal(DepreciationAmountPerMonth));
             if NumberOfMonths * DepreciationAmountPerMonth >
                FADepreciationBook."Acquisition Cost" - Abs(FADepreciationBook.Depreciation)
             then
-                TotalAmounts[6] := TotalAmounts[6] + FADepreciationBook."Acquisition Cost" - Abs(FADepreciationBook.Depreciation)
+                ExcelReportBuilderMgr.AddDataToSection(
+                  'WritingOffReportYear',
+                  FormatDecimal(FADepreciationBook."Acquisition Cost" - Abs(FADepreciationBook.Depreciation)))
             else
-                TotalAmounts[6] := TotalAmounts[6] + NumberOfMonths * DepreciationAmountPerMonth;
-            TotalAmounts[7] := TotalAmounts[7] + "Actual  Remaining Amount";
-
-            InventoryAmount := "Actual  Remaining Amount" - FADepreciationBook."Acquisition Cost" +
-              Abs(FADepreciationBook.Depreciation);
+                ExcelReportBuilderMgr.AddDataToSection('WritingOffReportYear',
+                  FormatDecimal(NumberOfMonths * DepreciationAmountPerMonth));
+            ExcelReportBuilderMgr.AddDataToSection('CalcRemainAmount',
+              FormatDecimal(FAJournalLine."Actual  Remaining Amount"));
             if InventoryAmount < 0 then
-                TotalAmounts[8] := TotalAmounts[8] - InventoryAmount
+                ExcelReportBuilderMgr.AddDataToSection('SubjectToWriteOff',
+                  FormatDecimal(Abs(InventoryAmount)));
+            if InventoryAmount > 0 then
+                ExcelReportBuilderMgr.AddDataToSection('ExcessivelyWrittenOff',
+                  FormatDecimal(InventoryAmount));
+        end else begin
+            ExcelReportBuilderMgr.AddDataToSection('LineNoLast', Format(TableLineCounter));
+            ExcelReportBuilderMgr.AddDataToSection('NameLast', FixedAsset.Description);
+            ExcelReportBuilderMgr.AddDataToSection('CodeLast', FAJournalLine."FA No.");
+            ExcelReportBuilderMgr.AddDataToSection('DeferralsAmountLast',
+              FormatDecimal(FADepreciationBook."Acquisition Cost"));
+            ExcelReportBuilderMgr.AddDataToSection('AcquisitionDateLast', Format(FADepreciationBook."Acquisition Date"));
+            ExcelReportBuilderMgr.AddDataToSection('LifeTimeLast', Format(NumberOfDepreciationMonths));
+            ExcelReportBuilderMgr.AddDataToSection('CalcWritingOffAmountLast',
+              FormatDecimal(CalcDepreciationAmount));
+            ExcelReportBuilderMgr.AddDataToSection('WritingOffAmountTotalLast',
+              FormatDecimal(Abs(FADepreciationBook.Depreciation)));
+            ExcelReportBuilderMgr.AddDataToSection(
+              'RemainAmountLast',
+              FormatDecimal(FADepreciationBook."Acquisition Cost" - Abs(FADepreciationBook.Depreciation)));
+
+            ExcelReportBuilderMgr.AddDataToSection('MonthsLast', Format(AmortizeMonths));
+            ExcelReportBuilderMgr.AddDataToSection('WritingOffReportMonthLast',
+              FormatDecimal(DepreciationAmountPerMonth));
+
+            if NumberOfMonths * DepreciationAmountPerMonth >
+               FADepreciationBook."Acquisition Cost" - Abs(FADepreciationBook.Depreciation)
+            then
+                ExcelReportBuilderMgr.AddDataToSection(
+                  'WritingOffReportYearLast',
+                  FormatDecimal(FADepreciationBook."Acquisition Cost" - Abs(FADepreciationBook.Depreciation)))
             else
-                TotalAmounts[9] := TotalAmounts[9] + InventoryAmount;
-
-            if FirstTable then begin
-                ExcelReportBuilderMgr.AddDataToSection('LineNo', Format(TableLineCounter));
-                ExcelReportBuilderMgr.AddDataToSection('Name', FixedAsset.Description);
-                ExcelReportBuilderMgr.AddDataToSection('Code', "FA No.");
-                ExcelReportBuilderMgr.AddDataToSection('DeferralsAmount',
-                  FormatDecimal(FADepreciationBook."Acquisition Cost"));
-                ExcelReportBuilderMgr.AddDataToSection('AcquisitionDate', Format(FADepreciationBook."Acquisition Date"));
-                ExcelReportBuilderMgr.AddDataToSection('LifeTime', Format(NumberOfDepreciationMonths));
-
-                ExcelReportBuilderMgr.AddDataToSection('CalcWritingOffAmount',
-                  FormatDecimal(CalcDepreciationAmount));
-                ExcelReportBuilderMgr.AddDataToSection('WritingOffAmount',
-                  FormatDecimal(Abs(FADepreciationBook.Depreciation)));
-                ExcelReportBuilderMgr.AddDataToSection(
-                  'RemainAmount',
-                  FormatDecimal(FADepreciationBook."Acquisition Cost" - Abs(FADepreciationBook.Depreciation)));
-
-                ExcelReportBuilderMgr.AddDataToSection('Months', Format(AmortizeMonths));
-                ExcelReportBuilderMgr.AddDataToSection('WritingOffReportMonth',
-                  FormatDecimal(DepreciationAmountPerMonth));
-                if NumberOfMonths * DepreciationAmountPerMonth >
-                   FADepreciationBook."Acquisition Cost" - Abs(FADepreciationBook.Depreciation)
-                then
-                    ExcelReportBuilderMgr.AddDataToSection(
-                      'WritingOffReportYear',
-                      FormatDecimal(FADepreciationBook."Acquisition Cost" - Abs(FADepreciationBook.Depreciation)))
-                else
-                    ExcelReportBuilderMgr.AddDataToSection('WritingOffReportYear',
-                      FormatDecimal(NumberOfMonths * DepreciationAmountPerMonth));
-                ExcelReportBuilderMgr.AddDataToSection('CalcRemainAmount',
-                  FormatDecimal("Actual  Remaining Amount"));
-                if InventoryAmount < 0 then
-                    ExcelReportBuilderMgr.AddDataToSection('SubjectToWriteOff',
-                      FormatDecimal(Abs(InventoryAmount)));
-                if InventoryAmount > 0 then
-                    ExcelReportBuilderMgr.AddDataToSection('ExcessivelyWrittenOff',
-                      FormatDecimal(InventoryAmount));
-            end else begin
-                ExcelReportBuilderMgr.AddDataToSection('LineNoLast', Format(TableLineCounter));
-                ExcelReportBuilderMgr.AddDataToSection('NameLast', FixedAsset.Description);
-                ExcelReportBuilderMgr.AddDataToSection('CodeLast', "FA No.");
-                ExcelReportBuilderMgr.AddDataToSection('DeferralsAmountLast',
-                  FormatDecimal(FADepreciationBook."Acquisition Cost"));
-                ExcelReportBuilderMgr.AddDataToSection('AcquisitionDateLast', Format(FADepreciationBook."Acquisition Date"));
-                ExcelReportBuilderMgr.AddDataToSection('LifeTimeLast', Format(NumberOfDepreciationMonths));
-                ExcelReportBuilderMgr.AddDataToSection('CalcWritingOffAmountLast',
-                  FormatDecimal(CalcDepreciationAmount));
-                ExcelReportBuilderMgr.AddDataToSection('WritingOffAmountTotalLast',
-                  FormatDecimal(Abs(FADepreciationBook.Depreciation)));
-                ExcelReportBuilderMgr.AddDataToSection(
-                  'RemainAmountLast',
-                  FormatDecimal(FADepreciationBook."Acquisition Cost" - Abs(FADepreciationBook.Depreciation)));
-
-                ExcelReportBuilderMgr.AddDataToSection('MonthsLast', Format(AmortizeMonths));
-                ExcelReportBuilderMgr.AddDataToSection('WritingOffReportMonthLast',
-                  FormatDecimal(DepreciationAmountPerMonth));
-
-                if NumberOfMonths * DepreciationAmountPerMonth >
-                   FADepreciationBook."Acquisition Cost" - Abs(FADepreciationBook.Depreciation)
-                then
-                    ExcelReportBuilderMgr.AddDataToSection(
-                      'WritingOffReportYearLast',
-                      FormatDecimal(FADepreciationBook."Acquisition Cost" - Abs(FADepreciationBook.Depreciation)))
-                else
-                    ExcelReportBuilderMgr.AddDataToSection('WritingOffReportYearLast',
-                      FormatDecimal(NumberOfMonths * DepreciationAmountPerMonth));
-                ExcelReportBuilderMgr.AddDataToSection('CalcRemainAmountLast',
-                  FormatDecimal("Actual  Remaining Amount"));
-                if InventoryAmount < 0 then
-                    ExcelReportBuilderMgr.AddDataToSection('SubjectToWriteOffLast',
-                      FormatDecimal(Abs(InventoryAmount)));
-                if InventoryAmount > 0 then
-                    ExcelReportBuilderMgr.AddDataToSection('ExcessivelyWrittenOffLast',
-                      FormatDecimal(InventoryAmount));
-            end
+                ExcelReportBuilderMgr.AddDataToSection('WritingOffReportYearLast',
+                  FormatDecimal(NumberOfMonths * DepreciationAmountPerMonth));
+            ExcelReportBuilderMgr.AddDataToSection('CalcRemainAmountLast',
+              FormatDecimal(FAJournalLine."Actual  Remaining Amount"));
+            if InventoryAmount < 0 then
+                ExcelReportBuilderMgr.AddDataToSection('SubjectToWriteOffLast',
+                  FormatDecimal(Abs(InventoryAmount)));
+            if InventoryAmount > 0 then
+                ExcelReportBuilderMgr.AddDataToSection('ExcessivelyWrittenOffLast',
+                  FormatDecimal(InventoryAmount));
         end;
         TableLineCounter += 1;
     end;

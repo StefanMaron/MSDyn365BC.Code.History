@@ -90,80 +90,78 @@ codeunit 12401 "Local Report Management"
 
         CompanyInfo.Get();
 
-        with GenJnlLine do begin
-            TestField("Bal. Account Type", "Bal. Account Type"::"Bank Account");
-            BankAccount.Get("Bal. Account No.");
-            if BankAccount."Currency Code" = '' then
-                DocAmount := "Amount (LCY)"
-            else begin
-                TestField("Currency Code", BankAccount."Currency Code");
-                DocAmount := Amount;
-            end;
-
-            case "Account Type" of
-                "Account Type"::"G/L Account":
-                    if not BankAccount."Use Client-Bank" then
-                        FieldError("Account Type");
-                "Account Type"::Customer:
-                    if Customer.Get("Account No.") then
-                        if CustomerBank.Get("Account No.", "Beneficiary Bank Code") then begin
-                            if (Amount > 0) and ("Document Type" <> "Document Type"::Refund) then
-                                FieldError(Amount, Text005);
-                            BenefeciaryCode[CodeIndex::INN] := DelChr(Customer."VAT Registration No.", '<>', ' ');
-                            BenefeciaryCode[CodeIndex::KPP] := DelChr(Customer."KPP Code", '<>', ' ');
-                            BenefeciaryText[TextIndex::Name] := DelChr(Customer.Name, '<>', ' ');
-                            BenefeciaryText[TextIndex::Name2] := DelChr(Customer."Name 2", '<>', ' ');
-                            BenefeciaryCode[CodeIndex::"Current Account"] := DelChr(CustomerBank."Bank Account No.", '<>', ' ');
-                            BenefeciaryCode[CodeIndex::BIC] := DelChr(CustomerBank.BIC, '<>', ' ');
-                            BenefeciaryCode[CodeIndex::"Corresp. Account"] := DelChr(CustomerBank."Bank Corresp. Account No.", '<>', ' ');
-                            BenefeciaryText[TextIndex::Bank] := DelChr(CustomerBank.Name, '<>', ' ');
-                            BenefeciaryText[TextIndex::Bank2] := DelChr(CustomerBank."Name 2", '<>', ' ');
-                            ManageAbbrCity(BenefeciaryText[TextIndex::City], CustomerBank.City, CustomerBank."Abbr. City");
-                            BenefeciaryText[TextIndex::Branch] := DelChr(CustomerBank."Bank Branch No.", '<>', ' ');
-                        end;
-                "Account Type"::Vendor:
-                    if Vendor.Get("Account No.") then
-                        if VendorBank.Get("Account No.", "Beneficiary Bank Code") then begin
-                            if Amount < 0 then
-                                FieldError(Amount, Text004);
-                            BenefeciaryCode[CodeIndex::INN] := DelChr(Vendor."VAT Registration No.", '<>', ' ');
-                            BenefeciaryCode[CodeIndex::KPP] := DelChr(Vendor."KPP Code", '<>', ' ');
-                            BenefeciaryText[TextIndex::Name] := DelChr(Vendor.Name, '<>', ' ');
-                            BenefeciaryText[TextIndex::Name2] := DelChr(Vendor."Name 2", '<>', ' ');
-                            BenefeciaryText[TextIndex::Branch] := DelChr(VendorBank."Bank Branch No.", '<>', ' ');
-                            BenefeciaryCode[CodeIndex::"Current Account"] := DelChr(VendorBank."Bank Account No.", '<>', ' ');
-                            BenefeciaryCode[CodeIndex::BIC] := DelChr(VendorBank.BIC, '<>', ' ');
-                            BenefeciaryCode[CodeIndex::"Corresp. Account"] := DelChr(VendorBank."Bank Corresp. Account No.", '<>', ' ');
-                            BenefeciaryText[TextIndex::Bank] := DelChr(VendorBank.Name, '<>', ' ');
-                            BenefeciaryText[TextIndex::Bank2] := DelChr(VendorBank."Name 2", '<>', ' ');
-                            ManageAbbrCity(BenefeciaryText[TextIndex::City], VendorBank.City, VendorBank."Abbr. City");
-                        end;
-                "Account Type"::"Bank Account":
-                    if BankAccount1.Get("Account No.") then begin
-                        BenefeciaryCode[CodeIndex::INN] := DelChr(CompanyInfo."VAT Registration No.", '<>', ' ');
-                        BenefeciaryCode[CodeIndex::KPP] := DelChr(CompanyInfo."KPP Code", '<>', ' ');
-                        BenefeciaryText[TextIndex::Name] := DelChr(CompanyInfo.Name, '<>', ' ');
-                        BenefeciaryCode[CodeIndex::"Current Account"] := DelChr(BankAccount1."Bank Account No.", '<>', ' ');
-                        BenefeciaryCode[CodeIndex::BIC] := DelChr(BankAccount1."Bank BIC", '<>', ' ');
-                        BenefeciaryCode[CodeIndex::"Corresp. Account"] := DelChr(BankAccount1."Bank Corresp. Account No.", '<>', ' ');
-                        BenefeciaryText[TextIndex::Bank] := DelChr(BankAccount1.Name, '<>', ' ');
-                        BenefeciaryText[TextIndex::Bank2] := DelChr(BankAccount1."Name 2", '<>', ' ');
-                        ManageAbbrCity(BenefeciaryText[TextIndex::City], BankAccount1.City, BankAccount1."Abbr. City");
-                        BenefeciaryText[TextIndex::Branch] := DelChr(BankAccount1."Bank Branch No.", '<>', ' ');
-                    end;
-            end;
-            PayerCode[CodeIndex::INN] := DelChr(CompanyInfo."VAT Registration No.", '<>', ' ');
-            PayerCode[CodeIndex::KPP] := DelChr(CompanyInfo."KPP Code", '<>', ' ');
-            PayerText[TextIndex::Name] := DelChr(CompanyInfo.Name, '<>', ' ');
-            PayerText[TextIndex::Name2] := DelChr(CompanyInfo."Name 2", '<>', ' ');
-            PayerCode[CodeIndex::"Current Account"] := DelChr(BankAccount."Bank Account No.", '<>', ' ');
-            PayerCode[CodeIndex::BIC] := DelChr(BankAccount."Bank BIC", '<>', ' ');
-            PayerCode[CodeIndex::"Corresp. Account"] := DelChr(BankAccount."Bank Corresp. Account No.", '<>', ' ');
-            PayerText[TextIndex::Bank] := DelChr(BankAccount.Name, '<>', ' ');
-            PayerText[TextIndex::Bank2] := DelChr(BankAccount."Name 2", '<>', ' ');
-            ManageAbbrCity(PayerText[TextIndex::City], BankAccount.City, BankAccount."Abbr. City");
-            PayerText[TextIndex::Branch] := DelChr(BankAccount."Bank Branch No.", '<>', ' ');
+        GenJnlLine.TestField("Bal. Account Type", GenJnlLine."Bal. Account Type"::"Bank Account");
+        BankAccount.Get(GenJnlLine."Bal. Account No.");
+        if BankAccount."Currency Code" = '' then
+            DocAmount := GenJnlLine."Amount (LCY)"
+        else begin
+            GenJnlLine.TestField("Currency Code", BankAccount."Currency Code");
+            DocAmount := GenJnlLine.Amount;
         end;
+
+        case GenJnlLine."Account Type" of
+            GenJnlLine."Account Type"::"G/L Account":
+                if not BankAccount."Use Client-Bank" then
+                    GenJnlLine.FieldError("Account Type");
+            GenJnlLine."Account Type"::Customer:
+                if Customer.Get(GenJnlLine."Account No.") then
+                    if CustomerBank.Get(GenJnlLine."Account No.", GenJnlLine."Beneficiary Bank Code") then begin
+                        if (GenJnlLine.Amount > 0) and (GenJnlLine."Document Type" <> GenJnlLine."Document Type"::Refund) then
+                            GenJnlLine.FieldError(Amount, Text005);
+                        BenefeciaryCode[CodeIndex::INN] := DelChr(Customer."VAT Registration No.", '<>', ' ');
+                        BenefeciaryCode[CodeIndex::KPP] := DelChr(Customer."KPP Code", '<>', ' ');
+                        BenefeciaryText[TextIndex::Name] := DelChr(Customer.Name, '<>', ' ');
+                        BenefeciaryText[TextIndex::Name2] := DelChr(Customer."Name 2", '<>', ' ');
+                        BenefeciaryCode[CodeIndex::"Current Account"] := DelChr(CustomerBank."Bank Account No.", '<>', ' ');
+                        BenefeciaryCode[CodeIndex::BIC] := DelChr(CustomerBank.BIC, '<>', ' ');
+                        BenefeciaryCode[CodeIndex::"Corresp. Account"] := DelChr(CustomerBank."Bank Corresp. Account No.", '<>', ' ');
+                        BenefeciaryText[TextIndex::Bank] := DelChr(CustomerBank.Name, '<>', ' ');
+                        BenefeciaryText[TextIndex::Bank2] := DelChr(CustomerBank."Name 2", '<>', ' ');
+                        ManageAbbrCity(BenefeciaryText[TextIndex::City], CustomerBank.City, CustomerBank."Abbr. City");
+                        BenefeciaryText[TextIndex::Branch] := DelChr(CustomerBank."Bank Branch No.", '<>', ' ');
+                    end;
+            GenJnlLine."Account Type"::Vendor:
+                if Vendor.Get(GenJnlLine."Account No.") then
+                    if VendorBank.Get(GenJnlLine."Account No.", GenJnlLine."Beneficiary Bank Code") then begin
+                        if GenJnlLine.Amount < 0 then
+                            GenJnlLine.FieldError(Amount, Text004);
+                        BenefeciaryCode[CodeIndex::INN] := DelChr(Vendor."VAT Registration No.", '<>', ' ');
+                        BenefeciaryCode[CodeIndex::KPP] := DelChr(Vendor."KPP Code", '<>', ' ');
+                        BenefeciaryText[TextIndex::Name] := DelChr(Vendor.Name, '<>', ' ');
+                        BenefeciaryText[TextIndex::Name2] := DelChr(Vendor."Name 2", '<>', ' ');
+                        BenefeciaryText[TextIndex::Branch] := DelChr(VendorBank."Bank Branch No.", '<>', ' ');
+                        BenefeciaryCode[CodeIndex::"Current Account"] := DelChr(VendorBank."Bank Account No.", '<>', ' ');
+                        BenefeciaryCode[CodeIndex::BIC] := DelChr(VendorBank.BIC, '<>', ' ');
+                        BenefeciaryCode[CodeIndex::"Corresp. Account"] := DelChr(VendorBank."Bank Corresp. Account No.", '<>', ' ');
+                        BenefeciaryText[TextIndex::Bank] := DelChr(VendorBank.Name, '<>', ' ');
+                        BenefeciaryText[TextIndex::Bank2] := DelChr(VendorBank."Name 2", '<>', ' ');
+                        ManageAbbrCity(BenefeciaryText[TextIndex::City], VendorBank.City, VendorBank."Abbr. City");
+                    end;
+            GenJnlLine."Account Type"::"Bank Account":
+                if BankAccount1.Get(GenJnlLine."Account No.") then begin
+                    BenefeciaryCode[CodeIndex::INN] := DelChr(CompanyInfo."VAT Registration No.", '<>', ' ');
+                    BenefeciaryCode[CodeIndex::KPP] := DelChr(CompanyInfo."KPP Code", '<>', ' ');
+                    BenefeciaryText[TextIndex::Name] := DelChr(CompanyInfo.Name, '<>', ' ');
+                    BenefeciaryCode[CodeIndex::"Current Account"] := DelChr(BankAccount1."Bank Account No.", '<>', ' ');
+                    BenefeciaryCode[CodeIndex::BIC] := DelChr(BankAccount1."Bank BIC", '<>', ' ');
+                    BenefeciaryCode[CodeIndex::"Corresp. Account"] := DelChr(BankAccount1."Bank Corresp. Account No.", '<>', ' ');
+                    BenefeciaryText[TextIndex::Bank] := DelChr(BankAccount1.Name, '<>', ' ');
+                    BenefeciaryText[TextIndex::Bank2] := DelChr(BankAccount1."Name 2", '<>', ' ');
+                    ManageAbbrCity(BenefeciaryText[TextIndex::City], BankAccount1.City, BankAccount1."Abbr. City");
+                    BenefeciaryText[TextIndex::Branch] := DelChr(BankAccount1."Bank Branch No.", '<>', ' ');
+                end;
+        end;
+        PayerCode[CodeIndex::INN] := DelChr(CompanyInfo."VAT Registration No.", '<>', ' ');
+        PayerCode[CodeIndex::KPP] := DelChr(CompanyInfo."KPP Code", '<>', ' ');
+        PayerText[TextIndex::Name] := DelChr(CompanyInfo.Name, '<>', ' ');
+        PayerText[TextIndex::Name2] := DelChr(CompanyInfo."Name 2", '<>', ' ');
+        PayerCode[CodeIndex::"Current Account"] := DelChr(BankAccount."Bank Account No.", '<>', ' ');
+        PayerCode[CodeIndex::BIC] := DelChr(BankAccount."Bank BIC", '<>', ' ');
+        PayerCode[CodeIndex::"Corresp. Account"] := DelChr(BankAccount."Bank Corresp. Account No.", '<>', ' ');
+        PayerText[TextIndex::Bank] := DelChr(BankAccount.Name, '<>', ' ');
+        PayerText[TextIndex::Bank2] := DelChr(BankAccount."Name 2", '<>', ' ');
+        ManageAbbrCity(PayerText[TextIndex::City], BankAccount.City, BankAccount."Abbr. City");
+        PayerText[TextIndex::Branch] := DelChr(BankAccount."Bank Branch No.", '<>', ' ');
     end;
 
     [Scope('OnPrem')]
@@ -186,66 +184,64 @@ codeunit 12401 "Local Report Management"
 
         CompanyInfo.Get();
 
-        with CheckLedgerEntries do begin
-            BankAccount.Get("Bank Account No.");
+        BankAccount.Get(CheckLedgerEntries."Bank Account No.");
 
-            case "Bal. Account Type" of
-                "Bal. Account Type"::Customer:
-                    if Customer.Get("Bal. Account No.") then
-                        if CustomerBank.Get("Bal. Account No.", "Beneficiary Bank Code") then begin
-                            if Amount > 0 then
-                                FieldError(Amount, Text005);
-                            BenefeciaryCode[CodeIndex::VATRegNo] := DelChr(Customer."VAT Registration No.", '<>', ' ');
-                            BenefeciaryText[TextIndex::Name] := DelChr(Customer.Name, '<>', ' ');
-                            BenefeciaryText[TextIndex::Name2] := DelChr(Customer."Name 2", '<>', ' ');
-                            BenefeciaryCode[CodeIndex::BankAccNo] := DelChr(CustomerBank."Bank Account No.", '<>', ' ');
-                            BenefeciaryCode[CodeIndex::BIC] := DelChr(CustomerBank.BIC, '<>', ' ');
-                            BenefeciaryCode[CodeIndex::CorrAccNo] := DelChr(CustomerBank."Bank Corresp. Account No.", '<>', ' ');
-                            BenefeciaryText[TextIndex::Bank] := DelChr(CustomerBank.Name, '<>', ' ');
-                            BenefeciaryText[TextIndex::Bank2] := DelChr(CustomerBank."Name 2", '<>', ' ');
-                            ManageAbbrCity(BenefeciaryText[TextIndex::City], CustomerBank.City, CustomerBank."Abbr. City");
-                            BenefeciaryText[TextIndex::Branch] := DelChr(CustomerBank."Bank Branch No.", '<>', ' ');
-                        end;
-                "Bal. Account Type"::Vendor:
-                    if Vendor.Get("Bal. Account No.") then
-                        if VendorBank.Get("Bal. Account No.", "Beneficiary Bank Code") then begin
-                            if Amount > 0 then
-                                FieldError(Amount, Text004);
-                            BenefeciaryCode[CodeIndex::VATRegNo] := DelChr(Vendor."VAT Registration No.", '<>', ' ');
-                            BenefeciaryText[TextIndex::Name] := DelChr(Vendor.Name, '<>', ' ');
-                            BenefeciaryText[TextIndex::Name2] := DelChr(Vendor."Name 2", '<>', ' ');
-                            BenefeciaryCode[CodeIndex::BankAccNo] := DelChr(VendorBank."Bank Account No.", '<>', ' ');
-                            BenefeciaryCode[CodeIndex::BIC] := DelChr(VendorBank.BIC, '<>', ' ');
-                            BenefeciaryCode[CodeIndex::CorrAccNo] := DelChr(VendorBank."Bank Corresp. Account No.", '<>', ' ');
-                            BenefeciaryText[TextIndex::Bank] := DelChr(VendorBank.Name, '<>', ' ');
-                            BenefeciaryText[TextIndex::Bank2] := DelChr(VendorBank."Name 2", '<>', ' ');
-                            ManageAbbrCity(BenefeciaryText[TextIndex::City], VendorBank.City, VendorBank."Abbr. City");
-                            BenefeciaryText[TextIndex::Branch] := DelChr(VendorBank."Bank Branch No.", '<>', ' ');
-                        end;
-                "Bal. Account Type"::"Bank Account":
-                    if BankAccount1.Get("Bal. Account No.") then begin
-                        BenefeciaryCode[CodeIndex::VATRegNo] := DelChr(CompanyInfo."VAT Registration No.", '<>', ' ');
-                        BenefeciaryText[TextIndex::Name] := DelChr(CompanyInfo.Name, '<>', ' ');
-                        BenefeciaryCode[CodeIndex::BankAccNo] := DelChr(BankAccount1."Bank Account No.", '<>', ' ');
-                        BenefeciaryCode[CodeIndex::BIC] := DelChr(BankAccount1."Bank BIC", '<>', ' ');
-                        BenefeciaryCode[CodeIndex::CorrAccNo] := DelChr(BankAccount1."Bank Corresp. Account No.", '<>', ' ');
-                        BenefeciaryText[TextIndex::Bank] := DelChr(BankAccount1.Name, '<>', ' ');
-                        BenefeciaryText[TextIndex::Bank2] := DelChr(BankAccount1."Name 2", '<>', ' ');
-                        ManageAbbrCity(BenefeciaryText[TextIndex::City], BankAccount1.City, BankAccount1."Abbr. City");
-                        BenefeciaryText[TextIndex::Branch] := DelChr(BankAccount1."Bank Branch No.", '<>', ' ');
+        case CheckLedgerEntries."Bal. Account Type" of
+            CheckLedgerEntries."Bal. Account Type"::Customer:
+                if Customer.Get(CheckLedgerEntries."Bal. Account No.") then
+                    if CustomerBank.Get(CheckLedgerEntries."Bal. Account No.", CheckLedgerEntries."Beneficiary Bank Code") then begin
+                        if CheckLedgerEntries.Amount > 0 then
+                            CheckLedgerEntries.FieldError(Amount, Text005);
+                        BenefeciaryCode[CodeIndex::VATRegNo] := DelChr(Customer."VAT Registration No.", '<>', ' ');
+                        BenefeciaryText[TextIndex::Name] := DelChr(Customer.Name, '<>', ' ');
+                        BenefeciaryText[TextIndex::Name2] := DelChr(Customer."Name 2", '<>', ' ');
+                        BenefeciaryCode[CodeIndex::BankAccNo] := DelChr(CustomerBank."Bank Account No.", '<>', ' ');
+                        BenefeciaryCode[CodeIndex::BIC] := DelChr(CustomerBank.BIC, '<>', ' ');
+                        BenefeciaryCode[CodeIndex::CorrAccNo] := DelChr(CustomerBank."Bank Corresp. Account No.", '<>', ' ');
+                        BenefeciaryText[TextIndex::Bank] := DelChr(CustomerBank.Name, '<>', ' ');
+                        BenefeciaryText[TextIndex::Bank2] := DelChr(CustomerBank."Name 2", '<>', ' ');
+                        ManageAbbrCity(BenefeciaryText[TextIndex::City], CustomerBank.City, CustomerBank."Abbr. City");
+                        BenefeciaryText[TextIndex::Branch] := DelChr(CustomerBank."Bank Branch No.", '<>', ' ');
                     end;
-            end;
-            PayerCode[CodeIndex::VATRegNo] := DelChr(CompanyInfo."VAT Registration No.", '<>', ' ');
-            PayerText[TextIndex::Name] := DelChr(CompanyInfo.Name, '<>', ' ');
-            PayerText[TextIndex::Name2] := DelChr(CompanyInfo."Name 2", '<>', ' ');
-            PayerCode[CodeIndex::BankAccNo] := DelChr(BankAccount."Bank Account No.", '<>', ' ');
-            PayerCode[CodeIndex::BIC] := DelChr(BankAccount."Bank BIC", '<>', ' ');
-            PayerCode[CodeIndex::CorrAccNo] := DelChr(BankAccount."Bank Corresp. Account No.", '<>', ' ');
-            PayerText[TextIndex::Bank] := DelChr(BankAccount.Name, '<>', ' ');
-            PayerText[TextIndex::Bank2] := DelChr(BankAccount."Name 2", '<>', ' ');
-            ManageAbbrCity(PayerText[TextIndex::City], BankAccount.City, BankAccount."Abbr. City");
-            PayerText[TextIndex::Branch] := DelChr(BankAccount."Bank Branch No.", '<>', ' ');
+            CheckLedgerEntries."Bal. Account Type"::Vendor:
+                if Vendor.Get(CheckLedgerEntries."Bal. Account No.") then
+                    if VendorBank.Get(CheckLedgerEntries."Bal. Account No.", CheckLedgerEntries."Beneficiary Bank Code") then begin
+                        if CheckLedgerEntries.Amount > 0 then
+                            CheckLedgerEntries.FieldError(Amount, Text004);
+                        BenefeciaryCode[CodeIndex::VATRegNo] := DelChr(Vendor."VAT Registration No.", '<>', ' ');
+                        BenefeciaryText[TextIndex::Name] := DelChr(Vendor.Name, '<>', ' ');
+                        BenefeciaryText[TextIndex::Name2] := DelChr(Vendor."Name 2", '<>', ' ');
+                        BenefeciaryCode[CodeIndex::BankAccNo] := DelChr(VendorBank."Bank Account No.", '<>', ' ');
+                        BenefeciaryCode[CodeIndex::BIC] := DelChr(VendorBank.BIC, '<>', ' ');
+                        BenefeciaryCode[CodeIndex::CorrAccNo] := DelChr(VendorBank."Bank Corresp. Account No.", '<>', ' ');
+                        BenefeciaryText[TextIndex::Bank] := DelChr(VendorBank.Name, '<>', ' ');
+                        BenefeciaryText[TextIndex::Bank2] := DelChr(VendorBank."Name 2", '<>', ' ');
+                        ManageAbbrCity(BenefeciaryText[TextIndex::City], VendorBank.City, VendorBank."Abbr. City");
+                        BenefeciaryText[TextIndex::Branch] := DelChr(VendorBank."Bank Branch No.", '<>', ' ');
+                    end;
+            CheckLedgerEntries."Bal. Account Type"::"Bank Account":
+                if BankAccount1.Get(CheckLedgerEntries."Bal. Account No.") then begin
+                    BenefeciaryCode[CodeIndex::VATRegNo] := DelChr(CompanyInfo."VAT Registration No.", '<>', ' ');
+                    BenefeciaryText[TextIndex::Name] := DelChr(CompanyInfo.Name, '<>', ' ');
+                    BenefeciaryCode[CodeIndex::BankAccNo] := DelChr(BankAccount1."Bank Account No.", '<>', ' ');
+                    BenefeciaryCode[CodeIndex::BIC] := DelChr(BankAccount1."Bank BIC", '<>', ' ');
+                    BenefeciaryCode[CodeIndex::CorrAccNo] := DelChr(BankAccount1."Bank Corresp. Account No.", '<>', ' ');
+                    BenefeciaryText[TextIndex::Bank] := DelChr(BankAccount1.Name, '<>', ' ');
+                    BenefeciaryText[TextIndex::Bank2] := DelChr(BankAccount1."Name 2", '<>', ' ');
+                    ManageAbbrCity(BenefeciaryText[TextIndex::City], BankAccount1.City, BankAccount1."Abbr. City");
+                    BenefeciaryText[TextIndex::Branch] := DelChr(BankAccount1."Bank Branch No.", '<>', ' ');
+                end;
         end;
+        PayerCode[CodeIndex::VATRegNo] := DelChr(CompanyInfo."VAT Registration No.", '<>', ' ');
+        PayerText[TextIndex::Name] := DelChr(CompanyInfo.Name, '<>', ' ');
+        PayerText[TextIndex::Name2] := DelChr(CompanyInfo."Name 2", '<>', ' ');
+        PayerCode[CodeIndex::BankAccNo] := DelChr(BankAccount."Bank Account No.", '<>', ' ');
+        PayerCode[CodeIndex::BIC] := DelChr(BankAccount."Bank BIC", '<>', ' ');
+        PayerCode[CodeIndex::CorrAccNo] := DelChr(BankAccount."Bank Corresp. Account No.", '<>', ' ');
+        PayerText[TextIndex::Bank] := DelChr(BankAccount.Name, '<>', ' ');
+        PayerText[TextIndex::Bank2] := DelChr(BankAccount."Name 2", '<>', ' ');
+        ManageAbbrCity(PayerText[TextIndex::City], BankAccount.City, BankAccount."Abbr. City");
+        PayerText[TextIndex::Branch] := DelChr(BankAccount."Bank Branch No.", '<>', ' ');
     end;
 
     [Scope('OnPrem')]
@@ -500,16 +496,14 @@ codeunit 12401 "Local Report Management"
     var
         CompanyInfo: Record "Company Information";
     begin
-        with CompanyInfo do begin
-            Get();
-            if "Full Name" <> '' then
-                exit("Full Name");
+        CompanyInfo.Get();
+        if CompanyInfo."Full Name" <> '' then
+            exit(CompanyInfo."Full Name");
 
-            if "Name 2" = '' then
-                exit(Name);
+        if CompanyInfo."Name 2" = '' then
+            exit(CompanyInfo.Name);
 
-            exit(Name + ' ' + DelChr("Name 2", '<'));
-        end;
+        exit(CompanyInfo.Name + ' ' + DelChr(CompanyInfo."Name 2", '<'));
     end;
 
     [Scope('OnPrem')]
@@ -517,14 +511,12 @@ codeunit 12401 "Local Report Management"
     var
         CompanyInfo: Record "Company Information";
     begin
-        with CompanyInfo do begin
-            Get();
-            Addr := StrSubstNo('%1 %2, ', "Post Code", City);
-            if "Address 2" = '' then
-                Addr := Addr + Address
-            else
-                Addr := Addr + Address + ' ' + DelChr("Address 2", '<');
-        end;
+        CompanyInfo.Get();
+        Addr := StrSubstNo('%1 %2, ', CompanyInfo."Post Code", CompanyInfo.City);
+        if CompanyInfo."Address 2" = '' then
+            Addr := Addr + CompanyInfo.Address
+        else
+            Addr := Addr + CompanyInfo.Address + ' ' + DelChr(CompanyInfo."Address 2", '<');
     end;
 
     [Scope('OnPrem')]
@@ -532,11 +524,9 @@ codeunit 12401 "Local Report Management"
     var
         CompanyAddress: Record "Company Address";
     begin
-        with CompanyAddress do begin
-            SetRange("Address Type", "Address Type"::Legal);
-            if FindFirst() then
-                exit(GetFullAddr("Post Code", City, Address, "Address 2", "Region Name", County));
-        end;
+        CompanyAddress.SetRange("Address Type", CompanyAddress."Address Type"::Legal);
+        if CompanyAddress.FindFirst() then
+            exit(GetFullAddr(CompanyAddress."Post Code", CompanyAddress.City, CompanyAddress.Address, CompanyAddress."Address 2", CompanyAddress."Region Name", CompanyAddress.County));
     end;
 
     [Scope('OnPrem')]
@@ -554,16 +544,15 @@ codeunit 12401 "Local Report Management"
         CompanyInfo: Record "Company Information";
     begin
         CompanyInfo.Get();
-        with CompanyInfo do
-            exit(
+        exit(
               StrSubstNo(
                 Text008,
-                "Bank Name",
-                "Bank BIC",
-                "Bank Corresp. Account No.",
-                "Bank City",
-                "Bank Branch No.",
-                "Bank Account No."));
+                CompanyInfo."Bank Name",
+                CompanyInfo."Bank BIC",
+                CompanyInfo."Bank Corresp. Account No.",
+                CompanyInfo."Bank City",
+                CompanyInfo."Bank Branch No.",
+                CompanyInfo."Bank Account No."));
     end;
 
     [Scope('OnPrem')]
@@ -611,16 +600,14 @@ codeunit 12401 "Local Report Management"
     var
         Customer: Record Customer;
     begin
-        with Customer do begin
-            Get(CustNo);
-            if "Full Name" <> '' then
-                exit("Full Name");
+        Customer.Get(CustNo);
+        if Customer."Full Name" <> '' then
+            exit(Customer."Full Name");
 
-            if "Name 2" = '' then
-                exit(Name);
+        if Customer."Name 2" = '' then
+            exit(Customer.Name);
 
-            exit(Name + ' ' + DelChr("Name 2", '<'));
-        end;
+        exit(Customer.Name + ' ' + DelChr(Customer."Name 2", '<'));
     end;
 
     [Scope('OnPrem')]
@@ -694,16 +681,15 @@ codeunit 12401 "Local Report Management"
     var
         ShipToAddress: Record "Ship-to Address";
     begin
-        with ShipToAddress do
-            if Get(CustNo, ShipToCode) then begin
-                if "Full Name" <> '' then
-                    exit("Full Name");
+        if ShipToAddress.Get(CustNo, ShipToCode) then begin
+            if ShipToAddress."Full Name" <> '' then
+                exit(ShipToAddress."Full Name");
 
-                if "Name 2" = '' then
-                    exit(Name);
+            if ShipToAddress."Name 2" = '' then
+                exit(ShipToAddress.Name);
 
-                exit(Name + ' ' + DelChr("Name 2", '<'));
-            end;
+            exit(ShipToAddress.Name + ' ' + DelChr(ShipToAddress."Name 2", '<'));
+        end;
 
         if ShipToName2 = '' then
             exit(ShipToName);
@@ -716,16 +702,14 @@ codeunit 12401 "Local Report Management"
     var
         Vendor: Record Vendor;
     begin
-        with Vendor do begin
-            Get(VendorNo);
-            if "Full Name" <> '' then
-                exit("Full Name");
+        Vendor.Get(VendorNo);
+        if Vendor."Full Name" <> '' then
+            exit(Vendor."Full Name");
 
-            if "Name 2" = '' then
-                exit(Name);
+        if Vendor."Name 2" = '' then
+            exit(Vendor.Name);
 
-            exit(Name + ' ' + DelChr("Name 2", '<'));
-        end;
+        exit(Vendor.Name + ' ' + DelChr(Vendor."Name 2", '<'));
     end;
 
     [Scope('OnPrem')]
@@ -733,10 +717,8 @@ codeunit 12401 "Local Report Management"
     var
         Vendor: Record Vendor;
     begin
-        with Vendor do begin
-            Get(VendorNo);
-            exit(GetFullAddr("Post Code", City, Address, "Address 2", '', County));
-        end;
+        Vendor.Get(VendorNo);
+        exit(GetFullAddr(Vendor."Post Code", Vendor.City, Vendor.Address, Vendor."Address 2", '', Vendor.County));
     end;
 
     [Scope('OnPrem')]
@@ -780,13 +762,11 @@ codeunit 12401 "Local Report Management"
     var
         ResponsibilityCenter: Record "Responsibility Center";
     begin
-        with ResponsibilityCenter do begin
-            Get(RespCenterNo);
-            if "Name 2" = '' then
-                exit(Name);
+        ResponsibilityCenter.Get(RespCenterNo);
+        if ResponsibilityCenter."Name 2" = '' then
+            exit(ResponsibilityCenter.Name);
 
-            exit(Name + ' ' + DelChr("Name 2", '<'));
-        end;
+        exit(ResponsibilityCenter.Name + ' ' + DelChr(ResponsibilityCenter."Name 2", '<'));
     end;
 
     [Scope('OnPrem')]
@@ -794,14 +774,12 @@ codeunit 12401 "Local Report Management"
     var
         ResponsibilityCenter: Record "Responsibility Center";
     begin
-        with ResponsibilityCenter do begin
-            Get(RespCenterNo);
-            Addr := StrSubstNo('%1 %2, ', "Post Code", City);
-            if "Address 2" = '' then
-                Addr := Addr + Address
-            else
-                Addr := Addr + Address + ' ' + DelChr("Address 2", '<');
-        end;
+        ResponsibilityCenter.Get(RespCenterNo);
+        Addr := StrSubstNo('%1 %2, ', ResponsibilityCenter."Post Code", ResponsibilityCenter.City);
+        if ResponsibilityCenter."Address 2" = '' then
+            Addr := Addr + ResponsibilityCenter.Address
+        else
+            Addr := Addr + ResponsibilityCenter.Address + ' ' + DelChr(ResponsibilityCenter."Address 2", '<');
     end;
 
     [Scope('OnPrem')]
@@ -1044,11 +1022,9 @@ codeunit 12401 "Local Report Management"
     [Scope('OnPrem')]
     procedure GetVATLedgerItemRealizeDate(VATLedgerLine: Record "VAT Ledger Line"): Date
     begin
-        with VATLedgerLine do begin
-            if Prepayment and ("C/V Type" = "C/V Type"::Customer) and ("Document Type" = "Document Type"::Invoice) then
-                exit("Real. VAT Entry Date");
-            exit("Unreal. VAT Entry Date");
-        end;
+        if VATLedgerLine.Prepayment and (VATLedgerLine."C/V Type" = VATLedgerLine."C/V Type"::Customer) and (VATLedgerLine."Document Type" = VATLedgerLine."Document Type"::Invoice) then
+            exit(VATLedgerLine."Real. VAT Entry Date");
+        exit(VATLedgerLine."Unreal. VAT Entry Date");
     end;
 
     [Scope('OnPrem')]
@@ -1172,8 +1148,7 @@ codeunit 12401 "Local Report Management"
     [Scope('OnPrem')]
     procedure IsCustomerPrepayment(VATLedgerLine: Record "VAT Ledger Line"): Boolean
     begin
-        with VATLedgerLine do
-            exit(Prepayment and ("C/V Type" = "C/V Type"::Customer) and ("Document Type" = "Document Type"::Invoice));
+        exit(VATLedgerLine.Prepayment and (VATLedgerLine."C/V Type" = VATLedgerLine."C/V Type"::Customer) and (VATLedgerLine."Document Type" = VATLedgerLine."Document Type"::Invoice));
     end;
 
     [Scope('OnPrem')]

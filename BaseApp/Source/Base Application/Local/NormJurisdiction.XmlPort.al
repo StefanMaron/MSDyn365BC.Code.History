@@ -125,44 +125,38 @@
     var
         NormJurisdiction: Record "Tax Register Norm Jurisdiction";
     begin
-        with "Tax Register Norm Jurisdiction" do begin
-            Reset();
-            if FindSet() then
-                repeat
+        "Tax Register Norm Jurisdiction".Reset();
+        if "Tax Register Norm Jurisdiction".FindSet() then
+            repeat
+                NormJurisdiction := "Tax Register Norm Jurisdiction";
+                if NormJurisdiction.Find() then begin
+                    NormJurisdiction.Delete(true);
                     NormJurisdiction := "Tax Register Norm Jurisdiction";
-                    if NormJurisdiction.Find() then begin
-                        NormJurisdiction.Delete(true);
-                        NormJurisdiction := "Tax Register Norm Jurisdiction";
-                    end;
-                    NormJurisdiction.Insert();
-                until Next() = 0;
-        end;
+                end;
+                NormJurisdiction.Insert();
+            until "Tax Register Norm Jurisdiction".Next() = 0;
 
-        with "Tax Register Norm Group" do begin
-            Reset();
-            if FindSet() then
-                repeat
+        "Tax Register Norm Group".Reset();
+        if "Tax Register Norm Group".FindSet() then
+            repeat
+                NormGroup := "Tax Register Norm Group";
+                if NormGroup.Find() then begin
+                    NormGroup.Delete(true);
                     NormGroup := "Tax Register Norm Group";
-                    if NormGroup.Find() then begin
-                        NormGroup.Delete(true);
-                        NormGroup := "Tax Register Norm Group";
-                    end;
-                    NormGroup.Insert();
-                until Next() = 0;
-        end;
+                end;
+                NormGroup.Insert();
+            until "Tax Register Norm Group".Next() = 0;
 
-        with "Tax Register Norm Detail" do begin
-            Reset();
-            if FindSet() then
-                repeat
+        "Tax Register Norm Detail".Reset();
+        if "Tax Register Norm Detail".FindSet() then
+            repeat
+                NormDetail := "Tax Register Norm Detail";
+                if NormDetail.Find() then begin
+                    NormDetail.Delete(true);
                     NormDetail := "Tax Register Norm Detail";
-                    if NormDetail.Find() then begin
-                        NormDetail.Delete(true);
-                        NormDetail := "Tax Register Norm Detail";
-                    end;
-                    NormDetail.Insert();
-                until Next() = 0;
-        end;
+                end;
+                NormDetail.Insert();
+            until "Tax Register Norm Detail".Next() = 0;
     end;
 }
 

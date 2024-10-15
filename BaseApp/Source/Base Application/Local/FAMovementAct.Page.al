@@ -236,7 +236,6 @@ page 12478 "FA Movement Act"
 
     var
         CopyFADoc: Report "Copy FA Document";
-        DocPrint: Codeunit "Document-Print";
 
     local procedure ShortcutDimension1CodeOnAfterV()
     begin

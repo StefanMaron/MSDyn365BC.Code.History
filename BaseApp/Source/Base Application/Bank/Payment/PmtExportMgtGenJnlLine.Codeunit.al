@@ -124,66 +124,59 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
         DataExch: Record "Data Exch.";
         DataExchDef: Record "Data Exch. Def";
     begin
-        with GenJnlLine do begin
-            DataExch.Get(DataExchEntryNo);
-            DataExchDef.Get(DataExch."Data Exch. Def Code");
-            if DataExchDef."Columns as Rows" then
-                UpdatePmtExportData(TempPaymentExportData, GenJnlLine, DataExchEntryNo, LineNo)
-            else
-                PreparePaymentExportDataJnl(TempPaymentExportData, GenJnlLine, DataExchEntryNo, LineNo);
-            PaymentExportMgt.CreatePaymentLines(TempPaymentExportData);
-        end;
+        DataExch.Get(DataExchEntryNo);
+        DataExchDef.Get(DataExch."Data Exch. Def Code");
+        if DataExchDef."Columns as Rows" then
+            UpdatePmtExportData(TempPaymentExportData, GenJnlLine, DataExchEntryNo, LineNo)
+        else
+            PreparePaymentExportDataJnl(TempPaymentExportData, GenJnlLine, DataExchEntryNo, LineNo);
+        PaymentExportMgt.CreatePaymentLines(TempPaymentExportData);
     end;
 
     local procedure UpdatePmtExportData(var TempPaymentExportData: Record "Payment Export Data" temporary; GenJnlLine: Record "Gen. Journal Line"; DataExchEntryNo: Integer; LineNo: Integer)
     var
         BankAcc: Record "Bank Account";
         CompanyInfo: Record "Company Information";
-        DataExch: Record "Data Exch.";
-        DataExchDef: Record "Data Exch. Def";
         PaymentMethod: Record "Payment Method";
     begin
         CompanyInfo.Get();
         BankAcc.Get(GenJnlLine."Bal. Account No.");
-        with TempPaymentExportData do begin
-            Init();
-            "Data Exch Entry No." := DataExchEntryNo;
-            "Document No." := GenJnlLine."Document No.";
-            "Transfer Date" := GenJnlLine."Posting Date";
-            Amount := GenJnlLine.Amount;
-            "Currency Code" := GenJnlLine."Currency Code";
-            if PaymentMethod.Get(GenJnlLine."Payment Method Code") then
-                "Data Exch. Line Def Code" := PaymentMethod."Pmt. Export Line Definition";
-            "Line No." := LineNo;
-            "Sender Name" := CompanyInfo.Name;
-            "Sender VAT Reg. No." := CompanyInfo."VAT Registration No.";
-            "Sender Bank Account No." := BankAcc."Bank Account No.";
-            "Sender Bank Name" := BankAcc.Name;
-            "Sender Bank City" := BankAcc.City;
-            "Sender Bank BIC" := BankAcc."Bank BIC";
-            "Sender Transit No." := BankAcc."Bank Corresp. Account No.";
-            "Payment Method" := GenJnlLine."Payment Method";
-            "Payment Variant" := GenJnlLine."Payment Type";
-            "Payment Subsequence" := GenJnlLine."Payment Subsequence";
-            "Payment Purpose" := GenJnlLine."Payment Purpose";
-            "Payment Code" := GenJnlLine."Payment Code";
-            "Message to Recipient 1" := CopyStr(GenJnlLine."Cash Order Including", 1, MaxStrLen("Message to Recipient 1"));
-            "Message to Recipient 2" := CopyStr(GenJnlLine."Cash Order Supplement", 1, MaxStrLen("Message to Recipient 2"));
-            "Creation Date" := Today;
-            "Creation Time" := Format(Time);
-            "Starting Date" := GenJnlLine."Posting Date";
-            "Ending Date" := GenJnlLine."Posting Date";
-            Insert();
+        TempPaymentExportData.Init();
+        TempPaymentExportData."Data Exch Entry No." := DataExchEntryNo;
+        TempPaymentExportData."Document No." := GenJnlLine."Document No.";
+        TempPaymentExportData."Transfer Date" := GenJnlLine."Posting Date";
+        TempPaymentExportData.Amount := GenJnlLine.Amount;
+        TempPaymentExportData."Currency Code" := GenJnlLine."Currency Code";
+        if PaymentMethod.Get(GenJnlLine."Payment Method Code") then
+            TempPaymentExportData."Data Exch. Line Def Code" := PaymentMethod."Pmt. Export Line Definition";
+        TempPaymentExportData."Line No." := LineNo;
+        TempPaymentExportData."Sender Name" := CompanyInfo.Name;
+        TempPaymentExportData."Sender VAT Reg. No." := CompanyInfo."VAT Registration No.";
+        TempPaymentExportData."Sender Bank Account No." := BankAcc."Bank Account No.";
+        TempPaymentExportData."Sender Bank Name" := BankAcc.Name;
+        TempPaymentExportData."Sender Bank City" := BankAcc.City;
+        TempPaymentExportData."Sender Bank BIC" := BankAcc."Bank BIC";
+        TempPaymentExportData."Sender Transit No." := BankAcc."Bank Corresp. Account No.";
+        TempPaymentExportData."Payment Method" := GenJnlLine."Payment Method";
+        TempPaymentExportData."Payment Variant" := GenJnlLine."Payment Type";
+        TempPaymentExportData."Payment Subsequence" := GenJnlLine."Payment Subsequence";
+        TempPaymentExportData."Payment Purpose" := GenJnlLine."Payment Purpose";
+        TempPaymentExportData."Payment Code" := GenJnlLine."Payment Code";
+        TempPaymentExportData."Message to Recipient 1" := CopyStr(GenJnlLine."Cash Order Including", 1, MaxStrLen(TempPaymentExportData."Message to Recipient 1"));
+        TempPaymentExportData."Message to Recipient 2" := CopyStr(GenJnlLine."Cash Order Supplement", 1, MaxStrLen(TempPaymentExportData."Message to Recipient 2"));
+        TempPaymentExportData."Creation Date" := Today;
+        TempPaymentExportData."Creation Time" := Format(Time);
+        TempPaymentExportData."Starting Date" := GenJnlLine."Posting Date";
+        TempPaymentExportData."Ending Date" := GenJnlLine."Posting Date";
+        TempPaymentExportData.Insert();
+        case GenJnlLine."Account Type" of
+            GenJnlLine."Account Type"::Vendor:
+                UpdatePmtExportDataFromVend(TempPaymentExportData, GenJnlLine."Account No.", GenJnlLine."Beneficiary Bank Code");
+            GenJnlLine."Account Type"::Customer:
+                UpdatePmtExportDataFromCust(TempPaymentExportData, GenJnlLine."Account No.", GenJnlLine."Beneficiary Bank Code");
+            GenJnlLine."Account Type"::"G/L Account":
+                UpdatePmtExportDataFromGLAcc(TempPaymentExportData, GenJnlLine."Beneficiary Bank Code");
         end;
-        with GenJnlLine do
-            case "Account Type" of
-                "Account Type"::Vendor:
-                    UpdatePmtExportDataFromVend(TempPaymentExportData, "Account No.", "Beneficiary Bank Code");
-                "Account Type"::Customer:
-                    UpdatePmtExportDataFromCust(TempPaymentExportData, "Account No.", "Beneficiary Bank Code");
-                "Account Type"::"G/L Account":
-                    UpdatePmtExportDataFromGLAcc(TempPaymentExportData, "Beneficiary Bank Code");
-            end;
     end;
 
     local procedure UpdatePmtExportDataFromVend(var TempPaymentExportData: Record "Payment Export Data" temporary; VendorNo: Code[20]; VendorBankAccNo: Code[20])
@@ -193,16 +186,14 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
     begin
         Vendor.Get(VendorNo);
         VendorBankAcc.Get(VendorNo, VendorBankAccNo);
-        with TempPaymentExportData do begin
-            "Recipient VAT Reg. No." := Vendor."VAT Registration No.";
-            "Recipient Name" := Vendor.Name;
-            "Recipient Bank Acc. No." := VendorBankAcc."Bank Account No.";
-            "Recipient Bank Name" := VendorBankAcc.Name;
-            "Recipient Bank City" := VendorBankAcc.City;
-            "Recipient Bank BIC" := VendorBankAcc.BIC;
-            "Recipient Transit No." := VendorBankAcc."Bank Corresp. Account No.";
-            Modify();
-        end;
+        TempPaymentExportData."Recipient VAT Reg. No." := Vendor."VAT Registration No.";
+        TempPaymentExportData."Recipient Name" := Vendor.Name;
+        TempPaymentExportData."Recipient Bank Acc. No." := VendorBankAcc."Bank Account No.";
+        TempPaymentExportData."Recipient Bank Name" := VendorBankAcc.Name;
+        TempPaymentExportData."Recipient Bank City" := VendorBankAcc.City;
+        TempPaymentExportData."Recipient Bank BIC" := VendorBankAcc.BIC;
+        TempPaymentExportData."Recipient Transit No." := VendorBankAcc."Bank Corresp. Account No.";
+        TempPaymentExportData.Modify();
     end;
 
     local procedure UpdatePmtExportDataFromCust(var TempPaymentExportData: Record "Payment Export Data" temporary; CustomerNo: Code[20]; CustomerBankAccNo: Code[20])
@@ -212,16 +203,14 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
     begin
         Customer.Get(CustomerNo);
         CustomerBankAcc.Get(CustomerNo, CustomerBankAccNo);
-        with TempPaymentExportData do begin
-            "Recipient VAT Reg. No." := Customer."VAT Registration No.";
-            "Recipient Name" := Customer.Name;
-            "Recipient Bank Acc. No." := CustomerBankAcc."Bank Account No.";
-            "Recipient Bank Name" := CustomerBankAcc.Name;
-            "Recipient Bank City" := CustomerBankAcc.City;
-            "Recipient Bank BIC" := CustomerBankAcc.BIC;
-            "Recipient Transit No." := CustomerBankAcc."Bank Corresp. Account No.";
-            Modify();
-        end;
+        TempPaymentExportData."Recipient VAT Reg. No." := Customer."VAT Registration No.";
+        TempPaymentExportData."Recipient Name" := Customer.Name;
+        TempPaymentExportData."Recipient Bank Acc. No." := CustomerBankAcc."Bank Account No.";
+        TempPaymentExportData."Recipient Bank Name" := CustomerBankAcc.Name;
+        TempPaymentExportData."Recipient Bank City" := CustomerBankAcc.City;
+        TempPaymentExportData."Recipient Bank BIC" := CustomerBankAcc.BIC;
+        TempPaymentExportData."Recipient Transit No." := CustomerBankAcc."Bank Corresp. Account No.";
+        TempPaymentExportData.Modify();
     end;
 
     local procedure UpdatePmtExportDataFromGLAcc(var TempPaymentExportData: Record "Payment Export Data" temporary; BankAccDetailsCode: Code[20])
@@ -229,16 +218,14 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
         BankAccDetails: Record "Bank Account Details";
     begin
         BankAccDetails.Get(BankAccDetailsCode);
-        with TempPaymentExportData do begin
-            "Recipient VAT Reg. No." := BankAccDetails."VAT Registration No.";
-            "Recipient Name" := BankAccDetails."G/L Account Name";
-            "Recipient Bank Acc. No." := BankAccDetails."Bank Account No.";
-            "Recipient Bank Name" := BankAccDetails."Bank Name";
-            "Recipient Bank City" := BankAccDetails."Bank City";
-            "Recipient Bank BIC" := BankAccDetails."Bank BIC";
-            "Recipient Transit No." := BankAccDetails."Transit No.";
-            Modify();
-        end;
+        TempPaymentExportData."Recipient VAT Reg. No." := BankAccDetails."VAT Registration No.";
+        TempPaymentExportData."Recipient Name" := BankAccDetails."G/L Account Name";
+        TempPaymentExportData."Recipient Bank Acc. No." := BankAccDetails."Bank Account No.";
+        TempPaymentExportData."Recipient Bank Name" := BankAccDetails."Bank Name";
+        TempPaymentExportData."Recipient Bank City" := BankAccDetails."Bank City";
+        TempPaymentExportData."Recipient Bank BIC" := BankAccDetails."Bank BIC";
+        TempPaymentExportData."Recipient Transit No." := BankAccDetails."Transit No.";
+        TempPaymentExportData.Modify();
     end;
 
     procedure PreparePaymentExportDataJnl(var TempPaymentExportData: Record "Payment Export Data" temporary; GenJnlLine: Record "Gen. Journal Line"; DataExchEntryNo: Integer; LineNo: Integer)
@@ -250,6 +237,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
         PaymentMethod: Record "Payment Method";
         BankAccount: Record "Bank Account";
         BankExportImportSetup: Record "Bank Export/Import Setup";
+        CompanyInformation: Record "Company Information";
         IsEmployee: Boolean;
     begin
         GeneralLedgerSetup.Get();
@@ -261,61 +249,61 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
             Vendor.Get(GenJnlLine."Account No.");
         end;
 
-        with TempPaymentExportData do begin
-            BankAccount.Get(GenJnlLine."Bal. Account No.");
-            BankAccount.GetBankExportImportSetup(BankExportImportSetup);
-            SetPreserveNonLatinCharacters(BankExportImportSetup."Preserve Non-Latin Characters");
+        BankAccount.Get(GenJnlLine."Bal. Account No.");
+        BankAccount.GetBankExportImportSetup(BankExportImportSetup);
+        TempPaymentExportData.SetPreserveNonLatinCharacters(BankExportImportSetup."Preserve Non-Latin Characters");
 
-            Init();
-            "Data Exch Entry No." := DataExchEntryNo;
-            "Sender Bank Account Code" := GenJnlLine."Bal. Account No.";
-            "Sender Bank Name" := BankAccount.Name;
+        CompanyInformation.Get();
+        TempPaymentExportData.Init();
+        TempPaymentExportData."Data Exch Entry No." := DataExchEntryNo;
+        TempPaymentExportData."Sender Bank Account Code" := GenJnlLine."Bal. Account No.";
+        TempPaymentExportData."Sender Bank Name" := BankAccount.Name;
+        TempPaymentExportData."Sender Reg. No." := GenJnlLine."Bal. Account No.";
 
-            if IsEmployee then begin
-                Amount := GenJnlLine.Amount;
-                "Currency Code" := GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code");
-                FillPaymentExportDataFromEmployee(TempPaymentExportData, Employee);
-            end else begin
-                if VendorBankAccount.Get(GenJnlLine."Account No.", GenJnlLine."Recipient Bank Account") then begin
-                    Amount := GenJnlLine.Amount;
-                    "Currency Code" := GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code");
-                    "Recipient Bank Acc. No." :=
-                      CopyStr(VendorBankAccount.GetBankAccountNo(), 1, MaxStrLen("Recipient Bank Acc. No."));
-                    "Recipient Reg. No." := VendorBankAccount."Bank Branch No.";
-                    "Recipient Acc. No." := VendorBankAccount."Bank Account No.";
-                    "Recipient Bank Country/Region" := VendorBankAccount."Country/Region Code";
-                    "Recipient Bank Name" := CopyStr(VendorBankAccount.Name, 1, 35);
-                    "Recipient Bank Address" := CopyStr(VendorBankAccount.Address, 1, 35);
-                    "Recipient Bank City" := CopyStr(VendorBankAccount."Post Code" + VendorBankAccount.City, 1, 35);
-                    "Recipient Bank BIC" := VendorBankAccount."SWIFT Code";
-                    "Recipient Bank County" := VendorBankAccount.County;
-                    "Recipient Bank Post Code" := VendorBankAccount."Post Code";
-                end else
-                    if GenJnlLine."Creditor No." <> '' then begin
-                        Amount := GenJnlLine."Amount (LCY)";
-                        "Currency Code" := GeneralLedgerSetup."LCY Code";
-                    end;
+                if IsEmployee then begin
+            TempPaymentExportData.Amount := GenJnlLine.Amount;
+            TempPaymentExportData."Currency Code" := GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code");
+            FillPaymentExportDataFromEmployee(TempPaymentExportData, Employee);
+        end else begin
+            if VendorBankAccount.Get(GenJnlLine."Account No.", GenJnlLine."Recipient Bank Account") then begin
+                TempPaymentExportData.Amount := GenJnlLine.Amount;
+                TempPaymentExportData."Currency Code" := GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code");
+                TempPaymentExportData."Recipient Bank Acc. No." :=
+                  CopyStr(VendorBankAccount.GetBankAccountNo(), 1, MaxStrLen(TempPaymentExportData."Recipient Bank Acc. No."));
+                TempPaymentExportData."Recipient Reg. No." := VendorBankAccount."Bank Branch No.";
+                TempPaymentExportData."Recipient Acc. No." := VendorBankAccount."Bank Account No.";
+                TempPaymentExportData."Recipient Bank Country/Region" := VendorBankAccount."Country/Region Code";
+                TempPaymentExportData."Recipient Bank Name" := CopyStr(VendorBankAccount.Name, 1, 35);
+                TempPaymentExportData."Recipient Bank Address" := CopyStr(VendorBankAccount.Address, 1, 35);
+                TempPaymentExportData."Recipient Bank City" := CopyStr(VendorBankAccount."Post Code" + VendorBankAccount.City, 1, 35);
+                TempPaymentExportData."Recipient Bank BIC" := VendorBankAccount."SWIFT Code";
+                TempPaymentExportData."Recipient Bank County" := VendorBankAccount.County;
+                TempPaymentExportData."Recipient Bank Post Code" := VendorBankAccount."Post Code";
+            end else
+                if GenJnlLine."Creditor No." <> '' then begin
+                    TempPaymentExportData.Amount := GenJnlLine."Amount (LCY)";
+                    TempPaymentExportData."Currency Code" := GeneralLedgerSetup."LCY Code";
+                end;
 
-                "Recipient Name" := CopyStr(Vendor.Name, 1, 35);
-                "Recipient Address" := CopyStr(Vendor.Address, 1, 35);
-                "Recipient City" := CopyStr(Vendor."Post Code" + ' ' + Vendor.City, 1, 35);
-                "Recipient Email Address" := Vendor."E-Mail";
-            end;
-
-            "Transfer Date" := GenJnlLine."Posting Date";
-            "Message to Recipient 1" := CopyStr(GenJnlLine."Message to Recipient", 1, 35);
-            "Message to Recipient 2" := CopyStr(GenJnlLine."Message to Recipient", 36, 70);
-            "Document No." := GenJnlLine."Document No.";
-            "Applies-to Ext. Doc. No." := GenJnlLine."Applies-to Ext. Doc. No.";
-            "Short Advice" := GenJnlLine."Applies-to Ext. Doc. No.";
-            "Line No." := LineNo;
-            "Payment Reference" := GenJnlLine."Payment Reference";
-            if PaymentMethod.Get(GenJnlLine."Payment Method Code") then
-                "Data Exch. Line Def Code" := PaymentMethod."Pmt. Export Line Definition";
-            "Recipient Creditor No." := GenJnlLine."Creditor No.";
-            OnBeforeInsertPmtExportDataJnlFromGenJnlLine(TempPaymentExportData, GenJnlLine, GeneralLedgerSetup);
-            Insert(true);
+            TempPaymentExportData."Recipient Name" := CopyStr(Vendor.Name, 1, 35);
+            TempPaymentExportData."Recipient Address" := CopyStr(Vendor.Address, 1, 35);
+            TempPaymentExportData."Recipient City" := CopyStr(Vendor."Post Code" + ' ' + Vendor.City, 1, 35);
+            TempPaymentExportData."Recipient Email Address" := Vendor."E-Mail";
         end;
+
+        TempPaymentExportData."Transfer Date" := GenJnlLine."Posting Date";
+        TempPaymentExportData."Message to Recipient 1" := CopyStr(GenJnlLine."Message to Recipient", 1, 35);
+        TempPaymentExportData."Message to Recipient 2" := CopyStr(GenJnlLine."Message to Recipient", 36, 70);
+        TempPaymentExportData."Document No." := GenJnlLine."Document No.";
+        TempPaymentExportData."Applies-to Ext. Doc. No." := GenJnlLine."Applies-to Ext. Doc. No.";
+        TempPaymentExportData."Short Advice" := GenJnlLine."Applies-to Ext. Doc. No.";
+        TempPaymentExportData."Line No." := LineNo;
+        TempPaymentExportData."Payment Reference" := GenJnlLine."Payment Reference";
+        if PaymentMethod.Get(GenJnlLine."Payment Method Code") then
+            TempPaymentExportData."Data Exch. Line Def Code" := PaymentMethod."Pmt. Export Line Definition";
+        TempPaymentExportData."Recipient Creditor No." := GenJnlLine."Creditor No.";
+        OnBeforeInsertPmtExportDataJnlFromGenJnlLine(TempPaymentExportData, GenJnlLine, GeneralLedgerSetup);
+        TempPaymentExportData.Insert(true);
     end;
 
     procedure EnableExportToServerTempFile(SilentServerMode: Boolean; ServerFileExtension: Text[3])
@@ -336,18 +324,16 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
         if EmployeeBankAccNo = '' then
             Error(EmployeeMustHaveBankAccountNoErr, Employee.FullName());
 
-        with TempPaymentExportData do begin
-            "Recipient Name" := Employee.FullName();
-            "Recipient Address" := Employee.Address;
-            "Recipient City" := Employee.City;
-            "Recipient County" := Employee.County;
-            "Recipient Post Code" := Employee."Post Code";
-            "Recipient Country/Region Code" := Employee."Country/Region Code";
-            "Recipient Email Address" := Employee."E-Mail";
-            "Recipient Bank Acc. No." := CopyStr(EmployeeBankAccNo, 1, MaxStrLen("Recipient Bank Acc. No."));
-            "Recipient Reg. No." := Employee."Bank Branch No.";
-            "Recipient Acc. No." := Employee."Bank Account No.";
-        end;
+        TempPaymentExportData."Recipient Name" := Employee.FullName();
+        TempPaymentExportData."Recipient Address" := Employee.Address;
+        TempPaymentExportData."Recipient City" := Employee.City;
+        TempPaymentExportData."Recipient County" := Employee.County;
+        TempPaymentExportData."Recipient Post Code" := Employee."Post Code";
+        TempPaymentExportData."Recipient Country/Region Code" := Employee."Country/Region Code";
+        TempPaymentExportData."Recipient Email Address" := Employee."E-Mail";
+        TempPaymentExportData."Recipient Bank Acc. No." := CopyStr(EmployeeBankAccNo, 1, MaxStrLen(TempPaymentExportData."Recipient Bank Acc. No."));
+        TempPaymentExportData."Recipient Reg. No." := Employee."Bank Branch No.";
+        TempPaymentExportData."Recipient Acc. No." := Employee."Bank Account No.";
     end;
 
     [IntegrationEvent(false, false)]

@@ -4,6 +4,7 @@ table 26559 "Stat. Report Requisite"
     ObsoleteReason = 'Obsolete functionality';
     ObsoleteState = Removed;
     ObsoleteTag = '19.0';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -11,6 +11,7 @@ table 5619 "FA Journal Template"
     Caption = 'FA Journal Template';
     LookupPageID = "FA Journal Template List";
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -215,4 +216,3 @@ table 5619 "FA Journal Template"
         Text000: Label 'Only the %1 field can be filled in on recurring journals.';
         Text001: Label 'must not be %1';
 }
-

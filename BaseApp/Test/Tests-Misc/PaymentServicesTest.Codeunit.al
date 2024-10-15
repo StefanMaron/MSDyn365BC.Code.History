@@ -45,14 +45,14 @@ codeunit 134425 "Payment Services Test"
         InventorySetup: Record "Inventory Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Payment Services Test");
-        BindActiveDirectoryMockEvents;
+        BindActiveDirectoryMockEvents();
         CompanyInfo.Get();
         CompanyInfo."Allow Blank Payment Info." := true;
         CompanyInfo.Modify();
-        PaymentServiceExtensionMock.AssertQueuesEmpty;
+        PaymentServiceExtensionMock.AssertQueuesEmpty();
 
-        PaymentServiceExtensionMock.EmptyTempPaymentServiceTables;
-        LibraryVariableStorage.AssertEmpty;
+        PaymentServiceExtensionMock.EmptyTempPaymentServiceTables();
+        LibraryVariableStorage.AssertEmpty();
         SalesInvoiceHeader.DeleteAll();
         SalesHeader.DeleteAll();
 
@@ -71,7 +71,7 @@ codeunit 134425 "Payment Services Test"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryInventory.NoSeriesSetup(InventorySetup);
-        SetupReportSelections;
+        SetupReportSelections();
         Commit();
 
         Initialized := true;
@@ -100,10 +100,10 @@ codeunit 134425 "Payment Services Test"
         CancelSelectionDialog := false;
         SetSelectPaymentServiceTypeParameters(CancelSelectionDialog, TempTemplatePaymentServiceSetup.Name);
 
-        PaymentServices.OpenEdit;
+        PaymentServices.OpenEdit();
 
         // Execute
-        PaymentServices.NewAction.Invoke;
+        PaymentServices.NewAction.Invoke();
 
         // Verify
         VerifyPaymentServicePage(PaymentServices, TempExpectedPaymentServiceSetup);
@@ -131,10 +131,10 @@ codeunit 134425 "Payment Services Test"
         PaymentServiceExtensionMock.EnqueueForMockEvent(TempExpectedPaymentServiceSetup.Enabled);
         PaymentServiceExtensionMock.EnqueueForMockEvent(TempExpectedPaymentServiceSetup."Always Include on Documents");
 
-        PaymentServices.OpenEdit;
+        PaymentServices.OpenEdit();
 
         // Execute
-        PaymentServices.NewAction.Invoke;
+        PaymentServices.NewAction.Invoke();
 
         // Verify
         VerifyPaymentServicePage(PaymentServices, TempExpectedPaymentServiceSetup);
@@ -156,15 +156,15 @@ codeunit 134425 "Payment Services Test"
         CreateTemplate(TempPaymentServiceSetup);
         PaymentServiceExtensionMock.SetPaymentServiceTemplates(TempPaymentServiceSetup);
 
-        PaymentServices.OpenEdit;
+        PaymentServices.OpenEdit();
         CancelSelectionDialog := true;
         SetSelectPaymentServiceTypeParameters(CancelSelectionDialog, TempPaymentServiceSetup.Name);
 
         // Execute
-        PaymentServices.NewAction.Invoke;
+        PaymentServices.NewAction.Invoke();
 
         // Verify
-        Assert.IsFalse(PaymentServices.First, 'No records should be present');
+        Assert.IsFalse(PaymentServices.First(), 'No records should be present');
     end;
 
     [Test]
@@ -180,8 +180,8 @@ codeunit 134425 "Payment Services Test"
         // Setup
         Initialize();
 
-        FirstRowDescription := GenerateRandomAlphanumericText;
-        SecondRowName := GenerateRandomAlphanumericText;
+        FirstRowDescription := GenerateRandomAlphanumericText();
+        SecondRowName := GenerateRandomAlphanumericText();
 
         CreateDefaultTemplate(TempTemplatePaymentServiceSetup);
         PaymentServiceExtensionMock.SetPaymentServiceTemplates(TempTemplatePaymentServiceSetup);
@@ -196,18 +196,18 @@ codeunit 134425 "Payment Services Test"
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         // Execute
-        PaymentServices.OpenEdit;
+        PaymentServices.OpenEdit();
 
         // Verify first record
-        PaymentServices.First;
+        PaymentServices.First();
         Assert.AreEqual(FirstRowDescription, PaymentServices.Description.Value, 'Description was not set correctly on the first row');
 
         // Verify second record
         PaymentServices.Next();
         Assert.AreEqual(SecondRowName, PaymentServices.Name.Value, 'Description was not set correctly on the second row');
-        Assert.AreEqual(true, PaymentServices.Enabled.AsBoolean, 'Enabled was not set correctly');
+        Assert.AreEqual(true, PaymentServices.Enabled.AsBoolean(), 'Enabled was not set correctly');
         Assert.AreEqual(
-          true, PaymentServices."Always Include on Documents".AsBoolean, 'Always include on documents was not set correctly');
+          true, PaymentServices."Always Include on Documents".AsBoolean(), 'Always include on documents was not set correctly');
     end;
 
     [Test]
@@ -219,7 +219,7 @@ codeunit 134425 "Payment Services Test"
         // Setup
         Initialize();
 
-        asserterror PaymentServices.OpenEdit;
+        asserterror PaymentServices.OpenEdit();
         Assert.ExpectedError(NoPaymentServicesAvailableErr);
     end;
 
@@ -243,10 +243,10 @@ codeunit 134425 "Payment Services Test"
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         // Execute
-        PaymentServices.OpenEdit;
+        PaymentServices.OpenEdit();
         PaymentServices.FILTER.SetFilter("Management Codeunit ID", '');
-        PaymentServices.First;
-        PaymentServices.Setup.Invoke;
+        PaymentServices.First();
+        PaymentServices.Setup.Invoke();
 
         // Verify - within the handler
     end;
@@ -323,11 +323,11 @@ codeunit 134425 "Payment Services Test"
 
         CreateSalesInvoiceLCY(SalesHeader, DummyPaymentMethod);
 
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
 
         // Execute
-        SalesInvoice.SelectedPayments.AssistEdit;
+        SalesInvoice.SelectedPayments.AssistEdit();
 
         // Verify
         Assert.AreEqual(SalesInvoice.SelectedPayments.Value, TempExpectedPaymentServiceSetup.Name, 'Wrong value set on Sales Invoice');
@@ -358,11 +358,11 @@ codeunit 134425 "Payment Services Test"
 
         CreateSalesQuote(SalesHeader, DummyPaymentMethod, LCY);
 
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
 
         // Execute
-        SalesQuote.SelectedPayments.AssistEdit;
+        SalesQuote.SelectedPayments.AssistEdit();
 
         // Verify
         Assert.AreEqual(SalesQuote.SelectedPayments.Value, TempExpectedPaymentServiceSetup.Name, 'Wrong value set on Sales Quote');
@@ -394,9 +394,9 @@ codeunit 134425 "Payment Services Test"
         CreateSalesOrder(SalesHeader, DummyPaymentMethod, LCY);
 
         // Execute
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
-        SalesOrder.SelectedPayments.AssistEdit;
+        SalesOrder.SelectedPayments.AssistEdit();
 
         // Verify
         Assert.AreEqual(SalesOrder.SelectedPayments.Value, TempExpectedPaymentServiceSetup.Name, 'Wrong value set on Sales Order');
@@ -428,12 +428,12 @@ codeunit 134425 "Payment Services Test"
         CreatePaymentMethod(PaymentMethod, false);
         CreateAndPostSalesInvoice(SalesInvoiceHeader, PaymentMethod);
 
-        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.OpenEdit();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
         LibraryVariableStorage.Enqueue(ReminderToSendAgainMsg);
 
         // Execute
-        PostedSalesInvoice.SelectedPayments.AssistEdit;
+        PostedSalesInvoice.SelectedPayments.AssistEdit();
 
         // Verify
         Assert.AreEqual(
@@ -463,11 +463,11 @@ codeunit 134425 "Payment Services Test"
 
         LibraryVariableStorage.Enqueue(UpdateOrCreateNewOption::"Update Existing");
 
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
 
         // Execute
-        SalesInvoice.SelectedPayments.AssistEdit;
+        SalesInvoice.SelectedPayments.AssistEdit();
 
         // Verify
         Assert.AreEqual(SalesInvoice.SelectedPayments.Value, TempTemplatePaymentServiceSetup.Name, 'Wrong value set on Sales Invoice');
@@ -499,11 +499,11 @@ codeunit 134425 "Payment Services Test"
         LibraryVariableStorage.Enqueue(UpdateOrCreateNewOption::"Create New");
         SetCreateNewPaymentServiceTypeParameters(TempExpectedPaymentServiceSetup, TempTemplatePaymentServiceSetup);
 
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
 
         // Execute
-        SalesInvoice.SelectedPayments.AssistEdit;
+        SalesInvoice.SelectedPayments.AssistEdit();
 
         // Verify
         Assert.AreEqual(SalesInvoice.SelectedPayments.Value, TempExpectedPaymentServiceSetup.Name, 'Wrong value set on Sales Invoice');
@@ -532,11 +532,11 @@ codeunit 134425 "Payment Services Test"
 
         LibraryVariableStorage.Enqueue(UpdateOrCreateNewOption::Cancel);
 
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
 
         // Execute
-        SalesInvoice.SelectedPayments.AssistEdit;
+        SalesInvoice.SelectedPayments.AssistEdit();
 
         // Verify
         Assert.AreEqual(SalesInvoice.SelectedPayments.Value, NoPaymentMethodsSelectedTxt, 'Wrong value set on Sales Invoice');
@@ -565,11 +565,11 @@ codeunit 134425 "Payment Services Test"
         CreatePaymentMethod(PaymentMethod, false);
         CreateAndPostSalesInvoice(SalesInvoiceHeader, PaymentMethod);
 
-        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.OpenEdit();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
 
         // Execute
-        PostedSalesInvoice.SelectedPayments.AssistEdit;
+        PostedSalesInvoice.SelectedPayments.AssistEdit();
 
         // Verify - No Page should be open
         Assert.AreEqual(NoPaymentMethodsSelectedTxt, PostedSalesInvoice.SelectedPayments.Value, 'No payment services should be selected');
@@ -608,12 +608,12 @@ codeunit 134425 "Payment Services Test"
 
         CreateSalesInvoiceLCY(SalesHeader, DummyPaymentMethod);
 
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
         SetSelectPaymentServiceParameters(false, EnabledServiceName, false, true);
 
         // Execute
-        SalesInvoice.SelectedPayments.AssistEdit;
+        SalesInvoice.SelectedPayments.AssistEdit();
 
         // Verify
         Assert.AreEqual(EnabledServiceName, SalesInvoice.SelectedPayments.Value, 'Wrong Payment Service selected');
@@ -660,13 +660,13 @@ codeunit 134425 "Payment Services Test"
 
         CreateSalesInvoiceLCY(SalesHeader, DummyPaymentMethod);
 
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
         Assert.AreEqual(PaymentService1Name, SalesInvoice.SelectedPayments.Value, 'Payment Service should be selected by default');
         SetSelectPaymentServiceParameters(false, PaymentService2Name, false, true);
 
         // Execute
-        SalesInvoice.SelectedPayments.AssistEdit;
+        SalesInvoice.SelectedPayments.AssistEdit();
 
         // Verify
         Assert.AreEqual(PaymentService2Name, SalesInvoice.SelectedPayments.Value, 'Wrong Payment Service selected');
@@ -688,12 +688,12 @@ codeunit 134425 "Payment Services Test"
         CreateTemplatesAndAccountsForSelectionTest(TempPaymentServiceSetup);
 
         CreateSalesInvoiceLCY(SalesHeader, DummyPaymentMethod);
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
         SetSelectPaymentServiceParameters(false, TempPaymentServiceSetup.Name, true, false);
 
         // Execute
-        SalesInvoice.SelectedPayments.AssistEdit;
+        SalesInvoice.SelectedPayments.AssistEdit();
 
         // Verify
         Assert.AreEqual(NoPaymentMethodsSelectedTxt, SalesInvoice.SelectedPayments.Value, 'Wrong value was set');
@@ -715,12 +715,12 @@ codeunit 134425 "Payment Services Test"
         CreateTemplatesAndAccountsForSelectionTest(TempPaymentServiceSetup);
 
         CreateSalesInvoiceLCY(SalesHeader, DummyPaymentMethod);
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
         SetSelectPaymentServiceParameters(true, TempPaymentServiceSetup.Name, true, false);
 
         // Execute
-        SalesInvoice.SelectedPayments.AssistEdit;
+        SalesInvoice.SelectedPayments.AssistEdit();
 
         // Verify
         Assert.AreEqual(TempPaymentServiceSetup.Name, SalesInvoice.SelectedPayments.Value, 'Wrong value was set');
@@ -742,8 +742,8 @@ codeunit 134425 "Payment Services Test"
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         // Execute
-        SalesInvoice.OpenEdit;
-        SalesInvoice.New;
+        SalesInvoice.OpenEdit();
+        SalesInvoice.New();
 
         // Verify
         Assert.AreEqual(TempPaymentServiceSetup.Name, SalesInvoice.SelectedPayments.Value, 'Wrong value was set');
@@ -765,8 +765,8 @@ codeunit 134425 "Payment Services Test"
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         // Execute
-        SalesOrder.OpenEdit;
-        SalesOrder.New;
+        SalesOrder.OpenEdit();
+        SalesOrder.New();
 
         // Verify
         Assert.AreEqual(TempPaymentServiceSetup.Name, SalesOrder.SelectedPayments.Value, 'Wrong value was set');
@@ -788,8 +788,8 @@ codeunit 134425 "Payment Services Test"
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         // Execute
-        SalesQuote.OpenEdit;
-        SalesQuote.New;
+        SalesQuote.OpenEdit();
+        SalesQuote.New();
 
         // Verify
         Assert.AreEqual(TempPaymentServiceSetup.Name, SalesQuote.SelectedPayments.Value, 'Wrong value was set');
@@ -814,8 +814,8 @@ codeunit 134425 "Payment Services Test"
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         // Execute
-        SalesInvoice.OpenEdit;
-        SalesInvoice.New;
+        SalesInvoice.OpenEdit();
+        SalesInvoice.New();
 
         // Verify
         Assert.AreEqual(GetExpectedName(TempPaymentServiceSetup), SalesInvoice.SelectedPayments.Value, 'Wrong value was set');
@@ -842,7 +842,7 @@ codeunit 134425 "Payment Services Test"
         CreateSalesInvoiceLCY(SalesHeader, DummyPaymentMethod);
 
         // Execute
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
 
         // Verify
@@ -867,15 +867,15 @@ codeunit 134425 "Payment Services Test"
         CreateSalesInvoiceLCY(SalesHeader, PaymentMethod);
 
         // Execute
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
 
         // Verify
         Assert.IsFalse(
-          SalesInvoice.SelectedPayments.Enabled,
+          SalesInvoice.SelectedPayments.Enabled(),
           'Invoice - Selected Payments should be set to disabled when payment method has balancing account');
         Assert.IsTrue(
-          SalesInvoice.SelectedPayments.Visible, 'Invoice - Selected Payments should be visible');
+          SalesInvoice.SelectedPayments.Visible(), 'Invoice - Selected Payments should be visible');
     end;
 
     [Test]
@@ -896,15 +896,15 @@ codeunit 134425 "Payment Services Test"
         CreateSalesQuote(SalesHeader, PaymentMethod, LCY);
 
         // Execute
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
 
         // Verify
         Assert.IsFalse(
-          SalesQuote.SelectedPayments.Enabled,
+          SalesQuote.SelectedPayments.Enabled(),
           'Quote - Selected Payments should be set to disabled when payment method has balancing account');
         Assert.IsTrue(
-          SalesQuote.SelectedPayments.Visible, 'Quote - Selected Payments should be visible');
+          SalesQuote.SelectedPayments.Visible(), 'Quote - Selected Payments should be visible');
     end;
 
     [Test]
@@ -925,15 +925,15 @@ codeunit 134425 "Payment Services Test"
         CreateSalesOrder(SalesHeader, PaymentMethod, LCY);
 
         // Execute
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
 
         // Verify
         Assert.IsFalse(
-          SalesOrder.SelectedPayments.Enabled,
+          SalesOrder.SelectedPayments.Enabled(),
           'Order - Selected Payments should be set to disabled when payment method has balancing account');
         Assert.IsTrue(
-          SalesOrder.SelectedPayments.Visible, 'Order - Selected Payments should be visible');
+          SalesOrder.SelectedPayments.Visible(), 'Order - Selected Payments should be visible');
     end;
 
     [Test]
@@ -954,15 +954,15 @@ codeunit 134425 "Payment Services Test"
         CreateAndPostSalesInvoice(SalesInvoiceHeader, PaymentMethod);
 
         // Execute
-        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.OpenEdit();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
 
         // Verify
         Assert.IsFalse(
-          PostedSalesInvoice.SelectedPayments.Enabled,
+          PostedSalesInvoice.SelectedPayments.Enabled(),
           'Selected Payments should be set to disabled when payment method has balancing account');
         Assert.IsTrue(
-          PostedSalesInvoice.SelectedPayments.Visible, 'Selected Payments should be visible');
+          PostedSalesInvoice.SelectedPayments.Visible(), 'Selected Payments should be visible');
     end;
 
     [Test]
@@ -991,16 +991,16 @@ codeunit 134425 "Payment Services Test"
 
         // Verify
         Assert.AreEqual(0, SalesHeader."Payment Service Set ID", 'SalesInvoice - Payment service should be blanked');
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
 
         Assert.AreEqual(
           NoPaymentMethodsSelectedTxt, SalesInvoice.SelectedPayments.Value, 'SalesInvoice - Wrong value was set on the Sales Invoice');
         Assert.IsTrue(
-          SalesInvoice.SelectedPayments.Visible, 'SalesInvoice - Selected Payments should be visible');
+          SalesInvoice.SelectedPayments.Visible(), 'SalesInvoice - Selected Payments should be visible');
 
         Assert.IsFalse(
-          SalesInvoice.SelectedPayments.Enabled,
+          SalesInvoice.SelectedPayments.Enabled(),
           'SalesInvoice - Selected Payments should be set to disabled when payment method has balancing account');
     end;
 
@@ -1030,16 +1030,16 @@ codeunit 134425 "Payment Services Test"
 
         // Verify
         Assert.AreEqual(0, SalesHeader."Payment Service Set ID", 'SalesOrder - Payment service should be blanked');
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
 
         Assert.AreEqual(
           NoPaymentMethodsSelectedTxt, SalesOrder.SelectedPayments.Value, 'SalesOrder - Wrong value was set on the Sales Invoice');
         Assert.IsTrue(
-          SalesOrder.SelectedPayments.Visible, 'SalesOrder - Selected Payments should be visible');
+          SalesOrder.SelectedPayments.Visible(), 'SalesOrder - Selected Payments should be visible');
 
         Assert.IsFalse(
-          SalesOrder.SelectedPayments.Enabled,
+          SalesOrder.SelectedPayments.Enabled(),
           'SalesOrder - Selected Payments should be set to disabled when payment method has balancing account');
     end;
 
@@ -1069,16 +1069,16 @@ codeunit 134425 "Payment Services Test"
 
         // Verify
         Assert.AreEqual(0, SalesHeader."Payment Service Set ID", 'SalesQuote - Payment service should be blanked');
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
 
         Assert.AreEqual(
           NoPaymentMethodsSelectedTxt, SalesQuote.SelectedPayments.Value, 'SalesQuote - Wrong value was set on the Sales Invoice');
         Assert.IsTrue(
-          SalesQuote.SelectedPayments.Visible, 'SalesQuote - Selected Payments should be visible');
+          SalesQuote.SelectedPayments.Visible(), 'SalesQuote - Selected Payments should be visible');
 
         Assert.IsFalse(
-          SalesQuote.SelectedPayments.Enabled,
+          SalesQuote.SelectedPayments.Enabled(),
           'SalesQuote - Selected Payments should be set to disabled when payment method has balancing account');
     end;
 
@@ -1099,6 +1099,7 @@ codeunit 134425 "Payment Services Test"
     begin
         // Setup
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
 
         CreateDefaultTemplate(TempTemplatePaymentServiceSetup);
         CreateDefaultPaymentService(TempPaymentServiceSetup, TempTemplatePaymentServiceSetup);
@@ -1108,10 +1109,10 @@ codeunit 134425 "Payment Services Test"
 
         CreateSalesQuote(SalesHeader, DummyPaymentMethod, LCY);
 
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
 
-        ItemNo := SalesQuote.SalesLines."No.".Value;
+        ItemNo := SalesQuote.SalesLines."No.".Value();
 
         // Execute
         ConfirmConvertingToOrder := true;
@@ -1119,13 +1120,15 @@ codeunit 134425 "Payment Services Test"
         LibraryVariableStorage.Enqueue(ConfirmConvertingToOrder);
         LibraryVariableStorage.Enqueue(ConfirmOpeningNewDocument);
 
-        SalesOrder.Trap;
-        SalesQuote.MakeOrder.Invoke;
+        SalesOrder.Trap();
+        SalesQuote.MakeOrder.Invoke();
 
         // Verify
         Assert.AreEqual(
           SalesOrder.SelectedPayments.Value, TempPaymentServiceSetup.Name, 'Payment service should be carried over to Sales Order');
         NotificationLifecycleMgt.RecallAllNotifications();
+
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -1153,7 +1156,7 @@ codeunit 134425 "Payment Services Test"
 
         CreateSalesQuote(SalesHeader, DummyPaymentMethod, LCY);
 
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
 
         // Execute
@@ -1162,8 +1165,8 @@ codeunit 134425 "Payment Services Test"
         LibraryVariableStorage.Enqueue(ConfirmConvertingToInvoice);
         LibraryVariableStorage.Enqueue(ConfirmOpeningNewDocument);
 
-        SalesInvoice.Trap;
-        SalesQuote.MakeInvoice.Invoke;
+        SalesInvoice.Trap();
+        SalesQuote.MakeInvoice.Invoke();
 
         // Verify
         Assert.AreEqual(
@@ -1202,7 +1205,7 @@ codeunit 134425 "Payment Services Test"
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         // Verify
-        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.OpenEdit();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
         Assert.AreEqual(NoPaymentMethodsSelectedTxt, PostedSalesInvoice.SelectedPayments.Value, 'Wrong value was set');
     end;
@@ -1240,7 +1243,7 @@ codeunit 134425 "Payment Services Test"
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         // Verify
-        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.OpenEdit();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
         TempPaymentServiceSetup.Delete();
 
@@ -1273,7 +1276,7 @@ codeunit 134425 "Payment Services Test"
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         // Execute
-        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.OpenEdit();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
 
         // Verify
@@ -1297,7 +1300,7 @@ codeunit 134425 "Payment Services Test"
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         // Execute
-        ServiceConnections.OpenEdit;
+        ServiceConnections.OpenEdit();
 
         // Verify
         VerifyPaymentServiceIsShownOnServiceConnectionsPage(ServiceConnections, TempPaymentServiceSetup);
@@ -1320,7 +1323,7 @@ codeunit 134425 "Payment Services Test"
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         // Execute
-        ServiceConnections.OpenEdit;
+        ServiceConnections.OpenEdit();
 
         // Verify
         VerifyPaymentServiceIsShownOnServiceConnectionsPage(ServiceConnections, TempPaymentServiceSetup);
@@ -1345,11 +1348,11 @@ codeunit 134425 "Payment Services Test"
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         // Execute
-        ServiceConnections.OpenEdit;
+        ServiceConnections.OpenEdit();
         ServiceConnections.FILTER.SetFilter(Name, TempPaymentServiceSetup.Description);
 
         // Execute
-        ServiceConnections.Setup.Invoke;
+        ServiceConnections.Setup.Invoke();
     end;
 
     [Test]
@@ -1373,11 +1376,11 @@ codeunit 134425 "Payment Services Test"
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         // Execute
-        PaymentServices.OpenEdit;
+        PaymentServices.OpenEdit();
 
         // Verify first record
-        PaymentServices.First;
-        PaymentServices."Terms of Service".DrillDown;
+        PaymentServices.First();
+        PaymentServices."Terms of Service".DrillDown();
 
         // Verify second record
         Assert.AreEqual(TermsOfServiceURLTxt, PaymentServices."Terms of Service".Value, 'Terms of service have not been set correctly');
@@ -1401,11 +1404,11 @@ codeunit 134425 "Payment Services Test"
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         // Execute
-        PaymentServices.OpenEdit;
+        PaymentServices.OpenEdit();
 
         // Verify first record
-        PaymentServices.First;
-        PaymentServices."Terms of Service".DrillDown;
+        PaymentServices.First();
+        PaymentServices."Terms of Service".DrillDown();
 
         // Verify second record
         Assert.AreEqual('', PaymentServices."Terms of Service".Value, 'Terms of service have not been set correctly');
@@ -1441,12 +1444,12 @@ codeunit 134425 "Payment Services Test"
         CreatePaymentMethod(PaymentMethod, false);
         CreateAndPostSalesInvoice(SalesInvoiceHeader, PaymentMethod);
 
-        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.OpenEdit();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
 
         // Exercise
         TempPaymentServiceSetup.CreateReportingArgs(TempPaymentReportingArgument, SalesInvoiceHeader);
-        PostedSalesInvoice.Email.Invoke;
+        PostedSalesInvoice.Email.Invoke();
 
         // Verify
         TempPaymentReportingArgument.FindFirst();
@@ -1488,7 +1491,7 @@ codeunit 134425 "Payment Services Test"
         ReportSelections: Record "Report Selections";
     begin
         ReportSelections.DeleteAll();
-        CreateDefaultReportSelection;
+        CreateDefaultReportSelection();
 
         GetCustomBodyLayout(CustomReportLayout);
 
@@ -1633,7 +1636,7 @@ codeunit 134425 "Payment Services Test"
         TempPaymentServiceSetup."No." := LibraryUtility.GenerateGUID();
         TempPaymentServiceSetup.Name := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(10, 1), 1, 10);
         TempPaymentServiceSetup.Description := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(10, 1), 1, 10);
-        TempPaymentServiceSetup."Management Codeunit ID" := PaymentServiceExtensionMock.GetCodeunitID;
+        TempPaymentServiceSetup."Management Codeunit ID" := PaymentServiceExtensionMock.GetCodeunitID();
         TempPaymentServiceSetup.Insert();
 
         AssignMockSetupRecordID(TempPaymentServiceSetup);
@@ -1779,9 +1782,9 @@ codeunit 134425 "Payment Services Test"
     begin
         Assert.AreEqual(ExpectedPaymentServiceSetup.Name, PaymentServices.Name.Value, 'Wrong value set for Name');
         Assert.AreEqual(ExpectedPaymentServiceSetup.Description, PaymentServices.Description.Value, 'Wrong value set for Description');
-        Assert.AreEqual(ExpectedPaymentServiceSetup.Enabled, PaymentServices.Enabled.AsBoolean, 'Wrong value set for Enabled');
+        Assert.AreEqual(ExpectedPaymentServiceSetup.Enabled, PaymentServices.Enabled.AsBoolean(), 'Wrong value set for Enabled');
         Assert.AreEqual(
-          ExpectedPaymentServiceSetup."Always Include on Documents", PaymentServices."Always Include on Documents".AsBoolean,
+          ExpectedPaymentServiceSetup."Always Include on Documents", PaymentServices."Always Include on Documents".AsBoolean(),
           'Wrong value set for Always Include on Documents');
     end;
 
@@ -1812,8 +1815,8 @@ codeunit 134425 "Payment Services Test"
         XMLBuffer.Load(DatasetFileName);
         XMLBuffer.SetRange(Name, 'PaymentServiceURL');
 
-        XMLBuffer.SetRange(Value, CopyStr(PaymentReportingArgument.GetTargetURL, 1, 250));
-        Assert.IsTrue(XMLBuffer.FindFirst, 'Cound not find the Target URL in Report Dataset');
+        XMLBuffer.SetRange(Value, CopyStr(PaymentReportingArgument.GetTargetURL(), 1, 250));
+        Assert.IsTrue(XMLBuffer.FindFirst(), 'Cound not find the Target URL in Report Dataset');
 
         XMLBuffer.SetRange(Value);
         XMLBuffer.SetRange("Parent Entry No.", XMLBuffer."Parent Entry No.");
@@ -1828,11 +1831,11 @@ codeunit 134425 "Payment Services Test"
     begin
         XMLBuffer.Load(DatasetFileName);
         XMLBuffer.SetRange(Name, 'PaymentServiceURL');
-        Assert.IsFalse(XMLBuffer.FindFirst, 'URL should not be in Dataset');
+        Assert.IsFalse(XMLBuffer.FindFirst(), 'URL should not be in Dataset');
 
         XMLBuffer.SetRange("Parent Entry No.", XMLBuffer."Parent Entry No.");
         XMLBuffer.SetRange(Name, 'PaymentServiceURLText');
-        Assert.IsFalse(XMLBuffer.FindFirst, 'URL Text should not be in Dataset');
+        Assert.IsFalse(XMLBuffer.FindFirst(), 'URL Text should not be in Dataset');
     end;
 
     local procedure VerifyTargetURLIsCorrect(SalesInvoiceHeader: Record "Sales Invoice Header"; var TempPaymentReportingArgument: Record "Payment Reporting Argument" temporary)
@@ -1858,7 +1861,7 @@ codeunit 134425 "Payment Services Test"
         BodyHTMLText: Text;
     begin
         SalesInvoiceHeader.CalcFields("Amount Including VAT");
-        BodyHTMLText := LibraryVariableStorage.DequeueText;
+        BodyHTMLText := LibraryVariableStorage.DequeueText();
 
         Assert.AreNotEqual('', TempPaymentReportingArgument."URL Caption", 'Wrong setup data');
         Assert.IsTrue(StrPos(BodyHTMLText, TempPaymentReportingArgument."URL Caption") > 0, 'Url Caption was not set correctly');
@@ -1879,20 +1882,20 @@ codeunit 134425 "Payment Services Test"
         SelectCancel: Boolean;
         ServiceName: Text;
     begin
-        SelectCancel := LibraryVariableStorage.DequeueBoolean;
+        SelectCancel := LibraryVariableStorage.DequeueBoolean();
         if SelectCancel then begin
-            SelectPaymentServiceType.Cancel.Invoke;
+            SelectPaymentServiceType.Cancel().Invoke();
             exit;
         end;
 
-        ServiceName := LibraryVariableStorage.DequeueText;
+        ServiceName := LibraryVariableStorage.DequeueText();
         SelectPaymentServiceType.FILTER.SetFilter(Name, ServiceName);
-        SelectPaymentServiceType.First;
+        SelectPaymentServiceType.First();
 
         Assert.AreEqual(SelectPaymentServiceType.Name.Value,
           ServiceName, 'Could not find the record on the page');
 
-        SelectPaymentServiceType.OK.Invoke;
+        SelectPaymentServiceType.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1905,50 +1908,48 @@ codeunit 134425 "Payment Services Test"
         ExpectedAvailable: Boolean;
         NewAvailable: Boolean;
     begin
-        CancelDialog := LibraryVariableStorage.DequeueBoolean;
+        CancelDialog := LibraryVariableStorage.DequeueBoolean();
 
-        PaymentServiceName := LibraryVariableStorage.DequeueText;
-        ExpectedAvailable := LibraryVariableStorage.DequeueBoolean;
-        NewAvailable := LibraryVariableStorage.DequeueBoolean;
+        PaymentServiceName := LibraryVariableStorage.DequeueText();
+        ExpectedAvailable := LibraryVariableStorage.DequeueBoolean();
+        NewAvailable := LibraryVariableStorage.DequeueBoolean();
 
-        SelectPaymentService.Last;
+        SelectPaymentService.Last();
         RowFound := false;
         repeat
             if SelectPaymentService.Name.Value = PaymentServiceName then begin
                 RowFound := true;
-                Assert.AreEqual(ExpectedAvailable, SelectPaymentService.Available.AsBoolean, 'Available was not set correctly');
+                Assert.AreEqual(ExpectedAvailable, SelectPaymentService.Available.AsBoolean(), 'Available was not set correctly');
                 SelectPaymentService.Available.SetValue(NewAvailable);
             end else
                 SelectPaymentService.Available.SetValue(false);
-        until SelectPaymentService.Previous = false;
+        until SelectPaymentService.Previous() = false;
 
         Assert.IsTrue(RowFound, 'Row was not found on the page');
 
         if CancelDialog then
-            SelectPaymentService.Cancel.Invoke
+            SelectPaymentService.Cancel().Invoke()
         else
-            SelectPaymentService.OK.Invoke;
+            SelectPaymentService.OK().Invoke();
     end;
 
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
     begin
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure OpenSetupCardMockHandler(var CustomerCard: TestPage "Customer Card")
     begin
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, CustomerCard."No.".Value, 'Wrong record opened');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), CustomerCard."No.".Value, 'Wrong record opened');
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure EmailEditorHandler(var EmailEditor: TestPage "Email Editor")
-    var
-        EmailItem: Record "Email Item";
     begin
         LibraryVariableStorage.Enqueue(EmailEditor.BodyField.Value);
     end;
@@ -1972,7 +1973,7 @@ codeunit 134425 "Payment Services Test"
     var
         ExpectedMessage: Text;
     begin
-        ExpectedMessage := LibraryVariableStorage.DequeueText;
+        ExpectedMessage := LibraryVariableStorage.DequeueText();
         Assert.ExpectedMessage(ExpectedMessage, Message);
     end;
 
@@ -1980,7 +1981,7 @@ codeunit 134425 "Payment Services Test"
     [Scope('OnPrem')]
     procedure UpdateExistingOrCreateNewServiceHandler(Options: Text; var Choice: Integer; Instruction: Text)
     begin
-        Choice := LibraryVariableStorage.DequeueInteger;
+        Choice := LibraryVariableStorage.DequeueInteger();
     end;
 
     [ModalPageHandler]
@@ -2033,10 +2034,10 @@ codeunit 134425 "Payment Services Test"
 
     local procedure BindActiveDirectoryMockEvents()
     begin
-        if ActiveDirectoryMockEvents.Enabled then
+        if ActiveDirectoryMockEvents.Enabled() then
             exit;
         BindSubscription(ActiveDirectoryMockEvents);
-        ActiveDirectoryMockEvents.Enable;
+        ActiveDirectoryMockEvents.Enable();
     end;
 }
 

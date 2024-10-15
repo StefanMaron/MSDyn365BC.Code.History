@@ -13,6 +13,7 @@ table 5877 "Phys. Invt. Record Header"
     DataCaptionFields = "Order No.", "Recording No.", Description;
     DrillDownPageID = "Phys. Inventory Recording List";
     LookupPageID = "Phys. Inventory Recording List";
+    DataClassification = CustomerContent;
 
     fields
     {

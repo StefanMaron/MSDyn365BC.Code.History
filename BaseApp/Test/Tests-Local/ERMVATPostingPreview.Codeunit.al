@@ -152,14 +152,14 @@ codeunit 147123 "ERM VAT Posting Preview"
             GLEntry.FindLast();
             LastEntryNo := GLEntry."Entry No.";
 
-            GLPostingPreview.Trap;
+            GLPostingPreview.Trap();
 
             asserterror LibrarySales.PreviewSalesDocument(SalesHeader);
 
             GLPostingPreview.FILTER.SetFilter("Table ID", StrSubstNo('%1', DATABASE::"G/L Entry"));
             GLCount := 0;
-            if GLPostingPreview.First then
-                GLCount := GLPostingPreview."No. of Records".AsInteger;
+            if GLPostingPreview.First() then
+                GLCount := GLPostingPreview."No. of Records".AsInteger();
 
             if Iteration = 0 then
                 Assert.IsTrue(
@@ -188,7 +188,7 @@ codeunit 147123 "ERM VAT Posting Preview"
         InvoiceDate: Date;
         DocNo: Code[20];
     begin
-        InvoiceDate := WorkDate + 10;
+        InvoiceDate := WorkDate() + 10;
 
         LibraryERM.CreateCurrency(Currency);
         Currency."Realized Gains Acc." := LibraryERM.CreateGLAccountNo();
@@ -284,7 +284,7 @@ codeunit 147123 "ERM VAT Posting Preview"
         PostPurchasePrepaymentWithCurrency(GenJnlLine, WorkDate(), PurchHeader."Pay-to Vendor No.", CurrencyCode, TotalAmount);
         InvNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
 
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         // [WHEN] Run Posting Preview for Application between Invoice and Prepayment
         asserterror ApplyPurchInvToPrepaymentPreviewMode(InvNo, GenJnlLine."Document No.");
 
@@ -423,7 +423,7 @@ codeunit 147123 "ERM VAT Posting Preview"
           GenJnlLine, WorkDate(), SalesHeader."Sell-to Customer No.", CurrencyCode, -TotalAmount, SalesHeader."No.");
         InvNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         // [WHEN] Run Posting Preview for Application Invoice to Prepayment
         asserterror ApplySalesInvToPrepaymentPreviewMode(InvNo, GenJnlLine."Document No.");
 
@@ -570,11 +570,11 @@ codeunit 147123 "ERM VAT Posting Preview"
     var
         GLEntriesPreview: TestPage "G/L Entries Preview";
     begin
-        GLEntriesPreview.Trap;
+        GLEntriesPreview.Trap();
         GLPostingPreview.FILTER.SetFilter("Table ID", Format(DATABASE::"G/L Entry"));
-        GLPostingPreview.Show.Invoke;
+        GLPostingPreview.Show.Invoke();
         GLEntriesPreview.FILTER.SetFilter("G/L Account No.", GLAccountNo);
-        Assert.IsTrue(GLEntriesPreview.First, StrSubstNo(PreviewEntryErr, GLAccountNo));
+        Assert.IsTrue(GLEntriesPreview.First(), StrSubstNo(PreviewEntryErr, GLAccountNo));
         GLEntriesPreview.Close();
         GLPostingPreview.Close();
     end;

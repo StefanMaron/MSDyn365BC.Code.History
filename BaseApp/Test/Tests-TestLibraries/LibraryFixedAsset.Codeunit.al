@@ -47,7 +47,7 @@ codeunit 131330 "Library - Fixed Asset"
         FADepreciationBook.Insert(true);
     end;
 
-    procedure CreateFAAllocation(var FAAllocation: Record "FA Allocation"; "Code": Code[20]; AllocationType: Option)
+    procedure CreateFAAllocation(var FAAllocation: Record "FA Allocation"; "Code": Code[20]; AllocationType: Enum "FA Allocation Type")
     var
         RecRef: RecordRef;
     begin
@@ -88,37 +88,37 @@ codeunit 131330 "Library - Fixed Asset"
           CopyStr(
             LibraryUtility.GenerateRandomCode(FAPostingGroup.FieldNo(Code), DATABASE::"FA Posting Group"),
             1, LibraryUtility.GetFieldLength(DATABASE::"FA Posting Group", FAPostingGroup.FieldNo(Code))));
-        FAPostingGroup.Validate("Acquisition Cost Account", LibraryERM.CreateGLAccountWithPurchSetup);
-        FAPostingGroup.Validate("Accum. Depreciation Account", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Write-Down Account", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Appreciation Account", LibraryERM.CreateGLAccountWithPurchSetup);
-        FAPostingGroup.Validate("Custom 1 Account", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Custom 2 Account", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Acq. Cost Acc. on Disposal", LibraryERM.CreateGLAccountWithPurchSetup);
-        FAPostingGroup.Validate("Accum. Depr. Acc. on Disposal", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Write-Down Acc. on Disposal", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Appreciation Acc. on Disposal", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Custom 1 Account on Disposal", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Custom 2 Account on Disposal", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Gains Acc. on Disposal", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Losses Acc. on Disposal", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Book Val. Acc. on Disp. (Gain)", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Sales Acc. on Disp. (Gain)", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Write-Down Bal. Acc. on Disp.", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Apprec. Bal. Acc. on Disp.", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Custom 1 Bal. Acc. on Disposal", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Custom 2 Bal. Acc. on Disposal", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Maintenance Expense Account", LibraryERM.CreateGLAccountWithPurchSetup);
-        FAPostingGroup.Validate("Maintenance Bal. Acc.", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Acquisition Cost Bal. Acc.", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Depreciation Expense Acc.", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Write-Down Expense Acc.", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Appreciation Bal. Account", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Custom 1 Expense Acc.", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Custom 2 Expense Acc.", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Sales Bal. Acc.", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Sales Acc. on Disp. (Loss)", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Book Val. Acc. on Disp. (Loss)", LibraryERM.CreateGLAccountNo);
+        FAPostingGroup.Validate("Acquisition Cost Account", LibraryERM.CreateGLAccountWithPurchSetup());
+        FAPostingGroup.Validate("Accum. Depreciation Account", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Write-Down Account", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Appreciation Account", LibraryERM.CreateGLAccountWithPurchSetup());
+        FAPostingGroup.Validate("Custom 1 Account", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Custom 2 Account", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Acq. Cost Acc. on Disposal", LibraryERM.CreateGLAccountWithPurchSetup());
+        FAPostingGroup.Validate("Accum. Depr. Acc. on Disposal", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Write-Down Acc. on Disposal", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Appreciation Acc. on Disposal", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Custom 1 Account on Disposal", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Custom 2 Account on Disposal", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Gains Acc. on Disposal", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Losses Acc. on Disposal", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Book Val. Acc. on Disp. (Gain)", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Sales Acc. on Disp. (Gain)", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Write-Down Bal. Acc. on Disp.", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Apprec. Bal. Acc. on Disp.", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Custom 1 Bal. Acc. on Disposal", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Custom 2 Bal. Acc. on Disposal", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Maintenance Expense Account", LibraryERM.CreateGLAccountWithPurchSetup());
+        FAPostingGroup.Validate("Maintenance Bal. Acc.", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Acquisition Cost Bal. Acc.", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Depreciation Expense Acc.", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Write-Down Expense Acc.", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Appreciation Bal. Account", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Custom 1 Expense Acc.", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Custom 2 Expense Acc.", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Sales Bal. Acc.", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Sales Acc. on Disp. (Loss)", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Book Val. Acc. on Disp. (Loss)", LibraryERM.CreateGLAccountNo());
 
         FAPostingGroup.Insert(true);
     end;
@@ -535,12 +535,12 @@ codeunit 131330 "Library - Fixed Asset"
     begin
         FAPostingGroup.Validate("Acquisition Cost Account", LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" "));
         FAPostingGroup.Validate("Acq. Cost Acc. on Disposal", FAPostingGroup."Acquisition Cost Account");
-        FAPostingGroup.Validate("Accum. Depreciation Account", LibraryERM.CreateGLAccountNo);
+        FAPostingGroup.Validate("Accum. Depreciation Account", LibraryERM.CreateGLAccountNo());
         FAPostingGroup.Validate("Accum. Depr. Acc. on Disposal", FAPostingGroup."Accum. Depreciation Account");
-        FAPostingGroup.Validate("Depreciation Expense Acc.", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Gains Acc. on Disposal", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Losses Acc. on Disposal", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Disposal Expense Account", LibraryERM.CreateGLAccountNo);
+        FAPostingGroup.Validate("Depreciation Expense Acc.", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Gains Acc. on Disposal", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Losses Acc. on Disposal", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Disposal Expense Account", LibraryERM.CreateGLAccountNo());
         FAPostingGroup.Validate("Sales Bal. Acc.", LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" "));
         FAPostingGroup.Modify(true);
     end;
@@ -548,16 +548,13 @@ codeunit 131330 "Library - Fixed Asset"
     procedure PostFADocument(var FADocumentHeader: Record "FA Document Header") DocumentNo: Code[20]
     var
         FADocumentPost: Codeunit "FA Document-Post";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         if FADocumentHeader."Posting No." = '' then begin
             if FADocumentHeader."No. Series" = FADocumentHeader."Posting No. Series" then
                 DocumentNo := FADocumentHeader."No."
             else
-                DocumentNo :=
-                  NoSeriesManagement.GetNextNo(
-                    FADocumentHeader."Posting No. Series",
-                    LibraryUtility.GetNextNoSeriesSalesDate(FADocumentHeader."Posting No. Series"), false);
+                DocumentNo := NoSeries.PeekNextNo(FADocumentHeader."Posting No. Series", LibraryUtility.GetNextNoSeriesSalesDate(FADocumentHeader."Posting No. Series"));
         end else
             DocumentNo := FADocumentHeader."Posting No.";
         Clear(FADocumentPost);

@@ -1,4 +1,5 @@
-﻿#if not CLEAN23
+#if not CLEAN23
+// NOT INTEGRATED TO THIS OBJECT: Slice 436427: [Idea] Currency posting for Employee
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -24,6 +25,8 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
+using System.Environment.Configuration;
+using System.Environment;
 using System.Utilities;
 
 report 595 "Adjust Exchange Rates"
@@ -705,12 +708,20 @@ report 595 "Adjust Exchange Rates"
 
     trigger OnInitReport()
     var
+        EnvironmentInformation: Codeunit "Environment Information";
+        FeatureKeyManagement: Codeunit "Feature Key Management";
         IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeOnInitReport(IsHandled);
         if IsHandled then
             exit;
+
+        if not EnvironmentInformation.IsOnPrem() then
+            if FeatureKeyManagement.IsExtensibleExchangeRateAdjustmentEnabled() then begin
+                Report.Run(Report::"Exch. Rate Adjustment");
+                CurrReport.Quit();
+            end;
     end;
 
     trigger OnPostReport()
@@ -729,6 +740,8 @@ report 595 "Adjust Exchange Rates"
     end;
 
     trigger OnPreReport()
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         if EndDateReq = 0D then
             EndDate := DMY2Date(31, 12, 9999)
@@ -741,11 +754,10 @@ report 595 "Adjust Exchange Rates"
                 Error(PleaseEnterErr, GenJnlLineReq.FieldCaption("Journal Template Name"));
             if GenJnlLineReq."Journal Batch Name" = '' then
                 Error(PleaseEnterErr, GenJnlLineReq.FieldCaption("Journal Batch Name"));
-            Clear(NoSeriesMgt);
             Clear(PostingDocNo);
             GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
             GenJnlBatch.TestField("No. Series");
-            PostingDocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", PostingDate, true);
+            PostingDocNo := NoSeries.GetNextNo(GenJnlBatch."No. Series", PostingDate);
         end else
             if PostingDocNo = '' then
                 Error(Text000Err);
@@ -768,41 +780,39 @@ report 595 "Adjust Exchange Rates"
             "G/L Account".Get(Currency3.GetRealizedGLLossesAccount());
             "G/L Account".TestField("Exchange Rate Adjustment", "G/L Account"."Exchange Rate Adjustment"::"No Adjustment");
 
-            with VATPostingSetup2 do
-                if Find('-') then
-                    repeat
-                        if "VAT Calculation Type" <> "VAT Calculation Type"::"Sales Tax" then begin
-                            CheckExchRateAdjustment(
-                              "Purchase VAT Account", TableCaption(), FieldCaption("Purchase VAT Account"));
-                            CheckExchRateAdjustment(
-                              "Reverse Chrg. VAT Acc.", TableCaption(), FieldCaption("Reverse Chrg. VAT Acc."));
-                            CheckExchRateAdjustment(
-                              "Purch. VAT Unreal. Account", TableCaption(), FieldCaption("Purch. VAT Unreal. Account"));
-                            CheckExchRateAdjustment(
-                              "Reverse Chrg. VAT Unreal. Acc.", TableCaption(), FieldCaption("Reverse Chrg. VAT Unreal. Acc."));
-                            CheckExchRateAdjustment(
-                              "Sales VAT Account", TableCaption(), FieldCaption("Sales VAT Account"));
-                            CheckExchRateAdjustment(
-                              "Sales VAT Unreal. Account", TableCaption(), FieldCaption("Sales VAT Unreal. Account"));
-                        end;
-                    until Next() = 0;
+            if VATPostingSetup2.Find('-') then
+                repeat
+                    if VATPostingSetup2."VAT Calculation Type" <> VATPostingSetup2."VAT Calculation Type"::"Sales Tax" then begin
+                        CheckExchRateAdjustment(
+                          VATPostingSetup2."Purchase VAT Account", VATPostingSetup2.TableCaption(), VATPostingSetup2.FieldCaption("Purchase VAT Account"));
+                        CheckExchRateAdjustment(
+                          VATPostingSetup2."Reverse Chrg. VAT Acc.", VATPostingSetup2.TableCaption(), VATPostingSetup2.FieldCaption("Reverse Chrg. VAT Acc."));
+                        CheckExchRateAdjustment(
+                          VATPostingSetup2."Purch. VAT Unreal. Account", VATPostingSetup2.TableCaption(), VATPostingSetup2.FieldCaption("Purch. VAT Unreal. Account"));
+                        CheckExchRateAdjustment(
+                          VATPostingSetup2."Reverse Chrg. VAT Unreal. Acc.", VATPostingSetup2.TableCaption(), VATPostingSetup2.FieldCaption("Reverse Chrg. VAT Unreal. Acc."));
+                        CheckExchRateAdjustment(
+                          VATPostingSetup2."Sales VAT Account", VATPostingSetup2.TableCaption(), VATPostingSetup2.FieldCaption("Sales VAT Account"));
+                        CheckExchRateAdjustment(
+                          VATPostingSetup2."Sales VAT Unreal. Account", VATPostingSetup2.TableCaption(), VATPostingSetup2.FieldCaption("Sales VAT Unreal. Account"));
+                    end;
+                until VATPostingSetup2.Next() = 0;
 
-            with TaxJurisdiction2 do
-                if Find('-') then
-                    repeat
-                        CheckExchRateAdjustment(
-                          "Tax Account (Purchases)", TableCaption(), FieldCaption("Tax Account (Purchases)"));
-                        CheckExchRateAdjustment(
-                          "Reverse Charge (Purchases)", TableCaption(), FieldCaption("Reverse Charge (Purchases)"));
-                        CheckExchRateAdjustment(
-                          "Unreal. Tax Acc. (Purchases)", TableCaption(), FieldCaption("Unreal. Tax Acc. (Purchases)"));
-                        CheckExchRateAdjustment(
-                          "Unreal. Rev. Charge (Purch.)", TableCaption(), FieldCaption("Unreal. Rev. Charge (Purch.)"));
-                        CheckExchRateAdjustment(
-                          "Tax Account (Sales)", TableCaption(), FieldCaption("Tax Account (Sales)"));
-                        CheckExchRateAdjustment(
-                          "Unreal. Tax Acc. (Sales)", TableCaption(), FieldCaption("Unreal. Tax Acc. (Sales)"));
-                    until Next() = 0;
+            if TaxJurisdiction2.Find('-') then
+                repeat
+                    CheckExchRateAdjustment(
+                      TaxJurisdiction2."Tax Account (Purchases)", TaxJurisdiction2.TableCaption(), TaxJurisdiction2.FieldCaption("Tax Account (Purchases)"));
+                    CheckExchRateAdjustment(
+                      TaxJurisdiction2."Reverse Charge (Purchases)", TaxJurisdiction2.TableCaption(), TaxJurisdiction2.FieldCaption("Reverse Charge (Purchases)"));
+                    CheckExchRateAdjustment(
+                      TaxJurisdiction2."Unreal. Tax Acc. (Purchases)", TaxJurisdiction2.TableCaption(), TaxJurisdiction2.FieldCaption("Unreal. Tax Acc. (Purchases)"));
+                    CheckExchRateAdjustment(
+                      TaxJurisdiction2."Unreal. Rev. Charge (Purch.)", TaxJurisdiction2.TableCaption(), TaxJurisdiction2.FieldCaption("Unreal. Rev. Charge (Purch.)"));
+                    CheckExchRateAdjustment(
+                      TaxJurisdiction2."Tax Account (Sales)", TaxJurisdiction2.TableCaption(), TaxJurisdiction2.FieldCaption("Tax Account (Sales)"));
+                    CheckExchRateAdjustment(
+                      TaxJurisdiction2."Unreal. Tax Acc. (Sales)", TaxJurisdiction2.TableCaption(), TaxJurisdiction2.FieldCaption("Unreal. Tax Acc. (Sales)"));
+                until TaxJurisdiction2.Next() = 0;
 
             AddCurrCurrencyFactor :=
               CurrExchRate2.ExchangeRateAdjmt(PostingDate, GLSetup."Additional Reporting Currency");
@@ -839,7 +849,6 @@ report 595 "Adjust Exchange Rates"
         TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
         GenJnlLineReq: Record "Gen. Journal Line";
         GenJnlBatch: Record "Gen. Journal Batch";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         UpdateAnalysisView: Codeunit "Update Analysis View";
         DimMgt: Codeunit DimensionManagement;
@@ -1095,18 +1104,16 @@ report 595 "Adjust Exchange Rates"
         if TempCurrencyToAdjust.Code <> CurrencyCode then
             TempCurrencyToAdjust.Get(CurrencyCode);
 
-        with ExchRateAdjReg do begin
-            "No." := "No." + 1;
-            "Creation Date" := PostingDate;
-            "Account Type" := AdjustAccType;
-            "Posting Group" := PostingGrCode;
-            "Currency Code" := TempCurrencyToAdjust.Code;
-            "Currency Factor" := TempCurrencyToAdjust."Currency Factor";
-            "Adjusted Base" := TempAdjExchRateBuffer.AdjBase;
-            "Adjusted Base (LCY)" := TempAdjExchRateBuffer.AdjBaseLCY;
-            "Adjusted Amt. (LCY)" := TempAdjExchRateBuffer.AdjAmount;
-            Insert();
-        end;
+        ExchRateAdjReg."No." := ExchRateAdjReg."No." + 1;
+        ExchRateAdjReg."Creation Date" := PostingDate;
+        ExchRateAdjReg."Account Type" := AdjustAccType;
+        ExchRateAdjReg."Posting Group" := PostingGrCode;
+        ExchRateAdjReg."Currency Code" := TempCurrencyToAdjust.Code;
+        ExchRateAdjReg."Currency Factor" := TempCurrencyToAdjust."Currency Factor";
+        ExchRateAdjReg."Adjusted Base" := TempAdjExchRateBuffer.AdjBase;
+        ExchRateAdjReg."Adjusted Base (LCY)" := TempAdjExchRateBuffer.AdjBaseLCY;
+        ExchRateAdjReg."Adjusted Amt. (LCY)" := TempAdjExchRateBuffer.AdjAmount;
+        ExchRateAdjReg.Insert();
     end;
 
     procedure InitializeRequest(NewStartDate: Date; NewEndDate: Date; NewPostingDescription: Text[100]; NewPostingDate: Date)
@@ -1658,20 +1665,18 @@ report 595 "Adjust Exchange Rates"
             PostGenJnlLine(GenJnlLine, TempDimSetEntry);
         end;
 
-        with ExchRateAdjReg do begin
-            "No." := "No." + 1;
-            "Creation Date" := PostingDate;
-            "Account Type" := "Account Type"::"G/L Account";
-            "Posting Group" := '';
-            "Currency Code" := GLSetup."Additional Reporting Currency";
-            "Currency Factor" := CurrExchRate2."Adjustment Exch. Rate Amount";
-            "Adjusted Base" := 0;
-            "Adjusted Base (LCY)" := GLNetChangeBase;
-            "Adjusted Amt. (LCY)" := GLAmtTotal;
-            "Adjusted Base (Add.-Curr.)" := GLAddCurrNetChangeBase;
-            "Adjusted Amt. (Add.-Curr.)" := GLAddCurrAmtTotal;
-            Insert();
-        end;
+        ExchRateAdjReg."No." := ExchRateAdjReg."No." + 1;
+        ExchRateAdjReg."Creation Date" := PostingDate;
+        ExchRateAdjReg."Account Type" := ExchRateAdjReg."Account Type"::"G/L Account";
+        ExchRateAdjReg."Posting Group" := '';
+        ExchRateAdjReg."Currency Code" := GLSetup."Additional Reporting Currency";
+        ExchRateAdjReg."Currency Factor" := CurrExchRate2."Adjustment Exch. Rate Amount";
+        ExchRateAdjReg."Adjusted Base" := 0;
+        ExchRateAdjReg."Adjusted Base (LCY)" := GLNetChangeBase;
+        ExchRateAdjReg."Adjusted Amt. (LCY)" := GLAmtTotal;
+        ExchRateAdjReg."Adjusted Base (Add.-Curr.)" := GLAddCurrNetChangeBase;
+        ExchRateAdjReg."Adjusted Amt. (Add.-Curr.)" := GLAddCurrAmtTotal;
+        ExchRateAdjReg.Insert();
     end;
 
     local procedure CheckExchRateAdjustment(AccNo: Code[20]; SetupTableName: Text[100]; SetupFieldName: Text[100])
@@ -2390,24 +2395,20 @@ report 595 "Adjust Exchange Rates"
 
     local procedure SetUnrealizedGainLossFilterCust(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; EntryNo: Integer)
     begin
-        with DtldCustLedgEntry do begin
-            Reset();
-            SetCurrentKey("Cust. Ledger Entry No.", "Entry Type");
-            SetRange("Cust. Ledger Entry No.", EntryNo);
-            SetRange("Entry Type", "Entry Type"::"Unrealized Loss", "Entry Type"::"Unrealized Gain");
-            SetRange("Prepmt. Diff. in TA", GLSetup."Cancel Curr. Prepmt. Adjmt." and Prepayment);
-        end;
+        DtldCustLedgEntry.Reset();
+        DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type");
+        DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", EntryNo);
+        DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::"Unrealized Loss", DtldCustLedgEntry."Entry Type"::"Unrealized Gain");
+        DtldCustLedgEntry.SetRange("Prepmt. Diff. in TA", GLSetup."Cancel Curr. Prepmt. Adjmt." and DtldCustLedgEntry.Prepayment);
     end;
 
     local procedure SetUnrealizedGainLossFilterVend(var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; EntryNo: Integer)
     begin
-        with DtldVendLedgEntry do begin
-            Reset();
-            SetCurrentKey("Vendor Ledger Entry No.", "Entry Type");
-            SetRange("Vendor Ledger Entry No.", EntryNo);
-            SetRange("Entry Type", "Entry Type"::"Unrealized Loss", "Entry Type"::"Unrealized Gain");
-            SetRange("Prepmt. Diff. in TA", GLSetup."Cancel Curr. Prepmt. Adjmt." and Prepayment);
-        end;
+        DtldVendLedgEntry.Reset();
+        DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.", DtldVendLedgEntry."Entry Type");
+        DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", EntryNo);
+        DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::"Unrealized Loss", DtldVendLedgEntry."Entry Type"::"Unrealized Gain");
+        DtldVendLedgEntry.SetRange("Prepmt. Diff. in TA", GLSetup."Cancel Curr. Prepmt. Adjmt." and DtldVendLedgEntry.Prepayment);
     end;
 
     local procedure InsertTempDtldCustomerLedgerEntry()
@@ -2477,88 +2478,90 @@ report 595 "Adjust Exchange Rates"
             if not TestMode then
                 if TempAdjExchRateBuffer2.Find('-') then
                     repeat
-                        with TempAdjExchRateBuffer do begin
-                            SetRange("Currency Code", TempAdjExchRateBuffer2."Currency Code");
-                            SetRange("Dimension Entry No.", TempAdjExchRateBuffer2."Dimension Entry No.");
-                            SetRange("Posting Date", TempAdjExchRateBuffer2."Posting Date");
-                            SetRange("IC Partner Code", TempAdjExchRateBuffer2."IC Partner Code");
-                            SetRange("Entry No.", TempAdjExchRateBuffer2."Entry No.");
-                            TempDimBuf.Reset();
-                            TempDimBuf.DeleteAll();
-                            TempDimSetEntry.Reset();
-                            TempDimSetEntry.DeleteAll();
-                            Find('-');
-                            DimBufMgt.GetDimensions("Dimension Entry No.", TempDimBuf);
-                            DimMgt.CopyDimBufToDimSetEntry(TempDimBuf, TempDimSetEntry);
-                            repeat
-                                if AdjAmount <> 0 then begin
-                                    case AdjustAccType of
-                                        1: // Customer
-                                            begin
-                                                CustPostingGr.Get("Posting Group");
-                                                CustLedgEntryToCVLedgEntry("Entry No.", CVLedgEntryBuf, AdjAmount);
-                                                if CVLedgEntryBuf.Prepayment then begin
-                                                    if GLSetup."Cancel Curr. Prepmt. Adjmt." then begin
-                                                        Currency.Get("Currency Code");
-                                                        PostAccount := Currency.GetPDBalGainLossAccTA();
-                                                    end else
-                                                        PostAccount := CustPostingGr.GetPrepaymentAccount(true);
+                        TempAdjExchRateBuffer.SetRange("Currency Code", TempAdjExchRateBuffer2."Currency Code");
+                        TempAdjExchRateBuffer.SetRange("Dimension Entry No.", TempAdjExchRateBuffer2."Dimension Entry No.");
+                        TempAdjExchRateBuffer.SetRange("Posting Date", TempAdjExchRateBuffer2."Posting Date");
+                        TempAdjExchRateBuffer.SetRange("IC Partner Code", TempAdjExchRateBuffer2."IC Partner Code");
+                        TempAdjExchRateBuffer.SetRange("Entry No.", TempAdjExchRateBuffer2."Entry No.");
+                        TempDimBuf.Reset();
+                        TempDimBuf.DeleteAll();
+                        TempDimSetEntry.Reset();
+                        TempDimSetEntry.DeleteAll();
+                        TempAdjExchRateBuffer.Find('-');
+                        DimBufMgt.GetDimensions(TempAdjExchRateBuffer."Dimension Entry No.", TempDimBuf);
+                        DimMgt.CopyDimBufToDimSetEntry(TempDimBuf, TempDimSetEntry);
+                        repeat
+                            if TempAdjExchRateBuffer.AdjAmount <> 0 then begin
+                                case AdjustAccType of
+                                    1:
+                                        // Customer
+                                        begin
+                                            CustPostingGr.Get(TempAdjExchRateBuffer."Posting Group");
+                                            CustLedgEntryToCVLedgEntry(TempAdjExchRateBuffer."Entry No.", CVLedgEntryBuf);
+                                            if CVLedgEntryBuf.Prepayment then begin
+                                                if GLSetup."Cancel Curr. Prepmt. Adjmt." then begin
+                                                    Currency.Get(TempAdjExchRateBuffer."Currency Code");
+                                                    PostAccount := Currency.GetPDBalGainLossAccTA();
                                                 end else
-                                                    PostAccount := CustPostingGr.GetReceivablesAccount();
-                                                InsertExchRateAdjmtReg(1, "Posting Group", "Currency Code");
-                                            end;
-                                        2: // Vendor
-                                            begin
-                                                VendPostingGr.Get("Posting Group");
-                                                VendLedgEntryToCVLedgEntry("Entry No.", CVLedgEntryBuf, AdjAmount);
-                                                if CVLedgEntryBuf.Prepayment then begin
-                                                    if GLSetup."Cancel Curr. Prepmt. Adjmt." then begin
-                                                        Currency.Get("Currency Code");
-                                                        PostAccount := Currency.GetPDBalGainLossAccTA();
-                                                    end else
-                                                        PostAccount := VendPostingGr.GetPrepaymentAccount(true);
+                                                    PostAccount := CustPostingGr.GetPrepaymentAccount(true);
+                                            end else
+                                                PostAccount := CustPostingGr.GetReceivablesAccount();
+                                            InsertExchRateAdjmtReg(
+                                                "Exch. Rate Adjmt. Account Type"::Customer, TempAdjExchRateBuffer."Posting Group", TempAdjExchRateBuffer."Currency Code");
+                                        end;
+                                    2:
+                                        // Vendor
+                                        begin
+                                            VendPostingGr.Get(TempAdjExchRateBuffer."Posting Group");
+                                            VendLedgEntryToCVLedgEntry(TempAdjExchRateBuffer."Entry No.", CVLedgEntryBuf, TempAdjExchRateBuffer.AdjAmount);
+                                            if CVLedgEntryBuf.Prepayment then begin
+                                                if GLSetup."Cancel Curr. Prepmt. Adjmt." then begin
+                                                    Currency.Get(TempAdjExchRateBuffer."Currency Code");
+                                                    PostAccount := Currency.GetPDBalGainLossAccTA();
                                                 end else
-                                                    PostAccount := VendPostingGr.GetPayablesAccount();
-                                                InsertExchRateAdjmtReg(2, "Posting Group", "Currency Code");
-                                            end;
-                                    end;
-                                    if GLSetup."Summarize Gains/Losses" then
-                                        if (TotalGainsAmount <> 0) and (TotalLossesAmount <> 0) then
-                                            case true of
-                                                TotalGainsAmount < 0:
-                                                    begin
-                                                        TotalLossesAmount := TotalLossesAmount + TotalGainsAmount;
-                                                        TotalGainsAmount := 0;
-                                                    end;
-                                                TotalLossesAmount > 0:
-                                                    begin
-                                                        TotalGainsAmount := TotalLossesAmount + TotalGainsAmount;
-                                                        TotalLossesAmount := 0;
-                                                    end;
-                                            end;
-                                    if TotalGainsAmount <> 0 then begin
-                                        if GLSetup."Currency Adjmt with Correction" then begin
-                                            CVLedgEntryBuf.Positive := TotalGainsAmount < 0;
-                                            Gains := true;
-                                        end else
-                                            Gains := TotalGainsAmount > 0;
-                                        PostAdjmt(
-                                          PostAccount, TotalGainsAmount, AdjBase, "Currency Code", TempDimSetEntry,
-                                          "Posting Date", "IC Partner Code", CVLedgEntryBuf, Gains);
-                                    end;
-                                    if TotalLossesAmount <> 0 then begin
-                                        if GLSetup."Currency Adjmt with Correction" then begin
-                                            CVLedgEntryBuf.Positive := TotalLossesAmount > 0;
-                                            Gains := false;
-                                        end else
-                                            Gains := TotalLossesAmount > 0;
-                                        PostAdjmt(
-                                          PostAccount, TotalLossesAmount, AdjBase, "Currency Code", TempDimSetEntry,
-                                          "Posting Date", "IC Partner Code", CVLedgEntryBuf, Gains);
-                                    end;
+                                                    PostAccount := VendPostingGr.GetPrepaymentAccount(true);
+                                            end else
+                                                PostAccount := VendPostingGr.GetPayablesAccount();
+                                            InsertExchRateAdjmtReg(
+                                                "Exch. Rate Adjmt. Account Type"::Vendor, TempAdjExchRateBuffer."Posting Group", TempAdjExchRateBuffer."Currency Code");
+                                        end;
                                 end;
-                            until Next() = 0;
-                        end;
+                                if GLSetup."Summarize Gains/Losses" then
+                                    if (TempAdjExchRateBuffer.TotalGainsAmount <> 0) and (TempAdjExchRateBuffer.TotalLossesAmount <> 0) then
+                                        case true of
+                                            TempAdjExchRateBuffer.TotalGainsAmount < 0:
+                                                begin
+                                                    TempAdjExchRateBuffer.TotalLossesAmount := TempAdjExchRateBuffer.TotalLossesAmount + TempAdjExchRateBuffer.TotalGainsAmount;
+                                                    TempAdjExchRateBuffer.TotalGainsAmount := 0;
+                                                end;
+                                            TempAdjExchRateBuffer.TotalLossesAmount > 0:
+                                                begin
+                                                    TempAdjExchRateBuffer.TotalGainsAmount := TempAdjExchRateBuffer.TotalLossesAmount + TempAdjExchRateBuffer.TotalGainsAmount;
+                                                    TempAdjExchRateBuffer.TotalLossesAmount := 0;
+                                                end;
+                                        end;
+                                if TempAdjExchRateBuffer.TotalGainsAmount <> 0 then begin
+                                    if GLSetup."Currency Adjmt with Correction" then begin
+                                        CVLedgEntryBuf.Positive := TempAdjExchRateBuffer.TotalGainsAmount < 0;
+                                        Gains := true;
+                                    end else
+                                        Gains := TempAdjExchRateBuffer.TotalGainsAmount > 0;
+                                    PostAdjmt(
+                                      PostAccount, TempAdjExchRateBuffer.TotalGainsAmount, TempAdjExchRateBuffer.AdjBase, TempAdjExchRateBuffer."Currency Code", TempDimSetEntry,
+                                      TempAdjExchRateBuffer."Posting Date", TempAdjExchRateBuffer."IC Partner Code", CVLedgEntryBuf, Gains);
+                                end;
+                                if TempAdjExchRateBuffer.TotalLossesAmount <> 0 then begin
+                                    if GLSetup."Currency Adjmt with Correction" then begin
+                                        CVLedgEntryBuf.Positive := TempAdjExchRateBuffer.TotalLossesAmount > 0;
+                                        Gains := false;
+                                    end else
+                                        Gains := TempAdjExchRateBuffer.TotalLossesAmount > 0;
+                                    PostAdjmt(
+                                      PostAccount, TempAdjExchRateBuffer.TotalLossesAmount, TempAdjExchRateBuffer.AdjBase, TempAdjExchRateBuffer."Currency Code", TempDimSetEntry,
+                                      TempAdjExchRateBuffer."Posting Date", TempAdjExchRateBuffer."IC Partner Code", CVLedgEntryBuf, Gains);
+                                end;
+                            end;
+                        until TempAdjExchRateBuffer.Next() = 0;
                     until TempAdjExchRateBuffer2.Next() = 0;
 
             GLEntry.FindLast();
@@ -2658,19 +2661,17 @@ report 595 "Adjust Exchange Rates"
         end;
     end;
 
-    local procedure CustLedgEntryToCVLedgEntry(EntryNo: Integer; var CVLedgEntryBuf: Record "CV Ledger Entry Buffer"; AdjmtAmount: Decimal)
+    local procedure CustLedgEntryToCVLedgEntry(EntryNo: Integer; var CVLedgEntryBuf: Record "CV Ledger Entry Buffer")
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgEntry do begin
-            Get(EntryNo);
-            CVLedgEntryBuf."Document No." := "Document No.";
-            CVLedgEntryBuf."Document Type" := "Document Type";
-            CVLedgEntryBuf."Bal. Account Type" := CVLedgEntryBuf."Bal. Account Type"::Customer;
-            CVLedgEntryBuf."Bal. Account No." := "Customer No.";
-            CVLedgEntryBuf.Prepayment := Prepayment;
-            CVLedgEntryBuf."Agreement No." := "Agreement No.";
-        end;
+        CustLedgEntry.Get(EntryNo);
+        CVLedgEntryBuf."Document No." := CustLedgEntry."Document No.";
+        CVLedgEntryBuf."Document Type" := CustLedgEntry."Document Type";
+        CVLedgEntryBuf."Bal. Account Type" := CVLedgEntryBuf."Bal. Account Type"::Customer;
+        CVLedgEntryBuf."Bal. Account No." := CustLedgEntry."Customer No.";
+        CVLedgEntryBuf.Prepayment := CustLedgEntry.Prepayment;
+        CVLedgEntryBuf."Agreement No." := CustLedgEntry."Agreement No.";
     end;
 
     [Scope('OnPrem')]
@@ -2678,15 +2679,13 @@ report 595 "Adjust Exchange Rates"
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        with VendLedgEntry do begin
-            Get(EntryNo);
-            CVLedgEntryBuf."Document No." := "Document No.";
-            CVLedgEntryBuf."Document Type" := "Document Type";
-            CVLedgEntryBuf."Bal. Account Type" := CVLedgEntryBuf."Bal. Account Type"::Vendor;
-            CVLedgEntryBuf."Bal. Account No." := "Vendor No.";
-            CVLedgEntryBuf.Prepayment := Prepayment;
-            CVLedgEntryBuf."Agreement No." := "Agreement No.";
-        end;
+        VendLedgEntry.Get(EntryNo);
+        CVLedgEntryBuf."Document No." := VendLedgEntry."Document No.";
+        CVLedgEntryBuf."Document Type" := VendLedgEntry."Document Type";
+        CVLedgEntryBuf."Bal. Account Type" := CVLedgEntryBuf."Bal. Account Type"::Vendor;
+        CVLedgEntryBuf."Bal. Account No." := VendLedgEntry."Vendor No.";
+        CVLedgEntryBuf.Prepayment := VendLedgEntry.Prepayment;
+        CVLedgEntryBuf."Agreement No." := VendLedgEntry."Agreement No.";
     end;
 
     [Scope('OnPrem')]

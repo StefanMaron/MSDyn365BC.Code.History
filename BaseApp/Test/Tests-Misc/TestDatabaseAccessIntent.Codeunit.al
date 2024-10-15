@@ -36,7 +36,7 @@ codeunit 134567 "Test Database Access Intent"
         // Open page and position on Report 4 Detail Trial Balance
         // Given: "Object Access Intent Override" for report 4 does not exist
         if ObjectAccessIntentOverride.Get(ObjectAccessIntentOverride."Object Type"::Report, Report::"Detail Trial Balance") then
-            ObjectAccessIntentOverride.delete;
+            ObjectAccessIntentOverride.Delete();
         LibraryLowerPermissions.SetO365BusFull();
         AllObjWithCaption.Get(ObjectAccessIntentOverride."Object Type"::Report, Report::"Detail Trial Balance");
         DatabaseAccessIntentList.OpenEdit();
@@ -65,7 +65,7 @@ codeunit 134567 "Test Database Access Intent"
         // Open page and position on Report 4 Detail Trial Balance
         // Given: "Object Access Intent Override" for report 4 does not exist
         if ObjectAccessIntentOverride.Get(ObjectAccessIntentOverride."Object Type"::Report, Report::"Detail Trial Balance") then
-            ObjectAccessIntentOverride.Delete;
+            ObjectAccessIntentOverride.Delete();
         LibraryLowerPermissions.SetO365BusFull();
         AllObjWithCaption.Get(ObjectAccessIntentOverride."Object Type"::Report, Report::"Detail Trial Balance");
         DatabaseAccessIntentList.OpenEdit();
@@ -91,7 +91,7 @@ codeunit 134567 "Test Database Access Intent"
         // Open page and position on Report 4 Detail Trial Balance
         // Given: "Object Access Intent Override" for report 4 does exist
         if ObjectAccessIntentOverride.Get(ObjectAccessIntentOverride."Object Type"::Report, Report::"Detail Trial Balance") then
-            ObjectAccessIntentOverride.Delete;
+            ObjectAccessIntentOverride.Delete();
         ObjectAccessIntentOverride.Init();
         ObjectAccessIntentOverride."Object Type" := ObjectAccessIntentOverride."Object Type"::Report;
         ObjectAccessIntentOverride."Object ID" := Report::"Detail Trial Balance";

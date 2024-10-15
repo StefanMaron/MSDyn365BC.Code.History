@@ -189,7 +189,6 @@ page 26574 "Create Report Data"
         DatePeriod: Record Date;
         CalendarPeriod: Record Date;
         ExternReportManagement: Codeunit PeriodReportManagement;
-        FileMgt: Codeunit "File Management";
         CreationDate: Date;
         StartDate: Date;
         EndDate: Date;
@@ -204,9 +203,7 @@ page 26574 "Create Report Data"
         Text006: Label 'Periodiocity can''t be empty for %1 = %2.';
         PeriodType: Code[2];
         Text007: Label 'Periodiocity can''t be Month for %1 = %2.';
-        Text008: Label 'Open Excel File';
         Text009: Label 'The combination Periodicity=%1, Progressive Total=%2 is not defined. Please enter the value for Period Type manually.';
-        DefaultFormat: Text[30];
         StartDateTextBoxEditable: Boolean;
         EndDateTextBoxEditable: Boolean;
         CorrNumberTextBoxEnable: Boolean;
@@ -273,46 +270,43 @@ page 26574 "Create Report Data"
     [Scope('OnPrem')]
     procedure UpdatePeriodType()
     begin
-        with StatutoryReport do
-            case Periodicity of
-                Periodicity::Month:
-                    begin
-                        if ProgressiveTotal then
-                            PeriodType := Format(CalendarPeriod."Period No." + 34)
-                        else
-                            PeriodType := '35';
+        case Periodicity of
+            Periodicity::Month:
+                if ProgressiveTotal then
+                    PeriodType := Format(CalendarPeriod."Period No." + 34)
+                else
+                    PeriodType := '35';
+            Periodicity::Quarter:
+                if ProgressiveTotal then begin
+                    case CalendarPeriod."Period No." of
+                        1:
+                            PeriodType := '21';
+                        2:
+                            PeriodType := '31';
+                        3:
+                            PeriodType := '33';
+                        4:
+                            PeriodType := '34';
                     end;
-                Periodicity::Quarter:
-                    if ProgressiveTotal then begin
-                        case CalendarPeriod."Period No." of
-                            1:
-                                PeriodType := '21';
-                            2:
-                                PeriodType := '31';
-                            3:
-                                PeriodType := '33';
-                            4:
-                                PeriodType := '34';
-                        end;
-                    end else
-                        case CalendarPeriod."Period No." of
-                            1:
-                                PeriodType := '21';
-                            2:
-                                PeriodType := '22';
-                            3:
-                                PeriodType := '23';
-                            4:
-                                PeriodType := '24';
-                        end;
-                Periodicity::Year:
-                    if not ProgressiveTotal then
-                        PeriodType := '46'
-                    else begin
-                        PeriodType := '';
-                        Message(Text009, Periodicity, ProgressiveTotal);
+                end else
+                    case CalendarPeriod."Period No." of
+                        1:
+                            PeriodType := '21';
+                        2:
+                            PeriodType := '22';
+                        3:
+                            PeriodType := '23';
+                        4:
+                            PeriodType := '24';
                     end;
-            end;
+            Periodicity::Year:
+                if not ProgressiveTotal then
+                    PeriodType := '46'
+                else begin
+                    PeriodType := '';
+                    Message(Text009, Periodicity, ProgressiveTotal);
+                end;
+        end;
     end;
 
     local procedure CorrectionDocumentTypeOnAfterV()

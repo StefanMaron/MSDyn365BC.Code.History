@@ -7,6 +7,7 @@ table 43 "Purch. Comment Line"
     Caption = 'Purch. Comment Line';
     DrillDownPageID = "Purch. Comment List";
     LookupPageID = "Purch. Comment List";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -1,6 +1,7 @@
 table 26555 "Scalable Table Row"
 {
     Caption = 'Scalable Table Row';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -79,7 +80,6 @@ table 26555 "Scalable Table Row"
     end;
 
     var
-        Text001: Label 'You must specify %1 in %2.';
         Text002: Label 'Table %1 can''t contain more then %2 rows.';
 }
 

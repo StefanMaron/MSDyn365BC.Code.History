@@ -1,4 +1,4 @@
-codeunit 17307 "Create Tax Calc. FA Entries"
+﻿codeunit 17307 "Create Tax Calc. FA Entries"
 {
     TableNo = "Tax Calc. FA Entry";
 

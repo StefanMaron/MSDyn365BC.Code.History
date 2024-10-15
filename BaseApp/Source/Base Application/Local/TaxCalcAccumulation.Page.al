@@ -110,6 +110,7 @@ page 17321 "Tax Calc. Accumulation"
         Calendar: Record Date;
         PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
+#pragma warning disable AL0603
         if DateFilter <> '' then begin
             Calendar.SetFilter("Period Start", DateFilter);
             if not PeriodPageManagement.FindDate('+', Calendar, PeriodType) then
@@ -117,6 +118,7 @@ page 17321 "Tax Calc. Accumulation"
             Calendar.SetRange("Period Start");
         end;
         PeriodPageManagement.FindDate(SearchText, Calendar, PeriodType);
+#pragma warning restore AL0603
         DateFilter := StrSubstNo('%1..%2', Calendar."Period Start", Calendar."Period End");
     end;
 }

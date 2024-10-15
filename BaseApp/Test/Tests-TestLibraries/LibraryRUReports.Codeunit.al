@@ -291,18 +291,16 @@ codeunit 143016 "Library RU Reports"
         CompanyInformation.Get();
         CreatePostCode(PostCode);
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            Validate(Name, LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Name), 0));
-            Validate("Name 2", LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Name 2"), 0));
-            Validate("Full Name", LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Full Name"), 0));
-            "VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInformation."Country/Region Code");
-            Validate("KPP Code", LibraryUtility.GenerateGUID());
-            Validate("Post Code", PostCode.Code);
-            Validate(Address, LibraryUtility.GenerateGUID());
-            Validate("Address 2", LibraryUtility.GenerateGUID());
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor.Validate(Name, LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Vendor.Name), 0));
+        Vendor.Validate("Name 2", LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Vendor."Name 2"), 0));
+        Vendor.Validate("Full Name", LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Vendor."Full Name"), 0));
+        Vendor."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInformation."Country/Region Code");
+        Vendor.Validate("KPP Code", LibraryUtility.GenerateGUID());
+        Vendor.Validate("Post Code", PostCode.Code);
+        Vendor.Validate(Address, LibraryUtility.GenerateGUID());
+        Vendor.Validate("Address 2", LibraryUtility.GenerateGUID());
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     [Scope('OnPrem')]
@@ -314,18 +312,16 @@ codeunit 143016 "Library RU Reports"
         CompanyInformation.Get();
         CreatePostCode(PostCode);
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            Validate(Name, LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Name), 0));
-            Validate("Name 2", LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Name 2"), 0));
-            Validate("Full Name", LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Full Name"), 0));
-            "VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInformation."Country/Region Code");
-            Validate("KPP Code", LibraryUtility.GenerateGUID());
-            Validate("Post Code", PostCode.Code);
-            Validate(Address, LibraryUtility.GenerateGUID());
-            Validate("Address 2", LibraryUtility.GenerateGUID());
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Validate(Name, LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Customer.Name), 0));
+        Customer.Validate("Name 2", LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Customer."Name 2"), 0));
+        Customer.Validate("Full Name", LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Customer."Full Name"), 0));
+        Customer."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInformation."Country/Region Code");
+        Customer.Validate("KPP Code", LibraryUtility.GenerateGUID());
+        Customer.Validate("Post Code", PostCode.Code);
+        Customer.Validate(Address, LibraryUtility.GenerateGUID());
+        Customer.Validate("Address 2", LibraryUtility.GenerateGUID());
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     [Scope('OnPrem')]
@@ -344,11 +340,9 @@ codeunit 143016 "Library RU Reports"
     begin
         CompanyInformation.Get();
         LibraryERM.CreatePostCode(PostCode);
-        with PostCode do begin
-            Validate("Country/Region Code", CompanyInformation."Country/Region Code");
-            Validate(County, LibraryUtility.GenerateGUID());
-            Modify(true);
-        end;
+        PostCode.Validate("Country/Region Code", CompanyInformation."Country/Region Code");
+        PostCode.Validate(County, LibraryUtility.GenerateGUID());
+        PostCode.Modify(true);
     end;
 
     [Scope('OnPrem')]
@@ -398,12 +392,10 @@ codeunit 143016 "Library RU Reports"
     var
         DepreciationCode: Record "Depreciation Code";
     begin
-        with DepreciationCode do begin
-            Init();
-            Code := LibraryUtility.GenerateGUID();
-            Insert();
-            exit(Code);
-        end;
+        DepreciationCode.Init();
+        DepreciationCode.Code := LibraryUtility.GenerateGUID();
+        DepreciationCode.Insert();
+        exit(DepreciationCode.Code);
     end;
 
     [Scope('OnPrem')]
@@ -411,33 +403,29 @@ codeunit 143016 "Library RU Reports"
     var
         DepreciationGroup: Record "Depreciation Group";
     begin
-        with DepreciationGroup do begin
-            Init();
-            Code := LibraryUtility.GenerateGUID();
-            Insert();
-            exit(Code);
-        end;
+        DepreciationGroup.Init();
+        DepreciationGroup.Code := LibraryUtility.GenerateGUID();
+        DepreciationGroup.Insert();
+        exit(DepreciationGroup.Code);
     end;
 
     [Scope('OnPrem')]
     procedure MockFADepreciationBook(var FADeprBook: Record "FA Depreciation Book")
     begin
-        with FADeprBook do begin
-            "Depreciation Starting Date" := GetRandomDate;
-            "Disposal Date" := GetRandomDate;
-            "Acquisition Date" := GetRandomDate;
-            "G/L Acquisition Date" := GetRandomDate;
-            "No. of Depreciation Months" := LibraryRandom.RandIntInRange(5, 7);
-            "No. of Depreciation Years" := LibraryRandom.RandIntInRange(3, 5);
-            "FA Posting Group" := MockFAPostingGroup;
-            "Depreciation Method" := "Depreciation Method"::"Straight-Line";
-            Validate("Book Value", LibraryRandom.RandDec(100, 2));
-            Validate("Acquisition Cost", LibraryRandom.RandDec(100, 2));
-            Validate("Initial Acquisition Cost", LibraryRandom.RandDec(100, 2));
-            Validate("Acquisition Cost", LibraryRandom.RandDec(100, 2));
-            Validate(Depreciation, LibraryRandom.RandDec(100, 2));
-            Modify();
-        end;
+        FADeprBook."Depreciation Starting Date" := GetRandomDate();
+        FADeprBook."Disposal Date" := GetRandomDate();
+        FADeprBook."Acquisition Date" := GetRandomDate();
+        FADeprBook."G/L Acquisition Date" := GetRandomDate();
+        FADeprBook."No. of Depreciation Months" := LibraryRandom.RandIntInRange(5, 7);
+        FADeprBook."No. of Depreciation Years" := LibraryRandom.RandIntInRange(3, 5);
+        FADeprBook."FA Posting Group" := MockFAPostingGroup();
+        FADeprBook."Depreciation Method" := FADeprBook."Depreciation Method"::"Straight-Line";
+        FADeprBook.Validate("Book Value", LibraryRandom.RandDec(100, 2));
+        FADeprBook.Validate("Acquisition Cost", LibraryRandom.RandDec(100, 2));
+        FADeprBook.Validate("Initial Acquisition Cost", LibraryRandom.RandDec(100, 2));
+        FADeprBook.Validate("Acquisition Cost", LibraryRandom.RandDec(100, 2));
+        FADeprBook.Validate(Depreciation, LibraryRandom.RandDec(100, 2));
+        FADeprBook.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -445,12 +433,10 @@ codeunit 143016 "Library RU Reports"
     var
         FALocation: Record "FA Location";
     begin
-        with FALocation do begin
-            Init();
-            Code := LibraryUtility.GenerateGUID();
-            Insert();
-            exit(Code);
-        end;
+        FALocation.Init();
+        FALocation.Code := LibraryUtility.GenerateGUID();
+        FALocation.Insert();
+        exit(FALocation.Code);
     end;
 
     [Scope('OnPrem')]
@@ -458,13 +444,11 @@ codeunit 143016 "Library RU Reports"
     var
         FAPostingGroup: Record "FA Posting Group";
     begin
-        with FAPostingGroup do begin
-            Init();
-            Code := LibraryUtility.GenerateGUID();
-            "Acquisition Cost Account" := MockGLAccount;
-            Insert();
-            exit(Code);
-        end;
+        FAPostingGroup.Init();
+        FAPostingGroup.Code := LibraryUtility.GenerateGUID();
+        FAPostingGroup."Acquisition Cost Account" := MockGLAccount();
+        FAPostingGroup.Insert();
+        exit(FAPostingGroup.Code);
     end;
 
     [Scope('OnPrem')]
@@ -472,12 +456,10 @@ codeunit 143016 "Library RU Reports"
     var
         GLAccount: Record "G/L Account";
     begin
-        with GLAccount do begin
-            Init();
-            "No." := LibraryUtility.GenerateGUID();
-            Insert();
-            exit("No.");
-        end;
+        GLAccount.Init();
+        GLAccount."No." := LibraryUtility.GenerateGUID();
+        GLAccount.Insert();
+        exit(GLAccount."No.");
     end;
 
     [Scope('OnPrem')]
@@ -485,14 +467,12 @@ codeunit 143016 "Library RU Reports"
     var
         MainAssetComponent: Record "Main Asset Component";
     begin
-        with MainAssetComponent do begin
-            Init();
-            "Main Asset No." := FANo;
-            "FA No." := LibraryUtility.GenerateGUID();
-            Description := "FA No.";
-            Quantity := LibraryRandom.RandInt(100);
-            Insert();
-        end;
+        MainAssetComponent.Init();
+        MainAssetComponent."Main Asset No." := FANo;
+        MainAssetComponent."FA No." := LibraryUtility.GenerateGUID();
+        MainAssetComponent.Description := MainAssetComponent."FA No.";
+        MainAssetComponent.Quantity := LibraryRandom.RandInt(100);
+        MainAssetComponent.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -500,28 +480,24 @@ codeunit 143016 "Library RU Reports"
     var
         ItemFAPreciousMetal: Record "Item/FA Precious Metal";
     begin
-        with ItemFAPreciousMetal do begin
-            Init();
-            "Item Type" := "Item Type"::FA;
-            "No." := FANo;
-            "Precious Metals Code" := MockPreciousMetal;
-            Quantity := LibraryRandom.RandInt(100);
-            Mass := LibraryRandom.RandDec(100, 2);
-            Insert();
-        end;
+        ItemFAPreciousMetal.Init();
+        ItemFAPreciousMetal."Item Type" := ItemFAPreciousMetal."Item Type"::FA;
+        ItemFAPreciousMetal."No." := FANo;
+        ItemFAPreciousMetal."Precious Metals Code" := MockPreciousMetal();
+        ItemFAPreciousMetal.Quantity := LibraryRandom.RandInt(100);
+        ItemFAPreciousMetal.Mass := LibraryRandom.RandDec(100, 2);
+        ItemFAPreciousMetal.Insert();
     end;
 
     local procedure MockPreciousMetal(): Code[10]
     var
         PreciousMetal: Record "Precious Metal";
     begin
-        with PreciousMetal do begin
-            Init();
-            Code := LibraryUtility.GenerateGUID();
-            Name := Code;
-            Insert();
-            exit(Code);
-        end;
+        PreciousMetal.Init();
+        PreciousMetal.Code := LibraryUtility.GenerateGUID();
+        PreciousMetal.Name := PreciousMetal.Code;
+        PreciousMetal.Insert();
+        exit(PreciousMetal.Code);
     end;
 
     [Scope('OnPrem')]
@@ -529,11 +505,9 @@ codeunit 143016 "Library RU Reports"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        with PurchaseHeader do begin
-            Get(DocumentType, OrderNo);
-            CalcFields(Amount);
-            exit(FormatAmount(Amount));
-        end;
+        PurchaseHeader.Get(DocumentType, OrderNo);
+        PurchaseHeader.CalcFields(Amount);
+        exit(FormatAmount(PurchaseHeader.Amount));
     end;
 
     [Scope('OnPrem')]
@@ -541,11 +515,9 @@ codeunit 143016 "Library RU Reports"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        with PurchaseHeader do begin
-            Get(DocumentType, OrderNo);
-            CalcFields("Amount Including VAT");
-            exit(FormatAmount("Amount Including VAT"));
-        end;
+        PurchaseHeader.Get(DocumentType, OrderNo);
+        PurchaseHeader.CalcFields("Amount Including VAT");
+        exit(FormatAmount(PurchaseHeader."Amount Including VAT"));
     end;
 
     [Scope('OnPrem')]
@@ -553,11 +525,9 @@ codeunit 143016 "Library RU Reports"
     var
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
-        with PurchInvHeader do begin
-            Get(DocumentNo);
-            CalcFields(Amount);
-            exit(FormatAmount(Amount));
-        end;
+        PurchInvHeader.Get(DocumentNo);
+        PurchInvHeader.CalcFields(Amount);
+        exit(FormatAmount(PurchInvHeader.Amount));
     end;
 
     [Scope('OnPrem')]
@@ -565,11 +535,9 @@ codeunit 143016 "Library RU Reports"
     var
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
-        with PurchInvHeader do begin
-            Get(DocumentNo);
-            CalcFields("Amount Including VAT");
-            exit(FormatAmount("Amount Including VAT"));
-        end;
+        PurchInvHeader.Get(DocumentNo);
+        PurchInvHeader.CalcFields("Amount Including VAT");
+        exit(FormatAmount(PurchInvHeader."Amount Including VAT"));
     end;
 
     [Scope('OnPrem')]
@@ -599,12 +567,9 @@ codeunit 143016 "Library RU Reports"
     procedure GetCustomerFullAddress(CustomerNo: Code[20]): Text
     var
         Customer: Record Customer;
-        LocalReportMgt: Codeunit "Local Report Management";
     begin
-        with Customer do begin
-            Get(CustomerNo);
-            exit(LocalReportMgt.GetFullAddr("Post Code", City, Address, "Address 2", '', County));
-        end;
+        Customer.Get(CustomerNo);
+        exit(LocalReportMgt.GetFullAddr(Customer."Post Code", Customer.City, Customer.Address, Customer."Address 2", '', Customer.County));
     end;
 
     local procedure FormatAmount(Amount: Decimal): Text
@@ -630,11 +595,9 @@ codeunit 143016 "Library RU Reports"
     var
         FADepreciationBook: Record "FA Depreciation Book";
     begin
-        with FADepreciationBook do begin
-            SetRange("FA No.", FANo);
-            FindFirst();
-            exit("Depreciation Book Code");
-        end;
+        FADepreciationBook.SetRange("FA No.", FANo);
+        FADepreciationBook.FindFirst();
+        exit(FADepreciationBook."Depreciation Book Code");
     end;
 
     [Scope('OnPrem')]
@@ -662,12 +625,10 @@ codeunit 143016 "Library RU Reports"
     var
         Item: Record Item;
     begin
-        with Item do begin
-            LibraryInventory.CreateItem(Item);
-            Validate("Unit Cost", LibraryRandom.RandDecInRange(10, 100, 2));
-            Modify(true);
-            exit("No.");
-        end;
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Cost", LibraryRandom.RandDecInRange(10, 100, 2));
+        Item.Modify(true);
+        exit(Item."No.");
     end;
 
     [Scope('OnPrem')]
@@ -675,12 +636,10 @@ codeunit 143016 "Library RU Reports"
     var
         Location: Record Location;
     begin
-        with Location do begin
-            LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-            Validate("Use As In-Transit", UseAsTransit);
-            Modify(true);
-            exit(Code);
-        end;
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Use As In-Transit", UseAsTransit);
+        Location.Modify(true);
+        exit(Location.Code);
     end;
 
     [Scope('OnPrem')]
@@ -706,13 +665,11 @@ codeunit 143016 "Library RU Reports"
     begin
         InitItemJournalLine(ItemJnlLine, ItemJournalTemplate.Type::Item, ClearJnl);
 
-        with ItemJnlLine do begin
-            LibraryInventory.CreateItemJournalLine(
-              ItemJnlLine, "Journal Template Name", "Journal Batch Name", "Entry Type"::"Positive Adjmt.", ItemNo, 0);
-            Validate("Location Code", LocationCode);
-            Validate(Quantity, Qty);
-            Modify(true);
-        end;
+        LibraryInventory.CreateItemJournalLine(
+          ItemJnlLine, ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name", ItemJnlLine."Entry Type"::"Positive Adjmt.", ItemNo, 0);
+        ItemJnlLine.Validate("Location Code", LocationCode);
+        ItemJnlLine.Validate(Quantity, Qty);
+        ItemJnlLine.Modify(true);
 
         LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
     end;
@@ -720,12 +677,10 @@ codeunit 143016 "Library RU Reports"
     [Scope('OnPrem')]
     procedure CreateStatutoryReport(var StatutoryReport: Record "Statutory Report")
     begin
-        with StatutoryReport do begin
-            Init();
-            Code :=
-              LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Statutory Report");
-            Insert();
-        end;
+        StatutoryReport.Init();
+        StatutoryReport.Code :=
+          LibraryUtility.GenerateRandomCode(StatutoryReport.FieldNo(Code), DATABASE::"Statutory Report");
+        StatutoryReport.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -733,15 +688,13 @@ codeunit 143016 "Library RU Reports"
     var
         CompanyInformation: Record "Company Information";
     begin
-        with CompanyInformation do begin
-            Get();
-            Validate(Name, LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Name), 0));
-            Validate("Name 2", LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Name 2"), 0));
-            Validate("Full Name", LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Full Name"), 0));
-            "VAT Registration No." := LibraryERM.GenerateVATRegistrationNo("Country/Region Code");
-            Validate("KPP Code", LibraryUtility.GenerateGUID());
-            Modify();
-        end;
+        CompanyInformation.Get();
+        CompanyInformation.Validate(Name, LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(CompanyInformation.Name), 0));
+        CompanyInformation.Validate("Name 2", LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(CompanyInformation."Name 2"), 0));
+        CompanyInformation.Validate("Full Name", LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(CompanyInformation."Full Name"), 0));
+        CompanyInformation."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInformation."Country/Region Code");
+        CompanyInformation.Validate("KPP Code", LibraryUtility.GenerateGUID());
+        CompanyInformation.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -750,17 +703,15 @@ codeunit 143016 "Library RU Reports"
         CompanyInfo: Record "Company Information";
         CompanyType: Option Person,Organization;
     begin
-        with CompanyInfo do begin
-            Get();
-            case Type of
-                CompanyType::Organization:
-                    Validate("KPP Code", CopyStr(LibraryUtility.GenerateRandomXMLText(9), 1, 9));
-                CompanyType::Person:
-                    Validate("KPP Code", '');
-            end;
-            "VAT Registration No." := GetRandomVATRegNoForCVType(Type);
-            Modify(true);
+        CompanyInfo.Get();
+        case Type of
+            CompanyType::Organization:
+                CompanyInfo.Validate("KPP Code", CopyStr(LibraryUtility.GenerateRandomXMLText(9), 1, 9));
+            CompanyType::Person:
+                CompanyInfo.Validate("KPP Code", '');
         end;
+        CompanyInfo."VAT Registration No." := GetRandomVATRegNoForCVType(Type);
+        CompanyInfo.Modify(true);
     end;
 
     [Scope('OnPrem')]
@@ -782,14 +733,12 @@ codeunit 143016 "Library RU Reports"
         PostCode: Record "Post Code";
     begin
         CreatePostCode(PostCode);
-        with CompanyAddress do begin
-            FindFirst();
-            Validate("Post Code", PostCode.Code);
-            Validate("Region Name", LibraryUtility.GenerateGUID());
-            Validate(Address, LibraryUtility.GenerateGUID());
-            Validate("Address 2", LibraryUtility.GenerateGUID());
-            Modify(true);
-        end;
+        CompanyAddress.FindFirst();
+        CompanyAddress.Validate("Post Code", PostCode.Code);
+        CompanyAddress.Validate("Region Name", LibraryUtility.GenerateGUID());
+        CompanyAddress.Validate(Address, LibraryUtility.GenerateGUID());
+        CompanyAddress.Validate("Address 2", LibraryUtility.GenerateGUID());
+        CompanyAddress.Modify(true);
     end;
 
     [Scope('OnPrem')]
@@ -831,12 +780,10 @@ codeunit 143016 "Library RU Reports"
         DateFormula: DateFormula;
     begin
         Evaluate(DateFormula, PostingDateCalcFormula);
-        with SalesHeader do begin
-            Validate("Posting Date", CalcDate(DateFormula, WorkDate()));
-            Validate("Additional VAT Ledger Sheet", true);
-            Validate("Corrected Document Date", WorkDate());
-            Modify(true);
-        end;
+        SalesHeader.Validate("Posting Date", CalcDate(DateFormula, WorkDate()));
+        SalesHeader.Validate("Additional VAT Ledger Sheet", true);
+        SalesHeader.Validate("Corrected Document Date", WorkDate());
+        SalesHeader.Modify(true);
     end;
 
     [Scope('OnPrem')]
@@ -845,24 +792,20 @@ codeunit 143016 "Library RU Reports"
         DateFormula: DateFormula;
     begin
         Evaluate(DateFormula, PostingDateCalcFormula);
-        with PurchaseHeader do begin
-            Validate("Posting Date", CalcDate(DateFormula, WorkDate()));
-            Validate("Additional VAT Ledger Sheet", true);
-            Validate("Corrected Document Date", WorkDate());
-            Modify(true);
-            UpdatePurchaseHeaderWithVendorVATInvoiceInfo(PurchaseHeader, '', WorkDate());
-        end;
+        PurchaseHeader.Validate("Posting Date", CalcDate(DateFormula, WorkDate()));
+        PurchaseHeader.Validate("Additional VAT Ledger Sheet", true);
+        PurchaseHeader.Validate("Corrected Document Date", WorkDate());
+        PurchaseHeader.Modify(true);
+        UpdatePurchaseHeaderWithVendorVATInvoiceInfo(PurchaseHeader, '', WorkDate());
     end;
 
     [Scope('OnPrem')]
     procedure UpdatePurchaseHeaderWithVendorVATInvoiceInfo(var PurchaseHeader: Record "Purchase Header"; VendVATInvNo: Code[30]; VendorVATInvDate: Date)
     begin
-        with PurchaseHeader do begin
-            Validate("Vendor VAT Invoice No.", VendVATInvNo);
-            Validate("Vendor VAT Invoice Date", VendorVATInvDate);
-            Validate("Vendor VAT Invoice Rcvd Date", VendorVATInvDate);
-            Modify(true);
-        end;
+        PurchaseHeader.Validate("Vendor VAT Invoice No.", VendVATInvNo);
+        PurchaseHeader.Validate("Vendor VAT Invoice Date", VendorVATInvDate);
+        PurchaseHeader.Validate("Vendor VAT Invoice Rcvd Date", VendorVATInvDate);
+        PurchaseHeader.Modify(true);
     end;
 
     [Scope('OnPrem')]
@@ -870,12 +813,10 @@ codeunit 143016 "Library RU Reports"
     var
         Customer: Record Customer;
     begin
-        with Customer do begin
-            Get(CustomerNo);
-            Validate("KPP Code", CopyStr(LibraryUtility.GenerateRandomXMLText(9), 1, 9));
-            "VAT Registration No." := GetRandomVATRegNoForCVType(CustomerType);
-            Modify(true);
-        end;
+        Customer.Get(CustomerNo);
+        Customer.Validate("KPP Code", CopyStr(LibraryUtility.GenerateRandomXMLText(9), 1, 9));
+        Customer."VAT Registration No." := GetRandomVATRegNoForCVType(CustomerType);
+        Customer.Modify(true);
     end;
 
     [Scope('OnPrem')]
@@ -883,23 +824,19 @@ codeunit 143016 "Library RU Reports"
     var
         Vendor: Record Vendor;
     begin
-        with Vendor do begin
-            Get(VendorNo);
-            Validate("KPP Code", CopyStr(LibraryUtility.GenerateRandomXMLText(9), 1, 9));
-            "VAT Registration No." := GetRandomVATRegNoForCVType(VendorType);
-            Modify(true);
-        end;
+        Vendor.Get(VendorNo);
+        Vendor.Validate("KPP Code", CopyStr(LibraryUtility.GenerateRandomXMLText(9), 1, 9));
+        Vendor."VAT Registration No." := GetRandomVATRegNoForCVType(VendorType);
+        Vendor.Modify(true);
     end;
 
     [Scope('OnPrem')]
     procedure FindVATLedgerLine(var VATLedgerLine: Record "VAT Ledger Line"; LedgerType: Option; VATLedgerCode: Code[20]; CVNo: Code[20])
     begin
-        with VATLedgerLine do begin
-            SetRange(Type, LedgerType);
-            SetRange(Code, VATLedgerCode);
-            SetRange("C/V No.", CVNo);
-            FindFirst();
-        end;
+        VATLedgerLine.SetRange(Type, LedgerType);
+        VATLedgerLine.SetRange(Code, VATLedgerCode);
+        VATLedgerLine.SetRange("C/V No.", CVNo);
+        VATLedgerLine.FindFirst();
     end;
 
     [Scope('OnPrem')]
@@ -909,12 +846,10 @@ codeunit 143016 "Library RU Reports"
         Customer: Record Customer;
     begin
         Customer.Get(CustomerNo);
-        with VATLedgerLine do begin
-            FindVATLedgerLine(VATLedgerLine, VATLedgerType, VATLedgerCode, CustomerNo);
-            Assert.AreEqual(LocalReportMgt.GetCustName(CustomerNo), "C/V Name", FieldCaption("C/V Name"));
-            Assert.AreEqual(Customer."VAT Registration No.", "C/V VAT Reg. No.", FieldCaption("C/V VAT Reg. No."));
-            Assert.AreEqual(Customer."KPP Code", "Reg. Reason Code", FieldCaption("Reg. Reason Code"));
-        end;
+        FindVATLedgerLine(VATLedgerLine, VATLedgerType, VATLedgerCode, CustomerNo);
+        Assert.AreEqual(LocalReportMgt.GetCustName(CustomerNo), VATLedgerLine."C/V Name", VATLedgerLine.FieldCaption("C/V Name"));
+        Assert.AreEqual(Customer."VAT Registration No.", VATLedgerLine."C/V VAT Reg. No.", VATLedgerLine.FieldCaption("C/V VAT Reg. No."));
+        Assert.AreEqual(Customer."KPP Code", VATLedgerLine."Reg. Reason Code", VATLedgerLine.FieldCaption("Reg. Reason Code"));
     end;
 
     [Scope('OnPrem')]
@@ -924,12 +859,10 @@ codeunit 143016 "Library RU Reports"
         Vendor: Record Vendor;
     begin
         Vendor.Get(VendorNo);
-        with VATLedgerLine do begin
-            FindVATLedgerLine(VATLedgerLine, VATLedgerType, VATLedgerCode, VendorNo);
-            Assert.AreEqual(LocalReportMgt.GetVendorName(VendorNo), "C/V Name", FieldCaption("C/V Name"));
-            Assert.AreEqual(Vendor."VAT Registration No.", "C/V VAT Reg. No.", FieldCaption("C/V VAT Reg. No."));
-            Assert.AreEqual(Vendor."KPP Code", "Reg. Reason Code", FieldCaption("Reg. Reason Code"));
-        end;
+        FindVATLedgerLine(VATLedgerLine, VATLedgerType, VATLedgerCode, VendorNo);
+        Assert.AreEqual(LocalReportMgt.GetVendorName(VendorNo), VATLedgerLine."C/V Name", VATLedgerLine.FieldCaption("C/V Name"));
+        Assert.AreEqual(Vendor."VAT Registration No.", VATLedgerLine."C/V VAT Reg. No.", VATLedgerLine.FieldCaption("C/V VAT Reg. No."));
+        Assert.AreEqual(Vendor."KPP Code", VATLedgerLine."Reg. Reason Code", VATLedgerLine.FieldCaption("Reg. Reason Code"));
     end;
 
     [Scope('OnPrem')]
@@ -939,12 +872,10 @@ codeunit 143016 "Library RU Reports"
         CompanyInformation: Record "Company Information";
     begin
         CompanyInformation.Get();
-        with VATLedgerLine do begin
-            FindVATLedgerLine(VATLedgerLine, VATLedgerType, VATLedgerCode, CVNo);
-            Assert.AreEqual(LocalReportMgt.GetCompanyName, "C/V Name", FieldCaption("C/V Name"));
-            Assert.AreEqual(CompanyInformation."VAT Registration No.", "C/V VAT Reg. No.", FieldCaption("C/V VAT Reg. No."));
-            Assert.AreEqual(CompanyInformation."KPP Code", "Reg. Reason Code", FieldCaption("Reg. Reason Code"));
-        end;
+        FindVATLedgerLine(VATLedgerLine, VATLedgerType, VATLedgerCode, CVNo);
+        Assert.AreEqual(LocalReportMgt.GetCompanyName(), VATLedgerLine."C/V Name", VATLedgerLine.FieldCaption("C/V Name"));
+        Assert.AreEqual(CompanyInformation."VAT Registration No.", VATLedgerLine."C/V VAT Reg. No.", VATLedgerLine.FieldCaption("C/V VAT Reg. No."));
+        Assert.AreEqual(CompanyInformation."KPP Code", VATLedgerLine."Reg. Reason Code", VATLedgerLine.FieldCaption("Reg. Reason Code"));
     end;
 
     [Scope('OnPrem')]
@@ -1230,7 +1161,7 @@ codeunit 143016 "Library RU Reports"
 
     local procedure VerifyExcelReportValue(FileName: Text; ColumnName: Text; RowNo: Integer; ExpectedValue: Text)
     begin
-        if LibraryReportValidation.GetFileName <> FileName then
+        if LibraryReportValidation.GetFileName() <> FileName then
             LibraryReportValidation.SetFullFileName(FileName);
         LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo, 1, ExpectedValue);
     end;

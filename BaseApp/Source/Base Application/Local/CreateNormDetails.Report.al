@@ -44,12 +44,10 @@ report 17207 "Create Norm Details"
 
             trigger OnPreDataItem()
             begin
-                with NormJurisdiction do begin
-                    Copy("Tax Register Norm Jurisdiction");
-                    if Find('-') then
-                        if Next() <> 0 then
-                            CurrReport.Quit();
-                end;
+                NormJurisdiction.Copy("Tax Register Norm Jurisdiction");
+                if NormJurisdiction.Find('-') then
+                    if NormJurisdiction.Next() <> 0 then
+                        CurrReport.Quit();
             end;
         }
     }
@@ -168,13 +166,11 @@ report 17207 "Create Norm Details"
         NormGroup.SetRange("Norm Jurisdiction Code", NormJurisdictionCode);
         NormGroup.SetRange("Storing Method", NormGroup."Storing Method"::Calculation);
         LinkAccumulateRecordRef.Open(DATABASE::"Tax Reg. Norm Accumulation");
-        with NormAccumulat do begin
-            Init();
-            SetCurrentKey("Norm Jurisdiction Code", "Norm Group Code", "Template Line No.");
-            SetRange("Norm Jurisdiction Code", NormJurisdictionCode);
-            SetRange("Ending Date", DateEnd);
-            LinkAccumulateRecordRef.SetView(GetView(false));
-        end;
+        NormAccumulat.Init();
+        NormAccumulat.SetCurrentKey("Norm Jurisdiction Code", "Norm Group Code", "Template Line No.");
+        NormAccumulat.SetRange("Norm Jurisdiction Code", NormJurisdictionCode);
+        NormAccumulat.SetRange("Ending Date", DateEnd);
+        LinkAccumulateRecordRef.SetView(NormAccumulat.GetView(false));
         NormDetail.SetRange("Norm Jurisdiction Code", NormJurisdictionCode);
         NormDetail.SetRange("Norm Type", NormDetail."Norm Type"::Amount);
         NormDetail.SetFilter("Effective Date", '%1..', DateEnd);

@@ -60,7 +60,7 @@ codeunit 134381 "ERM Dimension Priority"
         CreateDefaultDimensionCodes(CustomerNo, GenJournalBatch."Bal. Account No.");
 
         // Setup priorities
-        SetupDimensionPriority(LibraryERM.FindGeneralJournalSourceCode, 1, 1);
+        SetupDimensionPriority(LibraryERM.FindGeneralJournalSourceCode(), 1, 1);
 
         // Find default dimension codes
         LibraryDimension.FindDefaultDimension(DefaultDimension, DATABASE::Customer, CustomerNo);
@@ -94,7 +94,7 @@ codeunit 134381 "ERM Dimension Priority"
         CreateDefaultDimensionCodes(CustomerNo, GenJournalBatch."Bal. Account No.");
 
         // Setup priorities
-        SetupDimensionPriority(LibraryERM.FindGeneralJournalSourceCode, 1, 1);
+        SetupDimensionPriority(LibraryERM.FindGeneralJournalSourceCode(), 1, 1);
 
         // Find default dimension codes
         LibraryDimension.FindDefaultDimension(DefaultDimension, DATABASE::"G/L Account", GenJournalBatch."Bal. Account No.");
@@ -121,7 +121,7 @@ codeunit 134381 "ERM Dimension Priority"
 
         // Setup: Find Source Code.
         Initialize();
-        SourceCode := LibraryERM.FindGeneralJournalSourceCode;
+        SourceCode := LibraryERM.FindGeneralJournalSourceCode();
 
         // Exercise: Create default dimension priority 1 for Customer, 1 for Vendor and  2 for G/L Account with source code.
         SetDefaultDimensionPriority(SourceCode);
@@ -143,7 +143,7 @@ codeunit 134381 "ERM Dimension Priority"
         // Test that purchase order created by carry out action from requisition worskeet has correct dimensions according to dimension in requisition worksheet
 
         Initialize();
-        SetupDimensionPriorityForPurchSrcCode;
+        SetupDimensionPriorityForPurchSrcCode();
         DimensionCode := CreateDimensionValues(DimValueArray);
         VendNo := CreateVendorWithPurchaserAndDefDim(DimensionCode, DimValueArray);
         ItemNo := CreateItemWithReplenishmentPociliyAndDefDim(DimensionCode, DimValueArray[3], VendNo);
@@ -169,8 +169,8 @@ codeunit 134381 "ERM Dimension Priority"
 
         // Setup.
         Initialize();
-        LibraryDimension.InitGlobalDimChange;
-        SetupDimensionPriorityForPurchSrcCode;
+        LibraryDimension.InitGlobalDimChange();
+        SetupDimensionPriorityForPurchSrcCode();
         DimensionCode := CreateDimensionValues(DimValueArray);
         PrevGlobalDimCode := SetupGlobalDimension(1, DimensionCode);
         VendNo := CreateVendorWithPurchaserAndDefDim(DimensionCode, DimValueArray);
@@ -178,7 +178,7 @@ codeunit 134381 "ERM Dimension Priority"
         ExpectedDimValue := CreateReqLineWithCustomDimVal(RequisitionLine, ItemNo, DimensionCode);
 
         // Exercise.
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
 
         // Verify.
         VerifyDimValueInPurchLine(VendNo, DimensionCode, ExpectedDimValue);
@@ -681,10 +681,10 @@ codeunit 134381 "ERM Dimension Priority"
         MyNotifications.InsertDefault(DefaultDimPrioritiesNotificationIdTxt, '', '', true);
 
         // [THEN] Verify Notification Exist
-        VerifyNotificationExists;
+        VerifyNotificationExists();
 
         // [THEN] Verify Notification is Enabled
-        VerifyNotificationIsEnabled;
+        VerifyNotificationIsEnabled();
 
         // [WHEN] Raised GetNotificationStatus Event
         SystemActionTriggers.GetNotificationStatus(DefaultDimPrioritiesNotificationIdTxt, Enabled);
@@ -764,14 +764,14 @@ codeunit 134381 "ERM Dimension Priority"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Dimension Priority");
         // Lazy Setup.
-        LibraryDimension.InitGlobalDimChange;
+        LibraryDimension.InitGlobalDimChange();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Dimension Priority");
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        ClearDimensionCombinations;
+        ClearDimensionCombinations();
 
         isInitialized := true;
         Commit();
@@ -793,7 +793,7 @@ codeunit 134381 "ERM Dimension Priority"
         CreateDefaultDimensionCodes(CustomerNo, GenJournalBatch."Bal. Account No.");
 
         // Setup priorities
-        SetupDimensionPriority(LibraryERM.FindGeneralJournalSourceCode, CustomerPri, GLAccountPri);
+        SetupDimensionPriority(LibraryERM.FindGeneralJournalSourceCode(), CustomerPri, GLAccountPri);
 
         // Find default dimension codes
         if CustomerPri < GLAccountPri then
@@ -933,7 +933,7 @@ codeunit 134381 "ERM Dimension Priority"
         ServiceContractHeader."Contract No." :=
           LibraryUtility.GenerateRandomCode(ServiceContractHeader.FieldNo("Contract No."), DATABASE::"Service Contract Header");
         ServiceContractHeader.Status := ServiceContractHeader.Status::Signed;
-        ServiceContractHeader.Validate("Customer No.", LibrarySales.CreateCustomerNo);
+        ServiceContractHeader.Validate("Customer No.", LibrarySales.CreateCustomerNo());
         ServiceContractHeader.Insert();
         Commit();
     end;
@@ -958,7 +958,7 @@ codeunit 134381 "ERM Dimension Priority"
 
     local procedure CreateJobPlanningLineWithItemAndJobTask(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; ItemNo: Code[20])
     begin
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, LibraryJob.ItemType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.ItemType(), JobTask, JobPlanningLine);
         JobPlanningLine.Validate("No.", ItemNo);
         JobPlanningLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));
         JobPlanningLine.Validate("Qty. to Transfer to Invoice", JobPlanningLine.Quantity);
@@ -1168,7 +1168,7 @@ codeunit 134381 "ERM Dimension Priority"
         ReqLine: Record "Requisition Line";
     begin
         CreateReqLine(ReqLine, ItemNo);
-        LibraryPlanning.CarryOutReqWksh(ReqLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(ReqLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
     end;
 
     local procedure CreateReqLineWithCustomDimVal(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20]; DimensionCode: Code[20]): Code[20]
@@ -1418,7 +1418,7 @@ codeunit 134381 "ERM Dimension Priority"
         ReqLine: Record "Requisition Line";
     begin
         CreateReqLine(ReqLine, Item);
-        LibraryPlanning.CarryOutReqWksh(ReqLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(ReqLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
     end;
 
     local procedure CreateReqLine(var ReqLine: Record "Requisition Line"; var Item: Record Item)
@@ -1561,7 +1561,7 @@ codeunit 134381 "ERM Dimension Priority"
     [Scope('OnPrem')]
     procedure TransferToInvoiceHandler(var RequestPage: TestRequestPage "Job Transfer to Sales Invoice")
     begin
-        RequestPage.OK.Invoke
+        RequestPage.OK().Invoke();
     end;
 }
 

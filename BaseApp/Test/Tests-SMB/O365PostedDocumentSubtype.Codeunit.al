@@ -35,37 +35,37 @@ codeunit 134652 "O365 Posted Document Subtype"
         Initialize();
 
         // [GIVEN] An OnPrem environment
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // [WHEN] Opening a new posted document
-        PostedSalesShipment.OpenView;
-        PostedSalesInvoice.OpenView;
-        PostedSalesCreditMemo.OpenView;
-        PostedPurchaseReceipt.OpenView;
-        PostedPurchaseInvoice.OpenView;
-        PostedPurchaseCreditMemo.OpenView;
+        PostedSalesShipment.OpenView();
+        PostedSalesInvoice.OpenView();
+        PostedSalesCreditMemo.OpenView();
+        PostedPurchaseReceipt.OpenView();
+        PostedPurchaseInvoice.OpenView();
+        PostedPurchaseCreditMemo.OpenView();
 
         // [THEN] The Type field is visible and the subtype field is not
         Assert.IsFalse(
-          PostedSalesShipment.SalesShipmLines.FilteredTypeField.Visible, 'FilteredTypeField field should not be visible for OnPrem');
+          PostedSalesShipment.SalesShipmLines.FilteredTypeField.Visible(), 'FilteredTypeField field should not be visible for OnPrem');
         Assert.IsFalse(
-          PostedPurchaseCreditMemo.PurchCrMemoLines.FilteredTypeField.Visible,
+          PostedPurchaseCreditMemo.PurchCrMemoLines.FilteredTypeField.Visible(),
           'FilteredTypeField field should not be visible for OnPrem');
         Assert.IsFalse(
-          PostedSalesInvoice.SalesInvLines.FilteredTypeField.Visible, 'FilteredTypeField field should not be visible for OnPrem');
+          PostedSalesInvoice.SalesInvLines.FilteredTypeField.Visible(), 'FilteredTypeField field should not be visible for OnPrem');
         Assert.IsFalse(
-          PostedSalesCreditMemo.SalesCrMemoLines.FilteredTypeField.Visible, 'FilteredTypeField field should not be visible for OnPrem');
+          PostedSalesCreditMemo.SalesCrMemoLines.FilteredTypeField.Visible(), 'FilteredTypeField field should not be visible for OnPrem');
         Assert.IsFalse(
-          PostedPurchaseReceipt.PurchReceiptLines.FilteredTypeField.Visible, 'FilteredTypeField field should not be visible for OnPrem');
+          PostedPurchaseReceipt.PurchReceiptLines.FilteredTypeField.Visible(), 'FilteredTypeField field should not be visible for OnPrem');
         Assert.IsFalse(
-          PostedPurchaseInvoice.PurchInvLines.FilteredTypeField.Visible, 'FilteredTypeField field should not be visible for OnPrem');
+          PostedPurchaseInvoice.PurchInvLines.FilteredTypeField.Visible(), 'FilteredTypeField field should not be visible for OnPrem');
 
-        Assert.IsTrue(PostedSalesShipment.SalesShipmLines.Type.Visible, 'Regular type field should be visible for OnPrem');
-        Assert.IsTrue(PostedSalesInvoice.SalesInvLines.Type.Visible, 'Regular type field should be visible for OnPrem');
-        Assert.IsTrue(PostedSalesCreditMemo.SalesCrMemoLines.Type.Visible, 'Regular type field should be visible for OnPrem');
-        Assert.IsTrue(PostedPurchaseReceipt.PurchReceiptLines.Type.Visible, 'Regular type field should be visible for OnPrem');
-        Assert.IsTrue(PostedPurchaseInvoice.PurchInvLines.Type.Visible, 'Regular type field should be visible for OnPrem');
-        Assert.IsTrue(PostedPurchaseCreditMemo.PurchCrMemoLines.Type.Visible, 'Regular type field should be visible for OnPrem');
+        Assert.IsTrue(PostedSalesShipment.SalesShipmLines.Type.Visible(), 'Regular type field should be visible for OnPrem');
+        Assert.IsTrue(PostedSalesInvoice.SalesInvLines.Type.Visible(), 'Regular type field should be visible for OnPrem');
+        Assert.IsTrue(PostedSalesCreditMemo.SalesCrMemoLines.Type.Visible(), 'Regular type field should be visible for OnPrem');
+        Assert.IsTrue(PostedPurchaseReceipt.PurchReceiptLines.Type.Visible(), 'Regular type field should be visible for OnPrem');
+        Assert.IsTrue(PostedPurchaseInvoice.PurchInvLines.Type.Visible(), 'Regular type field should be visible for OnPrem');
+        Assert.IsTrue(PostedPurchaseCreditMemo.PurchCrMemoLines.Type.Visible(), 'Regular type field should be visible for OnPrem');
     end;
 
     [Test]
@@ -85,38 +85,38 @@ codeunit 134652 "O365 Posted Document Subtype"
         // [GIVEN] A SaaS environment
 
         // [WHEN] Opening a new posted document
-        PostedSalesShipment.OpenView;
-        PostedSalesInvoice.OpenView;
-        PostedSalesCreditMemo.OpenView;
-        PostedPurchaseReceipt.OpenView;
-        PostedPurchaseInvoice.OpenView;
-        PostedPurchaseCreditMemo.OpenView;
+        PostedSalesShipment.OpenView();
+        PostedSalesInvoice.OpenView();
+        PostedSalesCreditMemo.OpenView();
+        PostedPurchaseReceipt.OpenView();
+        PostedPurchaseInvoice.OpenView();
+        PostedPurchaseCreditMemo.OpenView();
 
         // [THEN] The Subtype field is visible and the type field is not
-        asserterror PostedSalesShipment.SalesShipmLines.Type.Activate;
+        asserterror PostedSalesShipment.SalesShipmLines.Type.Activate();
         Assert.ExpectedError('not found on the page');
-        asserterror PostedSalesInvoice.SalesInvLines.Type.Activate;
+        asserterror PostedSalesInvoice.SalesInvLines.Type.Activate();
         Assert.ExpectedError('not found on the page');
-        asserterror PostedSalesCreditMemo.SalesCrMemoLines.Type.Activate;
+        asserterror PostedSalesCreditMemo.SalesCrMemoLines.Type.Activate();
         Assert.ExpectedError('not found on the page');
-        asserterror PostedPurchaseReceipt.PurchReceiptLines.Type.Activate;
+        asserterror PostedPurchaseReceipt.PurchReceiptLines.Type.Activate();
         Assert.ExpectedError('not found on the page');
-        asserterror PostedPurchaseInvoice.PurchInvLines.Type.Activate;
+        asserterror PostedPurchaseInvoice.PurchInvLines.Type.Activate();
         Assert.ExpectedError('not found on the page');
-        asserterror PostedPurchaseCreditMemo.PurchCrMemoLines.Type.Activate;
+        asserterror PostedPurchaseCreditMemo.PurchCrMemoLines.Type.Activate();
         Assert.ExpectedError('not found on the page');
 
         Assert.IsTrue(
-          PostedSalesShipment.SalesShipmLines.FilteredTypeField.Visible, 'FilteredTypeField field should be visible for SaaS');
-        Assert.IsTrue(PostedSalesInvoice.SalesInvLines.FilteredTypeField.Visible, 'FilteredTypeField field should be visible for SaaS');
+          PostedSalesShipment.SalesShipmLines.FilteredTypeField.Visible(), 'FilteredTypeField field should be visible for SaaS');
+        Assert.IsTrue(PostedSalesInvoice.SalesInvLines.FilteredTypeField.Visible(), 'FilteredTypeField field should be visible for SaaS');
         Assert.IsTrue(
-          PostedSalesCreditMemo.SalesCrMemoLines.FilteredTypeField.Visible, 'FilteredTypeField field should be visible for SaaS');
+          PostedSalesCreditMemo.SalesCrMemoLines.FilteredTypeField.Visible(), 'FilteredTypeField field should be visible for SaaS');
         Assert.IsTrue(
-          PostedPurchaseReceipt.PurchReceiptLines.FilteredTypeField.Visible, 'FilteredTypeField field should be visible for SaaS');
+          PostedPurchaseReceipt.PurchReceiptLines.FilteredTypeField.Visible(), 'FilteredTypeField field should be visible for SaaS');
         Assert.IsTrue(
-          PostedPurchaseInvoice.PurchInvLines.FilteredTypeField.Visible, 'FilteredTypeField field should be visible for SaaS');
+          PostedPurchaseInvoice.PurchInvLines.FilteredTypeField.Visible(), 'FilteredTypeField field should be visible for SaaS');
         Assert.IsTrue(
-          PostedPurchaseCreditMemo.PurchCrMemoLines.FilteredTypeField.Visible, 'FilteredTypeField field should be visible for SaaS');
+          PostedPurchaseCreditMemo.PurchCrMemoLines.FilteredTypeField.Visible(), 'FilteredTypeField field should be visible for SaaS');
     end;
 
     [Test]
@@ -393,13 +393,13 @@ codeunit 134652 "O365 Posted Document Subtype"
         Initialize();
 
         // [GIVEN] Jobs and Suite application area enabled.
-        LibraryApplicationArea.EnableJobsAndSuiteSetup;
+        LibraryApplicationArea.EnableJobsAndSuiteSetup();
 
         // [WHEN] Open a new posted document.
-        PostedPurchaseInvoice.OpenView;
+        PostedPurchaseInvoice.OpenView();
 
         // [THEN] The "Job No." field is visible.
-        Assert.IsTrue(PostedPurchaseInvoice.PurchInvLines."Job No.".Visible, 'Job No. field must be visible.');
+        Assert.IsTrue(PostedPurchaseInvoice.PurchInvLines."Job No.".Visible(), 'Job No. field must be visible.');
     end;
 
     local procedure Initialize()
@@ -414,7 +414,7 @@ codeunit 134652 "O365 Posted Document Subtype"
         PostedSalesShptSubform: TestPage "Posted Sales Shpt. Subform";
     begin
         SalesShipmentLine.Modify();
-        PostedSalesShptSubform.OpenView;
+        PostedSalesShptSubform.OpenView();
         PostedSalesShptSubform.GotoRecord(SalesShipmentLine);
         PostedSalesShptSubform.FilteredTypeField.AssertEquals(ExpectedSubtype);
         PostedSalesShptSubform.Close();
@@ -425,7 +425,7 @@ codeunit 134652 "O365 Posted Document Subtype"
         PostedSalesInvoiceSubform: TestPage "Posted Sales Invoice Subform";
     begin
         SalesInvoiceLine.Modify();
-        PostedSalesInvoiceSubform.OpenView;
+        PostedSalesInvoiceSubform.OpenView();
         PostedSalesInvoiceSubform.GotoRecord(SalesInvoiceLine);
         PostedSalesInvoiceSubform.FilteredTypeField.AssertEquals(ExpectedSubtype);
         PostedSalesInvoiceSubform.Close();
@@ -436,7 +436,7 @@ codeunit 134652 "O365 Posted Document Subtype"
         PostedSalesCrMemoSubform: TestPage "Posted Sales Cr. Memo Subform";
     begin
         SalesCrMemoLine.Modify();
-        PostedSalesCrMemoSubform.OpenView;
+        PostedSalesCrMemoSubform.OpenView();
         PostedSalesCrMemoSubform.GotoRecord(SalesCrMemoLine);
         PostedSalesCrMemoSubform.FilteredTypeField.AssertEquals(ExpectedSubtype);
         PostedSalesCrMemoSubform.Close();
@@ -447,7 +447,7 @@ codeunit 134652 "O365 Posted Document Subtype"
         PostedPurchaseRcptSubform: TestPage "Posted Purchase Rcpt. Subform";
     begin
         PurchRcptLine.Modify();
-        PostedPurchaseRcptSubform.OpenView;
+        PostedPurchaseRcptSubform.OpenView();
         PostedPurchaseRcptSubform.GotoRecord(PurchRcptLine);
         PostedPurchaseRcptSubform.FilteredTypeField.AssertEquals(ExpectedSubtype);
         PostedPurchaseRcptSubform.Close();
@@ -458,7 +458,7 @@ codeunit 134652 "O365 Posted Document Subtype"
         PostedPurchInvoiceSubform: TestPage "Posted Purch. Invoice Subform";
     begin
         PurchInvLine.Modify();
-        PostedPurchInvoiceSubform.OpenView;
+        PostedPurchInvoiceSubform.OpenView();
         PostedPurchInvoiceSubform.GotoRecord(PurchInvLine);
         PostedPurchInvoiceSubform.FilteredTypeField.AssertEquals(ExpectedSubtype);
         PostedPurchInvoiceSubform.Close();
@@ -469,7 +469,7 @@ codeunit 134652 "O365 Posted Document Subtype"
         PostedPurchCrMemoSubform: TestPage "Posted Purch. Cr. Memo Subform";
     begin
         PurchCrMemoLine.Modify();
-        PostedPurchCrMemoSubform.OpenView;
+        PostedPurchCrMemoSubform.OpenView();
         PostedPurchCrMemoSubform.GotoRecord(PurchCrMemoLine);
         PostedPurchCrMemoSubform.FilteredTypeField.AssertEquals(ExpectedSubtype);
         PostedPurchCrMemoSubform.Close();

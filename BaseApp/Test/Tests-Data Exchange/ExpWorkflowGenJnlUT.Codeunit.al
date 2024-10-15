@@ -99,7 +99,7 @@ codeunit 132560 "Exp. Workflow Gen. Jnl. UT"
           GenJnlLine."Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDec(1000, 2));
 
         // Setup
-        CreditTransferRegister.CreateNew(LibraryUtility.GenerateGUID, BankAcc."No.");
+        CreditTransferRegister.CreateNew(LibraryUtility.GenerateGUID(), BankAcc."No.");
 
         // Pre-Exercise
         DataExch.Init();
@@ -148,7 +148,7 @@ codeunit 132560 "Exp. Workflow Gen. Jnl. UT"
         end;
 
         // [WHEN] Run Export Payment (using export setup via codeunit 1275 "Exp. Post-Mapping Gen. Jnl.")
-        CreditTransferRegister.CreateNew(LibraryUtility.GenerateGUID, BankAccountNo);
+        CreditTransferRegister.CreateNew(LibraryUtility.GenerateGUID(), BankAccountNo);
         CODEUNIT.Run(CODEUNIT::"Exp. Post-Mapping Gen. Jnl.", DataExch);
 
         // [THEN] Credit transfer register entries are created per each applies-to entry per journal line
@@ -190,9 +190,9 @@ codeunit 132560 "Exp. Workflow Gen. Jnl. UT"
           GenJnlLine."Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDec(1000, 2));
 
         // Setup
-        CreditTransferRegister.CreateNew(LibraryUtility.GenerateGUID, BankAcc."No.");
+        CreditTransferRegister.CreateNew(LibraryUtility.GenerateGUID(), BankAcc."No.");
         CreditTransferEntry.CreateNew(CreditTransferRegister."No.", 1,
-          GenJnlLine."Account Type", GenJnlLine."Account No.", GenJnlLine.GetAppliesToDocEntryNo,
+          GenJnlLine."Account Type", GenJnlLine."Account No.", GenJnlLine.GetAppliesToDocEntryNo(),
           GenJnlLine."Posting Date", GenJnlLine."Currency Code", GenJnlLine.Amount, '',
           GenJnlLine."Recipient Bank Account", GenJnlLine."Message to Recipient");
 
@@ -230,7 +230,7 @@ codeunit 132560 "Exp. Workflow Gen. Jnl. UT"
 
     local procedure CreateExportGenJournalBatch(var GenJnlBatch: Record "Gen. Journal Batch"; BalAccountNo: Code[20])
     begin
-        LibraryERM.CreateGenJournalBatch(GenJnlBatch, LibraryPaymentExport.SelectPaymentJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJnlBatch, LibraryPaymentExport.SelectPaymentJournalTemplate());
         GenJnlBatch.Validate("Bal. Account Type", GenJnlBatch."Bal. Account Type"::"Bank Account");
         GenJnlBatch.Validate("Bal. Account No.", BalAccountNo);
         GenJnlBatch.Validate("Allow Payment Export", true);

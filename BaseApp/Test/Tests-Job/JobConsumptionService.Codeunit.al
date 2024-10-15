@@ -18,7 +18,7 @@ codeunit 136301 "Job Consumption Service"
         LibraryService: Codeunit "Library - Service";
         LibraryUtility: Codeunit "Library - Utility";
         Initialized: Boolean;
-        UndoConsumptionJobError: Label 'You cannot undo consumption on the line because it has been already posted to Jobs.';
+        UndoConsumptionJobError: Label 'You cannot undo consumption on the line because it has been already posted to Projects.';
         QuantityConsumedErrorServTier: Label 'Quantity Consumed must be equal to ''0''  in %1: %2=%3, %4=%5, %6=%7. Current value is ''%8''.';
         JobBlockedError: Label '%1 %2 must not be blocked with type %3.';
         UnknownError: Label 'Unknown error.';
@@ -34,7 +34,7 @@ codeunit 136301 "Job Consumption Service"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Job Consumption Service");
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
 
         Initialized := true;
         Commit();
@@ -60,7 +60,7 @@ codeunit 136301 "Job Consumption Service"
         // Covers document number TC1.2 - refer to TFS ID 19910.
         // Test integration of Jobs with Service Management by validating entries after posting Service Order with Partial Job consumption.
 
-        ConsumeService(LibraryUtility.GenerateRandomFraction);
+        ConsumeService(LibraryUtility.GenerateRandomFraction());
     end;
 
     local procedure ConsumeService(ConsumptionFactor: Decimal)
@@ -127,7 +127,7 @@ codeunit 136301 "Job Consumption Service"
 
         // 1. Setup: Setup and post the Service Order as Ship and Consume. Create a new Job.
         Initialize();
-        CreateServiceOrderWithJob(ServiceHeader, LibraryUtility.GenerateRandomFraction);
+        CreateServiceOrderWithJob(ServiceHeader, LibraryUtility.GenerateRandomFraction());
         LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
 
         GetServiceLines(ServiceHeader, ServiceLine);
@@ -158,7 +158,7 @@ codeunit 136301 "Job Consumption Service"
 
         // 1. Setup: Setup and post the Service Order as Ship and Consume. Create a new Job Task.
         Initialize();
-        CreateServiceOrderWithJob(ServiceHeader, LibraryUtility.GenerateRandomFraction);
+        CreateServiceOrderWithJob(ServiceHeader, LibraryUtility.GenerateRandomFraction());
         LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
         GetServiceLines(ServiceHeader, ServiceLine);
         Job.Get(ServiceLine."Job No.");
@@ -186,7 +186,7 @@ codeunit 136301 "Job Consumption Service"
 
         // 1. Setup: Setup and post the Service Order as Ship and Consume.
         Initialize();
-        CreateServiceOrderWithJob(ServiceHeader, LibraryUtility.GenerateRandomFraction);
+        CreateServiceOrderWithJob(ServiceHeader, LibraryUtility.GenerateRandomFraction());
         LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
         GetServiceLines(ServiceHeader, ServiceLine);
 
@@ -217,7 +217,7 @@ codeunit 136301 "Job Consumption Service"
 
         // 2. Exercise: Create a new Service Order - Service Header, Service Line and try to assign the blocked Job on the Service Line.
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Job."Bill-to Customer No.");
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryJob.FindItem);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryJob.FindItem());
         asserterror ServiceLine.Validate("Job No.", Job."No.");
 
         // 3. Verify: Check that the application generates an error on assignment of blocked Job to Job No. field of Service Line.
@@ -392,7 +392,7 @@ codeunit 136301 "Job Consumption Service"
             Quantity := ServiceLine."Qty. to Consume";
             "Unit Cost (LCY)" := ServiceLine."Unit Cost (LCY)";
             "Unit Price (LCY)" := ServiceLine."Unit Price";
-            Insert
+            Insert();
         end;
 
         LibraryJob.VerifyJobJournalPosting(false, TempJobJournalLine)

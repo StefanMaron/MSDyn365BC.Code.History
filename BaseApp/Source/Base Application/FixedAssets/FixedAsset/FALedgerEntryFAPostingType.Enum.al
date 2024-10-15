@@ -1,6 +1,8 @@
 ﻿namespace Microsoft.FixedAssets.Ledger;
 
+#pragma warning disable AL0659
 enum 5601 "FA Ledger Entry FA Posting Type"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;

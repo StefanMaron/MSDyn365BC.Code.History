@@ -16,30 +16,28 @@ codeunit 12420 "Doc. Signature Management"
     var
         ToPostedDocSign: Record "Posted Document Signature";
     begin
-        with FromDocSign do begin
-            SetRange("Table ID", FromTableID);
-            SetRange("Document Type", FromDocType);
-            SetRange("Document No.", FromDocNo);
-            if FindSet() then
-                repeat
-                    ToPostedDocSign.Init();
-                    ToPostedDocSign."Table ID" := ToTableID;
-                    if FromTableID = DATABASE::"FA Document Header" then
-                        ToPostedDocSign."Document Type" := FromDocType
-                    else
-                        ToPostedDocSign."Document Type" := 0;
-                    ToPostedDocSign."Document No." := ToDocNo;
-                    ToPostedDocSign."Employee Type" := "Employee Type";
-                    ToPostedDocSign."Employee No." := "Employee No.";
-                    ToPostedDocSign."Employee Name" := "Employee Name";
-                    ToPostedDocSign."Employee Job Title" := "Employee Job Title";
-                    ToPostedDocSign."Employee Org. Unit" := "Employee Org. Unit";
-                    ToPostedDocSign."Warrant Description" := "Warrant Description";
-                    ToPostedDocSign."Warrant No." := "Warrant No.";
-                    ToPostedDocSign."Warrant Date" := "Warrant Date";
-                    ToPostedDocSign.Insert();
-                until Next() = 0;
-        end;
+        FromDocSign.SetRange("Table ID", FromTableID);
+        FromDocSign.SetRange("Document Type", FromDocType);
+        FromDocSign.SetRange("Document No.", FromDocNo);
+        if FromDocSign.FindSet() then
+            repeat
+                ToPostedDocSign.Init();
+                ToPostedDocSign."Table ID" := ToTableID;
+                if FromTableID = DATABASE::"FA Document Header" then
+                    ToPostedDocSign."Document Type" := FromDocType
+                else
+                    ToPostedDocSign."Document Type" := 0;
+                ToPostedDocSign."Document No." := ToDocNo;
+                ToPostedDocSign."Employee Type" := FromDocSign."Employee Type";
+                ToPostedDocSign."Employee No." := FromDocSign."Employee No.";
+                ToPostedDocSign."Employee Name" := FromDocSign."Employee Name";
+                ToPostedDocSign."Employee Job Title" := FromDocSign."Employee Job Title";
+                ToPostedDocSign."Employee Org. Unit" := FromDocSign."Employee Org. Unit";
+                ToPostedDocSign."Warrant Description" := FromDocSign."Warrant Description";
+                ToPostedDocSign."Warrant No." := FromDocSign."Warrant No.";
+                ToPostedDocSign."Warrant Date" := FromDocSign."Warrant Date";
+                ToPostedDocSign.Insert();
+            until FromDocSign.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -52,24 +50,22 @@ codeunit 12420 "Doc. Signature Management"
         DocSign.SetRange("Document No.", DocNo);
         if not DocSign.IsEmpty() then
             exit;
-        with DefaultSignSetup do begin
-            SetRange("Table ID", TableID);
-            SetRange("Document Type", DocType);
-            if FindSet() then
-                repeat
-                    DocSign.Init();
-                    DocSign."Table ID" := "Table ID";
-                    DocSign."Document Type" := "Document Type";
-                    DocSign."Document No." := DocNo;
-                    DocSign."Employee Type" := "Employee Type";
-                    if "Employee No." <> '' then
-                        DocSign.Validate("Employee No.", "Employee No.");
-                    DocSign."Warrant Description" := "Warrant Description";
-                    DocSign."Warrant No." := "Warrant No.";
-                    DocSign."Warrant Date" := "Warrant Date";
-                    DocSign.Insert();
-                until Next() = 0;
-        end;
+        DefaultSignSetup.SetRange("Table ID", TableID);
+        DefaultSignSetup.SetRange("Document Type", DocType);
+        if DefaultSignSetup.FindSet() then
+            repeat
+                DocSign.Init();
+                DocSign."Table ID" := DefaultSignSetup."Table ID";
+                DocSign."Document Type" := DefaultSignSetup."Document Type";
+                DocSign."Document No." := DocNo;
+                DocSign."Employee Type" := DefaultSignSetup."Employee Type";
+                if DefaultSignSetup."Employee No." <> '' then
+                    DocSign.Validate("Employee No.", DefaultSignSetup."Employee No.");
+                DocSign."Warrant Description" := DefaultSignSetup."Warrant Description";
+                DocSign."Warrant No." := DefaultSignSetup."Warrant No.";
+                DocSign."Warrant Date" := DefaultSignSetup."Warrant Date";
+                DocSign.Insert();
+            until DefaultSignSetup.Next() = 0;
     end;
 
     [Scope('OnPrem')]

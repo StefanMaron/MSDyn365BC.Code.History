@@ -277,9 +277,9 @@ report 7054 "Res. Price List"
                     field(ParentSourceNoCtrl; ParentSourceNo)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Assign-to Job No.';
+                        Caption = 'Assign-to Project No.';
                         Editable = false;
-                        ToolTip = 'Specifies the job to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
+                        ToolTip = 'Specifies the project to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
                     }
                     field(SourceNoCtrl; SourceNo)
                     {
@@ -402,7 +402,7 @@ report 7054 "Res. Price List"
         WorkTypeCaptionLbl: Label 'Work Type';
         ResourceNameCaptionLbl: Label 'Resource Name';
         WorkTypeDescriptionCaptionLbl: Label 'Work Type Description';
-        MissSourceNoErr: Label 'You must specify an Assign-to, if the Assign-to Type is different from All Jobs.';
+        MissSourceNoErr: Label 'You must specify an Assign-to, if the Assign-to Type is different from All Projects.';
 
     local procedure FindPrice(WorkTypeCode: Code[10]): Boolean;
     var

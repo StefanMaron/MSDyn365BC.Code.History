@@ -14,6 +14,7 @@ table 96 "G/L Budget Entry"
     DrillDownPageID = "G/L Budget Entries";
     LookupPageID = "G/L Budget Entries";
     Permissions = TableData "Analysis View Budget Entry" = rd;
+    DataClassification = CustomerContent;
 
     fields
     {

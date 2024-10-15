@@ -285,7 +285,7 @@
 
         // Setup: Create Vendor, Make Invoice and Post from General Journal and Block the same Vendor.
         Initialize();
-        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, CreateAndPostApplnEntry);
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, CreateAndPostApplnEntry());
 
         // Exercise: Reverse Fully Applied Invoice from Ledger.
         ReversalEntry.SetHideDialog(true);
@@ -307,7 +307,7 @@
 
         // Setup: Create Vendor, Make Invoice and Post from General Journal and Block the same Vendor.
         Initialize();
-        CreateAndPostApplnEntry;
+        CreateAndPostApplnEntry();
 
         // Exercise: Reverse Fully Applied Invoice from Ledger.
         GLRegister.FindLast();
@@ -336,7 +336,7 @@
         Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreateGenJnlLine(GenJournalLine, GenJournalLine."Document Type"::" ", Vendor."No.", -LibraryRandom.RandDec(100, 2));
-        GenJournalLine.Validate("Currency Code", CreateCurrency);
+        GenJournalLine.Validate("Currency Code", CreateCurrency());
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         UpdateExchangeRate(GenJournalLine."Currency Code");
@@ -370,7 +370,7 @@
         LibraryFiscalYear.CreateClosedAccountingPeriods();
         LibraryPurchase.CreateVendor(Vendor);
         CreateGenJnlLineForInvoice(
-          GenJournalLine, GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, Vendor."No.");
+          GenJournalLine, GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), Vendor."No.");
         CreateAndPostApplnDateCompress(
           GenJournalLine."Document No.", GenJournalLine."Bal. Account Type"::"G/L Account", GenJournalLine."Bal. Account No.",
           GenJournalLine."Account No.", GenJournalLine.Amount);
@@ -392,7 +392,7 @@
         LibraryFiscalYear.CreateClosedAccountingPeriods();
         LibraryPurchase.CreateVendor(Vendor);
         CreateGenJnlLineForInvoice(
-          GenJournalLine, GenJournalLine."Bal. Account Type"::"Bank Account", CreateBankAccount, Vendor."No.");
+          GenJournalLine, GenJournalLine."Bal. Account Type"::"Bank Account", CreateBankAccount(), Vendor."No.");
         CreateAndPostApplnDateCompress(
           GenJournalLine."Document No.", GenJournalLine."Bal. Account Type"::"Bank Account", GenJournalLine."Bal. Account No.",
           GenJournalLine."Account No.", GenJournalLine.Amount);

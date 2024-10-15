@@ -31,7 +31,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         SalesHeader: Record "Sales Header";
         CorrSalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         DocNo: Code[20];
         ExpectedPostingNo: Code[20];
         QtyBefore: Decimal;
@@ -52,7 +52,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         CreateReleaseCorrSalesInvoice(CorrSalesHeader, SalesHeader, DocNo);
         FindSalesLine(SalesLine, CorrSalesHeader);
 
-        ExpectedPostingNo := NoSeriesManagement.GetNextNo(CorrSalesHeader."Posting No. Series", CorrSalesHeader."Posting Date", false);
+        ExpectedPostingNo := NoSeries.PeekNextNo(CorrSalesHeader."Posting No. Series", CorrSalesHeader."Posting Date");
 
         // [WHEN] Print REP 14966 "Sales Corr. Factura-Invoice"
         RunCorrFacturaReport(CorrSalesHeader);
@@ -71,7 +71,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         VerifyCorrFacturaReportCurrency(CorrSalesHeader."Currency Code");
         VerifyCorrFacturaReportDash(25);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -120,7 +120,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         VerifyCorrFacturaReportCurrency(CorrSalesHeader."Currency Code");
         VerifyCorrFacturaReportDash(25);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -169,7 +169,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         VerifyCorrFacturaReportCurrency(CorrSalesHeader."Currency Code");
         VerifyCorrFacturaReportDash(24);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -194,7 +194,7 @@ codeunit 144718 "ERM Corr. Factura Test"
 
         // [THEN] Excel has been exported with following values:
         // [THEN] Header document no = "CrMemoNo"
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
         LibraryRUReports.VerifyFactura_DocNo(FileName, DocumentNo);
 
         // [THEN] Column "1" = "LineNo" // TFS 400627
@@ -211,10 +211,10 @@ codeunit 144718 "ERM Corr. Factura Test"
         LibraryRUReports.VerifyFactura_VATPct(FileName, Format(SalesCrMemoLine."VAT %"), 0);
         // [THEN] Column "8" = -200 (VAT Amount)
         LibraryRUReports.VerifyFactura_VATAmount(
-          LibraryReportValidation.GetFileName, FormatAmount(-SalesCrMemoLine."Amount Including VAT" + SalesCrMemoLine.Amount), 0);
+          LibraryReportValidation.GetFileName(), FormatAmount(-SalesCrMemoLine."Amount Including VAT" + SalesCrMemoLine.Amount), 0);
         // [THEN] Column "9" = -1000 (Amount Including VAT)
         LibraryRUReports.VerifyFactura_AmountInclVAT(
-          LibraryReportValidation.GetFileName, FormatAmount(-SalesCrMemoLine."Amount Including VAT"), 0);
+          LibraryReportValidation.GetFileName(), FormatAmount(-SalesCrMemoLine."Amount Including VAT"), 0);
     end;
 
     [Test]
@@ -230,7 +230,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         Initialize();
 
         // [GIVEN] Posted prepayment sales credit memo "CrM-No" with Item "X" (with description "Desc"), Quantity = 10, "Unit Price" = 80, "Line Amount" = 800, "VAT %" = 25, "Total Amount Incl. VAT" = 1000
-        DocumentNo := CreatePostPrepmtSalesCrMemo;
+        DocumentNo := CreatePostPrepmtSalesCrMemo();
         FindSalesCrMemoLine(SalesCrMemoLine, DocumentNo);
 
         // [WHEN] Print the posted credit memo (REP 12484 "Posted Cr. M. Factura-Invoice")
@@ -238,14 +238,14 @@ codeunit 144718 "ERM Corr. Factura Test"
 
         // [THEN] Excel has been exported with following values:
         // [THEN] Header document no = "CrM-No"
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
         LibraryRUReports.VerifyFactura_DocNo(FileName, DocumentNo);
 
         // [THEN] Column "1" = "Desc" (Item Description)
         LibraryRUReports.VerifyFactura_ItemNo(FileName, SalesCrMemoLine.Description, 0);
         // [THEN] Column "7" = "25/125" (VAT %)
         LibraryRUReports.VerifyFactura_VATPct(
-          LibraryReportValidation.GetFileName, Format(SalesCrMemoLine."VAT %") + '/' + Format(100 + SalesCrMemoLine."VAT %"), 0);
+          LibraryReportValidation.GetFileName(), Format(SalesCrMemoLine."VAT %") + '/' + Format(100 + SalesCrMemoLine."VAT %"), 0);
 
         // TODO: known failure: "Amount (LCY)", "Amount Including VAT (LCY)" are empty for prepayment Invoice/CreditMemo for LCY. should be fixed. then below  should be uncommented.
         LibraryRUReports.VerifyFactura_Amount(FileName, '-', 0);
@@ -253,10 +253,10 @@ codeunit 144718 "ERM Corr. Factura Test"
 
         // [THEN] Column "8" = -200 (VAT Amount)
         // LibraryRUReports.VerifyFactura_VATAmount(
-        // LibraryReportValidation.GetFileName,FormatAmount(-SalesCrMemoLine."Amount Including VAT" + SalesCrMemoLine.Amount),0);
+        // LibraryReportValidation.GetFileName(),FormatAmount(-SalesCrMemoLine."Amount Including VAT" + SalesCrMemoLine.Amount),0);
         // [THEN] Column "9" = -1000 (Amount Including VAT)
         // LibraryRUReports.VerifyFactura_AmountInclVAT(
-        // LibraryReportValidation.GetFileName,FormatAmount(-SalesCrMemoLine."Amount Including VAT"),0);
+        // LibraryReportValidation.GetFileName(),FormatAmount(-SalesCrMemoLine."Amount Including VAT"),0);
     end;
 
     local procedure Initialize()
@@ -272,7 +272,7 @@ codeunit 144718 "ERM Corr. Factura Test"
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         UpdateSalesReceivablesSetup();
-        LibraryRUReports.UpdateCompanyAddress;
+        LibraryRUReports.UpdateCompanyAddress();
 
         isInitialized := true;
         Commit();
@@ -284,7 +284,7 @@ codeunit 144718 "ERM Corr. Factura Test"
     begin
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         CorrSalesHeader.SetRecFilter();
-        SalesCorrFacturaInvoice.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        SalesCorrFacturaInvoice.SetFileNameSilent(LibraryReportValidation.GetFileName());
         SalesCorrFacturaInvoice.SetTableView(CorrSalesHeader);
         SalesCorrFacturaInvoice.UseRequestPage(false);
         SalesCorrFacturaInvoice.Run();
@@ -297,7 +297,7 @@ codeunit 144718 "ERM Corr. Factura Test"
     begin
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         SalesInvoiceHeader.SetRange("No.", InvNo);
-        PstdSalesCorrFactInv.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        PstdSalesCorrFactInv.SetFileNameSilent(LibraryReportValidation.GetFileName());
         PstdSalesCorrFactInv.SetTableView(SalesInvoiceHeader);
         PstdSalesCorrFactInv.UseRequestPage(false);
         PstdSalesCorrFactInv.Run();
@@ -310,7 +310,7 @@ codeunit 144718 "ERM Corr. Factura Test"
     begin
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         SalesCrMemoHeader.SetRange("No.", InvNo);
-        PstdSalesCorrCrMFact.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        PstdSalesCorrCrMFact.SetFileNameSilent(LibraryReportValidation.GetFileName());
         PstdSalesCorrCrMFact.SetTableView(SalesCrMemoHeader);
         PstdSalesCorrCrMFact.UseRequestPage(false);
         PstdSalesCorrCrMFact.Run();
@@ -323,7 +323,7 @@ codeunit 144718 "ERM Corr. Factura Test"
     begin
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         SalesCrMemoHeader.SetRange("No.", InvNo);
-        PostedCrMFacturaInvoice.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        PostedCrMFacturaInvoice.SetFileNameSilent(LibraryReportValidation.GetFileName());
         PostedCrMFacturaInvoice.SetTableView(SalesCrMemoHeader);
         PostedCrMFacturaInvoice.UseRequestPage(false);
         PostedCrMFacturaInvoice.Run();
@@ -354,12 +354,12 @@ codeunit 144718 "ERM Corr. Factura Test"
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibraryRUReports.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibraryRUReports.CreateCustomerNo());
         SalesHeader.Validate("Prepayment %", PrepmtPct);
         SalesHeader.Modify(true);
 
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemNoWithTariff, LibraryRandom.RandIntInRange(15, 50));
+          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemNoWithTariff(), LibraryRandom.RandIntInRange(15, 50));
     end;
 
     local procedure CreatePostCorrSalesInvoice(var CorrSalesHeader: Record "Sales Header"; SalesHeader: Record "Sales Header"; InvNo: Code[20]): Code[20]
@@ -406,7 +406,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         with Item do begin
             Validate(Description, CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Description), 0), 1, MaxStrLen(Description)));
             Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
-            Validate("Tariff No.", CreateTariffNo);
+            Validate("Tariff No.", CreateTariffNo());
             Modify(true);
             exit("No.");
         end;
@@ -430,7 +430,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         Currency: Record Currency;
     begin
         with Currency do begin
-            Get(LibraryERM.CreateCurrencyWithRandomExchRates);
+            Get(LibraryERM.CreateCurrencyWithRandomExchRates());
             Validate("RU Bank Digital Code", 'RUB');
             Validate(Description, LibraryUtility.GenerateGUID());
             Modify(true);
@@ -495,7 +495,7 @@ codeunit 144718 "ERM Corr. Factura Test"
 
     local procedure UpdateCurrency(var SalesHeader: Record "Sales Header")
     begin
-        SalesHeader.Validate("Currency Code", CreateCurrency);
+        SalesHeader.Validate("Currency Code", CreateCurrency());
         SalesHeader.Modify(true);
     end;
 
@@ -567,7 +567,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         LocMgt: Codeunit "Localisation Management";
         FileName: Text;
     begin
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
         LibraryRUReports.VerifyCorrFactura_CorrDocNo(FileName, CorrDocNo);
         LibraryRUReports.VerifyCorrFactura_DocNo(FileName, DocNo);
         LibraryRUReports.VerifyCorrFactura_CorrDocDate(FileName, LocMgt.Date2Text(CorrDocDate));
@@ -585,7 +585,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         FileName: Text;
     begin
         GetCurrencyInfo(CurrencyCode, CurrencyDescription, CurrencyDigitalCode);
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
         LibraryRUReports.VerifyCorrFactura_CurrencyName(FileName, CurrencyDescription);
         LibraryRUReports.VerifyCorrFactura_CurrencyCode(FileName, CurrencyDigitalCode);
     end;
@@ -596,7 +596,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         FileName: Text;
     begin
         Offset := CheckingLine - 22;
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
         LibraryRUReports.VerifyCorrFactura_Amount(FileName, '-', Offset);
         LibraryRUReports.VerifyCorrFactura_VATAmount(FileName, '-', Offset);
         LibraryRUReports.VerifyCorrFactura_AmountInclVAT(FileName, '-', Offset);
@@ -609,21 +609,21 @@ codeunit 144718 "ERM Corr. Factura Test"
         LocalReportMgt: Codeunit "Local Report Management";
         FileName: Text;
     begin
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
         LibraryRUReports.VerifyCorrFactura_CompanyName(FileName, LocalReportMgt.GetCompanyName());
-        LibraryRUReports.VerifyCorrFactura_CompanyAddress(FileName, LocalReportMgt.GetLegalAddress);
+        LibraryRUReports.VerifyCorrFactura_CompanyAddress(FileName, LocalReportMgt.GetLegalAddress());
 
         CompanyInformation.Get();
         LibraryRUReports.VerifyCorrFactura_CompanyINN(
-          LibraryReportValidation.GetFileName, CompanyInformation."VAT Registration No." + ' / ' + CompanyInformation."KPP Code");
+          LibraryReportValidation.GetFileName(), CompanyInformation."VAT Registration No." + ' / ' + CompanyInformation."KPP Code");
         LibraryRUReports.VerifyCorrFactura_BuyerName(FileName, LocalReportMgt.GetCustName(CustomerNo));
 
         with Customer do begin
             Get(CustomerNo);
             LibraryRUReports.VerifyCorrFactura_BuyerAddress(
-              LibraryReportValidation.GetFileName, LibraryRUReports.GetCustomerFullAddress("No."));
+              LibraryReportValidation.GetFileName(), LibraryRUReports.GetCustomerFullAddress("No."));
             LibraryRUReports.VerifyCorrFactura_BuyerINN(
-              LibraryReportValidation.GetFileName, "VAT Registration No." + ' / ' + "KPP Code");
+              LibraryReportValidation.GetFileName(), "VAT Registration No." + ' / ' + "KPP Code");
         end;
     end;
 
@@ -633,7 +633,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         FileName: Text;
     begin
         Item.Get(ItemNo);
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
         LibraryRUReports.VerifyCorrFactura_LineNo(FileName, '1', 0);
         LibraryRUReports.VerifyCorrFactura_ItemNo(FileName, Item.Description, 0);
         LibraryRUReports.VerifyCorrFactura_TariffNo(FileName, Item."Tariff No.", 0);
@@ -648,8 +648,8 @@ codeunit 144718 "ERM Corr. Factura Test"
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Question);
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 

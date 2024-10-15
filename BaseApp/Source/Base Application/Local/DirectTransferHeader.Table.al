@@ -6,6 +6,7 @@ table 12458 "Direct Transfer Header"
     ObsoleteState = Pending;
     ObsoleteReason = 'Direct Transfer feature merge to W1.';
     ObsoleteTag = '18.0';
+    DataClassification = CustomerContent;
 
     fields
     {

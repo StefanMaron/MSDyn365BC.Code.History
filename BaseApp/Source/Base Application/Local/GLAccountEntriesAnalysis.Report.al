@@ -130,7 +130,7 @@
                         DebitAmountText := Format(GLCorrespondenceBuffer.Amount, 0, '<Sign><Integer Thousand><Decimals,3>');
                         GLCorrespondenceBuffer2.Copy(GLCorrespondenceBuffer);
                         GLCorrespondenceBuffer2.Type := GLCorrespondenceBuffer2.Type::Credit;
-                        if GLCorrespondenceBuffer2.Find then begin
+                        if GLCorrespondenceBuffer2.Find() then begin
                             NetChangeCredit += GLCorrespondenceBuffer2.Amount;
                             CreditAmountText := Format(GLCorrespondenceBuffer2.Amount, 0, '<Sign><Integer Thousand><Decimals,3>');
                             GLCorrespondenceBuffer2."Use Duplication List" := true;

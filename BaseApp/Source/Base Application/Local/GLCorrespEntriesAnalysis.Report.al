@@ -248,7 +248,7 @@
                         if Number = 1 then
                             GLCorrespondenceBuffer.Find('-')
                         else
-                            GLCorrespondenceBuffer.Next;
+                            GLCorrespondenceBuffer.Next();
                         if GLCorrespondenceBuffer."Use Duplication List" then
                             CurrReport.Skip();
                         GLAcc1.Get(GLCorrespondenceBuffer."G/L Account");
@@ -260,7 +260,7 @@
                             DebitAmountText := Format(GLCorrespondenceBuffer.Amount, 0, '<Sign><Integer Thousand><Decimals,3>');
                             GLCorrespondenceBuffer2.Copy(GLCorrespondenceBuffer);
                             GLCorrespondenceBuffer2.Type := GLCorrespondenceBuffer2.Type::Credit;
-                            if GLCorrespondenceBuffer2.Find then begin
+                            if GLCorrespondenceBuffer2.Find() then begin
                                 NetChangeCredit := NetChangeCredit + GLCorrespondenceBuffer2.Amount;
                                 CreditAmountText := Format(GLCorrespondenceBuffer2.Amount, 0, '<Sign><Integer Thousand><Decimals,3>');
                                 GLCorrespondenceBuffer2."Use Duplication List" := true;
@@ -272,7 +272,7 @@
                                 CreditAmountText := Format(GLCorrespondenceBuffer.Amount, 0, '<Sign><Integer Thousand><Decimals,3>');
                                 GLCorrespondenceBuffer2.Copy(GLCorrespondenceBuffer);
                                 GLCorrespondenceBuffer2.Type := GLCorrespondenceBuffer.Type::Debit;
-                                if GLCorrespondenceBuffer2.Find then begin
+                                if GLCorrespondenceBuffer2.Find() then begin
                                     NetChangeDebit := NetChangeDebit + GLCorrespondenceBuffer2.Amount;
                                     DebitAmountText := Format(GLCorrespondenceBuffer2.Amount, 0, '<Sign><Integer Thousand><Decimals,3>');
                                     GLCorrespondenceBuffer2."Use Duplication List" := true;
@@ -394,7 +394,7 @@
                         if Number = 1 then
                             GLCorrespondenceBuffer.Find('-')
                         else
-                            GLCorrespondenceBuffer.Next;
+                            GLCorrespondenceBuffer.Next();
                         GLAcc1.Get(GLCorrespondenceBuffer."G/L Account");
                         NetChangeDebit := NetChangeDebit + GLCorrespondenceBuffer.Amount;
                         DebitAmountText := Format(GLCorrespondenceBuffer.Amount, 0, '<Sign><Integer Thousand><Decimals,3>');
@@ -516,7 +516,7 @@
                         if Number = 1 then
                             GLCorrespondenceBuffer.Find('-')
                         else
-                            GLCorrespondenceBuffer.Next;
+                            GLCorrespondenceBuffer.Next();
                         GLAcc1.Get(GLCorrespondenceBuffer."G/L Account");
                         NetChangeCredit := NetChangeCredit + GLCorrespondenceBuffer.Amount;
                         CreditAmountText := Format(GLCorrespondenceBuffer.Amount, 0, '<Sign><Integer Thousand><Decimals,3>');

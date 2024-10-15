@@ -9,6 +9,7 @@ table 5637 "FA G/L Posting Buffer"
 {
     Caption = 'FA G/L Posting Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -3,6 +3,7 @@ table 12473 "Depreciation Code"
     Caption = 'Depreciation Code';
     DrillDownPageID = "Depreciation Code List";
     LookupPageID = "Depreciation Code List";
+    DataClassification = CustomerContent;
 
     fields
     {

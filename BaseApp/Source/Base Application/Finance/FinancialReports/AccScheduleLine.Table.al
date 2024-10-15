@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.FinancialReports;
+namespace Microsoft.Finance.FinancialReports;
 
 using Microsoft.CashFlow.Account;
 using Microsoft.CashFlow.Forecast;
@@ -14,6 +14,7 @@ using Microsoft.Finance.GeneralLedger.Setup;
 table 85 "Acc. Schedule Line"
 {
     Caption = 'Acc. Schedule Line';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -374,8 +375,6 @@ table 85 "Acc. Schedule Line"
         GLSetup: Record "General Ledger Setup";
         CostType: Record "Cost Type";
         AccScheduleExtension: Record "Acc. Schedule Extension";
-        DimValue: Record "Dimension Value";
-        DimMgt: Codeunit DimensionManagement;
         AccSchedManagement: Codeunit AccSchedManagement;
         HasGLSetup: Boolean;
 

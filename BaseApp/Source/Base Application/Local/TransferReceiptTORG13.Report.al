@@ -99,19 +99,17 @@ report 14977 "Transfer Receipt TORG-13"
         BodyDetails: array[6] of Text;
         AmountValues: array[4] of Decimal;
     begin
-        with "Transfer Receipt Line" do begin
-            AmountValues[1] := TotalCost;
-            AmountValues[2] := Quantity;
-            AmountValues[3] := GrossWeight;
-            AmountValues[4] := NetWeight;
+        AmountValues[1] := TotalCost;
+        AmountValues[2] := "Transfer Receipt Line".Quantity;
+        AmountValues[3] := GrossWeight;
+        AmountValues[4] := NetWeight;
 
-            BodyDetails[1] := Description;
-            BodyDetails[2] := "Item No.";
-            BodyDetails[3] := StdRepMgt.GetUoMDesc("Unit of Measure Code");
-            BodyDetails[4] := "Unit of Measure Code";
-            BodyDetails[5] := Format(Item."Units per Parcel");
-            BodyDetails[6] := Format(Item."Unit Cost");
-        end;
+        BodyDetails[1] := "Transfer Receipt Line".Description;
+        BodyDetails[2] := "Transfer Receipt Line"."Item No.";
+        BodyDetails[3] := StdRepMgt.GetUoMDesc("Transfer Receipt Line"."Unit of Measure Code");
+        BodyDetails[4] := "Transfer Receipt Line"."Unit of Measure Code";
+        BodyDetails[5] := Format(Item."Units per Parcel");
+        BodyDetails[6] := Format(Item."Unit Cost");
 
         TORG13Helper.FillLine(BodyDetails, AmountValues);
     end;

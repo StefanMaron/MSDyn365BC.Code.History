@@ -1,6 +1,5 @@
 namespace Microsoft.FixedAssets.Journal;
 
-using Microsoft.Finance.Dimension;
 using Microsoft.FixedAssets.Depreciation;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.FixedAssets.Setup;
@@ -9,6 +8,7 @@ using Microsoft.HumanResources.Employee;
 table 5624 "FA Reclass. Journal Line"
 {
     Caption = 'FA Reclass. Journal Line';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -167,7 +167,6 @@ table 5624 "FA Reclass. Journal Line"
 
             trigger OnValidate()
             var
-                FADeprBook: Record "FA Depreciation Book";
             begin
             end;
         }
@@ -230,7 +229,6 @@ table 5624 "FA Reclass. Journal Line"
         FASetup: Record "FA Setup";
         FAReclassJnlTempl: Record "FA Reclass. Journal Template";
         FAReclassJnlBatch: Record "FA Reclass. Journal Batch";
-        DimMgt: Codeunit DimensionManagement;
 
     procedure SetUpNewLine(LastFAReclassJnlLine: Record "FA Reclass. Journal Line")
     begin

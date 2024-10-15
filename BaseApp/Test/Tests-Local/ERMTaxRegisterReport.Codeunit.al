@@ -57,14 +57,12 @@ codeunit 144721 "ERM Tax Register Report"
 
     local procedure MockTaxRegister(var TaxRegister: Record "Tax Register")
     begin
-        with TaxRegister do begin
-            Init();
-            "Section Code" := MockTaxRegSection;
-            "No." := LibraryUtility.GenerateGUID();
-            Description := "No.";
-            "Table ID" := DATABASE::"Tax Register Item Entry";
-            Insert();
-        end;
+        TaxRegister.Init();
+        TaxRegister."Section Code" := MockTaxRegSection();
+        TaxRegister."No." := LibraryUtility.GenerateGUID();
+        TaxRegister.Description := TaxRegister."No.";
+        TaxRegister."Table ID" := DATABASE::"Tax Register Item Entry";
+        TaxRegister.Insert();
     end;
 
     local procedure MockTaxRegAccumLine(TaxRegister: Record "Tax Register"): Decimal
@@ -72,44 +70,39 @@ codeunit 144721 "ERM Tax Register Report"
         TaxRegAccum: Record "Tax Register Accumulation";
         RecRef: RecordRef;
     begin
-        with TaxRegAccum do begin
-            Init();
-            RecRef.GetTable(TaxRegAccum);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Section Code" := TaxRegister."Section Code";
-            "Tax Register No." := TaxRegister."No.";
-            "Starting Date" := WorkDate();
-            "Ending Date" := CalcDate('<1D>', "Starting Date");
-            Description := LibraryUtility.GenerateGUID();
-            Amount := LibraryRandom.RandDec(100, 2);
-            Insert();
-            exit(Amount);
-        end;
+        TaxRegAccum.Init();
+        RecRef.GetTable(TaxRegAccum);
+        TaxRegAccum."Entry No." := LibraryUtility.GetNewLineNo(RecRef, TaxRegAccum.FieldNo("Entry No."));
+        TaxRegAccum."Section Code" := TaxRegister."Section Code";
+        TaxRegAccum."Tax Register No." := TaxRegister."No.";
+        TaxRegAccum."Starting Date" := WorkDate();
+        TaxRegAccum."Ending Date" := CalcDate('<1D>', TaxRegAccum."Starting Date");
+        TaxRegAccum.Description := LibraryUtility.GenerateGUID();
+        TaxRegAccum.Amount := LibraryRandom.RandDec(100, 2);
+        TaxRegAccum.Insert();
+        exit(TaxRegAccum.Amount);
     end;
 
     local procedure MockTaxRegisterEntries(var TaxRegtemEntry: Record "Tax Register Item Entry"; TaxRegister: Record "Tax Register"; TotalAmount: Decimal)
     var
         RecRef: RecordRef;
     begin
-        with TaxRegtemEntry do begin
-            Init();
-            RecRef.GetTable(TaxRegtemEntry);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Section Code" := TaxRegister."Section Code";
-            "Where Used Register IDs" := TaxRegister."No.";
-            // Outside of period entry that should not be print.
-            "Starting Date" := CalcDate('<CM+1M>', WorkDate());
-            "Ending Date" := CalcDate('<1D>', "Starting Date");
-            "Amount (Document)" := TotalAmount;
-            "Document No." := LibraryUtility.GenerateGUID();
-            Insert();
-
-            // Inside of period.
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Starting Date" := WorkDate();
-            "Ending Date" := CalcDate('<1D>', "Starting Date");
-            Insert();
-        end;
+        TaxRegtemEntry.Init();
+        RecRef.GetTable(TaxRegtemEntry);
+        TaxRegtemEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, TaxRegtemEntry.FieldNo("Entry No."));
+        TaxRegtemEntry."Section Code" := TaxRegister."Section Code";
+        TaxRegtemEntry."Where Used Register IDs" := TaxRegister."No.";
+        // Outside of period entry that should not be print.
+        TaxRegtemEntry."Starting Date" := CalcDate('<CM+1M>', WorkDate());
+        TaxRegtemEntry."Ending Date" := CalcDate('<1D>', TaxRegtemEntry."Starting Date");
+        TaxRegtemEntry."Amount (Document)" := TotalAmount;
+        TaxRegtemEntry."Document No." := LibraryUtility.GenerateGUID();
+        TaxRegtemEntry.Insert();
+        // Inside of period.
+        TaxRegtemEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, TaxRegtemEntry.FieldNo("Entry No."));
+        TaxRegtemEntry."Starting Date" := WorkDate();
+        TaxRegtemEntry."Ending Date" := CalcDate('<1D>', TaxRegtemEntry."Starting Date");
+        TaxRegtemEntry.Insert();
     end;
 
     local procedure RunTaxRegisterReport(var TaxRegister: Record "Tax Register")
@@ -121,13 +114,11 @@ codeunit 144721 "ERM Tax Register Report"
           "Date Filter", '%1..%2', CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        with TaxRegisterRep do begin
-            SetFileNameSilent(LibraryReportValidation.GetFileName);
-            InitializeRequest(true);
-            SetTableView(TaxRegister);
-            UseRequestPage(false);
-            Run;
-        end;
+        TaxRegisterRep.SetFileNameSilent(LibraryReportValidation.GetFileName());
+        TaxRegisterRep.InitializeRequest(true);
+        TaxRegisterRep.SetTableView(TaxRegister);
+        TaxRegisterRep.UseRequestPage(false);
+        TaxRegisterRep.Run();
     end;
 
     local procedure VerifyReportValues(var TaxRegister: Record "Tax Register"; TaxRegisterEntry: Record "Tax Register Item Entry")
@@ -138,17 +129,15 @@ codeunit 144721 "ERM Tax Register Report"
         LibraryReportValidation.VerifyCellValue(4, 1, TaxRegister.Description);
         LibraryReportValidation.VerifyCellValue(2, 2, Format(TaxRegister.GetFilter("Date Filter")));
 
-        with TaxRegAccum do begin
-            SetRange("Section Code", TaxRegister."Section Code");
-            SetRange("Tax Register No.", TaxRegister."No.");
-            FindSet();
-            repeat
-                VerifyLineValue(i, Description, StdRepMgt.FormatReportValue(Amount, 2));
-                i += 1;
-            until Next = 0;
-            // Verify Footer
-            LibraryReportValidation.VerifyCellValue(7 + i, 4, StdRepMgt.FormatReportValue(TaxRegisterEntry."Amount (Document)", 2));
-        end;
+        TaxRegAccum.SetRange("Section Code", TaxRegister."Section Code");
+        TaxRegAccum.SetRange("Tax Register No.", TaxRegister."No.");
+        TaxRegAccum.FindSet();
+        repeat
+            VerifyLineValue(i, TaxRegAccum.Description, StdRepMgt.FormatReportValue(TaxRegAccum.Amount, 2));
+            i += 1;
+        until TaxRegAccum.Next() = 0;
+        // Verify Footer
+        LibraryReportValidation.VerifyCellValue(7 + i, 4, StdRepMgt.FormatReportValue(TaxRegisterEntry."Amount (Document)", 2));
         VerifyDetails(TaxRegisterEntry);
     end;
 
@@ -164,13 +153,11 @@ codeunit 144721 "ERM Tax Register Report"
 
     local procedure VerifyDetails(TaxRegisterEntry: Record "Tax Register Item Entry")
     begin
-        with TaxRegisterEntry do begin
-            CheckIfValueExistsOnSpecificWorksheet(Format("Entry No."));
-            CheckIfValueExistsOnSpecificWorksheet("Section Code");
-            CheckIfValueExistsOnSpecificWorksheet("Where Used Register IDs");
-            CheckIfValueExistsOnSpecificWorksheet(Format("Amount (Document)"));
-            CheckIfValueExistsOnSpecificWorksheet("Document No.");
-        end;
+        CheckIfValueExistsOnSpecificWorksheet(Format(TaxRegisterEntry."Entry No."));
+        CheckIfValueExistsOnSpecificWorksheet(TaxRegisterEntry."Section Code");
+        CheckIfValueExistsOnSpecificWorksheet(TaxRegisterEntry."Where Used Register IDs");
+        CheckIfValueExistsOnSpecificWorksheet(Format(TaxRegisterEntry."Amount (Document)"));
+        CheckIfValueExistsOnSpecificWorksheet(TaxRegisterEntry."Document No.");
     end;
 
     local procedure CheckIfValueExistsOnSpecificWorksheet(Value: Text)

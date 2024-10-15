@@ -425,7 +425,6 @@ page 179 "Reverse Entries"
     var
         ReversalEntry: Record "Reversal Entry";
         Text12400: Label 'must be %1 or %2';
-        Text12401: Label 'Posting Date #1########';
         Text12402: Label 'You are not allowed to reverse a transaction with an earlier posting date.';
         DescriptionEditable: Boolean;
         ReversalEntry2: Record "Reversal Entry";

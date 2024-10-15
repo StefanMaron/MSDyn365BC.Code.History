@@ -392,7 +392,6 @@ report 12448 "Bank Account Card"
         Text005: Label 'Begining period balance';
         Text006: Label 'Ending period balance';
         Text007: Label 'Non-posted entries in current period total';
-        Text008: Label 'Balance for posted and non-posted entries';
         ApplicationLocalization: Codeunit "Localisation Management";
         CurrentDate: Text[30];
         CurrentFilter: Text;
@@ -409,7 +408,6 @@ report 12448 "Bank Account Card"
         EndingDateNonPosted: Date;
         NewPageForBankAcc: Boolean;
         ExclNonpostedEntries: Boolean;
-        FirstPage: Boolean;
         PageCount: Integer;
         Bank_GL_Acc_CardCaptionLbl: Label 'Bank GL Acc Card';
         CurrReport_PAGENOCaptionLbl: Label 'Page';

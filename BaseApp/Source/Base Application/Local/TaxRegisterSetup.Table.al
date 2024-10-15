@@ -1,6 +1,7 @@
 table 17236 "Tax Register Setup"
 {
     Caption = 'Tax Register Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

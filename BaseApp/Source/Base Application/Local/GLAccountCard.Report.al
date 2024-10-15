@@ -399,7 +399,6 @@ report 12437 "G/L Account Card"
         CurrDocNo: Code[20];
         CurrTransNo: Integer;
         LineAmount: array[10] of Decimal;
-        TotalAmount: array[10] of Decimal;
         PageNo: Integer;
         GLAccURL: RecordRef;
         Text005: Label 'For Period from %1 to %2';

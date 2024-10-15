@@ -100,27 +100,25 @@ report 14907 "Change Vendor VAT Invoice"
         VATPrepmtPost: Codeunit "VAT Prepayment-Post";
         VendEntryEdit: Codeunit "Vend. Entry-Edit";
     begin
-        with VendLedgEntry do begin
-            Get("Entry No.");
-            CalcFields("Remaining Amt. (LCY)");
-            VendEntryEdit.UpdateVATInvoiceData(VendLedgEntry, InvoiceNo, InvoiceDate, InvoiceRcvdDate);
-            if Prepayment then begin
-                TestField("Vendor VAT Invoice No.");
-                TestField("Vendor VAT Invoice Date");
-                TestField("Vendor VAT Invoice Rcvd Date");
-            end;
+        VendLedgEntry.Get(VendLedgEntry."Entry No.");
+        VendLedgEntry.CalcFields("Remaining Amt. (LCY)");
+        VendEntryEdit.UpdateVATInvoiceData(VendLedgEntry, InvoiceNo, InvoiceDate, InvoiceRcvdDate);
+        if VendLedgEntry.Prepayment then begin
+            VendLedgEntry.TestField("Vendor VAT Invoice No.");
+            VendLedgEntry.TestField("Vendor VAT Invoice Date");
+            VendLedgEntry.TestField("Vendor VAT Invoice Rcvd Date");
+        end;
 
-            if CreatePrepmtInvoice then begin
-                CheckPostingGroup();
-                TestField(Prepayment, true);
-                if (VATBase <= 0) or (VATAmount <= 0) then
-                    Error(Text001);
-                VATPrepmtPost.PostVendVAT(VendLedgEntry, VATProdPostingGrCode, VATBase, VATAmount);
+        if CreatePrepmtInvoice then begin
+            CheckPostingGroup();
+            VendLedgEntry.TestField(Prepayment, true);
+            if (VATBase <= 0) or (VATAmount <= 0) then
+                Error(Text001);
+            VATPrepmtPost.PostVendVAT(VendLedgEntry, VATProdPostingGrCode, VATBase, VATAmount);
 
-                Commit();
-                if CurrReport.UseRequestPage then
-                    Message(Text002, "Document No.");
-            end;
+            Commit();
+            if CurrReport.UseRequestPage then
+                Message(Text002, VendLedgEntry."Document No.");
         end;
     end;
 
@@ -166,8 +164,7 @@ report 14907 "Change Vendor VAT Invoice"
         VendLedgEntry := NewVendLedgEntry;
         Vendor.Get(VendLedgEntry."Vendor No.");
         VATBusPostingGrCode := Vendor."VAT Bus. Posting Group";
-        with VendLedgEntry do
-            SetInvParameters("Vendor VAT Invoice No.", "Vendor VAT Invoice Date", "Vendor VAT Invoice Rcvd Date");
+        SetInvParameters(VendLedgEntry."Vendor VAT Invoice No.", VendLedgEntry."Vendor VAT Invoice Date", VendLedgEntry."Vendor VAT Invoice Rcvd Date");
     end;
 
     local procedure VATProdGroupLookup()

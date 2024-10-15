@@ -34,11 +34,9 @@ codeunit 1210 "Payment Export Mgt"
         BankAccount.TestField("Payment Export Format");
         BankExportImportSetup.Get(BankAccount."Payment Export Format");
         BankExportImportSetup.TestField("Data Exch. Def. Code");
-        with DataExch do begin
-            Init();
-            "Data Exch. Def Code" := BankExportImportSetup."Data Exch. Def. Code";
-            Insert(true);
-        end;
+        DataExch.Init();
+        DataExch."Data Exch. Def Code" := BankExportImportSetup."Data Exch. Def. Code";
+        DataExch.Insert(true);
     end;
 
     procedure CreatePaymentLines(var PaymentExportData: Record "Payment Export Data")
@@ -230,7 +228,7 @@ codeunit 1210 "Payment Export Mgt"
         if Optional then
             exit;
 
-        Value := FieldRef.Value;
+        Value := FieldRef.Value();
         StringValue := Format(Value);
 
         if ((Value.IsDecimal or Value.IsInteger or Value.IsBigInteger) and (StringValue = '0')) or
@@ -244,6 +242,7 @@ codeunit 1210 "Payment Export Mgt"
         ValueAsDecimal: Decimal;
         ValueAsDate: Date;
         ValueAsDateTime: DateTime;
+        ValueAsBoolean: Boolean;
         IsHandled: Boolean;
     begin
         OnBeforeCastToDestinationType(DestinationValue, SourceValue, DataExchColumnDef, Multiplier, IsHandled);
@@ -274,6 +273,11 @@ codeunit 1210 "Payment Export Mgt"
                         SourceValue := CreateDateTime(SourceValue, 0T);
                     Evaluate(ValueAsDateTime, Format(SourceValue, 0, 9), 9);
                     DestinationValue := ValueAsDateTime;
+                end;
+            DataExchColumnDef."Data Type"::Boolean:
+                begin
+                    Evaluate(ValueAsBoolean, Format(SourceValue));
+                    DestinationValue := ValueAsBoolean;
                 end;
         end;
     end;

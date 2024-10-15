@@ -67,7 +67,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         // [GIVEN] L1 and L2 have 3 currencies set up
         for Level := 1 to 2 do
             for Index := 1 to 3 do
-                CreateCurrencyforReminderLevel(ReminderTermsCode, Level, LibraryERM.CreateCurrencyWithRandomExchRates, 0, 0);
+                CreateCurrencyforReminderLevel(ReminderTermsCode, Level, LibraryERM.CreateCurrencyWithRandomExchRates(), 0, 0);
 
         // [GIVEN] L1 and L2 have 2 Reminder texts associated
         for Level := 1 to 2 do
@@ -1305,7 +1305,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         Initialize(false);
 
         // [GIVEN] A reminder with an overdue Invoice and Line Fee for the invoice
-        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee;
+        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee();
 
         // [WHEN] User tries to change the posting date to TODAY+2D for the Line Fee line
         with ReminderLine do
@@ -1328,7 +1328,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         Initialize(false);
 
         // [GIVEN] A reminder with an overdue Invoice and Line Fee for the invoice
-        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee;
+        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee();
 
         // [WHEN] User tries to change the Due date to TODAY+7D
         with ReminderLine do
@@ -1352,7 +1352,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         Initialize(false);
 
         // [GIVEN] A reminder with an overdue Invoice and Line Fee (X) for the invoice
-        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee;
+        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee();
 
         // [WHEN] User tries to change the Amount to Y, where Y > 0 and Y != X
         with ReminderLine do
@@ -1378,7 +1378,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         Initialize(false);
 
         // [GIVEN] A reminder with an overdue Invoice and Line Fee (X) for the invoice
-        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee;
+        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee();
 
         // [WHEN] User tries to change the Amount to Y, where Y < 0 and Y != X
         with ReminderLine do
@@ -1401,7 +1401,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         Initialize(false);
 
         // [GIVEN] A reminder with an overdue Invoice and Line Fee (X) for the invoice
-        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee;
+        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee();
 
         // [WHEN] User tries to change the description of the Line Fee line
         with ReminderLine do
@@ -1426,7 +1426,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         Initialize(false);
 
         // [GIVEN] A reminder with an overdue Invoice and Line Fee (X) for the invoice
-        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee;
+        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee();
 
         // [GIVEN] User added a new Reminder line of type Line Fee
         ReminderLine.Init();
@@ -1465,7 +1465,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         Initialize(false);
 
         // [GIVEN] A reminder with an overdue Invoice and Line Fee (X) for the invoice
-        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee;
+        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee();
 
         // [GIVEN] User added a new Reminder line of type Line Fee
         ReminderLine.Init();
@@ -1505,7 +1505,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         Initialize(false);
 
         // [GIVEN] A reminder with an overdue Invoice and Line Fee (X) for the invoice created via Suggest Lines
-        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee;
+        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee();
         ReminderHeader.Get(ReminderNo);
 
         // [GIVEN] The Reminder Term level has a description with document no. substituion
@@ -1543,7 +1543,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         Initialize(false);
 
         // [GIVEN] A reminder with an overdue Invoice and Line Fee (X) for the invoice
-        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee;
+        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee();
         ReminderHeader.Get(ReminderNo);
 
         // [GIVEN] An NOT overdue invoice for the same customer
@@ -1655,7 +1655,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         // [GIVEN] A reminder term (R) with Line Fee on level 1. Level 2 does NOT exists
         // [GIVEN] An overdue invoice I_A for customer C
         // [GIVEN] A reminder (R_1) with an overdue Invoice (I_a) and Line Fee (X) for the invoice
-        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee;
+        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee();
 
         // [WHEN] User tries to change the "No. of Reminders" to 2 for the Line Fee line for invoice I_A
         with ReminderLine do
@@ -1685,7 +1685,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         // [GIVEN] A reminder term (R) with Line Fee on level 1. Level 2 does NOT exists
         // [GIVEN] An overdue invoice I_A for customer C
         // [GIVEN] A reminder (R_1) with an overdue Invoice (I_a) and Line Fee (X) for the invoice
-        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee;
+        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee();
 
         // [GIVEN] No G/L account is setup for the Line Fee Line
         with ReminderLine do
@@ -1753,7 +1753,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         Initialize(false);
 
         // [GIVEN] A reminder with an overdue Invoice and Line Fee (X) for the invoice
-        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee;
+        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee();
 
         // [WHEN] User attempts to delete the Line Fee line
         with ReminderLine do
@@ -2061,7 +2061,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         Initialize(false);
 
         // [GIVEN] A reminder with an overdue sales invoice and a Line Fee
-        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee;
+        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee();
 
         // [GIVEN] The user sets the Line Fee Amount to 0
         with ReminderLine do
@@ -2089,7 +2089,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         Initialize(false);
 
         // [GIVEN] A reminder with an overdue sales invoice and a Line Fee
-        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee;
+        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee();
 
         // [GIVEN] The user sets the Line Fee Amount to X, where X < 0
         with ReminderLine do
@@ -2117,7 +2117,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         Initialize(false);
 
         // [GIVEN] A reminder with a over due sales invoice and a Line Fee
-        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee;
+        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee();
 
         // [GIVEN] The user removes the G/L account for the Line Fee line
         with ReminderLine do
@@ -2144,7 +2144,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         Initialize(false);
 
         // [GIVEN] A reminder with a over due sales invoice and a Line Fee
-        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee;
+        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee();
 
         // [GIVEN] The user clears the Applies To for the Line Fee
         with ReminderLine do
@@ -2174,7 +2174,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         Initialize(false);
 
         // [GIVEN] A reminder with a over due sales invoice and a Line Fee
-        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee;
+        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee();
         ReminderHeader.Get(ReminderNo);
 
         // [GIVEN] An invoice that is NOT overdue
@@ -2255,7 +2255,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         Initialize(false);
 
         // [GIVEN] A reminder with a over due sales invoice and a Line Fee
-        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee;
+        ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee();
 
         // [GIVEN] The user changes the Applies To for the Line Fee to a Invoice that is not overdue
         with ReminderLine do
@@ -2630,17 +2630,28 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderHeader: Record "Reminder Header";
         VATPostingSetup: Record "VAT Posting Setup";
         GLAccount: Record "G/L Account";
+        FeatureKey: Record "Feature Key";
+        FeatureKeyUpdateStatus: Record "Feature Data Update Status";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Reminder - Add. Line fee");
-        BindActiveDirectoryMockEvents;
-        ResetDocumentValueRange;
+        BindActiveDirectoryMockEvents();
+        ResetDocumentValueRange();
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
 
         if ClearExtReminders then
             ReminderHeader.DeleteAll(true);
+
+        if FeatureKey.Get('ReminderTermsCommunicationTexts') then begin
+            FeatureKey.Enabled := FeatureKey.Enabled::None;
+            FeatureKey.Modify();
+        end;
+        if FeatureKeyUpdateStatus.Get('ReminderTermsCommunicationTexts', CompanyName()) then begin
+            FeatureKeyUpdateStatus."Feature Status" := FeatureKeyUpdateStatus."Feature Status"::Disabled;
+            FeatureKeyUpdateStatus.Modify();
+        end;
 
         if IsInitialized then
             exit;
@@ -2665,6 +2676,11 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         LibrarySetupStorage.SaveGeneralLedgerSetup();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Reminder - Add. Line fee");
+
+        if FeatureKey.Get('ReminderTermsCommunicationTexts') then begin
+            FeatureKey.Enabled := FeatureKey.Enabled::None;
+            FeatureKey.Modify();
+        end;
     end;
 
     local procedure ResetDocumentValueRange()
@@ -2771,7 +2787,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     begin
         ReminderHeader.Get(ReminderNo);
         ReminderMake.SuggestLines(ReminderHeader, CustLedgerEntry, false, false, CustLedgEntryLineFeeOn);
-        ReminderMake.Code;
+        ReminderMake.Code();
     end;
 
     local procedure CreateReminderLineOfTypeLineFee(var ReminderLine: Record "Reminder Line"; ReminderNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
@@ -3209,9 +3225,9 @@ codeunit 134997 "Reminder - Add. Line fee"
     [Scope('OnPrem')]
     procedure IssueRemindersRequestPageHandler(var IssueReminders: TestRequestPage "Issue Reminders")
     begin
-        IssueReminders.PrintDoc.SetValue(LibraryVariableStorage.DequeueInteger);
-        IssueReminders.HideEmailDialog.SetValue(LibraryVariableStorage.DequeueBoolean);
-        IssueReminders.OK.Invoke;
+        IssueReminders.PrintDoc.SetValue(LibraryVariableStorage.DequeueInteger());
+        IssueReminders.HideEmailDialog.SetValue(LibraryVariableStorage.DequeueBoolean());
+        IssueReminders.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3222,15 +3238,15 @@ codeunit 134997 "Reminder - Add. Line fee"
     begin
         LibraryVariableStorage.Dequeue(Level);
         UpdateText.ReminderLevelNo.SetValue(Level);
-        UpdateText.OK.Invoke;
+        UpdateText.OK().Invoke();
     end;
 
     local procedure BindActiveDirectoryMockEvents()
     begin
-        if ActiveDirectoryMockEvents.Enabled then
+        if ActiveDirectoryMockEvents.Enabled() then
             exit;
         BindSubscription(ActiveDirectoryMockEvents);
-        ActiveDirectoryMockEvents.Enable;
+        ActiveDirectoryMockEvents.Enable();
     end;
 }
 

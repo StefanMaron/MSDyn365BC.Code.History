@@ -38,12 +38,12 @@ codeunit 137222 "PurchOrder Whse Validate Line"
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
-        DisableWarnings;
+        DisableWarnings();
 
         LibraryWarehouse.NoSeriesSetup(WarehouseSetup);
 
         PurchaseReceivablesSetup.Get();
-        PurchaseReceivablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        PurchaseReceivablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode();
         PurchaseReceivablesSetup.Modify(true);
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"PurchOrder Whse Validate Line");
     end;

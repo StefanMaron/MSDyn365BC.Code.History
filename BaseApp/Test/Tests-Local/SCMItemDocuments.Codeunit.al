@@ -192,7 +192,7 @@ codeunit 147111 "SCM Item Documents"
         // [SCENARIO 376914] Outbound item entry posted with "Red Storno" and cost amount = 0 is tallied in debit amount in "Item G/L Turnover"
 
         Initialize();
-        EnableRedStorno;
+        EnableRedStorno();
 
         LibraryInventory.CreateItem(Item);
         Quantity := LibraryRandom.RandInt(100);
@@ -227,7 +227,7 @@ codeunit 147111 "SCM Item Documents"
         // [SCENARIO 376914] Outbound item entry posted with "Red Storno" and positive cost amount is tallied in debit amount in "Item G/L Turnover"
 
         Initialize();
-        EnableRedStorno;
+        EnableRedStorno();
 
         LibraryInventory.CreateItem(Item);
         Quantity := LibraryRandom.RandDec(100, 2);
@@ -644,13 +644,13 @@ codeunit 147111 "SCM Item Documents"
     begin
         InventorySetup.Get();
         if InventorySetup."Invt. Receipt Nos." = '' then
-            InventorySetup.Validate("Invt. Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            InventorySetup.Validate("Invt. Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if InventorySetup."Posted Invt. Receipt Nos." = '' then
-            InventorySetup.Validate("Posted Invt. Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            InventorySetup.Validate("Posted Invt. Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if InventorySetup."Invt. Shipment Nos." = '' then
-            InventorySetup.Validate("Invt. Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            InventorySetup.Validate("Invt. Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if InventorySetup."Posted Invt. Shipment Nos." = '' then
-            InventorySetup.Validate("Posted Invt. Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            InventorySetup.Validate("Posted Invt. Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         InventorySetup.Modify(true);
     end;
 
@@ -680,14 +680,13 @@ codeunit 147111 "SCM Item Documents"
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
-        CalculatePer: Option "Item Ledger Entry",Item;
     begin
         LibraryCosting.AdjustCostItemEntries(ItemNo, '');
 
         Item.SetRange("No.", ItemNo);
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalTemplate.Type::Revaluation);
         LibraryCosting.CreateRevaluationJournal(
-          ItemJournalBatch, Item, WorkDate(), LibraryUtility.GenerateGUID, CalculatePer::Item, false, false, false, 0, false);
+          ItemJournalBatch, Item, WorkDate(), LibraryUtility.GenerateGUID(), "Inventory Value Calc. Per"::Item, false, false, false, "Inventory Value Calc. Base"::" ", false);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.FindFirst();

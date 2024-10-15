@@ -6,7 +6,7 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Attachment;
 using Microsoft.HumanResources.Absence;
-using Microsoft.HumanResources.Analysis;
+using Microsoft.HumanResources.Analysis; 
 using Microsoft.HumanResources.Comment;
 using Microsoft.HumanResources.Payables;
 using Microsoft.Utilities;
@@ -298,6 +298,12 @@ page 5200 "Employee Card"
                     ApplicationArea = BasicHR;
                     LookupPageID = "Employee Posting Groups";
                     ToolTip = 'Specifies the employee''s type to link business transactions made for the employee with the appropriate account in the general ledger.';
+                }
+                field("Currency Code"; Rec."Currency Code")
+                {
+                    ApplicationArea = BasicHR;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the currency code that is inserted by default when you create entries for the employee.';
                 }
                 field("Application Method"; Rec."Application Method")
                 {
@@ -733,7 +739,6 @@ page 5200 "Employee Card"
         IsCountyVisible: Boolean;
         NewMode: Boolean;
 
-        ShowMapLbl: Label 'Show on Map';
         Text000: Label 'Do you want to create Resp. Employee?';
 
     local procedure SetNoFieldVisible()

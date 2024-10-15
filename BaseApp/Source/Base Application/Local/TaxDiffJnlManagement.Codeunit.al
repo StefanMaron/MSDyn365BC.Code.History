@@ -170,37 +170,35 @@ codeunit 17300 TaxDiffJnlManagement
         JnlWithErrors: Boolean;
     begin
         TaxDiffJnlBatch.Copy(Rec);
-        with TaxDiffJnlBatch do begin
-            if not Confirm(Text000, false) then
-                exit;
+        if not Confirm(Text000, false) then
+            exit;
 
-            Find('-');
-            repeat
-                TaxDiffJnlLine.SetRange("Journal Template Name", "Journal Template Name");
-                TaxDiffJnlLine.SetRange("Journal Batch Name", Name);
-                Clear(TaxDiffPostJnlBatch);
-                if TaxDiffPostJnlBatch.Run(TaxDiffJnlLine) then
-                    Mark(false)
-                else begin
-                    Mark(true);
-                    JnlWithErrors := true;
-                end;
-            until Next() = 0;
-
-            if not JnlWithErrors then
-                Message(Text001)
-            else
-                Message(
-                  Text002 +
-                  Text003);
-
-            if not Find('=><') then begin
-                Reset();
-                FilterGroup(2);
-                SetRange("Journal Template Name", "Journal Template Name");
-                FilterGroup(0);
-                Name := '';
+        TaxDiffJnlBatch.Find('-');
+        repeat
+            TaxDiffJnlLine.SetRange("Journal Template Name", TaxDiffJnlBatch."Journal Template Name");
+            TaxDiffJnlLine.SetRange("Journal Batch Name", TaxDiffJnlBatch.Name);
+            Clear(TaxDiffPostJnlBatch);
+            if TaxDiffPostJnlBatch.Run(TaxDiffJnlLine) then
+                TaxDiffJnlBatch.Mark(false)
+            else begin
+                TaxDiffJnlBatch.Mark(true);
+                JnlWithErrors := true;
             end;
+        until TaxDiffJnlBatch.Next() = 0;
+
+        if not JnlWithErrors then
+            Message(Text001)
+        else
+            Message(
+              Text002 +
+              Text003);
+
+        if not TaxDiffJnlBatch.Find('=><') then begin
+            TaxDiffJnlBatch.Reset();
+            TaxDiffJnlBatch.FilterGroup(2);
+            TaxDiffJnlBatch.SetRange("Journal Template Name", TaxDiffJnlBatch."Journal Template Name");
+            TaxDiffJnlBatch.FilterGroup(0);
+            TaxDiffJnlBatch.Name := '';
         end;
 
         Rec.Copy(TaxDiffJnlBatch);
@@ -214,25 +212,23 @@ codeunit 17300 TaxDiffJnlManagement
         TaxDiffPostJnlBatch: Codeunit "Tax Diff.-Post Jnl. Batch";
     begin
         TaxDiffJnlLine.Copy(Rec);
-        with TaxDiffJnlLine do begin
-            if not Confirm(Text004, false) then
-                exit;
+        if not Confirm(Text004, false) then
+            exit;
 
-            TaxDiffPostJnlBatch.Run(TaxDiffJnlLine);
+        TaxDiffPostJnlBatch.Run(TaxDiffJnlLine);
 
-            if "Line No." = 0 then
-                Message(JournalErrorsMgt.GetNothingToPostErrorMsg())
-            else
-                Message(Text006);
+        if TaxDiffJnlLine."Line No." = 0 then
+            Message(JournalErrorsMgt.GetNothingToPostErrorMsg())
+        else
+            Message(Text006);
 
-            if not Find('=><') then begin
-                Reset();
-                FilterGroup(2);
-                SetRange("Journal Template Name", "Journal Template Name");
-                SetRange("Journal Batch Name", "Journal Batch Name");
-                FilterGroup(0);
-                "Line No." := 10000;
-            end;
+        if not TaxDiffJnlLine.Find('=><') then begin
+            TaxDiffJnlLine.Reset();
+            TaxDiffJnlLine.FilterGroup(2);
+            TaxDiffJnlLine.SetRange("Journal Template Name", TaxDiffJnlLine."Journal Template Name");
+            TaxDiffJnlLine.SetRange("Journal Batch Name", TaxDiffJnlLine."Journal Batch Name");
+            TaxDiffJnlLine.FilterGroup(0);
+            TaxDiffJnlLine."Line No." := 10000;
         end;
         Rec.Copy(TaxDiffJnlLine);
         Commit();
@@ -243,22 +239,21 @@ codeunit 17300 TaxDiffJnlManagement
     var
         TaxDiffEntry: Record "Tax Diff. Ledger Entry";
     begin
-        with TaxDiffJnlLine do
-            case "Source Type" of
-                "Source Type"::"Future Expense":
-                    begin
-                        TaxDiffEntry.Reset();
-                        TaxDiffEntry.SetRange("Tax Diff. Code", "Tax Diff. Code");
-                        TaxDiffEntry.SetRange("Source Type", "Source Type");
-                        TaxDiffEntry.SetRange("Source No.", "Source No.");
-                        PAGE.Run(0, TaxDiffEntry);
-                    end;
-                else begin
-                        TaxDiffEntry.Reset();
-                        TaxDiffEntry.SetRange("Tax Diff. Code", "Tax Diff. Code");
-                        PAGE.Run(0, TaxDiffEntry);
-                    end;
+        case TaxDiffJnlLine."Source Type" of
+            TaxDiffJnlLine."Source Type"::"Future Expense":
+                begin
+                    TaxDiffEntry.Reset();
+                    TaxDiffEntry.SetRange("Tax Diff. Code", TaxDiffJnlLine."Tax Diff. Code");
+                    TaxDiffEntry.SetRange("Source Type", TaxDiffJnlLine."Source Type");
+                    TaxDiffEntry.SetRange("Source No.", TaxDiffJnlLine."Source No.");
+                    PAGE.Run(0, TaxDiffEntry);
+                end;
+            else begin
+                TaxDiffEntry.Reset();
+                TaxDiffEntry.SetRange("Tax Diff. Code", TaxDiffJnlLine."Tax Diff. Code");
+                PAGE.Run(0, TaxDiffEntry);
             end;
+        end;
     end;
 }
 

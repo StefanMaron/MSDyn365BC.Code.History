@@ -156,8 +156,8 @@ codeunit 147125 "ERM VAT Invoices Journal"
 
     local procedure CreateVendorAndGLAcount(var VendorNo: Code[20]): Code[20]
     begin
-        VendorNo := LibraryPurch.CreateVendorNo;
-        exit(LibraryERM.CreateGLAccountWithPurchSetup);
+        VendorNo := LibraryPurch.CreateVendorNo();
+        exit(LibraryERM.CreateGLAccountWithPurchSetup());
     end;
 
     local procedure PostPurchDoc(PurchHeader: Record "Purchase Header"): Code[20]

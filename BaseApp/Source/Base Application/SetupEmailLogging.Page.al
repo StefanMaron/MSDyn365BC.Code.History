@@ -31,8 +31,10 @@ page 1811 "Setup Email Logging"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND NOT DoneVisible;
+                Visible = TopBannerVisible and not DoneVisible;
+#pragma warning disable AA0100
                 field("MediaResourcesStandard.""Media Reference"""; MediaResourcesStandard."Media Reference")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite, RelationshipMgmt;
                     Editable = false;
@@ -43,8 +45,10 @@ page 1811 "Setup Email Logging"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND DoneVisible;
+                Visible = TopBannerVisible and DoneVisible;
+#pragma warning disable AA0100
                 field("MediaResourcesDone.""Media Reference"""; MediaResourcesDone."Media Reference")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite, RelationshipMgmt;
                     Editable = false;
@@ -242,24 +246,6 @@ page 1811 "Setup Email Logging"
                         NextEnabled := false;
                     end;
                 }
-                group(ExchangeCredentialsDesc)
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Will be removed';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                    ShowCaption = false;
-                    field(Password; Password)
-                    {
-                        ApplicationArea = RelationshipMgmt;
-                        Caption = 'Password';
-                        Visible = false;
-                        ExtendedDatatype = Masked;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Will be removed';
-                        ObsoleteTag = '17.0';
-                    }
-                }
                 group(ValidateUserEmailGroup)
                 {
                     ShowCaption = false;
@@ -417,100 +403,6 @@ page 1811 "Setup Email Logging"
                     }
                 }
             }
-            group("Public Folders Creation")
-            {
-                InstructionalText = 'The following public mailbox and public folders will be created. (You can rename folders later):';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Will be removed';
-                ObsoleteTag = '17.0';
-                field(PublicMailBoxName; PublicMailBoxName)
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Public Mail Box Name';
-                    Editable = NOT DefaultFolderSetup;
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Will be removed';
-                    ObsoleteTag = '17.0';
-                }
-                field(RootQueueStorageFolder; RootQueueStorageFolder)
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Root Folder';
-                    Editable = NOT DefaultFolderSetup;
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Will be removed';
-                    ObsoleteTag = '17.0';
-                }
-                field(QueueFolderName; QueueFolderName)
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Queue Folder Name';
-                    Editable = NOT DefaultFolderSetup;
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Will be removed';
-                    ObsoleteTag = '17.0';
-                }
-                field(StorageFolderName; StorageFolderName)
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Storage Folder Name';
-                    Editable = NOT DefaultFolderSetup;
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Will be removed';
-                    ObsoleteTag = '17.0';
-                }
-            }
-            group("Email Rules")
-            {
-                InstructionalText = 'The following Exchange transport rules will be created, so that incoming email from outside organizations and outgoing mail to outside organization will be copied to queue public folder for later NAV processing. You can disable creation or give specific names for the rules:';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Will be removed';
-                ObsoleteTag = '17.0';
-                field(CreateIncomingEmailRule; CreateIncomingEmailRule)
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Create Incoming Email Rule';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Will be removed';
-                    ObsoleteTag = '17.0';
-                }
-                field(IncomingEmailRuleName; IncomingEmailRuleName)
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Incoming Email Rule Name';
-                    Editable = CreateIncomingEmailRule;
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Will be removed';
-                    ObsoleteTag = '17.0';
-                }
-                field(CreateOutgoingEmailRule; CreateOutgoingEmailRule)
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Create Outgoing Email Rule';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Will be removed';
-                    ObsoleteTag = '17.0';
-                }
-                field(OutgoingEmailRuleName; OutgoingEmailRuleName)
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Outgoing Email Rule Name';
-                    Editable = CreateOutgoingEmailRule;
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Will be removed';
-                    ObsoleteTag = '17.0';
-                }
-            }
             group(Step6)
             {
                 Caption = '';
@@ -522,46 +414,6 @@ page 1811 "Setup Email Logging"
                     group(Control33)
                     {
                         ShowCaption = false;
-                        field(QueueFolderNameFinal; QueueFolderName)
-                        {
-                            ApplicationArea = RelationshipMgmt;
-                            Caption = 'Queue Folder';
-                            Editable = false;
-                            Visible = false;
-                            ObsoleteState = Pending;
-                            ObsoleteReason = 'Will be removed';
-                            ObsoleteTag = '17.0';
-                        }
-                        field(StorageFolderNameFinal; StorageFolderName)
-                        {
-                            ApplicationArea = RelationshipMgmt;
-                            Caption = 'Storage Folder';
-                            Editable = false;
-                            Visible = false;
-                            ObsoleteState = Pending;
-                            ObsoleteReason = 'Will be removed';
-                            ObsoleteTag = '17.0';
-                        }
-                        field(IncomingEmailRuleNameFinal; IncomingEmailRuleName)
-                        {
-                            ApplicationArea = RelationshipMgmt;
-                            Caption = 'Incoming Email Rule';
-                            Editable = false;
-                            Visible = false;
-                            ObsoleteState = Pending;
-                            ObsoleteReason = 'Will be removed';
-                            ObsoleteTag = '17.0';
-                        }
-                        field(OutgoingEmailRuleNameFinal; OutgoingEmailRuleName)
-                        {
-                            ApplicationArea = RelationshipMgmt;
-                            Caption = 'Outgoing Email Rule';
-                            Editable = false;
-                            Visible = false;
-                            ObsoleteState = Pending;
-                            ObsoleteReason = 'Will be removed';
-                            ObsoleteTag = '17.0';
-                        }
                         field(CreateEmailLoggingJobQueue; CreateEmailLoggingJobQueue)
                         {
                             ApplicationArea = RelationshipMgmt;
@@ -615,15 +467,6 @@ page 1811 "Setup Email Logging"
                                 Style = Favorable;
                             }
                         }
-                    }
-                    group(Control34)
-                    {
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Will be removed';
-                        ObsoleteTag = '17.0';
-                        InstructionalText = '(Note: The creation of public folders and rules may take some time. When the folders are created, the wizard window will close.)';
-                        ShowCaption = false;
-                        Visible = false;
                     }
                 }
             }
@@ -773,18 +616,10 @@ page 1811 "Setup Email Logging"
         [NonDebuggable]
         UserEmail: Text[80];
         [NonDebuggable]
-        Password: Text[30];
-        [NonDebuggable]
         ClientId: Text[250];
         [NonDebuggable]
         ClientSecret: Text[250];
         RedirectURL: Text[2048];
-        RootQueueStorageFolder: Text;
-        QueueFolderName: Text;
-        StorageFolderName: Text;
-        PublicMailBoxName: Text;
-        IncomingEmailRuleName: Text;
-        OutgoingEmailRuleName: Text;
         QueueFolderPath: Text;
         StorageFolderPath: Text;
         BackEnabled: Boolean;
@@ -806,8 +641,6 @@ page 1811 "Setup Email Logging"
         RootFolderPathTemplateTxt: Label '\%1\', Locked = true;
         PathDelimiterTxt: Label '\', Locked = true;
         DefaultFolderSetup: Boolean;
-        CreateIncomingEmailRule: Boolean;
-        CreateOutgoingEmailRule: Boolean;
         NAVNotSetUpQst: Label 'Setup of Email Logging was not finished. \\Are you sure that you want to exit?';
         CreateEmailLoggingJobQueue: Boolean;
         EmailLoggingTelemetryCategoryTxt: Label 'AL Email Logging', Locked = true;
@@ -826,8 +659,8 @@ page 1811 "Setup Email Logging"
         CannotAccessRootPublicFolderErr: Label 'Could not access the root public folder with the specified user.';
         CannotInitializeConnectionToExchangeErr: Label 'Could not initialize connection to Exchange.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
         EmptyUserEmailErr: Label 'User email is empty.';
-        CannotAccessRootPublicFolderTxt: Label 'Could not access the root public folder. User: %1, URL: %2, Token: %3.', Locked = true;
-        CannotInitializeConnectionToExchangeTxt: Label 'Could not initialize connection to Exchange. User: %1, URL: %2, Token: %3.', Locked = true;
+        CannotAccessRootPublicFolderTxt: Label 'Could not access the root public folder. User: %1, URL: %2.', Locked = true;
+        CannotInitializeConnectionToExchangeTxt: Label 'Could not initialize connection to Exchange. User: %1, URL: %2.', Locked = true;
         ServiceInitializedTxt: Label 'Service has been initalized.', Locked = true;
         ServiceValidatedTxt: Label 'Service has been validated.', Locked = true;
         EmptyUserEmailTxt: Label 'User email is empty.', Locked = true;
@@ -974,7 +807,7 @@ page 1811 "Setup Email Logging"
         ClientOAuthCredentials: DotNet OAuthCredentials;
         ProgressWindow: Dialog;
         ServiceUri: Text;
-        Token: Text;
+        Token: SecretText;
     begin
         if UserEmail = '' then begin
             Session.LogMessage('0000D9X', EmptyUserEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
@@ -989,10 +822,10 @@ page 1811 "Setup Email Logging"
         ExchangeWebServicesClient.InvalidateService();
 
         SetupEmailLogging.GetClientCredentialsAccessToken(ClientId, ClientSecret, RedirectURL, TenantId, Token);
-        ClientOAuthCredentials := ClientOAuthCredentials.OAuthCredentials(Token);
+        CreateClientOAuthCredentials(ClientOAuthCredentials, Token);
 
         if not ExchangeWebServicesClient.InitializeOnServerWithImpersonation(UserEmail, ServiceUri, ClientOAuthCredentials) then begin
-            Session.LogMessage('0000D9Y', StrSubstNo(CannotInitializeConnectionToExchangeTxt, UserEmail, ServiceUri, Token), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+            Session.LogMessage('0000D9Y', StrSubstNo(CannotInitializeConnectionToExchangeTxt, UserEmail, ServiceUri), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(CannotInitializeConnectionToExchangeErr);
         end;
 
@@ -1000,12 +833,18 @@ page 1811 "Setup Email Logging"
 
         ExchangeWebServicesClient.GetPublicFolders(TempExchangeFolder);
         if TempExchangeFolder.IsEmpty() then begin
-            Session.LogMessage('0000DA0', StrSubstNo(CannotAccessRootPublicFolderTxt, UserEmail, ServiceUri, Token), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+            Session.LogMessage('0000DA0', StrSubstNo(CannotAccessRootPublicFolderTxt, UserEmail, ServiceUri), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(CannotAccessRootPublicFolderErr);
         end;
 
         Session.LogMessage('0000DA1', ServiceValidatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         ProgressWindow.Close();
+    end;
+
+    [NonDebuggable]
+    local procedure CreateClientOAuthCredentials(var OAuthCredentials: DotNet OAuthCredentials; Token: SecretText)
+    begin
+        OAuthCredentials := OAuthCredentials.OAuthCredentials(Token.Unwrap());
     end;
 
     [TryFunction]

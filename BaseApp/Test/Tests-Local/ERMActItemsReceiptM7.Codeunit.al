@@ -121,7 +121,7 @@ codeunit 144708 "ERM Act Items Receipt M-7"
 
         PurchaseHeader.SetRecFilter();
         ActItemsReceiptM7.SetTableView(PurchaseHeader);
-        ActItemsReceiptM7.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        ActItemsReceiptM7.SetFileNameSilent(LibraryReportValidation.GetFileName());
         ActItemsReceiptM7.UseRequestPage(false);
         ActItemsReceiptM7.Run();
     end;
@@ -139,7 +139,7 @@ codeunit 144708 "ERM Act Items Receipt M-7"
 
         InvtDocumentHeader.SetRecFilter();
         ActItemsReceiptM7.SetTableView(InvtDocumentHeader);
-        ActItemsReceiptM7.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        ActItemsReceiptM7.SetFileNameSilent(LibraryReportValidation.GetFileName());
         ActItemsReceiptM7.UseRequestPage(false);
         ActItemsReceiptM7.Run();
 
@@ -159,7 +159,7 @@ codeunit 144708 "ERM Act Items Receipt M-7"
 
         ItemReceiptHeader.SetRange("No.", DocumentNo);
         ActItemsReceiptM7.SetTableView(ItemReceiptHeader);
-        ActItemsReceiptM7.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        ActItemsReceiptM7.SetFileNameSilent(LibraryReportValidation.GetFileName());
         ActItemsReceiptM7.UseRequestPage(false);
         ActItemsReceiptM7.Run();
     end;
@@ -172,13 +172,13 @@ codeunit 144708 "ERM Act Items Receipt M-7"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
-        PurchaseHeader.Validate("Location Code", CreateLocation);
+        PurchaseHeader.Validate("Location Code", CreateLocation());
         PurchaseHeader.Modify(true);
 
         for i := 1 to LineQty do begin
             LibraryPurchase.CreatePurchaseLine(
               PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
-              LibraryInventory.CreateItemNo, LibraryRandom.RandDecInRange(5, 10, 2));
+              LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(5, 10, 2));
             PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 1000, 2));
             PurchaseLine.Modify(true);
         end;
@@ -202,7 +202,7 @@ codeunit 144708 "ERM Act Items Receipt M-7"
         with InvtDocumentHeader do begin
             Init();
             "Document Type" := "Document Type"::Receipt;
-            Validate("Location Code", CreateLocation);
+            Validate("Location Code", CreateLocation());
             Insert(true);
         end;
 
@@ -220,7 +220,7 @@ codeunit 144708 "ERM Act Items Receipt M-7"
         InvtDocumentLine.Validate("Document No.", InvtDocumentHeader."No.");
         RecRef.GetTable(InvtDocumentLine);
         InvtDocumentLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, InvtDocumentLine.FieldNo("Line No.")));
-        InvtDocumentLine.Validate("Item No.", LibraryInventory.CreateItemNo);
+        InvtDocumentLine.Validate("Item No.", LibraryInventory.CreateItemNo());
         InvtDocumentLine.Validate(Quantity, LibraryRandom.RandDecInRange(5, 10, 2));
         InvtDocumentLine.Validate("Unit Amount", LibraryRandom.RandDecInRange(10, 100, 2));
         InvtDocumentLine.Insert(true);
@@ -246,7 +246,7 @@ codeunit 144708 "ERM Act Items Receipt M-7"
             repeat
                 i += 1;
                 AmountArr[i] := Amount;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 

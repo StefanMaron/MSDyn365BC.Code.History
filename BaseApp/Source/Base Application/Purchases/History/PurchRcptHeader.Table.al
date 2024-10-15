@@ -38,6 +38,7 @@ table 120 "Purch. Rcpt. Header"
     DataCaptionFields = "No.", "Buy-from Vendor Name";
     DrillDownPageID = "Posted Purchase Receipts";
     LookupPageID = "Posted Purchase Receipts";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -588,11 +589,9 @@ table 120 "Purch. Rcpt. Header"
         if IsHandled then
             exit;
 
-        with PurchRcptHeader do begin
-            Copy(Rec);
-            ReportSelection.PrintWithDialogForVend(
-              ReportSelection.Usage::"P.Receipt", PurchRcptHeader, ShowRequestForm, FieldNo("Buy-from Vendor No."));
-        end;
+        PurchRcptHeader.Copy(Rec);
+        ReportSelection.PrintWithDialogForVend(
+          ReportSelection.Usage::"P.Receipt", PurchRcptHeader, ShowRequestForm, PurchRcptHeader.FieldNo("Buy-from Vendor No."));
     end;
 
     procedure Navigate()
@@ -632,7 +631,6 @@ table 120 "Purch. Rcpt. Header"
         ItemLedgEntry: Record "Item Ledger Entry";
         PurchRcptLine: Record "Purch. Rcpt. Line";
         PurchInvHeader: Record "Purch. Inv. Header";
-        PurchInvLine: Record "Purch. Inv. Line";
         DocNoFilter: Text[1024];
         I: Integer;
         Text12400: Label 'Length of the Document No. filter should not exceed 1024.';

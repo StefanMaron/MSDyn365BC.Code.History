@@ -319,7 +319,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
           CODEUNIT::"Exp. Validation Gen. Jnl.", CODEUNIT::"Exp. Writing Gen. Jnl.", XMLPORT::"Export Generic CSV",
           CODEUNIT::"Save Data Exch. Blob Sample", CODEUNIT::"Exp. User Feedback Gen. Jnl.");
 
-        DataExchLineDef.InsertRec(DataExchDef.Code, PaymentType, LibraryUtility.GenerateGUID, 3);
+        DataExchLineDef.InsertRec(DataExchDef.Code, PaymentType, LibraryUtility.GenerateGUID(), 3);
 
         LibraryPaymentFormat.CreateDataExchColumnDef(DataExchColumnDef, DataExchDef.Code, DataExchLineDef.Code);
 
@@ -347,7 +347,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
           CODEUNIT::"Exp. Validation Gen. Jnl.", CODEUNIT::"Exp. Writing Gen. Jnl.", XMLPORT::"Export Generic CSV",
           CODEUNIT::"Save Data Exch. Blob Sample", CODEUNIT::"Exp. User Feedback Gen. Jnl.");
 
-        DataExchLineDef.InsertRec(DataExchDef.Code, PaymentType, LibraryUtility.GenerateGUID, 3);
+        DataExchLineDef.InsertRec(DataExchDef.Code, PaymentType, LibraryUtility.GenerateGUID(), 3);
 
         LibraryPaymentFormat.CreateDataExchColumnDef(DataExchColumnDef, DataExchDef.Code, DataExchLineDef.Code);
 
@@ -374,7 +374,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
           DataExchDef, 0, 0, CODEUNIT::"Exp. Writing Gen. Jnl.",
           XMLPORT::"Export Generic CSV", CODEUNIT::"Save Data Exch. Blob Sample", 0);
 
-        DataExchLineDef.InsertRec(DataExchDef.Code, PaymentType, LibraryUtility.GenerateGUID, 3);
+        DataExchLineDef.InsertRec(DataExchDef.Code, PaymentType, LibraryUtility.GenerateGUID(), 3);
 
         LibraryPaymentFormat.CreateDataExchColumnDef(DataExchColumnDef, DataExchDef.Code, DataExchLineDef.Code);
 
@@ -390,7 +390,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
 
     local procedure CreateExportGenJournalBatch(var GenJnlBatch: Record "Gen. Journal Batch"; BalAccountNo: Code[20])
     begin
-        LibraryERM.CreateGenJournalBatch(GenJnlBatch, LibraryPaymentExport.SelectPaymentJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJnlBatch, LibraryPaymentExport.SelectPaymentJournalTemplate());
         GenJnlBatch.Validate("Bal. Account Type", GenJnlBatch."Bal. Account Type"::"Bank Account");
         GenJnlBatch.Validate("Bal. Account No.", BalAccountNo);
         GenJnlBatch.Validate("Allow Payment Export", true);

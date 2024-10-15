@@ -24,9 +24,10 @@ using System.Security.AccessControl;
 
 table 169 "Job Ledger Entry"
 {
-    Caption = 'Job Ledger Entry';
+    Caption = 'Project Ledger Entry';
     DrillDownPageID = "Job Ledger Entries";
     LookupPageID = "Job Ledger Entries";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -36,7 +37,7 @@ table 169 "Job Ledger Entry"
         }
         field(2; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             TableRelation = Job;
         }
         field(3; "Posting Date"; Date)
@@ -318,7 +319,7 @@ table 169 "Job Ledger Entry"
         }
         field(1000; "Job Task No."; Code[20])
         {
-            Caption = 'Job Task No.';
+            Caption = 'Project Task No.';
             TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
         }
         field(1001; "Line Amount (LCY)"; Decimal)

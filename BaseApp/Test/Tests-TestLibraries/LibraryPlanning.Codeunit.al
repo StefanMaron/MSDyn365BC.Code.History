@@ -17,8 +17,8 @@ codeunit 132203 "Library - Planning"
         SalesOrderPlanning: Page "Sales Order Planning";
     begin
         SalesOrderPlanning.SetSalesOrder(DocumentNo);
-        SalesOrderPlanning.BuildForm;
-        SalesOrderPlanning.CreateProdOrder;
+        SalesOrderPlanning.BuildForm();
+        SalesOrderPlanning.CreateProdOrder();
         Clear(ProductionOrder);
         ProductionOrder.SetRange(Status, Status);
         ProductionOrder.SetRange("Source No.", SourceNo);
@@ -51,7 +51,7 @@ codeunit 132203 "Library - Planning"
     var
         OrderPlanningMgt: Codeunit "Order Planning Mgt.";
     begin
-        OrderPlanningMgt.SetProdOrder;
+        OrderPlanningMgt.SetProdOrder();
         OrderPlanningMgt.GetOrdersToPlan(RequisitionLine);
     end;
 
@@ -67,7 +67,7 @@ codeunit 132203 "Library - Planning"
     var
         OrderPlanningMgt: Codeunit "Order Planning Mgt.";
     begin
-        OrderPlanningMgt.SetSalesOrder;
+        OrderPlanningMgt.SetSalesOrder();
         OrderPlanningMgt.GetOrdersToPlan(RequisitionLine);
     end;
 
@@ -75,7 +75,7 @@ codeunit 132203 "Library - Planning"
     var
         OrderPlanningMgt: Codeunit "Order Planning Mgt.";
     begin
-        OrderPlanningMgt.SetServOrder;
+        OrderPlanningMgt.SetServOrder();
         OrderPlanningMgt.GetOrdersToPlan(RequisitionLine);
     end;
 
@@ -83,7 +83,7 @@ codeunit 132203 "Library - Planning"
     var
         OrderPlanningMgt: Codeunit "Order Planning Mgt.";
     begin
-        OrderPlanningMgt.SetJobOrder;
+        OrderPlanningMgt.SetJobOrder();
         OrderPlanningMgt.GetOrdersToPlan(RequisitionLine);
     end;
 
@@ -366,7 +366,7 @@ codeunit 132203 "Library - Planning"
         RequisitionWkshName.SetRange("Template Type", TemplateType);
         RequisitionWkshName.SetRange(Recurring, false);
         if not RequisitionWkshName.FindFirst() then
-            CreateRequisitionWkshName(RequisitionWkshName, SelectRequisitionTemplateName);
+            CreateRequisitionWkshName(RequisitionWkshName, SelectRequisitionTemplateName());
     end;
 }
 

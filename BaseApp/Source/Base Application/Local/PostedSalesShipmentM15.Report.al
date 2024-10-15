@@ -227,12 +227,10 @@ report 12473 "Posted Sales Shipment M-15"
     [Scope('OnPrem')]
     procedure IncrAmount(SalesLine2: Record "Sales Invoice Line")
     begin
-        with SalesLine2 do begin
-            TotalAmount[1] := TotalAmount[1] + Amount;
-            TotalAmount[2] := TotalAmount[2] + "Amount Including VAT" - Amount;
-            TotalAmount[3] := TotalAmount[3] + "Amount Including VAT";
-            TotalAmount[4] := TotalAmount[4] + Quantity;
-        end;
+        TotalAmount[1] := TotalAmount[1] + SalesLine2.Amount;
+        TotalAmount[2] := TotalAmount[2] + SalesLine2."Amount Including VAT" - SalesLine2.Amount;
+        TotalAmount[3] := TotalAmount[3] + SalesLine2."Amount Including VAT";
+        TotalAmount[4] := TotalAmount[4] + SalesLine2.Quantity;
     end;
 
     [Scope('OnPrem')]
@@ -245,18 +243,16 @@ report 12473 "Posted Sales Shipment M-15"
     var
         ReportHeaderArr: array[15] of Text;
     begin
-        with Header do begin
-            ReportHeaderArr[1] := "No.";
-            ReportHeaderArr[2] := StdRepMgt.GetCompanyName();
-            ReportHeaderArr[3] := CompanyInfo."OKPO Code";
-            ReportHeaderArr[4] := Format("Shipment Date");
-            ReportHeaderArr[5] := OperationType;
-            ReportHeaderArr[6] := "Location Code";
-            ReportHeaderArr[8] := "Sell-to Customer No.";
-            ReportHeaderArr[13] := Reason;
-            ReportHeaderArr[14] := "Ship-to Name";
-            ReportHeaderArr[15] := PassedBy."Employee Name";
-        end;
+        ReportHeaderArr[1] := Header."No.";
+        ReportHeaderArr[2] := StdRepMgt.GetCompanyName();
+        ReportHeaderArr[3] := CompanyInfo."OKPO Code";
+        ReportHeaderArr[4] := Format(Header."Shipment Date");
+        ReportHeaderArr[5] := OperationType;
+        ReportHeaderArr[6] := Header."Location Code";
+        ReportHeaderArr[8] := Header."Sell-to Customer No.";
+        ReportHeaderArr[13] := Reason;
+        ReportHeaderArr[14] := Header."Ship-to Name";
+        ReportHeaderArr[15] := PassedBy."Employee Name";
 
         SalesShipmentM15Helper.FillM15ReportHeader(ReportHeaderArr);
     end;
@@ -270,18 +266,16 @@ report 12473 "Posted Sales Shipment M-15"
     var
         ReportBodyArr: array[15] of Text;
     begin
-        with SalesLine1 do begin
-            ReportBodyArr[1] := BalAccNo;
-            ReportBodyArr[3] := Description;
-            ReportBodyArr[4] := "No.";
-            ReportBodyArr[5] := "Unit of Measure Code";
-            ReportBodyArr[6] := "Unit of Measure";
-            ReportBodyArr[7] := Format(Quantity);
-            ReportBodyArr[9] := FormatAmount("Unit Price");
-            ReportBodyArr[10] := FormatAmount(Amount);
-            ReportBodyArr[11] := LineVATText[2];
-            ReportBodyArr[12] := FormatAmount("Amount Including VAT");
-        end;
+        ReportBodyArr[1] := BalAccNo;
+        ReportBodyArr[3] := SalesLine1.Description;
+        ReportBodyArr[4] := SalesLine1."No.";
+        ReportBodyArr[5] := SalesLine1."Unit of Measure Code";
+        ReportBodyArr[6] := SalesLine1."Unit of Measure";
+        ReportBodyArr[7] := Format(SalesLine1.Quantity);
+        ReportBodyArr[9] := FormatAmount(SalesLine1."Unit Price");
+        ReportBodyArr[10] := FormatAmount(SalesLine1.Amount);
+        ReportBodyArr[11] := LineVATText[2];
+        ReportBodyArr[12] := FormatAmount(SalesLine1."Amount Including VAT");
 
         SalesShipmentM15Helper.FillM15Body(ReportBodyArr);
     end;

@@ -2,6 +2,7 @@ table 17220 "Tax Register Norm Jurisdiction"
 {
     Caption = 'Tax Register Norm Jurisdiction';
     LookupPageID = "Tax Reg. Norm Jurisdictions";
+    DataClassification = CustomerContent;
 
     fields
     {

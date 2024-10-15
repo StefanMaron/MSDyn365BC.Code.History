@@ -80,7 +80,7 @@ table 18 Customer
                   TableData "Service Contract Header" = rm,
                   TableData "Price List Header" = rd,
                   TableData "Price List Line" = rd,
-#if not CLEAN21
+#if not CLEAN23
                   TableData "Sales Price" = rd,
                   TableData "Sales Line Discount" = rd,
 #endif
@@ -92,6 +92,7 @@ table 18 Customer
                   tabledata "Marketing Setup" = r,
                   tabledata Language = r,
                   tabledata "Language Selection" = r;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -612,7 +613,7 @@ table 18 Customer
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             CalcFormula = sum("Detailed Cust. Ledg. Entry".Amount where("Customer No." = field("No."),
-                                                                         "Initial Entry Due Date" = field(UPPERLIMIT("Date Filter")),
+                                                                         "Initial Entry Due Date" = field(upperlimit("Date Filter")),
                                                                          "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
                                                                          "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
                                                                          "Currency Code" = field("Currency Filter"),
@@ -626,7 +627,7 @@ table 18 Customer
         {
             AutoFormatType = 1;
             CalcFormula = sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" where("Customer No." = field("No."),
-                                                                                 "Initial Entry Due Date" = field(UPPERLIMIT("Date Filter")),
+                                                                                 "Initial Entry Due Date" = field(upperlimit("Date Filter")),
                                                                                  "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
                                                                                  "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
                                                                                  "Currency Code" = field("Currency Filter"),
@@ -985,15 +986,43 @@ table 18 Customer
                 ValidateEmail();
             end;
         }
+#if not CLEAN24
         field(103; "Home Page"; Text[80])
         {
             Caption = 'Home Page';
             ExtendedDatatype = URL;
+            ObsoleteReason = 'Field length will be increased to 255.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
         }
+#else
+#pragma warning disable AS0086
+        field(103; "Home Page"; Text[255])
+        {
+            Caption = 'Home Page';
+            ExtendedDatatype = URL;
+        }
+#pragma warning restore AS0086
+#endif
         field(104; "Reminder Terms Code"; Code[10])
         {
             Caption = 'Reminder Terms Code';
             TableRelation = "Reminder Terms";
+#if not CLEAN25
+            trigger OnLookup()
+            var
+                ReminderTermsRecord: Record "Reminder Terms";
+                ReminderTerms: Page "Reminder Terms";
+            begin
+                ReminderTerms.LookupMode(true);
+                if ReminderTerms.RunModal() <> ACTION::LookupOK then
+                    exit;
+
+                ReminderTerms.SetSelectionFilter(ReminderTermsRecord);
+                ReminderTermsRecord.FindFirst();
+                Rec."Reminder Terms Code" := ReminderTermsRecord.Code;
+            end;
+#endif
         }
         field(105; "Reminder Amounts"; Decimal)
         {
@@ -1752,7 +1781,7 @@ table 18 Customer
         }
         field(9004; "Tax Area Display Name"; Text[100])
         {
-            CalcFormula = Lookup("Tax Area".Description where(Code = field("Tax Area Code")));
+            CalcFormula = lookup("Tax Area".Description where(Code = field("Tax Area Code")));
             Caption = 'Tax Area Display Name';
             FieldClass = FlowField;
             ObsoleteReason = 'This field is not needed and it should not be used.';
@@ -2122,6 +2151,10 @@ table 18 Customer
 
     trigger OnInsert()
     var
+        Customer: Record Customer;
+#if not CLEAN24        
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -2132,8 +2165,24 @@ table 18 Customer
         if "No." = '' then begin
             SalesSetup.Get();
             SalesSetup.TestField("Customer Nos.");
-            NoSeriesMgt.InitSeries(SalesSetup."Customer Nos.", xRec."No. Series", 0D, "No.", "No. Series");
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(SalesSetup."Customer Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                "No. Series" := SalesSetup."Customer Nos.";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series");
+                Customer.ReadIsolation(IsolationLevel::ReadUncommitted);
+                Customer.SetLoadFields("No.");
+                while Customer.Get("No.") do
+                    "No." := NoSeries.GetNextNo("No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", SalesSetup."Customer Nos.", 0D, "No.");
+            end;
+#endif
         end;
+
         "Agreement Nos." := SalesSetup."Customer Agreement Nos.";
 
         if "Invoice Disc. Code" = '' then
@@ -2206,9 +2255,8 @@ table 18 Customer
         CustomizedCalendarChange: Record "Customized Calendar Change";
         CustAgrmt: Record "Customer Agreement";
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         AgrmtMgt: Codeunit "Agreement Management";
-        LocMgt: Codeunit "Localisation Management";
         Vend: Record Vendor;
         MoveEntries: Codeunit MoveEntries;
         UpdateContFromCust: Codeunit "CustCont-Update";
@@ -2251,16 +2299,14 @@ table 18 Customer
     var
         Cust: Record Customer;
     begin
-        with Cust do begin
-            Cust := Rec;
-            SalesSetup.Get();
-            SalesSetup.TestField("Customer Nos.");
-            if NoSeriesMgt.SelectSeries(SalesSetup."Customer Nos.", OldCust."No. Series", "No. Series") then begin
-                NoSeriesMgt.SetSeries("No.");
-                Rec := Cust;
-                OnAssistEditOnBeforeExit(Cust);
-                exit(true);
-            end;
+        Cust := Rec;
+        SalesSetup.Get();
+        SalesSetup.TestField("Customer Nos.");
+        if NoSeries.LookupRelatedNoSeries(SalesSetup."Customer Nos.", OldCust."No. Series", Cust."No. Series") then begin
+            Cust."No." := NoSeries.GetNextNo(Cust."No. Series");
+            Rec := Cust;
+            OnAssistEditOnBeforeExit(Cust);
+            exit(true);
         end;
     end;
 
@@ -2362,20 +2408,18 @@ table 18 Customer
         if IsOnBeforeCheckBlockedCustHandled(Cust2, Source::Document, DocType, Shipment, Transaction) then
             exit;
 
-        with Cust2 do begin
-            if "Privacy Blocked" then
-                CustPrivacyBlockedErrorMessage(Cust2, Transaction);
+        if Cust2."Privacy Blocked" then
+            Cust2.CustPrivacyBlockedErrorMessage(Cust2, Transaction);
 
-            if ((Blocked = Blocked::All) or
-                ((Blocked = Blocked::Invoice) and
-                 (DocType in [DocType::Quote, DocType::Order, DocType::Invoice, DocType::"Blanket Order"])) or
-                ((Blocked = Blocked::Ship) and (DocType in [DocType::Quote, DocType::Order, DocType::"Blanket Order"]) and
-                 (not Transaction)) or
-                ((Blocked = Blocked::Ship) and (DocType in [DocType::Quote, DocType::Order, DocType::Invoice, DocType::"Blanket Order"]) and
-                 Shipment and Transaction))
-            then
-                CustBlockedErrorMessage(Cust2, Transaction);
-        end;
+        if ((Cust2.Blocked = Cust2.Blocked::All) or
+            ((Cust2.Blocked = Cust2.Blocked::Invoice) and
+             (DocType in [DocType::Quote, DocType::Order, DocType::Invoice, DocType::"Blanket Order"])) or
+            ((Cust2.Blocked = Cust2.Blocked::Ship) and (DocType in [DocType::Quote, DocType::Order, DocType::"Blanket Order"]) and
+             (not Transaction)) or
+            ((Cust2.Blocked = Cust2.Blocked::Ship) and (DocType in [DocType::Quote, DocType::Order, DocType::Invoice, DocType::"Blanket Order"]) and
+             Shipment and Transaction))
+        then
+            Cust2.CustBlockedErrorMessage(Cust2, Transaction);
     end;
 
     procedure CheckBlockedCustOnJnls(Cust2: Record Customer; DocType: Enum "Gen. Journal Document Type"; Transaction: Boolean)
@@ -2385,15 +2429,13 @@ table 18 Customer
         if IsOnBeforeCheckBlockedCustHandled(Cust2, Source::Journal, DocType, false, Transaction) then
             exit;
 
-        with Cust2 do begin
-            if "Privacy Blocked" then
-                CustPrivacyBlockedErrorMessage(Cust2, Transaction);
+        if Cust2."Privacy Blocked" then
+            Cust2.CustPrivacyBlockedErrorMessage(Cust2, Transaction);
 
-            if (Blocked = Blocked::All) or
-               ((Blocked = Blocked::Invoice) and (DocType in [DocType::Invoice, DocType::" "]))
-            then
-                CustBlockedErrorMessage(Cust2, Transaction)
-        end;
+        if (Cust2.Blocked = Cust2.Blocked::All) or
+           ((Cust2.Blocked = Cust2.Blocked::Invoice) and (DocType in [DocType::Invoice, DocType::" "]))
+        then
+            Cust2.CustBlockedErrorMessage(Cust2, Transaction)
     end;
 
     procedure CheckBlockedCustOnJnls(Cust2: Record Customer; var GenJnlLine: Record "Gen. Journal Line"; Transaction: Boolean)
@@ -2802,24 +2844,22 @@ table 18 Customer
         if IsHandled then
             exit;
 
-        with GenJnlLine do begin
-            TestField("External Document No.");
-            TestField("Prepayment Document No.");
-            if not SalesHeader.Get(SalesHeader."Document Type"::Order, "Prepayment Document No.") then
-                SalesHeader.Get(SalesHeader."Document Type"::Invoice, "Prepayment Document No.");
-            SalesHeader.TestField("Bill-to Customer No.", "Account No.");
-            SalesHeader.TestField(Status, SalesHeader.Status::Released);
-            if "Agreement No." <> '' then
-                TestField("Agreement No.", SalesHeader."Agreement No.");
-            if not Post then
-                if Amount = 0 then begin
-                    Validate("Currency Code", SalesHeader."Currency Code");
-                    SalesHeader.CalcFields("Amount Including VAT");
-                    Validate(Amount, -SalesHeader."Amount Including VAT");
-                    if ("Agreement No." = '') and (SalesHeader."Agreement No." <> '') then
-                        Validate("Agreement No.", SalesHeader."Agreement No.");
-                end;
-        end;
+        GenJnlLine.TestField("External Document No.");
+        GenJnlLine.TestField("Prepayment Document No.");
+        if not SalesHeader.Get(SalesHeader."Document Type"::Order, GenJnlLine."Prepayment Document No.") then
+            SalesHeader.Get(SalesHeader."Document Type"::Invoice, GenJnlLine."Prepayment Document No.");
+        SalesHeader.TestField("Bill-to Customer No.", GenJnlLine."Account No.");
+        SalesHeader.TestField(Status, SalesHeader.Status::Released);
+        if GenJnlLine."Agreement No." <> '' then
+            GenJnlLine.TestField("Agreement No.", SalesHeader."Agreement No.");
+        if not Post then
+            if GenJnlLine.Amount = 0 then begin
+                GenJnlLine.Validate("Currency Code", SalesHeader."Currency Code");
+                SalesHeader.CalcFields("Amount Including VAT");
+                GenJnlLine.Validate(Amount, -SalesHeader."Amount Including VAT");
+                if (GenJnlLine."Agreement No." = '') and (SalesHeader."Agreement No." <> '') then
+                    GenJnlLine.Validate("Agreement No.", SalesHeader."Agreement No.");
+            end;
     end;
 
     [Scope('OnPrem')]
@@ -2830,36 +2870,34 @@ table 18 Customer
         DtldCustLedgEntry1: Record "Detailed Cust. Ledg. Entry";
         CustLedgEntry1: Record "Cust. Ledger Entry";
     begin
-        with TempCustLedgEntry do begin
-            DeleteAll();
-            CustLedgEntry.Reset();
-            CustLedgEntry.SetCurrentKey("Document No.");
-            CustLedgEntry.SetRange("Document No.", DocNo);
-            CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
-            CustLedgEntry.SetRange("Customer No.", CustNo);
-            if CustLedgEntry.FindFirst() then begin
-                DtldCustLedgEntry.Reset();
-                DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type");
-                DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
-                DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
-                DtldCustLedgEntry.SetRange(Unapplied, false);
-                if DtldCustLedgEntry.FindSet() then
-                    repeat
-                        DtldCustLedgEntry1.Reset();
-                        DtldCustLedgEntry1.SetCurrentKey("Transaction No.");
-                        DtldCustLedgEntry1.SetRange("Transaction No.", DtldCustLedgEntry."Transaction No.");
-                        DtldCustLedgEntry1.SetRange("Entry Type", DtldCustLedgEntry1."Entry Type"::Application);
-                        DtldCustLedgEntry1.SetFilter("Entry No.", '<>%1', DtldCustLedgEntry."Entry No.");
-                        if DtldCustLedgEntry1.FindSet() then
-                            repeat
-                                CustLedgEntry1.Get(DtldCustLedgEntry1."Cust. Ledger Entry No.");
-                                if CustLedgEntry1.Prepayment then begin
-                                    TempCustLedgEntry := CustLedgEntry1;
-                                    if TempCustLedgEntry.Insert() then;
-                                end;
-                            until DtldCustLedgEntry1.Next() = 0;
-                    until DtldCustLedgEntry.Next() = 0;
-            end;
+        TempCustLedgEntry.DeleteAll();
+        CustLedgEntry.Reset();
+        CustLedgEntry.SetCurrentKey("Document No.");
+        CustLedgEntry.SetRange("Document No.", DocNo);
+        CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
+        CustLedgEntry.SetRange("Customer No.", CustNo);
+        if CustLedgEntry.FindFirst() then begin
+            DtldCustLedgEntry.Reset();
+            DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type");
+            DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
+            DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
+            DtldCustLedgEntry.SetRange(Unapplied, false);
+            if DtldCustLedgEntry.FindSet() then
+                repeat
+                    DtldCustLedgEntry1.Reset();
+                    DtldCustLedgEntry1.SetCurrentKey("Transaction No.");
+                    DtldCustLedgEntry1.SetRange("Transaction No.", DtldCustLedgEntry."Transaction No.");
+                    DtldCustLedgEntry1.SetRange("Entry Type", DtldCustLedgEntry1."Entry Type"::Application);
+                    DtldCustLedgEntry1.SetFilter("Entry No.", '<>%1', DtldCustLedgEntry."Entry No.");
+                    if DtldCustLedgEntry1.FindSet() then
+                        repeat
+                            CustLedgEntry1.Get(DtldCustLedgEntry1."Cust. Ledger Entry No.");
+                            if CustLedgEntry1.Prepayment then begin
+                                TempCustLedgEntry := CustLedgEntry1;
+                                if TempCustLedgEntry.Insert() then;
+                            end;
+                        until DtldCustLedgEntry1.Next() = 0;
+                until DtldCustLedgEntry.Next() = 0;
         end;
     end;
 
@@ -2937,7 +2975,7 @@ table 18 Customer
     begin
         IsHandled := false;
         OnBeforeGetCustNoOpenCard(CustomerText, ShowCustomerCard, ShowCreateCustomerOption, CustomerNo, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit(CustomerNo);
 
         if CustomerText = '' then
@@ -3064,7 +3102,7 @@ table 18 Customer
     begin
         IsHandled := false;
         OnBeforeCreateNewCustomer(CustomerName, ShowCustomerCard, NewCustomerCode, IsHandled);
-        IF IsHandled then
+        if IsHandled then
             exit(NewCustomerCode);
 
         Customer.Name := CustomerName;
@@ -3106,12 +3144,6 @@ table 18 Customer
     end;
 
     procedure SelectCustomer(var Customer: Record Customer): Boolean
-    begin
-        exit(LookupCustomer(Customer));
-    end;
-
-    [Scope('OnPrem')]
-    procedure LookupCustomer(var Customer: Record Customer): Boolean
     var
         CustomerLookup: Page "Customer Lookup";
         Result: Boolean;
@@ -3127,6 +3159,15 @@ table 18 Customer
 
         exit(Result);
     end;
+
+#if not CLEAN24
+    [Scope('OnPrem')]
+    [Obsolete('Use SelectCustomer(var Customer: Record Customer): Boolean instead.', '24.0')]
+    procedure LookupCustomer(var Customer: Record Customer): Boolean
+    begin
+        exit(SelectCustomer(Customer));
+    end;
+#endif
 
     local procedure MarkCustomersByFilters(var Customer: Record Customer)
     begin
@@ -3159,7 +3200,7 @@ table 18 Customer
         if "No." <> xRec."No." then
             if not Customer.Get(Rec."No.") then begin
                 SalesSetup.Get();
-                NoSeriesMgt.TestManual(SalesSetup."Customer Nos.");
+                NoSeries.TestManual(SalesSetup."Customer Nos.");
                 "No. Series" := '';
             end;
     end;

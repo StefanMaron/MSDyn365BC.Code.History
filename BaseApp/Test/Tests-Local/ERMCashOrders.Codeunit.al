@@ -51,7 +51,7 @@ codeunit 144723 "ERM Cash Orders"
         RunCashOutgoingOrderReport(GenJournalLine);
 
         // [THEN] Date exported in formatted "21.12.2015" (DD.MM.YYYY)
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValueByRef('CT', 11, 1, '21.12.2015');
 
         // TFSID 381057 Export "Cash Outgoing Order" with Director's Job Title filled
@@ -77,7 +77,7 @@ codeunit 144723 "ERM Cash Orders"
         RunCashIngoingOrderReport(GenJournalLine);
 
         // [THEN] Date exported in formatted "21.12.2015" (DD.MM.YYYY)
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValueByRef('BB', 13, 1, '21.12.2015');
     end;
 
@@ -108,7 +108,7 @@ codeunit 144723 "ERM Cash Orders"
         // [THEN] "Reason Code" := 'Amount -100,00, including VAT 0,00
         // [THEN] "Cash Order Including" := 'Amount -100,00, including VAT 0,00
         // [THEN] "Cash Order Supplement" := 'Amount -100,00, including VAT 0,00
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -138,7 +138,7 @@ codeunit 144723 "ERM Cash Orders"
         // [THEN] "Reason Code" := 'Amount -100,00, including VAT 0,00
         // [THEN] "Cash Order Including" := 'Amount -100,00, including VAT 0,00
         // [THEN] "Cash Order Supplement" := 'Amount -100,00, including VAT 0,00
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -337,7 +337,7 @@ codeunit 144723 "ERM Cash Orders"
         // [FEATURE] [Report]
         // [SCENARIO 377232,377258] "Cash Report CO - 4" with 70 lines split on 3 pages when printing
         Initialize();
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
 
         // [GIVEN] Cash Order Journal
         // [GIVEN] "Last Cash Report Page No." = '005'
@@ -360,7 +360,7 @@ codeunit 144723 "ERM Cash Orders"
         // [THEN] 'BT2' = "Page 6"
         // [THEN] 'BT47' = "Page 7"
         // [THEN] 'BT87' = "Page 8"
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValueByRef('BT', 2, 1, GetPageNoAsText(PageNumber + 1));
         LibraryReportValidation.VerifyCellValueByRef('BT', 47, 1, GetPageNoAsText(PageNumber + 2));
         LibraryReportValidation.VerifyCellValueByRef('BT', 88, 1, GetPageNoAsText(PageNumber + 3));
@@ -416,7 +416,7 @@ codeunit 144723 "ERM Cash Orders"
 
         // [GIVEN] Empty Cash Order Journal
         // [GIVEN] "Last Cash Report Page No." = '005'
-        CreateCashOrderForVendor(GenJournalLine, LibraryERM.CreateNoSeriesCode, BankAccountNo);
+        CreateCashOrderForVendor(GenJournalLine, LibraryERM.CreateNoSeriesCode(), BankAccountNo);
         UpdateLastCashReportPageNo(GenJournalLine, PageNumber);
 
         // [WHEN] Print / Export "Cash Report CO-4"
@@ -443,7 +443,7 @@ codeunit 144723 "ERM Cash Orders"
         // [FEATURE] [Report]
         // [SCENARIO 377267] Page numbering in "Cash Report CO - 4" must consider "Last Cash Report Page No." of Cash Account
         Initialize();
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
         PageNumber := LibraryRandom.RandIntInRange(5, 10);
 
         // [GIVEN] "Bank Account" "BA1" with type "Cash Account"
@@ -506,7 +506,7 @@ codeunit 144723 "ERM Cash Orders"
         VerifyPageNumbers(BankAccountNo[1], PageNumber[1] + 1);
 
         // [GIVEN] "Bank Account" "BA2" where "Last Cash Report Page No." = '000'
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
         Clear(LibraryReportValidation);
         Clear(GenJournalLine);
         PageNumber[2] := LibraryRandom.RandIntInRange(5, 10);
@@ -544,9 +544,9 @@ codeunit 144723 "ERM Cash Orders"
         RunCashReportCO4(BankAccount."No.", CashReportCO4ReportType::"Cash Report CO-4", false, false, WorkDate());
 
         // [THEN] Report prints only one line
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.SetRange(Description, Description);
-        Assert.AreEqual(1, LibraryReportValidation.CountRows, '');
+        Assert.AreEqual(1, LibraryReportValidation.CountRows(), '');
     end;
 
     [Test]
@@ -565,7 +565,7 @@ codeunit 144723 "ERM Cash Orders"
         Initialize();
 
         // [GIVEN] Bank Account with voided Ledger Entry
-        CreateCashOrderForVendor(GenJournalLine, LibraryERM.CreateNoSeriesCode, BankAccountNo);
+        CreateCashOrderForVendor(GenJournalLine, LibraryERM.CreateNoSeriesCode(), BankAccountNo);
         PrintCashOrderFromJournalLine(GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         FindCheckLedgEntry(
@@ -577,7 +577,7 @@ codeunit 144723 "ERM Cash Orders"
         RunCashReportCO4(BankAccountNo, CashReportCO4ReportType::"Cash Report CO-4", false, false, WorkDate());
 
         // [THEN] Report does not print voided and voiding lines
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         Assert.IsFalse(LibraryReportValidation.CheckIfValueExistsInSpecifiedColumn('A', ExportedDocumentNo), VoidedEntriesPrintedErr);
     end;
 
@@ -798,9 +798,9 @@ codeunit 144723 "ERM Cash Orders"
     local procedure CreateBankAccount(var BankAccount: Record "Bank Account"; AccountType: Option): Code[20]
     begin
         LibraryERM.CreateBankAccount(BankAccount);
-        BankAccount.Validate("Bank Payment Order No. Series", LibraryERM.CreateNoSeriesCode);
-        BankAccount.Validate("Credit Cash Order No. Series", LibraryERM.CreateNoSeriesCode);
-        BankAccount.Validate("Debit Cash Order No. Series", LibraryERM.CreateNoSeriesCode);
+        BankAccount.Validate("Bank Payment Order No. Series", LibraryERM.CreateNoSeriesCode());
+        BankAccount.Validate("Credit Cash Order No. Series", LibraryERM.CreateNoSeriesCode());
+        BankAccount.Validate("Debit Cash Order No. Series", LibraryERM.CreateNoSeriesCode());
         BankAccount.Validate("Account Type", AccountType);
         BankAccount.Modify(true);
 
@@ -823,14 +823,14 @@ codeunit 144723 "ERM Cash Orders"
     local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; NoSeriesCode: Code[20]; LineAmount: Decimal)
     var
         BalanceBankAccount: Record "Bank Account";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         CreateBankAccount(BalanceBankAccount, BalanceBankAccount."Account Type"::"Cash Account");
         with GenJournalLine do begin
             LibraryERM.CreateGeneralJnlLine(
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
               "Document Type"::Payment, AccountType, AccountNo, LineAmount);
-            Validate("Document No.", NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), true));
+            Validate("Document No.", NoSeries.GetNextNo(NoSeriesCode));
             Validate("Bal. Account No.", BalanceBankAccount."No.");
             Validate("Bank Payment Type", "Bank Payment Type"::"Computer Check");
             Modify(true);
@@ -852,7 +852,7 @@ codeunit 144723 "ERM Cash Orders"
         VendorBankAccount."Bank Branch No." := LibraryUtility.GenerateGUID();
         VendorBankAccount."Personal Account No." := LibraryUtility.GenerateGUID();
         VendorBankAccount."Def. Payment Purpose" := DefaultPaymentPurposeTok;
-        VendorBankAccount."Bank Account No." := LibraryERM.CreateBankAccountNo;
+        VendorBankAccount."Bank Account No." := LibraryERM.CreateBankAccountNo();
         VendorBankAccount.Modify();
     end;
 
@@ -932,12 +932,12 @@ codeunit 144723 "ERM Cash Orders"
     local procedure CopyAndPrintCashOrderJournalLine(GenJournalLineSource: Record "Gen. Journal Line"; NoSeriesCode: Code[20]; LineAmount: Decimal)
     var
         GenJournalLineCopy: Record "Gen. Journal Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         GenJournalLineCopy.Copy(GenJournalLineSource);
         GenJournalLineCopy."Line No." := LibraryUtility.GetNewRecNo(GenJournalLineCopy, GenJournalLineCopy.FieldNo("Line No."));
         GenJournalLineCopy.Amount := LineAmount;
-        GenJournalLineCopy."Document No." := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), true);
+        GenJournalLineCopy."Document No." := NoSeries.GetNextNo(NoSeriesCode);
         GenJournalLineCopy.Insert();
         PrintCashOrderFromJournalLine(GenJournalLineCopy);
     end;
@@ -1050,7 +1050,7 @@ codeunit 144723 "ERM Cash Orders"
     var
         DocumentNo: Code[20];
     begin
-        CreateCashOrderForVendor(GenJournalLine, LibraryERM.CreateNoSeriesCode, BankAccountNo);
+        CreateCashOrderForVendor(GenJournalLine, LibraryERM.CreateNoSeriesCode(), BankAccountNo);
         UpdateLastCashReportPageNo(GenJournalLine, PageNumber);
         DocumentNo := GenJournalLine."Document No.";
         PrintCashOrderFromJournalLine(GenJournalLine);
@@ -1066,7 +1066,7 @@ codeunit 144723 "ERM Cash Orders"
         FileManagement: Codeunit "File Management";
     begin
         LibraryReportValidation.SetFullFileName(FileManagement.ServerTempFileName('xlsx'));
-        CashOutgoingOrder.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        CashOutgoingOrder.SetFileNameSilent(LibraryReportValidation.GetFileName());
         CashOutgoingOrder.SetTableView(GenJournalLine);
         CashOutgoingOrder.UseRequestPage(false);
         CashOutgoingOrder.Run();
@@ -1078,7 +1078,7 @@ codeunit 144723 "ERM Cash Orders"
         FileManagement: Codeunit "File Management";
     begin
         LibraryReportValidation.SetFullFileName(FileManagement.ServerTempFileName('xlsx'));
-        CashIngoingOrder.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        CashIngoingOrder.SetFileNameSilent(LibraryReportValidation.GetFileName());
         CashIngoingOrder.SetTableView(GenJournalLine);
         CashIngoingOrder.UseRequestPage(false);
         CashIngoingOrder.Run();
@@ -1091,7 +1091,7 @@ codeunit 144723 "ERM Cash Orders"
     begin
         LibraryReportValidation.SetFullFileName(FileManagement.ServerTempFileName('xlsx'));
         CashReportCO4.InitializeRequest(BankAccountNo, ReportDate, PrintTitleSheet, PrintLastSheet, CashReportType);
-        CashReportCO4.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        CashReportCO4.SetFileNameSilent(LibraryReportValidation.GetFileName());
         CashReportCO4.UseRequestPage(false);
         CashReportCO4.Run();
     end;
@@ -1103,7 +1103,7 @@ codeunit 144723 "ERM Cash Orders"
     begin
         LibraryReportValidation.SetFullFileName(FileManagement.ServerTempFileName('xlsx'));
         CashReportCO4.InitializeRequest(BankAccountNo, ReportDate, PrintTitleSheet, PrintLastSheet, CashReportType);
-        CashReportCO4.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        CashReportCO4.SetFileNameSilent(LibraryReportValidation.GetFileName());
         CashReportCO4.Run();
     end;
 
@@ -1136,7 +1136,7 @@ codeunit 144723 "ERM Cash Orders"
         CompanyInformation: Record "Company Information";
     begin
         CompanyInformation.Get();
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValueByRef('P', 17, 1, 'Zero');
         LibraryReportValidation.VerifyCellValueByRef('E', 19, 1, 'One2');
         LibraryReportValidation.VerifyCellValueByRef('N', 4, 1, ReportTypeCaption);
@@ -1151,7 +1151,7 @@ codeunit 144723 "ERM Cash Orders"
         BankAccount.Get(BankAccountNo);
         BankAccount.TestField("Last Cash Report Page No.", GetPageNoAsCode(ExpectedPageNumber));
 
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValueByRef('BT', 2, 1, GetPageNoAsText(ExpectedPageNumber));
         LibraryReportValidation.VerifyCellValueByRef('W', 26, 1, Format(ExpectedPageNumber));
     end;
@@ -1191,19 +1191,19 @@ codeunit 144723 "ERM Cash Orders"
         StdTextCode: Code[10];
         ExpectedText: Text;
     begin
-        StdTextCode := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(StdTextCode));
-        ExpectedText := LibraryVariableStorage.DequeueText;
+        StdTextCode := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(StdTextCode));
+        ExpectedText := LibraryVariableStorage.DequeueText();
 
         LibraryVariableStorage.Enqueue(StdTextCode);
-        OutgoingCashOrder."Payment Purpose".Lookup;
+        OutgoingCashOrder."Payment Purpose".Lookup();
         OutgoingCashOrder."Payment Purpose".AssertEquals(ExpectedText);
 
         LibraryVariableStorage.Enqueue(StdTextCode);
-        OutgoingCashOrder."Text 2".Lookup;
+        OutgoingCashOrder."Text 2".Lookup();
         OutgoingCashOrder."Text 2".AssertEquals(ExpectedText);
 
         LibraryVariableStorage.Enqueue(StdTextCode);
-        OutgoingCashOrder."Cash Order Supplement".Lookup;
+        OutgoingCashOrder."Cash Order Supplement".Lookup();
         OutgoingCashOrder."Cash Order Supplement".AssertEquals(ExpectedText);
     end;
 
@@ -1214,19 +1214,19 @@ codeunit 144723 "ERM Cash Orders"
         StdTextCode: Code[10];
         ExpectedText: Text;
     begin
-        StdTextCode := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(StdTextCode));
-        ExpectedText := LibraryVariableStorage.DequeueText;
+        StdTextCode := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(StdTextCode));
+        ExpectedText := LibraryVariableStorage.DequeueText();
 
         LibraryVariableStorage.Enqueue(StdTextCode);
-        IngoingCashOrder."Payment Purpose".Lookup;
+        IngoingCashOrder."Payment Purpose".Lookup();
         IngoingCashOrder."Payment Purpose".AssertEquals(ExpectedText);
 
         LibraryVariableStorage.Enqueue(StdTextCode);
-        IngoingCashOrder."Text 2".Lookup;
+        IngoingCashOrder."Text 2".Lookup();
         IngoingCashOrder."Text 2".AssertEquals(ExpectedText);
 
         LibraryVariableStorage.Enqueue(StdTextCode);
-        IngoingCashOrder."Cash Order Supplement".Lookup;
+        IngoingCashOrder."Cash Order Supplement".Lookup();
         IngoingCashOrder."Cash Order Supplement".AssertEquals(ExpectedText);
     end;
 
@@ -1234,16 +1234,16 @@ codeunit 144723 "ERM Cash Orders"
     [Scope('OnPrem')]
     procedure StandardTextCodesMPH(var StandardTextCodes: TestPage "Standard Text Codes")
     begin
-        StandardTextCodes.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
-        StandardTextCodes.OK.Invoke;
+        StandardTextCodes.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText());
+        StandardTextCodes.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ConfirmVoidCheckMPH(var ConfirmFinVoid: TestPage "Confirm Financial Void")
     begin
-        ConfirmFinVoid.VoidType.SetValue(LibraryVariableStorage.DequeueInteger);
-        ConfirmFinVoid.Yes.Invoke;
+        ConfirmFinVoid.VoidType.SetValue(LibraryVariableStorage.DequeueInteger());
+        ConfirmFinVoid.Yes().Invoke();
     end;
 
     [ConfirmHandler]
@@ -1263,8 +1263,8 @@ codeunit 144723 "ERM Cash Orders"
     [Scope('OnPrem')]
     procedure CashReportCO4Handler(var CashReportCO4: TestRequestPage "Cash Report CO-4")
     begin
-        CashReportCO4.PreviewMode.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CashReportCO4.OK.Invoke;
+        CashReportCO4.PreviewMode.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CashReportCO4.OK().Invoke();
     end;
 }
 

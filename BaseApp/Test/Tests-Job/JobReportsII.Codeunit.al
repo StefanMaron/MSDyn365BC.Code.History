@@ -112,7 +112,7 @@ codeunit 136311 "Job Reports II"
         JobNo := CreateAndPostJobJournalLine(JobJournalLine."Line Type"::" ", '');
 
         // 2. Exercise: Run Job Per Item Report.
-        RunJobPerItemReport;
+        RunJobPerItemReport();
 
         // 3. Verify: Verify Job Per Item report preview.
         VerifyJobPerItemReport(JobNo);
@@ -133,7 +133,7 @@ codeunit 136311 "Job Reports II"
         JobNo := CreateAndPostJobJournalLine(JobJournalLine."Line Type"::" ", '');
 
         // 2. Exercise: Run Job Register Report.
-        RunJobRegisterReport;
+        RunJobRegisterReport();
 
         // 3. Verify: Verify Job Register report preview.
         VerifyJobRegisterReport(JobNo);
@@ -158,7 +158,7 @@ codeunit 136311 "Job Reports II"
         // Verify Job Planning Lines Report with Foreign Currency.
         Initialize();
         CurrencyField := CurrencyField::"Foreign Currency";  // Assign in Global variable.
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
         JobPlanningLinesReportWithCurrency(CurrencyCode, CurrencyCode);
     end;
 
@@ -262,7 +262,7 @@ codeunit 136311 "Job Reports II"
         // Verify Job Analysis report for Schedule Price, Schedule Cost and Schedule Profit in Foreign Currency.
         Initialize();
         CurrencyField := CurrencyField::"Foreign Currency";  // Assign in Global variable.
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
         JobAnalysisReportForSchedule(CurrencyCode, CurrencyCode);
     end;
 
@@ -306,7 +306,7 @@ codeunit 136311 "Job Reports II"
         // Verify Job Analysis report for Contract Price, Contract Cost and Contract Profit in Foreign Currency.
         Initialize();
         CurrencyField := CurrencyField::"Foreign Currency";  // Assign in Global variable.
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
         JobAnalysisReportForContract(CurrencyCode, CurrencyCode);
     end;
 
@@ -352,7 +352,7 @@ codeunit 136311 "Job Reports II"
         // Verify Job Analysis report for Usage Price, Usage Cost and Usage Profit in Foreign Currency.
         Initialize();
         CurrencyField := CurrencyField::"Foreign Currency";  // Assign in Global variable.
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
         JobAnalysisReportForUsage(CurrencyCode, CurrencyCode);
     end;
 
@@ -396,7 +396,7 @@ codeunit 136311 "Job Reports II"
         // Verify Job Analysis report for Invoiced Price, Invoiced Cost and Invoiced Profit in Foreign Currency.
         Initialize();
         CurrencyField := CurrencyField::"Foreign Currency";  // Assign in Global variable.
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
         JobAnalysisReportForInvoice(CurrencyCode, CurrencyCode);
     end;
 
@@ -430,7 +430,7 @@ codeunit 136311 "Job Reports II"
         JobTaskNo := RunJobAnalysisReportWithMultipleJobTask(true);  // True is to Exclude Zero Lines.
 
         // 3. Verify: Verify Job Task Line with zero amount does not exist on Job Analysis Report.
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         Assert.IsFalse(LibraryReportValidation.CheckIfValueExists(JobTaskNo), ValueFoundErr);
     end;
 
@@ -445,7 +445,7 @@ codeunit 136311 "Job Reports II"
         JobTaskNo := RunJobAnalysisReportWithMultipleJobTask(false);  // False is to Include Zero Lines.
 
         // 3. Verify: Verify Job Task Line with zero amount exists on Job Analysis Report.
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         Assert.IsTrue(LibraryReportValidation.CheckIfValueExists(JobTaskNo), ValueNotFoundErr);
     end;
 
@@ -464,7 +464,7 @@ codeunit 136311 "Job Reports II"
     procedure JobActualToBudgetWithFCY()
     begin
         // Verify Job Actual To Budget Report With Currency.
-        JobActualToBudget(CreateCurrencyWithExchangeRate, CurrencyField::"Foreign Currency");
+        JobActualToBudget(CreateCurrencyWithExchangeRate(), CurrencyField::"Foreign Currency");
     end;
 
     local procedure JobActualToBudget(CurrencyCode: Code[10]; NewCurrencyField: Option)
@@ -495,7 +495,7 @@ codeunit 136311 "Job Reports II"
 
         // 1. Setup.
         Initialize();
-        JobSuggestedBilling('', GetLCYCode, CurrencyField::"Local Currency");
+        JobSuggestedBilling('', GetLCYCode(), CurrencyField::"Local Currency");
     end;
 
     [Test]
@@ -509,7 +509,7 @@ codeunit 136311 "Job Reports II"
 
         // 1. Setup.
         Initialize();
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
         JobSuggestedBilling(CurrencyCode, CurrencyCode, CurrencyField::"Foreign Currency");
     end;
 
@@ -601,7 +601,7 @@ codeunit 136311 "Job Reports II"
     procedure JobTransactionDetailWithFCY()
     begin
         // Verify Job Transaction Detail Report with Curreny.
-        JobTransactionDetail(CreateCurrencyWithExchangeRate, CurrencyField::"Foreign Currency");
+        JobTransactionDetail(CreateCurrencyWithExchangeRate(), CurrencyField::"Foreign Currency");
     end;
 
     local procedure JobTransactionDetail(CurrencyCode: Code[10]; NewCurrencyField: Option)
@@ -713,7 +713,7 @@ codeunit 136311 "Job Reports II"
         Initialize();
 
         // [GIVEN] Job Task, posted Job Journal Line.
-        CreateJobWithJobTask(JobTask, CreateCurrencyWithExchangeRate);
+        CreateJobWithJobTask(JobTask, CreateCurrencyWithExchangeRate());
         LibraryJob.CreateJobJournalLineForType(
             JobJournalLine."Line Type"::Billable, JobJournalLine.Type::Resource, JobTask, JobJournalLine);
         LibraryJob.PostJobJournal(JobJournalLine);
@@ -751,7 +751,7 @@ codeunit 136311 "Job Reports II"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Job Reports II");
         LibraryVariableStorage.Clear();
         // To clear all Global variables.
-        ClearGlobals;
+        ClearGlobals();
 
         if IsInitialized then
             exit;
@@ -854,7 +854,7 @@ codeunit 136311 "Job Reports II"
         CreateJobWithWIPMethod(Job, JobWIPMethod.Code);
         CreateJobTask(JobTask, Job, JobTask."Job Task Type"::Posting, JobTask."WIP-Total"::" ");
         CreateJobPlanningLine(JobPlanningLine, JobTask);
-        LibraryJob.CreateJobJournalLineForType(LibraryJob.UsageLineTypeContract, LibraryJob.ResourceType, JobTask, JobJournalLine);
+        LibraryJob.CreateJobJournalLineForType(LibraryJob.UsageLineTypeContract(), LibraryJob.ResourceType(), JobTask, JobJournalLine);
         UpdateJobJournalLine(JobJournalLine, JobPlanningLine."No.", JobPlanningLine.Quantity / 2, JobPlanningLine."Unit Cost");  // Use partial Quantity.
         LibraryJob.PostJobJournal(JobJournalLine);
     end;
@@ -862,14 +862,14 @@ codeunit 136311 "Job Reports II"
     local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task")
     begin
         // Use Random values for Quantity and Unit Cost because values are not important.
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule, LibraryJob.ResourceType, JobTask, JobPlanningLine);
-        JobPlanningLine.Validate("No.", CreateResource);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule(), LibraryJob.ResourceType(), JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("No.", CreateResource());
         JobPlanningLine.Validate(Quantity, LibraryRandom.RandInt(100));
         JobPlanningLine.Validate("Unit Cost", LibraryRandom.RandInt(100));
         JobPlanningLine.Modify(true);
     end;
 
-    local procedure CreateJobTask(var JobTask: Record "Job Task"; Job: Record Job; JobTaskType: Option; WIPTotal: Option)
+    local procedure CreateJobTask(var JobTask: Record "Job Task"; Job: Record Job; JobTaskType: Enum "Job Task Type"; WIPTotal: Option)
     begin
         LibraryJob.CreateJobTask(Job, JobTask);
         JobTask.Validate("Job Task Type", JobTaskType);
@@ -886,7 +886,7 @@ codeunit 136311 "Job Reports II"
 
     local procedure CreateResource(): Code[20]
     begin
-        exit(LibraryResource.CreateResourceNo);
+        exit(LibraryResource.CreateResourceNo());
     end;
 
     [Scope('OnPrem')]
@@ -942,9 +942,9 @@ codeunit 136311 "Job Reports II"
         // Create Job Journal Line through Job Planning Line. Here we are using Job Planning Lines page since the code is written on page to create Job Journal Line.
         JobJournalTemplateName := LibraryJob.GetJobJournalTemplate(JobJournalTemplate);  // Assign in Global variable.
         JobJournalBatchName := LibraryJob.CreateJobJournalBatch(JobJournalTemplateName, JobJournalBatch);  // Assign in Global variable.
-        JobPlanningLines.OpenEdit;
+        JobPlanningLines.OpenEdit();
         JobPlanningLines.FILTER.SetFilter("Job No.", JobPlanningLine."Job No.");
-        JobPlanningLines.CreateJobJournalLines.Invoke;
+        JobPlanningLines.CreateJobJournalLines.Invoke();
 
         // Post Job Journal Line for Usage.
         JobJournalLine.SetRange("Job No.", JobPlanningLine."Job No.");
@@ -982,8 +982,8 @@ codeunit 136311 "Job Reports II"
         JobActualToBudget.SetTableView(Job);
         LibraryReportValidation.SetFileName(CreateGuid());
         JobActualToBudget.InitializeRequest(CurrencyField);
-        JobActualToBudget.SaveAsExcel(LibraryReportValidation.GetFileName);
-        LibraryReportValidation.DownloadFile;
+        JobActualToBudget.SaveAsExcel(LibraryReportValidation.GetFileName());
+        LibraryReportValidation.DownloadFile();
     end;
 
     local procedure RunJobAnalysisReport(No: Code[20]; NewAmountField: array[8] of Option; NewCurrencyField: array[8] of Option; NewExcludeJobTask: Boolean)
@@ -996,8 +996,8 @@ codeunit 136311 "Job Reports II"
         JobAnalysis.SetTableView(Job);
         JobAnalysis.InitializeRequest(NewAmountField, NewCurrencyField, NewExcludeJobTask);
         LibraryReportValidation.SetFileName(CreateGuid());
-        JobAnalysis.SaveAsExcel(LibraryReportValidation.GetFileName);
-        LibraryReportValidation.DownloadFile;
+        JobAnalysis.SaveAsExcel(LibraryReportValidation.GetFileName());
+        LibraryReportValidation.DownloadFile();
     end;
 
     local procedure RunJobJournalTestReport(JobJournalLine: Record "Job Journal Line"; NewShowDim: Boolean)
@@ -1011,8 +1011,8 @@ codeunit 136311 "Job Reports II"
         JobJournalTest.SetTableView(JobJournalBatch);
         LibraryReportValidation.SetFileName(CreateGuid());
         JobJournalTest.InitializeRequest(NewShowDim);
-        JobJournalTest.SaveAsExcel(LibraryReportValidation.GetFileName);
-        LibraryReportValidation.DownloadFile;
+        JobJournalTest.SaveAsExcel(LibraryReportValidation.GetFileName());
+        LibraryReportValidation.DownloadFile();
     end;
 
     local procedure RunJobPerCustomerReport(No: Code[20])
@@ -1024,8 +1024,8 @@ codeunit 136311 "Job Reports II"
         Clear(JobsPerCustomer);
         JobsPerCustomer.SetTableView(Customer);
         LibraryReportValidation.SetFileName(CreateGuid());
-        JobsPerCustomer.SaveAsExcel(LibraryReportValidation.GetFileName);
-        LibraryReportValidation.DownloadFile;
+        JobsPerCustomer.SaveAsExcel(LibraryReportValidation.GetFileName());
+        LibraryReportValidation.DownloadFile();
     end;
 
     local procedure RunItemPerJobReport(No: Code[20])
@@ -1037,8 +1037,8 @@ codeunit 136311 "Job Reports II"
         Clear(ItemsPerJob);
         ItemsPerJob.SetTableView(Job);
         LibraryReportValidation.SetFileName(CreateGuid());
-        ItemsPerJob.SaveAsExcel(LibraryReportValidation.GetFileName);
-        LibraryReportValidation.DownloadFile;
+        ItemsPerJob.SaveAsExcel(LibraryReportValidation.GetFileName());
+        LibraryReportValidation.DownloadFile();
     end;
 
     local procedure RunJobPerItemReport()
@@ -1047,8 +1047,8 @@ codeunit 136311 "Job Reports II"
     begin
         Clear(JobsPerItem);
         LibraryReportValidation.SetFileName(CreateGuid());
-        JobsPerItem.SaveAsExcel(LibraryReportValidation.GetFileName);
-        LibraryReportValidation.DownloadFile;
+        JobsPerItem.SaveAsExcel(LibraryReportValidation.GetFileName());
+        LibraryReportValidation.DownloadFile();
     end;
 
     local procedure RunJobPlanningLinesReport(JobPlanningLine: Record "Job Planning Line")
@@ -1082,8 +1082,8 @@ codeunit 136311 "Job Reports II"
         JobPlanningLines.SetTableView(JobTask);
         JobPlanningLines.InitializeRequest(CurrencyField);
         LibraryReportValidation.SetFileName(CreateGuid());
-        JobPlanningLines.SaveAsExcel(LibraryReportValidation.GetFileName);
-        LibraryReportValidation.DownloadFile;
+        JobPlanningLines.SaveAsExcel(LibraryReportValidation.GetFileName());
+        LibraryReportValidation.DownloadFile();
     end;
 
     local procedure RunJobRegisterReport()
@@ -1092,8 +1092,8 @@ codeunit 136311 "Job Reports II"
     begin
         Clear(JobRegisterReport);
         LibraryReportValidation.SetFileName(CreateGuid());
-        JobRegisterReport.SaveAsExcel(LibraryReportValidation.GetFileName);
-        LibraryReportValidation.DownloadFile;
+        JobRegisterReport.SaveAsExcel(LibraryReportValidation.GetFileName());
+        LibraryReportValidation.DownloadFile();
     end;
 
     local procedure RunJobSuggestedBilling(No: Code[20])
@@ -1106,8 +1106,8 @@ codeunit 136311 "Job Reports II"
         JobSuggestedBilling.SetTableView(Job);
         LibraryReportValidation.SetFileName(CreateGuid());
         JobSuggestedBilling.InitializeRequest(CurrencyField);
-        JobSuggestedBilling.SaveAsExcel(LibraryReportValidation.GetFileName);
-        LibraryReportValidation.DownloadFile;
+        JobSuggestedBilling.SaveAsExcel(LibraryReportValidation.GetFileName());
+        LibraryReportValidation.DownloadFile();
     end;
 
     local procedure RunJobTransactionDetail(var Job: Record Job)
@@ -1117,8 +1117,8 @@ codeunit 136311 "Job Reports II"
         JobTransactionDetail.SetTableView(Job);
         LibraryReportValidation.SetFileName(CreateGuid());
         JobTransactionDetail.InitializeRequest(CurrencyField);
-        JobTransactionDetail.SaveAsExcel(LibraryReportValidation.GetFileName);
-        LibraryReportValidation.DownloadFile;
+        JobTransactionDetail.SaveAsExcel(LibraryReportValidation.GetFileName());
+        LibraryReportValidation.DownloadFile();
     end;
 
     local procedure SetupAmountArray(var NewAmountField: array[8] of Option " ","Budget Price","Usage Price","Billable Price","Invoiced Price","Budget Cost","Usage Cost","Billable Cost","Invoiced Cost","Budget Profit","Usage Profit","Billable Profit","Invoiced Profit"; AmountOption: Option; AmountOption2: Option; AmountOption3: Option)
@@ -1159,7 +1159,7 @@ codeunit 136311 "Job Reports II"
     local procedure VerifyDocumentEntries(DocEntryTableName: Text[50]; RowValue: Decimal)
     begin
         LibraryReportDataset.SetRange(DocEntryTableNameTxt, DocEntryTableName);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(DocEntryNoofRecordsTxt, RowValue)
     end;
 
@@ -1169,7 +1169,7 @@ codeunit 136311 "Job Reports II"
         JobCalculateBatches: Codeunit "Job Calculate Batches";
     begin
         Job.Get(JobLedgerEntry."Job No.");
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         Assert.IsTrue(
           LibraryReportValidation.CheckIfDecimalValueExists(JobLedgerEntry."Total Cost"), ValueNotFoundErr);
         Assert.IsTrue(
@@ -1182,7 +1182,7 @@ codeunit 136311 "Job Reports II"
 
     local procedure VerifyJobAnalysisReport(JobPlanningLine: Record "Job Planning Line"; Column: Text[250]; Column2: Text[250]; Column3: Text[250])
     begin
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.SetRange(JobPlanningLine.FieldCaption("Job Task No."), Format(JobPlanningLine."Job Task No."));
         LibraryReportValidation.SetColumn(Column);
         Assert.IsTrue(LibraryReportValidation.CheckIfDecimalValueExists(JobPlanningLine."Line Amount"), ValueNotFoundErr);
@@ -1196,7 +1196,7 @@ codeunit 136311 "Job Reports II"
 
     local procedure VerifyJobJournalTestReport(JobJournalLine: Record "Job Journal Line")
     begin
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.SetRange(JobJournalLine.FieldCaption("Posting Date"), Format(JobJournalLine."Posting Date"));
         VerifyJobReports(JobJournalLine.FieldCaption(Quantity), JobJournalLine.Quantity);
         VerifyJobReports(JobJournalLine.FieldCaption("Unit Cost (LCY)"), JobJournalLine."Unit Cost (LCY)");
@@ -1226,14 +1226,14 @@ codeunit 136311 "Job Reports II"
         UsageAmount: Decimal;
     begin
         FindJobLedgerEntry(JobLedgerEntry, No);
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.SetRange(JobLedgerEntry.FieldCaption("Job No."), No);
         UsageAmount := JobLedgerEntry.Quantity * JobLedgerEntry."Unit Price";
 
         VerifyJobReports(ScheduleLineAmountTxt, JobLedgerEntry."Line Amount" + UsageAmount);
 
-        VerifyJobReports(CropTo(ConvertStr(UsageLineAmountTxt, ' ', LibraryUtility.LineBreak), 250), UsageAmount);
-        VerifyJobReports(CropTo(ConvertStr(ContractLineAmountTxt, ' ', LibraryUtility.LineBreak), 250), JobLedgerEntry."Line Amount");
+        VerifyJobReports(CropTo(ConvertStr(UsageLineAmountTxt, ' ', LibraryUtility.LineBreak()), 250), UsageAmount);
+        VerifyJobReports(CropTo(ConvertStr(ContractLineAmountTxt, ' ', LibraryUtility.LineBreak()), 250), JobLedgerEntry."Line Amount");
     end;
 
     local procedure VerifyItemPerJobReport(No: Code[20])
@@ -1242,7 +1242,7 @@ codeunit 136311 "Job Reports II"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         FindJobLedgerEntry(JobLedgerEntry, No);
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.SetRange(ItemLedgerEntry.FieldCaption("Item No."), JobLedgerEntry."No.");
         VerifyJobReports(JobLedgerEntry.FieldCaption(Quantity), JobLedgerEntry.Quantity);
         VerifyJobReports(JobLedgerEntry.FieldCaption("Total Cost"), JobLedgerEntry."Total Cost");
@@ -1254,7 +1254,7 @@ codeunit 136311 "Job Reports II"
         JobLedgerEntry: Record "Job Ledger Entry";
     begin
         FindJobLedgerEntry(JobLedgerEntry, No);
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.SetRange(JobLedgerEntry.FieldCaption("Job No."), No);
         VerifyJobReports(JobLedgerEntry.FieldCaption(Quantity), JobLedgerEntry.Quantity);
         VerifyJobReports(JobLedgerEntry.FieldCaption("Total Cost"), JobLedgerEntry."Total Cost");
@@ -1265,7 +1265,7 @@ codeunit 136311 "Job Reports II"
     var
         QuantityInteger: Integer;
     begin
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         Assert.IsTrue(LibraryReportValidation.CheckIfDecimalValueExists(SchedulePrice), ValueNotFoundErr);
         Assert.IsTrue(LibraryReportValidation.CheckIfDecimalValueExists(ScheduleCost), ValueNotFoundErr);
         Assert.IsTrue(LibraryReportValidation.CheckIfDecimalValueExists(ContractPrice), ValueNotFoundErr);
@@ -1277,7 +1277,7 @@ codeunit 136311 "Job Reports II"
         repeat
             LibraryReportValidation.SetRange(JobPlanningLine.FieldCaption("No."), Format(JobPlanningLine."No."));
             LibraryReportValidation.SetColumn(Format(JobPlanningLine.FieldCaption(Quantity)));
-            Evaluate(QuantityInteger, LibraryReportValidation.GetValue, 1);
+            Evaluate(QuantityInteger, LibraryReportValidation.GetValue(), 1);
             JobPlanningLine.TestField(Quantity, QuantityInteger);
 
             LibraryReportValidation.SetColumn(JobPlanningLine.FieldCaption("Unit of Measure Code"));
@@ -1296,7 +1296,7 @@ codeunit 136311 "Job Reports II"
 
     local procedure VerifyJobPlanningLinesReportWorkdate(SchedulePrice: Decimal; ScheduleCost: Decimal; ContractPrice: Decimal; ContractCost: Decimal)
     begin
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         Assert.IsFalse(LibraryReportValidation.CheckIfDecimalValueExists(SchedulePrice), ValueFoundErr);
         Assert.IsFalse(LibraryReportValidation.CheckIfDecimalValueExists(ScheduleCost), ValueFoundErr);
         Assert.IsTrue(LibraryReportValidation.CheckIfDecimalValueExists(ContractPrice), ValueNotFoundErr);
@@ -1305,7 +1305,7 @@ codeunit 136311 "Job Reports II"
 
     local procedure VerifyJobPlanningLinesReportHeading(Job: Record Job)
     begin
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         with Job do
             Assert.IsTrue(
               LibraryReportValidation.CheckIfValueExists(StrSubstNo('%1 %2 %3 %4', TableCaption(), FieldCaption("No."), "No.", Description)),
@@ -1317,7 +1317,7 @@ codeunit 136311 "Job Reports II"
         JobLedgerEntry: Record "Job Ledger Entry";
     begin
         FindJobLedgerEntry(JobLedgerEntry, No);
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.SetRange(JobLedgerEntry.FieldCaption("Job No."), No);
         VerifyJobReports(JobLedgerEntry.FieldCaption(Quantity), JobLedgerEntry.Quantity);
         VerifyJobReports(JobLedgerEntry.FieldCaption("Total Cost (LCY)"), JobLedgerEntry."Total Cost (LCY)");
@@ -1326,7 +1326,7 @@ codeunit 136311 "Job Reports II"
 
     local procedure VerfiyJobSuggestedBillingReport(JobLedgerEntry: Record "Job Ledger Entry")
     begin
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.SetRange(JobLedgerEntry.FieldCaption("Job Task No."), JobLedgerEntry."Job Task No.");
         VerifyJobReports(TotalContractTxt, JobLedgerEntry."Total Cost");
     end;
@@ -1337,7 +1337,7 @@ codeunit 136311 "Job Reports II"
         JobCalculateBatches: Codeunit "Job Calculate Batches";
     begin
         Job.Get(JobLedgerEntry."Job No.");
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.SetRange(JobLedgerEntry.FieldCaption("Posting Date"), Format(JobLedgerEntry."Posting Date"));
         VerifyJobReports(JobLedgerEntry.FieldCaption(Quantity), JobLedgerEntry.Quantity);
         VerifyJobReports(JobLedgerEntry.FieldCaption("Entry No."), JobLedgerEntry."Entry No.");
@@ -1450,14 +1450,14 @@ codeunit 136311 "Job Reports II"
     begin
         JobTransferJobPlanningLine.JobJournalTemplateName.SetValue(JobJournalTemplateName);
         JobTransferJobPlanningLine.JobJournalBatchName.SetValue(JobJournalBatchName);
-        JobTransferJobPlanningLine.OK.Invoke;
+        JobTransferJobPlanningLine.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure JobTransferToSalesInvoiceRequestPageHandler(var JobTransferToSalesInvoice: TestRequestPage "Job Transfer to Sales Invoice")
     begin
-        JobTransferToSalesInvoice.OK.Invoke;
+        JobTransferToSalesInvoice.OK().Invoke();
     end;
 }
 

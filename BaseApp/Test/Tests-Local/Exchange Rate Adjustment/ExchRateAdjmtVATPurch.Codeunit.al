@@ -14,7 +14,6 @@
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         EntryDoesNotExist: Label 'Cannot find entry in table %1 with filters %2.';
-        NothingToAdjustTxt: Label 'There is nothing to adjust.';
 
     local procedure UpdateGLSetup(NewSummarizeGainsLosses: Boolean)
     var
@@ -155,7 +154,7 @@
         PmtAmount: Decimal;
         i: Integer;
     begin
-        VendNo := LibraryPurchases.CreateVendorNo;
+        VendNo := LibraryPurchases.CreateVendorNo();
         for i := 1 to ArrayLen(InvNo) do begin
             InvNo[i] := CreatePostInvoice(PurchLine, VendNo, PostingDate, CurrencyCode);
             PmtAmount += PurchLine."Amount Including VAT";
@@ -208,18 +207,18 @@
     begin
         with Currency do begin
             LibraryERM.CreateCurrency(Currency);
-            Validate("Unrealized Gains Acc.", LibraryERM.CreateGLAccountNo);
-            Validate("Unrealized Losses Acc.", LibraryERM.CreateGLAccountNo);
+            Validate("Unrealized Gains Acc.", LibraryERM.CreateGLAccountNo());
+            Validate("Unrealized Losses Acc.", LibraryERM.CreateGLAccountNo());
             if IsDiffAccounts then begin
-                Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo);
-                Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo);
+                Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo());
+                Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo());
             end else begin
                 Validate("Realized Gains Acc.", "Unrealized Gains Acc.");
                 Validate("Realized Losses Acc.", "Unrealized Losses Acc.");
             end;
-            Validate("Purch. PD Gains Acc. (TA)", LibraryERM.CreateGLAccountNo);
-            Validate("Purch. PD Losses Acc. (TA)", LibraryERM.CreateGLAccountNo);
-            Validate("PD Bal. Gain/Loss Acc. (TA)", LibraryERM.CreateGLAccountNo);
+            Validate("Purch. PD Gains Acc. (TA)", LibraryERM.CreateGLAccountNo());
+            Validate("Purch. PD Losses Acc. (TA)", LibraryERM.CreateGLAccountNo());
+            Validate("PD Bal. Gain/Loss Acc. (TA)", LibraryERM.CreateGLAccountNo());
             Modify(true);
             exit(Code);
         end;
@@ -250,7 +249,7 @@
         PurchHeader: Record "Purchase Header";
         AccNo: Code[20];
     begin
-        AccNo := LibraryERM.CreateGLAccountWithPurchSetup;
+        AccNo := LibraryERM.CreateGLAccountWithPurchSetup();
         LibraryPurchases.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, VendNo);
         PurchHeader.Validate("Vendor Invoice No.", PurchHeader."No.");
         PurchHeader.Validate("Posting Date", PostingDate);
@@ -282,7 +281,7 @@
             Validate("Currency Code", CurrencyCode);
             Validate(Amount, PmtAmount);
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
             Modify(true);
             LibraryERM.PostGeneralJnlLine(GenJnlLine);
             exit("Document No.");
@@ -322,7 +321,7 @@
                 CalcFields("Remaining Amount");
                 Validate("Amount to Apply", "Remaining Amount");
                 Modify(true);
-            until Next = 0;
+            until Next() = 0;
         end;
 
         LibraryERM.SetAppliestoIdVendor(VendLedgerEntryTo);
@@ -400,7 +399,7 @@
         ExchRateAdjustment.SetTableView(Currency);
         ExchRateAdjustment.SetTableView(Vendor);
         ExchRateAdjustment.InitializeRequest2(
-          StartDate, EndDate, '', EndDate, LibraryUtility.GenerateGUID, true, false);
+          StartDate, EndDate, '', EndDate, LibraryUtility.GenerateGUID(), true, false);
         ExchRateAdjustment.UseRequestPage(false);
         ExchRateAdjustment.SetHideUI(true);
         ExchRateAdjustment.Run();
@@ -423,7 +422,7 @@
                 SetRange("Document No.", DtldVendLedgEntry."Document No.");
                 SetRange("Transaction No.", DtldVendLedgEntry."Transaction No.");
                 Assert.IsTrue(
-                  FindLast, StrSubstNo(EntryDoesNotExist, TableCaption(), GetFilters));
+                  FindLast(), StrSubstNo(EntryDoesNotExist, TableCaption(), GetFilters));
             end;
         end;
     end;

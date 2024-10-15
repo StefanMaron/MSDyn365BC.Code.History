@@ -4,6 +4,7 @@ table 26561 "Requisite Condition Line"
     ObsoleteReason = 'Obsolete functionality';
     ObsoleteState = Pending;
     ObsoleteTag = '19.0';
+    DataClassification = CustomerContent;
 
     fields
     {

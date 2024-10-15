@@ -17,8 +17,6 @@ codeunit 17201 "Tax Register Mgt."
         Text1014: Label 'Section code must be defined.';
         Text005: Label 'january,february,march,april,may,june,july,august,september,october,november,december';
         Text006: Label 'first quarter,second quarter,third quarter,fourth quarter';
-        Text1017: Label 'Value %1 is not defined.';
-        Calendar: Record Date;
         Text000: Label '1,5,,Dimension 1 Value Code';
         Text001: Label '1,5,,Dimension 2 Value Code';
         Text002: Label '1,5,,Dimension 3 Value Code';
@@ -513,12 +511,10 @@ codeunit 17201 "Tax Register Mgt."
     [Scope('OnPrem')]
     procedure SetAccumulationFilter(var TaxRegAccumulation: Record "Tax Register Accumulation"; SectionCode: Code[10]; StartDate: Date)
     begin
-        with TaxRegAccumulation do begin
-            Reset();
-            SetCurrentKey("Section Code", "Tax Register No.", "Template Line No.", "Starting Date", "Ending Date");
-            SetRange("Section Code", SectionCode);
-            SetFilter("Starting Date", '%1..', StartDate);
-        end;
+        TaxRegAccumulation.Reset();
+        TaxRegAccumulation.SetCurrentKey("Section Code", "Tax Register No.", "Template Line No.", "Starting Date", "Ending Date");
+        TaxRegAccumulation.SetRange("Section Code", SectionCode);
+        TaxRegAccumulation.SetFilter("Starting Date", '%1..', StartDate);
     end;
 
     [Scope('OnPrem')]
@@ -666,10 +662,10 @@ codeunit 17201 "Tax Register Mgt."
                     CalendarPeriod."Period Start" := CalcDate('<CQ+1D-1Q>', CalendarPeriod."Period Start");
                 end;
             else begin
-                    CalendarPeriod."Period Start" := DMY2Date(1, 1, YearNo);
-                    CalendarPeriod."Period Type" := CalendarPeriod."Period Type"::Year;
-                    PeriodsNames := '';
-                end
+                CalendarPeriod."Period Start" := DMY2Date(1, 1, YearNo);
+                CalendarPeriod."Period Type" := CalendarPeriod."Period Type"::Year;
+                PeriodsNames := '';
+            end
         end;
         CalendarPeriod.Get(CalendarPeriod."Period Type", CalendarPeriod."Period Start");
         CalendarPeriod."Period Start" := NormalDate(CalendarPeriod."Period Start");
@@ -745,9 +741,9 @@ codeunit 17201 "Tax Register Mgt."
                     CalendarPeriod."Period Start" := CalcDate('<-CY>', BeginTaxPeriod);
                 end;
             else begin
-                    CalendarPeriod."Period Type" := CalendarPeriod."Period Type"::Quarter;
-                    CalendarPeriod."Period Start" := CalcDate('<-CQ>', BeginTaxPeriod);
-                end;
+                CalendarPeriod."Period Type" := CalendarPeriod."Period Type"::Quarter;
+                CalendarPeriod."Period Start" := CalcDate('<-CQ>', BeginTaxPeriod);
+            end;
         end;
         CalendarPeriod.Get(CalendarPeriod."Period Type", CalendarPeriod."Period Start");
         CalendarPeriod."Period Start" := NormalDate(CalendarPeriod."Period Start");
@@ -783,75 +779,73 @@ codeunit 17201 "Tax Register Mgt."
         TaxRegTermMgt.CheckTaxRegLink(
           true, SectionCode, DATABASE::"Tax Register Template");
 
-        with Calendar do begin
-            "Period Start" := NormalDate("Period Start");
-            "Period End" := NormalDate("Period End");
-            CreateTaxRegGLEntry.BuildTaxRegGLCorresp(
-              TaxRegSection.Code, CalcDate('<-CM>', "Period Start"), CalcDate('<CM>', "Period End"));
+        Calendar."Period Start" := NormalDate(Calendar."Period Start");
+        Calendar."Period End" := NormalDate(Calendar."Period End");
+        CreateTaxRegGLEntry.BuildTaxRegGLCorresp(
+          TaxRegSection.Code, CalcDate('<-CM>', Calendar."Period Start"), CalcDate('<CM>', Calendar."Period End"));
 
-            Reset();
-            SetRange("Period Type", "Period Type"::Month);
-            SetRange("Period Start", "Period Start", "Period End");
-            if FindSet() then
-                repeat
-                    StartDate := NormalDate("Period Start");
-                    EndDate := NormalDate("Period End");
-                    case true of
-                        UseGLEntry:
-                            CreateTaxRegGLEntry.CreateRegister(TaxRegSection.Code, StartDate, EndDate);
-                        UseCVEntry:
-                            CreateTaxRegCVEntry.CreateRegister(TaxRegSection.Code, StartDate, EndDate);
-                        UseItemEntry:
-                            CreateTaxRegItemEntry.CreateRegister(TaxRegSection.Code, StartDate, EndDate);
-                        UseFAEntry:
-                            CreateTaxRegFAEntry.CreateRegister(TaxRegSection.Code, StartDate, EndDate);
-                        UseFEEntry:
-                            CreateTaxRegFEEntry.CreateRegister(TaxRegSection.Code, StartDate, EndDate);
-                        UseTemplate:
-                            begin
-                                TaxReg.Reset();
-                                TaxReg.SetRange("Section Code", TaxRegSection.Code);
-                                TaxReg.SetRange("Storing Method", TaxReg."Storing Method"::Calculation);
-                                LinkAccumulateRecordRef.Close();
-                                LinkAccumulateRecordRef.Open(DATABASE::"Tax Register Accumulation");
-                                TaxRegAccumulation.SetCurrentKey("Section Code", "Tax Register No.", "Template Line No.");
-                                TaxRegAccumulation.SetRange("Section Code", TaxRegSection.Code);
-                                TaxRegAccumulation.SetRange("Ending Date", EndDate);
-                                LinkAccumulateRecordRef.SetView(TaxRegAccumulation.GetView(false));
-                                if TaxReg.FindSet() then
+        Calendar.Reset();
+        Calendar.SetRange("Period Type", Calendar."Period Type"::Month);
+        Calendar.SetRange("Period Start", Calendar."Period Start", Calendar."Period End");
+        if Calendar.FindSet() then
+            repeat
+                StartDate := NormalDate(Calendar."Period Start");
+                EndDate := NormalDate(Calendar."Period End");
+                case true of
+                    UseGLEntry:
+                        CreateTaxRegGLEntry.CreateRegister(TaxRegSection.Code, StartDate, EndDate);
+                    UseCVEntry:
+                        CreateTaxRegCVEntry.CreateRegister(TaxRegSection.Code, StartDate, EndDate);
+                    UseItemEntry:
+                        CreateTaxRegItemEntry.CreateRegister(TaxRegSection.Code, StartDate, EndDate);
+                    UseFAEntry:
+                        CreateTaxRegFAEntry.CreateRegister(TaxRegSection.Code, StartDate, EndDate);
+                    UseFEEntry:
+                        CreateTaxRegFEEntry.CreateRegister(TaxRegSection.Code, StartDate, EndDate);
+                    UseTemplate:
+                        begin
+                            TaxReg.Reset();
+                            TaxReg.SetRange("Section Code", TaxRegSection.Code);
+                            TaxReg.SetRange("Storing Method", TaxReg."Storing Method"::Calculation);
+                            LinkAccumulateRecordRef.Close();
+                            LinkAccumulateRecordRef.Open(DATABASE::"Tax Register Accumulation");
+                            TaxRegAccumulation.SetCurrentKey("Section Code", "Tax Register No.", "Template Line No.");
+                            TaxRegAccumulation.SetRange("Section Code", TaxRegSection.Code);
+                            TaxRegAccumulation.SetRange("Ending Date", EndDate);
+                            LinkAccumulateRecordRef.SetView(TaxRegAccumulation.GetView(false));
+                            if TaxReg.FindSet() then
+                                repeat
+                                    TaxRegAccumulation.SetRange("Tax Register No.", TaxReg."No.");
+                                    TaxRegAccumulation.DeleteAll();
+                                until TaxReg.Next(1) = 0;
+                            TaxReg.SetRange("Storing Method");
+                            TaxRegTemplate.SetRange("Section Code", TaxRegSection.Code);
+                            CycleLevel := 1;
+                            while CycleLevel <> 0 do begin
+                                TaxReg.SetRange(Level, CycleLevel);
+                                if not TaxReg.FindSet() then
+                                    CycleLevel := 0
+                                else begin
                                     repeat
-                                        TaxRegAccumulation.SetRange("Tax Register No.", TaxReg."No.");
-                                        TaxRegAccumulation.DeleteAll();
-                                    until TaxReg.Next(1) = 0;
-                                TaxReg.SetRange("Storing Method");
-                                TaxRegTemplate.SetRange("Section Code", TaxRegSection.Code);
-                                CycleLevel := 1;
-                                while CycleLevel <> 0 do begin
-                                    TaxReg.SetRange(Level, CycleLevel);
-                                    if not TaxReg.FindSet() then
-                                        CycleLevel := 0
-                                    else begin
-                                        repeat
-                                            if TaxReg."Storing Method" = TaxReg."Storing Method"::Calculation then begin
-                                                TaxRegTemplate.SetRange(Code, TaxReg."No.");
-                                                if TaxRegTemplate.FindFirst() then begin
-                                                    TaxRegTemplate.SetRange("Date Filter", StartDate, EndDate);
-                                                    TemplateRecordRef.GetTable(TaxRegTemplate);
-                                                    TemplateRecordRef.SetView(TaxRegTemplate.GetView(false));
-                                                    TaxRegTermMgt.AccumulateTaxRegTemplate(
-                                                      TemplateRecordRef, EntryNoAmountBuffer, LinkAccumulateRecordRef);
-                                                    CreateAccumulate(TaxRegTemplate, EntryNoAmountBuffer);
-                                                    EntryNoAmountBuffer.DeleteAll();
-                                                end;
+                                        if TaxReg."Storing Method" = TaxReg."Storing Method"::Calculation then begin
+                                            TaxRegTemplate.SetRange(Code, TaxReg."No.");
+                                            if TaxRegTemplate.FindFirst() then begin
+                                                TaxRegTemplate.SetRange("Date Filter", StartDate, EndDate);
+                                                TemplateRecordRef.GetTable(TaxRegTemplate);
+                                                TemplateRecordRef.SetView(TaxRegTemplate.GetView(false));
+                                                TaxRegTermMgt.AccumulateTaxRegTemplate(
+                                                  TemplateRecordRef, EntryNoAmountBuffer, LinkAccumulateRecordRef);
+                                                CreateAccumulate(TaxRegTemplate, EntryNoAmountBuffer);
+                                                EntryNoAmountBuffer.DeleteAll();
                                             end;
-                                        until TaxReg.Next(1) = 0;
-                                        CycleLevel += 1;
-                                    end;
+                                        end;
+                                    until TaxReg.Next(1) = 0;
+                                    CycleLevel += 1;
                                 end;
                             end;
-                    end;
-                until Next() = 0;
-        end;
+                        end;
+                end;
+            until Calendar.Next() = 0;
     end;
 
     [Scope('OnPrem')]

@@ -219,7 +219,6 @@ page 12474 "FA Release Act"
 
     var
         CopyFADoc: Report "Copy FA Document";
-        DocPrint: Codeunit "Document-Print";
 
     local procedure ShortcutDimension1CodeOnAfterV()
     begin

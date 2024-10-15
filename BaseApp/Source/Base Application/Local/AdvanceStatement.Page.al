@@ -380,12 +380,28 @@ page 12431 "Advance Statement"
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         PurchSetup.Get();
         if Rec."No." = '' then begin
             PurchSetup.TestField("Advance Statement Nos.");
-            NoSeriesMgt.InitSeries(
-              PurchSetup."Advance Statement Nos.", xRec."No. Series", Rec."Posting Date", Rec."No.", Rec."No. Series");
+#if not CLEAN24
+            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(PurchSetup."Advance Statement Nos.", xRec."No. Series", Rec."Posting Date", Rec."No.", Rec."No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                Rec."No. Series" := PurchSetup."Advance Statement Nos.";
+                if NoSeries.AreRelated(Rec."No. Series", xRec."No. Series") then
+                    Rec."No. Series" := xRec."No. Series";
+                Rec."No." := NoSeries.GetNextNo(Rec."No. Series", Rec."Posting Date");
+#if not CLEAN24
+                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(Rec."No. Series", PurchSetup."Advance Statement Nos.", Rec."Posting Date", Rec."No.");
+            end;
+#endif
         end;
         if Rec."Posting No. Series" = '' then begin
             Rec."Posting No. Series" := Rec."No. Series";
@@ -416,14 +432,14 @@ page 12431 "Advance Statement"
 
     var
         PurchSetup: Record "Purchases & Payables Setup";
-        VendLedgEntry: Record "Vendor Ledger Entry";
         CopyPurchDoc: Report "Copy Purchase Document";
         MoveNegPurchLines: Report "Move Negative Purchase Lines";
         ReportPrint: Codeunit "Test Report-Print";
         UserMgt: Codeunit "User Setup Management";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         DocPrint: Codeunit "Document-Print";
+#if not CLEAN24
         Text12400: Label 'Select only one application method for advance.';
+#endif
         Text12401: Label 'Posting Date %1 in Advance Statement No. %2 must not be less than Posting Date in Empl. Purchase Entry No. %3.';
         ChangeExchangeRate: Page "Change Exchange Rate";
 
@@ -432,8 +448,12 @@ page 12431 "Advance Statement"
         CurrPage.PurchLines.PAGE.ApproveCalcInvDisc();
     end;
 
+#if not CLEAN24
+    [Obsolete('This procedure is not used anythere in our app.')]
     [Scope('OnPrem')]
     procedure CalculateAmounts()
+    var
+        VendLedgEntry: Record "Vendor Ledger Entry";
     begin
         if (Rec."Applies-to Doc. No." <> '') and (Rec."Applies-to ID" <> '') then
             Error(Text12400);
@@ -458,9 +478,11 @@ page 12431 "Advance Statement"
             VendLedgEntry.SetRange("Vendor No.", Rec."Buy-from Vendor No.");
             VendLedgEntry.SetRange("Document Type", Rec."Applies-to Doc. Type");
             VendLedgEntry.SetRange("Document No.", Rec."Applies-to Doc. No.");
-            VendLedgEntry.CalcSums("Remaining Amt. (LCY)");
+            if VendLedgEntry.FindFirst() then
+                VendLedgEntry.CalcFields("Remaining Amt. (LCY)");
         end;
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure CheckAdvStmtPostingDate()

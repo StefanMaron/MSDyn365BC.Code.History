@@ -164,11 +164,9 @@ report 12423 "Calc. FA Inventory"
         FAJournalBatch: Record "FA Journal Batch";
         FAJournalLine: Record "FA Journal Line";
         FALocation: Record "FA Location";
-        Text001: Label 'Do you want to delete line from FA Journal?';
         FATemp: Code[20];
         Text002: Label 'Please, enter posting date';
         Text003: Label 'Enter FA Journal Template.';
-        Text004: Label 'Enter FA Journal Batch.';
         Text005: Label 'FA Processing #1##########';
         LineNo: Integer;
         PostingDate: Date;
@@ -185,7 +183,6 @@ report 12423 "Calc. FA Inventory"
         FactQuantity: Integer;
         CalcQuantity: Integer;
         ShowZeroBookValue: Boolean;
-        FALocationCode: Code[10];
 
     [Scope('OnPrem')]
     procedure SetFAJournalBatch()

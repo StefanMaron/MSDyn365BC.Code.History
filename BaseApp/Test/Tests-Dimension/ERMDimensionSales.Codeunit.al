@@ -194,7 +194,7 @@ codeunit 134475 "ERM Dimension Sales"
 
         // [GIVEN] Create Customer, Item with Default Dimension, Two Sales Order with Combine Shipment True and Post both as Ship.
         Initialize();
-        CustNo := CreateCustWithCombShip;
+        CustNo := CreateCustWithCombShip();
         CreateAndPostSalesOrder(SalesLine, CustNo);
         CreateAndPostSalesOrder(SalesLine2, CustNo);
 
@@ -712,11 +712,11 @@ codeunit 134475 "ERM Dimension Sales"
     begin
         // [SCENARIO 122222] Combine Shipment Report combines documents by dimensions
         Initialize();
-        DimSetID[1] := CreateDimSetID;
-        DimSetID[2] := CreateDimSetID;
+        DimSetID[1] := CreateDimSetID();
+        DimSetID[2] := CreateDimSetID();
 
         // [GIVEN] Customer with "Combine Shipments"=TRUE
-        CustomerNo := CreateCustWithCombShip;
+        CustomerNo := CreateCustWithCombShip();
 
         // [GIVEN] Create and Ship Sales Order with DimSetID = "D1"
         // [GIVEN] Create and Ship Sales Order with DimSetID = "D2"
@@ -827,9 +827,9 @@ codeunit 134475 "ERM Dimension Sales"
         LibraryVariableStorage.Enqueue(DimensionValue."Dimension Code");
         LibraryVariableStorage.Enqueue(DimensionValue.Code);
         LibraryVariableStorage.Enqueue(true); // to reply Yes on second confirmation
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
-        SalesOrder.Dimensions.Invoke;
+        SalesOrder.Dimensions.Invoke();
 
         // [WHEN] Answer Yes on shipped line update confirmation
         // The reply is inside the handler ConfirmHandlerForSalesHeaderDimUpdate
@@ -864,9 +864,9 @@ codeunit 134475 "ERM Dimension Sales"
         LibraryVariableStorage.Enqueue(DimensionValue."Dimension Code");
         LibraryVariableStorage.Enqueue(DimensionValue.Code);
         LibraryVariableStorage.Enqueue(false); // to reply No on second confirmation
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
-        asserterror SalesOrder.Dimensions.Invoke;
+        asserterror SalesOrder.Dimensions.Invoke();
 
         // [WHEN] Answer No on shipped line update confirmation
         // The reply is inside the handler ConfirmHandlerForSalesHeaderDimUpdate
@@ -955,10 +955,10 @@ codeunit 134475 "ERM Dimension Sales"
         // [GIVEN] Sales Line dimension set is being updated in Edit Dimension Set Entries page
         LibraryVariableStorage.Enqueue(DimensionValue."Dimension Code");
         LibraryVariableStorage.Enqueue(DimensionValue.Code);
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
-        SalesOrder.SalesLines.First;
-        SalesOrder.SalesLines.Dimensions.Invoke;
+        SalesOrder.SalesLines.First();
+        SalesOrder.SalesLines.Dimensions.Invoke();
 
         // [WHEN] Answer Yes on shipped line update confirmation
 
@@ -990,10 +990,10 @@ codeunit 134475 "ERM Dimension Sales"
         // [GIVEN] Sales Line dimension set is being updated in Edit Dimension Set Entries page
         LibraryVariableStorage.Enqueue(DimensionValue."Dimension Code");
         LibraryVariableStorage.Enqueue(DimensionValue.Code);
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
-        SalesOrder.SalesLines.First;
-        asserterror SalesOrder.SalesLines.Dimensions.Invoke;
+        SalesOrder.SalesLines.First();
+        asserterror SalesOrder.SalesLines.Dimensions.Invoke();
 
         // [WHEN] Answer No on shipped line update confirmation
 
@@ -1340,7 +1340,7 @@ codeunit 134475 "ERM Dimension Sales"
     local procedure CreateItemJournalAndCalculateInventory(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; DefaultDimension: Record "Default Dimension")
     var
         ItemJournalBatch: Record "Item Journal Batch";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         // Find Item journal Batch and create Item Journal and Calculate Inventory.
         SelectAndClearItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::"Phys. Inventory");
@@ -1356,7 +1356,7 @@ codeunit 134475 "ERM Dimension Sales"
 
         // Update Item Journal Line and attach Dimension.
         ItemJournalLine.Validate(
-          "Document No.", NoSeriesManagement.GetNextNo(ItemJournalBatch."No. Series", ItemJournalLine."Posting Date", false));
+          "Document No.", NoSeries.PeekNextNo(ItemJournalBatch."No. Series", ItemJournalLine."Posting Date"));
         ItemJournalLine.Validate("Qty. (Phys. Inventory)", 0);
         ItemJournalLine.Validate("Unit Amount", LibraryRandom.RandDec(10, 2));
         ItemJournalLine.Validate(
@@ -1399,7 +1399,7 @@ codeunit 134475 "ERM Dimension Sales"
         SalesHeader.Modify();
 
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(100, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(100, 2));
 
         LibrarySales.PostSalesDocument(SalesHeader, true, false); // Ship
     end;
@@ -1634,9 +1634,9 @@ codeunit 134475 "ERM Dimension Sales"
 
     local procedure CreatePartlyShipSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDecInDecimalRange(10, 20, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInDecimalRange(10, 20, 2));
         UpdatePartialQuantityToShip(SalesLine);
 
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
@@ -1734,7 +1734,7 @@ codeunit 134475 "ERM Dimension Sales"
     var
         LibraryUtility: Codeunit "Library - Utility";
     begin
-        SalesLine.Validate("Qty. to Ship", SalesLine.Quantity * LibraryUtility.GenerateRandomFraction);
+        SalesLine.Validate("Qty. to Ship", SalesLine.Quantity * LibraryUtility.GenerateRandomFraction());
         SalesLine.Modify(true);
     end;
 
@@ -1821,7 +1821,7 @@ codeunit 134475 "ERM Dimension Sales"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         SetDefaultDimension(DefaultDimension, DimensionCode, GLAccount."No.");
         exit(GLAccount."No.");
     end;
@@ -1944,7 +1944,7 @@ codeunit 134475 "ERM Dimension Sales"
     begin
         DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
         DimensionSetEntry.SetRange("Dimension Code", DimensionCode);
-        Assert.IsTrue(DimensionSetEntry.FindFirst,
+        Assert.IsTrue(DimensionSetEntry.FindFirst(),
           Format('Could not find dimensions with filters ' + DimensionSetEntry.GetFilters));
     end;
 
@@ -2082,7 +2082,7 @@ codeunit 134475 "ERM Dimension Sales"
             Question = UpdateFromHeaderLinesQst:
                 Reply := true;
             StrPos(Question, UpdateLineDimQst) <> 0:
-                Reply := LibraryVariableStorage.DequeueBoolean;
+                Reply := LibraryVariableStorage.DequeueBoolean();
         end;
     end;
 
@@ -2106,10 +2106,10 @@ codeunit 134475 "ERM Dimension Sales"
     [Scope('OnPrem')]
     procedure EditDimensionSetEntriesHandler(var EditDimensionSetEntries: TestPage "Edit Dimension Set Entries")
     begin
-        EditDimensionSetEntries.New;
-        EditDimensionSetEntries."Dimension Code".SetValue(LibraryVariableStorage.DequeueText);
-        EditDimensionSetEntries.DimensionValueCode.SetValue(LibraryVariableStorage.DequeueText);
-        EditDimensionSetEntries.OK.Invoke;
+        EditDimensionSetEntries.New();
+        EditDimensionSetEntries."Dimension Code".SetValue(LibraryVariableStorage.DequeueText());
+        EditDimensionSetEntries.DimensionValueCode.SetValue(LibraryVariableStorage.DequeueText());
+        EditDimensionSetEntries.OK().Invoke();
     end;
 }
 

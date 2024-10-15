@@ -1,6 +1,7 @@
 table 14931 "Excel Template Section"
 {
     Caption = 'Excel Template Section';
+    DataClassification = CustomerContent;
 
     fields
     {

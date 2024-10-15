@@ -10,6 +10,7 @@ table 99000852 "Production Forecast Entry"
     Caption = 'Demand Forecast Entry';
     DrillDownPageID = "Demand Forecast Entries";
     LookupPageID = "Demand Forecast Entries";
+    DataClassification = CustomerContent;
 
     fields
     {

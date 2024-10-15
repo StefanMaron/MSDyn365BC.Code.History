@@ -1,6 +1,7 @@
 table 12421 "Posted Document Signature"
 {
     Caption = 'Posted Document Signature';
+    DataClassification = CustomerContent;
 
     fields
     {

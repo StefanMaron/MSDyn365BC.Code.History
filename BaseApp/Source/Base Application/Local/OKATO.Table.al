@@ -2,6 +2,7 @@ table 12427 OKATO
 {
     Caption = 'OKATO';
     LookupPageID = "OKATO Codes";
+    DataClassification = CustomerContent;
 
     fields
     {

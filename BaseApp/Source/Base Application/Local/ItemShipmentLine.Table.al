@@ -4,6 +4,7 @@ table 12455 "Item Shipment Line"
     ObsoleteState = Pending;
     ObsoleteReason = 'Replaced by Inventory Documents feature.';
     ObsoleteTag = '18.0';
+    DataClassification = CustomerContent;
 
     fields
     {

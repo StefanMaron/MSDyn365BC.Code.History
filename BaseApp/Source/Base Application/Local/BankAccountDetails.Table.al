@@ -3,6 +3,7 @@ table 12436 "Bank Account Details"
     Caption = 'Bank Account Details';
     DrillDownPageID = "Bank Account Details";
     LookupPageID = "Bank Account Details";
+    DataClassification = CustomerContent;
 
     fields
     {

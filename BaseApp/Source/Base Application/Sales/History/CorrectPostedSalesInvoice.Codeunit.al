@@ -83,8 +83,8 @@ codeunit 1303 "Correct Posted Sales Invoice"
         SalesLineFromOrderCorrectErr: Label 'You cannot correct this posted sales invoice because item %1 %2 is used on a sales order.', Comment = '%1 = Item no. %2 = Item description';
         ShippedQtyReturnedCorrectErr: Label 'You cannot correct this posted sales invoice because item %1 %2 has already been fully or partially returned.', Comment = '%1 = Item no. %2 = Item description.';
         ShippedQtyReturnedCancelErr: Label 'You cannot cancel this posted sales invoice because item %1 %2 has already been fully or partially returned.', Comment = '%1 = Item no. %2 = Item description.';
-        UsedInJobCorrectErr: Label 'You cannot correct this posted sales invoice because item %1 %2 is used in a job.', Comment = '%1 = Item no. %2 = Item description.';
-        UsedInJobCancelErr: Label 'You cannot cancel this posted sales invoice because item %1 %2 is used in a job.', Comment = '%1 = Item no. %2 = Item description.';
+        UsedInJobCorrectErr: Label 'You cannot correct this posted sales invoice because item %1 %2 is used in a project.', Comment = '%1 = Item no. %2 = Item description.';
+        UsedInJobCancelErr: Label 'You cannot cancel this posted sales invoice because item %1 %2 is used in a project.', Comment = '%1 = Item no. %2 = Item description.';
         PostingNotAllowedCorrectErr: Label 'You cannot correct this posted sales invoice because it was posted in a posting period that is closed.';
         PostingNotAllowedCancelErr: Label 'You cannot cancel this posted sales invoice because it was posted in a posting period that is closed.';
         LineTypeNotAllowedCorrectErr: Label 'You cannot correct this posted sales invoice because the sales invoice line for %1 %2 is of type %3, which is not allowed on a simplified sales invoice.', Comment = '%1 = Item no. %2 = Item description %3 = Item type.';
@@ -541,7 +541,6 @@ codeunit 1303 "Correct Posted Sales Invoice"
         GenJournalTemplate: Record "Gen. Journal Template";
         GeneralLedgerSetup: Record "General Ledger Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
         PostingDate: Date;
         PostingNoSeries: Code[20];
         IsHandled: Boolean;
@@ -554,7 +553,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
         PostingDate := WorkDate();
         SalesReceivablesSetup.Get();
 
-        if NoSeriesManagement.TryGetNextNo(SalesReceivablesSetup."Credit Memo Nos.", PostingDate) = '' then
+        if not TryPeekNextNo(SalesReceivablesSetup."Credit Memo Nos.", PostingDate) then
             ErrorHelperHeader(Enum::"Correct Sales Inv. Error Type"::SerieNumCM, SalesInvoiceHeader);
 
         GeneralLedgerSetup.Get();
@@ -563,11 +562,20 @@ codeunit 1303 "Correct Posted Sales Invoice"
             PostingNoSeries := GenJournalTemplate."Posting No. Series";
         end else
             PostingNoSeries := SalesReceivablesSetup."Posted Credit Memo Nos.";
-        if NoSeriesManagement.TryGetNextNo(PostingNoSeries, PostingDate) = '' then
+        if not TryPeekNextNo(PostingNoSeries, PostingDate) then
             ErrorHelperHeader(Enum::"Correct Sales Inv. Error Type"::SerieNumPostCM, SalesInvoiceHeader);
 
-        if (not CancellingOnly) and (NoSeriesManagement.TryGetNextNo(SalesReceivablesSetup."Invoice Nos.", PostingDate) = '') then
+        if (not CancellingOnly) and (not TryPeekNextNo(SalesReceivablesSetup."Invoice Nos.", PostingDate)) then
             ErrorHelperHeader(Enum::"Correct Sales Inv. Error Type"::SerieNumInv, SalesInvoiceHeader);
+    end;
+
+    [TryFunction]
+    local procedure TryPeekNextNo(NoSeriesCode: Code[20]; UsageDate: Date)
+    var
+        NoSeries: Codeunit "No. Series";
+    begin
+        if NoSeries.PeekNextNo(NoSeriesCode, UsageDate) = '' then
+            Error('');
     end;
 
     local procedure TestIfJobPostingIsAllowed(SalesInvoiceNo: Code[20])
@@ -637,38 +645,34 @@ codeunit 1303 "Correct Posted Sales Invoice"
         if SalesInvoiceLine."VAT Calculation Type" = SalesInvoiceLine."VAT Calculation Type"::"Sales Tax" then
             exit;
 
-        with GenPostingSetup do begin
-            Get(SalesInvoiceLine."Gen. Bus. Posting Group", SalesInvoiceLine."Gen. Prod. Posting Group");
-            if SalesInvoiceLine.Type <> SalesInvoiceLine.Type::"G/L Account" then begin
-                TestField("Sales Account");
-                TestGLAccount("Sales Account", SalesInvoiceLine);
-                TestField("Sales Credit Memo Account");
-                TestGLAccount("Sales Credit Memo Account", SalesInvoiceLine);
-            end;
-            if HasLineDiscountSetup(SalesInvoiceLine) then
-                if "Sales Line Disc. Account" <> '' then
-                    TestGLAccount("Sales Line Disc. Account", SalesInvoiceLine);
-
-            IsHandled := false;
-            OnTestGenPostingSetupOnBeforeTestTypeItem(SalesInvoiceLine, IsHandled);
-            if not IsHandled then
-                if SalesInvoiceLine.Type = SalesInvoiceLine.Type::Item then begin
-                    Item.Get(SalesInvoiceLine."No.");
-                    if Item.IsInventoriableType() then
-                        TestGLAccount(GetCOGSAccount(), SalesInvoiceLine);
-                end;
+        GenPostingSetup.Get(SalesInvoiceLine."Gen. Bus. Posting Group", SalesInvoiceLine."Gen. Prod. Posting Group");
+        if SalesInvoiceLine.Type <> SalesInvoiceLine.Type::"G/L Account" then begin
+            GenPostingSetup.TestField("Sales Account");
+            TestGLAccount(GenPostingSetup."Sales Account", SalesInvoiceLine);
+            GenPostingSetup.TestField("Sales Credit Memo Account");
+            TestGLAccount(GenPostingSetup."Sales Credit Memo Account", SalesInvoiceLine);
         end;
+        if HasLineDiscountSetup(SalesInvoiceLine) then
+            if GenPostingSetup."Sales Line Disc. Account" <> '' then
+                TestGLAccount(GenPostingSetup."Sales Line Disc. Account", SalesInvoiceLine);
+
+        IsHandled := false;
+        OnTestGenPostingSetupOnBeforeTestTypeItem(SalesInvoiceLine, IsHandled);
+        if not IsHandled then
+            if SalesInvoiceLine.Type = SalesInvoiceLine.Type::Item then begin
+                Item.Get(SalesInvoiceLine."No.");
+                if Item.IsInventoriableType() then
+                    TestGLAccount(GenPostingSetup.GetCOGSAccount(), SalesInvoiceLine);
+            end;
     end;
 
     local procedure TestCustomerPostingGroup(SalesInvoiceHeader: Record "Sales Invoice Header")
     var
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        with CustomerPostingGroup do begin
-            Get(SalesInvoiceHeader."Customer Posting Group");
-            TestField("Receivables Account");
-            TestGLAccount("Receivables Account", SalesInvoiceHeader);
-        end;
+        CustomerPostingGroup.Get(SalesInvoiceHeader."Customer Posting Group");
+        CustomerPostingGroup.TestField("Receivables Account");
+        TestGLAccount(CustomerPostingGroup."Receivables Account", SalesInvoiceHeader);
     end;
 
     local procedure TestVATPostingSetup(SalesInvoiceLine: Record "Sales Invoice Line")
@@ -681,12 +685,10 @@ codeunit 1303 "Correct Posted Sales Invoice"
         if IsHandled then
             exit;
 
-        with VATPostingSetup do begin
-            Get(SalesInvoiceLine."VAT Bus. Posting Group", SalesInvoiceLine."VAT Prod. Posting Group");
-            if "VAT Calculation Type" <> "VAT Calculation Type"::"Sales Tax" then begin
-                TestField("Sales VAT Account");
-                TestGLAccount("Sales VAT Account", SalesInvoiceLine);
-            end;
+        VATPostingSetup.Get(SalesInvoiceLine."VAT Bus. Posting Group", SalesInvoiceLine."VAT Prod. Posting Group");
+        if VATPostingSetup."VAT Calculation Type" <> VATPostingSetup."VAT Calculation Type"::"Sales Tax" then begin
+            VATPostingSetup.TestField("Sales VAT Account");
+            TestGLAccount(VATPostingSetup."Sales VAT Account", SalesInvoiceLine);
         end;
     end;
 
@@ -700,11 +702,9 @@ codeunit 1303 "Correct Posted Sales Invoice"
         if IsHandled then
             exit;
 
-        with InventoryPostingSetup do begin
-            Get(SalesInvoiceLine."Location Code", SalesInvoiceLine."Posting Group");
-            TestField("Inventory Account");
-            TestGLAccount("Inventory Account", SalesInvoiceLine);
-        end;
+        InventoryPostingSetup.Get(SalesInvoiceLine."Location Code", SalesInvoiceLine."Posting Group");
+        InventoryPostingSetup.TestField("Inventory Account");
+        TestGLAccount(InventoryPostingSetup."Inventory Account", SalesInvoiceLine);
     end;
 
     local procedure TestNoFixedAssetInSalesInvoice(SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -778,14 +778,12 @@ codeunit 1303 "Correct Posted Sales Invoice"
     var
         SalesInvLine: Record "Sales Invoice Line";
     begin
-        with SalesInvLine do begin
-            SetRange("Document No.", InvNo);
-            SetRange(Type, Type::Item);
-            if FindSet() then
-                repeat
-                    GetItemLedgEntries(ItemLedgEntry, false);
-                until Next() = 0;
-        end;
+        SalesInvLine.SetRange("Document No.", InvNo);
+        SalesInvLine.SetRange(Type, SalesInvLine.Type::Item);
+        if SalesInvLine.FindSet() then
+            repeat
+                SalesInvLine.GetItemLedgEntries(ItemLedgEntry, false);
+            until SalesInvLine.Next() = 0;
     end;
 
     local procedure FindAppliedInbndEntries(var TempItemApplicationEntry: Record "Item Application Entry" temporary; var ItemLedgEntry: Record "Item Ledger Entry"): Boolean
@@ -948,10 +946,8 @@ codeunit 1303 "Correct Posted Sales Invoice"
 
     local procedure HasLineDiscountSetup(SalesInvoiceLine: Record "Sales Invoice Line") Result: Boolean
     begin
-        with SalesReceivablesSetup do begin
-            GetRecordOnce();
-            Result := "Discount Posting" in ["Discount Posting"::"Line Discounts", "Discount Posting"::"All Discounts"];
-        end;
+        SalesReceivablesSetup.GetRecordOnce();
+        Result := SalesReceivablesSetup."Discount Posting" in [SalesReceivablesSetup."Discount Posting"::"Line Discounts", SalesReceivablesSetup."Discount Posting"::"All Discounts"];
         if Result then
             Result := SalesInvoiceLine."Line Discount %" <> 0;
         OnHasLineDiscountSetup(SalesReceivablesSetup, Result);

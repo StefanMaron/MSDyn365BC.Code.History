@@ -2,6 +2,7 @@ table 26563 "Statutory Report Data Header"
 {
     Caption = 'Statutory Report Data Header';
     LookupPageID = "Report Data List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -222,13 +223,13 @@ table 26563 "Statutory Report Data Header"
     trigger OnInsert()
     var
         StatutoryReportDataHeader: Record "Statutory Report Data Header";
+        NoSeries: Codeunit "No. Series";
         NoInYear: Integer;
     begin
         if "No." = '' then begin
             SRSetup.Get();
             SRSetup.TestField("Report Data Nos");
-            "No." :=
-              NoSeriesManagement.GetNextNo(SRSetup."Report Data Nos", WorkDate(), true);
+            "No." := NoSeries.GetNextNo(SRSetup."Report Data Nos");
         end;
 
         StatutoryReportDataHeader.SetCurrentKey("Period Year", "No. in Year");
@@ -249,11 +250,9 @@ table 26563 "Statutory Report Data Header"
         WorkbookSheetBuffer: Record "Statutory Report Buffer" temporary;
         FormatVersion: Record "Format Version";
         TempNameValueBuffer: Record "Name/Value Buffer" temporary;
-        NoSeriesManagement: Codeunit NoSeriesManagement;
         TempBlob: Codeunit "Temp Blob";
         FileMgt: Codeunit "File Management";
         Text002: Label 'You must specify the File Name.';
-        Text004: Label 'File %1 couldn''t be created.';
         ReportFile: File;
         Text008: Label 'Export to Excel\Processing sheet #1##############\Sheet progress   @2@@@@@@@@@@@@@@';
         Text012: Label 'Opening workbook';
@@ -267,7 +266,6 @@ table 26563 "Statutory Report Data Header"
         XmlReaderSettings: DotNet XmlReaderSettings;
         XlWrkBkWriter: DotNet WorkbookWriter;
         XlWrkBkReader: DotNet WorkbookReader;
-        XlWrkShtWriter: DotNet WorksheetWriter;
         XlWrkShtReader: DotNet WorksheetReader;
         ServerFileName: Text;
         TestMode: Boolean;
@@ -495,7 +493,6 @@ table 26563 "Statutory Report Data Header"
     procedure FillWorkbookSheetBuffer(FileName: Text)
     var
         SheetNames: DotNet ArrayList;
-        SheetName: Text[250];
         i: Integer;
         EndOfLoop: Integer;
     begin

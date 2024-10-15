@@ -3,6 +3,7 @@ table 12476 "Depreciation Group"
     Caption = 'Depreciation Group';
     DrillDownPageID = "Depreciation Group";
     LookupPageID = "Depreciation Group";
+    DataClassification = CustomerContent;
 
     fields
     {

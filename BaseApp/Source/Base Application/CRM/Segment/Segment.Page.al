@@ -221,7 +221,7 @@ page 5091 Segment
             part(SegLines; "Segment Subform")
             {
                 ApplicationArea = RelationshipMgmt;
-                SubPageLink = "Segment No." = FIELD("No.");
+                SubPageLink = "Segment No." = field("No.");
             }
             group(Campaign)
             {
@@ -838,7 +838,7 @@ page 5091 Segment
             Rec.CreateOpportunities();
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateEditable()
     begin
     end;

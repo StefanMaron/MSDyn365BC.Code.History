@@ -136,7 +136,6 @@ report 12424 "Copy Payment Document"
         DocumentNo: Code[20];
         PostingDate: Date;
         Text001: Label 'Document not found';
-        DimMgt: Codeunit DimensionManagement;
         BankLedgEntry: Record "Bank Account Ledger Entry";
         BankAccount: Record "Bank Account";
         SourceAccType: Integer;

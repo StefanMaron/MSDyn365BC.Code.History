@@ -13,7 +13,7 @@ page 5912 "Service Ledger Entries"
     PageType = List;
     SourceTable = "Service Ledger Entry";
     SourceTableView = sorting("Entry No.")
-                      order(Descending);
+                      order(descending);
     UsageCategory = History;
 
     layout
@@ -52,19 +52,19 @@ page 5912 "Service Ledger Entries"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
                 field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job task.';
+                    ToolTip = 'Specifies the number of the related project task.';
                     Visible = false;
                 }
                 field("Job Line Type"; Rec."Job Line Type")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the journal line type that is created in the Job Planning Line table and linked to this job ledger entry.';
+                    ToolTip = 'Specifies the journal line type that is created in the Project Planning Line table and linked to this project ledger entry.';
                     Visible = false;
                 }
                 field("Document Type"; Rec."Document Type")
@@ -273,6 +273,13 @@ page 5912 "Service Ledger Entries"
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a reference to a combination of dimension values. The actual values are stored in the Dimension Set Entry table.';
+                    Visible = false;
+                }
+                field("External Document No."; Rec."External Document No.")
+                {
+                    ApplicationArea = Service;
+                    Editable = false;
+                    ToolTip = 'Specifies a document number that refers to the customer''s numbering system.';
                     Visible = false;
                 }
                 field("Shortcut Dimension 3 Code"; Rec."Shortcut Dimension 3 Code")

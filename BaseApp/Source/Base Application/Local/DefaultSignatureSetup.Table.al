@@ -1,6 +1,7 @@
 table 12428 "Default Signature Setup"
 {
     Caption = 'Default Signature Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

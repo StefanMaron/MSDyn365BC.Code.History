@@ -1,6 +1,7 @@
 table 12412 "VAT Ledger Line Tariff No."
 {
     Caption = 'VAT Ledger Line Tariff No.';
+    DataClassification = CustomerContent;
 
     fields
     {

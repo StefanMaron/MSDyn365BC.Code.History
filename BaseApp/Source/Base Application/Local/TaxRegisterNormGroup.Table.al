@@ -2,6 +2,7 @@ table 17221 "Tax Register Norm Group"
 {
     Caption = 'Tax Register Norm Group';
     LookupPageID = "Tax Register Norm Groups";
+    DataClassification = CustomerContent;
 
     fields
     {

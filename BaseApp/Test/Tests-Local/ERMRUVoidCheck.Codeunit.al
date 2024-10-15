@@ -44,7 +44,7 @@ codeunit 144015 "ERM RU Void Check"
         // [THEN] Vendor invoice ledger entries are Open
         // [THEN] Last G/L Register doesn't have Correction Entries (Debit, Credit amounts >= 0)
         // [THEN] Check Ledger Entry has "Entry Status" = "Financially Voided", "Original Entry Status" = Posted, "Statement Status" = Closed
-        VerifyLastRegisterIsNotCorrectionEntry;
+        VerifyLastRegisterIsNotCorrectionEntry();
     end;
 
     [Test]
@@ -63,7 +63,7 @@ codeunit 144015 "ERM RU Void Check"
         // [THEN] Vendor invoice ledger entries are Open
         // [THEN] Last G/L Register has Correction Entries (Debit, Credit amounts <= 0)
         // [THEN] Check Ledger Entry has "Entry Status" = "Financially Voided", "Original Entry Status" = Posted, "Statement Status" = Closed
-        VerifyLastRegisterIsCorrectionEntry;
+        VerifyLastRegisterIsCorrectionEntry();
     end;
 
     [Test]
@@ -82,7 +82,7 @@ codeunit 144015 "ERM RU Void Check"
         // [THEN] Vendor invoice ledger entries are Closed
         // [THEN] Last G/L Register doesn't have Correction Entries (Debit, Credit amounts >= 0)
         // [THEN] Check Ledger Entry has "Entry Status" = "Financially Voided", "Original Entry Status" = Posted, "Statement Status" = Closed
-        VerifyLastRegisterIsNotCorrectionEntry;
+        VerifyLastRegisterIsNotCorrectionEntry();
     end;
 
     [Test]
@@ -101,7 +101,7 @@ codeunit 144015 "ERM RU Void Check"
         // [THEN] Vendor invoice ledger entries are Closed
         // [THEN] Last G/L Register has Correction Entries (Debit, Credit amounts <= 0)
         // [THEN] Check Ledger Entry has "Entry Status" = "Financially Voided", "Original Entry Status" = Posted, "Statement Status" = Closed
-        VerifyLastRegisterIsCorrectionEntry;
+        VerifyLastRegisterIsCorrectionEntry();
     end;
 
     [Test]
@@ -120,7 +120,7 @@ codeunit 144015 "ERM RU Void Check"
         // [THEN] Vendor invoice ledger entries are Open
         // [THEN] Last G/L Register doesn't have Correction Entries (Debit, Credit amounts >= 0)
         // [THEN] Check Ledger Entry has "Entry Status" = "Financially Voided", "Original Entry Status" = Posted, "Statement Status" = Closed
-        VerifyLastRegisterIsNotCorrectionEntry;
+        VerifyLastRegisterIsNotCorrectionEntry();
     end;
 
     [Test]
@@ -139,7 +139,7 @@ codeunit 144015 "ERM RU Void Check"
         // [THEN] Vendor invoice ledger entries are Open
         // [THEN] Last G/L Register has Correction Entries (Debit, Credit amounts <= 0)
         // [THEN] Check Ledger Entry has "Entry Status" = "Financially Voided", "Original Entry Status" = Posted, "Statement Status" = Closed
-        VerifyLastRegisterIsCorrectionEntry;
+        VerifyLastRegisterIsCorrectionEntry();
     end;
 
     [Test]
@@ -158,7 +158,7 @@ codeunit 144015 "ERM RU Void Check"
         // [THEN] Vendor invoice ledger entries are Closed
         // [THEN] Last G/L Register doesn't have Correction Entries (Debit, Credit amounts >= 0)
         // [THEN] Check Ledger Entry has "Entry Status" = "Financially Voided", "Original Entry Status" = Posted, "Statement Status" = Closed
-        VerifyLastRegisterIsNotCorrectionEntry;
+        VerifyLastRegisterIsNotCorrectionEntry();
     end;
 
     [Test]
@@ -177,7 +177,7 @@ codeunit 144015 "ERM RU Void Check"
         // [THEN] Vendor invoice ledger entries are Closed
         // [THEN] Last G/L Register has Correction Entries (Debit, Credit amounts <= 0)
         // [THEN] Check Ledger Entry has "Entry Status" = "Financially Voided", "Original Entry Status" = Posted, "Statement Status" = Closed
-        VerifyLastRegisterIsCorrectionEntry;
+        VerifyLastRegisterIsCorrectionEntry();
     end;
 
     [Test]
@@ -196,7 +196,7 @@ codeunit 144015 "ERM RU Void Check"
         // [THEN] Vendor payment ledger entries are Open
         // [THEN] Last G/L Register doesn't have Correction Entries (Debit, Credit amounts >= 0)
         // [THEN] Check Ledger Entry has "Entry Status" = "Financially Voided", "Original Entry Status" = Posted, "Statement Status" = Closed
-        VerifyLastRegisterIsNotCorrectionEntry;
+        VerifyLastRegisterIsNotCorrectionEntry();
     end;
 
     [Test]
@@ -215,7 +215,7 @@ codeunit 144015 "ERM RU Void Check"
         // [THEN] Vendor payment ledger entries are Open
         // [THEN] Last G/L Register has Correction Entries (Debit, Credit amounts <= 0)
         // [THEN] Check Ledger Entry has "Entry Status" = "Financially Voided", "Original Entry Status" = Posted, "Statement Status" = Closed
-        VerifyLastRegisterIsCorrectionEntry;
+        VerifyLastRegisterIsCorrectionEntry();
     end;
 
     [Test]
@@ -234,7 +234,7 @@ codeunit 144015 "ERM RU Void Check"
         // [THEN] Vendor payment ledger entries are Closed
         // [THEN] Last G/L Register doesn't have Correction Entries (Debit, Credit amounts >= 0)
         // [THEN] Check Ledger Entry has "Entry Status" = "Financially Voided", "Original Entry Status" = Posted, "Statement Status" = Closed
-        VerifyLastRegisterIsNotCorrectionEntry;
+        VerifyLastRegisterIsNotCorrectionEntry();
     end;
 
     [Test]
@@ -253,7 +253,7 @@ codeunit 144015 "ERM RU Void Check"
         // [THEN] Vendor payment ledger entries are Closed
         // [THEN] Last G/L Register has Correction Entries (Debit, Credit amounts <= 0)
         // [THEN] Check Ledger Entry has "Entry Status" = "Financially Voided", "Original Entry Status" = Posted, "Statement Status" = Closed
-        VerifyLastRegisterIsCorrectionEntry;
+        VerifyLastRegisterIsCorrectionEntry();
     end;
 
     [Test]
@@ -272,7 +272,7 @@ codeunit 144015 "ERM RU Void Check"
         // [THEN] Customer payment ledger entries are Open
         // [THEN] Last G/L Register doesn't have Correction Entries (Debit, Credit amounts >= 0)
         // [THEN] Check Ledger Entry has "Entry Status" = "Financially Voided", "Original Entry Status" = Posted, "Statement Status" = Closed
-        VerifyLastRegisterIsNotCorrectionEntry;
+        VerifyLastRegisterIsNotCorrectionEntry();
     end;
 
     [Test]
@@ -291,7 +291,7 @@ codeunit 144015 "ERM RU Void Check"
         // [THEN] Customer payment ledger entries are Open
         // [THEN] Last G/L Register has Correction Entries (Debit, Credit amounts <= 0)
         // [THEN] Check Ledger Entry has "Entry Status" = "Financially Voided", "Original Entry Status" = Posted, "Statement Status" = Closed
-        VerifyLastRegisterIsCorrectionEntry;
+        VerifyLastRegisterIsCorrectionEntry();
     end;
 
     [Test]
@@ -310,7 +310,7 @@ codeunit 144015 "ERM RU Void Check"
         // [THEN] Customer payment ledger entries are Closed
         // [THEN] Last G/L Register doesn't have Correction Entries (Debit, Credit amounts >= 0)
         // [THEN] Check Ledger Entry has "Entry Status" = "Financially Voided", "Original Entry Status" = Posted, "Statement Status" = Closed
-        VerifyLastRegisterIsNotCorrectionEntry;
+        VerifyLastRegisterIsNotCorrectionEntry();
     end;
 
     [Test]
@@ -329,7 +329,7 @@ codeunit 144015 "ERM RU Void Check"
         // [THEN] Customer payment ledger entries are Closed
         // [THEN] Last G/L Register has Correction Entries (Debit, Credit amounts <= 0)
         // [THEN] Check Ledger Entry has "Entry Status" = "Financially Voided", "Original Entry Status" = Posted, "Statement Status" = Closed
-        VerifyLastRegisterIsCorrectionEntry;
+        VerifyLastRegisterIsCorrectionEntry();
     end;
 
     [Test]
@@ -348,7 +348,7 @@ codeunit 144015 "ERM RU Void Check"
         // [THEN] Customer payment ledger entries are Open
         // [THEN] Last G/L Register doesn't have Correction Entries (Debit, Credit amounts >= 0)
         // [THEN] Check Ledger Entry has "Entry Status" = "Financially Voided", "Original Entry Status" = Posted, "Statement Status" = Closed
-        VerifyLastRegisterIsNotCorrectionEntry;
+        VerifyLastRegisterIsNotCorrectionEntry();
     end;
 
     [Test]
@@ -367,7 +367,7 @@ codeunit 144015 "ERM RU Void Check"
         // [THEN] Customer payment ledger entries are Open
         // [THEN] Last G/L Register has Correction Entries (Debit, Credit amounts <= 0)
         // [THEN] Check Ledger Entry has "Entry Status" = "Financially Voided", "Original Entry Status" = Posted, "Statement Status" = Closed
-        VerifyLastRegisterIsCorrectionEntry;
+        VerifyLastRegisterIsCorrectionEntry();
     end;
 
     [Test]
@@ -386,7 +386,7 @@ codeunit 144015 "ERM RU Void Check"
         // [THEN] Customer payment ledger entries are Closed
         // [THEN] Last G/L Register doesn't have Correction Entries (Debit, Credit amounts >= 0)
         // [THEN] Check Ledger Entry has "Entry Status" = "Financially Voided", "Original Entry Status" = Posted, "Statement Status" = Closed
-        VerifyLastRegisterIsNotCorrectionEntry;
+        VerifyLastRegisterIsNotCorrectionEntry();
     end;
 
     [Test]
@@ -405,7 +405,7 @@ codeunit 144015 "ERM RU Void Check"
         // [THEN] Customer payment ledger entries are Closed
         // [THEN] Last G/L Register has Correction Entries (Debit, Credit amounts <= 0)
         // [THEN] Check Ledger Entry has "Entry Status" = "Financially Voided", "Original Entry Status" = Posted, "Statement Status" = Closed
-        VerifyLastRegisterIsCorrectionEntry;
+        VerifyLastRegisterIsCorrectionEntry();
     end;
 
     [Test]
@@ -424,7 +424,7 @@ codeunit 144015 "ERM RU Void Check"
         // [THEN] Customer invoice ledger entries are Open
         // [THEN] Last G/L Register doesn't have Correction Entries (Debit, Credit amounts >= 0)
         // [THEN] Check Ledger Entry has "Entry Status" = "Financially Voided", "Original Entry Status" = Posted, "Statement Status" = Closed
-        VerifyLastRegisterIsNotCorrectionEntry;
+        VerifyLastRegisterIsNotCorrectionEntry();
     end;
 
     [Test]
@@ -443,7 +443,7 @@ codeunit 144015 "ERM RU Void Check"
         // [THEN] Customer invoice ledger entries are Open
         // [THEN] Last G/L Register has Correction Entries (Debit, Credit amounts <= 0)
         // [THEN] Check Ledger Entry has "Entry Status" = "Financially Voided", "Original Entry Status" = Posted, "Statement Status" = Closed
-        VerifyLastRegisterIsCorrectionEntry;
+        VerifyLastRegisterIsCorrectionEntry();
     end;
 
     [Test]
@@ -462,7 +462,7 @@ codeunit 144015 "ERM RU Void Check"
         // [THEN] Customer invoice ledger entries are Closed
         // [THEN] Last G/L Register doesn't have Correction Entries (Debit, Credit amounts >= 0)
         // [THEN] Check Ledger Entry has "Entry Status" = "Financially Voided", "Original Entry Status" = Posted, "Statement Status" = Closed
-        VerifyLastRegisterIsNotCorrectionEntry;
+        VerifyLastRegisterIsNotCorrectionEntry();
     end;
 
     [Test]
@@ -481,7 +481,7 @@ codeunit 144015 "ERM RU Void Check"
         // [THEN] Customer invoice ledger entries are Closed
         // [THEN] Last G/L Register has Correction Entries (Debit, Credit amounts <= 0)
         // [THEN] Check Ledger Entry has "Entry Status" = "Financially Voided", "Original Entry Status" = Posted, "Statement Status" = Closed
-        VerifyLastRegisterIsCorrectionEntry;
+        VerifyLastRegisterIsCorrectionEntry();
     end;
 
     [Test]
@@ -496,11 +496,11 @@ codeunit 144015 "ERM RU Void Check"
 
         Initialize();
         // [WHEN] Open "General Ledger Setup" page
-        GeneralLedgerSetup.OpenEdit;
+        GeneralLedgerSetup.OpenEdit();
 
         // [THEN] Field "Void Payment as Correction" is editable on "General Ledger Setup" page
         Assert.IsTrue(
-          GeneralLedgerSetup."Void Payment as Correction".Editable,
+          GeneralLedgerSetup."Void Payment as Correction".Editable(),
           StrSubstNo(FieldIsNotEditableErr, GenLedgSetup.FieldCaption("Void Payment as Correction")));
     end;
 
@@ -533,7 +533,7 @@ codeunit 144015 "ERM RU Void Check"
     begin
         Initialize();
         SetupVoidPaymentAsCorrection(VoidPaymentAsCorrection);
-        CashAccountNo := CreateCashAccount;
+        CashAccountNo := CreateCashAccount();
         VendNo := LibraryPurchase.CreateVendorNo();
 
         for i := 1 to ArrayLen(InvNo) do
@@ -571,7 +571,7 @@ codeunit 144015 "ERM RU Void Check"
     begin
         Initialize();
         SetupVoidPaymentAsCorrection(VoidPaymentAsCorrection);
-        CashAccountNo := CreateCashAccount;
+        CashAccountNo := CreateCashAccount();
         VendNo := LibraryPurchase.CreateVendorNo();
 
         for i := 1 to ArrayLen(PmtNo) do
@@ -608,7 +608,7 @@ codeunit 144015 "ERM RU Void Check"
     begin
         Initialize();
         SetupVoidPaymentAsCorrection(VoidPaymentAsCorrection);
-        CashAccountNo := CreateCashAccount;
+        CashAccountNo := CreateCashAccount();
         CustNo := LibrarySales.CreateCustomerNo();
 
         for i := 1 to ArrayLen(PmtNo) do
@@ -645,7 +645,7 @@ codeunit 144015 "ERM RU Void Check"
     begin
         Initialize();
         SetupVoidPaymentAsCorrection(VoidPaymentAsCorrection);
-        CashAccountNo := CreateCashAccount;
+        CashAccountNo := CreateCashAccount();
         CustNo := LibrarySales.CreateCustomerNo();
 
         for i := 1 to ArrayLen(InvNo) do
@@ -685,7 +685,7 @@ codeunit 144015 "ERM RU Void Check"
         with GenJournalLine do begin
             CreateGenJournalLine(
               GenJournalLine, "Document Type"::Invoice, AccountType, AccountNo, "Bal. Account Type"::"Bank Account",
-              LibraryERM.CreateBankAccountNo, "Gen. Journal Document Type"::" ", '', "Bank Payment Type"::" ", AmountSign * LibraryRandom.RandDec(100, 2));
+              LibraryERM.CreateBankAccountNo(), "Gen. Journal Document Type"::" ", '', "Bank Payment Type"::" ", AmountSign * LibraryRandom.RandDec(100, 2));
             LibraryERM.PostGeneralJnlLine(GenJournalLine);
             TotalInvAmount += Abs(Amount);
             exit("Document No.");
@@ -699,7 +699,7 @@ codeunit 144015 "ERM RU Void Check"
         with GenJournalLine do begin
             CreateGenJournalLine(
               GenJournalLine, "Document Type"::Payment, AccountType, AccountNo,
-              "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, "Gen. Journal Account Type"::"G/L Account", '',
+              "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), "Gen. Journal Account Type"::"G/L Account", '',
               "Bank Payment Type"::" ", AmountSign * LibraryRandom.RandDec(100, 2));
             LibraryERM.PostGeneralJnlLine(GenJournalLine);
             DocumentNo := "Document No.";
@@ -758,7 +758,7 @@ codeunit 144015 "ERM RU Void Check"
         LibraryERM.CreateBankAccount(BankAccount);
         with BankAccount do begin
             Validate("Account Type", "Account Type"::"Cash Account");
-            Validate("Debit Cash Order No. Series", LibraryERM.CreateNoSeriesCode);
+            Validate("Debit Cash Order No. Series", LibraryERM.CreateNoSeriesCode());
             Validate("Credit Cash Order No. Series", "Debit Cash Order No. Series");
             Modify(true);
             exit("No.");
@@ -878,7 +878,7 @@ codeunit 144015 "ERM RU Void Check"
     var
         CashOutgoingOrder: Report "Cash Outgoing Order";
     begin
-        CashOutgoingOrder.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        CashOutgoingOrder.SetFileNameSilent(LibraryReportValidation.GetFileName());
         GenJournalLine.SetRecFilter();
         CashOutgoingOrder.SetTableView(GenJournalLine);
         CashOutgoingOrder.UseRequestPage(false);
@@ -889,7 +889,7 @@ codeunit 144015 "ERM RU Void Check"
     var
         CashIngoingOrder: Report "Cash Ingoing Order";
     begin
-        CashIngoingOrder.SetFileNameSilent(LibraryReportValidation.GetFileName);
+        CashIngoingOrder.SetFileNameSilent(LibraryReportValidation.GetFileName());
         GenJournalLine.SetRecFilter();
         CashIngoingOrder.SetTableView(GenJournalLine);
         CashIngoingOrder.UseRequestPage(false);
@@ -959,8 +959,8 @@ codeunit 144015 "ERM RU Void Check"
     [Scope('OnPrem')]
     procedure ConfirmVoidCheckMPH(var ConfirmFinVoid: TestPage "Confirm Financial Void")
     begin
-        ConfirmFinVoid.VoidType.SetValue(LibraryVariableStorage.DequeueInteger);
-        ConfirmFinVoid.Yes.Invoke;
+        ConfirmFinVoid.VoidType.SetValue(LibraryVariableStorage.DequeueInteger());
+        ConfirmFinVoid.Yes().Invoke();
     end;
 }
 

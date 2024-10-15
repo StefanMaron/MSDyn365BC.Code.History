@@ -199,16 +199,14 @@ page 35603 Vendors
                     var
                         Vend: Record Vendor;
                     begin
-                        with Vend do begin
-                            Copy(Rec);
-                            case "Vendor Type" of
-                                "Vendor Type"::Vendor:
-                                    PAGE.Run(PAGE::"Vendor Card", Vend);
-                                "Vendor Type"::"Resp. Employee":
-                                    PAGE.Run(PAGE::"Resp. Employee Card", Vend);
-                                "Vendor Type"::"Tax Authority":
-                                    PAGE.Run(PAGE::"Tax Authority/Fund Card", Vend);
-                            end;
+                        Vend.Copy(Rec);
+                        case Vend."Vendor Type" of
+                            Vend."Vendor Type"::Vendor:
+                                PAGE.Run(PAGE::"Vendor Card", Vend);
+                            Vend."Vendor Type"::"Resp. Employee":
+                                PAGE.Run(PAGE::"Resp. Employee Card", Vend);
+                            Vend."Vendor Type"::"Tax Authority":
+                                PAGE.Run(PAGE::"Tax Authority/Fund Card", Vend);
                         end;
                     end;
                 }
@@ -427,7 +425,7 @@ page 35603 Vendors
                         PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN21
+#if not CLEAN23
                 action(Prices)
                 {
                     ApplicationArea = Basic, Suite;
