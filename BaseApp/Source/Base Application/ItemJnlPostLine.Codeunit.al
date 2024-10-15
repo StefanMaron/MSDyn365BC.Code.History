@@ -2380,7 +2380,8 @@
 
             if AverageTransfer then begin
                 if (Quantity > 0) or (ItemJnlLine."Document Type" = ItemJnlLine."Document Type"::"Transfer Receipt") then
-                    ItemApplnEntry."Cost Application" := ItemApplnEntry.IsOutbndItemApplEntryCostApplication(ItemLedgEntryNo);
+                    ItemApplnEntry."Cost Application" :=
+                      ItemApplnEntry.IsOutbndItemApplEntryCostApplication(ItemLedgEntryNo) and IsNotValuedByAverageCost(ItemLedgEntryNo);
             end else
                 case true of
                     Item."Costing Method" <> Item."Costing Method"::Average,
@@ -4726,6 +4727,16 @@
     local procedure IsWarehouseReclassification(ItemJournalLine: Record "Item Journal Line"): Boolean
     begin
         exit(ItemJournalLine."Warehouse Adjustment" and (ItemJournalLine."Entry Type" = ItemJournalLine."Entry Type"::Transfer));
+    end;
+
+    local procedure IsNotValuedByAverageCost(CostItemLedgEntryNo: Integer): Boolean
+    var
+        ValueEntry: Record "Value Entry";
+    begin
+        ValueEntry.SetCurrentKey("Item Ledger Entry No.");
+        ValueEntry.SetRange("Item Ledger Entry No.", CostItemLedgEntryNo);
+        ValueEntry.SetRange("Valued By Average Cost", true);
+        exit(ValueEntry.IsEmpty());
     end;
 
     local procedure MoveApplication(var ItemLedgEntry: Record "Item Ledger Entry"; var OldItemLedgEntry: Record "Item Ledger Entry"): Boolean

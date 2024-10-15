@@ -46,6 +46,11 @@ page 8452 "Advanced Intrastat Checklist"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the filter expression that must be applied to the Intrastat journal line. The check for fields is run only on those lines that are passes the filter expression.';
                 }
+                field("Reversed Filter Expression"; Rec."Reversed Filter Expression")
+                {
+                    ApplicationArea = BasicEU;
+                    ToolTip = 'Specifies that the check for fields is run only on those lines that do not match the filter expression. If the line is not filtered, this field is ignored.';
+                }
             }
         }
     }

@@ -320,6 +320,7 @@
         HideProgressWindow: Boolean;
         OverReceiptApprovalErr: Label 'There are lines with over-receipt required for approval.';
         PostDocumentLinesMsg: Label 'Post document lines.';
+        ItemChargeZeroAmountErr: Label 'The amount for item charge %1 cannot be 0.', Comment = '%1 = Item Charge No.';
 
     local procedure GetZeroPurchLineRecID(PurchHeader: Record "Purchase Header"; var PurchLineRecID: RecordId)
     var
@@ -917,7 +918,7 @@
         PurchaseLineBackup: Record "Purchase Line";
         IsHandled: Boolean;
     begin
-        if not (PurchHeader.Invoice and (PurchLine."Qty. to Invoice" <> 0) and (PurchLine.Amount <> 0)) then
+        if not (PurchHeader.Invoice and (PurchLine."Qty. to Invoice" <> 0)) then
             exit;
 
         IsHandled := false;
@@ -1973,8 +1974,8 @@
             exit;
 
         with PurchaseLine do begin
-            if ("Line Discount %" <> 100) and (("Inv. Discount Amount" - "Line Amount") <> 0) then
-                TestField(Amount);
+            if Amount = 0 then
+                Error(ItemChargeZeroAmountErr, "No.");
             TestField("Job No.", '');
         end;
     end;
@@ -3606,7 +3607,6 @@
         with TempPurchLine do begin
             ResetTempLines(TempPurchLine);
             SetRange(Type, Type::"Charge (Item)");
-            SetFilter("Line Discount %", '<>100');
             if IsEmpty then
                 exit;
 
