@@ -1527,9 +1527,11 @@
         if not OrderAddr.IsEmpty() then
             OrderAddr.DeleteAll();
 
+#if not CLEAN22
         VendPmtAddr.SetRange("Vendor No.", "No.");
         if VendPmtAddr.FindFirst() then
             VendPmtAddr.DeleteAll();
+#endif
 
         CheckOutstandingPurchaseDocuments();
 
@@ -1647,7 +1649,9 @@
         RMSetup: Record "Marketing Setup";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         CustomizedCalendarChange: Record "Customized Calendar Change";
+#if not CLEAN22
         VendPmtAddr: Record "Vendor Pmt. Address";
+#endif
         NoSeriesMgt: Codeunit NoSeriesManagement;
         MoveEntries: Codeunit MoveEntries;
         UpdateContFromVend: Codeunit "VendCont-Update";

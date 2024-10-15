@@ -1401,7 +1401,9 @@
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
     end;
 
+#if not CLEAN22
     [Scope('OnPrem')]
+    [Obsolete('Address is taken from the fields Bill-to Address, Bill-to City, etc.', '22.0')]
     procedure CustPmtAddress(var AddrArray: array[8] of Text[100]; var CustPmtAddress: Record "Customer Pmt. Address")
     begin
         with CustPmtAddress do
@@ -1411,6 +1413,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Address is taken from the fields Pay-to Address, Pay-to City, etc.', '22.0')]
     procedure VendPmtAddress(var AddrArray: array[8] of Text[100]; var VendPmtAddress: Record "Vendor Pmt. Address")
     begin
         with VendPmtAddress do
@@ -1418,6 +1421,7 @@
               AddrArray, Name, "Name 2", '', Address, "Address 2",
               City, "Post Code", County, "Country/Region Code");
     end;
+#endif
 
     procedure Reminder(var AddrArray: array[8] of Text[100]; var ReminderHeader: Record "Reminder Header")
     var

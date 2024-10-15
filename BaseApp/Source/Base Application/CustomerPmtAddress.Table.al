@@ -1,7 +1,15 @@
 table 7000014 "Customer Pmt. Address"
 {
     Caption = 'Customer Pmt. Address';
+    ObsoleteReason = 'Address is taken from the fields Bill-to Address, Bill-to City, etc.';
+#if CLEAN22
+    ObsoleteState = Removed;
+    ObsoleteTag = '25.0';
+#else
     LookupPageID = "Customer Pmt. Address List";
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
+#endif
 
     fields
     {

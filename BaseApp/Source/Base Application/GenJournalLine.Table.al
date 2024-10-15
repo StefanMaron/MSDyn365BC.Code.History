@@ -974,7 +974,7 @@
 
             trigger OnValidate()
             begin
-                if ("Applies-to ID" <> xRec."Applies-to ID") and (xRec."Applies-to ID" <> '') then
+                if ("Applies-to ID" <> xRec."Applies-to ID") and (xRec."Applies-to ID" <> '') and HasNoMultipleLine() then
                     ClearCustVendApplnEntry;
                 SetJournalLineFieldsFromApplication;
             end;
@@ -3000,6 +3000,14 @@
         field(7000003; "Pmt. Address Code"; Code[10])
         {
             Caption = 'Pmt. Address Code';
+            ObsoleteReason = 'Address is taken from the fields Address, City, etc. of Customer/Vendor table.';
+#if CLEAN22
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '22.0';
+#endif
             TableRelation = IF ("Account Type" = CONST(Customer)) "Customer Pmt. Address".Code WHERE("Customer No." = FIELD("Account No."))
             ELSE
             IF ("Account Type" = CONST(Vendor)) "Vendor Pmt. Address".Code WHERE("Vendor No." = FIELD("Account No."));
@@ -3140,7 +3148,7 @@
             Modify;
         end;
 
-        if ("Applies-to ID" = '') and (xRec."Applies-to ID" <> '') then
+        if ("Applies-to ID" = '') and (xRec."Applies-to ID" <> '') and HasNoMultipleLine() then
             ClearCustVendApplnEntry;
     end;
 
@@ -3585,6 +3593,7 @@
         TempFirstDocNo: Code[20];
         First: Boolean;
         IsHandled: Boolean;
+        PrevPostingDate: Date;
     begin
         IsHandled := false;
         OnBeforeRenumberDocNoOnLines(DocNo, GenJnlLine2, IsHandled);
@@ -3613,11 +3622,14 @@
                     if "Document No." = FirstDocNo then
                         exit;
                     if not First and
-                        (("Document No." <> PrevDocNo) or (("Bal. Account No." <> '') and ("Document No." = ''))) and
+                        (("Document No." <> PrevDocNo) or
+                          ("Posting Date" <> PrevPostingDate) or
+                        (("Bal. Account No." <> '') and ("Document No." = ''))) and
                         not LastGenJnlLine.EmptyLine
                     then
                         DocNo := IncStr(DocNo);
                     PrevDocNo := "Document No.";
+                    PrevPostingDate := "Posting Date";
                     if "Document No." <> '' then begin
                         if "Applies-to ID" = "Document No." then
                             RenumberAppliesToID(GenJnlLine2, "Document No.", DocNo);
@@ -7428,6 +7440,20 @@
                 Error(Text016, FieldCaption("Bal. Account Type"));
     end;
 
+    local procedure HasNoMultipleLine(): Boolean
+    var
+        GenJnlLine2: Record "Gen. Journal Line";
+    begin
+        GenJnlLine2.SetRange("Journal Template Name", "Journal Template Name");
+        GenJnlLine2.SetRange("Journal Batch Name", "Journal Batch Name");
+        GenJnlLine2.SetRange("Document No.", "Document No.");
+        GenJnlLine2.SetRange("Account No.", xRec."Account No.");
+        GenJnlLine2.SetRange("Applies-to ID", xRec."Applies-to ID");
+        GenJnlLine2.SetFilter("Line No.", '<>%1', "Line No.");
+        If GenJnlLine2.Count = 0 then
+            exit(true);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAccountNoOnValidateOnBeforeCreateDim(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
@@ -8736,6 +8762,13 @@
             exit("VAT Amount");
 
         LCYCurrency.InitRoundingPrecision();
+
+        "VAT Difference" :=
+            "VAT Amount" -
+            Round(
+                Amount * "VAT %" / (100 + "VAT %"),
+                LCYCurrency."Amount Rounding Precision", LCYCurrency.VATRoundingDirection());
+
         if "VAT Difference" = 0 then
             VATAmountLCY := Round("Amount (LCY)" * "VAT %" / (100 + "VAT %"), LCYCurrency."Amount Rounding Precision", LCYCurrency.VATRoundingDirection())
         else

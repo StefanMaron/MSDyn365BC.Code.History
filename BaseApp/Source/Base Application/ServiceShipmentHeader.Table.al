@@ -719,6 +719,14 @@ table 5990 "Service Shipment Header"
         {
             Caption = 'Pay-at Code';
             TableRelation = "Customer Pmt. Address".Code WHERE("Customer No." = FIELD("Bill-to Customer No."));
+            ObsoleteReason = 'Address is taken from the fields Bill-to Address, Bill-to City, etc.';
+#if CLEAN22
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '22.0';
+#endif
         }
     }
 
@@ -822,8 +830,8 @@ table 5990 "Service Shipment Header"
     begin
         IsHandled := false;
         OnBeforeSetSecurityFilterOnRespCenter(Rec, IsHandled);
-		if IsHandled then
-			exit;
+        if IsHandled then
+            exit;
 
         if UserSetupMgt.GetServiceFilter() <> '' then begin
             FilterGroup(2);

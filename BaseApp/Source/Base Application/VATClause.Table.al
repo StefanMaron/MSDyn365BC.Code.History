@@ -130,8 +130,10 @@ table 560 "VAT Clause"
         if Result <> '' then
             exit(Result);
 
-        if GetDocumentTypeAndLanguageCode(RecRelatedVariant, DocumentType, LanguageCode) then
+        if GetDocumentTypeAndLanguageCode(RecRelatedVariant, DocumentType, LanguageCode) then begin
+            TranslateDescription(LanguageCode);
             exit(Description + ' ' + "Description 2");
+        end;
 
         if TryFindDescriptionByDocumentType(DocumentType, LanguageCode) then begin
             TranslateDescription(LanguageCode);
@@ -288,10 +290,10 @@ table 560 "VAT Clause"
                     exit(true);
                 end;
             else begin
-                    IsHandled := false;
-                    OnGetDocumentTypeAndLanguageCode(Rec, RecRelatedVariant, DocumentType, LanguageCode, IsHandled);
-                    exit(IsHandled);
-                end;
+                IsHandled := false;
+                OnGetDocumentTypeAndLanguageCode(Rec, RecRelatedVariant, DocumentType, LanguageCode, IsHandled);
+                exit(IsHandled);
+            end;
         end;
     end;
 

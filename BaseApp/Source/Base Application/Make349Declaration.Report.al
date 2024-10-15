@@ -178,11 +178,7 @@ report 10710 "Make 349 Declaration"
                     AccPrevDeclAmount: array[3] of Decimal;
                     AccOrigDeclAmount: array[3] of Decimal;
                     i: Integer;
-                    CreditMemoOrgDeclaredAmt: Decimal;
-                    CreditMemoAmt: Decimal;
-                    AppliedAmt: Decimal;
                     NoTaxableNormalAmountSales: array[3] of Decimal;
-                    IsCreditMemoPrinted: Boolean;
                 begin
                     while (Customer."VAT Registration No." = PreVATRegNo) or (Customer."VAT Registration No." = '') do
                         if Customer.Next() = 0 then
@@ -191,13 +187,11 @@ report 10710 "Make 349 Declaration"
 
                     CustVendCountry.Get("Country/Region Code");
                     CustVendVatRegNo := CombineEUCountryAndVATRegNo(CustVendCountry, "VAT Registration No.");
-                    OpTriang := ' ';
                     AmountOpTri := 0;
                     NormalAmount := 0;
                     Clear(Amount);
                     Clear(AccPrevDeclAmount);
                     Clear(AccOrigDeclAmount);
-                    RectAmount := 0;
                     PrevDeclAmount := 0;
                     AccumPrevDeclAmount := 0;
                     AccumOrigDeclAmount := 0;
@@ -212,7 +206,7 @@ report 10710 "Make 349 Declaration"
                     Customer2.SetRange("VAT Registration No.", "VAT Registration No.");
                     if Customer2.FindSet() then begin
                         repeat
-                            GetVATInvSalesEntries(VATInvSales, Customer2."No.", FromDate, ToDate, false, FilterString);
+                            FilterVATInvSalesEntries(VATInvSales, Customer2."No.", FromDate, ToDate, false, FilterString);
                             VATInvSales.SetRange("EU 3-Party Trade", true);
                             if VATInvSales.FindSet() then
                                 repeat
@@ -221,20 +215,17 @@ report 10710 "Make 349 Declaration"
                                            ((VATInvSales."Country/Region Code" = CountryCode) and LocationDiffCountryCode)
                                         then begin
                                             if "VAT Registration No." <> '' then begin
-                                                if AmountToIncludein349 <> 0 then begin
-                                                    OpTriang := 'X';
-                                                    AmountOpTri := AmountOpTri + AmountToIncludein349
-                                                end else begin
-                                                    OpTriang := 'X';
-                                                    AmountOpTri := AmountOpTri + VATInvSales.Base;
-                                                end;
+                                                if AmountToIncludein349 <> 0 then
+                                                    AmountOpTri += AmountToIncludein349
+                                                else
+                                                    AmountOpTri += VATInvSales.Base;
                                             end else
                                                 EmptyVATRegNo := true;
                                         end;
                                     end;
                                 until VATInvSales.Next() = 0;
 
-                            GetVATInvSalesEntries(VATInvSales, Customer2."No.", FromDate, ToDate, false, FilterString);
+                            FilterVATInvSalesEntries(VATInvSales, Customer2."No.", FromDate, ToDate, false, FilterString);
                             VATInvSales.SetRange("EU 3-Party Trade", false);
                             if VATInvSales.FindSet() then
                                 repeat
@@ -250,7 +241,7 @@ report 10710 "Make 349 Declaration"
                                     end;
                                 until VATInvSales.Next() = 0;
 
-                            GetVATInvSalesEntries(VATInvSales, Customer2."No.", FromDate, ToDate, true, FilterString);
+                            FilterVATInvSalesEntries(VATInvSales, Customer2."No.", FromDate, ToDate, true, FilterString);
                             if VATInvSales.FindSet() then
                                 repeat
                                     if IncludeIn349(VATInvSales, AmountToIncludein349, LocationDiffCountryCode) then begin
@@ -259,9 +250,9 @@ report 10710 "Make 349 Declaration"
                                         then begin
                                             if "VAT Registration No." <> '' then begin
                                                 if AmountToIncludein349 <> 0 then
-                                                    AmountEUService := AmountEUService + AmountToIncludein349
+                                                    AmountEUService += AmountToIncludein349
                                                 else
-                                                    AmountEUService := AmountEUService + VATInvSales.Base;
+                                                    AmountEUService += VATInvSales.Base;
                                             end else
                                                 EmptyVATRegNo := true;
                                         end;
@@ -272,8 +263,8 @@ report 10710 "Make 349 Declaration"
 
                             for i := 1 to 3 do
                                 Amount[i] += NoTaxableNormalAmountSales[i];
-                            AmountEUService := AmountEUService + NoTaxableAmountEUService;
-                            AmountOpTri := AmountOpTri + NoTaxableAmountOpTri;
+                            AmountEUService += NoTaxableAmountEUService;
+                            AmountOpTri += NoTaxableAmountOpTri;
 
                             CorrIncludedForOpTriAmount := false;
 
@@ -282,13 +273,15 @@ report 10710 "Make 349 Declaration"
                             CustVendWarning349.SetRange("Customer/Vendor No.", Customer2."No.");
                             CustVendWarning349.SetRange("Posting Date", FromDate, ToDate);
                             CustVendWarning349.SetRange("Include Correction", true);
-                            if CustVendWarning349.FindFirst() then
+                            if CustVendWarning349.FindSet() then
                                 repeat
                                     if ((CustVendWarning349."Original Declaration FY" <> FiscalYear) or
-                                        (CustVendWarning349."Original Declaration Period" <> GetPeriodAsText))
+                                        (CustVendWarning349."Original Declaration Period" <> GetPeriodAsText) or
+                                        (not IsCorrectiveCrMemo(CustVendWarning349)))
                                     then begin
-                                        TotalCorreAmt := TotalCorreAmt + CustVendWarning349."Original Declared Amount";
-                                        NoOfCorrections := NoOfCorrections + 1;
+                                        // Credit Memo corrects Invoice from previous period OR Credit Memo does not correct any Invoice
+                                        TotalCorreAmt += CustVendWarning349."Original Declared Amount";
+                                        NoOfCorrections += 1;
 
                                         AccumPrevDeclAmount := 0;
                                         AccumOrigDeclAmount := 0;
@@ -300,11 +293,11 @@ report 10710 "Make 349 Declaration"
                                         Clear(AccOrigDeclAmount);
 
                                         CustVendWarning349_2 := CustVendWarning349;
-                                        GetCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, false);
+                                        FilterCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, false);
                                         CustVendWarning349_2.SetRange("EU 3-Party Trade", false);
                                         AlreadyExported := false;
 
-                                        if CustVendWarning349_2.FindFirst() then begin
+                                        if CustVendWarning349_2.FindSet() then begin
                                             InitVATEntry(VATEntry, CustVendWarning349_2."VAT Entry No.");
                                             if CustVendWarning349_2.Count > 1 then begin
                                                 repeat
@@ -329,8 +322,9 @@ report 10710 "Make 349 Declaration"
                                         ThirdPartyAlreadyExported := false;
                                         EUServiceAlreadyExported := false;
 
+                                        // EU Service
                                         CustVendWarning349_2.Reset();
-                                        GetCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, true);
+                                        FilterCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, true);
                                         if CustVendWarning349_2.FindSet() then
                                             if CustVendWarning349_2.Count > 1 then begin
                                                 if "VAT Registration No." <> '' then
@@ -353,8 +347,9 @@ report 10710 "Make 349 Declaration"
                                         else
                                             EUServiceAlreadyExported := true;
 
+                                        // EU 3-party trade
                                         CustVendWarning349_2.Reset();
-                                        GetCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, false);
+                                        FilterCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, false);
                                         CustVendWarning349_2.SetRange("EU 3-Party Trade", true);
                                         if CustVendWarning349_2.FindSet() then
                                             if CustVendWarning349_2.Count > 1 then begin
@@ -377,54 +372,42 @@ report 10710 "Make 349 Declaration"
                                         else
                                             ThirdPartyAlreadyExported := true;
 
-                                        OpTriang := ' ';
-                                        if VATCredSales."EU 3-Party Trade" then
-                                            OpTriang := 'X';
                                         Sign := CustVendWarning349.Sign;
-
 
                                         if not (AlreadyExported and EUServiceAlreadyExported and ThirdPartyAlreadyExported) then begin
                                             if "VAT Registration No." <> '' then begin
-                                                CustVendCountry.Get(Customer2."Country/Region Code");
-
                                                 if CustVendWarning349."EU Service" then begin
-                                                    TextAmount := CopyStr(FormatTextAmt(AccumPrevDeclAmountEUService), 3, 13);
-                                                    TextAmount2 := CopyStr(FormatTextAmt(AccumOrigDeclAmountEUService), 3, 13);
-
+                                                    TextAmount := CopyStr(FormatTextAmt(AccumOrigDeclAmountEUService), 3, 13);
+                                                    TextAmount2 := CopyStr(FormatTextAmt(AccumPrevDeclAmountEUService), 3, 13);
                                                     Txt :=
                                                       '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
-                                                      CustVendVatRegNo +
-                                                      PadStr(UpperCase(Customer2.Name), 40, ' ') +
-                                                      'S' + PadStr('', 13, ' ') + CustVendWarning349."Original Declaration FY" +
-                                                      CustVendWarning349."Original Declaration Period" + TextAmount2 + TextAmount +
-                                                      PadStr('', 322, ' ');
+                                                        CustVendVatRegNo + PadStr(UpperCase(Customer2.Name), 40, ' ') +
+                                                        'S' + PadStr('', 13, ' ') +
+                                                        CustVendWarning349."Original Declaration FY" + CustVendWarning349."Original Declaration Period" +
+                                                        TextAmount + TextAmount2 + PadStr('', 322, ' ');
                                                     AppendLine(Txt);
                                                 end else
                                                     if CustVendWarning349."EU 3-Party Trade" then begin
-                                                        TextAmount := CopyStr(FormatTextAmt(AccumPrevDeclAmountTri), 3, 13);
-                                                        TextAmount2 := CopyStr(FormatTextAmt(AccumOrigDeclAmountTri), 3, 13);
-
+                                                        TextAmount := CopyStr(FormatTextAmt(AccumOrigDeclAmountTri), 3, 13);
+                                                        TextAmount2 := CopyStr(FormatTextAmt(AccumPrevDeclAmountTri), 3, 13);
                                                         Txt :=
                                                           '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
-                                                          CustVendVatRegNo +
-                                                          PadStr(UpperCase(Customer2.Name), 40, ' ') +
-                                                          'T' + PadStr('', 13, ' ') + CustVendWarning349."Original Declaration FY" +
-                                                          CustVendWarning349."Original Declaration Period" + TextAmount2 + TextAmount +
-                                                          PadStr('', 322, ' ');
+                                                            CustVendVatRegNo + PadStr(UpperCase(Customer2.Name), 40, ' ') +
+                                                            'T' + PadStr('', 13, ' ') +
+                                                            CustVendWarning349."Original Declaration FY" + CustVendWarning349."Original Declaration Period" +
+                                                            TextAmount + TextAmount2 + PadStr('', 322, ' ');
                                                         AppendLine(Txt);
                                                     end else
-                                                        for i := 1 to 3 do
+                                                        for i := 1 to 3 do      // E, M, H types
                                                             if (AccPrevDeclAmount[i] <> 0) or (AccOrigDeclAmount[i] <> 0) then begin
-                                                                TextAmount := CopyStr(FormatTextAmt(AccPrevDeclAmount[i]), 3, 13);
-                                                                TextAmount2 := CopyStr(FormatTextAmt(AccOrigDeclAmount[i]), 3, 13);
-
+                                                                TextAmount := CopyStr(FormatTextAmt(AccOrigDeclAmount[i]), 3, 13);
+                                                                TextAmount2 := CopyStr(FormatTextAmt(AccPrevDeclAmount[i]), 3, 13);
                                                                 Txt :=
                                                                   '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
-                                                                  CustVendVatRegNo +
-                                                                  PadStr(UpperCase(Customer2.Name), 40, ' ') +
-                                                                  OperationCode[i] + PadStr('', 13, ' ') + CustVendWarning349."Original Declaration FY" +
-                                                                  CustVendWarning349."Original Declaration Period" + TextAmount2 + TextAmount +
-                                                                  PadStr('', 322, ' ');
+                                                                    CustVendVatRegNo + PadStr(UpperCase(Customer2.Name), 40, ' ') +
+                                                                    OperationCode[i] + PadStr('', 13, ' ') +
+                                                                    CustVendWarning349."Original Declaration FY" + CustVendWarning349."Original Declaration Period" +
+                                                                    TextAmount + TextAmount2 + PadStr('', 322, ' ');
                                                                 AppendLine(Txt);
                                                             end;
 
@@ -433,79 +416,61 @@ report 10710 "Make 349 Declaration"
                                         end;
 
                                     end else begin
+                                        // Credit Memo corrects Invoice from the same period
                                         if "VAT Registration No." <> '' then begin
                                             if CustVendWarning349."EU Service" then
-                                                CorrectAmountEU
+                                                CorrectAmountEU()
                                             else begin
                                                 if CustVendWarning349."EU 3-Party Trade" then begin
-                                                    AmountOpTri := AmountOpTri + CustVendWarning349."Original Declared Amount";
+                                                    AmountOpTri += CustVendWarning349."Original Declared Amount";
                                                     CorrIncludedForOpTriAmount := true;
-                                                end else
-                                                    CorrectAmountSalesNoEU(AppliedAmt, CreditMemoOrgDeclaredAmt, IsCreditMemoPrinted, Amount, CreditMemoAmt);
+                                                end else begin
+                                                    InitVATEntry(VATEntry, CustVendWarning349."VAT Entry No.");
+                                                    SummarizeBaseAmount(VATEntry, -CustVendWarning349."Original Declared Amount", Amount);
+                                                end;
                                             end;
                                         end;
                                     end;
-                                    if RectPeriod = 'O' then
-                                        RectPeriod := '0';
                                 until CustVendWarning349.Next() = 0;
                         until Customer2.Next() = 0;
 
                         if "VAT Registration No." <> '' then begin
                             for i := 1 to 3 do begin
-                                if Amount[i] < 0 then
-                                    Amount[i] := -Amount[i];
+                                Amount[i] := Abs(Amount[i]);
                                 if Amount[i] <> 0 then begin
                                     TextAmount := CopyStr(FormatTextAmt(Amount[i]), 3, 13);
-                                    CustVendCountry.Get(Customer2."Country/Region Code");
                                     Txt :=
                                       '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
                                       CustVendVatRegNo +
                                       PadStr(UpperCase(Customer2.Name), 40, ' ') +
                                       OperationCode[i] + ConvertStr(TextAmount, ' ', '0') + PadStr('', 354, ' ');
-                                    NoOperations := NoOperations + 1;
-                                    TotalAmtShip := TotalAmtShip + Amount[i];
+                                    NoOperations += 1;
+                                    TotalAmtShip += Amount[i];
                                     AppendLine(Txt);
                                 end;
                             end;
-                            if AmountOpTri < 0 then
-                                AmountOpTri := -AmountOpTri;
+
+                            AmountOpTri := Abs(AmountOpTri);
                             if CorrIncludedForOpTriAmount or (AmountOpTri <> 0) then begin
                                 TextAmount := CopyStr(FormatTextAmt(AmountOpTri), 3, 13);
-                                CustVendCountry.Get(Customer2."Country/Region Code");
                                 Txt :=
                                   '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
                                   CustVendVatRegNo +
                                   PadStr(UpperCase(Customer2.Name), 40, ' ') +
                                   'T' + ConvertStr(TextAmount, ' ', '0') + PadStr('', 354, ' ');
-                                NoOperations := NoOperations + 1;
-                                TotalAmtShip := TotalAmtShip + AmountOpTri;
+                                NoOperations += 1;
+                                TotalAmtShip += AmountOpTri;
                                 AppendLine(Txt);
                             end;
-                            if AmountEUService < 0 then
-                                AmountEUService := -AmountEUService;
+
+                            AmountEUService := Abs(AmountEUService);
                             if AmountEUService <> 0 then begin
                                 TextAmount := CopyStr(FormatTextAmt(AmountEUService), 3, 13);
-                                CustVendCountry.Get(Customer2."Country/Region Code");
                                 Txt :=
                                   '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
                                   CustVendVatRegNo +
                                   PadStr(UpperCase(Customer2.Name), 40, ' ') +
                                   'S' + ConvertStr(TextAmount, ' ', '0') + PadStr('', 354, ' ');
-                                NoOperations := NoOperations + 1;
-                                TotalAmtShip := TotalAmtShip + AmountEUService;
-                                AppendLine(Txt);
-                            end;
-                            if IsCreditMemoPrinted then begin
-                                TextAmount2 := CopyStr(FormatTextAmt(Abs(CreditMemoOrgDeclaredAmt)), 3, 13);
-                                TextAmount := CopyStr(FormatTextAmt(Abs(CreditMemoAmt)), 3, 13);
-                                CustVendCountry.Get(Customer2."Country/Region Code");
-                                Txt :=
-                                  '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
-                                  CustVendVatRegNo +
-                                  PadStr(UpperCase(Customer2.Name), 40, ' ') +
-                                  'E' + PadStr('', 13, ' ') + CustVendWarning349."Original Declaration FY" +
-                                  CustVendWarning349."Original Declaration Period" + TextAmount2 + TextAmount +
-                                  PadStr('', 322, ' ');
                                 NoOperations += 1;
                                 TotalAmtShip += AmountEUService;
                                 AppendLine(Txt);
@@ -526,11 +491,6 @@ report 10710 "Make 349 Declaration"
                 PrintOnlyIfDetail = false;
 
                 trigger OnAfterGetRecord()
-                var
-                    AppliedAmt: Decimal;
-                    PurchCreditMemoOrgDeclaredAmt: Decimal;
-                    PurchCreditMemoAmt: Integer;
-                    IsPurchCreditMemoPrinted: Boolean;
                 begin
                     while (Vendor."VAT Registration No." = PreVATRegNo) or (Vendor."VAT Registration No." = '') do
                         if Vendor.Next() = 0 then
@@ -539,10 +499,8 @@ report 10710 "Make 349 Declaration"
 
                     CustVendCountry.Get("Country/Region Code");
                     CustVendVatRegNo := CombineEUCountryAndVATRegNo(CustVendCountry, "VAT Registration No.");
-                    OpTriang := ' ';
                     AmountOpTri := 0;
                     NormalAmount := 0;
-                    RectAmount := 0;
                     PrevDeclAmount := 0;
                     AccumPrevDeclAmount := 0;
                     AccumOrigDeclAmount := 0;
@@ -555,33 +513,30 @@ report 10710 "Make 349 Declaration"
 
                     Vendor2.Reset();
                     Vendor2.SetRange("VAT Registration No.", "VAT Registration No.");
-                    if Vendor2.Find('-') then begin
+                    if Vendor2.FindSet() then begin
                         repeat
-                            GetVATInvPurchEntries(VATInvPurch, Vendor2."No.", FromDate, ToDate, false, FilterString);
+                            FilterVATInvPurchEntries(VATInvPurch, Vendor2."No.", FromDate, ToDate, false, FilterString);
                             VATInvPurch.SetRange("EU 3-Party Trade", true);
-                            if VATInvPurch.Find('-') then
+                            if VATInvPurch.FindSet() then
                                 repeat
                                     if IncludeIn349(VATInvPurch, AmountToIncludein349, LocationDiffCountryCode) then begin
                                         if (VATInvPurch."Country/Region Code" <> CountryCode) or
                                            ((VATInvPurch."Country/Region Code" = CountryCode) and LocationDiffCountryCode)
                                         then begin
                                             if "VAT Registration No." <> '' then begin
-                                                if AmountToIncludein349 <> 0 then begin
-                                                    OpTriang := 'X';
-                                                    AmountOpTri := AmountOpTri + AmountToIncludein349;
-                                                end else begin
-                                                    OpTriang := 'X';
-                                                    AmountOpTri := AmountOpTri + VATInvPurch.Base;
-                                                end;
+                                                if AmountToIncludein349 <> 0 then
+                                                    AmountOpTri += AmountToIncludein349
+                                                else
+                                                    AmountOpTri += VATInvPurch.Base;
                                             end else
                                                 EmptyVATRegNo := true;
                                         end;
                                     end;
                                 until VATInvPurch.Next() = 0;
 
-                            GetVATInvPurchEntries(VATInvPurch, Vendor2."No.", FromDate, ToDate, false, FilterString);
+                            FilterVATInvPurchEntries(VATInvPurch, Vendor2."No.", FromDate, ToDate, false, FilterString);
                             VATInvPurch.SetRange("EU 3-Party Trade", false);
-                            if VATInvPurch.Find('-') then
+                            if VATInvPurch.FindSet() then
                                 repeat
                                     if IncludeIn349(VATInvPurch, AmountToIncludein349, LocationDiffCountryCode) then begin
                                         if (VATInvPurch."Country/Region Code" <> CountryCode) or
@@ -589,17 +544,17 @@ report 10710 "Make 349 Declaration"
                                         then begin
                                             if "VAT Registration No." <> '' then begin
                                                 if (AmountToIncludein349 <> 0) and ("Currency Code" = '') then
-                                                    NormalAmount := NormalAmount + AmountToIncludein349
+                                                    NormalAmount += AmountToIncludein349
                                                 else
-                                                    NormalAmount := NormalAmount + VATInvPurch.Base;
+                                                    NormalAmount += VATInvPurch.Base;
                                             end else
                                                 EmptyVATRegNo := true;
                                         end;
                                     end;
                                 until VATInvPurch.Next() = 0;
 
-                            GetVATInvPurchEntries(VATInvPurch, Vendor2."No.", FromDate, ToDate, true, FilterString);
-                            if VATInvPurch.Find('-') then
+                            FilterVATInvPurchEntries(VATInvPurch, Vendor2."No.", FromDate, ToDate, true, FilterString);
+                            if VATInvPurch.FindSet() then
                                 repeat
                                     if IncludeIn349(VATInvPurch, AmountToIncludein349, LocationDiffCountryCode) then begin
                                         if (VATInvPurch."Country/Region Code" <> CountryCode) or
@@ -607,9 +562,9 @@ report 10710 "Make 349 Declaration"
                                         then begin
                                             if "VAT Registration No." <> '' then begin
                                                 if (AmountToIncludein349 <> 0) and ("Currency Code" = '') then
-                                                    AmountEUService := AmountEUService + AmountToIncludein349
+                                                    AmountEUService += AmountToIncludein349
                                                 else
-                                                    AmountEUService := AmountEUService + VATInvPurch.Base;
+                                                    AmountEUService += VATInvPurch.Base;
                                             end else
                                                 EmptyVATRegNo := true;
                                         end;
@@ -625,13 +580,15 @@ report 10710 "Make 349 Declaration"
                             CustVendWarning349.SetRange("Customer/Vendor No.", Vendor2."No.");
                             CustVendWarning349.SetRange("Posting Date", FromDate, ToDate);
                             CustVendWarning349.SetRange("Include Correction", true);
-                            if CustVendWarning349.FindFirst() then
+                            if CustVendWarning349.FindSet() then
                                 repeat
                                     if ((CustVendWarning349."Original Declaration FY" <> FiscalYear) or
-                                        (CustVendWarning349."Original Declaration Period" <> GetPeriodAsText))
+                                        (CustVendWarning349."Original Declaration Period" <> GetPeriodAsText) or
+                                        (not IsCorrectiveCrMemo(CustVendWarning349)))
                                     then begin
-                                        TotalCorreAmt := TotalCorreAmt + CustVendWarning349."Original Declared Amount";
-                                        NoOfCorrections := NoOfCorrections + 1;
+                                        // Credit Memo corrects Invoice from previous period OR Credit Memo does not correct any Invoice
+                                        TotalCorreAmt += CustVendWarning349."Original Declared Amount";
+                                        NoOfCorrections += 1;
                                         AccumPrevDeclAmount := 0;
                                         AccumOrigDeclAmount := 0;
                                         AccumPrevDeclAmountEUService := 0;
@@ -640,11 +597,11 @@ report 10710 "Make 349 Declaration"
                                         AccumOrigDeclAmountTri := 0;
 
                                         CustVendWarning349_2 := CustVendWarning349;
-                                        GetCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, false);
+                                        FilterCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, false);
                                         CustVendWarning349_2.SetRange("EU 3-Party Trade", false);
                                         AlreadyExported := false;
 
-                                        if CustVendWarning349_2.FindFirst() then begin
+                                        if CustVendWarning349_2.FindSet() then begin
                                             if CustVendWarning349_2.Count > 1 then begin
                                                 if "VAT Registration No." <> '' then
                                                     AccumPrevDeclAmount := AccumPrevDeclAmount + Abs(CustVendWarning349_2."Previous Declared Amount");
@@ -663,11 +620,13 @@ report 10710 "Make 349 Declaration"
                                             end;
                                         end else
                                             AlreadyExported := true;
+
                                         ThirdPartyAlreadyExported := false;
                                         EUServiceAlreadyExported := false;
 
+                                        // EU Service
                                         CustVendWarning349_2.Reset();
-                                        GetCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, true);
+                                        FilterCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, true);
                                         if CustVendWarning349_2.FindSet() then
                                             if CustVendWarning349_2.Count > 1 then begin
                                                 if "VAT Registration No." <> '' then
@@ -689,8 +648,9 @@ report 10710 "Make 349 Declaration"
                                         else
                                             EUServiceAlreadyExported := true;
 
+                                        // EU 3-party trade
                                         CustVendWarning349_2.Reset();
-                                        GetCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, false);
+                                        FilterCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, false);
                                         CustVendWarning349_2.SetRange("EU 3-Party Trade", true);
                                         if CustVendWarning349_2.FindSet() then
                                             if CustVendWarning349_2.Count > 1 then begin
@@ -712,49 +672,41 @@ report 10710 "Make 349 Declaration"
                                             end
                                         else
                                             ThirdPartyAlreadyExported := true;
-                                        OpTriang := ' ';
-                                        if VATCredPurch."EU 3-Party Trade" then
-                                            OpTriang := 'X';
+
                                         Sign := CustVendWarning349.Sign;
 
                                         if not (AlreadyExported and EUServiceAlreadyExported and ThirdPartyAlreadyExported) then begin
                                             if "VAT Registration No." <> '' then begin
-                                                CustVendCountry.Get(Vendor2."Country/Region Code");
                                                 if CustVendWarning349."EU Service" then begin
-                                                    TextAmount := CopyStr(FormatTextAmt(AccumPrevDeclAmountEUService), 3, 13);
-                                                    TextAmount2 := CopyStr(FormatTextAmt(AccumOrigDeclAmountEUService), 3, 13);
-
+                                                    TextAmount := CopyStr(FormatTextAmt(AccumOrigDeclAmountEUService), 3, 13);
+                                                    TextAmount2 := CopyStr(FormatTextAmt(AccumPrevDeclAmountEUService), 3, 13);
                                                     Txt :=
                                                       '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
-                                                      CustVendVatRegNo +
-                                                      PadStr(UpperCase(Vendor2.Name), 40, ' ') +
-                                                      'I' + PadStr('', 13, ' ') + CustVendWarning349."Original Declaration FY" +
-                                                      CustVendWarning349."Original Declaration Period" + TextAmount2 + TextAmount +
-                                                      PadStr('', 322, ' ');
+                                                        CustVendVatRegNo + PadStr(UpperCase(Vendor2.Name), 40, ' ') +
+                                                        'I' + PadStr('', 13, ' ') +
+                                                        CustVendWarning349."Original Declaration FY" + CustVendWarning349."Original Declaration Period" +
+                                                        TextAmount + TextAmount2 + PadStr('', 322, ' ');
                                                     AppendLine(Txt);
                                                 end else
                                                     if CustVendWarning349."EU 3-Party Trade" then begin
-                                                        TextAmount := CopyStr(FormatTextAmt(AccumPrevDeclAmountTri), 3, 13);
-                                                        TextAmount2 := CopyStr(FormatTextAmt(AccumOrigDeclAmountTri), 3, 13);
-
+                                                        TextAmount := CopyStr(FormatTextAmt(AccumOrigDeclAmountTri), 3, 13);
+                                                        TextAmount2 := CopyStr(FormatTextAmt(AccumPrevDeclAmountTri), 3, 13);
                                                         Txt :=
                                                           '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
-                                                          CustVendVatRegNo +
-                                                          PadStr(UpperCase(Vendor2.Name), 40, ' ') +
-                                                          'T' + PadStr('', 13, ' ') + CustVendWarning349."Original Declaration FY" +
-                                                          CustVendWarning349."Original Declaration Period" + TextAmount2 + TextAmount +
-                                                          PadStr('', 322, ' ');
+                                                            CustVendVatRegNo + PadStr(UpperCase(Vendor2.Name), 40, ' ') +
+                                                            'T' + PadStr('', 13, ' ') +
+                                                            CustVendWarning349."Original Declaration FY" + CustVendWarning349."Original Declaration Period" +
+                                                            TextAmount + TextAmount2 + PadStr('', 322, ' ');
                                                         AppendLine(Txt);
                                                     end else begin
-                                                        TextAmount := CopyStr(FormatTextAmt(AccumPrevDeclAmount), 3, 13);
-                                                        TextAmount2 := CopyStr(FormatTextAmt(AccumOrigDeclAmount), 3, 13);
+                                                        TextAmount := CopyStr(FormatTextAmt(AccumOrigDeclAmount), 3, 13);
+                                                        TextAmount2 := CopyStr(FormatTextAmt(AccumPrevDeclAmount), 3, 13);
                                                         Txt :=
                                                           '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
-                                                          CustVendVatRegNo +
-                                                          PadStr(UpperCase(Vendor2.Name), 40, ' ') +
-                                                          'A' + PadStr('', 13, ' ') + CustVendWarning349."Original Declaration FY" +
-                                                          CustVendWarning349."Original Declaration Period" + TextAmount2 + TextAmount +
-                                                          PadStr('', 322, ' ');
+                                                            CustVendVatRegNo + PadStr(UpperCase(Vendor2.Name), 40, ' ') +
+                                                            'A' + PadStr('', 13, ' ') +
+                                                            CustVendWarning349."Original Declaration FY" + CustVendWarning349."Original Declaration Period" +
+                                                            TextAmount + TextAmount2 + PadStr('', 322, ' ');
                                                         AppendLine(Txt);
                                                     end;
                                             end else
@@ -763,77 +715,57 @@ report 10710 "Make 349 Declaration"
                                     end else begin
                                         if "VAT Registration No." <> '' then begin
                                             if CustVendWarning349."EU Service" then
-                                                CorrectAmountEU
+                                                CorrectAmountEU()
                                             else begin
                                                 if CustVendWarning349."EU 3-Party Trade" then begin
-                                                    AmountOpTri := AmountOpTri - CustVendWarning349."Original Declared Amount";
+                                                    AmountOpTri -= CustVendWarning349."Original Declared Amount";
                                                     CorrIncludedForOpTriAmount := true;
                                                 end else
-                                                    CorrectAmountPurchNoEU(AppliedAmt, PurchCreditMemoOrgDeclaredAmt, IsPurchCreditMemoPrinted);
+                                                    CorrectAmountPurchNoEU();
                                             end;
                                         end;
                                     end;
-                                    if RectPeriod = 'O' then
-                                        RectPeriod := '0';
                                 until CustVendWarning349.Next() = 0;
                         until Vendor2.Next() = 0;
 
                         if "VAT Registration No." <> '' then begin
-                            if NormalAmount < 0 then
-                                NormalAmount := -NormalAmount;
+                            NormalAmount := Abs(NormalAmount);
                             if NormalAmount <> 0 then begin
                                 TextAmount := CopyStr(FormatTextAmt(NormalAmount), 3, 13);
-                                CustVendCountry.Get(Vendor2."Country/Region Code");
                                 Txt :=
                                   '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
                                   CustVendVatRegNo +
                                   PadStr(UpperCase(Vendor2.Name), 40, ' ') +
                                   'A' + ConvertStr(TextAmount, ' ', '0') + PadStr('', 354, ' ');
-                                NoOperations := NoOperations + 1;
-                                TotalAmtReciv := TotalAmtReciv + NormalAmount;
+                                NoOperations += 1;
+                                TotalAmtReciv += NormalAmount;
                                 AppendLine(Txt);
                             end;
-                            if AmountOpTri < 0 then
-                                AmountOpTri := -AmountOpTri;
+
+                            AmountOpTri := Abs(AmountOpTri);
                             if CorrIncludedForOpTriAmount or (AmountOpTri <> 0) then begin
                                 TextAmount := CopyStr(FormatTextAmt(AmountOpTri), 3, 13);
-                                CustVendCountry.Get(Vendor2."Country/Region Code");
                                 Txt :=
                                   '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
                                   CustVendVatRegNo +
                                   PadStr(UpperCase(Vendor2.Name), 40, ' ') +
                                   'T' + ConvertStr(TextAmount, ' ', '0') + PadStr('', 354, ' ');
-                                NoOperations := NoOperations + 1;
-                                TotalAmtReciv := TotalAmtReciv + AmountOpTri;
+                                NoOperations += 1;
+                                TotalAmtReciv += AmountOpTri;
                                 AppendLine(Txt);
                             end;
                         end;
-                        if AmountEUService < 0 then
-                            AmountEUService := -AmountEUService;
+
+                        AmountEUService := Abs(AmountEUService);
                         if AmountEUService <> 0 then begin
                             TextAmount := CopyStr(FormatTextAmt(AmountEUService), 3, 13);
-                            CustVendCountry.Get(Vendor2."Country/Region Code");
                             Txt :=
                               '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
                               CustVendVatRegNo +
                               PadStr(UpperCase(Vendor2.Name), 40, ' ') +
                               'I' + ConvertStr(TextAmount, ' ', '0') + PadStr('', 354, ' ');
-                            NoOperations := NoOperations + 1;
-                            TotalAmtReciv := TotalAmtReciv + AmountEUService;
-                            AppendLine(Txt);
-                        end;
-                        if IsPurchCreditMemoPrinted then begin
-                            TextAmount := CopyStr(FormatTextAmt(Abs(PurchCreditMemoOrgDeclaredAmt)), 3, 13);
-                            CustVendCountry.Get(Customer2."Country/Region Code");
-                            Txt :=
-                              '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
-                              CustVendVatRegNo +
-                              PadStr(UpperCase(Vendor2.Name), 40, ' ') +
-                              'E' + PadStr('', 13, ' ') + CustVendWarning349."Original Declaration FY" +
-                              CustVendWarning349."Original Declaration Period" + TextAmount +
-                              PadStr('', 322, ' ');
                             NoOperations += 1;
-                            TotalAmtShip += AmountEUService;
+                            TotalAmtReciv += AmountEUService;
                             AppendLine(Txt);
                         end;
                     end;
@@ -1034,7 +966,7 @@ report 10710 "Make 349 Declaration"
             PeriodChangeText := 'X'
         else
             PeriodChangeText := ' ';
-        if (TextOpAmount <> PadStr('', 15, '0')) or (TextCorreAmount <> PadStr('', 15, '0')) then begin
+        if TextList.Count <> 0 then begin
             Txt :=
               '1' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') +
               PadStr(UpperCase(CompanyInfo.Name), 40, ' ') + DeclarationMT +
@@ -1178,7 +1110,6 @@ report 10710 "Make 349 Declaration"
         FiscalYear: Code[4];
         RectFiscalYear: Code[4];
         FiscalYear2: Code[2];
-        RectPeriod: Code[2];
         ContactTelephone: Code[9];
         CountryCode: Code[10];
         OperationCode: array[3] of Code[1];
@@ -1189,14 +1120,12 @@ report 10710 "Make 349 Declaration"
         AmountOpTri: Decimal;
         TotalCorreAmt: Decimal;
         PrevDeclAmount: Decimal;
-        RectAmount: Decimal;
         AccumPrevDeclAmount: Decimal;
         AccumOrigDeclAmount: Decimal;
         AmountToIncludein349: Decimal;
         Txt: Text[501];
         VatRegNo: Text[9];
         FileName: Text;
-        OpTriang: Text[1];
         Sign: Text[1];
         CustVendVatRegNo: Text[20];
         ContactName: Text[40];
@@ -1747,42 +1676,6 @@ report 10710 "Make 349 Declaration"
         end;
     end;
 
-    local procedure GetTotalCreditMemoAmt(): Decimal
-    var
-        CustVendWarning349: Record "Customer/Vendor Warning 349";
-        VATEntry: Record "VAT Entry";
-        TotalAmount: array[3] of Decimal;
-    begin
-        FilterCustVendWarning349(CustVendWarning349, CustVendWarning349.Type::Sale, Customer2."No.");
-        if CustVendWarning349.FindSet() then begin
-            repeat
-                if Customer2."VAT Registration No." <> '' then begin
-                    InitVATEntry(VATEntry, CustVendWarning349."VAT Entry No.");
-                    if not VATEntry.IsCorrectiveCrMemoDiffPeriod(StartDateFormula, EndDateFormula) then
-                        SummarizeBaseAmount(VATEntry, CustVendWarning349."Original Declared Amount", TotalAmount)
-                end;
-            until CustVendWarning349.Next() = 0;
-            exit(TotalAmount[1]);
-        end;
-    end;
-
-    local procedure GetTotalPurchCreditMemoAmt(): Decimal
-    var
-        CustVendWarning349: Record "Customer/Vendor Warning 349";
-        VATEntry: Record "VAT Entry";
-        TotalAmount: Decimal;
-    begin
-        FilterCustVendWarning349(CustVendWarning349, CustVendWarning349.Type::Purchase, Vendor2."No.");
-        if CustVendWarning349.FindSet() then begin
-            repeat
-                if Vendor2."VAT Registration No." <> '' then begin
-                    TotalAmount += Abs(CustVendWarning349."Original Declared Amount");
-                end;
-            until CustVendWarning349.Next() = 0;
-            exit(TotalAmount);
-        end;
-    end;
-
     local procedure CalcVendDeclarationPeriodInfo(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; VendNo: Code[20])
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
@@ -1834,16 +1727,6 @@ report 10710 "Make 349 Declaration"
           NoTaxableNormalAmountSales, NoTaxableAmountEUService, NoTaxableAmountOpTri, Customer2."No.", FromDate, ToDate, FilterString);
     end;
 
-    local procedure FilterCustVendWarning349(var CustVendWarning349: Record "Customer/Vendor Warning 349"; docType: Option; No: Code[20])
-    begin
-        with CustVendWarning349 do begin
-            SetRange(Type, docType);
-            SetRange("Customer/Vendor No.", No);
-            SetRange("Posting Date", FromDate, ToDate);
-            SetRange("Include Correction", true);
-        end;
-    end;
-
     [Scope('OnPrem')]
     procedure GetPeriodAsText(): Code[2]
     var
@@ -1856,7 +1739,7 @@ report 10710 "Make 349 Declaration"
         exit(Format(PeriodInt, 2, '<Integer,2><Filler Character,0>'));
     end;
 
-    local procedure GetVATInvPurchEntries(var VATEntry: Record "VAT Entry"; BillToPayNo: Code[20]; FromDate: Date; ToDate: Date; EUService: Boolean; GenProdPostingGroupFilter: Text)
+    local procedure FilterVATInvPurchEntries(var VATEntry: Record "VAT Entry"; BillToPayNo: Code[20]; FromDate: Date; ToDate: Date; EUService: Boolean; GenProdPostingGroupFilter: Text)
     begin
         with VATEntry do begin
             Reset;
@@ -1869,7 +1752,7 @@ report 10710 "Make 349 Declaration"
         end;
     end;
 
-    local procedure GetVATInvSalesEntries(var VATEntry: Record "VAT Entry"; BillToPayNo: Code[20]; FromDate: Date; ToDate: Date; EUService: Boolean; GenProdPostingGroupFilter: Text)
+    local procedure FilterVATInvSalesEntries(var VATEntry: Record "VAT Entry"; BillToPayNo: Code[20]; FromDate: Date; ToDate: Date; EUService: Boolean; GenProdPostingGroupFilter: Text)
     begin
         with VATEntry do begin
             Reset;
@@ -1882,7 +1765,7 @@ report 10710 "Make 349 Declaration"
         end;
     end;
 
-    local procedure GetCustVendWarnings(var CustVendWarning349To: Record "Customer/Vendor Warning 349"; var CustVendWarning349From: Record "Customer/Vendor Warning 349"; IsExported: Boolean; EUService: Boolean)
+    local procedure FilterCustVendWarnings(var CustVendWarning349To: Record "Customer/Vendor Warning 349"; var CustVendWarning349From: Record "Customer/Vendor Warning 349"; IsExported: Boolean; EUService: Boolean)
     begin
         with CustVendWarning349To do begin
             Copy(CustVendWarning349);
@@ -1919,6 +1802,34 @@ report 10710 "Make 349 Declaration"
         exit(
           (LocationCountryCode <> CountryCode) xor
           (CustVendCountryRegionCode <> CountryCode));
+    end;
+
+    local procedure IsCorrectiveCrMemo(CustVendWarning349: Record "Customer/Vendor Warning 349"): Boolean
+    var
+        VATEntry: Record "VAT Entry";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
+    begin
+        InitVATEntry(VATEntry, CustVendWarning349."VAT Entry No.");
+        if VATEntry."Document Type" <> "Gen. Journal Document Type"::"Credit Memo" then
+            exit(false);
+
+        case CustVendWarning349.Type of
+            CustVendWarning349.Type::Sale:
+                begin
+                    if not SalesCrMemoHeader.Get(CustVendWarning349."Document No.") then
+                        if not ServiceCrMemoHeader.Get(CustVendWarning349."Document No.") then
+                            exit(false);
+                    exit((SalesCrMemoHeader."Corrected Invoice No." <> '') or (ServiceCrMemoHeader."Corrected Invoice No." <> ''));
+                end;
+            CustVendWarning349.Type::Purchase:
+                begin
+                    if not PurchCrMemoHeader.Get(CustVendWarning349."Document No.") then
+                        exit(false);
+                    exit(PurchCrMemoHeader."Corrected Invoice No." <> '');
+                end;
+        end;
     end;
 
     local procedure CombineEUCountryAndVATRegNo(CountryRegion: Record "Country/Region"; VATRegistrationNo: Code[20]) CombinedVATRegNo: Text[17]
@@ -2021,40 +1932,16 @@ report 10710 "Make 349 Declaration"
         until NoTaxableEntry.Next() = 0;
     end;
 
-    local procedure CorrectAmountSalesNoEU(var AppliedAmt: Decimal; var CreditMemoOrgDeclaredAmt: Decimal; var IsCreditMemoPrinted: Boolean; var Amount: array[3] of Decimal; var CreditMemoAmt: Decimal)
+    local procedure CorrectAmountPurchNoEU()
     var
         VATEntry: Record "VAT Entry";
     begin
         InitVATEntry(VATEntry, CustVendWarning349."VAT Entry No.");
-        if Abs(Amount[1]) >= GetTotalCreditMemoAmt - AppliedAmt then begin
-            AppliedAmt += Abs(Amount[1]);
-            SummarizeBaseAmount(VATEntry, -CustVendWarning349."Original Declared Amount", Amount);
-            AppliedAmt -= Abs(Amount[1]);
-        end else begin
-            CreditMemoOrgDeclaredAmt += CustVendWarning349."Original Declared Amount";
-            CreditMemoAmt += VATEntry.Base;
-            NoOfCorrections += 1;
-            IsCreditMemoPrinted := true;
-        end;
-    end;
 
-    local procedure CorrectAmountPurchNoEU(var AppliedAmt: Decimal; var PurchCreditMemoOrgDeclaredAmt: Decimal; var IsPurchCreditMemoPrinted: Boolean)
-    var
-        VATEntry: Record "VAT Entry";
-    begin
-        InitVATEntry(VATEntry, CustVendWarning349."VAT Entry No.");
-        if Abs(NormalAmount) >= GetTotalPurchCreditMemoAmt - AppliedAmt then begin
-            AppliedAmt += Abs(NormalAmount);
-            if CustVendWarning349."Original Declared Amount" <> 0 then
-                NormalAmount -= CustVendWarning349."Original Declared Amount"
-            else
-                NormalAmount += VATEntry.Base;
-            AppliedAmt -= Abs(NormalAmount);
-        end else begin
-            PurchCreditMemoOrgDeclaredAmt += CustVendWarning349."Original Declared Amount";
-            NoOfCorrections += 1;
-            IsPurchCreditMemoPrinted := true;
-        end;
+        if CustVendWarning349."Original Declared Amount" <> 0 then
+            NormalAmount -= CustVendWarning349."Original Declared Amount"
+        else
+            NormalAmount += VATEntry.Base;
     end;
 
     local procedure CorrectAmountEU()

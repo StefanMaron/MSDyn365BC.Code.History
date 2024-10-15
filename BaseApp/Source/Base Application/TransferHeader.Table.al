@@ -1285,11 +1285,11 @@ table 5740 "Transfer Header"
         if IsHandled then
             exit;
 
-        GetInventorySetup();
-        if InvtSetup."Direct Transfer Posting" = InvtSetup."Direct Transfer Posting"::"Direct Transfer" then
+        if not Location.Get(LocationCode) then
             exit;
 
-        if not Location.Get(LocationCode) then
+        GetInventorySetup();
+        if InvtSetup."Direct Transfer Posting" = InvtSetup."Direct Transfer Posting"::"Direct Transfer" then
             exit;
 
         Location.TestField("Require Pick", false);
@@ -1300,11 +1300,13 @@ table 5740 "Transfer Header"
     var
         Location: Record Location;
     begin
-        GetInventorySetup();
-        if InvtSetup."Direct Transfer Posting" = InvtSetup."Direct Transfer Posting"::"Direct Transfer" then
+        if not Location.Get(LocationCode) then
             exit;
 
-        if not Location.Get(LocationCode) then
+        Location.TestField("Directed Put-away and Pick", false);
+
+        GetInventorySetup();
+        if InvtSetup."Direct Transfer Posting" = InvtSetup."Direct Transfer Posting"::"Direct Transfer" then
             exit;
 
         Location.TestField("Require Put-away", false);

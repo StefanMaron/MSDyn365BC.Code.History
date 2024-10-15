@@ -158,7 +158,9 @@
                         CheckReturnInfo(PurchLine, true);
 
                         PurchLine.Reset();
+#if not CLEAN22
                         "Pay-at Code" := '';
+#endif
 
                         if xRec."Pay-to Vendor No." <> "Pay-to Vendor No." then
                             "Corrected Invoice No." := '';
@@ -2476,6 +2478,14 @@
         {
             Caption = 'Pay-at Code';
             TableRelation = "Vendor Pmt. Address".Code WHERE("Vendor No." = FIELD("Pay-to Vendor No."));
+            ObsoleteReason = 'Address is taken from the fields Pay-to Address, Pay-to City, etc.';
+#if CLEAN22
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '22.0';
+#endif
         }
     }
 
@@ -3672,6 +3682,7 @@
     var
         SourceCodeSetup: Record "Source Code Setup";
         OldDimSetID: Integer;
+        NewDimSetID: Integer;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -3687,18 +3698,25 @@
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
         OldDimSetID := "Dimension Set ID";
-        "Dimension Set ID" :=
+        NewDimSetID :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Purchases, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+        if (OldDimSetID = 0) and (NewDimSetID <> 0) then
+            "Dimension Set ID" := NewDimSetID;
 
         OnCreateDimOnBeforeUpdateLines(Rec, xRec, CurrFieldNo);
 
-        if (OldDimSetID <> "Dimension Set ID") and (OldDimSetID <> 0) and guiallowed then
+        if (OldDimSetID <> NewDimSetID) and (OldDimSetID <> 0) and guiallowed then
             if CouldDimensionsBeKept() then
                 if Confirm(DoYouWantToKeepExistingDimensionsQst) then
-                    "Dimension Set ID" := OldDimSetID;
+                    "Dimension Set ID" := OldDimSetID
+                else
+                    "Dimension Set ID" := NewDimSetID;
 
-        if (OldDimSetID <> "Dimension Set ID") and PurchLinesExist then begin
+        if ("Dimension Set ID" <> NewDimSetID) and (NewDimSetID <> 0) then
+            "Dimension Set ID" := NewDimSetID;
+
+        if (OldDimSetID <> "Dimension Set ID") and PurchLinesExist() then begin
             Modify;
             UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
@@ -3711,7 +3729,7 @@
         if (xRec."Pay-to Vendor No." <> '') and (xRec."Pay-to Vendor No." <> Rec."Pay-to Vendor No.") then
             exit(false);
 
-        if (Rec."Location Code" = '') then
+        if (Rec."Location Code" = '') and (xRec."Location Code" <> '') then
             exit(true);
         if (xRec."Location Code" <> '') and (xRec."location Code" <> Rec."Location Code") then
             exit(true);
@@ -6049,14 +6067,16 @@
         Vendor: Record Vendor;
         LookupStateManager: Codeunit "Lookup State Manager";
         RecVariant: Variant;
+        SearchVendorName: Text;
     begin
+        SearchVendorName := VendorName;
         Vendor.SetFilter("Date Filter", GetFilter("Date Filter"));
         if "Buy-from Vendor No." <> '' then
             Vendor.Get("Buy-from Vendor No.");
 
         if Vendor.LookupVendor(Vendor) then begin
             if Rec."Buy-from Vendor Name" = Vendor.Name then
-                VendorName := ''
+                VendorName := SearchVendorName
             else
                 VendorName := Vendor.Name;
             RecVariant := Vendor;

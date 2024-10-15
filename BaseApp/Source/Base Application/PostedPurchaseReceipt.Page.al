@@ -425,12 +425,18 @@ page 136 "Posted Purchase Receipt"
             group(Payment)
             {
                 Caption = 'Payment';
+#if not CLEAN22
                 field("Pay-at Code"; "Pay-at Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the vendor''s payment address code that was on the order header, Payment tab, from which this purchase receipt was created.';
+                    Visible = false;
+                    ObsoleteReason = 'Address is taken from the fields Pay-to Address, Pay-to City, etc.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
                 }
+#endif
                 field("Vendor Bank Acc. Code"; "Vendor Bank Acc. Code")
                 {
                     ApplicationArea = Basic, Suite;

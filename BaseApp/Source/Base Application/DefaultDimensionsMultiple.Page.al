@@ -185,6 +185,7 @@ page 542 "Default Dimensions-Multiple"
 
         DefaultDim."Allowed Values Filter" := "Allowed Values Filter";
         TempDimValuePerAccount.Reset();
+        TempDimValuePerAccount.SetRange("Dimension Code", DefaultDim."Dimension Code");
         if TempDimValuePerAccount.FindSet() then
             repeat
                 if DimValuePerAccount.Get(DefaultDim."Table ID", DefaultDim."No.", DefaultDim."Dimension Code", TempDimValuePerAccount."Dimension Value Code") then begin

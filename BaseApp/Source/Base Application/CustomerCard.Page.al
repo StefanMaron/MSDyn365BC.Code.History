@@ -172,7 +172,7 @@
                     Caption = 'Profit (LCY)';
                     Editable = false;
                     Importance = Additional;
-                    ToolTip = 'Specifies how much profit you have made from the customer in the current fiscal year.';
+                    ToolTip = 'Specifies the adjusted sales profit you have made from the customer in the current fiscal year.';
                 }
                 field(AdjProfitPct; AdjProfitPct)
                 {
@@ -977,6 +977,7 @@
                     RunPageLink = "Customer No." = FIELD("No.");
                     ToolTip = 'View or edit alternate shipping addresses where the customer wants items delivered if different from the regular address.';
                 }
+#if not CLEAN22
                 action("Payment A&ddresses")
                 {
                     ApplicationArea = Basic, Suite;
@@ -987,7 +988,12 @@
                     RunObject = Page "Customer Pmt. Address List";
                     RunPageLink = "Customer No." = FIELD("No.");
                     ToolTip = 'View or edit customers'' payment address. If necessary, you can assign more than one payment address to a customer record. The payment addresses are listed by customer number.';
+                    Visible = false;
+                    ObsoleteReason = 'Address is taken from the fields Bill-to Address, Bill-to City, etc.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
                 }
+#endif
                 action(Contact)
                 {
                     AccessByPermission = TableData Contact = R;

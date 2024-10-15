@@ -229,11 +229,17 @@
             group(Payment)
             {
                 Caption = 'Payment';
+#if not CLEAN22
                 field("Pay-at Code"; "Pay-at Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code associated with a payment address, other than the vendor''s standard payment address.';
+                    Visible = false;
+                    ObsoleteReason = 'Address is taken from the fields Pay-to Address, Pay-to City, etc.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
                 }
+#endif
                 field("Vendor Bank Acc. Code"; "Vendor Bank Acc. Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1871,7 +1877,7 @@
     begin
         DocHasMultipleRegimeCode := SIISchemeCodeMgt.PurchDocHasRegimeCodes(Rec);
     end;
-    
+
     [IntegrationEvent(true, false)]
     local procedure OnAfterOnAfterGetRecord(var PurchaseHeader: Record "Purchase Header")
     begin

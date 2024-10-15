@@ -107,6 +107,14 @@ table 7000004 "Closed Cartera Doc."
         field(21; "Pmt. Address Code"; Code[10])
         {
             Caption = 'Pmt. Address Code';
+            ObsoleteReason = 'Address is taken from the fields Address, City, etc. of Customer/Vendor table.';
+#if CLEAN22
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '22.0';
+#endif
             TableRelation = IF (Type = CONST(Receivable)) "Customer Pmt. Address".Code WHERE("Customer No." = FIELD("Account No."))
             ELSE
             IF (Type = CONST(Payable)) "Vendor Pmt. Address".Code WHERE("Vendor No." = FIELD("Account No."));

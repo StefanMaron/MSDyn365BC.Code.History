@@ -1,9 +1,13 @@
+#if not CLEAN22
 page 7000038 "Customer Pmt. Address Card"
 {
     Caption = 'Customer Pmt. Address Card';
     DataCaptionExpression = Caption;
     PageType = Card;
     SourceTable = "Customer Pmt. Address";
+    ObsoleteReason = 'Address is taken from the fields Bill-to Address, Bill-to City, etc.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     layout
     {
@@ -108,3 +112,5 @@ page 7000038 "Customer Pmt. Address Card"
     end;
 }
 
+
+#endif

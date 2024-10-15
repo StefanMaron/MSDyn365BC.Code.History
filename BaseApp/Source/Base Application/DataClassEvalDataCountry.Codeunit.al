@@ -52,8 +52,10 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Category Code");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Operation Fee");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cartera Report Selections");
+#if not CLEAN22
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Customer Pmt. Address");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Vendor Pmt. Address");
+#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cartera Setup");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::Installment);
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Fee Range");
