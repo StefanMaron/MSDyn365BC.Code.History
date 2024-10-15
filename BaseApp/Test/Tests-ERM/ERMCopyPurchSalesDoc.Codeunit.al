@@ -3278,6 +3278,105 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         TargetSalesHeader.TestField("Transport Method", OldTargetSalesHeader."Transport Method");
     end;
 
+    [Test]
+    procedure PostSalesOrderWithAmountCopiedFromZeroAmountPostedInvoice()
+    var
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesLineInvoice: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesHeaderOrder: Record "Sales Header";
+        SalesLineOrder: Record "Sales Line";
+        SalesDocumentTypeFrom: Enum "Sales Document Type From";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 424099] Stan can copy zero amount invoice to new Sales Order and post order with new amount
+        Initialize();
+
+        LibrarySales.CreateSalesHeader(
+            SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+
+        LibrarySales.CreateSalesLine(
+            SalesLineInvoice, SalesHeaderInvoice, SalesLineInvoice.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+        SalesLineInvoice.TestField("Unit Price", 0);
+
+        SalesInvoiceHeader.Get(
+            LibrarySales.PostSalesDocument(SalesHeaderInvoice, true, true));
+
+        SalesHeaderOrder.Init();
+        SalesHeaderOrder.Validate("Document Type", SalesHeaderOrder."Document Type"::Order);
+        SalesHeaderOrder.Insert(true);
+
+        Commit();
+
+        RunCopySalesDoc(SalesInvoiceHeader."No.", SalesHeaderOrder, SalesDocumentTypeFrom::"Posted Invoice", true, false);
+
+        SalesHeaderOrder.Find();
+        LibrarySales.FindFirstSalesLine(SalesLineOrder, SalesHeaderOrder);
+        SalesLineOrder.FindLast();
+        SalesLineOrder.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
+        SalesLineOrder.Modify(true);
+
+        LibrarySales.PostSalesDocument(SalesHeaderOrder, true, false);
+
+        SalesHeaderOrder.Find();
+
+        LibrarySales.PostSalesDocument(SalesHeaderOrder, false, true);
+
+        Assert.IsFalse(SalesHeaderOrder.Find(), '');
+    end;
+
+    [Test]
+    procedure PostPurchaseOrderWithAmountCopiedFromZeroAmountPostedInvoice()
+    var
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchaseLineInvoice: Record "Purchase Line";
+        PurchInveHeader: Record "Purch. Inv. Header";
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseLineOrder: Record "Purchase Line";
+        PurchaseDocumentTypeFrom: Enum "Purchase Document Type From";
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 424099] Stan can copy zero amount invoice to new Purchase Order and post order with new amount
+        Initialize();
+
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeaderInvoice, PurchaseHeaderInvoice."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLineInvoice, PurchaseHeaderInvoice, PurchaseLineInvoice.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchaseLineInvoice.TestField("Direct Unit Cost", 0);
+
+        PurchInveHeader.Get(
+            LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInvoice, true, true));
+
+        PurchaseHeaderOrder.Init();
+        PurchaseHeaderOrder.Validate("Document Type", PurchaseHeaderOrder."Document Type"::Order);
+        PurchaseHeaderOrder.Insert(true);
+
+        Commit();
+
+        RunCopyPurchaseDoc(PurchInveHeader."No.", PurchaseHeaderOrder, PurchaseDocumentTypeFrom::"Posted Invoice", true, false);
+
+        PurchaseHeaderOrder.Find();
+        PurchaseHeaderOrder.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeaderOrder.Modify(true);
+
+        LibraryPurchase.FindFirstPurchLine(PurchaseLineOrder, PurchaseHeaderOrder);
+        PurchaseLineOrder.FindLast();
+        PurchaseLineOrder.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+        PurchaseLineOrder.Modify(true);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
+
+        PurchaseHeaderOrder.Find();
+        PurchaseHeaderOrder.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeaderOrder.Modify(true);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, false, true);
+
+        Assert.IsFalse(PurchaseHeaderOrder.Find(), '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
