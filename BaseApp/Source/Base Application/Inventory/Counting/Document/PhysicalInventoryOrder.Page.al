@@ -175,7 +175,13 @@ page 5875 "Physical Inventory Order"
                     trigger OnAction()
                     var
                         CalcPhysInvtOrderLines: Report "Calc. Phys. Invt. Order Lines";
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeCalculateLines(Rec, IsHandled);
+                        if IsHandled then
+                            exit;
+
                         CalcPhysInvtOrderLines.SetPhysInvtOrderHeader(Rec);
                         CalcPhysInvtOrderLines.RunModal();
                         Clear(CalcPhysInvtOrderLines);
@@ -470,6 +476,11 @@ page 5875 "Physical Inventory Order"
         PhysInvtOrderPostYN: Codeunit "Phys. Invt. Order-Post (Y/N)";
     begin
         PhysInvtOrderPostYN.Preview(Rec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateLines(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var IsHandled: Boolean)
+    begin
     end;
 }
 

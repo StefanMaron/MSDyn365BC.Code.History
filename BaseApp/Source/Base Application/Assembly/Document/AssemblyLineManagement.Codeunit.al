@@ -534,7 +534,10 @@ codeunit 905 "Assembly Line Management"
         if AssemblyLine.FixedUsage() then
             AssemblyLine.Validate(Quantity)
         else begin
-            RoundedQty := AssemblyLine.Quantity * QtyRatio;
+            if AssemblyLine."Qty. Rounding Precision" = 0 then
+                RoundedQty := AssemblyLine.Quantity * QtyRatio
+            else
+                RoundedQty := GetAssemblyLineQty(AsmHeader, AssemblyLine);
             AssemblyLine.RoundQty(RoundedQty);
             AssemblyLine.Validate(Quantity, RoundedQty);
         end;
@@ -777,6 +780,24 @@ codeunit 905 "Assembly Line Management"
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
     begin
         HideValidationDialog := NewHideValidationDialog;
+    end;
+
+    local procedure GetAssemblyLineQty(AssemblyHeader: Record "Assembly Header"; AssemblyLine: Record "Assembly Line"): Decimal
+    var
+        BomComponent: Record "Bom Component";
+        AssemblyLineQty: Decimal;
+    begin
+        SetLinkToBOM(AssemblyHeader, BomComponent);
+        BomComponent.SetRange("No.", AssemblyLine."No.");
+        if not BomComponent.FindFirst() then
+            exit(AssemblyLineQty);
+
+        AssemblyLineQty := AssemblyLine.CalcBOMQuantity(
+                    BOMComponent.Type, BOMComponent."Quantity per",
+                    AssemblyHeader.Quantity, AssemblyHeader."Qty. per Unit of Measure",
+                    AssemblyLine."Resource Usage Type");
+
+        exit(AssemblyLineQty);
     end;
 
     [IntegrationEvent(false, false)]

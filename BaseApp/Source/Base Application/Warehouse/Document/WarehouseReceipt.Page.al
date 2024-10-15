@@ -430,6 +430,7 @@ page 5768 "Warehouse Receipt"
 
     trigger OnAfterGetCurrRecord()
     begin
+        ActivateControls();
         SetBinFieldsVisibility(true);
     end;
 

@@ -1114,6 +1114,7 @@ table 5108 "Sales Line Archive"
         SalesLineArchive.SetRange("Document Type", SalesHeaderArchive."Document Type");
         SalesLineArchive.SetRange("Document No.", SalesHeaderArchive."No.");
         SalesLineArchive.SetRange("Version No.", SalesHeaderArchive."Version No.");
+        SalesLineArchive.SetRange("Doc. No. Occurrence", SalesHeaderArchive."Doc. No. Occurrence");
         OnCopyTempLinesOnAfterSalesLineArchiveSetFilters(SalesLineArchive, SalesHeaderArchive);
         if SalesLineArchive.FindSet() then
             repeat

@@ -109,7 +109,7 @@ codeunit 1385 "Vendor Templ. Mgt."
         VendorRecRef.SetTable(Vendor);
         if VendorTempl."Invoice Disc. Code" <> '' then
             Vendor."Invoice Disc. Code" := VendorTempl."Invoice Disc. Code";
-        OnApplyTemplateOnBeforeVendorModify(Vendor, VendorTempl);
+        OnApplyTemplateOnBeforeVendorModify(Vendor, VendorTempl, UpdateExistingValues);
         Vendor.Modify(true);
     end;
 
@@ -416,7 +416,7 @@ codeunit 1385 "Vendor Templ. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyTemplateOnBeforeVendorModify(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ.")
+    local procedure OnApplyTemplateOnBeforeVendorModify(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ."; UpdateExistingValues: Boolean)
     begin
     end;
 

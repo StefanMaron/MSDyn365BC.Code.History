@@ -584,51 +584,51 @@ table 5766 "Warehouse Activity Header"
     begin
         IsHandled := false;
         OnBeforeSortWhseDoc(Rec, IsHandled);
-        if IsHandled then
-            exit;
+        if not IsHandled then begin
+            WhseActivLine2.LockTable();
+            WhseActivLine2.SetRange("Activity Type", Type);
+            WhseActivLine2.SetRange("No.", "No.");
+            case "Sorting Method" of
+                "Sorting Method"::Item:
+                    WhseActivLine2.SetCurrentKey("Activity Type", "No.", "Item No.");
+                "Sorting Method"::Document:
+                    WhseActivLine2.SetCurrentKey("Activity Type", "No.", "Location Code", "Source Document", "Source No.");
+                "Sorting Method"::"Shelf or Bin":
+                    SortWhseDocByShelfOrBin(WhseActivLine2, SequenceNo);
+                "Sorting Method"::"Due Date":
+                    WhseActivLine2.SetCurrentKey("Activity Type", "No.", "Due Date");
+                "Sorting Method"::"Ship-To":
+                    WhseActivLine2.SetCurrentKey(
+                      "Activity Type", "No.", "Destination Type", "Destination No.");
+                "Sorting Method"::"Bin Ranking":
+                    SortWhseDocByBinRanking(WhseActivLine2, SequenceNo);
+                "Sorting Method"::"Action Type":
+                    SortWhseDocByActionType(WhseActivLine2, SequenceNo);
+                else
+                    OnCaseSortWhseDoc(Rec, WhseActivLine2, SequenceNo);
+            end;
 
-        WhseActivLine2.LockTable();
-        WhseActivLine2.SetRange("Activity Type", Type);
-        WhseActivLine2.SetRange("No.", "No.");
-        case "Sorting Method" of
-            "Sorting Method"::Item:
-                WhseActivLine2.SetCurrentKey("Activity Type", "No.", "Item No.");
-            "Sorting Method"::Document:
-                WhseActivLine2.SetCurrentKey("Activity Type", "No.", "Location Code", "Source Document", "Source No.");
-            "Sorting Method"::"Shelf or Bin":
-                SortWhseDocByShelfOrBin(WhseActivLine2, SequenceNo);
-            "Sorting Method"::"Due Date":
-                WhseActivLine2.SetCurrentKey("Activity Type", "No.", "Due Date");
-            "Sorting Method"::"Ship-To":
-                WhseActivLine2.SetCurrentKey(
-                  "Activity Type", "No.", "Destination Type", "Destination No.");
-            "Sorting Method"::"Bin Ranking":
-                SortWhseDocByBinRanking(WhseActivLine2, SequenceNo);
-            "Sorting Method"::"Action Type":
-                SortWhseDocByActionType(WhseActivLine2, SequenceNo);
-            else
-                OnCaseSortWhseDoc(Rec, WhseActivLine2, SequenceNo);
-        end;
+            if SequenceNo = 0 then begin
+                WhseActivLine2.SetRange("Breakbulk No.", 0);
+                if WhseActivLine2.Find('-') then begin
+                    SequenceNo := 10000;
+                    repeat
+                        SetActivityFilter(WhseActivLine2, WhseActivLine3);
+                        if WhseActivLine3.Find('-') then
+                            repeat
+                                WhseActivLine3."Sorting Sequence No." := SequenceNo;
+                                WhseActivLine3.Modify();
+                                SequenceNo := SequenceNo + 10000;
+                            until WhseActivLine3.Next() = 0;
 
-        if SequenceNo = 0 then begin
-            WhseActivLine2.SetRange("Breakbulk No.", 0);
-            if WhseActivLine2.Find('-') then begin
-                SequenceNo := 10000;
-                repeat
-                    SetActivityFilter(WhseActivLine2, WhseActivLine3);
-                    if WhseActivLine3.Find('-') then
-                        repeat
-                            WhseActivLine3."Sorting Sequence No." := SequenceNo;
-                            WhseActivLine3.Modify();
-                            SequenceNo := SequenceNo + 10000;
-                        until WhseActivLine3.Next() = 0;
-
-                    WhseActivLine2."Sorting Sequence No." := SequenceNo;
-                    WhseActivLine2.Modify();
-                    SequenceNo := SequenceNo + 10000;
-                until WhseActivLine2.Next() = 0;
+                        WhseActivLine2."Sorting Sequence No." := SequenceNo;
+                        WhseActivLine2.Modify();
+                        SequenceNo := SequenceNo + 10000;
+                    until WhseActivLine2.Next() = 0;
+                end;
             end;
         end;
+        OnAfterSortWhseDoc(Rec);
     end;
 
     procedure SortWhseDocByShelfOrBin(var WhseActivLine2: Record "Warehouse Activity Line"; var SequenceNo: Integer)
@@ -1046,6 +1046,11 @@ table 5766 "Warehouse Activity Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetRegisteringNoSeriesCode(var WarehouseActivityHeader: Record "Warehouse Activity Header"; WarehouseSetup: Record "Warehouse Setup"; var Result: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSortWhseDoc(var WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
     end;
 }

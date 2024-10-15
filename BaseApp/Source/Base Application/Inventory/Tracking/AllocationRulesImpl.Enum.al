@@ -20,4 +20,9 @@ enum 300 "Allocation Rules Impl." implements "Allocate Reservation"
         Caption = 'Equally';
         Implementation = "Allocate Reservation" = "Allocate Reserv. Equally";
     }
+    value(3; "By Customer Priority")
+    {
+        Caption = 'By Customer Priority';
+        Implementation = "Allocate Reservation" = "Allocate Reserv Cust. Priority";
+    }
 }
