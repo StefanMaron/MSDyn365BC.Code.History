@@ -51,6 +51,7 @@ codeunit 137048 "SCM Warehouse II"
         PutAwayActivityMessage: Label 'Put-away activity no. ';
         NonWarehouseErr: Label 'Directed Put-away and Pick must have a value';
         BinContentGetCaptionErr: Label 'BinContent.GetCaption does not work with %1';
+        LocationCodeMustMatchErr: Label 'Location Code must match.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2340,6 +2341,88 @@ codeunit 137048 "SCM Warehouse II"
           WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, Location.Code,
           SalesHeader."No.", WarehouseActivityLine."Action Type"::Take);
         WarehouseActivityLine.TestField("Bin Code", Location."Cross-Dock Bin Code");
+    end;
+
+    [Test]
+    procedure RegisterPutawayIfWarehouseClassCheckIsDisabledInLocation()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Location: Record Location;
+        Bin1: Record Bin;
+        Bin2: Record Bin;
+        WarehouseEmployeeSetup: Record "Warehouse Employee";
+        WarehouseClass: Record "Warehouse Class";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        RegisteredWhseActivityHdr: record "Registered Whse. Activity Hdr.";
+    begin
+        // [SCENARIO 476957] Issue generated with Warehouse Class Code being validated even when the Location Code is setup with Boolean for Check Warehouse Class disabled when processing a Warehouse Put-away
+        Initialize();
+
+        // [GIVEN] Create a Warehouse Location.
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, true, true);
+
+        // [GIVEN] Create Bin 1 & Validate Receipt Bin Code.
+        LibraryWarehouse.CreateBin(Bin1, Location.Code, Format(LibraryRandom.RandText(3)), '', '');
+        Location.Validate("Receipt Bin Code", Bin1.Code);
+
+        // [GIVEN] Create Bin 2.
+        LibraryWarehouse.CreateBin(Bin2, Location.Code, Format(LibraryRandom.RandText(3)), '', '');
+
+        // [GIVEN] Disable Check Whse. Class in Warehouse Location.
+        Location.Validate("Check Whse. Class", false);
+        Location.Modify(true);
+
+        // [GIVEN] Create a Warehouse Employee for Warehouse Location.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployeeSetup, Location.Code, true);
+
+        // [GIVEN] Create a Warehouse Class.
+        LibraryWarehouse.CreateWarehouseClass(WarehouseClass);
+
+        // [GIVEN] Create an Item & Validate Warehouse Class Code.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Warehouse Class Code", WarehouseClass.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, Vendor."No.");
+
+        // [GIVEN] Create a Purchase Line & Validate Location Code.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, "Purchase Line Type"::Item, Item."No.", LibraryRandom.RandInt(20));
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Release Purchase Order.
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create & Post Warehouse Receipt.
+        CreateAndPostWhseReceiptFromPO(PurchaseHeader);
+
+        // [GIVEN] Find Warehouse Put-away Lines.
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Put-away");
+        WarehouseActivityLine.SetRange("Source No.", PurchaseHeader."No.");
+        WarehouseActivityLine.FindFirst();
+
+        // [GIVEN] Find Warehouse Put-away Header.
+        WarehouseActivityHeader.SetRange(Type, WarehouseActivityHeader.Type::"Put-away");
+        WarehouseActivityHeader.SetRange("No.", WarehouseActivityLine."No.");
+        WarehouseActivityHeader.FindFirst();
+
+        // [GIVEN] Register Warehouse Put-away.
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [WHEN] Find Registered Warehouse Put-away.
+        RegisteredWhseActivityHdr.SetRange("Whse. Activity No.", WarehouseActivityHeader."No.");
+        RegisteredWhseActivityHdr.FindFirst();
+
+        // [VERIFY] Verify Location Code in Registered Warehouse Put-away.
+        Assert.AreEqual(WarehouseActivityHeader."Location Code", RegisteredWhseActivityHdr."Location Code", LocationCodeMustMatchErr);
     end;
 
     local procedure Initialize()

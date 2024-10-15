@@ -201,6 +201,7 @@ page 187 "VAT Setup"
                 Caption = 'Other';
                 action(VATRateChangeSetup)
                 {
+                    Caption = 'VAT Rate Change Setup';
                     ApplicationArea = Basic, Suite;
                     Promoted = true;
                     PromotedCategory = Category6;
@@ -211,5 +212,13 @@ page 187 "VAT Setup"
             }
         }
     }
+
+    trigger OnOpenPage()
+    begin
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
+        end;
+    end;
 }
 

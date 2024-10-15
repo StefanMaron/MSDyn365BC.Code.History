@@ -122,6 +122,7 @@ codeunit 6060 "Hybrid Deployment"
         ServiceNotificationUrl: Text;
         ServiceSubscriptionId: Text[150];
         ServiceClientState: Text[50];
+        Handled: Boolean;
     begin
         OnBeforeEnableReplication(
           SourceProduct, NotificationUrl, SubscriptionId, ClientState,
@@ -136,6 +137,10 @@ codeunit 6060 "Hybrid Deployment"
         RetryGetStatus(InstanceId, FailedEnableReplicationErr, Output);
 
         EnableIntelligentCloud(true);
+        OnBeforeResetUsersToIntelligentCloudPermissions(Handled);
+        if Handled then
+            exit;
+
         PermissionManager.ResetUsersToIntelligentCloudPermissions();
     end;
 
@@ -703,6 +708,11 @@ codeunit 6060 "Hybrid Deployment"
 
     [IntegrationEvent(false, false)]
     local procedure OnSkipMinorAndMajorVersionCheck(var SkipVersionCheck: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeResetUsersToIntelligentCloudPermissions(var Handled: Boolean)
     begin
     end;
 }

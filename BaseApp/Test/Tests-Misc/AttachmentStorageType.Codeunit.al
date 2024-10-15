@@ -26,7 +26,7 @@ codeunit 136450 "Attachment Storage Type"
         HtmlFileExtensionTxt: Label 'HTML';
         AttachmentErr: Label 'Wrong attachment''s details';
         HTMLContentErr: Label 'Wrong attachment''s html content';
-        SendAttachmentErr: Label 'You must select an interaction template with an attachment.';
+        SendAttachmentErr: Label 'The interaction template has no attachment for the selected language code.';
         WordExtensionTxt: Label '.DOC';
         CouldNotFindAFileTxt: Label 'Sorry, we couldn';
         AttachmentFileErrorTxt: Label 'Attachment file error';

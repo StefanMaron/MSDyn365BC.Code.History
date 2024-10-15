@@ -35,6 +35,8 @@ codeunit 799 "VAT Reporting Date Mgt"
         UpdateVATEntries(VATEntry);
         UpdateGLEntries(VATEntry);
         UpdatePostedDocuments(VATEntry);
+
+        OnAfterUpdateLinkedEntries(VATEntry);
     end;
 
     procedure IsVATDateModifiable() IsModifiable: Boolean
@@ -102,7 +104,7 @@ codeunit 799 "VAT Reporting Date Mgt"
     var
         VATReturnPeriod: Record "VAT Return Period";
         ConfirmManagement: Codeunit "Confirm Management";
-        WarningMsg, ErrorMsg: Text;
+        WarningMsg, ErrorMsg : Text;
     begin
         if ExistingEntry then begin
             WarningMsg := VATReturnFromWarningMsg;
@@ -115,7 +117,8 @@ codeunit 799 "VAT Reporting Date Mgt"
             exit(false);
         if VATReturnPeriod.FindVATPeriodByDate(VATDate) then
             case GLSetup."Control VAT Period" of
-                "VAT Period Control"::Disabled: exit(true);
+                "VAT Period Control"::Disabled:
+                    exit(true);
                 "VAT Period Control"::"Block posting within closed and warn for released period":
                     begin
                         if VATReturnPeriod.Status = VATReturnPeriod.Status::Closed then
@@ -316,6 +319,9 @@ codeunit 799 "VAT Reporting Date Mgt"
     begin
     end;
 #endif
-    
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateLinkedEntries(VATEntry: Record "VAT Entry");
+    begin
+    end;
 }

@@ -434,12 +434,12 @@
                     label(NotificationPart2)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Microsoft Dynamics NAV meets regulatory requirements for issuing single copy invoices which have not been numbered in advance.';
+                        Caption = 'Microsoft Dynamics 365 Business Central meets regulatory requirements for issuing single copy invoices which have not been numbered in advance.';
                     }
                     label(NotificationPart3)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'This authorization is, however, dependent on the requirement that printed invoices and credit memos contain a statement to the fact that the invoice has originated in an electronic accounting system, cf. Regulation No. 598/1999.';
+                        Caption = 'This authorization is, however, dependent on the requirement that printed invoices and credit memos contain a statement to the fact that the invoice has originated in an electronic accounting system, cf. Regulation No. 505/2013.';
                     }
                     label(NotificationPart4)
                     {

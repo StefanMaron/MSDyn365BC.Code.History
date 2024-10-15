@@ -484,8 +484,13 @@ codeunit 23 "Item Jnl.-Post Batch"
         IncludeExpectedCost: Boolean;
         PostingDate: Date;
         IsLastEntry: Boolean;
-        ThrowPostingsExistError: Boolean;
+        ThrowPostingsExistError, IsHandled : Boolean;
     begin
+        IsHandled := false;
+        OnBeforeItemJournalPostSumLine(ItemJnlLine, ItemJnlLine4, LineCount, WindowIsOpen, Window, NoOfRecords, ItemJnlPostLine, IsHandled);
+        if IsHandled then
+            exit;
+
         DistributeCosts := true;
         RemAmountToDistribute := ItemJnlLine.Amount;
         RemQuantity := ItemJnlLine.Quantity;
@@ -1176,6 +1181,11 @@ codeunit 23 "Item Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateItemTracking(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeItemJournalPostSumLine(var ItemJnlLine: Record "Item Journal Line"; var ItemJnlLine4: Record "Item Journal Line"; var LineCount: Integer; WindowIsOpen: Boolean; var Window: Dialog; NoOfRecords: Integer; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var IsHandled: Boolean)
     begin
     end;
 }
