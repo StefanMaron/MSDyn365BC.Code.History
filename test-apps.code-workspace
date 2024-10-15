@@ -79,6 +79,9 @@
       "path": "./ExternalEvents/test/_Exclude_Business_Events_Test"
     },
     {
+      "path": "./paymentpractices/test/Payment Practices Tests"
+    },
+    {
       "path": "./APIV2/Test/_Exclude_APIV2_ Tests"
     },
     {

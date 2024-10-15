@@ -14,6 +14,12 @@ codeunit 99 "Posting Selection Management"
         PostWhseAndDocConfirmQst: Label 'Do you want to post the %1 and %2?', Comment = '%1 = Activity Type, %2 = Document Type';
         PostAndPrintConfirmQst: Label 'Do you want to post and print the %1?', Comment = '%1 = Document Type';
         PostAndEmailConfirmQst: Label 'Do you want to post and email the %1?', Comment = '%1 = Document Type';
+        InvoiceConfirmQst: Label 'Do you want to post the invoice?';
+        CreditMemoConfirmQst: Label 'Do you want to post the credit memo?';
+        PrintInvoiceConfirmQst: Label 'Do you want to post and print the invoice?';
+        PrintCreditMemoConfirmQst: Label 'Do you want to post and print the credit memo?';
+        EmailInvoiceConfirmQst: Label 'Do you want to post and email the invoice?';
+        EmailCreditMemoConfirmQst: Label 'Do you want to post and email the credit memo?';
         ShipConfirmQst: Label 'Do you want to post the shipment?';
         ShipInvoiceConfirmQst: Label 'Do you want to post the shipment and invoice?';
         ReceiveConfirmQst: Label 'Do you want to post the receipt?';
@@ -81,13 +87,13 @@ codeunit 99 "Posting Selection Management"
                 begin
                     CheckUserCanInvoiceSales();
                     if not ConfirmManagement.GetResponseOrDefault(
-                            GetPostConfirmationMessage(LowerCase(Format(SalesHeader."Document Type")), WithPrint, WithEmail), true)
+                            GetPostConfirmationMessage(SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice, WithPrint, WithEmail), true)
                     then
                         exit(false);
                 end;
             else
                 if not ConfirmManagement.GetResponseOrDefault(
-                        GetPostConfirmationMessage(LowerCase(Format(SalesHeader."Document Type")), WithPrint, WithEmail), true)
+                        GetPostConfirmationMessage(Format(SalesHeader."Document Type"), WithPrint, WithEmail), true)
                 then
                     exit(false);
         end;
@@ -155,13 +161,13 @@ codeunit 99 "Posting Selection Management"
                 begin
                     CheckUserCanInvoicePurchase();
                     if not ConfirmManagement.GetResponseOrDefault(
-                            GetPostConfirmationMessage(LowerCase(Format(PurchaseHeader."Document Type")), WithPrint, WithEmail), true)
+                            GetPostConfirmationMessage(PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Invoice, WithPrint, WithEmail), true)
                     then
                         exit(false);
                 end;
             else
                 if not ConfirmManagement.GetResponseOrDefault(
-                        GetPostConfirmationMessage(LowerCase(Format(PurchaseHeader."Document Type")), WithPrint, WithEmail), true)
+                        GetPostConfirmationMessage(Format(PurchaseHeader."Document Type"), WithPrint, WithEmail), true)
                 then
                     exit(false);
         end;
@@ -324,6 +330,27 @@ codeunit 99 "Posting Selection Management"
             exit(StrSubstNo(PostAndEmailConfirmQst, What));
 
         exit(StrSubstNo(PostDocConfirmQst, What));
+    end;
+
+    local procedure GetPostConfirmationMessage(IsInvoice: Boolean; WithPrint: Boolean; WithEmail: Boolean): Text
+    begin
+        if IsInvoice then begin
+            if WithPrint then
+                exit(PrintInvoiceConfirmQst);
+
+            if WithEmail then
+                exit(EmailInvoiceConfirmQst);
+
+            exit(InvoiceConfirmQst);
+        end else begin
+            if WithPrint then
+                exit(PrintCreditMemoConfirmQst);
+
+            if WithEmail then
+                exit(EmailCreditMemoConfirmQst);
+
+            exit(CreditMemoConfirmQst);
+        end;
     end;
 
     local procedure GetShipConfirmationMessage(): Text

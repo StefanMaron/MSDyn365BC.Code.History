@@ -1,5 +1,10 @@
+#if not CLEAN23
 codeunit 10880 "Payment Reporting Mgt."
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This codeunit is obsolete. Replaced by W1 extension "Payment Practices".';
+    ObsoleteTag = '23.0';
+
     Permissions = TableData "Detailed Cust. Ledg. Entry" = rm,
                   TableData "Detailed Vendor Ledg. Entry" = rm;
 
@@ -304,4 +309,4 @@ codeunit 10880 "Payment Reporting Mgt."
         DetailedVendorLedgEntry."Curr. Adjmt. G/L Account No." := GetVendorPayablesAccount(DetailedVendorLedgEntry."Vendor No.");
     end;
 }
-
+#endif

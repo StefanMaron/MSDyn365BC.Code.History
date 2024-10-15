@@ -1169,6 +1169,10 @@
         {
             Caption = 'Intrastat Partner Type';
         }
+        field(134; "Exclude from Pmt. Practices"; Boolean)
+        {
+            Caption = 'Exclude from Payment Practices';
+        }
         field(140; Image; Media)
         {
             Caption = 'Image';
@@ -1661,6 +1665,14 @@
         {
             Caption = 'Exclude from Payment Reporting';
             DataClassification = CustomerContent;
+            ObsoleteReason = 'Replaced by W1 field "Exclude from Pmt. Practices".';
+#if CLEAN23            
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
+#endif
         }
     }
 

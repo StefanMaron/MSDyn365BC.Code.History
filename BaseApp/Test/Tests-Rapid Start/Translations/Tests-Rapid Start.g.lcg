@@ -266,6 +266,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Dimensions as Columns - NamedType ExportedDimensionCap)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4244421809 - NamedType 2193237109" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Field ID and Processing Order must match.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Dimensions as Columns - NamedType FieldIDProcessingOrderMustMatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4244421809 - NamedType 3157651538" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Field ID and Processing Order must not match.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Dimensions as Columns - NamedType FieldIDProcessingOrderMustNotMatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4244421809 - NamedType 325274040" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect Default Dimensions export.]]></Val>

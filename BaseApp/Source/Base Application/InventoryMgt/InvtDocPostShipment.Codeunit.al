@@ -41,6 +41,8 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
             if Location."Require Pick" or Location."Require Shipment" then
                 Error(WarehouseHandlingRequiredErr, "Location Code");
 
+            OnRunOnAfterCheckLocation(Rec);
+
             if not HideProgressWindow then begin
                 Window.Open('#1#################################\\' + PostingLinesMsg);
 
@@ -67,8 +69,6 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
 
             TestField(Status, Status::Released);
 
-            NoSeriesLine.LockTable();
-            if NoSeriesLine.FindLast() then;
             if InvtSetup."Automatic Cost Posting" then begin
                 GLEntry.LockTable();
                 if GLEntry.FindLast() then;
@@ -204,7 +204,6 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
         Location: Record Location;
         ItemJnlLine: Record "Item Journal Line";
         TempValueEntryRelation: Record "Value Entry Relation" temporary;
-        NoSeriesLine: Record "No. Series Line";
         GLEntry: Record "G/L Entry";
         WMSMgmt: Codeunit "WMS Management";
         WhseJnlPostLine: Codeunit "Whse. Jnl.-Register Line";
@@ -547,6 +546,11 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeInvtShptLineInsert(var InvtShptLine: Record "Invt. Shipment Line"; InvtDocLine: Record "Invt. Document Line"; var InvtShipmentHeader: Record "Invt. Shipment Header"; InvtDocumentHeader: Record "Invt. Document Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterCheckLocation(var InvtDocumentHeader: Record "Invt. Document Header")
     begin
     end;
 }

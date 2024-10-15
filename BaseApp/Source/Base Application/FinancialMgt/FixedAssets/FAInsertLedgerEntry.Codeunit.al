@@ -309,10 +309,8 @@
     end;
 
     procedure CopyRecordLinksToFALedgEntry(GenJnlLine: Record "Gen. Journal Line")
-    var
-        RecordLinkMgt: Codeunit "Record Link Management";
     begin
-        RecordLinkMgt.CopyLinks(GenJnlLine, FALedgEntry);
+        FALedgEntry.CopyLinks(GenJnlLine);
     end;
 
     local procedure InitRegister(CalledFrom: Enum "FA Register Called From"; GLEntryNo: Integer; SourceCode: Code[10]; BatchName: Code[10])
