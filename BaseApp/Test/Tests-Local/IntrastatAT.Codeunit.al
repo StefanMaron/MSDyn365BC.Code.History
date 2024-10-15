@@ -36,6 +36,20 @@ codeunit 144061 "Intrastat AT"
         WrongQtyInCNT19Err: Label 'Wrong quantity is specified in section CNT+19.';
 
     [Test]
+    procedure TransactionTypes()
+    var
+        TransactionType: Record "Transaction Type";
+    begin
+        // [FEATURE] [DEMO]
+        // [SCENARIO 425729] All Transaction Types have description
+        Assert.RecordCount(TransactionType, 18);
+        TransactionType.FindSet();
+        repeat
+            TransactionType.TestField(Description);
+        until TransactionType.Next() = 0;
+    end;
+
+    [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntrastatJnlCheckListReqPageHandler')]
     [Scope('OnPrem')]
     procedure TestIntrastatCheckListReportOnBlankTransportMethod()
@@ -630,8 +644,8 @@ codeunit 144061 "Intrastat AT"
         IntrastatJournal.OpenEdit();
         IntrastatJournal.GotoRecord(IntrastatJnlLine);
         Assert.AreEqual(Format(123.46), IntrastatJournal.Quantity.Value, 'Quantity');
-        Assert.AreEqual(Format(DecimalValue), IntrastatJournal."Net Weight".Value, 'Net Weight');
-        Assert.AreEqual(Format(123.46), IntrastatJournal."Total Weight".Value, 'Total Weight');
+        Assert.AreEqual(Format(123.456), IntrastatJournal."Net Weight".Value, 'Net Weight');
+        Assert.AreEqual(Format(123.456), IntrastatJournal."Total Weight".Value, 'Total Weight'); // TFS 425728
         Assert.AreEqual(Format(123.46), IntrastatJournal.Amount.Value, 'Amount');
         Assert.AreEqual(Format(123.46), IntrastatJournal."Statistical Value".Value, 'Statistical Value');
         IntrastatJournal.Close();
