@@ -187,7 +187,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure TestPmtWithBlockedDimComb()
     var
@@ -239,7 +239,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure TestPmtApplnMultipleLines()
     var
@@ -278,7 +278,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure TestPmtApplnAmt()
     var
@@ -325,7 +325,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure TestWrongStatementEndBalance()
     var
@@ -360,7 +360,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure TestRemaingAmtPmtWithDiscMultipleAppln()
     var
@@ -511,7 +511,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure TestPostPmtWithAppln()
     var
@@ -553,7 +553,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure TestPostPmtWithDiscAppln()
     var
@@ -598,7 +598,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure TestPostPmtWithDiscMultipleAppln()
     var
@@ -658,7 +658,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure TestPostPmtWithNoDiscAppln()
     var
@@ -709,7 +709,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure TestPostPmtWithVendAppln()
     var
@@ -751,7 +751,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure TestPostPmtWithFCYInvAppln()
     var
@@ -823,7 +823,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure TestPostPmtWithFCYDiscAppln()
     var
@@ -877,7 +877,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure TestPostPmtWithLCYInvAndFCYPayAppln()
     var
@@ -919,7 +919,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure TestPostPmtWithDiscFCYInvAndLCYPayAppln()
     var
@@ -1228,7 +1228,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure PostedSourceCodeAfterReconPaymentApplication()
     var
@@ -1303,7 +1303,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure SalesApplyPmtInLCYToInvoiceInFCYWithDiffCurrencyExchangeRate()
     var
@@ -1347,7 +1347,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure PurchApplyPmtInLCYToInvoiceInFCYWithDiffCurrencyExchangeRate()
     var
@@ -1391,7 +1391,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure AppliesToIdIsBlankWhenNoEntriesAppliesDuringSalesPosting()
     var
@@ -1422,7 +1422,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure AppliesToIdIsBlankWhenNoEntriesAppliesDuringPurchPosting()
     var
@@ -1453,7 +1453,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure BankPaymentApplicationBankReconciliationLCYToBankAccountLCY()
     var
@@ -1481,7 +1481,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure BankPaymentApplicationBankReconciliationFCYToBankAccountFCY()
     var
@@ -1511,7 +1511,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure BankPaymentApplicationBankReconciliationToBankAccountDiffCurrencies()
     var
@@ -1540,7 +1540,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure PostPmtWithDateLessThanInvoicePostingDate()
     var
@@ -1960,6 +1960,13 @@ codeunit 134263 "Test Bank Payment Application"
     procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
     begin
         PostPmtsAndRecBankAcc.OK.Invoke();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure PostAndReconcilePageStatementDateHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 
     [ModalPageHandler]

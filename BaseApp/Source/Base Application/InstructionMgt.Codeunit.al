@@ -11,8 +11,8 @@ codeunit 1330 "Instruction Mgt."
         WarnUnpostedDocumentsDescriptionTxt: Label 'Show warning when you close a document that you have not posted.';
         ConfirmAfterPostingDocumentsTxt: Label 'Confirm after posting documents.';
         ConfirmAfterPostingDocumentsDescriptionTxt: Label 'Show warning when you post a document where you can choose to view the posted document.';
-        ConfirmPostingAfterCurrentCalendarDateTxt: Label 'Confirm posting after the current calendar date.';
-        ConfirmPostingAfterCurrentCalendarDateDescriptionTxt: Label 'Show warning when you post entries where the posting date is after the current calendar date.';
+        ConfirmPostingAfterWorkingDateTxt: Label 'Confirm posting after the working date.';
+        ConfirmPostingAfterWorkingDateDescriptionTxt: Label 'Show warning when you post entries where the posting date is after the working date.';
         MarkBookingAsInvoicedWarningTxt: Label 'Confirm marking booking as invoiced.';
         MarkBookingAsInvoicedWarningDescriptionTxt: Label 'Show warning when you mark a Booking appointment as invoiced.';
         OfficeUpdateNotificationTxt: Label 'Notify user of Outlook add-in update.';
@@ -106,7 +106,14 @@ codeunit 1330 "Instruction Mgt."
         exit(UpperCase('OfficeUpdateNotification'));
     end;
 
+#if not CLEAN21
+    [Obsolete('Renamed to PostingAfterWorkingDateNotAllowedCode', '21.0')]
     procedure PostingAfterCurrentCalendarDateNotAllowedCode(): Code[50]
+    begin
+        exit(PostingAfterWorkingDateNotAllowedCode());
+    end;
+#endif
+    procedure PostingAfterWorkingDateNotAllowedCode(): Code[50]
     begin
         exit(UpperCase('PostingAfterCurrentCalendarDateNotAllowed'));
     end;
@@ -154,7 +161,14 @@ codeunit 1330 "Instruction Mgt."
         exit('882980DE-C2F6-4D4F-BF39-BB3A9FE3D7DA');
     end;
 
+#if not CLEAN21
+    [Obsolete('Renamed to GetPostingAfterWorkingDateNotificationId', '21.0')]
     procedure GetPostingAfterCurrentCalendarDateNotificationId(): Guid
+    begin
+        exit(GetPostingAfterWorkingDateNotificationId())
+    end;
+#endif
+    procedure GetPostingAfterWorkingDateNotificationId(): Guid
     begin
         exit('F76D6004-5EC5-4DEA-B14D-71B2AEB53ACF');
     end;
@@ -217,10 +231,10 @@ codeunit 1330 "Instruction Mgt."
           ConfirmAfterPostingDocumentsTxt,
           ConfirmAfterPostingDocumentsDescriptionTxt,
           IsEnabled(ShowPostedConfirmationMessageCode));
-        MyNotifications.InsertDefault(GetPostingAfterCurrentCalendarDateNotificationId,
-          ConfirmPostingAfterCurrentCalendarDateTxt,
-          ConfirmPostingAfterCurrentCalendarDateDescriptionTxt,
-          IsEnabled(PostingAfterCurrentCalendarDateNotAllowedCode));
+        MyNotifications.InsertDefault(GetPostingAfterWorkingDateNotificationId(),
+          ConfirmPostingAfterWorkingDateTxt,
+          ConfirmPostingAfterWorkingDateDescriptionTxt,
+          IsEnabled(PostingAfterWorkingDateNotAllowedCode()));
         MyNotifications.InsertDefault(GetMarkBookingAsInvoicedWarningNotificationId,
           MarkBookingAsInvoicedWarningTxt,
           MarkBookingAsInvoicedWarningDescriptionTxt,
@@ -258,11 +272,11 @@ codeunit 1330 "Instruction Mgt."
                     EnableMessageForCurrentUser(AutomaticLineItemsDialogCode)
                 else
                     DisableMessageForCurrentUser(AutomaticLineItemsDialogCode);
-            GetPostingAfterCurrentCalendarDateNotificationId:
+            GetPostingAfterWorkingDateNotificationId():
                 if NewEnabledState then
-                    EnableMessageForCurrentUser(PostingAfterCurrentCalendarDateNotAllowedCode)
+                    EnableMessageForCurrentUser(PostingAfterWorkingDateNotAllowedCode())
                 else
-                    DisableMessageForCurrentUser(PostingAfterCurrentCalendarDateNotAllowedCode);
+                    DisableMessageForCurrentUser(PostingAfterWorkingDateNotAllowedCode());
             GetClosingUnreleasedOrdersNotificationId:
                 if NewEnabledState then
                     EnableMessageForCurrentUser(ClosingUnreleasedOrdersCode)

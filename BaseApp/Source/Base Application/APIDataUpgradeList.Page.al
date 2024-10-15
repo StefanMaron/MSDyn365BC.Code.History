@@ -12,11 +12,17 @@ page 9994 "API Data Upgrade List"
         {
             repeater(Control2)
             {
+                field("Upgrade Tag"; "Upgrade Tag")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Entity Name';
+                    ToolTip = 'Name of the entity.';
+                }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
-                    Caption = 'Upgrade Name';
-                    ToolTip = 'Name of the API data upgrade.';
+                    Caption = 'Endpoints';
+                    ToolTip = 'API endpoints of the entity.';
                 }
                 field(Status; Rec.Status)
                 {
@@ -65,11 +71,9 @@ page 9994 "API Data Upgrade List"
 
                 trigger OnAction();
                 begin
-                    if Rec.Status = Rec.Status::Scheduled then begin
-                        Clear(Rec.Status);
-                        Rec.Modify();
-                        CurrPage.Update();
-                    end;
+                    Clear(Rec.Status);
+                    Rec.Modify();
+                    CurrPage.Update();
                 end;
             }
         }

@@ -244,6 +244,8 @@
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
         DimMgt.GetDefaultDimID(DefaultDimSource, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+        OnAfterCreateDim(Rec, DefaultDimSource);
     end;
 
     procedure ShowDimensions()
@@ -292,6 +294,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDim(var PostedBankAccRecLine: Record "Posted Bank Rec. Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var PostedBankAccRecLine: Record "Posted Bank Rec. Line"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 

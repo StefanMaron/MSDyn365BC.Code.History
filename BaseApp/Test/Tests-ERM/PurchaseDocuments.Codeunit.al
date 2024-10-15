@@ -1544,6 +1544,59 @@ codeunit 134099 "Purchase Documents"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ContactListPageHandler,ConfirmHandlerCount')]
+    procedure PurchaseOrderContactChangeLookupBilltoContactAskedOnce()
+    var
+        Vendor: Record Vendor;
+        Contact: Record Contact;
+        Contact2: Record Contact;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO] When user change Buy-from Contact No. in Purchase Order then contact info must be updated
+        Initialize();
+
+        // [GIVEN] Vendor with two contacts
+        // [GIVEN] First contact "C1" with phone = "111111111", mobile phone = "222222222" and email = "contact1@mail.com"
+        // [GIVEN] Second contact "C2" with phone = "333333333", mobile phone = "444444444" and email = "contact2@mail.com"
+        LibraryMarketing.CreateContactWithVendor(Contact, Vendor);
+        UpdateContactInfo(Contact, '111111111', '222222222', 'contact1@mail.com');
+        Contact.Modify(true);
+        Vendor.Validate("Primary Contact No.", Contact."No.");
+        Vendor.Modify(true);
+        LibraryMarketing.CreatePersonContact(Contact2);
+        UpdateContactInfo(Contact2, '333333333', '444444444', 'contact2@mail.com');
+        Contact2.Validate("Company No.", Contact."Company No.");
+        Contact2.Modify(true);
+
+        // [GIVEN] Purchase Order with "Buy-from Contact No." = "C1"
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        PurchaseOrder.Trap();
+        Page.Run(Page::"Purchase Order", PurchaseHeader);
+
+        // [WHEN] User set "Buy-from Contact No." = "C2" by validate page field
+        LibraryVariableStorage.Enqueue(Contact2."No.");
+        LibraryVariableStorage.Enqueue(True);  // true for "Do you want to change Sell-to Contact No.?"
+        LibraryVariableStorage.Enqueue(0);     // init value for count of confirmation handlers
+        LibraryVariableStorage.Enqueue(False); // false for "Do you want to change Bill-to Contact No.?"
+        PurchaseOrder."Buy-from Contact No.".Lookup();
+
+        // [THEN] "Purchase Order"."Phone No." = "333333333"
+        PurchaseOrder.BuyFromContactPhoneNo.AssertEquals(Contact2."Phone No.");
+
+        // [THEN] "Purchase Order"."Mobile Phone No." = "444444444"
+        PurchaseOrder.BuyFromContactMobilePhoneNo.AssertEquals(Contact2."Mobile Phone No.");
+
+        // [THEN] "Purchase Order"."Email" = "contact2@mail.com"
+        PurchaseOrder.BuyFromContactEmail.AssertEquals(Contact2."E-Mail");
+
+        // [THEN] Number of confirmation questions = 2
+        Assert.AreEqual(2, LibraryVariableStorage.DequeueInteger(), 'Number of confirmations is incorrect');
+
+    end;
+
     local procedure Initialize()
     var
         IntrastatSetup: Record "Intrastat Setup";
@@ -1830,6 +1883,17 @@ codeunit 134099 "Purchase Documents"
     procedure ConfirmHandlerTrue(Message: Text[1024]; var Response: Boolean)
     begin
         Response := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerCount(Question: Text[1024]; var Reply: Boolean)
+    begin
+        if LibraryVariableStorage.Length > 1 then
+            Reply := LibraryVariableStorage.DequeueBoolean()
+        else
+            Reply := false;
+        LibraryVariableStorage.Enqueue(LibraryVariableStorage.DequeueInteger() + 1);
     end;
 
     [StrMenuHandler]

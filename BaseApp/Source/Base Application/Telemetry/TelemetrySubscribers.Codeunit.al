@@ -301,9 +301,6 @@ codeunit 1351 "Telemetry Subscribers"
         TranslationHelper: Codeunit "Translation Helper";
         Dimensions: Dictionary of [Text, Text];
     begin
-        if not IsSaaS() then
-            exit;
-
         TranslationHelper.SetGlobalLanguageToDefault();
 
         Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
@@ -328,9 +325,6 @@ codeunit 1351 "Telemetry Subscribers"
         TranslationHelper: Codeunit "Translation Helper";
         Dimensions: Dictionary of [Text, Text];
     begin
-        if not IsSaas() then
-            exit;
-
         TranslationHelper.SetGlobalLanguageToDefault();
 
         Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
@@ -359,9 +353,6 @@ codeunit 1351 "Telemetry Subscribers"
         TranslationHelper: Codeunit "Translation Helper";
         Dimensions: Dictionary of [Text, Text];
     begin
-        if not IsSaaS() then
-            exit;
-
         TranslationHelper.SetGlobalLanguageToDefault();
 
         Session.LogMessage('000082B', StrSubstNo(JobQueueEntryStartedTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run", JobQueueEntry."Object ID to Run", JobQueueEntry.CurrentCompany(), JobQueueEntry."System Task ID"), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', JobQueueEntriesCategoryTxt);
@@ -379,43 +370,11 @@ codeunit 1351 "Telemetry Subscribers"
         TranslationHelper.RestoreGlobalLanguage();
     end;
 
-#if not CLEAN19
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue Dispatcher", 'OnAfterExecuteJob', '', false, false)]
-    local procedure SendTraceOnJobQueueEntryFinished(var JobQueueEntry: Record "Job Queue Entry"; WasSuccess: Boolean)
-    var
-        TranslationHelper: Codeunit "Translation Helper";
-        Result: Text[10];
-    begin
-        if not IsSaaS() then
-            exit;
-
-        if WasSuccess then
-            Result := 'Success'
-        else
-            Result := 'Fail';
-
-        TranslationHelper.SetGlobalLanguageToDefault();
-
-        Session.LogMessage('000082C', StrSubstNo(JobQueueEntryFinishedTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run",
-            JobQueueEntry."Object ID to Run", Result, JobQueueEntry.CurrentCompany(), JobQueueEntry."System Task ID"),
-            Verbosity::Normal,
-            DataClassification::OrganizationIdentifiableInformation,
-            TelemetryScope::ExtensionPublisher,
-            'Category',
-            JobQueueEntriesCategoryTxt);
-
-        TranslationHelper.RestoreGlobalLanguage();
-    end;
-#endif
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue Dispatcher", 'OnAfterSuccessExecuteJob', '', false, false)]
     local procedure SendTraceOnJobQueueEntryFinishedSuccessfully(var JobQueueEntry: Record "Job Queue Entry")
     var
         TranslationHelper: Codeunit "Translation Helper";
     begin
-        if not IsSaaS() then
-            exit;
-
         TranslationHelper.SetGlobalLanguageToDefault();
 
         Session.LogMessage('000082C', StrSubstNo(JobQueueEntryFinishedTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run",
@@ -429,50 +388,12 @@ codeunit 1351 "Telemetry Subscribers"
         TranslationHelper.RestoreGlobalLanguage();
     end;
 
-#if not CLEAN19
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue Dispatcher", 'OnAfterHandleRequest', '', false, false)]
-    local procedure SendTraceOnJobQueueEntryRequestFinished(var JobQueueEntry: Record "Job Queue Entry"; WasSuccess: Boolean; JobQueueExecutionTime: Integer)
-    var
-        TranslationHelper: Codeunit "Translation Helper";
-        Result: Text[10];
-        Dimensions: Dictionary of [Text, Text];
-    begin
-        if not IsSaaS() then
-            exit;
-
-        if WasSuccess then
-            Result := 'Success'
-        else
-            Result := 'Fail';
-
-        TranslationHelper.SetGlobalLanguageToDefault();
-
-        Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
-        Dimensions.Add('JobQueueId', Format(JobQueueEntry.ID, 0, 4));
-        Dimensions.Add('JobQueueObjectType', Format(JobQueueEntry."Object Type to Run"));
-        Dimensions.Add('JobQueueObjectId', Format(JobQueueEntry."Object ID to Run"));
-        Dimensions.Add('JobQueueStatus', Format(JobQueueEntry.Status));
-        Dimensions.Add('JobQueueExecutionTimeInMs', Format(JobQueueExecutionTime));
-        Dimensions.Add('JobQueueCompanyName', JobQueueEntry.CurrentCompany());
-        Dimensions.Add('JobQueueScheduledTaskId', Format(JobQueueEntry."System Task ID", 0, 4));
-        Dimensions.Add('JobQueueResult', Result);
-
-
-        Session.LogMessage('0000E26', StrSubstNo(JobQueueEntryFinishedAllTxt, Format(JobQueueEntry.ID, 0, 4)), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, Dimensions);
-
-        TranslationHelper.RestoreGlobalLanguage();
-    end;
-#endif
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue Dispatcher", 'OnAfterSuccessHandleRequest', '', false, false)]
     local procedure SendTraceOnJobQueueEntryRequestFinishedSuccessfully(var JobQueueEntry: Record "Job Queue Entry"; JobQueueExecutionTime: Integer)
     var
         TranslationHelper: Codeunit "Translation Helper";
         Dimensions: Dictionary of [Text, Text];
     begin
-        if not IsSaaS() then
-            exit;
-
         TranslationHelper.SetGlobalLanguageToDefault();
 
         Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
@@ -708,15 +629,6 @@ codeunit 1351 "Telemetry Subscribers"
         BankAccReconciliationLine.SetRange("Statement No.", Rec."Statement No.");
         BankAccReconciliationLine.SetFilter(Difference, '<>%1', 0);
         Session.LogMessage('0000AHW', StrSubstNo(BankAccountRecTransferToGJMsg, BankAccReconciliationLine.Count), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccountRecCategoryLbl);
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Telemetry Custom Dimensions", 'OnAddCommonCustomDimensions', '', true, true)]
-    local procedure OnAddCommonCustomDimensions(var Sender: Codeunit "Telemetry Custom Dimensions")
-    var
-        CompanyInformation: Record "Company Information";
-    begin
-        if CompanyInformation.Get('') then
-            Sender.AddCommonCustomDimension('CountryCode', CompanyInformation."Country/Region Code");
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Sent Emails", 'OnOpenPageEvent', '', false, false)]

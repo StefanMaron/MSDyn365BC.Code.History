@@ -239,7 +239,7 @@ report 1135 "Copy G/L Budget to Cost Acctg."
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnPostDataItemOnAfterConfirmCopyBudget(var CostBudgetEntry: Record "Cost Budget Entry"; CostBudgetEntryTarget: Record "Cost Budget Entry")
     begin
     end;

@@ -28,6 +28,9 @@ codeunit 448 "Job Queue Dispatcher"
 
     var
         TestMode: Boolean;
+        JobQueueEntryFailedtoGetBeforeFinalizingTxt: Label 'Failed to get Job Queue Entry before finalizing record.', Locked = true;
+        JobQueueEntryFailedtoGetBeforeUpdatingStatusTxt: Label 'Failed to get Job Queue Entry before updating status.', Locked = true;
+        JobQueueEntriesCategoryTxt: Label 'AL JobQueueEntries', Locked = true;
 
     local procedure HandleRequest(var JobQueueEntry: Record "Job Queue Entry")
     var
@@ -69,14 +72,19 @@ codeunit 448 "Job Queue Dispatcher"
         // user may have deleted it in the meantime
         if JobQueueEntry.DoesExistLocked() then
             JobQueueEntry.SetResult(PrevStatus)
-        else
+        else begin
+            SendTraceOnFailedtoGetRecordBeforeUpdatingStatus(JobQueueEntry);
             JobQueueEntry.SetResultDeletedEntry();
+        end;
         Commit();
 
         JobQueueEntry.FinalizeLogEntry(JobQueueLogEntry);
 
         if JobQueueEntry.DoesExistLocked() then
-            JobQueueEntry.FinalizeRun();
+            JobQueueEntry.FinalizeRun()
+        else
+            SendTraceOnFailedToGetRecordBeforeFinalizingRecord(JobQueueEntry);
+
 
 #if not CLEAN19
         OnAfterHandleRequest(JobQueueEntry, true, JobQueueExecutionTimeInMs);
@@ -257,6 +265,52 @@ codeunit 448 "Job Queue Dispatcher"
     local procedure IsNextRecurringRunTimeCalculated(JobQueueEntry: Record "Job Queue Entry"; StartingDateTime: DateTime; var NewRunDateTime: DateTime) IsHandled: Boolean
     begin
         OnBeforeCalcNextRunTimeForRecurringJob(JobQueueEntry, StartingDateTime, NewRunDateTime, IsHandled);
+    end;
+
+    local procedure SendTraceOnFailedToGetRecordBeforeFinalizingRecord(JobQueueEntry: Record "Job Queue Entry")
+    var
+        TranslationHelper: Codeunit "Translation Helper";
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        TranslationHelper.SetGlobalLanguageToDefault();
+
+        // Failed to get record but insert all last known information into custom dimensions
+        Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
+        Dimensions.Add('JobQueueId', Format(JobQueueEntry.ID, 0, 4));
+        Dimensions.Add('JobQueueObjectType', Format(JobQueueEntry."Object Type to Run"));
+        Dimensions.Add('JobQueueObjectId', Format(JobQueueEntry."Object ID to Run"));
+        Dimensions.Add('JobQueueStatus', Format(JobQueueEntry.Status));
+        Dimensions.Add('JobQueueIsRecurring', Format(JobQueueEntry."Recurring Job"));
+        Dimensions.Add('JobQueueEarliestStartDateTime', Format(JobQueueEntry."Earliest Start Date/Time"));
+        Dimensions.Add('JobQueueCompanyName', JobQueueEntry.CurrentCompany());
+        Dimensions.Add('JobQueueScheduledTaskId', Format(JobQueueEntry."System Task ID", 0, 4));
+
+        Session.LogMessage('0000HAI', JobQueueEntryFailedtoGetBeforeFinalizingTxt, Verbosity::Warning, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, Dimensions);
+
+        TranslationHelper.RestoreGlobalLanguage();
+    end;
+
+    local procedure SendTraceOnFailedtoGetRecordBeforeUpdatingStatus(JobQueueEntry: Record "Job Queue Entry")
+    var
+        TranslationHelper: Codeunit "Translation Helper";
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        TranslationHelper.SetGlobalLanguageToDefault();
+
+        // Failed to get record but insert all last known information into custom dimensions
+        Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
+        Dimensions.Add('JobQueueId', Format(JobQueueEntry.ID, 0, 4));
+        Dimensions.Add('JobQueueObjectType', Format(JobQueueEntry."Object Type to Run"));
+        Dimensions.Add('JobQueueObjectId', Format(JobQueueEntry."Object ID to Run"));
+        Dimensions.Add('JobQueueStatus', Format(JobQueueEntry.Status));
+        Dimensions.Add('JobQueueIsRecurring', Format(JobQueueEntry."Recurring Job"));
+        Dimensions.Add('JobQueueEarliestStartDateTime', Format(JobQueueEntry."Earliest Start Date/Time"));
+        Dimensions.Add('JobQueueCompanyName', JobQueueEntry.CurrentCompany());
+        Dimensions.Add('JobQueueScheduledTaskId', Format(JobQueueEntry."System Task ID", 0, 4));
+
+        Session.LogMessage('0000HAK', JobQueueEntryFailedtoGetBeforeUpdatingStatusTxt, Verbosity::Warning, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, Dimensions);
+
+        TranslationHelper.RestoreGlobalLanguage();
     end;
 
     [Scope('OnPrem')]

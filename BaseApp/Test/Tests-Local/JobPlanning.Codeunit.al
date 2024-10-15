@@ -73,9 +73,7 @@ codeunit 144016 "Job Planning"
     var
         Job: Record Job;
     begin
-        JobsUtil.CreateJob(Job);
-        Job.Validate("Sell-to Customer No.", CreateCustomer);
-        Job.Modify(true);
+        JobsUtil.CreateJob(Job, CreateCustomer());
         JobsUtil.CreateJobTask(Job, JobTask);
     end;
 

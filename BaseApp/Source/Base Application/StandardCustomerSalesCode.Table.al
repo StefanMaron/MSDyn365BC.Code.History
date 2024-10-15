@@ -261,6 +261,8 @@ table 172 "Standard Customer Sales Code"
         SalesLine."Dimension Set ID" :=
           DimensionManagement.GetCombinedDimensionSetID(
             DimensionSetIDArr, SalesLine."Shortcut Dimension 1 Code", SalesLine."Shortcut Dimension 2 Code");
+
+        OnAfterCombineDimensions(SalesLine, StdSalesLine);
     end;
 
     procedure InsertExtendedText(SalesLine: Record "Sales Line")
@@ -341,6 +343,11 @@ table 172 "Standard Customer Sales Code"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateSalesInvoice(var SalesHeader: Record "Sales Header"; StandardCustomerSalesCode: Record "Standard Customer Sales Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCombineDimensions(var SalesLine: Record "Sales Line"; StdSalesLine: Record "Standard Sales Line")
     begin
     end;
 

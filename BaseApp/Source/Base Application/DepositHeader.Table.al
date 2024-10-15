@@ -370,6 +370,8 @@
         "Shortcut Dimension 2 Code" := '';
         "Dimension Set ID" :=
             DimMgt.GetDefaultDimID(DefaultDimSource, SourceCodeSetup.Deposits, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+        OnAfterCreateDim(Rec, DefaultDimSource);
     end;
 
     local procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -402,6 +404,11 @@
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
         OnAferShowDocDim(Rec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var DepositHeader: Record "Deposit Header"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
     end;
 
     [IntegrationEvent(false, false)]

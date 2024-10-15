@@ -992,6 +992,7 @@ report 10401 "Check (Stub/Stub/Check)"
                         CurrReport.Break();
 
                     UseCheckNo := IncStr(UseCheckNo);
+                    OnAfterIncStrCheckNo(UseCheckNo, GenJnlLine, CheckPages, PageNo);
                     if not TestPrint then
                         CheckNoText := UseCheckNo
                     else
@@ -1876,6 +1877,11 @@ report 10401 "Check (Stub/Stub/Check)"
                     Text031,
                     VendLedgEntry3."Document Type", VendLedgEntry3."Document No.",
                     VendLedgEntry3."Vendor No."));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIncStrCheckNo(var UseCheckNo: Code[20]; var GenJnlLine: Record "Gen. Journal Line"; var CheckPages: Record Integer; PageNo: Integer)
+    begin
     end;
 }
 

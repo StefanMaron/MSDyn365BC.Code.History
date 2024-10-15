@@ -662,7 +662,7 @@ codeunit 136309 "Job Posting"
 
         // 1. Setup: Create a Job and Job Task for it. Create Job Planning Lines for Type Item, Resource and GLAccount and then Create Sales Invoice from Job Planning Line. Post the Sales Invoice.
         Initialize();
-        CreateJobWithCustomer(Job, CreateCustomer(''));  // Passing Blank for Currency Code.
+        LibraryJob.CreateJob(Job, CreateCustomer(''));  // Passing Blank for Currency Code.
         CreateJobPlanningLinesForDifferentType(Job, JobPlanningLine);
         CreateAndPostSalesInvoice(JobPlanningLine, Job."Bill-to Customer No.");
 
@@ -707,7 +707,7 @@ codeunit 136309 "Job Posting"
 
         // 1. Setup: Create a Job and multiple Job Tasks for it. Create Job Planning Lines for Type Item, Resource and GLAccount and then Create Sales Invoice from Job Planning Line. Post the Sales Invoice.
         Initialize();
-        CreateJobWithCustomer(Job, CreateCustomer(''));  // Passing Blank for Currency Code.
+        LibraryJob.CreateJob(Job, CreateCustomer(''));  // Passing Blank for Currency Code.
         for Counter := 1 to 1 + LibraryRandom.RandInt(3) do begin
             CreateJobPlanningLinesForDifferentType(Job, JobPlanningLine);
             CreateAndPostSalesInvoice(JobPlanningLine, Job."Bill-to Customer No.");
@@ -966,7 +966,7 @@ codeunit 136309 "Job Posting"
         Job: Record Job;
     begin
         // 2. Exercise: Create Job for Customer.
-        CreateJobWithCustomer(Job, CreateCustomer(InvoiceCurrencyCode));
+        LibraryJob.CreateJob(Job, CreateCustomer(InvoiceCurrencyCode));
 
         // 3. Verify: Verify Currency Code and Invoice Currency Code field on Job according to the Customer.
         Job.TestField("Currency Code", '');
@@ -1331,6 +1331,7 @@ codeunit 136309 "Job Posting"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure BlankCurrencyCodeAfterValidateCustWithCurrency()
     var
@@ -1359,6 +1360,7 @@ codeunit 136309 "Job Posting"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure CurrencyCodeNotChangedAfterValidateCustWithoutCurrency()
     var
@@ -1512,6 +1514,7 @@ codeunit 136309 "Job Posting"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure JobCurrencyCodeUpdateByBilltoCustomer()
     var
@@ -1523,7 +1526,7 @@ codeunit 136309 "Job Posting"
         Initialize();
 
         // [GIVEN] Job with Customer without Currency Code
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
 
         // [GIVEN] Currency Code updated
         Job."Currency Code" := CreateCurrency;
@@ -2557,7 +2560,7 @@ codeunit 136309 "Job Posting"
 
     local procedure CreateJobWithCurrency(var Job: Record Job)
     begin
-        CreateJobWithCustomer(Job, CreateCustomer(''));  // Blank value for Currency Code.
+        LibraryJob.CreateJob(Job, CreateCustomer(''));  // Blank value for Currency Code.
         Job.Validate("Currency Code", CreateCurrency);
         Job.Modify(true);
     end;
@@ -2566,15 +2569,8 @@ codeunit 136309 "Job Posting"
     var
         Job: Record Job;
     begin
-        CreateJobWithCustomer(Job, CreateCustomer(''));  // Blank value for Currency Code.
+        LibraryJob.CreateJob(Job, CreateCustomer(''));  // Blank value for Currency Code.
         LibraryJob.CreateJobTask(Job, JobTask);
-    end;
-
-    local procedure CreateJobWithCustomer(var Job: Record Job; SellToCustomerNo: Code[20])
-    begin
-        LibraryJob.CreateJob(Job);
-        Job.Validate("Sell-to Customer No.", SellToCustomerNo);
-        Job.Modify(true);
     end;
 
     local procedure CreateJobWithPlanningUsageLink(var JobPlanningLine: Record "Job Planning Line")

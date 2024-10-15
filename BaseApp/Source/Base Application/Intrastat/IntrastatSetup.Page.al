@@ -14,26 +14,36 @@ page 328 "Intrastat Setup"
             group(General)
             {
                 Caption = 'General';
-                field("Report Receipts"; "Report Receipts")
+                field("Report Receipts"; Rec."Report Receipts")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies that you must include arrivals of received goods in Intrastat reports.';
                 }
-                field("Report Shipments"; "Report Shipments")
+                field("Report Shipments"; Rec."Report Shipments")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies that you must include shipments of dispatched items in Intrastat reports.';
                 }
-                field("Intrastat Contact Type"; "Intrastat Contact Type")
+                field("Intrastat Contact Type"; Rec."Intrastat Contact Type")
                 {
                     ApplicationArea = BasicEU;
                     OptionCaption = ' ,Contact,Vendor';
                     ToolTip = 'Specifies the Intrastat contact type.';
+
+                    trigger OnValidate()
+                    begin
+                        SetupCompleted()
+                    end;
                 }
-                field("Intrastat Contact No."; "Intrastat Contact No.")
+                field("Intrastat Contact No."; Rec."Intrastat Contact No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the Intrastat contact.';
+
+                    trigger OnValidate()
+                    begin
+                        SetupCompleted()
+                    end;
                 }
 #if not CLEAN19
                 field("Use Advanced Checklist"; Rec."Use Advanced Checklist")
@@ -45,6 +55,21 @@ page 328 "Intrastat Setup"
                     ObsoleteReason = 'Replaced by Advanced Intrastat Checklist';
                 }
 #endif
+                field("Company VAT No. on File"; "Company VAT No. on File")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies how the company''s VAT registration number exports to the Intrastat file. 0 is the value of the VAT Reg. No. field, 1 adds the EU country code as a prefix, and 2 removes the EU country code.';
+                }
+                field("Vend. VAT No. on File"; "Vend. VAT No. on File")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies how a vendor''s VAT registration number exports to the Intrastat file. 0 is the value of the VAT Reg. No. field, 1 adds the EU country code as a prefix, and 2 removes the EU country code.';
+                }
+                field("Cust. VAT No. on File"; "Cust. VAT No. on File")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies how a customer''s VAT registration number exports to the Intrastat file. 0 is the value of the VAT Reg. No. field, 1 adds the EU country code as a prefix, and 2 removes the EU country code.';
+                }
             }
             group("Default Transactions")
             {
@@ -97,9 +122,17 @@ page 328 "Intrastat Setup"
 
     trigger OnOpenPage()
     begin
-        Init;
-        if not Get then
-            Insert(true);
+        Rec.Init();
+        if not Rec.Get() then
+            Rec.Insert(true);
+    end;
+
+    local procedure SetupCompleted()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+    begin
+        if Rec."Intrastat Contact No." <> '' then
+            FeatureTelemetry.LogUptake('0000FAD', 'Intrastat', Enum::"Feature Uptake Status"::"Set up");
     end;
 }
 

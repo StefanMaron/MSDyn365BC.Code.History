@@ -1,6 +1,8 @@
 page 10129 "Posted Bank Rec. List"
 {
-    Caption = 'Posted Bank Rec. List';
+    ApplicationArea = Basic, Suite;
+    UsageCategory = Lists;
+    Caption = 'Posted Bank Reconciliations List';
     CardPageID = "Posted Bank Rec. Worksheet";
     Editable = false;
     PageType = List;

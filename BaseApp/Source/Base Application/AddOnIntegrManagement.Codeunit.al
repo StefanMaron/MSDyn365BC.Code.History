@@ -117,47 +117,51 @@ codeunit 5403 AddOnIntegrManagement
     begin
         IsHandled := false;
         OnBeforeTransferFromReqLineToPurchLine(PurchOrderLine, ReqLine, IsHandled);
-        if IsHandled then
-            exit;
-
-        with ReqLine do begin
-            PurchOrderLine."Routing No." := "Routing No.";
-            PurchOrderLine."Routing Reference No." := "Routing Reference No.";
-            PurchOrderLine."Operation No." := "Operation No.";
-            PurchOrderLine.Validate("Work Center No.", "Work Center No.");
-            if "Prod. Order No." <> '' then
-                if "Work Center No." <> '' then begin
-                    OnTransferFromReqLineToPurchLineOnBeforeBeforeAssignOverheadRate(WorkCenter, ReqLine."Order Date");
-                    WorkCenter.Get(PurchOrderLine."Work Center No.");
-                    if WorkCenter."Unit Cost Calculation" = WorkCenter."Unit Cost Calculation"::Time then begin
-                        ProdOrderRtngLine.Get(
-                          ProdOrderRtngLine.Status::Released, "Prod. Order No.", "Routing Reference No.", "Routing No.", "Operation No.");
-                        MfgSetup.Get();
-                        CostCalcMgt.GetRndgSetup(GLSetup, Currency, RndgSetupRead);
-                        if MfgSetup."Cost Incl. Setup" and (Quantity <> 0) then begin
-                            PurchOrderLine."Overhead Rate" :=
-                              Round(
-                                WorkCenter."Overhead Rate" *
-                                (ProdOrderRtngLine."Setup Time" /
-                                 Quantity +
-                                 ProdOrderRtngLine."Run Time"),
-                                GLSetup."Unit-Amount Rounding Precision");
+        if not IsHandled then
+            with ReqLine do begin
+                PurchOrderLine."Routing No." := "Routing No.";
+                PurchOrderLine."Routing Reference No." := "Routing Reference No.";
+                PurchOrderLine."Operation No." := "Operation No.";
+                PurchOrderLine.Validate("Work Center No.", "Work Center No.");
+                if "Prod. Order No." <> '' then
+                    if "Work Center No." <> '' then begin
+                        OnTransferFromReqLineToPurchLineOnBeforeBeforeAssignOverheadRate(WorkCenter, ReqLine."Order Date");
+                        WorkCenter.Get(PurchOrderLine."Work Center No.");
+                        if WorkCenter."Unit Cost Calculation" = WorkCenter."Unit Cost Calculation"::Time then begin
+                            ProdOrderRtngLine.Get(
+                              ProdOrderRtngLine.Status::Released, "Prod. Order No.", "Routing Reference No.", "Routing No.", "Operation No.");
+                            MfgSetup.Get();
+                            CostCalcMgt.GetRndgSetup(GLSetup, Currency, RndgSetupRead);
+                            if MfgSetup."Cost Incl. Setup" and (Quantity <> 0) then begin
+                                PurchOrderLine."Overhead Rate" :=
+                                  Round(
+                                    WorkCenter."Overhead Rate" *
+                                    (ProdOrderRtngLine."Setup Time" /
+                                     Quantity +
+                                     ProdOrderRtngLine."Run Time"),
+                                    GLSetup."Unit-Amount Rounding Precision");
+                            end else
+                                PurchOrderLine."Overhead Rate" :=
+                                  Round(
+                                    WorkCenter."Overhead Rate" * ProdOrderRtngLine."Run Time",
+                                    GLSetup."Unit-Amount Rounding Precision");
                         end else
-                            PurchOrderLine."Overhead Rate" :=
-                              Round(
-                                WorkCenter."Overhead Rate" * ProdOrderRtngLine."Run Time",
-                                GLSetup."Unit-Amount Rounding Precision");
-                    end else
-                        PurchOrderLine."Overhead Rate" := WorkCenter."Overhead Rate";
-                    PurchOrderLine."Indirect Cost %" := WorkCenter."Indirect Cost %";
-                    PurchOrderLine."Gen. Prod. Posting Group" := WorkCenter."Gen. Prod. Posting Group";
-                    PurchOrderLine.Validate("Direct Unit Cost", "Direct Unit Cost");
-                end;
-        end;
+                            PurchOrderLine."Overhead Rate" := WorkCenter."Overhead Rate";
+                        PurchOrderLine."Indirect Cost %" := WorkCenter."Indirect Cost %";
+                        PurchOrderLine."Gen. Prod. Posting Group" := WorkCenter."Gen. Prod. Posting Group";
+                        PurchOrderLine.Validate("Direct Unit Cost", "Direct Unit Cost");
+                    end;
+            end;
+        OnAfterTransferFromReqLineToPurchLine(PurchOrderLine, ReqLine);
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckReceiptOrderStatus(SalesLine: Record "Sales Line"; var Checked: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferFromReqLineToPurchLine(var PurchOrderLine: Record "Purchase Line"; var ReqLine: Record "Requisition Line")
     begin
     end;
 

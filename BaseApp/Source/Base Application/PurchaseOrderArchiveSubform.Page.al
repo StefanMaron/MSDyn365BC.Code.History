@@ -318,7 +318,7 @@ page 5168 "Purchase Order Archive Subform"
                 }
                 field("Planning Flexibility"; "Planning Flexibility")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = Planning;
                     ToolTip = 'Specifies whether the supply represented by this line is considered by the planning system when calculating action messages.';
                     Visible = false;
                 }

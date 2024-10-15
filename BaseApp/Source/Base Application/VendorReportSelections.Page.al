@@ -30,6 +30,8 @@ page 9658 "Vendor Report Selections"
                                 Usage := Usage::"P.V.Remit.";
                             Usage2::"Posted Return Shipment":
                                 Usage := Usage::"P.Ret.Shpt.";
+                            else
+                                OnValidateUsage2OnCaseElse(Rec, Usage2);
                         end;
                     end;
                 }
@@ -210,6 +212,8 @@ page 9658 "Vendor Report Selections"
                 Usage2 := Usage2::"Vendor Remittance - Posted Entries";
             CustomReportSelection.Usage::"P.Ret.Shpt.":
                 Usage2 := Usage2::"Posted Return Shipment";
+            else
+                OnMapTableUsageValueToPageValueOnCaseElse(CustomReportSelection, Usage2, Rec);
         end;
     end;
 
@@ -229,6 +233,16 @@ page 9658 "Vendor Report Selections"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFilterVendorUsageReportSelections(var ReportSelections: Record "Report Selections")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMapTableUsageValueToPageValueOnCaseElse(CustomReportSelection: Record "Custom Report Selection"; var ReportUsage: Enum "Report Selection Usage Vendor"; Rec: Record "Custom Report Selection")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateUsage2OnCaseElse(var CustomReportSelection: Record "Custom Report Selection"; ReportUsage: Enum "Report Selection Usage Vendor")
     begin
     end;
 }
