@@ -619,6 +619,45 @@ codeunit 134786 "Test Invty. Doc. Pst Preview"
         InvtShipment.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('CalcPhysOrderLinesRequestPageHandler,CalculateQuantityExpectedStrMenuHandler,ConfirmHandlerTRUE,MessageHandler')]
+    procedure PostingPhysicalInventoryOrderShouldNotCauseError()
+    var
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        Item: Record Item;
+        Location: Record Location;
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        // [SCENARIO 534167] Physical Inventory Order is deleted after posting.
+        Initialize();
+
+        // [GIVEN] Create Physical Inventory Order with for one Item without item tracking.
+        CreatePhysInventoryOrderWithFinishedRecording(PhysInvtOrderHeader, Item, Location, LibraryRandom.RandIntInRange(3, 10), LibraryRandom.RandIntInRange(1, 3));
+
+        // [GIVEN] Finish Phys. Inventory Order.
+        Codeunit.Run(Codeunit::"Phys. Invt. Order-Finish (Y/N)", PhysInvtOrderHeader);
+
+        // [GIVEN] Find the Physical Order Line.
+        PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
+        PhysInvtOrderLine.FindFirst();
+
+        // [GIVEN] Create General Posting Setup.
+        CreateGeneralPostingSetup(PhysInvtOrderLine."Gen. Bus. Posting Group", PhysInvtOrderLine."Gen. Prod. Posting Group");
+
+        //[GIVEN] Validate Inventory Adjmt. Account in General Posting Setup.
+        GeneralPostingSetup.Get(PhysInvtOrderLine."Gen. Bus. Posting Group", PhysInvtOrderLine."Gen. Prod. Posting Group");
+        GeneralPostingSetup.Validate("Inventory Adjmt. Account", LibraryERM.CreateGLAccountNo());
+        GeneralPostingSetup.Modify(true);
+        Commit();
+
+        // [WHEN] Post Physical Inventory Order must be posted.
+        Codeunit.Run(Codeunit::"Phys. Invt. Order-Post", PhysInvtOrderHeader);
+
+        // [THEN] Physical Order must be deleted after posting.
+        Assert.RecordIsEmpty(PhysInvtOrderHeader);
+    end;
+
     local procedure Initialize()
     var
         ItemJournalLine: Record "Item Journal Line";

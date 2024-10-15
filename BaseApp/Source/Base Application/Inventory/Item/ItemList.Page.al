@@ -2535,7 +2535,6 @@ page 31 "Item List"
 
     trigger OnInit()
     begin
-        CurrPage.PowerBIEmbeddedReportPart.PAGE.InitPageRatio(PowerBIServiceMgt.GetFactboxRatio());
         CurrPage.PowerBIEmbeddedReportPart.PAGE.SetPageContext(CurrPage.ObjectId(false));
     end;
 
@@ -2577,7 +2576,6 @@ page 31 "Item List"
         TempItemFilteredFromAttributes: Record Item temporary;
         TempItemFilteredFromPickItem: Record Item temporary;
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-        PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
         CalculateStdCost: Codeunit "Calculate Standard Cost";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";

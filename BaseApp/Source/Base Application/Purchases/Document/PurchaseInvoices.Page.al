@@ -658,7 +658,6 @@ page 9308 "Purchase Invoices"
 
     trigger OnInit()
     begin
-        CurrPage.PowerBIEmbeddedReportPart.PAGE.InitPageRatio(PowerBIServiceMgt.GetFactboxRatio());
         CurrPage.PowerBIEmbeddedReportPart.PAGE.SetPageContext(CurrPage.ObjectId(false));
     end;
 
@@ -677,7 +676,6 @@ page 9308 "Purchase Invoices"
         OpenPostedPurchaseInvQst: Label 'The invoice is posted as number %1 and moved to the Posted Purchase Invoice window.\\Do you want to open the posted invoice?', Comment = '%1 = posted document number';
         TotalsMismatchErr: Label 'The invoice cannot be posted because the total is different from the total on the related incoming document.';
         ReportPrint: Codeunit "Test Report-Print";
-        PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
         JobQueueActive: Boolean;
         OpenApprovalEntriesExist: Boolean;
         CanCancelApprovalForRecord: Boolean;

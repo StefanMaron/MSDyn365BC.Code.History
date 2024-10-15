@@ -3814,6 +3814,27 @@
         Assert.IsFalse(ItemLedgerEntry.IsEmpty(), ItemLedgerEntryMustBeFoundErr);
     end;
 
+    [Test]
+    procedure ReleasingOfTransferOrderHavingTransferLineWithoutUOMGivesError()
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+    begin
+        // [SCENARIO 522444] When run Release action from a Transfer Order having a Transfer Line without 
+        // Unit of Measure Code, then it gives error and the document is not released.
+        Initialize();
+
+        // [GIVEN] Create a Transfer Order.
+        CreateTransferOrder(TransferHeader, TransferLine);
+
+        // [WHEN] Validate Unit of Measure Code in Transfer Line.
+        TransferLine.Validate("Unit of Measure Code", '');
+        TransferLine.Modify(true);
+
+        // [THEN] Error is shown and the Transfer Order is not released.
+        asserterror LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

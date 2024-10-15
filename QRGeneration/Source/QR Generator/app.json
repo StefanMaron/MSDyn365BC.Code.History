@@ -2,7 +2,7 @@
   "id": "7106d701-c601-4a5f-97c2-b8b323ae2c18",
   "name": "QR Generator",
   "publisher": "Microsoft",
-  "version": "24.3.21374.21517",
+  "version": "24.4.22295.22576",
   "brief": "Contains feature for QR Code Generation.",
   "description": "Contains feature for QR Code Generation.",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
@@ -17,7 +17,7 @@
   "dependencies": [],
   "screenshots": [],
   "platform": "24.0.0.0",
-  "application": "24.3.0.0",
+  "application": "24.4.0.0",
   "idRanges": [
     {
       "from": 18650,

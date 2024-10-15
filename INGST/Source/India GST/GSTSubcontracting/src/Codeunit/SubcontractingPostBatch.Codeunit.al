@@ -13,6 +13,7 @@ using Microsoft.Inventory.Tracking;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Posting;
 using Microsoft.Purchases.Vendor;
+using Microsoft.Finance.Currency;
 
 codeunit 18467 "Subcontracting Post Batch"
 {
@@ -199,8 +200,8 @@ codeunit 18467 "Subcontracting Post Batch"
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
         PurchLineToUpdate: Record "Purchase Line";
+        Currency: Record Currency;
         PurchPost: Codeunit "Purch.-Post";
-        LineAmount: Decimal;
     begin
         if not Confirm(PostConfirmationQst) then
             Error('');
@@ -227,11 +228,17 @@ codeunit 18467 "Subcontracting Post Batch"
         PurchLine.SetRange(Subcontracting, true);
         if PurchLine.FindSet() then
             repeat
-                LineAmount := PurchLine.Amount;
                 PurchHeader.SetRange("Document Type", PurchLine."Document Type");
                 PurchHeader.SetRange("No.", PurchLine."Document No.");
                 PurchHeader.SetRange("Subcon. Multiple Receipt", false);
                 if PurchHeader.FindFirst() then begin
+                    if PurchHeader."Currency Code" = '' then
+                        Currency.InitRoundingPrecision()
+                    else begin
+                        PurchHeader.TestField("Currency Factor");
+                        Currency.Get(PurchHeader."Currency Code");
+                        Currency.TestField("Amount Rounding Precision");
+                    end;
                     PurchHeader."Vendor Shipment No." := MultiSubOrderDet."Vendor Shipment No.";
                     PurchHeader.Receive := true;
                     PurchHeader.Invoice := false;
@@ -241,7 +248,11 @@ codeunit 18467 "Subcontracting Post Batch"
                 end;
                 PurchLineToUpdate.Get(PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.");
                 PurchLineToUpdate."Applies-to ID (Receipt)" := '';
-                PurchLineToUpdate."Line Amount" := LineAmount;
+                PurchLineToUpdate."Line Discount Amount" := Round(
+                    Round(PurchLineToUpdate.Quantity * PurchLineToUpdate."Direct Unit Cost", Currency."Amount Rounding Precision") *
+                        PurchLineToUpdate."Line Discount %" / 100,
+                        Currency."Amount Rounding Precision");
+                PurchLineToUpdate.UpdateAmounts();
                 PurchLineToUpdate.Modify();
             until PurchLine.Next() = 0
         else
