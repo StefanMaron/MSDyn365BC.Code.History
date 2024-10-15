@@ -244,6 +244,20 @@
             TableRelation = Customer.Name;
             ValidateTableRelation = false;
 
+            trigger OnLookup()
+            var
+                Customer: Record Customer;
+            begin
+                if "Bill-to Customer No." <> '' then
+                    Customer.Get("Bill-to Customer No.");
+
+                if Customer.LookupCustomer(Customer) then begin
+                    xRec := Rec;
+                    "Bill-to Name" := Customer.Name;
+                    Validate("Bill-to Customer No.", Customer."No.");
+                end;
+            end;
+
             trigger OnValidate()
             var
                 Customer: Record Customer;
@@ -749,10 +763,30 @@
             TableRelation = Customer.Name;
             ValidateTableRelation = false;
 
+            trigger OnLookup()
+            var
+                CustomerName: Text;
+            begin
+                CustomerName := "Sell-to Customer Name";
+                LookupSellToCustomerName(CustomerName);
+                "Sell-to Customer Name" := CopyStr(CustomerName, 1, MaxStrLen("Sell-to Customer Name"));
+            end;
+
             trigger OnValidate()
             var
                 Customer: Record Customer;
+                LookupStateManager: Codeunit "Lookup State Manager";
             begin
+                if LookupStateManager.IsRecordSaved() then begin
+                    Customer := LookupStateManager.GetSavedRecord();
+                    if Customer."No." <> '' then begin
+                        LookupStateManager.ClearSavedRecord();
+                        Validate("Sell-to Customer No.", Customer."No.");
+
+                        exit;
+                    end;
+                end;
+
                 if ShouldSearchForCustomerByName("Sell-to Customer No.") then
                     Validate("Sell-to Customer No.", Customer.GetCustNo("Sell-to Customer Name"));
             end;
@@ -1372,6 +1406,36 @@
             exit;
 
         Error(ContactBusRelMissingErr, Cont."No.", Cont.Name);
+    end;
+
+    procedure SelltoCustomerNoOnAfterValidate(var JobRec: Record "Job"; var xJobRec: Record "Job")
+    begin
+        if JobRec.GetFilter("Sell-to Customer No.") = xJobRec."Sell-to Customer No." then
+            if JobRec."Sell-to Customer No." <> xJobRec."Sell-to Customer No." then
+                JobRec.SetRange("Sell-to Customer No.");
+    end;
+
+    procedure LookupSellToCustomerName(var CustomerName: Text): Boolean
+    var
+        Customer: Record Customer;
+        LookupStateManager: Codeunit "Lookup State Manager";
+        RecVariant: Variant;
+        SearchCustomerName: Text;
+    begin
+        SearchCustomerName := CustomerName;
+        Customer.SetFilter("Date Filter", GetFilter("Posting Date Filter"));
+        if "Sell-to Customer No." <> '' then
+            Customer.Get("Sell-to Customer No.");
+
+        if Customer.LookupCustomer(Customer) then begin
+            if Rec."Sell-to Customer Name" = Customer.Name then
+                CustomerName := SearchCustomerName
+            else
+                CustomerName := Customer.Name;
+            RecVariant := Customer;
+            LookupStateManager.SaveRecord(RecVariant);
+            exit(true);
+        end;
     end;
 
 #if not CLEAN20
@@ -2361,7 +2425,7 @@
         OnAfterShipToCodeValidate(Rec, ShipToAddress);
     end;
 
-    local procedure ShouldSearchForCustomerByName(CustomerNo: Code[20]): Boolean
+    procedure ShouldSearchForCustomerByName(CustomerNo: Code[20]): Boolean
     var
         Customer: Record Customer;
     begin
