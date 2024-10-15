@@ -33,6 +33,7 @@ codeunit 18080 "GST Purchase Subscribers"
         SamePANErr: Label 'From position 3 to 12 in GST Registration No. should be same as it is in PAN No.';
         GSTPANErr: Label 'Please update GST Registration No. to blank in the record %1 from Order Address.', Comment = '%1 = Order Address Code';
         ShipToOptionErr: Label 'Location Code is mandatory for ship-to Custom Address';
+        LengthErr: Label 'The Length of the GST Registration Nos. must be 15.';
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePostPurchaseDoc', '', false, false)]
     local procedure SetPaytoVendorFields(var PurchaseHeader: Record "Purchase Header")
@@ -321,13 +322,19 @@ codeunit 18080 "GST Purchase Subscribers"
     [EventSubscriber(ObjectType::Table, Database::Vendor, 'OnAfterValidateEvent', 'GST Registration No.', false, false)]
     local procedure ValidateVendGSTRegistrationNo(var Rec: Record Vendor)
     begin
-        vendGSTRegistrationNo(Rec);
+        if Rec."Govt. Undertaking" then
+            CheckGSTRegistrationLength(Rec."GST Registration No.")
+        else
+            vendGSTRegistrationNo(Rec);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Vendor, 'OnAfterValidateEvent', 'GST Vendor Type', false, false)]
     local procedure ValidateVendGSTVEndorType(var Rec: Record Vendor)
     begin
-        GSTVendorType(Rec);
+        if Rec."Govt. Undertaking" then
+            CheckGSTRegistrationLength(Rec."GST Registration No.")
+        else
+            GSTVendorType(Rec);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Vendor, 'OnAfterValidateEvent', 'Associated Enterprises', false, false)]
@@ -1651,6 +1658,21 @@ codeunit 18080 "GST Purchase Subscribers"
         PurchaseLine.TestField("Location Code", PurchaseHeader."Location Code");
     end;
 
+    local procedure CheckGSTRegistrationLength(RegistrationNo: Code[20])
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeCheckGSTRegistrationNo(RegistrationNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        if RegistrationNo = '' then
+            exit;
+
+        if StrLen(RegistrationNo) <> 15 then
+            Error(LengthErr);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"GST Purchase Subscribers", 'OnBeforePurchaseLineHSNSACEditable', '', false, false)]
     local procedure SetGstHsnEditableforAllType(var IsEditable: Boolean; var IsHandled: Boolean)
     begin
@@ -1665,6 +1687,11 @@ codeunit 18080 "GST Purchase Subscribers"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckHeaderLocation(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckGSTRegistrationNo(RegistrationNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

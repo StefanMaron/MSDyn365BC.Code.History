@@ -483,7 +483,13 @@ page 5965 "Service Quote Subform"
     var
         ServInvLine: Record "Service Line";
         ServInvLines: Page "Service Quote Lines";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRegisterServInvLines(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField("Document No.");
         TestField("Line No.");
         Clear(ServInvLine);
@@ -585,6 +591,11 @@ page 5965 "Service Quote Subform"
         ServItemMgt: Codeunit ServItemManagement;
     begin
         ServItemMgt.CreateServItemOnServItemLine(Rec);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeRegisterServInvLines(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean);
+    begin
     end;
 }
 

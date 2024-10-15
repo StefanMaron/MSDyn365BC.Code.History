@@ -162,15 +162,20 @@ codeunit 5404 "Lead-Time Management"
         OnAfterPlannedStartingDate(LeadTime, EndingDate, CustomCalendarChange, CheckBothCalendars, Result);
     end;
 
-    procedure PlannedEndingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; VendorNo: Code[20]; LeadTime: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; StartingDate: Date): Date
+    procedure PlannedEndingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; VendorNo: Code[20]; LeadTime: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; StartingDate: Date) Result: Date
     var
         CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
         TransferRoute: Record "Transfer Route";
         PlannedReceiptDate: Date;
         ShippingTime: DateFormula;
         CheckBothCalendars: Boolean;
+        IsHandled: Boolean;
     begin
         // Returns Ending Date calculated forward from Starting Date
+        IsHandled := false;
+        OnBeforePlannedEndingDateCalculaterForwardFromStartingDate(ItemNo, LocationCode, VariantCode, VendorNo, LeadTime, RefOrderType, StartingDate, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
         if RefOrderType = RefOrderType::Transfer then begin
             GetPlanningParameters.AtSKU(TempSKU, ItemNo, VariantCode, LocationCode);
@@ -294,7 +299,7 @@ codeunit 5404 "Lead-Time Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePlannedStartingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; VendorNo: Code[20]; LeadTime: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; EndingDate: Date; var Result: Date; var IsHandled: Boolean)
+    local procedure OnBeforePlannedStartingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; VendorNo: Code[20]; var LeadTime: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; EndingDate: Date; var Result: Date; var IsHandled: Boolean)
     begin
     end;
 
@@ -330,6 +335,11 @@ codeunit 5404 "Lead-Time Management"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeWhseInBoundHandlingTime(LocationCode: Code[10]; var InboundWhseHandlingTime: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePlannedEndingDateCalculaterForwardFromStartingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; VendorNo: Code[20]; var LeadTime: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; var StartingDate: Date; var Result: Date; var IsHandled: Boolean)
     begin
     end;
 }

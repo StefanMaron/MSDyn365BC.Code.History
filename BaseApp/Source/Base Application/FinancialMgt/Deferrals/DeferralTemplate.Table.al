@@ -97,6 +97,14 @@ table 1700 "Deferral Template"
             Error(CannotDeleteCodeErr, "Deferral Code", Resource.TableCaption(), Resource."No.");
     end;
 
+    trigger OnInsert()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+    begin
+        FeatureTelemetry.LogUptake('0000KLE', 'Deferral', Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000KLF', 'Deferral', 'Deferral Created');
+    end;
+
     var
         CannotDeleteCodeErr: Label '%1 cannot be deleted because it is set as the default deferral template code for %2 %3.', Comment = '%1=Value of code that is attempting to be deleted;%2=Table caption;%3=Value for the code in the table';
         DeferralPercentageErr: Label 'The deferral percentage must be greater than 0 and less than 100.';

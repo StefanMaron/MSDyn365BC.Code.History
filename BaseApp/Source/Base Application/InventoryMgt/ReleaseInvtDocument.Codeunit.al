@@ -3,6 +3,8 @@ codeunit 5855 "Release Invt. Document"
     TableNo = "Invt. Document Header";
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
         if Rec.Status = Rec.Status::Released then
             exit;
@@ -12,12 +14,16 @@ codeunit 5855 "Release Invt. Document"
             Rec.TestField("Location Code");
         Rec.TestField(Status, Status::Open);
 
-        InvtDocLine.SetRange("Document Type", Rec."Document Type");
-        InvtDocLine.SetRange("Document No.", Rec."No.");
-        InvtDocLine.SetFilter(Quantity, '<>0');
-        if not InvtDocLine.FindFirst() then
-            Error(NothingToReleaseErr, Rec."No.");
-        InvtDocLine.Reset();
+        IsHandled := false;
+        OnRunOnBeforeCheckInvtDocLines(Rec, IsHandled);
+        if not IsHandled then begin
+            InvtDocLine.SetRange("Document Type", Rec."Document Type");
+            InvtDocLine.SetRange("Document No.", Rec."No.");
+            InvtDocLine.SetFilter(Quantity, '<>0');
+            if not InvtDocLine.FindFirst() then
+                Error(NothingToReleaseErr, Rec."No.");
+            InvtDocLine.Reset();
+        end;    
 
         Rec.Validate(Status, Rec.Status::Released);
         Rec.Modify();
@@ -34,5 +40,10 @@ codeunit 5855 "Release Invt. Document"
             exit;
         InvtDocHeader.Validate(Status, InvtDocHeader.Status::Open);
         InvtDocHeader.Modify();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeCheckInvtDocLines(var InvtDocumentHeader: Record "Invt. Document Header"; var IsHandled: Boolean)
+    begin
     end;
 }

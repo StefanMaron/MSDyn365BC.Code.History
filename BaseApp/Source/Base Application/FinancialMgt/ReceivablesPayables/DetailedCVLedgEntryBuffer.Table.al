@@ -244,6 +244,18 @@ table 383 "Detailed CV Ledg. Entry Buffer"
             Editable = false;
             TableRelation = "Exch. Rate Adjmt. Reg.";
         }
+        field(6200; "Non-Deductible VAT Amount LCY"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            Caption = 'Non-Deductible VAT Amount LCY';
+            Editable = false;
+        }
+        field(6201; "Non-Deductible VAT Amount ACY"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            Caption = 'Non-Deductible VAT Amount ACY';
+            Editable = false;
+        }
     }
 
     keys

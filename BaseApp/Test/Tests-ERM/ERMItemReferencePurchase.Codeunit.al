@@ -15,6 +15,7 @@ codeunit 134464 "ERM Item Reference Purchase"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         Assert: Codeunit Assert;
         ItemReferenceMgt: Codeunit "Item Reference Management";
         ItemRefNotExistsErr: Label 'There are no items with reference %1.';
@@ -1475,6 +1476,58 @@ codeunit 134464 "ERM Item Reference Purchase"
         ItemReference.FindFirst();
         ItemReference.TestField("Reference No.", ItemVendorNo);
         Assert.RecordCount(ItemReference, 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemReferenceListModalPageHandler')]
+    procedure VerifyLocationCodeOnPurchaseLineOnLookupItemReferenceAfterLocationCodeIsUpdatedOnPurchHeader()
+    var
+        Item: Record Item;
+        ItemReference: Record "Item Reference";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Location: array[2] of Record Location;
+        ItemRefNo: Code[50];
+    begin
+        // [SCENARIO 474114] Verify Location Code on Purchase Line on Lookup Item Reference after Location Code is updated on Purch. Header
+        Initialize();
+
+        // [GIVEN] Create Item
+        LibraryInventory.CreateItem(Item);
+
+        ItemRefNo := LibraryUtility.GenerateRandomCode(ItemReference.FieldNo("Reference No."), Database::"Item Reference");
+        LibraryVariableStorage.Enqueue(ItemRefNo);
+
+        // [GIVEN] Create Locations
+        LibraryWarehouse.CreateLocation(Location[1]);
+        LibraryWarehouse.CreateLocation(Location[2]);
+
+        // [GIVEN] Create Vendor with Location Code
+        LibraryPurchase.CreateVendorWithLocationCode(Vendor, Location[1].Code);
+
+        // [GIVEN] Add Item Reference to Vendor
+        LibraryItemReference.CreateItemReference(ItemReference, Item."No.", '', Item."Base Unit of Measure", "Item Reference Type"::Vendor, Vendor."No.", ItemRefNo);
+        EnqueueItemReferenceFields(ItemReference);
+
+        // [GIVEN] Create Purchase Header
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+
+        // [GIVEN] Update Location Code on Purchase Header
+        PurchaseHeader.Validate("Location Code", Location[2].Code);
+        PurchaseHeader.Modify();
+
+        // [GIVEN] Create Purchase Line
+        LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
+        PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Stan Looked up Item Reference No in Purchase Line
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        ItemReferenceMgt.PurchaseReferenceNoLookup(PurchaseLine, PurchaseHeader);
+
+        // [THEN] Verify Location Code on Purchase Line
+        Assert.AreEqual(PurchaseLine."Location Code", Location[2].Code, '');
     end;
 
     local procedure Initialize()

@@ -619,6 +619,15 @@ codeunit 18143 "GST Sales Validation"
         OnQuantityChangeValidation(Rec);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Quote to Invoice", 'OnAfterOnRun', '', false, false)]
+    local procedure OnAfterOnRun(SalesHeader: Record "Sales Header")
+    begin
+        if (SalesHeader."Location GST Reg. No." = '') and (SalesHeader."Location State Code" = '') then
+            exit;
+
+        CallTaxEngineOnSalesHeader(SalesHeader);
+    end;
+
     local procedure OnQuantityChangeValidation(var SalesLine: Record "Sales Line")
     var
         SalesHeader: Record "Sales Header";
@@ -1647,6 +1656,7 @@ codeunit 18143 "GST Sales Validation"
         SalesLine: Record "Sales Line";
         CalculateTax: Codeunit "Calculate Tax";
     begin
+        SalesLine.LoadFields("Document Type", "Document No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         if SalesLine.FindSet() then

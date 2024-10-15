@@ -336,14 +336,21 @@ codeunit 225 "Gen. Jnl.-Apply"
                     Validate(Amount);
                 end else
                     repeat
+                        OnApplyCustomerLedgerEntryOnBeforeCheckAgainstApplnCurrencyCustomerAmountNotZero(GenJnlLine, CustLedgEntry);
                         CheckAgainstApplnCurrency(CurrencyCode2, CustLedgEntry."Currency Code", AccType::Customer, true);
                     until CustLedgEntry.Next() = 0;
                 if "Currency Code" <> CurrencyCode2 then
                     if Amount = 0 then begin
-                        ConfirmCurrencyUpdate(GenJnlLine, CustLedgEntry."Currency Code");
-                        "Currency Code" := CustLedgEntry."Currency Code"
-                    end else
+                        IsHandled := false;
+                        OnApplyCustomerLedgerEntryOnBeforeConfirmUpdateCurrency(GenJnlLine, CustLedgEntry."Currency Code", IsHandled);
+                        if not IsHandled then begin
+                            ConfirmCurrencyUpdate(GenJnlLine, CustLedgEntry."Currency Code");
+                            "Currency Code" := CustLedgEntry."Currency Code";
+                        end;
+                    end else begin
+                        OnApplyCustomerLedgerEntryOnBeforeCheckAgainstApplnCurrencyCustomer(GenJnlLine, CustLedgEntry);
                         CheckAgainstApplnCurrency("Currency Code", CustLedgEntry."Currency Code", AccType::Customer, true);
+                    end;
                 "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
                 "Applies-to Doc. No." := '';
             end else
@@ -395,9 +402,11 @@ codeunit 225 "Gen. Jnl.-Apply"
                 EarlierPostingDateErr, TempApplyingVendorLedgerEntry."Document Type", TempApplyingVendorLedgerEntry."Document No.",
                 VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.");
 
-        if TempApplyingVendorLedgerEntry."Entry No." <> 0 then
+        if TempApplyingVendorLedgerEntry."Entry No." <> 0 then begin
+            OnSetVendApplIdAPIOnBeforeCheckAgainstApplnCurrency(GenJournalLine, VendorLedgerEntry);
             GenJnlApply.CheckAgainstApplnCurrency(
                 ApplnCurrencyCode, VendorLedgerEntry."Currency Code", GenJournalLine."Account Type"::Vendor, true);
+        end;
 
         VendorLedgerEntry.SetRange("Entry No.", VendorLedgerEntry."Entry No.");
         VendorLedgerEntry.SetRange("Vendor No.", VendorLedgerEntry."Vendor No.");
@@ -427,6 +436,7 @@ codeunit 225 "Gen. Jnl.-Apply"
                 repeat
                     if not TempVendorLedgerEntry.Get(VendorLedgerEntry."Entry No.") then begin
                         PaymentToleranceMgt.DelPmtTolApllnDocNo(GenJnlLine, VendorLedgerEntry."Document No.");
+                        OnApplyVendorLedgerEntryAPIOnBeforeCheckAgainstApplnCurrencyAmountZero(GenJnlLine, VendorLedgerEntry);
                         CheckAgainstApplnCurrency(CurrencyCode2, VendorLedgerEntry."Currency Code", AccType::Vendor, true);
                         UpdateVendLedgEntry(VendorLedgerEntry);
                         if PaymentToleranceMgt.CheckCalcPmtDiscGenJnlVend(GenJnlLine, VendorLedgerEntry, 0, false) and
@@ -444,13 +454,16 @@ codeunit 225 "Gen. Jnl.-Apply"
                 GenJnlLine.Validate(Amount);
             end else
                 repeat
+                    OnApplyVendorLedgerEntryAPIOnBeforeCheckAgainstApplnCurrencyAmountNonZero(GenJnlLine, VendorLedgerEntry);
                     CheckAgainstApplnCurrency(CurrencyCode2, VendorLedgerEntry."Currency Code", AccType::Vendor, true);
                 until VendorLedgerEntry.Next() = 0;
             if GenJnlLine."Currency Code" <> CurrencyCode2 then
                 if GenJnlLine.Amount = 0 then
                     GenJnlLine."Currency Code" := VendorLedgerEntry."Currency Code"
-                else
+                else begin
+                    OnApplyVendorLedgerEntryAPIOnBeforeCheckAgainstApplnCurrencyDifferentCurrenciesAmountNonZero(GenJnlLine, VendorLedgerEntry);
                     CheckAgainstApplnCurrency(GenJnlLine."Currency Code", VendorLedgerEntry."Currency Code", AccType::Vendor, true);
+                end;
             GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::" ";
             GenJnlLine."Applies-to Doc. No." := '';
         end else
@@ -510,14 +523,21 @@ codeunit 225 "Gen. Jnl.-Apply"
                     Validate(Amount);
                 end else
                     repeat
+                        OnApplyVendorLedgerEntryOnBeforeCheckAgainstApplnCurrencyAmountNotZero(GenJnlLine, VendLedgEntry);
                         CheckAgainstApplnCurrency(CurrencyCode2, VendLedgEntry."Currency Code", AccType::Vendor, true);
                     until VendLedgEntry.Next() = 0;
                 if "Currency Code" <> CurrencyCode2 then
                     if Amount = 0 then begin
-                        ConfirmCurrencyUpdate(GenJnlLine, VendLedgEntry."Currency Code");
-                        "Currency Code" := VendLedgEntry."Currency Code"
-                    end else
+                        IsHandled := false;
+                        OnApplyVendorLedgerEntryOnBeforeConfirmUpdateCurrency(GenJnlLine, VendLedgEntry."Currency Code", IsHandled);
+                        if not IsHandled then begin
+                            ConfirmCurrencyUpdate(GenJnlLine, VendLedgEntry."Currency Code");
+                            "Currency Code" := VendLedgEntry."Currency Code";
+                        end;
+                    end else begin
+                        OnApplyVendorLedgerEntryOnBeforeCheckAgainstApplnCurrencyDifferentCurrenciesAmountNotZero(GenJnlLine, VendLedgEntry);
                         CheckAgainstApplnCurrency("Currency Code", VendLedgEntry."Currency Code", AccType::Vendor, true);
+                    end;
                 "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
                 "Applies-to Doc. No." := '';
             end else
@@ -772,6 +792,56 @@ codeunit 225 "Gen. Jnl.-Apply"
 
     [IntegrationEvent(false, false)]
     local procedure OnSelectVendLedgEntryOnAfterSetFilters(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyVendorLedgerEntryOnBeforeConfirmUpdateCurrency(var GenJournalLine: Record "Gen. Journal Line"; CurrencyCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyCustomerLedgerEntryOnBeforeConfirmUpdateCurrency(var GenJournalLine: Record "Gen. Journal Line"; CurrencyCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyCustomerLedgerEntryOnBeforeCheckAgainstApplnCurrencyCustomerAmountNotZero(GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyCustomerLedgerEntryOnBeforeCheckAgainstApplnCurrencyCustomer(GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetVendApplIdAPIOnBeforeCheckAgainstApplnCurrency(GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyVendorLedgerEntryAPIOnBeforeCheckAgainstApplnCurrencyAmountZero(GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyVendorLedgerEntryAPIOnBeforeCheckAgainstApplnCurrencyAmountNonZero(GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyVendorLedgerEntryAPIOnBeforeCheckAgainstApplnCurrencyDifferentCurrenciesAmountNonZero(GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyVendorLedgerEntryOnBeforeCheckAgainstApplnCurrencyAmountNotZero(GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyVendorLedgerEntryOnBeforeCheckAgainstApplnCurrencyDifferentCurrenciesAmountNotZero(GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 }
