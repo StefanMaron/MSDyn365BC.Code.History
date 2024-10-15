@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2114 "O365 Posted Sales Inv. Lines"
 {
     Caption = 'Sent Invoice Lines';
@@ -6,6 +7,9 @@ page 2114 "O365 Posted Sales Inv. Lines"
     InsertAllowed = false;
     PageType = ListPart;
     SourceTable = "Sales Invoice Line";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -13,19 +17,19 @@ page 2114 "O365 Posted Sales Inv. Lines"
         {
             repeater(Group)
             {
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                     Visible = false;
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ShowCaption = false;
                     ToolTip = 'Specifies a description of the item or service on the line.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     Importance = Additional;
@@ -34,22 +38,22 @@ page 2114 "O365 Posted Sales Inv. Lines"
                 }
                 field(LineQuantity; LineQuantity)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Quantity';
                     DecimalPlaces = 0 : 5;
                     Enabled = false;
                     ToolTip = 'Specifies the quantity of the item or service on the line.';
                 }
-                field("Unit of Measure"; "Unit of Measure")
+                field("Unit of Measure"; Rec."Unit of Measure")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Unit';
                     ShowCaption = false;
                     ToolTip = 'Specifies the unit of measure code for the item.';
                 }
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
                     AutoFormatType = 11;
                     Caption = 'Price';
@@ -57,62 +61,62 @@ page 2114 "O365 Posted Sales Inv. Lines"
                 }
                 field(Taxable; Taxable)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Add sales tax';
                     ToolTip = 'Specifies the tax group code for the tax-detail entry.';
                     Visible = NOT IsUsingVAT;
                 }
-                field("VAT %"; "VAT %")
+                field("VAT %"; Rec."VAT %")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the VAT % that was used on the sales or purchase lines with this VAT Identifier.';
                     Visible = NOT IsUsingVAT;
                 }
                 field(VATProductPostingGroupDescription; VATProductPostingGroupDescription)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'VAT';
                     NotBlank = true;
                     QuickEntry = false;
                     ToolTip = 'Specifies the VAT group code for this item.';
                     Visible = IsUsingVAT;
                 }
-                field("Line Discount %"; "Line Discount %")
+                field("Line Discount %"; Rec."Line Discount %")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                 }
-                field("Line Discount Amount"; "Line Discount Amount")
+                field("Line Discount Amount"; Rec."Line Discount Amount")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                 }
-                field(LineAmountExclVAT; GetLineAmountExclVAT)
+                field(LineAmountExclVAT; GetLineAmountExclVAT())
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
                     AutoFormatType = 11;
                     Caption = 'Line Amount';
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
                 }
-                field("Line Amount"; "Line Amount")
+                field("Line Amount"; Rec."Line Amount")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
                     AutoFormatType = 11;
                     Caption = 'Line Amount';
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
                     Visible = ShowOnlyOnBrick;
                 }
-                field(LineAmountInclVAT; GetLineAmountInclVAT)
+                field(LineAmountInclVAT; GetLineAmountInclVAT())
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
                     AutoFormatType = 11;
                     Caption = 'Line Amount Incl. VAT';
                     ToolTip = 'Specifies the net amounts, including VAT and excluding any invoice discount, that must be paid for products on the line.';
                 }
-                field("Price description"; "Price description")
+                field("Price description"; Rec."Price description")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Visible = ShowOnlyOnBrick;
                 }
             }
@@ -128,7 +132,7 @@ page 2114 "O365 Posted Sales Inv. Lines"
         VATProductPostingGroup: Record "VAT Product Posting Group";
         TaxSetup: Record "Tax Setup";
     begin
-        if TaxSetup.Get then
+        if TaxSetup.Get() then
             Taxable := "Tax Group Code" <> TaxSetup."Non-Taxable Tax Group Code";
         if VATProductPostingGroup.Get("VAT Prod. Posting Group") then
             VATProductPostingGroupDescription := VATProductPostingGroup.Description
@@ -143,14 +147,14 @@ page 2114 "O365 Posted Sales Inv. Lines"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         CurrencySymbol: Text[10];
     begin
-        UpdatePriceDescription;
+        UpdatePriceDescription();
         SalesInvoiceHeader.Get("Document No.");
 
         if SalesInvoiceHeader."Currency Code" = '' then
-            CurrencySymbol := GLSetup.GetCurrencySymbol
+            CurrencySymbol := GLSetup.GetCurrencySymbol()
         else begin
             if Currency.Get(SalesInvoiceHeader."Currency Code") then;
-            CurrencySymbol := Currency.GetCurrencySymbol;
+            CurrencySymbol := Currency.GetCurrencySymbol();
         end;
         CurrencyFormat := StrSubstNo('%1<precision, 2:2><standard format, 0>', CurrencySymbol);
         ShowOnlyOnBrick := false;
@@ -160,7 +164,7 @@ page 2114 "O365 Posted Sales Inv. Lines"
     var
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
-        IsUsingVAT := O365SalesInitialSetup.IsUsingVAT;
+        IsUsingVAT := O365SalesInitialSetup.IsUsingVAT();
         ShowOnlyOnBrick := true;
     end;
 
@@ -178,4 +182,4 @@ page 2114 "O365 Posted Sales Inv. Lines"
         Taxable: Boolean;
         ShowOnlyOnBrick: Boolean;
 }
-
+#endif

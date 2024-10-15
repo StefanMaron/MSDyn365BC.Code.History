@@ -4,6 +4,7 @@ table 7821 "MS-QBO Item"
     ObsoleteReason = 'replacing burntIn Extension tables with V2 Extension';
     ObsoleteState = Removed;
     ObsoleteTag = '18.0';
+    ReplicateData = false;
 
     fields
     {

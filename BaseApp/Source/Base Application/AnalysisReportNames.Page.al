@@ -21,12 +21,12 @@ page 7116 "Analysis Report Names"
                     ApplicationArea = SalesAnalysis, PurchaseAnalysis, InventoryAnalysis;
                     ToolTip = 'Specifies the analysis report description.';
                 }
-                field("Analysis Line Template Name"; "Analysis Line Template Name")
+                field("Analysis Line Template Name"; Rec."Analysis Line Template Name")
                 {
                     ApplicationArea = SalesAnalysis, PurchaseAnalysis, InventoryAnalysis;
                     ToolTip = 'Specifies the analysis line template name for this analysis report.';
                 }
-                field("Analysis Column Template Name"; "Analysis Column Template Name")
+                field("Analysis Column Template Name"; Rec."Analysis Column Template Name")
                 {
                     ApplicationArea = SalesAnalysis, PurchaseAnalysis, InventoryAnalysis;
                     ToolTip = 'Specifies the column template name for this analysis report.';

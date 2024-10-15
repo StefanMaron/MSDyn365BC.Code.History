@@ -357,7 +357,7 @@ table 5989 "Service Shipment Item Line"
     procedure ShowDimensions()
     begin
         DimMgt.ShowDimensionSet("Dimension Set ID",
-          StrSubstNo('%1 %2 %3', TableCaption, "No.", "Line No."));
+          StrSubstNo('%1 %2 %3', TableCaption(), "No.", "Line No."));
     end;
 
     [IntegrationEvent(false, false)]

@@ -82,12 +82,12 @@ codeunit 483 "Change Global Dimensions"
 
     trigger OnRun()
     begin
-        if ChangeGlobalDimLogMgt.IsBufferClear then
-            ChangeGlobalDimLogMgt.FillBuffer;
+        if ChangeGlobalDimLogMgt.IsBufferClear() then
+            ChangeGlobalDimLogMgt.FillBuffer();
         BindSubscription(ChangeGlobalDimLogMgt);
         if RunTask(Rec) then begin
             DeleteEntry(Rec);
-            if ChangeGlobalDimLogMgt.IsBufferClear then
+            if ChangeGlobalDimLogMgt.IsBufferClear() then
                 ResetState;
         end;
     end;
@@ -113,9 +113,9 @@ codeunit 483 "Change Global Dimensions"
 
     procedure ResetIfAllCompleted()
     begin
-        ChangeGlobalDimLogMgt.FillBuffer;
-        if ChangeGlobalDimLogMgt.AreAllCompleted then
-            ResetState;
+        ChangeGlobalDimLogMgt.FillBuffer();
+        if ChangeGlobalDimLogMgt.AreAllCompleted() then
+            ResetState();
     end;
 
     local procedure GetDelayInScheduling(): Integer
@@ -128,18 +128,18 @@ codeunit 483 "Change Global Dimensions"
     begin
         ChangeGlobalDimHeader.Get();
         if IsPrepareEnabled(ChangeGlobalDimHeader) and ChangeGlobalDimHeader."Parallel Processing" then
-            if IsCurrentSessionActiveOnly then
-                PrepareTableList
+            if IsCurrentSessionActiveOnly() then
+                PrepareTableList()
             else
-                SendCloseSessionsNotification
+                SendCloseSessionsNotification();
     end;
 
     local procedure PrepareTableList() IsListFilled: Boolean
     begin
-        IsListFilled := InitTableList;
+        IsListFilled := InitTableList();
         if not IsListFilled then begin
-            UpdateGLSetup;
-            RefreshHeader;
+            UpdateGLSetup();
+            RefreshHeader();
         end;
     end;
 
@@ -148,7 +148,7 @@ codeunit 483 "Change Global Dimensions"
         ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry";
     begin
         with ChangeGlobalDimLogEntry do begin
-            Reset;
+            Reset();
             SetFilter("Table ID", '>0');
             SetRange("Parent Table ID", 0);
             if IsWindowOpen then begin
@@ -163,7 +163,7 @@ codeunit 483 "Change Global Dimensions"
                     if RunTask(ChangeGlobalDimLogEntry) then
                         DeleteEntry(ChangeGlobalDimLogEntry);
                 until Next() = 0;
-            ResetIfAllCompleted;
+            ResetIfAllCompleted();
         end;
     end;
 
@@ -181,15 +181,15 @@ codeunit 483 "Change Global Dimensions"
         ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry";
     begin
         ChangeGlobalDimLogEntry.DeleteAll(true);
-        ClearAll;
-        ChangeGlobalDimLogMgt.ClearBuffer;
-        RefreshHeader;
+        ClearAll();
+        ChangeGlobalDimLogMgt.ClearBuffer();
+        RefreshHeader();
     end;
 
     procedure Rerun(var ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry")
     begin
         ChangeGlobalDimLogEntry.LockTable();
-        ChangeGlobalDimLogEntry.UpdateStatus;
+        ChangeGlobalDimLogEntry.UpdateStatus();
         if ChangeGlobalDimLogMgt.FillBuffer then
             RerunEntry(ChangeGlobalDimLogEntry);
     end;
@@ -208,9 +208,9 @@ codeunit 483 "Change Global Dimensions"
         if IsStartEnabled then begin
             SendTraceTagOn(StartTraceTagMsg);
             CompleteEmptyTables;
-            UpdateGLSetup;
+            UpdateGLSetup();
             ScheduleJobs(GetDelayInScheduling);
-            RefreshHeader;
+            RefreshHeader();
         end;
     end;
 
@@ -222,9 +222,9 @@ codeunit 483 "Change Global Dimensions"
             if PrepareTableList then begin
                 SendTraceTagOn(SequentialStartTraceTagMsg);
                 CompleteEmptyTables;
-                UpdateGLSetup;
+                UpdateGLSetup();
                 ProcessTableList;
-                RefreshHeader;
+                RefreshHeader();
                 SendTraceTagOn(FinishTraceTagMsg);
             end;
             WindowClose;
@@ -247,13 +247,13 @@ codeunit 483 "Change Global Dimensions"
                     DeleteEntry(ChangeGlobalDimLogEntry)
                 else
                     ChangeGlobalDimLogEntry.Modify();
-                RecRef.Close;
+                RecRef.Close();
             until ChangeGlobalDimLogEntry.Next() = 0;
     end;
 
     procedure FillBuffer()
     begin
-        ChangeGlobalDimLogMgt.FillBuffer;
+        ChangeGlobalDimLogMgt.FillBuffer();
     end;
 
     local procedure FindChildTables(ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"; var TempChildChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry" temporary): Boolean
@@ -277,8 +277,8 @@ codeunit 483 "Change Global Dimensions"
                     DependentRecRef[RecRefIndex].Open(ChangeGlobalDimLogEntry."Table ID");
                     DependentRecRef[RecRefIndex].LockTable(true);
                     ChangeGlobalDimLogEntry."Total Records" := DependentRecRef[RecRefIndex].Count();
-                    ChangeGlobalDimLogEntry."Session ID" := SessionId;
-                    ChangeGlobalDimLogEntry."Server Instance ID" := ServiceInstanceId;
+                    ChangeGlobalDimLogEntry."Session ID" := SessionId();
+                    ChangeGlobalDimLogEntry."Server Instance ID" := ServiceInstanceId();
                     ChangeGlobalDimLogEntry.Modify();
                     TotalRecords += ChangeGlobalDimLogEntry."Total Records";
                 end;
@@ -379,7 +379,7 @@ codeunit 483 "Change Global Dimensions"
                     repeat
                         DependentRecNo := GetDependentRecNo(DependentChangeGlobalDimLogEntry."Table ID", 3);
                         if DependentRecNo > 0 then begin
-                            DependentRecRef[GetDependentRecNo(DependentChangeGlobalDimLogEntry."Table ID", 1)].Close;
+                            DependentRecRef[GetDependentRecNo(DependentChangeGlobalDimLogEntry."Table ID", 1)].Close();
                             DependentChangeGlobalDimLogEntry.Update(DependentRecNo, GetDependentRecNo(DependentChangeGlobalDimLogEntry."Table ID", 2));
                             if DependentChangeGlobalDimLogEntry.Status = DependentChangeGlobalDimLogEntry.Status::Completed then
                                 DependentEntryCompleted := DeleteEntry(DependentChangeGlobalDimLogEntry);
@@ -391,7 +391,7 @@ codeunit 483 "Change Global Dimensions"
                     until DependentChangeGlobalDimLogEntry.Next() = 0;
             Completed := UpdateWithCommit(ChangeGlobalDimLogEntry, CurrentRecNo, StartedFromRecord);
         end;
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     local procedure GetDependentRecNo(TableId: Integer; Index: Integer) RecNo: Integer;
@@ -448,17 +448,17 @@ codeunit 483 "Change Global Dimensions"
             GetFieldRefValues(RecRef, GlobalDimFieldRef, OldDimValueCode);
             ChangeDimOnRecord(RecRef, 1, GlobalDimFieldRef[1], OldDimValueCode[2]);
             ChangeDimOnRecord(RecRef, 2, GlobalDimFieldRef[2], OldDimValueCode[1]);
-            exit(RecRef.Modify);
+            exit(RecRef.Modify());
         end;
     end;
 
     local procedure ChangeDependentRecords(ParentChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"; ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"; ParentRecRef: RecordRef; var RecRef: RecordRef)
     var
-        ParentKeyValue: Variant;
         GlobalDimFieldRef: array[2] of FieldRef;
         ParentKeyFieldRef: FieldRef;
         ParentDimValueCode: array[2] of Code[20];
         DimValueCode: array[2] of Code[20];
+        ParentKeyValue: Variant;
         CurrentRecNo: Integer;
         IsHandled: Boolean;
     begin
@@ -470,7 +470,7 @@ codeunit 483 "Change Global Dimensions"
 
         ParentKeyFieldRef := RecRef.Field(2);
         ParentKeyFieldRef.SetRange(ParentKeyValue);
-        if RecRef.FindSet(true) then begin
+        if RecRef.FindSet(true) then
             repeat
                 OnChangeDependentRecords(ChangeGlobalDimLogEntry, RecRef, IsHandled);
                 if not IsHandled then begin
@@ -481,7 +481,6 @@ codeunit 483 "Change Global Dimensions"
                     CurrentRecNo += 1;
                 end;
             until RecRef.Next() = 0;
-        end;
 
         SetDependentRecNo(ChangeGlobalDimLogEntry."Table ID", 3, CurrentRecNo);
     end;
@@ -542,7 +541,7 @@ codeunit 483 "Change Global Dimensions"
             else
                 Status := Status::Scheduled;
             "Earliest Start Date/Time" := StartNotBefore;
-            Modify;
+            Modify();
             SendTraceTagOnScheduling;
         end;
         if ChangeGlobalDimLogEntry."Is Parent Table" then
@@ -560,7 +559,7 @@ codeunit 483 "Change Global Dimensions"
                     "Task ID" := ChangeGlobalDimLogEntry."Task ID";
                     Validate("Completed Records", 0);
                     Status := ChangeGlobalDimLogEntry.Status;
-                    Modify;
+                    Modify();
                 until Next() = 0;
         end;
     end;
@@ -597,14 +596,14 @@ codeunit 483 "Change Global Dimensions"
 
     procedure IsStartEnabled(): Boolean
     begin
-        if ChangeGlobalDimLogMgt.IsBufferClear then
+        if ChangeGlobalDimLogMgt.IsBufferClear() then
             exit(false);
         exit(not ChangeGlobalDimLogMgt.IsStarted);
     end;
 
     procedure RefreshHeader()
     begin
-        if ChangeGlobalDimHeader.Get then begin
+        if ChangeGlobalDimHeader.Get() then begin
             ChangeGlobalDimHeader.Refresh;
             ChangeGlobalDimHeader.Modify();
         end else begin
@@ -656,7 +655,7 @@ codeunit 483 "Change Global Dimensions"
         end;
         if TotalRecords = 0 then
             ChangeGlobalDimLogEntry.DeleteAll(true);
-        ChangeGlobalDimLogMgt.FillBuffer;
+        ChangeGlobalDimLogMgt.FillBuffer();
         exit(TotalRecords <> 0);
     end;
 
@@ -674,7 +673,7 @@ codeunit 483 "Change Global Dimensions"
 
     local procedure DeleteEntry(ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"): Boolean
     begin
-        if ChangeGlobalDimLogEntry.Delete then begin
+        if ChangeGlobalDimLogEntry.Delete() then begin
             ChangeGlobalDimLogMgt.ExcludeTable(ChangeGlobalDimLogEntry."Table ID");
             exit(true);
         end
@@ -687,7 +686,7 @@ codeunit 483 "Change Global Dimensions"
         RecRef.Open(ChangeGlobalDimLogEntry."Table ID");
         TestDirectModifyPermission(RecRef);
         ChangeGlobalDimLogEntry.FillData(RecRef);
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     local procedure FindTablesWithDims(var TempAllObjWithCaption: Record AllObjWithCaption temporary): Boolean
@@ -698,7 +697,7 @@ codeunit 483 "Change Global Dimensions"
         DimensionManagement.GlobalDimObjectNoList(TempAllObjWithCaption);
         DimensionManagement.JobTaskDimObjectNoList(TempAllObjWithCaption);
         OnAfterGetObjectNoList(TempAllObjWithCaption);
-        exit(TempAllObjWithCaption.FindSet);
+        exit(TempAllObjWithCaption.FindSet());
     end;
 
     local procedure UpdateGLSetup()
@@ -721,7 +720,7 @@ codeunit 483 "Change Global Dimensions"
             SetCurrentKey(Code, "Global Dimension No.");
             SetRange("Global Dimension No.", 1, 2);
             ModifyAll("Global Dimension No.", 0);
-            Reset;
+            Reset();
             if ChangeGlobalDimHeader."Global Dimension 1 Code" <> '' then begin
                 SetRange("Dimension Code", ChangeGlobalDimHeader."Global Dimension 1 Code");
                 ModifyAll("Global Dimension No.", 1);
@@ -741,7 +740,7 @@ codeunit 483 "Change Global Dimensions"
     local procedure PrepareNotification(var Notification: Notification; ID: Guid; Msg: Text)
     begin
         Notification.Id(ID);
-        Notification.Recall;
+        Notification.Recall();
         Notification.Message(Msg);
         Notification.Scope(NOTIFICATIONSCOPE::LocalScope);
     end;
@@ -750,9 +749,9 @@ codeunit 483 "Change Global Dimensions"
     var
         Notification: Notification;
     begin
-        PrepareNotification(Notification, GetCloseSessionsNotificationID, CloseActiveSessionsMsg);
+        PrepareNotification(Notification, GetCloseSessionsNotificationID(), CloseActiveSessionsMsg);
         Notification.AddAction(SessionListActionTxt, CODEUNIT::"Change Global Dimensions", 'ShowActiveSessions');
-        Notification.Send;
+        Notification.Send();
     end;
 
     local procedure SendTraceTagOn(TraceTagMessage: Text)
@@ -798,7 +797,7 @@ codeunit 483 "Change Global Dimensions"
     local procedure WindowClose()
     begin
         if IsWindowOpen then begin
-            Window.Close;
+            Window.Close();
             IsWindowOpen := false;
 
             Message(SessionUpdateRequiredMsg);

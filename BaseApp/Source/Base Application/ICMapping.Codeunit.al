@@ -10,7 +10,7 @@ codeunit 428 "IC Mapping"
         GLAcc: Record "G/L Account";
     begin
         GLAcc.SetRange("No.", ICGLAcc."No.");
-        if GlAcc.FindFirst and (ICGLAcc."Account Type" = GLAcc."Account Type") then begin
+        if GlAcc.FindFirst() and (ICGLAcc."Account Type" = GLAcc."Account Type") then begin
             ICGLAcc."Map-to G/L Acc. No." := GLAcc."No.";
             ICGLAcc.Modify();
         end;
@@ -33,7 +33,7 @@ codeunit 428 "IC Mapping"
                     repeat
                         if ICDimensionValue."Map-to Dimension Value Code" = '' then begin
                             DimensionValue.SetRange(Code, ICDimensionValue.Code);
-                            if DimensionValue.FindFirst and
+                            if DimensionValue.FindFirst() and
                                (DimensionValue."Dimension Value Type" = ICDimensionValue."Dimension Value Type")
                             then begin
                                 ICDimensionValue."Map-to Dimension Value Code" := DimensionValue.Code;
@@ -62,7 +62,7 @@ codeunit 428 "IC Mapping"
                     repeat
                         if DimensionValue."Map-to IC Dimension Value Code" = '' then begin
                             ICDimensionValue.SetRange(Code, DimensionValue.Code);
-                            if ICDimensionValue.FindFirst and
+                            if ICDimensionValue.FindFirst() and
                                (DimensionValue."Dimension Value Type" = ICDimensionValue."Dimension Value Type")
                             then begin
                                 DimensionValue."Map-to IC Dimension Value Code" := ICDimensionValue.Code;

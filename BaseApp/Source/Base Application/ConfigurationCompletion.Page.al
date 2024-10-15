@@ -5,7 +5,6 @@ page 8638 "Configuration Completion"
     InsertAllowed = false;
     LinksAllowed = false;
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Setup';
     ShowFilter = false;
     SourceTable = "Config. Setup";
 
@@ -66,9 +65,6 @@ page 8638 "Configuration Completion"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Users';
                 Image = User;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 RunObject = Page Users;
                 ToolTip = 'View or edit users that will be configured in the database.';
             }
@@ -77,11 +73,26 @@ page 8638 "Configuration Completion"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Users Settings';
                 Image = UserSetup;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 RunObject = Page "User Settings List";
                 ToolTip = 'View or edit UI changes that will be configured in the database.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Setup', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Users_Promoted; Users)
+                {
+                }
+                actionref("Users Personalization_Promoted"; "Users Personalization")
+                {
+                }
             }
         }
     }

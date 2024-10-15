@@ -27,15 +27,15 @@ codeunit 142082 "UT REP Purchase Payables"
         Initialize();
 
         // [GIVEN] Vendor Ledger Entry on 23-02-20 with amount "A1" for "Vend1"
-        CreateVendorLedgerEntryWithDetailed(VendorLedgerEntry[1], CreateVendor, CalcDate('<+30D>', WorkDate) + 1, -1);
+        CreateVendorLedgerEntryWithDetailed(VendorLedgerEntry[1], CreateVendor, CalcDate('<+30D>', WorkDate()) + 1, -1);
         // [GIVEN] Vendor Ledger Entry on 23-01-20 with amount "A2" for "Vend2"
-        CreateVendorLedgerEntryWithDetailed(VendorLedgerEntry[2], CreateVendor, WorkDate, -1);
+        CreateVendorLedgerEntryWithDetailed(VendorLedgerEntry[2], CreateVendor, WorkDate(), -1);
         // [GIVEN] Vendor Ledger Entry on 23-12-19 with amount "A3" for "Vend3"
-        CreateVendorLedgerEntryWithDetailed(VendorLedgerEntry[3], CreateVendor, CalcDate('<-30D>', WorkDate) - 1, -1);
+        CreateVendorLedgerEntryWithDetailed(VendorLedgerEntry[3], CreateVendor, CalcDate('<-30D>', WorkDate()) - 1, -1);
         // [GIVEN] Vendor Ledger Entry on 23-01-20 with amount "A4" for "Vend4"
-        CreateVendorLedgerEntryWithDetailed(VendorLedgerEntry[4], CreateVendor, WorkDate, -1);
+        CreateVendorLedgerEntryWithDetailed(VendorLedgerEntry[4], CreateVendor, WorkDate(), -1);
 
-        LibraryVariableStorage.Enqueue(CalcDate('<+30D>', WorkDate) + 1);
+        LibraryVariableStorage.Enqueue(CalcDate('<+30D>', WorkDate()) + 1);
         LibraryVariableStorage.Enqueue(
           LibraryVariableStorage.DequeueText + '|' + LibraryVariableStorage.DequeueText + '|' +
           LibraryVariableStorage.DequeueText + '|' + LibraryVariableStorage.DequeueText);
@@ -69,7 +69,7 @@ codeunit 142082 "UT REP Purchase Payables"
         Initialize();
 
         VendorNo := CreateVendor;
-        PostingDate := CalcDate('<-4M>', WorkDate);
+        PostingDate := CalcDate('<-4M>', WorkDate());
         // [GIVEN] Vendor Ledger Entry "V1" on 31-08-20 with amount "A1"
         CreateVendorLedgerEntryWithDetailed(VendorLedgerEntry[1], VendorNo, PostingDate - 1, -1);
 
@@ -86,7 +86,7 @@ codeunit 142082 "UT REP Purchase Payables"
         CreateVendorLedgerEntryWithDetailed(VendorLedgerEntry[4], VendorNo, PostingDate - 1, -1);
 
         // [GIVEN] Vendor Ledger Entry "V5" on 31-08-20 with amount "A5"
-        CreateVendorLedgerEntryWithDetailed(VendorLedgerEntry[5], VendorNo, CalcDate('<-4M>', WorkDate) - 1, 1); // positive entry for sorting
+        CreateVendorLedgerEntryWithDetailed(VendorLedgerEntry[5], VendorNo, CalcDate('<-4M>', WorkDate()) - 1, 1); // positive entry for sorting
 
         LibraryVariableStorage.Enqueue(PostingDate);
         LibraryVariableStorage.Enqueue(

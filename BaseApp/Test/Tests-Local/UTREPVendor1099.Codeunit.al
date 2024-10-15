@@ -1346,7 +1346,7 @@ codeunit 142055 "UT REP Vendor 1099"
             Amount := NewAmount;
             "Amount (LCY)" := NewAmount;
             "Transaction No." := TransactionNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1388,13 +1388,13 @@ codeunit 142055 "UT REP Vendor 1099"
             "Document No." := DocumentNo;
             "Document Type" := DocumentType;
             "Vendor No." := VendorNo;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             Open := true;
             "Transaction No." := TransactionNo;
             "IRS 1099 Code" := IRS1099Code;
             "IRS 1099 Amount" := -DocAmount;
 
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1541,7 +1541,7 @@ codeunit 142055 "UT REP Vendor 1099"
     procedure Vendor1099InformationRPH(var Vendor1099Information: TestRequestPage "Vendor 1099 Information")
     begin
         Vendor1099Information.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        Vendor1099Information.Vendor.SetFilter("Date Filter", Format(WorkDate));
+        Vendor1099Information.Vendor.SetFilter("Date Filter", Format(WorkDate()));
         Vendor1099Information.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -1607,7 +1607,7 @@ codeunit 142055 "UT REP Vendor 1099"
     [Scope('OnPrem')]
     procedure Vendor1099MagneticMediaRPH(var Vendor1099MagneticMedia: TestRequestPage "Vendor 1099 Magnetic Media")
     begin
-        Vendor1099MagneticMedia.Year.SetValue(Date2DMY(WorkDate, 3));
+        Vendor1099MagneticMedia.Year.SetValue(Date2DMY(WorkDate(), 3));
         Vendor1099MagneticMedia.TransCode.SetValue(CopyStr(LibraryUTUtility.GetNewCode, 1, 5));
         Vendor1099MagneticMedia.ContactName.SetValue(LibraryUTUtility.GetNewCode);
         Vendor1099MagneticMedia.ContactPhoneNo.SetValue(LibraryUTUtility.GetNewCode);

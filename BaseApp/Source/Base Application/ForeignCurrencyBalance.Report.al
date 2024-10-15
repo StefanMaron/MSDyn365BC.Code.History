@@ -13,7 +13,7 @@ report 503 "Foreign Currency Balance"
             DataItemTableView = SORTING(Code);
             PrintOnlyIfDetail = true;
             RequestFilterFields = "Code";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(CurrTableCaptCurrFilter; TableCaption + ': ' + CurrencyFilter)
@@ -125,9 +125,9 @@ report 503 "Foreign Currency Balance"
                     BankAccCurrentBalanceLCY :=
                       Round(
                         CurrExchRate.ExchangeAmtFCYToLCY(
-                          WorkDate, Currency.Code, Balance,
+                          WorkDate(), Currency.Code, Balance,
                           CurrExchRate.ExchangeRate(
-                            WorkDate, Currency.Code)));
+                            WorkDate(), Currency.Code)));
 
                     CalcTotalBalance += Balance;
                     CalcTotalBalanceLCY += "Balance (LCY)";
@@ -200,15 +200,15 @@ report 503 "Foreign Currency Balance"
                 CustCurrentBalanceLCY :=
                   Round(
                     CurrExchRate.ExchangeAmtFCYToLCY(
-                      WorkDate, Code, "Customer Balance",
+                      WorkDate(), Code, "Customer Balance",
                       CurrExchRate.ExchangeRate(
-                        WorkDate, Code)));
+                        WorkDate(), Code)));
                 VendCurrentBalanceLCY :=
                   Round(
                     CurrExchRate.ExchangeAmtFCYToLCY(
-                      WorkDate, Code, "Vendor Balance",
+                      WorkDate(), Code, "Vendor Balance",
                       CurrExchRate.ExchangeRate(
-                        WorkDate, Code)));
+                        WorkDate(), Code)));
 
                 CalcTotalBalance := 0;
                 CalcTotalBalanceLCY := 0;
@@ -242,11 +242,10 @@ report 503 "Foreign Currency Balance"
 
     trigger OnPreReport()
     begin
-        CurrencyFilter := Currency.GetFilters;
+        CurrencyFilter := Currency.GetFilters();
     end;
 
     var
-        Text000: Label 'Total %1';
         CurrExchRate: Record "Currency Exchange Rate";
         CurrencyFilter: Text;
         CustCurrentBalanceLCY: Decimal;
@@ -258,6 +257,8 @@ report 503 "Foreign Currency Balance"
         CalcTotalBalanceLCY: Decimal;
         TotalCurrentBalanceLCY: Decimal;
         CalcTotalCurrentBalanceLCY: Decimal;
+
+        Text000: Label 'Total %1';
         ForeignCurrencyBalanceCaptionLbl: Label 'Foreign Currency Balance';
         CurrReportPageNoCaptionLbl: Label 'Page';
         CurrencyCustomerBalanceCaptionLbl: Label 'Balance';

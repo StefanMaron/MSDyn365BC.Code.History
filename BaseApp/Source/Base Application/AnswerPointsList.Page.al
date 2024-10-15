@@ -13,12 +13,12 @@ page 5173 "Answer Points List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Rating Profile Quest. Code"; "Rating Profile Quest. Code")
+                field("Rating Profile Quest. Code"; Rec."Rating Profile Quest. Code")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code for the profile questionnaire that contains the answer you use to create your rating.';
                 }
-                field("ProfileQuestionnaireLine.Question"; ProfileQuestionnaireLine.Question)
+                field("ProfileQuestionnaireLine.Question"; ProfileQuestionnaireLine.Question())
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Question';

@@ -15,7 +15,7 @@ report 5212 "Employee - Contracts"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Employment_Contract__TABLECAPTION__________EmploymentContractFilter; TableCaption + ': ' + EmploymentContractFilter)
@@ -49,7 +49,7 @@ report 5212 "Employee - Contracts"
                 column(Employee__No__; "No.")
                 {
                 }
-                column(FullName; FullName)
+                column(FullName; FullName())
                 {
                 }
             }
@@ -74,7 +74,7 @@ report 5212 "Employee - Contracts"
 
     trigger OnPreReport()
     begin
-        EmploymentContractFilter := "Employment Contract".GetFilters;
+        EmploymentContractFilter := "Employment Contract".GetFilters();
     end;
 
     var

@@ -311,7 +311,7 @@
                   Vendor."No.", InvAmount / (i + 1), '<0D>', CurrencyCode, LibraryUtility.GenerateGUID, '');
                 Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
                 Validate("Applies-to Doc. No.", DocumentNo);
-                Modify;
+                Modify();
                 RunGenJnlPostLine(GenJournalLine);
 
                 // [GIVEN] Post 2nd partial Payment in "FCY" on (WorkDate + 2) with application to Invoice
@@ -320,7 +320,7 @@
                   Vendor."No.", InvAmount - Amount, '<2D>', CurrencyCode, LibraryUtility.GenerateGUID, '');
                 Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
                 Validate("Applies-to Doc. No.", DocumentNo);
-                Modify;
+                Modify();
                 RunGenJnlPostLine(GenJournalLine);
             end;
 
@@ -329,10 +329,10 @@
         // [WHEN] Run the Adjust Exchange Rates Batch job on (Workdate + 1)
 #if not CLEAN20
         LibraryERM.RunAdjustExchangeRatesSimple(
-          CurrencyCode, CalcDate('<1D>', WorkDate), CalcDate('<1D>', WorkDate));
+          CurrencyCode, CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
 #else
         LibraryERM.RunExchRateAdjustmentSimple(
-          CurrencyCode, CalcDate('<1D>', WorkDate), CalcDate('<1D>', WorkDate));
+          CurrencyCode, CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
 #endif
 
         // [THEN] posted G/L Entries on different dates have different "Transaction No."
@@ -348,7 +348,7 @@
             DtldVendLedgEntry.FindSet();
             repeat
                 TotalAmount += DtldVendLedgEntry."Amount (LCY)";
-            until DtldVendLedgEntry.Next = 0;
+            until DtldVendLedgEntry.Next() = 0;
             Assert.AreEqual(GLEntry.Amount, TotalAmount, WrongBalancePerTransNoErr);
         end;
     end;
@@ -942,7 +942,7 @@
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         VendorAmount := 1000;  // Use a fixed amount to avoid rounding issues.
         isInitialized := true;
@@ -966,7 +966,7 @@
             VendorLedgerEntry.CalcFields("Remaining Amount");
             VendorLedgerEntry.Validate("Amount to Apply", VendorLedgerEntry."Remaining Amount");
             VendorLedgerEntry.Modify(true);
-        until VendorLedgerEntry.Next = 0;
+        until VendorLedgerEntry.Next() = 0;
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
         LibraryERM.PostVendLedgerApplication(ApplyingVendorLedgerEntry);
     end;
@@ -1018,7 +1018,7 @@
 
         // Generate a document that triggers application dtld. ledger entries.
         InvAmount := Amount;
-        PmtAmount := LibraryERM.ConvertCurrency(InvAmount, Currency.Code, '', WorkDate) * CurrencyAdjustFactor;
+        PmtAmount := LibraryERM.ConvertCurrency(InvAmount, Currency.Code, '', WorkDate()) * CurrencyAdjustFactor;
 
         Desc := GenerateDocument(GenJournalBatch, Vendor, PmtType, InvType, PmtAmount, InvAmount, '<0D>', '', Currency.Code);
 
@@ -1053,17 +1053,17 @@
 
         // Generate a document that triggers application dtld. ledger entries.
         InvAmount := Amount;
-        PmtAmount := LibraryERM.ConvertCurrency(InvAmount, Currency.Code, '', WorkDate) * CurrencyAdjustFactor;
+        PmtAmount := LibraryERM.ConvertCurrency(InvAmount, Currency.Code, '', WorkDate()) * CurrencyAdjustFactor;
 
         Desc := GenerateDocument(GenJournalBatch, Vendor, PmtType, InvType, PmtAmount, InvAmount, '<1D>', '', Currency.Code);
 
         // Run the Adjust Exchange Rates Batch job.
 #if not CLEAN20
         LibraryERM.RunAdjustExchangeRatesSimple(
-            Currency.Code, CalcDate('<1D>', WorkDate), CalcDate('<1D>', WorkDate));
+            Currency.Code, CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
 #else
         LibraryERM.RunExchRateAdjustmentSimple(
-            Currency.Code, CalcDate('<1D>', WorkDate), CalcDate('<1D>', WorkDate));
+            Currency.Code, CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
 #endif
 
         VendorApplyUnapply(Desc, Stepwise);
@@ -1259,7 +1259,7 @@
 
         // Create a currency code with magic exchange rate valid for Amount = 1000
         LibraryERM.CreateCurrency(Currency);
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
         CurrencyExchangeRate.Validate("Exchange Rate Amount", 64.580459);  // Magic exchange rate
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", 100);
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
@@ -1393,7 +1393,7 @@
         Evaluate(DateOffset, PmtOffset);
 
         // Update journal line currency
-        GenJournalLine.Validate("Posting Date", CalcDate(DateOffset, WorkDate));
+        GenJournalLine.Validate("Posting Date", CalcDate(DateOffset, WorkDate()));
         GenJournalLine.Validate("Currency Code", CurrencyCode);
         GenJournalLine.Validate(Description, GenJournalLine."Document No.");
 
@@ -1420,11 +1420,11 @@
     local procedure MockVendLedgEntry(var VendLedgerEntry: Record "Vendor Ledger Entry")
     begin
         with VendLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." :=
               LibraryUtility.GetNewRecNo(VendLedgerEntry, FieldNo("Entry No."));
             Open := true;
-            Insert;
+            Insert();
             MockDtldLedgEntry("Entry No.");
         end;
     end;
@@ -1434,13 +1434,13 @@
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         with DetailedVendorLedgEntry do begin
-            Init;
+            Init();
             "Entry No." :=
               LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
             "Vendor Ledger Entry No." := VendLedgEntryNo;
             "Entry Type" := "Entry Type"::"Initial Entry";
             Amount := LibraryRandom.RandDec(100, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1452,7 +1452,7 @@
             "Applies-to ID" := LibraryUtility.GenerateGUID();
             "Accepted Pmt. Disc. Tolerance" := true;
             "Accepted Payment Tolerance" := LibraryRandom.RandDec(100, 2);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1510,7 +1510,7 @@
             // Post application.
             LibraryERM.PostVendLedgerApplication(VendorLedgerEntry);
 
-            VendorLedgerEntry.Next;
+            VendorLedgerEntry.Next();
         end;
     end;
 
@@ -1568,14 +1568,14 @@
         Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup);
 
         // Create new exchange rates
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
         CurrencyExchangeRate.Validate("Exchange Rate Amount", 100);
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", 100);
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", 100);
         CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", 100);
         CurrencyExchangeRate.Modify(true);
 
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, CalcDate('<1D>', WorkDate));
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, CalcDate('<1D>', WorkDate()));
         CurrencyExchangeRate.Validate("Exchange Rate Amount", 100);
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", 100);
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", 100 * CurrencyAdjustFactor);
@@ -1597,7 +1597,7 @@
             GLAccount.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
             GLAccount.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
             GLAccount.SetRange("Direct Posting", true);
-        until (VATPostingSetup.Next = 0) or GLAccount.FindFirst();
+        until (VATPostingSetup.Next() = 0) or GLAccount.FindFirst();
 
         VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group");
     end;
@@ -1737,7 +1737,7 @@
 
     local procedure VerifyAppliedLedgerEntry(VendLedgerEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50])
     begin
-        VendLedgerEntry.Find;
+        VendLedgerEntry.Find();
         VendLedgerEntry.CalcFields("Remaining Amount");
         VendLedgerEntry.TestField("Applies-to ID", AppliesToID);
         VendLedgerEntry.TestField("Amount to Apply", VendLedgerEntry."Remaining Amount");
@@ -1754,7 +1754,7 @@
 
     local procedure VerifyUnappliedLedgerEntry(VendLedgerEntry: Record "Vendor Ledger Entry")
     begin
-        VendLedgerEntry.Find;
+        VendLedgerEntry.Find();
         VendLedgerEntry.TestField("Applies-to ID", '');
         VendLedgerEntry.TestField("Amount to Apply", 0);
         VendLedgerEntry.TestField("Accepted Payment Tolerance", 0);
@@ -1772,7 +1772,7 @@
         GLEntry.FindSet();
         repeat
             GLEntry.TestField("Document Type", GLEntry."Document Type"::Payment);
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyVLEPaymentDisc(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; VendLedgerEntryIsOpen: Boolean; RemPaymentDiscPossible: Decimal; RemainingAmount: Decimal)
@@ -1817,7 +1817,7 @@
             repeat
                 if (DtldVendorLedgEntry."Entry No." > ApplicationEntryNo) and not DtldVendorLedgEntry.Unapplied then
                     ApplicationEntryNo := DtldVendorLedgEntry."Entry No.";
-            until DtldVendorLedgEntry.Next = 0;
+            until DtldVendorLedgEntry.Next() = 0;
         exit(ApplicationEntryNo);
     end;
 

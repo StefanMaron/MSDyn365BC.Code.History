@@ -334,7 +334,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         Assert.IsFalse(CustomerCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should NOT be enabled');
 
         // Cleanup
-        CustomerCard.Close;
+        CustomerCard.Close();
 
         // [GIVEN] Customer credit limit change approval workflow and customer approval workflow are enabled.
         LibraryWorkflow.CopyWorkflowTemplate(WorkflowChange, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
@@ -356,7 +356,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         Assert.IsFalse(CustomerCard.Approve.Visible, 'Approve should NOT be visible');
         Assert.IsFalse(CustomerCard.Reject.Visible, 'Reject should NOT be visible');
         Assert.IsFalse(CustomerCard.Delegate.Visible, 'Delegate should NOT be visible');
-        CustomerCard.Close;
+        CustomerCard.Close();
 
         // [WHEN] Customer card is opened.
         CustomerCard.OpenEdit;
@@ -386,7 +386,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         Assert.IsFalse(CustomerCard.Delegate.Visible, 'Delegate should be visible');
 
         // Clenup
-        CustomerCard.Close;
+        CustomerCard.Close();
     end;
 
     [Test]
@@ -423,7 +423,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         Assert.IsFalse(CustomerList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
 
         // Cleanup
-        CustomerList.Close;
+        CustomerList.Close();
 
         // [GIVEN] Customer credit limit change approval workflow and customer approval workflow are enabled.
         LibraryWorkflow.CopyWorkflowTemplate(WorkflowChange, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
@@ -442,7 +442,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         // [THEN] Only Send is enabled.
         Assert.IsTrue(CustomerList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
         Assert.IsFalse(CustomerList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        CustomerList.Close;
+        CustomerList.Close();
 
         // [WHEN] Customer Credit Limit (LCY) is changed.
         LibraryVariableStorage.Enqueue('The customer credit limit change was sent for approval.');
@@ -463,7 +463,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         // [THEN] Only Send is enabled.
         Assert.IsTrue(CustomerList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
         Assert.IsFalse(CustomerList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        CustomerList.Close;
+        CustomerList.Close();
     end;
 
     [Test]
@@ -767,7 +767,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         CreateCustomerAndChangeCreditLimitAndSendForApproval(Customer, NewCreditLimit);
 
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, Customer.RecordId);
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry, 0);
 
         // Verify - Record change for the Customer record was created
@@ -782,7 +782,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         UpdateApprovalEntryWithTempUser(CurrentUserSetup, Customer);
 
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, Customer.RecordId);
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry, 0);
         CheckCommentsForDocumentOnRequestsToApprovePage(ApprovalEntry, 0);
 
@@ -900,7 +900,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         RequeststoApprove.OpenView;
         RequeststoApprove.GotoRecord(ApprovalEntry);
         RequeststoApprove.Approve.Invoke;
-        RequeststoApprove.Close;
+        RequeststoApprove.Close();
     end;
 
     local procedure RejectCustomerCreditLimitChange(var Customer: Record Customer)
@@ -917,7 +917,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         RequeststoApprove.OpenView;
         RequeststoApprove.GotoRecord(ApprovalEntry);
         RequeststoApprove.Reject.Invoke;
-        RequeststoApprove.Close;
+        RequeststoApprove.Close();
     end;
 
     local procedure CancelCustomerApproval(var Customer: Record Customer)
@@ -927,7 +927,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         CustomerCard.OpenView;
         CustomerCard.GotoRecord(Customer);
         CustomerCard.CancelApprovalRequest.Invoke;
-        CustomerCard.Close;
+        CustomerCard.Close();
     end;
 
     local procedure DelegateCustomerCreditLimitChange(var Customer: Record Customer)
@@ -944,7 +944,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         RequeststoApprove.OpenView;
         RequeststoApprove.GotoRecord(ApprovalEntry);
         RequeststoApprove.Delegate.Invoke;
-        RequeststoApprove.Close;
+        RequeststoApprove.Close();
     end;
 
     local procedure UpdateApprovalEntryWithTempUser(UserSetup: Record "User Setup"; Customer: Record Customer)
@@ -971,9 +971,9 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         Assert.AreEqual(ExpectedNumberOfApprovalEntries, ApprovalEntry.Count, UnexpectedNoOfApprovalEntriesErr);
 
         VerifyApprovalEntry(ApprovalEntry, SenderUserID, ApproverUserID1, Status1);
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntry(ApprovalEntry, SenderUserID, ApproverUserID2, Status2);
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         VerifyApprovalEntry(ApprovalEntry, SenderUserID, ApproverUserID3, Status3);
     end;
 
@@ -995,7 +995,7 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
 
     local procedure VerifyCreditLimitForCustomer(Customer: Record Customer; CreditLimit: Decimal)
     begin
-        Customer.Find;
+        Customer.Find();
         Assert.AreEqual(CreditLimit, Customer."Credit Limit (LCY)", 'The credit limit was not applied');
     end;
 
@@ -1014,12 +1014,12 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        ApprovalEntries.Close;
+        ApprovalEntries.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnRequestsToApprovePage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -1037,12 +1037,12 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        RequeststoApprove.Close;
+        RequeststoApprove.Close();
     end;
 
     local procedure CheckUserCanCancelTheApprovalRequest(Customer: Record Customer; CancelActionExpectedEnabled: Boolean)
@@ -1053,12 +1053,12 @@ codeunit 134190 "WF Demo Cust Cred Lmt Approval"
         CustomerCard.OpenView;
         CustomerCard.GotoRecord(Customer);
         Assert.AreEqual(CancelActionExpectedEnabled, CustomerCard.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
-        CustomerCard.Close;
+        CustomerCard.Close();
 
         CustomerList.OpenView;
         CustomerList.GotoRecord(Customer);
         Assert.AreEqual(CancelActionExpectedEnabled, CustomerList.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
-        CustomerList.Close;
+        CustomerList.Close();
     end;
 }
 

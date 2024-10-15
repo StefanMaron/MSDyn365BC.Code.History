@@ -5,7 +5,7 @@ codeunit 911 "Pstd. Assembly - Undo (Yes/No)"
     trigger OnRun()
     begin
         PostedAsmHeader.Copy(Rec);
-        Code;
+        Code();
         Rec := PostedAsmHeader;
     end;
 

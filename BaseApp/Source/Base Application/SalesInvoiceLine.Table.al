@@ -592,7 +592,7 @@ table 113 "Sales Invoice Line"
         field(10002; "Retention VAT %"; Decimal)
         {
             Caption = 'Retention VAT %';
-            AutoFormatType = 2;	    
+            AutoFormatType = 2;
         }
     }
 
@@ -666,20 +666,20 @@ table 113 "Sales Invoice Line"
 
     procedure GetCurrencyCode(): Code[10]
     begin
-        GetHeader;
+        GetHeader();
         exit(SalesInvoiceHeader."Currency Code");
     end;
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption, "Document No.", "Line No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption(), "Document No.", "Line No."));
     end;
 
     procedure ShowItemTrackingLines()
     var
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
     begin
-        ItemTrackingDocMgt.ShowItemTrackingForInvoiceLine(RowID1);
+        ItemTrackingDocMgt.ShowItemTrackingForInvoiceLine(RowID1());
     end;
 
     procedure CalcVATAmountLines(SalesInvHeader: Record "Sales Invoice Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary)
@@ -697,13 +697,13 @@ table 113 "Sales Invoice Line"
             repeat
                 TempVATAmountLine.Init();
                 TempVATAmountLine.CopyFromSalesInvLine(Rec);
-                TempVATAmountLine.InsertLine;
+                TempVATAmountLine.InsertLine();
             until Next() = 0;
     end;
 
     procedure GetLineAmountExclVAT(): Decimal
     begin
-        GetHeader;
+        GetHeader();
         if not SalesInvoiceHeader."Prices Including VAT" then
             exit("Line Amount");
 
@@ -712,7 +712,7 @@ table 113 "Sales Invoice Line"
 
     procedure GetLineAmountInclVAT(): Decimal
     begin
-        GetHeader;
+        GetHeader();
         if SalesInvoiceHeader."Prices Including VAT" then
             exit("Line Amount");
 
@@ -727,10 +727,10 @@ table 113 "Sales Invoice Line"
             SalesInvoiceHeader.Init();
 
         if SalesInvoiceHeader."Currency Code" = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else
             if not Currency.Get(SalesInvoiceHeader."Currency Code") then
-                Currency.InitRoundingPrecision;
+                Currency.InitRoundingPrecision();
     end;
 
     local procedure GetFieldCaption(FieldNumber: Integer): Text[100]
@@ -743,15 +743,15 @@ table 113 "Sales Invoice Line"
 
     procedure GetCaptionClass(FieldNumber: Integer): Text[80]
     begin
-        GetHeader;
+        GetHeader();
         case FieldNumber of
             FieldNo("No."):
                 exit(StrSubstNo('3,%1', GetFieldCaption(FieldNumber)));
             else begin
-                    if SalesInvoiceHeader."Prices Including VAT" then
-                        exit('2,1,' + GetFieldCaption(FieldNumber));
-                    exit('2,0,' + GetFieldCaption(FieldNumber));
-                end
+                if SalesInvoiceHeader."Prices Including VAT" then
+                    exit('2,1,' + GetFieldCaption(FieldNumber));
+                exit('2,0,' + GetFieldCaption(FieldNumber));
+            end
         end;
     end;
 
@@ -827,7 +827,7 @@ table 113 "Sales Invoice Line"
     begin
         if "Qty. per Unit of Measure" = 0 then
             exit(QtyBase);
-        exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+        exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
     end;
 
     procedure GetItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SetQuantity: Boolean)
@@ -898,7 +898,7 @@ table 113 "Sales Invoice Line"
 
     procedure InitFromSalesLine(SalesInvHeader: Record "Sales Invoice Header"; SalesLine: Record "Sales Line")
     begin
-        Init;
+        Init();
         TransferFields(SalesLine);
         if ("No." = '') and HasTypeToFillMandatoryFields() then
             Type := Type::" ";
@@ -914,7 +914,7 @@ table 113 "Sales Invoice Line"
     begin
         DeferralUtilities.OpenLineScheduleView(
             "Deferral Code", "Deferral Document Type"::Sales.AsInteger(), '', '',
-            GetDocumentType, "Document No.", "Line No.");
+            GetDocumentType(), "Document No.", "Line No.");
     end;
 
     procedure UpdatePriceDescription()
@@ -922,16 +922,15 @@ table 113 "Sales Invoice Line"
         Currency: Record Currency;
     begin
         "Price description" := '';
-        if Type in [Type::"Charge (Item)", Type::"Fixed Asset", Type::Item, Type::Resource] then begin
+        if Type in [Type::"Charge (Item)", Type::"Fixed Asset", Type::Item, Type::Resource] then
             if "Line Discount %" = 0 then
                 "Price description" := StrSubstNo(
-                    PriceDescriptionTxt, Quantity, Currency.ResolveGLCurrencySymbol(GetCurrencyCode),
+                    PriceDescriptionTxt, Quantity, Currency.ResolveGLCurrencySymbol(GetCurrencyCode()),
                     "Unit Price", "Unit of Measure")
             else
                 "Price description" := StrSubstNo(
-                    PriceDescriptionWithLineDiscountTxt, Quantity, Currency.ResolveGLCurrencySymbol(GetCurrencyCode),
-                    "Unit Price", "Unit of Measure", "Line Discount %")
-        end;
+                    PriceDescriptionWithLineDiscountTxt, Quantity, Currency.ResolveGLCurrencySymbol(GetCurrencyCode()),
+                    "Unit Price", "Unit of Measure", "Line Discount %");
     end;
 
     procedure FormatType(): Text
@@ -939,7 +938,7 @@ table 113 "Sales Invoice Line"
         SalesLine: Record "Sales Line";
     begin
         if Type = Type::" " then
-            exit(SalesLine.FormatType);
+            exit(SalesLine.FormatType());
 
         exit(Format(Type));
     end;

@@ -712,7 +712,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         repeat
             Assert.AreNearlyEqual(
               GLEntry."Additional-Currency Amount", CalcACYFromLCY(GLEntry, CurrencyCode), 0.01, 'Wrong Additional-Currency Amount');
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
         GLEntry.SetRange("G/L Account No.", GLAccNo[1]);
         GLEntry.FindFirst();
         GLEntry.TestField("Additional-Currency Amount", GenJournalLine."VAT Base Amount");
@@ -782,7 +782,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         repeat
             Assert.AreNearlyEqual(
               GLEntry."Additional-Currency Amount", CalcACYFromLCY(GLEntry, CurrencyCode), 0.01, 'Wrong Additional-Currency Amount');
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     [Test]
@@ -810,8 +810,8 @@ codeunit 142053 "ERM Sales/Purchase Document"
         TaxPerc := CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         AmountIncludingVAT := SalesLine."Line Amount" + (SalesLine."Line Amount" * TaxPerc / 100);
-        AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(SalesLine."Line Amount", '', CurrencyCode, WorkDate);
-        AdditionalCurrencyAmount2 := LibraryERM.ConvertCurrency(AmountIncludingVAT, '', CurrencyCode, WorkDate);
+        AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(SalesLine."Line Amount", '', CurrencyCode, WorkDate());
+        AdditionalCurrencyAmount2 := LibraryERM.ConvertCurrency(AmountIncludingVAT, '', CurrencyCode, WorkDate());
 
         // Exercise: Post Sales Order.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -850,8 +850,8 @@ codeunit 142053 "ERM Sales/Purchase Document"
         DocumentNo :=
           CreateAndPostPurchaseDocument(
             PurchaseLine, PurchaseLine."Document Type"::Order, true, LibraryRandom.RandDec(10, 2), 0);  // Return Qty. to Ship as 0.
-        AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(PurchaseLine."Line Amount", '', CurrencyCode, WorkDate);
-        AdditionalCurrencyAmount2 := LibraryERM.ConvertCurrency(-PurchaseLine."Amount Including VAT", '', CurrencyCode, WorkDate);
+        AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(PurchaseLine."Line Amount", '', CurrencyCode, WorkDate());
+        AdditionalCurrencyAmount2 := LibraryERM.ConvertCurrency(-PurchaseLine."Amount Including VAT", '', CurrencyCode, WorkDate());
 
         // Verify.
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
@@ -885,7 +885,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // Exercise: Create and Post Service Order.
         CreateAndPostServiceOrder(ServiceLine);
         DocumentNo := FindServiceInvoiceHeader(ServiceLine."Document No.");
-        AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(ServiceLine."Line Amount", '', CurrencyCode, WorkDate);
+        AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(ServiceLine."Line Amount", '', CurrencyCode, WorkDate());
 
         // Verify.
         GeneralPostingSetup.Get(ServiceLine."Gen. Bus. Posting Group", ServiceLine."Gen. Prod. Posting Group");
@@ -1196,7 +1196,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // [GIVEN] Purchase Invoice for Vendor with Purchase Line for item with "Direct Unit Cost" = 100 and "Line Discount %" = 25.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice,
-          Vendor."No.", Item."No.", 1, '', WorkDate);
+          Vendor."No.", Item."No.", 1, '', WorkDate());
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
         PurchaseLine.Validate("Line Discount %", LibraryRandom.RandInt(25));
         PurchaseLine.Modify(true);
@@ -1980,7 +1980,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         SalesLine[2].Validate("Unit Price", LibraryRandom.RandDecInRange(10, 20, 2));
         SalesLine[2].Modify(true);
         SalesHeader.Get(SalesLine[1]."Document Type", SalesLine[1]."Document No.");
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
 
         Commit();
         REPORT.Run(REPORT::"Sales Order", true, true, SalesHeader);
@@ -2010,7 +2010,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         SalesLine[2].Validate("Unit Price", LibraryRandom.RandDecInRange(10, 20, 2));
         SalesLine[2].Modify(true);
         SalesHeader.Get(SalesLine[1]."Document Type", SalesLine[1]."Document No.");
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
 
         Commit();
         REPORT.Run(REPORT::"Return Authorization", true, true, SalesHeader);
@@ -2040,7 +2040,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         SalesLine[2].Validate("Unit Price", LibraryRandom.RandDecInRange(10, 20, 2));
         SalesLine[2].Modify(true);
         SalesHeader.Get(SalesLine[1]."Document Type", SalesLine[1]."Document No.");
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
 
         Commit();
         REPORT.Run(REPORT::"Sales Blanket Order", true, true, SalesHeader);
@@ -2515,7 +2515,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         TaxGroup: Record "Tax Group";
     begin
         LibraryERM.CreateTaxGroup(TaxGroup);
-        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxType, WorkDate);
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxType, WorkDate());
         TaxDetail.Validate("Tax Below Maximum", LibraryRandom.RandInt(10));  // Using RANDOM value for Tax Below Maximum.
         TaxDetail.Modify(true);
     end;
@@ -2666,7 +2666,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
             SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxAmountLine);
             SalesTaxCalculate.GetSummarizedSalesTaxTable(TempSalesTaxAmtLine);
             with TempSalesTaxAmtLine do begin
-                Reset;
+                Reset();
                 CalcSums("Tax Amount");
                 AmountInclVAT := AmountInclVAT + "Tax Amount";
             end;

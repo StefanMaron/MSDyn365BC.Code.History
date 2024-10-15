@@ -9,7 +9,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
     begin
         // [FEATURE] [Assembly] [SCM]
         MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
+        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
     end;
 
     var
@@ -522,7 +522,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
     begin
         LibraryERM.CreateCurrency(Currency);
         CurrExchRate := LibraryRandom.RandDecInRange(10, 20, 2);
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, CurrExchRate, CurrExchRate);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), CurrExchRate, CurrExchRate);
         LibraryERM.SetAddReportingCurrency(Currency.Code);
 
         exit(CurrExchRate);

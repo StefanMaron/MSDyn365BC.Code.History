@@ -49,7 +49,7 @@ codeunit 10 "Type Helper"
             DotNet_DateTimeOffset.DateTime(DotNet_DateTime);
         end else begin
             DotNet_CultureInfo.GetCultureInfoByName(CultureName);
-            DotNet_DateTimeStyles.None;
+            DotNet_DateTimeStyles.None();
             case Format of
                 '':
                     if not DotNet_DateTime.TryParse(DateText, DotNet_CultureInfo, DotNet_DateTimeStyles) then
@@ -60,7 +60,7 @@ codeunit 10 "Type Helper"
             end;
         end;
 
-        EvaluatedDate := DMY2Date(DotNet_DateTime.Day, DotNet_DateTime.Month, DotNet_DateTime.Year);
+        EvaluatedDate := DMY2Date(DotNet_DateTime.Day(), DotNet_DateTime.Month(), DotNet_DateTime.Year());
         exit(true);
     end;
 
@@ -72,10 +72,10 @@ codeunit 10 "Type Helper"
         EvaluatedTime: Time;
     begin
         if CultureName = '' then
-            DotNet_CultureInfo.InvariantCulture
+            DotNet_CultureInfo.InvariantCulture()
         else
             DotNet_CultureInfo.GetCultureInfoByName(CultureName);
-        DotNet_DateTimeStyles.None;
+        DotNet_DateTimeStyles.None();
         case Format of
             '':
                 if not DotNet_DateTime.TryParse(DateTimeText, DotNet_CultureInfo, DotNet_DateTimeStyles) then
@@ -89,15 +89,15 @@ codeunit 10 "Type Helper"
              EvaluatedTime,
              StrSubstNo(
                '%1:%2:%3.%4',
-               DotNet_DateTime.Hour,
-               DotNet_DateTime.Minute,
-               DotNet_DateTime.Second,
-               DotNet_DateTime.Millisecond))
+               DotNet_DateTime.Hour(),
+               DotNet_DateTime.Minute(),
+               DotNet_DateTime.Second(),
+               DotNet_DateTime.Millisecond()))
         then
             exit(false);
         EvaluatedDateTime :=
           CreateDateTime(
-            DMY2Date(DotNet_DateTime.Day, DotNet_DateTime.Month, DotNet_DateTime.Year), EvaluatedTime);
+            DMY2Date(DotNet_DateTime.Day(), DotNet_DateTime.Month(), DotNet_DateTime.Year()), EvaluatedTime);
         exit(true);
     end;
 
@@ -186,7 +186,7 @@ codeunit 10 "Type Helper"
         DotNet_DateTimeFormatInfo: Codeunit DotNet_DateTimeFormatInfo;
         DotNet_DateTime: Codeunit DotNet_DateTime;
     begin
-        DotNet_CultureInfo.GetCultureInfoByName(GetCultureName);
+        DotNet_CultureInfo.GetCultureInfoByName(GetCultureName());
         DotNet_CultureInfo.DateTimeFormat(DotNet_DateTimeFormatInfo);
         DotNet_DateTime.DateTime(Date2DMY(DateToFormat, 3), Date2DMY(DateToFormat, 2), Date2DMY(DateToFormat, 1));
         exit(DotNet_DateTime.ToString(DotNet_DateTimeFormatInfo));
@@ -331,9 +331,9 @@ codeunit 10 "Type Helper"
         TimeZoneInfo: DotNet TimeZoneInfo;
         TimeZone: Text;
     begin
-        if not UserPersonalization.Get(UserSecurityId) then
+        if not UserPersonalization.Get(UserSecurityId()) then
             exit(false);
-            
+
         TimeZone := UserPersonalization."Time Zone";
 
         if TimeZone = '' then
@@ -349,7 +349,7 @@ codeunit 10 "Type Helper"
         ClientTypeManagement: Codeunit "Client Type Management";
     begin
         Duration := 0;
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Web then
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Web then
             GetUserTimezoneOffset(Duration);
     end;
 
@@ -405,7 +405,7 @@ codeunit 10 "Type Helper"
             CultureInfo := CultureInfo.GetCultureInfo(CultureName);
 
         DateTimeOffset := DateTimeOffset.DateTimeOffset(FormattingDateTime);
-        DateTimeOffset := DateTimeOffset.ToLocalTime;
+        DateTimeOffset := DateTimeOffset.ToLocalTime();
 
         exit(DateTimeOffset.ToString(Format, CultureInfo));
     end;
@@ -433,7 +433,7 @@ codeunit 10 "Type Helper"
 
     procedure GetCurrUTCDateTimeAsText(): Text
     begin
-        exit(FormatDateTime(GetCurrUTCDateTime, 'R', ''));
+        exit(FormatDateTime(GetCurrUTCDateTime(), 'R', ''));
     end;
 
     procedure GetCurrUTCDateTimeISO8601(): Text
@@ -516,8 +516,8 @@ codeunit 10 "Type Helper"
     var
         DataTypeManagement: Codeunit "Data Type Management";
         RecRef: RecordRef;
-        SelectedKeyRef: KeyRef;
         KeyFieldRef: FieldRef;
+        SelectedKeyRef: KeyRef;
         I: Integer;
         KeyString: Text;
         Separator: Text;
@@ -739,7 +739,7 @@ codeunit 10 "Type Helper"
         if not GetUserTimezoneOffset(TimezoneOffset) then
             TimezoneOffset := 0;
         DateTime := DateTime.Now;
-        DateTime := DateTime.ToUniversalTime + TimezoneOffset;
+        DateTime := DateTime.ToUniversalTime() + TimezoneOffset;
         exit(DateTime.ToString(StringFormat));
     end;
 
@@ -751,8 +751,8 @@ codeunit 10 "Type Helper"
         if not GetUserTimezoneOffset(TimezoneOffset) then
             TimezoneOffset := 0;
         DateTime := DateTime.Now;
-        DateTime := DateTime.ToUniversalTime + TimezoneOffset;
-        System.Evaluate(Result, DateTime.ToString);
+        DateTime := DateTime.ToUniversalTime() + TimezoneOffset;
+        System.Evaluate(Result, DateTime.ToString());
         exit(Result);
     end;
 
@@ -830,7 +830,7 @@ codeunit 10 "Type Helper"
         CurrencySymbol: Text[10];
     begin
         GeneralLedgerSetup.Get();
-        CurrencySymbol := GeneralLedgerSetup.GetCurrencySymbol;
+        CurrencySymbol := GeneralLedgerSetup.GetCurrencySymbol();
 
         exit(GetAmountFormatWithUserLocale(CurrencySymbol));
     end;
@@ -839,7 +839,7 @@ codeunit 10 "Type Helper"
     var
         UserPersonalization: Record "User Personalization";
     begin
-        if not UserPersonalization.Get(UserSecurityId) then
+        if not UserPersonalization.Get(UserSecurityId()) then
             exit('<Precision,0:0><Standard Format,0>');
 
         exit(GetAmountFormat(UserPersonalization."Locale ID", CurrencySymbol));

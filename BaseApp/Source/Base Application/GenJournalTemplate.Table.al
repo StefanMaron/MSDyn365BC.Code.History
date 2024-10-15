@@ -125,7 +125,7 @@
             begin
                 GenJnlLine.SetRange("Journal Template Name", Name);
                 GenJnlLine.ModifyAll("Source Code", "Source Code");
-                Modify;
+                Modify();
             end;
         }
         field(11; "Reason Code"; Code[10])
@@ -361,8 +361,6 @@
     end;
 
     var
-        Text000: Label 'Only the %1 field can be filled in on recurring journals.';
-        Text001: Label 'must not be %1';
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlAlloc: Record "Gen. Jnl. Allocation";
@@ -372,13 +370,16 @@
         USText000: Label 'If the %1 is %2, then the %3 must be %4.';
 #endif
 
+        Text000: Label 'Only the %1 field can be filled in on recurring journals.';
+        Text001: Label 'must not be %1';
+
     local procedure CheckGLAcc(AccNo: Code[20])
     var
         GLAcc: Record "G/L Account";
     begin
         if AccNo <> '' then begin
             GLAcc.Get(AccNo);
-            GLAcc.CheckGLAcc;
+            GLAcc.CheckGLAcc();
             GLAcc.TestField("Direct Posting", true);
         end;
     end;

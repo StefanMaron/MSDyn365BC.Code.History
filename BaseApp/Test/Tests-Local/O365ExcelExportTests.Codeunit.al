@@ -36,7 +36,7 @@ codeunit 138915 "O365 Excel Export Tests"
 
         CreateAndPostNewInvoice(SalesInvoiceHeader, 'AB', 1000);
 
-        ServerFileName := O365ExportInvoicesEmail.ExportInvoicesToExcel(WorkDate, WorkDate);
+        ServerFileName := O365ExportInvoicesEmail.ExportInvoicesToExcel(WorkDate(), WorkDate());
 
         LibraryReportValidation.OpenBookAsExcel(ServerFileName);
 
@@ -79,7 +79,7 @@ codeunit 138915 "O365 Excel Export Tests"
 
         CreateAndPostNewInvoice(SalesInvoiceHeader, 'ON', 1000);
 
-        ServerFileName := O365ExportInvoicesEmail.ExportInvoicesToExcel(WorkDate, WorkDate);
+        ServerFileName := O365ExportInvoicesEmail.ExportInvoicesToExcel(WorkDate(), WorkDate());
 
         LibraryReportValidation.OpenBookAsExcel(ServerFileName);
 
@@ -122,7 +122,7 @@ codeunit 138915 "O365 Excel Export Tests"
 
         CreateAndPostNewInvoice(SalesInvoiceHeader, 'MB', 1000);
 
-        ServerFileName := O365ExportInvoicesEmail.ExportInvoicesToExcel(WorkDate, WorkDate);
+        ServerFileName := O365ExportInvoicesEmail.ExportInvoicesToExcel(WorkDate(), WorkDate());
 
         LibraryReportValidation.OpenBookAsExcel(ServerFileName);
 
@@ -163,7 +163,7 @@ codeunit 138915 "O365 Excel Export Tests"
         Item.DeleteAll();
         Customer.DeleteAll();
 
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);

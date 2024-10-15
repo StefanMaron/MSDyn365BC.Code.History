@@ -13,18 +13,18 @@ page 1159 "Purchase Documents"
         {
             repeater(Group)
             {
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = All;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies when the purchase document is due.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the type of document.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = All;
                     StyleExpr = StyleTxt;
@@ -36,7 +36,7 @@ page 1159 "Purchase Documents"
                     Caption = 'Vendor Name';
                     ToolTip = 'Specifies name of the Vendor.';
                 }
-                field("Remaining Amount LCY"; "Remaining Amt. (LCY)")
+                field("Remaining Amount LCY"; Rec."Remaining Amt. (LCY)")
                 {
                     ApplicationArea = All;
                     Caption = 'Remaining Amount. (LCY)';
@@ -73,7 +73,7 @@ page 1159 "Purchase Documents"
     var
         Vendor: Record Vendor;
     begin
-        StyleTxt := SetStyle;
+        StyleTxt := SetStyle();
         Vendor.Get("Vendor No.");
         VendorName := Vendor.Name;
     end;
@@ -86,7 +86,7 @@ page 1159 "Purchase Documents"
 
     trigger OnOpenPage()
     begin
-        SetFilter("Due Date", '<%1', WorkDate);
+        SetFilter("Due Date", '<%1', WorkDate());
         SetRange("Document Type", "Document Type"::Invoice);
         SetFilter("Remaining Amt. (LCY)", '<>0');
         Ascending := true;
@@ -99,8 +99,8 @@ page 1159 "Purchase Documents"
 
     procedure SetFilterForOverduePurInvoiceAmount()
     begin
-        Reset;
-        SetFilter("Due Date", '<%1', WorkDate);
+        Reset();
+        SetFilter("Due Date", '<%1', WorkDate());
         SetRange("Document Type", "Document Type"::Invoice);
         SetFilter("Remaining Amt. (LCY)", '<>0');
         Ascending := true;
@@ -109,20 +109,20 @@ page 1159 "Purchase Documents"
 
     procedure SetFilterForPurchDocsDueToday()
     begin
-        Reset;
+        Reset();
         SetRange(Open, true);
         SetFilter("Document Type", 'Invoice|Credit Memo');
-        SetFilter("Due Date", '<=%1', WorkDate);
+        SetFilter("Due Date", '<=%1', WorkDate());
         Ascending := true;
         CurrPage.Update();
     end;
 
     procedure SetFilterForPurchInvoicesDueNextWeek()
     begin
-        Reset;
+        Reset();
         SetRange(Open, true);
         SetFilter("Document Type", 'Invoice|Credit Memo');
-        SetFilter("Due Date", '%1..%2', CalcDate('<1D>', WorkDate), CalcDate('<1W>', WorkDate));
+        SetFilter("Due Date", '%1..%2', CalcDate('<1D>', WorkDate()), CalcDate('<1W>', WorkDate()));
         Ascending := true;
         CurrPage.Update();
     end;

@@ -83,7 +83,7 @@ codeunit 139192 "CRM Bus. Logic Simulator"
         if Rec.IsTemporary then
             exit;
         xCRMSalesorder := Rec;
-        xCRMSalesorder.Find;
+        xCRMSalesorder.Find();
         if (Rec.StateCode = Rec.StateCode::Submitted) and (xCRMSalesorder.StateCode = Rec.StateCode::Submitted) and RunTrigger then
             Error(SalesOrderIsNotEditableErr);
 
@@ -122,7 +122,7 @@ codeunit 139192 "CRM Bus. Logic Simulator"
             exit;
 
         xCRMInvoice := Rec;
-        xCRMInvoice.Find;
+        xCRMInvoice.Find();
         if Rec.StateCode = Rec.StateCode::Paid then
             case xCRMInvoice.StateCode of
                 xCRMInvoice.StateCode::Paid:

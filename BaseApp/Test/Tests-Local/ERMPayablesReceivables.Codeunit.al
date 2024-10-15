@@ -240,7 +240,7 @@ codeunit 142052 "ERM Payables/Receivables"
         CreateBankAccount(BankAccount, Currency.Code);
         BankAccountPostingGroup.Get(BankAccount."Bank Acc. Posting Group");
         CreateAndPostUpdatedGenJournal(
-          GenJournalLine, GenJournalLine."Account Type"::"Bank Account", BankAccount."No.", WorkDate,
+          GenJournalLine, GenJournalLine."Account Type"::"Bank Account", BankAccount."No.", WorkDate(),
           BankAccountPostingGroup."G/L Account No.", LibraryRandom.RandInt(100));  // Using Random value for Amount.
 
         // Exercise.
@@ -624,12 +624,12 @@ codeunit 142052 "ERM Payables/Receivables"
         LibraryERM.FindGLAccount(GLAccount2);
         CreateCurrency(Currency);
         CreateBankAccount(BankAccount, Currency.Code);
-        CreateCurrencyExchangeRate(Currency.Code, WorkDate, RateFactor);
+        CreateCurrencyExchangeRate(Currency.Code, WorkDate(), RateFactor);
         CreateCurrencyExchangeRate(
-          Currency.Code, CalcDate(Format(LibraryRandom.RandIntInRange(2, 6)) + 'M', WorkDate), RateFactor2);  // Using Random Range value for No. of Month.
+          Currency.Code, CalcDate(Format(LibraryRandom.RandIntInRange(2, 6)) + 'M', WorkDate()), RateFactor2);  // Using Random Range value for No. of Month.
         CreateAndPostUpdatedGenJournal(
           GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
-          WorkDate - 1, GLAccount2."No.", Amount);
+          WorkDate() - 1, GLAccount2."No.", Amount);
 
         // Post Cash Receipt with GL Bank Account No. as Bal. Account and Currency Code.
         BankAccountPostingGroup.Get(BankAccount."Bank Acc. Posting Group");
@@ -1007,7 +1007,7 @@ codeunit 142052 "ERM Payables/Receivables"
 
         // [THEN] Error: "Only one Deposit Header is allowed for each Gen. Journal Batch."
         Assert.ExpectedErrorCode('Dialog');
-        Assert.ExpectedError(StrSubstNo(SingleHeaderAllowedErr, DepositHeader.TableCaption, GenJournalBatch.TableCaption));
+        Assert.ExpectedError(StrSubstNo(SingleHeaderAllowedErr, DepositHeader.TableCaption(), GenJournalBatch.TableCaption()));
     end;
 
     local procedure Initialize()
@@ -1037,7 +1037,7 @@ codeunit 142052 "ERM Payables/Receivables"
         GLEntry.FindSet();
         repeat
             Amount += GLEntry.Amount;
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure CreateVATPostingSetup(VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20])
@@ -1148,7 +1148,7 @@ codeunit 142052 "ERM Payables/Receivables"
     begin
         LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.",
           BankAccReconciliation."Statement Type"::"Bank Reconciliation");
-        BankAccReconciliation.Validate("Statement Date", WorkDate);
+        BankAccReconciliation.Validate("Statement Date", WorkDate());
         BankAccReconciliation.Modify(true);
     end;
 
@@ -1166,7 +1166,7 @@ codeunit 142052 "ERM Payables/Receivables"
     begin
         BankRecWorksheet.OpenEdit;
         BankRecWorksheet.GotoRecord(BankRecHeader);
-        BankRecWorksheet.AdjustmentsSubForm."Posting Date".SetValue(WorkDate);
+        BankRecWorksheet.AdjustmentsSubForm."Posting Date".SetValue(WorkDate());
         exit(BankRecWorksheet.AdjustmentsSubForm."Document No.".Value);
     end;
 
@@ -1357,7 +1357,7 @@ codeunit 142052 "ERM Payables/Receivables"
         CreateBankAccRecnocilation(BankAccReconciliation, BankAccount);
         SuggestBankAccReconLines.SetStmt(BankAccReconciliation);
         SuggestBankAccReconLines.SetTableView(BankAccount);
-        SuggestBankAccReconLines.InitializeRequest(WorkDate, WorkDate, true);  // Set TRUE for Include Checks Option.
+        SuggestBankAccReconLines.InitializeRequest(WorkDate(), WorkDate(), true);  // Set TRUE for Include Checks Option.
         SuggestBankAccReconLines.UseRequestPage(false);
         SuggestBankAccReconLines.Run();
         Commit(); // Commit Required for Open Page.
@@ -1377,7 +1377,7 @@ codeunit 142052 "ERM Payables/Receivables"
 
     local procedure UpdateBankRecLine(var BankRecLine: Record "Bank Rec. Line"; BankAccountNo: Code[20]; CustomerNo: Code[20])
     begin
-        BankRecLine.Validate("Posting Date", CalcDate(Format(LibraryRandom.RandInt(20)) + 'D', WorkDate));
+        BankRecLine.Validate("Posting Date", CalcDate(Format(LibraryRandom.RandInt(20)) + 'D', WorkDate()));
         BankRecLine.Validate("Document Type", BankRecLine."Document Type"::"Finance Charge Memo");
         BankRecLine.Validate("Account Type", BankRecLine."Account Type"::"Bank Account");
         BankRecLine.Validate("Account No.", BankAccountNo);
@@ -1441,7 +1441,7 @@ codeunit 142052 "ERM Payables/Receivables"
         BankAccountLedgerEntry.FindSet();
         repeat
             Amount += BankAccountLedgerEntry.Amount;
-        until BankAccountLedgerEntry.Next = 0;
+        until BankAccountLedgerEntry.Next() = 0;
         Assert.AreEqual(TotalDepositAmount, Amount, GLEntryError);
     end;
 
@@ -1474,8 +1474,8 @@ codeunit 142052 "ERM Payables/Receivables"
     begin
         LibraryVariableStorage.Dequeue(CurrencyCode);
         AdjustExchangeRates.Currency.SetFilter(Code, CurrencyCode);
-        AdjustExchangeRates.EndingDate.SetValue(CalcDate(Format(LibraryRandom.RandInt(5)) + 'M', WorkDate));  // 1 Using Random for No. of Months.
-        AdjustExchangeRates.PostingDate.SetValue(WorkDate);
+        AdjustExchangeRates.EndingDate.SetValue(CalcDate(Format(LibraryRandom.RandInt(5)) + 'M', WorkDate()));  // 1 Using Random for No. of Months.
+        AdjustExchangeRates.PostingDate.SetValue(WorkDate());
         AdjustExchangeRates.DocumentNo.SetValue(LibraryRandom.RandInt(1000));
         AdjustExchangeRates.AdjBankAcc.SetValue(true);
         AdjustExchangeRates.AdjCustAcc.SetValue(true);
@@ -1517,8 +1517,8 @@ codeunit 142052 "ERM Payables/Receivables"
     begin
         LibraryVariableStorage.Dequeue(VendorNo);
         LibraryVariableStorage.Dequeue(BankAccountNo);
-        SuggestVendorPayments.LastPaymentDate.SetValue(CalcDate(Format(LibraryRandom.RandInt(3)) + 'M', WorkDate));  // 1 Using Random for No. of Months.
-        SuggestVendorPayments.PostingDate.SetValue(WorkDate);
+        SuggestVendorPayments.LastPaymentDate.SetValue(CalcDate(Format(LibraryRandom.RandInt(3)) + 'M', WorkDate()));  // 1 Using Random for No. of Months.
+        SuggestVendorPayments.PostingDate.SetValue(WorkDate());
         SuggestVendorPayments.SummarizePerVendor.SetValue(true);
         SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(1000));
         SuggestVendorPayments.BalAccountType.SetValue(BalAccountType::"Bank Account");

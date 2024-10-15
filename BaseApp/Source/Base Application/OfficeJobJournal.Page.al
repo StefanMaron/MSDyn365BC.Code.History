@@ -21,13 +21,13 @@ page 1615 "Office Job Journal"
                 Editable = false;
                 ToolTip = 'Specifies a document number for the journal line.';
             }
-            field("Job No."; "Job No.")
+            field("Job No."; Rec."Job No.")
             {
                 ApplicationArea = Jobs;
                 Editable = false;
                 ToolTip = 'Specifies the number of the related job.';
             }
-            field("Job Task No."; "Job Task No.")
+            field("Job Task No."; Rec."Job Task No.")
             {
                 ApplicationArea = Jobs;
                 Editable = false;
@@ -95,8 +95,6 @@ page 1615 "Office Job Journal"
                 ApplicationArea = Jobs;
                 Caption = 'Submit';
                 Image = CompleteLine;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Submit the quantity for this completed planning line.';
                 Visible = IsEditable;
 
@@ -106,8 +104,19 @@ page 1615 "Office Job Journal"
                 begin
                     JobPlanningLine."Qty. to Transfer to Journal" := DisplayQuantity;
                     OfficeJobsHandler.SubmitJobPlanningLine(JobPlanningLine, "Job Journal Template Name", "Job Journal Batch Name");
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Submit_Promoted; Submit)
+                {
+                }
             }
         }
     }
@@ -129,7 +138,7 @@ page 1615 "Office Job Journal"
         JobPlanningLine.Get("Job No.", "Job Task No.", "Job Planning Line No.");
         OfficeJobsHandler.SetJobJournalRange(JobJournalLine, JobPlanningLine);
 
-        if JobJournalLine.IsEmpty and JobUsageLink.IsEmpty() then begin
+        if JobJournalLine.IsEmpty() and JobUsageLink.IsEmpty() then begin
             IsEditable := true;
             CaptionTxt := EnterJobInfoTxt;
             DisplayQuantity := JobPlanningLine.Quantity;

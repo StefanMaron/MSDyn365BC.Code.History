@@ -34,7 +34,7 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         CODEUNIT.Run(CODEUNIT::"Job Queue Dispatcher", JobQueueEntry);
 
         // [THEN] Job gets status "On Hold with Inactivity period"
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::"On Hold with Inactivity Timeout");
         // [THEN] Job gets scheduled
         JobQueueEntry.TestField("System Task ID");
@@ -62,7 +62,7 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         CODEUNIT.Run(CODEUNIT::"Job Queue Dispatcher", JobQueueEntry);
 
         // [THEN] Job gets status "On Hold with Inactivity Timeout"
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::"On Hold with Inactivity Timeout");
 
         // [THEN] Job should not be scheduled
@@ -94,7 +94,7 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         CODEUNIT.Run(CODEUNIT::"Job Queue Dispatcher", JobQueueEntry);
 
         // [THEN] Job stays active, Status is Ready
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::Ready);
     end;
 
@@ -125,14 +125,14 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
 
         // [THEN] Job 'ITEM' gets Status "Ready", new "Earliest Start Date/Time" is about 1 second from now
         if TaskScheduler.CanCreateTask() then begin
-            JobQueueEntry[1].Find;
+            JobQueueEntry[1].Find();
             JobQueueEntry[1].TestField(Status, JobQueueEntry[1].Status::Ready);
             Assert.IsTrue(
                 JobQueueEntry[1]."Earliest Start Date/Time" > CurrDT, 'Start time should be shifted to future');
             VerifyDateTimeDifference(CurrentDateTime, JobQueueEntry[1]."Earliest Start Date/Time", 1);
         end;
         // [THEN] Job 'CUSTOMER' is not changed, Status is "On Hold with Inactivity period"
-        JobQueueEntry[2].Find;
+        JobQueueEntry[2].Find();
         JobQueueEntry[2].TestField(Status, JobQueueEntry[2].Status::"On Hold with Inactivity Timeout");
     end;
 
@@ -175,7 +175,7 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         VerifyJobQueueEntryUnchanged(JobQueueEntry[2]);
         VerifyJobQueueEntryUnchanged(JobQueueEntry[3]);
         for I := 1 to 5 do
-            JobQueueEntry[I].Find;
+            JobQueueEntry[I].Find();
         // [THEN] Job 'ITEM' is activated, Status is Ready, new "Earliest Start Date/Time" is about 1 second from now
         Assert.AreEqual(JobQueueEntry[1].Status::Ready, JobQueueEntry[1].Status, 'Job A Status');
         // [THEN] Jobs 'B', 'C' are not changed
@@ -202,7 +202,7 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"CRM Statistics Job");
         JobQueueEntry.FindFirst();
         JobQueueEntry.Status := JobQueueEntry.Status::"On Hold with Inactivity Timeout";
-        JobQueueEntry."System Task ID" := CreateGuid; // As if TASKSCHEDULER defined it
+        JobQueueEntry."System Task ID" := CreateGuid(); // As if TASKSCHEDULER defined it
         JobQueueEntry.Modify();
 
         // [GIVEN] "Last Update Invoice Entry No." is 72 in CRM Connection Setup, while the last detailed entry is 73
@@ -215,7 +215,7 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         CODEUNIT.Run(CODEUNIT::"Job Queue User Handler");
 
         // [THEN] 'CRM Statistics' Job gets status "Ready"
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::Ready);
         Assert.IsTrue(
           JobQueueEntry."Earliest Start Date/Time" > CurrDT, 'Start time should be shifted to future');
@@ -250,13 +250,13 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
 
         // [WHEN] Run CRM Statistics job again
         IntegrationSynchJob[1].DeleteAll();
-        JobQueueEntry."System Task ID" := CreateGuid;
+        JobQueueEntry."System Task ID" := CreateGuid();
         JobQueueEntry.Modify();
         JobQueueEntry.SetStatus(JobQueueEntry.Status::Ready);
         CODEUNIT.Run(CODEUNIT::"Job Queue Dispatcher", JobQueueEntry);
 
         // [THEN] the Job is updated: Status is "On Hold with Inactivity period"
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::"On Hold with Inactivity Timeout");
         // [THEN] CRM Synch. Log Entry for Account Statistics update, where "Unchanged" = 1
         Assert.RecordCount(IntegrationSynchJob[1], 2);
@@ -284,8 +284,6 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         LibraryCRMIntegration.InitializeCRMSynchStatus;
         CRMConnectionSetup.Get();
         CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
-        CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
-        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
         LibraryCRMIntegration.CreateCRMOrganization;
         CRMOrganization.FindFirst();
         CRMConnectionSetup.BaseCurrencyId := CRMOrganization.BaseCurrencyId;
@@ -293,6 +291,10 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         CDSConnectionSetup.SetClientSecret('ClientSecret');
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
+        CRMConnectionSetup."Unit Group Mapping Enabled" := false;
+        CRMConnectionSetup.Modify();
+        CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
+        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
     end;
 
@@ -308,7 +310,7 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         JobQueueEntry.FindFirst();
         JobQueueEntry.Status := JobStatus;
         JobQueueEntry."Inactivity Timeout Period" := InactivityPeriod;
-        JobQueueEntry."System Task ID" := CreateGuid; // As if TASKSCHEDULER defined it
+        JobQueueEntry."System Task ID" := CreateGuid(); // As if TASKSCHEDULER defined it
         JobQueueEntry.Modify();
     end;
 
@@ -327,7 +329,7 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         JobQueueEntry := ExpectedJobQueueEntry;
-        JobQueueEntry.Find;
+        JobQueueEntry.Find();
         JobQueueEntry.TestField(Status, ExpectedJobQueueEntry.Status);
     end;
 

@@ -9,9 +9,9 @@ codeunit 10124 "BankRec-Printed"
 
     trigger OnRun()
     begin
-        Find;
+        Find();
         "No. Printed" := "No. Printed" + 1;
-        Modify;
+        Modify();
         Commit();
     end;
 }

@@ -39,7 +39,7 @@ codeunit 142058 "UT PAG Sales Tax"
         ServiceOrders.OpenEdit;
         ServiceOrders.FILTER.SetFilter("No.", ServiceLine."Document No.");
         ServiceOrders.Statistics.Invoke;  // Opens ServiceOrderStatsPageHandlerr.
-        ServiceOrders.Close;
+        ServiceOrders.Close();
     end;
 
     [Test]
@@ -67,7 +67,7 @@ codeunit 142058 "UT PAG Sales Tax"
         ServiceQuotes.OpenEdit;
         ServiceQuotes.FILTER.SetFilter("No.", ServiceLine."Document No.");
         ServiceQuotes.Statistics.Invoke;  // Opens ServiceStatsPageHandler.
-        ServiceQuotes.Close;
+        ServiceQuotes.Close();
     end;
 
     [Test]
@@ -95,7 +95,7 @@ codeunit 142058 "UT PAG Sales Tax"
         PostedServiceInvoice.OpenEdit;
         PostedServiceInvoice.FILTER.SetFilter("No.", ServiceInvoiceLine."Document No.");
         PostedServiceInvoice.Statistics.Invoke;  // Opens ServiceInvoiceStatsPageHandler.
-        PostedServiceInvoice.Close;
+        PostedServiceInvoice.Close();
     end;
 
     [Test]
@@ -123,7 +123,7 @@ codeunit 142058 "UT PAG Sales Tax"
         PostedServiceCreditMemo.OpenEdit;
         PostedServiceCreditMemo.FILTER.SetFilter("No.", ServiceCrMemoLine."Document No.");
         PostedServiceCreditMemo.Statistics.Invoke;  // Opens ServiceCreditMemoStatsPageHandler.
-        PostedServiceCreditMemo.Close;
+        PostedServiceCreditMemo.Close();
     end;
 
     [Test]
@@ -151,7 +151,7 @@ codeunit 142058 "UT PAG Sales Tax"
         SalesCreditMemo.OpenEdit;
         SalesCreditMemo.FILTER.SetFilter("No.", DocumentNo);
         SalesCreditMemo.ApplyEntries.Invoke;  // ApplyCustomerEntriesPageHandler
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
     end;
 
     [Test]
@@ -179,7 +179,7 @@ codeunit 142058 "UT PAG Sales Tax"
         PurchaseCreditMemo.OpenEdit;
         PurchaseCreditMemo.FILTER.SetFilter("No.", DocumentNo);
         PurchaseCreditMemo.ApplyEntries.Invoke;  // ApplyVendorEntriesPageHandler
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
     end;
 
     [Test]
@@ -207,7 +207,7 @@ codeunit 142058 "UT PAG Sales Tax"
         Assert.IsTrue(ServiceLines."Tax Liable".Editable(), 'Tax Liable should be editable');
         Assert.IsTrue(ServiceLines."Tax Area Code".Visible(), 'Tax Area Code should be visible');
         Assert.IsTrue(ServiceLines."Tax Area Code".Editable(), 'Tax Area Code should be editable');
-        ServiceLines.Close;
+        ServiceLines.Close();
     end;
 
     local procedure Initialize()

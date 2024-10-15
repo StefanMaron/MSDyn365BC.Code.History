@@ -22,7 +22,7 @@ codeunit 139089 "PowerBI Select Reports Tests"
         PowerBIReportSelectionTestPage: TestPage "Power BI Report Selection";
     begin
         // [SCENARIO] Open the Power BI Report Selection page with no reports in user's PBI account
-        Init;
+        Init();
 
         // [GIVEN] Account has no reports
 
@@ -42,7 +42,7 @@ codeunit 139089 "PowerBI Select Reports Tests"
         PowerBIReportSelection: Page "Power BI Report Selection";
     begin
         // [SCENARIO] User's Power BI account has reports before opening Power BI Report Selection page
-        Init;
+        Init();
 
         // [GIVEN] Report buffer table has values
         FillReportList(1, true);
@@ -67,7 +67,7 @@ codeunit 139089 "PowerBI Select Reports Tests"
         PowerBIReportSelectionTestPage: TestPage "Power BI Report Selection";
     begin
         // [SCENARIO] Call SetNameFilter method before opening Power BI Report Selection page
-        Init;
+        Init();
         FillReportList(2, false);
 
         // [GIVEN] SetNameFilter has been called
@@ -92,8 +92,8 @@ codeunit 139089 "PowerBI Select Reports Tests"
         ReportId: Guid;
     begin
         // [SCENARIO] Enable a disabled row and click OK
-        Init;
-        ReportId := CreateGuid;
+        Init();
+        ReportId := CreateGuid();
         AddReportToList(ReportId, 'Report 1', false);
 
         // [GIVEN] Page is open with no reports enabled
@@ -119,9 +119,9 @@ codeunit 139089 "PowerBI Select Reports Tests"
         PowerBIReportSelectionTestPage: TestPage "Power BI Report Selection";
     begin
         // [SCENARIO] Disable an enabled row and click OK
-        Init;
+        Init();
         PowerBIReportConfiguration.Init();
-        PowerBIReportConfiguration."Report ID" := CreateGuid;
+        PowerBIReportConfiguration."Report ID" := CreateGuid();
         PowerBIReportConfiguration."User Security ID" := UserSecurityId;
         PowerBIReportConfiguration.Insert();
 
@@ -151,10 +151,10 @@ codeunit 139089 "PowerBI Select Reports Tests"
         Context2: Text[30];
     begin
         // [SCENARIO] Use SetContext to only save reports for a specific page
-        Init;
-        ReportId1 := CreateGuid;
+        Init();
+        ReportId1 := CreateGuid();
         Context1 := 'ORDER PROCESSOR';
-        ReportId2 := CreateGuid;
+        ReportId2 := CreateGuid();
         Context2 := 'BUSINESS MANAGER';
 
         // [GIVEN] Reports are already enabled for one context, SetContext called for a different context
@@ -193,7 +193,7 @@ codeunit 139089 "PowerBI Select Reports Tests"
         PowerBIReportSelection: Page "Power BI Report Selection";
     begin
         // [SCENARIO] Focus an enabled row and see Enable/Disable buttons' clickability change
-        Init;
+        Init();
         FillReportList(1, true);
 
         // [GIVEN] Page is open
@@ -216,7 +216,7 @@ codeunit 139089 "PowerBI Select Reports Tests"
         PowerBIReportSelectionTestPage: TestPage "Power BI Report Selection";
     begin
         // [SCENARIO] Focus a disabled row and see Enable/Disable buttons' clickability change
-        Init;
+        Init();
         FillReportList(1, false);
 
         // [GIVEN] Page is open
@@ -238,7 +238,7 @@ codeunit 139089 "PowerBI Select Reports Tests"
         PowerBIReportSelectionTestPage: TestPage "Power BI Report Selection";
     begin
         // [SCENARIO] Focus a disabled row and click the Enable button
-        Init;
+        Init();
         FillReportList(1, false);
 
         // [GIVEN] Page is open
@@ -261,7 +261,7 @@ codeunit 139089 "PowerBI Select Reports Tests"
         PowerBIReportSelection: Page "Power BI Report Selection";
     begin
         // [SCENARIO] Focus an enabled row and click the Disable button
-        Init;
+        Init();
         FillReportList(1, true);
 
         // [GIVEN] Page is open
@@ -284,7 +284,7 @@ codeunit 139089 "PowerBI Select Reports Tests"
         PowerBIReportSelectionTestPage: TestPage "Power BI Report Selection";
     begin
         // [SCENARIO] Click the Refresh button after adding new reports to PBI account
-        Init;
+        Init();
 
         // [GIVEN] Report list starts empty
         PowerBIReportSelectionTestPage.Trap;

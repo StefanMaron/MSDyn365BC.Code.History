@@ -60,8 +60,8 @@ codeunit 142068 "UT Account Schedule"
 
         // Verify: New Created Schedule Name exist in Acc. Schedule Overview.
         AccScheduleOverview.CurrentSchedName.SetValue(AccScheduleLine."Schedule Name");
-        AccScheduleOverview.Close;
-        AccountScheduleNames.Close;
+        AccScheduleOverview.Close();
+        AccountScheduleNames.Close();
     end;
 
     [Test]

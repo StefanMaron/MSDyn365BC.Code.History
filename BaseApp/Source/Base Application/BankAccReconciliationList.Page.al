@@ -4,7 +4,6 @@ page 388 "Bank Acc. Reconciliation List"
     Caption = 'Bank Account Reconciliations';
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Posting';
     SourceTable = "Bank Acc. Reconciliation";
     SourceTableTemporary = true;
     UsageCategory = Lists;
@@ -20,6 +19,11 @@ page 388 "Bank Acc. Reconciliation List"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bank account that you want to reconcile with the bank''s statement.';
+                }
+                field("Bank Account Name"; "Bank Account Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the name of the bank account that you want to reconcile.';
                 }
                 field(StatementNo; "Statement No.")
                 {
@@ -70,9 +74,6 @@ page 388 "Bank Acc. Reconciliation List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'New';
                     Image = NewDocument;
-                    Promoted = true;
-                    PromotedCategory = New;
-                    PromotedIsBig = true;
                     ToolTip = 'Create a new bank account reconciliation.';
                     Visible = false;
 
@@ -89,9 +90,6 @@ page 388 "Bank Acc. Reconciliation List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'New';
                     Image = NewDocument;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Create a new bank account reconciliation.';
 
                     trigger OnAction()
@@ -106,9 +104,6 @@ page 388 "Bank Acc. Reconciliation List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Edit';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Return';
                     ToolTip = 'Edit the bank account reconciliation list.';
 
@@ -124,14 +119,11 @@ page 388 "Bank Acc. Reconciliation List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Refresh';
                     Image = RefreshLines;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Update the data with any changes made by other users since you opened the window.';
 
                     trigger OnAction()
                     begin
-                        Refresh;
+                        Refresh();
                     end;
                 }
                 action(DeleteRec)
@@ -139,9 +131,6 @@ page 388 "Bank Acc. Reconciliation List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Delete';
                     Image = Delete;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Delete the bank account reconciliation.';
 
                     trigger OnAction()
@@ -152,7 +141,7 @@ page 388 "Bank Acc. Reconciliation List"
                             exit;
 
                         BankReconciliationMgt.Delete(Rec);
-                        Refresh;
+                        Refresh();
                     end;
                 }
             }
@@ -165,9 +154,6 @@ page 388 "Bank Acc. Reconciliation List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'P&ost';
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
                     trigger OnAction()
@@ -183,7 +169,7 @@ page 388 "Bank Acc. Reconciliation List"
                             CODEUNIT::"Bank Acc. Recon. Post (Yes/No)"
 #endif
                         );
-                        Refresh;
+                        Refresh();
                     end;
                 }
                 action(PostAndPrint)
@@ -191,9 +177,6 @@ page 388 "Bank Acc. Reconciliation List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
@@ -210,7 +193,7 @@ page 388 "Bank Acc. Reconciliation List"
                             CODEUNIT::"Bank Acc. Recon. Post+Print"
 #endif
                         );
-                        Refresh;
+                        Refresh();
                     end;
                 }
             }
@@ -220,7 +203,9 @@ page 388 "Bank Acc. Reconciliation List"
                 Caption = 'Change Statement No.';
                 Ellipsis = true;
                 Image = ChangeTo;
+#if not CLEAN20
                 Visible = ChangeStatementNoVisible;
+#endif                
                 ToolTip = 'Change the statement number of the bank account reconciliation. Typically, this is used when you have created a new reconciliation to correct a mistake, and you want to use the same statement number.';
 
                 trigger OnAction()
@@ -234,6 +219,49 @@ page 388 "Bank Acc. Reconciliation List"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New', Comment = 'Generated from the PromotedActionCategories property index 0.';
+
+                actionref(NewRec_Promoted; NewRec)
+                {
+                }
+            }
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(NewRecProcess_Promoted; NewRecProcess)
+                {
+                }
+                actionref(EditRec_Promoted; EditRec)
+                {
+                }
+                actionref(RefreshList_Promoted; RefreshList)
+                {
+                }
+                actionref(DeleteRec_Promoted; DeleteRec)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Posting', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Post_Promoted; Post)
+                {
+                }
+                actionref(PostAndPrint_Promoted; PostAndPrint)
+                {
+                }
+            }
+        }
     }
 
     trigger OnInit()
@@ -243,15 +271,20 @@ page 388 "Bank Acc. Reconciliation List"
 
     trigger OnOpenPage()
     begin
-        Refresh;
+        Refresh();
+#if not CLEAN20
         SetChangeStatementNoVisible();
+#endif                
     end;
 
     var
         UseSharedTable: Boolean;
+#if not CLEAN20
         ChangeStatementNoVisible: Boolean;
+#endif                
         DeleteConfirmQst: Label 'Do you want to delete the Reconciliation?';
 
+#if not CLEAN20
     local procedure SetChangeStatementNoVisible()
     var
         GLSetup: Record "General Ledger Setup";
@@ -259,6 +292,7 @@ page 388 "Bank Acc. Reconciliation List"
         GLSetup.Get();
         ChangeStatementNoVisible := GLSetup."Bank Recon. with Auto. Match";
     end;
+#endif                
 
     local procedure Refresh()
     var

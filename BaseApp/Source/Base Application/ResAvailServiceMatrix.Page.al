@@ -31,7 +31,7 @@ page 9229 "Res. Avail. (Service) Matrix"
 
                     trigger OnValidate()
                     begin
-                        QualifiedForServItemsOnAfterVa;
+                        QualifiedForServItemsOnAfterVa();
                     end;
                 }
                 field(SelectedDay; SelectedDate)
@@ -67,13 +67,13 @@ page 9229 "Res. Avail. (Service) Matrix"
                     ToolTip = 'Specifies that the resource is sufficiently skilled, to carry out the service on the service item that you are allocating or all the service items in the service order.';
                     Visible = SkilledVisible;
                 }
-                field("In Customer Zone"; "In Customer Zone")
+                field("In Customer Zone"; Rec."In Customer Zone")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the resource (for example, a technician) is assigned to the same service zone as a specified customer.';
                     Visible = InCustomerZoneVisible;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -512,7 +512,7 @@ page 9229 "Res. Avail. (Service) Matrix"
                         Clear(ServOrderAllocMgt);
                         ServOrderAllocMgt.AllocateDate(
                           CurrentDocumentType, CurrentDocumentNo, CurrentEntryNo, "No.", '', SelectedDate, QtytoAllocate);
-                        CurrPage.Close;
+                        CurrPage.Close();
                     end;
                 }
             }
@@ -523,7 +523,7 @@ page 9229 "Res. Avail. (Service) Matrix"
     var
         QualifiedForAll: Boolean;
     begin
-        MatrixOnAfterGetRecord;
+        MatrixOnAfterGetRecord();
         if QualifiedForServItems = QualifiedForServItems::"Selected Service Item" then begin
             if ServItemLine.Get(CurrentDocumentType, CurrentDocumentNo, CurrentServItemLineNo) then
                 Qualified := ServOrderAllocMgt.QualifiedForServiceItemLine(ServItemLine, "No.")
@@ -598,12 +598,11 @@ page 9229 "Res. Avail. (Service) Matrix"
     trigger OnOpenPage()
     begin
         ServMgtSetup.Get();
-        SetSkills;
-        SetVisible;
+        SetSkills();
+        SetVisible();
     end;
 
     var
-        Text000: Label 'You cannot allocate a resource when selected period is %1.';
         MatrixRec: Record Resource;
         ServMgtSetup: Record "Service Mgt. Setup";
         ServHeader: Record "Service Header";
@@ -696,6 +695,8 @@ page 9229 "Res. Avail. (Service) Matrix"
         [InDataSet]
         QtytoallocateEnable: Boolean;
 
+        Text000: Label 'You cannot allocate a resource when selected period is %1.';
+
     procedure SetData(DocumentType: Integer; DocumentNo: Code[20]; ServItemLineNo: Integer; EntryNo: Integer; NewMatrixColumnCaptions: array[32] of Text[100]; var NewMatrixDateFilters: array[32] of Record Date; Period: Enum "Analysis Period Type")
     begin
         CurrentDocumentType := DocumentType;
@@ -746,7 +747,7 @@ page 9229 "Res. Avail. (Service) Matrix"
                 until MatrixRec.Next() = 0;
         end;
 
-        SetVisible;
+        SetVisible();
     end;
 
     local procedure MatrixOnDrillDown(Column: Integer)
@@ -778,7 +779,7 @@ page 9229 "Res. Avail. (Service) Matrix"
 
         ServHeader.Get(CurrentDocumentType, CurrentDocumentNo);
 
-        UpdateFields;
+        UpdateFields();
     end;
 
     procedure SetVisible()

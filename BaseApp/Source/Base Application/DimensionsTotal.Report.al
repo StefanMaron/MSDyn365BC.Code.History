@@ -1,4 +1,4 @@
-report 27 "Dimensions - Total"
+﻿report 27 "Dimensions - Total"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './DimensionsTotal.rdlc';
@@ -29,7 +29,7 @@ report 27 "Dimensions - Total"
             column(USERID; UserId)
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
@@ -572,7 +572,7 @@ report 27 "Dimensions - Total"
                 TempSelectedDim.SetCurrentKey("User ID", "Object Type", "Object ID", "Analysis View Code", Level);
                 TempSelectedDim.SetFilter("Dimension Value Filter", '<>%1', '');
                 DimFilterText := '';
-                if TempSelectedDim.Find('-') then begin
+                if TempSelectedDim.Find('-') then
                     repeat
                         ThisFilter := '';
                         if DimFilterText <> '' then
@@ -583,24 +583,22 @@ report 27 "Dimensions - Total"
                             DimFilterText := DimFilterText + ThisFilter;
                         SetAccSchedLineFilter(TempSelectedDim."Dimension Code", TempSelectedDim."Dimension Value Filter", true, '');
                     until TempSelectedDim.Next() = 0;
-                end;
 
                 TempSelectedDim.Reset();
                 TempSelectedDim.SetCurrentKey("User ID", "Object Type", "Object ID", "Analysis View Code", Level);
                 TempSelectedDim.SetFilter(Level, '<>%1', TempSelectedDim.Level::" ");
                 i := 1;
-                if TempSelectedDim.Find('-') then begin
+                if TempSelectedDim.Find('-') then
                     repeat
                         DimCode[i] := TempSelectedDim."Dimension Code";
                         LevelFilter[i] := TempSelectedDim."Dimension Value Filter";
                         i := i + 1;
                     until (TempSelectedDim.Next() = 0) or (i > 4);
-                end;
 
                 MaxColumnsDisplayed := ArrayLen(ColumnValuesDisplayed);
                 NoOfCols := 0;
-                AccSchedManagement.CopyColumnsToTemp(ColumnLayoutName, ColLayoutTmp);
-                with ColLayoutTmp do begin
+                AccSchedManagement.CopyColumnsToTemp(ColumnLayoutName, TempColumnLayout);
+                with TempColumnLayout do begin
                     i := 0;
                     if Find('-') then begin
                         repeat
@@ -668,14 +666,14 @@ report 27 "Dimensions - Total"
                         begin
                             if PAGE.RunModal(PAGE::"Analysis View List", AnalysisView) = ACTION::LookupOK then begin
                                 AnalysisViewCode := AnalysisView.Code;
-                                UpdateColumnDim;
+                                UpdateColumnDim();
                             end;
-                            GetAccountSource;
+                            GetAccountSource();
                         end;
 
                         trigger OnValidate()
                         begin
-                            UpdateColumnDim;
+                            UpdateColumnDim();
                         end;
                     }
                     field(IncludeDimensions; ColumnDim)
@@ -688,7 +686,7 @@ report 27 "Dimensions - Total"
                         trigger OnAssistEdit()
                         begin
                             CalledGetAccountSource := false;
-                            GetAccountSource;
+                            GetAccountSource();
                             if AccountSource = AccountSource::"G/L Account" then
                                 DimSelectionBuf.SetDimSelectionLevelGLAcc(3, REPORT::"Dimensions - Total", AnalysisViewCode, ColumnDim)
                             else
@@ -774,9 +772,9 @@ report 27 "Dimensions - Total"
             if GLSetup."Additional Reporting Currency" = '' then
                 UseAmtsInAddCurr := false;
 
-            TransferValues;
-            UpdateColumnDim;
-            GetAccountSource;
+            TransferValues();
+            UpdateColumnDim();
+            GetAccountSource();
         end;
     }
 
@@ -796,7 +794,7 @@ report 27 "Dimensions - Total"
         AnalysisView.Get(AnalysisViewCode);
         CODEUNIT.Run(CODEUNIT::"Update Analysis View", AnalysisView);
 
-        GetAccountSource;
+        GetAccountSource();
 
         if ColumnLayoutName = '' then
             Error(Text001);
@@ -810,15 +808,15 @@ report 27 "Dimensions - Total"
         SelectedDim.GetSelectedDim(UserId, 3, REPORT::"Dimensions - Total", AnalysisViewCode, TempSelectedDim);
 
         if AccountSource = AccountSource::"G/L Account" then
-            FillTempGLAccount
+            FillTempGLAccount()
         else
             if AccountSource = AccountSource::"Cash Flow Account" then
-                FillTempCFAccount;
+                FillTempCFAccount();
 
         TempSelectedDim.Reset();
         TempSelectedDim.SetCurrentKey("User ID", "Object Type", "Object ID", "Analysis View Code", Level);
         TempSelectedDim.SetFilter(Level, '<>%1', TempSelectedDim.Level::" ");
-        if TempSelectedDim.FindSet() then begin
+        if TempSelectedDim.FindSet() then
             repeat
                 TempDimVal.Init();
                 TempDimVal.Code := '';
@@ -838,34 +836,23 @@ report 27 "Dimensions - Total"
                         TempDimVal.Insert();
                     until DimVal.Next() = 0;
             until TempSelectedDim.Next() = 0;
-        end;
+
         // Commit added to free resources and allowing the report to use the read only replica
         Commit();
         AccSchedName."Analysis View Name" := AnalysisViewCode;
         AccSchedManagement.SetAccSchedName(AccSchedName);
-        InitAccSchedLine;
+        InitAccSchedLine();
     end;
 
     var
-        Text000: Label 'Enter an analysis view code.';
-        Text001: Label 'Enter a column layout name.';
-        Text002: Label 'Enter a date filter.';
-        Text003: Label 'Include Dimensions';
-        Text004: Label '(no dimension value)';
-        Text005: Label 'Not updated';
-        Text006: Label '(Thousands)';
-        Text007: Label '(Millions)';
-        Text008: Label 'All amounts are in %1.';
-        Text009: Label '(no business unit)';
         AccSchedLine: Record "Acc. Schedule Line";
         TempSelectedDim: Record "Selected Dimension" temporary;
-        GLAcc: Record "G/L Account";
         BusUnit: Record "Business Unit";
         DimVal: Record "Dimension Value";
         TempGLAcc: Record "G/L Account" temporary;
         TempBusUnit: Record "Business Unit" temporary;
         TempDimVal: Record "Dimension Value" temporary;
-        ColLayoutTmp: Record "Column Layout" temporary;
+        TempColumnLayout: Record "Column Layout" temporary;
         DimSelectionBuf: Record "Dimension Selection Buffer";
         GLSetup: Record "General Ledger Setup";
         TempCFAccount: Record "Cash Flow Account" temporary;
@@ -907,6 +894,17 @@ report 27 "Dimensions - Total"
         CashFlowForecastNo: Code[10];
         [InDataSet]
         CashFlowEditable: Boolean;
+
+        Text000: Label 'Enter an analysis view code.';
+        Text001: Label 'Enter a column layout name.';
+        Text002: Label 'Enter a date filter.';
+        Text003: Label 'Include Dimensions';
+        Text004: Label '(no dimension value)';
+        Text005: Label 'Not updated';
+        Text006: Label '(Thousands)';
+        Text007: Label '(Millions)';
+        Text008: Label 'All amounts are in %1.';
+        Text009: Label '(no business unit)';
         ColumnLayoutNameCaptionLbl: Label 'Column Layout';
         DateFilterCaptionLbl: Label 'Period';
         Analysis_View_CodeCaptionLbl: Label 'Analysis View';
@@ -916,6 +914,9 @@ report 27 "Dimensions - Total"
         FiltersCaptionLbl: Label 'Filters';
         Dimension_ValueCaptionLbl: Label 'Dimension Value';
         DimensionCaptionLbl: Label 'Dimension';
+
+    protected var
+        GLAcc: Record "G/L Account";
 
     local procedure CalcLine(Level: Integer): Boolean
     var
@@ -1071,7 +1072,7 @@ report 27 "Dimensions - Total"
             if AccountSource = AccountSource::"Cash Flow Account" then
                 if not CFAccFilterSet then
                     AccSchedLine.Totaling := CFAccRange;
-        with ColLayoutTmp do begin
+        with TempColumnLayout do begin
             SetRange("Column Layout Name", ColumnLayoutName);
             i := 0;
             if FindSet() then
@@ -1080,13 +1081,13 @@ report 27 "Dimensions - Total"
                         i := i + 1;
                         AccSchedLine."Line No." := AccSchedLine."Line No." + 1;
                         ColumnValuesDisplayed[i] :=
-                          AccSchedManagement.CalcCell(AccSchedLine, ColLayoutTmp, UseAmtsInAddCurr);
+                          AccSchedManagement.CalcCell(AccSchedLine, TempColumnLayout, UseAmtsInAddCurr);
                         NonZero :=
                           NonZero or (ColumnValuesDisplayed[i] <> 0) and
                           ("Column Type" <> "Column Type"::Formula);
                         if Level > 0 then
                             ColumnValuesAsText[i, Level] :=
-                              AccSchedManagement.FormatCellAsText(ColLayoutTmp, ColumnValuesDisplayed[i], UseAmtsInAddCurr);
+                              AccSchedManagement.FormatCellAsText(TempColumnLayout, ColumnValuesDisplayed[i], UseAmtsInAddCurr);
                     end;
                 until (i >= MaxColumnsDisplayed) or (Next() = 0);
         end;
@@ -1129,10 +1130,10 @@ report 27 "Dimensions - Total"
                     TempGLAcc.Reset();
                     TempGLAcc.SetFilter("No.", IterationFilter);
                     if FindFirstRec then
-                        SearchResult := TempGLAcc.FindSet
+                        SearchResult := TempGLAcc.FindSet()
                     else
                         if TempGLAcc.Get(IterationDimValCode) then
-                            SearchResult := (TempGLAcc.Next <> 0);
+                            SearchResult := (TempGLAcc.Next() <> 0);
                     if SearchResult then begin
                         IterationDimValCode := TempGLAcc."No.";
                         IterationDimValName := TempGLAcc.Name;
@@ -1146,10 +1147,10 @@ report 27 "Dimensions - Total"
                     TempBusUnit.Reset();
                     TempBusUnit.SetFilter(Code, IterationFilter);
                     if FindFirstRec then
-                        SearchResult := TempBusUnit.FindSet
+                        SearchResult := TempBusUnit.FindSet()
                     else
                         if TempBusUnit.Get(IterationDimValCode) then
-                            SearchResult := (TempBusUnit.Next <> 0);
+                            SearchResult := (TempBusUnit.Next() <> 0);
                     if SearchResult then begin
                         IterationDimValCode := TempBusUnit.Code;
                         if TempBusUnit.Code <> '' then
@@ -1165,10 +1166,10 @@ report 27 "Dimensions - Total"
                     TempCFAccount.Reset();
                     TempCFAccount.SetFilter("No.", IterationFilter);
                     if FindFirstRec then
-                        SearchResult := TempCFAccount.FindSet
+                        SearchResult := TempCFAccount.FindSet()
                     else
                         if TempCFAccount.Get(IterationDimValCode) then
-                            SearchResult := (TempCFAccount.Next <> 0);
+                            SearchResult := (TempCFAccount.Next() <> 0);
                     if SearchResult then begin
                         IterationDimValCode := TempCFAccount."No.";
                         IterationDimValName := TempCFAccount.Name;
@@ -1182,10 +1183,10 @@ report 27 "Dimensions - Total"
                     TempCashFlowForecast.Reset();
                     TempCashFlowForecast.SetFilter("No.", IterationFilter);
                     if FindFirstRec then
-                        SearchResult := TempCashFlowForecast.FindSet
+                        SearchResult := TempCashFlowForecast.FindSet()
                     else
                         if TempCashFlowForecast.Get(IterationDimValCode) then
-                            SearchResult := (TempCashFlowForecast.Next <> 0);
+                            SearchResult := (TempCashFlowForecast.Next() <> 0);
                     if SearchResult then begin
                         IterationDimValCode := TempCashFlowForecast."No.";
                         if TempCashFlowForecast."No." <> '' then
@@ -1201,10 +1202,10 @@ report 27 "Dimensions - Total"
                     TempDimVal.SetRange("Dimension Code", IterationDimCode);
                     TempDimVal.SetFilter(Code, IterationFilter);
                     if FindFirstRec then
-                        SearchResult := TempDimVal.FindSet
+                        SearchResult := TempDimVal.FindSet()
                     else
                         if TempDimVal.Get(IterationDimCode, IterationDimValCode) then
-                            SearchResult := (TempDimVal.Next <> 0);
+                            SearchResult := (TempDimVal.Next() <> 0);
                     if SearchResult then begin
                         IterationDimValCode := TempDimVal.Code;
                         IterationDimValName := TempDimVal.Name;
@@ -1246,7 +1247,7 @@ report 27 "Dimensions - Total"
     local procedure FillTempGLAccount()
     begin
         TempSelectedDim.Reset();
-        TempSelectedDim.SetRange("Dimension Code", TempGLAcc.TableCaption);
+        TempSelectedDim.SetRange("Dimension Code", TempGLAcc.TableCaption());
         TempSelectedDim.SetFilter("Dimension Value Filter", '<>%1', '');
         if TempSelectedDim.FindFirst() then
             GLAcc.SetFilter("No.", TempSelectedDim."Dimension Value Filter");
@@ -1264,22 +1265,21 @@ report 27 "Dimensions - Total"
         TempBusUnit.Init();
         TempBusUnit.Insert();
         TempSelectedDim.Reset();
-        TempSelectedDim.SetFilter("Dimension Code", TempBusUnit.TableCaption);
+        TempSelectedDim.SetFilter("Dimension Code", TempBusUnit.TableCaption());
         if TempSelectedDim.FindFirst() then
             TempBusUnit.SetFilter(Code, TempSelectedDim."Dimension Value Filter");
-        if BusUnit.FindSet() then begin
+        if BusUnit.FindSet() then
             repeat
                 TempBusUnit.Init();
                 TempBusUnit := BusUnit;
                 TempBusUnit.Insert();
             until BusUnit.Next() = 0;
-        end;
     end;
 
     local procedure FillTempCFAccount()
     begin
         TempSelectedDim.Reset();
-        TempSelectedDim.SetRange("Dimension Code", TempCFAccount.TableCaption);
+        TempSelectedDim.SetRange("Dimension Code", TempCFAccount.TableCaption());
         TempSelectedDim.SetFilter("Dimension Value Filter", '<>%1', '');
         if TempSelectedDim.FindFirst() then
             CFAccount.SetFilter("No.", TempSelectedDim."Dimension Value Filter");
@@ -1295,16 +1295,15 @@ report 27 "Dimensions - Total"
 
         TempCashFlowForecast.Init();
         TempCashFlowForecast.Insert();
-        TempSelectedDim.SetFilter("Dimension Code", TempCashFlowForecast.TableCaption);
+        TempSelectedDim.SetFilter("Dimension Code", TempCashFlowForecast.TableCaption());
         if TempSelectedDim.FindFirst() then
             TempCashFlowForecast.SetFilter("No.", TempSelectedDim."Dimension Value Filter");
-        if CashFlowForecast.FindSet() then begin
+        if CashFlowForecast.FindSet() then
             repeat
                 TempCashFlowForecast.Init();
                 TempCashFlowForecast := CashFlowForecast;
                 TempCashFlowForecast.Insert();
             until CashFlowForecast.Next() = 0;
-        end;
     end;
 
     local procedure SetAccSchedLineFilter(AnalysisViewDimCode: Text[30]; AnalysisViewFilter: Text[250]; SetFilter: Boolean; Totaling: Text[250])
@@ -1330,9 +1329,9 @@ report 27 "Dimensions - Total"
             TempCFAccount.TableCaption:
                 begin
                     CFAccFilterSet := SetFilter;
-                    if SetFilter then begin
-                        AccSchedLine.Totaling := AnalysisViewFilter;
-                    end else
+                    if SetFilter then
+                        AccSchedLine.Totaling := AnalysisViewFilter
+                    else
                         AccSchedLine.Totaling := CFAccRange;
                 end;
             TempCashFlowForecast.TableCaption:
@@ -1397,7 +1396,7 @@ report 27 "Dimensions - Total"
             if AnalysisView.FindFirst() then
                 AnalysisViewCode := AnalysisView.Code;
 
-        AnalysisView.SetSkipConfirmationDialogue;
+        AnalysisView.SetSkipConfirmationDialogue();
         if AnalysisViewCode <> '' then begin
             if AnalysisView."Dimension 1 Code" = '' then
                 AnalysisView.Validate("Dimension 1 Code", GLSetup."Global Dimension 1 Code");
@@ -1405,7 +1404,7 @@ report 27 "Dimensions - Total"
                 AnalysisView.Validate("Dimension 2 Code", GLSetup."Global Dimension 2 Code");
             AnalysisView.Modify();
 
-            GetAccountSource;
+            GetAccountSource();
             if AccountSource = AccountSource::"G/L Account" then
                 DimSelectionBuf.SetDimSelectionLevelGLAccAutoSet(3, REPORT::"Dimensions - Total", AnalysisViewCode, ColumnDim);
         end;

@@ -29,7 +29,7 @@ page 5145 "Contact Through"
                     ToolTip = 'Specifies the telephone number.';
                     Visible = NumberVisible;
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ExtendedDatatype = EMail;
@@ -71,14 +71,14 @@ page 5145 "Contact Through"
             NumberVisible := true;
             EmailVisible := false;
         end else begin
-            Reset;
+            Reset();
             SetFilter("E-Mail", '<>''''');
             if Find('-') then begin
                 CurrPage.Caption := Text001;
                 NumberVisible := false;
                 EmailVisible := true;
             end else
-                CurrPage.Close;
+                CurrPage.Close();
         end;
     end;
 

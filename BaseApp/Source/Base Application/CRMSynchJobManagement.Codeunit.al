@@ -8,11 +8,11 @@ codeunit 5371 "CRM Synch. Job Management"
     procedure SetInitialState(var CRMSynchJobStatusCue: Record "CRM Synch. Job Status Cue")
     begin
         with CRMSynchJobStatusCue do begin
-            Reset;
+            Reset();
             if not FindFirst() then begin
-                Init;
-                Code := GetDefaultPkValue;
-                Insert;
+                Init();
+                Code := GetDefaultPkValue();
+                Insert();
             end;
             SetFilters(CRMSynchJobStatusCue);
         end;
@@ -21,10 +21,10 @@ codeunit 5371 "CRM Synch. Job Management"
     procedure OnReset(var CRMSynchJobStatusCue: Record "CRM Synch. Job Status Cue")
     begin
         with CRMSynchJobStatusCue do begin
-            Reset;
+            Reset();
             FindFirst();
-            "Reset Date" := GetLastFailedDate(GetDefaultJobRunner);
-            Modify;
+            "Reset Date" := GetLastFailedDate(GetDefaultJobRunner());
+            Modify();
             SetFilters(CRMSynchJobStatusCue);
         end;
     end;
@@ -34,7 +34,7 @@ codeunit 5371 "CRM Synch. Job Management"
         with JobQueueEntry do begin
             SetRange(Status, Status::Error);
             SetRange("Object ID to Run", JobToRun);
-            exit(FindLast);
+            exit(FindLast());
         end;
     end;
 
@@ -55,7 +55,7 @@ codeunit 5371 "CRM Synch. Job Management"
     local procedure SetFilters(var CRMSynchJobStatusCue: Record "CRM Synch. Job Status Cue")
     begin
         with CRMSynchJobStatusCue do begin
-            SetRange("Object ID to Run", GetDefaultJobRunner);
+            SetRange("Object ID to Run", GetDefaultJobRunner());
             SetFilter("Date Filter", '>%1', "Reset Date");
         end;
     end;

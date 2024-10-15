@@ -14,13 +14,13 @@ page 9144 "Approvals Activities"
             {
                 Caption = 'Pending Approvals';
 
-                field("Requests Sent for Approval"; "Requests Sent for Approval")
+                field("Requests Sent for Approval"; Rec."Requests Sent for Approval")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Approval Entries";
                     ToolTip = 'Specifies requests for certain documents, cards, or journal lines that your approver must approve before you can proceed.';
                 }
-                field("Requests to Approve"; "Requests to Approve")
+                field("Requests to Approve"; Rec."Requests to Approve")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Requests to Approve";

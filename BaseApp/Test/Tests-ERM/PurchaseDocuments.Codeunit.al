@@ -272,7 +272,7 @@ codeunit 134099 "Purchase Documents"
         Initialize();
 
         CreatePurchaseOrderWithLineTypeItem(PurchaseHeader, PurchaseLine);
-        PurchaseHeader."Expected Receipt Date" := LibraryRandom.RandDateFrom(WorkDate, 100);
+        PurchaseHeader."Expected Receipt Date" := LibraryRandom.RandDateFrom(WorkDate(), 100);
         PurchaseHeader.Modify(true);
         PurchaseHeader.UpdatePurchLinesByFieldNo(PurchaseHeader.FieldNo("Expected Receipt Date"), false);
 
@@ -292,7 +292,7 @@ codeunit 134099 "Purchase Documents"
         Initialize();
 
         CreatePurchaseOrderWithLineTypeItem(PurchaseHeader, PurchaseLine);
-        PurchaseHeader."Expected Receipt Date" := LibraryRandom.RandDateFrom(WorkDate, 100);
+        PurchaseHeader."Expected Receipt Date" := LibraryRandom.RandDateFrom(WorkDate(), 100);
         PurchaseHeader.Modify(true);
         PurchaseHeader.UpdatePurchLines(PurchaseHeader.FieldCaption("Expected Receipt Date"), false);
 
@@ -797,7 +797,7 @@ codeunit 134099 "Purchase Documents"
         Initialize();
 
         LibraryERM.CreateCurrency(Currency);
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
         PurchaseHeader.Validate("Currency Code", Currency.Code);
         PurchaseHeader.Validate("Posting Date", WorkDate + 1);
@@ -956,10 +956,10 @@ codeunit 134099 "Purchase Documents"
             Clear(PurchaseHeader);
             CreatePurchaseDocument(PurchaseHeader, DocType, '');
 
-            PurchaseHeader.TestField("Order Date", WorkDate);
+            PurchaseHeader.TestField("Order Date", WorkDate());
 
             LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
-            PurchaseLine.TestField("Order Date", WorkDate);
+            PurchaseLine.TestField("Order Date", WorkDate());
         end;
     end;
 
@@ -1617,7 +1617,7 @@ codeunit 134099 "Purchase Documents"
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateVATPostingSetup();
-        if not IntrastatSetup.Get then begin
+        if not IntrastatSetup.Get() then begin
             IntrastatSetup.Init();
             IntrastatSetup.Insert();
         end;
@@ -1687,7 +1687,7 @@ codeunit 134099 "Purchase Documents"
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
           LibraryInventory.CreateItemNo, 0);
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
     end;
 
     local procedure CreatePurchaseOrderWithItemAndChargeItem(var PurchaseHeaderOrder: Record "Purchase Header"; var PurchaseLineItem: Record "Purchase Line"; var PurchaseLineChargeItem: Record "Purchase Line"; QtyToAssign: Decimal)

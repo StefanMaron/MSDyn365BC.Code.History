@@ -1,8 +1,7 @@
-page 76 "Resource Card"
+﻿page 76 "Resource Card"
 {
     Caption = 'Resource Card';
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Resource,Navigate,Prices & Discounts,Planning';
     RefreshOnActivate = true;
     SourceTable = Resource;
 
@@ -13,7 +12,7 @@ page 76 "Resource Card"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     Importance = Standard;
@@ -31,7 +30,7 @@ page 76 "Resource Card"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a description of the resource.';
                 }
-                field("Name 2"; "Name 2")
+                field("Name 2"; Rec."Name 2")
                 {
                     ApplicationArea = Jobs;
                     Importance = Additional;
@@ -44,18 +43,18 @@ page 76 "Resource Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies whether the resource is a person or a machine.';
                 }
-                field("Base Unit of Measure"; "Base Unit of Measure")
+                field("Base Unit of Measure"; Rec."Base Unit of Measure")
                 {
                     ApplicationArea = Jobs;
                     Importance = Promoted;
                     ToolTip = 'Specifies the base unit used to measure the resource, such as hour, piece, or kilometer.';
                 }
-                field("Search Name"; "Search Name")
+                field("Search Name"; Rec."Search Name")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies an alternate name that you can use to search for the record in question when you cannot remember the value in the Name field.';
                 }
-                field("Resource Group No."; "Resource Group No.")
+                field("Resource Group No."; Rec."Resource Group No.")
                 {
                     ApplicationArea = Jobs;
                     Importance = Promoted;
@@ -66,28 +65,28 @@ page 76 "Resource Card"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
                 }
-                field("Privacy Blocked"; "Privacy Blocked")
+                field("Privacy Blocked"; Rec."Privacy Blocked")
                 {
                     ApplicationArea = Jobs;
                     Importance = Additional;
                     ToolTip = 'Specifies whether to limit access to data for the data subject during daily operations. This is useful, for example, when protecting data from changes while it is under privacy review.';
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the date of the most recent change of information in the Resource Card window.';
                 }
-                field("Use Time Sheet"; "Use Time Sheet")
+                field("Use Time Sheet"; Rec."Use Time Sheet")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies if a resource uses a time sheet to record time allocated to various tasks.';
                 }
-                field("Time Sheet Owner User ID"; "Time Sheet Owner User ID")
+                field("Time Sheet Owner User ID"; Rec."Time Sheet Owner User ID")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the name of the owner of the time sheet.';
                 }
-                field("Time Sheet Approver User ID"; "Time Sheet Approver User ID")
+                field("Time Sheet Approver User ID"; Rec."Time Sheet Approver User ID")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the ID of the approver of the time sheet.';
@@ -96,66 +95,66 @@ page 76 "Resource Card"
             group(Invoicing)
             {
                 Caption = 'Invoicing';
-                field("Direct Unit Cost"; "Direct Unit Cost")
+                field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the cost of one unit of the selected item or resource.';
                 }
-                field("Indirect Cost %"; "Indirect Cost %")
+                field("Indirect Cost %"; Rec."Indirect Cost %")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the percentage of the item''s last purchase cost that includes indirect costs, such as freight that is associated with the purchase of the item.';
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                 }
-                field("Price/Profit Calculation"; "Price/Profit Calculation")
+                field("Price/Profit Calculation"; Rec."Price/Profit Calculation")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the relationship between the Unit Cost, Unit Price, and Profit Percentage fields associated with this resource.';
                 }
-                field("Profit %"; "Profit %")
+                field("Profit %"; Rec."Profit %")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the profit margin that you want to sell the resource at. You can enter a profit percentage manually or have it entered according to the Price/Profit Calculation field';
                 }
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
                 }
-                field("Tax Group Code"; "Tax Group Code")
+                field("Tax Group Code"; Rec."Tax Group Code")
                 {
                     ApplicationArea = SalesTax;
                     Importance = Promoted;
                     ToolTip = 'Specifies the tax group that is used to calculate and post sales tax.';
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Jobs;
                     Importance = Promoted;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
-                field("Default Deferral Template Code"; "Default Deferral Template Code")
+                field("Default Deferral Template Code"; Rec."Default Deferral Template Code")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Default Deferral Template';
                     ToolTip = 'Specifies the default template that governs how to defer revenues and expenses to the periods when they occurred.';
                 }
-                field("Automatic Ext. Texts"; "Automatic Ext. Texts")
+                field("Automatic Ext. Texts"; Rec."Automatic Ext. Texts")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies that an Extended Text Header will be added on sales or purchase documents for this resource.';
                 }
-                field("IC Partner Purch. G/L Acc. No."; "IC Partner Purch. G/L Acc. No.")
+                field("IC Partner Purch. G/L Acc. No."; Rec."IC Partner Purch. G/L Acc. No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the intercompany g/l account number in your partner''s company that the amount for this resource is posted to.';
@@ -164,7 +163,7 @@ page 76 "Resource Card"
             group("Personal Data")
             {
                 Caption = 'Personal Data';
-                field("Job Title"; "Job Title")
+                field("Job Title"; Rec."Job Title")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the person''s job title.';
@@ -174,7 +173,7 @@ page 76 "Resource Card"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the address or location of the resource, if applicable.';
                 }
-                field("Address 2"; "Address 2")
+                field("Address 2"; Rec."Address 2")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies additional address information.';
@@ -194,12 +193,12 @@ page 76 "Resource Card"
                         ToolTip = 'Specifies a special region, to which the resource belongs.';
                     }
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the postal code.';
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the country/region of the address.';
@@ -209,7 +208,7 @@ page 76 "Resource Card"
                         IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
                     end;
                 }
-                field("Social Security No."; "Social Security No.")
+                field("Social Security No."; Rec."Social Security No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the person''s social security number or the machine''s serial number.';
@@ -219,12 +218,12 @@ page 76 "Resource Card"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the training, education, or certification level of the person.';
                 }
-                field("Contract Class"; "Contract Class")
+                field("Contract Class"; Rec."Contract Class")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the contract class for the person.';
                 }
-                field("Employment Date"; "Employment Date")
+                field("Employment Date"; Rec."Employment Date")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the date when the person began working for you or the date when the machine was placed in service.';
@@ -280,9 +279,6 @@ page 76 "Resource Card"
                     ApplicationArea = Jobs;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Resource Statistics";
                     RunPageLink = "No." = FIELD("No."),
                                   "Date Filter" = FIELD("Date Filter"),
@@ -296,9 +292,6 @@ page 76 "Resource Card"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Default Dimensions";
                     RunPageLink = "Table ID" = CONST(156),
                                   "No." = FIELD("No.");
@@ -310,8 +303,6 @@ page 76 "Resource Card"
                     ApplicationArea = Jobs;
                     Caption = '&Picture';
                     Image = Picture;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Resource Picture";
                     RunPageLink = "No." = FIELD("No.");
                     ToolTip = 'View or add a picture of the resource or, for example, the company''s logo.';
@@ -341,8 +332,6 @@ page 76 "Resource Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'S&kills';
                     Image = Skills;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Resource Skills";
                     RunPageLink = Type = CONST(Resource),
                                   "No." = FIELD("No.");
@@ -357,8 +346,6 @@ page 76 "Resource Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Resource L&ocations';
                     Image = Resource;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Resource Locations";
                     RunPageLink = "Resource No." = FIELD("No.");
                     RunPageView = SORTING("Resource No.");
@@ -369,8 +356,6 @@ page 76 "Resource Card"
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Comment Sheet";
                     RunPageLink = "Table Name" = CONST(Resource),
                                   "No." = FIELD("No.");
@@ -381,8 +366,6 @@ page 76 "Resource Card"
                     ApplicationArea = All;
                     Caption = 'Attachments';
                     Image = Attach;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
 
                     trigger OnAction()
@@ -404,7 +387,7 @@ page 76 "Resource Card"
 
                     trigger OnAction()
                     begin
-                        DisplayMap;
+                        DisplayMap();
                     end;
                 }
                 separator(Action69)
@@ -510,14 +493,12 @@ page 76 "Resource Card"
             {
                 Caption = '&Prices';
                 Image = Price;
-#if not CLEAN19
+#if not CLEAN21
                 action(Costs)
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Costs';
                     Image = ResourceCosts;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Page "Resource Costs";
                     RunPageLink = Type = CONST(Resource),
                                   Code = FIELD("No.");
@@ -532,8 +513,6 @@ page 76 "Resource Card"
                     ApplicationArea = Jobs;
                     Caption = 'Prices';
                     Image = Price;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Page "Resource Prices";
                     RunPageLink = Type = CONST(Resource),
                                   Code = FIELD("No.");
@@ -549,8 +528,6 @@ page 76 "Resource Card"
                     ApplicationArea = Jobs;
                     Caption = 'Purchase Prices';
                     Image = ResourceCosts;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or change detailed information about costs for the resource.';
 
@@ -567,8 +544,6 @@ page 76 "Resource Card"
                     ApplicationArea = Jobs;
                     Caption = 'Sales Prices';
                     Image = LineDiscount;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or edit prices for the resource.';
 
@@ -590,8 +565,6 @@ page 76 "Resource Card"
                     ApplicationArea = Jobs;
                     Caption = 'Resource &Capacity';
                     Image = Capacity;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     RunObject = Page "Resource Capacity";
                     RunPageOnRec = true;
                     ToolTip = 'View this job''s resource capacity.';
@@ -619,8 +592,6 @@ page 76 "Resource Card"
                     ApplicationArea = Jobs;
                     Caption = 'Resource A&vailability';
                     Image = Calendar;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     RunObject = Page "Resource Availability";
                     RunPageLink = "No." = FIELD("No."),
                                   "Base Unit of Measure" = FIELD("Base Unit of Measure"),
@@ -651,9 +622,6 @@ page 76 "Resource Card"
                     ApplicationArea = Jobs;
                     Caption = 'Ledger E&ntries';
                     Image = ResourceLedger;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Resource Ledger Entries";
                     RunPageLink = "Resource No." = FIELD("No.");
                     RunPageView = SORTING("Resource No.")
@@ -670,8 +638,6 @@ page 76 "Resource Card"
                 ApplicationArea = Jobs;
                 Caption = 'Resource Statistics';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Resource Statistics";
                 ToolTip = 'View detailed, historical information for the resource.';
             }
@@ -680,8 +646,6 @@ page 76 "Resource Card"
                 ApplicationArea = Jobs;
                 Caption = 'Resource Usage';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Resource Usage";
                 ToolTip = 'View the resource utilization that has taken place. The report includes the resource capacity, quantity of usage, and the remaining balance.';
             }
@@ -690,8 +654,6 @@ page 76 "Resource Card"
                 ApplicationArea = Jobs;
                 Caption = 'Cost Breakdown';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Cost Breakdown";
                 ToolTip = 'List the cost breakdown of your resources. The resource name and number prints at the top of the page. The report includes the type of work, quantity, direct unit cost, and the total direct cost.';
             }
@@ -708,14 +670,158 @@ page 76 "Resource Card"
                     Caption = 'Create Time Sheets';
                     Ellipsis = true;
                     Image = NewTimesheet;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Create new time sheets for the resource.';
 
                     trigger OnAction()
                     begin
-                        CreateTimeSheets;
+                        CreateTimeSheets();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(CreateTimeSheets_Promoted; CreateTimeSheets)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Resource', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
+                {
+                }
+                actionref(Attachments_Promoted; Attachments)
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+
+                separator(Navigate_Separator)
+                {
+                }
+
+                actionref(SalesPriceLists_Promoted; SalesPriceLists)
+                {
+                }
+                actionref(PurchPriceLists_Promoted; PurchPriceLists)
+                {
+                }
+                actionref("&Picture_Promoted"; "&Picture")
+                {
+                }
+                actionref("Units of Measure_Promoted"; "Units of Measure")
+                {
+                }
+                actionref("S&kills_Promoted"; "S&kills")
+                {
+                }
+                actionref("Resource L&ocations_Promoted"; "Resource L&ocations")
+                {
+                }
+#if not CLEAN21
+                actionref(Costs_Promoted; Costs)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+#endif
+#if not CLEAN21
+                actionref(Prices_Promoted; Prices)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+#endif
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Prices';
+
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Planning', Comment = 'Generated from the PromotedActionCategories property index 6.';
+
+#if not CLEAN21
+                actionref("Resource &Capacity_Promoted"; "Resource &Capacity")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+#if not CLEAN21
+                actionref("Resource A&vailability_Promoted"; "Resource A&vailability")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 4.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref("Resource Statistics_Promoted"; "Resource Statistics")
+                {
+                }
+                actionref("Resource Usage_Promoted"; "Resource Usage")
+                {
+                }
+                actionref("Cost Breakdown_Promoted"; "Cost Breakdown")
+                {
+                }
+            }
+            group(Category_Synchronize)
+            {
+                Caption = 'Synchronize';
+                Visible = CRMIntegrationEnabled;
+
+                group(Category_Coupling)
+                {
+                    Caption = 'Coupling';
+                    ShowAs = SplitButton;
+
+                    actionref(ManageCRMCoupling_Promoted; ManageCRMCoupling)
+                    {
+                    }
+                    actionref(DeleteCRMCoupling_Promoted; DeleteCRMCoupling)
+                    {
+                    }
+                }
+                actionref(CRMSynchronizeNow_Promoted; CRMSynchronizeNow)
+                {
+                }
+                actionref(CRMGoToProduct_Promoted; CRMGoToProduct)
+                {
+                }
+                actionref(ShowLog_Promoted; ShowLog)
+                {
+                }
+                actionref("Unit Group_Promoted"; "Unit Group")
+                {
                 }
             }
         }
@@ -736,11 +842,11 @@ page 76 "Resource Card"
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
-        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         if CRMIntegrationEnabled then
             if IntegrationTableMapping.Get('RESOURCE-PRODUCT') then
                 BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field38=1(0)');
-        SetNoFieldVisible;
+        SetNoFieldVisible();
         IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
     end;
@@ -760,7 +866,7 @@ page 76 "Resource Card"
     var
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
     begin
-        NoFieldVisible := DocumentNoVisibility.ResourceNoIsVisible;
+        NoFieldVisible := DocumentNoVisibility.ResourceNoIsVisible();
     end;
 }
 

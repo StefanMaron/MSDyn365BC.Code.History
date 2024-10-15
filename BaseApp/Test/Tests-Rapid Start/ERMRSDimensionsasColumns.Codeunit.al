@@ -185,7 +185,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         OldManualNos := SetupManualNos(SalesHeader."No. Series", true);
 
         LibraryRapidStart.ApplyPackage(ConfigPackage, true);
-        SalesHeader.Find; // get latest version after applying package
+        SalesHeader.Find(); // get latest version after applying package
         VerifyDimValueExistsInSalesHeaderDimSetID(SalesHeader, DimVal);
 
         SetupManualNos(SalesHeader."No. Series", OldManualNos);
@@ -395,8 +395,8 @@ codeunit 136611 "ERM RS Dimensions as Columns"
                 repeat
                     Assert.IsFalse(
                       DimensionSetEntry.IsEmpty, StrSubstNo(DimensionValueCodeIsNotFoundErr, DimensionSetEntry."Dimension Value Code"));
-                until ConfigPackageData.Next = 0;
-        until DimensionSetEntry.Next = 0;
+                until ConfigPackageData.Next() = 0;
+        until DimensionSetEntry.Next() = 0;
     end;
 
     local procedure VerifyDimValueExistsInSalesHeaderDimSetID(SalesHeader: Record "Sales Header"; DimVal: Record "Dimension Value")
@@ -455,7 +455,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         repeat
             ConfigPackageData.SetRange("Field ID", ConfigPackageField."Field ID");
             Assert.IsTrue(ConfigPackageData.FindFirst, IncorrectDimPackageDataErr);
-        until ConfigPackageField.Next = 0;
+        until ConfigPackageField.Next() = 0;
     end;
 
     local procedure CreateNewCustomerAndNewLinkedDimension(var Customer: Record Customer; var DefaultDimension: Record "Default Dimension"; var DimensionValue: Record "Dimension Value")
@@ -484,7 +484,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         repeat
             if StrPos(ConfigPackageError."Error Text", Substring) <> 0 then
                 exit(true);
-        until ConfigPackageError.Next = 0;
+        until ConfigPackageError.Next() = 0;
     end;
 
     local procedure CreateConfigLineAssignPackage(var ConfigPackage: Record "Config. Package"; var ConfigLine: Record "Config. Line")
@@ -570,7 +570,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ConfigXMLExchange: Codeunit "Config. XML Exchange";
         PackageXML: DotNet XmlDocument;
     begin
-        PackageXML := PackageXML.XmlDocument;
+        PackageXML := PackageXML.XmlDocument();
         ConfigXMLExchange.SetExcelMode(true);
         ConfigXMLExchange.ExportPackageXMLDocument(PackageXML, ConfigPackageTable, ConfigPackage, false);
 
@@ -596,7 +596,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ConfigLine.SetRange("Line Type", ConfigLine."Line Type"::Table);
 
         ConfigLine.FindFirst();
-        ConfigLine.SetRecFilter;
+        ConfigLine.SetRecFilter();
     end;
 
     local procedure FindDimensionWithValue(var DimVal: Record "Dimension Value")
@@ -634,7 +634,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
             Get(NoSeriesCode);
             ManualNos := "Manual Nos.";
             "Manual Nos." := NewManualNos;
-            Modify;
+            Modify();
         end
     end;
 

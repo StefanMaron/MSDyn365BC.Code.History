@@ -13,7 +13,7 @@ page 6039 "Service Cr. Memo Lines Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Service;
                     HideValue = DocumentNoHideValue;
@@ -22,13 +22,13 @@ page 6039 "Service Cr. Memo Lines Subform"
                     StyleExpr = StyleIsStrong;
                     ToolTip = 'Specifies the number of the credit memo.';
                 }
-                field("Bill-to Customer No."; "Bill-to Customer No.")
+                field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer to receive the service on the credit memo.';
@@ -39,12 +39,12 @@ page 6039 "Service Cr. Memo Lines Subform"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the type of the credit memo line.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -61,44 +61,44 @@ page 6039 "Service Cr. Memo Lines Subform"
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the name of an item, resource, cost, general ledger account, or some descriptive text on the service credit memo line.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Dimensions;
                     Importance = Additional;
                     ToolTip = 'Specifies information in addition to the description.';
                     Visible = false;
                 }
-                field("Return Reason Code"; "Return Reason Code")
+                field("Return Reason Code"; Rec."Return Reason Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code explaining why the item was returned.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location, such as warehouse or distribution center, in which the credit memo line was registered.';
                     Visible = false;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
@@ -108,67 +108,67 @@ page 6039 "Service Cr. Memo Lines Subform"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of item units, resource hours, general ledger account payments, or cost specified on the credit memo line.';
                 }
-                field("Unit of Measure"; "Unit of Measure")
+                field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the item or resource''s unit of measure, such as piece or hour.';
                     Visible = false;
                 }
-                field("Unit Cost (LCY)"; "Unit Cost (LCY)")
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the cost, in LCY, of one unit of the item or resource on the line.';
                     Visible = false;
                 }
-                field("Line Discount %"; "Line Discount %")
+                field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = Service;
                     BlankZero = true;
                     ToolTip = 'Specifies the discount percentage that is granted for the item on the line.';
                 }
-                field("Line Discount Amount"; "Line Discount Amount")
+                field("Line Discount Amount"; Rec."Line Discount Amount")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the discount amount that is granted for the item on the line.';
                     Visible = false;
                 }
-                field("Allow Invoice Disc."; "Allow Invoice Disc.")
+                field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies if the invoice line is included when the invoice discount is calculated.';
                     Visible = false;
                 }
-                field("Inv. Discount Amount"; "Inv. Discount Amount")
+                field("Inv. Discount Amount"; Rec."Inv. Discount Amount")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the total calculated invoice discount amount for the line.';
                     Visible = false;
                 }
-                field("Contract No."; "Contract No.")
+                field("Contract No."; Rec."Contract No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the contract associated with the posted service credit memo.';
                     Visible = false;
                 }
-                field("Shipment No."; "Shipment No.")
+                field("Shipment No."; Rec."Shipment No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the posted shipment for this credit memo line.';
                     Visible = false;
                 }
-                field("Service Item No."; "Service Item No.")
+                field("Service Item No."; Rec."Service Item No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service item linked to this credit memo line.';
                     Visible = false;
                 }
-                field("Appl.-to Service Entry"; "Appl.-to Service Entry")
+                field("Appl.-to Service Entry"; Rec."Appl.-to Service Entry")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service ledger entry applied to this service credit memo.';
                     Visible = false;
                 }
-                field("Appl.-from Item Entry"; "Appl.-from Item Entry")
+                field("Appl.-from Item Entry"; Rec."Appl.-from Item Entry")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied from.';
@@ -184,8 +184,8 @@ page 6039 "Service Cr. Memo Lines Subform"
 
     trigger OnAfterGetRecord()
     begin
-        StyleIsStrong := IsFirstDocLine;
-        DocumentNoHideValue := not IsFirstDocLine;
+        StyleIsStrong := IsFirstDocLine();
+        DocumentNoHideValue := not IsFirstDocLine();
     end;
 
     var

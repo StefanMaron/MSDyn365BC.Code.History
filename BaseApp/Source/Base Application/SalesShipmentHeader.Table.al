@@ -840,7 +840,7 @@
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure IsCompletlyInvoiced(): Boolean
@@ -915,7 +915,7 @@
     begin
         CalcFields("Work Description");
         "Work Description".CreateInStream(InStream, TEXTENCODING::UTF8);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
+        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 
     procedure ExportEDocument()
@@ -924,7 +924,7 @@
         FileManagement: Codeunit "File Management";
     begin
         CalcFields("Signed Document XML");
-        if "Signed Document XML".HasValue then begin
+        if "Signed Document XML".HasValue() then begin
             TempBlob.FromRecord(Rec, FieldNo("Signed Document XML"));
             FileManagement.BLOBExport(TempBlob, "No." + '.xml', true);
         end else

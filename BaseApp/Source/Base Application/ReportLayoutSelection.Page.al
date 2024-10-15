@@ -34,13 +34,13 @@ page 9652 "Report Layout Selection"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Report ID"; "Report ID")
+                field("Report ID"; Rec."Report ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the object ID of the report.';
                 }
-                field("Report Name"; "Report Name")
+                field("Report Name"; Rec."Report Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -60,7 +60,7 @@ page 9652 "Report Layout Selection"
                         CurrPage.Update(false);
                     end;
                 }
-                field("Custom Report Layout Code"; "Custom Report Layout Code")
+                field("Custom Report Layout Code"; Rec."Custom Report Layout Code")
                 {
                     ApplicationArea = Basic, Suite;
                     TableRelation = "Custom Report Layout" WHERE("Report ID" = FIELD("Report ID"));
@@ -127,10 +127,6 @@ page 9652 "Report Layout Selection"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Select Layout';
                 Image = "SelectReport";
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Scope = Repeater;
                 ShortCutKey = "Shift+F11";
                 ToolTip = 'Select one of the layouts that are available for a report.';
@@ -147,10 +143,6 @@ page 9652 "Report Layout Selection"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Restore Default Selection';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Scope = Repeater;
                 ShortCutKey = "Shift+F12";
                 ToolTip = 'Restore the default selection for this layout.';
@@ -172,8 +164,6 @@ page 9652 "Report Layout Selection"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Custom Layouts';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Custom Report Layouts";
                 RunPageLink = "Report ID" = FIELD("Report ID");
                 ToolTip = 'View or edit the custom layouts that are available for a report.';
@@ -183,8 +173,6 @@ page 9652 "Report Layout Selection"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Run Report';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Run a test report.';
 
                 trigger OnAction()
@@ -219,6 +207,26 @@ page 9652 "Report Layout Selection"
                 begin
                     DocumentReportMgt.BulkUpgrade(true);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(SelectLayout_Promoted; SelectLayout)
+                {
+                }
+                actionref(RestoreDefaultLayout_Promoted; RestoreDefaultLayout)
+                {
+                }
+                actionref(RunReport_Promoted; RunReport)
+                {
+                }
+                actionref(Customizations_Promoted; Customizations)
+                {
+                }
             }
         }
     }

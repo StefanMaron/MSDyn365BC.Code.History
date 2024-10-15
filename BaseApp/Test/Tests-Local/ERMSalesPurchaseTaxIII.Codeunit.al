@@ -758,7 +758,7 @@
         end;
 
         // [WHEN] Report is run
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         Commit();
         REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
 
@@ -794,7 +794,7 @@
         end;
 
         // [WHEN] Report is run
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         Commit();
         REPORT.Run(REPORT::"Standard Sales - Quote", true, false, SalesHeader);
 
@@ -840,7 +840,7 @@
         DocumentTotals.SalesRedistributeInvoiceDiscountAmounts(SalesLine, VATAmount, TotalSalesLine);
 
         // [THEN] Sales Line has VAT % = 0 and "Amount Including VAT" = Amount of 100.
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.TestField("VAT %", 0);
         SalesLine.TestField("Amount Including VAT", SalesLine.Amount);
     end;
@@ -883,7 +883,7 @@
         DocumentTotals.PurchaseRedistributeInvoiceDiscountAmounts(PurchaseLine, VATAmount, TotalPurchaseLine);
 
         // [THEN] Purchase Line has VAT % = 0 and "Amount Including VAT" = Amount of 100.
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.TestField("VAT %", 0);
         PurchaseLine.TestField("Amount Including VAT", PurchaseLine.Amount);
     end;
@@ -913,7 +913,7 @@
         // [GIVEN] Tax Detail[1] : TJ[1], TG => 2%
         // [GIVEN] Tax Detail[2] : TJ[2], TG => 3%
         // [GIVEN] Tax Detail[3] : TJ[3], TG => 5%
-        
+
         // [GIVEN] Sales order with two lines
         // [GIVEN] Line[1]: TA[1], TG, Amount 1000
         // [GIVEN] Line[2]: TA[2], TG, Amount 300
@@ -984,7 +984,7 @@
         // [GIVEN] Tax Detail[1] : TJ[1], TG => 2%
         // [GIVEN] Tax Detail[2] : TJ[2], TG => 3%
         // [GIVEN] Tax Detail[3] : TJ[3], TG => 5%
-        
+
         // [GIVEN] Purchase order with two lines
         // [GIVEN] Line[1]: TA[1], TG, Amount 1000
         // [GIVEN] Line[2]: TA[2], TG, Amount 300
@@ -1100,7 +1100,7 @@
         // [GIVEN] Run "Combine shipments" to create a single invoice from both shipments.
         SalesHeader.SetRange("Sell-to Customer No.", Customer."No.");
         SalesShipmentHeader.SetRange("Sell-to Customer No.", Customer."No.");
-        LibrarySales.CombineShipments(SalesHeader, SalesShipmentHeader, WorkDate, WorkDate, false, false, false, false);
+        LibrarySales.CombineShipments(SalesHeader, SalesShipmentHeader, WorkDate(), WorkDate, false, false, false, false);
 
         // [WHEN] Post the sales invoice.
         SalesHeaderInvoice.SetRange("Document Type", SalesHeaderInvoice."Document Type"::Invoice);
@@ -1812,6 +1812,94 @@
         // [WHEN] Post final invoice
         // [THEN] Posted final invoice has Amount Incl. VAT = 0
         VerifySalesPostedInvAmounts(LibrarySales.PostSalesDocument(SalesHeader, true, true), -60.84, 0);
+    end;
+
+    [Test]
+    procedure SalesOrderWithLineDiscountAnd100PctPrepmtPartialPosting()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TaxAreaLine: Record "Tax Area Line";
+        TaxDetail: Record "Tax Detail";
+        GeneralPostingSetup: Record "General Posting Setup";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TaxAreaCode: Code[20];
+        TaxJurisdictionCode: Code[10];
+        TaxGroupCode: Code[20];
+        DocNo: Code[20];
+    begin
+        // [SCENARIO 431075] Sales order with line discount and 100 % prepayment partial posting
+        Initialize();
+
+        // [GIVEN] Sales tax setup with 0 % tax rate
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_CA();
+        TaxJurisdictionCode := LibraryERMTax.CreateTaxJurisdiction_CA();
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxAreaCode, TaxJurisdictionCode);
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
+        LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, 0);
+
+        // [GIVEN] Partially posted sales order with 100 % prepayment and line discount
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        CreateSalesHeader(SalesHeader, LibrarySales.CreateCustomerWithBusPostingGroups(GeneralPostingSetup."Gen. Bus. Posting Group", ''), TaxAreaCode, 100, false);
+        CreateSalesLineItem(SalesHeader, CreateItemNo(GeneralPostingSetup."Gen. Prod. Posting Group"), TaxGroupCode, 5917.55);
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+        SalesLine.Validate(Quantity, 4);
+        SalesLine.Validate("Line Discount %", 5);
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.Validate("Qty. to Ship", 2);
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Finally posting sales order
+        DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Sales order successfully posted
+        SalesInvoiceHeader.Get(DocNo);
+    end;
+
+    [Test]
+    procedure SalesOrderWith50PctInvoiceDiscountAnd100PctPrepmtPosting()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TaxAreaLine: Record "Tax Area Line";
+        TaxDetail: Record "Tax Detail";
+        GeneralPostingSetup: Record "General Posting Setup";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TaxAreaCode: Code[20];
+        TaxJurisdictionCode: Code[10];
+        TaxGroupCode: Code[20];
+        DocNo: Code[20];
+    begin
+        // [SCENARIO 431075] Sales order with 50% invoice discount and 100 % prepayment  posting
+        Initialize();
+
+        // [GIVEN] Sales tax setup with 0 % tax rate
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_CA();
+        TaxJurisdictionCode := LibraryERMTax.CreateTaxJurisdiction_CA();
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxAreaCode, TaxJurisdictionCode);
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
+        LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, 0);
+
+        // [GIVEN] 100% prepaid sales order with 50% invoice discount
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        CreateSalesHeader(SalesHeader, LibrarySales.CreateCustomerWithBusPostingGroups(GeneralPostingSetup."Gen. Bus. Posting Group", ''), TaxAreaCode, 100, false);
+        CreateSalesLineItem(SalesHeader, CreateItemNo(GeneralPostingSetup."Gen. Prod. Posting Group"), TaxGroupCode, 1000);
+        SalesHeader.Validate("Invoice Discount Value", 500);
+        SalesHeader.Modify(true);
+
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [WHEN] Finally posting sales order
+        DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Sales order successfully posted
+        SalesInvoiceHeader.Get(DocNo);
     end;
 
     local procedure Initialize()
@@ -2741,9 +2829,9 @@
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         with PurchasesPayablesSetup do begin
-            Get;
+            Get();
             "Posted Prepmt. Inv. Nos." := LibraryERM.CreateNoSeriesCode;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2752,7 +2840,7 @@
         TaxDetail: Record "Tax Detail";
     begin
         with TaxDetail do begin
-            Get(TaxJurisdictionCode, TaxGroupCode, TaxType, WorkDate);
+            Get(TaxJurisdictionCode, TaxGroupCode, TaxType, WorkDate());
             Validate("Expense/Capitalize", NewValue);
             Modify(true);
         end;
@@ -2796,8 +2884,8 @@
         PurchaseOrder.OpenEdit;
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder."Tax Area Code".SetValue(TaxAreaCode);
-        PurchaseOrder.Close;
-        PurchaseHeader.Find;
+        PurchaseOrder.Close();
+        PurchaseHeader.Find();
     end;
 
     local procedure ValidatePurchaseReturnOrderTaxAreaThroughPage(var PurchaseHeader: Record "Purchase Header"; TaxAreaCode: Code[20])
@@ -2807,8 +2895,8 @@
         PurchaseReturnOrder.OpenEdit;
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
         PurchaseReturnOrder."Tax Area Code".SetValue(TaxAreaCode);
-        PurchaseReturnOrder.Close;
-        PurchaseHeader.Find;
+        PurchaseReturnOrder.Close();
+        PurchaseHeader.Find();
     end;
 
     local procedure ValidateSalesOrderTaxAreaThroughPage(var SalesHeader: Record "Sales Header"; TaxAreaCode: Code[20])
@@ -2818,8 +2906,8 @@
         SalesOrder.OpenEdit;
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder."Tax Area Code".SetValue(TaxAreaCode);
-        SalesOrder.Close;
-        SalesHeader.Find;
+        SalesOrder.Close();
+        SalesHeader.Find();
     end;
 
     local procedure ValidateSalesReturnOrderTaxAreaThroughPage(var SalesHeader: Record "Sales Header"; TaxAreaCode: Code[20])
@@ -2829,8 +2917,8 @@
         SalesReturnOrder.OpenEdit;
         SalesReturnOrder.GotoRecord(SalesHeader);
         SalesReturnOrder."Tax Area Code".SetValue(TaxAreaCode);
-        SalesReturnOrder.Close;
-        SalesHeader.Find;
+        SalesReturnOrder.Close();
+        SalesHeader.Find();
     end;
 
     local procedure VerifySalesHeaderTotals(SalesHeader: Record "Sales Header"; ExpectedAmount: Decimal; ExpectedAmountInclVAT: Decimal; ExpectedInvDiscAmount: Decimal; ExpectedPrepmtLineAmount: Decimal)

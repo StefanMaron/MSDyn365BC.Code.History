@@ -3,7 +3,6 @@ page 5779 "Warehouse Pick"
     Caption = 'Warehouse Pick';
     InsertAllowed = false;
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Print/Send,Pick,Navigate';
     RefreshOnActivate = true;
     SaveValues = true;
     SourceTable = "Warehouse Activity Header";
@@ -16,7 +15,7 @@ page 5779 "Warehouse Pick"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
@@ -36,41 +35,41 @@ page 5779 "Warehouse Pick"
                     Lookup = false;
                     ToolTip = 'Specifies the location where the warehouse activity takes place. ';
                 }
-                field("Breakbulk Filter"; "Breakbulk Filter")
+                field("Breakbulk Filter"; Rec."Breakbulk Filter")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies that the intermediate Take and Place lines will not show as put-away, pick, or movement lines, when the quantity in the larger unit of measure is being put-away, picked or moved completely.';
 
                     trigger OnValidate()
                     begin
-                        BreakbulkFilterOnAfterValidate;
+                        BreakbulkFilterOnAfterValidate();
                     end;
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
-                field("Assignment Date"; "Assignment Date")
+                field("Assignment Date"; Rec."Assignment Date")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the date when the user was assigned the activity.';
                 }
-                field("Assignment Time"; "Assignment Time")
+                field("Assignment Time"; Rec."Assignment Time")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the time when the user was assigned the activity.';
                 }
-                field("Sorting Method"; "Sorting Method")
+                field("Sorting Method"; Rec."Sorting Method")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the method by which the lines are sorted on the warehouse header, such as Item or Document.';
 
                     trigger OnValidate()
                     begin
-                        SortingMethodOnAfterValidate;
+                        SortingMethodOnAfterValidate();
                     end;
                 }
             }
@@ -145,8 +144,6 @@ page 5779 "Warehouse Pick"
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Warehouse Comment Sheet";
                     RunPageLink = "Table Name" = CONST("Whse. Activity Header"),
                                   Type = FIELD(Type),
@@ -158,8 +155,6 @@ page 5779 "Warehouse Pick"
                     ApplicationArea = Warehouse;
                     Caption = 'Registered Picks';
                     Image = RegisteredDocs;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Page "Registered Whse. Activity List";
                     RunPageLink = Type = FIELD(Type),
                                   "Whse. Activity No." = FIELD("No.");
@@ -183,7 +178,7 @@ page 5779 "Warehouse Pick"
 
                     trigger OnAction()
                     begin
-                        AutofillQtyToHandle;
+                        AutofillQtyToHandle();
                     end;
                 }
                 action("Delete Qty. to Handle")
@@ -195,7 +190,7 @@ page 5779 "Warehouse Pick"
 
                     trigger OnAction()
                     begin
-                        DeleteQtyToHandle;
+                        DeleteQtyToHandle();
                     end;
                 }
                 separator(Action32)
@@ -211,15 +206,12 @@ page 5779 "Warehouse Pick"
                     ApplicationArea = Warehouse;
                     Caption = '&Register Pick';
                     Image = RegisterPick;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Record that the items have been picked.';
 
                     trigger OnAction()
                     begin
-                        RegisterActivityYesNo;
+                        RegisterActivityYesNo();
                     end;
                 }
             }
@@ -229,14 +221,67 @@ page 5779 "Warehouse Pick"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
                 begin
                     WhseActPrint.PrintPickHeader(Rec);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(RegisterPick_Promoted; RegisterPick)
+                {
+                }
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+                group("Category_Qty. to Handle")
+                {
+                    Caption = 'Qty. to Handle';
+                    ShowAs = SplitButton;
+
+                    actionref("Autofill Qty. to Handle_Promoted"; "Autofill Qty. to Handle")
+                    {
+                    }
+                    actionref("Delete Qty. to Handle_Promoted"; "Delete Qty. to Handle")
+                    {
+                    }
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Pick', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+
+                separator(Navigate_Separator)
+                {
+                }
+
+                actionref("Registered Picks_Promoted"; "Registered Picks")
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 5.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }
@@ -255,7 +300,7 @@ page 5779 "Warehouse Pick"
     var
         WMSManagement: Codeunit "WMS Management";
     begin
-        ErrorIfUserIsNotWhseEmployee;
+        ErrorIfUserIsNotWhseEmployee();
         FilterGroup(2); // set group of filters user cannot change
         SetFilter("Location Code", WMSManagement.GetWarehouseEmployeeLocationFilter(UserId));
         FilterGroup(0); // set filter group back to standard
@@ -267,17 +312,17 @@ page 5779 "Warehouse Pick"
 
     local procedure AutofillQtyToHandle()
     begin
-        CurrPage.WhseActivityLines.PAGE.AutofillQtyToHandle;
+        CurrPage.WhseActivityLines.PAGE.AutofillQtyToHandle();
     end;
 
     local procedure DeleteQtyToHandle()
     begin
-        CurrPage.WhseActivityLines.PAGE.DeleteQtyToHandle;
+        CurrPage.WhseActivityLines.PAGE.DeleteQtyToHandle();
     end;
 
     local procedure RegisterActivityYesNo()
     begin
-        CurrPage.WhseActivityLines.PAGE.RegisterActivityYesNo;
+        CurrPage.WhseActivityLines.PAGE.RegisterActivityYesNo();
     end;
 
     local procedure SortingMethodOnAfterValidate()

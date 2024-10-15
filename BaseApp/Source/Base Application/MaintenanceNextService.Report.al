@@ -15,7 +15,7 @@ report 5635 "Maintenance - Next Service"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Fixed_Asset__TABLECAPTION__________FAFilter; TableCaption + ': ' + FAFilter)
@@ -105,7 +105,7 @@ report 5635 "Maintenance - Next Service"
             Error(Text000);
 
         FAGenReport.AppendFAPostingFilter("Fixed Asset", StartingDate, EndingDate);
-        FAFilter := "Fixed Asset".GetFilters;
+        FAFilter := "Fixed Asset".GetFilters();
     end;
 
     var

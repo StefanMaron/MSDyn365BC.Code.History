@@ -1801,7 +1801,7 @@ codeunit 134299 "Test Partner Integration Event"
         Navigate.First;
         GeneralLedgerEntries.Trap;
         Navigate.Show.Invoke;
-        GeneralLedgerEntries.Close;
+        GeneralLedgerEntries.Close();
 
         // Verify
         VerifyDataTypeBuffer(OnAfterNavigateShowRecordsTxt);
@@ -1820,7 +1820,7 @@ codeunit 134299 "Test Partner Integration Event"
 
         BindSubscription(TestPartnerIntegrationEvent);
         CreateGenJournalLineForBank(GenJournalLine);
-        GenJnlCheckLine.SetOverDimErr;
+        GenJnlCheckLine.SetOverDimErr();
         GenJnlCheckLine.RunCheck(GenJournalLine);
         VerifyDataTypeBuffer(OnAfterCheckGenJnlLineTxt);
     end;
@@ -2966,7 +2966,7 @@ codeunit 134299 "Test Partner Integration Event"
         InvoicedBookingItem: Record "Invoiced Booking Item";
     begin
         InvoicedBookingItem.Init();
-        InvoicedBookingItem."Booking Item ID" := CreateGuid;
+        InvoicedBookingItem."Booking Item ID" := CreateGuid();
         InvoicedBookingItem."Document No." := DocumentNo;
         InvoicedBookingItem.Insert();
     end;
@@ -2975,7 +2975,7 @@ codeunit 134299 "Test Partner Integration Event"
     var
         BookingMgrSetup: Record "Booking Mgr. Setup";
     begin
-        if not BookingMgrSetup.Get then
+        if not BookingMgrSetup.Get() then
             BookingMgrSetup.Insert();
         BookingMgrSetup."Booking Mgr. Codeunit" := CODEUNIT::"Test Partner Integration Event";
         BookingMgrSetup.Modify();
@@ -2987,7 +2987,7 @@ codeunit 134299 "Test Partner Integration Event"
         UndoPurchaseReceiptLine: Codeunit "Undo Purchase Receipt Line";
     begin
         PurchRcptLine.Get(PurchaseReceiptNo, LineNo);
-        PurchRcptLine.SetRecFilter;
+        PurchRcptLine.SetRecFilter();
         UndoPurchaseReceiptLine.SetHideDialog(true);
         UndoPurchaseReceiptLine.Run(PurchRcptLine);
     end;

@@ -62,7 +62,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
           PreAmounts);
 
         PurchaseInvoice.PurchLines."Total VAT Amount".AssertEquals(0);
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
 
         // [WHEN] User sets the Tax Group Code
         PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
@@ -73,7 +73,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // Mimic the behavior of assigning the Tax Group Code through the page,
         // which is not feasible through Page Testability because Visible == FALSE
         PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
-        PurchaseInvoice.PurchLines.Next;
+        PurchaseInvoice.PurchLines.Next();
 
         SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
           PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal,
@@ -137,7 +137,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
 
         // [WHEN] User changes the quantity
         PurchaseInvoice.PurchLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
-        if PurchaseInvoice.PurchLines.Next then
+        if PurchaseInvoice.PurchLines.Next() then
             PurchaseInvoice.PurchLines.Previous();
 
         SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
@@ -206,7 +206,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
 
         PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AssertEquals(0);
         PurchaseInvoice.PurchLines."Total VAT Amount".AssertEquals(0);
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
 
         // [WHEN] User sets the Tax Group Code
         PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
@@ -219,7 +219,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OriginalDirectUnitCost := PurchaseLine."Direct Unit Cost";
         PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(OriginalDirectUnitCost + 1);
         PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(OriginalDirectUnitCost);
-        PurchaseInvoice.PurchLines.Next;
+        PurchaseInvoice.PurchLines.Next();
 
         SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
           PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal,
@@ -287,7 +287,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
           PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDEcimal,
           PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDEcimal,
           PreAmounts);
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
 
         // [WHEN] User sets the Tax Group Code
         PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
@@ -298,7 +298,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // Mimic the behavior of assigning the Tax Group Code through the page,
         // which is not feasible through Page Testability because Visible == FALSE
         PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
-        PurchaseInvoice.PurchLines.Next;
+        PurchaseInvoice.PurchLines.Next();
 
         SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
           PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal,
@@ -431,7 +431,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // Mimic the behavior of assigning the Tax Group Code through the page,
         // which is not feasible through Page Testability because Visible == FALSE
         PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
-        PurchaseInvoice.PurchLines.Next;
+        PurchaseInvoice.PurchLines.Next();
 
         // Store values from window before setting the Tax Group Code
         SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
@@ -501,7 +501,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
           PreAmounts);
 
         PurchaseOrder.PurchLines."Total VAT Amount".AssertEquals(0);
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
 
         // [WHEN] User sets the Tax Group Code
         PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
@@ -512,7 +512,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // Mimic the behavior of assigning the Tax Group Code through the page,
         // which is not feasible through Page Testability because Visible == FALSE
         PurchaseOrder.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
-        PurchaseOrder.PurchLines.Next;
+        PurchaseOrder.PurchLines.Next();
 
         SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
           PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
@@ -576,7 +576,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
 
         // [WHEN] User changes the quantity
         PurchaseOrder.PurchLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
-        if PurchaseOrder.PurchLines.Next then
+        if PurchaseOrder.PurchLines.Next() then
             PurchaseOrder.PurchLines.Previous();
 
         SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
@@ -644,7 +644,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
 
         PurchaseOrder.PurchLines."Invoice Discount Amount".AssertEquals(0);
         PurchaseOrder.PurchLines."Total VAT Amount".AssertEquals(0);
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
 
         // [WHEN] User sets the Tax Group Code
         PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
@@ -655,7 +655,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // Mimic the behavior of assigning the Tax Group Code through the page,
         // which is not feasible through Page Testability because Visible == FALSE
         PurchaseOrder.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
-        PurchaseOrder.PurchLines.Next;
+        PurchaseOrder.PurchLines.Next();
 
         SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
           PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
@@ -724,7 +724,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
           PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
           PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
           PreAmounts);
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
 
         // [WHEN] User sets the Tax Group Code
         PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
@@ -737,7 +737,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OriginalDirectUnitCost := PurchaseLine."Direct Unit Cost";
         PurchaseOrder.PurchLines."Direct Unit Cost".SetValue(OriginalDirectUnitCost + 1);
         PurchaseOrder.PurchLines."Direct Unit Cost".SetValue(OriginalDirectUnitCost);
-        PurchaseOrder.PurchLines.Next;
+        PurchaseOrder.PurchLines.Next();
 
         SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
           PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
@@ -870,7 +870,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // Mimic the behavior of assigning the Tax Group Code through the page,
         // which is not feasible through Page Testability because Visible == FALSE
         PurchaseOrder.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
-        PurchaseOrder.PurchLines.Next;
+        PurchaseOrder.PurchLines.Next();
 
         // Store values from window before setting the Tax Group Code
         SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
@@ -940,7 +940,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
           PreAmounts);
 
         PurchaseReturnOrder.PurchLines."Total VAT Amount".AssertEquals(0);
-        PurchaseReturnOrder.Close;
+        PurchaseReturnOrder.Close();
 
         // [WHEN] User sets the Tax Group Code
         PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
@@ -951,7 +951,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // Mimic the behavior of assigning the Tax Group Code through the page,
         // which is not feasible through Page Testability because Visible == FALSE
         PurchaseReturnOrder.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
-        PurchaseReturnOrder.PurchLines.Next;
+        PurchaseReturnOrder.PurchLines.Next();
 
         SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
           PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
@@ -1015,7 +1015,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
 
         // [WHEN] User changes the quantity
         PurchaseReturnOrder.PurchLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
-        if PurchaseReturnOrder.PurchLines.Next then
+        if PurchaseReturnOrder.PurchLines.Next() then
             PurchaseReturnOrder.PurchLines.Previous();
 
         SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
@@ -1083,7 +1083,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
 
         PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AssertEquals(0);
         PurchaseReturnOrder.PurchLines."Total VAT Amount".AssertEquals(0);
-        PurchaseReturnOrder.Close;
+        PurchaseReturnOrder.Close();
 
         // [WHEN] User sets the Tax Group Code
         PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
@@ -1094,7 +1094,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // Mimic the behavior of assigning the Tax Group Code through the page,
         // which is not feasible through Page Testability because Visible == FALSE
         PurchaseReturnOrder.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
-        PurchaseReturnOrder.PurchLines.Next;
+        PurchaseReturnOrder.PurchLines.Next();
 
         SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
           PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
@@ -1163,7 +1163,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
           PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
           PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
           PreAmounts);
-        PurchaseReturnOrder.Close;
+        PurchaseReturnOrder.Close();
 
         // [WHEN] User sets the Tax Group Code
         PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
@@ -1176,7 +1176,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OriginalDirectUnitCost := PurchaseLine."Direct Unit Cost";
         PurchaseReturnOrder.PurchLines."Direct Unit Cost".SetValue(OriginalDirectUnitCost + 1);
         PurchaseReturnOrder.PurchLines."Direct Unit Cost".SetValue(OriginalDirectUnitCost);
-        PurchaseReturnOrder.PurchLines.Next;
+        PurchaseReturnOrder.PurchLines.Next();
 
         SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
           PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
@@ -1309,7 +1309,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // Mimic the behavior of assigning the Tax Group Code through the page,
         // which is not feasible through Page Testability because Visible == FALSE
         PurchaseReturnOrder.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
-        PurchaseReturnOrder.PurchLines.Next;
+        PurchaseReturnOrder.PurchLines.Next();
 
         // Store values from window before setting the Tax Group Code
         SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
@@ -1379,7 +1379,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
           PreAmounts);
 
         PurchaseCreditMemo.PurchLines."Total VAT Amount".AssertEquals(0);
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
 
         // [WHEN] User sets the Tax Group Code
         PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
@@ -1390,7 +1390,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // Mimic the behavior of assigning the Tax Group Code through the page,
         // which is not feasible through Page Testability because Visible == FALSE
         PurchaseCreditMemo.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
-        PurchaseCreditMemo.PurchLines.Next;
+        PurchaseCreditMemo.PurchLines.Next();
 
         SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDEcimal,
           PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDEcimal,
@@ -1454,7 +1454,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
 
         // [WHEN] User changes the quantity
         PurchaseCreditMemo.PurchLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
-        if PurchaseCreditMemo.PurchLines.Next then
+        if PurchaseCreditMemo.PurchLines.Next() then
             PurchaseCreditMemo.PurchLines.Previous();
 
         SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDEcimal,
@@ -1522,7 +1522,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
 
         PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AssertEquals(0);
         PurchaseCreditMemo.PurchLines."Total VAT Amount".AssertEquals(0);
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
 
         // [WHEN] User sets the Tax Group Code
         PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
@@ -1533,7 +1533,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // Mimic the behavior of assigning the Tax Group Code through the page,
         // which is not feasible through Page Testability because Visible == FALSE
         PurchaseCreditMemo.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
-        PurchaseCreditMemo.PurchLines.Next;
+        PurchaseCreditMemo.PurchLines.Next();
 
         SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDEcimal,
           PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDEcimal,
@@ -1602,7 +1602,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
           PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDEcimal,
           PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDEcimal,
           PreAmounts);
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
 
         // [WHEN] User sets the Tax Group Code
         PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
@@ -1615,7 +1615,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OriginalDirectUnitCost := PurchaseLine."Direct Unit Cost";
         PurchaseCreditMemo.PurchLines."Direct Unit Cost".SetValue(OriginalDirectUnitCost + 1);
         PurchaseCreditMemo.PurchLines."Direct Unit Cost".SetValue(OriginalDirectUnitCost);
-        PurchaseCreditMemo.PurchLines.Next;
+        PurchaseCreditMemo.PurchLines.Next();
 
         SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDEcimal,
           PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDEcimal,
@@ -1748,7 +1748,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // Mimic the behavior of assigning the Tax Group Code through the page,
         // which is not feasible through Page Testability because Visible == FALSE
         PurchaseCreditMemo.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
-        PurchaseCreditMemo.PurchLines.Next;
+        PurchaseCreditMemo.PurchLines.Next();
 
         // Store values from window before setting the Tax Group Code
         SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDEcimal,
@@ -1818,7 +1818,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
           PreAmounts);
 
         BlanketPurchaseOrder.PurchLines."Total VAT Amount".AssertEquals(0);
-        BlanketPurchaseOrder.Close;
+        BlanketPurchaseOrder.Close();
 
         // [WHEN] User sets the Tax Group Code
         PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
@@ -1829,7 +1829,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // Mimic the behavior of assigning the Tax Group Code through the page,
         // which is not feasible through Page Testability because Visible == FALSE
         BlanketPurchaseOrder.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
-        BlanketPurchaseOrder.PurchLines.Next;
+        BlanketPurchaseOrder.PurchLines.Next();
 
         SetCompareAmounts(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
           BlanketPurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
@@ -1893,7 +1893,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
 
         // [WHEN] User changes the quantity
         BlanketPurchaseOrder.PurchLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
-        if BlanketPurchaseOrder.PurchLines.Next then
+        if BlanketPurchaseOrder.PurchLines.Next() then
             BlanketPurchaseOrder.PurchLines.Previous();
 
         SetCompareAmounts(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
@@ -1961,7 +1961,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
 
         BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AssertEquals(0);
         BlanketPurchaseOrder.PurchLines."Total VAT Amount".AssertEquals(0);
-        BlanketPurchaseOrder.Close;
+        BlanketPurchaseOrder.Close();
 
         // [WHEN] User sets the Tax Group Code
         PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
@@ -1972,7 +1972,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // Mimic the behavior of assigning the Tax Group Code through the page,
         // which is not feasible through Page Testability because Visible == FALSE
         BlanketPurchaseOrder.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
-        BlanketPurchaseOrder.PurchLines.Next;
+        BlanketPurchaseOrder.PurchLines.Next();
 
         SetCompareAmounts(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
           BlanketPurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
@@ -2041,7 +2041,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
           BlanketPurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
           BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
           PreAmounts);
-        BlanketPurchaseOrder.Close;
+        BlanketPurchaseOrder.Close();
 
         // [WHEN] User sets the Tax Group Code
         PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
@@ -2054,7 +2054,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OriginalDirectUnitCost := PurchaseLine."Direct Unit Cost";
         BlanketPurchaseOrder.PurchLines."Direct Unit Cost".SetValue(OriginalDirectUnitCost + 1);
         BlanketPurchaseOrder.PurchLines."Direct Unit Cost".SetValue(OriginalDirectUnitCost);
-        BlanketPurchaseOrder.PurchLines.Next;
+        BlanketPurchaseOrder.PurchLines.Next();
 
         SetCompareAmounts(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
           BlanketPurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
@@ -2191,7 +2191,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
           PreAmounts);
 
         PurchaseQuote.PurchLines."Total VAT Amount".AssertEquals(0);
-        PurchaseQuote.Close;
+        PurchaseQuote.Close();
 
         // [WHEN] User sets the Tax Group Code
         PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
@@ -2202,7 +2202,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // Mimic the behavior of assigning the Tax Group Code through the page,
         // which is not feasible through Page Testability because Visible == FALSE
         PurchaseQuote.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
-        PurchaseQuote.PurchLines.Next;
+        PurchaseQuote.PurchLines.Next();
 
         SetCompareAmounts(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDEcimal,
           PurchaseQuote.PurchLines."Total Amount Excl. VAT".AsDEcimal,
@@ -2266,7 +2266,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
 
         // [WHEN] User changes the quantity
         PurchaseQuote.PurchLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
-        if PurchaseQuote.PurchLines.Next then
+        if PurchaseQuote.PurchLines.Next() then
             PurchaseQuote.PurchLines.Previous();
 
         SetCompareAmounts(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDEcimal,
@@ -2334,7 +2334,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
 
         PurchaseQuote.PurchLines."Invoice Discount Amount".AssertEquals(0);
         PurchaseQuote.PurchLines."Total VAT Amount".AssertEquals(0);
-        PurchaseQuote.Close;
+        PurchaseQuote.Close();
 
         // [WHEN] User sets the Tax Group Code
         PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
@@ -2345,7 +2345,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         // Mimic the behavior of assigning the Tax Group Code through the page,
         // which is not feasible through Page Testability because Visible == FALSE
         PurchaseQuote.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
-        PurchaseQuote.PurchLines.Next;
+        PurchaseQuote.PurchLines.Next();
 
         SetCompareAmounts(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDEcimal,
           PurchaseQuote.PurchLines."Total Amount Excl. VAT".AsDEcimal,
@@ -2414,7 +2414,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
           PurchaseQuote.PurchLines."Total Amount Incl. VAT".AsDEcimal,
           PurchaseQuote.PurchLines."Invoice Disc. Pct.".AsDEcimal,
           PreAmounts);
-        PurchaseQuote.Close;
+        PurchaseQuote.Close();
 
         // [WHEN] User sets the Tax Group Code
         PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
@@ -2427,7 +2427,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OriginalDirectUnitCost := PurchaseLine."Direct Unit Cost";
         PurchaseQuote.PurchLines."Direct Unit Cost".SetValue(OriginalDirectUnitCost + 1);
         PurchaseQuote.PurchLines."Direct Unit Cost".SetValue(OriginalDirectUnitCost);
-        PurchaseQuote.PurchLines.Next;
+        PurchaseQuote.PurchLines.Next();
 
         SetCompareAmounts(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDEcimal,
           PurchaseQuote.PurchLines."Total Amount Excl. VAT".AsDEcimal,
@@ -2548,10 +2548,12 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
+        VATEntry: Record "VAT Entry";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
+        VATEntry.DeleteAll();
         LibrarySetupStorage.Restore();
         LibraryApplicationArea.ClearApplicationAreaCache();
         if isInitialized then
@@ -2608,7 +2610,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         TaxGroup: Record "Tax Group";
     begin
         LibraryERM.CreateTaxGroup(TaxGroup);
-        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate);
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", TaxPercentage);  // Using RANDOM value for Tax Below Maximum.
         TaxDetail.Modify(true);
     end;

@@ -1,9 +1,13 @@
+#if not CLEAN21
 page 2340 "BC O365 No. Series Card"
 {
     Caption = 'Numbers';
-    DataCaptionExpression = GetNoSeriesDescription;
+    DataCaptionExpression = GetNoSeriesDescription();
     PageType = StandardDialog;
     SourceTable = "No. Series";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -23,7 +27,7 @@ page 2340 "BC O365 No. Series Card"
             }
             field(NextNo; NextNoSeries)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Next number';
                 NotBlank = true;
                 ShowCaption = false;
@@ -45,7 +49,7 @@ page 2340 "BC O365 No. Series Card"
         if CloseAction <> ACTION::OK then
             exit;
 
-        UpdateLineForNewSeries;
+        UpdateLineForNewSeries();
     end;
 
     var
@@ -63,7 +67,7 @@ page 2340 "BC O365 No. Series Card"
     var
         LocalNoSeries: Code[20];
     begin
-        if SalesReceivablesSetup.Get then;
+        if SalesReceivablesSetup.Get() then;
         if Code = SalesReceivablesSetup."Posted Invoice Nos." then
             IsPostedInvoiceNoSeries := true;
         LocalNoSeries := NoSeriesManagement.ClearStateAndGetNextNo(Code);
@@ -92,7 +96,7 @@ page 2340 "BC O365 No. Series Card"
             NoSeriesLine.Reset();
             NoSeriesLine.SetCurrentKey("Series Code", "Starting Date");
             NoSeriesLine.SetRange("Series Code", Code);
-            NoSeriesLine.SetRange("Starting Date", 0D, WorkDate);
+            NoSeriesLine.SetRange("Starting Date", 0D, WorkDate());
             if NoSeriesLine.FindLast() then begin
                 NoSeriesLine.Init();
                 NoSeriesLine.Validate("Starting No.", NextNoSeries);
@@ -104,7 +108,7 @@ page 2340 "BC O365 No. Series Card"
                 NoSeriesLine.Validate("Starting No.", NextNoSeries);
                 NoSeriesLine.Insert(true);
             end;
-            OnAfterNoSeriesModified;
+            OnAfterNoSeriesModified();
         end;
     end;
 
@@ -112,7 +116,7 @@ page 2340 "BC O365 No. Series Card"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        if SalesReceivablesSetup.Get then;
+        if SalesReceivablesSetup.Get() then;
 
         if Code = SalesReceivablesSetup."Quote Nos." then
             NoSeriesDescription := Description
@@ -135,4 +139,4 @@ page 2340 "BC O365 No. Series Card"
     begin
     end;
 }
-
+#endif

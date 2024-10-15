@@ -1,0 +1,165 @@
+table 27006 "CFDI Relation Document"
+{
+
+    fields
+    {
+        field(1; "Document Table ID"; Integer)
+        {
+        }
+        field(2; "Document Type"; Integer)
+        {
+        }
+        field(3; "Document No."; Code[20])
+        {
+        }
+        field(4; "Customer No."; Code[20])
+        {
+            Editable = false;
+        }
+        field(6; "Related Doc. Type"; Option)
+        {
+            InitValue = Invoice;
+            OptionMembers = ,,Invoice,"Credit Memo";
+        }
+        field(7; "Related Doc. No."; Code[20])
+        {
+            NotBlank = true;
+            TableRelation = IF ("Related Doc. Type" = CONST(Invoice)) "Cust. Ledger Entry"."Document No." WHERE("Document Type" = FILTER(Invoice),
+                                                                                                               "Customer No." = FIELD("Customer No."))
+            ELSE
+            IF ("Related Doc. Type" = CONST("Credit Memo")) "Cust. Ledger Entry"."Document No." WHERE("Document Type" = FILTER("Credit Memo"),
+                                                                                                                                                                                                             "Customer No." = FIELD("Customer No."));
+            ValidateTableRelation = false;
+
+            trigger OnValidate()
+            begin
+                if "Related Doc. No." = '' then
+                    exit;
+
+                CheckRelatedDocumentNo();
+                UpdateFiscalInvoiceNumber();
+            end;
+        }
+        field(11; "SAT Relation Type"; Code[10])
+        {
+            TableRelation = "SAT Relationship Type";
+        }
+        field(21; "Fiscal Invoice Number PAC"; Text[50])
+        {
+            Editable = false;
+        }
+    }
+
+    keys
+    {
+        key(Key1; "Document Table ID", "Document Type", "Document No.", "Customer No.", "Related Doc. Type", "Related Doc. No.")
+        {
+            Clustered = true;
+        }
+    }
+
+    fieldgroups
+    {
+    }
+
+    [Scope('OnPrem')]
+    procedure InsertRelatedCreditMemos()
+    begin
+        if "Related Doc. No." = '' then
+            exit;
+
+        case "Document Table ID" of
+            DATABASE::"Sales Header", DATABASE::"Sales Invoice Header":
+                InsertRelatedSalesCreditMemos();
+            DATABASE::"Service Header", DATABASE::"Service Invoice Header":
+                InsertRelatedServiceCreditMemos();
+        end;
+    end;
+
+    local procedure InsertRelatedSalesCreditMemos()
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        CFDIRelationDocument: Record "CFDI Relation Document";
+    begin
+        if "Related Doc. Type" <> "Related Doc. Type"::Invoice then
+            exit;
+
+        SalesCrMemoHeader.SetRange("Bill-to Customer No.", "Customer No.");
+        SalesCrMemoHeader.SetRange("Applies-to Doc. Type", SalesCrMemoHeader."Applies-to Doc. Type"::Invoice);
+        SalesCrMemoHeader.SetRange("Applies-to Doc. No.", "Related Doc. No.");
+        if not SalesCrMemoHeader.FindSet() then
+            exit;
+
+        repeat
+            CFDIRelationDocument := Rec;
+            CFDIRelationDocument."Related Doc. Type" := CFDIRelationDocument."Related Doc. Type"::"Credit Memo";
+            CFDIRelationDocument."Related Doc. No." := SalesCrMemoHeader."No.";
+            CFDIRelationDocument."Fiscal Invoice Number PAC" := SalesCrMemoHeader."Fiscal Invoice Number PAC";
+            if CFDIRelationDocument.Insert() then;
+        until SalesCrMemoHeader.Next() = 0;
+    end;
+
+    local procedure InsertRelatedServiceCreditMemos()
+    var
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        CFDIRelationDocument: Record "CFDI Relation Document";
+    begin
+        if "Related Doc. Type" <> "Related Doc. Type"::Invoice then
+            exit;
+
+        ServiceCrMemoHeader.SetRange("Bill-to Customer No.", "Customer No.");
+        ServiceCrMemoHeader.SetRange("Applies-to Doc. Type", ServiceCrMemoHeader."Applies-to Doc. Type"::Invoice);
+        ServiceCrMemoHeader.SetRange("Applies-to Doc. No.", "Related Doc. No.");
+        if not ServiceCrMemoHeader.FindSet() then
+            exit;
+
+        repeat
+            CFDIRelationDocument := Rec;
+            CFDIRelationDocument."Related Doc. Type" := CFDIRelationDocument."Related Doc. Type"::"Credit Memo";
+            CFDIRelationDocument."Related Doc. No." := ServiceCrMemoHeader."No.";
+            CFDIRelationDocument."Fiscal Invoice Number PAC" := ServiceCrMemoHeader."Fiscal Invoice Number PAC";
+            if CFDIRelationDocument.Insert() then;
+        until ServiceCrMemoHeader.Next() = 0;
+    end;
+
+    local procedure CheckRelatedDocumentNo()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        CustLedgerEntry.SetRange("Document Type", "Related Doc. Type");
+        CustLedgerEntry.SetRange("Document No.", "Related Doc. No.");
+        CustLedgerEntry.SetRange("Customer No.", "Customer No.");
+        CustLedgerEntry.FindFirst();
+    end;
+
+    local procedure UpdateFiscalInvoiceNumber()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+    begin
+        if "Related Doc. No." = '' then
+            exit;
+
+        case "Document Table ID" of
+            DATABASE::"Sales Header", DATABASE::"Sales Invoice Header", DATABASE::"Sales Cr.Memo Header":
+                if "Related Doc. Type" = "Related Doc. Type"::Invoice then begin
+                    SalesInvoiceHeader.Get("Related Doc. No.");
+                    "Fiscal Invoice Number PAC" := SalesInvoiceHeader."Fiscal Invoice Number PAC";
+                end else begin
+                    SalesCrMemoHeader.Get("Related Doc. No.");
+                    "Fiscal Invoice Number PAC" := SalesCrMemoHeader."Fiscal Invoice Number PAC";
+                end;
+            DATABASE::"Service Header", DATABASE::"Service Invoice Header", DATABASE::"Service Cr.Memo Header":
+                if "Related Doc. Type" = "Related Doc. Type"::Invoice then begin
+                    ServiceInvoiceHeader.Get("Related Doc. No.");
+                    "Fiscal Invoice Number PAC" := ServiceInvoiceHeader."Fiscal Invoice Number PAC";
+                end else begin
+                    ServiceCrMemoHeader.Get("Related Doc. No.");
+                    "Fiscal Invoice Number PAC" := ServiceCrMemoHeader."Fiscal Invoice Number PAC";
+                end;
+        end;
+    end;
+}
+

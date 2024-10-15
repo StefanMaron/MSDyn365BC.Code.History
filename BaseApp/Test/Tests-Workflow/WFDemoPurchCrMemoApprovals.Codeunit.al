@@ -466,7 +466,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
 
         // [GIVEN] PurchHeader approval enabled.
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
@@ -481,7 +481,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         Assert.IsFalse(PurchaseCreditMemo.Approve.Visible, 'Approve should NOT be visible');
         Assert.IsFalse(PurchaseCreditMemo.Reject.Visible, 'Reject should NOT be visible');
         Assert.IsFalse(PurchaseCreditMemo.Delegate.Visible, 'Delegate should NOT be visible');
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
 
         // [GIVEN] Approval exist on PurchHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
@@ -498,7 +498,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         Assert.IsTrue(PurchaseCreditMemo.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Clenup
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
 
         // Setup the approval so it can be approve by current user
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(PurchHeader.RecordId);
@@ -545,7 +545,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        PurchaseCreditMemos.Close;
+        PurchaseCreditMemos.Close();
 
         // [GIVEN] PurchHeader approval enabled.
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
@@ -557,7 +557,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         // [THEN] Only Send is enabled.
         Assert.IsTrue(PurchaseCreditMemos.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
         Assert.IsFalse(PurchaseCreditMemos.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        PurchaseCreditMemos.Close;
+        PurchaseCreditMemos.Close();
 
         // [GIVEN] Approval exist on PurchHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
@@ -772,12 +772,12 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         PurchaseCreditMemo.OpenView;
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
         PurchaseCreditMemo.SendApprovalRequest.Invoke;
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
     end;
 
     local procedure RegetPurchaseDocument(var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
         PurchaseHeader.FindFirst();
     end;
 
@@ -836,7 +836,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         PurchaseCreditMemo.OpenView;
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
         PurchaseCreditMemo.Approve.Invoke;
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
     end;
 
     local procedure RejectPurchaseCrMemo(var PurchaseHeader: Record "Purchase Header")
@@ -846,7 +846,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         PurchaseCreditMemo.OpenView;
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
         PurchaseCreditMemo.Reject.Invoke;
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
     end;
 
     local procedure DelegatePurchaseCrMemo(var PurchaseHeader: Record "Purchase Header")
@@ -856,7 +856,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         PurchaseCreditMemo.OpenView;
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
         PurchaseCreditMemo.Delegate.Invoke;
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
     end;
 
     local procedure CancelPurchaseCrMemo(var PurchaseHeader: Record "Purchase Header")
@@ -866,7 +866,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         PurchaseCreditMemo.OpenView;
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
         PurchaseCreditMemo.CancelApprovalRequest.Invoke;
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
     end;
 
     local procedure SetPurchDocPurchaserCode(PurchaseHeader: Record "Purchase Header"; PurchaserCode: Code[20])
@@ -893,15 +893,15 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
             if ApprovalComments.First then
                 repeat
                     NumberOfComments += 1;
-                until ApprovalComments.Next;
+                until ApprovalComments.Next();
             Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
             ApprovalComments.Comment.SetValue('Test Comment' + Format(NumberOfExpectedComments));
-            ApprovalComments.Next;
-            ApprovalComments.Close;
+            ApprovalComments.Next();
+            ApprovalComments.Close();
         end;
 
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -919,12 +919,12 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        ApprovalEntries.Close;
+        ApprovalEntries.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnRequestsToApprovePage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -942,12 +942,12 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        RequeststoApprove.Close;
+        RequeststoApprove.Close();
     end;
 
     local procedure CheckUserCanCancelTheApprovalRequest(PurchaseHeader: Record "Purchase Header"; CancelActionExpectedEnabled: Boolean)
@@ -959,13 +959,13 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
         Assert.AreEqual(CancelActionExpectedEnabled, PurchaseCreditMemo.CancelApprovalRequest.Enabled,
           'Wrong state for the Cancel action');
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
 
         PurchaseCreditMemos.OpenView;
         PurchaseCreditMemos.GotoRecord(PurchaseHeader);
         Assert.AreEqual(CancelActionExpectedEnabled, PurchaseCreditMemos.CancelApprovalRequest.Enabled,
           'Wrong state for the Cancel action');
-        PurchaseCreditMemos.Close;
+        PurchaseCreditMemos.Close();
     end;
 }
 

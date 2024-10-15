@@ -97,7 +97,7 @@ codeunit 141007 "UT COD Bank Deposit"
         GenJournalLine."Journal Template Name" := DepositHeader."Journal Template Name";
         GenJournalLine."Journal Batch Name" := DepositHeader."Journal Batch Name";
         GenJournalLine."Line No." := LibraryRandom.RandInt(10);
-        GenJournalLine."Posting Date" := WorkDate;
+        GenJournalLine."Posting Date" := WorkDate();
         GenJournalLine."Document Type" := GenJournalLine."Document Type"::Payment;
         GenJournalLine."Document No." := LibraryUTUtility.GetNewCode;
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::"G/L Account";
@@ -135,8 +135,8 @@ codeunit 141007 "UT COD Bank Deposit"
         DepositHeader."No." := LibraryUTUtility.GetNewCode;
         DepositHeader."Journal Template Name" := GenJournalBatch."Journal Template Name";
         DepositHeader."Journal Batch Name" := GenJournalBatch.Name;
-        DepositHeader."Posting Date" := WorkDate;
-        DepositHeader."Document Date" := WorkDate;
+        DepositHeader."Posting Date" := WorkDate();
+        DepositHeader."Document Date" := WorkDate();
         DepositHeader."Bank Account No." := CreateBankAccount;
         DepositHeader."Total Deposit Amount" := LibraryRandom.RandDec(10, 2);
         DepositHeader.Insert();

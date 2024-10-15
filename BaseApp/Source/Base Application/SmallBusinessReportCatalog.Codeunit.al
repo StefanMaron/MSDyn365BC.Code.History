@@ -42,8 +42,8 @@ codeunit 9025 "Small Business Report Catalog"
         NewDateChoice := DateChoice::"Due Date";
         NewLogInteraction := true;
 
-        NewStartDate := AccountingPeriodMgt.FindFiscalYear(WorkDate);
-        NewEndDate := WorkDate;
+        NewStartDate := AccountingPeriodMgt.FindFiscalYear(WorkDate());
+        NewEndDate := WorkDate();
 
         CustomerStatementReport.InitializeRequest(
           NewPrintEntriesDue, NewPrintAllHavingEntry, NewPrintAllHavingBal, NewPrintReversedEntries,
@@ -73,7 +73,7 @@ codeunit 9025 "Small Business Report Catalog"
         DetailTrialBalance.SaveAsExcel(FileName);
 
         ToFile := ToFileNameTxt;
-        Download(FileName, '', FileMgt.Magicpath, '', ToFile);
+        Download(FileName, '', FileMgt.Magicpath(), '', ToFile);
         Erase(FileName);
     end;
 

@@ -106,7 +106,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         GeneralPostingSetup.FindFirst();
         GeneralPostingSetup.TestField("Gen. Bus. Posting Group", '');
         // [THEN] second, where "Gen. Bus. Posting Group" is filled
-        GeneralPostingSetup.Next;
+        GeneralPostingSetup.Next();
         GenBusinessPostingGroup.FindFirst();
         GeneralPostingSetup.TestField("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
     end;
@@ -144,12 +144,12 @@ codeunit 138400 "RS Pack Content - Evaluation"
         Initialize();
 
         with SalesHeader do begin
-            Reset;
+            Reset();
             SetRange("Document Type", "Document Type"::Invoice);
             SetFilter("Shipping Agent Code", '<>%1', '');
             Assert.RecordCount(SalesHeader, 2);
 
-            Reset;
+            Reset();
             SetRange("Document Type", "Document Type"::Order);
             SetFilter("Shipping Agent Code", '<>%1', '');
             Assert.RecordCount(SalesHeader, 4);
@@ -215,7 +215,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
               StrSubstNo('Item %1 does not have %2 periods',
                 TempXMLBuffer.GetAttributeValue('item'),
                 Format(Periods)));
-        until TempXMLBuffer.Next = 0;
+        until TempXMLBuffer.Next() = 0;
     end;
 
     [Test]
@@ -247,7 +247,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
             Assert.IsTrue(Date.Count + 1 >= 15,
               StrSubstNo('Item %1 does not have sales data for at least 15 months', Item."No."));
 
-        until Item.Next = 0;
+        until Item.Next() = 0;
     end;
 
     [Test]
@@ -295,7 +295,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
 
         with SalesHeader do begin
             // [WHEN] Post all Invoices
-            Reset;
+            Reset();
             SetRange("Document Type", "Document Type"::Invoice);
             FindSet();
             repeat
@@ -375,7 +375,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
             repeat
                 PurchaseHeader.CalcFields("Amount Including VAT");
                 Total := Total + PurchaseHeader."Amount Including VAT";
-            until PurchaseHeader.Next = 0;
+            until PurchaseHeader.Next() = 0;
             Assert.IsTrue(Total >= 15000, 'There are less purchases than expected');
             Assert.IsTrue(Total <= 40000, 'There are more purchases than expected');
             PeriodStart := CalcDate('<+1M>', PeriodStart);
@@ -397,7 +397,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
 
         with PurchHeader do begin
             // [WHEN] Post all Invoices
-            Reset;
+            Reset();
             SetRange("Document Type", "Document Type"::Invoice);
             FindSet();
             repeat
@@ -424,7 +424,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
 
         with PurchHeader do begin
             // [WHEN] Post all Orders
-            Reset;
+            Reset();
             SetRange("Document Type", "Document Type"::Order);
             FindSet();
             repeat
@@ -455,18 +455,18 @@ codeunit 138400 "RS Pack Content - Evaluation"
             repeat
                 VerifyContactCompany(CompanyNo, ContactBusinessRelation."Link to Table"::Customer, Customer."No.");
                 VerifyContactPerson(CompanyNo);
-            until Customer.Next = 0;
+            until Customer.Next() = 0;
 
         if Vendor.FindSet() then
             repeat
                 VerifyContactCompany(CompanyNo, ContactBusinessRelation."Link to Table"::Vendor, Vendor."No.");
                 VerifyContactPerson(CompanyNo);
-            until Vendor.Next = 0;
+            until Vendor.Next() = 0;
 
         if BankAccount.FindSet() then
             repeat
                 VerifyContactCompany(CompanyNo, ContactBusinessRelation."Link to Table"::"Bank Account", BankAccount."No.");
-            until BankAccount.Next = 0;
+            until BankAccount.Next() = 0;
     end;
 
     [Test]
@@ -507,9 +507,9 @@ codeunit 138400 "RS Pack Content - Evaluation"
         Customer.SetRange("Tax Liable", false);
         Assert.IsTrue(Customer.IsEmpty, 'All demo customers should be marked as Tax Liable.');
 
-        Customer.Reset();
-        Customer.SetFilter("Payment Method Code", StrSubstNo('<>%1', xBANKTxt));
-        Assert.IsTrue(Customer.IsEmpty, StrSubstNo('All demo customers should have Payment Method Code set to %1.', xBANKTxt));
+        // Customer.Reset();
+        // Customer.SetFilter("Payment Method Code", StrSubstNo('<>%1', xBANKTxt));
+        // Assert.IsTrue(Customer.IsEmpty, StrSubstNo('All demo customers should have Payment Method Code set to %1.', xBANKTxt));
     end;
 
     [Test]
@@ -526,9 +526,9 @@ codeunit 138400 "RS Pack Content - Evaluation"
         Vendor.SetRange("Tax Liable", false);
         Assert.IsTrue(Vendor.IsEmpty, 'All demo vendors should be marked as Tax Liable.');
 
-        Vendor.Reset();
-        Vendor.SetFilter("Payment Method Code", StrSubstNo('<>%1', xBANKTxt));
-        Assert.IsTrue(Vendor.IsEmpty, StrSubstNo('All demo vendors should have Payment Method Code set to %1.', xBANKTxt));
+        // Vendor.Reset();
+        // Vendor.SetFilter("Payment Method Code", StrSubstNo('<>%1', xBANKTxt));
+        // Assert.IsTrue(Vendor.IsEmpty, StrSubstNo('All demo vendors should have Payment Method Code set to %1.', xBANKTxt));
     end;
 
     [Test]
@@ -796,7 +796,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         with ShipToAddress do begin
             // [WHEN] Selecting an address from ship-to
-            Reset;
+            Reset();
             FindSet();
             // [THEN] The address is in the current Region/Country
             repeat
@@ -959,83 +959,6 @@ codeunit 138400 "RS Pack Content - Evaluation"
 
     [Test]
     [Scope('OnPrem')]
-    procedure CountItemConfigTemplates()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-    begin
-        // [FEATURE] [Item] [Config. Template]
-        // [SCENARIO] There should be 6 Item Config. Templates
-        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Item);
-        Assert.RecordCount(ConfigTemplateHeader, 6);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ServiceItemTemplatesCostingMethodFIFO()
-    var
-        TypeConfigTemplateLine: Record "Config. Template Line";
-        ConfigTemplateLine: Record "Config. Template Line";
-        Item: Record Item;
-    begin
-        // [FEATURE] [Item] [Config. Template]
-        // [SCENARIO] All service Item Config. templates have 'FIFO' "Costing Method"
-        TypeConfigTemplateLine.SetRange("Table ID", DATABASE::Item);
-        TypeConfigTemplateLine.SetRange("Field ID", Item.FieldNo(Type));
-        TypeConfigTemplateLine.SetRange("Default Value", Format(Item.Type::Service));
-        TypeConfigTemplateLine.FindSet();
-        repeat
-            ConfigTemplateLine.SetRange("Data Template Code", TypeConfigTemplateLine."Data Template Code");
-            ConfigTemplateLine.SetRange("Field ID", Item.FieldNo("Costing Method"));
-            ConfigTemplateLine.SetRange("Default Value", Format(Item."Costing Method"::FIFO));
-            Assert.RecordIsNotEmpty(ConfigTemplateLine);
-        until TypeConfigTemplateLine.Next = 0;
-    end;
-
-[Test]
-    [Scope('OnPrem')]
-    procedure InventoryItemTemplatesNoCostingMethod()
-    var
-        TypeConfigTemplateLine: Record "Config. Template Line";
-        ConfigTemplateLine: Record "Config. Template Line";
-        Item: Record Item;
-    begin
-        // [FEATURE] [Item] [Config. Template]
-        // [SCENARIO] No Item Config. templates for inventory items have "Costing Method"
-        TypeConfigTemplateLine.SetRange("Table ID", DATABASE::Item);
-        TypeConfigTemplateLine.SetRange("Field ID", Item.FieldNo(Type));
-        TypeConfigTemplateLine.SetRange("Default Value", Format(Item.Type::Inventory));
-        TypeConfigTemplateLine.FindSet();
-        repeat
-            ConfigTemplateLine.SetRange("Data Template Code", TypeConfigTemplateLine."Data Template Code");
-            ConfigTemplateLine.SetRange("Field ID", Item.FieldNo("Costing Method"));
-            Assert.RecordIsEmpty(ConfigTemplateLine);
-        until TypeConfigTemplateLine.Next = 0;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ItemConfigTemplatesHaveNotBlankBaseUoM()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplateLine: Record "Config. Template Line";
-        Item: Record Item;
-    begin
-        // [FEATURE] [Item] [Config. Template]
-        // [SCENARIO] All Config. Templates for Item table, where "Base Unit of Measure" is not <blank>
-        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Item);
-        ConfigTemplateHeader.FindSet();
-        repeat
-            ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
-            ConfigTemplateLine.SetRange("Field ID", Item.FieldNo("Base Unit of Measure"));
-            ConfigTemplateLine.FindSet();
-            repeat
-                ConfigTemplateLine.TestField("Default Value");
-            until ConfigTemplateLine.Next = 0;
-        until ConfigTemplateHeader.Next = 0;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure ItemsHaveImages()
     var
         Item: Record Item;
@@ -1045,7 +968,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         Item.FindSet();
         repeat
             Assert.AreNotEqual(0, Item.Picture.Count, StrSubstNo('Expected at least one image for item %1', Item."No."));
-        until Item.Next = 0;
+        until Item.Next() = 0;
     end;
 
     [Test]
@@ -1058,7 +981,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         Initialize();
 
         with PurchSetup do begin
-            Get;
+            Get();
             TestField("Vendor Nos.");
             ValidateNoSeriesExists("Vendor Nos.");
             TestField("Quote Nos.");

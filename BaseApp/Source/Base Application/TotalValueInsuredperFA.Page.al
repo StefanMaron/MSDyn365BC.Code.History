@@ -65,9 +65,6 @@ page 5622 "Total Value Insured per FA"
                 ApplicationArea = FixedAssets;
                 Caption = '&Show Matrix';
                 Image = ShowMatrix;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'View the data overview according to the selected filters and options.';
 
                 trigger OnAction()
@@ -85,9 +82,6 @@ page 5622 "Total Value Insured per FA"
                 ApplicationArea = FixedAssets;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
@@ -100,9 +94,6 @@ page 5622 "Total Value Insured per FA"
                 ApplicationArea = FixedAssets;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
@@ -111,13 +102,30 @@ page 5622 "Total Value Insured per FA"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ShowMatrix_Promoted; ShowMatrix)
+                {
+                }
+                actionref("Previous Set_Promoted"; "Previous Set")
+                {
+                }
+                actionref("Next Set_Promoted"; "Next Set")
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
     begin
         PeriodType := PeriodType::Year;
         AmountType := AmountType::"Balance at Date";
-        NoOfColumns := GetMatrixDimension;
+        NoOfColumns := GetMatrixDimension();
         SetStartFilter(' ');
         GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
@@ -173,11 +181,11 @@ page 5622 "Total Value Insured per FA"
 
         if MATRIX_CurrentNoOfColumns > 0 then begin
             MatrixRecord.SetPosition(MATRIX_PKFirstRecInCurrSet);
-            MatrixRecord.Find;
+            MatrixRecord.Find();
             repeat
                 MatrixRecords[CurrentMatrixRecordOrdinal].Copy(MatrixRecord);
                 CurrentMatrixRecordOrdinal := CurrentMatrixRecordOrdinal + 1;
-            until (CurrentMatrixRecordOrdinal > MATRIX_CurrentNoOfColumns) or (MatrixRecord.Next <> 1);
+            until (CurrentMatrixRecordOrdinal > MATRIX_CurrentNoOfColumns) or (MatrixRecord.Next() <> 1);
         end;
     end;
 

@@ -88,7 +88,7 @@ codeunit 142076 "UT COD Bank Rec"
     begin
         PostedBankRecHeader."Bank Account No." := CreateBankAccount;
         PostedBankRecHeader."Statement No." := LibraryUTUtility.GetNewCode;
-        PostedBankRecHeader."Statement Date" := WorkDate;
+        PostedBankRecHeader."Statement Date" := WorkDate();
         PostedBankRecHeader.Insert();
     end;
 

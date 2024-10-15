@@ -83,7 +83,7 @@
             if Post then
                 exit
             else
-                Error(Text002, ICPartner.TableCaption, ICPartner.Code, ICPartner.FieldCaption("Inbox Type"), ICPartner."Inbox Type");
+                Error(Text002, ICPartner.TableCaption(), ICPartner.Code, ICPartner.FieldCaption("Inbox Type"), ICPartner."Inbox Type");
         ICPartner.TestField(Blocked, false);
         OnSendSalesDocOnBeforeReleaseSalesDocument(SalesHeader, Post);
 
@@ -111,7 +111,7 @@
             if Post then
                 exit
             else
-                Error(Text002, ICPartner.TableCaption, ICPartner.Code, ICPartner.FieldCaption("Inbox Type"), ICPartner."Inbox Type");
+                Error(Text002, ICPartner.TableCaption(), ICPartner.Code, ICPartner.FieldCaption("Inbox Type"), ICPartner."Inbox Type");
         ICPartner.TestField(Blocked, false);
 
         OnSendPurchDocOnBeforeReleasePurchDocument(PurchHeader, Post);
@@ -187,7 +187,7 @@
             SalesLine.SetRange("Document No.", SalesHeader."No.");
             if SalesLine.Find('-') then
                 repeat
-                    Init;
+                    Init();
                     TransferFields(SalesLine);
                     case SalesLine."Document Type" of
                         SalesLine."Document Type"::Order:
@@ -301,7 +301,7 @@
                 repeat
                     IsCommentType := (SalesInvLine.Type = SalesInvLine.Type::" ");
                     if IsCommentType or ((SalesInvLine."No." <> '') and (SalesInvLine.Quantity <> 0)) then begin
-                        Init;
+                        Init();
                         TransferFields(SalesInvLine);
                         "Document Type" := "Document Type"::Invoice;
                         "IC Transaction No." := OutboxTransaction."Transaction No.";
@@ -418,7 +418,7 @@
                 repeat
                     IsCommentType := (SalesCrMemoLine.Type = SalesCrMemoLine.Type::" ");
                     if IsCommentType or ((SalesCrMemoLine."No." <> '') and (SalesCrMemoLine.Quantity <> 0)) then begin
-                        Init;
+                        Init();
                         TransferFields(SalesCrMemoLine);
                         "Document Type" := "Document Type"::"Credit Memo";
                         "IC Transaction No." := OutboxTransaction."Transaction No.";
@@ -492,7 +492,7 @@
         ICOutBoxPurchHeader."Transaction Source" := OutboxTransaction."Transaction Source";
         OnCreateOutboxPurchDocTransOnAfterTransferFieldsFromPurchHeader(ICOutboxPurchHeader, PurchHeader);
 
-        GetCompanyInfo;
+        GetCompanyInfo();
         AssignCurrencyCodeInOutBoxDoc(ICOutBoxPurchHeader."Currency Code", OutboxTransaction."IC Partner Code");
         DimMgt.CopyDocDimtoICDocDim(DATABASE::"IC Outbox Purchase Header", ICOutBoxPurchHeader."IC Transaction No.",
           ICOutBoxPurchHeader."IC Partner Code", ICOutBoxPurchHeader."Transaction Source", 0, PurchHeader."Dimension Set ID");
@@ -503,7 +503,7 @@
             OnCreateOutboxPurchDocTransOnAfterPurchLineSetFilters(PurchHeader, PurchLine);
             if PurchLine.Find('-') then
                 repeat
-                    Init;
+                    Init();
                     TransferFields(PurchLine);
                     case PurchLine."Document Type" of
                         PurchLine."Document Type"::Order:
@@ -659,7 +659,7 @@
             GetGLSetup();
             with GenJnlLine2 do
                 if InboxTransaction."Transaction Source" = InboxTransaction."Transaction Source"::"Created by Partner" then begin
-                    Init;
+                    Init();
                     "Journal Template Name" := TempGenJnlLine."Journal Template Name";
                     "Journal Batch Name" := TempGenJnlLine."Journal Batch Name";
                     if TempGenJnlLine."Posting Date" <> 0D then
@@ -710,7 +710,7 @@
                     "IC Partner Transaction No." := InboxJnlLine."Transaction No.";
                     "External Document No." := InboxJnlLine."Document No.";
                     OnBeforeInsertGenJnlLine(GenJnlLine2, InboxJnlLine);
-                    Insert;
+                    Insert();
                     InOutBoxJnlLineDim.SetRange("Table ID", DATABASE::"IC Inbox Jnl. Line");
                     InOutBoxJnlLineDim.SetRange("Transaction No.", InboxTransaction."Transaction No.");
                     InOutBoxJnlLineDim.SetRange("Line No.", InboxJnlLine."Line No.");
@@ -721,7 +721,7 @@
                     DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code",
                       "Shortcut Dimension 2 Code");
                     OnCreateJournalLinesOnBeforeModify(GenJnlLine2, InboxJnlLine);
-                    Modify;
+                    Modify();
                     HandledInboxJnlLine.TransferFields(InboxJnlLine);
                     HandledInboxJnlLine.Insert();
                     TempGenJnlLine."Line No." := "Line No.";
@@ -912,7 +912,7 @@
                     SalesLine.Validate("Unit Price", "Unit Price");
                 SalesLine.Validate("Line Discount Amount", "Line Discount Amount");
                 SalesLine."Line Discount %" := "Line Discount %";
-                SalesLine.UpdateAmounts;
+                SalesLine.UpdateAmounts();
                 ValidateSalesLineDeliveryDates(SalesLine, ICInboxSalesLine);
                 UpdateSalesLineICPartnerReference(SalesLine, SalesHeader, ICInboxSalesLine);
             end;
@@ -1809,7 +1809,7 @@
         ICInboxTrans."IC Partner G/L Acc. No." := ICOutboxTrans."IC Partner G/L Acc. No.";
         ICInboxTrans."Source Line No." := ICOutboxTrans."Source Line No.";
 
-        GetCompanyInfo;
+        GetCompanyInfo();
         ICSetup.Get();
         if ICSetup."IC Partner Code" = ICInboxTrans."IC Partner Code" then
             ICPartner.Get(ICOutboxTrans."IC Partner Code")
@@ -1824,7 +1824,7 @@
         then
             Error(
               Text004, ICInboxTrans."Transaction No.", ICInboxTrans.FieldCaption("IC Partner Code"),
-              ICInboxTrans."IC Partner Code", PartnerICInboxTransaction.TableCaption);
+              ICInboxTrans."IC Partner Code", PartnerICInboxTransaction.TableCaption());
 
         if ICPartner."Inbox Type" = ICPartner."Inbox Type"::Database then
             PartnerHandledICInboxTrans.ChangeCompany(ICPartner."Inbox Details");
@@ -1834,7 +1834,7 @@
         then
             Error(
               Text004, ICInboxTrans."Transaction No.", ICInboxTrans.FieldCaption("IC Partner Code"),
-              ICInboxTrans."IC Partner Code", PartnerHandledICInboxTrans.TableCaption);
+              ICInboxTrans."IC Partner Code", PartnerHandledICInboxTrans.TableCaption());
 
         OnBeforeICInboxTransInsert(ICInboxTrans, ICOutboxTrans);
         ICInboxTrans.Insert();
@@ -1930,7 +1930,7 @@
             ICPartner.Get(ICInboxTrans."IC Partner Code");
         end;
         if ICPartner."Vendor No." = '' then
-            Error(Text001, ICPartner.TableCaption, ICPartner.Code, Vendor.TableCaption, ICOutboxSalesHeader."IC Partner Code");
+            Error(Text001, ICPartner.TableCaption(), ICPartner.Code, Vendor.TableCaption(), ICOutboxSalesHeader."IC Partner Code");
 
         with ICInboxPurchHeader do begin
             "IC Transaction No." := ICInboxTrans."Transaction No.";
@@ -1963,7 +1963,7 @@
             "Promised Receipt Date" := ICOutboxSalesHeader."Promised Delivery Date";
             "Prices Including VAT" := ICOutboxSalesHeader."Prices Including VAT";
             OnBeforeICInboxPurchHeaderInsert(ICInboxPurchHeader, ICOutboxSalesHeader);
-            Insert;
+            Insert();
             OnAfterICInboxPurchHeaderInsert(ICInboxPurchHeader, ICOutboxSalesHeader);
         end;
     end;
@@ -1999,7 +1999,7 @@
             "Return Shipment No." := ICOutboxSalesLine."Return Receipt No.";
             "Return Shipment Line No." := ICOutboxSalesLine."Return Receipt Line No.";
             OnBeforeICInboxPurchLineInsert(ICInboxPurchLine, ICOutboxSalesLine);
-            Insert;
+            Insert();
             OnAfterICInboxPurchLineInsert(ICInboxPurchLine, ICOutboxSalesLine);
         end;
     end;
@@ -2031,7 +2031,7 @@
                 ICPartner.Get(ICInboxTrans."IC Partner Code");
             end;
         if ICPartner."Customer No." = '' then
-            Error(Text001, ICPartner.TableCaption, ICPartner.Code, Customer.TableCaption, ICOutboxPurchHeader."IC Partner Code");
+            Error(Text001, ICPartner.TableCaption(), ICPartner.Code, Customer.TableCaption(), ICOutboxPurchHeader."IC Partner Code");
 
         with ICInboxSalesHeader do begin
             "IC Transaction No." := ICInboxTrans."Transaction No.";
@@ -2058,7 +2058,7 @@
             "Requested Delivery Date" := ICOutboxPurchHeader."Requested Receipt Date";
             "Promised Delivery Date" := ICOutboxPurchHeader."Promised Receipt Date";
             OnBeforeICInboxSalesHeaderInsert(ICInboxSalesHeader, ICOutboxPurchHeader);
-            Insert;
+            Insert();
             OnAfterICInboxSalesHeaderInsert(ICInboxSalesHeader, ICOutboxPurchHeader);
         end;
     end;
@@ -2092,7 +2092,7 @@
             "Requested Delivery Date" := ICOutboxPurchLine."Requested Receipt Date";
             "Promised Delivery Date" := ICOutboxPurchLine."Promised Receipt Date";
             OnBeforeICInboxSalesLineInsert(ICInboxSalesLine, ICOutboxPurchLine);
-            Insert;
+            Insert();
             OnAfterICInboxSalesLineInsert(ICInboxSalesLine, ICOutboxPurchLine);
         end;
     end;

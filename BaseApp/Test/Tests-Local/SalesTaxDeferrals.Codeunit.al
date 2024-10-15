@@ -286,7 +286,7 @@ codeunit 142001 "Sales Tax Deferrals"
         TaxJurisdiction.Modify(true);
 
         LibraryERM.CreateTaxDetail(
-          TaxDetail, TaxJurisdiction.Code, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate);
+          TaxDetail, TaxJurisdiction.Code, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", TaxRate);
         TaxDetail.Validate("Expense/Capitalize", ExpenseCapitalzie);
         TaxDetail.Modify(true);

@@ -37,7 +37,7 @@ codeunit 141036 "UT PAG Bank Reconciliation"
 
         // Verify: Verify Bank Rec. Line is deleted.
         Assert.IsFalse(BankRecLine.Get(BankRecLine."Bank Account No.", BankRecLine."Statement No.", BankRecLine."Record Type", BankRecLine."Line No."), 'Bank Reconciliation Line must not exist.');
-        BankRecWorksheet.Close;
+        BankRecWorksheet.Close();
     end;
 
     [Test]
@@ -64,7 +64,7 @@ codeunit 141036 "UT PAG Bank Reconciliation"
 
         // Exercise.
         BankRecWorksheet.RecordAdjustments.Invoke;  // Opens MarkLinesBankRecProcessLinesPageHandler.
-        BankRecWorksheet.Close;
+        BankRecWorksheet.Close();
 
         // Verify: Verify Amount in new created Bank Rec Line for Record Type - Adjustment.
         VerifyAdjustmentBankReconciliation(BankRecLine);
@@ -227,12 +227,12 @@ codeunit 141036 "UT PAG Bank Reconciliation"
         CreateBankAccount(BankAccount);
         BankRecHeader."Bank Account No." := BankAccount."No.";
         BankRecHeader."Statement No." := LibraryUTUtility.GetNewCode;
-        BankRecHeader."Statement Date" := WorkDate;
+        BankRecHeader."Statement Date" := WorkDate();
         BankRecHeader.Insert();
 
         // Create Bank Rec. Line.
         BankRecLine.Cleared := true;
-        BankRecLine."Posting Date" := WorkDate;
+        BankRecLine."Posting Date" := WorkDate();
         BankRecLine."Document No." := LibraryUTUtility.GetNewCode;
         BankRecLine."Cleared Amount" := LibraryRandom.RandDec(10, 2);
         BankRecLine."Statement No." := BankRecHeader."Statement No.";

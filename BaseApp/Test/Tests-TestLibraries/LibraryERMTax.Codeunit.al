@@ -143,7 +143,7 @@ codeunit 140001 "Library - ERM Tax"
     [Scope('OnPrem')]
     procedure CreateTaxDetailWithTaxType(var TaxDetail: Record "Tax Detail"; TaxJurisdictionCode: Code[10]; TaxGroupCode: Code[20]; TaxType: Option; TaxBelowMaximum: Decimal; MaximumAmount: Decimal)
     begin
-        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, TaxType, WorkDate);
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, TaxType, WorkDate());
         with TaxDetail do begin
             Validate("Tax Below Maximum", TaxBelowMaximum);
             Validate("Maximum Amount/Qty.", MaximumAmount);

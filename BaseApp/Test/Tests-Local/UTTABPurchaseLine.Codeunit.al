@@ -34,7 +34,7 @@ codeunit 144051 "UT TAB Purchase Line"
         FieldRef := RecRef.Field(PurchaseLine.FieldNo(PurchaseLine."Location Code"));
 
         // Exercise: Validate statement to call OnValidate Trigger of the respective fields.
-        FieldRef.Validate;
+        FieldRef.Validate();
 
         // Verify.
         RecRef.SetTable(PurchaseLine);
@@ -83,7 +83,7 @@ codeunit 144051 "UT TAB Purchase Line"
         FieldRef := RecRef.Field(PurchaseLine.FieldNo(PurchaseLine."Location Code"));
 
         // Exercise: Validate statement to call OnValidate Trigger of the respective fields.
-        FieldRef.Validate;
+        FieldRef.Validate();
 
         // Verify.
         RecRef.SetTable(PurchaseLine);
@@ -135,7 +135,7 @@ codeunit 144051 "UT TAB Purchase Line"
         FieldRef := RecRef.Field(PurchaseLine.FieldNo(PurchaseLine."Location Code"));
 
         // Exercise: Validate statement to call OnValidate Trigger of the respective fields.
-        FieldRef.Validate;
+        FieldRef.Validate();
 
         // Verify.
         RecRef.SetTable(PurchaseLine);
@@ -178,7 +178,7 @@ codeunit 144051 "UT TAB Purchase Line"
         FieldRef := RecRef.Field(PurchaseLine.FieldNo(PurchaseLine."Tax Area Code"));
 
         // Exercise: Validate statement to call OnValidate Trigger of the respective fields.
-        asserterror FieldRef.Validate;
+        asserterror FieldRef.Validate();
 
         // Verify.
         Assert.ExpectedErrorCode('Dialog');

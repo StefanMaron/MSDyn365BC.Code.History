@@ -155,9 +155,9 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         // Exercise.
         PaymentJournal.OpenEdit;
         asserterror ExportPaymentJournalDirect(PaymentJournal, GenJournalLine);
-        PaymentJournal.Close;
+        PaymentJournal.Close();
         // Verify: Verify XML Data.
-        GenJournalLine.Find;
+        GenJournalLine.Find();
 
         // Verify: Verify Journal Template Name after report generation.
         LibraryReportDataset.LoadDataSetFile;
@@ -199,7 +199,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         RunVoidElectronicPayments(GenJournalLine);
 
         // [THEN] Verify Check Printed, Check Exported and Check Transmitted
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         Assert.IsFalse(
           GenJournalLine."Check Printed", StrSubstNo(VoidElectronicPaymentIATErr, GenJournalLine.FieldCaption("Check Printed")));
         Assert.IsFalse(
@@ -274,9 +274,9 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         // Exercise.
         PaymentJournal.OpenEdit;
         asserterror ExportPaymentJournalDirect(PaymentJournal, GenJournalLine);
-        PaymentJournal.Close;
+        PaymentJournal.Close();
         // Verify: Verify XML Data.
-        GenJournalLine.Find;
+        GenJournalLine.Find();
     end;
 
     local procedure RunVoidElectronicPayments(GenJournalLine: Record "Gen. Journal Line")
@@ -416,7 +416,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         CustLedgerEntry."Remaining Amt. (LCY)" := CustLedgerEntry.Amount;
         CustLedgerEntry."Amount (LCY)" := CustLedgerEntry.Amount;
         CustLedgerEntry.Open := true;
-        CustLedgerEntry."Due Date" := WorkDate;
+        CustLedgerEntry."Due Date" := WorkDate();
         CustLedgerEntry.Positive := true;
         CustLedgerEntry."Debit Amount" := CustLedgerEntry.Amount;
         CustLedgerEntry."Debit Amount (LCY)" := CustLedgerEntry.Amount;
@@ -444,7 +444,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         VendorLedgerEntry."Remaining Amt. (LCY)" := VendorLedgerEntry.Amount;
         VendorLedgerEntry."Amount (LCY)" := VendorLedgerEntry.Amount;
         VendorLedgerEntry.Open := true;
-        VendorLedgerEntry."Due Date" := WorkDate;
+        VendorLedgerEntry."Due Date" := WorkDate();
         VendorLedgerEntry."Credit Amount" := VendorLedgerEntry.Amount;
         VendorLedgerEntry."Credit Amount (LCY)" := VendorLedgerEntry.Amount;
         VendorLedgerEntry."Original Amount" := VendorLedgerEntry.Amount;
@@ -471,7 +471,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         GenJournalLine."Amount (LCY)" := Amount;
         GenJournalLine."Applies-to Doc. Type" := GenJournalLine."Applies-to Doc. Type"::Invoice;
         GenJournalLine."Applies-to Doc. No." := ApplyToDocNo;
-        GenJournalLine."Due Date" := WorkDate;
+        GenJournalLine."Due Date" := WorkDate();
         GenJournalTemplate.SetRange(Recurring, false);
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
@@ -498,7 +498,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         with GenJournalLine do begin
             "Amount (LCY)" := Amount;
             "Bank Payment Type" := "Bank Payment Type"::"Electronic Payment-IAT";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -600,7 +600,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         GenJournalLine.SetFilter("Journal Template Name", GenJournalLine."Journal Template Name");
 
         GenJnlLineRecRef.GetTable(GenJournalLine);
-        GenJnlLineRecRef.SetView(GenJournalLine.GetView);
+        GenJnlLineRecRef.SetView(GenJournalLine.GetView());
 
         TempDirectory := FileManagement.CombinePath(TemporaryPath, TempSubDirectoryTxt);
         if not FileManagement.ServerDirectoryExists(TempDirectory) then

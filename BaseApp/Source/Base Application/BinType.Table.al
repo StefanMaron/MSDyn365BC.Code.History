@@ -74,21 +74,21 @@ table 7303 "Bin Type"
         if Zone.FindFirst() then
             Error(
               Text000,
-              TableCaption, Zone.TableCaption, Zone."Location Code", Zone.Code);
+              TableCaption, Zone.TableCaption(), Zone."Location Code", Zone.Code);
 
         Bin.SetCurrentKey("Bin Type Code");
         Bin.SetRange("Bin Type Code", Code);
         if Bin.FindFirst() then
             Error(
               Text001,
-              TableCaption, Bin.TableCaption, Bin."Location Code", Bin."Zone Code", Bin.Code);
+              TableCaption, Bin.TableCaption(), Bin."Location Code", Bin."Zone Code", Bin.Code);
 
         BinContent.SetCurrentKey("Bin Type Code");
         BinContent.SetRange("Bin Type Code", Code);
         if BinContent.FindFirst() then
             Error(
               Text001,
-              TableCaption, BinContent.TableCaption, BinContent."Location Code",
+              TableCaption, BinContent.TableCaption(), BinContent."Location Code",
               BinContent."Zone Code", BinContent."Bin Code");
     end;
 
@@ -127,7 +127,7 @@ table 7303 "Bin Type"
                     BinType.SetRange("Put Away", "Put Away");
                     BinType.SetRange(Pick, Pick);
                     if BinType.FindFirst() then
-                        Error(Text002, TableCaption, BinType.Code);
+                        Error(Text002, TableCaption(), BinType.Code);
                 end;
             FieldNo(Receive):
                 begin
@@ -179,7 +179,7 @@ table 7303 "Bin Type"
                     else
                         BinTypeFilter := BinTypeFilter + '|' + BinType.Code;
                 end else
-                    Error(Text003, BinType.TableCaption);
+                    Error(Text003, BinType.TableCaption());
             until BinType.Next() = 0;
     end;
 

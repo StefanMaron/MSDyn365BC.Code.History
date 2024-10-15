@@ -17,7 +17,7 @@ page 7212 "CRM Shipping Method List"
             repeater(Control2)
             {
                 ShowCaption = false;
-                field("Code"; "Code")
+                field("Code"; Rec."Code")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Code';
@@ -43,8 +43,6 @@ page 7212 "CRM Shipping Method List"
                 ApplicationArea = Suite;
                 Caption = 'Create in Business Central';
                 Image = NewCustomer;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Generate the entity from the coupled Dataverse Shipping Method.';
                 Visible = OptionMappingEnabled;
 
@@ -63,8 +61,6 @@ page 7212 "CRM Shipping Method List"
                 ApplicationArea = Suite;
                 Caption = 'Hide Coupled Shipping Method';
                 Image = FilterLines;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Do not show coupled Shipping Method.';
 
                 trigger OnAction()
@@ -77,14 +73,29 @@ page 7212 "CRM Shipping Method List"
                 ApplicationArea = Suite;
                 Caption = 'Show Coupled Shipping Method';
                 Image = ClearFilter;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Show coupled Shipping Method.';
 
                 trigger OnAction()
                 begin
                     Rec.MarkedOnly(false);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(CreateFromCRM_Promoted; CreateFromCRM)
+                {
+                }
+                actionref(ShowOnlyUncoupled_Promoted; ShowOnlyUncoupled)
+                {
+                }
+                actionref(ShowAll_Promoted; ShowAll)
+                {
+                }
             }
         }
     }

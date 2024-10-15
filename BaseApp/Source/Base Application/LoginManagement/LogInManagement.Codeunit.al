@@ -35,14 +35,14 @@ codeunit 40 LogInManagement
         AzureADPlan: Codeunit "Azure AD Plan";
         CurrentDate: Date;
     begin
-        OnShowTermsAndConditions;
+        OnShowTermsAndConditions();
 
 #if not CLEAN20
-        OnBeforeCompanyOpen;
+        OnBeforeCompanyOpen();
 #endif
 
         if GuiAllowed and (ClientTypeManagement.GetCurrentClientType() <> ClientType::Background) then
-            LogInStart;
+            LogInStart();
 
         if ClientTypeManagement.GetCurrentClientType() in [ClientType::Api, ClientType::ODataV4] then
             if GetCurrentDateInUserTimeZone(CurrentDate) then
@@ -51,7 +51,7 @@ codeunit 40 LogInManagement
         AzureADPlan.CheckMixedPlans();
 
 #if not CLEAN20
-        OnAfterCompanyOpen;
+        OnAfterCompanyOpen();
 #endif
     end;
 
@@ -59,10 +59,10 @@ codeunit 40 LogInManagement
     var
         ClientTypeManagement: Codeunit "Client Type Management";
     begin
-        OnBeforeCompanyClose;
-        if GuiAllowed or (ClientTypeManagement.GetCurrentClientType in [ClientType::Web, ClientType::Phone, ClientType::Tablet]) then
-            LogInEnd;
-        OnAfterCompanyClose;
+        OnBeforeCompanyClose();
+        if GuiAllowed or (ClientTypeManagement.GetCurrentClientType() in [ClientType::Web, ClientType::Phone, ClientType::Tablet]) then
+            LogInEnd();
+        OnAfterCompanyClose();
     end;
 
     local procedure LogInStart()
@@ -76,21 +76,21 @@ codeunit 40 LogInManagement
         Language.SetRange("Globally Enabled", true);
         Language."Language ID" := GlobalLanguage;
 
-        if not Language.Find then begin
+        if not Language.Find() then begin
             Language."Language ID" := WindowsLanguage;
-            if not Language.Find then
+            if not Language.Find() then
                 Language."Language ID" := LanguageManagement.GetDefaultApplicationLanguageId();
         end;
         GlobalLanguage := Language."Language ID";
 
         // Check if the logged in user must change login before allowing access.
         if not User.IsEmpty() then begin
-            if IdentityManagement.IsUserNamePasswordAuthentication then begin
-                User.SetRange("User Security ID", UserSecurityId);
+            if IdentityManagement.IsUserNamePasswordAuthentication() then begin
+                User.SetRange("User Security ID", UserSecurityId());
                 User.FindFirst();
                 if User."Change Password" then begin
                     REPORT.Run(REPORT::"Change Password");
-                    SelectLatestVersion;
+                    SelectLatestVersion();
                     User.FindFirst();
                     if User."Change Password" then
                         Error(PasswordChangeNeededErr);
@@ -101,21 +101,21 @@ codeunit 40 LogInManagement
         end;
 
 #if not CLEAN20
-        OnBeforeLogInStart;
+        OnBeforeLogInStart();
 #endif
 
-        UpdateUserPersonalization;
+        UpdateUserPersonalization();
 
         LogInDate := Today;
         LogInTime := Time;
         LogInWorkDate := 0D;
 
-        WorkDate := GetDefaultWorkDate;
+        WorkDate := GetDefaultWorkDate();
 
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
 
 #if not CLEAN20
-        OnAfterLogInStart;
+        OnAfterLogInStart();
 #endif
     end;
 
@@ -145,7 +145,7 @@ codeunit 40 LogInManagement
                 OnLogInEndOnAfterGetUserSetupRegisterTime(UserSetup);
             end;
             if not UserSetupFound then
-                if GetGLSetup then
+                if GetGLSetup() then
                     RegisterTime := GLSetup."Register Time";
             if RegisterTime then begin
                 LogOutDate := Today;
@@ -158,7 +158,7 @@ codeunit 40 LogInManagement
                 UserTimeRegister."User ID" := UserId;
                 UserTimeRegister.Date := LogInDate;
                 UserTimeRegister.LockTable();
-                if UserTimeRegister.Find then begin
+                if UserTimeRegister.Find() then begin
                     UserTimeRegister.Minutes := UserTimeRegister.Minutes + Minutes;
                     UserTimeRegister.Modify();
                 end else begin
@@ -169,7 +169,7 @@ codeunit 40 LogInManagement
         end;
 
 #if not CLEAN20
-        OnAfterLogInEnd;
+        OnAfterLogInEnd();
 #endif
     end;
 
@@ -211,7 +211,7 @@ codeunit 40 LogInManagement
     var
         CompanyInformation: Record "Company Information";
     begin
-        if CompanyInformation.Get then;
+        if CompanyInformation.Get() then;
         CompanyInformation.GetSystemIndicator(Text, Style);
     end;
 
@@ -223,7 +223,7 @@ codeunit 40 LogInManagement
         PermissionManager: Codeunit "Permission Manager";
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if not UserPersonalization.Get(UserSecurityId) then
+        if not UserPersonalization.Get(UserSecurityId()) then
             exit;
 
         if AllProfile.Get(UserPersonalization.Scope, UserPersonalization."App ID", UserPersonalization."Profile ID") then begin
@@ -238,9 +238,9 @@ codeunit 40 LogInManagement
                 Commit();
             end;
         end else
-            if EnvironmentInfo.IsSaaS then begin
+            if EnvironmentInfo.IsSaaS() then begin
                 AllProfile.Reset();
-                PermissionManager.GetDefaultProfileID(UserSecurityId, AllProfile);
+                PermissionManager.GetDefaultProfileID(UserSecurityId(), AllProfile);
 
                 if not AllProfile.IsEmpty() then begin
                     UserPersonalization."Profile ID" := AllProfile."Profile ID";
@@ -267,13 +267,13 @@ codeunit 40 LogInManagement
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterInitialization', '', false, false)]
     local procedure OnCompanyOpen()
     begin
-        CompanyOpen;
+        CompanyOpen();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company Triggers", 'OnCompanyClose', '', false, false)]
     local procedure OnCompanyClose()
     begin
-        CompanyClose;
+        CompanyClose();
     end;
 
 #if not CLEAN20

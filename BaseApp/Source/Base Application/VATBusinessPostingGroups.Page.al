@@ -49,11 +49,20 @@ page 470 "VAT Business Posting Groups"
                 ApplicationArea = Basic, Suite;
                 Caption = '&Setup';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "VAT Posting Setup";
                 RunPageLink = "VAT Bus. Posting Group" = FIELD(Code);
                 ToolTip = 'View or edit combinations of Tax business posting groups and Tax product posting groups. Fill in a line for each combination of VAT business posting group and VAT product posting group.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Setup_Promoted"; "&Setup")
+                {
+                }
             }
         }
     }

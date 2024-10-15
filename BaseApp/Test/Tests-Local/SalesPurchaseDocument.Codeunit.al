@@ -213,7 +213,7 @@ codeunit 144001 "Sales/Purchase Document"
         TaxGroup: Record "Tax Group";
     begin
         LibraryERM.CreateTaxGroup(TaxGroup);
-        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate);
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", LibraryRandom.RandInt(10));  // Using RANDOM value for Tax Below Maximum.
         TaxDetail.Modify(true);
     end;
@@ -243,7 +243,7 @@ codeunit 144001 "Sales/Purchase Document"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
-        GLEntry.TestField(Amount, LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate));
+        GLEntry.TestField(Amount, LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate()));
         GLEntry.TestField("Additional-Currency Amount", AdditionalCurrencyAmount);
     end;
 }

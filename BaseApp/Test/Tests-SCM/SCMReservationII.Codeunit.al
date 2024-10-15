@@ -228,7 +228,7 @@ codeunit 137065 "SCM Reservation II"
 
         // Exercise: Update Expected Receipt Date and Reserve it again.
         PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
-        PurchaseLine.Validate("Expected Receipt Date", CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+        PurchaseLine.Validate("Expected Receipt Date", CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         PurchaseLine.Modify(true);
 
         // Verify: Verify the reserved quantity on Sales Line.
@@ -599,7 +599,7 @@ codeunit 137065 "SCM Reservation II"
         CreateProductionItem(Item, ProductionBOMHeader."No.");  // Parent item with Production BOM No.
 
         // Exercise: Update Flushing Method On Child Item, after Production BOM No. updated on Parent Item. Certify Production BOM and create a Released Production Order.
-        Item2.Find;
+        Item2.Find();
         UpdateFlushingMethodAndCertifyBOM(Item2, ProductionBOMHeader);
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandDec(100, 2), '', '');
@@ -629,7 +629,7 @@ codeunit 137065 "SCM Reservation II"
 
         // Exercise: Update Order Tracking Policy on child Item. Create and refresh Released Production Order.
         LibraryVariableStorage.Enqueue(MessageChangeNotAffected);  // Enqueue variable.
-        Item2.Find;
+        Item2.Find();
         Item2.Validate("Order Tracking Policy", Item2."Order Tracking Policy"::"Tracking & Action Msg.");
         Item2.Modify(true);
         CreateAndRefreshProdOrder(
@@ -1014,7 +1014,7 @@ codeunit 137065 "SCM Reservation II"
         CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LibraryRandom.RandDec(10, 2) + 1000, '');
 
         // Exercise: Calculate Regenerative Plan through Planning Worksheet on WORKDATE. Accept and carry out Action Message.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
         AcceptAndCarryOutActionMessage(Item."No.");
 
         // Verify: Verify the Unit Cost Per on Routing Line calculated correctly through Calculate Regenerative Plan.
@@ -1447,7 +1447,7 @@ codeunit 137065 "SCM Reservation II"
         CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LibraryRandom.RandDec(100, 2), '');
 
         // Exercise: Calculate Regenerative Plan through Planning Worksheet on WORKDATE. Accept and carry out Action Message.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
         AcceptAndCarryOutActionMessage(Item."No.");
 
         // Verify: Verify that Production / Purchase Order Line created with Surplus Quantity in addition to the Quantity.
@@ -1494,7 +1494,7 @@ codeunit 137065 "SCM Reservation II"
         CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LibraryRandom.RandDec(100, 2), '');
 
         // Exercise: Calculate Regenerative Plan through Planning Worksheet on WORKDATE.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // Verify: Verify the Quantity and Due Date on Requisition Line for correct Parent Item.
         SelectRequisitionLine(RequisitionLine, Item."No.");
@@ -2114,7 +2114,7 @@ codeunit 137065 "SCM Reservation II"
         CreateAndReleaseSalesOrder(SalesHeader, Item."No.", SalesOrderQty, '');
 
         // Exercise: Calculate Regenerative Plan through Planning Worksheet on WORKDATE.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // Verify: Verify the Quantity Per and Expected Quantity on Planning Component.
         // "Quantity Per" = 2083 * QtyPer(qty per in the production BOM) / 2083 (qty per of new Item uom) = QtyPer
@@ -2324,11 +2324,11 @@ codeunit 137065 "SCM Reservation II"
         LibraryWarehouse.WarehouseJournalSetup(Location.Code, WarehouseJournalTemplate, WarehouseJournalBatch);
 
         // [GIVEN] Post postive adjustment on "B2", expiration date = WORKDATE, quantity = "X", lot no. = "L1"
-        PostWhsePositiveAdjmtWithLotExpirationDate(Location.Code, FromBin, Item."No.", ReplenishQty, LotNo[1], WorkDate);
+        PostWhsePositiveAdjmtWithLotExpirationDate(Location.Code, FromBin, Item."No.", ReplenishQty, LotNo[1], WorkDate());
         // [GIVEN] Post postive adjustment on "B2", expiration date = WORKDATE + 1, quantity = "X", lot no. = "L2"
         PostWhsePositiveAdjmtWithLotExpirationDate(Location.Code, FromBin, Item."No.", ReplenishQty, LotNo[2], WorkDate + 1);
         // [GIVEN] Post postive adjustment on "B1", quantity is below minimum quantity for this bin
-        PostWhsePositiveAdjmtWithLotExpirationDate(Location.Code, ToBin, Item."No.", ReplenishQty / 2, LotNo[1], WorkDate);
+        PostWhsePositiveAdjmtWithLotExpirationDate(Location.Code, ToBin, Item."No.", ReplenishQty / 2, LotNo[1], WorkDate());
 
         CalculateAndPostWarehouseAdjustment(Item."No.");
 
@@ -3434,8 +3434,8 @@ codeunit 137065 "SCM Reservation II"
             WarehouseActivityLine.Validate("Lot No.", ItemLedgerEntry."Lot No.");
             WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
             WarehouseActivityLine.Modify(true);
-            ItemLedgerEntry.Next;
-        until WarehouseActivityLine.Next = 0;
+            ItemLedgerEntry.Next();
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure UpdateManufacturingSetupComponentsAtLocation(NewComponentsAtLocation: Code[10]) ComponentsAtLocation: Code[10]
@@ -3688,7 +3688,7 @@ codeunit 137065 "SCM Reservation II"
         repeat
             WarehouseActivityLine.TestField("Item No.", ItemNo);
             WarehouseActivityLine.TestField(Quantity, Quantity);
-        until WarehouseActivityLine.Next = 0;
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure VerifyWarehouseActivityLineLot(LocationCode: Code[10]; ItemNo: Code[20]; LotNo: Code[50]; ExpectedQty: Decimal)
@@ -3718,7 +3718,7 @@ codeunit 137065 "SCM Reservation II"
             RegisteredWhseActivityLine.TestField("Lot No.");
             RegisteredWhseActivityLine.TestField("Item No.", ItemNo);
             RegisteredWhseActivityLine.TestField(Quantity, Quantity);
-        until RegisteredWhseActivityLine.Next = 0;
+        until RegisteredWhseActivityLine.Next() = 0;
     end;
 
     local procedure VerifyItemLedgerEntry(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Quantity: Decimal; Tracking: Boolean)
@@ -3730,7 +3730,7 @@ codeunit 137065 "SCM Reservation II"
             ItemLedgerEntry.TestField(Quantity, Quantity);
             if Tracking then
                 ItemLedgerEntry.TestField("Lot No.");
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyItemLedgerEntries(SourceNo: Code[20]; Quantity1: Integer; Quantity2: Integer)
@@ -3770,7 +3770,7 @@ codeunit 137065 "SCM Reservation II"
             if ItemLedgerEntry."Cost Amount (Actual)" < MinValue then
                 MinValue := ItemLedgerEntry."Cost Amount (Actual)";
             Assert.AreNearlyEqual(MaxValue, MinValue, 0.01, StrSubstNo(CostAmountActualInILEErr, MaxValue, MinValue)); // The difference between MaxValue and MinValue should not be greater than 0.01.
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyWarehouseEntry(EntryType: Option; ItemNo: Code[20]; Quantity: Decimal; BinCode: Code[20])
@@ -3874,7 +3874,7 @@ codeunit 137065 "SCM Reservation II"
         repeat
             ReservationEntry.TestField("Location Code", LocationCode);
             ReservationEntry.TestField("Shipment Date", ShipmentDate);
-        until ReservationEntry.Next = 0;
+        until ReservationEntry.Next() = 0;
     end;
 
     local procedure VerifySerialTrackingAndQuantityInItemLedgerEntry(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Quantity: Decimal)
@@ -3885,7 +3885,7 @@ codeunit 137065 "SCM Reservation II"
         repeat
             ItemLedgerEntry.TestField(Quantity, Quantity);
             ItemLedgerEntry.TestField("Serial No.");
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyRegisteredWhseActivityLineAndCalcTotalQty(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ItemNo: Code[20]; ActionType: Enum "Warehouse Action Type") SumQuantity: Decimal
@@ -4034,7 +4034,7 @@ codeunit 137065 "SCM Reservation II"
     begin
         // Verifying the values on Production Journal page.
         LibraryVariableStorage.Dequeue(ItemNo);  // Dequeue variable.
-        ProductionJournal.Next; // To verify the next component updated.
+        ProductionJournal.Next(); // To verify the next component updated.
         ProductionJournal."Item No.".AssertEquals(ItemNo);
         ProductionJournal.OK.Invoke;
     end;

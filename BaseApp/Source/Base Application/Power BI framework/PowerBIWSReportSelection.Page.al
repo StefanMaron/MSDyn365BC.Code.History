@@ -5,7 +5,6 @@ page 6322 "Power BI WS Report Selection"
     InsertAllowed = false;
     LinksAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Manage,Get Reports';
     SourceTable = "Power BI Selection Element";
     SourceTableTemporary = true;
 
@@ -122,10 +121,6 @@ page 6322 "Power BI WS Report Selection"
                 Enabled = not Rec.Enabled and (Rec.Type = Rec.Type::Report);
                 Gesture = LeftSwipe;
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Scope = Repeater;
                 ToolTip = 'Enables the report selection.';
 
@@ -142,10 +137,6 @@ page 6322 "Power BI WS Report Selection"
                 Enabled = Rec.Enabled and (Rec.Type = Rec.Type::Report);
                 Gesture = RightSwipe;
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Scope = Repeater;
                 ToolTip = 'Disables the report selection.';
 
@@ -160,10 +151,6 @@ page 6322 "Power BI WS Report Selection"
                 ApplicationArea = All;
                 Caption = 'Refresh List';
                 Image = Refresh;
-                Promoted = true;
-                PromotedCategory = Category5;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Update the report list with any newly added reports.';
 
                 trigger OnAction()
@@ -179,9 +166,6 @@ page 6322 "Power BI WS Report Selection"
                 ApplicationArea = All;
                 Caption = 'My Organization';
                 Image = PowerBI;
-                Promoted = true;
-                PromotedCategory = Category5;
-                PromotedOnly = true;
                 ToolTip = 'Browse content packs that other people in your organization have published.';
 
                 trigger OnAction()
@@ -195,9 +179,6 @@ page 6322 "Power BI WS Report Selection"
                 ApplicationArea = All;
                 Caption = 'Services';
                 Image = PowerBI;
-                Promoted = true;
-                PromotedCategory = Category5;
-                PromotedOnly = true;
                 ToolTip = 'Choose content packs from online services that you use.';
 
                 trigger OnAction()
@@ -211,9 +192,6 @@ page 6322 "Power BI WS Report Selection"
                 ApplicationArea = All;
                 Caption = 'Connection Information';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Category5;
-                PromotedOnly = true;
                 RunObject = Page "Content Pack Setup Wizard";
                 ToolTip = 'Show information for connecting to Power BI content packs.';
                 Visible = NOT IsSaaS;
@@ -223,9 +201,6 @@ page 6322 "Power BI WS Report Selection"
                 ApplicationArea = All;
                 Caption = 'Default Reports';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedOnly = true;
                 ToolTip = 'Manage your deployed default reports.';
 
                 trigger OnAction()
@@ -233,6 +208,44 @@ page 6322 "Power BI WS Report Selection"
                     PAGE.RunModal(PAGE::"Power BI Deployments");
                     // TODO: Set this button's visibility to equal "IsSaaS" so it's not visible for on-prem, where we won't have OOB uploads anyways.
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Manage', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(EnableReport_Promoted; EnableReport)
+                {
+                }
+                actionref(DisableReport_Promoted; DisableReport)
+                {
+                }
+                actionref(CleanDeployments_Promoted; CleanDeployments)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Get Reports', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Refresh_Promoted; Refresh)
+                {
+                }
+                actionref(MyOrganization_Promoted; MyOrganization)
+                {
+                }
+                actionref(Services_Promoted; Services)
+                {
+                }
+                actionref(ConnectionInfo_Promoted; ConnectionInfo)
+                {
+                }
             }
         }
     }
@@ -287,7 +300,7 @@ page 6322 "Power BI WS Report Selection"
         EnvironmentInfo: Codeunit "Environment Information";
         PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
         PowerBIWorkspaceMgt: Codeunit "Power BI Workspace Mgt.";
-        Context: Text[30];
+        PageContext: Text[30];
         [InDataSet]
         IndentationValue: Integer;
         IsPgClosedOkay: Boolean;
@@ -298,12 +311,14 @@ page 6322 "Power BI WS Report Selection"
         ShowAdditionalFields: Boolean; // This value is always false, but dynamic visibility of fields enables testability
         ErrorMessageText: Text;
         FailedToLoadReportListTelemetryErr: Label 'PowerBIReportSelection failed to load reports. Error message: %1', Locked = true;
+#if not CLEAN21
         FailedToInsertReportTelemetryMsg: Label 'Failed to insert report in buffer (has null id: %1).', Locked = true;
+#endif
 
     procedure SetContext(ParentContext: Text[30])
     begin
         // Sets the ID of the parent page that reports are being selected for.
-        Context := ParentContext;
+        PageContext := ParentContext;
     end;
 
     [TryFunction]
@@ -312,7 +327,7 @@ page 6322 "Power BI WS Report Selection"
         // Clears and retrieves a list of all reports in the user's Power BI account.
         Reset();
         DeleteAll();
-        PowerBIWorkspaceMgt.GetReportsAndWorkspaces(Rec, Context);
+        PowerBIWorkspaceMgt.GetReportsAndWorkspaces(Rec, PageContext);
 
         if IsEmpty then begin
             HasReports := false;
@@ -336,8 +351,8 @@ page 6322 "Power BI WS Report Selection"
         TempPowerBISelectionElement.Copy(Rec, true);
 
         // Clear out all old records before re-adding (easiest way to remove invalid rows, e.g. deleted reports).
-        PowerBiReportConfiguration.SetFilter("User Security ID", UserSecurityId());
-        PowerBiReportConfiguration.SetFilter(Context, Context);
+        PowerBiReportConfiguration.SetRange("User Security ID", UserSecurityId());
+        PowerBiReportConfiguration.SetRange(Context, PageContext);
         PowerBiReportConfiguration.DeleteAll();
         PowerBiReportConfiguration.Reset();
 
@@ -348,7 +363,7 @@ page 6322 "Power BI WS Report Selection"
                     PowerBiReportConfiguration.Init();
                     PowerBiReportConfiguration."User Security ID" := UserSecurityId();
                     PowerBiReportConfiguration."Report ID" := TempPowerBISelectionElement.ID;
-                    PowerBiReportConfiguration.Context := Context;
+                    PowerBiReportConfiguration.Context := PageContext;
                     PowerBiReportConfiguration.Validate(ReportEmbedUrl, TempPowerBISelectionElement.EmbedUrl);
                     PowerBiReportConfiguration."Workspace Name" := TempPowerBISelectionElement.WorkspaceName;
                     PowerBiReportConfiguration."Workspace ID" := TempPowerBISelectionElement.WorkspaceID;
@@ -375,6 +390,8 @@ page 6322 "Power BI WS Report Selection"
         Session.LogMessage('0000F5B', StrSubstNo(FailedToLoadReportListTelemetryErr, GetLastErrorText(true)), Verbosity::Warning, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', PowerBIServiceMgt.GetPowerBiTelemetryCategory());
     end;
 
+#if not CLEAN21
+    [Obsolete('Use the page builtin function GetRecord instead.', '21.0')]
     [Scope('OnPrem')]
     procedure GetSelectedReports(var TempPowerBIReportBuffer: Record "Power BI Report Buffer" temporary)
     var
@@ -405,5 +422,6 @@ page 6322 "Power BI WS Report Selection"
 
         if TempPowerBIReportBuffer.Get(Rec.ID) then;
     end;
+#endif
 }
 

@@ -26,10 +26,10 @@ page 564 "Dimension Selection-Level"
                     begin
                         if Level <> Level::" " then begin
                             DimSelectBuffer.Copy(Rec);
-                            Reset;
+                            Reset();
                             SetFilter(Code, '<>%1', DimSelectBuffer.Code);
                             SetRange(Level, DimSelectBuffer.Level);
-                            LevelExists := not IsEmpty;
+                            LevelExists := not IsEmpty();
                             Copy(DimSelectBuffer);
 
                             if LevelExists then
@@ -49,7 +49,7 @@ page 564 "Dimension Selection-Level"
                     Editable = false;
                     ToolTip = 'Specifies a description of the selected dimension.';
                 }
-                field("Dimension Value Filter"; "Dimension Value Filter")
+                field("Dimension Value Filter"; Rec."Dimension Value Filter")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value that the analysis view is based on.';
@@ -87,7 +87,7 @@ page 564 "Dimension Selection-Level"
             if Dim.Get(NewCode) then
                 NewDescription := Dim.GetMLName(GlobalLanguage);
 
-        Init;
+        Init();
         Selected := NewSelected;
         Code := NewCode;
         Description := NewDescription;
@@ -105,7 +105,7 @@ page 564 "Dimension Selection-Level"
             CashFlowForecast.TableCaption:
                 "Filter Lookup Table No." := DATABASE::"Cash Flow Forecast";
         end;
-        Insert;
+        Insert();
     end;
 }
 

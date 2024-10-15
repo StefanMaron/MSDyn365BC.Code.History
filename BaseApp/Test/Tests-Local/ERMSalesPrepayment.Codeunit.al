@@ -114,7 +114,7 @@ codeunit 141000 "ERM Sales Prepayment"
     local procedure CreateSalesTaxDetail(var TaxDetail: Record "Tax Detail"; var TaxGroup: Record "Tax Group"; TaxJurisdictionCode: Code[10])
     begin
         LibraryERM.CreateTaxGroup(TaxGroup);
-        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate);
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
     end;
 
     local procedure CreateTaxArea(var TaxGroup: Record "Tax Group"): Code[20]
@@ -158,11 +158,11 @@ codeunit 141000 "ERM Sales Prepayment"
             if Get(VATBusPostingGroup, VATProdPostingGroup) then
                 exit;
 
-            Init;
+            Init();
             Validate("VAT Bus. Posting Group", VATBusPostingGroup);
             Validate("VAT Prod. Posting Group", VATProdPostingGroup);
             Validate("Sales VAT Account", CreateGLAccount('', ''));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -225,8 +225,8 @@ codeunit 141000 "ERM Sales Prepayment"
         NewRelationalExchRateAmount := LibraryRandom.RandDecInRange(101, 200, 2);
 
         with CurrencyExchangeRate do begin
-            if not Get(CurrencyCode, WorkDate) then
-                LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, WorkDate);
+            if not Get(CurrencyCode, WorkDate()) then
+                LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, WorkDate());
             Validate("Exchange Rate Amount", NewExchangeRateAmount);
             Validate("Adjustment Exch. Rate Amount", NewExchangeRateAmount);
             Validate("Relational Exch. Rate Amount", NewRelationalExchRateAmount);

@@ -460,7 +460,7 @@
         if GenerateEFTFiles.GenerateEFTFileLines.First then
             repeat
                 Count += 1;
-            until not GenerateEFTFiles.GenerateEFTFileLines.Next;
+            until not GenerateEFTFiles.GenerateEFTFileLines.Next();
 
         Assert.AreEqual(Count, 2, NoOfRecordsErr);
     end;
@@ -509,7 +509,7 @@
         if GenerateEFTFiles.GenerateEFTFileLines.First then
             repeat
                 Count += 1;
-            until not GenerateEFTFiles.GenerateEFTFileLines.Next;
+            until not GenerateEFTFiles.GenerateEFTFileLines.Next();
 
         GenerateEFTFiles.GenerateEFTFile.Invoke();
         // [WHEN] Post the General Journal Line and open up the Generate EFT Files Page
@@ -607,7 +607,7 @@
         if GenerateEFTFiles.GenerateEFTFileLines.First then
             repeat
                 Count += 1;
-            until not GenerateEFTFiles.GenerateEFTFileLines.Next;
+            until not GenerateEFTFiles.GenerateEFTFileLines.Next();
 
         Assert.AreEqual(Count, 1, NoOfRecordsErr);
 
@@ -731,7 +731,7 @@
         PathToExport := FileManagement.ServerCreateTempSubDirectory;
         GenerateEFT.SetSavePath(PathToExport);
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Windows);
-        GenerateEFT.ProcessAndGenerateEFTFile(TempEFTExportWorkset."Bank Account No.", WorkDate, TempEFTExportWorkset, EFTValues);
+        GenerateEFT.ProcessAndGenerateEFTFile(TempEFTExportWorkset."Bank Account No.", WorkDate(), TempEFTExportWorkset, EFTValues);
 
         // [THEN] The generated file "EXPORT001" saved to folder "C:\EFT Generation"
         Assert.AreEqual(1, ServerDirectoryHelper.GetFiles(PathToExport).Length, 'File must be exported');
@@ -761,7 +761,7 @@
         CreateTestElectronicPaymentJournalWordLayout(GenJournalLine);
 
         // [GIVEN] Set Journal Line Currency Code.
-        GenJournalLine.Validate("Currency Code", LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1.0, 1.0));
+        GenJournalLine.Validate("Currency Code", LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1.0, 1.0));
         GenJournalLine.Modify(true);
 
         // [WHEN] Try to Export Payment Journal.
@@ -817,7 +817,7 @@
         if GenerateEFTFiles.GenerateEFTFileLines.First then
             repeat
                 Count += 1;
-            until not GenerateEFTFiles.GenerateEFTFileLines.Next;
+            until not GenerateEFTFiles.GenerateEFTFileLines.Next();
 
         Assert.AreEqual(1, Count, NoOfRecordsErr);
 
@@ -827,7 +827,7 @@
         EFTExport.Description := CopyStr(EFTExport.Description, 1, MaxStrLen(EFTExportWorkset.Description));
         EFTExportWorkset.TransferFields(EFTExport);
         EFTExportWorkset.Include := true;
-        EFTExportWorkset.UserSettleDate := WorkDate;
+        EFTExportWorkset.UserSettleDate := WorkDate();
         EFTExportWorkset.ProcessOrder := 1;
         EFTExportWorkset.Insert();
 
@@ -956,7 +956,7 @@
         Commit();
         GenerateEFT.SetSavePath(TemporaryPath);
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Windows);
-        asserterror GenerateEFT.ProcessAndGenerateEFTFile(BankAccount."No.", WorkDate, TempEFTExportWorkset, EFTValues);
+        asserterror GenerateEFT.ProcessAndGenerateEFTFile(BankAccount."No.", WorkDate(), TempEFTExportWorkset, EFTValues);
 
         // [THEN] An error message is thrown, as the country code for vendor "UNDEF" is not populated.
         Assert.ExpectedError('Country must have a value');
@@ -1033,7 +1033,7 @@
         Commit();
         EFTFilePath := FileManagement.GetDirectoryName(FileManagement.ServerTempFileName(''));
         GenerateEFT.SetSavePath(EFTFilePath);
-        GenerateEFT.ProcessAndGenerateEFTFile(BankAccount."No.", WorkDate, TempEFTExportWorkset, EFTValues);
+        GenerateEFT.ProcessAndGenerateEFTFile(BankAccount."No.", WorkDate(), TempEFTExportWorkset, EFTValues);
 
         // [THEN] Exported lines are marked as Transmitted
         EFTExport.SetRange("Journal Template Name", TempEFTExportWorkset."Journal Template Name");
@@ -1049,7 +1049,7 @@
         TempACHRBHeader.TestField("File Creation Date", ExpectedDateInt);
 
         // [THEN] ACHRBDetail."Payment Date" = 200319
-        Evaluate(ExpectedDateInt, Format(WorkDate, DateFormatLength, DateFormat));
+        Evaluate(ExpectedDateInt, Format(WorkDate(), DateFormatLength, DateFormat));
         TempACHRBDetail.FindFirst();
         TempACHRBDetail.TestField("Payment Date", ExpectedDateInt);
 
@@ -1104,7 +1104,7 @@
         Commit();
         EFTFilePath := FileManagement.GetDirectoryName(FileManagement.ServerTempFileName(''));
         GenerateEFT.SetSavePath(EFTFilePath);
-        GenerateEFT.ProcessAndGenerateEFTFile(BankAccount."No.", WorkDate, TempEFTExportWorkset, EFTValues);
+        GenerateEFT.ProcessAndGenerateEFTFile(BankAccount."No.", WorkDate(), TempEFTExportWorkset, EFTValues);
 
         // [THEN] All exported lines are marked as Transmitted
         EFTExport.SetRange("Journal Template Name", TempEFTExportWorkset."Journal Template Name");
@@ -1873,7 +1873,7 @@
         with GenJournalLine do
             ErrorText :=
                 StrSubstNo(
-                    EFTExportGenJnlLineErr, TableCaption, "Journal Template Name", "Journal Batch Name", "Line No.", ErrorText);
+                    EFTExportGenJnlLineErr, TableCaption(), "Journal Template Name", "Journal Batch Name", "Line No.", ErrorText);
         Assert.ExpectedError(ErrorText);
     end;
 
@@ -2399,7 +2399,7 @@
         Commit();
         EFTFilePath := FileManagement.GetDirectoryName(FileManagement.ServerTempFileName(''));
         GenerateEFT.SetSavePath(EFTFilePath);
-        GenerateEFT.ProcessAndGenerateEFTFile(BankAccount."No.", WorkDate, TempEFTExportWorkset, EFTValues);
+        GenerateEFT.ProcessAndGenerateEFTFile(BankAccount."No.", WorkDate(), TempEFTExportWorkset, EFTValues);
 
         // [THEN] Exported lines are marked as Transmitted
         EFTExport.SetRange("Journal Template Name", TempEFTExportWorkset."Journal Template Name");
@@ -2415,7 +2415,7 @@
         TempACHRBHeader.TestField("File Creation Date", ExpectedDateInt);
 
         // [THEN] ACHRBDetail."Payment Date" = 200319
-        Evaluate(ExpectedDateInt, Format(WorkDate, DateFormatLength, DateFormat));
+        Evaluate(ExpectedDateInt, Format(WorkDate(), DateFormatLength, DateFormat));
         TempACHRBDetail.FindFirst();
         TempACHRBDetail.TestField("Payment Date", ExpectedDateInt);
 
@@ -2845,7 +2845,7 @@
             TempEFTExportWorkset.TransferFields(EFTExport);
             TempEFTExportWorkset.Include := true;
             TempEFTExportWorkset.Insert();
-        until EFTExport.Next = 0;
+        until EFTExport.Next() = 0;
     end;
 
     local procedure CreateVendorPaymentLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; VendorNo: Code[20]; VendorBankAccountNo: Code[20]; BankAccountNo: Code[20])
@@ -3261,7 +3261,7 @@
                 DataExchColumnDefTarget."Data Exch. Def Code" := DataExchDef.Code;
                 DataExchColumnDefTarget."Data Exch. Line Def Code" := DataExchLineDefTarget.Code;
                 DataExchColumnDefTarget.Insert;
-            until DataExchColumnDefSource.Next = 0;
+            until DataExchColumnDefSource.Next() = 0;
 
             DataExchMappingSource.SetRange("Data Exch. Def Code", DataExchDefCodeSource);
             DataExchMappingSource.SetRange("Data Exch. Line Def Code", DataExchLineDefSource.Code);
@@ -3281,9 +3281,9 @@
                     DataExchFieldMappingTarget."Data Exch. Def Code" := DataExchDef.Code;
                     DataExchFieldMappingTarget."Data Exch. Line Def Code" := DataExchLineDefTarget.Code;
                     DataExchFieldMappingTarget.Insert;
-                until DataExchFieldMappingSource.Next = 0;
-            until DataExchMappingSource.Next = 0;
-        until DataExchLineDefSource.Next = 0;
+                until DataExchFieldMappingSource.Next() = 0;
+            until DataExchMappingSource.Next() = 0;
+        until DataExchLineDefSource.Next() = 0;
 
         BankExportImportSetupSource.SetRange("Data Exch. Def. Code", DataExchDefCodeSource);
         BankExportImportSetupSource.FindFirst();
@@ -3385,7 +3385,7 @@
         TempEFTExportWorkset.TransferFields(EFTExport);
         TempEFTExportWorkset.Include := true;
         TempEFTExportWorkset.Insert();
-        GenerateEFT.ProcessAndGenerateEFTFile(BankAccountNo, WorkDate, TempEFTExportWorkset, EFTValues);
+        GenerateEFT.ProcessAndGenerateEFTFile(BankAccountNo, WorkDate(), TempEFTExportWorkset, EFTValues);
     end;
 
     local procedure ExportPaymentJournal(var PaymentJournal: TestPage "Payment Journal"; var GenJournalLine: Record "Gen. Journal Line")
@@ -3438,7 +3438,7 @@
         GenJournalLine.SetFilter("Journal Template Name", GenJournalLine."Journal Template Name");
 
         GenJnlLineRecRef.GetTable(GenJournalLine);
-        GenJnlLineRecRef.SetView(GenJournalLine.GetView);
+        GenJnlLineRecRef.SetView(GenJournalLine.GetView());
 
         TempDirectory := FileManagement.CombinePath(TemporaryPath, TempSubDirectoryTxt);
         if not FileManagement.ServerDirectoryExists(TempDirectory) then
@@ -3513,7 +3513,7 @@
     procedure GetTempACHRBHeader(var TempACHRBHeaderResult: Record "ACH RB Header" temporary)
     begin
         Clear(TempACHRBHeaderResult);
-        TempACHRBHeaderResult.DeleteAll;
+        TempACHRBHeaderResult.DeleteAll();
 
         TempACHRBHeaderResult.Copy(TempACHRBHeader, true);
     end;
@@ -3522,7 +3522,7 @@
     procedure GetTempACHRBDetail(var TempACHRBDetailResult: Record "ACH RB Detail" temporary)
     begin
         Clear(TempACHRBDetailResult);
-        TempACHRBDetailResult.DeleteAll;
+        TempACHRBDetailResult.DeleteAll();
 
         TempACHRBDetailResult.Copy(TempACHRBDetail, true);
     end;
@@ -3531,7 +3531,7 @@
     procedure GetTempACHRBFooter(var TempACHRBFooterResult: Record "ACH RB Footer" temporary)
     begin
         Clear(TempACHRBFooterResult);
-        TempACHRBFooterResult.DeleteAll;
+        TempACHRBFooterResult.DeleteAll();
 
         TempACHRBFooterResult.Copy(TempACHRBFooter, true);
     end;
@@ -3549,7 +3549,7 @@
     procedure GetTempACHUSDetail(var TempACHUSDetailResult: Record "ACH US Detail" temporary)
     begin
         Clear(TempACHUSDetailResult);
-        TempACHUSDetailResult.DeleteAll;
+        TempACHUSDetailResult.DeleteAll();
 
         TempACHUSDetailResult.Copy(TempACHUSDetail, true);
     end;
@@ -3558,7 +3558,7 @@
     procedure GetTempACHCecobanHeader(var TempACHCecobanHeaderResult: Record "ACH Cecoban Header" temporary)
     begin
         Clear(TempACHCecobanHeaderResult);
-        TempACHCecobanHeaderResult.DeleteAll;
+        TempACHCecobanHeaderResult.DeleteAll();
 
         TempACHCecobanHeaderResult.Copy(TempACHCecobanHeader, true);
     end;
@@ -3567,7 +3567,7 @@
     procedure GetTempACHCecobanDetail(var TempACHCecobanDetailResult: Record "ACH Cecoban Detail" temporary)
     begin
         Clear(TempACHCecobanDetailResult);
-        TempACHCecobanDetailResult.DeleteAll;
+        TempACHCecobanDetailResult.DeleteAll();
 
         TempACHCecobanDetailResult.Copy(TempACHCecobanDetail, true);
     end;

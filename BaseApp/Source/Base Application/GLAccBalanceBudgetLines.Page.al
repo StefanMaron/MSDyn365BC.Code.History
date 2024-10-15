@@ -16,14 +16,14 @@ page 350 "G/L Acc. Balance/Budget Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Period Start"; "Period Start")
+                field("Period Start"; Rec."Period Start")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Period Start';
                     Editable = false;
                     ToolTip = 'Specifies the starting date of the period that you want to view.';
                 }
-                field("Period Name"; "Period Name")
+                field("Period Name"; Rec."Period Name")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Period Name';
@@ -191,12 +191,12 @@ page 350 "G/L Acc. Balance/Budget Lines"
         AccountingPeriod: Record "Accounting Period";
         DateRec: Record Date;
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
-        PeriodType: Enum "Analysis Period Type";
-        AmountType: Enum "Analysis Amount Type";
 
     protected var
         GLAcc: Record "G/L Account";
         ClosingEntryFilter: Option Include,Exclude;
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
 
 #if not CLEAN19
     [Obsolete('Replaced by SetLines().', '19.0')]

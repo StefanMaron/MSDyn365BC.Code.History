@@ -71,7 +71,7 @@
                 Caption = 'Deposits';
                 Visible = not BankDepositFeatureEnabled;
 #if not CLEAN20
-                field("Deposits to Post"; "Deposits to Post")
+                field("Deposits to Post"; Rec."Deposits to Post")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Deposits to Post';

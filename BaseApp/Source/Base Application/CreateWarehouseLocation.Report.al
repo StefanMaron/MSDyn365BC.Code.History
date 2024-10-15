@@ -105,7 +105,7 @@ report 5756 "Create Warehouse Location"
             until TempWhseJnlLine.Next() = 0;
 
         if not HideValidationDialog then begin
-            Window.Close;
+            Window.Close();
             Message(Text004);
         end;
     end;
@@ -132,7 +132,7 @@ report 5756 "Create Warehouse Location"
                            Text010, Text011, Text012, Text013, Text014,
                            Text015, StrSubstNo(Text016, LocCode), Text017), false)
                     then
-                        CurrReport.Quit;
+                        CurrReport.Quit();
                 ItemLedgEntry.SetRange("Location Code");
                 ItemLedgEntry.SetRange(Open);
                 ItemLedgEntry.Find('+');
@@ -140,13 +140,13 @@ report 5756 "Create Warehouse Location"
             until (ItemLedgEntry.Next() = 0) or Found;
 
         if not Found then
-            Error(Text018, Location.TableCaption, Location.FieldCaption(Code), LocCode);
+            Error(Text018, Location.TableCaption(), Location.FieldCaption(Code), LocCode);
         Clear(ItemLedgEntry);
 
         WhseEntry.SetRange("Location Code", LocCode);
         if not WhseEntry.IsEmpty() then
             Error(
-              Text019, LocCode, WhseEntry.TableCaption);
+              Text019, LocCode, WhseEntry.TableCaption());
 
         TempWhseJnlLine.Reset();
         TempWhseJnlLine.DeleteAll();
@@ -159,7 +159,7 @@ report 5756 "Create Warehouse Location"
 
             Location.Get(LocCode);
             Location.TestField("Adjustment Bin Code", '');
-            CheckWhseDocs;
+            CheckWhseDocs();
 
             Bin.Get(LocCode, AdjBinCode);
 
@@ -198,8 +198,8 @@ report 5756 "Create Warehouse Location"
                                                                 CalcSums("Remaining Quantity");
                                                                 if "Remaining Quantity" < 0 then
                                                                     Error(
-                                                                      StrSubstNo(Text005, BuildErrorText) +
-                                                                      StrSubstNo(Text009, ItemsWithNegativeInventory.ObjectId));
+                                                                      StrSubstNo(Text005, BuildErrorText()) +
+                                                                      StrSubstNo(Text009, ItemsWithNegativeInventory.ObjectId()));
                                                                 if "Remaining Quantity" > 0 then
                                                                     CreateWhseJnlLine();
                                                                 Find('+');
@@ -286,14 +286,14 @@ report 5756 "Create Warehouse Location"
             Error(
               Text006,
               Location.Code,
-              WhseRcptHeader.TableCaption);
+              WhseRcptHeader.TableCaption());
 
         WarehouseShipmentHeader.SetRange("Location Code", Location.Code);
         if not WarehouseShipmentHeader.IsEmpty() then
             Error(
               Text006,
               Location.Code,
-              WarehouseShipmentHeader.TableCaption);
+              WarehouseShipmentHeader.TableCaption());
 
         WhseActivHeader.SetCurrentKey("Location Code");
         WhseActivHeader.SetRange("Location Code", Location.Code);
@@ -308,7 +308,7 @@ report 5756 "Create Warehouse Location"
             Error(
               Text008,
               Location.Code,
-              WhseWkshLine.TableCaption);
+              WhseWkshLine.TableCaption());
     end;
 
     local procedure CreateWhseJnlLine()
@@ -322,9 +322,9 @@ report 5756 "Create Warehouse Location"
             TempWhseJnlLine."Location Code" := "Location Code";
             TempWhseJnlLine."Registering Date" := Today;
             TempWhseJnlLine."Item No." := "Item No.";
-            TempWhseJnlLine.Quantity := Round("Remaining Quantity" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+            TempWhseJnlLine.Quantity := Round("Remaining Quantity" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
             TempWhseJnlLine."Qty. (Base)" := "Remaining Quantity";
-            TempWhseJnlLine."Qty. (Absolute)" := Round(Abs("Remaining Quantity") / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+            TempWhseJnlLine."Qty. (Absolute)" := Round(Abs("Remaining Quantity") / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
             TempWhseJnlLine."Qty. (Absolute, Base)" := Abs("Remaining Quantity");
             TempWhseJnlLine."User ID" := UserId;
             TempWhseJnlLine."Variant Code" := "Variant Code";

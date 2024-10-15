@@ -2,7 +2,6 @@ page 900 "Assembly Order"
 {
     Caption = 'Assembly Order';
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Release,Warehouse,Posting,Print,Navigate,Order';
     RefreshOnActivate = true;
     SourceTable = "Assembly Header";
     SourceTableView = SORTING("Document Type", "No.")
@@ -16,7 +15,7 @@ page 900 "Assembly Order"
             group(Control2)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Assembly;
                     AssistEdit = true;
@@ -28,7 +27,7 @@ page 900 "Assembly Order"
                             CurrPage.Update();
                     end;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = IsAsmToOrderEditable;
@@ -61,10 +60,10 @@ page 900 "Assembly Order"
 
                         trigger OnValidate()
                         begin
-                            CurrPage.SaveRecord;
+                            CurrPage.SaveRecord();
                         end;
                     }
-                    field("Quantity to Assemble"; "Quantity to Assemble")
+                    field("Quantity to Assemble"; Rec."Quantity to Assemble")
                     {
                         ApplicationArea = Assembly;
                         Importance = Promoted;
@@ -72,10 +71,10 @@ page 900 "Assembly Order"
 
                         trigger OnValidate()
                         begin
-                            CurrPage.SaveRecord;
+                            CurrPage.SaveRecord();
                         end;
                     }
-                    field("Unit of Measure Code"; "Unit of Measure Code")
+                    field("Unit of Measure Code"; Rec."Unit of Measure Code")
                     {
                         ApplicationArea = Assembly;
                         Editable = IsAsmToOrderEditable;
@@ -83,17 +82,17 @@ page 900 "Assembly Order"
 
                         trigger OnValidate()
                         begin
-                            CurrPage.SaveRecord;
+                            CurrPage.SaveRecord();
                         end;
                     }
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Assembly;
                     Importance = Promoted;
                     ToolTip = 'Specifies the date on which the assembly order is posted.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Assembly;
                     Editable = IsAsmToOrderEditable;
@@ -102,44 +101,44 @@ page 900 "Assembly Order"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the date when the assembly order is expected to start.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the date when the assembly order is expected to finish.';
                 }
-                field("Remaining Quantity"; "Remaining Quantity")
+                field("Remaining Quantity"; Rec."Remaining Quantity")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies how many units of the assembly item remain to be posted as assembled output.';
                 }
-                field("Assembled Quantity"; "Assembled Quantity")
+                field("Assembled Quantity"; Rec."Assembled Quantity")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies how many units of the assembly item are posted as assembled output.';
                 }
-                field("Reserved Quantity"; "Reserved Quantity")
+                field("Reserved Quantity"; Rec."Reserved Quantity")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
                     ToolTip = 'Specifies how many units of the assembly item are reserved for this assembly order header.';
                     Visible = false;
                 }
-                field("Assemble to Order"; "Assemble to Order")
+                field("Assemble to Order"; Rec."Assemble to Order")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies if the assembly order is linked to a sales order, which indicates that the item is assembled to order.';
 
                     trigger OnDrillDown()
                     begin
-                        ShowAsmToOrder;
+                        ShowAsmToOrder();
                     end;
                 }
                 field(Status; Status)
@@ -158,19 +157,20 @@ page 900 "Assembly Order"
             group(Posting)
             {
                 Caption = 'Posting';
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     Editable = IsAsmToOrderEditable;
                     Importance = Promoted;
                     ToolTip = 'Specifies the variant of the item on the line.';
+                    ShowMandatory = VariantCodeMandatory;
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Editable = IsAsmToOrderEditable;
@@ -179,10 +179,10 @@ page 900 "Assembly Order"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     Editable = IsAsmToOrderEditable;
@@ -190,33 +190,33 @@ page 900 "Assembly Order"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
-                field("Indirect Cost %"; "Indirect Cost %")
+                field("Indirect Cost %"; Rec."Indirect Cost %")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the percentage of the item''s last purchase cost that includes indirect costs, such as freight that is associated with the purchase of the item.';
                     Visible = false;
                 }
-                field("Overhead Rate"; "Overhead Rate")
+                field("Overhead Rate"; Rec."Overhead Rate")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the indirect cost of the assembly item as an absolute amount.';
                     Visible = false;
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Assembly;
                     Editable = IsUnitCostEditable;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                 }
-                field("Cost Amount"; "Cost Amount")
+                field("Cost Amount"; Rec."Cost Amount")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the total unit cost of the assembly order.';
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
@@ -228,12 +228,12 @@ page 900 "Assembly Order"
                     ToolTip = 'Specifies whether the supply represented by the assembly order is considered by the planning system when calculating action messages.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -289,7 +289,7 @@ page 900 "Assembly Order"
 
                     trigger OnAction()
                     begin
-                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByEvent);
+                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByEvent());
                     end;
                 }
                 action(Period)
@@ -301,7 +301,7 @@ page 900 "Assembly Order"
 
                     trigger OnAction()
                     begin
-                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByPeriod);
+                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByPeriod());
                     end;
                 }
                 action(Variant)
@@ -313,7 +313,7 @@ page 900 "Assembly Order"
 
                     trigger OnAction()
                     begin
-                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByVariant);
+                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByVariant());
                     end;
                 }
                 action(Location)
@@ -326,7 +326,7 @@ page 900 "Assembly Order"
 
                     trigger OnAction()
                     begin
-                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByLocation);
+                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByLocation());
                     end;
                 }
                 action(Lot)
@@ -349,7 +349,7 @@ page 900 "Assembly Order"
 
                     trigger OnAction()
                     begin
-                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByBOM);
+                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByBOM());
                     end;
                 }
             }
@@ -362,13 +362,11 @@ page 900 "Assembly Order"
                     ApplicationArea = Assembly;
                     Caption = 'Assembly BOM';
                     Image = AssemblyBOM;
-                    Promoted = true;
-                    PromotedCategory = Category8;
                     ToolTip = 'View or edit the bill of material that specifies which items and resources are required to assemble the assembly item.';
 
                     trigger OnAction()
                     begin
-                        ShowAssemblyList;
+                        ShowAssemblyList();
                     end;
                 }
                 action(Dimensions)
@@ -377,9 +375,6 @@ page 900 "Assembly Order"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category9;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
@@ -393,9 +388,7 @@ page 900 "Assembly Order"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -408,8 +401,6 @@ page 900 "Assembly Order"
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category9;
                     RunObject = Page "Assembly Comment Sheet";
                     RunPageLink = "Document Type" = FIELD("Document Type"),
                                   "Document No." = FIELD("No."),
@@ -426,16 +417,13 @@ page 900 "Assembly Order"
                     ApplicationArea = Assembly;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category9;
-                    PromotedIsBig = true;
                     RunPageOnRec = true;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
 
                     trigger OnAction()
                     begin
-                        ShowStatistics;
+                        ShowStatistics();
                     end;
                 }
             }
@@ -612,10 +600,6 @@ page 900 "Assembly Order"
                     ApplicationArea = Assembly;
                     Caption = 'Re&lease';
                     Image = ReleaseDoc;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Release the document to the next stage of processing. You must reopen the document before you can make changes to it.';
 
@@ -629,9 +613,6 @@ page 900 "Assembly Order"
                     ApplicationArea = Assembly;
                     Caption = 'Re&open';
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'Reopen the document for additional warehouse activity.';
 
                     trigger OnAction()
@@ -651,13 +632,11 @@ page 900 "Assembly Order"
                     ApplicationArea = Assembly;
                     Caption = 'Show Availability';
                     Image = ItemAvailbyLoc;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'View how many of the assembly order quantity can be assembled by the due date based on availability of the required components. This is shown in the Able to Assemble field. ';
 
                     trigger OnAction()
                     begin
-                        ShowAvailability;
+                        ShowAvailability();
                     end;
                 }
                 action("Refresh availability warnings")
@@ -678,13 +657,11 @@ page 900 "Assembly Order"
                     Caption = 'Update Unit Cost';
                     Enabled = IsUnitCostEditable;
                     Image = UpdateUnitCost;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Update the cost of the parent item per changes to the assembly BOM.';
 
                     trigger OnAction()
                     begin
-                        UpdateUnitCost;
+                        UpdateUnitCost();
                     end;
                 }
                 action("Refresh Lines")
@@ -696,7 +673,7 @@ page 900 "Assembly Order"
 
                     trigger OnAction()
                     begin
-                        RefreshBOM;
+                        RefreshBOM();
                         CurrPage.Update();
                     end;
                 }
@@ -743,8 +720,6 @@ page 900 "Assembly Order"
                     Caption = 'Create Inventor&y Movement';
                     Ellipsis = true;
                     Image = CreatePutAway;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Create an inventory movement to handle items on the document according to a basic warehouse configuration.';
 
                     trigger OnAction()
@@ -761,8 +736,6 @@ page 900 "Assembly Order"
                     ApplicationArea = Warehouse;
                     Caption = 'Create Warehouse Pick';
                     Image = CreateWarehousePick;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Create warehouse pick documents for the assembly order lines.';
 
                     trigger OnAction()
@@ -775,8 +748,6 @@ page 900 "Assembly Order"
                     ApplicationArea = Planning;
                     Caption = 'Order &Tracking';
                     Image = OrderTracking;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Tracks the connection of a supply to its corresponding demand. This can help you find the original demand that created a specific production order or purchase order.';
 
                     trigger OnAction()
@@ -796,9 +767,6 @@ page 900 "Assembly Order"
                     Ellipsis = true;
                     Enabled = IsAsmToOrderEditable;
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
@@ -832,8 +800,6 @@ page 900 "Assembly Order"
                     Caption = 'Order';
                     Ellipsis = true;
                     Image = Print;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     ToolTip = 'Print the assembly order.';
 
                     trigger OnAction()
@@ -845,12 +811,146 @@ page 900 "Assembly Order"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                group(Category_Category6)
+                {
+                    Caption = 'Posting', Comment = 'Generated from the PromotedActionCategories property index 5.';
+                    ShowAs = SplitButton;
+
+                    actionref("P&ost_Promoted"; "P&ost")
+                    {
+                    }
+                }
+                group(Category_Category4)
+                {
+                    Caption = 'Release', Comment = 'Generated from the PromotedActionCategories property index 3.';
+                    ShowAs = SplitButton;
+
+                    actionref("Re&lease_Promoted"; "Re&lease")
+                    {
+                    }
+                    actionref("Re&open_Promoted"; "Re&open")
+                    {
+                    }
+                }
+                actionref(ShowAvailability_Promoted; ShowAvailability)
+                {
+                }
+            }
+            group(Category_Prepare)
+            {
+                Caption = 'Prepare';
+
+                actionref("Update Unit Cost_Promoted"; "Update Unit Cost")
+                {
+                }
+                actionref("Refresh Lines_Promoted"; "Refresh Lines")
+                {
+                }
+                actionref("Copy Document_Promoted"; "Copy Document")
+                {
+                }
+                actionref("Refresh availability warnings_Promoted"; "Refresh availability warnings")
+                {
+                }
+                actionref("&Reserve_Promoted"; "&Reserve")
+                {
+                }
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Print', Comment = 'Generated from the PromotedActionCategories property index 6.';
+
+                actionref(Order_Promoted; Order)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Warehouse', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("Create Warehouse Pick_Promoted"; "Create Warehouse Pick")
+                {
+                }
+                actionref("Create Inventor&y Movement_Promoted"; "Create Inventor&y Movement")
+                {
+                }
+            }
+            group(Category_Category9)
+            {
+                Caption = 'Order', Comment = 'Generated from the PromotedActionCategories property index 8.';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(Action14_Promoted; Action14)
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+
+                separator(Navigate_Separator)
+                {
+                }
+
+                actionref("Item Tracking Lines_Promoted"; "Item Tracking Lines")
+                {
+                }
+                actionref("Assembly BOM_Promoted"; "Assembly BOM")
+                {
+                }
+                actionref("Order &Tracking_Promoted"; "Order &Tracking")
+                {
+                }
+                group("Category_Item Availability by")
+                {
+                    Caption = 'Item Availability by';
+
+                    actionref("BOM Level_Promoted"; "BOM Level")
+                    {
+                    }
+                    actionref(Event_Promoted; "Event")
+                    {
+                    }
+                    actionref(Location_Promoted; Location)
+                    {
+                    }
+                    actionref(Variant_Promoted; Variant)
+                    {
+                    }
+                    actionref(Period_Promoted; Period)
+                    {
+                    }
+                    actionref(Lot_Promoted; Lot)
+                    {
+                    }
+                }
+            }
+            group(Category_Category8)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 7.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
+    var
+        Item: Record "Item";
     begin
-        IsUnitCostEditable := not IsStandardCostItem;
-        IsAsmToOrderEditable := not IsAsmToOrder;
+        IsUnitCostEditable := not IsStandardCostItem();
+        IsAsmToOrderEditable := not IsAsmToOrder();
+        if "Variant Code" = '' then
+            VariantCodeMandatory := Item.IsVariantMandatory(true, "Item No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -875,6 +975,7 @@ page 900 "Assembly Order"
 
     var
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        VariantCodeMandatory: Boolean;
 
     protected var
         [InDataSet]

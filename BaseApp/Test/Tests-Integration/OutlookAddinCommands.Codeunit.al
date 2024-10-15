@@ -526,7 +526,7 @@ codeunit 139056 "Outlook Add-in Commands"
         RunMailEngine;
 
         // Verify
-        OfficeNoVendorDlg.Close;
+        OfficeNoVendorDlg.Close();
     end;
 
     [Test]
@@ -563,7 +563,7 @@ codeunit 139056 "Outlook Add-in Commands"
         RunMailEngine;
 
         // Verify
-        OfficeNoCustomerDlg.Close;
+        OfficeNoCustomerDlg.Close();
     end;
 
     [Test]
@@ -611,9 +611,9 @@ codeunit 139056 "Outlook Add-in Commands"
         // Verify
         OfficeContactAssociations.First;
         OfficeContactAssociations."No.".AssertEquals(VendorNo);
-        OfficeContactAssociations.Next;
+        OfficeContactAssociations.Next();
         OfficeContactAssociations."No.".AssertEquals(CustomerNo);
-        OfficeContactAssociations.Close;
+        OfficeContactAssociations.Close();
     end;
 
     [Test]
@@ -769,11 +769,11 @@ codeunit 139056 "Outlook Add-in Commands"
         // Verify
         OfficeContactAssociations.First;
         OfficeContactAssociations."No.".AssertEquals(VendorNo);
-        OfficeContactAssociations.Next;
+        OfficeContactAssociations.Next();
         OfficeContactAssociations."No.".AssertEquals(CustomerNo);
-        OfficeContactAssociations.Next;
+        OfficeContactAssociations.Next();
         OfficeContactAssociations."No.".AssertEquals(CustomerNo);
-        OfficeContactAssociations.Close;
+        OfficeContactAssociations.Close();
     end;
 
     [Test]

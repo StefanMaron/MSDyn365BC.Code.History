@@ -4,6 +4,7 @@ table 1457 "Headline RC Whse. Worker WMS"
     ObsoleteState = Removed;
     ObsoleteReason = 'Replaced with "RC Headlines User Data" table';
     ObsoleteTag = '15.0';
+    ReplicateData = false;
 
     fields
     {

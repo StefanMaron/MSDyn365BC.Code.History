@@ -1,4 +1,4 @@
-﻿page 118 "General Ledger Setup"
+page 118 "General Ledger Setup"
 {
     AdditionalSearchTerms = 'finance setup,general ledger setup,g/l setup';
     ApplicationArea = Basic, Suite;
@@ -6,7 +6,6 @@
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,General,Posting,VAT,Bank,Journal Templates';
     SourceTable = "General Ledger Setup";
     UsageCategory = Administration;
 
@@ -17,12 +16,12 @@
             group(General)
             {
                 Caption = 'General';
-                field("Allow Posting From"; "Allow Posting From")
+                field("Allow Posting From"; Rec."Allow Posting From")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the earliest date on which posting to the company books is allowed.';
                 }
-                field("Allow Posting To"; "Allow Posting To")
+                field("Allow Posting To"; Rec."Allow Posting To")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last date on which posting to the company books is allowed.';
@@ -37,35 +36,40 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last date on which deferral posting to the company books is allowed.';
                 }
-                field("Register Time"; "Register Time")
+                field("Default VAT Reporting Date"; "VAT Reporting Date")
+                {
+                    ApplicationArea = VAT;
+                    ToolTip = 'Specifies the date used to include entries on VAT reports in a VAT period. This is either the date that the document was created or posted, depending on this setting.';
+                }
+                field("Register Time"; Rec."Register Time")
                 {
                     ApplicationArea = Jobs;
                     Importance = Additional;
                     ToolTip = 'Specifies whether to register users'' time usage defined as the time spent from when a user logs in to when the user logs out. Unexpected interruptions, such as idle session timeout, terminal server idle session timeout, or a client crash are not recorded. This setting can be overruled per user by filling in the Register Time field in the User Setup window.';
                 }
-                field("Local Address Format"; "Local Address Format")
+                field("Local Address Format"; Rec."Local Address Format")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the format in which addresses must appear on printouts.';
                 }
-                field("Local Cont. Addr. Format"; "Local Cont. Addr. Format")
+                field("Local Cont. Addr. Format"; Rec."Local Cont. Addr. Format")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies where you want the contact name to appear in mailing addresses.';
                 }
-                field("Req.Country/Reg. Code in Addr."; "Req.Country/Reg. Code in Addr.")
+                field("Req.Country/Reg. Code in Addr."; Rec."Req.Country/Reg. Code in Addr.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies whether to clear the Post Code, City, and County fields when the value in the Country/Region Code field is changed.';
                 }
-                field("Inv. Rounding Precision (LCY)"; "Inv. Rounding Precision (LCY)")
+                field("Inv. Rounding Precision (LCY)"; Rec."Inv. Rounding Precision (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the size of the interval to be used when rounding invoice amounts in LCY. Examples: 1.00: Round to whole numbers (no decimals - divisible by 1.00), 0.05: Round to a number divisible by 0.05, 0.01: No rounding (ordinary currency decimals). On the Currencies page, you specify how to round invoices in foreign currencies.';
                 }
-                field("Inv. Rounding Type (LCY)"; "Inv. Rounding Type (LCY)")
+                field("Inv. Rounding Type (LCY)"; Rec."Inv. Rounding Type (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how to round invoice amounts. The contents of this field determine whether the invoice amount to be rounded will be rounded up or down to the nearest interval as specified in the Invoice Rounding Precision field. If you select Nearest, digits that are higher than or equal to 5 will be rounded up, and digits that are lower than or equal to 5 will be rounded down.';
@@ -94,103 +98,103 @@
                     Caption = 'Unit-Amount Decimal Places (LCY)';
                     ToolTip = 'Specifies the number of decimal places that are shown for unit amounts, item or resource prices per unit, in LCY. The default setting, 2:5, specifies that unit amounts will be shown with a minimum of two decimal places and a maximum of five decimal places. You can also enter a fixed number, such as 2, to specify that all unit amounts are shown with two decimal places. On the Currencies page, you specify how many decimal places to show for unit amounts in foreign currencies.';
                 }
-                field("Allow G/L Acc. Deletion Before"; "Allow G/L Acc. Deletion Before")
+                field("Allow G/L Acc. Deletion Before"; Rec."Allow G/L Acc. Deletion Before")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies if and when general ledger accounts can be deleted. If you enter a date, G/L accounts with entries on or after this date can be deleted only after confirmation by the user. This setting is only valid when "Block Deletion of G/L accounts" is set to No';
                 }
-                field("Block Deletion of G/L Accounts"; "Block Deletion of G/L Accounts")
+                field("Block Deletion of G/L Accounts"; Rec."Block Deletion of G/L Accounts")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies whether to prevent users from deleting G/L accounts with ledger entries that are after the date in the Check G/L Acc. Deletion After field. For example, blocking deletion helps you avoid losing financial data that your business should keep due to country regional requirements.';
                 }
-                field("Check G/L Account Usage"; "Check G/L Account Usage")
+                field("Check G/L Account Usage"; Rec."Check G/L Account Usage")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies that you want the program to protect G/L accounts that are used in setup tables from being deleted.';
                 }
-                field("Mark Cr. Memos as Corrections"; "Mark Cr. Memos as Corrections")
+                field("Mark Cr. Memos as Corrections"; Rec."Mark Cr. Memos as Corrections")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to automatically mark a new credit memo as a corrective entry.';
                 }
-                field("EMU Currency"; "EMU Currency")
+                field("EMU Currency"; Rec."EMU Currency")
                 {
                     ApplicationArea = BasicEU;
                     Importance = Additional;
                     ToolTip = 'Specifies if LCY is an EMU (Economic and Monetary Union) currency.';
                 }
-                field("LCY Code"; "LCY Code")
+                field("LCY Code"; Rec."LCY Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency code for the local currency.';
                 }
-                field("Local Currency Symbol"; "Local Currency Symbol")
+                field("Local Currency Symbol"; Rec."Local Currency Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the symbol for the local currency that you want to appear on checks and charts, such as $ for USD.';
                 }
-                field("Local Currency Description"; "Local Currency Description")
+                field("Local Currency Description"; Rec."Local Currency Description")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the local currency.';
                 }
-                field("Pmt. Disc. Excl. VAT"; "Pmt. Disc. Excl. VAT")
+                field("Pmt. Disc. Excl. VAT"; Rec."Pmt. Disc. Excl. VAT")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies if the payment discount is calculated based on amounts including or excluding VAT.';
                 }
-                field("Adjust for Payment Disc."; "Adjust for Payment Disc.")
+                field("Adjust for Payment Disc."; Rec."Adjust for Payment Disc.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies whether to recalculate tax amounts when you post payments that trigger payment discounts.';
                 }
-                field("Unrealized VAT"; "Unrealized VAT")
+                field("Unrealized VAT"; Rec."Unrealized VAT")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies whether to handle unrealized VAT, which is VAT that is calculated but not due until the invoice is paid.';
                 }
-                field("Prepayment Unrealized VAT"; "Prepayment Unrealized VAT")
+                field("Prepayment Unrealized VAT"; Rec."Prepayment Unrealized VAT")
                 {
                     ApplicationArea = Prepayments;
                     Importance = Additional;
                     ToolTip = 'Specifies whether to handle unrealized VAT on prepayments.';
                 }
-                field("Max. VAT Difference Allowed"; "Max. VAT Difference Allowed")
+                field("Max. VAT Difference Allowed"; Rec."Max. VAT Difference Allowed")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the maximum VAT correction amount allowed for the local currency. For example, if you enter 5 in this field for British Pounds, then you can correct VAT amounts by up to five pounds.';
                 }
-                field("Tax Invoice Renaming Threshold"; "Tax Invoice Renaming Threshold")
+                field("Tax Invoice Renaming Threshold"; Rec."Tax Invoice Renaming Threshold")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that if the amount on a sales invoice or a service invoice exceeds the threshold, then the name of the document is changed to include the words "Tax Invoice", as required by the tax authorities.';
                     Visible = false;
                 }
-                field("VAT Rounding Type"; "VAT Rounding Type")
+                field("VAT Rounding Type"; Rec."VAT Rounding Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how the program will round VAT when calculated for the local currency. When you enter an Amount Including VAT in a document, the system first calculates and rounds the Amount Excluding VAT, and then calculates by subtraction the VAT Amount because the total amount has to match the Amount Including VAT entered manually. In that case, the VAT Rounding Type does not apply as the Amount Excluding VAT is already rounded using the Amount Rounding Precision.';
                 }
-                field("Bank Account Nos."; "Bank Account Nos.")
+                field("Bank Account Nos."; Rec."Bank Account Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to bank accounts.';
                 }
-                field("Bank Rec. Adj. Doc. Nos."; "Bank Rec. Adj. Doc. Nos.")
+                field("Bank Rec. Adj. Doc. Nos."; Rec."Bank Rec. Adj. Doc. Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank reconciliation adjustment document number for general ledger setup. You can select the document number from the No. Series table.';
                 }
 #if not CLEAN21
-                field("Deposit Nos."; "Deposit Nos.")
+                field("Deposit Nos."; Rec."Deposit Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the deposit number for general ledger setup. You can select the deposit number from the No. Series table.';
@@ -199,37 +203,25 @@
                     ObsoleteTag = '21.0';
                 }
 #endif
-                field("Bill-to/Sell-to VAT Calc."; "Bill-to/Sell-to VAT Calc.")
+                field("Bill-to/Sell-to VAT Calc."; Rec."Bill-to/Sell-to VAT Calc.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies where the VAT Bus. Posting Group code on an order or invoice is copied from. Bill-to/Pay-to No.: The VAT Bus. Posting Group code on sales invoices and orders is copied from the Bill-to Customer field. The VAT Bus. Posting Group code on purchase invoices and orders is copied from the Pay-to Vendor field. Sell-to/Buy-from No. : The VAT Bus. Posting Group code on sales invoices and orders is copied from the Sell-to Customer field. The VAT Bus. Posting Group code on purchase invoices and orders is copied from the Buy-from Vendor field.';
                 }
-                field("Print VAT specification in LCY"; "Print VAT specification in LCY")
+                field("Print VAT specification in LCY"; Rec."Print VAT specification in LCY")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies that an extra VAT specification in local currency will be included on documents in a foreign currency. This can be used to make tax audits easier when reconciling VAT payables to invoices.';
                 }
-                field("VAT in Use"; "VAT in Use")
+                field("VAT in Use"; Rec."VAT in Use")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you are posting US or CA sales tax and do not want to have to set up posting groups on G/L accounts.';
                 }
-#if not CLEAN18
-                field("Use Legacy G/L Entry Locking"; "Use Legacy G/L Entry Locking")
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Legacy G/L Locking is no longer supported.';
-                    Visible = false;
-                    ApplicationArea = Basic, Suite;
-                    Importance = Additional;
-                    ToolTip = 'Specifies when the G/L Entry table should be locked during sales, purchase, and service posting to improve performance in multiuser environments. Consider this setting if: You encounter deadlock situations because your solution relies on G/L Entry table locking. You have selected the Automatic Cost Posting check box in the Inventory Setup window.';
-                    ObsoleteTag = '18.0';
-                }
-#endif
 #if not CLEAN20
-                field("Bank Recon. with Auto. Match"; "Bank Recon. with Auto. Match")
+                field("Bank Recon. with Auto. Match"; Rec."Bank Recon. with Auto. Match")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the feature to use for reconciling bank accounts. If you turn on this toggle, you will use the Payment Reconciliation Journals page, which supports the import of bank statement files. If it is turned off, you will use the Bank Rec. Worksheet page, which is better for checks and deposits but does not offer the import of bank statement files.';
@@ -245,13 +237,13 @@
                     end;
                 }
 #endif
-                field("Show Amounts"; "Show Amounts")
+                field("Show Amounts"; Rec."Show Amounts")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies which type of amounts are shown in journals and in ledger entries windows. Amount Only: The Amount and Amount (LCY) fields are shown. Debit/Credit Only: The Debit Amount, Debit Amount (LCY), Credit Amount, and Credit Amount (LCY) fields are shown. All Amounts: All amount fields are shown. ';
                 }
-                field("Hide Payment Method Code"; "Hide Payment Method Code")
+                field("Hide Payment Method Code"; Rec."Hide Payment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
@@ -301,59 +293,59 @@
             group(Control1900309501)
             {
                 Caption = 'Dimensions';
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for a global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for a global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, whose dimension values you can then enter directly on journals and sales or purchase lines.';
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Shortcut Dimension 3 Code"; "Shortcut Dimension 3 Code")
+                field("Shortcut Dimension 3 Code"; Rec."Shortcut Dimension 3 Code")
                 {
                     ApplicationArea = Dimensions;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for Shortcut Dimension 3, whose dimension values you can then enter directly on journals and sales or purchase lines.';
                 }
-                field("Shortcut Dimension 4 Code"; "Shortcut Dimension 4 Code")
+                field("Shortcut Dimension 4 Code"; Rec."Shortcut Dimension 4 Code")
                 {
                     ApplicationArea = Dimensions;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for Shortcut Dimension 4, whose dimension values you can then enter directly on journals and sales or purchase lines.';
                 }
-                field("Shortcut Dimension 5 Code"; "Shortcut Dimension 5 Code")
+                field("Shortcut Dimension 5 Code"; Rec."Shortcut Dimension 5 Code")
                 {
                     ApplicationArea = Dimensions;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for Shortcut Dimension 5, whose dimension values you can then enter directly on journals and sales or purchase lines.';
                 }
-                field("Shortcut Dimension 6 Code"; "Shortcut Dimension 6 Code")
+                field("Shortcut Dimension 6 Code"; Rec."Shortcut Dimension 6 Code")
                 {
                     ApplicationArea = Dimensions;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for Shortcut Dimension 6, whose dimension values you can then enter directly on journals and sales or purchase lines.';
                 }
-                field("Shortcut Dimension 7 Code"; "Shortcut Dimension 7 Code")
+                field("Shortcut Dimension 7 Code"; Rec."Shortcut Dimension 7 Code")
                 {
                     ApplicationArea = Dimensions;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for Shortcut Dimension 7, whose dimension values you can then enter directly on journals and sales or purchase lines.';
                 }
-                field("Shortcut Dimension 8 Code"; "Shortcut Dimension 8 Code")
+                field("Shortcut Dimension 8 Code"; Rec."Shortcut Dimension 8 Code")
                 {
                     ApplicationArea = Dimensions;
                     Importance = Additional;
@@ -363,27 +355,27 @@
             group("Background Posting")
             {
                 Caption = 'Background Posting';
-                field("Post with Job Queue"; "Post with Job Queue")
+                field("Post with Job Queue"; Rec."Post with Job Queue")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you use job queues to post general ledger documents in the background.';
                 }
-                field("Post & Print with Job Queue"; "Post & Print with Job Queue")
+                field("Post & Print with Job Queue"; Rec."Post & Print with Job Queue")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you use job queues to post and print general ledger documents in the background.';
                 }
-                field("Job Queue Category Code"; "Job Queue Category Code")
+                field("Job Queue Category Code"; Rec."Job Queue Category Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the category of the job queue that you want to associate with background posting.';
                 }
-                field("Notify On Success"; "Notify On Success")
+                field("Notify On Success"; Rec."Notify On Success")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if a notification is sent when posting and printing is successfully completed.';
                 }
-                field("Report Output Type"; "Report Output Type")
+                field("Report Output Type"; Rec."Report Output Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the output of the report that will be scheduled with a job queue entry when the Post and Print with Job Queue check box is selected.';
@@ -392,27 +384,31 @@
             group(Reporting)
             {
                 Caption = 'Reporting';
-                field("Acc. Sched. for Balance Sheet"; "Acc. Sched. for Balance Sheet")
+                field("Acc. Sched. for Balance Sheet"; Rec."Fin. Rep. for Balance Sheet")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies which account schedule name that is used to generate the Balance Sheet report.';
+                    Caption = 'Financial Report for Balance Sheet';
+                    ToolTip = 'Specifies which financial report is used to generate the Balance Sheet report.';
                 }
-                field("Acc. Sched. for Income Stmt."; "Acc. Sched. for Income Stmt.")
+                field("Acc. Sched. for Income Stmt."; Rec."Fin. Rep. for Income Stmt.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies which account schedule name that is used to generate the Income Statement report.';
+                    Caption = 'Financial Report for Income Stmt.';
+                    ToolTip = 'Specifies which financial report is used to generate the Income Statement report.';
                 }
-                field("Acc. Sched. for Cash Flow Stmt"; "Acc. Sched. for Cash Flow Stmt")
+                field("Acc. Sched. for Cash Flow Stmt"; Rec."Fin. Rep. for Cash Flow Stmt")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies which account schedule name that is used to generate the Cash Flow Statement report.';
+                    Caption = 'Financial Report for Cash Flow Stmt.';
+                    ToolTip = 'Specifies which financial report is used to generate the Cash Flow Statement report.';
                 }
-                field("Acc. Sched. for Retained Earn."; "Acc. Sched. for Retained Earn.")
+                field("Acc. Sched. for Retained Earn."; Rec."Fin. Rep. for Retained Earn.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies which account schedule name that is used to generate the Retained Earnings report.';
+                    Caption = 'Financial Report for Retained Earn.';
+                    ToolTip = 'Specifies which financial report is used to generate the Retained Earnings report.';
                 }
-                field("Additional Reporting Currency"; "Additional Reporting Currency")
+                field("Additional Reporting Currency"; Rec."Additional Reporting Currency")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the currency that will be used as an additional reporting currency.';
@@ -432,7 +428,7 @@
                         end;
                     end;
                 }
-                field("VAT Exchange Rate Adjustment"; "VAT Exchange Rate Adjustment")
+                field("VAT Exchange Rate Adjustment"; Rec."VAT Exchange Rate Adjustment")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how the accounts set up for VAT posting in the VAT Posting Setup window will be adjusted for exchange rate fluctuations.';
@@ -441,22 +437,22 @@
             group(Application)
             {
                 Caption = 'Application';
-                field("Appln. Rounding Precision"; "Appln. Rounding Precision")
+                field("Appln. Rounding Precision"; Rec."Appln. Rounding Precision")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the rounding difference that will be allowed when you apply entries in LCY to entries in a different currency.';
                 }
-                field("Pmt. Disc. Tolerance Warning"; "Pmt. Disc. Tolerance Warning")
+                field("Pmt. Disc. Tolerance Warning"; Rec."Pmt. Disc. Tolerance Warning")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if a warning will appear every time an application occurs between the dates specified in the Payment Discount Date field and the Pmt. Disc. Tolerance Date field in the General Ledger Setup window.';
                 }
-                field("Pmt. Disc. Tolerance Posting"; "Pmt. Disc. Tolerance Posting")
+                field("Pmt. Disc. Tolerance Posting"; Rec."Pmt. Disc. Tolerance Posting")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting method that is used when posting a payment tolerance. Payment Tolerance Accounts: The payment discount tolerance is posted to a special general ledger account set up for payment tolerance. Payment Discount Amount: The payment discount tolerance is posted as a payment discount.';
                 }
-                field("Payment Discount Grace Period"; "Payment Discount Grace Period")
+                field("Payment Discount Grace Period"; Rec."Payment Discount Grace Period")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of days that a payment or refund can pass the payment discount due date and still receive payment discount.';
@@ -470,22 +466,22 @@
                             PaymentToleranceMgt.CalcGracePeriodCVLedgEntry("Payment Discount Grace Period");
                     end;
                 }
-                field("Payment Tolerance Warning"; "Payment Tolerance Warning")
+                field("Payment Tolerance Warning"; Rec."Payment Tolerance Warning")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to display a message when a payment differs from the invoice amount within the specified tolerance, so you can choose how to process it. If you do not enable the message, and a tolerance level is specified, invoices with amounts that are within tolerance will be automatically closed and you cannot choose to leave the remaining amount. Default tolerance levels are specified in the Payment Tolerance % and Max. Payment Tolerance fields, but can also be specified for each customer ledger entry.';
                 }
-                field("Payment Tolerance Posting"; "Payment Tolerance Posting")
+                field("Payment Tolerance Posting"; Rec."Payment Tolerance Posting")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting method that is used when posting a payment tolerance. Payment Tolerance Accounts: Posts the payment tolerance to a special general ledger account set up for payment tolerance. Payment Discount Amount: Posts the payment tolerance as a payment discount.';
                 }
-                field("Payment Tolerance %"; "Payment Tolerance %")
+                field("Payment Tolerance %"; Rec."Payment Tolerance %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the percentage that a payment or refund is allowed to be less than the amount on the related invoice or credit memo.';
                 }
-                field("Max. Payment Tolerance Amount"; "Max. Payment Tolerance Amount")
+                field("Max. Payment Tolerance Amount"; Rec."Max. Payment Tolerance Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the maximum allowed amount that a payment or refund can differ from the amount on the related invoice or credit memo.';
@@ -494,32 +490,31 @@
             group("Electronic Invoice")
             {
                 Caption = 'Electronic Invoice';
-                field("CFDI Enabled"; "CFDI Enabled")
+                field("CFDI Enabled"; Rec."CFDI Enabled")
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies if the CFDI feature is enabled.';
-
                     trigger OnValidate()
                     begin
                         FeatureTelemetry.LogUptake('1000HR6', MXInvoiceTok, Enum::"Feature Uptake Status"::Discovered);
                     end;
                 }
-                field("SAT Certificate"; "SAT Certificate")
+                field("SAT Certificate"; Rec."SAT Certificate")
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the certificate that was issued to you by the tax authority so that you can verify your identity when you send electronic invoices.';
                 }
-                field("Send PDF Report"; "Send PDF Report")
+                field("Send PDF Report"; Rec."Send PDF Report")
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies if you want to include a PDF when you email electronic invoices to customers or vendors. Electronic invoices are always sent as an XML file, this option allows you to include a PDF with the XML file.';
                 }
-                field("PAC Code"; "PAC Code")
+                field("PAC Code"; Rec."PAC Code")
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the authorized service provider, PAC, that you want apply digital stamps to your electronic invoices.';
                 }
-                field("PAC Environment"; "PAC Environment")
+                field("PAC Environment"; Rec."PAC Environment")
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies if your company uses electronic invoices in Mexico, and if you are using the web services of your authorized service provider, PAC, in a test environment or a production environment.';
@@ -581,7 +576,7 @@
             {
                 Caption = 'Payroll Transaction Import';
                 Visible = false;
-                field("Payroll Trans. Import Format"; "Payroll Trans. Import Format")
+                field("Payroll Trans. Import Format"; Rec."Payroll Trans. Import Format")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the format of the payroll transaction file that can be imported into the General Journal window.';
@@ -619,9 +614,6 @@
                     Caption = 'Change Global Dimensions';
                     Ellipsis = true;
                     Image = ChangeDimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Change Global Dimensions";
                     ToolTip = 'Change one or both of the global dimensions.';
                 }
@@ -651,9 +643,6 @@
                 ApplicationArea = Basic, Suite;
                 Caption = 'Accounting Periods';
                 Image = AccountingPeriods;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 RunObject = Page "Accounting Periods";
                 ToolTip = 'Set up the number of accounting periods, such as 12 monthly periods, within the fiscal year and specify which period is the start of the new fiscal year.';
             }
@@ -662,9 +651,6 @@
                 ApplicationArea = Dimensions;
                 Caption = 'Dimensions';
                 Image = Dimensions;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 RunObject = Page Dimensions;
                 ToolTip = 'Set up dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
             }
@@ -673,9 +659,6 @@
                 ApplicationArea = Basic, Suite;
                 Caption = 'User Setup';
                 Image = UserSetup;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 RunObject = Page "User Setup";
                 ToolTip = 'Set up users to restrict access to post to the general ledger.';
             }
@@ -684,9 +667,6 @@
                 ApplicationArea = Suite;
                 Caption = 'Cash Flow Setup';
                 Image = CashFlowSetup;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 RunObject = Page "Cash Flow Setup";
                 ToolTip = 'Set up the accounts where cash flow figures for sales, purchase, and fixed-asset transactions are stored.';
             }
@@ -695,9 +675,6 @@
                 ApplicationArea = Basic, Suite;
                 Caption = 'Bank Export/Import Setup';
                 Image = ImportExport;
-                Promoted = true;
-                PromotedCategory = Category7;
-                PromotedIsBig = true;
                 RunObject = Page "Bank Export/Import Setup";
                 ToolTip = 'Set up the formats for exporting vendor payments and for importing bank statements.';
             }
@@ -709,9 +686,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'General Posting Setup';
                     Image = GeneralPostingSetup;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page "General Posting Setup";
                     ToolTip = 'Set up combinations of general business and general product posting groups by specifying account numbers for posting of sales and purchase transactions.';
                 }
@@ -720,9 +694,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Gen. Business Posting Groups';
                     Image = GeneralPostingSetup;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page "Gen. Business Posting Groups";
                     ToolTip = 'Set up the trade-type posting groups that you assign to customer and vendor cards to link transactions with the appropriate general ledger account.';
                 }
@@ -731,9 +702,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Gen. Product Posting Groups';
                     Image = GeneralPostingSetup;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page "Gen. Product Posting Groups";
                     ToolTip = 'Set up the item-type posting groups that you assign to customer and vendor cards to link transactions with the appropriate general ledger account.';
                 }
@@ -746,9 +714,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'VAT Posting Setup';
                     Image = VATPostingSetup;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     RunObject = Page "VAT Posting Setup";
                     ToolTip = 'Set up how tax must be posted to the general ledger.';
                 }
@@ -757,9 +722,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'VAT Business Posting Groups';
                     Image = VATPostingSetup;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     RunObject = Page "VAT Business Posting Groups";
                     ToolTip = 'Set up the trade-type posting groups that you assign to customer and vendor cards to link VAT amounts with the appropriate general ledger account.';
                 }
@@ -768,9 +730,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'VAT Product Posting Groups';
                     Image = VATPostingSetup;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     RunObject = Page "VAT Product Posting Groups";
                     ToolTip = 'Set up the item-type posting groups that you assign to customer and vendor cards to link VAT amounts with the appropriate general ledger account.';
                 }
@@ -779,9 +738,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'VAT Report Setup';
                     Image = VATPostingSetup;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     RunObject = Page "VAT Report Setup";
                     ToolTip = 'Set up number series and options for the report that you periodically send to the authorities to declare your VAT.';
                 }
@@ -794,9 +750,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Bank Account Posting Groups';
                     Image = BankAccount;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
                     RunObject = Page "Bank Account Posting Groups";
                     ToolTip = 'Set up posting groups, so that payments in and out of each bank account are posted to the specified general ledger account.';
                 }
@@ -809,9 +762,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'General Journal Templates';
                     Image = JournalSetup;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    PromotedIsBig = true;
                     RunObject = Page "General Journal Templates";
                     ToolTip = 'Set up templates for the journals that you use for bookkeeping tasks. Templates allow you to work in a journal window that is designed for a specific purpose.';
                 }
@@ -820,9 +770,6 @@
                     ApplicationArea = VAT;
                     Caption = 'VAT Statement Templates';
                     Image = VATStatement;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    PromotedIsBig = true;
                     RunObject = Page "VAT Statement Templates";
                     ToolTip = 'Set up the reports that you use to settle VAT and report to the customs and tax authorities.';
                 }
@@ -831,11 +778,91 @@
                     ApplicationArea = BasicEU;
                     Caption = 'Intrastat Templates';
                     Image = Template;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    PromotedIsBig = true;
                     RunObject = Page "Intrastat Journal Templates";
                     ToolTip = 'Define how you want to set up and keep track of journals to report Intrastat.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'General', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(ChangeGlobalDimensions_Promoted; ChangeGlobalDimensions)
+                {
+                }
+                actionref("Accounting Periods_Promoted"; "Accounting Periods")
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref("User Setup_Promoted"; "User Setup")
+                {
+                }
+                actionref("Cash Flow Setup_Promoted"; "Cash Flow Setup")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Posting', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("General Posting Setup_Promoted"; "General Posting Setup")
+                {
+                }
+                actionref("Gen. Business Posting Groups_Promoted"; "Gen. Business Posting Groups")
+                {
+                }
+                actionref("Gen. Product Posting Groups_Promoted"; "Gen. Product Posting Groups")
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'VAT', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref("VAT Posting Setup_Promoted"; "VAT Posting Setup")
+                {
+                }
+                actionref("VAT Business Posting Groups_Promoted"; "VAT Business Posting Groups")
+                {
+                }
+                actionref("VAT Product Posting Groups_Promoted"; "VAT Product Posting Groups")
+                {
+                }
+                actionref("VAT Report Setup_Promoted"; "VAT Report Setup")
+                {
+                }
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Bank', Comment = 'Generated from the PromotedActionCategories property index 6.';
+
+                actionref("Bank Export/Import Setup_Promoted"; "Bank Export/Import Setup")
+                {
+                }
+                actionref("Bank Account Posting Groups_Promoted"; "Bank Account Posting Groups")
+                {
+                }
+            }
+            group(Category_Category8)
+            {
+                Caption = 'Journal Templates', Comment = 'Generated from the PromotedActionCategories property index 7.';
+
+                actionref("General Journal Templates_Promoted"; "General Journal Templates")
+                {
+                }
+                actionref("VAT Statement Templates_Promoted"; "VAT Statement Templates")
+                {
+                }
+                actionref("Intrastat Templates_Promoted"; "Intrastat Templates")
+                {
                 }
             }
         }
@@ -846,8 +873,15 @@
         SessionSettings: SessionSettings;
     begin
         FeatureTelemetry.LogUptake('1000HR7', MXInvoiceTok, Enum::"Feature Uptake Status"::"Set up");
-        if IsShortcutDimensionModified then
+        if IsShortcutDimensionModified() then
             SessionSettings.RequestSessionUpdate(false);
+    end;
+
+    trigger OnInit()
+    var
+        FinancialReportMgt: Codeunit "Financial Report Mgt.";
+    begin
+        FinancialReportMgt.Initialize();
     end;
 
     trigger OnOpenPage()
@@ -875,9 +909,6 @@
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
         MXInvoiceTok: Label 'MX Electronic Invoice', Locked = true;
-        Text001: Label 'Do you want to change all open entries for every customer and vendor that are not blocked?';
-        Text002: Label 'If you delete the additional reporting currency, future general ledger entries are posted in LCY only. Deleting the additional reporting currency does not affect already posted general ledger entries.\\Are you sure that you want to delete the additional reporting currency?';
-        Text003: Label 'If you change the additional reporting currency, future general ledger entries are posted in the new reporting currency and in LCY. To enable the additional reporting currency, a batch job opens, and running the batch job recalculates already posted general ledger entries in the new additional reporting currency.\Entries will be deleted in the Analysis View if it is unblocked, and an update will be necessary.\\Are you sure that you want to change the additional reporting currency?';
 #if not CLEAN20
         DeprecatedFeatureMsg: Label 'This configuration is now configured through the "Standardized Bank Reconciliation and Deposits" capability in the Feature Management page. Do you want to open that page now?';
 #endif
@@ -890,6 +921,10 @@
 #endif
         [InDataSet]
         IsJournalTemplatesVisible: Boolean;
+
+        Text001: Label 'Do you want to change all open entries for every customer and vendor that are not blocked?';
+        Text002: Label 'If you delete the additional reporting currency, future general ledger entries are posted in LCY only. Deleting the additional reporting currency does not affect already posted general ledger entries.\\Are you sure that you want to delete the additional reporting currency?';
+        Text003: Label 'If you change the additional reporting currency, future general ledger entries are posted in the new reporting currency and in LCY. To enable the additional reporting currency, a batch job opens, and running the batch job recalculates already posted general ledger entries in the new additional reporting currency.\Entries will be deleted in the Analysis View if it is unblocked, and an update will be necessary.\\Are you sure that you want to change the additional reporting currency?';
 
     local procedure IsShortcutDimensionModified(): Boolean
     begin

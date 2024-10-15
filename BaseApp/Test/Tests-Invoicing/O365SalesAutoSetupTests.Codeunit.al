@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138906 "O365 Sales Auto. Setup Tests"
 {
     Subtype = Test;
@@ -45,7 +46,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         GLRegister.DeleteAll();
         Customer.DeleteAll();
         Item.DeleteAll();
-        if CompanyInformation.Get and not (CompanyInformation."Country/Region Code" = 'CA') then begin
+        if CompanyInformation.Get() and not (CompanyInformation."Country/Region Code" = 'CA') then begin
             if not CountryRegion.Get('CA') then begin
                 CountryRegion.Init();
                 CountryRegion.Validate(Code, 'CA');
@@ -57,12 +58,12 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         end;
 
         // Remove setup if it exists
-        if O365SalesInitialSetup.Get then
+        if O365SalesInitialSetup.Get() then
             O365SalesInitialSetup.Delete();
 
         LibraryO365.PopulateO365Setup;
 
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
@@ -166,7 +167,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
     begin
         // Setup
         Initialize();
-        if SalesReceivablesSetup.Get then
+        if SalesReceivablesSetup.Get() then
             SalesReceivablesSetup.Delete();
 
         // Exercise
@@ -199,7 +200,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         Initialize();
 
         // [GIVEN] Marketin Setup record does not exist
-        if MarketingSetup.Get then
+        if MarketingSetup.Get() then
             MarketingSetup.Delete();
 
         // [WHEN] Codeunit "O365 Sales Initial Setup" is being run
@@ -261,7 +262,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
 
         if not CustomReportLayout.Get(StrSubstNo(DraftInvoiceLayoutTxt, REPORT::"Standard Sales - Draft Invoice")) then begin
             CustomReportLayout.Init();
-            CustomReportLayout."App ID" := CreateGuid;
+            CustomReportLayout."App ID" := CreateGuid();
             CustomReportLayout."Report ID" := REPORT::"Standard Sales - Draft Invoice";
             CustomReportLayout.Code := StrSubstNo(DraftInvoiceLayoutTxt, CustomReportLayout."Report ID");
             CustomReportLayout.Insert();
@@ -297,7 +298,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         MyNotifications.FindSet();
         repeat
             Assert.IsFalse(MyNotifications.Enabled, StrSubstNo(NotificationEnabledErr, MyNotifications.Name));
-        until MyNotifications.Next = 0;
+        until MyNotifications.Next() = 0;
     end;
 
     [Test]
@@ -350,11 +351,11 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
             Assert.IsTrue(ConfigTemplateLine.FindFirst, StrSubstNo(CouldNotFindLineErr, Customer.FieldName("Tax Area Code")));
             Assert.AreEqual(GetTaxAreaCode, ConfigTemplateLine."Default Value", '');
 
-            if CompanyInformation.Get then;
+            if CompanyInformation.Get() then;
             ConfigTemplateLine.SetRange("Field ID", Customer.FieldNo("Country/Region Code"));
             Assert.IsTrue(ConfigTemplateLine.FindFirst, StrSubstNo(CouldNotFindLineErr, Customer.FieldName("Country/Region Code")));
             Assert.AreEqual(CompanyInformation."Country/Region Code", ConfigTemplateLine."Default Value", '');
-        until ConfigTemplateHeader.Next = 0;
+        until ConfigTemplateHeader.Next() = 0;
 
         ConfigTmplSelectionRules.SetRange("Table ID", DATABASE::Customer);
         if not ConfigTmplSelectionRules.FindFirst() then
@@ -365,82 +366,6 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         InStr.ReadText(ConfigRule);
         Assert.AreEqual('', ConfigRule, '');
     end;
-
-#if not CLEAN18
-    [Test]
-    [HandlerFunctions('VerifyNoNotificationsAreSend')]
-    [Scope('OnPrem')]
-    procedure TestCustomerContactTemplateSetup()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        CompanyInformation: Record "Company Information";
-        CustomerTemplate: Record "Customer Template";
-    begin
-        // Setup
-        Initialize();
-        CustomerTemplate.DeleteAll();
-
-        if CompanyInformation.Get then begin
-            CompanyInformation.City := '';
-            CompanyInformation.Modify();
-        end;
-
-        // Exercise
-        LibraryLowerPermissions.SetO365Setup();
-        CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
-
-        // Verify
-        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Customer);
-        Assert.IsTrue(ConfigTemplateHeader.FindFirst, 'There are no templates defined for the customer');
-        Assert.IsFalse(CustomerTemplate.IsEmpty, 'No Customer templates have been created');
-
-        CustomerTemplate.SetRange("Contact Type", CustomerTemplate."Contact Type"::Company);
-        CustomerTemplate.FindFirst();
-        VerifyCustomerTemplate(CustomerTemplate);
-
-        CustomerTemplate.SetRange("Contact Type", CustomerTemplate."Contact Type"::Person);
-        CustomerTemplate.FindFirst();
-        VerifyCustomerTemplate(CustomerTemplate);
-    end;
-#endif
-
-#if not CLEAN18
-    [Test]
-    [HandlerFunctions('VerifyNoNotificationsAreSend')]
-    [Scope('OnPrem')]
-    procedure TestItemTemplateSetup()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        Item: Record Item;
-        ItemTemplate: Record "Item Template";
-        ConfigTmplSelectionRules: Record "Config. Tmpl. Selection Rules";
-        InStr: InStream;
-        ConfigRule: Text;
-    begin
-        // Setup
-        Initialize();
-
-        // Exercise
-        LibraryLowerPermissions.SetO365Setup();
-        CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
-
-        // Verify
-        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Item);
-        Assert.IsTrue(ConfigTemplateHeader.FindFirst, 'There is no config. template for item.');
-
-        ItemTemplate.NewItemFromTemplate(Item);
-
-        Assert.AreEqual(TaxableCodeTxt, Item."Tax Group Code", 'Incorrect Tax Group Code.');
-
-        ConfigTmplSelectionRules.SetRange("Table ID", DATABASE::Item);
-        ConfigTmplSelectionRules.FindFirst();
-
-        Assert.AreEqual(1, ConfigTmplSelectionRules.Count, 'There should only be one selection rule for customers');
-        ConfigTmplSelectionRules."Selection Criteria".CreateInStream(InStr);
-        InStr.ReadText(ConfigRule);
-        Assert.AreEqual('', ConfigRule, '');
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('VerifyNoNotificationsAreSend')]
@@ -523,7 +448,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
                 Assert.AreEqual(JobQueueEntry.Status, JobQueueEntry.Status::"On Hold",
                   StrSubstNo('Job queue entry for %1 %2 is not On Hold for Invoicing, but it''s %3.',
                     JobQueueEntry."Object Type to Run", JobQueueEntry."Object ID to Run", JobQueueEntry.Status));
-            until JobQueueEntry.Next = 0;
+            until JobQueueEntry.Next() = 0;
     end;
 
     [Test]
@@ -560,31 +485,6 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         Reply := LibraryVariableStorage.DequeueBoolean;
     end;
 
-#if not CLEAN18
-    local procedure VerifyCustomerTemplate(var CustomerTemplate: Record "Customer Template")
-    begin
-        AssertCustomerTemplateFieldMatchesTemplate(CustomerTemplate, CustomerTemplate.FieldNo("Customer Posting Group"));
-        AssertCustomerTemplateFieldMatchesTemplate(CustomerTemplate, CustomerTemplate.FieldNo("Payment Terms Code"));
-        AssertCustomerTemplateFieldMatchesTemplate(CustomerTemplate, CustomerTemplate.FieldNo("Country/Region Code"));
-        AssertCustomerTemplateFieldMatchesTemplate(CustomerTemplate, CustomerTemplate.FieldNo("Payment Method Code"));
-        AssertCustomerTemplateFieldMatchesTemplate(CustomerTemplate, CustomerTemplate.FieldNo("Gen. Bus. Posting Group"));
-        AssertCustomerTemplateFieldMatchesTemplate(CustomerTemplate, CustomerTemplate.FieldNo("VAT Bus. Posting Group"));
-    end;
-
-    local procedure AssertCustomerTemplateFieldMatchesTemplate(var CustomerTemplate: Record "Customer Template"; FieldId: Integer)
-    var
-        RecRef: RecordRef;
-        FieldRef: FieldRef;
-    begin
-        RecRef.GetTable(CustomerTemplate);
-        FieldRef := RecRef.Field(FieldId);
-
-        Assert.AreEqual(
-          GetValueFromTemplate(FieldId), Format(FieldRef.Value),
-          StrSubstNo('The field %1 does not match across both templates', FieldRef.Name));
-    end;
-#endif
-
     local procedure GetValueFromTemplate(FieldId: Integer): Text
     var
         ConfigTemplateLine: Record "Config. Template Line";
@@ -607,7 +507,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         if TaxArea.FindFirst() then
             TaxAreaCode := TaxArea.Code;
 
-        if CompanyInformation.Get and (CompanyInformation.County <> '') then begin
+        if CompanyInformation.Get() and (CompanyInformation.County <> '') then begin
             TaxArea.Reset();
             TaxArea.SetRange(Code, CompanyInformation.County);
             if TaxArea.FindFirst() then
@@ -628,4 +528,4 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         Assert.Fail('No notification should be thrown.');
     end;
 }
-
+#endif

@@ -16,7 +16,7 @@ page 9324 "Planned Production Orders"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Manufacturing;
                     Lookup = false;
@@ -27,12 +27,12 @@ page 9324 "Planned Production Orders"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the description of the production order.';
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the source document that the entry originates from.';
                 }
-                field("Routing No."; "Routing No.")
+                field("Routing No."; Rec."Routing No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the routing number used for this production order.';
@@ -42,19 +42,19 @@ page 9324 "Planned Production Orders"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how many units of the item or the family to produce (production quantity).';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location code to which you want to post the finished product from this production order.';
@@ -102,27 +102,27 @@ page 9324 "Planned Production Orders"
                     ObsoleteTag = '17.0';
                 }
 #endif
-                field("Starting Date-Time"; "Starting Date-Time")
+                field("Starting Date-Time"; Rec."Starting Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the starting date and starting time of the production order.';
                 }
-                field("Ending Date-Time"; "Ending Date-Time")
+                field("Ending Date-Time"; Rec."Ending Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the ending date and ending time of the production order.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the due date of the production order.';
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
-                field("Finished Date"; "Finished Date")
+                field("Finished Date"; Rec."Finished Date")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the actual finishing date of a finished production order.';
@@ -133,18 +133,18 @@ page 9324 "Planned Production Orders"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the status of the production order.';
                 }
-                field("Search Description"; "Search Description")
+                field("Search Description"; Rec."Search Description")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the search description.';
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies when the production order card was last modified.';
                     Visible = false;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a bin to which you want to post the finished items.';
@@ -247,7 +247,7 @@ page 9324 "Planned Production Orders"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim;
+                        ShowDocDim();
                     end;
                 }
                 action(Statistics)
@@ -255,8 +255,6 @@ page 9324 "Planned Production Orders"
                     ApplicationArea = Manufacturing;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Production Order Statistics";
                     RunPageLink = Status = FIELD(Status),
                                   "No." = FIELD("No."),
@@ -277,8 +275,6 @@ page 9324 "Planned Production Orders"
                     ApplicationArea = Manufacturing;
                     Caption = 'Change &Status';
                     Image = ChangeStatus;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Codeunit "Prod. Order Status Management";
                     ToolTip = 'Change the production order to another status, such as Released.';
                 }
@@ -288,8 +284,6 @@ page 9324 "Planned Production Orders"
                     Caption = '&Update Unit Cost';
                     Ellipsis = true;
                     Image = UpdateUnitCost;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Update the cost of the parent item per changes to the production BOM or routing.';
 
                     trigger OnAction()
@@ -301,6 +295,23 @@ page 9324 "Planned Production Orders"
 
                         REPORT.RunModal(REPORT::"Update Unit Cost", true, true, ProdOrder);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Change &Status_Promoted"; "Change &Status")
+                {
+                }
+                actionref("&Update Unit Cost_Promoted"; "&Update Unit Cost")
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
                 }
             }
         }

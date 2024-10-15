@@ -1,4 +1,4 @@
-report 210 "Blanket Sales Order"
+﻿report 210 "Blanket Sales Order"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './BlanketSalesOrder.rdlc';
@@ -308,12 +308,12 @@ report 210 "Blanket Sales Order"
                         column(LineNo_SalesLine; "Sales Line"."Line No.")
                         {
                         }
-                        column(LineAmt_SalesLine; SalesLine."Line Amount")
+                        column(LineAmt_SalesLine; TempSalesLine."Line Amount")
                         {
                             AutoFormatExpression = "Sales Line"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(Comment_SalesLine; SalesLine.Description)
+                        column(Comment_SalesLine; TempSalesLine.Description)
                         {
                         }
                         column(No_SalesLine; "Sales Line"."No.")
@@ -348,7 +348,7 @@ report 210 "Blanket Sales Order"
                         column(VATIdentifier_SalesLine; "Sales Line"."VAT Identifier")
                         {
                         }
-                        column(InvDiscAmt_SalesLine; -SalesLine."Inv. Discount Amount")
+                        column(InvDiscAmt_SalesLine; -TempSalesLine."Inv. Discount Amount")
                         {
                             AutoFormatExpression = "Sales Line"."Currency Code";
                             AutoFormatType = 1;
@@ -356,12 +356,12 @@ report 210 "Blanket Sales Order"
                         column(TotalText; TotalText)
                         {
                         }
-                        column(LineAmtSalesLineInvDiscAmt_SalesLine; SalesLine."Line Amount" - SalesLine."Inv. Discount Amount")
+                        column(LineAmtSalesLineInvDiscAmt_SalesLine; TempSalesLine."Line Amount" - TempSalesLine."Inv. Discount Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineVATAmtText; VATAmountLine.VATAmountText)
+                        column(VATAmtLineVATAmtText; TempVATAmountLine.VATAmountText())
                         {
                         }
                         column(TotalExclVATText; TotalExclVATText)
@@ -375,7 +375,7 @@ report 210 "Blanket Sales Order"
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(LineAmtSalesLineInvDisAmtVATAmt_SalesLine; SalesLine."Line Amount" - SalesLine."Inv. Discount Amount" + VATAmount)
+                        column(LineAmtSalesLineInvDisAmtVATAmt_SalesLine; TempSalesLine."Line Amount" - TempSalesLine."Inv. Discount Amount" + VATAmount)
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
@@ -469,41 +469,41 @@ report 210 "Blanket Sales Order"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then
-                                SalesLine.Find('-')
+                                TempSalesLine.Find('-')
                             else
-                                SalesLine.Next;
-                            "Sales Line" := SalesLine;
+                                TempSalesLine.Next();
+                            "Sales Line" := TempSalesLine;
 
                             if not "Sales Header"."Prices Including VAT" and
-                               (SalesLine."VAT Calculation Type" = SalesLine."VAT Calculation Type"::"Full VAT")
+                               (TempSalesLine."VAT Calculation Type" = TempSalesLine."VAT Calculation Type"::"Full VAT")
                             then
-                                SalesLine."Line Amount" := 0;
+                                TempSalesLine."Line Amount" := 0;
 
-                            if (SalesLine.Type = SalesLine.Type::"G/L Account") and (not ShowInternalInfo) then
+                            if (TempSalesLine.Type = TempSalesLine.Type::"G/L Account") and (not ShowInternalInfo) then
                                 "Sales Line"."No." := '';
 
-                            SalesLineTypeInt := SalesLine.Type.AsInteger();
-                            TotalSalesLineAmount += SalesLine."Line Amount";
-                            TotalSalesInvDiscAmount += SalesLine."Inv. Discount Amount";
+                            SalesLineTypeInt := TempSalesLine.Type.AsInteger();
+                            TotalSalesLineAmount += TempSalesLine."Line Amount";
+                            TotalSalesInvDiscAmount += TempSalesLine."Inv. Discount Amount";
                         end;
 
                         trigger OnPostDataItem()
                         begin
-                            SalesLine.DeleteAll();
+                            TempSalesLine.DeleteAll();
                         end;
 
                         trigger OnPreDataItem()
                         begin
-                            MoreLines := SalesLine.Find('+');
-                            while MoreLines and (SalesLine.Description = '') and (SalesLine."Description 2" = '') and
-                                  (SalesLine."No." = '') and (SalesLine.Quantity = 0) and
-                                  (SalesLine.Amount = 0)
+                            MoreLines := TempSalesLine.Find('+');
+                            while MoreLines and (TempSalesLine.Description = '') and (TempSalesLine."Description 2" = '') and
+                                  (TempSalesLine."No." = '') and (TempSalesLine.Quantity = 0) and
+                                  (TempSalesLine.Amount = 0)
                             do
-                                MoreLines := SalesLine.Next(-1) <> 0;
+                                MoreLines := TempSalesLine.Next(-1) <> 0;
                             if not MoreLines then
                                 CurrReport.Break();
-                            SalesLine.SetRange("Line No.", 0, SalesLine."Line No.");
-                            SetRange(Number, 1, SalesLine.Count);
+                            TempSalesLine.SetRange("Line No.", 0, TempSalesLine."Line No.");
+                            SetRange(Number, 1, TempSalesLine.Count);
 
                             TotalSalesLineAmount := 0;
                             TotalSalesInvDiscAmount := 0;
@@ -512,36 +512,36 @@ report 210 "Blanket Sales Order"
                     dataitem(VATCounter; "Integer")
                     {
                         DataItemTableView = SORTING(Number);
-                        column(VATAmtLineVATBase; VATAmountLine."VAT Base")
+                        column(VATAmtLineVATBase; TempVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineVATAmt; VATAmountLine."VAT Amount")
+                        column(VATAmtLineVATAmt; TempVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineLineAmt; VATAmountLine."Line Amount")
+                        column(VATAmtLineLineAmt; TempVATAmountLine."Line Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineInvDiscBaseAmt; VATAmountLine."Inv. Disc. Base Amount")
+                        column(VATAmtLineInvDiscBaseAmt; TempVATAmountLine."Inv. Disc. Base Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineInvDiscAmt; VATAmountLine."Invoice Discount Amount")
+                        column(VATAmtLineInvDiscAmt; TempVATAmountLine."Invoice Discount Amount")
                         {
                             AutoFormatExpression = "Sales Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineVAT1; VATAmountLine."VAT %")
+                        column(VATAmtLineVAT1; TempVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(VATAmtLineVATIdentifier1; VATAmountLine."VAT Identifier")
+                        column(VATAmtLineVATIdentifier1; TempVATAmountLine."VAT Identifier")
                         {
                         }
                         column(VATPercentageCaption; VATPercentageCaptionLbl)
@@ -571,14 +571,14 @@ report 210 "Blanket Sales Order"
 
                         trigger OnAfterGetRecord()
                         begin
-                            VATAmountLine.GetLine(Number);
+                            TempVATAmountLine.GetLine(Number);
                         end;
 
                         trigger OnPreDataItem()
                         begin
                             if VATAmount = 0 then
                                 CurrReport.Break();
-                            SetRange(Number, 1, VATAmountLine.Count);
+                            SetRange(Number, 1, TempVATAmountLine.Count);
                         end;
                     }
                     dataitem(VATCounterLCY; "Integer")
@@ -598,22 +598,22 @@ report 210 "Blanket Sales Order"
                         {
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineVAT2; VATAmountLine."VAT %")
+                        column(VATAmtLineVAT2; TempVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(VATAmtLineVATIdentifier2; VATAmountLine."VAT Identifier")
+                        column(VATAmtLineVATIdentifier2; TempVATAmountLine."VAT Identifier")
                         {
                         }
 
                         trigger OnAfterGetRecord()
                         begin
-                            VATAmountLine.GetLine(Number);
+                            TempVATAmountLine.GetLine(Number);
                             VALVATBaseLCY :=
-                              VATAmountLine.GetBaseLCY(
+                              TempVATAmountLine.GetBaseLCY(
                                 "Sales Header"."Posting Date", "Sales Header"."Currency Code", "Sales Header"."Currency Factor");
                             VALVATAmountLCY :=
-                              VATAmountLine.GetAmountLCY(
+                              TempVATAmountLine.GetAmountLCY(
                                 "Sales Header"."Posting Date", "Sales Header"."Currency Code", "Sales Header"."Currency Factor");
                         end;
 
@@ -621,11 +621,11 @@ report 210 "Blanket Sales Order"
                         begin
                             if (not GLSetup."Print VAT specification in LCY") or
                                ("Sales Header"."Currency Code" = '') or
-                               (VATAmountLine.GetTotalVATAmount = 0)
+                               (TempVATAmountLine.GetTotalVATAmount() = 0)
                             then
                                 CurrReport.Break();
 
-                            SetRange(Number, 1, VATAmountLine.Count);
+                            SetRange(Number, 1, TempVATAmountLine.Count);
                             Clear(VALVATBaseLCY);
                             Clear(VALVATAmountLCY);
 
@@ -634,7 +634,7 @@ report 210 "Blanket Sales Order"
                             else
                                 VALSpecLCYHeader := Text007 + Format(GLSetup."LCY Code");
 
-                            CurrExchRate.FindCurrency(WorkDate, "Sales Header"."Currency Code", 1);
+                            CurrExchRate.FindCurrency(WorkDate(), "Sales Header"."Currency Code", 1);
                             VALExchRate := StrSubstNo(Text009, CurrExchRate."Relational Exch. Rate Amount", CurrExchRate."Exchange Rate Amount");
                         end;
                     }
@@ -691,28 +691,28 @@ report 210 "Blanket Sales Order"
                 var
                     SalesPost: Codeunit "Sales-Post";
                 begin
-                    Clear(SalesLine);
+                    Clear(TempSalesLine);
                     Clear(SalesPost);
-                    SalesLine.DeleteAll();
-                    VATAmountLine.DeleteAll();
-                    SalesPost.GetSalesLines("Sales Header", SalesLine, 0);
-                    SalesLine.CalcVATAmountLines(0, "Sales Header", SalesLine, VATAmountLine);
-                    SalesLine.UpdateVATOnLines(0, "Sales Header", SalesLine, VATAmountLine);
-                    VATAmount := VATAmountLine.GetTotalVATAmount;
-                    VATBaseAmount := VATAmountLine.GetTotalVATBase;
+                    TempSalesLine.DeleteAll();
+                    TempVATAmountLine.DeleteAll();
+                    SalesPost.GetSalesLines("Sales Header", TempSalesLine, 0);
+                    TempSalesLine.CalcVATAmountLines(0, "Sales Header", TempSalesLine, TempVATAmountLine);
+                    TempSalesLine.UpdateVATOnLines(0, "Sales Header", TempSalesLine, TempVATAmountLine);
+                    VATAmount := TempVATAmountLine.GetTotalVATAmount();
+                    VATBaseAmount := TempVATAmountLine.GetTotalVATBase();
                     VATDiscountAmount :=
-                      VATAmountLine.GetTotalVATDiscount("Sales Header"."Currency Code", "Sales Header"."Prices Including VAT");
-                    TotalAmountInclVAT := VATAmountLine.GetTotalAmountInclVAT;
+                      TempVATAmountLine.GetTotalVATDiscount("Sales Header"."Currency Code", "Sales Header"."Prices Including VAT");
+                    TotalAmountInclVAT := TempVATAmountLine.GetTotalAmountInclVAT();
 
                     if Number > 1 then begin
-                        CopyText := FormatDocument.GetCOPYText;
+                        CopyText := FormatDocument.GetCOPYText();
                         OutputNo += 1;
                     end;
                 end;
 
                 trigger OnPostDataItem()
                 begin
-                    if not IsReportInPreviewMode then
+                    if not IsReportInPreviewMode() then
                         CODEUNIT.Run(CODEUNIT::"Sales-Printed", "Sales Header");
                 end;
 
@@ -740,7 +740,7 @@ report 210 "Blanket Sales Order"
 
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
 
-                if not IsReportInPreviewMode then
+                if not IsReportInPreviewMode() then
                     if ArchiveDocument then
                         ArchiveManagement.StoreSalesDocument("Sales Header", LogInteraction);
             end;
@@ -805,7 +805,7 @@ report 210 "Blanket Sales Order"
 
         trigger OnOpenPage()
         begin
-            InitLogInteraction;
+            InitLogInteraction();
             LogInteractionEnable := LogInteraction;
         end;
     }
@@ -824,7 +824,7 @@ report 210 "Blanket Sales Order"
 
     trigger OnPostReport()
     begin
-        if LogInteraction and not IsReportInPreviewMode then
+        if LogInteraction and not IsReportInPreviewMode() then
             if "Sales Header".FindSet() then
                 repeat
                     "Sales Header".CalcFields("No. of Archived Versions");
@@ -847,12 +847,10 @@ report 210 "Blanket Sales Order"
     trigger OnPreReport()
     begin
         if not CurrReport.UseRequestPage then
-            InitLogInteraction;
+            InitLogInteraction();
     end;
 
     var
-        Text004: Label 'Blanket Sales Order %1', Comment = '%1 = Document No.';
-        Text005: Label 'Page %1';
         GLSetup: Record "General Ledger Setup";
         ShipmentMethod: Record "Shipment Method";
         PaymentTerms: Record "Payment Terms";
@@ -863,8 +861,8 @@ report 210 "Blanket Sales Order"
         SalesSetup: Record "Sales & Receivables Setup";
         CompanyBankAccount: Record "Bank Account";
         CompanyInfo: Record "Company Information";
-        VATAmountLine: Record "VAT Amount Line" temporary;
-        SalesLine: Record "Sales Line" temporary;
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        TempSalesLine: Record "Sales Line" temporary;
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
         RespCenter: Record "Responsibility Center";
@@ -880,7 +878,7 @@ report 210 "Blanket Sales Order"
         CustAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
-        SalesPersonText: Text[30];
+        SalesPersonText: Text[50];
         VATNoText: Text[80];
         ReferenceText: Text[80];
         TotalText: Text[50];
@@ -914,6 +912,11 @@ report 210 "Blanket Sales Order"
         ArchiveDocument: Boolean;
         [InDataSet]
         LogInteractionEnable: Boolean;
+
+        Text004: Label 'Blanket Sales Order %1', Comment = '%1 = Document No.';
+        Text005: Label 'Page %1';
+        PaymentTermsDescCaptionLbl: Label 'Payment Terms';
+        ShipmentMethodDescrCaptionLbl: Label 'Shipment Method';
         InvDiscountAmountCaptionLbl: Label 'Invoice Discount Amount';
         CompanyInfoPhoneNoCaptionLbl: Label 'Phone No.';
         CompanyInfoVATRegNoCaptionLbl: Label 'VAT Registration No.';
@@ -923,19 +926,23 @@ report 210 "Blanket Sales Order"
         ShipmentDateCaptionLbl: Label 'Shipment Date';
         BlanketSalesOrderNoCaptionLbl: Label 'Blanket Sales Order No.';
         TaxIdentTypeCaptionLbl: Label 'Tax Identification Type';
+        CompanyInfoHomePageCaptionLbl: Label 'Home Page';
+        CompanyInfoEmailCaptionLbl: Label 'Email';
+        DocumentDateCaptionLbl: Label 'Document Date';
         HeaderDimensionsCaptionLbl: Label 'Header Dimensions';
         UnitPriceCaptionLbl: Label 'Unit Price';
         AmountCaptionLbl: Label 'Amount';
         SubtotalCaptionLbl: Label 'Subtotal';
         PaymentDiscOnVATCaptionLbl: Label 'Payment Discount on VAT';
         LineDimensionsCaptionLbl: Label 'Line Dimensions';
-        VATPercentageCaptionLbl: Label 'VAT %';
-        VATBaseCaptionLbl: Label 'VAT Base';
-        VATAmountCaptionLbl: Label 'VAT Amount';
         VATAmountSpecificationCaptionLbl: Label 'VAT Amount Specification';
         VATIdentifierCaptionLbl: Label 'VAT Identifier';
         InvDiscBaseAmountCaptionLbl: Label 'Invoice Discount Base Amount';
         LineAmountCaptionLbl: Label 'Line Amount';
+        ShiptoAddressCaptionLbl: Label 'Ship-to Address';
+        VATPercentageCaptionLbl: Label 'VAT %';
+        VATBaseCaptionLbl: Label 'VAT Base';
+        VATAmountCaptionLbl: Label 'VAT Amount';
         TotalCaptionLbl: Label 'Total';
         SellToContactPhoneNoLbl: Label 'Sell-to Contact Phone No.';
         SellToContactMobilePhoneNoLbl: Label 'Sell-to Contact Mobile Phone No.';
@@ -943,12 +950,6 @@ report 210 "Blanket Sales Order"
         BillToContactPhoneNoLbl: Label 'Bill-to Contact Phone No.';
         BillToContactMobilePhoneNoLbl: Label 'Bill-to Contact Mobile Phone No.';
         BillToContactEmailLbl: Label 'Bill-to Contact E-Mail';
-        ShiptoAddressCaptionLbl: Label 'Ship-to Address';
-        PaymentTermsDescCaptionLbl: Label 'Payment Terms';
-        ShipmentMethodDescrCaptionLbl: Label 'Shipment Method';
-        DocumentDateCaptionLbl: Label 'Document Date';
-        CompanyInfoHomePageCaptionLbl: Label 'Home Page';
-        CompanyInfoEmailCaptionLbl: Label 'Email';
 
     procedure InitializeRequest(NewNoOfCopies: Integer; NewShowInternalInfo: Boolean; NewArchiveDocument: Boolean; NewLogInteraction: Boolean)
     begin
@@ -962,7 +963,7 @@ report 210 "Blanket Sales Order"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure InitLogInteraction()

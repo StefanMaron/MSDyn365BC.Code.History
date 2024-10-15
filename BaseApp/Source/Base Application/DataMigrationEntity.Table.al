@@ -67,13 +67,13 @@ table 1801 "Data Migration Entity"
 
     procedure InsertRecordWithBalance(TableID: Integer; NoOfPackageRecords: Integer; BalanceValue: Decimal)
     begin
-        Init;
+        Init();
         Validate("Table ID", TableID);
         Validate("No. of Records", NoOfPackageRecords);
         Validate(Balance, BalanceValue);
         Validate(Selected, NoOfPackageRecords > 0);
-        Validate("Posting Date", WorkDate);
-        Insert;
+        Validate("Posting Date", WorkDate());
+        Insert();
     end;
 }
 

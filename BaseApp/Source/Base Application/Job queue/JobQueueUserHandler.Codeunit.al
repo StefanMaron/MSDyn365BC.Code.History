@@ -5,7 +5,7 @@ codeunit 455 "Job Queue User Handler"
 
     trigger OnRun()
     begin
-        RescheduleJobQueueEntries;
+        RescheduleJobQueueEntries();
     end;
 
     local procedure RescheduleJobQueueEntries()
@@ -82,9 +82,9 @@ codeunit 455 "Job Queue User Handler"
             exit;
         if not (JobQueueEntry.TryCheckRequiredPermissions()) then
             exit;
-        if not TASKSCHEDULER.CanCreateTask then
+        if not TASKSCHEDULER.CanCreateTask() then
             exit;
-        if not User.Get(UserSecurityId) then
+        if not User.Get(UserSecurityId()) then
             exit;
         if User."License Type" = User."License Type"::"Limited User" then
             exit;

@@ -461,7 +461,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        SalesReturnOrder.Close;
+        SalesReturnOrder.Close();
 
         // [GIVEN] SalesHeader approval enabled.
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
@@ -476,7 +476,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         Assert.IsFalse(SalesReturnOrder.Approve.Visible, 'Approve should NOT be visible');
         Assert.IsFalse(SalesReturnOrder.Reject.Visible, 'Reject should NOT be visible');
         Assert.IsFalse(SalesReturnOrder.Delegate.Visible, 'Delegate should NOT be visible');
-        SalesReturnOrder.Close;
+        SalesReturnOrder.Close();
 
         // [GIVEN] Approval exist on SalesHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
@@ -493,7 +493,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         Assert.IsTrue(SalesReturnOrder.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Clenup
-        SalesReturnOrder.Close;
+        SalesReturnOrder.Close();
 
         // Setup the approval so it can be approve by current user
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(SalesHeader.RecordId);
@@ -540,7 +540,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        SalesReturnOrderList.Close;
+        SalesReturnOrderList.Close();
 
         // [GIVEN] SalesHeader approval enabled.
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
@@ -552,7 +552,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         // [THEN] Only Send is enabled.
         Assert.IsTrue(SalesReturnOrderList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
         Assert.IsFalse(SalesReturnOrderList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        SalesReturnOrderList.Close;
+        SalesReturnOrderList.Close();
 
         // [GIVEN] Approval exist on SalesHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
@@ -768,12 +768,12 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         SalesReturnOrder.OpenView;
         SalesReturnOrder.GotoRecord(SalesHeader);
         SalesReturnOrder.SendApprovalRequest.Invoke;
-        SalesReturnOrder.Close;
+        SalesReturnOrder.Close();
     end;
 
     local procedure RegetSalesDocument(var SalesHeader: Record "Sales Header")
     begin
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         SalesHeader.FindFirst();
     end;
 
@@ -832,7 +832,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         SalesReturnOrder.OpenView;
         SalesReturnOrder.GotoRecord(SalesHeader);
         SalesReturnOrder.Approve.Invoke;
-        SalesReturnOrder.Close;
+        SalesReturnOrder.Close();
     end;
 
     local procedure RejectSalesReturnOrder(var SalesHeader: Record "Sales Header")
@@ -842,7 +842,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         SalesReturnOrder.OpenView;
         SalesReturnOrder.GotoRecord(SalesHeader);
         SalesReturnOrder.Reject.Invoke;
-        SalesReturnOrder.Close;
+        SalesReturnOrder.Close();
     end;
 
     local procedure DelegateSalesReturnOrder(var SalesHeader: Record "Sales Header")
@@ -852,7 +852,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         SalesReturnOrder.OpenView;
         SalesReturnOrder.GotoRecord(SalesHeader);
         SalesReturnOrder.Delegate.Invoke;
-        SalesReturnOrder.Close;
+        SalesReturnOrder.Close();
     end;
 
     local procedure CancelSalesReturnOrder(var SalesHeader: Record "Sales Header")
@@ -862,7 +862,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         SalesReturnOrder.OpenView;
         SalesReturnOrder.GotoRecord(SalesHeader);
         SalesReturnOrder.CancelApprovalRequest.Invoke;
-        SalesReturnOrder.Close;
+        SalesReturnOrder.Close();
     end;
 
     local procedure SetSalesDocSalespersonCode(SalesHeader: Record "Sales Header"; SalespersonCode: Code[20])
@@ -889,15 +889,15 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
             if ApprovalComments.First then
                 repeat
                     NumberOfComments += 1;
-                until ApprovalComments.Next;
+                until ApprovalComments.Next();
             Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
             ApprovalComments.Comment.SetValue('Test Comment' + Format(NumberOfExpectedComments));
-            ApprovalComments.Next;
-            ApprovalComments.Close;
+            ApprovalComments.Next();
+            ApprovalComments.Close();
         end;
 
-        SalesReturnOrder.Close;
+        SalesReturnOrder.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -915,12 +915,12 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        ApprovalEntries.Close;
+        ApprovalEntries.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnRequestsToApprovePage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -938,12 +938,12 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        RequeststoApprove.Close;
+        RequeststoApprove.Close();
     end;
 
     local procedure CheckUserCanCancelTheApprovalRequest(SalesHeader: Record "Sales Header"; CancelActionExpectedEnabled: Boolean)
@@ -955,13 +955,13 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         SalesReturnOrder.GotoRecord(SalesHeader);
         Assert.AreEqual(CancelActionExpectedEnabled, SalesReturnOrder.CancelApprovalRequest.Enabled,
           'Wrong state for the Cancel action');
-        SalesReturnOrder.Close;
+        SalesReturnOrder.Close();
 
         SalesReturnOrderList.OpenView;
         SalesReturnOrderList.GotoRecord(SalesHeader);
         Assert.AreEqual(CancelActionExpectedEnabled, SalesReturnOrderList.CancelApprovalRequest.Enabled,
           'Wrong state for the Cancel action');
-        SalesReturnOrderList.Close;
+        SalesReturnOrderList.Close();
     end;
 }
 

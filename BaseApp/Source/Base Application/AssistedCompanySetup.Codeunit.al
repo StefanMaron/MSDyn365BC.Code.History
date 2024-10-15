@@ -47,10 +47,10 @@ codeunit 1800 "Assisted Company Setup"
         if not GuiAllowed then
             exit;
 
-        if CompanyActive then
+        if CompanyActive() then
             exit;
 
-        if not AssistedSetupEnabled then
+        if not AssistedSetupEnabled() then
             exit;
 
         if GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"Assisted Company Setup Wizard") then
@@ -64,7 +64,7 @@ codeunit 1800 "Assisted Company Setup"
     procedure ApplyUserInput(var TempConfigSetup: Record "Config. Setup" temporary; var BankAccount: Record "Bank Account"; AccountingPeriodStartDate: Date; SkipSetupCompanyInfo: Boolean)
     begin
         if not SkipSetupCompanyInfo then
-            TempConfigSetup.CopyCompInfo;
+            TempConfigSetup.CopyCompInfo();
         CreateAccountingPeriod(AccountingPeriodStartDate);
         SetupCompanyBankAccount(BankAccount);
     end;
@@ -83,7 +83,7 @@ codeunit 1800 "Assisted Company Setup"
         ConfigurationPackageFile.CalcFields(Package);
         ConfigurationPackageFile.Package.CreateInStream(InStream);
         CopyStream(OutStream, InStream);
-        TempFile.Close;
+        TempFile.Close();
     end;
 
     procedure CreateAccountingPeriod(StartDate: Date)
@@ -144,7 +144,7 @@ codeunit 1800 "Assisted Company Setup"
         if IsNullGuid(AssistedCompanySetupStatus."Task ID") then
             exit(false);
         JobQueueLogEntry.SetRange(ID, AssistedCompanySetupStatus."Task ID");
-        exit(JobQueueLogEntry.FindLast);
+        exit(JobQueueLogEntry.FindLast());
     end;
 
     local procedure GetCompanySetupStatus(Name: Text[30]): Enum "Company Setup Status"
@@ -190,7 +190,7 @@ codeunit 1800 "Assisted Company Setup"
             Window.Open(CompanyIsBeingSetUpMsg);
             while IsCompanySetupInProgress(CompanyName) do
                 Sleep(1000);
-            Window.Close;
+            Window.Close();
         end;
     end;
 
@@ -206,11 +206,11 @@ codeunit 1800 "Assisted Company Setup"
             Company."Evaluation Company" := true;
             Company.Modify();
             Commit();
-            DataClassificationEvalData.CreateEvaluationData;
+            DataClassificationEvalData.CreateEvaluationData();
             Session.LogMessage('0000HUJ', StrSubstNo(CompanyEvaluationTxt, Company."Evaluation Company"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', CompanyEvaluationCategoryTok);
         end;
 
-        UserPersonalization.Get(UserSecurityId);
+        UserPersonalization.Get(UserSecurityId());
         if FindConfigurationPackageFile(ConfigurationPackageFile, NewCompanyData) then
             ScheduleConfigPackageImport(ConfigurationPackageFile, NewCompanyName);
     end;
@@ -246,7 +246,7 @@ codeunit 1800 "Assisted Company Setup"
     procedure FindConfigurationPackageFile(var ConfigurationPackageFile: Record "Configuration Package File"; CompanyData: Option): Boolean
     begin
         if FilterConfigurationPackageFile(ConfigurationPackageFile, CompanyData) then
-            exit(ConfigurationPackageFile.FindFirst);
+            exit(ConfigurationPackageFile.FindFirst());
         exit(false);
     end;
 
@@ -332,7 +332,7 @@ codeunit 1800 "Assisted Company Setup"
 
         Commit();
 
-        Window.Close;
+        Window.Close();
     end;
 
     [Scope('OnPrem')]

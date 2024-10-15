@@ -114,10 +114,9 @@ report 5065 "Segment - Labels"
                         for i := ColumnNo + 1 to NoOfColumns do
                             Clear(ContAddr[i]);
                         ColumnNo := 0;
-                    end else begin
+                    end else
                         if ColumnNo = NoOfColumns then
                             ColumnNo := 0;
-                    end;
 
                     if ColumnNo = 0 then begin
                         if Counter = RecPerPageNum then begin

@@ -10,7 +10,7 @@ report 7130 "Item Budget"
         {
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.", "Global Dimension 1 Filter", "Global Dimension 2 Filter";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ItemBudgetFilter; ItemBudgetFilter)
@@ -225,7 +225,7 @@ report 7130 "Item Budget"
         trigger OnOpenPage()
         begin
             if PeriodStartDate[1] = 0D then
-                PeriodStartDate[1] := WorkDate;
+                PeriodStartDate[1] := WorkDate();
             if Format(PeriodLength) = '' then
                 Evaluate(PeriodLength, '<1M>');
         end;
@@ -237,19 +237,19 @@ report 7130 "Item Budget"
 
     trigger OnPreReport()
     begin
-        ItemFilter := Item.GetFilters;
+        ItemFilter := Item.GetFilters();
         for i := 2 to 7 do
             PeriodStartDate[i] := CalcDate(PeriodLength, PeriodStartDate[i - 1]);
     end;
 
     var
         ItemStatBuffer: Record "Item Statistics Buffer";
+        PeriodLength: DateFormula;
         InThousands: Boolean;
         AnalysisAreaSelection: Enum "Analysis Area Type";
         ValueType: Option "Sales Amount","Cost Amount",Quantity;
         ItemFilter: Text;
         ItemBudgetFilter: Text[250];
-        PeriodLength: DateFormula;
         ItemBudgetedAmount: array[6] of Decimal;
         PeriodStartDate: array[7] of Date;
         i: Integer;

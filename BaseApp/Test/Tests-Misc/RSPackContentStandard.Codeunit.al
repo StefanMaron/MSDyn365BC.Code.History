@@ -82,7 +82,7 @@ codeunit 138300 "RS Pack Content - Standard"
         GeneralPostingSetup.FindFirst();
         GeneralPostingSetup.TestField("Gen. Bus. Posting Group", '');
         // [THEN] second, where "Gen. Bus. Posting Group" is filled
-        GeneralPostingSetup.Next;
+        GeneralPostingSetup.Next();
         GenBusinessPostingGroup.FindFirst();
         GeneralPostingSetup.TestField("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
     end;
@@ -114,7 +114,7 @@ codeunit 138300 "RS Pack Content - Standard"
         // [SCENARIO] There are no Sales Invoices to post
         with SalesHeader do begin
             // [WHEN] Post all Invoices
-            Reset;
+            Reset();
             SetRange("Document Type", "Document Type"::Invoice);
             asserterror FindFirst();
             // [THEN] Error: 'There is no Sales Header within the filter.'
@@ -149,7 +149,7 @@ codeunit 138300 "RS Pack Content - Standard"
         // [SCENARIO] There are no Purchase Invoices to post
         with PurchHeader do begin
             // [WHEN] Post all Invoices
-            Reset;
+            Reset();
             SetRange("Document Type", "Document Type"::Invoice);
             asserterror FindFirst();
             // [THEN] Error: 'There is no Purchase Header within the filter.'
@@ -173,18 +173,18 @@ codeunit 138300 "RS Pack Content - Standard"
             repeat
                 VerifyContactCompany(CompanyNo, ContactBusinessRelation."Link to Table"::Customer, Customer."No.");
                 VerifyContactPerson(CompanyNo);
-            until Customer.Next = 0;
+            until Customer.Next() = 0;
 
         if Vendor.FindSet() then
             repeat
                 VerifyContactCompany(CompanyNo, ContactBusinessRelation."Link to Table"::Vendor, Vendor."No.");
                 VerifyContactPerson(CompanyNo);
-            until Vendor.Next = 0;
+            until Vendor.Next() = 0;
 
         if BankAccount.FindSet() then
             repeat
                 VerifyContactCompany(CompanyNo, ContactBusinessRelation."Link to Table"::"Bank Account", BankAccount."No.");
-            until BankAccount.Next = 0;
+            until BankAccount.Next() = 0;
     end;
 
     [Test]
@@ -388,6 +388,7 @@ codeunit 138300 "RS Pack Content - Standard"
         MediaResources.Get(O365HTMLTemplate."Media Resources Ref");
     end;
 
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure O365CompanySocialNetworks()
@@ -398,6 +399,7 @@ codeunit 138300 "RS Pack Content - Standard"
         O365SocialNetwork.SetRange(URL, '');
         Assert.RecordCount(O365SocialNetwork, 7);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -446,83 +448,6 @@ codeunit 138300 "RS Pack Content - Standard"
         Assert.RecordIsNotEmpty(NoSeries);
         NoSeriesLine.SetRange("Series Code", NoSeriesCode);
         Assert.RecordIsNotEmpty(NoSeriesLine);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CountItemConfigTemplates()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-    begin
-        // [FEATURE] [Item] [Config. Template]
-        // [SCENARIO] There should be 5 Item Config. Templates
-        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Item);
-        Assert.RecordCount(ConfigTemplateHeader, 5);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ServiceItemTemplatesCostingMethodFIFO()
-    var
-        TypeConfigTemplateLine: Record "Config. Template Line";
-        ConfigTemplateLine: Record "Config. Template Line";
-        Item: Record Item;
-    begin
-        // [FEATURE] [Item] [Config. Template]
-        // [SCENARIO] All service Item Config. templates have 'FIFO' "Costing Method"
-        TypeConfigTemplateLine.SetRange("Table ID", DATABASE::Item);
-        TypeConfigTemplateLine.SetRange("Field ID", Item.FieldNo(Type));
-        TypeConfigTemplateLine.SetRange("Default Value", Format(Item.Type::Service));
-        TypeConfigTemplateLine.FindSet();
-        repeat
-            ConfigTemplateLine.SetRange("Data Template Code", TypeConfigTemplateLine."Data Template Code");
-            ConfigTemplateLine.SetRange("Field ID", Item.FieldNo("Costing Method"));
-            ConfigTemplateLine.SetRange("Default Value", Format(Item."Costing Method"::FIFO));
-            Assert.RecordIsNotEmpty(ConfigTemplateLine);
-        until TypeConfigTemplateLine.Next = 0;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure InventoryItemTemplatesNoCostingMethod()
-    var
-        TypeConfigTemplateLine: Record "Config. Template Line";
-        ConfigTemplateLine: Record "Config. Template Line";
-        Item: Record Item;
-    begin
-        // [FEATURE] [Item] [Config. Template]
-        // [SCENARIO] No Item Config. templates for inventory items have "Costing Method"
-        TypeConfigTemplateLine.SetRange("Table ID", DATABASE::Item);
-        TypeConfigTemplateLine.SetRange("Field ID", Item.FieldNo(Type));
-        TypeConfigTemplateLine.SetRange("Default Value", Format(Item.Type::Inventory));
-        TypeConfigTemplateLine.FindSet();
-        repeat
-            ConfigTemplateLine.SetRange("Data Template Code", TypeConfigTemplateLine."Data Template Code");
-            ConfigTemplateLine.SetRange("Field ID", Item.FieldNo("Costing Method"));
-            Assert.RecordIsEmpty(ConfigTemplateLine);
-        until TypeConfigTemplateLine.Next = 0;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ItemConfigTemplatesHaveNotBlankBaseUoM()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplateLine: Record "Config. Template Line";
-        Item: Record Item;
-    begin
-        // [FEATURE] [Item] [Config. Template]
-        // [SCENARIO] All Config. Templates for Item table, where "Base Unit of Measure" is not <blank>
-        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Item);
-        ConfigTemplateHeader.FindSet();
-        repeat
-            ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
-            ConfigTemplateLine.SetRange("Field ID", Item.FieldNo("Base Unit of Measure"));
-            ConfigTemplateLine.FindSet();
-            repeat
-                ConfigTemplateLine.TestField("Default Value");
-            until ConfigTemplateLine.Next = 0;
-        until ConfigTemplateHeader.Next = 0;
     end;
 }
 

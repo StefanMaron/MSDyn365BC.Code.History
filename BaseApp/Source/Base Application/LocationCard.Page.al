@@ -1,8 +1,7 @@
-﻿page 5703 "Location Card"
+page 5703 "Location Card"
 {
     Caption = 'Location Card';
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Location';
     SourceTable = Location;
 
     layout
@@ -34,25 +33,25 @@
                         UpdateEnabled();
                     end;
                 }
-                field("Do Not Use For Tax Calculation"; "Do Not Use For Tax Calculation")
+                field("Do Not Use For Tax Calculation"; Rec."Do Not Use For Tax Calculation")
                 {
                     ApplicationArea = SalesTax;
                     Caption = 'Exclude from Tax Calculation';
                     ToolTip = 'Specifies whether the tax information included on this location record will be used for Sales Tax calculations on purchase documents.';
                 }
-                field("Tax Area Code"; "Tax Area Code")
+                field("Tax Area Code"; Rec."Tax Area Code")
                 {
                     ApplicationArea = SalesTax;
                     Editable = NOT "Do Not Use For Tax Calculation";
                     ToolTip = 'Specifies the tax area code for this location.';
                 }
-                field("Tax Exemption No."; "Tax Exemption No.")
+                field("Tax Exemption No."; Rec."Tax Exemption No.")
                 {
                     ApplicationArea = SalesTax;
                     Editable = NOT "Do Not Use For Tax Calculation";
                     ToolTip = 'Specifies if the company''s tax exemption number. If the company has been registered exempt for sales and use tax this number would have been assigned by the taxing authority.';
                 }
-                field("Provincial Tax Area Code"; "Provincial Tax Area Code")
+                field("Provincial Tax Area Code"; Rec."Provincial Tax Area Code")
                 {
                     ApplicationArea = BasicCA;
                     Editable = NOT "Do Not Use For Tax Calculation";
@@ -147,19 +146,19 @@
                 group(ElectronicDocument)
                 {
                     Caption = 'Electronic Document';
-                    field("SAT State Code"; "SAT State Code")
+                    field("SAT State Code"; Rec."SAT State Code")
                     {
                         ApplicationArea = Location, BasicMX;
                         Importance = Additional;
                         ToolTip = 'Specifies the state, entity, region, community, or similar definitions where the domicile of the origin and / or destination of the goods or merchandise that are moved in the different means of transport is located.';
                     }
-                    field("SAT Municipality Code"; "SAT Municipality Code")
+                    field("SAT Municipality Code"; Rec."SAT Municipality Code")
                     {
                         ApplicationArea = Location, BasicMX;
                         Importance = Additional;
                         ToolTip = 'Specifies the municipality, delegation or mayoralty, county, or similar definitions where the destination address of the goods or merchandise that are moved in the different means of transport is located.';
                     }
-                    field("SAT Locality Code"; "SAT Locality Code")
+                    field("SAT Locality Code"; Rec."SAT Locality Code")
                     {
                         ApplicationArea = Location, BasicMX;
                         Importance = Additional;
@@ -280,7 +279,7 @@
                         UpdateEnabled();
                     end;
                 }
-                field("Use ADCS"; "Use ADCS")
+                field("Use ADCS"; Rec."Use ADCS")
                 {
                     ApplicationArea = Warehouse;
                     Enabled = UseADCSEnable;
@@ -320,7 +319,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         Rec.TestField("Base Calendar Code");
                         CalendarMgmt.ShowCustomizedCalendar(Rec);
                     end;
@@ -537,8 +536,6 @@
                     ApplicationArea = Warehouse;
                     Caption = '&Zones';
                     Image = Zones;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page Zones;
                     RunPageLink = "Location Code" = FIELD(Code);
                     ToolTip = 'View or edit information about zones that you use at this location to structure your bins.';
@@ -548,8 +545,6 @@
                     ApplicationArea = Warehouse;
                     Caption = '&Bins';
                     Image = Bins;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page Bins;
                     RunPageLink = "Location Code" = FIELD(Code);
                     ToolTip = 'View or edit information about bins that you use at this location to hold items.';
@@ -559,9 +554,6 @@
                     ApplicationArea = Location;
                     Caption = 'Inventory Posting Setup';
                     Image = PostedInventoryPick;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     RunObject = Page "Inventory Posting Setup";
                     RunPageLink = "Location Code" = FIELD(Code);
                     ToolTip = 'Set up links between inventory posting groups, inventory locations, and general ledger accounts to define where transactions for inventory items are recorded in the general ledger.';
@@ -571,9 +563,6 @@
                     ApplicationArea = Warehouse;
                     Caption = 'Warehouse Employees';
                     Image = WarehouseSetup;
-                    Promoted = true;
-                    PromotedOnly = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Warehouse Employees";
                     RunPageLink = "Location Code" = FIELD(Code);
                     ToolTip = 'View the warehouse employees that exist in the system.';
@@ -583,9 +572,6 @@
                     ApplicationArea = Location;
                     Caption = 'Online Map';
                     Image = Map;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'View the address on an online map.';
 
                     trigger OnAction()
@@ -598,9 +584,6 @@
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     RunObject = Page "Default Dimensions";
                     RunPageLink = "Table ID" = const(14),
                                   "No." = field(Code);
@@ -609,12 +592,46 @@
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("&Zones_Promoted"; "&Zones")
+                {
+                }
+                actionref("&Bins_Promoted"; "&Bins")
+                {
+                }
+                actionref("Inventory Posting Setup_Promoted"; "Inventory Posting Setup")
+                {
+                }
+                actionref("Warehouse Employees_Promoted"; "Warehouse Employees")
+                {
+                }
+                actionref("Online Map_Promoted"; "Online Map")
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Location', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
         UpdateEnabled();
-        TransitValidation;
+        TransitValidation();
         Clear(SATSuburb);
         if SATSuburb.Get("SAT Suburb ID") then;
     end;
@@ -715,8 +732,6 @@
         [InDataSet]
         UsePutAwayWorksheetEnable: Boolean;
         [InDataSet]
-        UseCrossDockingEnable: Boolean;
-        [InDataSet]
         EditInTransit: Boolean;
         ShowMapLbl: Label 'Show on Map';
 
@@ -727,6 +742,8 @@
         ShipmentBinCodeEnable: Boolean;
         [InDataSet]
         UseADCSEnable: Boolean;
+        [InDataSet]
+        UseCrossDockingEnable: Boolean;
 
     procedure UpdateEnabled()
     begin
@@ -776,7 +793,7 @@
         TransferHeader: Record "Transfer Header";
     begin
         TransferHeader.SetRange("In-Transit Code", Code);
-        EditInTransit := TransferHeader.IsEmpty;
+        EditInTransit := TransferHeader.IsEmpty();
     end;
 
     [IntegrationEvent(true, false)]

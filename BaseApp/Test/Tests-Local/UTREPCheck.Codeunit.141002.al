@@ -770,7 +770,7 @@ codeunit 141002 "UT REP Check"
     begin
         // Create Bank Account, General Journal line and Update Last Check number without having digits.
         CreateBankAccount(BankAccount, LibraryRandom.RandIntInRange(0, 3), LibraryRandom.RandIntInRange(0, 2));  // Check Date Format - option Range 0 to 3 and Bank Communication - option Range 0 to 2.
-        BankAccount."Last Check No." := BankAccount.TableCaption;  // Using Last check Number without having digits.
+        BankAccount."Last Check No." := BankAccount.TableCaption();  // Using Last check Number without having digits.
         BankAccount.Modify();
         CreateGenJournalLine(GenJournalLine, LibraryRandom.RandIntInRange(0, 5), BankAccount."No.", BankAccount."No.");  // Account Type - option Range 0 to 5.
 
@@ -1860,7 +1860,7 @@ codeunit 141002 "UT REP Check"
         PrintCheckForPaymentJournalLine(GenJournalLine, GenJournalLine."Bal. Account Type"::"Bank Account");
 
         // [THEN] "Check Printed" is set for "PL".
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         GenJournalLine.TestField("Check Printed", true);
 
         // [THEN] "Batch" is posted.
@@ -1894,7 +1894,7 @@ codeunit 141002 "UT REP Check"
         PrintCheckForPaymentJournalLine(GenJournalLine, GenJournalLine."Bal. Account Type"::"Bank Account");
 
         // [THEN] "Check Printed" is set for "PL".
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         GenJournalLine.TestField("Check Printed", true);
 
         // [THEN] "Batch" is posted.
@@ -1928,7 +1928,7 @@ codeunit 141002 "UT REP Check"
         PrintCheckForPaymentJournalLine(GenJournalLine, GenJournalLine."Bal. Account Type"::"Bank Account");
 
         // [THEN] "Check Printed" is set for "PL".
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         GenJournalLine.TestField("Check Printed", true);
 
         // [THEN] "Batch" is posted.
@@ -2411,7 +2411,7 @@ codeunit 141002 "UT REP Check"
             "Amount to Apply" := -GenJournalLine.Amount;
             Open := true;
             Positive := true;
-            Insert;
+            Insert();
             exit("Entry No.");
         end;
     end;
@@ -2423,7 +2423,7 @@ codeunit 141002 "UT REP Check"
         with VendorLedgerEntry do begin
             Get(EntryNo);
             "Document Type" := "Document Type"::"Credit Memo";
-            "Pmt. Discount Date" := CalcDate('<+1M>', WorkDate);
+            "Pmt. Discount Date" := CalcDate('<+1M>', WorkDate());
             "Remaining Pmt. Disc. Possible" := Discount;
             Modify(true);
         end;
@@ -2516,7 +2516,7 @@ codeunit 141002 "UT REP Check"
         CreateGenJournalTemplateAndBatch(GenJournalBatch);
         GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
-        GenJournalLine."Posting Date" := WorkDate;
+        GenJournalLine."Posting Date" := WorkDate();
         GenJournalLine."Line No." := LibraryRandom.RandInt(10);
         GenJournalLine."Account Type" := AccountType;
         GenJournalLine."Account No." := AccountNo;
@@ -2737,7 +2737,7 @@ codeunit 141002 "UT REP Check"
         Currency: Record Currency;
     begin
         LibraryERM.CreateCurrency(Currency);
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, 1, 1);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), 1, 1);
         with Currency do begin
             Validate("Amount Rounding Precision", RoundingPrecision);
             Modify(true);
@@ -2783,7 +2783,7 @@ codeunit 141002 "UT REP Check"
         ApprovalEntry: Record "Approval Entry";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
-        GenJournalLine.SetRecFilter;
+        GenJournalLine.SetRecFilter();
         ApprovalsMgmt.TrySendJournalLineApprovalRequests(GenJournalLine);
         UpdateApprovalEntryWithCurrUser(ApprovalEntry, RecID);
         Approve(ApprovalEntry);
@@ -2866,7 +2866,7 @@ codeunit 141002 "UT REP Check"
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, GenJournalLine."Document Type", GenJournalLine."Document No.");
         VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
         VendorLedgerEntry.SetRange(Open, true);
-        Assert.IsFalse(VendorLedgerEntry.IsEmpty, StrSubstNo(RecordNotFoundErr, VendorLedgerEntry.TableCaption));
+        Assert.IsFalse(VendorLedgerEntry.IsEmpty, StrSubstNo(RecordNotFoundErr, VendorLedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyVendorLedgerEntryExistsWithExternalDocNo(GenJournalLine: Record "Gen. Journal Line")
@@ -2877,7 +2877,7 @@ codeunit 141002 "UT REP Check"
         VendorLedgerEntry.SetRange("External Document No.", GenJournalLine."Document No.");
         VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
         VendorLedgerEntry.SetRange(Open, true);
-        Assert.IsFalse(VendorLedgerEntry.IsEmpty, StrSubstNo(RecordNotFoundErr, VendorLedgerEntry.TableCaption));
+        Assert.IsFalse(VendorLedgerEntry.IsEmpty, StrSubstNo(RecordNotFoundErr, VendorLedgerEntry.TableCaption()));
     end;
 
     [RequestPageHandler]

@@ -63,14 +63,14 @@ codeunit 141035 "UT TAB Bank Reconciliation"
         BankRecHeader.Delete(true);
 
         // Verify: Verify Bank Reconciliation Header and Bank Comment Line is deleted.
-        BankRecHeader.SetRecFilter;
+        BankRecHeader.SetRecFilter();
         Assert.RecordIsEmpty(BankRecHeader);
-        BankCommentLine.SetRecFilter;
+        BankCommentLine.SetRecFilter();
         Assert.RecordIsEmpty(BankCommentLine);
         // Bank Rec. Line and Bank Rec. Sub-line deleted
-        BankRecLine.SetRecFilter;
+        BankRecLine.SetRecFilter();
         Assert.RecordIsEmpty(BankRecLine);
-        BankRecSubLine.SetRecFilter;
+        BankRecSubLine.SetRecFilter();
         Assert.RecordIsEmpty(BankRecSubLine);
     end;
 
@@ -108,7 +108,7 @@ codeunit 141035 "UT TAB Bank Reconciliation"
         MockCollapsedDepositBankRecLine(BankRecLine, BankRecHeader."Bank Account No.", BankRecHeader."Statement No.");
 
         // Exercise & Verify: Verify Bank Reconciliation Line Exists.
-        Assert.IsTrue(BankRecHeader.BankRecLineExist, StrSubstNo(ValueMustExistMsg, BankRecLine.TableCaption));
+        Assert.IsTrue(BankRecHeader.BankRecLineExist, StrSubstNo(ValueMustExistMsg, BankRecLine.TableCaption()));
     end;
 
     [Test]
@@ -371,7 +371,7 @@ codeunit 141035 "UT TAB Bank Reconciliation"
         // Verify: Verify Bank Reconciliation Line is deleted.
         Assert.IsFalse(
           BankRecLine.Get(BankRecLine."Bank Account No.", BankRecLine."Statement No.", BankRecLine."Record Type", BankRecLine."Line No."),
-          StrSubstNo(ValueMustNotExistMsg, BankRecLine.TableCaption));
+          StrSubstNo(ValueMustNotExistMsg, BankRecLine.TableCaption()));
     end;
 
     [Test]
@@ -431,7 +431,7 @@ codeunit 141035 "UT TAB Bank Reconciliation"
           BankRecLine, 10000, BankRecSubLine[1]."Document Type", BankRecSubLine[1]."Document No.",
           BankRecSubLine[1]."External Document No.", BankRecLine."Collapse Status"::"Expanded Deposit Line", false, 0);
 
-        BankRecLine.Next;
+        BankRecLine.Next();
         VerifyBankRecLineValues(
           BankRecLine, 20000, BankRecSubLine[2]."Document Type", BankRecSubLine[2]."Document No.",
           BankRecSubLine[2]."External Document No.", BankRecLine."Collapse Status"::"Expanded Deposit Line", false, 0);
@@ -468,14 +468,14 @@ codeunit 141035 "UT TAB Bank Reconciliation"
           BankRecSubLine, 1, BankRecLine[1]."Document Type", BankRecLine[1]."Document No.",
           BankRecLine[1]."External Document No.");
 
-        BankRecSubLine.Next;
+        BankRecSubLine.Next();
         VerifyBankRecSubLineValues(
           BankRecSubLine, 2, BankRecLine[2]."Document Type", BankRecLine[2]."Document No.",
           BankRecLine[2]."External Document No.");
 
         // [THEN] New Bank Rec. Line is created with following details:
         // [THEN] "Document Type" = "", "Document No." = "", "External Document No." = "C", "Collapse Status" = "Collapsed Deposit"
-        BankRecLine[1].Find;
+        BankRecLine[1].Find();
         FindBankRecLine(
           BankRecLine[1], BankRecHeader."Bank Account No.", BankRecHeader."Statement No.", BankRecLine[1]."Record Type"::Deposit);
         VerifyBankRecLineValues(
@@ -506,7 +506,7 @@ codeunit 141035 "UT TAB Bank Reconciliation"
           BankRecLine, 10000, BankRecSubLine[1]."Document Type", BankRecSubLine[1]."Document No.",
           BankRecSubLine[1]."External Document No.", BankRecLine."Collapse Status"::"Expanded Deposit Line",
           true, BankRecSubLine[1].Amount);
-        BankRecLine.Next;
+        BankRecLine.Next();
         VerifyBankRecLineValues(
           BankRecLine, 20000, BankRecSubLine[2]."Document Type", BankRecSubLine[2]."Document No.",
           BankRecSubLine[2]."External Document No.", BankRecLine."Collapse Status"::"Expanded Deposit Line",
@@ -536,7 +536,7 @@ codeunit 141035 "UT TAB Bank Reconciliation"
           BankRecLine, 10000, BankRecSubLine[1]."Document Type", BankRecSubLine[1]."Document No.",
           BankRecSubLine[1]."External Document No.", BankRecLine."Collapse Status"::"Expanded Deposit Line",
           false, 0);
-        BankRecLine.Next;
+        BankRecLine.Next();
         VerifyBankRecLineValues(
           BankRecLine, 20000, BankRecSubLine[2]."Document Type", BankRecSubLine[2]."Document No.",
           BankRecSubLine[2]."External Document No.", BankRecLine."Collapse Status"::"Expanded Deposit Line",
@@ -567,16 +567,16 @@ codeunit 141035 "UT TAB Bank Reconciliation"
 
         // [GIVEN] Two Bank Account Ledger Entries with Amount1 = 10, Amount2 = 20 for Bank Account = "X"
         ExtDocNo := LibraryUTUtility.GetNewCode;
-        MockBankAccountLedgerEntry(EntryNo1, Amount1, BankAccount."No.", ExtDocNo, WorkDate);
-        MockBankAccountLedgerEntry(EntryNo2, Amount2, BankAccount."No.", ExtDocNo, WorkDate);
+        MockBankAccountLedgerEntry(EntryNo1, Amount1, BankAccount."No.", ExtDocNo, WorkDate());
+        MockBankAccountLedgerEntry(EntryNo2, Amount2, BankAccount."No.", ExtDocNo, WorkDate());
 
         // [GIVEN] Suggest Lines called twice
         Commit();
         BankRecProcessLines.SetDoSuggestLines(
           true, BankRecHeader."Bank Account No.", BankRecHeader."Statement No.");
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         BankRecProcessLines.Run();
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         BankRecProcessLines.Run();
 
         // [WHEN] Expand Deposit Line
@@ -586,16 +586,16 @@ codeunit 141035 "UT TAB Bank Reconciliation"
         // [THEN] Lines has "Collapse Status" = Expanded, Amount respectively 10 and 20
         BankRecLine.SetRange("Bank Ledger Entry No.", EntryNo1);
         FindBankRecLine(BankRecLine, BankAccount."No.", BankRecHeader."Statement No.", BankRecLine."Record Type"::Deposit);
-        VerifyExpandedDepositLine(BankRecLine, ExtDocNo, Amount1, WorkDate);
+        VerifyExpandedDepositLine(BankRecLine, ExtDocNo, Amount1, WorkDate());
         BankRecLine.SetRange("Bank Ledger Entry No.", EntryNo2);
         FindBankRecLine(BankRecLine, BankAccount."No.", BankRecHeader."Statement No.", BankRecLine."Record Type"::Deposit);
-        VerifyExpandedDepositLine(BankRecLine, ExtDocNo, Amount2, WorkDate);
+        VerifyExpandedDepositLine(BankRecLine, ExtDocNo, Amount2, WorkDate());
 
         // [THEN] Bank Account Ledger Entries has "Statement Status" = "Bank Acc. Entry Applied" and "Statement No." = "S"
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccount."No.");
         BankAccountLedgerEntry.FindSet();
         VerifyBankAccLedgerEntry(BankAccountLedgerEntry, BankRecHeader."Statement No.");
-        BankAccountLedgerEntry.Next;
+        BankAccountLedgerEntry.Next();
         VerifyBankAccLedgerEntry(BankAccountLedgerEntry, BankRecHeader."Statement No.");
     end;
 
@@ -624,8 +624,8 @@ codeunit 141035 "UT TAB Bank Reconciliation"
         // [GIVEN] Two Bank Account Ledger Entries with Amounts = 20 and 30 on Date 20-01-15 for Bank Account = "X"
         ExtDocNo := LibraryUTUtility.GetNewCode;
         PostingDate[1] := LibraryRandom.RandDate(5);
-        PostingDate[2] := WorkDate;
-        PostingDate[3] := WorkDate;
+        PostingDate[2] := WorkDate();
+        PostingDate[3] := WorkDate();
         for i := 1 to ArrayLen(PostingDate) do
             MockBankAccountLedgerEntry(EntryNo[i], Amount[i], BankAccount."No.", ExtDocNo, PostingDate[i]);
 
@@ -678,13 +678,13 @@ codeunit 141035 "UT TAB Bank Reconciliation"
         // [GIVEN] Two Bank Account Ledger Entries with Amount = 10 and Amount = 20 for Bank Account = "X"
         ExtDocNo := LibraryUTUtility.GetNewCode;
         for i := 1 to ArrayLen(EntryNo) do
-            MockBankAccountLedgerEntry(EntryNo[i], Amount[i], BankAccount."No.", ExtDocNo, WorkDate);
+            MockBankAccountLedgerEntry(EntryNo[i], Amount[i], BankAccount."No.", ExtDocNo, WorkDate());
 
         // [GIVEN] Suggest Lines, Expand, Collapse and Expand.
         Commit();
         BankRecProcessLines.SetDoSuggestLines(
           true, BankRecHeader."Bank Account No.", BankRecHeader."Statement No.");
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         BankRecProcessLines.Run();
 
         FindBankRecLine(BankRecLine, BankAccount."No.", BankRecHeader."Statement No.", BankRecLine."Record Type"::Deposit);
@@ -735,7 +735,7 @@ codeunit 141035 "UT TAB Bank Reconciliation"
         BankRecLine[2].Delete(true);
 
         // [THEN] The subline is not deleted.
-        BankRecSubLine.Find;
+        BankRecSubLine.Find();
         BankRecSubLine.TestField("Statement No.", BankRecHeader."Statement No.");
     end;
 
@@ -923,7 +923,7 @@ codeunit 141035 "UT TAB Bank Reconciliation"
     local procedure MockBankRecLine(var BankRecLine: Record "Bank Rec. Line"; BankAccountNo: Code[20]; StatementNo: Code[20]; CollapseStatus: Option)
     begin
         with BankRecLine do begin
-            Init;
+            Init();
             "Bank Account No." := BankAccountNo;
             "Statement No." := StatementNo;
             "Record Type" := "Record Type"::Deposit;
@@ -934,19 +934,19 @@ codeunit 141035 "UT TAB Bank Reconciliation"
             "Document No." := LibraryUTUtility.GetNewCode;
             "External Document No." :=
               CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen("External Document No.")), 1, MaxStrLen("External Document No."));
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockBankRecLineForRecordType(var BankRecLine: Record "Bank Rec. Line"; BankRecHeader: Record "Bank Rec. Header"; RecordType: Option; LineNo: Integer)
     begin
         with BankRecLine do begin
-            Init;
+            Init();
             "Bank Account No." := BankRecHeader."Bank Account No.";
             "Statement No." := BankRecHeader."Statement No.";
             "Record Type" := RecordType;
             "Line No." := LineNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -955,7 +955,7 @@ codeunit 141035 "UT TAB Bank Reconciliation"
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
     begin
         with BankAccountLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(BankAccountLedgerEntry, FieldNo("Entry No."));
             "Posting Date" := PostingDate;
             "Document Type" := "Document Type"::Payment;
@@ -964,7 +964,7 @@ codeunit 141035 "UT TAB Bank Reconciliation"
             "Bank Account No." := BankAccNo;
             Amount := LibraryRandom.RandDec(100, 2);
             Open := true;
-            Insert;
+            Insert();
             EntryNo := "Entry No.";
             BankAmount := Amount;
         end;
@@ -1008,7 +1008,7 @@ codeunit 141035 "UT TAB Bank Reconciliation"
         BankRecHeader."Bank Account No." := BankAccountNo;
         BankRecHeader."Statement No." := LibraryUTUtility.GetNewCode;
         BankRecHeader."Currency Factor" := LibraryRandom.RandDec(10, 2);
-        BankRecHeader."Statement Date" := WorkDate;
+        BankRecHeader."Statement Date" := WorkDate();
         BankRecHeader.Insert();
     end;
 
@@ -1017,7 +1017,7 @@ codeunit 141035 "UT TAB Bank Reconciliation"
         RecRef: RecordRef;
     begin
         with BankRecSubLine do begin
-            Init;
+            Init();
             "Bank Account No." := BankRecLine."Bank Account No.";
             "Statement No." := BankRecLine."Statement No.";
             "Bank Rec. Line No." := BankRecLine."Line No.";
@@ -1030,7 +1030,7 @@ codeunit 141035 "UT TAB Bank Reconciliation"
             "External Document No." :=
               CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen("External Document No.")), 1, MaxStrLen("External Document No."));
             Amount := LibraryRandom.RandDec(100, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1052,7 +1052,7 @@ codeunit 141035 "UT TAB Bank Reconciliation"
         CurrencyExchangeRate."Currency Code" := Currency.Code;
         CurrencyExchangeRate."Exchange Rate Amount" := LibraryRandom.RandDec(10, 2);
         CurrencyExchangeRate."Relational Exch. Rate Amount" := CurrencyExchangeRate."Exchange Rate Amount";
-        CurrencyExchangeRate."Starting Date" := WorkDate;
+        CurrencyExchangeRate."Starting Date" := WorkDate();
         CurrencyExchangeRate.Insert();
         exit(Currency.Code);
     end;

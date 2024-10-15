@@ -358,7 +358,7 @@ table 271 "Bank Account Ledger Entry"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Entry No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Entry No."));
     end;
 
     procedure CopyFromGenJnlLine(GenJnlLine: Record "Gen. Journal Line")
@@ -404,7 +404,7 @@ table 271 "Bank Account Ledger Entry"
         BankAccountLedgerEntry.SetCurrentKey("Statement No.", "Statement Line No.");
         BankAccountLedgerEntry.SetRange("Statement No.", BankAccReconciliationLine."Statement No.");
         BankAccountLedgerEntry.SetRange("Statement Line No.", BankAccReconciliationLine."Statement Line No.");
-        if not BankAccountLedgerEntry.IsEmpty then
+        if not BankAccountLedgerEntry.IsEmpty() then
             exit;
         "Statement Status" := "Statement Status"::"Bank Acc. Entry Applied";
         "Statement No." := BankAccReconciliationLine."Statement No.";
@@ -458,7 +458,7 @@ table 271 "Bank Account Ledger Entry"
         CheckLedgerEntry.SetRange("Statement Status", CheckLedgerEntry."Statement Status"::"Check Entry Applied");
         CheckLedgerEntry.SetFilter("Statement No.", '<>%1', '');
         CheckLedgerEntry.SetFilter("Statement Line No.", '<>%1', 0);
-        IsApplied := not CheckLedgerEntry.IsEmpty;
+        IsApplied := not CheckLedgerEntry.IsEmpty();
 
         IsApplied := IsApplied or
           (("Statement Status" = "Statement Status"::"Bank Acc. Entry Applied") and
@@ -469,7 +469,7 @@ table 271 "Bank Account Ledger Entry"
 
     procedure SetStyle(): Text
     begin
-        if IsApplied then
+        if IsApplied() then
             exit('Favorable');
 
         exit('');
@@ -477,7 +477,7 @@ table 271 "Bank Account Ledger Entry"
 
     procedure SetFilterBankAccNoOpen(BankAccNo: Code[20])
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Bank Account No.", Open);
         SetRange("Bank Account No.", BankAccNo);
         SetRange(Open, true);
@@ -516,6 +516,39 @@ table 271 "Bank Account Ledger Entry"
                 then
                     BankAccLedgEntryReset.Run(BankAccountLedgerEntry);
             until BankAccountLedgerEntry.Next() = 0;
+    end;
+
+    procedure CopyFromBankAccLedgerEntry(BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; StatementNo: Code[20])
+    begin
+        Init();
+        "Entry No." := BankAccountLedgerEntry."Entry No.";
+        "Posting Date" := BankAccountLedgerEntry."Posting Date";
+        "Document Type" := BankAccountLedgerEntry."Document Type";
+        "Document No." := BankAccountLedgerEntry."Document No.";
+        "Bank Account No." := BankAccountLedgerEntry."Bank Account No.";
+        Description := BankAccountLedgerEntry.Description;
+        Amount := BankAccountLedgerEntry.Amount;
+        "Statement No." := StatementNo;
+        Insert();
+    end;
+
+    internal procedure SetBankReconciliationCandidatesFilter(BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    var
+        FilterDate: Date;
+    begin
+        Rec.Reset();
+        Rec.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        Rec.SetRange("Statement Status", Rec."Statement Status"::Open);
+        Rec.SetFilter("Remaining Amount", '<>%1', 0);
+        Rec.SetRange("Reversed", false); // PR 30730
+
+        FilterDate := BankAccReconciliation.MatchCandidateFilterDate();
+        if FilterDate <> 0D then
+            Rec.SetFilter("Posting Date", '<=%1', FilterDate);
+
+        // Records sorted by posting date to optimize matching
+        Rec.SetCurrentKey("Posting Date");
+        Rec.SetAscending("Posting Date", true);
     end;
 
     [IntegrationEvent(false, false)]

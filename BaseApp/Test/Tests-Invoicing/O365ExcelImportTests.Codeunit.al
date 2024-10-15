@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138912 "O365 Excel Import Tests"
 {
     Subtype = Test;
@@ -578,7 +579,7 @@ codeunit 138912 "O365 Excel Import Tests"
             if i = 1 then
                 Customer.FindFirst
             else
-                Customer.Next;
+                Customer.Next();
 
             AddCustomerDataToExcelBuffer(Customer, ExcelBuffer, i);
         end;
@@ -593,7 +594,7 @@ codeunit 138912 "O365 Excel Import Tests"
             if i = 1 then
                 Item.FindFirst
             else
-                Item.Next;
+                Item.Next();
             AddValueToExcelBuffer(ExcelBuffer, i, 1, Item.Description);
             AddValueToExcelBuffer(ExcelBuffer, i, 2, Format(Item."Unit Price"));
         end;
@@ -623,11 +624,11 @@ codeunit 138912 "O365 Excel Import Tests"
     local procedure AddFieldToMapping(var O365FieldExcelMapping: Record "O365 Field Excel Mapping"; TableID: Integer; FieldID: Integer; ExcelColumnNo: Integer)
     begin
         with O365FieldExcelMapping do begin
-            Init;
+            Init();
             "Table ID" := TableID;
             "Field ID" := FieldID;
             "Excel Column No." := ExcelColumnNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -654,7 +655,7 @@ codeunit 138912 "O365 Excel Import Tests"
     local procedure CreateCustomer(var Customer: Record Customer)
     begin
         with Customer do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Customer);
             Name := LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::Customer);
             "Phone No." := LibraryUtility.GenerateRandomCode(FieldNo("Phone No."), DATABASE::Customer);
@@ -663,18 +664,18 @@ codeunit 138912 "O365 Excel Import Tests"
             City := LibraryUtility.GenerateRandomCode(FieldNo(City), DATABASE::Customer);
             "Post Code" := LibraryUtility.GenerateRandomCode(FieldNo("Post Code"), DATABASE::Customer);
             County := LibraryUtility.GenerateRandomCode(FieldNo(County), DATABASE::Customer);
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure CreateItem(var Item: Record Item)
     begin
         with Item do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Item);
             Description := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Item);
             "Unit Price" := LibraryRandom.RandDec(100, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -683,13 +684,13 @@ codeunit 138912 "O365 Excel Import Tests"
         DeleteAllConfigTemplatesForTableID(DATABASE::Customer);
         DeleteAllConfigTemplatesForTableID(DATABASE::Item);
         with O365SalesInitialSetup do begin
-            if not Get then begin
-                Init;
-                Insert;
+            if not Get() then begin
+                Init();
+                Insert();
             end;
             Validate("Default Customer Template", CreateSimpleCustomerTemplate);
             Validate("Default Item Template", CreateSimpleItemTemplate);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -801,7 +802,7 @@ codeunit 138912 "O365 Excel Import Tests"
         if ExpectedCustomer.FindSet() then
             repeat
                 VerifyImportedCustomer(ExpectedCustomer);
-            until ExpectedCustomer.Next = 0;
+            until ExpectedCustomer.Next() = 0;
     end;
 
     local procedure VerifyImportedCustomer(var ExpectedCustomer: Record Customer)
@@ -840,7 +841,7 @@ codeunit 138912 "O365 Excel Import Tests"
                   ExpectedItem."Unit Price",
                   Item."Unit Price",
                   StrSubstNo(IncorrectFieldValueErr, Item.FieldName("Unit Price")));
-            until ExpectedItem.Next = 0;
+            until ExpectedItem.Next() = 0;
     end;
 
     local procedure VerifyCustomerAutomappedColumn(var O365FieldExcelMapping: Record "O365 Field Excel Mapping"; ExpectedColumnNo: Integer)
@@ -867,7 +868,7 @@ codeunit 138912 "O365 Excel Import Tests"
               Format(ConfigTemplateLine."Default Value"),
               Format(FieldRef.Value),
               StrSubstNo(IncorrectFieldValueErr, ConfigTemplateLine."Field Name"));
-        until ConfigTemplateLine.Next = 0;
+        until ConfigTemplateLine.Next() = 0;
     end;
 
     local procedure VerifyItemTemplateFields(var ExpectedItem: Record Item)
@@ -889,7 +890,7 @@ codeunit 138912 "O365 Excel Import Tests"
               Format(ConfigTemplateLine."Default Value"),
               Format(FieldRef.Value),
               StrSubstNo(IncorrectFieldValueErr, ConfigTemplateLine."Field Name"));
-        until ConfigTemplateLine.Next = 0;
+        until ConfigTemplateLine.Next() = 0;
     end;
 
     [ModalPageHandler]
@@ -915,4 +916,4 @@ codeunit 138912 "O365 Excel Import Tests"
         Assert.Fail('No notification should be thrown.');
     end;
 }
-
+#endif

@@ -172,7 +172,7 @@ report 7318 "Whse.-Shipment - Create Pick"
                             WhseEmployee.SetRange("Location Code", Location.Code);
                             LookupWhseEmployee.LookupMode(true);
                             LookupWhseEmployee.SetTableView(WhseEmployee);
-                            if LookupWhseEmployee.RunModal = ACTION::LookupOK then begin
+                            if LookupWhseEmployee.RunModal() = ACTION::LookupOK then begin
                                 LookupWhseEmployee.GetRecord(WhseEmployee);
                                 AssignedID := WhseEmployee."User ID";
                             end;
@@ -256,7 +256,7 @@ report 7318 "Whse.-Shipment - Create Pick"
         if WhseActivHeader.Find('-') then begin
             repeat
                 if SortActivity <> SortActivity::None then
-                    WhseActivHeader.SortWhseDoc;
+                    WhseActivHeader.SortWhseDoc();
             until WhseActivHeader.Next() = 0;
 
             if PrintDoc then begin
@@ -328,7 +328,7 @@ report 7318 "Whse.-Shipment - Create Pick"
         WhseActivHeader: Record "Warehouse Activity Header";
         CannotBeHandledReason: Text;
     begin
-        CannotBeHandledReason := CreatePick.GetCannotBeHandledReason;
+        CannotBeHandledReason := CreatePick.GetCannotBeHandledReason();
         if FirstActivityNo = '' then
             exit(false);
 
@@ -345,7 +345,7 @@ report 7318 "Whse.-Shipment - Create Pick"
                       StrSubstNo(
                         MultipleActivAndWhseShptCreatedMsg, Format(WhseActivHeader.Type), FirstActivityNo, LastActivityNo,
                         Format(WhseActivHeader.Type), CannotBeHandledReason));
-            end else begin
+            end else
                 if FirstActivityNo = LastActivityNo then
                     Message(
                       StrSubstNo(SingleActivCreatedMsg, Format(WhseActivHeader.Type), FirstActivityNo, CannotBeHandledReason))
@@ -353,7 +353,6 @@ report 7318 "Whse.-Shipment - Create Pick"
                     Message(
                       StrSubstNo(MultipleActivCreatedMsg, Format(WhseActivHeader.Type),
                         FirstActivityNo, LastActivityNo, CannotBeHandledReason));
-            end;
         end;
         exit(EverythingHandled);
     end;
@@ -370,12 +369,11 @@ report 7318 "Whse.-Shipment - Create Pick"
 
     local procedure GetLocation(LocationCode: Code[10])
     begin
-        if Location.Code <> LocationCode then begin
+        if Location.Code <> LocationCode then
             if LocationCode = '' then
                 Clear(Location)
             else
                 Location.Get(LocationCode);
-        end;
     end;
 
     procedure Initialize(AssignedID2: Code[50]; SortActivity2: Enum "Whse. Activity Sorting Method"; PrintDoc2: Boolean; DoNotFillQtytoHandle2: Boolean; BreakbulkFilter2: Boolean)

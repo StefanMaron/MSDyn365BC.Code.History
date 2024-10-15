@@ -12,12 +12,12 @@ page 5107 "Salesperson Teams"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Team Code"; "Team Code")
+                field("Team Code"; Rec."Team Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the team to which the salesperson belongs.';
                 }
-                field("Team Name"; "Team Name")
+                field("Team Name"; Rec."Team Name")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;

@@ -129,7 +129,7 @@ codeunit 135207 "Image Analysis Setup Test"
           ImageAnalysisSetup."Api Uri".Value,
           'URI was modified');
 
-        ImageAnalysisSetup.Close;
+        ImageAnalysisSetup.Close();
     end;
 
     [Test]
@@ -186,7 +186,7 @@ codeunit 135207 "Image Analysis Setup Test"
           ImageAnalysisSetup."Api Uri".Value,
           'URI does not end in /analyze');
 
-        ImageAnalysisSetup.Close;
+        ImageAnalysisSetup.Close();
     end;
 
     [Test]

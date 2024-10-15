@@ -296,9 +296,10 @@ table 8627 "Config. Setup"
     }
 
     var
-        PackageAlreadyExistsQst: Label 'The imported package already exists. Do you want to import another package?';
         PostCode: Record "Post Code";
         HideDialog: Boolean;
+
+        PackageAlreadyExistsQst: Label 'The imported package already exists. Do you want to import another package?';
         PackageDataNotDefinedErr: Label '%1 should be defined in the imported package.', Comment = '%1 = "Package Code"';
         ChooseFileTitleMsg: Label 'Choose the file to upload.';
 
@@ -313,9 +314,9 @@ table 8627 "Config. Setup"
         TestField("Package Name");
 
         ImportPackage(DecompressPackage(false));
-        ApplyPackages;
-        ApplyAnswers;
-        CopyCompInfo;
+        ApplyPackages();
+        ApplyAnswers();
+        CopyCompInfo();
         SelectDefaultRoleCenter("Your Profile Code", AppID, Scope::System);
         exit(true);
     end;
@@ -396,7 +397,7 @@ table 8627 "Config. Setup"
             ConfigXMLExchange.GetElementName(ConfigPackage.FieldName("Language ID")), DocumentElement);
         if LanguageID <> '' then
             Evaluate("Language ID", LanguageID);
-        Modify;
+        Modify();
     end;
 
     [Scope('OnPrem')]
@@ -464,14 +465,14 @@ table 8627 "Config. Setup"
         CompanyInfo: Record "Company Information";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        if not CompanyInfo.Get then begin
+        if not CompanyInfo.Get() then begin
             CompanyInfo.Init();
             CompanyInfo.Insert();
         end;
         CompanyInfo.TransferFields(Rec);
         CompanyInfo.Modify();
 
-        if not SalesReceivablesSetup.Get then begin
+        if not SalesReceivablesSetup.Get() then begin
             SalesReceivablesSetup.Init();
             SalesReceivablesSetup.Insert();
         end;

@@ -42,7 +42,7 @@ page 9165 "Support Contact Info Card"
                     User: Record User;
                 begin
                     if User.ReadPermission then
-                        if User.Get(UserSecurityId) then
+                        if User.Get(UserSecurityId()) then
                             SupportContactEmail := User."Authentication Email";
                 end;
             }
@@ -58,7 +58,7 @@ page 9165 "Support Contact Info Card"
                     User: Record User;
                 begin
                     if User.ReadPermission then
-                        if User.Get(UserSecurityId) then
+                        if User.Get(UserSecurityId()) then
                             SupportContactEmail := User."Contact Email";
                 end;
             }
@@ -76,7 +76,7 @@ page 9165 "Support Contact Info Card"
     begin
         HasWritePermissions := SupportContactInformation.WritePermission;
 
-        PopulateFields;
+        PopulateFields();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -101,22 +101,21 @@ page 9165 "Support Contact Info Card"
     var
         User: Record User;
     begin
-        if SupportContactInformation.Get then begin
+        if SupportContactInformation.Get() then begin
             SupportContactEmail := SupportContactInformation.Email;
             SupportContactWebsite := SupportContactInformation.URL;
-        end else begin
+        end else
             if HasWritePermissions then begin
                 SupportContactInformation.Init();
                 SupportContactInformation.Insert(true);
             end;
-        end;
 
         PopulateFromAuthVisible := false;
         PopulateFromContactVisible := false;
 
         if HasWritePermissions then // Do not show the field if the user will not have permissions anyway
             if User.ReadPermission then
-                if User.Get(UserSecurityId) then begin
+                if User.Get(UserSecurityId()) then begin
                     if User."Authentication Email" <> '' then begin
                         PopulateFromAuthVisible := true;
                         PopulateFromAuthText := StrSubstNo(PopulateEmailFromAuthLbl, User."Authentication Email");

@@ -1,8 +1,7 @@
-﻿page 507 "Blanket Sales Order"
+page 507 "Blanket Sales Order"
 {
     Caption = 'Blanket Sales Order';
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Approve,Request Approval,Print/Send,Release,Order';
     RefreshOnActivate = true;
     SourceTable = "Sales Header";
     SourceTableView = WHERE("Document Type" = FILTER("Blanket Order"));
@@ -14,7 +13,7 @@
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Suite;
                     Importance = Standard;
@@ -27,7 +26,7 @@
                             CurrPage.Update();
                     end;
                 }
-                field("Sell-to Customer No."; "Sell-to Customer No.")
+                field("Sell-to Customer No."; Rec."Sell-to Customer No.")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Customer No.';
@@ -37,11 +36,12 @@
 
                     trigger OnValidate()
                     begin
+                        IsSalesLinesEditable := Rec.SalesLinesEditable();
                         SelltoCustomerNoOnAfterValidate(Rec, xRec);
                         CurrPage.Update();
                     end;
                 }
-                field("Sell-to Customer Name"; "Sell-to Customer Name")
+                field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Customer Name';
@@ -63,7 +63,7 @@
                 group("Sell-to")
                 {
                     Caption = 'Sell-to';
-                    field("Sell-to Address"; "Sell-to Address")
+                    field("Sell-to Address"; Rec."Sell-to Address")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Address';
@@ -71,7 +71,7 @@
                         QuickEntry = false;
                         ToolTip = 'Specifies the customer''s address.';
                     }
-                    field("Sell-to Address 2"; "Sell-to Address 2")
+                    field("Sell-to Address 2"; Rec."Sell-to Address 2")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Address 2';
@@ -79,7 +79,7 @@
                         QuickEntry = false;
                         ToolTip = 'Specifies an additional part of the customer''s address.';
                     }
-                    field("Sell-to City"; "Sell-to City")
+                    field("Sell-to City"; Rec."Sell-to City")
                     {
                         ApplicationArea = Suite;
                         Caption = 'City';
@@ -87,12 +87,12 @@
                         QuickEntry = false;
                         ToolTip = 'Specifies the city of the customer''s address.';
                     }
-                    field("Sell-to County"; "Sell-to County")
+                    field("Sell-to County"; Rec."Sell-to County")
                     {
                         Caption = 'State';
                         ToolTip = 'Specifies the state that is used to calculate and post sales tax.';
                     }
-                    field("Sell-to Post Code"; "Sell-to Post Code")
+                    field("Sell-to Post Code"; Rec."Sell-to Post Code")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Post Code';
@@ -100,7 +100,7 @@
                         QuickEntry = false;
                         ToolTip = 'Specifies the postal code of the customer''s address.';
                     }
-                    field("Sell-to Contact No."; "Sell-to Contact No.")
+                    field("Sell-to Contact No."; Rec."Sell-to Contact No.")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Contact No.';
@@ -153,65 +153,65 @@
                         ToolTip = 'Specifies the email address of the contact person that the sales document will be sent to.';
                     }
                 }
-                field("Sell-to Contact"; "Sell-to Contact")
+                field("Sell-to Contact"; Rec."Sell-to Contact")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Contact';
                     Editable = "Sell-to Customer No." <> '';
                     ToolTip = 'Specifies the name of the contact person at the customer.';
                 }
-                field("No. of Archived Versions"; "No. of Archived Versions")
+                field("No. of Archived Versions"; Rec."No. of Archived Versions")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of archived versions for this document.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies when the related sales invoice must be paid.';
                 }
-                field("Order Date"; "Order Date")
+                field("Order Date"; Rec."Order Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date when the order was created.';
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
-                field("Your Reference"; "Your Reference")
+                field("Your Reference"; Rec."Your Reference")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the customer''s reference. The content will be printed on sales documents.';
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name of the salesperson who is assigned to the customer.';
 
                     trigger OnValidate()
                     begin
-                        SalespersonCodeOnAfterValidate;
+                        SalespersonCodeOnAfterValidate();
                     end;
                 }
-                field("Campaign No."; "Campaign No.")
+                field("Campaign No."; Rec."Campaign No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the campaign that the document is linked to.';
                 }
-                field("Responsibility Center"; "Responsibility Center")
+                field("Responsibility Center"; Rec."Responsibility Center")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code of the responsibility center, such as a distribution hub, that is associated with the involved user, company, customer, or vendor.';
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
@@ -227,15 +227,15 @@
             part(SalesLines; "Blanket Sales Order Subform")
             {
                 ApplicationArea = Suite;
-                Editable = "Sell-to Customer No." <> '';
-                Enabled = "Sell-to Customer No." <> '';
+                Editable = IsSalesLinesEditable;
+                Enabled = IsSalesLinesEditable;
                 SubPageLink = "Document No." = FIELD("No.");
                 UpdatePropagation = Both;
             }
             group("Invoice Details")
             {
                 Caption = 'Invoice Details';
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the currency that is used on the entry.';
@@ -243,10 +243,10 @@
                     trigger OnAssistEdit()
                     begin
                         Clear(ChangeExchangeRate);
-                        ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", WorkDate);
-                        if ChangeExchangeRate.RunModal = ACTION::OK then begin
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter);
-                            SaveInvoiceDiscountAmount;
+                        ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", WorkDate());
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then begin
+                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
+                            SaveInvoiceDiscountAmount();
                         end;
                         Clear(ChangeExchangeRate);
                     end;
@@ -256,73 +256,73 @@
                         CurrPage.Update();
                     end;
                 }
-                field("Company Bank Account Code"; "Company Bank Account Code")
+                field("Company Bank Account Code"; Rec."Company Bank Account Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
                 }
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                 }
-                field("Prices Including VAT"; "Prices Including VAT")
+                field("Prices Including VAT"; Rec."Prices Including VAT")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies if the Unit Price and Line Amount fields on document lines should be shown with or without VAT.';
 
                     trigger OnValidate()
                     begin
-                        PricesIncludingVATOnAfterValid;
+                        PricesIncludingVATOnAfterValid();
                     end;
                 }
-                field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
+                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
-                field("Payment Terms Code"; "Payment Terms Code")
+                field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                 }
-                field("Payment Method Code"; "Payment Method Code")
+                field("Payment Method Code"; Rec."Payment Method Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
                     Visible = IsPaymentMethodCodeVisible;
                 }
-                field("Transaction Type"; "Transaction Type")
+                field("Transaction Type"; Rec."Transaction Type")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the type of transaction that the document represents, for the purpose of reporting to INTRASTAT.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
 
                     trigger OnValidate()
                     begin
-                        ShortcutDimension1CodeOnAfterV;
+                        ShortcutDimension1CodeOnAfterV();
                     end;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
 
                     trigger OnValidate()
                     begin
-                        ShortcutDimension2CodeOnAfterV;
+                        ShortcutDimension2CodeOnAfterV();
                     end;
                 }
-                field("Pmt. Discount Date"; "Pmt. Discount Date")
+                field("Pmt. Discount Date"; Rec."Pmt. Discount Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
                 }
-                field("Payment Discount %"; "Payment Discount %")
+                field("Payment Discount %"; Rec."Payment Discount %")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the payment discount percentage that is granted if the customer pays on or before the date entered in the Pmt. Discount Date field. The discount percentage is specified in the Payment Terms Code field.';
@@ -333,7 +333,7 @@
                     ToolTip = 'Specifies the name of the journal template in which the sales header is to be posted.';
                     Visible = IsJournalTemplNameVisible;
                 }
-                field("Tax Liable"; "Tax Liable")
+                field("Tax Liable"; Rec."Tax Liable")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies if this vendor charges you sales tax for purchases.';
@@ -343,7 +343,7 @@
                         SaveInvoiceDiscountAmount();
                     end;
                 }
-                field("Tax Area Code"; "Tax Area Code")
+                field("Tax Area Code"; Rec."Tax Area Code")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
@@ -353,7 +353,7 @@
                         SaveInvoiceDiscountAmount();
                     end;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location from where inventory items to the customer on the sales document are to be shipped by default.';
@@ -373,7 +373,6 @@
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Ship-to';
-                            OptionCaption = 'Default (Sell-to Address),Alternate Shipping Address,Custom Address';
                             ToolTip = 'Specifies the address that the products on the sales document are shipped to. Default (Sell-to Address): The same as the customer''s sell-to address. Alternate Ship-to Address: One of the customer''s alternate ship-to addresses. Custom Address: Any ship-to address that you specify in the fields below.';
 
                             trigger OnValidate()
@@ -387,7 +386,7 @@
                                     ShipToOptions::"Default (Sell-to Address)":
                                         begin
                                             Validate("Ship-to Code", '');
-                                            CopySellToAddressToShipToAddress;
+                                            CopySellToAddressToShipToAddress();
                                         end;
                                     ShipToOptions::"Alternate Shipping Address":
                                         begin
@@ -395,7 +394,7 @@
                                             ShipToAddressList.LookupMode := true;
                                             ShipToAddressList.SetTableView(ShipToAddress);
 
-                                            if ShipToAddressList.RunModal = ACTION::LookupOK then begin
+                                            if ShipToAddressList.RunModal() = ACTION::LookupOK then begin
                                                 ShipToAddressList.GetRecord(ShipToAddress);
                                                 Validate("Ship-to Code", ShipToAddress.Code);
                                             end else
@@ -412,7 +411,7 @@
                         {
                             ShowCaption = false;
                             Visible = NOT (ShipToOptions = ShipToOptions::"Default (Sell-to Address)");
-                            field("Ship-to Code"; "Ship-to Code")
+                            field("Ship-to Code"; Rec."Ship-to Code")
                             {
                                 ApplicationArea = Suite;
                                 Caption = 'Code';
@@ -426,14 +425,14 @@
                                         Error(EmptyShipToCodeErr);
                                 end;
                             }
-                            field("Ship-to Name"; "Ship-to Name")
+                            field("Ship-to Name"; Rec."Ship-to Name")
                             {
                                 ApplicationArea = Suite;
                                 Caption = 'Name';
                                 Editable = ShipToOptions = ShipToOptions::"Custom Address";
                                 ToolTip = 'Specifies the name that products on the sales document will be shipped to.';
                             }
-                            field("Ship-to Address"; "Ship-to Address")
+                            field("Ship-to Address"; Rec."Ship-to Address")
                             {
                                 ApplicationArea = Suite;
                                 Caption = 'Address';
@@ -441,7 +440,7 @@
                                 QuickEntry = false;
                                 ToolTip = 'Specifies the address that products on the sales document will be shipped to. By default, the field is filled with the value in the Address field on the customer card or with the value in the Address field in the Ship-to Address window.';
                             }
-                            field("Ship-to Address 2"; "Ship-to Address 2")
+                            field("Ship-to Address 2"; Rec."Ship-to Address 2")
                             {
                                 ApplicationArea = Suite;
                                 Caption = 'Address 2';
@@ -449,7 +448,7 @@
                                 QuickEntry = false;
                                 ToolTip = 'Specifies an additional part of the shipping address.';
                             }
-                            field("Ship-to City"; "Ship-to City")
+                            field("Ship-to City"; Rec."Ship-to City")
                             {
                                 ApplicationArea = Suite;
                                 Caption = 'City';
@@ -457,7 +456,7 @@
                                 QuickEntry = false;
                                 ToolTip = 'Specifies the city of the shipping address.';
                             }
-                            field("Ship-to County"; "Ship-to County")
+                            field("Ship-to County"; Rec."Ship-to County")
                             {
                                 ApplicationArea = Suite;
                                 Caption = 'State';
@@ -465,7 +464,7 @@
                                 QuickEntry = false;
                                 ToolTip = 'Specifies the state that is used to calculate and post sales tax.';
                             }
-                            field("Ship-to Post Code"; "Ship-to Post Code")
+                            field("Ship-to Post Code"; Rec."Ship-to Post Code")
                             {
                                 ApplicationArea = Suite;
                                 Caption = 'Post Code';
@@ -473,7 +472,7 @@
                                 QuickEntry = false;
                                 ToolTip = 'Specifies the postal code of the shipping address.';
                             }
-                            field("Ship-to Country/Region Code"; "Ship-to Country/Region Code")
+                            field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                             {
                                 ApplicationArea = Suite;
                                 Caption = 'Country/Region';
@@ -483,7 +482,7 @@
                                 ToolTip = 'Specifies the country/region of the shipping address.';
                             }
                         }
-                        field("Ship-to Contact"; "Ship-to Contact")
+                        field("Ship-to Contact"; Rec."Ship-to Contact")
                         {
                             ApplicationArea = Suite;
                             Caption = 'Contact';
@@ -493,32 +492,32 @@
                     group("Shipment Method")
                     {
                         Caption = 'Shipment Method';
-                        field("Shipment Method Code"; "Shipment Method Code")
+                        field("Shipment Method Code"; Rec."Shipment Method Code")
                         {
                             ApplicationArea = Suite;
                             Caption = 'Code';
                             Importance = Additional;
                             ToolTip = 'Specifies how items on the sales document are shipped to the customer.';
                         }
-                        field("Ship-to UPS Zone"; "Ship-to UPS Zone")
+                        field("Ship-to UPS Zone"; Rec."Ship-to UPS Zone")
                         {
                             ToolTip = 'Specifies a UPS Zone code for this document if UPS is used for shipments.';
                         }
-                        field("Shipping Agent Code"; "Shipping Agent Code")
+                        field("Shipping Agent Code"; Rec."Shipping Agent Code")
                         {
                             ApplicationArea = Suite;
                             Caption = 'Agent';
                             Importance = Additional;
                             ToolTip = 'Specifies which shipping agent is used to transport the items on the sales document to the customer.';
                         }
-                        field("Shipping Agent Service Code"; "Shipping Agent Service Code")
+                        field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
                         {
                             ApplicationArea = Suite;
                             Caption = 'Agent service';
                             Importance = Additional;
                             ToolTip = 'Specifies which shipping agent service is used to transport the items on the sales document to the customer.';
                         }
-                        field("Package Tracking No."; "Package Tracking No.")
+                        field("Package Tracking No."; Rec."Package Tracking No.")
                         {
                             ApplicationArea = Suite;
                             Importance = Additional;
@@ -533,24 +532,23 @@
                     {
                         ApplicationArea = Suite;
                         Caption = 'Bill-to';
-                        OptionCaption = 'Default (Customer),Another Customer,Custom Address';
                         ToolTip = 'Specifies the customer that the sales invoice will be sent to. Default (Customer): The same as the customer on the sales invoice. Another Customer: Any customer that you specify in the fields below.';
 
                         trigger OnValidate()
                         begin
                             if BillToOptions = BillToOptions::"Default (Customer)" then begin
                                 Validate("Bill-to Customer No.", "Sell-to Customer No.");
-                                RecallModifyAddressNotification(GetModifyBillToCustomerAddressNotificationId);
+                                RecallModifyAddressNotification(GetModifyBillToCustomerAddressNotificationId());
                             end;
 
-                            CopySellToAddressToBillToAddress;
+                            CopySellToAddressToBillToAddress();
                         end;
                     }
                     group(Control43)
                     {
                         ShowCaption = false;
                         Visible = NOT (BillToOptions = BillToOptions::"Default (Customer)");
-                        field("Bill-to Name"; "Bill-to Name")
+                        field("Bill-to Name"; Rec."Bill-to Name")
                         {
                             ApplicationArea = Suite;
                             Caption = 'Name';
@@ -567,7 +565,7 @@
                                 CurrPage.Update();
                             end;
                         }
-                        field("Bill-to Address"; "Bill-to Address")
+                        field("Bill-to Address"; Rec."Bill-to Address")
                         {
                             ApplicationArea = Suite;
                             Caption = 'Address';
@@ -577,7 +575,7 @@
                             QuickEntry = false;
                             ToolTip = 'Specifies the address of the customer that you will send the invoice to.';
                         }
-                        field("Bill-to Address 2"; "Bill-to Address 2")
+                        field("Bill-to Address 2"; Rec."Bill-to Address 2")
                         {
                             ApplicationArea = Suite;
                             Caption = 'Address 2';
@@ -587,7 +585,7 @@
                             QuickEntry = false;
                             ToolTip = 'Specifies an additional part of the billing address.';
                         }
-                        field("Bill-to City"; "Bill-to City")
+                        field("Bill-to City"; Rec."Bill-to City")
                         {
                             ApplicationArea = Suite;
                             Caption = 'City';
@@ -597,7 +595,7 @@
                             QuickEntry = false;
                             ToolTip = 'Specifies the city of the billing address.';
                         }
-                        field("Bill-to County"; "Bill-to County")
+                        field("Bill-to County"; Rec."Bill-to County")
                         {
                             Caption = 'State';
                             Editable = "Bill-to Customer No." <> "Sell-to Customer No.";
@@ -605,7 +603,7 @@
                             QuickEntry = false;
                             ToolTip = 'Specifies the state that is used to calculate and post sales tax.';
                         }
-                        field("Bill-to Post Code"; "Bill-to Post Code")
+                        field("Bill-to Post Code"; Rec."Bill-to Post Code")
                         {
                             ApplicationArea = Suite;
                             Caption = 'Post Code';
@@ -615,7 +613,7 @@
                             QuickEntry = false;
                             ToolTip = 'Specifies the postal code of the billing address.';
                         }
-                        field("Bill-to Contact No."; "Bill-to Contact No.")
+                        field("Bill-to Contact No."; Rec."Bill-to Contact No.")
                         {
                             ApplicationArea = Suite;
                             Caption = 'Contact No.';
@@ -624,7 +622,7 @@
                             Importance = Additional;
                             ToolTip = 'Specifies the number of the contact person at the billing address.';
                         }
-                        field("Bill-to Contact"; "Bill-to Contact")
+                        field("Bill-to Contact"; Rec."Bill-to Contact")
                         {
                             ApplicationArea = Suite;
                             Caption = 'Contact';
@@ -665,22 +663,22 @@
             group("Foreign Trade")
             {
                 Caption = 'Foreign Trade';
-                field("EU 3-Party Trade"; "EU 3-Party Trade")
+                field("EU 3-Party Trade"; Rec."EU 3-Party Trade")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
                 }
-                field("Transaction Specification"; "Transaction Specification")
+                field("Transaction Specification"; Rec."Transaction Specification")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies a specification of the document''s transaction, for the purpose of reporting to INTRASTAT.';
                 }
-                field("Transport Method"; "Transport Method")
+                field("Transport Method"; Rec."Transport Method")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
                 }
-                field("Exit Point"; "Exit Point")
+                field("Exit Point"; Rec."Exit Point")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the point of exit through which you ship the items out of your country/region, for reporting to Intrastat.';
@@ -777,9 +775,6 @@
                     ApplicationArea = Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
 
@@ -802,8 +797,6 @@
                     ApplicationArea = Suite;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category8;
                     RunObject = Page "Customer Card";
                     RunPageLink = "No." = FIELD("Sell-to Customer No.");
                     ShortCutKey = 'Shift+F7';
@@ -814,8 +807,6 @@
                     ApplicationArea = Suite;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category8;
                     RunObject = Page "Sales Comment Sheet";
                     RunPageLink = "Document Type" = CONST("Blanket Order"),
                                   "No." = FIELD("No."),
@@ -829,15 +820,12 @@
                     Caption = 'Dimensions';
                     Enabled = "No." <> '';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
-                        ShowDocDim;
+                        ShowDocDim();
                     end;
                 }
                 action(Approvals)
@@ -846,8 +834,6 @@
                     ApplicationArea = Suite;
                     Caption = 'Approvals';
                     Image = Approvals;
-                    Promoted = true;
-                    PromotedCategory = Category8;
                     ToolTip = 'View a list of the records that are waiting to be approved. For example, you can see who requested the record to be approved, when it was sent, and when it is due to be approved.';
 
                     trigger OnAction()
@@ -862,8 +848,6 @@
                     ApplicationArea = All;
                     Caption = 'Attachments';
                     Image = Attach;
-                    Promoted = true;
-                    PromotedCategory = Category8;
                     ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
 
                     trigger OnAction()
@@ -888,10 +872,6 @@
                     ApplicationArea = Suite;
                     Caption = 'Approve';
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Approve the requested changes.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -907,10 +887,6 @@
                     ApplicationArea = Suite;
                     Caption = 'Reject';
                     Image = Reject;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Reject the approval request.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -926,9 +902,6 @@
                     ApplicationArea = Suite;
                     Caption = 'Delegate';
                     Image = Delegate;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'Delegate the approval to a substitute approver.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -944,9 +917,6 @@
                     ApplicationArea = Suite;
                     Caption = 'Comments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ToolTip = 'View or add comments for the record.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
@@ -972,7 +942,7 @@
 
                     trigger OnAction()
                     begin
-                        ApproveCalcInvDisc;
+                        ApproveCalcInvDisc();
                         SalesCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
                     end;
                 }
@@ -1014,10 +984,6 @@
                     ApplicationArea = Suite;
                     Caption = 'Re&lease';
                     Image = ReleaseDoc;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Release the document to the next stage of processing. You must reopen the document before you can make changes to it.';
 
@@ -1035,9 +1001,6 @@
                     Caption = 'Re&open';
                     Enabled = Status <> Status::Open;
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedOnly = true;
                     ToolTip = 'Reopen the document to change it after it has been approved. Approved documents have the Released status and must be opened before they can be changed';
 
                     trigger OnAction()
@@ -1054,9 +1017,6 @@
                 ApplicationArea = Suite;
                 Caption = 'Make &Order';
                 Image = MakeOrder;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Convert the blanket sales order to a sales order.';
 
                 trigger OnAction()
@@ -1073,8 +1033,6 @@
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Category6;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -1087,10 +1045,6 @@
                 ApplicationArea = Basic, Suite;
                 Caption = 'Attach as PDF';
                 Image = PrintAttachment;
-                Promoted = true;
-                PromotedCategory = Category6;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Create a PDF file and attach it to the document.';
 
                 trigger OnAction()
@@ -1111,9 +1065,6 @@
                     Caption = 'Send A&pproval Request';
                     Enabled = NOT OpenApprovalEntriesExist;
                     Image = SendApprovalRequest;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ToolTip = 'Request approval of the document.';
 
                     trigger OnAction()
@@ -1130,8 +1081,6 @@
                     Caption = 'Cancel Approval Re&quest';
                     Enabled = CanCancelApprovalForRecord;
                     Image = CancelApprovalRequest;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Cancel the approval request.';
 
                     trigger OnAction()
@@ -1143,10 +1092,120 @@
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(MakeOrder_Promoted; MakeOrder)
+                {
+                }
+                group(Category_Category7)
+                {
+                    Caption = 'Release', Comment = 'Generated from the PromotedActionCategories property index 6.';
+                    ShowAs = SplitButton;
+
+                    actionref(Release_Promoted; Release)
+                    {
+                    }
+                    actionref(Reopen_Promoted; Reopen)
+                    {
+                    }
+                }
+                actionref("Archi&ve Document_Promoted"; "Archi&ve Document")
+                {
+                }
+            }
+            group(Category_Prepare)
+            {
+                Caption = 'Prepare';
+
+                actionref(CopyDocument_Promoted; CopyDocument)
+                {
+                }
+                actionref(CalculateInvoiceDiscount_Promoted; CalculateInvoiceDiscount)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Approve', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Approve_Promoted; Approve)
+                {
+                }
+                actionref(Reject_Promoted; Reject)
+                {
+                }
+                actionref(Comment_Promoted; Comment)
+                {
+                }
+                actionref(Delegate_Promoted; Delegate)
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref(Print_Promoted; Print)
+                {
+                }
+                actionref(AttachAsPDF_Promoted; AttachAsPDF)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Request Approval', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(SendApprovalRequest_Promoted; SendApprovalRequest)
+                {
+                }
+                actionref(CancelApprovalRequest_Promoted; CancelApprovalRequest)
+                {
+                }
+            }
+            group(Category_Category8)
+            {
+                Caption = 'Order', Comment = 'Generated from the PromotedActionCategories property index 7.';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref(Approvals_Promoted; Approvals)
+                {
+                }
+                actionref(DocAttach_Promoted; DocAttach)
+                {
+                }
+#if not CLEAN21
+                actionref(Card_Promoted; Card)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
+        SetControlAppearance();
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(RecordId);
         StatusStyleTxt := GetStatusStyleText();
@@ -1154,7 +1213,6 @@
 
     trigger OnAfterGetRecord()
     begin
-        SetControlAppearance;
         UpdateShipToBillToGroupVisibility();
         SellToContact.GetOrClear("Sell-to Contact No.");
         BillToContact.GetOrClear("Bill-to Contact No.");
@@ -1162,14 +1220,14 @@
 
     trigger OnDeleteRecord(): Boolean
     begin
-        CurrPage.SaveRecord;
-        exit(ConfirmDeletion);
+        CurrPage.SaveRecord();
+        exit(ConfirmDeletion());
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
         if DocNoVisible then
-            CheckCreditMaxBeforeInsert;
+            CheckCreditMaxBeforeInsert();
 
         if ("Sell-to Customer No." = '') and (GetFilter("Sell-to Customer No.") <> '') then
             CurrPage.Update(false);
@@ -1178,10 +1236,10 @@
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         xRec.Init();
-        "Responsibility Center" := UserMgt.GetSalesFilter;
+        "Responsibility Center" := UserMgt.GetSalesFilter();
         if (not DocNoVisible) and ("No." = '') then
-            SetSellToCustomerFromFilter;
-        UpdateShipToBillToGroupVisibility;
+            SetSellToCustomerFromFilter();
+        UpdateShipToBillToGroupVisibility();
     end;
 
     trigger OnOpenPage()
@@ -1193,6 +1251,7 @@
         GLSetup.Get();
         IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
         IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
+        IsSalesLinesEditable := Rec.SalesLinesEditable();
     end;
 
     var
@@ -1216,22 +1275,25 @@
         IsJournalTemplNameVisible: Boolean;
         [InDataSet]
         IsPaymentMethodCodeVisible: Boolean;
+        [InDataSet]
+        IsSalesLinesEditable: Boolean;
+
         EmptyShipToCodeErr: Label 'The Code field can only be empty if you select Custom Address in the Ship-to field.';
 
     protected var
-        ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
-        BillToOptions: Option "Default (Customer)","Another Customer","Custom Address";
+        ShipToOptions: Enum "Sales Ship-to Options";
+        BillToOptions: Enum "Sales Bill-to Options";
 
     local procedure ApproveCalcInvDisc()
     begin
-        CurrPage.SalesLines.PAGE.ApproveCalcInvDisc;
+        CurrPage.SalesLines.PAGE.ApproveCalcInvDisc();
     end;
 
     local procedure SaveInvoiceDiscountAmount()
     var
         DocumentTotals: Codeunit "Document Totals";
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         DocumentTotals.SalesRedistributeInvoiceDiscountAmountsOnDocument(Rec);
         CurrPage.Update(false);
     end;
@@ -1272,6 +1334,7 @@
         OpenApprovalEntriesExistForCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(RecordId);
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
+        IsSalesLinesEditable := Rec.SalesLinesEditable();
     end;
 
     local procedure UpdateShipToBillToGroupVisibility()

@@ -17,17 +17,17 @@ page 1284 "Outstanding Bank Transactions"
                 IndentationColumn = DocumentNoIndent;
                 IndentationControls = "External Document No.";
                 ShowAsTree = true;
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date of the entry.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of document that generated the entry.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the document that generated the entry.';
@@ -54,7 +54,7 @@ page 1284 "Outstanding Bank Transactions"
                     ToolTip = 'Specifies if the entry has been applied.';
                     Visible = false;
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
@@ -65,7 +65,7 @@ page 1284 "Outstanding Bank Transactions"
                     ToolTip = 'Specifies the level of indentation for the transaction. Indented transactions usually indicate deposits.';
                     Visible = false;
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the external document number for this transaction.';

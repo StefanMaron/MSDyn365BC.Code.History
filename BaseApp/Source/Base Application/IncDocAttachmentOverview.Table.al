@@ -4,6 +4,7 @@ table 137 "Inc. Doc. Attachment Overview"
     ObsoleteState = Pending;
     ObsoleteReason = 'Table will be marked as TableType = Temporary. This means you can only use this table as temporary in your code.';
     ObsoleteTag = '17.0';
+    ReplicateData = false;
 
     fields
     {
@@ -97,9 +98,10 @@ table 137 "Inc. Doc. Attachment Overview"
     end;
 
     var
+        ClientTypeManagement: Codeunit "Client Type Management";
+
         SupportingAttachmentsTxt: Label 'Supporting Attachments';
         NotAvailableAttachmentMsg: Label 'The attachment is no longer available.';
-        ClientTypeManagement: Codeunit "Client Type Management";
 
     [Scope('OnPrem')]
     procedure NameDrillDown()
@@ -119,17 +121,16 @@ table 137 "Inc. Doc. Attachment Overview"
             "Attachment Type"::Link:
                 begin
                     IncomingDocument.Get("Incoming Document Entry No.");
-                    HyperLink(IncomingDocument.GetURL);
+                    HyperLink(IncomingDocument.GetURL());
                 end
-            else begin
-                    if not IncomingDocumentAttachment.Get("Incoming Document Entry No.", "Line No.") then
-                        Message(NotAvailableAttachmentMsg)
+            else
+                if not IncomingDocumentAttachment.Get("Incoming Document Entry No.", "Line No.") then
+                    Message(NotAvailableAttachmentMsg)
+                else
+                    if (Type = Type::Image) and (ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone) then
+                        PAGE.Run(PAGE::"O365 Incoming Doc. Att. Pict.", IncomingDocumentAttachment)
                     else
-                        if (Type = Type::Image) and (ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone) then
-                            PAGE.Run(PAGE::"O365 Incoming Doc. Att. Pict.", IncomingDocumentAttachment)
-                        else
-                            IncomingDocumentAttachment.Export(Name + '.' + "File Extension", true);
-                end
+                        IncomingDocumentAttachment.Export(Name + '.' + "File Extension", true);
         end;
     end;
 
@@ -207,7 +208,7 @@ table 137 "Inc. Doc. Attachment Overview"
     var
         URL: Text;
     begin
-        URL := IncomingDocument.GetURL;
+        URL := IncomingDocument.GetURL();
         if URL = '' then
             exit;
 

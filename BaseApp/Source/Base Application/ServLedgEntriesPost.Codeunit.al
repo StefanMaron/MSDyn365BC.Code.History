@@ -1,4 +1,4 @@
-codeunit 5912 "ServLedgEntries-Post"
+﻿codeunit 5912 "ServLedgEntries-Post"
 {
     Permissions = TableData "Service Ledger Entry" = rimd,
                   TableData "Warranty Ledger Entry" = rimd,
@@ -25,16 +25,16 @@ codeunit 5912 "ServLedgEntries-Post"
     var
         SrcCodeSetup: Record "Source Code Setup";
     begin
-        NextServLedgerEntryNo := InitServLedgerEntry;
-        NextWarrantyLedgerEntryNo := InitWarrantyLedgerEntry;
+        NextServLedgerEntryNo := InitServLedgerEntry();
+        NextWarrantyLedgerEntryNo := InitWarrantyLedgerEntry();
         PassedServEntryNo := NextServLedgerEntryNo;
         PassedWarrantyEntryNo := NextWarrantyLedgerEntryNo;
 
         with ServiceRegister do begin
-            Reset;
+            Reset();
             LockTable();
             "No." := GetLastEntryNo() + 1;
-            Init;
+            Init();
             "From Entry No." := NextServLedgerEntryNo;
             "From Warranty Entry No." := NextWarrantyLedgerEntryNo;
             "Creation Date" := Today;
@@ -61,7 +61,7 @@ codeunit 5912 "ServLedgEntries-Post"
             end;
 
             if "To Entry No." >= "From Entry No." then
-                Insert;
+                Insert();
         end;
     end;
 
@@ -193,7 +193,7 @@ codeunit 5912 "ServLedgEntries-Post"
         ServLedgEntry.LockTable();
 
         with ServLedgEntry do begin
-            Init;
+            Init();
             NextServLedgerEntryNo := PassedNextEntryNo;
             "Entry No." := NextServLedgerEntryNo;
 
@@ -221,14 +221,13 @@ codeunit 5912 "ServLedgEntries-Post"
             case ServHeader."Document Type" of
                 ServHeader."Document Type"::"Credit Memo":
                     "Document Type" := "Document Type"::"Credit Memo";
-                else begin
-                        if (ServHeader."Document Type" = ServHeader."Document Type"::Order) and
-                           (ServLine."Qty. to Consume" <> 0)
-                        then
-                            "Document Type" := "Document Type"::Shipment
-                        else
-                            "Document Type" := "Document Type"::Invoice;
-                    end;
+                else
+                    if (ServHeader."Document Type" = ServHeader."Document Type"::Order) and
+                        (ServLine."Qty. to Consume" <> 0)
+                    then
+                        "Document Type" := "Document Type"::Shipment
+                    else
+                        "Document Type" := "Document Type"::Invoice;
             end;
 
             "Document No." := GenJnlLineDocNo;
@@ -329,7 +328,7 @@ codeunit 5912 "ServLedgEntries-Post"
                 "Contract Disc. Amount" := ApplyToServLedgEntry."Contract Disc. Amount";
 
             OnBeforeServLedgerEntrySaleInsert(ServLedgEntry, ServLine, ServItemLine, ServHeader);
-            Insert;
+            Insert();
             NextServLedgerEntryNo += 1;
             PassedNextEntryNo := NextServLedgerEntryNo;
         end;
@@ -349,7 +348,7 @@ codeunit 5912 "ServLedgEntries-Post"
         ServLedgEntry.LockTable();
 
         with ServLedgEntry do begin
-            Init;
+            Init();
             NextServLedgerEntryNo := PassedNextEntryNo;
             "Entry No." := NextServLedgerEntryNo;
 
@@ -431,7 +430,7 @@ codeunit 5912 "ServLedgEntries-Post"
                       "Amount (LCY)", ServHeader."Currency Factor"));
             end;
             OnInsertServLedgEntryCrMemoOnBeforeServLedgEntryInsert(ServLedgEntry, ServHeader, ServLine);
-            Insert;
+            Insert();
             NextServLedgerEntryNo += 1;
             PassedNextEntryNo := NextServLedgerEntryNo;
         end;
@@ -591,7 +590,7 @@ codeunit 5912 "ServLedgEntries-Post"
     begin
         // returns NextEntryNo
         with ServLedgEntry do begin
-            Reset;
+            Reset();
             LockTable();
             exit(ServLedgEntry.GetLastEntryNo() + 1);
         end;
@@ -600,7 +599,7 @@ codeunit 5912 "ServLedgEntries-Post"
     local procedure InitWarrantyLedgerEntry(): Integer
     begin
         with WarrantyLedgEntry do begin
-            Reset;
+            Reset();
             LockTable();
             exit(GetLastEntryNo() + 1);
         end;
@@ -630,7 +629,7 @@ codeunit 5912 "ServLedgEntries-Post"
             until ServLedgEntry.Next() = 0;
 
             with TempNewServLedgEntry do begin
-                Reset;
+                Reset();
                 if FindSet() then
                     repeat
                         ServLedgEntry.Init();
@@ -724,7 +723,7 @@ codeunit 5912 "ServLedgEntries-Post"
         GetCurrencyRec(ServHeader."Currency Code");
         Clear(ServLedgEntry);
         with ServLedgEntry do begin
-            Init;
+            Init();
             NextServLedgerEntryNo := PassedNextEntryNo;
             "Entry No." := NextServLedgerEntryNo;
 
@@ -800,7 +799,7 @@ codeunit 5912 "ServLedgEntries-Post"
                         Open := false;
                         Description := ServLine.Description;
                         OnCreateCreditEntryOnBeforeServLedgEntryInsertFromServiceHeader(ServLedgEntry, ServHeader, ServLine);
-                        Insert;
+                        Insert();
 
                         NextServLedgerEntryNo += 1;
                         "Entry No." := NextServLedgerEntryNo;
@@ -823,7 +822,7 @@ codeunit 5912 "ServLedgEntries-Post"
                             ("Amount (LCY)" + "Discount Amount") / Quantity, Currency."Unit-Amount Rounding Precision");
                         Description := ServLine.Description;
                         OnCreateCreditEntryOnBeforeServLedgEntryInsertFromServiceHeader(ServLedgEntry, ServHeader, ServLine);
-                        Insert;
+                        Insert();
 
                         NextServLedgerEntryNo += 1;
                     end;
@@ -863,7 +862,7 @@ codeunit 5912 "ServLedgEntries-Post"
                         "Applies-to Entry No." := ServLine."Appl.-to Service Entry";
 
                         OnCreateCreditEntryOnBeforeServLedgEntryInsert(ServLedgEntry, ServHeader, ServLine);
-                        Insert;
+                        Insert();
 
                         NextServLedgerEntryNo += 1;
                     end;
@@ -877,7 +876,7 @@ codeunit 5912 "ServLedgEntries-Post"
     local procedure GetCurrencyRec(CurrencyCode: Code[10])
     begin
         if CurrencyCode = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else begin
             Currency.Get(CurrencyCode);
             Currency.TestField("Unit-Amount Rounding Precision");

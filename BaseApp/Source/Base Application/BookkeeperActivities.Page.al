@@ -102,7 +102,7 @@
                     Image = Cash;
                     ToolTip = 'Specifies a window to reconcile unpaid documents automatically with their related bank transactions by importing a bank statement feed or file. In the payment reconciliation journal, incoming or outgoing payments on your bank are automatically, or semi-automatically, applied to their related open customer or vendor ledger entries. Any open bank account ledger entries related to the applied customer or vendor ledger entries will be closed when you choose the Post Payments and Reconcile Bank Account action. This means that the bank account is automatically reconciled for payments that you post with the journal.';
                 }
-                field("Bank Acc. Reconciliations"; "Bank Acc. Reconciliations")
+                field("Bank Acc. Reconciliations"; Rec."Bank Acc. Reconciliations")
                 {
                     ApplicationArea = All;
                     Caption = 'Bank Acc. Reconciliations to Post';
@@ -110,7 +110,7 @@
                     ToolTip = 'Specifies bank account reconciliations that are ready to post. ';
                     Visible = BankReconWithAutoMatch;
                 }
-                field("Bank Reconciliations to Post"; "Bank Reconciliations to Post")
+                field("Bank Reconciliations to Post"; Rec."Bank Reconciliations to Post")
                 {
                     ApplicationArea = All;
                     DrillDownPageID = "Bank Acc. Reconciliation List";
@@ -118,7 +118,7 @@
                     Visible = NOT BankReconWithAutoMatch;
                 }
 #if not CLEAN21
-                field("Deposits to Post"; "Deposits to Post")
+                field("Deposits to Post"; Rec."Deposits to Post")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Deposit List";

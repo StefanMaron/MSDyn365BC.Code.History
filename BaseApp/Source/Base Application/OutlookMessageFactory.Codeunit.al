@@ -15,8 +15,8 @@ codeunit 9530 "Outlook Message Factory"
     procedure CreateOutlookMessage(var OutlookMessage: DotNet IOutlookMessage)
     begin
         if IsNull(OutlookMessageFactory) then
-            CreateDefaultOutlookMessageFactory;
-        OutlookMessage := OutlookMessageFactory.CreateOutlookMessage;
+            CreateDefaultOutlookMessageFactory();
+        OutlookMessage := OutlookMessageFactory.CreateOutlookMessage();
     end;
 
     [Scope('OnPrem')]
@@ -30,7 +30,7 @@ codeunit 9530 "Outlook Message Factory"
         [RunOnClient]
         CreateOutlookMessageFactory: DotNet OutlookMessageFactory;
     begin
-        OutlookMessageFactory := CreateOutlookMessageFactory.OutlookMessageFactory;
+        OutlookMessageFactory := CreateOutlookMessageFactory.OutlookMessageFactory();
     end;
 }
 

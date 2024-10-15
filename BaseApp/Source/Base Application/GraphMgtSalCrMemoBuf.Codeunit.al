@@ -7,6 +7,8 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     end;
 
     var
+        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
+
         DocumentIDNotSpecifiedErr: Label 'You must specify a document id to get the lines.';
         DocumentDoesNotExistErr: Label 'No document with the specified ID exists.';
         MultipleDocumentsFoundForIdErr: Label 'Multiple documents have been found for the specified criteria.';
@@ -14,7 +16,6 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         CannotInsertALineThatAlreadyExistsErr: Label 'You cannot insert a line because a line already exists.';
         CannotModifyALineThatDoesntExistErr: Label 'You cannot modify a line that does not exist.';
         CannotInsertPostedCrMemoErr: Label 'Credit memos created through the API must be in Draft state.';
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
         CreditMemoIdIsNotSpecifiedErr: Label 'Credit Memo ID is not specified.', Locked = true;
         EntityIsNotFoundErr: Label 'Sales Credit Memo Entity is not found.', Locked = true;
         AggregatorCategoryLbl: Label 'Sales Credit Memo Aggregator', Locked = true;
@@ -23,7 +24,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertSalesHeader(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     begin
-        if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -35,7 +36,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifySalesHeader(var Rec: Record "Sales Header"; var xRec: Record "Sales Header"; RunTrigger: Boolean)
     begin
-        if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -52,7 +53,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     var
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
     begin
-        if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -69,7 +70,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales - Calc Discount By Type", 'OnAfterResetRecalculateInvoiceDisc', '', false, false)]
     local procedure OnAfterResetRecalculateCreditMemoDisc(var SalesHeader: Record "Sales Header")
     begin
-        if not CheckValidRecord(SalesHeader) or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if not CheckValidRecord(SalesHeader) or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(SalesHeader.SystemId) then
@@ -135,7 +136,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     [EventSubscriber(ObjectType::Table, Database::"Sales Cr.Memo Header", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertSalesCreditMemoHeader(var Rec: Record "Sales Cr.Memo Header"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -147,7 +148,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     [EventSubscriber(ObjectType::Table, Database::"Sales Cr.Memo Header", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifySalesCreditMemoHeader(var Rec: Record "Sales Cr.Memo Header"; var xRec: Record "Sales Cr.Memo Header"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -161,7 +162,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     var
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
     begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -179,7 +180,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     var
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
     begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -194,7 +195,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Calc. Discount", 'OnAfterCalcSalesDiscount', '', false, false)]
     local procedure OnAfterCalculateSalesDiscountOnSalesHeader(var SalesHeader: Record "Sales Header")
     begin
-        if not CheckValidRecord(SalesHeader) or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if not CheckValidRecord(SalesHeader) or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(SalesHeader.SystemId) then
@@ -206,7 +207,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     [EventSubscriber(ObjectType::Table, Database::"Cust. Ledger Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertCustomerLedgerEntry(var Rec: Record "Cust. Ledger Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -218,7 +219,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     [EventSubscriber(ObjectType::Table, Database::"Cust. Ledger Entry", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifyCustomerLedgerEntry(var Rec: Record "Cust. Ledger Entry"; var xRec: Record "Cust. Ledger Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -230,7 +231,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     [EventSubscriber(ObjectType::Table, Database::"Cust. Ledger Entry", 'OnAfterRenameEvent', '', false, false)]
     local procedure OnAfterRenameCustomerLedgerEntry(var Rec: Record "Cust. Ledger Entry"; var xRec: Record "Cust. Ledger Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -242,7 +243,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     [EventSubscriber(ObjectType::Table, Database::"Cust. Ledger Entry", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterDeleteCustomerLedgerEntry(var Rec: Record "Cust. Ledger Entry"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -254,7 +255,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     [EventSubscriber(ObjectType::Table, Database::"Cancelled Document", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertCancelledDocument(var Rec: Record "Cancelled Document"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -266,7 +267,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     [EventSubscriber(ObjectType::Table, Database::"Cancelled Document", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifyCancelledDocument(var Rec: Record "Cancelled Document"; var xRec: Record "Cancelled Document"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -278,7 +279,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     [EventSubscriber(ObjectType::Table, Database::"Cancelled Document", 'OnAfterRenameEvent', '', false, false)]
     local procedure OnAfterRenameCancelledDocument(var Rec: Record "Cancelled Document"; var xRec: Record "Cancelled Document"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -291,7 +292,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     [EventSubscriber(ObjectType::Table, Database::"Cancelled Document", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterDeleteCancelledDocument(var Rec: Record "Cancelled Document"; RunTrigger: Boolean)
     begin
-        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if Rec.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(Rec.SystemId) then
@@ -307,7 +308,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         ExistingSalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
         IsRenameAllowed: Boolean;
     begin
-        if SalesCrMemoHeader.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if SalesCrMemoHeader.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if CheckUpdatesDisabled(SalesCrMemoHeader.SystemId) then
@@ -334,7 +335,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
             ExistingSalesCrMemoEntityBuffer.Delete();
         end;
 
-        IsRenameAllowed := SalesCrMemoEntityBuffer.GetIsRenameAllowed;
+        IsRenameAllowed := SalesCrMemoEntityBuffer.GetIsRenameAllowed();
         SalesCrMemoEntityBuffer.SetIsRenameAllowed(true);
         SalesCrMemoEntityBuffer.Rename(SalesCrMemoHeader."No.", true);
         SalesCrMemoEntityBuffer.SetIsRenameAllowed(IsRenameAllowed);
@@ -349,7 +350,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         DocTypeFieldRef: FieldRef;
         NoFieldRef: FieldRef;
     begin
-        if SalesCrMemoEntityBuffer.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if SalesCrMemoEntityBuffer.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if SalesCrMemoEntityBuffer.Posted then
@@ -377,7 +378,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         TargetRecordRef: RecordRef;
         Exists: Boolean;
     begin
-        if SalesCrMemoEntityBuffer.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if SalesCrMemoEntityBuffer.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if SalesCrMemoEntityBuffer.Posted then
@@ -402,7 +403,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         SalesHeader: Record "Sales Header";
     begin
-        if SalesCrMemoEntityBuffer.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if SalesCrMemoEntityBuffer.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if SalesCrMemoEntityBuffer.Posted then begin
@@ -469,7 +470,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         SalesCrMemoEntityBuffer.Posted := false;
         SetStatusOptionFromSalesHeader(SalesHeader, SalesCrMemoEntityBuffer);
         AssignTotalsFromSalesHeader(SalesHeader, SalesCrMemoEntityBuffer);
-        SalesCrMemoEntityBuffer.UpdateReferencedRecordIds;
+        SalesCrMemoEntityBuffer.UpdateReferencedRecordIds();
 
         if RecordExists then
             SalesCrMemoEntityBuffer.Modify(true)
@@ -509,7 +510,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         SalesCrMemoEntityBuffer.Posted := true;
         SetStatusOptionFromSalesCreditMemoHeader(SalesCrMemoHeader, SalesCrMemoEntityBuffer);
         AssignTotalsFromSalesCreditMemoHeader(SalesCrMemoHeader, SalesCrMemoEntityBuffer);
-        SalesCrMemoEntityBuffer.UpdateReferencedRecordIds;
+        SalesCrMemoEntityBuffer.UpdateReferencedRecordIds();
 
         if RecordExists then
             SalesCrMemoEntityBuffer.Modify(true)
@@ -559,7 +560,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     var
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
     begin
-        if not GraphMgtGeneralTools.IsApiEnabled then
+        if not GraphMgtGeneralTools.IsApiEnabled() then
             exit;
 
         SalesCrMemoEntityBuffer.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
@@ -577,7 +578,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     var
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
     begin
-        if not GraphMgtGeneralTools.IsApiEnabled then
+        if not GraphMgtGeneralTools.IsApiEnabled() then
             exit;
 
         case CancelledDocument."Source ID" of
@@ -713,7 +714,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
 
     local procedure CheckValidLineRecord(var SalesLine: Record "Sales Line"): Boolean
     begin
-        if SalesLine.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if SalesLine.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit(false);
 
         if SalesLine."Document Type" <> SalesLine."Document Type"::"Credit Memo" then
@@ -727,7 +728,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
         SalesHeader: Record "Sales Header";
     begin
-        if SalesLine.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled) then
+        if SalesLine.IsTemporary or (not GraphMgtGeneralTools.IsApiEnabled()) then
             exit;
 
         if SalesLine."Document Type" <> SalesLine."Document Type"::"Credit Memo" then
@@ -779,7 +780,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
             SalesCrMemoEntityBuffer.Delete(true);
 
         if SalesCrMemoEntityBuffer.Get(SalesHeader."No.", false) then begin
-            IsRenameAllowed := SalesCrMemoEntityBuffer.GetIsRenameAllowed;
+            IsRenameAllowed := SalesCrMemoEntityBuffer.GetIsRenameAllowed();
             SalesCrMemoEntityBuffer.SetIsRenameAllowed(true);
             SalesCrMemoEntityBuffer.Rename(SalesCrMemoHeader."No.", true);
             SalesCrMemoEntityBuffer.SetIsRenameAllowed(IsRenameAllowed);
@@ -846,7 +847,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
                 SalesInvoiceLineAggregate."Tax Amount" := SalesCrMemoLine."Amount Including VAT" - SalesCrMemoLine."VAT Base Amount";
                 SalesInvoiceLineAggregate."Currency Code" := SalesCrMemoLine.GetCurrencyCode();
                 SalesInvoiceLineAggregate."Prices Including Tax" := SalesCrMemoEntityBuffer."Prices Including VAT";
-                SalesInvoiceLineAggregate.UpdateReferencedRecordIds;
+                SalesInvoiceLineAggregate.UpdateReferencedRecordIds();
                 UpdateLineAmountsFromSalesInvoiceLine(SalesInvoiceLineAggregate, SalesCrMemoLine);
                 SalesInvoiceAggregator.SetItemVariantId(SalesInvoiceLineAggregate, SalesCrMemoLine."No.", SalesCrMemoLine."Variant Code");
                 SalesInvoiceLineAggregate.Insert(true);
@@ -904,7 +905,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
 
         RedistributeCreditMemoDiscounts(SalesCrMemoEntityBuffer);
 
-        SalesLine.Find;
+        SalesLine.Find();
         TransferFromSalesLine(SalesInvoiceLineAggregate, SalesLine, SalesCrMemoEntityBuffer);
     end;
 
@@ -924,7 +925,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
 
         RedistributeCreditMemoDiscounts(SalesCrMemoEntityBuffer);
 
-        SalesLine.Find;
+        SalesLine.Find();
         TransferFromSalesLine(SalesInvoiceLineAggregate, SalesLine, SalesCrMemoEntityBuffer);
     end;
 
@@ -961,7 +962,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
 
 
         SearchSalesCrMemoEntityBuffer.Copy(SalesCrMemoEntityBuffer);
-        if SearchSalesCrMemoEntityBuffer.Next <> 0 then
+        if SearchSalesCrMemoEntityBuffer.Next() <> 0 then
             Error(MultipleDocumentsFoundForIdErr);
 
         if SalesCrMemoEntityBuffer.Posted then
@@ -999,8 +1000,8 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     var
         SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
     begin
-        SalesInvoiceLineAggregate."Line Amount Excluding Tax" := SalesCrMemoLine.GetLineAmountExclVAT;
-        SalesInvoiceLineAggregate."Line Amount Including Tax" := SalesCrMemoLine.GetLineAmountInclVAT;
+        SalesInvoiceLineAggregate."Line Amount Excluding Tax" := SalesCrMemoLine.GetLineAmountExclVAT();
+        SalesInvoiceLineAggregate."Line Amount Including Tax" := SalesCrMemoLine.GetLineAmountInclVAT();
         SalesInvoiceLineAggregate."Line Tax Amount" :=
           SalesInvoiceLineAggregate."Line Amount Including Tax" - SalesInvoiceLineAggregate."Line Amount Excluding Tax";
         SalesInvoiceAggregator.UpdateInvoiceDiscountAmount(SalesInvoiceLineAggregate);

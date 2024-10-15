@@ -16,7 +16,7 @@ codeunit 5377 "Webhook Management"
 
     procedure IsCurrentClientTypeAllowed(): Boolean
     begin
-        exit(not (ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Management, CLIENTTYPE::NAS]));
+        exit(not (ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Management, CLIENTTYPE::NAS]));
     end;
 
     procedure IsSyncAllowed(): Boolean
@@ -25,13 +25,13 @@ codeunit 5377 "Webhook Management"
         CompanyInformationMgt: Codeunit "Company Information Mgt.";
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if not CompanyInformation.Get then
+        if not CompanyInformation.Get() then
             exit(false);
 
-        if not EnvironmentInfo.IsSaaS then
+        if not EnvironmentInfo.IsSaaS() then
             exit(false);
 
-        if CompanyInformationMgt.IsDemoCompany then
+        if CompanyInformationMgt.IsDemoCompany() then
             exit(false);
 
         exit(true);
@@ -70,7 +70,7 @@ codeunit 5377 "Webhook Management"
                 SubscriptionEndpointUri := SubscriptionEndpointUri.Uri(WebhookSubscription.Endpoint);
                 IsSameEndpoint := false;
                 if StartIndex <= 0 then
-                    IsSameEndpoint := (EndpointUri.ToString = SubscriptionEndpointUri.ToString)
+                    IsSameEndpoint := (EndpointUri.ToString() = SubscriptionEndpointUri.ToString())
                 else
                     if (SubscriptionEndpointUri.Scheme = EndpointUri.Scheme) and
                        (SubscriptionEndpointUri.Host = EndpointUri.Host)
@@ -98,7 +98,7 @@ codeunit 5377 "Webhook Management"
                 SubscriptionEndpointUri := SubscriptionEndpointUri.Uri(WebhookSubscription.Endpoint);
                 IsSameEndpoint := false;
                 if StartIndex <= 0 then
-                    IsSameEndpoint := (EndpointUri.ToString = SubscriptionEndpointUri.ToString)
+                    IsSameEndpoint := (EndpointUri.ToString() = SubscriptionEndpointUri.ToString())
                 else
                     if (SubscriptionEndpointUri.Scheme = EndpointUri.Scheme) and
                        (SubscriptionEndpointUri.Host = EndpointUri.Host)

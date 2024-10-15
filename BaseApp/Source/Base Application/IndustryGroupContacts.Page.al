@@ -12,12 +12,12 @@ page 5068 "Industry Group Contacts"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Contact No."; "Contact No.")
+                field("Contact No."; Rec."Contact No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the contact company you are assigning industry groups.';
                 }
-                field("Contact Name"; "Contact Name")
+                field("Contact Name"; Rec."Contact Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDown = false;

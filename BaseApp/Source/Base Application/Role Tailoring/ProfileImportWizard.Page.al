@@ -75,7 +75,7 @@ page 9199 "Profile Import Wizard"
                         ToolTip = 'Specifies the action performed upon import. Each profile from the package will either be added to your list of profiles or will overwrite a profile.';
                         Width = 10;
                     }
-                    field("Profile ID"; "Profile ID")
+                    field("Profile ID"; Rec."Profile ID")
                     {
                         ApplicationArea = All;
                         Editable = false;
@@ -274,7 +274,7 @@ page 9199 "Profile Import Wizard"
 
     local procedure OnInitializeStep()
     var
-        PreviousProfileImport: Record "Profile Import" temporary;
+        TempPreviousProfileImport: Record "Profile Import" temporary;
         DesignerDiagnostic: Record "Designer Diagnostic";
         DiagnosticsNotification: Notification;
         SuccessfullyReadProfilePackage: Boolean;
@@ -283,7 +283,7 @@ page 9199 "Profile Import Wizard"
         if Step <> Step::SelectProfilesToImport then
             exit;
 
-        BackupPreviousProfileImportSelections(PreviousProfileImport);
+        BackupPreviousProfileImportSelections(TempPreviousProfileImport);
 
         // For step 2 we need to import/re-import the profile package and show the new status
         Clear(ProfileHelper); // when importing the same file twice, we need to make sure the file is not locked from previous read
@@ -291,7 +291,7 @@ page 9199 "Profile Import Wizard"
         SuccessfullyReadProfilePackage := ProfileHelper.ReadProfilesFromPackage(TempProfileImport, ImportID);
 
         SetRecords(TempProfileImport);
-        RestorePreviousProfileImportSelections(PreviousProfileImport);
+        RestorePreviousProfileImportSelections(TempPreviousProfileImport);
         CurrPage.Update(false);
 
         if not SuccessfullyReadProfilePackage then begin

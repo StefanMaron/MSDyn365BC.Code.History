@@ -56,7 +56,7 @@ codeunit 139185 "CRM Synch. Notifications"
         Assert.IsTrue(ContactCardPage.ShowLog.Enabled, 'ShowLog action is not enabled.');
         IntegrationSynchJobListPage.Trap;
         ContactCardPage.ShowLog.Invoke;
-        IntegrationSynchJobListPage.Close;
+        IntegrationSynchJobListPage.Close();
         // [THEN] Notification "Err" is not repeated
         VerifyNoNotificationSent;
     end;
@@ -93,7 +93,7 @@ codeunit 139185 "CRM Synch. Notifications"
           Contact[2].RecordId, CRMContact[2].RecordId, ExpectedErrorMsg[2], CurrentDateTime, false);
 
         // [WHEN] Move to Contact "B" in the Card page
-        ContactCardPage.Next;
+        ContactCardPage.Next();
         ContactCardPage."No.".AssertEquals(Contact[2]."No.");
         // [THEN] Notification "ErrB" shown for Contact "B"
         VerifyNotificationMessage(ExpectedErrorMsg[2]);
@@ -276,7 +276,7 @@ codeunit 139185 "CRM Synch. Notifications"
           Currency[2].RecordId, CRMTransactioncurrency[2].RecordId, ExpectedErrorMsg[2], CurrentDateTime, false);
 
         // [WHEN] Move to Currency "B" in the Card page
-        CurrencyCardPage.Next;
+        CurrencyCardPage.Next();
         CurrencyCardPage.Code.AssertEquals(Currency[2].Code);
         // [THEN] Notification: "ErrB"
         VerifyNotificationMessage(ExpectedErrorMsg[2]);
@@ -367,7 +367,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [WHEN] Run "Synchronization Log" action in Customer Card page to trigger refresh
         IntegrationSynchJobListPage.Trap;
         CustomerCardPage.ShowLog.Invoke;
-        IntegrationSynchJobListPage.Close;
+        IntegrationSynchJobListPage.Close();
         // [THEN] Notification "Err" is not repeated
         VerifyNoNotificationSent;
     end;
@@ -404,7 +404,7 @@ codeunit 139185 "CRM Synch. Notifications"
           Customer[2].RecordId, CRMAccount[2].RecordId, ExpectedErrorMsg[2], CurrentDateTime, false);
 
         // [WHEN] Move to Customer "B" in the Card page
-        CustomerCardPage.Next;
+        CustomerCardPage.Next();
         CustomerCardPage."No.".AssertEquals(Customer[2]."No.");
         // [THEN] Notification: "ErrB"
         VerifyNotificationMessage(ExpectedErrorMsg[2]);
@@ -516,7 +516,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [THEN] "Integration Synch. Job List" page open, where are 2 jobs for "CUSTOMER"
         IntegrationSynchJobListPage.First;
         IntegrationSynchJobListPage.Message.AssertEquals(Msg[2]); // latest job goes first due to sorting by datetime
-        IntegrationSynchJobListPage.Next;
+        IntegrationSynchJobListPage.Next();
         IntegrationSynchJobListPage.Message.AssertEquals(Msg[1]);
         Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 2 records in the list.');
         IntegrationSynchJobListPage.Close();
@@ -566,15 +566,15 @@ codeunit 139185 "CRM Synch. Notifications"
         // [THEN] "Integration Synch. Job List" page open, where are 3 jobs for "CUSTOMER", sorted by "Start Date/Time"
         Assert.IsTrue(IntegrationSynchJobListPage.First, 'there should be first job in the list.');
         IntegrationSynchJobListPage.Message.AssertEquals(Msg[3]);
-        IntegrationSynchJobListPage.Next;
+        IntegrationSynchJobListPage.Next();
         IntegrationSynchJobListPage.Message.AssertEquals(Msg[2]);
-        IntegrationSynchJobListPage.Next;
+        IntegrationSynchJobListPage.Next();
         IntegrationSynchJobListPage.Message.AssertEquals(Msg[1]);
         Assert.IsFalse(IntegrationSynchJobListPage.Next, 'there should be three jobs in the list.');
         IntegrationSynchJobListPage.Close();
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -696,7 +696,7 @@ codeunit 139185 "CRM Synch. Notifications"
           Item[2].RecordId, CRMProduct[2].RecordId, ExpectedErrorMsg[2], CurrentDateTime, false);
 
         // [WHEN] Move to Item "B" in the Card page
-        ItemCardPage.Next;
+        ItemCardPage.Next();
         ItemCardPage."No.".AssertEquals(Item[2]."No.");
         // [THEN] Notification: "ErrB"
         VerifyNotificationMessage(ExpectedErrorMsg[2]);
@@ -738,7 +738,7 @@ codeunit 139185 "CRM Synch. Notifications"
         PAGE.Run(PAGE::"Item Card", Item);
 
         // [THEN] No error sync notification (no any notification handlers)
-        ItemCardPage.Close;
+        ItemCardPage.Close();
     end;
 
     [Test]
@@ -771,7 +771,7 @@ codeunit 139185 "CRM Synch. Notifications"
         PAGE.Run(PAGE::"Item Card", Item);
 
         // [THEN] No error sync notification (no any notification handlers)
-        ItemCardPage.Close;
+        ItemCardPage.Close();
     end;
 
     [Test]
@@ -895,7 +895,7 @@ codeunit 139185 "CRM Synch. Notifications"
           Resource[2].RecordId, CRMProduct[2].RecordId, ExpectedErrorMsg[2], CurrentDateTime, false);
 
         // [WHEN] Move to Resource "B" in the Card page
-        ResourceCardPage.Next;
+        ResourceCardPage.Next();
         ResourceCardPage."No.".AssertEquals(Resource[2]."No.");
         // [THEN] Notification: "ErrB"
         VerifyNotificationMessage(ExpectedErrorMsg[2]);
@@ -1027,7 +1027,7 @@ codeunit 139185 "CRM Synch. Notifications"
           SalesInvoiceHeader[2].RecordId, CRMInvoice[2].RecordId, ExpectedErrorMsg[2], CurrentDateTime, false);
 
         // [WHEN] Move to Sales Invoice "B" in the Card page
-        PostedSalesInvoicePage.Next;
+        PostedSalesInvoicePage.Next();
         PostedSalesInvoicePage."No.".AssertEquals(SalesInvoiceHeader[2]."No.");
         // [THEN] Notification: "ErrB"
         VerifyNotificationMessage(ExpectedErrorMsg[2]);
@@ -1162,7 +1162,7 @@ codeunit 139185 "CRM Synch. Notifications"
           SalespersonPurchaser[2].RecordId, ExpectedErrorMsg[2], CurrentDateTime, false);
 
         // [WHEN] Move to Salesperson "B" in the Card page
-        SalespersonPurchaserCardPage.Next;
+        SalespersonPurchaserCardPage.Next();
         SalespersonPurchaserCardPage.Code.AssertEquals(SalespersonPurchaser[2].Code);
         // [THEN] Notification: "ErrB"
         VerifyNotificationMessage(ExpectedErrorMsg[2]);
@@ -1393,7 +1393,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Item.RecordId, true, false);
 
         // [THEN] Coupled CRM Product Name is not changed
-        CRMProduct.Find;
+        CRMProduct.Find();
         CRMProduct.TestField(Name, OldName);
 
         // [THEN] CRM Integration Record, where "Last Synch. CRM Job ID" is set, "Last Synch. CRM Result" is 'Failure'
@@ -1433,7 +1433,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, CRMProduct.ProductId, true, false);
 
         // [THEN] Coupled CRM Product Name is not changed
-        Item.Find;
+        Item.Find();
         Item.TestField(Description, OldName);
 
         // [THEN] CRM Integration Record, where "Last Synch. CRM Job ID" is set, "Last Synch. CRM Result" is 'Failure'
@@ -1468,7 +1468,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Item.RecordId, true, false);
 
         // [THEN] Coupled CRM Product Name is set to 'D'
-        CRMProduct.Find;
+        CRMProduct.Find();
         CRMProduct.TestField(Name, Item.Description);
         // [THEN] CRM Integration Record, where "Last Synch. CRM Job ID" is set, "Last Synch. CRM Result" is 'Success'
         // [THEN] Integration Synch. Job, where Modified = 1, Failed = 0, Mapping Name = 'ITEM-PRODUCT',Direction = ToIntegrationTable
@@ -1501,7 +1501,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, CRMProduct.ProductId, true, false);
 
         // [THEN] Coupled Item Description is set to 'D'
-        Item.Find;
+        Item.Find();
         Item.TestField(Description, CRMProduct.Name);
         // [THEN] CRM Integration Record, where "Last Synch. Job ID" is set, "Last Synch. Result" is 'Success'
         // [THEN] Integration Synch. Job, where Modified = 1, Failed = 0, Mapping Name = 'ITEM-PRODUCT',Direction = FromIntegrationTable
@@ -1736,7 +1736,7 @@ codeunit 139185 "CRM Synch. Notifications"
         SalesInvoiceHeader.Insert(true);
 
         CRMInvoice.Init();
-        CRMInvoice.InvoiceId := CreateGuid;
+        CRMInvoice.InvoiceId := CreateGuid();
         CRMInvoice.Insert();
 
         CRMIntegrationRecord.CoupleRecordIdToCRMID(SalesInvoiceHeader.RecordId, CRMInvoice.InvoiceId);
@@ -1756,6 +1756,8 @@ codeunit 139185 "CRM Synch. Notifications"
         CDSConnectionSetup.SetClientSecret('ClientSecret');
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
+        CRMConnectionSetup."Unit Group Mapping Enabled" := false;
+        CRMConnectionSetup.Modify();
         CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
     end;

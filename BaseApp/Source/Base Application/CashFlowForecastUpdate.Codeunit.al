@@ -14,11 +14,11 @@ codeunit 842 "Cash Flow Forecast Update"
         then
             exit;
 
-        RemoveScheduledTaskIfUserInactive;
+        RemoveScheduledTaskIfUserInactive();
 
-        OriginalWorkDate := WorkDate;
-        WorkDate := LogInManagement.GetDefaultWorkDate;
-        if CashFlowSetup.Get then
+        OriginalWorkDate := WorkDate();
+        WorkDate := LogInManagement.GetDefaultWorkDate();
+        if CashFlowSetup.Get() then
             CashFlowManagement.UpdateCashFlowForecast(CashFlowSetup."Azure AI Enabled");
         WorkDate := OriginalWorkDate;
     end;

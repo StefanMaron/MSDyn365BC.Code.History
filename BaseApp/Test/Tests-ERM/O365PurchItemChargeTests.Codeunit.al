@@ -262,7 +262,7 @@
     begin
         // [FEATURE] [Copy Document]
         // [SCENARIO 438887] System should not allow remove of posted receipt if any receit lines applied to purchase order lines as item charge
-        // Not used for CA
+        // Test not used for CA
     end;
 
     local procedure Initialize()

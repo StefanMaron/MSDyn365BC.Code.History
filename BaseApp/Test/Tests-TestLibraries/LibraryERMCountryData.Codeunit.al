@@ -308,8 +308,8 @@ codeunit 131305 "Library - ERM Country Data"
                 else
                     VATCalculationType := VATPostingSetup."VAT Calculation Type"::"Normal VAT"; // Normal VAT is used for other VAT Business Posting Group and 0%.
                 CreateVATPostingSetup(VATCalculationType, VATBusPostingGroup.Code, VATProdPostingGroup.Code, VATPerc);
-            until VATBusPostingGroup.Next = 0
-        until VATProdPostingGroup.Next = 0;
+            until VATBusPostingGroup.Next() = 0
+        until VATProdPostingGroup.Next() = 0;
     end;
 
     local procedure CreateVATPostingSetup(VATCalculationType: Option; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; VATRate: Integer)
@@ -407,7 +407,7 @@ codeunit 131305 "Library - ERM Country Data"
                 GenBusPostingGroup."Def. VAT Bus. Posting Group" := DefVATBusPostingGroup; // Skip OnValidate trigger which has UI confirmation dialog.
                 GenBusPostingGroup.Modify(true);
                 UpdateVATBusPostingGroup(GenBusPostingGroup.Code, DefVATBusPostingGroup);
-            until GenBusPostingGroup.Next = 0;
+            until GenBusPostingGroup.Next() = 0;
     end;
 
     local procedure UpdateVATBusPostingGroup(GenBusPostingGroup: Code[20]; VATBusPostingGroup: Code[20])
@@ -463,7 +463,7 @@ codeunit 131305 "Library - ERM Country Data"
                     UpdateVATProdPostingGroup(GenProdPostingGroup.Code, DefVATProdPostingGroup);
                     GenProdPostingGroup.Modify(true);
                 end;
-            until GenProdPostingGroup.Next = 0;
+            until GenProdPostingGroup.Next() = 0;
     end;
 
     local procedure UpdateVATProdPostingGroup(GenProdPostingGroup: Code[20]; VATProdPostingGroup: Code[20])
@@ -548,8 +548,8 @@ codeunit 131305 "Library - ERM Country Data"
                     GeneralPostingSetup.Validate("Inventory Adjmt. Account", GeneralPostingSetup."Overhead Applied Account");
                     GeneralPostingSetup.Modify(true);
                 end;
-            until GeneralProductPostingGroup.Next = 0;
-        until GeneralBusinessPostingGroup.Next = 0;
+            until GeneralProductPostingGroup.Next() = 0;
+        until GeneralBusinessPostingGroup.Next() = 0;
     end;
 
     local procedure UpdateAccountsInGeneralPostingSetup()
@@ -565,7 +565,7 @@ codeunit 131305 "Library - ERM Country Data"
                 if GeneralPostingSetup."COGS Account" = '' then
                     GeneralPostingSetup.Validate("COGS Account", CreateGLAccount);
                 GeneralPostingSetup.Modify(true);
-            until GeneralPostingSetup.Next = 0;
+            until GeneralPostingSetup.Next() = 0;
     end;
 }
 

@@ -404,7 +404,7 @@ codeunit 142061 "ERM Misc. Report II"
         Initialize();
         Amount := LibraryRandom.RandDec(100, 2);  // Taken random Amount.
         CurrencyCode := CreateCurrency;
-        CustomerAccountDetailReport(CurrencyCode, false, Amount, LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate));
+        CustomerAccountDetailReport(CurrencyCode, false, Amount, LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate()));
     end;
 
     [Test]
@@ -843,7 +843,7 @@ codeunit 142061 "ERM Misc. Report II"
         Initialize();
         CurrencyCode := CreateCurrency;
         UnitPrice := LibraryRandom.RandDec(10, 2);  // Taken random for Unit Price.
-        OutStandingSalesOrderAgingReport(CurrencyCode, UnitPrice, false, LibraryERM.ConvertCurrency(UnitPrice, CurrencyCode, '', WorkDate));
+        OutStandingSalesOrderAgingReport(CurrencyCode, UnitPrice, false, LibraryERM.ConvertCurrency(UnitPrice, CurrencyCode, '', WorkDate()));
     end;
 
     [Test]
@@ -890,7 +890,7 @@ codeunit 142061 "ERM Misc. Report II"
         Initialize();
         CurrencyCode := CreateCurrency;
         UnitPrice := LibraryRandom.RandDec(10, 2);  // Taken random for Unit Price.
-        OutStandingSalesOrderStatusReport(CurrencyCode, UnitPrice, false, LibraryERM.ConvertCurrency(UnitPrice, CurrencyCode, '', WorkDate));
+        OutStandingSalesOrderStatusReport(CurrencyCode, UnitPrice, false, LibraryERM.ConvertCurrency(UnitPrice, CurrencyCode, '', WorkDate()));
     end;
 
     [Test]
@@ -1645,7 +1645,7 @@ codeunit 142061 "ERM Misc. Report II"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         with CustLedgerEntry do begin
-            Reset;
+            Reset();
             SetRange("Customer No.", CustomerNo);
             FindLast();
             CalcFields("Remaining Amount");
@@ -1661,7 +1661,7 @@ codeunit 142061 "ERM Misc. Report II"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         with VendorLedgerEntry do begin
-            Reset;
+            Reset();
             SetRange("Vendor No.", VendorNo);
             FindLast();
             CalcFields("Remaining Amount");
@@ -1766,8 +1766,8 @@ codeunit 142061 "ERM Misc. Report II"
         LibraryPlanning.GetSalesOrders(SalesLine, RequisitionLine, RetrieveDimensionsFrom::Item);
         FindAndModifyRequisitionLine(RequisitionLine, RequisitionWkshName.Name, VendorNo);
         PurchasesPayablesSetup.Get();
-        OrderNo := NoSeriesManagement.GetNextNo(PurchasesPayablesSetup."Order Nos.", WorkDate, false);
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        OrderNo := NoSeriesManagement.GetNextNo(PurchasesPayablesSetup."Order Nos.", WorkDate(), false);
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
     end;
 
     local procedure ModifySalesHeader(var SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalespersonCode: Code[20])
@@ -1872,7 +1872,7 @@ codeunit 142061 "ERM Misc. Report II"
         ExpLogInteraction: Boolean;
     begin
         InteractionLogEntry.SetRange("Document No.", DocumentNo);
-        ExpLogInteraction := InteractionLogEntry.IsEmpty;
+        ExpLogInteraction := InteractionLogEntry.IsEmpty();
         Assert.AreEqual(ExpLogInteraction, ActualLogInteraction, ValueMustMatch)
     end;
 
@@ -1901,7 +1901,7 @@ codeunit 142061 "ERM Misc. Report II"
         CustomerAccountDetail.OnlyOnePerPage.SetValue(NewPagePerAccount);  // Setting value for NewPagePerAccount.
         CustomerAccountDetail.AllHavingBalance.SetValue(AccWithBalanceOnly);  // Setting value for AccWithBalanceOnly.
         CustomerAccountDetail.Customer.SetFilter("No.", No);
-        CustomerAccountDetail.Customer.SetFilter("Date Filter", Format(WorkDate));
+        CustomerAccountDetail.Customer.SetFilter("Date Filter", Format(WorkDate()));
         CustomerAccountDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 

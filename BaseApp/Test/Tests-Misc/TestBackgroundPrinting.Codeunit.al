@@ -224,7 +224,7 @@ codeunit 139030 "Test Background Printing"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         with JobQueueEntry do begin
-            Init;
+            Init();
             "Object Type to Run" := ObjectType;
             "Report Output Type" := ReportOutputType;
             Assert.AreEqual(Expected, IsToReportInbox, WrongToReportInboxValErr);

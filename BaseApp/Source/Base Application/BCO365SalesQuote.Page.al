@@ -1,12 +1,15 @@
+#if not CLEAN21
 page 2341 "BC O365 Sales Quote"
 {
     Caption = 'Estimate';
     DataCaptionExpression = '';
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Manage';
     RefreshOnActivate = true;
     SourceTable = "Sales Header";
     SourceTableView = WHERE("Document Type" = CONST(Quote));
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -16,9 +19,9 @@ page 2341 "BC O365 Sales Quote"
             {
                 Caption = 'Sell to';
                 Visible = NOT IsDevice;
-                field("Sell-to Customer Name"; "Sell-to Customer Name")
+                field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Customer Name';
                     Importance = Promoted;
                     LookupPageID = "BC O365 Contact Lookup";
@@ -36,7 +39,7 @@ page 2341 "BC O365 Sales Quote"
                 }
                 field(CustomerEmail; CustomerEmail)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Email Address';
                     Editable = CurrPageEditable AND (CustomerName <> '');
                     ExtendedDatatype = EMail;
@@ -51,9 +54,9 @@ page 2341 "BC O365 Sales Quote"
                 {
                     ShowCaption = false;
                     Visible = FieldsVisible;
-                    field("Quote Accepted"; "Quote Accepted")
+                    field("Quote Accepted"; Rec."Quote Accepted")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Customer accepted';
                         Editable = CurrPageEditable AND (CustomerName <> '');
                         ToolTip = 'Specifies whether the customer has accepted the quote or not.';
@@ -64,7 +67,7 @@ page 2341 "BC O365 Sales Quote"
                     ShowCaption = false;
                     field(ViewContactCard; ViewContactDetailsLbl)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Editable = false;
                         Enabled = CustomerName <> '';
                         ShowCaption = false;
@@ -78,9 +81,9 @@ page 2341 "BC O365 Sales Quote"
                 group(Control58)
                 {
                     ShowCaption = false;
-                    field("Sell-to Address"; "Sell-to Address")
+                    field("Sell-to Address"; Rec."Sell-to Address")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Address';
                         Editable = CustomerName <> '';
                         ToolTip = 'Specifies the address where the customer is located.';
@@ -91,9 +94,9 @@ page 2341 "BC O365 Sales Quote"
                             O365SalesInvoiceMgmt.UpdateAddress(Rec, FullAddress, CountryRegionCode);
                         end;
                     }
-                    field("Sell-to Address 2"; "Sell-to Address 2")
+                    field("Sell-to Address 2"; Rec."Sell-to Address 2")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Address 2';
                         Editable = CustomerName <> '';
                         ToolTip = 'Specifies additional address information.';
@@ -104,9 +107,9 @@ page 2341 "BC O365 Sales Quote"
                             O365SalesInvoiceMgmt.UpdateAddress(Rec, FullAddress, CountryRegionCode);
                         end;
                     }
-                    field("Sell-to City"; "Sell-to City")
+                    field("Sell-to City"; Rec."Sell-to City")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'City';
                         Editable = CustomerName <> '';
                         Lookup = false;
@@ -118,9 +121,9 @@ page 2341 "BC O365 Sales Quote"
                             O365SalesInvoiceMgmt.UpdateAddress(Rec, FullAddress, CountryRegionCode);
                         end;
                     }
-                    field("Sell-to Post Code"; "Sell-to Post Code")
+                    field("Sell-to Post Code"; Rec."Sell-to Post Code")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Post Code';
                         Editable = CustomerName <> '';
                         Lookup = false;
@@ -132,9 +135,9 @@ page 2341 "BC O365 Sales Quote"
                             O365SalesInvoiceMgmt.UpdateAddress(Rec, FullAddress, CountryRegionCode);
                         end;
                     }
-                    field("Sell-to County"; "Sell-to County")
+                    field("Sell-to County"; Rec."Sell-to County")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'County';
                         Editable = CustomerName <> '';
                         Lookup = false;
@@ -148,7 +151,7 @@ page 2341 "BC O365 Sales Quote"
                     }
                     field(CountryRegionCode; CountryRegionCode)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Country/Region Code';
                         Editable = CurrPageEditable AND (CustomerName <> '');
                         Lookup = true;
@@ -172,7 +175,7 @@ page 2341 "BC O365 Sales Quote"
                 Visible = IsDevice AND NOT FieldsVisible;
                 field(EnterNewSellToCustomerName; "Sell-to Customer Name")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Add new customer';
                     Importance = Promoted;
                     Lookup = false;
@@ -195,7 +198,7 @@ page 2341 "BC O365 Sales Quote"
                     Caption = 'Or';
                     field(PickExistingCustomer; PickExistingCustomerLbl)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Editable = false;
                         LookupPageID = "BC O365 Contact Lookup";
                         QuickEntry = false;
@@ -215,7 +218,7 @@ page 2341 "BC O365 Sales Quote"
                 Visible = IsDevice AND FieldsVisible;
                 field(PhoneSellToCustomerName; "Sell-to Customer Name")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Customer Name';
                     Importance = Promoted;
                     LookupPageID = "BC O365 Contact Lookup";
@@ -240,7 +243,7 @@ page 2341 "BC O365 Sales Quote"
                 }
                 field(PhoneCustomerEmail; CustomerEmail)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Email Address';
                     Editable = CurrPageEditable AND (CustomerName <> '');
                     ExtendedDatatype = EMail;
@@ -253,14 +256,14 @@ page 2341 "BC O365 Sales Quote"
                 }
                 field(PhoneQuoteAccepted; "Quote Accepted")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Customer accepted';
                     Editable = CurrPageEditable AND (CustomerName <> '');
                     ToolTip = 'Specifies whether the customer has accepted the quote or not.';
                 }
                 field(FullAddress; FullAddress)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Address';
                     Editable = false;
                     ToolTip = 'Specifies the address of the customer.';
@@ -274,11 +277,11 @@ page 2341 "BC O365 Sales Quote"
                         if CustomerName = '' then
                             exit;
 
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         Commit();
                         TempStandardAddress.CopyFromSalesHeaderSellTo(Rec);
                         if PAGE.RunModal(PAGE::"O365 Address", TempStandardAddress) = ACTION::LookupOK then begin
-                            Find;
+                            Find();
                             O365SalesInvoiceMgmt.UpdateAddress(Rec, FullAddress, CountryRegionCode);
                             // UpdateAddress changes Bill-To address without MODIFYing: make sure the next line is either MODIFY or CurrPage.UPDATE(TRUE);
                             CurrPage.Update(true);
@@ -292,33 +295,33 @@ page 2341 "BC O365 Sales Quote"
                 Visible = FieldsVisible;
                 field(EstimateNoControl; "No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Estimate No.';
                     Editable = false;
                     ToolTip = 'Specifies the number of the estimate.';
                 }
-                field("Quote Valid Until Date"; "Quote Valid Until Date")
+                field("Quote Valid Until Date"; Rec."Quote Valid Until Date")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Valid until';
                     Editable = CustomerName <> '';
                     ToolTip = 'Specifies how long the quote is valid.';
                 }
-                field("Quote Sent to Customer"; "Quote Sent to Customer")
+                field("Quote Sent to Customer"; Rec."Quote Sent to Customer")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Sent';
                     ToolTip = 'Specifies date and time of when the quote was sent to the customer.';
                 }
-                field("Quote Accepted Date"; "Quote Accepted Date")
+                field("Quote Accepted Date"; Rec."Quote Accepted Date")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Accepted on';
                     ToolTip = 'Specifies when the client accepted the quote.';
                 }
-                field("Tax Liable"; "Tax Liable")
+                field("Tax Liable"; Rec."Tax Liable")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Customer is tax liable';
                     Editable = CustomerName <> '';
                     ToolTip = 'Specifies if the sales invoice contains sales tax.';
@@ -331,7 +334,7 @@ page 2341 "BC O365 Sales Quote"
                 }
                 field(TaxAreaDescription; TaxAreaDescription)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Customer tax rate';
                     Editable = false;
                     Enabled = CustomerName <> '';
@@ -365,22 +368,22 @@ page 2341 "BC O365 Sales Quote"
                 }
                 field(TotalTaxRate; TotalTaxRate)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Tax %';
                     Editable = false;
                     Enabled = CustomerName <> '';
                     Visible = IsCanada;
                 }
-                field("VAT Registration No."; "VAT Registration No.")
+                field("VAT Registration No."; Rec."VAT Registration No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = (IsUsingVAT AND IsCompanyContact);
                     Visible = IsUsingVAT;
                 }
             }
             part(Lines; "BC O365 Sales Inv. Line Subp.")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Line Items';
                 Editable = CustomerName <> '';
                 Enabled = CustomerName <> '';
@@ -397,7 +400,7 @@ page 2341 "BC O365 Sales Quote"
                     ShowCaption = false;
                     field(Amount; Amount)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = CurrencyFormat;
                         AutoFormatType = 11;
                         Caption = 'Net Total';
@@ -407,7 +410,7 @@ page 2341 "BC O365 Sales Quote"
                     }
                     field(AmountInclVAT; "Amount Including VAT")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = CurrencyFormat;
                         AutoFormatType = 11;
                         Caption = 'Total Including VAT';
@@ -420,7 +423,7 @@ page 2341 "BC O365 Sales Quote"
                     }
                     field(DiscountLink; DiscountTxt)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         DrillDown = true;
                         Editable = false;
                         Enabled = CustomerName <> '';
@@ -444,7 +447,7 @@ page 2341 "BC O365 Sales Quote"
                     ShowCaption = false;
                     field(SubTotalAmount; SubTotalAmount)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = CurrencyFormat;
                         AutoFormatType = 11;
                         Caption = 'Subtotal';
@@ -453,10 +456,10 @@ page 2341 "BC O365 Sales Quote"
                     }
                     field(InvoiceDiscount; -InvoiceDiscountAmount)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = CurrencyFormat;
                         AutoFormatType = 11;
-                        CaptionClass = GetInvDiscountCaption;
+                        CaptionClass = GetInvDiscountCaption();
                         Caption = 'Invoice Discount';
                         Editable = false;
                         Importance = Promoted;
@@ -470,7 +473,7 @@ page 2341 "BC O365 Sales Quote"
                     }
                     field(Amount2; Amount)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = CurrencyFormat;
                         AutoFormatType = 11;
                         Caption = 'Net Total';
@@ -480,7 +483,7 @@ page 2341 "BC O365 Sales Quote"
                     }
                     field(AmountInclVAT2; "Amount Including VAT")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = CurrencyFormat;
                         AutoFormatType = 11;
                         Caption = 'Total Including VAT';
@@ -502,7 +505,7 @@ page 2341 "BC O365 Sales Quote"
                     ShowCaption = false;
                     field(WorkDescription; WorkDescription)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Note for customer';
                         Editable = CurrPageEditable AND (CustomerName <> '');
                         MultiLine = true;
@@ -515,7 +518,7 @@ page 2341 "BC O365 Sales Quote"
                     }
                     field(NoOfAttachmentsValueTxt; NoOfAttachmentsValueTxt)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         DrillDown = true;
                         Editable = false;
                         Enabled = CustomerName <> '';
@@ -535,7 +538,7 @@ page 2341 "BC O365 Sales Quote"
         {
             part(CustomerStatisticsFactBox; "BC O365 Cust. Stats FactBox")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Customer statistics';
                 SubPageLink = "No." = FIELD("Sell-to Customer No.");
             }
@@ -548,14 +551,10 @@ page 2341 "BC O365 Sales Quote"
         {
             action(ViewPdf)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Preview';
                 Enabled = "Sell-to Customer Name" <> '';
                 Image = Document;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Show a preview of the estimate before you send it.';
                 Visible = NOT IsCustomerBlocked;
 
@@ -564,51 +563,43 @@ page 2341 "BC O365 Sales Quote"
                     ReportSelections: Record "Report Selections";
                     DocumentPath: Text[250];
                 begin
-                    SetRecFilter;
+                    SetRecFilter();
                     LockTable();
-                    Find;
+                    Find();
                     ReportSelections.GetPdfReportForCust(DocumentPath, ReportSelections.Usage::"S.Quote", Rec, "Sell-to Customer No.");
                     Download(DocumentPath, '', '', '', DocumentPath);
-                    Find;
+                    Find();
                 end;
             }
             action(EmailQuote)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Send';
                 Enabled = "Sell-to Customer Name" <> '';
                 Gesture = LeftSwipe;
                 Image = SendTo;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Send the estimate.';
                 Visible = NOT IsCustomerBlocked;
 
                 trigger OnAction()
                 begin
-                    SetRecFilter;
+                    SetRecFilter();
 
                     if not O365SendResendInvoice.SendSalesInvoiceOrQuoteFromBC(Rec) then
                         exit;
 
-                    Find;
+                    Find();
                     CurrPage.Update();
                     ForceExit := true;
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
             action(MakeToInvoice)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Make invoice';
                 Enabled = "Sell-to Customer Name" <> '';
                 Image = MakeOrder;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Make invoice out of the estimate.';
                 Visible = NOT IsCustomerBlocked;
 
@@ -621,10 +612,31 @@ page 2341 "BC O365 Sales Quote"
 
                     ForceExit := true;
 
-                    SalesHeader.SetRecFilter;
+                    SalesHeader.SetRecFilter();
                     PAGE.Run(PAGE::"BC O365 Sales Invoice", SalesHeader);
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Manage', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(ViewPdf_Promoted; ViewPdf)
+                {
+                }
+                actionref(EmailQuote_Promoted; EmailQuote)
+                {
+                }
+                actionref(MakeToInvoice_Promoted; MakeToInvoice)
+                {
+                }
             }
         }
     }
@@ -635,14 +647,14 @@ page 2341 "BC O365 Sales Quote"
     begin
         // Tasks shared with invoices (PAG2310)
         O365SalesInvoiceMgmt.OnAfterGetSalesHeaderRecordFullLengthTaxAreaDesc(Rec, CurrencyFormat, TaxAreaDescription, NoOfAttachmentsValueTxt, WorkDescription);
-        GetTotalTaxRate;
+        GetTotalTaxRate();
         O365SalesInvoiceMgmt.NotifyTaxSetupNeeded(Rec);
         CurrPageEditable := CurrPage.Editable;
 
         O365SalesInvoiceMgmt.UpdateCustomerFields(Rec, CustomerName, CustomerEmail, IsCompanyContact);
         O365SalesInvoiceMgmt.UpdateAddress(Rec, FullAddress, CountryRegionCode);
 
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone then
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone then
             FieldsVisible := CustomerName <> '';
 
         O365SalesInvoiceMgmt.CalcInvoiceDiscountAmount(Rec, SubTotalAmount, DiscountTxt, InvoiceDiscountAmount, InvDiscAmountVisible);
@@ -652,8 +664,8 @@ page 2341 "BC O365 Sales Quote"
             O365SalesInvoiceMgmt.SendCustomerHasBeenBlockedNotification("Sell-to Customer Name");
 
         // Estimate specific tasks
-        if ("Sell-to Customer No." = '') and ("Quote Valid Until Date" < WorkDate) then
-            "Quote Valid Until Date" := WorkDate + 30;
+        if ("Sell-to Customer No." = '') and ("Quote Valid Until Date" < WorkDate()) then
+            "Quote Valid Until Date" := WorkDate() + 30;
 
         O365DocumentSendMgt.ShowSalesHeaderFailedNotification(Rec);
     end;
@@ -663,8 +675,8 @@ page 2341 "BC O365 Sales Quote"
         CustInvoiceDisc: Record "Cust. Invoice Disc.";
     begin
         ForceExit := true;
-        if not Find then begin
-            CurrPage.Close;
+        if not Find() then begin
+            CurrPage.Close();
             exit(false);
         end;
 
@@ -674,9 +686,9 @@ page 2341 "BC O365 Sales Quote"
 
     trigger OnInit()
     begin
-        IsDevice := ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone];
-        IsCanada := O365SalesInvoiceMgmt.IsCountryCanada;
-        IsUsingVAT := O365SalesInitialSetup.IsUsingVAT;
+        IsCanada := O365SalesInvoiceMgmt.IsCountryCanada();
+        IsUsingVAT := O365SalesInitialSetup.IsUsingVAT();
+        IsDevice := ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone];
         FieldsVisible := true;
     end;
 
@@ -693,7 +705,7 @@ page 2341 "BC O365 Sales Quote"
         WorkDescription := '';
         IsNew := true;
 
-        SetDefaultPaymentServices;
+        SetDefaultPaymentServices();
     end;
 
     trigger OnNextRecord(Steps: Integer): Integer
@@ -735,7 +747,6 @@ page 2341 "BC O365 Sales Quote"
         SubTotalAmount: Decimal;
         DiscountTxt: Text;
         NoOfAttachmentsValueTxt: Text;
-        CurrencyFormat: Text;
         ViewContactDetailsLbl: Label 'Open contact details';
         TaxAreaDescription: Text[100];
         TotalTaxRate: Text;
@@ -746,6 +757,9 @@ page 2341 "BC O365 Sales Quote"
         IsDevice: Boolean;
         FieldsVisible: Boolean;
         PickExistingCustomerLbl: Label 'Choose existing customer';
+
+    protected var
+        CurrencyFormat: Text;
 
     procedure SuppressExitPrompt()
     begin
@@ -767,3 +781,4 @@ page 2341 "BC O365 Sales Quote"
         exit(O365SalesInvoiceMgmt.GetInvoiceDiscountCaption(Round("Invoice Discount Value", 0.1)));
     end;
 }
+#endif

@@ -17,13 +17,13 @@ page 6007 "Res. Availability Lines (SM)"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Period Start"; "Period Start")
+                field("Period Start"; Rec."Period Start")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period Start';
                     ToolTip = 'Specifies a series of dates according to the selected time interval.';
                 }
-                field("Period Name"; "Period Name")
+                field("Period Name"; Rec."Period Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period Name';
@@ -51,7 +51,7 @@ page 6007 "Res. Availability Lines (SM)"
                         PAGE.RunModal(0, ResCapacityEntry);
                     end;
                 }
-                field("Res.""Qty. on Service Order"""; "Qty. on Service Order")
+                field("Res.""Qty. on Service Order"""; Rec."Qty. on Service Order")
                 {
                     ApplicationArea = Service;
                     Caption = 'Qty. on Service Order';

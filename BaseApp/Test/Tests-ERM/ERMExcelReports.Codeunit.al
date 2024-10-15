@@ -247,7 +247,7 @@ codeunit 134999 "ERM Excel Reports"
     begin
         with Customer do begin
             "No." := LibraryUTUtility.GetNewCode;
-            Insert;
+            Insert();
             exit("No.");
         end;
     end;
@@ -282,7 +282,7 @@ codeunit 134999 "ERM Excel Reports"
         CurrencyResult: Text[30];
     begin
         // The following function copies functionality from cod342 (Currency CaptionClass Mgmt)
-        if not GLSetup.Get then
+        if not GLSetup.Get() then
             exit(TotalLCYCap);
 
         if GLSetup."LCY Code" = '' then

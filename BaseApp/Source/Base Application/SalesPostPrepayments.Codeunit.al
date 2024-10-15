@@ -18,7 +18,6 @@
         GLSetup: Record "General Ledger Setup";
         SalesSetup: Record "Sales & Receivables Setup";
         GenPostingSetup: Record "General Posting Setup";
-        Text001: Label 'There is nothing to post.';
         Text002: Label 'Posting Prepayment Lines   #2######\';
         Text003: Label '%1 %2 -> Invoice %3';
         Text004: Label 'Posting sales and VAT      #3######\';
@@ -31,6 +30,7 @@
         TempSalesLine: Record "Sales Line" temporary;
         GenJournalTemplate: Record "Gen. Journal Template";
         ErrorMessageMgt: Codeunit "Error Message Management";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         Text011: Label '%1 %2 -> Credit Memo %3';
         Text012: Label 'Prepayment %1, %2 %3.';
@@ -134,7 +134,7 @@
         OnBeforePostPrepayments(SalesHeader2, DocumentType, SuppressCommit, PreviewMode);
 
         SalesHeader := SalesHeader2;
-        GLSetup.Get();
+        GLSetup.GetRecordOnce();
         SalesSetup.Get();
         with SalesHeader do begin
             CheckPrepmtDoc(SalesHeader, DocumentType);
@@ -142,7 +142,7 @@
             UpdateDocNos(SalesHeader, DocumentType, GenJnlLineDocNo, PostingNoSeriesCode, ModifyHeader);
 
             if not PreviewMode and ModifyHeader then begin
-                Modify;
+                Modify();
                 if not SuppressCommit then
                     Commit();
             end;
@@ -229,12 +229,12 @@
             // G/L Posting
             LineCount := 0;
             if not "Compress Prepayment" then
-                TempPrepmtInvLineBuffer.CompressBuffer;
+                TempPrepmtInvLineBuffer.CompressBuffer();
             TempPrepmtInvLineBuffer.SetRange(Adjustment, false);
             TempPrepmtInvLineBuffer.FindSet(true);
             repeat
                 if DocumentType = DocumentType::Invoice then
-                    TempPrepmtInvLineBuffer.ReverseAmounts;
+                    TempPrepmtInvLineBuffer.ReverseAmounts();
                 RoundAmounts(SalesHeader, TempPrepmtInvLineBuffer, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY);
                 if "Currency Code" = '' then begin
                     AdjustInvLineBuffers(SalesHeader, TempPrepmtInvLineBuffer, TotalPrepmtInvLineBuffer, DocumentType);
@@ -278,19 +278,19 @@
 
             // Update lines & header
             UpdateSalesDocument(SalesHeader, SalesLine, DocumentType, GenJnlLineDocNo);
-            ShouldSetPendingPrepaymentStatus := TestStatusIsNotPendingPrepayment;
+            ShouldSetPendingPrepaymentStatus := TestStatusIsNotPendingPrepayment();
             OnCodeOnAfterCalcShouldSetPendingPrepaymentStatus(SalesHeader, SalesInvHeader, SalesCrMemoHeader, DocumentType, PreviewMode, ShouldSetPendingPrepaymentStatus);
             if ShouldSetPendingPrepaymentStatus then
                 Status := Status::"Pending Prepayment";
-            Modify;
+            Modify();
         end;
 
         OnAfterPostPrepaymentsOnBeforeThrowPreviewModeError(SalesHeader, SalesInvHeader, SalesCrMemoHeader, GenJnlPostLine, PreviewMode);
 
         if PreviewMode then begin
-            Window.Close;
+            Window.Close();
             OnBeforeThrowPreviewError(SalesHeader);
-            GenJnlPostPreview.ThrowError;
+            GenJnlPostPreview.ThrowError();
         end;
 
         SalesHeader2 := SalesHeader;
@@ -374,13 +374,13 @@
                 ErrorMessageMgt.LogContextFieldError(
                   FieldNo("Posting Date"), StrSubstNo(PostingDateNotAllowedErr, FieldCaption("Posting Date")),
                   SetupRecID, ErrorMessageMgt.GetFieldNo(SetupRecID.TableNo, ''),
-                  ForwardLinkMgt.GetHelpCodeForAllowedPostingDate);
+                  ForwardLinkMgt.GetHelpCodeForAllowedPostingDate());
 
             if GLSetup."PAC Environment" <> GLSetup."PAC Environment"::Disabled then
                 TestField("Payment Method Code");
 
             if not CheckOpenPrepaymentLines(SalesHeader, DocumentType) then
-                Error(Text001);
+                Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
             CheckDimensions.CheckSalesPrepmtDim(SalesHeader);
             ErrorMessageMgt.Finish(RecordId);
@@ -520,7 +520,7 @@
                     if not Found then
                         Found := PrepmtAmount(SalesLine, DocumentType, SalesHeader."Prepmt. Include Tax") <> 0;
                     if "Prepmt. Amt. Inv." = 0 then begin
-                        UpdatePrepmtSetupFields;
+                        UpdatePrepmtSetupFields();
                         Modify();
                     end;
                 until Next() = 0;
@@ -728,7 +728,7 @@
            (GenProdPostingGroup <> GenPostingSetup."Gen. Prod. Posting Group")
         then
             GenPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
-        exit(GenPostingSetup.GetSalesPrepmtAccount);
+        exit(GenPostingSetup.GetSalesPrepmtAccount());
     end;
 
     procedure GetCorrBalAccNo(SalesHeader: Record "Sales Header"; PositiveAmount: Boolean): Code[20]
@@ -748,7 +748,7 @@
         GLAcc: Record "G/L Account";
     begin
         CustPostingGr.Get(CustomerPostingGroup);
-        GLAcc.Get(CustPostingGr.GetInvRoundingAccount);
+        GLAcc.Get(CustPostingGr.GetInvRoundingAccount());
         exit(CustPostingGr."Invoice Rounding Account");
     end;
 
@@ -758,8 +758,8 @@
     begin
         Currency.Get(CurrencyCode);
         if PositiveAmount then
-            exit(Currency.GetRealizedGainsAccount);
-        exit(Currency.GetRealizedLossesAccount);
+            exit(Currency.GetRealizedGainsAccount());
+        exit(Currency.GetRealizedLossesAccount());
     end;
 
     local procedure GetCurrencyAmountRoundingPrecision(CurrencyCode: Code[10]): Decimal
@@ -774,7 +774,7 @@
     procedure FillInvLineBuffer(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer")
     begin
         with PrepmtInvLineBuf do begin
-            Init;
+            Init();
             OnBeforeFillInvLineBuffer(PrepmtInvLineBuf, SalesHeader, SalesLine);
             "G/L Account No." := GetPrepmtAccNo(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
 
@@ -806,7 +806,7 @@
         if InitInvoiceRoundingLine(SalesHeader, TotalPrepmtInvLineBuf."Amount Incl. VAT", SalesLine) then begin
             CreateDimensions(SalesLine);
             with PrepmtInvLineBuf do begin
-                Init;
+                Init();
                 "Line No." := PrevLineNo + 10000;
                 "Invoice Rounding" := true;
                 "G/L Account No." := SalesLine."No.";
@@ -828,7 +828,7 @@
         end;
     end;
 
-    local procedure InitInvoiceRoundingLine(SalesHeader: Record "Sales Header"; TotalAmount: Decimal; var SalesLine: Record "Sales Line"): Boolean
+    procedure InitInvoiceRoundingLine(SalesHeader: Record "Sales Header"; TotalAmount: Decimal; var SalesLine: Record "Sales Line"): Boolean
     var
         Currency: Record Currency;
         InvoiceRoundingAmount: Decimal;
@@ -841,7 +841,7 @@
             Round(
               TotalAmount,
               Currency."Invoice Rounding Precision",
-              Currency.InvoiceRoundingDirection),
+              Currency.InvoiceRoundingDirection()),
             Currency."Amount Rounding Precision");
 
         if InvoiceRoundingAmount = 0 then
@@ -983,6 +983,7 @@
         PrepmtAmtToInvTotal: Decimal;
         RemainderExists: Boolean;
     begin
+        GLSetup.GetRecordOnce();
         Currency.Initialize(SalesHeader."Currency Code");
 
         with SalesLine do begin
@@ -1074,7 +1075,7 @@
                             "Prepayment VAT Difference" := Round(VATDifference, Currency."Amount Rounding Precision");
                             "Prepmt. Pmt. Discount Amount" := Round(NewPmtDiscAmount, Currency."Amount Rounding Precision");
                             OnUpdateVATOnLinesOnBeforeSalesLineModify(SalesHeader, SalesLine, TempVATAmountLineRemainder, NewAmount, NewAmountIncludingVAT, NewVATBaseAmount);
-                            Modify;
+                            Modify();
 
                             TempVATAmountLineRemainder."Amount Including VAT" :=
                               NewAmountIncludingVAT - Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision");
@@ -1096,6 +1097,7 @@
         NewAmount: Decimal;
         NewPrepmtVATDiffAmt: Decimal;
     begin
+        GLSetup.GetRecordOnce();
         Currency.Initialize(SalesHeader."Currency Code");
 
         VATAmountLine.DeleteAll();
@@ -1205,16 +1207,16 @@
                         "Prepayment VAT Identifier" := "VAT Identifier";
                         "Prepayment Tax Group Code" := "Tax Group Code";
                         "Prepayment VAT %" := "VAT %";
-                        Insert;
+                        Insert();
                     end;
             end;
         end;
     end;
 
-    local procedure ApplyFilter(SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo",Statistic; var SalesLine: Record "Sales Line")
+    procedure ApplyFilter(SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo",Statistic; var SalesLine: Record "Sales Line")
     begin
         with SalesLine do begin
-            Reset;
+            Reset();
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
             SetFilter(Type, '<>%1', Type::" ");
@@ -1255,7 +1257,7 @@
     begin
         with GenJnlLine do begin
             InitNewLine(
-              SalesHeader."Posting Date", SalesHeader."Document Date", PostingDescription,
+              SalesHeader."Posting Date", SalesHeader."Document Date", SalesHeader."VAT Reporting Date", PostingDescription,
               PrepmtInvLineBuffer."Global Dimension 1 Code", PrepmtInvLineBuffer."Global Dimension 2 Code",
               PrepmtInvLineBuffer."Dimension Set ID", SalesHeader."Reason Code");
 
@@ -1283,7 +1285,7 @@
     begin
         with GenJnlLine do begin
             InitNewLine(
-              SalesHeader."Posting Date", SalesHeader."Document Date", PostingDescription,
+              SalesHeader."Posting Date", SalesHeader."Document Date", SalesHeader."VAT Reporting Date", PostingDescription,
               SalesHeader."Shortcut Dimension 1 Code", SalesHeader."Shortcut Dimension 2 Code",
               SalesHeader."Dimension Set ID", SalesHeader."Reason Code");
 
@@ -1317,7 +1319,7 @@
     begin
         with GenJnlLine do begin
             InitNewLine(
-              SalesHeader."Posting Date", SalesHeader."Document Date", PostingDescription,
+              SalesHeader."Posting Date", SalesHeader."Document Date", SalesHeader."VAT Reporting Date", PostingDescription,
               SalesHeader."Shortcut Dimension 1 Code", SalesHeader."Shortcut Dimension 2 Code",
               SalesHeader."Dimension Set ID", SalesHeader."Reason Code");
 
@@ -1406,7 +1408,7 @@
                     else
                         Validate("Prepmt. Line Amount", NewTotalPrepmtAmount - TotalPrepmtAmount);
                     TotalPrepmtAmount := TotalPrepmtAmount + "Prepmt. Line Amount";
-                    Modify;
+                    Modify();
                 until Next() = 0;
         end;
     end;
@@ -1481,7 +1483,7 @@
                     "Prepayment VAT %" := 0;
                     OnBeforeUpdateSalesTaxOnLines(SalesLine, ValidTaxAreaCode, SuppressCommit);
                     if not ValidTaxAreaCode then
-                        Modify;
+                        Modify();
                 until Next() = 0;
         end;
     end;
@@ -1502,7 +1504,7 @@
                         if SalesLine."Prepmt. Line Amount" <> SalesLine."Prepmt. Amt. Inv." then begin
                             SalesLine."Prepmt. Amt. Inv." := SalesLine."Prepmt. Line Amount";
                             SalesLine."Prepmt. Amount Inv. Incl. VAT" := SalesLine."Prepmt. Amt. Incl. VAT";
-                            SalesLine.CalcPrepaymentToDeduct;
+                            SalesLine.CalcPrepaymentToDeduct();
                             SalesLine."Prepmt VAT Diff. to Deduct" :=
                               SalesLine."Prepmt VAT Diff. to Deduct" + SalesLine."Prepayment VAT Difference";
                             SalesLine."Prepayment VAT Difference" := 0;
@@ -1741,7 +1743,7 @@
         if SalesHeader."Tax Area Code" = '' then
             exit;
         TaxArea.Get(SalesHeader."Tax Area Code");
-        SalesTaxCalculate.StartSalesTaxCalculation; // clear temp table
+        SalesTaxCalculate.StartSalesTaxCalculation(); // clear temp table
 
         if TaxArea."Use External Tax Engine" then
             SalesTaxCalculate.CallExternalTaxEngineForSales(SalesHeader, true)
@@ -1777,7 +1779,6 @@
         SuppressCommit := NewSuppressCommit;
     end;
 
-    [Scope('OnPrem')]
     procedure SetPreviewMode(NewPreviewMode: Boolean)
     begin
         PreviewMode := NewPreviewMode;

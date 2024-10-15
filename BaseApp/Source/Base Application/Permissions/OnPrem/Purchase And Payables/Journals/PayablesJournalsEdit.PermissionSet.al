@@ -33,6 +33,8 @@ permissionset 8824 "Payables Journals - Edit"
                   tabledata "Data Exch. Field Mapping" = R,
                   tabledata "Data Exch. Line Def" = R,
                   tabledata "Data Exch. Mapping" = R,
+                  tabledata "Data Exch. Field Grouping" = R,
+                  tabledata "Data Exch. FlowField Gr. Buff." = R,
                   tabledata "Data Exchange Type" = Rimd,
                   tabledata "Default Dimension" = R,
                   tabledata "Default Dimension Priority" = R,

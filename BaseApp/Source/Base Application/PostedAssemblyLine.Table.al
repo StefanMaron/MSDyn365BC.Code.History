@@ -195,7 +195,7 @@ table 911 "Posted Assembly Line"
     var
         DimMgt: Codeunit DimensionManagement;
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Document No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Document No."));
     end;
 
     procedure ShowItemTrackingLines()

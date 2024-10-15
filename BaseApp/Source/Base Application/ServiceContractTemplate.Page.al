@@ -11,7 +11,7 @@ page 6055 "Service Contract Template"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -26,32 +26,32 @@ page 6055 "Service Contract Template"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a description of the service contract.';
                 }
-                field("Contract Group Code"; "Contract Group Code")
+                field("Contract Group Code"; Rec."Contract Group Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the contract group code of the service contract.';
                 }
-                field("Service Order Type"; "Service Order Type")
+                field("Service Order Type"; Rec."Service Order Type")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service order type assigned to service orders linked to this service contract.';
                 }
-                field("Default Service Period"; "Default Service Period")
+                field("Default Service Period"; Rec."Default Service Period")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the default service period for the items in the contract.';
                 }
-                field("Price Update Period"; "Price Update Period")
+                field("Price Update Period"; Rec."Price Update Period")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the price update period for this service contract.';
                 }
-                field("Default Response Time (Hours)"; "Default Response Time (Hours)")
+                field("Default Response Time (Hours)"; Rec."Default Response Time (Hours)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the default response time for the service contract created from this service contract template.';
                 }
-                field("Max. Labor Unit Price"; "Max. Labor Unit Price")
+                field("Max. Labor Unit Price"; Rec."Max. Labor Unit Price")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the maximum unit price that can be set for a resource on lines for service orders associated with the service contract.';
@@ -60,17 +60,17 @@ page 6055 "Service Contract Template"
             group(Invoice)
             {
                 Caption = 'Invoice';
-                field("Serv. Contract Acc. Gr. Code"; "Serv. Contract Acc. Gr. Code")
+                field("Serv. Contract Acc. Gr. Code"; Rec."Serv. Contract Acc. Gr. Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code associated with the service contract account group.';
                 }
-                field("Invoice Period"; "Invoice Period")
+                field("Invoice Period"; Rec."Invoice Period")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the invoice period for the service contract.';
                 }
-                field("Price Inv. Increase Code"; "Price Inv. Increase Code")
+                field("Price Inv. Increase Code"; Rec."Price Inv. Increase Code")
                 {
                     ApplicationArea = Service;
                     Caption = 'Contract Increase Text';
@@ -84,30 +84,30 @@ page 6055 "Service Contract Template"
 
                     trigger OnValidate()
                     begin
-                        PrepaidOnAfterValidate;
+                        PrepaidOnAfterValidate();
                     end;
                 }
-                field("Allow Unbalanced Amounts"; "Allow Unbalanced Amounts")
+                field("Allow Unbalanced Amounts"; Rec."Allow Unbalanced Amounts")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies if the contents of the Calcd. Annual Amount field are copied into the Annual Amount field in the service contract or contract quote.';
                 }
-                field("Combine Invoices"; "Combine Invoices")
+                field("Combine Invoices"; Rec."Combine Invoices")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies you want to combine invoices for this service contract with invoices for other service contracts with the same bill-to customer.';
                 }
-                field("Automatic Credit Memos"; "Automatic Credit Memos")
+                field("Automatic Credit Memos"; Rec."Automatic Credit Memos")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that a credit memo is created when you remove a contract line from the service contract under certain conditions.';
                 }
-                field("Contract Lines on Invoice"; "Contract Lines on Invoice")
+                field("Contract Lines on Invoice"; Rec."Contract Lines on Invoice")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies you want contract lines to appear as text on the invoice.';
                 }
-                field("Invoice after Service"; "Invoice after Service")
+                field("Invoice after Service"; Rec."Invoice after Service")
                 {
                     ApplicationArea = Service;
                     Enabled = InvoiceAfterServiceEnable;
@@ -115,7 +115,7 @@ page 6055 "Service Contract Template"
 
                     trigger OnValidate()
                     begin
-                        InvoiceafterServiceOnAfterVali;
+                        InvoiceafterServiceOnAfterVali();
                     end;
                 }
             }
@@ -170,7 +170,7 @@ page 6055 "Service Contract Template"
 
     trigger OnAfterGetCurrRecord()
     begin
-        ActivateFields;
+        ActivateFields();
     end;
 
     trigger OnInit()
@@ -181,7 +181,7 @@ page 6055 "Service Contract Template"
 
     trigger OnOpenPage()
     begin
-        ActivateFields;
+        ActivateFields();
     end;
 
     var
@@ -198,12 +198,12 @@ page 6055 "Service Contract Template"
 
     local procedure InvoiceafterServiceOnAfterVali()
     begin
-        ActivateFields;
+        ActivateFields();
     end;
 
     local procedure PrepaidOnAfterValidate()
     begin
-        ActivateFields;
+        ActivateFields();
     end;
 }
 

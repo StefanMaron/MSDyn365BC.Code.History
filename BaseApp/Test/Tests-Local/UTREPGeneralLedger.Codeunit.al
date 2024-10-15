@@ -81,7 +81,7 @@ codeunit 141012 "UT REP General Ledger"
 
         // Verify: Verify Subtitle and GIFI Code is updated on Report Account Balances by GIFI Code.
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('Subtitle', StrSubstNo(SubTitleFilterTxt, 'As Of', WorkDate));
+        LibraryReportDataset.AssertElementWithValueExists('Subtitle', StrSubstNo(SubTitleFilterTxt, 'As Of', WorkDate()));
         LibraryReportDataset.AssertElementWithValueExists('GIFICode_GLAccount', GLAccount."GIFI Code");
     end;
 
@@ -108,7 +108,7 @@ codeunit 141012 "UT REP General Ledger"
 
         // Setup: Test to verify Actual Error Code: Please enter the ending date for the consolidation period.
         Initialize();
-        OnPreReportConsolidationDateConsolidatedTrialBalance(REPORT::"Consolidated Trial Balance", WorkDate);  // Starting Date - WORKDATE.
+        OnPreReportConsolidationDateConsolidatedTrialBalance(REPORT::"Consolidated Trial Balance", WorkDate());  // Starting Date - WORKDATE.
     end;
 
     [Test]
@@ -134,7 +134,7 @@ codeunit 141012 "UT REP General Ledger"
 
         // Setup: Test to verify Actual Error Code: Please enter the ending date for the consolidation period.
         Initialize();
-        OnPreReportConsolidationDateConsolidatedTrialBalance(REPORT::"Consolidated Trial Balance (4)", WorkDate);  // Starting Date - WORKDATE.
+        OnPreReportConsolidationDateConsolidatedTrialBalance(REPORT::"Consolidated Trial Balance (4)", WorkDate());  // Starting Date - WORKDATE.
     end;
 
     local procedure OnPreReportConsolidationDateConsolidatedTrialBalance(ReportID: Integer; StartingDate: Date)
@@ -168,7 +168,7 @@ codeunit 141012 "UT REP General Ledger"
         // Verify: Verify Filters of G/L Account and SubTitle is updated on Report Consolidated Trial Balance.
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(GLFilterCap, StrSubstNo(GLFilterTxt, GLAccount.FieldCaption("No."), GLAccount."No."));
-        LibraryReportDataset.AssertElementWithValueExists(SubTitleCap, StrSubstNo('%1: %2..%3', PeriodTxt, WorkDate, WorkDate));
+        LibraryReportDataset.AssertElementWithValueExists(SubTitleCap, StrSubstNo('%1: %2..%3', PeriodTxt, WorkDate(), WorkDate()));
     end;
 
     [Test]
@@ -191,7 +191,7 @@ codeunit 141012 "UT REP General Ledger"
 
         // Verify: Verify SubTitle is updated on Report Consolidated Trial Balance.
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists(SubTitleCap, StrSubstNo('%1: %2..%3  %4 %5%6', PeriodTxt, WorkDate, WorkDate, '(using', CurrencyDescription, ')'));
+        LibraryReportDataset.AssertElementWithValueExists(SubTitleCap, StrSubstNo('%1: %2..%3  %4 %5%6', PeriodTxt, WorkDate(), WorkDate, '(using', CurrencyDescription, ')'));
     end;
 
     [Test]
@@ -359,7 +359,7 @@ codeunit 141012 "UT REP General Ledger"
         LibraryReportDataset.AssertElementWithValueExists(GLEntryFilterCap, StrSubstNo(GLFilterTxt, GLEntry.FieldCaption("G/L Account No."), GLAccount."No."));
         LibraryReportDataset.AssertElementWithValueExists('G_L_Entry__Debit_Amount_', GLEntry."Debit Amount");
         LibraryReportDataset.AssertElementWithValueExists('G_L_Entry__Credit_Amount_', GLEntry."Credit Amount");
-        LibraryReportDataset.AssertElementWithValueExists('SourceCodeText', StrSubstNo(GLFilterTxt, SourceCode.TableCaption, SourceCode.Code));
+        LibraryReportDataset.AssertElementWithValueExists('SourceCodeText', StrSubstNo(GLFilterTxt, SourceCode.TableCaption(), SourceCode.Code));
     end;
 
     [Test]
@@ -811,7 +811,7 @@ codeunit 141012 "UT REP General Ledger"
         // Verify: Verify Filters of G/L Account and SubTitle is updated on Report Consolidated Trial Balance (4).
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(GLFilterCap, StrSubstNo(GLFilterTxt, GLAccount.FieldCaption("No."), GLAccount."No."));
-        LibraryReportDataset.AssertElementWithValueExists('MainTitle', StrSubstNo(TitleFilterTxt, 'Consolidated Trial Balance for', WorkDate, WorkDate));
+        LibraryReportDataset.AssertElementWithValueExists('MainTitle', StrSubstNo(TitleFilterTxt, 'Consolidated Trial Balance for', WorkDate(), WorkDate()));
     end;
 
     [Test]
@@ -1013,7 +1013,7 @@ codeunit 141012 "UT REP General Ledger"
 
         // Verify: Verify Filters of G/L Entry, Debit amount and Credit Amount is updated on Report Cross Reference by Account No.
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('TableCaptionGLRegFilter', StrSubstNo('%1: %2: %3', GLRegister.TableCaption, GLRegister.FieldCaption("From Entry No."), GLEntry."Entry No."));
+        LibraryReportDataset.AssertElementWithValueExists('TableCaptionGLRegFilter', StrSubstNo('%1: %2: %3', GLRegister.TableCaption(), GLRegister.FieldCaption("From Entry No."), GLEntry."Entry No."));
         LibraryReportDataset.AssertElementWithValueExists(DebitAmountGLEntryCap, GLEntry."Debit Amount");
         LibraryReportDataset.AssertElementWithValueExists(CreditAmountGLEntryCap, GLEntry."Credit Amount");
     end;
@@ -1074,7 +1074,7 @@ codeunit 141012 "UT REP General Ledger"
         GLEntry."Additional-Currency Amount" := LibraryRandom.RandDec(10, 2);
         GLEntry."Debit Amount" := LibraryRandom.RandDec(10, 2);
         GLEntry."Credit Amount" := LibraryRandom.RandDec(10, 2);
-        GLEntry."Posting Date" := WorkDate;
+        GLEntry."Posting Date" := WorkDate();
         GLEntry.Insert();
     end;
 
@@ -1282,8 +1282,8 @@ codeunit 141012 "UT REP General Ledger"
     begin
         LibraryVariableStorage.Dequeue(No);
         ConsolidatedTrialBalance."G/L Account".SetFilter("No.", No);
-        ConsolidatedTrialBalance.StartingDate.SetValue(WorkDate);
-        ConsolidatedTrialBalance.EndingDate.SetValue(WorkDate);
+        ConsolidatedTrialBalance.StartingDate.SetValue(WorkDate());
+        ConsolidatedTrialBalance.EndingDate.SetValue(WorkDate());
         ConsolidatedTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -1304,8 +1304,8 @@ codeunit 141012 "UT REP General Ledger"
         LibraryVariableStorage.Dequeue(No);
         LibraryVariableStorage.Dequeue(AmountType);
         ConsolidatedTrialBalance4."G/L Account".SetFilter("No.", No);
-        ConsolidatedTrialBalance4.StartingDate.SetValue(WorkDate);
-        ConsolidatedTrialBalance4.EndingDate.SetValue(WorkDate);
+        ConsolidatedTrialBalance4.StartingDate.SetValue(WorkDate());
+        ConsolidatedTrialBalance4.EndingDate.SetValue(WorkDate());
         ConsolidatedTrialBalance4.Show.SetValue(AmountType);
         ConsolidatedTrialBalance4.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
@@ -1339,7 +1339,7 @@ codeunit 141012 "UT REP General Ledger"
         No: Variant;
     begin
         LibraryVariableStorage.Dequeue(No);
-        AccountBalancesByGIFICode.BalanceAsOfDate.SetValue(WorkDate);
+        AccountBalancesByGIFICode.BalanceAsOfDate.SetValue(WorkDate());
         AccountBalancesByGIFICode."G/L Account".SetFilter("No.", No);
         AccountBalancesByGIFICode.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;

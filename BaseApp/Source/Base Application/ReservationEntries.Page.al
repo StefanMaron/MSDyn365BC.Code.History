@@ -201,9 +201,6 @@ page 497 "Reservation Entries"
                     Caption = 'Cancel Reservation';
                     Image = Cancel;
                     ToolTip = 'Cancel the selected reservation entry.';
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     Scope = Repeater;
                     trigger OnAction()
                     var
@@ -225,6 +222,17 @@ page 497 "Reservation Entries"
                                 end;
                             until ReservEntry.Next() = 0;
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(CancelReservation_Promoted; CancelReservation)
+                {
                 }
             }
         }

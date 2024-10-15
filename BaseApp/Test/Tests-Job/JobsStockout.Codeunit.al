@@ -287,7 +287,7 @@ codeunit 136134 "Jobs Stockout"
 
     local procedure CreateJobDemand(ItemNo: Code[20]; Quantity: Integer): Code[20]
     begin
-        exit(CreateJobDemandAtBasis(ItemNo, Quantity, '', WorkDate));
+        exit(CreateJobDemandAtBasis(ItemNo, Quantity, '', WorkDate()));
     end;
 
     local procedure CreateJobDemandAfter(ItemNo: Code[20]; Quantity: Integer; PlanningDate: Date): Code[20]
@@ -335,13 +335,13 @@ codeunit 136134 "Jobs Stockout"
     local procedure CreatePurchaseSupply(ItemNo: Code[20]; ItemQuantity: Integer): Code[20]
     begin
         // Creates a Purchase order for the given item.
-        exit(CreatePurchaseSupplyBasis(ItemNo, ItemQuantity, '', WorkDate));
+        exit(CreatePurchaseSupplyBasis(ItemNo, ItemQuantity, '', WorkDate()));
     end;
 
     local procedure CreatePurchaseSupplyAtLocation(ItemNo: Code[20]; ItemQuantity: Integer; LocationCode: Code[10]): Code[20]
     begin
         // Creates a Purchase order for the given item at the specified location.
-        exit(CreatePurchaseSupplyBasis(ItemNo, ItemQuantity, LocationCode, WorkDate));
+        exit(CreatePurchaseSupplyBasis(ItemNo, ItemQuantity, LocationCode, WorkDate()));
     end;
 
     local procedure CreatePurchaseSupplyAfter(ItemNo: Code[20]; Quantity: Integer; ReceiptDate: Date): Code[20]
@@ -447,7 +447,7 @@ codeunit 136134 "Jobs Stockout"
         // Change the line Planning Date.
         OpenJobPlanningLines(DummyJobPlanningLinesToEdit, JobNo);
         JobPlanningLines := DummyJobPlanningLinesToEdit;
-        DummyJobPlanningLinesToEdit."Planning Date".SetValue(Format(WorkDate));
+        DummyJobPlanningLinesToEdit."Planning Date".SetValue(Format(WorkDate()));
     end;
 
     local procedure ValidateQuantity(DocumentNo: Code[20]; Quantity: Integer)

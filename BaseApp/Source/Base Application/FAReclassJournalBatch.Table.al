@@ -46,7 +46,7 @@ table 5623 "FA Reclass. Journal Batch"
     begin
         FAReclassJnlLine.SetRange("Journal Template Name", xRec."Journal Template Name");
         FAReclassJnlLine.SetRange("Journal Batch Name", xRec.Name);
-        while FAReclassJnlLine.FindFirst do
+        while FAReclassJnlLine.FindFirst() do
             FAReclassJnlLine.Rename("Journal Template Name", Name, FAReclassJnlLine."Line No.");
     end;
 

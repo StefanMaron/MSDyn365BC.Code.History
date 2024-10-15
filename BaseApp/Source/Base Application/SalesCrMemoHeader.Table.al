@@ -488,6 +488,11 @@
             Caption = 'Email';
             ExtendedDatatype = EMail;
         }
+        field(179; "VAT Reporting Date"; Date)
+        {
+            Caption = 'VAT Date';
+            Editable = false;
+        }
         field(200; "Work Description"; BLOB)
         {
             Caption = 'Work Description';
@@ -979,12 +984,12 @@
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         SalesSetup.Get();
-        exit(SalesSetup.GetLegalStatement);
+        exit(SalesSetup.GetLegalStatement());
     end;
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure SetSecurityFilterOnRespCenter()
@@ -1009,7 +1014,7 @@
         RBMgt: Codeunit "File Management";
     begin
         CalcFields("Signed Document XML");
-        if "Signed Document XML".HasValue then begin
+        if "Signed Document XML".HasValue() then begin
             TempBlob.FromRecord(Rec, FieldNo("Signed Document XML"));
             RBMgt.BLOBExport(TempBlob, "No." + '.xml', true);
         end else
@@ -1081,9 +1086,9 @@
         CalcFields(Cancelled, Corrective);
         case true of
             Cancelled:
-                ShowCorrectiveInvoice;
+                ShowCorrectiveInvoice();
             Corrective:
-                ShowCancelledInvoice;
+                ShowCancelledInvoice();
         end;
     end;
 
@@ -1124,7 +1129,7 @@
     begin
         CalcFields("Work Description");
         "Work Description".CreateInStream(InStream, TEXTENCODING::UTF8);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
+        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 
     [IntegrationEvent(false, false)]

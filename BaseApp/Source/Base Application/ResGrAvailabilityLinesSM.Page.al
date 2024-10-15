@@ -17,13 +17,13 @@ page 6012 "Res.Gr Availability Lines (SM)"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Period Start"; "Period Start")
+                field("Period Start"; Rec."Period Start")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period Start';
                     ToolTip = 'Specifies the start date of the period defined on the line for the resource group. ';
                 }
-                field("Period Name"; "Period Name")
+                field("Period Name"; Rec."Period Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period Name';
@@ -51,7 +51,7 @@ page 6012 "Res.Gr Availability Lines (SM)"
                         PAGE.RunModal(0, ResCapacityEntry);
                     end;
                 }
-                field("ResGr.""Qty. on Service Order"""; "Qty. on Service Order")
+                field("ResGr.""Qty. on Service Order"""; Rec."Qty. on Service Order")
                 {
                     ApplicationArea = Service;
                     Caption = 'Qty. on Service Order';

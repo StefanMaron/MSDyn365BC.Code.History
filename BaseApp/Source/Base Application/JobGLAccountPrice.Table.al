@@ -1,7 +1,7 @@
 table 1014 "Job G/L Account Price"
 {
     Caption = 'Job G/L Account Price';
-#if not CLEAN19
+#if not CLEAN21
     DrillDownPageID = "Job G/L Account Prices";
     LookupPageID = "Job G/L Account Prices";
     ObsoleteState = Pending;
@@ -20,10 +20,10 @@ table 1014 "Job G/L Account Price"
             NotBlank = true;
             TableRelation = Job;
 
-#if not CLEAN19
+#if not CLEAN21
             trigger OnValidate()
             begin
-                GetJob;
+                GetJob();
                 "Currency Code" := Job."Currency Code";
             end;
 #endif
@@ -33,7 +33,7 @@ table 1014 "Job G/L Account Price"
             Caption = 'Job Task No.';
             TableRelation = "Job Task"."Job Task No." WHERE("Job No." = FIELD("Job No."));
 
-#if not CLEAN19
+#if not CLEAN21
             trigger OnValidate()
             begin
                 if "Job Task No." <> '' then begin
@@ -111,7 +111,7 @@ table 1014 "Job G/L Account Price"
     {
     }
 
-#if not CLEAN19
+#if not CLEAN21
     trigger OnInsert()
     begin
         LockTable();

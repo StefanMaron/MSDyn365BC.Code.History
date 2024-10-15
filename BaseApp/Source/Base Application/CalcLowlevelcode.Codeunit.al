@@ -6,7 +6,7 @@ codeunit 99000853 "Calc. Low-level code"
 
     trigger OnRun()
     begin
-        FindTopLevel;
+        FindTopLevel();
     end;
 
     var
@@ -69,7 +69,7 @@ codeunit 99000853 "Calc. Low-level code"
                     BOMComp.SetRange(Type, BOMComp.Type::Item);
                     BOMComp.SetRange("No.", Item."No.");
 
-                    if ProdBOMLine.IsEmpty and BOMComp.IsEmpty() then begin
+                    if ProdBOMLine.IsEmpty() and BOMComp.IsEmpty() then begin
                         // handle items which are not part of any BOMs
                         Item.CalcFields("Assembly BOM");
                         if Item."Assembly BOM" then
@@ -77,7 +77,7 @@ codeunit 99000853 "Calc. Low-level code"
                         if HasProductionBOM then
                             CalcLevelsForBOM(ProdBOMHeader);
                     end else
-                        if HasProductionBOM then begin
+                        if HasProductionBOM then
                             if ProdBOMLine.Find('-') then
                                 repeat
                                     // handle items which are part of un-certified, active BOMs
@@ -85,7 +85,6 @@ codeunit 99000853 "Calc. Low-level code"
                                         if ProdBOMHeader2.Status in [ProdBOMHeader2.Status::New, ProdBOMHeader2.Status::"Under Development"] then
                                             CalcLevelsForBOM(ProdBOMHeader);
                                 until ProdBOMLine.Next() = 0;
-                        end;
                 end;
 
                 NoofItems := NoofItems + 1;
@@ -110,7 +109,7 @@ codeunit 99000853 "Calc. Low-level code"
                 NoofItems := NoofItems + 1;
             until ProdBOMHeader.Next() = 0;
 
-        OnAfterFindTopLevel;
+        OnAfterFindTopLevel();
         Session.LogMessage('0000CIN', StrSubstNo(TimeTakenForRunTxt, CurrentDateTime() - Start), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'Planning');
     end;
 

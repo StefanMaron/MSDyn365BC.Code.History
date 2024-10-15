@@ -39,7 +39,7 @@ page 466 "Tax Jurisdictions"
                     begin
                         GetDefaultTaxDetail(TaxDetail);
                         PAGE.RunModal(PAGE::"Tax Details", TaxDetail);
-                        DefaultTax := GetDefaultTax;
+                        DefaultTax := GetDefaultTax();
                     end;
 
                     trigger OnValidate()
@@ -47,74 +47,74 @@ page 466 "Tax Jurisdictions"
                         SetDefaultTax(DefaultTax);
                     end;
                 }
-                field("Calculate Tax on Tax"; "Calculate Tax on Tax")
+                field("Calculate Tax on Tax"; Rec."Calculate Tax on Tax")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies whether to calculate the sales tax amount with the tax on tax principle.';
                     Visible = false;
                 }
-                field("Unrealized VAT Type"; "Unrealized VAT Type")
+                field("Unrealized VAT Type"; Rec."Unrealized VAT Type")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies how to handle unrealized tax, which is tax that is calculated but not due until the invoice is paid.';
                     Visible = false;
                 }
-                field("Adjust for Payment Discount"; "Adjust for Payment Discount")
+                field("Adjust for Payment Discount"; Rec."Adjust for Payment Discount")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies whether to recalculate tax amounts when you post payments that trigger payment discounts.';
                     Visible = false;
                 }
-                field("Tax Account (Sales)"; "Tax Account (Sales)")
+                field("Tax Account (Sales)"; Rec."Tax Account (Sales)")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the general ledger account you want to use for posting calculated tax on sales transactions.';
                 }
-                field("Unreal. Tax Acc. (Sales)"; "Unreal. Tax Acc. (Sales)")
+                field("Unreal. Tax Acc. (Sales)"; Rec."Unreal. Tax Acc. (Sales)")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the general ledger account you want to use for posting calculated unrealized tax on sales transactions.';
                     Visible = false;
                 }
-                field("Tax Account (Purchases)"; "Tax Account (Purchases)")
+                field("Tax Account (Purchases)"; Rec."Tax Account (Purchases)")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the general ledger account you want to use for posting calculated tax on purchase transactions.';
                 }
-                field("Reverse Charge (Purchases)"; "Reverse Charge (Purchases)")
+                field("Reverse Charge (Purchases)"; Rec."Reverse Charge (Purchases)")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the general ledger account you want to use for posting calculated reverse-charge tax on purchase transactions.';
                 }
-                field("Unreal. Tax Acc. (Purchases)"; "Unreal. Tax Acc. (Purchases)")
+                field("Unreal. Tax Acc. (Purchases)"; Rec."Unreal. Tax Acc. (Purchases)")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the general ledger account you want to use for posting calculated unrealized tax on purchase transactions.';
                     Visible = false;
                 }
-                field("Unreal. Rev. Charge (Purch.)"; "Unreal. Rev. Charge (Purch.)")
+                field("Unreal. Rev. Charge (Purch.)"; Rec."Unreal. Rev. Charge (Purch.)")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the general ledger account you want to use for posting calculated unrealized reverse-charge tax on purchase transactions.';
                     Visible = false;
                 }
-                field("Report-to Jurisdiction"; "Report-to Jurisdiction")
+                field("Report-to Jurisdiction"; Rec."Report-to Jurisdiction")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the tax jurisdiction you want to associate with the jurisdiction you are setting up. For example, if you are setting up a jurisdiction for Atlanta, Georgia, the report-to jurisdiction is Georgia because Georgia is the tax authority to which you report Atlanta sales tax.';
                 }
-                field("Country/Region"; "Country/Region")
+                field("Country/Region"; Rec."Country/Region")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the country/region of this tax area. Tax jurisdictions of the same country/region can only then be assigned to this tax area.';
                 }
-                field("Print Order"; "Print Order")
+                field("Print Order"; Rec."Print Order")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the order that taxes of this tax jurisdiction will appear on printed documents. For example, if Canadian GST is to print first, you can indicate that here. Jurisdictions with the same Print Order will be combined when printing on Documents.';
                     Visible = false;
                 }
-                field("Print Description"; "Print Description")
+                field("Print Description"; Rec."Print Description")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies a text description that will print on documents in place of the jurisdiction description. If a %1 is included in the description, then the tax percentage will be substituted just before printing.';
@@ -165,12 +165,20 @@ page 466 "Tax Jurisdictions"
                     ApplicationArea = SalesTax;
                     Caption = 'Details';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Page "Tax Details";
                     RunPageLink = "Tax Jurisdiction Code" = FIELD(Code);
                     ToolTip = 'View tax-detail entries. A tax-detail entry includes all of the information that is used to calculate the amount of tax to be charged.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Details_Promoted; Details)
+                {
                 }
             }
         }
@@ -178,12 +186,12 @@ page 466 "Tax Jurisdictions"
 
     trigger OnAfterGetCurrRecord()
     begin
-        DefaultTax := GetDefaultTax;
+        DefaultTax := GetDefaultTax();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        DefaultTax := GetDefaultTax;
+        DefaultTax := GetDefaultTax();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean

@@ -79,7 +79,7 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
 
             // [THEN] The subtype is set to service
             SalesReturnOrder.SalesLines.FilteredTypeField.AssertEquals(TempOptionLookupBuffer."Option Caption");
-        until TempOptionLookupBuffer.Next = 0;
+        until TempOptionLookupBuffer.Next() = 0;
     end;
 
     [Test]
@@ -108,7 +108,7 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         // [WHEN] Setting the subtype on the Sales Line to co
         SalesReturnOrder.SalesLines.FilteredTypeField.SetValue(CopyStr(SalesLine.FormatType, 1, 2));
         // [THEN] The Subtype is set to Comment
-        SalesReturnOrder.SalesLines.FilteredTypeField.AssertEquals(SalesLine.FormatType);
+        SalesReturnOrder.SalesLines.FilteredTypeField.AssertEquals(SalesLine.FormatType());
     end;
 
     [Test]
@@ -127,12 +127,12 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         // [WHEN] Setting the subtype on the Sales Line to ' '
         SalesReturnOrder.SalesLines.FilteredTypeField.SetValue(' ');
         // [THEN] The Subtype is set to Blank
-        SalesReturnOrder.SalesLines.FilteredTypeField.AssertEquals(SalesLine.FormatType);
+        SalesReturnOrder.SalesLines.FilteredTypeField.AssertEquals(SalesLine.FormatType());
 
         // [WHEN] Setting the subtype on the Sales Line to ''
         SalesReturnOrder.SalesLines.FilteredTypeField.SetValue('');
         // [THEN] The Subtype is set to Blank
-        SalesReturnOrder.SalesLines.FilteredTypeField.AssertEquals(SalesLine.FormatType);
+        SalesReturnOrder.SalesLines.FilteredTypeField.AssertEquals(SalesLine.FormatType());
     end;
 
     [Test]
@@ -229,7 +229,7 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
 
             // [THEN] The subtype is set to service
             PurchaseReturnOrder.PurchLines.FilteredTypeField.AssertEquals(TempOptionLookupBuffer."Option Caption");
-        until TempOptionLookupBuffer.Next = 0;
+        until TempOptionLookupBuffer.Next() = 0;
     end;
 
     [Test]
@@ -258,7 +258,7 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         // [WHEN] Setting the subtype on the Purchase Line to co
         PurchaseReturnOrder.PurchLines.FilteredTypeField.SetValue(CopyStr(PurchaseLine.FormatType, 1, 2));
         // [THEN] The Subtype is set to Comment
-        PurchaseReturnOrder.PurchLines.FilteredTypeField.AssertEquals(PurchaseLine.FormatType);
+        PurchaseReturnOrder.PurchLines.FilteredTypeField.AssertEquals(PurchaseLine.FormatType());
     end;
 
     [Test]
@@ -277,12 +277,12 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         // [WHEN] Setting the subtype on the Purchase Line to ' '
         PurchaseReturnOrder.PurchLines.FilteredTypeField.SetValue(' ');
         // [THEN] The Subtype is set to Blank
-        PurchaseReturnOrder.PurchLines.FilteredTypeField.AssertEquals(PurchaseLine.FormatType);
+        PurchaseReturnOrder.PurchLines.FilteredTypeField.AssertEquals(PurchaseLine.FormatType());
 
         // [WHEN] Setting the subtype on the Purchase Line to ''
         PurchaseReturnOrder.PurchLines.FilteredTypeField.SetValue('');
         // [THEN] The Subtype is set to Blank
-        PurchaseReturnOrder.PurchLines.FilteredTypeField.AssertEquals(PurchaseLine.FormatType);
+        PurchaseReturnOrder.PurchLines.FilteredTypeField.AssertEquals(PurchaseLine.FormatType());
     end;
 
     [Test]
@@ -320,7 +320,7 @@ codeunit 134655 "O365 Ret. Doc Type Lookup Test"
         TempOptionLookupBuffer.FindSet();
         repeat
             OptionLookupList.GotoKey(TempOptionLookupBuffer."Option Caption");
-        until TempOptionLookupBuffer.Next = 0;
+        until TempOptionLookupBuffer.Next() = 0;
 
         OptionLookupList.GotoKey(LibraryVariableStorage.DequeueText);
         OptionLookupList.OK.Invoke;

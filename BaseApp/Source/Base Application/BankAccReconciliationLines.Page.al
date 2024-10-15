@@ -15,47 +15,53 @@ page 380 "Bank Acc. Reconciliation Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Transaction Date"; "Transaction Date")
+                field("Transaction Date"; Rec."Transaction Date")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the posting date of the bank account or check ledger entry on the reconciliation line when the Suggest Lines function is used.';
                 }
-                field("Value Date"; "Value Date")
+                field("Value Date"; Rec."Value Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value date of the transaction on the bank reconciliation line.';
                     Visible = false;
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number of your choice that will appear on the reconciliation line.';
                     Visible = false;
                 }
-                field("Check No."; "Check No.")
+                field("Check No."; Rec."Check No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the check number for the transaction on the reconciliation line.';
                     Visible = false;
                 }
+#if not CLEAN21
                 field(Type; Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of ledger entry, or a difference to be reconciled on this line.';
+                    Visible = false;
+                    ObsoleteReason = 'This field is prone to confusion and is redundant. A type Difference can be manually tracked and a type Check Ledger Entry has a related Bank Account Ledger Entry';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '21.0';
 
                     trigger OnValidate()
                     begin
-                        SetUserInteractions;
+                        SetUserInteractions();
                     end;
                 }
+#endif
                 field(Description; Description)
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies a description for the transaction on the reconciliation line.';
                 }
-                field("Statement Amount"; "Statement Amount")
+                field("Statement Amount"; Rec."Statement Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
@@ -65,14 +71,14 @@ page 380 "Bank Acc. Reconciliation Lines"
                         CurrPage.Update();
                     end;
                 }
-                field("Applied Amount"; "Applied Amount")
+                field("Applied Amount"; Rec."Applied Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the transaction on the reconciliation line that has been applied to a bank account or check ledger entry.';
 
                     trigger OnDrillDown()
                     begin
-                        DisplayApplication;
+                        DisplayApplication();
                     end;
                 }
                 field(Difference; Difference)
@@ -80,19 +86,19 @@ page 380 "Bank Acc. Reconciliation Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the difference between the amount in the Statement Amount field and the amount in the Applied Amount field.';
                 }
-                field("Applied Entries"; "Applied Entries")
+                field("Applied Entries"; Rec."Applied Entries")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the transaction on the bank''s statement has been applied to one or more bank account or check ledger entries.';
                     Visible = false;
                 }
-                field("Related-Party Name"; "Related-Party Name")
+                field("Related-Party Name"; Rec."Related-Party Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the customer or vendor who made the payment that is represented by the journal line.';
                     Visible = false;
                 }
-                field("Additional Transaction Info"; "Additional Transaction Info")
+                field("Additional Transaction Info"; Rec."Additional Transaction Info")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies additional information on the bank statement line for the payment.';
@@ -155,6 +161,7 @@ page 380 "Bank Acc. Reconciliation Lines"
                               "Line No." = FIELD("Data Exch. Line No.");
                 ToolTip = 'View additional information about the document on the selected line and link to the related card.';
             }
+#if not CLEAN21
             action(ApplyEntries)
             {
                 ApplicationArea = Basic, Suite;
@@ -162,12 +169,14 @@ page 380 "Bank Acc. Reconciliation Lines"
                 Enabled = ApplyEntriesAllowed;
                 Image = ApplyEntries;
                 ToolTip = 'Select one or more ledger entries that you want to apply this record to so that the related posted documents are closed as paid or refunded.';
+                Visible = false;
 
                 trigger OnAction()
                 begin
-                    ApplyBankReconEntries;
+                    ApplyBankReconEntries();
                 end;
             }
+#endif
         }
     }
 
@@ -175,17 +184,17 @@ page 380 "Bank Acc. Reconciliation Lines"
     begin
         if "Statement Line No." <> 0 then
             CalcBalance("Statement Line No.");
-        SetUserInteractions;
+        SetUserInteractions();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        SetUserInteractions;
+        SetUserInteractions();
     end;
 
     trigger OnDeleteRecord(): Boolean
     begin
-        SetUserInteractions;
+        SetUserInteractions();
     end;
 
     trigger OnInit()
@@ -215,8 +224,9 @@ page 380 "Bank Acc. Reconciliation Lines"
         TotalBalanceEnable: Boolean;
         [InDataSet]
         BalanceEnable: Boolean;
+#if not CLEAN21
         ApplyEntriesAllowed: Boolean;
-
+#endif
     local procedure CalcBalance(BankAccReconLineNo: Integer)
     var
         TempBankAccReconLine: Record "Bank Acc. Reconciliation Line";
@@ -248,15 +258,17 @@ page 380 "Bank Acc. Reconciliation Lines"
             BalanceEnable := false;
     end;
 
+#if not CLEAN21
     local procedure ApplyBankReconEntries()
     var
         BankAccReconApplyEntries: Codeunit "Bank Acc. Recon. Apply Entries";
     begin
         "Ready for Application" := true;
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         Commit();
         BankAccReconApplyEntries.ApplyEntries(Rec);
     end;
+#endif
 
     procedure GetSelectedRecords(var TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary)
     var
@@ -272,8 +284,10 @@ page 380 "Bank Acc. Reconciliation Lines"
 
     local procedure SetUserInteractions()
     begin
-        StyleTxt := GetStyle;
+        StyleTxt := GetStyle();
+#if not CLEAN21
         ApplyEntriesAllowed := Type = Type::"Check Ledger Entry";
+#endif
     end;
 
     procedure ToggleMatchedFilter(SetFilterOn: Boolean)
@@ -281,7 +295,7 @@ page 380 "Bank Acc. Reconciliation Lines"
         if SetFilterOn then
             SetFilter(Difference, '<>%1', 0)
         else
-            Reset;
+            Reset();
         CurrPage.Update();
     end;
 }

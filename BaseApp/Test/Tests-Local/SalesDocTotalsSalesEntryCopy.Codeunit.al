@@ -702,6 +702,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
+        VATEntry: Record "VAT Entry";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibrarySetupStorage.Restore();
@@ -709,6 +710,8 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
             exit;
 
         LibraryERMCountryData.CreateVATData();
+        VATEntry.DeleteAll();
+        Commit();
         CreateVATPostingSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
@@ -751,7 +754,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         TaxGroup: Record "Tax Group";
     begin
         LibraryERM.CreateTaxGroup(TaxGroup);
-        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate);
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", TaxPercentage);  // Using RANDOM value for Tax Below Maximum.
         TaxDetail.Modify(true);
     end;

@@ -1,7 +1,11 @@
+#if not CLEAN21
 page 2142 "O365 First Invoice Wizard"
 {
     Caption = ' ';
     PageType = NavigatePage;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -14,7 +18,7 @@ page 2142 "O365 First Invoice Wizard"
                 Visible = TopBannerVisible AND CustomerStepVisible;
                 field("MediaResourcesFirstInv1.""Media Reference"""; MediaResourcesFirstInv1."Media Reference")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = false;
                     ShowCaption = false;
                 }
@@ -26,7 +30,7 @@ page 2142 "O365 First Invoice Wizard"
                 Visible = TopBannerVisible AND ItemStepVisible;
                 field("MediaResourcesFirstInv2.""Media Reference"""; MediaResourcesFirstInv2."Media Reference")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = false;
                     ShowCaption = false;
                 }
@@ -38,7 +42,7 @@ page 2142 "O365 First Invoice Wizard"
                 Visible = TopBannerVisible AND TaxStepVisible;
                 field("MediaResourcesFirstInv3.""Media Reference"""; MediaResourcesFirstInv3."Media Reference")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = false;
                     ShowCaption = false;
                 }
@@ -57,14 +61,14 @@ page 2142 "O365 First Invoice Wizard"
                     Visible = UserNameAvailable;
                     field(UserName; UserName)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'User';
                         Editable = false;
                         ShowCaption = false;
 
                         trigger OnValidate()
                         begin
-                            EnableControls;
+                            EnableControls();
                         end;
                     }
                 }
@@ -75,7 +79,7 @@ page 2142 "O365 First Invoice Wizard"
                     Visible = ImagesVisible;
                     field("<MediaRepositoryFirstInvFirst>"; MediaResourcesFirstInvFirst."Media Reference")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = '<MediaRepositoryFirstInvFirst>';
                         Editable = false;
                         ShowCaption = false;
@@ -99,19 +103,19 @@ page 2142 "O365 First Invoice Wizard"
                         ShowCaption = false;
                         field(CustomerName; CustomerName)
                         {
-                            ApplicationArea = Basic, Suite, Invoicing;
+                            ApplicationArea = Invoicing, Basic, Suite;
                             Caption = 'Customer name';
                             ShowCaption = false;
 
                             trigger OnValidate()
                             begin
-                                ModifyCustomer;
-                                EnableControls;
+                                ModifyCustomer();
+                                EnableControls();
                             end;
                         }
                         field(CustomerEmail; CustomerEmail)
                         {
-                            ApplicationArea = Basic, Suite, Invoicing;
+                            ApplicationArea = Invoicing, Basic, Suite;
                             Caption = 'Email (optional)';
                             ExtendedDatatype = EMail;
                             ShowCaption = false;
@@ -122,13 +126,13 @@ page 2142 "O365 First Invoice Wizard"
                             begin
                                 if CustomerEmail <> '' then
                                     MailManagement.CheckValidEmailAddress(CustomerEmail);
-                                ModifyCustomer;
-                                EnableControls;
+                                ModifyCustomer();
+                                EnableControls();
                             end;
                         }
                         field("<FullAddress>"; FullAddress)
                         {
-                            ApplicationArea = Basic, Suite, Invoicing;
+                            ApplicationArea = Invoicing, Basic, Suite;
                             Caption = 'Address (optional)';
                             QuickEntry = false;
                             ShowCaption = false;
@@ -141,7 +145,7 @@ page 2142 "O365 First Invoice Wizard"
                                 TempStandardAddress.CopyFromCustomer(Customer);
                                 if PAGE.RunModal(PAGE::"O365 Address", TempStandardAddress) = ACTION::LookupOK then begin
                                     Customer.Get(Customer."No.");
-                                    FullAddress := TempStandardAddress.ToString;
+                                    FullAddress := TempStandardAddress.ToString();
                                 end;
                             end;
                         }
@@ -160,18 +164,18 @@ page 2142 "O365 First Invoice Wizard"
                         ShowCaption = false;
                         field(ItemDescription; ItemDescription)
                         {
-                            ApplicationArea = Basic, Suite, Invoicing;
+                            ApplicationArea = Invoicing, Basic, Suite;
                             Caption = 'Description of product or service';
                             ShowCaption = false;
 
                             trigger OnValidate()
                             begin
-                                EnableControls;
+                                EnableControls();
                             end;
                         }
                         field(ItemPrice; ItemPrice)
                         {
-                            ApplicationArea = Basic, Suite, Invoicing;
+                            ApplicationArea = Invoicing, Basic, Suite;
                             BlankZero = true;
                             Caption = 'Price (excl. tax)';
                             DecimalPlaces = 2 : 5;
@@ -195,7 +199,7 @@ page 2142 "O365 First Invoice Wizard"
                         Visible = (NOT IsUsingVAT) AND (NOT IsCanada);
                         field(CityTax; CityTax)
                         {
-                            ApplicationArea = Basic, Suite, Invoicing;
+                            ApplicationArea = Invoicing, Basic, Suite;
                             BlankZero = true;
                             Caption = 'City Tax %';
                             DecimalPlaces = 1 : 3;
@@ -204,12 +208,12 @@ page 2142 "O365 First Invoice Wizard"
 
                             trigger OnValidate()
                             begin
-                                EnableControls;
+                                EnableControls();
                             end;
                         }
                         field(StateTax; StateTax)
                         {
-                            ApplicationArea = Basic, Suite, Invoicing;
+                            ApplicationArea = Invoicing, Basic, Suite;
                             BlankZero = true;
                             Caption = 'State Tax %';
                             DecimalPlaces = 1 : 3;
@@ -224,7 +228,7 @@ page 2142 "O365 First Invoice Wizard"
                         Visible = (NOT IsUsingVAT) AND IsCanada;
                         field(TaxAreaCode; TaxAreaCodeCA)
                         {
-                            ApplicationArea = Basic, Suite, Invoicing;
+                            ApplicationArea = Invoicing, Basic, Suite;
                             Caption = 'Tax Area Code';
                             QuickEntry = false;
                             TableRelation = "Tax Area".Code;
@@ -254,7 +258,7 @@ page 2142 "O365 First Invoice Wizard"
                         Visible = IsUsingVAT;
                         field("VAT Group"; VATProductPostingGroup.Description)
                         {
-                            ApplicationArea = Basic, Suite, Invoicing;
+                            ApplicationArea = Invoicing, Basic, Suite;
                             Caption = 'VAT';
                             NotBlank = true;
                             QuickEntry = false;
@@ -280,7 +284,7 @@ page 2142 "O365 First Invoice Wizard"
                     Visible = ImagesVisible;
                     field("<MediaRepositoryLastInvFirst>"; MediaResourcesFirstInvLast."Media Reference")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = '<MediaRepositoryLastInvFirst>';
                         Editable = false;
                         ShowCaption = false;
@@ -305,7 +309,7 @@ page 2142 "O365 First Invoice Wizard"
         {
             action(ActionNext)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Next';
                 Image = NextRecord;
                 InFooterBar = true;
@@ -313,12 +317,12 @@ page 2142 "O365 First Invoice Wizard"
 
                 trigger OnAction()
                 begin
-                    NextStep;
+                    NextStep();
                 end;
             }
             action(ActionBack)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Back';
                 Image = PreviousRecord;
                 InFooterBar = true;
@@ -326,12 +330,12 @@ page 2142 "O365 First Invoice Wizard"
 
                 trigger OnAction()
                 begin
-                    PrevStep;
+                    PrevStep();
                 end;
             }
             action(ActionCreateInvoice)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Create Invoice';
                 InFooterBar = true;
                 Visible = CreateInvoiceActionEnabled;
@@ -339,19 +343,19 @@ page 2142 "O365 First Invoice Wizard"
                 trigger OnAction()
                 begin
                     Step := Step::Customer;
-                    EnableControls;
+                    EnableControls();
                 end;
             }
             action(ActionDone)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Done';
                 InFooterBar = true;
                 Visible = DoneActionEnabled;
 
                 trigger OnAction()
                 begin
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
         }
@@ -359,19 +363,20 @@ page 2142 "O365 First Invoice Wizard"
 
     trigger OnInit()
     begin
-        Initialize
+        Initialize();
     end;
 
     trigger OnOpenPage()
     begin
         Step := Step::First;
-        EnableControls;
+        EnableControls();
 
-        ItemBaseUnitOfMeasure := O365TemplateManagement.GetDefaultBaseUnitOfMeasure;
-        SetDefaultTaxAreaCodeForCA;
+        ItemBaseUnitOfMeasure := O365TemplateManagement.GetDefaultBaseUnitOfMeasure();
+
+        SetDefaultTaxAreaCodeForCA();
         if IsUsingVAT then begin
-            VATBusinessPostingGroupCode := O365TemplateManagement.GetDefaultVATBusinessPostingGroup;
-            VATProductPostingGroup.Get(O365TemplateManagement.GetDefaultVATProdPostingGroup);
+            VATBusinessPostingGroupCode := O365TemplateManagement.GetDefaultVATBusinessPostingGroup();
+            VATProductPostingGroup.Get(O365TemplateManagement.GetDefaultVATProdPostingGroup());
         end;
     end;
 
@@ -447,19 +452,19 @@ page 2142 "O365 First Invoice Wizard"
 
     local procedure EnableControls()
     begin
-        ResetControls;
+        ResetControls();
 
         case Step of
             Step::First:
-                ShowFirstStep;
+                ShowFirstStep();
             Step::Customer:
-                ShowCustomerStep;
+                ShowCustomerStep();
             Step::Item:
-                ShowItemStep;
+                ShowItemStep();
             Step::Tax:
-                ShowTaxStep;
+                ShowTaxStep();
             Step::Finish:
-                ShowFinishStep;
+                ShowFinishStep();
         end;
     end;
 
@@ -467,34 +472,34 @@ page 2142 "O365 First Invoice Wizard"
     begin
         case Step of
             Step::First:
-                ShowFirstStep;
+                ShowFirstStep();
             Step::Customer:
-                ShowFirstStep;
+                ShowFirstStep();
             Step::Item:
-                ShowCustomerStep;
+                ShowCustomerStep();
             Step::Tax:
-                ShowItemStep;
+                ShowItemStep();
             Step::Finish:
-                ShowFinishStep;
+                ShowFinishStep();
         end;
-        EnableControls;
+        EnableControls();
     end;
 
     local procedure NextStep()
     begin
         case Step of
             Step::First:
-                ShowCustomerStep;
+                ShowCustomerStep();
             Step::Customer:
-                if ValidateCustomer then
-                    ShowItemStep;
+                if ValidateCustomer() then
+                    ShowItemStep();
             Step::Item:
-                if ValidateItem then
-                    ShowTaxStep;
+                if ValidateItem() then
+                    ShowTaxStep();
             Step::Tax:
-                ShowFinishStep;
+                ShowFinishStep();
         end;
-        EnableControls;
+        EnableControls();
     end;
 
     local procedure ShowFirstStep()
@@ -530,7 +535,7 @@ page 2142 "O365 First Invoice Wizard"
 
     local procedure ShowFinishStep()
     begin
-        CreateInvoice;
+        CreateInvoice();
         Step := Step::Finish;
         FinalStepVisible := true;
         DoneActionEnabled := true;
@@ -619,9 +624,9 @@ page 2142 "O365 First Invoice Wizard"
         if SalesHeader."No." <> '' then
             exit;
         CreateCustomer(CustomerName);
-        CreateItem;
+        CreateItem();
 
-        StoreSalesTaxSetup;
+        StoreSalesTaxSetup();
 
         SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
@@ -661,12 +666,24 @@ page 2142 "O365 First Invoice Wizard"
         exit(true);
     end;
 
+    local procedure Initialize()
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        LoadTopBanners();
+        LoadImages();
+        GetUserFirstName();
+        IsUsingVAT := O365SalesInitialSetup.IsUsingVAT();
+
+        IsCanada := CompanyInformation.IsCanada();
+    end;
+
     local procedure GetUserFirstName()
     var
         User: Record User;
         TempString: Text;
     begin
-        if User.Get(UserSecurityId) then begin
+        if User.Get(UserSecurityId()) then begin
             TempString := User."Full Name";
             TempString := DelChr(TempString, '<>', ' ');
             TempString := ConvertStr(TempString, ' ', ',');
@@ -674,18 +691,6 @@ page 2142 "O365 First Invoice Wizard"
             if UserName <> '' then
                 UserNameAvailable := true;
         end;
-    end;
-
-    local procedure Initialize()
-    var
-        CompanyInformation: Record "Company Information";
-    begin
-        LoadTopBanners;
-        LoadImages;
-        GetUserFirstName;
-        IsUsingVAT := O365SalesInitialSetup.IsUsingVAT;
-
-        IsCanada := CompanyInformation.IsCanada;
     end;
 
     local procedure ModifyCustomer()
@@ -713,7 +718,7 @@ page 2142 "O365 First Invoice Wizard"
 
         TaxArea.SetRange("Country/Region", TaxArea."Country/Region"::CA);
 
-        if CompanyInformation.Get and (CompanyInformation.County <> '') then begin
+        if CompanyInformation.Get() and (CompanyInformation.County <> '') then begin
             TaxArea.SetRange(Code, CompanyInformation.County);
             if TaxArea.FindFirst() then
                 TaxAreaCodeCA := TaxArea.Code
@@ -735,15 +740,15 @@ page 2142 "O365 First Invoice Wizard"
 
     local procedure StoreSalesTaxSetup()
     begin
-        if not SalesTaxSetupWizard.Get then begin
+        if not SalesTaxSetupWizard.Get() then begin
             SalesTaxSetupWizard.Init();
             SalesTaxSetupWizard.Insert();
         end;
-        if TaxSetup.Get then;
+        if TaxSetup.Get() then;
         if IsCanada then
-            StoreSalesTaxSetupForCA
+            StoreSalesTaxSetupForCA()
         else
-            StoreSalesTaxSetupForUS
+            StoreSalesTaxSetupForUS();
     end;
 
     local procedure StoreSalesTaxSetupForUS()
@@ -760,7 +765,7 @@ page 2142 "O365 First Invoice Wizard"
         TaxJurisdictionCityCode := DefaultCityTxt;
         TaxJurisdictionStateCode := DefaultStateTxt;
 
-        if CompanyInformation.Get then begin
+        if CompanyInformation.Get() then begin
             if CompanyInformation.City <> '' then begin
                 TaxAreaCode := UpperCase(CopyStr(CompanyInformation.City, 1, MaxStrLen(TaxAreaCode) - 4));
                 TaxJurisdictionCityCode := CopyStr(TaxAreaCode, 1, MaxStrLen(TaxJurisdictionCityCode));
@@ -779,7 +784,7 @@ page 2142 "O365 First Invoice Wizard"
         SalesTaxSetupWizard.State := CopyStr(TaxJurisdictionStateCode, 1, 2);
         SalesTaxSetupWizard."State Rate" := StateTax;
         SalesTaxSetupWizard."City Rate" := CityTax;
-        SalesTaxSetupWizard.StoreSalesTaxSetup;
+        SalesTaxSetupWizard.StoreSalesTaxSetup();
         SalesTaxSetupWizard.Modify();
         Commit();
 
@@ -820,4 +825,4 @@ page 2142 "O365 First Invoice Wizard"
         O365TaxSettingsManagement.AssignDefaultTaxArea(TaxAreaCode);
     end;
 }
-
+#endif

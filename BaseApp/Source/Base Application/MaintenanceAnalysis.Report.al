@@ -11,7 +11,7 @@ report 5630 "Maintenance - Analysis"
         dataitem("Fixed Asset"; "Fixed Asset")
         {
             RequestFilterFields = "No.", "FA Class Code", "FA Subclass Code";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -121,7 +121,7 @@ report 5630 "Maintenance - Analysis"
                     CurrReport.Skip();
                 for i := 1 to 3 do
                     GroupAmounts[i] := 0;
-                MakeGroupHeadLine;
+                MakeGroupHeadLine();
             end;
 
             trigger OnPreDataItem()
@@ -268,14 +268,14 @@ report 5630 "Maintenance - Analysis"
         if DateSelection = DateSelection::"FA Posting Date" then
             FAGenReport.AppendFAPostingFilter("Fixed Asset", StartingDate, EndingDate);
 
-        FAFilter := "Fixed Asset".GetFilters;
+        FAFilter := "Fixed Asset".GetFilters();
 
         if DateSelection = DateSelection::"Posting Date" then
             FAGenReport.AppendPostingDateFilter(FAFilter, StartingDate, EndingDate);
 
-        DeprBookText := StrSubstNo('%1%2 %3', DeprBook.TableCaption, ':', DeprBookCode);
-        MakeGroupTotalText;
-        ValidateDates;
+        DeprBookText := StrSubstNo('%1%2 %3', DeprBook.TableCaption(), ':', DeprBookCode);
+        MakeGroupTotalText();
+        ValidateDates();
         MakeAmountHeadLine(1, MaintenanceCode1, Period1);
         MakeAmountHeadLine(2, MaintenanceCode2, Period2);
         MakeAmountHeadLine(3, MaintenanceCode3, Period3);

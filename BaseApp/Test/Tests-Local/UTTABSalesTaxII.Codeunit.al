@@ -45,7 +45,7 @@ codeunit 142090 "UT TAB Sales Tax II"
 
         // Exercise: Validate statement to call OnValidate Trigger of the respective fields.
         Commit();  // COMMIT is explicitly required as used in the Service Header.
-        FieldRef.Validate;
+        FieldRef.Validate();
 
         // Verify.
         RecRef.SetTable(ServiceHeader);
@@ -76,7 +76,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         FieldRef := RecRef.Field(ServiceHeader.FieldNo("Tax Liable"));
 
         // Exercise: Validate statement to call OnValidate Trigger of the respective fields.
-        FieldRef.Validate;
+        FieldRef.Validate();
 
         // Verify.
         RecRef.SetTable(ServiceHeader);
@@ -159,7 +159,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         FieldRef := RecRef.Field(ServiceLine.FieldNo("No."));
 
         // Exercise: Validate statement to call OnValidate Trigger of the respective fields.
-        FieldRef.Validate;
+        FieldRef.Validate();
 
         // Verify.
         RecRef.SetTable(ServiceLine);
@@ -190,7 +190,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         FieldRef := RecRef.Field(ServiceLine.FieldNo("No."));
 
         // Exercise: Validate statement to call OnValidate Trigger of the respective fields.
-        FieldRef.Validate;
+        FieldRef.Validate();
 
         // Verify.
         RecRef.SetTable(ServiceLine);
@@ -237,7 +237,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         FieldRef := RecRef.Field(ServiceLine.FieldNo("Tax Area Code"));
 
         // Exercise: Validate statement to call OnValidate Trigger of the respective fields.
-        asserterror FieldRef.Validate;
+        asserterror FieldRef.Validate();
 
         // Verify.
         Assert.ExpectedErrorCode('Dialog');
@@ -299,7 +299,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         FieldRef := RecRef.Field(FieldNo);
 
         // Exercise: Validate statement to call OnValidate Trigger of the respective fields.
-        FieldRef.Validate;
+        FieldRef.Validate();
 
         // Verify.
         RecRef.SetTable(GenJournalLine);
@@ -391,7 +391,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         FieldRef := RecRef.Field(FieldNo);
 
         // Exercise: Validate statement to call OnValidate Trigger of the respective fields.
-        FieldRef.Validate;
+        FieldRef.Validate();
 
         // Verify.
         RecRef.SetTable(GenJournalLine);
@@ -519,7 +519,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         FieldRef := RecRef.Field(FieldNo);
 
         // Exercise: Validate statement to call OnValidate Trigger of the respective fields.
-        FieldRef.Validate;
+        FieldRef.Validate();
 
         // Verify.
         RecRef.SetTable(GenJournalLine);
@@ -673,7 +673,9 @@ codeunit 142090 "UT TAB Sales Tax II"
     end;
 
     local procedure Initialize()
+        VATEntry: Record "VAT Entry";
     begin
+        VATEntry.DeleteAll();
         LibrarySetupStorage.Restore();
         LibraryApplicationArea.EnableFoundationSetup();
 

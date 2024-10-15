@@ -8,11 +8,6 @@ codeunit 99000836 "Transfer Line-Reserve"
     end;
 
     var
-        Text000: Label 'Codeunit is not initialized correctly.';
-        Text001: Label 'Reserved quantity cannot be greater than %1';
-        Text002: Label 'must be filled in when a quantity is reserved';
-        Text003: Label 'must not be changed when a quantity is reserved';
-        Text006: Label 'Outbound,Inbound';
         FromTrackingSpecification: Record "Tracking Specification";
         ReservMgt: Codeunit "Reservation Management";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
@@ -20,6 +15,12 @@ codeunit 99000836 "Transfer Line-Reserve"
         Direction: Enum "Transfer Direction";
         Blocked: Boolean;
         DeleteItemTracking: Boolean;
+
+        Text000: Label 'Codeunit is not initialized correctly.';
+        Text001: Label 'Reserved quantity cannot be greater than %1';
+        Text002: Label 'must be filled in when a quantity is reserved';
+        Text003: Label 'must not be changed when a quantity is reserved';
+        Text006: Label 'Outbound,Inbound';
 
     procedure CreateReservation(var TransLine: Record "Transfer Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservEntry: Record "Reservation Entry"; Direction: Enum "Transfer Direction")
     var
@@ -58,7 +59,7 @@ codeunit 99000836 "Transfer Line-Reserve"
                           Text001,
                           Abs(TransLine."Outstanding Qty. (Base)") - Abs(TransLine."Reserved Qty. Inbnd. (Base)"));
                     ExpectedReceiptDate := TransLine."Receipt Date";
-                    ShipmentDate := GetInboundReservEntryShipmentDate;
+                    ShipmentDate := GetInboundReservEntryShipmentDate();
                 end;
         end;
 
@@ -85,14 +86,14 @@ codeunit 99000836 "Transfer Line-Reserve"
 
     procedure Caption(TransLine: Record "Transfer Line") CaptionText: Text
     begin
-        CaptionText := TransLine.GetSourceCaption;
+        CaptionText := TransLine.GetSourceCaption();
     end;
 
     procedure FindReservEntry(TransLine: Record "Transfer Line"; var ReservEntry: Record "Reservation Entry"; Direction: Enum "Transfer Direction"): Boolean
     begin
         ReservEntry.InitSortingAndFilters(false);
         TransLine.SetReservationFilters(ReservEntry, Direction);
-        exit(ReservEntry.FindLast);
+        exit(ReservEntry.FindLast());
     end;
 
     procedure FindInboundReservEntry(TransLine: Record "Transfer Line"; var ReservEntry: Record "Reservation Entry"): Boolean
@@ -108,7 +109,7 @@ codeunit 99000836 "Transfer Line-Reserve"
             ReservEntry.SetSourceFilter('', TransLine."Line No.");
         end else
             TransLine.SetReservationFilters(ReservEntry, Direction::Inbound);
-        exit(ReservEntry.FindLast);
+        exit(ReservEntry.FindLast());
     end;
 
     procedure VerifyChange(var NewTransLine: Record "Transfer Line"; var OldTransLine: Record "Transfer Line")
@@ -263,9 +264,9 @@ codeunit 99000836 "Transfer Line-Reserve"
             for Direction := Direction::Outbound to Direction::Inbound do begin
                 ReservMgt.SetReservSource(NewTransLine, Direction);
                 if "Qty. per Unit of Measure" <> OldTransLine."Qty. per Unit of Measure" then
-                    ReservMgt.ModifyUnitOfMeasure;
+                    ReservMgt.ModifyUnitOfMeasure();
                 ReservMgt.DeleteReservEntries(false, "Outstanding Qty. (Base)");
-                ReservMgt.ClearSurplus;
+                ReservMgt.ClearSurplus();
                 ReservMgt.AutoTrack("Outstanding Qty. (Base)");
                 AssignForPlanning(NewTransLine, Direction);
             end;
@@ -301,7 +302,7 @@ codeunit 99000836 "Transfer Line-Reserve"
         if not FindReservEntry(TransLine, OldReservEntry, Direction) then
             exit;
 
-        OldReservEntry.Lock;
+        OldReservEntry.Lock();
 
         case Direction of
             Direction::Outbound:
@@ -360,7 +361,7 @@ codeunit 99000836 "Transfer Line-Reserve"
         WhseShptLine.GetWhseShptLine(
           WhseShptHeader."No.", DATABASE::"Transfer Line", 0, TransLine."Document No.", TransLine."Line No.");
 
-        OldReservEntry.Lock;
+        OldReservEntry.Lock();
         if ReservEngineMgt.InitRecordSet(OldReservEntry) then
             repeat
                 OldReservEntry.TestItemFields(TransLine."Item No.", TransLine."Variant Code", TransLine."Transfer-from Code");
@@ -411,7 +412,7 @@ codeunit 99000836 "Transfer Line-Reserve"
         if OldReservEntry.IsEmpty() then
             exit;
 
-        OldReservEntry.Lock;
+        OldReservEntry.Lock();
 
         case Direction of
             Direction::Outbound:
@@ -461,11 +462,11 @@ codeunit 99000836 "Transfer Line-Reserve"
     procedure DeleteLineConfirm(var TransLine: Record "Transfer Line"): Boolean
     begin
         with TransLine do begin
-            if not ReservEntryExist then
+            if not ReservEntryExist() then
                 exit(true);
 
             ReservMgt.SetReservSource(TransLine, Direction::Outbound);
-            if ReservMgt.DeleteItemTrackingConfirm then
+            if ReservMgt.DeleteItemTrackingConfirm() then
                 DeleteItemTracking := true;
         end;
 
@@ -526,7 +527,7 @@ codeunit 99000836 "Transfer Line-Reserve"
         if DirectTransfer then
             ItemTrackingLines.SetDirectTransfer(true);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, AvalabilityDate);
-        ItemTrackingLines.SetInbound(TransLine.IsInbound);
+        ItemTrackingLines.SetInbound(TransLine.IsInbound());
         OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(TransLine, ItemTrackingLines);
         ItemTrackingLines.RunModal();
         OnAfterCallItemTracking(TransLine);
@@ -588,17 +589,17 @@ codeunit 99000836 "Transfer Line-Reserve"
     begin
         case FromTrackingSpecification."Source Type" of
             DATABASE::"Sales Line":
-                InboundReservEntryShipmentDate := GetInboundReservEntryShipmentDateBySalesLine;
+                InboundReservEntryShipmentDate := GetInboundReservEntryShipmentDateBySalesLine();
             DATABASE::"Purchase Line":
-                InboundReservEntryShipmentDate := GetInboundReservEntryShipmentDateByPurchaseLine;
+                InboundReservEntryShipmentDate := GetInboundReservEntryShipmentDateByPurchaseLine();
             DATABASE::"Transfer Line":
-                InboundReservEntryShipmentDate := GetInboundReservEntryShipmentDateByTransferLine;
+                InboundReservEntryShipmentDate := GetInboundReservEntryShipmentDateByTransferLine();
             DATABASE::"Service Line":
-                InboundReservEntryShipmentDate := GetInboundReservEntryShipmentDateByServiceLine;
+                InboundReservEntryShipmentDate := GetInboundReservEntryShipmentDateByServiceLine();
             DATABASE::"Job Planning Line":
-                InboundReservEntryShipmentDate := GetInboundReservEntryShipmentDateByJobPlanningLine;
+                InboundReservEntryShipmentDate := GetInboundReservEntryShipmentDateByJobPlanningLine();
             DATABASE::"Prod. Order Component":
-                InboundReservEntryShipmentDate := GetInboundReservEntryShipmentDateByProdOrderComponent;
+                InboundReservEntryShipmentDate := GetInboundReservEntryShipmentDateByProdOrderComponent();
         end;
     end;
 
@@ -684,7 +685,7 @@ codeunit 99000836 "Transfer Line-Reserve"
     begin
         if MatchThisTable(SourceRecRef.Number) then begin
             SourceRecRef.SetTable(TransferLine);
-            TransferLine.Find;
+            TransferLine.Find();
             QtyPerUOM := TransferLine.GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase, ReservEntry."Source Subtype");
         end;
     end;
@@ -694,12 +695,12 @@ codeunit 99000836 "Transfer Line-Reserve"
         TransLine: Record "Transfer Line";
     begin
         SourceRecRef.SetTable(TransLine);
-        ClearAll;
+        ClearAll();
         SourceRecRef.GetTable(TransLine);
 
         TransLine.SetReservationEntry(ReservEntry, Direction);
 
-        CaptionText := TransLine.GetSourceCaption;
+        CaptionText := TransLine.GetSourceCaption();
     end;
 
     local procedure EntryStartNo(): Integer
@@ -788,7 +789,7 @@ codeunit 99000836 "Transfer Line-Reserve"
         if MatchThisTable(SourceRecRef.Number) then begin
             SourceRecRef.SetTable(TransferLine);
             TransferLine.SetReservationFilters(ReservEntry, "Transfer Direction".FromInteger(Direction));
-            CaptionText := TransferLine.GetSourceCaption;
+            CaptionText := TransferLine.GetSourceCaption();
         end;
     end;
 
@@ -865,12 +866,12 @@ codeunit 99000836 "Transfer Line-Reserve"
                 "Table ID" := DATABASE::"Transfer Line";
                 "Summary Type" :=
                     CopyStr(
-                    StrSubstNo('%1, %2', TransLine.TableCaption, SelectStr(Direction + 1, Text006)),
+                    StrSubstNo('%1, %2', TransLine.TableCaption(), SelectStr(Direction + 1, Text006)),
                     1, MaxStrLen("Summary Type"));
                 "Total Quantity" := TotalQuantity;
                 "Total Available Quantity" := "Total Quantity" - "Total Reserved Quantity";
                 if not Insert() then
-                    Modify;
+                    Modify();
             end;
     end;
 

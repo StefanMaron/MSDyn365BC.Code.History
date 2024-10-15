@@ -67,7 +67,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
 
         // Setup: Create Item with Lot Specific Item Tracking and create Location with Bin. Use Random value to set Expiration Date later than Workdate.
         Initialize();
-        ExpirationDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);  // Assign in global variable.
+        ExpirationDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());  // Assign in global variable.
         LibraryVariableStorage.Enqueue(ExpirationDate);
         CreateItem(Item, CreateItemTrackingCode(true, true, true, false, true));
         CreateWhiteLocation(Bin, Item);
@@ -459,7 +459,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         // [SCENARIO 379434] System should suggest the first-expiring lot according to FEFO when it has been returned and placed back into pickable bins.
         Initialize();
         Quantity := LibraryRandom.RandInt(100);
-        ExpirationDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        ExpirationDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
 
         // [GIVEN] Create Location with pick according to FEFO.
         CreateLocationWithPostingSetupAndPickAccordingTOFEFO(Location, ShipmentBinCode);
@@ -489,7 +489,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
           ItemJournalBatch."Template Type"::Transfer, ItemJournalLine."Entry Type"::Transfer, true);
 
         // [GIVEN] Delete Sales Order.
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.Delete(true);
 
         // [GIVEN] Sales order and Warehouse Shipment from this Sales Order.
@@ -1198,7 +1198,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
 
         // [GIVEN] Register Warehouse Pick with partial Quantity, then delete Warehouse Pick.
         CreateRegisterWhsePick(WarehouseActivityHeader, WarehouseShipmentLine, SalesLine.Quantity - 1);
-        WarehouseActivityHeader.Find;
+        WarehouseActivityHeader.Find();
         WarehouseActivityHeader.Delete(true);
 
         // [WHEN] Post Warehouse Shipment.
@@ -1336,7 +1336,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         CreateRefreshPlanningWksh(ManufItem."No.", LocationCode, LibraryRandom.RandIntInRange(100, 200));
 
         // [WHEN] Register Pick.
-        WarehouseActivityLine.Find;
+        WarehouseActivityLine.Find();
         WarehouseActivityHeader.Init();
         RegisterWhsePick(WarehouseActivityHeader, WarehouseActivityLine);
 
@@ -1375,7 +1375,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // [GIVEN] Set "Qty. to Invoice" = "X / 2" on the sales line
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate("Qty. to Invoice", SalesLine."Qty. to Invoice" / 2);
         SalesLine.Modify(true);
 
@@ -1836,7 +1836,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
           WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, LocationCode, true);
 
         // [GIVEN] Calculated and Posted Whse Adjustment in Item Journal
-        PostWhseAdjustmentItemJournal(Item."No.", WorkDate);
+        PostWhseAdjustmentItemJournal(Item."No.", WorkDate());
 
         // [GIVEN] Released Sales Order with 50 PCS of the Item in Location
         CreateSalesOrderWithItemAndLocation(SalesHeader, Item."No.", LocationCode, StockQty[1] + StockQty[2]);
@@ -1848,7 +1848,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
 
         // [GIVEN] Calculated Regenerative Plan for Planning Worksheet for this Year
         LibraryPlanning.CalcRegenPlanForPlanWkshPlanningParams(
-          Item, CalcDate('<-CY>', WorkDate), CalcDate('<CY>', WorkDate), true);
+          Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()), true);
 
         // [WHEN] Post Pick
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
@@ -1905,12 +1905,12 @@ codeunit 137260 "SCM Inventory Item Tracking"
 
         // [GIVEN] Create sales order for 10 pcs., select lot no. "L".
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", QtySales, Location.Code, WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", QtySales, Location.Code, WorkDate());
         LibraryVariableStorage.Enqueue(TrackingOption::SelectEntries);
         SalesLine.OpenItemTrackingLines();
 
         // [GIVEN] Increase quantity on the sales order line to 20. Now, only 10 pcs of 20 are tracked.
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate(Quantity, QtyStock);
         SalesLine.Modify(true);
 
@@ -1978,12 +1978,12 @@ codeunit 137260 "SCM Inventory Item Tracking"
 
         // [GIVEN] Create sales order for 10 pcs., select lot no. "L".
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", QtySales, Location.Code, WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", QtySales, Location.Code, WorkDate());
         LibraryVariableStorage.Enqueue(TrackingOption::SelectEntries);
         SalesLine.OpenItemTrackingLines();
 
         // [GIVEN] Increase quantity on the sales order line to 40. Now, only 10 pcs of 40 are tracked.
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate(Quantity, QtyStock);
         SalesLine.Modify(true);
 
@@ -2000,7 +2000,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
             WarehouseActivityLine.Validate("Lot No.", LotNo);
             WarehouseActivityLine.Validate("Qty. to Handle", WarehouseActivityLine.Quantity / 2);
             WarehouseActivityLine.Modify(true);
-        until WarehouseActivityLine.Next = 0;
+        until WarehouseActivityLine.Next() = 0;
 
         // [GIVEN] Partially post the inventory pick. Now, 20 of 40 pcs are shipped.
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
@@ -2057,7 +2057,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
 
         // [GIVEN] Create sales order for 20 pcs., select lot no. "L1".
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, Location.Code, WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, Location.Code, WorkDate());
         LibraryVariableStorage.Enqueue(TrackingOption::SelectEntries);
         SalesLine.OpenItemTrackingLines();
 
@@ -2356,7 +2356,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
         LibraryCosting.CalculateInventoryValue(
-          ItemJournalLine, Item, WorkDate, LibraryUtility.GetGlobalNoSeriesCode, CalculatePer::Item, false, false, false, CalcBase::" ", false);
+          ItemJournalLine, Item, WorkDate(), LibraryUtility.GetGlobalNoSeriesCode, CalculatePer::Item, false, false, false, CalcBase::" ", false);
     end;
 
     local procedure CreateItemTrackingCode(ManExpirDateEntryReqd: Boolean; LotWarehouseTracking: Boolean; LOTSpecific: Boolean; SNSpecific: Boolean; UseExpirationDates: Boolean): Code[10]
@@ -2612,7 +2612,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         CleanUpAndCreateReqLine(RequisitionLine, ItemNo, '', Quantity);
         with RequisitionLine do begin
             Validate("Location Code", LocationCode);
-            Validate("Ending Date", WorkDate);
+            Validate("Ending Date", WorkDate());
             Modify(true);
             SetRange("Worksheet Template Name", "Worksheet Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
@@ -2963,7 +2963,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         repeat
             WarehouseActivityLine.Validate("Lot No.", LotNo);
             WarehouseActivityLine.Modify(true);
-        until WarehouseActivityLine.Next = 0;
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure DeleteTrackingOnPurchaseLine(var PurchaseLine: Record "Purchase Line")
@@ -3153,7 +3153,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         Bin.SetRange("Bin Type Code", BinTypeCode);
         Bin.FindSet();
         BinCode[1] := Bin.Code;
-        Bin.Next;
+        Bin.Next();
         BinCode[2] := Bin.Code;
     end;
 

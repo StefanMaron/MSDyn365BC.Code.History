@@ -12,7 +12,7 @@ codeunit 6711 "OData Action Management"
     procedure AddKey(FieldNo: Integer; Value: Variant)
     begin
         if not KeysInitialized then
-            InitializeDictionary;
+            InitializeDictionary();
 
         Keys.Add(FieldNo, Value);
     end;

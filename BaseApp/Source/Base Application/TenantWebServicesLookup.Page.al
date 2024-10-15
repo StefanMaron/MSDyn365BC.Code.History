@@ -12,17 +12,17 @@ page 6712 "Tenant Web Services Lookup"
         {
             repeater(Group)
             {
-                field("Object Type"; "Object Type")
+                field("Object Type"; Rec."Object Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Object Type of the data set.';
                 }
-                field("Object ID"; "Object ID")
+                field("Object ID"; Rec."Object ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the object ID for the data set.';
                 }
-                field("Service Name"; "Service Name")
+                field("Service Name"; Rec."Service Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the data set name.';

@@ -42,7 +42,7 @@ table 5874 "BOM Warning Log"
         "Warning Description" := TheWarning;
         "Table ID" := TheTableID;
         "Table Position" := TheTablePosition;
-        Insert;
+        Insert();
     end;
 
     procedure ShowWarning()
@@ -66,43 +66,43 @@ table 5874 "BOM Warning Log"
             DATABASE::Item:
                 begin
                     RecRef.SetTable(Item);
-                    Item.SetRecFilter;
+                    Item.SetRecFilter();
                     PAGE.RunModal(PAGE::"Item Card", Item);
                 end;
             DATABASE::"Production BOM Header":
                 begin
                     RecRef.SetTable(ProdBOMHeader);
-                    ProdBOMHeader.SetRecFilter;
+                    ProdBOMHeader.SetRecFilter();
                     PAGE.RunModal(PAGE::"Production BOM", ProdBOMHeader);
                 end;
             DATABASE::"Routing Header":
                 begin
                     RecRef.SetTable(RtngHeader);
-                    RtngHeader.SetRecFilter;
+                    RtngHeader.SetRecFilter();
                     PAGE.RunModal(PAGE::Routing, RtngHeader);
                 end;
             DATABASE::"Production BOM Version":
                 begin
                     RecRef.SetTable(ProdBOMVersion);
-                    ProdBOMVersion.SetRecFilter;
+                    ProdBOMVersion.SetRecFilter();
                     PAGE.RunModal(PAGE::"Production BOM Version", ProdBOMVersion);
                 end;
             DATABASE::"Routing Version":
                 begin
                     RecRef.SetTable(RtngVersion);
-                    RtngVersion.SetRecFilter;
+                    RtngVersion.SetRecFilter();
                     PAGE.RunModal(PAGE::"Routing Version", RtngVersion);
                 end;
             DATABASE::"Machine Center":
                 begin
                     RecRef.SetTable(MachineCtr);
-                    MachineCtr.SetRecFilter;
+                    MachineCtr.SetRecFilter();
                     PAGE.RunModal(PAGE::"Machine Center Card", MachineCtr);
                 end;
             DATABASE::"Work Center":
                 begin
                     RecRef.SetTable(WorkCtr);
-                    WorkCtr.SetRecFilter;
+                    WorkCtr.SetRecFilter();
                     PAGE.RunModal(PAGE::"Work Center Card", WorkCtr);
                 end;
         end;

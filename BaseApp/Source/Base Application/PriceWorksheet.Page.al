@@ -2,7 +2,6 @@ page 7022 "Price Worksheet"
 {
     Caption = 'Price Worksheet';
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Page';
     DelayedInsert = true;
     SaveValues = true;
     SourceTable = "Price Worksheet Line";
@@ -369,8 +368,6 @@ page 7022 "Price Worksheet"
                 ApplicationArea = All;
                 Caption = 'Open Price List';
                 Image = EditLines;
-                Promoted = true;
-                PromotedCategory = Process;
                 Visible = LineExists;
                 ToolTip = 'View or edit the price list.';
 
@@ -394,8 +391,6 @@ page 7022 "Price Worksheet"
                     ApplicationArea = Basic, Suite;
                     Ellipsis = true;
                     Image = SuggestItemPrice;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     Caption = 'Suggest Lines';
                     ToolTip = 'Creates the sales price list lines based on the unit price in the product cards, like item or resource. Change the price list status to ''Draft'' to run this action.';
 
@@ -413,8 +408,6 @@ page 7022 "Price Worksheet"
                     ApplicationArea = Basic, Suite;
                     Ellipsis = true;
                     Image = CopyWorksheet;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     Enabled = CopyLinesEnabled;
                     Caption = 'Copy Lines';
                     ToolTip = 'Copies the lines from the existing price list. New prices can be adjusted by a factor and rounded differently. Change the price list status to ''Draft'' to run this action.';
@@ -434,8 +427,6 @@ page 7022 "Price Worksheet"
                     Caption = 'I&mplement Price Change';
                     Ellipsis = true;
                     Image = ImplementPriceChange;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     Scope = Repeater;
                     ToolTip = 'Update the alternate prices with the ones in the Price Worksheet window.';
 
@@ -461,8 +452,6 @@ page 7022 "Price Worksheet"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Edit in Excel';
                     Image = Excel;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Send the data in the worksheet to an Excel file for analysis or editing.';
                     Visible = false; //IsSaaSExcelAddinEnabled;
                     AccessByPermission = System "Allow Action Export To Excel" = X;
@@ -478,9 +467,40 @@ page 7022 "Price Worksheet"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(SuggestLines_Promoted; SuggestLines)
+                {
+                }
+                actionref(CopyLines_Promoted; CopyLines)
+                {
+                }
+                actionref(ImplementPriceChange_Promoted; ImplementPriceChange)
+                {
+                }
+                actionref(EditInExcel_Promoted; EditInExcel)
+                {
+                }
+                actionref(OpenPriceList_Promoted; OpenPriceList)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Page', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+        }
     }
 
-#if not CLEAN19
+#if not CLEAN21
     trigger OnInit()
     var
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
@@ -830,6 +850,12 @@ page 7022 "Price Worksheet"
         VariantCodeLookupVisible := ItemAssetVisible and not UseCustomLookup;
         UoMVisible := (ItemAssetVisible or ResourceAssetVisible) and UseCustomLookup;
         UoMLookupVisible := (ItemAssetVisible or ResourceAssetVisible) and not UseCustomLookup;
+    end;
+
+    procedure SetDefaults(PriceListHeader: Record "Price List Header")
+    begin
+        TempWorksheetPriceListHeader := PriceListHeader;
+        Defaults := GetDefaults();
     end;
 
     local procedure ShowPriceListFilters()

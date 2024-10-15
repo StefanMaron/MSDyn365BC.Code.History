@@ -15,7 +15,7 @@ report 1004 "Close Inventory Period - Test"
             dataitem(Header; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
-                column(CompanyName; COMPANYPROPERTY.DisplayName)
+                column(CompanyName; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(TodayFormatted; Format(Today, 0, 4))
@@ -198,7 +198,7 @@ report 1004 "Close Inventory Period - Test"
                         begin
                             TempItemErrorBuffer.SetRange("Source No.", Item."No.");
                             TempItemErrorBuffer.SetRange("Source Table", DATABASE::"Item Ledger Entry");
-                            if not TempItemErrorBuffer.IsEmpty and (NoteText = '') then
+                            if not TempItemErrorBuffer.IsEmpty() and (NoteText = '') then
                                 NoteText := Text004;
                             SetRange(Number, 1, TempItemErrorBuffer.Count);
                         end;
@@ -255,7 +255,6 @@ report 1004 "Close Inventory Period - Test"
     }
 
     var
-        Text001: Label '%1 is missing in Inventory Period %2.', Comment = '%1 = FIELDCAPTION("Ending Date"), %2 = "Name"';
         Item2: Record Item;
         TempItemErrorBuffer: Record "Error Buffer" temporary;
         TempItemErrorBufferBookmark: Record "Error Buffer" temporary;
@@ -265,6 +264,9 @@ report 1004 "Close Inventory Period - Test"
         ItemHyperlink: Text;
         ErrorHyperlink: Text;
         ErrorHyperlinkAnchor: Code[21];
+        LastItemNoStored: Code[20];
+
+        Text001: Label '%1 is missing in Inventory Period %2.', Comment = '%1 = FIELDCAPTION("Ending Date"), %2 = "Name"';
         Text003: Label 'Item Ledger Entry %1 is open.*';
         Text004: Label '*Close the open Item Ledger Entry, for example by posting related inbound transactions, in order to resolve the negative inventory and thereby allow the Inventory Period to be closed.';
         PageCaptionLbl: Label 'Page';
@@ -272,7 +274,6 @@ report 1004 "Close Inventory Period - Test"
         EndingDateCaptionLbl: Label 'Ending Date';
         Text008: Label 'The item has entries in this period that have not been adjusted.';
         Text009: Label 'This %1 Order has not been adjusted.';
-        LastItemNoStored: Code[20];
         Text010: Label 'Posted Assembly';
 
     local procedure StoreItemInErrorBuffer(ItemNo: Code[20]; SourceTableNo: Integer; ErrorText: Text[250]; Recordbookmark: Text[250]; HyperlinkSourceRecNo: Code[20]; HyperlinkPageID: Integer)
@@ -331,9 +332,9 @@ report 1004 "Close Inventory Period - Test"
     local procedure GetErrorBuffer(var TempItemErrorBuffer: Record "Error Buffer" temporary; GetFirstRecord: Boolean)
     begin
         if GetFirstRecord then
-            TempItemErrorBuffer.FindSet
+            TempItemErrorBuffer.FindSet()
         else
-            TempItemErrorBuffer.Next;
+            TempItemErrorBuffer.Next();
     end;
 
     local procedure GenerateHyperlink(Bookmark: Text[250]; PageID: Integer): Text
@@ -342,7 +343,7 @@ report 1004 "Close Inventory Period - Test"
             exit('');
 
         // Generates a URL such as dynamicsnav://hostname:port/instance/company/runpage?page=pageId&bookmark=recordId&mode=View.
-        exit(GetUrl(ClientTypeManagement.GetCurrentClientType, CompanyName, OBJECTTYPE::Page, PageID) +
+        exit(GetUrl(ClientTypeManagement.GetCurrentClientType(), CompanyName, OBJECTTYPE::Page, PageID) +
           StrSubstNo('&amp;bookmark=%1&mode=View', Bookmark));
     end;
 

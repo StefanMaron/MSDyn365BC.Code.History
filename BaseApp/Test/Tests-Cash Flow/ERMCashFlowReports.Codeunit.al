@@ -87,16 +87,16 @@ codeunit 134989 "ERM Cash Flow - Reports"
 
         ConsiderSource[SourceType::"Liquid Funds"] := false;
         ConsiderSource[SourceType::"G/L Budget"] := false;
-        FillAndPostCFJournal(ConsiderSource, CashFlowForecast."No.", DocumentNoFilterText, WorkDate);
+        FillAndPostCFJournal(ConsiderSource, CashFlowForecast."No.", DocumentNoFilterText, WorkDate());
 
         // Exercise
         Evaluate(IntervalLength, '<1D>');
-        RunAndExportCFDateListReport(WorkDate, 1, IntervalLength, CashFlowForecast."No."); // include just 1 day (workdate)
+        RunAndExportCFDateListReport(WorkDate(), 1, IntervalLength, CashFlowForecast."No."); // include just 1 day (workdate)
 
         // Verify
         LibraryReportDataset.LoadDataSetFile;
         VerifyExpDateListSourceLine(SourceTypeValues, CFManualRevenue.Amount, -CFManualExpense2.Amount, TotalAmount,
-          'FORMAT_DateFrom_', WorkDate);
+          'FORMAT_DateFrom_', WorkDate());
     end;
 
     [Test]
@@ -127,17 +127,17 @@ codeunit 134989 "ERM Cash Flow - Reports"
         TotalAmountPeriod2 :=
           TotalAmountPeriod1 + GetSalesAmountIncVAT(SalesHeader) + SourceTypeValues[10] - GetPurchaseAmountIncVAT(PurchHeader);
         ConsiderSalesPurchSources(ConsiderSource);
-        FillAndPostCFJournal(ConsiderSource, CashFlowForecast."No.", DocumentNoFilterText, WorkDate);
+        FillAndPostCFJournal(ConsiderSource, CashFlowForecast."No.", DocumentNoFilterText, WorkDate());
 
         // Exercise
         Evaluate(IntervalLength, '<1D>');
-        RunAndExportCFDateListReport(WorkDate, 2, IntervalLength, CashFlowForecast."No."); // include just 1 day (workdate)
+        RunAndExportCFDateListReport(WorkDate(), 2, IntervalLength, CashFlowForecast."No."); // include just 1 day (workdate)
 
         // Verify
 
         LibraryReportDataset.LoadDataSetFile;
-        VerifyTotalAmount(TotalAmountPeriod1, 'FORMAT_DateFrom_', WorkDate);
-        VerifyTotalAmount(TotalAmountPeriod2, 'FORMAT_DateFrom_', CalcDate(CustomDateFormula, WorkDate));
+        VerifyTotalAmount(TotalAmountPeriod1, 'FORMAT_DateFrom_', WorkDate());
+        VerifyTotalAmount(TotalAmountPeriod2, 'FORMAT_DateFrom_', CalcDate(CustomDateFormula, WorkDate()));
     end;
 
     [Test]
@@ -181,11 +181,11 @@ codeunit 134989 "ERM Cash Flow - Reports"
 
         // Fill and post journal
         ConsiderSalesPurchSources(ConsiderSource);
-        FillAndPostCFJournal(ConsiderSource, CashFlowForecast."No.", DocumentNoFilterText, CalcDate('<-1D>', WorkDate));
+        FillAndPostCFJournal(ConsiderSource, CashFlowForecast."No.", DocumentNoFilterText, CalcDate('<-1D>', WorkDate()));
 
         // Exercise
         Evaluate(IntervalLength, '<1D>');
-        RunAndExportCFDateListReport(WorkDate, 1, IntervalLength, CashFlowForecast."No.");
+        RunAndExportCFDateListReport(WorkDate(), 1, IntervalLength, CashFlowForecast."No.");
 
         // Verify
         LibraryReportDataset.LoadDataSetFile;
@@ -254,7 +254,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
             LibraryReportDataset.SetRange('TempCFLedgEntryEntryNo', CashFlowForecastEntry."Entry No.");
             LibraryReportDataset.GetNextRow;
             LibraryReportDataset.AssertElementWithValueExists('TempCFLedgEntryAmt', CashFlowForecastEntry."Amount (LCY)");
-        until CashFlowForecastEntry.Next = 0;
+        until CashFlowForecastEntry.Next() = 0;
     end;
 
     local procedure AppendDocumentNoToFilter(DocumentNo: Code[20])
@@ -399,11 +399,11 @@ codeunit 134989 "ERM Cash Flow - Reports"
         LibraryCF.CreateCashFlowCard(CFForecast);
         CFForecastNo := CFForecast."No.";
         Amount := LibraryRandom.RandDec(100, 2);
-        LibraryCFHelper.InsertCFLedgerEntry(CFForecastNo, '', CFEntryType, WorkDate, Amount);
+        LibraryCFHelper.InsertCFLedgerEntry(CFForecastNo, '', CFEntryType, WorkDate(), Amount);
 
         // Exercise : Run report Cash Flow Date List.
         Evaluate(IntervalLength, '<1D>');
-        RunAndExportCFDateListReport(WorkDate, 0, IntervalLength, CFForecastNo); // include just 1 day (workdate)
+        RunAndExportCFDateListReport(WorkDate(), 0, IntervalLength, CFForecastNo); // include just 1 day (workdate)
         LibraryReportDataset.LoadDataSetFile;
 
         // Verify : Liquidity or G/L budget column amounts on Cash flow date list report.
@@ -475,12 +475,12 @@ codeunit 134989 "ERM Cash Flow - Reports"
         ServiceHeader: Record "Service Header";
     begin
         Evaluate(CustomDateFormula, DateString);
-        CreateSalesOrder(SalesHeader, CalcDate(CustomDateFormula, WorkDate), '');
+        CreateSalesOrder(SalesHeader, CalcDate(CustomDateFormula, WorkDate()), '');
         AppendDocumentNoToFilter(SalesHeader."No.");
-        CreateServiceOrder(ServiceHeader, CalcDate(CustomDateFormula, WorkDate), '');
+        CreateServiceOrder(ServiceHeader, CalcDate(CustomDateFormula, WorkDate()), '');
         AppendDocumentNoToFilter(ServiceHeader."No.");
         ServiceHeaderAmount := CalcServiceHeaderAmt(ServiceHeader);
-        CreatePurchaseOrder(PurchHeader, CalcDate(CustomDateFormula, WorkDate), '');
+        CreatePurchaseOrder(PurchHeader, CalcDate(CustomDateFormula, WorkDate()), '');
         AppendDocumentNoToFilter(PurchHeader."No.");
     end;
 

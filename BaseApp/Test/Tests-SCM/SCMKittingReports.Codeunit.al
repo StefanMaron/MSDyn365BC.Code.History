@@ -940,7 +940,7 @@ codeunit 137390 "SCM Kitting -  Reports"
         PostInventoryPositiveAdjustment(Item."No.", LibraryRandom.RandDec(100, 2));
 
         // [WHEN] Run "Inventory - G/L Reconciliation"
-        RunGetInventoryReport(TempInventoryReportEntry, Item."No.", Format(WorkDate));
+        RunGetInventoryReport(TempInventoryReportEntry, Item."No.", Format(WorkDate()));
 
         // [THEN] "Cost is Posted to G/L Warning" is TRUE
         FindInventoryReportDifferenceEntry(TempInventoryReportEntry);
@@ -999,7 +999,7 @@ codeunit 137390 "SCM Kitting -  Reports"
         MockGLEntry('');
 
         // [WHEN] Run "Inventory - G/L Reconciliation"
-        RunGetInventoryReport(TempInventoryReportEntry, Item."No.", Format(WorkDate));
+        RunGetInventoryReport(TempInventoryReportEntry, Item."No.", Format(WorkDate()));
 
         // [THEN] "Deleted G/L Accounts Warning" is TRUE
         FindInventoryReportDifferenceEntry(TempInventoryReportEntry);
@@ -1028,7 +1028,7 @@ codeunit 137390 "SCM Kitting -  Reports"
         MockGLEntryOnInventoryAccount(Item."Inventory Posting Group");
 
         // [WHEN] Run "Inventory - G/L Reconciliation"
-        RunGetInventoryReport(TempInventoryReportEntry, Item."No.", Format(WorkDate));
+        RunGetInventoryReport(TempInventoryReportEntry, Item."No.", Format(WorkDate()));
 
         // [THEN] "Direct Postings Warning" is TRUE
         FindInventoryReportDifferenceEntry(TempInventoryReportEntry);
@@ -2162,7 +2162,7 @@ codeunit 137390 "SCM Kitting -  Reports"
             if PostedAssemblyLine.FindSet() then
                 repeat
                     VerifyInvtValuationCostSpec(PostedAssemblyLine."No.", PostedAssemblyHeader."Posting Date");
-                until PostedAssemblyLine.Next = 0;
+                until PostedAssemblyLine.Next() = 0;
         end;
 
         // Verify report for assembly item.
@@ -2190,7 +2190,7 @@ codeunit 137390 "SCM Kitting -  Reports"
                 // Cost amount - expected.
                 LibraryReportDataset.AssertElementWithValueExists('CostAmountExpected1_ValueEntry', ValueEntry."Cost Amount (Expected)");
 
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
     end;
 
     [Normal]
@@ -2259,8 +2259,8 @@ codeunit 137390 "SCM Kitting -  Reports"
             "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
             "G/L Account No." := GLAccountNo;
             Amount := LibraryRandom.RandDecInRange(100, 200, 2);
-            "Posting Date" := WorkDate;
-            Insert;
+            "Posting Date" := WorkDate();
+            Insert();
 
             exit("Entry No.");
         end;
@@ -2273,7 +2273,7 @@ codeunit 137390 "SCM Kitting -  Reports"
         with GLEntry do begin
             Get(MockGLEntry(GLAccountNo));
             "Posting Date" := PostingDate;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2290,7 +2290,7 @@ codeunit 137390 "SCM Kitting -  Reports"
         with InventoryReportEntry do begin
             Type := ReportEntryType;
             "No." := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2303,7 +2303,7 @@ codeunit 137390 "SCM Kitting -  Reports"
             "Item No." := ItemNo;
             "Item Ledger Entry Type" := ItemLedgerEntryType;
             "Entry Type" := EntryType;
-            Insert;
+            Insert();
 
             exit("Entry No.");
         end;
@@ -2338,7 +2338,7 @@ codeunit 137390 "SCM Kitting -  Reports"
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name,
           ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
-        ItemJournalLine.Validate("Posting Date", WorkDate);
+        ItemJournalLine.Validate("Posting Date", WorkDate());
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;
@@ -2382,7 +2382,7 @@ codeunit 137390 "SCM Kitting -  Reports"
             if PostedAssemblyLine.FindSet() then
                 repeat
                     VerifyPostCostToGLTest(ValueEntry, PostedAssemblyLine."No.", PostingMethod, CompDimErrorMsg);
-                until PostedAssemblyLine.Next = 0;
+                until PostedAssemblyLine.Next() = 0;
         end;
 
         // Verify reports for assembly item.
@@ -2426,7 +2426,7 @@ codeunit 137390 "SCM Kitting -  Reports"
                 // Verify debiting and crediting accounts.
                 LibraryReportDataset.AssertCurrentRowValueEquals('TempInvtPostToGLTestBuf__Account_No__',
                   InventoryPostingSetup."Inventory Account");
-            until PostValueEntryToGL.Next = 0;
+            until PostValueEntryToGL.Next() = 0;
 
             // Check warning for dimensions, if the case.
             if DimensionErrorMessage <> '' then begin
@@ -2454,7 +2454,7 @@ codeunit 137390 "SCM Kitting -  Reports"
             if PostedAssemblyLine.FindSet() then
                 repeat
                     VerifyInvtGLRecon(PostedAssemblyLine."No.");
-                until PostedAssemblyLine.Next = 0;
+                until PostedAssemblyLine.Next() = 0;
         end;
 
         // Verify reports for assembly item.
@@ -2523,11 +2523,11 @@ codeunit 137390 "SCM Kitting -  Reports"
             Assert.AreEqual(Item."No.", DemandOverview."Item No.".Value, 'Wrong item no in demand overview.');
 
             DemandOverview.Expand(true);
-            DemandOverview.Next;
+            DemandOverview.Next();
             Assert.AreEqual(AssemblyHeader."Starting Date", DemandOverview.Date.AsDate, 'Wrong as of date in demand overview.');
 
             DemandOverview.Expand(true);
-            DemandOverview.Next;
+            DemandOverview.Next();
             Assert.AreEqual(Format(DemandLabel), Format(DemandOverview.Type.Value), 'Wrong demand type.');
             Assert.AreEqual(AssemblyHeader."Starting Date", DemandOverview.Date.AsDate, 'Wrong as of date in demand overview.');
             Assert.AreEqual(Format(AssemblyLabel), DemandOverview.SourceTypeText.Value, 'Wrong source type.');
@@ -2541,7 +2541,7 @@ codeunit 137390 "SCM Kitting -  Reports"
 
             count += 1;
             if ItemNo[count] <> '' then
-                DemandOverview.Next;
+                DemandOverview.Next();
         end;
 
         Assert.IsFalse(DemandOverview.Next, 'More rows than expected for assembly demand ' + AssemblyHeader."No.");
@@ -2638,7 +2638,7 @@ codeunit 137390 "SCM Kitting -  Reports"
                     ResourceCost += LineCost;
                     ResourceOvhd += LineOverhead;
                 end
-            until PostedAssemblyLine.Next = 0;
+            until PostedAssemblyLine.Next() = 0;
 
         PostedAssemblyHeader.SetRange("Order No.", AssemblyHeaderNo);
         PostedAssemblyHeader.FindFirst();
@@ -2721,7 +2721,7 @@ codeunit 137390 "SCM Kitting -  Reports"
                   InventoryReportEntry.FieldCaption("Material Variance"), GlobalCOGS,
                   GlobalInventoryAdjmt + GlobalCapacityVariance + GlobalMaterialVariance + GlobalCOGS);
 
-        until not InventoryGLReconMatrix.Next;
+        until not InventoryGLReconMatrix.Next();
     end;
 
     [Normal]

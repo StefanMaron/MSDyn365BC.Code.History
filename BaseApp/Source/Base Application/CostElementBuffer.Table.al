@@ -112,11 +112,11 @@ table 5820 "Cost Element Buffer"
         if GetElement(NewEntryType, NewVarianceType) then begin
             "Actual Cost" := "Actual Cost" + NewActualCost;
             "Actual Cost (ACY)" := "Actual Cost (ACY)" + NewActualCostACY;
-            Modify;
+            Modify();
         end else begin
             "Actual Cost" := NewActualCost;
             "Actual Cost (ACY)" := NewActualCostACY;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -129,11 +129,11 @@ table 5820 "Cost Element Buffer"
         if GetElement(NewEntryType, NewVarianceType) then begin
             "Expected Cost" := "Expected Cost" + NewExpectedCost;
             "Expected Cost (ACY)" := "Expected Cost (ACY)" + NewExpectedCostACY;
-            Modify;
+            Modify();
         end else begin
             "Expected Cost" := NewExpectedCost;
             "Expected Cost (ACY)" := NewExpectedCostACY;
-            Insert;
+            Insert();
         end;
     end;
 

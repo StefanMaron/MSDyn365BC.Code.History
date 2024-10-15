@@ -184,7 +184,7 @@
 
         LibrarySales.CreateSalesHeader(SalesHeaderOrder, SalesHeaderOrder."Document Type"::Order, Customer."No.");
         SalesHeaderOrder.Validate("VAT Bus. Posting Group", '');
-        SalesHeaderOrder.Modify;
+        SalesHeaderOrder.Modify();
 
         for Index := 1 to ArrayLen(Item) do begin
             LibraryInventory.CreateItemWithoutVAT(Item[Index]);

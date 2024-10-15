@@ -16,25 +16,25 @@ page 209 "Units of Measure"
                 ShowCaption = false;
                 field("Code"; Code)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies a code for the unit of measure, which you can select on item and resource cards from where it is copied to.';
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies a description of the unit of measure.';
                 }
-                field("International Standard Code"; "International Standard Code")
+                field("International Standard Code"; Rec."International Standard Code")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the unit of measure code expressed according to the UNECERec20 standard in connection with electronic sending of sales documents. For example, when sending sales documents through the PEPPOL service, the value in this field is used to populate the UnitCode element in the Product group.';
                 }
-                field("SAT UofM Classification"; "SAT UofM Classification")
+                field("SAT UofM Classification"; Rec."SAT UofM Classification")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the unit of measure required for reporting to the Mexican tax authorities (SAT)';
                 }
-                field("Coupled to CRM"; "Coupled to CRM")
+                field("Coupled to CRM"; Rec."Coupled to CRM")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies that the unit of measure is coupled to a unit group in Dynamics 365 Sales.';
@@ -109,7 +109,7 @@ page 209 "Units of Measure"
                         UnitOfMeasureRecordRef: RecordRef;
                     begin
                         CurrPage.SetSelectionFilter(UnitOfMeasure);
-                        UnitOfMeasure.Next;
+                        UnitOfMeasure.Next();
 
                         if UnitOfMeasure.Count = 1 then
                             CRMIntegrationManagement.UpdateOneNow(UnitOfMeasure.RecordId)

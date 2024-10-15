@@ -779,8 +779,8 @@ codeunit 139153 "Data Exch. to RapidStart UT"
             repeat
                 TempDataExchField := DataExchField;
                 TempDataExchField.Insert();
-            until DataExchField.Next = 0;
-        until DataExchLineDef.Next = 0;
+            until DataExchField.Next() = 0;
+        until DataExchLineDef.Next() = 0;
     end;
 
     local procedure VerifyValuesTransferredToRapidStart(DataExch: Record "Data Exch."; ConfigPackage: Record "Config. Package"; DataExchLineDef: Record "Data Exch. Line Def")
@@ -802,7 +802,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
         repeat
             TempReferenceDataExchField := TempDataExchField;
             TempReferenceDataExchField.Insert();
-        until TempDataExchField.Next = 0;
+        until TempDataExchField.Next() = 0;
 
         TempReferenceDataExchField.FindFirst();
 
@@ -810,7 +810,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
         DataExchLineDef.FindSet();
         repeat
             VerifyValuesTransferredToRapidStart2(TempDataExchField, TempReferenceDataExchField, ConfigPackage, DataExchLineDef);
-        until DataExchLineDef.Next = 0;
+        until DataExchLineDef.Next() = 0;
     end;
 
     local procedure VerifyValuesTransferredToRapidStart2(var DataExchField: Record "Data Exch. Field"; var ReferenceDataExchField: Record "Data Exch. Field"; ConfigPackage: Record "Config. Package"; DataExchLineDef: Record "Data Exch. Line Def")
@@ -838,7 +838,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
 
             Assert.AreEqual(
               ReferenceDataExchField.Count, ConfigPackageData.Count, 'There should be same number of values in the Config Package Data');
-        until DataExchField.Next = 0;
+        until DataExchField.Next() = 0;
     end;
 
     local procedure VerifyRapidStartRecords(ConfigPackage: Record "Config. Package"; TableID: Integer; ExpectedNumberOfRecords: Integer)
@@ -866,7 +866,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
         repeat
             ChildConfigPackageRecord.SetRange("Parent Record No.", ParentConfigPackageRecord."No.");
             Assert.AreEqual(NumberOfRecordsPerParent, ChildConfigPackageRecord.Count, 'Wrong number of Child Records found');
-        until ParentConfigPackageRecord.Next = 0;
+        until ParentConfigPackageRecord.Next() = 0;
     end;
 }
 

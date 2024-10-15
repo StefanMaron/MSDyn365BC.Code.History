@@ -58,7 +58,7 @@ table 5650 "Total Value Insured"
                     InsTotValueInsured2."Insurance No." := InsCoverageLedgEntry."Insurance No.";
                     InsTotValueInsured2."Total Value Insured" := InsCoverageLedgEntry.Amount;
                     TempInsTotValueInsured := InsTotValueInsured2;
-                    if TempInsTotValueInsured.Find then begin
+                    if TempInsTotValueInsured.Find() then begin
                         TempInsTotValueInsured."Total Value Insured" :=
                           TempInsTotValueInsured."Total Value Insured" + InsTotValueInsured2."Total Value Insured";
                         TempInsTotValueInsured.Modify();

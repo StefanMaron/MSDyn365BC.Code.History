@@ -6,7 +6,6 @@ page 9318 "Service Orders"
     DataCaptionFields = "Customer No.";
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Warehouse,Posting,Print/Send,Order,Navigate';
     SourceTable = "Service Header";
     SourceTableView = WHERE("Document Type" = CONST(Order));
     UsageCategory = Lists;
@@ -18,7 +17,7 @@ page 9318 "Service Orders"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -28,22 +27,22 @@ page 9318 "Service Orders"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service order status, which reflects the repair or maintenance status of all service items on the service order.';
                 }
-                field("Order Date"; "Order Date")
+                field("Order Date"; Rec."Order Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the order was created.';
                 }
-                field("Order Time"; "Order Time")
+                field("Order Time"; Rec."Order Time")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the time when the service order was created.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer who owns the items in the service document.';
                 }
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
@@ -53,17 +52,17 @@ page 9318 "Service Orders"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the customer to whom the items on the document will be shipped.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location (for example, warehouse or distribution center) of the items specified on the service item lines.';
                 }
-                field("Response Date"; "Response Date")
+                field("Response Date"; Rec."Response Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the estimated date when work on the order should start, that is, when the service order status changes from Pending, to In Process.';
                 }
-                field("Response Time"; "Response Time")
+                field("Response Time"; Rec."Response Time")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the estimated time when work on the order starts, that is, when the service order status changes from Pending, to In Process.';
@@ -73,113 +72,113 @@ page 9318 "Service Orders"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the priority of the service order.';
                 }
-                field("Release Status"; "Release Status")
+                field("Release Status"; Rec."Release Status")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies if items in the Service Lines window are ready to be handled in warehouse activities.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
-                field("Notify Customer"; "Notify Customer")
+                field("Notify Customer"; Rec."Notify Customer")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies how the customer wants to receive notifications about service completion.';
                     Visible = false;
                 }
-                field("Service Order Type"; "Service Order Type")
+                field("Service Order Type"; Rec."Service Order Type")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the type of this service order.';
                     Visible = false;
                 }
-                field("Contract No."; "Contract No.")
+                field("Contract No."; Rec."Contract No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the contract associated with the order.';
                     Visible = false;
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-                field("Payment Terms Code"; "Payment Terms Code")
+                field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                     Visible = false;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies when the invoice is due.';
                     Visible = false;
                 }
-                field("Payment Discount %"; "Payment Discount %")
+                field("Payment Discount %"; Rec."Payment Discount %")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the percentage of payment discount given, if the customer pays by the date entered in the Pmt. Discount Date field.';
                     Visible = false;
                 }
-                field("Payment Method Code"; "Payment Method Code")
+                field("Payment Method Code"; Rec."Payment Method Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
                     Visible = false;
                 }
-                field("Shipping Advice"; "Shipping Advice")
+                field("Shipping Advice"; Rec."Shipping Advice")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies information about whether the customer will accept a partial shipment of the order.';
                     Visible = false;
                 }
-                field("Warning Status"; "Warning Status")
+                field("Warning Status"; Rec."Warning Status")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the response time warning status for the order.';
                     Visible = false;
                 }
-                field("Allocated Hours"; "Allocated Hours")
+                field("Allocated Hours"; Rec."Allocated Hours")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of hours allocated to the items in this service order.';
                     Visible = false;
                 }
-                field("Expected Finishing Date"; "Expected Finishing Date")
+                field("Expected Finishing Date"; Rec."Expected Finishing Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when service on the order is expected to be finished.';
                     Visible = false;
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the starting date of the service, that is, the date when the order status changes from Pending, to In Process for the first time.';
                     Visible = false;
                 }
-                field("Finishing Date"; "Finishing Date")
+                field("Finishing Date"; Rec."Finishing Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the finishing date of the service, that is, the date when the Status field changes to Finished.';
                     Visible = false;
                 }
-                field("Service Time (Hours)"; "Service Time (Hours)")
+                field("Service Time (Hours)"; Rec."Service Time (Hours)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the total time in hours that the service specified in the order has taken.';
@@ -240,15 +239,12 @@ page 9318 "Service Orders"
                     ApplicationArea = Dimensions;
                     Caption = '&Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to journal lines to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
-                        ShowDocDim;
+                        ShowDocDim();
                     end;
                 }
                 action("Service Ledger E&ntries")
@@ -278,8 +274,6 @@ page 9318 "Service Orders"
                     ApplicationArea = Service;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     RunObject = Page "Service Comment Sheet";
                     RunPageLink = "Table Name" = CONST("Service Header"),
                                   "Table Subtype" = FIELD("Document Type"),
@@ -309,9 +303,6 @@ page 9318 "Service Orders"
                     ApplicationArea = Service;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
 
@@ -331,8 +322,6 @@ page 9318 "Service Orders"
                     ApplicationArea = Service;
                     Caption = 'S&hipments';
                     Image = Shipment;
-                    Promoted = true;
-                    PromotedCategory = Category8;
                     RunObject = Page "Posted Service Shipments";
                     RunPageLink = "Order No." = FIELD("No.");
                     RunPageView = SORTING("Order No.");
@@ -343,8 +332,6 @@ page 9318 "Service Orders"
                     ApplicationArea = Service;
                     Caption = 'Invoices';
                     Image = Invoice;
-                    Promoted = true;
-                    PromotedCategory = Category8;
                     RunObject = Page "Posted Service Invoices";
                     RunPageLink = "Order No." = FIELD("No.");
                     RunPageView = SORTING("Order No.");
@@ -360,8 +347,6 @@ page 9318 "Service Orders"
                     ApplicationArea = Warehouse;
                     Caption = 'Warehouse Shipment Lines';
                     Image = ShipmentLines;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Whse. Shipment Lines";
                     RunPageLink = "Source Type" = CONST(5902),
 #pragma warning disable
@@ -440,9 +425,6 @@ page 9318 "Service Orders"
                     Caption = 'P&ost';
                     Ellipsis = true;
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
@@ -456,8 +438,6 @@ page 9318 "Service Orders"
                     ApplicationArea = Service;
                     Caption = 'Preview Posting';
                     Image = ViewPostedOrder;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
@@ -475,9 +455,6 @@ page 9318 "Service Orders"
                     Caption = 'Post and &Print';
                     Ellipsis = true;
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
@@ -492,8 +469,6 @@ page 9318 "Service Orders"
                     Caption = 'Post &Batch';
                     Ellipsis = true;
                     Image = PostBatch;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Post several documents at once. A report request window opens where you can specify which documents to post.';
 
                     trigger OnAction()
@@ -511,8 +486,6 @@ page 9318 "Service Orders"
                     Caption = '&Print';
                     Ellipsis = true;
                     Image = Print;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                     trigger OnAction()
@@ -533,8 +506,6 @@ page 9318 "Service Orders"
                     ApplicationArea = Warehouse;
                     Caption = 'Release to Ship';
                     Image = ReleaseShipment;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Signal to warehouse workers that the service item is ready to be picked and shipped to the customer''s address.';
 
@@ -550,8 +521,6 @@ page 9318 "Service Orders"
                     ApplicationArea = Warehouse;
                     Caption = 'Reopen';
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Reactivate the service order after it has been released for warehouse handling.';
 
                     trigger OnAction()
@@ -567,8 +536,6 @@ page 9318 "Service Orders"
                     ApplicationArea = Warehouse;
                     Caption = 'Create Warehouse Shipment';
                     Image = NewShipment;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Prepare to pick and ship the service item.';
 
                     trigger OnAction()
@@ -577,7 +544,7 @@ page 9318 "Service Orders"
                     begin
                         GetSourceDocOutbound.CreateFromServiceOrder(Rec);
                         if not Find('=><') then
-                            Init;
+                            Init();
                     end;
                 }
             }
@@ -590,13 +557,87 @@ page 9318 "Service Orders"
                 ToolTip = 'Delete orders that were not automatically deleted after completion. For example, when several sales orders were completed by a single invoice.';
             }
         }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Warehouse', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Release to Ship_Promoted"; "Release to Ship")
+                {
+                }
+                actionref(Reopen_Promoted; Reopen)
+                {
+                }
+                actionref("Create Whse Shipment_Promoted"; "Create Whse Shipment")
+                {
+                }
+                actionref("Warehouse Shipment Lines_Promoted"; "Warehouse Shipment Lines")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Posting', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Post_Promoted; Post)
+                {
+                }
+                actionref("Post and &Print_Promoted"; "Post and &Print")
+                {
+                }
+                actionref(Preview_Promoted; Preview)
+                {
+                }
+                actionref(PostBatch_Promoted; PostBatch)
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Order', Comment = 'Generated from the PromotedActionCategories property index 6.';
+
+                actionref("&Dimensions_Promoted"; "&Dimensions")
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+            }
+            group(Category_Category8)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 7.';
+
+                actionref("S&hipments_Promoted"; "S&hipments")
+                {
+                }
+                actionref(Invoices_Promoted; Invoices)
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
     begin
-        SetSecurityFilterOnRespCenter;
+        SetSecurityFilterOnRespCenter();
 
-        CopyCustomerFilter;
+        CopyCustomerFilter();
     end;
 
     var

@@ -8,58 +8,275 @@
         <ConnectString />
       </ConnectionProperties>
       <rd:SecurityType>None</rd:SecurityType>
-      <rd:DataSourceID>20ccc14c-d470-4d19-aed4-a7771f9aa2bd</rd:DataSourceID>
+      <rd:DataSourceID>96847a87-c28d-4263-a6ec-b7f35e6ba428</rd:DataSourceID>
     </DataSource>
   </DataSources>
   <ReportSections>
     <ReportSection>
       <Body>
         <ReportItems>
-          <Tablix Name="table2">
+          <Textbox Name="Resource_TABLECAPTION__________ResFilter">
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>=First(Fields!Resource_TABLECAPTION__________ResFilter.Value)</Value>
+                    <Style>
+                      <FontSize>7pt</FontSize>
+                    </Style>
+                  </TextRun>
+                </TextRuns>
+              </Paragraph>
+            </Paragraphs>
+            <Height>0.423cm</Height>
+            <Width>18cm</Width>
+            <ZIndex>2</ZIndex>
+            <Visibility>
+              <Hidden>=IIF(First(Fields!ResFilter.Value) = "",TRUE,FALSE)</Hidden>
+            </Visibility>
+            <DataElementOutput>NoOutput</DataElementOutput>
+            <Style>
+              <VerticalAlign>Middle</VerticalAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="ResFilter">
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>=First(Fields!ResFilter.Value)</Value>
+                    <Style>
+                      <FontSize>7pt</FontSize>
+                      <Color>#ffff00</Color>
+                    </Style>
+                  </TextRun>
+                </TextRuns>
+              </Paragraph>
+            </Paragraphs>
+            <Left>18cm</Left>
+            <Height>0.423cm</Height>
+            <ZIndex>1</ZIndex>
+            <Visibility>
+              <Hidden>true</Hidden>
+            </Visibility>
+            <Style>
+              <VerticalAlign>Middle</VerticalAlign>
+            </Style>
+          </Textbox>
+          <Tablix Name="Table1">
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>7in</Width>
+                  <Width>1.575cm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>4.65cm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1.65cm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1.95cm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1.95cm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1.875cm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>0.2cm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>0.2cm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>0.2cm</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
                 <TablixRow>
-                  <Height>0.16667in</Height>
+                  <Height>1.692cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="textbox2">
+                        <Textbox Name="Resource__No__Caption">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=First(Fields!Resource_TABLECAPTION__________ResFilter.Value)</Value>
+                                  <Value>=First(Fields!Resource__No__Caption.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>textbox2</rd:DefaultName>
+                          <ZIndex>15</ZIndex>
                           <Style>
+                            <VerticalAlign>Bottom</VerticalAlign>
                             <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingRight>0.075cm</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <PaddingBottom>8pt</PaddingBottom>
                           </Style>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
-                  </TablixCells>
-                </TablixRow>
-                <TablixRow>
-                  <Height>0.16654in</Height>
-                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Resource_NameCaption">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=First(Fields!Resource_NameCaption.Value)</Value>
+                                  <Style>
+                                    <FontSize>7pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                            </Paragraph>
+                          </Paragraphs>
+                          <ZIndex>14</ZIndex>
+                          <Style>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                            <PaddingLeft>0.075cm</PaddingLeft>
+                            <PaddingRight>0.075cm</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>8pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Resource__Resource_Group_No__Caption">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=First(Fields!Resource__Resource_Group_No__Caption.Value)</Value>
+                                  <Style>
+                                    <FontSize>7pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                            </Paragraph>
+                          </Paragraphs>
+                          <ZIndex>13</ZIndex>
+                          <Style>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                            <PaddingLeft>0.075cm</PaddingLeft>
+                            <PaddingRight>0.075cm</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>8pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Resource__Gen__Prod__Posting_Group_Caption">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=First(Fields!Resource__Gen__Prod__Posting_Group_Caption.Value)</Value>
+                                  <Style>
+                                    <FontSize>7pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                            </Paragraph>
+                          </Paragraphs>
+                          <ZIndex>12</ZIndex>
+                          <Style>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                            <PaddingLeft>0.075cm</PaddingLeft>
+                            <PaddingRight>0.075cm</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>8pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="textbox2">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=First(Fields!GetShorDimCodeCaption1.Value)</Value>
+                                  <Style>
+                                    <FontSize>7pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                            </Paragraph>
+                          </Paragraphs>
+                          <ZIndex>11</ZIndex>
+                          <Style>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                            <PaddingLeft>0.075cm</PaddingLeft>
+                            <PaddingRight>0.075cm</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>8pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="textbox3">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=First(Fields!GetShorDimCodeCaption2.Value)</Value>
+                                  <Style>
+                                    <FontSize>7pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                            </Paragraph>
+                          </Paragraphs>
+                          <ZIndex>10</ZIndex>
+                          <Style>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                            <PaddingLeft>0.075cm</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>8pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="TextBox1">
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -71,8 +288,212 @@
                               </TextRuns>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>textbox3</rd:DefaultName>
+                          <ZIndex>9</ZIndex>
                           <Style>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>8pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                        <ColSpan>3</ColSpan>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell />
+                    <TablixCell />
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.423cm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Resource__No__">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!Resource__No__.Value</Value>
+                                  <Style>
+                                    <FontSize>7pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                            </Paragraph>
+                          </Paragraphs>
+                          <ZIndex>8</ZIndex>
+                          <Style>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>0.075cm</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Resource_Name">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!Resource_Name.Value</Value>
+                                  <Style>
+                                    <FontSize>7pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                            </Paragraph>
+                          </Paragraphs>
+                          <ZIndex>7</ZIndex>
+                          <Style>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>0.075cm</PaddingLeft>
+                            <PaddingRight>0.075cm</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Resource__Resource_Group_No__">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!Resource__Resource_Group_No__.Value</Value>
+                                  <Style>
+                                    <FontSize>7pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <ZIndex>6</ZIndex>
+                          <Style>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>0.075cm</PaddingLeft>
+                            <PaddingRight>0.075cm</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Resource__Gen__Prod__Posting_Group_">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!Resource__Gen__Prod__Posting_Group_.Value</Value>
+                                  <Style>
+                                    <FontSize>7pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                            </Paragraph>
+                          </Paragraphs>
+                          <ZIndex>5</ZIndex>
+                          <Style>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>0.075cm</PaddingLeft>
+                            <PaddingRight>0.075cm</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Resource__Global_Dimension_1_Code_">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!Resource__Global_Dimension_1_Code_.Value</Value>
+                                  <Style>
+                                    <FontSize>7pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                            </Paragraph>
+                          </Paragraphs>
+                          <ZIndex>4</ZIndex>
+                          <Style>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>0.075cm</PaddingLeft>
+                            <PaddingRight>0.075cm</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Resource__Global_Dimension_2_Code_">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!Resource__Global_Dimension_2_Code_.Value</Value>
+                                  <Style>
+                                    <FontSize>7pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                            </Paragraph>
+                          </Paragraphs>
+                          <ZIndex>3</ZIndex>
+                          <Style>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>0.075cm</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="COMPANYNAME">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!COMPANYNAME.Value</Value>
+                                  <Style>
+                                    <Color>#ff0000</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                            </Paragraph>
+                          </Paragraphs>
+                          <ZIndex>2</ZIndex>
+                          <Visibility>
+                            <Hidden>true</Hidden>
+                          </Visibility>
+                          <Style>
+                            <VerticalAlign>Middle</VerticalAlign>
                             <PaddingLeft>2pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
@@ -81,73 +502,37 @@
                         </Textbox>
                       </CellContents>
                     </TablixCell>
-                  </TablixCells>
-                </TablixRow>
-              </TablixRows>
-            </TablixBody>
-            <TablixColumnHierarchy>
-              <TablixMembers>
-                <TablixMember />
-              </TablixMembers>
-            </TablixColumnHierarchy>
-            <TablixRowHierarchy>
-              <TablixMembers>
-                <TablixMember>
-                  <Visibility>
-                    <Hidden>=IIF(Fields!ResFilter.Value&lt;&gt;"",false,true)</Hidden>
-                  </Visibility>
-                  <KeepWithGroup>After</KeepWithGroup>
-                  <KeepTogether>true</KeepTogether>
-                </TablixMember>
-                <TablixMember>
-                  <Visibility>
-                    <Hidden>=IIF(Fields!ResFilter.Value&lt;&gt;"",false,true)</Hidden>
-                  </Visibility>
-                  <KeepWithGroup>After</KeepWithGroup>
-                  <KeepTogether>true</KeepTogether>
-                </TablixMember>
-              </TablixMembers>
-            </TablixRowHierarchy>
-            <Height>0.33323in</Height>
-            <Width>7in</Width>
-            <ZIndex>1</ZIndex>
-            <Visibility>
-              <Hidden>=IIF(Fields!ResFilter.Value&lt;&gt;"",false,true)</Hidden>
-            </Visibility>
-            <DataElementOutput>NoOutput</DataElementOutput>
-          </Tablix>
-          <Tablix Name="Table1">
-            <TablixBody>
-              <TablixColumns>
-                <TablixColumn>
-                  <Width>0.62008in</Width>
-                </TablixColumn>
-                <TablixColumn>
-                  <Width>0.5315in</Width>
-                </TablixColumn>
-                <TablixColumn>
-                  <Width>1.53543in</Width>
-                </TablixColumn>
-                <TablixColumn>
-                  <Width>0.64961in</Width>
-                </TablixColumn>
-                <TablixColumn>
-                  <Width>0.68898in</Width>
-                </TablixColumn>
-                <TablixColumn>
-                  <Width>0.64961in</Width>
-                </TablixColumn>
-                <TablixColumn>
-                  <Width>0.64961in</Width>
-                </TablixColumn>
-                <TablixColumn>
-                  <Width>0.62008in</Width>
-                </TablixColumn>
-              </TablixColumns>
-              <TablixRows>
-                <TablixRow>
-                  <Height>0.03125in</Height>
-                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Resource___ListCaption">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!Resource___ListCaption.Value</Value>
+                                  <Style>
+                                    <Color>#ff0000</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                            </Paragraph>
+                          </Paragraphs>
+                          <ZIndex>1</ZIndex>
+                          <Visibility>
+                            <Hidden>true</Hidden>
+                          </Visibility>
+                          <Style>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="CurrReport_PAGENOCaption">
@@ -177,546 +562,6 @@
                         </Textbox>
                       </CellContents>
                     </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="CompanyInformation_Name">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Fields!CompanyInformation_Name.Value</Value>
-                                  <Style>
-                                    <Color>#ff0000</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Visibility>
-                            <Hidden>true</Hidden>
-                          </Visibility>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource_ListCaption">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Fields!Resource_ListCaption.Value</Value>
-                                  <Style>
-                                    <Color>#ff0000</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Visibility>
-                            <Hidden>true</Hidden>
-                          </Visibility>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="textbox1">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style />
-                                </TextRun>
-                              </TextRuns>
-                            </Paragraph>
-                          </Paragraphs>
-                          <rd:DefaultName>textbox1</rd:DefaultName>
-                          <Style>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                        <ColSpan>5</ColSpan>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell />
-                    <TablixCell />
-                    <TablixCell />
-                    <TablixCell />
-                  </TablixCells>
-                </TablixRow>
-                <TablixRow>
-                  <Height>0.49961in</Height>
-                  <TablixCells>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource__No__Caption">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=First(Fields!Resource__No__Caption.Value)</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>8pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource_TypeCaption">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=First(Fields!Resource_TypeCaption.Value)</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>8pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource_NameCaption">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=First(Fields!Resource_NameCaption.Value)</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>8pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource__Resource_Group_No__Caption">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=First(Fields!Resource__Resource_Group_No__Caption.Value)</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>8pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource__Gen__Prod__Posting_Group_Caption">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=First(Fields!Resource__Gen__Prod__Posting_Group_Caption.Value)</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>8pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource__Direct_Unit_Cost_Caption">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=First(Fields!Resource__Direct_Unit_Cost_Caption.Value)</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Right</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>8pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource__Unit_Cost_Caption">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=First(Fields!Resource__Unit_Cost_Caption.Value)</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Right</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>8pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource__Unit_Price_Caption">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=First(Fields!Resource__Unit_Price_Caption.Value)</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Right</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>8pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                  </TablixCells>
-                </TablixRow>
-                <TablixRow>
-                  <Height>0.16654in</Height>
-                  <TablixCells>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource__No__">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Fields!Resource__No__.Value</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Left</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource_Type">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Fields!Resource_Type.Value</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource_Name">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Fields!Resource_Name.Value</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource__Resource_Group_No__">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Fields!Resource__Resource_Group_No__.Value</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Left</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource__Gen__Prod__Posting_Group_">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Fields!Resource__Gen__Prod__Posting_Group_.Value</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Left</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource__Direct_Unit_Cost_">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Fields!Resource__Direct_Unit_Cost_.Value</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <Format>=Fields!Resource__Direct_Unit_Cost_Format.Value</Format>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource__Unit_Cost_">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Fields!Resource__Unit_Cost_.Value</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <Format>=Fields!Resource__Unit_Cost_Format.Value</Format>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource__Unit_Price_">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Fields!Resource__Unit_Price_.Value</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <Format>=Fields!Resource__Unit_Price_Format.Value</Format>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
               </TablixRows>
@@ -731,15 +576,11 @@
                 <TablixMember />
                 <TablixMember />
                 <TablixMember />
+                <TablixMember />
               </TablixMembers>
             </TablixColumnHierarchy>
             <TablixRowHierarchy>
               <TablixMembers>
-                <TablixMember>
-                  <KeepWithGroup>After</KeepWithGroup>
-                  <RepeatOnNewPage>true</RepeatOnNewPage>
-                  <KeepTogether>true</KeepTogether>
-                </TablixMember>
                 <TablixMember>
                   <KeepWithGroup>After</KeepWithGroup>
                   <RepeatOnNewPage>true</RepeatOnNewPage>
@@ -759,16 +600,16 @@
               </TablixMembers>
             </TablixRowHierarchy>
             <DataSetName>DataSet_Result</DataSetName>
-            <Top>0.33307in</Top>
-            <Width>5.94563in</Width>
+            <Top>0.63492cm</Top>
+            <Width>14.25cm</Width>
           </Tablix>
         </ReportItems>
-        <Height>1.03046in</Height>
+        <Height>2.74992cm</Height>
       </Body>
-      <Width>7.14567in</Width>
+      <Width>18.15cm</Width>
       <Page>
         <PageHeader>
-          <Height>0.62492in</Height>
+          <Height>1.692cm</Height>
           <PrintOnFirstPage>true</PrintOnFirstPage>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
@@ -789,9 +630,9 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.16654in</Top>
-              <Left>6.9685in</Left>
-              <Height>0.16654in</Height>
+              <Top>0.423cm</Top>
+              <Left>17.7cm</Left>
+              <Height>0.423cm</Height>
               <ZIndex>5</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -815,9 +656,9 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.33307in</Top>
-              <Left>5.11811in</Left>
-              <Height>0.16654in</Height>
+              <Top>0.846cm</Top>
+              <Left>14.9cm</Left>
+              <Height>0.423cm</Height>
               <ZIndex>4</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -832,7 +673,7 @@
                       <Value>=Globals!ExecutionTime</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
-                        <Format>f</Format>
+                        <Format>D</Format>
                       </Style>
                     </TextRun>
                   </TextRuns>
@@ -841,20 +682,20 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Left>5.11811in</Left>
-              <Height>0.16654in</Height>
+              <Left>15cm</Left>
+              <Height>0.423cm</Height>
               <ZIndex>3</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
             </Textbox>
-            <Textbox Name="CompanyInformation_Name1">
+            <Textbox Name="COMPANYNAME1">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=ReportItems!CompanyInformation_Name.Value</Value>
+                      <Value>=ReportItems!COMPANYNAME.Value</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                       </Style>
@@ -862,21 +703,21 @@
                   </TextRuns>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.16654in</Top>
-              <Height>0.16654in</Height>
-              <Width>2.95276in</Width>
+              <Top>0.423cm</Top>
+              <Height>0.423cm</Height>
+              <Width>7.5cm</Width>
               <ZIndex>2</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
             </Textbox>
-            <Textbox Name="Resource_ListCaption1">
+            <Textbox Name="Resource___ListCaption1">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=ReportItems!Resource_ListCaption.Value</Value>
+                      <Value>=ReportItems!Resource___ListCaption.Value</Value>
                       <Style>
                         <FontSize>8pt</FontSize>
                         <FontWeight>Bold</FontWeight>
@@ -885,8 +726,8 @@
                   </TextRuns>
                 </Paragraph>
               </Paragraphs>
-              <Height>0.16654in</Height>
-              <Width>2.95276in</Width>
+              <Height>0.423cm</Height>
+              <Width>7.5cm</Width>
               <ZIndex>1</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -904,24 +745,25 @@
                       </Style>
                     </TextRun>
                   </TextRuns>
-                  <Style>
-                    <TextAlign>Right</TextAlign>
-                  </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.16654in</Top>
-              <Left>6.67323in</Left>
-              <Height>0.16654in</Height>
-              <Width>0.29528in</Width>
+              <Top>0.423cm</Top>
+              <Left>16.95cm</Left>
+              <Height>0.423cm</Height>
+              <Width>0.75cm</Width>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
             </Textbox>
           </ReportItems>
         </PageHeader>
-        <LeftMargin>0.49213in</LeftMargin>
-        <TopMargin>0.3937in</TopMargin>
-        <BottomMargin>0.49213in</BottomMargin>
+        <PageHeight>29.7cm</PageHeight>
+        <PageWidth>21cm</PageWidth>
+        <InteractiveHeight>11in</InteractiveHeight>
+        <InteractiveWidth>8.5in</InteractiveWidth>
+        <LeftMargin>1.5cm</LeftMargin>
+        <TopMargin>2cm</TopMargin>
+        <BottomMargin>2cm</BottomMargin>
       </Page>
     </ReportSection>
   </ReportSections>
@@ -962,28 +804,25 @@ End Function
 </Code>
   <Language>=User!Language</Language>
   <ConsumeContainerWhitespace>true</ConsumeContainerWhitespace>
-  <rd:ReportUnitType>Inch</rd:ReportUnitType>
-  <rd:ReportID>fed83b43-fb19-4125-815e-f04e677b69ad</rd:ReportID>
+  <rd:ReportUnitType>Invalid</rd:ReportUnitType>
+  <rd:ReportID>ce2994f0-0a4f-4c97-ae95-60082db78207</rd:ReportID>
   <DataSets>
     <DataSet Name="DataSet_Result">
       <Fields>
-        <Field Name="FORMAT_TODAY_0_4_">
-          <DataField>FORMAT_TODAY_0_4_</DataField>
-        </Field>
-        <Field Name="TIME">
-          <DataField>TIME</DataField>
-        </Field>
-        <Field Name="CompanyInformation_Name">
-          <DataField>CompanyInformation_Name</DataField>
-        </Field>
-        <Field Name="USERID">
-          <DataField>USERID</DataField>
+        <Field Name="COMPANYNAME">
+          <DataField>COMPANYNAME</DataField>
         </Field>
         <Field Name="Resource_TABLECAPTION__________ResFilter">
           <DataField>Resource_TABLECAPTION__________ResFilter</DataField>
         </Field>
         <Field Name="ResFilter">
           <DataField>ResFilter</DataField>
+        </Field>
+        <Field Name="GetShorDimCodeCaption1">
+          <DataField>GetShorDimCodeCaption1</DataField>
+        </Field>
+        <Field Name="GetShorDimCodeCaption2">
+          <DataField>GetShorDimCodeCaption2</DataField>
         </Field>
         <Field Name="Resource__No__">
           <DataField>Resource__No__</DataField>
@@ -997,29 +836,14 @@ End Function
         <Field Name="Resource__Gen__Prod__Posting_Group_">
           <DataField>Resource__Gen__Prod__Posting_Group_</DataField>
         </Field>
-        <Field Name="Resource__Direct_Unit_Cost_">
-          <DataField>Resource__Direct_Unit_Cost_</DataField>
+        <Field Name="Resource__Global_Dimension_1_Code_">
+          <DataField>Resource__Global_Dimension_1_Code_</DataField>
         </Field>
-        <Field Name="Resource__Direct_Unit_Cost_Format">
-          <DataField>Resource__Direct_Unit_Cost_Format</DataField>
+        <Field Name="Resource__Global_Dimension_2_Code_">
+          <DataField>Resource__Global_Dimension_2_Code_</DataField>
         </Field>
-        <Field Name="Resource__Unit_Cost_">
-          <DataField>Resource__Unit_Cost_</DataField>
-        </Field>
-        <Field Name="Resource__Unit_Cost_Format">
-          <DataField>Resource__Unit_Cost_Format</DataField>
-        </Field>
-        <Field Name="Resource__Unit_Price_">
-          <DataField>Resource__Unit_Price_</DataField>
-        </Field>
-        <Field Name="Resource__Unit_Price_Format">
-          <DataField>Resource__Unit_Price_Format</DataField>
-        </Field>
-        <Field Name="Resource_Type">
-          <DataField>Resource_Type</DataField>
-        </Field>
-        <Field Name="Resource_ListCaption">
-          <DataField>Resource_ListCaption</DataField>
+        <Field Name="Resource___ListCaption">
+          <DataField>Resource___ListCaption</DataField>
         </Field>
         <Field Name="CurrReport_PAGENOCaption">
           <DataField>CurrReport_PAGENOCaption</DataField>
@@ -1035,18 +859,6 @@ End Function
         </Field>
         <Field Name="Resource__Gen__Prod__Posting_Group_Caption">
           <DataField>Resource__Gen__Prod__Posting_Group_Caption</DataField>
-        </Field>
-        <Field Name="Resource__Direct_Unit_Cost_Caption">
-          <DataField>Resource__Direct_Unit_Cost_Caption</DataField>
-        </Field>
-        <Field Name="Resource__Unit_Cost_Caption">
-          <DataField>Resource__Unit_Cost_Caption</DataField>
-        </Field>
-        <Field Name="Resource__Unit_Price_Caption">
-          <DataField>Resource__Unit_Price_Caption</DataField>
-        </Field>
-        <Field Name="Resource_TypeCaption">
-          <DataField>Resource_TypeCaption</DataField>
         </Field>
       </Fields>
       <Query>

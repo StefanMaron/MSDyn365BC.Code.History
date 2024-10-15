@@ -100,7 +100,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
 
         // Setup
         Initialize();
-        CreateCashFlowForecastDefaultWithManualPmtDates(CashFlowForecast, WorkDate, CalcDate('<1M>', WorkDate));
+        CreateCashFlowForecastDefaultWithManualPmtDates(CashFlowForecast, WorkDate(), CalcDate('<1M>', WorkDate()));
         CreateManualRevenueWithStartingDate(CFManualRevenue[1], CalcDate('<-1D>', CashFlowForecast."Manual Payments From"));
         CreateManualRevenueWithStartingDate(CFManualRevenue[2], CalcDate('<+1D>', CashFlowForecast."Manual Payments To"));
 
@@ -132,7 +132,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
 
         // Setup
         Initialize();
-        CreateCashFlowForecastDefaultWithManualPmtDates(CashFlowForecast, WorkDate, CalcDate('<1M>', WorkDate));
+        CreateCashFlowForecastDefaultWithManualPmtDates(CashFlowForecast, WorkDate(), CalcDate('<1M>', WorkDate()));
         CreateManualExpenseWithStartingDate(CFManualExpense[1], CalcDate('<-1D>', CashFlowForecast."Manual Payments From"));
         CreateManualExpenseWithStartingDate(CFManualExpense[2], CalcDate('<+1D>', CashFlowForecast."Manual Payments To"));
 
@@ -164,7 +164,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
 
         // Setup
         Initialize();
-        CreateCashFlowForecastDefaultWithManualPmtDates(CashFlowForecast, WorkDate, 0D);
+        CreateCashFlowForecastDefaultWithManualPmtDates(CashFlowForecast, WorkDate(), 0D);
         CreateManualRevenueWithStartingDate(CFManualRevenue, CashFlowForecast."Manual Payments From");
 
         // Exercise
@@ -194,7 +194,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
 
         // Setup
         Initialize();
-        CreateCashFlowForecastDefaultWithManualPmtDates(CashFlowForecast, WorkDate, 0D);
+        CreateCashFlowForecastDefaultWithManualPmtDates(CashFlowForecast, WorkDate(), 0D);
         CreateManualExpenseWithStartingDate(CFManualExpense, CashFlowForecast."Manual Payments From");
 
         // Exercise
@@ -370,7 +370,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         Evaluate(FAPostingDateFormula, '<1M>');
         FASetup.Get();
         CFHelper.CreateFixedAssetForInvestment(FixedAsset, FASetup."Default Depr. Book", FAPostingDateFormula, InvestmentAmount);
-        ExpectedDueAndCFDate := CalcDate(FAPostingDateFormula, WorkDate);
+        ExpectedDueAndCFDate := CalcDate(FAPostingDateFormula, WorkDate());
 
         // Exercise
         ConsiderSource["Cash Flow Source Type"::"Fixed Assets Budget".AsInteger()] := true;
@@ -408,7 +408,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         FASetup.Get();
         CFHelper.CreateFixedAssetForDisposal(FixedAsset, FASetup."Default Depr. Book", DeprecStartDateFormula, DeprecEndDateFormula,
           ExpectedDisposalDateFormula, ExpectedDisposalAmount);
-        ExpectedDueAndCFDate := CalcDate(ExpectedDisposalDateFormula, WorkDate);
+        ExpectedDueAndCFDate := CalcDate(ExpectedDisposalDateFormula, WorkDate());
 
         // Exercise
         ConsiderSource["Cash Flow Source Type"::"Fixed Assets Disposal".AsInteger()] := true;
@@ -1055,7 +1055,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         CashFlowSetup."Tax Bal. Account Type" := CashFlowSetup."Tax Bal. Account Type"::Vendor;
         CashFlowSetup."Tax Bal. Account No." := Vendor."No.";
         CashFlowSetup.Modify();
-        DocumentDate := CalcDate('<-CQ-30D>', WorkDate);
+        DocumentDate := CalcDate('<-CQ-30D>', WorkDate());
 
         // Setup - create the sales order
         CFHelper.CreateDefaultSalesOrder(SalesHeader);
@@ -1638,8 +1638,8 @@ codeunit 134551 "ERM Cash Flow Filling I"
         // Setup
         Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
-        CashFlowForecast.Validate("G/L Budget From", WorkDate);
-        CashFlowForecast.Validate("G/L Budget To", WorkDate);
+        CashFlowForecast.Validate("G/L Budget From", WorkDate());
+        CashFlowForecast.Validate("G/L Budget To", WorkDate());
         CashFlowForecast.Modify(true);
         CFHelper.CreateBudgetEntry(GLBudgetEntry, CashFlowForecast."G/L Budget To");
 
@@ -2027,7 +2027,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
                 PrepaymentAmount := Round(PurchaseLine.Amount * PurchaseHeader."Prepayment %" / 100, InvoiceRoundingPrecision);
                 PrepaymentAmount += Round(PrepaymentAmount * PurchaseLine."VAT %" / 100, InvoiceRoundingPrecision);
                 Amount += PurchaseLine."Amount Including VAT" - PrepaymentAmount;
-            until PurchaseLine.Next = 0;
+            until PurchaseLine.Next() = 0;
     end;
 
     local procedure CalculateSalesActualAmountInclPrepayment(SalesHeader: Record "Sales Header"; InvoiceRoundingPrecision: Decimal) Amount: Decimal
@@ -2042,7 +2042,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
                 PrepaymentAmount := Round(SalesLine.Amount * SalesHeader."Prepayment %" / 100, InvoiceRoundingPrecision);
                 PrepaymentAmount += Round(PrepaymentAmount * SalesLine."VAT %" / 100, InvoiceRoundingPrecision);
                 Amount += SalesLine."Amount Including VAT" - PrepaymentAmount;
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     local procedure CreateSalesPrepaymentInvoice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; PricesInclVAT: Boolean)
@@ -2118,7 +2118,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
             CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
             "Manual Payments From" := ManualPaymentsFrom;
             "Manual Payments To" := ManualPaymentsTo;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2128,7 +2128,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
             CFHelper.CreateManualRevenue(CFManualRevenue);
             Evaluate("Recurring Frequency", '');
             "Starting Date" := StartingDate;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2138,7 +2138,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
             CFHelper.CreateManualPayment(CFManualExpense);
             Evaluate("Recurring Frequency", '');
             "Starting Date" := StartingDate;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2167,7 +2167,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
     begin
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         if SalesHeader."Currency Code" = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else
             Currency.Get(SalesHeader."Currency Code");
 
@@ -2185,7 +2185,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
     begin
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         if PurchaseHeader."Currency Code" = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else
             Currency.Get(PurchaseHeader."Currency Code");
 
@@ -2220,7 +2220,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         repeat
             PurchaseLine.Validate("Prepayment %", PurchaseHeader."Prepayment %");
             PurchaseLine.Modify(true);
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure VerifyModifiedCustLEDatesOnCFJnl(DateField: Option; ConsiderDiscount: Boolean; ConsiderCFPmtTerms: Boolean; CFPmtTermsDateCalculationFieldNo: Integer)
@@ -2496,7 +2496,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
                 SalesLine.Validate("Tax Area Code", SalesHeader."Tax Area Code");
                 SalesLine.Validate("Tax Group Code", TaxGroup.Code);
                 SalesLine.Modify();
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 }
 

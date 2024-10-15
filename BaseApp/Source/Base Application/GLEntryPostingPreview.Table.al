@@ -406,7 +406,7 @@ table 1570 "G/L Entry Posting Preview"
     var
         DimMgt: Codeunit DimensionManagement;
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", CopyStr(StrSubstNo(DocumentTxt, TableCaption, "Entry No."), 1, 250));
+        DimMgt.ShowDimensionSet("Dimension Set ID", CopyStr(StrSubstNo(DocumentTxt, TableCaption(), "Entry No."), 1, 250));
     end;
 
     procedure GetCurrencyCode(): Code[10]

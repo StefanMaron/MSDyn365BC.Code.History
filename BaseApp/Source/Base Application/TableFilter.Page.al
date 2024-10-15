@@ -14,7 +14,7 @@
             repeater(Control2)
             {
                 ShowCaption = false;
-                field("Field Number"; "Field Number")
+                field("Field Number"; Rec."Field Number")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the field on which a security filter is set.';
@@ -34,13 +34,13 @@
                         end;
                     end;
                 }
-                field("Field Caption"; "Field Caption")
+                field("Field Caption"; Rec."Field Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the caption of the field on which a security filter is set.';
                 }
-                field("Field Filter"; "Field Filter")
+                field("Field Filter"; Rec."Field Filter")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value of the field for a security filter.';
@@ -49,7 +49,7 @@
                     var
                         Permission: Record Permission;
                     begin
-                        CheckFieldFilter;
+                        CheckFieldFilter();
                         Evaluate(Permission."Security Filter", CreateTextTableFilter(true));
                         CurrPage.Update(true);
                     end;
@@ -64,12 +64,12 @@
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        InitSourceTable;
+        InitSourceTable();
     end;
 
     trigger OnOpenPage()
     begin
-        SetCaption;
+        SetCaption();
     end;
 
     var
@@ -81,7 +81,7 @@
     local procedure FillSourceRecord("Field": Record "Field")
     begin
         SetRange("Field Number");
-        Init;
+        Init();
 
         "Table Number" := Field.TableNo;
         "Table Name" := Field.TableName;
@@ -100,14 +100,14 @@
         if AllObj.FindFirst() then
             SourceTableName := AllObj."Object Name";
         SourceTableCaption := NewTableCaption;
-        InitSourceTable;
+        InitSourceTable();
         if StrLen(TableFilterText) > 0 then
             ParseTableFilter(TableFilterText);
     end;
 
     local procedure InitSourceTable()
     begin
-        Init;
+        Init();
         "Table Number" := SourceTableNumber;
         "Table Name" := SourceTableName;
         "Line No." := 0;
@@ -228,11 +228,11 @@
     begin
         FirstField := true;
         if CurrentLineOnly then
-            AppendFieldFilter(TextTableFilter, CreateTextFieldFilter)
+            AppendFieldFilter(TextTableFilter, CreateTextFieldFilter())
         else
             if Find('-') then
                 repeat
-                    TextFieldFilter := CreateTextFieldFilter;
+                    TextFieldFilter := CreateTextFieldFilter();
                     if StrLen(TextFieldFilter) > 0 then begin
                         if not FirstField then
                             TextTableFilter += ',';
@@ -350,7 +350,7 @@
         FieldRef := RecordRef.Field("Field Number");
         FieldRef.SetFilter("Field Filter");
         "Field Filter" := FieldRef.GetFilter;
-        RecordRef.Close;
+        RecordRef.Close();
     end;
 
     local procedure SetCaption()
@@ -369,7 +369,7 @@
                 FldRef := RecRef.Field("Field Number");
                 FldRef.SetFilter("Field Filter");
             until Next() = 0;
-        exit(RecRef.GetView);
+        exit(RecRef.GetView());
     end;
 
     procedure GetFilterFieldsList(var TempTableFilter: Record "Table Filter")

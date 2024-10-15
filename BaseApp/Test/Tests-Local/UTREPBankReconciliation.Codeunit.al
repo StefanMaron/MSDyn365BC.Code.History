@@ -406,7 +406,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
         BankRecWorksheet.OpenEdit;
         BankRecWorksheet.FILTER.SetFilter("Bank Account No.", BankAccountNo);
         BankRecWorksheet.TestReport.Invoke;
-        BankRecWorksheet.Close;
+        BankRecWorksheet.Close();
     end;
 
     local procedure OpenPageBankRecTestReport(BankAccountNo: Code[20])
@@ -416,7 +416,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
         BankRecWorksheet.OpenEdit;
         BankRecWorksheet.FILTER.SetFilter("Bank Account No.", BankAccountNo);
         BankRecWorksheet.BankRecTestReport.Invoke;
-        BankRecWorksheet.Close;
+        BankRecWorksheet.Close();
     end;
 
     local procedure SetBankReconciliationReports()

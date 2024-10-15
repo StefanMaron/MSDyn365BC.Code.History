@@ -28,7 +28,7 @@ page 601 "IC Dimension Values"
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the name of the dimension code.';
                 }
-                field("Dimension Value Type"; "Dimension Value Type")
+                field("Dimension Value Type"; Rec."Dimension Value Type")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value.';
@@ -38,7 +38,7 @@ page 601 "IC Dimension Values"
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
                 }
-                field("Map-to Dimension Value Code"; "Map-to Dimension Value Code")
+                field("Map-to Dimension Value Code"; Rec."Map-to Dimension Value Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies which intercompany dimension value corresponds to the dimension value on the line.';
@@ -73,11 +73,19 @@ page 601 "IC Dimension Values"
                     ApplicationArea = Dimensions;
                     Caption = 'Indent IC Dimension Values';
                     Image = Indent;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     RunObject = Codeunit "IC Dimension Value-Indent";
                     ToolTip = 'Indent the names of all dimension values between each set of Begin-Total and End-Total dimension values. It will also enter a totaling interval for each End-Total dimension value.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Indent IC Dimension Values_Promoted"; "Indent IC Dimension Values")
+                {
                 }
             }
         }
@@ -86,7 +94,7 @@ page 601 "IC Dimension Values"
     trigger OnAfterGetRecord()
     begin
         NameIndent := 0;
-        FormatLine;
+        FormatLine();
     end;
 
     var

@@ -1,5 +1,6 @@
 table 135000 "Data Type Buffer"
 {
+    ReplicateData = false;
 
     fields
     {

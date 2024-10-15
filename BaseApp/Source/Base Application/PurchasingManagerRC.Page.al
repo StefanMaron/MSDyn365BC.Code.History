@@ -267,7 +267,7 @@ page 8905 "Purchasing Manager Role Center"
                     }
                     action("Inventory Purchase Orders1")
                     {
-                        ApplicationArea = Suite, Basic;
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Purchase Advice';
                         RunObject = Report "Purchase Advice";
                     }
@@ -649,7 +649,7 @@ page 8905 "Purchasing Manager Role Center"
                     }
                     action("Inventory Purchase Orders3")
                     {
-                        ApplicationArea = Suite, Basic;
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Purchase Advice';
                         RunObject = Report "Purchase Advice";
                     }

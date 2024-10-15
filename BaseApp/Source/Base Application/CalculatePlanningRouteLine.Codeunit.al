@@ -14,11 +14,6 @@ codeunit 99000810 "Calculate Planning Route Line"
     end;
 
     var
-        Text000: Label 'Error when calculating %1. Calendar is not available %2 %3 for %4 %5.';
-        Text001: Label 'backward';
-        Text002: Label 'before';
-        Text003: Label 'forward';
-        Text004: Label 'after';
         MfgSetup: Record "Manufacturing Setup";
         Item: Record Item;
         WorkCenter: Record "Work Center";
@@ -53,6 +48,12 @@ codeunit 99000810 "Calculate Planning Route Line"
         CurrentTimeFactor: Decimal;
         CurrentRounding: Decimal;
 
+        Text000: Label 'Error when calculating %1. Calendar is not available %2 %3 for %4 %5.';
+        Text001: Label 'backward';
+        Text002: Label 'before';
+        Text003: Label 'forward';
+        Text004: Label 'after';
+
     local procedure TestForError(DirectionTxt: Text[30]; BefAfterTxt: Text[30]; Date: Date)
     var
         WorkCenter: Record "Work Center";
@@ -72,7 +73,7 @@ codeunit 99000810 "Calculate Planning Route Line"
                                 Date,
                                 PlanningRoutingLine.Type,
                                 PlanningRoutingLine."No."),
-                              DATABASE::"Work Center", WorkCenter.GetPosition);
+                              DATABASE::"Work Center", WorkCenter.GetPosition());
                         end;
                     PlanningRoutingLine.Type::"Machine Center":
                         begin
@@ -85,7 +86,7 @@ codeunit 99000810 "Calculate Planning Route Line"
                                 Date,
                                 PlanningRoutingLine.Type,
                                 PlanningRoutingLine."No."),
-                              DATABASE::"Machine Center", MachCenter.GetPosition);
+                              DATABASE::"Machine Center", MachCenter.GetPosition());
                         end;
                 end;
             Error(
@@ -374,7 +375,7 @@ codeunit 99000810 "Calculate Planning Route Line"
         TestForError(Text001, Text002, PlanningRoutingLine."Starting Date");
     end;
 
-    local procedure LoadCapForward(CapType: Enum "Capacity Type"; CapNo: Code[20]; TimeType: Enum "Routing Time Type"; Write: Boolean)
+    procedure LoadCapForward(CapType: Enum "Capacity Type"; CapNo: Code[20]; TimeType: Enum "Routing Time Type"; Write: Boolean)
     var
         IsHandled: Boolean;
     begin
@@ -482,14 +483,14 @@ codeunit 99000810 "Calculate Planning Route Line"
             ProdOrderCapNeed2.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
             ProdOrderCapNeed2.SetRange("Worksheet Line No.", "Worksheet Line No.");
             ProdOrderCapNeed2.SetRange("Operation No.", "Operation No.");
-            if not ProdOrderCapNeed2.IsEmpty then
+            if not ProdOrderCapNeed2.IsEmpty() then
                 exit(false);
 
             // calculate Starting Date/Time for the last lot of the next line by going back from Ending Date/Time of the line
             WorkCenter2.Get(PlanningRoutingLineNext."Work Center No.");
             RunTime :=
               Round(
-                (ResidualLotSize * PlanningRoutingLineNext.RunTimePer) *
+                (ResidualLotSize * PlanningRoutingLineNext.RunTimePer()) *
                 CalendarMgt.TimeFactor(PlanningRoutingLineNext."Run Time Unit of Meas. Code") /
                 CalendarMgt.TimeFactor(WorkCenter2."Unit of Measure Code"),
                 WorkCenter2."Calendar Rounding Precision");
@@ -526,7 +527,7 @@ codeunit 99000810 "Calculate Planning Route Line"
             WorkCenter.Get("Work Center No.");
             RunTime :=
               Round(
-                (MaxLotSize - SendAheadLotSize) * RunTimePer *
+                (MaxLotSize - SendAheadLotSize) * RunTimePer() *
                 CalendarMgt.TimeFactor("Run Time Unit of Meas. Code") /
                 CalendarMgt.TimeFactor(WorkCenter."Unit of Measure Code"),
                 WorkCenter."Calendar Rounding Precision");
@@ -551,7 +552,7 @@ codeunit 99000810 "Calculate Planning Route Line"
             LoadCapForward(Type, "No.", RoutingTimeType::"Move Time", false);
 
             // last lot must be finished by current Work Center, otherwise we recalculate Ending Date/Time of current line
-            UpdateDatetime;
+            UpdateDatetime();
             if "Ending Date-Time" > ResidualProdStartDateTime then begin
                 "Ending Date" := DT2Date(ResidualProdStartDateTime);
                 "Ending Time" := DT2Time(ResidualProdStartDateTime);
@@ -575,7 +576,7 @@ codeunit 99000810 "Calculate Planning Route Line"
         ConstrainedCapacity: Record "Capacity Constrained Resource";
         ParentWorkCenter: Record "Capacity Constrained Resource";
         TempWorkCenter: Record "Work Center";
-        TmpPlanRtngLine: Record "Planning Routing Line" temporary;
+        TempPlanRoutingLine: Record "Planning Routing Line" temporary;
         ResourceIsConstrained: Boolean;
         ParentIsConstrained: Boolean;
         ShouldCalcNextOperation: Boolean;
@@ -598,8 +599,8 @@ codeunit 99000810 "Calculate Planning Route Line"
         if ShouldCalcNextOperation then begin
             Clear(PlanningRoutingLine3);
 
-            TmpPlanRtngLine.Reset();
-            TmpPlanRtngLine.DeleteAll();
+            TempPlanRoutingLine.Reset();
+            TempPlanRoutingLine.DeleteAll();
 
             PlanningRoutingLine2.SetRange("Worksheet Template Name", PlanningRoutingLine."Worksheet Template Name");
             PlanningRoutingLine2.SetRange("Worksheet Batch Name", PlanningRoutingLine."Worksheet Batch Name");
@@ -610,8 +611,8 @@ codeunit 99000810 "Calculate Planning Route Line"
                     TotalLotSize := 0;
                     GetSendAheadStartingTime(PlanningRoutingLine2, SendAheadLotSize);
 
-                    TmpPlanRtngLine.Copy(PlanningRoutingLine2);
-                    TmpPlanRtngLine.Insert();
+                    TempPlanRoutingLine.Copy(PlanningRoutingLine2);
+                    TempPlanRoutingLine.Insert();
 
                     if ProdEndingDate > ProdStartingDate then begin
                         ProdEndingDate := ProdStartingDate;
@@ -628,7 +629,7 @@ codeunit 99000810 "Calculate Planning Route Line"
             if PlanningRoutingLine3."Worksheet Template Name" <> '' then begin
                 WorkCenter2.Get(PlanningRoutingLine3."Work Center No.");
                 PlanningRoutingLine3."Critical Path" := true;
-                PlanningRoutingLine3.UpdateDatetime;
+                PlanningRoutingLine3.UpdateDatetime();
                 PlanningRoutingLine3.Modify();
                 if PlanningRoutingLine3.Type = PlanningRoutingLine3.Type::"Machine Center" then begin
                     MachineCenter.Get(PlanningRoutingLine3."No.");
@@ -681,11 +682,11 @@ codeunit 99000810 "Calculate Planning Route Line"
 
             ProdEndingDate := PlanningRoutingLine."Starting Date";
             ProdEndingTime := PlanningRoutingLine."Starting Time";
-        until FindSendAheadStartingTime(TmpPlanRtngLine, SendAheadLotSize);
+        until FindSendAheadStartingTime(TempPlanRoutingLine, SendAheadLotSize);
 
         ProdEndingDate := PlanningRoutingLine."Starting Date";
         ProdEndingTime := PlanningRoutingLine."Starting Time";
-        RemainNeedQty := GetSetupTimeBaseUOM;
+        RemainNeedQty := GetSetupTimeBaseUOM();
 
         with PlanningRoutingLine do begin
             ResourceIsConstrained := GetConstrainedCapacity(Type, "No.", ConstrainedCapacity);
@@ -745,7 +746,7 @@ codeunit 99000810 "Calculate Planning Route Line"
             exit(true);
         end;
 
-        TempConstrainedCapacityEmpty.Init;
+        TempConstrainedCapacityEmpty.Init();
         TempConstrainedCapacityEmpty."Capacity Type" := CapType;
         TempConstrainedCapacityEmpty."Capacity No." := CapNo;
         TempConstrainedCapacityEmpty.Insert();
@@ -795,7 +796,7 @@ codeunit 99000810 "Calculate Planning Route Line"
             ProdOrderCapNeed2.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
             ProdOrderCapNeed2.SetRange("Worksheet Line No.", "Worksheet Line No.");
             ProdOrderCapNeed2.SetRange("Operation No.", "Operation No.");
-            if not ProdOrderCapNeed2.IsEmpty then
+            if not ProdOrderCapNeed2.IsEmpty() then
                 exit(false);
 
             // calculate Starting Date/Time of current line using Setup/Run/Wait/Move Time for the first send-ahead lot from previous line
@@ -808,7 +809,7 @@ codeunit 99000810 "Calculate Planning Route Line"
                 WorkCenter2."Calendar Rounding Precision");
             RunTime :=
               Round(
-                SendAheadLotSize * PlanningRoutingLinePrev.RunTimePer *
+                SendAheadLotSize * PlanningRoutingLinePrev.RunTimePer() *
                 CalendarMgt.TimeFactor(PlanningRoutingLinePrev."Run Time Unit of Meas. Code") /
                 CalendarMgt.TimeFactor(WorkCenter2."Unit of Measure Code"),
                 WorkCenter2."Calendar Rounding Precision");
@@ -852,7 +853,7 @@ codeunit 99000810 "Calculate Planning Route Line"
                 WorkCenter."Calendar Rounding Precision");
             RunTime :=
               Round(
-                (MaxLotSize - ResidualLotSize) * RunTimePer *
+                (MaxLotSize - ResidualLotSize) * RunTimePer() *
                 CalendarMgt.TimeFactor("Run Time Unit of Meas. Code") /
                 CalendarMgt.TimeFactor(WorkCenter."Unit of Measure Code"),
                 WorkCenter."Calendar Rounding Precision");
@@ -864,7 +865,7 @@ codeunit 99000810 "Calculate Planning Route Line"
             ResidualProdStartDateTime := CreateDateTime(ProdStartingDate, ProdStartingTime);
 
             // last lot must be finished by previous Work Center, otherwise we recalculate Starting Date/Time of current line
-            PlanningRoutingLinePrev.UpdateDatetime;
+            PlanningRoutingLinePrev.UpdateDatetime();
             if PlanningRoutingLinePrev."Ending Date-Time" > ResidualProdStartDateTime then begin
                 ProdEndingDate := PlanningRoutingLinePrev."Ending Date";
                 ProdEndingTime := PlanningRoutingLinePrev."Ending Time";
@@ -888,13 +889,13 @@ codeunit 99000810 "Calculate Planning Route Line"
         PlanningRoutingLine3: Record "Planning Routing Line";
         ConstrainedCapacity: Record "Capacity Constrained Resource";
         ParentWorkCenter: Record "Capacity Constrained Resource";
-        TmpPlanRtngLine: Record "Planning Routing Line" temporary;
+        TempPlanRoutingLine: Record "Planning Routing Line" temporary;
         ResourceIsConstrained: Boolean;
         ParentIsConstrained: Boolean;
         SendAheadLotSize: Decimal;
         InputQtyDiffTime: Decimal;
     begin
-        OnBeforeCalcRoutingLineForward(PlanningRoutingLine, WorkCenter, SendAheadLotSize, MaxLotSize, TotalLotSize, RemainNeedQty, UpdateDates, FirstEntry, TmpPlanRtngLine);
+        OnBeforeCalcRoutingLineForward(PlanningRoutingLine, WorkCenter, SendAheadLotSize, MaxLotSize, TotalLotSize, RemainNeedQty, UpdateDates, FirstEntry, TempPlanRoutingLine);
 
         ProdStartingTime := PlanningRoutingLine."Starting Time";
         ProdStartingDate := PlanningRoutingLine."Starting Date";
@@ -910,8 +911,8 @@ codeunit 99000810 "Calculate Planning Route Line"
         then begin
             Clear(PlanningRoutingLine3);
 
-            TmpPlanRtngLine.Reset();
-            TmpPlanRtngLine.DeleteAll();
+            TempPlanRoutingLine.Reset();
+            TempPlanRoutingLine.DeleteAll();
 
             PlanningRoutingLine2.SetRange("Worksheet Template Name", PlanningRoutingLine."Worksheet Template Name");
             PlanningRoutingLine2.SetRange("Worksheet Batch Name", PlanningRoutingLine."Worksheet Batch Name");
@@ -922,8 +923,8 @@ codeunit 99000810 "Calculate Planning Route Line"
                     TotalLotSize := 0;
                     GetSendAheadEndingTime(PlanningRoutingLine2, SendAheadLotSize);
 
-                    TmpPlanRtngLine.Copy(PlanningRoutingLine2);
-                    TmpPlanRtngLine.Insert();
+                    TempPlanRoutingLine.Copy(PlanningRoutingLine2);
+                    TempPlanRoutingLine.Insert();
 
                     if ProdStartingDate < ProdEndingDate then begin
                         ProdStartingDate := ProdEndingDate;
@@ -943,7 +944,7 @@ codeunit 99000810 "Calculate Planning Route Line"
                         WorkCenter2.Get(PlanningRoutingLine2."Work Center No.");
                         InputQtyDiffTime :=
                           (PlanningRoutingLine2."Input Quantity" - PlanningRoutingLine."Input Quantity") *
-                          PlanningRoutingLine2.RunTimePer;
+                          PlanningRoutingLine2.RunTimePer();
                         InputQtyDiffTime :=
                           Round(
                             InputQtyDiffTime *
@@ -954,7 +955,7 @@ codeunit 99000810 "Calculate Planning Route Line"
                 until PlanningRoutingLine2.Next() = 0;
             if PlanningRoutingLine3."Worksheet Template Name" <> '' then begin
                 PlanningRoutingLine3."Critical Path" := true;
-                PlanningRoutingLine3.UpdateDatetime;
+                PlanningRoutingLine3.UpdateDatetime();
                 PlanningRoutingLine3.Modify();
             end;
         end else
@@ -968,7 +969,7 @@ codeunit 99000810 "Calculate Planning Route Line"
             WorkCenter."Calendar Rounding Precision");
         RemainNeedQty += InputQtyDiffTime;
         LoadCapForward(PlanningRoutingLine.Type, PlanningRoutingLine."No.", RoutingTimeType::"Queue Time", false);
-        RemainNeedQty := GetSetupTimeBaseUOM;
+        RemainNeedQty := GetSetupTimeBaseUOM();
         UpdateDates := true;
 
         with PlanningRoutingLine do begin
@@ -982,7 +983,7 @@ codeunit 99000810 "Calculate Planning Route Line"
 
         FirstInBatch := true;
         repeat
-            if (InputQtyDiffTime > 0) and (TotalLotSize = MaxLotSize) then begin
+            if (InputQtyDiffTime > 0) and (TotalLotSize = MaxLotSize) then
                 if ProdStartingDate < PlanningRoutingLine2."Ending Date" then begin
                     ProdStartingDate := PlanningRoutingLine2."Ending Date";
                     ProdStartingTime := PlanningRoutingLine2."Ending Time";
@@ -990,10 +991,9 @@ codeunit 99000810 "Calculate Planning Route Line"
                     if PlanningRoutingLine2."Ending Date" = ProdEndingDate then
                         if PlanningRoutingLine2."Ending Time" > ProdStartingTime then
                             ProdStartingTime := PlanningRoutingLine2."Ending Time";
-            end;
 
             LotSize := SendAheadLotSize;
-            RemainNeedQty := LotSize * PlanningRoutingLine.RunTimePer;
+            RemainNeedQty := LotSize * PlanningRoutingLine.RunTimePer();
             OnCalculateRoutingLineForwardOnAfterCalcRemainNeedQtyForLotSize(PlanningRoutingLine, RemainNeedQty);
             RemainNeedQty :=
               Round(
@@ -1013,7 +1013,7 @@ codeunit 99000810 "Calculate Planning Route Line"
 
             ProdStartingDate := PlanningRoutingLine."Ending Date";
             ProdStartingTime := PlanningRoutingLine."Ending Time";
-        until FindSendAheadEndingTime(TmpPlanRtngLine, SendAheadLotSize);
+        until FindSendAheadEndingTime(TempPlanRoutingLine, SendAheadLotSize);
 
         RemainNeedQty :=
           Round(
@@ -1257,7 +1257,7 @@ codeunit 99000810 "Calculate Planning Route Line"
           AvailCap, DampTime, CapacityConstrainedResource, ResourceIsConstrained, ParentCapacityConstrainedResource, ParentIsConstrained);
         SetupTime := 0;
         if TimeType = TimeType::"Run Time" then
-            SetupTime := GetSetupTimeBaseUOM * ConCurrCap;
+            SetupTime := GetSetupTimeBaseUOM() * ConCurrCap;
         if RemainNeedQty + SetupTime <= AvailCap + DampTime then
             AvailCap := AvailCap + DampTime;
         AvailCap :=
@@ -1397,7 +1397,7 @@ codeunit 99000810 "Calculate Planning Route Line"
         if (CalendarEntry."Capacity Type" = CalendarEntry."Capacity Type"::"Work Center") or
            ((CalendarEntry."Capacity Type" = CalendarEntry."Capacity Type"::"Machine Center") and
             (IsResourceConstrained xor IsParentConstrained))
-        then begin
+        then
             with ConstrainedCapacity do begin
                 if IsParentConstrained then begin
                     ConstrainedCapacity := ParentWorkCenter;
@@ -1406,8 +1406,8 @@ codeunit 99000810 "Calculate Planning Route Line"
                     CalcCapConResProdOrderNeedBase(ConstrainedCapacity, CalendarEntry.Date, CapEffectiveBase, CurrentLoadBase);
                 CalculateRoutingLine.CalcAvailCapBaseAndDampTime(
                   ConstrainedCapacity, AvailCap, DampTime, CapEffectiveBase, CurrentLoadBase, CurrentTimeFactor, CurrentRounding);
-            end;
-        end else begin
+            end
+        else begin
             CalcCapConResProdOrderNeedBase(ConstrainedCapacity, CalendarEntry.Date, CapEffectiveBase, CurrentLoadBase);
             CalculateRoutingLine.CalcAvailCapBaseAndDampTime(
               ConstrainedCapacity, AvailCap, DampTime, CapEffectiveBase, CurrentLoadBase, CurrentTimeFactor, CurrentRounding);
@@ -1486,7 +1486,7 @@ codeunit 99000810 "Calculate Planning Route Line"
         exit(TempPlanningErrorLog.GetError(PlanningErrorLog));
     end;
 
-    local procedure FindSendAheadEndingTime(var TmpPlanRtngLine: Record "Planning Routing Line"; var SendAheadLotSize: Decimal): Boolean
+    local procedure FindSendAheadEndingTime(var TempPlanRoutingLine: Record "Planning Routing Line"; var SendAheadLotSize: Decimal): Boolean
     var
         Result: Boolean;
         xTotalLotSize: Decimal;
@@ -1494,20 +1494,20 @@ codeunit 99000810 "Calculate Planning Route Line"
     begin
         xTotalLotSize := TotalLotSize;
         xSendAheadLotSize := SendAheadLotSize;
-        if TmpPlanRtngLine.FindSet() then begin
+        if TempPlanRoutingLine.FindSet() then
             repeat
                 TotalLotSize := xTotalLotSize;
                 SendAheadLotSize := xSendAheadLotSize;
 
-                Result := Result or GetSendAheadEndingTime(TmpPlanRtngLine, SendAheadLotSize);
-            until TmpPlanRtngLine.Next() = 0;
-        end else
-            Result := GetSendAheadEndingTime(TmpPlanRtngLine, SendAheadLotSize);
+                Result := Result or GetSendAheadEndingTime(TempPlanRoutingLine, SendAheadLotSize);
+            until TempPlanRoutingLine.Next() = 0
+        else
+            Result := GetSendAheadEndingTime(TempPlanRoutingLine, SendAheadLotSize);
 
         exit(Result);
     end;
 
-    local procedure FindSendAheadStartingTime(var TmpPlanRtngLine: Record "Planning Routing Line"; var SendAheadLotSize: Decimal): Boolean
+    local procedure FindSendAheadStartingTime(var TempPlanRoutingLine: Record "Planning Routing Line"; var SendAheadLotSize: Decimal): Boolean
     var
         Result: Boolean;
         xTotalLotSize: Decimal;
@@ -1515,15 +1515,15 @@ codeunit 99000810 "Calculate Planning Route Line"
     begin
         xTotalLotSize := TotalLotSize;
         xSendAheadLotSize := SendAheadLotSize;
-        if TmpPlanRtngLine.FindSet() then begin
+        if TempPlanRoutingLine.FindSet() then
             repeat
                 TotalLotSize := xTotalLotSize;
                 SendAheadLotSize := xSendAheadLotSize;
 
-                Result := Result or GetSendAheadStartingTime(TmpPlanRtngLine, SendAheadLotSize);
-            until TmpPlanRtngLine.Next() = 0;
-        end else
-            Result := GetSendAheadStartingTime(TmpPlanRtngLine, SendAheadLotSize);
+                Result := Result or GetSendAheadStartingTime(TempPlanRoutingLine, SendAheadLotSize);
+            until TempPlanRoutingLine.Next() = 0
+        else
+            Result := GetSendAheadStartingTime(TempPlanRoutingLine, SendAheadLotSize);
 
         exit(Result);
     end;

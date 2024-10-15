@@ -77,7 +77,7 @@ table 7309 "Warehouse Journal Template"
             begin
                 WhseJnlLine.SetRange("Journal Template Name", Name);
                 WhseJnlLine.ModifyAll("Source Code", "Source Code");
-                Modify;
+                Modify();
             end;
         }
         field(11; "Reason Code"; Code[10])
@@ -167,9 +167,10 @@ table 7309 "Warehouse Journal Template"
     end;
 
     var
-        Text000: Label 'must not be %1';
         WhseJnlBatch: Record "Warehouse Journal Batch";
         WhseJnlLine: Record "Warehouse Journal Line";
         SourceCodeSetup: Record "Source Code Setup";
+
+        Text000: Label 'must not be %1';
 }
 

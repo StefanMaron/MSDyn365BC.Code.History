@@ -9,57 +9,6 @@ page 9037 "Accountant Activities"
     {
         area(content)
         {
-#if not CLEAN18
-            cuegroup("Intelligent Cloud")
-            {
-                Caption = 'Intelligent Cloud';
-                Visible = false;
-                ObsoleteReason = 'Intelligent Cloud Insights is discontinued';
-                ObsoleteState = Pending;
-                ObsoleteTag = '18.0';
-                actions
-                {
-                    action("Learn More")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Learn More';
-                        Image = TileInfo;
-                        RunPageMode = View;
-                        ToolTip = ' Learn more about the Intelligent Cloud and how it can help your business.';
-                        Visible = false;
-                        ObsoleteReason = 'Intelligent Cloud Insights is discontinued';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '18.0';
-
-                        trigger OnAction()
-                        var
-                            IntelligentCloudManagement: Codeunit "Intelligent Cloud Management";
-                        begin
-                            HyperLink(IntelligentCloudManagement.GetIntelligentCloudLearnMoreUrl);
-                        end;
-                    }
-                    action("Intelligent Cloud Insights")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Intelligent Cloud Insights';
-                        Image = TileCloud;
-                        RunPageMode = View;
-                        ToolTip = 'View your Intelligent Cloud insights.';
-                        Visible = false;
-                        ObsoleteTag = '18.0';
-                        ObsoleteReason = 'Intelligent Cloud Insights is discontinued.';
-                        ObsoleteState = Pending;
-
-                        trigger OnAction()
-                        var
-                            IntelligentCloudManagement: Codeunit "Intelligent Cloud Management";
-                        begin
-                            HyperLink(IntelligentCloudManagement.GetIntelligentCloudInsightsUrl);
-                        end;
-                    }
-                }
-            }
-#endif
             cuegroup(Control36)
             {
                 CueGroupLayout = Wide;
@@ -271,8 +220,8 @@ page 9037 "Accountant Activities"
 
                         trigger OnAction()
                         begin
-                            if UserTours.IsAvailable and O365GettingStartedMgt.AreUserToursEnabled() then
-                                UserTours.StartUserTour(O365GettingStartedMgt.GetChangeCompanyTourID);
+                            if UserTours.IsAvailable() and O365GettingStartedMgt.AreUserToursEnabled() then
+                                UserTours.StartUserTour(O365GettingStartedMgt.GetChangeCompanyTourID());
                         end;
                     }
                     action(ReplayGettingStarted)
@@ -341,8 +290,6 @@ page 9037 "Accountant Activities"
     }
 
     trigger OnAfterGetCurrRecord()
-    var
-        EnvironmentInfo: Codeunit "Environment Information";
     begin
         ReplayGettingStartedVisible := false;
         if EnvironmentInfo.IsSaaS() then
@@ -355,8 +302,6 @@ page 9037 "Accountant Activities"
     end;
 
     trigger OnInit()
-    var
-        EnvironmentInfo: Codeunit "Environment Information";
     begin
         ReplayGettingStartedVisible := false;
         if EnvironmentInfo.IsSaaS() then
@@ -385,9 +330,9 @@ page 9037 "Accountant Activities"
         RoleCenterNotificationMgt.ShowNotifications();
         ConfPersonalizationMgt.RaiseOnOpenRoleCenterEvent();
 
-        if PageNotifier.IsAvailable then begin
-            PageNotifier := PageNotifier.Create;
-            PageNotifier.NotifyPageReady;
+        if PageNotifier.IsAvailable() then begin
+            PageNotifier := PageNotifier.Create();
+            PageNotifier.NotifyPageReady();
         end;
     end;
 

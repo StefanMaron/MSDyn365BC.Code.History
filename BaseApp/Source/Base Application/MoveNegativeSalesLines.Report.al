@@ -114,11 +114,9 @@ report 6699 "Move Negative Sales Lines"
     end;
 
     var
-        FromSalesHeader: Record "Sales Header";
         ToSalesHeader: Record "Sales Header";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
         ToDocType: Option ,,"Order",Invoice,"Return Order","Credit Memo";
-        ToDocType2: Option ,,"Order",Invoice,"Return Order","Credit Memo";
         FromDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo";
         Text001: Label '%1 %2 has been created. Do you want to view the created document?';
         [InDataSet]
@@ -126,6 +124,10 @@ report 6699 "Move Negative Sales Lines"
         [InDataSet]
         DropDownForOrderAndInvoiceEdit: Boolean;
         Text19037468: Label 'When you move a negative sales line to your selected document type, the quantity of the line on the selected document becomes positive.';
+
+    protected var
+        FromSalesHeader: Record "Sales Header";
+        ToDocType2: Option ,,"Order",Invoice,"Return Order","Credit Memo";
 
     procedure SetSalesHeader(var NewFromSalesHeader: Record "Sales Header")
     begin
@@ -137,7 +139,7 @@ report 6699 "Move Negative Sales Lines"
         ConfirmManagement: Codeunit "Confirm Management";
     begin
         Commit();
-        if ToSalesHeader.Find then
+        if ToSalesHeader.Find() then
             if ConfirmManagement.GetResponse(
                  StrSubstNo(Text001, ToSalesHeader."Document Type", ToSalesHeader."No."), true)
             then

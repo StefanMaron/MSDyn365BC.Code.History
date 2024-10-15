@@ -64,7 +64,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
           PreAmounts);
 
         SalesInvoice.SalesLines."Total VAT Amount".AssertEquals(0);
-        SalesInvoice.Close;
+        SalesInvoice.Close();
 
         // [WHEN] User sets the Tax Group Code
         SalesLine.Validate("Tax Group Code", TaxGroupCode);
@@ -143,7 +143,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
 
         // [WHEN] User changes the quantity
         SalesInvoice.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
-        SalesInvoice.SalesLines.Next;
+        SalesInvoice.SalesLines.Next();
 
         SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDEcimal,
           SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDEcimal,
@@ -212,7 +212,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         SalesInvoice.SalesLines."Invoice Discount Amount".AssertEquals(0);
         SalesInvoice.SalesLines."Total VAT Amount".AssertEquals(0);
 
-        SalesInvoice.Close;
+        SalesInvoice.Close();
 
         // [WHEN] User sets the Tax Group Code
         SalesLine.Validate("Tax Group Code", TaxGroupCode);
@@ -290,7 +290,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
           SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDEcimal,
           PreAmounts);
 
-        SalesInvoice.Close;
+        SalesInvoice.Close();
 
         // [WHEN] User sets the Tax Group Code
         SalesLine.Validate("Tax Group Code", TaxGroupCode);
@@ -301,7 +301,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // Mimic the behavior of assigning the Tax Group Code through the page,
         // which is not feasible through Page Testability because Visible == FALSE
         SalesInvoice.SalesLines."Unit Price".SetValue(SalesLine."Unit Price");
-        SalesInvoice.SalesLines.Next;
+        SalesInvoice.SalesLines.Next();
 
         SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDEcimal,
           SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDEcimal,
@@ -501,7 +501,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
           PreAmounts);
 
         SalesOrder.SalesLines."Total VAT Amount".AssertEquals(0);
-        SalesOrder.Close;
+        SalesOrder.Close();
 
         // [WHEN] User sets the Tax Group Code
         SalesLine.Validate("Tax Group Code", TaxGroupCode);
@@ -580,7 +580,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
 
         // [WHEN] User changes the quantity
         SalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
-        SalesOrder.SalesLines.Next;
+        SalesOrder.SalesLines.Next();
 
         SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
           SalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
@@ -648,7 +648,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
 
         SalesOrder.SalesLines."Invoice Discount Amount".AssertEquals(0);
         SalesOrder.SalesLines."Total VAT Amount".AssertEquals(0);
-        SalesOrder.Close;
+        SalesOrder.Close();
 
         // [WHEN] User sets the Tax Group Code
         SalesLine.Validate("Tax Group Code", TaxGroupCode);
@@ -725,7 +725,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
           SalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
           SalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
           PreAmounts);
-        SalesOrder.Close;
+        SalesOrder.Close();
 
         // [WHEN] User sets the Tax Group Code
         SalesLine.Validate("Tax Group Code", TaxGroupCode);
@@ -736,7 +736,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // Mimic the behavior of assigning the Tax Group Code through the page,
         // which is not feasible through Page Testability because Visible == FALSE
         SalesOrder.SalesLines."Unit Price".SetValue(SalesLine."Unit Price");
-        SalesOrder.SalesLines.Next;
+        SalesOrder.SalesLines.Next();
 
         SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
           SalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
@@ -936,7 +936,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
           PreAmounts);
 
         SalesReturnOrder.SalesLines."Total VAT Amount".AssertEquals(0);
-        SalesReturnOrder.Close;
+        SalesReturnOrder.Close();
 
         // [WHEN] User sets the Tax Group Code
         SalesLine.Validate("Tax Group Code", TaxGroupCode);
@@ -1016,7 +1016,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
 
         // [WHEN] User changes the quantity
         SalesReturnOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
-        if SalesReturnOrder.SalesLines.Next then
+        if SalesReturnOrder.SalesLines.Next() then
             SalesReturnOrder.SalesLines.Previous();
 
         SetCompareAmounts(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
@@ -1085,7 +1085,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
 
         SalesReturnOrder.SalesLines."Invoice Discount Amount".AssertEquals(0);
         SalesReturnOrder.SalesLines."Total VAT Amount".AssertEquals(0);
-        SalesReturnOrder.Close;
+        SalesReturnOrder.Close();
 
         // [WHEN] User sets the Tax Group Code
         SalesLine.Validate("Tax Group Code", TaxGroupCode);
@@ -1163,7 +1163,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
           SalesReturnOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
           SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
           PreAmounts);
-        SalesReturnOrder.Close;
+        SalesReturnOrder.Close();
 
         // [WHEN] User sets the Tax Group Code
         SalesLine.Validate("Tax Group Code", TaxGroupCode);
@@ -1176,7 +1176,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OriginalUnitPrice := SalesLine."Unit Price";
         SalesReturnOrder.SalesLines."Unit Price".SetValue(OriginalUnitPrice + 1);
         SalesReturnOrder.SalesLines."Unit Price".SetValue(OriginalUnitPrice);
-        SalesReturnOrder.SalesLines.Next;
+        SalesReturnOrder.SalesLines.Next();
 
         SetCompareAmounts(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
           SalesReturnOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
@@ -1376,7 +1376,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
           PreAmounts);
 
         SalesCrMemo.SalesLines."Total VAT Amount".AssertEquals(0);
-        SalesCrMemo.Close;
+        SalesCrMemo.Close();
 
         // [WHEN] User sets the Tax Group Code
         SalesLine.Validate("Tax Group Code", TaxGroupCode);
@@ -1455,7 +1455,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
 
         // [WHEN] User changes the quantity
         SalesCrMemo.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
-        SalesCrMemo.SalesLines.Next;
+        SalesCrMemo.SalesLines.Next();
 
         SetCompareAmounts(SalesCrMemo.SalesLines."Invoice Discount Amount".AsDEcimal,
           SalesCrMemo.SalesLines."Total Amount Excl. VAT".AsDEcimal,
@@ -1523,7 +1523,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
 
         SalesCrMemo.SalesLines."Invoice Discount Amount".AssertEquals(0);
         SalesCrMemo.SalesLines."Total VAT Amount".AssertEquals(0);
-        SalesCrMemo.Close;
+        SalesCrMemo.Close();
 
         // [WHEN] User sets the Tax Group Code
         SalesLine.Validate("Tax Group Code", TaxGroupCode);
@@ -1601,7 +1601,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
           SalesCrMemo.SalesLines."Total Amount Incl. VAT".AsDEcimal,
           SalesCrMemo.SalesLines."Invoice Disc. Pct.".AsDEcimal,
           PreAmounts);
-        SalesCrMemo.Close;
+        SalesCrMemo.Close();
 
         // [WHEN] User sets the Tax Group Code
         SalesLine.Validate("Tax Group Code", TaxGroupCode);
@@ -1614,7 +1614,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OriginalUnitPrice := SalesLine."Unit Price";
         SalesCrMemo.SalesLines."Unit Price".SetValue(OriginalUnitPrice + 1);
         SalesCrMemo.SalesLines."Unit Price".SetValue(OriginalUnitPrice);
-        SalesCrMemo.SalesLines.Next;
+        SalesCrMemo.SalesLines.Next();
 
         SetCompareAmounts(SalesCrMemo.SalesLines."Invoice Discount Amount".AsDEcimal,
           SalesCrMemo.SalesLines."Total Amount Excl. VAT".AsDEcimal,
@@ -1814,7 +1814,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
           PreAmounts);
 
         BlanketSalesOrder.SalesLines."Total VAT Amount".AssertEquals(0);
-        BlanketSalesOrder.Close;
+        BlanketSalesOrder.Close();
 
         // [WHEN] User sets the Tax Group Code
         SalesLine.Validate("Tax Group Code", TaxGroupCode);
@@ -1960,7 +1960,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
 
         BlanketSalesOrder.SalesLines."Invoice Discount Amount".AssertEquals(0);
         BlanketSalesOrder.SalesLines."Total VAT Amount".AssertEquals(0);
-        BlanketSalesOrder.Close;
+        BlanketSalesOrder.Close();
 
         // [WHEN] User sets the Tax Group Code
         SalesLine.Validate("Tax Group Code", TaxGroupCode);
@@ -2038,7 +2038,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
           BlanketSalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
           BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
           PreAmounts);
-        BlanketSalesOrder.Close;
+        BlanketSalesOrder.Close();
 
         // [WHEN] User sets the Tax Group Code
         SalesLine.Validate("Tax Group Code", TaxGroupCode);
@@ -2051,7 +2051,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OriginalUnitPrice := SalesLine."Unit Price";
         BlanketSalesOrder.SalesLines."Unit Price".SetValue(OriginalUnitPrice + 1);
         BlanketSalesOrder.SalesLines."Unit Price".SetValue(OriginalUnitPrice);
-        BlanketSalesOrder.SalesLines.Next;
+        BlanketSalesOrder.SalesLines.Next();
 
         SetCompareAmounts(BlanketSalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
           BlanketSalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
@@ -2183,7 +2183,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
           PreAmounts);
 
         SalesQuote.SalesLines."Total VAT Amount".AssertEquals(0);
-        SalesQuote.Close;
+        SalesQuote.Close();
 
         // [WHEN] User sets the Tax Group Code
         SalesLine.Validate("Tax Group Code", TaxGroupCode);
@@ -2262,7 +2262,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
 
         // [WHEN] User changes the quantity
         SalesQuote.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
-        SalesQuote.SalesLines.Next;
+        SalesQuote.SalesLines.Next();
 
         SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDEcimal,
           SalesQuote.SalesLines."Total Amount Excl. VAT".AsDEcimal,
@@ -2330,7 +2330,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
 
         SalesQuote.SalesLines."Invoice Discount Amount".AssertEquals(0);
         SalesQuote.SalesLines."Total VAT Amount".AssertEquals(0);
-        SalesQuote.Close;
+        SalesQuote.Close();
 
         // [WHEN] User sets the Tax Group Code
         SalesLine.Validate("Tax Group Code", TaxGroupCode);
@@ -2407,7 +2407,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
           SalesQuote.SalesLines."Total Amount Incl. VAT".AsDEcimal,
           SalesQuote.SalesLines."Invoice Disc. Pct.".AsDEcimal,
           PreAmounts);
-        SalesQuote.Close;
+        SalesQuote.Close();
 
         // [WHEN] User sets the Tax Group Code
         SalesLine.Validate("Tax Group Code", TaxGroupCode);
@@ -2418,7 +2418,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         // Mimic the behavior of assigning the Tax Group Code through the page,
         // which is not feasible through Page Testability because Visible == FALSE
         SalesQuote.SalesLines."Unit Price".SetValue(SalesLine."Unit Price");
-        SalesQuote.SalesLines.Next;
+        SalesQuote.SalesLines.Next();
 
         SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDEcimal,
           SalesQuote.SalesLines."Total Amount Excl. VAT".AsDEcimal,
@@ -2540,9 +2540,12 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
+        VATEntry: Record "VAT Entry";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
+        VATEntry.DeleteAll();
+        
         LibrarySetupStorage.Restore();
         LibraryApplicationArea.ClearApplicationAreaCache();
         if isInitialized then
@@ -2594,7 +2597,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         TaxGroup: Record "Tax Group";
     begin
         LibraryERM.CreateTaxGroup(TaxGroup);
-        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate);
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", TaxPercentage);  // Using RANDOM value for Tax Below Maximum.
         TaxDetail.Modify(true);
     end;

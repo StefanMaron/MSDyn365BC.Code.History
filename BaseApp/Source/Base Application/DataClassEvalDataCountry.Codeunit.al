@@ -9,14 +9,14 @@
     var
         DataClassificationEvalData: Codeunit "Data Classification Eval. Data";
     begin
-        ClassifyEmployee;
-        ClassifyPayableEmployeeLedgerEntry;
-        ClassifyDetailedEmployeeLedgerEntry;
-        ClassifyEmployeeLedgerEntry;
-        ClassifyEmployeeRelative;
-        ClassifyEmployeeQualification;
-        ClassifyVATReportHeader;
-        ClassifyDIOT;
+        ClassifyEmployee();
+        ClassifyPayableEmployeeLedgerEntry();
+        ClassifyDetailedEmployeeLedgerEntry();
+        ClassifyEmployeeLedgerEntry();
+        ClassifyEmployeeRelative();
+        ClassifyEmployeeQualification();
+        ClassifyVATReportHeader();
+        ClassifyDIOT();
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cause of Absence");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"PAC Web Service");

@@ -627,7 +627,7 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
             SalesLine.Modify(true);
         end;
 
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
 
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
@@ -650,7 +650,7 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
             PurchaseLine.Modify(true);
         end;
 
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
 
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");

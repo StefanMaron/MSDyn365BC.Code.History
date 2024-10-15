@@ -17,12 +17,12 @@ page 5971 "Posted Service Credit Memos"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer associated with the credit memo.';
@@ -32,149 +32,149 @@ page 5971 "Posted Service Credit Memos"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the customer to whom you shipped the service on the credit memo.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the currency code for the amounts on the credit memo.';
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the postal code.';
                     Visible = false;
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the country/region of the address.';
                     Visible = false;
                 }
-                field("Contact Name"; "Contact Name")
+                field("Contact Name"; Rec."Contact Name")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the contact person at the customer company.';
                     Visible = false;
                 }
-                field("Bill-to Customer No."; "Bill-to Customer No.")
+                field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
-                field("Bill-to Name"; "Bill-to Name")
+                field("Bill-to Name"; Rec."Bill-to Name")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
-                field("Bill-to Post Code"; "Bill-to Post Code")
+                field("Bill-to Post Code"; Rec."Bill-to Post Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the postal code of the customer''s billing address.';
                     Visible = false;
                 }
-                field("Bill-to Country/Region Code"; "Bill-to Country/Region Code")
+                field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the country/region code of the customer''s billing address.';
                     Visible = false;
                 }
-                field("Bill-to Contact"; "Bill-to Contact")
+                field("Bill-to Contact"; Rec."Bill-to Contact")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the contact person at the customer''s billing address.';
                     Visible = false;
                 }
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
                     Visible = false;
                 }
-                field("Ship-to Name"; "Ship-to Name")
+                field("Ship-to Name"; Rec."Ship-to Name")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Ship-to Post Code"; "Ship-to Post Code")
+                field("Ship-to Post Code"; Rec."Ship-to Post Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Ship-to Country/Region Code"; "Ship-to Country/Region Code")
+                field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the country/region code of the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Ship-to Contact"; "Ship-to Contact")
+                field("Ship-to Contact"; Rec."Ship-to Contact")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the contact person at the address that the items are shipped to.';
                     Visible = false;
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the credit memo was posted.';
                     Visible = false;
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the salesperson associated with the credit memo.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location, such as warehouse or distribution center, where the credit memo was registered.';
                     Visible = true;
                 }
-                field("Electronic Document Status"; "Electronic Document Status")
+                field("Electronic Document Status"; Rec."Electronic Document Status")
                 {
                     ToolTip = 'Specifies the status of the document.';
                 }
-                field("Date/Time Stamped"; "Date/Time Stamped")
+                field("Date/Time Stamped"; Rec."Date/Time Stamped")
                 {
                     ToolTip = 'Specifies the date and time that the document received a digital stamp from the authorized service provider.';
                     Visible = false;
                 }
-                field("Date/Time Sent"; "Date/Time Sent")
+                field("Date/Time Sent"; Rec."Date/Time Sent")
                 {
                     ToolTip = 'Specifies the date and time that the document was sent to the customer.';
                     Visible = false;
                 }
-                field("Date/Time Canceled"; "Date/Time Canceled")
+                field("Date/Time Canceled"; Rec."Date/Time Canceled")
                 {
                     ToolTip = 'Specifies the date and time that the document was canceled.';
                     Visible = false;
                 }
-                field("Error Code"; "Error Code")
+                field("Error Code"; Rec."Error Code")
                 {
                     ToolTip = 'Specifies the error code that the authorized service provider, PAC, has returned to Business Central.';
                     Visible = false;
                 }
-                field("Error Description"; "Error Description")
+                field("Error Description"; Rec."Error Description")
                 {
                     ToolTip = 'Specifies the error message that the authorized service provider, PAC, has returned to Business Central.';
                     Visible = false;
                 }
-                field("Document Exchange Status"; "Document Exchange Status")
+                field("Document Exchange Status"; Rec."Document Exchange Status")
                 {
                     ApplicationArea = Service;
                     StyleExpr = DocExchStatusStyle;
@@ -217,8 +217,6 @@ page 5971 "Posted Service Credit Memos"
                 {
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
 
@@ -265,11 +263,11 @@ page 5971 "Posted Service Credit Memos"
                         ProgressWindow.Open(ProcessingInvoiceMsg);
                         if ServiceCrMemoHeader.FindSet() then begin
                             repeat
-                                ServiceCrMemoHeader.RequestStampEDocument;
+                                ServiceCrMemoHeader.RequestStampEDocument();
                                 ProgressWindow.Update(1, ServiceCrMemoHeader."No.");
                             until ServiceCrMemoHeader.Next() = 0;
                         end;
-                        ProgressWindow.Close;
+                        ProgressWindow.Close();
                     end;
                 }
                 action("Export E-Document as &XML")
@@ -280,7 +278,7 @@ page 5971 "Posted Service Credit Memos"
 
                     trigger OnAction()
                     begin
-                        ExportEDocument;
+                        ExportEDocument();
                     end;
                 }
                 action(ExportEDocumentPDF)
@@ -309,11 +307,11 @@ page 5971 "Posted Service Credit Memos"
                         ProgressWindow.Open(ProcessingInvoiceMsg);
                         if ServiceCrMemoHeader.FindSet() then begin
                             repeat
-                                ServiceCrMemoHeader.CancelEDocument;
+                                ServiceCrMemoHeader.CancelEDocument();
                                 ProgressWindow.Update(1, ServiceCrMemoHeader."No.");
                             until ServiceCrMemoHeader.Next() = 0;
                         end;
-                        ProgressWindow.Close;
+                        ProgressWindow.Close();
                     end;
                 }
                 action(CFDIRelationDocuments)
@@ -335,16 +333,13 @@ page 5971 "Posted Service Credit Memos"
                 Caption = 'Send';
                 Ellipsis = true;
                 Image = SendToMultiple;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Prepare to send the document according to the customer''s sending profile, such as attached to an email. The Send document to window opens first so you can confirm or select a sending profile.';
 
                 trigger OnAction()
                 begin
                     ServCrMemoHeader := Rec;
                     CurrPage.SetSelectionFilter(ServCrMemoHeader);
-                    ServCrMemoHeader.SendRecords;
+                    ServCrMemoHeader.SendRecords();
                 end;
             }
             action("&Print")
@@ -353,8 +348,6 @@ page 5971 "Posted Service Credit Memos"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -368,14 +361,12 @@ page 5971 "Posted Service Credit Memos"
                 ApplicationArea = Service;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
-                    Navigate;
+                    Navigate();
                 end;
             }
             action(ActivityLog)
@@ -393,27 +384,47 @@ page 5971 "Posted Service Credit Memos"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(SendCustom_Promoted; SendCustom)
+                {
+                }
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        DocExchStatusStyle := GetDocExchStatusStyle;
+        DocExchStatusStyle := GetDocExchStatusStyle();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        DocExchStatusStyle := GetDocExchStatusStyle;
+        DocExchStatusStyle := GetDocExchStatusStyle();
     end;
 
     trigger OnOpenPage()
     var
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
-        SetSecurityFilterOnRespCenter;
+        SetSecurityFilterOnRespCenter();
 
         ServiceCrMemoHeader.CopyFilters(Rec);
         ServiceCrMemoHeader.SetFilter("Document Exchange Status", '<>%1', "Document Exchange Status"::"Not Sent");
-        DocExchStatusVisible := not ServiceCrMemoHeader.IsEmpty;
+        DocExchStatusVisible := not ServiceCrMemoHeader.IsEmpty();
     end;
 
     var

@@ -92,37 +92,37 @@
             column(CompanyLogoPosition; CompanyLogoPosition)
             {
             }
-            column(CompanyRegistrationNumber; CompanyInfo.GetRegistrationNumber)
+            column(CompanyRegistrationNumber; CompanyInfo.GetRegistrationNumber())
             {
             }
-            column(CompanyRegistrationNumber_Lbl; CompanyInfo.GetRegistrationNumberLbl)
+            column(CompanyRegistrationNumber_Lbl; CompanyInfo.GetRegistrationNumberLbl())
             {
             }
-            column(CompanyVATRegNo; CompanyInfo.GetVATRegistrationNumber)
+            column(CompanyVATRegNo; CompanyInfo.GetVATRegistrationNumber())
             {
             }
-            column(CompanyVATRegNo_Lbl; CompanyInfo.GetVATRegistrationNumberLbl)
+            column(CompanyVATRegNo_Lbl; CompanyInfo.GetVATRegistrationNumberLbl())
             {
             }
-            column(CompanyVATRegistrationNo; CompanyInfo.GetVATRegistrationNumber)
+            column(CompanyVATRegistrationNo; CompanyInfo.GetVATRegistrationNumber())
             {
             }
-            column(CompanyVATRegistrationNo_Lbl; CompanyInfo.GetVATRegistrationNumberLbl)
+            column(CompanyVATRegistrationNo_Lbl; CompanyInfo.GetVATRegistrationNumberLbl())
             {
             }
-            column(CompanyLegalOffice; CompanyInfo.GetLegalOffice)
+            column(CompanyLegalOffice; CompanyInfo.GetLegalOffice())
             {
             }
-            column(CompanyLegalOffice_Lbl; CompanyInfo.GetLegalOfficeLbl)
+            column(CompanyLegalOffice_Lbl; CompanyInfo.GetLegalOfficeLbl())
             {
             }
-            column(CompanyCustomGiro; CompanyInfo.GetCustomGiro)
+            column(CompanyCustomGiro; CompanyInfo.GetCustomGiro())
             {
             }
-            column(CompanyCustomGiro_Lbl; CompanyInfo.GetCustomGiroLbl)
+            column(CompanyCustomGiro_Lbl; CompanyInfo.GetCustomGiroLbl())
             {
             }
-            column(CompanyLegalStatement; GetLegalStatement)
+            column(CompanyLegalStatement; GetLegalStatement())
             {
             }
             column(CustomerAddress1; CustAddr[1])
@@ -305,22 +305,22 @@
             column(SelltoCustomerNo_Lbl; FieldCaption("Sell-to Customer No."))
             {
             }
-            column(VATRegistrationNo; GetCustomerVATRegistrationNumber)
+            column(VATRegistrationNo; GetCustomerVATRegistrationNumber())
             {
             }
-            column(VATRegistrationNo_Lbl; GetCustomerVATRegistrationNumberLbl)
+            column(VATRegistrationNo_Lbl; GetCustomerVATRegistrationNumberLbl())
             {
             }
-            column(GlobalLocationNumber; GetCustomerGlobalLocationNumber)
+            column(GlobalLocationNumber; GetCustomerGlobalLocationNumber())
             {
             }
-            column(GlobalLocationNumber_Lbl; GetCustomerGlobalLocationNumberLbl)
+            column(GlobalLocationNumber_Lbl; GetCustomerGlobalLocationNumberLbl())
             {
             }
-            column(LegalEntityType; Cust.GetLegalEntityType)
+            column(LegalEntityType; Cust.GetLegalEntityType())
             {
             }
-            column(LegalEntityType_Lbl; Cust.GetLegalEntityTypeLbl)
+            column(LegalEntityType_Lbl; Cust.GetLegalEntityTypeLbl())
             {
             }
             column(Copy_Lbl; CopyLbl)
@@ -365,7 +365,7 @@
             column(Questions_Lbl; QuestionsLbl)
             {
             }
-            column(Contact_Lbl; CompanyInfo.GetContactUsText)
+            column(Contact_Lbl; CompanyInfo.GetContactUsText())
             {
             }
             column(DocumentTitle_Lbl; DocumentTitleText)
@@ -404,7 +404,7 @@
             column(VATPercentage_Lbl; VATPercentageLbl)
             {
             }
-            column(VATClause_Lbl; VATClause.TableCaption)
+            column(VATClause_Lbl; VATClause.TableCaption())
             {
             }
             column(PaymentInstructions_Txt; PaymentInstructionsTxt)
@@ -724,7 +724,7 @@
 
                 trigger OnPreDataItem()
                 begin
-                    CreateReportTotalLines;
+                    CreateReportTotalLines();
                 end;
             }
             dataitem(PaymentReportingArgument; "Payment Reporting Argument")
@@ -737,13 +737,13 @@
                 column(PaymentServiceLogo_UrlText; "URL Caption")
                 {
                 }
-                column(PaymentServiceLogo_Url; GetTargetURL)
+                column(PaymentServiceLogo_Url; GetTargetURL())
                 {
                 }
                 column(PaymentServiceText_UrlText; "URL Caption")
                 {
                 }
-                column(PaymentServiceText_Url; GetTargetURL)
+                column(PaymentServiceText_Url; GetTargetURL())
                 {
                 }
             }
@@ -792,7 +792,7 @@
 
                 trigger OnPreDataItem()
                 begin
-                    CreateUSReportTotalLines;
+                    CreateUSReportTotalLines();
                 end;
             }
             dataitem(Totals; "Integer")
@@ -827,7 +827,7 @@
                 column(TotalPaymentDiscountOnVAT; TotalPaymentDiscOnVAT)
                 {
                 }
-                column(TotalVATAmountText; VATAmountLine.VATAmountText)
+                column(TotalVATAmountText; VATAmountLine.VATAmountText())
                 {
                 }
                 column(TotalExcludingVATText; TotalExclVATText)
@@ -847,13 +847,13 @@
                 column(TotalText; TotalText)
                 {
                 }
-                column(AmountSubjectToSalesTax; VATAmountLine.GetAmtSubjectToSalesTax)
+                column(AmountSubjectToSalesTax; VATAmountLine.GetAmtSubjectToSalesTax())
                 {
                 }
                 column(AmountSubjectToSalesTaxLbl; AmtSubjecttoSalesTaxLbl)
                 {
                 }
-                column(AmountExemptFromSalesTax; VATAmountLine.GetAmtExemptFromSalesTax)
+                column(AmountExemptFromSalesTax; VATAmountLine.GetAmtExemptFromSalesTax())
                 {
                 }
                 column(AmountExemptFromSalesTaxLbl; AmtExemptfromSalesTaxLbl)
@@ -865,9 +865,6 @@
             var
                 CurrencyExchangeRate: Record "Currency Exchange Rate";
                 PaymentServiceSetup: Record "Payment Service Setup";
-#if not CLEAN19
-                O365PaymentInstructions: Record "O365 Payment Instructions";
-#endif                
                 ArchiveManagement: Codeunit ArchiveManagement;
                 SalesPost: Codeunit "Sales-Post";
             begin
@@ -889,11 +886,6 @@
                 CalcFields("Work Description");
                 ShowWorkDescription := "Work Description".HasValue;
 
-#if not CLEAN18
-                Clear(PaymentInstructionsTxt);
-                if O365PaymentInstructions.Get("Payment Instructions Id") then
-                    PaymentInstructionsTxt := O365PaymentInstructions.GetPaymentInstructionsInCurrentLanguage;
-#endif
                 FormatAddr.GetCompanyAddr("Responsibility Center", RespCenter, CompanyInfo, CompanyAddr);
                 FormatAddr.SalesHeaderBillTo(CustAddr, Header);
                 ShowShippingAddr := FormatAddr.SalesHeaderShipTo(ShipToAddr, CustAddr, Header);
@@ -922,7 +914,7 @@
                 if SellToContact.Get("Sell-to Contact No.") then;
                 if BillToContact.Get("Bill-to Contact No.") then;
 
-                if not IsReportInPreviewMode and ArchiveDocument then
+                if not IsReportInPreviewMode() and ArchiveDocument then
                     ArchiveManagement.StoreSalesDocument(Header, false);
 
                 TotalSubTotal := 0;
@@ -980,7 +972,7 @@
         CompanyInfo.SetAutoCalcFields(Picture);
         CompanyInfo.Get();
         SalesSetup.Get();
-        CompanyInfo.VerifyAndSetPaymentInfo;
+        CompanyInfo.VerifyAndSetPaymentInfo();
     end;
 
     trigger OnPreReport()
@@ -992,6 +984,66 @@
     end;
 
     var
+        GLSetup: Record "General Ledger Setup";
+        ShipmentMethod: Record "Shipment Method";
+        PaymentTerms: Record "Payment Terms";
+        PaymentMethod: Record "Payment Method";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        CompanyBankAccount: Record "Bank Account";
+        CompanyInfo: Record "Company Information";
+        DummyCompanyInfo: Record "Company Information";
+        SalesSetup: Record "Sales & Receivables Setup";
+        Cust: Record Customer;
+        RespCenter: Record "Responsibility Center";
+        VATClause: Record "VAT Clause";
+        SellToContact: Record Contact;
+        BillToContact: Record Contact;
+        Language: Codeunit Language;
+        FormatAddr: Codeunit "Format Address";
+        FormatDocument: Codeunit "Format Document";
+        WorkDescriptionInstream: InStream;
+        WorkDescriptionLine: Text;
+        CustAddr: array[8] of Text[100];
+        ChecksPayableText: Text;
+        ShipToAddr: array[8] of Text[100];
+        CompanyAddr: array[8] of Text[100];
+        SalesPersonText: Text[50];
+        TotalText: Text[50];
+        TotalExclVATText: Text[50];
+        TotalInclVATText: Text[50];
+        LineDiscountPctText: Text;
+        FormattedVATPct: Text;
+        FormattedUnitPrice: Text;
+        FormattedQuantity: Text;
+        FormattedLineAmount: Text;
+        MoreLines: Boolean;
+        ShowWorkDescription: Boolean;
+        ShowShippingAddr: Boolean;
+        ArchiveDocument: Boolean;
+        TotalSubTotal: Decimal;
+        TotalAmount: Decimal;
+        TotalAmountInclVAT: Decimal;
+        TotalAmountVAT: Decimal;
+        TotalInvDiscAmount: Decimal;
+        TotalPaymentDiscOnVAT: Decimal;
+        TransHeaderAmount: Decimal;
+        CompanyLogoPosition: Integer;
+        FirstLineHasBeenOutput: Boolean;
+        CalculatedExchRate: Decimal;
+        ExchangeRateText: Text;
+        VATBaseLCY: Decimal;
+        VATAmountLCY: Decimal;
+        TotalVATBaseLCY: Decimal;
+        TotalVATAmountLCY: Decimal;
+        PrevLineAmount: Decimal;
+        PmtDiscText: Text;
+        PaymentInstructionsTxt: Text;
+        YourDocumentTitleText: Text;
+        DocumentTitleText: Text;
+        InvoiceNoText: Text;
+        BodyContentText: Text;
+        NextInvoiceNo: Text;
+
         SalesConfirmationLbl: Label 'Draft Invoice';
         YourDocLbl: Label 'Your %1', Comment = 'Your Draft Invoice or Your Invoice';
         SalespersonLbl: Label 'Sales person';
@@ -1031,63 +1083,8 @@
         BillToContactPhoneNoLbl: Label 'Bill-to Contact Phone No.';
         BillToContactMobilePhoneNoLbl: Label 'Bill-to Contact Mobile Phone No.';
         BillToContactEmailLbl: Label 'Bill-to Contact E-Mail';
-        GLSetup: Record "General Ledger Setup";
-        ShipmentMethod: Record "Shipment Method";
-        PaymentTerms: Record "Payment Terms";
-        PaymentMethod: Record "Payment Method";
-        SalespersonPurchaser: Record "Salesperson/Purchaser";
-        CompanyBankAccount: Record "Bank Account";
-        CompanyInfo: Record "Company Information";
-        DummyCompanyInfo: Record "Company Information";
-        SalesSetup: Record "Sales & Receivables Setup";
-        Cust: Record Customer;
-        RespCenter: Record "Responsibility Center";
-        VATClause: Record "VAT Clause";
-        SellToContact: Record Contact;
-        BillToContact: Record Contact;
-        Language: Codeunit Language;
-        FormatAddr: Codeunit "Format Address";
-        FormatDocument: Codeunit "Format Document";
-        WorkDescriptionInstream: InStream;
-        WorkDescriptionLine: Text;
-        CustAddr: array[8] of Text[100];
-        ChecksPayableText: Text;
-        ShipToAddr: array[8] of Text[100];
-        CompanyAddr: array[8] of Text[100];
-        SalesPersonText: Text[30];
-        TotalText: Text[50];
-        TotalExclVATText: Text[50];
-        TotalInclVATText: Text[50];
-        LineDiscountPctText: Text;
-        FormattedVATPct: Text;
-        FormattedUnitPrice: Text;
-        FormattedQuantity: Text;
-        FormattedLineAmount: Text;
-        MoreLines: Boolean;
-        ShowWorkDescription: Boolean;
-        ShowShippingAddr: Boolean;
-        ArchiveDocument: Boolean;
-        TotalSubTotal: Decimal;
-        TotalAmount: Decimal;
-        TotalAmountInclVAT: Decimal;
-        TotalAmountVAT: Decimal;
-        TotalInvDiscAmount: Decimal;
-        TotalPaymentDiscOnVAT: Decimal;
-        TransHeaderAmount: Decimal;
-        CompanyLogoPosition: Integer;
-        FirstLineHasBeenOutput: Boolean;
-        CalculatedExchRate: Decimal;
-        ExchangeRateText: Text;
         ExchangeRateTxt: Label 'Exchange rate: %1/%2', Comment = '%1 and %2 are both amounts.';
-        VATBaseLCY: Decimal;
-        VATAmountLCY: Decimal;
-        TotalVATBaseLCY: Decimal;
-        TotalVATAmountLCY: Decimal;
-        PrevLineAmount: Decimal;
         NoFilterSetErr: Label 'You must specify one or more filters to avoid accidently printing all documents.';
-        PmtDiscText: Text;
-        PaymentInstructionsTxt: Text;
-        YourDocumentTitleText: Text;
         FromLbl: Label 'From';
         BilledToLbl: Label 'Billed to';
         ChecksPayableLbl: Label 'Please make checks payable to %1', Comment = '%1 = company name';
@@ -1097,25 +1094,21 @@
         ClosingLbl: Label 'Sincerely';
         PmtDiscTxt: Label 'If we receive the payment before %1, you are eligible for a %2% payment discount.', Comment = '%1 = Discount Due Date %2 = value of Payment Discount % ';
         BodyLbl: Label 'Thank you for your business. Your draft invoice is attached to this message.';
-        DocumentTitleText: Text;
-        InvoiceNoText: Text;
-        BodyContentText: Text;
+        UnitLbl: Label 'Unit';
         QtyLbl: Label 'Qty', Comment = 'Short form of Quantity';
         PriceLbl: Label 'Price';
         PricePerLbl: Label 'Price per';
         AmtSubjecttoSalesTaxLbl: Label 'Amount Subject to Sales Tax';
         AmtExemptfromSalesTaxLbl: Label 'Amount Exempt from Sales Tax';
         TotalTaxLbl: Label 'Total Tax';
-        UnitLbl: Label 'Unit';
         UnitPriceLbl: Label 'Unit Price';
         LineAmountLbl: Label 'Line Amount';
         SalespersonLbl2: Label 'Salesperson';
-        NextInvoiceNo: Text;
 
     local procedure FormatDocumentFields(SalesHeader: Record "Sales Header")
     begin
         with SalesHeader do begin
-            FormatDocument.SetTotalLabels(GetCurrencySymbol, TotalText, TotalInclVATText, TotalExclVATText);
+            FormatDocument.SetTotalLabels(GetCurrencySymbol(), TotalText, TotalInclVATText, TotalExclVATText);
             FormatDocument.SetSalesPerson(SalespersonPurchaser, "Salesperson Code", SalesPersonText);
             FormatDocument.SetPaymentTerms(PaymentTerms, "Payment Terms Code", "Language Code");
             FormatDocument.SetPaymentMethod(PaymentMethod, "Payment Method Code", "Language Code");
@@ -1127,7 +1120,7 @@
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure CreateReportTotalLines()
@@ -1178,7 +1171,7 @@
         if not TaxArea.Get(Header."Tax Area Code") then
             exit;
         TempSalesTaxAmountLine.DeleteAll();
-        SalesTaxCalculate.StartSalesTaxCalculation;
+        SalesTaxCalculate.StartSalesTaxCalculation();
         Line.SetRange("Document Type", Header."Document Type");
         Line.SetRange("Document No.", Header."No.");
         Line.SetFilter(Quantity, '<>0');

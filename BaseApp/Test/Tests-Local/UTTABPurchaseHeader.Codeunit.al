@@ -32,7 +32,7 @@ codeunit 144050 "UT TAB Purchase Header"
         FieldRef := RecRef.Field(PurchaseHeader.FieldNo("Location Code"));
 
         // Exercise: Validate statement to call OnValidate Trigger of the respective fields.
-        FieldRef.Validate;
+        FieldRef.Validate();
 
         // Verify.
         RecRef.SetTable(PurchaseHeader);
@@ -75,7 +75,7 @@ codeunit 144050 "UT TAB Purchase Header"
         FieldRef := RecRef.Field(PurchaseHeader.FieldNo("Location Code"));
 
         // Exercise: Validate statement to call OnValidate Trigger of the respective fields.
-        FieldRef.Validate;
+        FieldRef.Validate();
 
         // Verify.
         RecRef.SetTable(PurchaseHeader);

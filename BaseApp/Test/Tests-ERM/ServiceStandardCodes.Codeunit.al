@@ -118,7 +118,7 @@ codeunit 136119 "Service Standard Codes"
         // 3. Verify: Quantity updated on Standard Service Lines.
         if Quantity < 0 then
             Assert.AreEqual(
-              StrSubstNo(QuantityMustbePositive, StandardServiceLine.FieldCaption(Quantity), StandardServiceLine.TableCaption,
+              StrSubstNo(QuantityMustbePositive, StandardServiceLine.FieldCaption(Quantity), StandardServiceLine.TableCaption(),
                 StandardServiceLine.FieldCaption("Standard Service Code"), StandardServiceCode.Code,
                 StandardServiceLine.FieldCaption("Line No."), StandardServiceLine."Line No."),
               GetLastErrorText,
@@ -250,7 +250,7 @@ codeunit 136119 "Service Standard Codes"
         Assert.AreEqual(
           StrSubstNo(
             TypeError, StandardServiceLine.FieldCaption(Type), StandardServiceLine.Type,
-            StandardServiceLine.TableCaption, StandardServiceLine.FieldCaption("Standard Service Code"),
+            StandardServiceLine.TableCaption(), StandardServiceLine.FieldCaption("Standard Service Code"),
             StandardServiceLine."Standard Service Code", StandardServiceLine.FieldCaption("Line No."), StandardServiceLine."Line No."),
           GetLastErrorText,
           UnknownError);
@@ -357,7 +357,7 @@ codeunit 136119 "Service Standard Codes"
         Assert.IsFalse(
           ServiceLine.FindFirst,
           StrSubstNo(
-            ServiceLineMustNotExist, ServiceLine.TableCaption, ServiceLine.FieldCaption("Document Type"), ServiceLine."Document Type",
+            ServiceLineMustNotExist, ServiceLine.TableCaption(), ServiceLine.FieldCaption("Document Type"), ServiceLine."Document Type",
             ServiceLine.FieldCaption("Document No."), ServiceLine."Document No."));
     end;
 
@@ -747,7 +747,7 @@ codeunit 136119 "Service Standard Codes"
         // Create Service Item Group Code, Run the Get Std. Service Codes on Service Credit Memo for the Standard Service Code.
         ServiceHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         REPORT.RunModal(REPORT::"Batch Post Service Invoices", false, true, ServiceHeader);
-        ServiceContractHeader.Find;
+        ServiceContractHeader.Find();
         ModifyServiceContractStatus(ServiceContractHeader);
         CreateServiceCreditMemo(ServiceContractHeader."Contract No.");
 
@@ -894,7 +894,7 @@ codeunit 136119 "Service Standard Codes"
         // Create Service Item Group Code, Run the Get Std. Service Codes on Service Credit Memo for the Standard Service Code.
         ServiceHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         REPORT.RunModal(REPORT::"Batch Post Service Invoices", false, true, ServiceHeader);
-        ServiceContractHeader.Find;
+        ServiceContractHeader.Find();
         ModifyServiceContractStatus(ServiceContractHeader);
         CreateServiceCreditMemo(ServiceContractHeader."Contract No.");
 
@@ -1035,7 +1035,7 @@ codeunit 136119 "Service Standard Codes"
         ServiceCrMemoLine.FindSet();
         repeat
             TotalAmount += -ServiceCrMemoLine."Amount Including VAT";
-        until ServiceCrMemoLine.Next = 0;
+        until ServiceCrMemoLine.Next() = 0;
     end;
 
     local procedure CalcTotalAmtShippedLineInvoice(PreAssignedNo: Code[20]) TotalAmount: Decimal
@@ -1049,7 +1049,7 @@ codeunit 136119 "Service Standard Codes"
         ServiceInvoiceLine.FindSet();
         repeat
             TotalAmount += ServiceInvoiceLine."Amount Including VAT";
-        until ServiceInvoiceLine.Next = 0;
+        until ServiceInvoiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -1222,7 +1222,7 @@ codeunit 136119 "Service Standard Codes"
     begin
         ServiceContractHeader.CalcFields("Calcd. Annual Amount");
         ServiceContractHeader.Validate("Annual Amount", ServiceContractHeader."Calcd. Annual Amount");
-        ServiceContractHeader.Validate("Starting Date", WorkDate);
+        ServiceContractHeader.Validate("Starting Date", WorkDate());
         ServiceContractHeader.Validate("Price Update Period", ServiceContractHeader."Service Period");
         ServiceContractHeader.Modify(true);
     end;
@@ -1233,8 +1233,8 @@ codeunit 136119 "Service Standard Codes"
         LockOpenServContract: Codeunit "Lock-OpenServContract";
     begin
         LockOpenServContract.OpenServContract(ServiceContractHeader);
-        ServiceContractHeader.Find;
-        ServiceContractHeader.Validate("Expiration Date", WorkDate);
+        ServiceContractHeader.Find();
+        ServiceContractHeader.Validate("Expiration Date", WorkDate());
         ServiceContractHeader.Modify(true);
     end;
 
@@ -1267,7 +1267,7 @@ codeunit 136119 "Service Standard Codes"
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Required field - value is not important to test case.
             ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdateQtyToConsume(DocumentNo: Code[20])
@@ -1278,7 +1278,7 @@ codeunit 136119 "Service Standard Codes"
         repeat
             ServiceLine.Validate("Qty. to Consume", ServiceLine."Qty. to Ship");
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdateQtyToInvoice(DocumentNo: Code[20])
@@ -1291,7 +1291,7 @@ codeunit 136119 "Service Standard Codes"
               "Qty. to Invoice",
               (ServiceLine."Quantity Shipped" - ServiceLine."Quantity Consumed") * LibraryUtility.GenerateRandomFraction);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdateQuantityOnStdServiceLine(var StandardServiceLine: Record "Standard Service Line"; StandardServiceCode: Code[10]; Quantity: Decimal)
@@ -1301,7 +1301,7 @@ codeunit 136119 "Service Standard Codes"
         repeat
             StandardServiceLine.Validate(Quantity, Quantity);
             StandardServiceLine.Modify(true);
-        until StandardServiceLine.Next = 0;
+        until StandardServiceLine.Next() = 0;
     end;
 
     local procedure UpdateServiceItemLine(var ServiceItemLine: Record "Service Item Line")
@@ -1333,7 +1333,7 @@ codeunit 136119 "Service Standard Codes"
         CustLedgerEntry.FindSet();
         repeat
             CustLedgerEntry.TestField("Posting Date", PostingDate);
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyDetailedCustLedgerEntry(DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; TotalAmount: Decimal)
@@ -1345,7 +1345,7 @@ codeunit 136119 "Service Standard Codes"
         DetailedCustLedgEntry.FindSet();
         repeat
             DetailedCustLedgEntry.TestField(Amount, TotalAmount);
-        until DetailedCustLedgEntry.Next = 0;
+        until DetailedCustLedgEntry.Next() = 0;
     end;
 
     local procedure VerifyGLEntryCrMemo(PreAssignedNo: Code[20])
@@ -1362,7 +1362,7 @@ codeunit 136119 "Service Standard Codes"
             GLEntry.TestField("Source Type", GLEntry."Source Type"::Customer);
             GLEntry.TestField("Source No.", ServiceCrMemoHeader."Bill-to Customer No.");
             GLEntry.TestField("Posting Date", ServiceCrMemoHeader."Posting Date");
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyGLEntryInvoice(PreAssignedNo: Code[20])
@@ -1379,7 +1379,7 @@ codeunit 136119 "Service Standard Codes"
             GLEntry.TestField("Source Type", GLEntry."Source Type"::Customer);
             GLEntry.TestField("Source No.", ServiceInvoiceHeader."Bill-to Customer No.");
             GLEntry.TestField("Posting Date", ServiceInvoiceHeader."Posting Date");
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyPostedCreditMemo(ServiceHeader: Record "Service Header")
@@ -1421,7 +1421,7 @@ codeunit 136119 "Service Standard Codes"
         Assert.AreEqual(
           StrSubstNo(
             TypeErrorServiceTier, StandardServiceLine.FieldCaption(Type), StandardServiceLine.Type,
-            StandardServiceLine.TableCaption, StandardServiceLine.FieldCaption("Standard Service Code"),
+            StandardServiceLine.TableCaption(), StandardServiceLine.FieldCaption("Standard Service Code"),
             StandardServiceLine."Standard Service Code", StandardServiceLine.FieldCaption("Line No."), StandardServiceLine."Line No."),
           GetLastErrorText,
           UnknownError);
@@ -1438,7 +1438,7 @@ codeunit 136119 "Service Standard Codes"
         StandardServiceLine.FindSet();
         repeat
             StandardServiceLine.TestField(Quantity, Quantity);
-        until StandardServiceLine.Next = 0;
+        until StandardServiceLine.Next() = 0;
     end;
 
     local procedure VerifyResourceEntryCrMemo(PreAssignedNo: Code[20])
@@ -1485,7 +1485,7 @@ codeunit 136119 "Service Standard Codes"
         Assert.AreEqual(
           StrSubstNo(
             CurrencyNotMatching, StandardServiceCode.FieldCaption("Currency Code"),
-            ServiceHeader.FieldCaption("Currency Code"), ServiceHeader.TableCaption),
+            ServiceHeader.FieldCaption("Currency Code"), ServiceHeader.TableCaption()),
           GetLastErrorText,
           UnknownError);
     end;
@@ -1505,7 +1505,7 @@ codeunit 136119 "Service Standard Codes"
             ServiceInvoiceLine.Get(ServiceInvoiceHeader."No.", ServiceLine."Line No.");
             ServiceInvoiceLine.TestField(Type, ServiceLine.Type);
             ServiceInvoiceLine.TestField("No.", ServiceLine."No.");
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure VerifyServiceLedgerEntry(DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; CustomerNo: Code[20])
@@ -1517,7 +1517,7 @@ codeunit 136119 "Service Standard Codes"
         ServiceLedgerEntry.FindSet();
         repeat
             ServiceLedgerEntry.TestField("Customer No.", CustomerNo);
-        until ServiceLedgerEntry.Next = 0;
+        until ServiceLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyServiceLine(DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; StandardServiceCode: Code[10])
@@ -1534,7 +1534,7 @@ codeunit 136119 "Service Standard Codes"
             ServiceLine.SetRange("No.", StandardServiceLine."No.");
             ServiceLine.FindFirst();
             ServiceLine.TestField(Quantity, StandardServiceLine.Quantity);
-        until StandardServiceLine.Next = 0;
+        until StandardServiceLine.Next() = 0;
     end;
 
     local procedure VerifyServiceShipment(DocumentNo: Code[20])
@@ -1551,7 +1551,7 @@ codeunit 136119 "Service Standard Codes"
             ServiceShipmentLine.FindFirst();
             ServiceShipmentLine.TestField(Type, ServiceLine.Type);
             ServiceShipmentLine.TestField("No.", ServiceLine."No.");
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure VerifyStandardServiceLineType(StandardServiceLine: Record "Standard Service Line")
@@ -1559,7 +1559,7 @@ codeunit 136119 "Service Standard Codes"
         Assert.AreEqual(
           StrSubstNo(
             TypeError, StandardServiceLine.FieldCaption(Type), StandardServiceLine.Type,
-            StandardServiceLine.TableCaption, StandardServiceLine.FieldCaption("Standard Service Code"),
+            StandardServiceLine.TableCaption(), StandardServiceLine.FieldCaption("Standard Service Code"),
             StandardServiceLine."Standard Service Code", StandardServiceLine.FieldCaption("Line No."), StandardServiceLine."Line No."),
           GetLastErrorText,
           UnknownError);

@@ -32,7 +32,7 @@ codeunit 134155 "ERM Table Fields UT"
         // [SCENARIO 217425] Flow field "Balance" of Customer does not depend on flow filter "Date Filter"
 
         LibrarySales.CreateCustomer(Customer);
-        MockDtldCustLedgEntry(DetailedCustLedgEntry, Customer."No.", WorkDate, WorkDate);
+        MockDtldCustLedgEntry(DetailedCustLedgEntry, Customer."No.", WorkDate(), WorkDate());
         TotalAmount += DetailedCustLedgEntry.Amount;
         NewDate := WorkDate + 1;
         MockDtldCustLedgEntry(DetailedCustLedgEntry, Customer."No.", NewDate, NewDate);
@@ -56,7 +56,7 @@ codeunit 134155 "ERM Table Fields UT"
         // [SCENARIO 217425] Flow field "Balance (LCY)" of Customer does not depend on flow filter "Date Filter"
 
         LibrarySales.CreateCustomer(Customer);
-        MockDtldCustLedgEntry(DetailedCustLedgEntry, Customer."No.", WorkDate, WorkDate);
+        MockDtldCustLedgEntry(DetailedCustLedgEntry, Customer."No.", WorkDate(), WorkDate());
         TotalAmount += DetailedCustLedgEntry."Amount (LCY)";
         NewDate := WorkDate + 1;
         MockDtldCustLedgEntry(DetailedCustLedgEntry, Customer."No.", NewDate, NewDate);
@@ -81,8 +81,8 @@ codeunit 134155 "ERM Table Fields UT"
         // [SCENARIO 210354] Customer Flow field "Balance Due" calculates given maximum limit of flow filter "Date Filter"
 
         LibrarySales.CreateCustomer(Customer);
-        DueDate := CalcDate('<1M>', WorkDate);
-        MockDtldCustLedgEntry(DetailedCustLedgEntry, Customer."No.", WorkDate, DueDate);
+        DueDate := CalcDate('<1M>', WorkDate());
+        MockDtldCustLedgEntry(DetailedCustLedgEntry, Customer."No.", WorkDate(), DueDate);
         ExpectedAmount := DetailedCustLedgEntry.Amount;
         NewDate := DueDate + 1;
         MockDtldCustLedgEntry(DetailedCustLedgEntry, Customer."No.", NewDate, CalcDate('<1M>', NewDate));
@@ -106,8 +106,8 @@ codeunit 134155 "ERM Table Fields UT"
         // [SCENARIO 210354] Customer Flow field "Balance Due (LCY)" calculates given maximum limit of flow filter "Date Filter"
 
         LibrarySales.CreateCustomer(Customer);
-        DueDate := CalcDate('<1M>', WorkDate);
-        MockDtldCustLedgEntry(DetailedCustLedgEntry, Customer."No.", WorkDate, DueDate);
+        DueDate := CalcDate('<1M>', WorkDate());
+        MockDtldCustLedgEntry(DetailedCustLedgEntry, Customer."No.", WorkDate(), DueDate);
         ExpectedAmount := DetailedCustLedgEntry."Amount (LCY)";
         NewDate := DueDate + 1;
         MockDtldCustLedgEntry(DetailedCustLedgEntry, Customer."No.", NewDate, CalcDate('<1M>', NewDate));
@@ -132,8 +132,8 @@ codeunit 134155 "ERM Table Fields UT"
 
         LibraryPurchase.CreateVendor(Vendor);
 
-        DueDate := CalcDate('<1M>', WorkDate);
-        MockDtldVendLedgEntry(DetailedVendLedgEntry, Vendor."No.", WorkDate, DueDate);
+        DueDate := CalcDate('<1M>', WorkDate());
+        MockDtldVendLedgEntry(DetailedVendLedgEntry, Vendor."No.", WorkDate(), DueDate);
         ExpectedAmount := -DetailedVendLedgEntry.Amount;
         NewDate := DueDate + 1;
         MockDtldVendLedgEntry(DetailedVendLedgEntry, Vendor."No.", NewDate, CalcDate('<1M>', NewDate));
@@ -158,8 +158,8 @@ codeunit 134155 "ERM Table Fields UT"
 
         LibraryPurchase.CreateVendor(Vendor);
 
-        DueDate := CalcDate('<1M>', WorkDate);
-        MockDtldVendLedgEntry(DetailedVendLedgEntry, Vendor."No.", WorkDate, DueDate);
+        DueDate := CalcDate('<1M>', WorkDate());
+        MockDtldVendLedgEntry(DetailedVendLedgEntry, Vendor."No.", WorkDate(), DueDate);
         ExpectedAmount := -DetailedVendLedgEntry."Amount (LCY)";
         NewDate := DueDate + 1;
         MockDtldVendLedgEntry(DetailedVendLedgEntry, Vendor."No.", NewDate, CalcDate('<1M>', NewDate));
@@ -218,7 +218,7 @@ codeunit 134155 "ERM Table Fields UT"
 
         LibraryVariableStorage.Enqueue(
           StrSubstNo(
-            BalAccountNoConfirmTxt, Customer.TableCaption, Customer."No.",
+            BalAccountNoConfirmTxt, Customer.TableCaption(), Customer."No.",
             Customer.FieldCaption("Bill-to Customer No."), Customer."Bill-to Customer No."));
         LibraryVariableStorage.Enqueue(true);
 
@@ -269,7 +269,7 @@ codeunit 134155 "ERM Table Fields UT"
 
         LibraryVariableStorage.Enqueue(
           StrSubstNo(
-            BalAccountNoConfirmTxt, Vendor.TableCaption, Vendor."No.",
+            BalAccountNoConfirmTxt, Vendor.TableCaption(), Vendor."No.",
             Vendor.FieldCaption("Pay-to Vendor No."), Vendor."Pay-to Vendor No."));
         LibraryVariableStorage.Enqueue(true);
 
@@ -346,7 +346,7 @@ codeunit 134155 "ERM Table Fields UT"
         AccountingPeriod.Delete(true);
 
         // [THEN] "Cost is Adjusted" in the item card is FALSE
-        Item.Find;
+        Item.Find();
         Item.TestField("Cost is Adjusted", false);
 
         // [THEN] "Cost is adjusted" in the avg. cost adjmt. entry point on 01-01-2020 is FALSE
@@ -376,7 +376,7 @@ codeunit 134155 "ERM Table Fields UT"
         AccountingPeriod.Modify(true);
 
         // [THEN] "Cost is Adjusted" in the item card is FALSE
-        Item.Find;
+        Item.Find();
         Item.TestField("Cost is Adjusted", false);
 
         // [THEN] "Cost is adjusted" in the avg. cost adjmt. entry point on 01-01-2020 is FALSE
@@ -408,7 +408,7 @@ codeunit 134155 "ERM Table Fields UT"
         AccountingPeriod.Rename(AccountingPeriod."Starting Date" + 1);
 
         // [THEN] "Cost is Adjusted" in the item card is FALSE
-        Item.Find;
+        Item.Find();
         Item.TestField("Cost is Adjusted", false);
 
         // [THEN] "Cost is adjusted" is FALSE in both average cost adjustment entry points
@@ -440,7 +440,7 @@ codeunit 134155 "ERM Table Fields UT"
         AccountingPeriod.Rename(AccountingPeriod."Starting Date" - 1);
 
         // [THEN] "Cost is Adjusted" in the item card is FALSE
-        Item.Find;
+        Item.Find();
         Item.TestField("Cost is Adjusted", false);
 
         // [THEN] "Cost is adjusted" is FALSE in both average cost adjustment entry points
@@ -469,7 +469,7 @@ codeunit 134155 "ERM Table Fields UT"
         AccountingPeriod.Rename(AccountingPeriod."Starting Date" + 1);
 
         // [THEN] "Cost is Adjusted" in the item card is TRUE
-        Item.Find;
+        Item.Find();
         Item.TestField("Cost is Adjusted", true);
     end;
 
@@ -514,7 +514,7 @@ codeunit 134155 "ERM Table Fields UT"
         // [FEATURE] [Intrastat]
         // [SCENARIO 304876] It is possible to change "Tariff No." for Intrastat Journal Line with not empty "Item No."
 
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
         IntrastatJnlLine.Validate("Item No.", LibraryInventory.CreateItemNo);
         TariffNumber.Init();
@@ -548,7 +548,6 @@ codeunit 134155 "ERM Table Fields UT"
         "Field": Record "Field";
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
-        O365SalesDocument: Record "O365 Sales Document";
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
         SalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
         SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer";
@@ -560,9 +559,6 @@ codeunit 134155 "ERM Table Fields UT"
         LibraryTablesUT.AssertTableRelation(Field, DATABASE::Customer, Customer.FieldNo(Name));
 
         LibraryTablesUT.FindField(Field, SalesHeader, SalesHeader.FieldNo("Bill-to Name"));
-        LibraryTablesUT.AssertTableRelation(Field, DATABASE::Customer, Customer.FieldNo(Name));
-
-        LibraryTablesUT.FindField(Field, O365SalesDocument, O365SalesDocument.FieldNo("Sell-to Customer Name"));
         LibraryTablesUT.AssertTableRelation(Field, DATABASE::Customer, Customer.FieldNo(Name));
 
         LibraryTablesUT.FindField(Field, SalesInvoiceEntityAggregate, SalesInvoiceEntityAggregate.FieldNo("Sell-to Customer Name"));
@@ -1045,7 +1041,7 @@ codeunit 134155 "ERM Table Fields UT"
             "Initial Entry Due Date" := InitialEntryDueDate;
             Amount := LibraryRandom.RandDec(100, 2);
             "Amount (LCY)" := LibraryRandom.RandDec(100, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1058,7 +1054,7 @@ codeunit 134155 "ERM Table Fields UT"
             "Initial Entry Due Date" := InitialEntryDueDate;
             Amount := LibraryRandom.RandDec(100, 2);
             "Amount (LCY)" := LibraryRandom.RandDec(100, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1067,7 +1063,7 @@ codeunit 134155 "ERM Table Fields UT"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         Clear(Item);
-        Item."No." := NoSeriesManagement.GetNextNo(LibraryUtility.GetGlobalNoSeriesCode, WorkDate, true);
+        Item."No." := NoSeriesManagement.GetNextNo(LibraryUtility.GetGlobalNoSeriesCode, WorkDate(), true);
         Item."Costing Method" := Item."Costing Method"::Average;
         Item."Cost is Adjusted" := true;
         Item.Insert();

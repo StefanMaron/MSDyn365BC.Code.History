@@ -15,7 +15,7 @@ report 5625 "Insurance - Tot. Value Insured"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Fixed_Asset__TABLECAPTION__________FAFilter; TableCaption + ': ' + FAFilter)
@@ -67,8 +67,8 @@ report 5625 "Insurance - Tot. Value Insured"
                 trigger OnAfterGetRecord()
                 begin
                     if Insurance.Get("Insurance No.") then;
-                    InsuranceTmp."No." := "Insurance No.";
-                    if InsuranceTmp.Insert() then begin
+                    TempInsurance."No." := "Insurance No.";
+                    if TempInsurance.Insert() then begin
                         InsCoverageLedgEntry.SetRange("Insurance No.", "Insurance No.");
                         InsCoverageLedgEntry.CalcSums(Amount);
                         if InsCoverageLedgEntry.Amount = 0 then
@@ -87,7 +87,7 @@ report 5625 "Insurance - Tot. Value Insured"
                 begin
                     SetRange("FA No.", "Fixed Asset"."No.");
                     InsCoverageLedgEntry.SetRange("FA No.", "Fixed Asset"."No.");
-                    InsuranceTmp.DeleteAll();
+                    TempInsurance.DeleteAll();
                 end;
             }
 
@@ -122,7 +122,7 @@ report 5625 "Insurance - Tot. Value Insured"
 
     trigger OnPreReport()
     begin
-        FAFilter := "Fixed Asset".GetFilters;
+        FAFilter := "Fixed Asset".GetFilters();
         FASetup.Get();
         FASetup.TestField("Insurance Depr. Book");
         DeprBook.Get(FASetup."Insurance Depr. Book");
@@ -138,7 +138,7 @@ report 5625 "Insurance - Tot. Value Insured"
         DeprBook: Record "Depreciation Book";
         FADeprBook: Record "FA Depreciation Book";
         Insurance: Record Insurance;
-        InsuranceTmp: Record Insurance temporary;
+        TempInsurance: Record Insurance temporary;
         InsCoverageLedgEntry: Record "Ins. Coverage Ledger Entry";
         FAFilter: Text;
         FANo: Code[20];
