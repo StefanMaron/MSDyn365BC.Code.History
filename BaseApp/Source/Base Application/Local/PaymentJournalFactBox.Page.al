@@ -380,6 +380,7 @@ page 35517 "Payment Journal FactBox"
             // Pmt. Disc is not applied if entry is not closed
             if CurrRemainAfterPayment > 0 then begin
                 CurrRemainAfterPayment := CurrRemainAfterPayment + CurrPaymDiscDeductAmount;
+                PaymDiscDeductAmount += CurrPaymDiscDeductAmount;
                 CurrPaymDiscDeductAmount := 0;
             end;
             OeRemainAmountFC += CurrOeRemainAmountFC;
@@ -388,6 +389,7 @@ page 35517 "Payment Journal FactBox"
             AcceptedPaymentTol += CurrAcceptedPaymentTol;
             RemainAfterPayment += CurrRemainAfterPayment;
         until VendLedgEntry.Next() = 0;
+        RemainAfterPayment -= PaymDiscDeductAmount;
     end;
 
     [IntegrationEvent(true, false)]
