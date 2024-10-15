@@ -2,7 +2,7 @@
     "id":  "5c9d84f2-7ad0-4b05-9dfc-5440df33fe02",
     "name":  "OnPrem Permissions (ES)",
     "publisher":  "Microsoft",
-    "version":  "23.11.23421.0",
+    "version":  "23.12.24784.0",
     "brief":  "This extension includes permission set for on premise systems.",
     "description":  "This extension includes permission set for on premise systems.",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
@@ -24,5 +24,5 @@
                                    "includeSourceInSymbolFile":  true
                                },
     "target":  "OnPrem",
-    "application":  "23.11.0.0"
+    "application":  "23.12.0.0"
 }

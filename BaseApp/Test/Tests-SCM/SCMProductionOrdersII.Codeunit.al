@@ -54,7 +54,6 @@ codeunit 137072 "SCM Production Orders II"
         DeleteItemTrackingQst: Label 'has item reservation. Do you want to delete it anyway?';
         ItemTrackingMode: Option " ","Assign Lot No.","Select Entries","Update Quantity","Manual Lot No.";
         ProdOrderRtngLineNotUpdatedMsg: Label 'Prod. Order Routing Line is not updated.';
-        TotalDurationExceedsAvailTimeErr: Label 'The sum of setup, move and wait time exceeds the available time in the period.';
         CancelReservationTxt: Label 'Cancel reservation';
         PostingProductionJournalQst: Label 'Do you want to post the journal lines?';
         PostingProductionJournalTxt: Label 'The journal lines were successfully posted';
@@ -1634,28 +1633,6 @@ codeunit 137072 "SCM Production Orders II"
         // Verify: Verify change status successfully. The Finished Quantity is correct and finishing the Production Order.
         VerifyProdOrderLine(
           ParentItem."No.", ProductionOrder.Status::Finished, ProductionOrder.Quantity, ProductionOrder.Quantity);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure IncreaseDurationOfOperationsInManuallyScheduledProdOrderRoutingLine()
-    var
-        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
-        NewSetupTime: Decimal;
-    begin
-        // [SCENARIO 379761] An error should occur when total duration of setup-wait-move operations exceeds the period between Starting and Ending Dates in Prod. Order Routing Line with "Schedule Manually" flag on.
-        Initialize();
-
-        // [GIVEN] Released Production Order.
-        // [GIVEN] "Schedule Manually" flag is set to TRUE in Prod. Order Routing Line "L".
-        CreateReleasedProdOrderWithManuallyScheduledRoutingLine(ProdOrderRoutingLine);
-
-        // [WHEN] Increase Setup Time in "L".
-        NewSetupTime := ProdOrderRoutingLine."Setup Time" + LibraryRandom.RandInt(5);
-        asserterror UpdateSetupTimeInProdOrderRoutingLine(ProdOrderRoutingLine, NewSetupTime);
-
-        // [THEN] Error message of exceeding duration of operations is shown.
-        Assert.ExpectedError(TotalDurationExceedsAvailTimeErr);
     end;
 
     [Test]
@@ -4719,6 +4696,31 @@ codeunit 137072 "SCM Production Orders II"
                 ItemLedgerEntry.FieldCaption(Quantity),
                 -ProdOrderComponent."Qty. Picked (Base)",
                 ItemLedgerEntry.TableCaption()));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure IncreaseDurationOfOperationsInManuallyScheduledProdOrderRoutingLine()
+    var
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        NewSetupTime: Decimal;
+    begin
+        // [SCENARIO 532972] When Stan increases Setup Time which increases the total duration 
+        // Of setup-wait-move operations in Prod. Order Routing Line having "Schedule Manually" 
+        // Set to true then no error occurs.
+        Initialize();
+
+        // [GIVEN] Create a Released Production Order with Manually Scheduled Routing Line.
+        CreateReleasedProdOrderWithManuallyScheduledRoutingLine(ProdOrderRoutingLine);
+
+        // [GIVEN] Generate and save New Setup Time.
+        NewSetupTime := ProdOrderRoutingLine."Setup Time" + LibraryRandom.RandInt(5);
+
+        // [WHEN] Update Setup Time in Prod. Order Routing Line.
+        UpdateSetupTimeInProdOrderRoutingLine(ProdOrderRoutingLine, NewSetupTime);
+
+        // [THEN] Setup Time in Prod. Order Routing Line is equal to New Setup Time value.
+        Assert.AreEqual(NewSetupTime, ProdOrderRoutingLine."Setup Time", ProdOrderRtngLineNotUpdatedMsg);
     end;
 
     local procedure Initialize()

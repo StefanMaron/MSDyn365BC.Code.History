@@ -13,6 +13,13 @@ page 868 "Cash Flow Forecast Statistics"
     {
         area(content)
         {
+            group(Disclaimer)
+            {
+                Caption = ' ';
+                ShowCaption = false;
+                Editable = false;
+                InstructionalText = 'AI generated suggestions may not always be accurate. Please validate results for correctness before using content provided.';
+            }
             group(General)
             {
                 Caption = 'General';
