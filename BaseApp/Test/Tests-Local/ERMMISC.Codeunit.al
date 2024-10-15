@@ -41,9 +41,10 @@
         LibraryTextFileValidation: Codeunit "Library - Text File Validation";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryNLLocalization: Codeunit "Library - NL Localization";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         isInitialized: Boolean;
         EntryExitPointErr: Label 'Reported Entry/Exit Point is incorrect.';
-        WrongValueErr: Label 'Wrong value %1 in intrastat file.';
+        AdvChecklistErr: Label 'There are one or more errors. For details, see the journal error FactBox.';
 
     [Test]
     [Scope('OnPrem')]
@@ -97,13 +98,10 @@
         CreateSimpleIntrastatJnlTemplateAndBatch(IntrastatJnlBatch);
         CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
           IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, CountryCode);
-        Commit();
-        LibraryVariableStorage.Enqueue(false);
-
-        Filename := FileManagement.ServerTempFileName('txt');
 
         // [WHEN] Create Intrastat Declaration Disc
-        RunIntrastatMakeDiskTaxAuth(Filename);
+        Filename := FileManagement.ServerTempFileName('txt');
+        RunIntrastatMakeDiskTaxAuth(Filename, false);
 
         // [THEN] We have LAST 12 characters "VAT Registration No." from 5 position in Header and from 8 position in lines in intrastat declaration file.
         DeclarationFile.TextMode(true);
@@ -454,7 +452,7 @@
 
         // [WHEN] Create Intrastat Declaration Disc
         Filename := FileManagement.ServerTempFileName('txt');
-        RunIntrastatMakeDiskTaxAuth(Filename);
+        RunIntrastatMakeDiskTaxAuth(Filename, false);
 
         // [THEN] "Entry/Exit Point" in reported file equals '00'
         DeclarationFile.TextMode(true);
@@ -486,7 +484,7 @@
 
         // [WHEN] Create Intrastat Declaration Disc
         Filename := FileManagement.ServerTempFileName('txt');
-        RunIntrastatMakeDiskTaxAuth(Filename);
+        RunIntrastatMakeDiskTaxAuth(Filename, false);
 
         // [THEN] "Entry/Exit Point" in reported file equals 'XX'
         DeclarationFile.TextMode(true);
@@ -503,25 +501,20 @@
     [Scope('OnPrem')]
     procedure PartnerIDInShipmentIntrastatFileCounterpartyFalse()
     var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         Filename: Text;
     begin
-        // [FEATURE] [Intrastat] [Export] [Shipment]
+        // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Export] [Shipment]
         // [SCENARIO 376893] Create Intrastat Decl. with "Partner VAT ID" in shipment Intrastat Jnl. Line when Counterparty = false
+        // [SCENARIO 400682] Zero Special Unit value is exported with "+" sign
         Initialize();
 
         // [GIVEN] Prepare shipment Intrastat Journal Line whith "Partner VAT ID" = 'NL23456789456' and Transaction Specification = '12'
-        CreateSimpleIntrastatJnlTemplateAndBatch(IntrastatJnlBatch);
-        CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
-          IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
-        UpdatePartnerIDInIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
-        Commit();
-        LibraryVariableStorage.Enqueue(false);
+        PrepareIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
 
         // [WHEN] Run Create Intrastat Declaration Disc with Counterparty = true
         Filename := FileManagement.ServerTempFileName('txt');
-        RunIntrastatMakeDiskTaxAuth(Filename);
+        RunIntrastatMakeDiskTaxAuth(Filename, false);
 
         // [THEN] Intrastat Declaration is created with Transaction = '12' and 'Partner ID' = 'NL23456789456'
         VerifyTransactionAndPatnerIDInDeclarationFile(Filename, '', '', '  ', IntrastatJnlLine."Transaction Type");
@@ -532,12 +525,11 @@
     [Scope('OnPrem')]
     procedure PartnerIDInShipmentIntrastatFileCounterpartyTrue()
     var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         CountryRegion: Record "Country/Region";
         Filename: Text;
     begin
-        // [FEATURE] [Intrastat] [Export] [Shipment]
+        // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Export] [Shipment]
         // [SCENARIO 376893] Create Intrastat Decl. with "Partner VAT ID" in shipment Intrastat Jnl. Line when Counterparty = true
         // [SCENARIO 391946] Transaction Type is exported blanked
         // [SCENARIO 394821] Transaction Specification and Partner VAT ID values are exported
@@ -545,16 +537,11 @@
         Initialize();
 
         // [GIVEN] Prepare shipment Intrastat Journal Line whith "Partner VAT ID" = 'NL0123456789' and Transaction Specification = '12'
-        CreateSimpleIntrastatJnlTemplateAndBatch(IntrastatJnlBatch);
-        CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
-          IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
-        UpdatePartnerIDInIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
-        Commit();
-        LibraryVariableStorage.Enqueue(true);
+        PrepareIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
 
         // [WHEN] Run Create Intrastat Declaration Disc with Counterparty = true
         Filename := FileManagement.ServerTempFileName('txt');
-        RunIntrastatMakeDiskTaxAuth(Filename);
+        RunIntrastatMakeDiskTaxAuth(Filename, true);
 
         // [THEN] Intrastat Declaration is created with Transaction = '12' and 'Partner ID' = '     NL0123456789'
         // [THEN] Intrastat Code is exported as Country of Origin (TFS 391822)
@@ -569,23 +556,19 @@
     [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
     procedure PartnerIDInShipmentIntrastatFileCounterpartyTrueCountryCodeOrigin()
     var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         Item: Record Item;
         CountryRegion: Record "Country/Region";
         Filename: Text;
         LineContent: Text;
     begin
-        // [FEATURE] [Intrastat] [Export] [Shipment]
+        // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Export] [Shipment]
         // [SCENARIO 386323] "Country/Region of Origin" aligned left in exported file
         // [SCENARIO 394821] Country/Region of Origin code is taken from journal "Country/Region of Origin Code"
         // [SCENARIO 394821] in case of blanked "Intrastat Code" value
         Initialize();
 
-        CreateSimpleIntrastatJnlTemplateAndBatch(IntrastatJnlBatch);
-        CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
-          IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
-        UpdatePartnerIDInIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
+        PrepareIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
         Item.Get(IntrastatJnlLine."Item No.");
         Item.Validate("Country/Region of Origin Code", CreateCountryRegionCode());
         Item.Modify(true);
@@ -596,11 +579,8 @@
         CountryRegion."Intrastat Code" := ''; // TFS 394821
         CountryRegion.Modify();
 
-        Commit();
-        LibraryVariableStorage.Enqueue(true);
-
         Filename := FileManagement.ServerTempFileName('txt');
-        RunIntrastatMakeDiskTaxAuth(Filename);
+        RunIntrastatMakeDiskTaxAuth(Filename, true);
 
         LineContent := LibraryTextFileValidation.ReadLine(Filename, 2);
         Assert.ExpectedMessage(
@@ -617,26 +597,20 @@
     [Scope('OnPrem')]
     procedure PartnerIDInReceiptIntrastatFileCounterpartyFalse()
     var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         Filename: Text;
     begin
-        // [FEATURE] [Intrastat] [Export] [Receipt]
+        // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Export] [Receipt]
         // [SCENARIO 389253] Create Intrastat Decl. with "Partner VAT ID" in receipt Intrastat Jnl. Line when Counterparty = false
         // [SCENARIO 391946] Transaction Type value is exported
         Initialize();
 
         // [GIVEN] Prepare receipt Intrastat Journal Line whith "Partner VAT ID" = 'NL23456789456' and Transaction Specification = '12'
-        CreateSimpleIntrastatJnlTemplateAndBatch(IntrastatJnlBatch);
-        CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
-          IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
-        UpdatePartnerIDInIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
-        Commit();
-        LibraryVariableStorage.Enqueue(false);
+        PrepareIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
 
-        // [WHEN] Run Create Intrastat Declaration Disc with Counterparty = true
+        // [WHEN] Run Create Intrastat Declaration Disc with Counterparty = false
         Filename := FileManagement.ServerTempFileName('txt');
-        RunIntrastatMakeDiskTaxAuth(Filename);
+        RunIntrastatMakeDiskTaxAuth(Filename, false);
 
         // [THEN] Intrastat Declaration is created with Transaction = '12' and 'Partner ID' = 'NL23456789456'
         VerifyTransactionAndPatnerIDInDeclarationFile(Filename, '', '', '  ', IntrastatJnlLine."Transaction Type");
@@ -647,28 +621,22 @@
     [Scope('OnPrem')]
     procedure PartnerIDInReceiptIntrastatFileCounterpartyTrue()
     var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         CountryRegion: Record "Country/Region";
         Filename: Text;
     begin
-        // [FEATURE] [Intrastat] [Export] [Receipt]
+        // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Export] [Receipt]
         // [SCENARIO 389253] Create Intrastat Decl. with "Partner VAT ID" in receipt Intrastat Jnl. Line when Counterparty = true
         // [SCENARIO 391946] Transaction Type value is exported
         // [SCENARIO 394821] Transaction Specification and Partner VAT ID values are not exported (blanked)
         Initialize();
 
         // [GIVEN] Prepare receipt Intrastat Journal Line whith "Partner VAT ID" = 'NL0123456789' and Transaction Specification = '12'
-        CreateSimpleIntrastatJnlTemplateAndBatch(IntrastatJnlBatch);
-        CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
-          IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
-        UpdatePartnerIDInIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
-        Commit();
-        LibraryVariableStorage.Enqueue(true);
+        PrepareIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
 
         // [WHEN] Run Create Intrastat Declaration Disc with Counterparty = true
         Filename := FileManagement.ServerTempFileName('txt');
-        RunIntrastatMakeDiskTaxAuth(Filename);
+        RunIntrastatMakeDiskTaxAuth(Filename, true);
 
         // [THEN] Intrastat Declaration is created with Transaction = '12' and 'Partner ID' = '     NL0123456789'
         // [THEN] Blanked Intrastat Code is exported as Country of Origin (TFS 391822)
@@ -683,58 +651,501 @@
     [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
     procedure TransactionSpecificationIsCheckedForShipmentIntrastatFileCounterpartyTrue()
     var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
-        // [FEATURE] [Intrastat] [Export] [Shipment]
-        // [SCENARIO 391946] "Transaction Specification" is checked for shipment Intrastat Jnl. Line when Counterparty = true
+        // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Export] [Shipment]
+        // [SCENARIO 391946] Report 11413 "Create Intrastat Decl. Disk" checks for "Transaction Specification" for shipments when Counterparty = true
         Initialize();
 
-        // [GIVEN] Prepare shipment Intrastat Journal Line with blanked Transaction Specification
-        CreateSimpleIntrastatJnlTemplateAndBatch(IntrastatJnlBatch);
-        CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
-          IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
-        UpdatePartnerIDInIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
-        IntrastatJnlLine."Transaction Specification" := '';
-        IntrastatJnlLine.Modify();
-        Commit();
-        LibraryVariableStorage.Enqueue(true);
+        // [GIVEN] Prepare shipment intrastat journal line with blanked "Transaction Specification"
+        PrepareIntrastatJnlLineWithBlankedTransactionSpecification(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
 
         // [WHEN] Run Create Intrastat Declaration Disc with Counterparty = true
-        asserterror RunIntrastatMakeDiskTaxAuth(FileManagement.ServerTempFileName('txt'));
+        asserterror RunIntrastatMakeDiskTaxAuth(FileManagement.ServerTempFileName('txt'), true);
 
         // [THEN] Testfield error occurs: "Transaction Specification must have a value"
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError('Transaction Specification');
+#if CLEAN19
+        VerifyAdvanvedChecklistError(IntrastatJnlLine,IntrastatJnlLine.FieldName("Transaction Specification"));
+#else
+        VerifyTestfieldChecklistError(IntrastatJnlLine.FieldName("Transaction Specification"));
+#endif
     end;
 
     [Test]
     [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
     procedure TransactionTypeIsCheckedForShipmentIntrastatFileCounterpartyTrue()
     var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
-        // [FEATURE] [Intrastat] [Export] [Shipment]
-        // [SCENARIO 391946] "Transaction Type" is checked for receipt Intrastat Jnl. Line when Counterparty = true
+        // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Export] [Receipt]
+        // [SCENARIO 391946] Report 11413 "Create Intrastat Decl. Disk" checks for "Transaction Type" for receipts when Counterparty = true
         Initialize();
 
-        // [GIVEN] Prepare receipt Intrastat Journal Line with blanked Transaction Type
-        CreateSimpleIntrastatJnlTemplateAndBatch(IntrastatJnlBatch);
-        CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
-          IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
-        UpdatePartnerIDInIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
-        IntrastatJnlLine."Transaction Type" := '';
-        IntrastatJnlLine.Modify();
-        Commit();
-        LibraryVariableStorage.Enqueue(true);
+        // [GIVEN] Prepare receipt intrastat journal line with blanked "Transaction Type"
+        PrepareIntrastatJnlLineWithBlankedTransactionType(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
 
         // [WHEN] Run Create Intrastat Declaration Disc with Counterparty = true
-        asserterror RunIntrastatMakeDiskTaxAuth(FileManagement.ServerTempFileName('txt'));
+        asserterror RunIntrastatMakeDiskTaxAuth(FileManagement.ServerTempFileName('txt'), true);
 
         // [THEN] Testfield error occurs: "Transaction Type must have a value"
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError('Transaction Type');
+#if CLEAN19
+        VerifyAdvanvedChecklistError(IntrastatJnlLine,IntrastatJnlLine.FieldName("Transaction Type"));
+#else
+        VerifyTestfieldChecklistError(IntrastatJnlLine.FieldName("Transaction Type"));
+#endif
+    end;
+
+    [Test]
+    [HandlerFunctions('IntrastatChecklistRPH')]
+    procedure ChecklistReportChecksForTransactionTypeForReceipts()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        ErrorMessage: Record "Error Message";
+    begin
+        // [FEATURE] [Intrastat] [Intrastat - Checklist] [Receipt]
+        // [SCENARIO 394971] Report 502 "Intrastat - Checklist" checks for "Transaction Type" for receipts
+        Initialize();
+        EnableAdvancedChecklist();
+
+        // [GIVEN] Prepare receipt intrastat journal line with blanked "Transaction Type"
+        PrepareIntrastatJnlLineWithBlankedTransactionType(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
+
+        // [WHEN] Run "Intrastat - Checklist" report
+        RunIntrastatChecklistReport(IntrastatJnlLine);
+
+        // [THEN] Error log contains 1 error: "Transaction Type must have a value"
+        VerifyBatchError(IntrastatJnlLine, IntrastatJnlLine.FieldName("Transaction Type"));
+    end;
+
+    [Test]
+    [HandlerFunctions('IntrastatChecklistRPH')]
+    procedure ChecklistReportDoesntCheckForTransactionTypeForShipments()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [Intrastat] [Intrastat - Checklist] [Shipment]
+        // [SCENARIO 394971] Report 502 "Intrastat - Checklist" doesn't check for "Transaction Type" for shipments
+        // [SCENARIO 395404] Quantity has been printed with positive sign
+        Initialize();
+        EnableAdvancedChecklist();
+
+        // [GIVEN] Prepare shipment intrastat journal line with blanked "Transaction Type"
+        PrepareIntrastatJnlLineWithBlankedTransactionType(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
+
+        // [WHEN] Run "Intrastat - Checklist" report
+        RunIntrastatChecklistReport(IntrastatJnlLine);
+
+        // [THEN] Error log contains no error
+        VerifyNoBatchError(IntrastatJnlLine);
+
+        // [THEN] "Shipment" line type has been printed
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('IntrastatJnlLineType', 'Shipment');
+        LibraryReportDataset.AssertElementWithValueExists('IntrastatJnlLineQty', IntrastatJnlLine.Quantity); // TFS 395404
+    end;
+
+    [Test]
+    [HandlerFunctions('IntrastatChecklistRPH')]
+    procedure ChecklistReportChecksForTransactionSpecificationForShipments()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [Intrastat] [Intrastat - Checklist] [Shipment]
+        // [SCENARIO 396535] Report 502 "Intrastat - Checklist" checks for "Transaction Specification" for shipments
+        Initialize();
+        EnableAdvancedChecklist();
+
+        // [GIVEN] Prepare shipment intrastat journal line with blanked "Transaction Specification"
+        PrepareIntrastatJnlLineWithBlankedTransactionSpecification(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
+
+        // [WHEN] Run "Intrastat - Checklist" report
+        RunIntrastatChecklistReport(IntrastatJnlLine);
+
+        // [THEN] Error log contains 1 error: "Transaction Specification must have a value"
+        VerifyBatchError(IntrastatJnlLine, IntrastatJnlLine.FieldName("Transaction Specification"));
+    end;
+
+    [Test]
+    [HandlerFunctions('IntrastatChecklistRPH')]
+    procedure ChecklistReportDoesntCheckForTransactionSpecificationForReceipts()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [Intrastat] [Intrastat - Checklist] [Receipt]
+        // [SCENARIO 396535] Report 502 "Intrastat - Checklist" doesn't check for "Transaction Specification" for receipts
+        Initialize();
+        EnableAdvancedChecklist();
+
+        // [GIVEN] Prepare receipt intrastat journal line with blanked "Transaction Specification"
+        PrepareIntrastatJnlLineWithBlankedTransactionSpecification(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
+
+        // [WHEN] Run "Intrastat - Checklist" report
+        RunIntrastatChecklistReport(IntrastatJnlLine);
+
+        // [THEN] Error log contains no error
+        VerifyNoBatchError(IntrastatJnlLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntrastatChecklistRPH')]
+    procedure ChecklistReportForCorrectionShipmentLine()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Intrastat] [Intrastat - Checklist] [Shipment] [Correction] [UI]
+        // [SCENARIO 394971] Report 502 "Intrastat - Checklist" in case of correction for shipments
+        // [SCENARIO 395404] Quantity has been printed with negative sign
+        // [SCENARIO 396681] Total Weight and Statistical Amount have been printed with negative sign
+        // [SCENARIO 396680] Report 594 "Get Item Ledger Entries" creates "Receipt" intrastat journal line with negative amounts
+        Initialize();
+
+        // [GIVEN] Posted purchase return order
+        CreatePostPurchaseReturnOrderWithSingleLine(ItemNo);
+
+        // [GIVEN] Run "Suggest Lines" from intrastat journal page
+        RunSuggestLines(IntrastatJnlLine, ItemNo);
+
+        // [WHEN] Run "Intrastat - Checklist" report
+        RunIntrastatChecklistReport(IntrastatJnlLine);
+
+        // [THEN] "Receipt" line type has been printed
+        Assert.IsTrue(IntrastatJnlLine.Quantity < 0, 'expected Quantity < 0');
+        Assert.IsTrue(IntrastatJnlLine."Total Weight" < 0, 'expected Total Weight < 0');
+        Assert.IsTrue(IntrastatJnlLine."Statistical Value" < 0, 'expected Statistical Value < 0');
+
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('IntrastatJnlLineType', 'Receipt');
+        LibraryReportDataset.AssertElementWithValueExists('IntrastatJnlLineQty', IntrastatJnlLine.Quantity); // TFS 395404
+        LibraryReportDataset.AssertElementWithValueExists('IntrastatJnlLineTotalWt', IntrastatJnlLine."Total Weight"); // TFS 396681
+        LibraryReportDataset.AssertElementWithValueExists('IntrastatJnlLineTotalWt2', ROUND(IntrastatJnlLine."Total Weight", 1)); // TFS 396681
+        LibraryReportDataset.AssertElementWithValueExists('IntrastatJnlLinSubTotalWt', ROUND(IntrastatJnlLine."Total Weight", 1)); // TFS 396681
+        LibraryReportDataset.AssertElementWithValueExists('IntrastatJnlLineStatVal', IntrastatJnlLine."Statistical Value"); // TFS 396681
+    end;
+
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntrastatChecklistRPH')]
+    procedure ChecklistReportForCorrectionReceiptLine()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Intrastat] [Intrastat - Checklist] [Receipt] [Correction] [UI]
+        // [SCENARIO 394971] Report 502 "Intrastat - Checklist" in case of correction for receipts
+        // [SCENARIO 395404] Quantity has been printed with negative sign
+        // [SCENARIO 396681] Total Weight and Statistical Amount have been printed with negative sign
+        // [SCENARIO 396680] Report 594 "Get Item Ledger Entries" creates "Shipment" intrastat journal line with negative amounts
+        Initialize();
+
+        // [GIVEN] Posted sales return order
+        CreatePostSalesReturnOrderWithSingleLine(ItemNo);
+
+        // [GIVEN] Run "Suggest Lines" from intrastat journal page
+        RunSuggestLines(IntrastatJnlLine, ItemNo);
+
+        // [WHEN] Run "Intrastat - Checklist" report
+        RunIntrastatChecklistReport(IntrastatJnlLine);
+
+        // [THEN] "Shipment" line type has been printed
+        Assert.IsTrue(IntrastatJnlLine.Quantity < 0, 'expected Quantity < 0');
+        Assert.IsTrue(IntrastatJnlLine."Total Weight" < 0, 'expected Total Weight < 0');
+        Assert.IsTrue(IntrastatJnlLine."Statistical Value" < 0, 'expected Statistical Value < 0');
+
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('IntrastatJnlLineType', 'Shipment');
+        LibraryReportDataset.AssertElementWithValueExists('IntrastatJnlLineQty', IntrastatJnlLine.Quantity); // TFS 395404
+        LibraryReportDataset.AssertElementWithValueExists('IntrastatJnlLineTotalWt', IntrastatJnlLine."Total Weight"); // TFS 396681
+        LibraryReportDataset.AssertElementWithValueExists('IntrastatJnlLineTotalWt2', ROUND(IntrastatJnlLine."Total Weight", 1)); // TFS 396681
+        LibraryReportDataset.AssertElementWithValueExists('IntrastatJnlLinSubTotalWt', ROUND(IntrastatJnlLine."Total Weight", 1)); // TFS 396681
+        LibraryReportDataset.AssertElementWithValueExists('IntrastatJnlLineStatVal', IntrastatJnlLine."Statistical Value"); // TFS 396681
+    end;
+
+    [Test]
+    [HandlerFunctions('IntrastatFormRPH')]
+    procedure IntrastatFormChecksForTransactionTypeForReceipts()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [Intrastat] [Intrastat - Form] [Receipt]
+        // [SCENARIO 394971] Report 501 "Intrastat - Form" checks for "Transaction Type" for receipts
+        Initialize();
+        EnableAdvancedChecklist();
+
+        // [GIVEN] Prepare receipt intrastat journal line with blanked "Transaction Type"
+        PrepareIntrastatJnlLineWithBlankedTransactionType(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
+
+        // [WHEN] Run "Intrastat - Form" report
+        asserterror RunIntrastatFormReport(IntrastatJnlLine, Format(IntrastatJnlLine.Type::Receipt));
+
+        // [THEN] Testfield error occurs: "Transaction Type" must have a value"
+        VerifyAdvanvedChecklistError(IntrastatJnlLine, IntrastatJnlLine.FieldName("Transaction Type"));
+    end;
+
+    [Test]
+    [HandlerFunctions('IntrastatFormRPH')]
+    procedure IntrastatFormDoesntCheckForTransactionTypeForShipments()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [Intrastat] [Intrastat - Form] [Shipments]
+        // [SCENARIO 394971] Report 501 "Intrastat - Form" doesn't check for "Transaction Type" for shipments
+        // [SCENARIO 395404] Quantity has been printed with positive sign
+        Initialize();
+        EnableAdvancedChecklist();
+
+        // [GIVEN] Prepare shipment intrastat journal line with blanked "Transaction Type"
+        PrepareIntrastatJnlLineWithBlankedTransactionType(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
+
+        // [WHEN] Run "Intrastat - Form" report
+        RunIntrastatFormReport(IntrastatJnlLine, Format(IntrastatJnlLine.Type::Shipment));
+
+        // [THEN] There is no error occurs
+        // [THEN] "Shipment" line type has been printed
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('Type_IntraJnlLine', 'Shipment');
+        LibraryReportDataset.AssertElementWithValueExists('Quantity_IntraJnlLine', IntrastatJnlLine.Quantity); // TFS 395404
+    end;
+
+    [Test]
+    [HandlerFunctions('IntrastatFormRPH')]
+    procedure IntrastatFormChecksForTransactionSpecificationForShipments()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [Intrastat] [Intrastat - Form] [Shipments]
+        // [SCENARIO 396535] Report 501 "Intrastat - Form" checks for "Transaction Specification" for shipments
+        Initialize();
+        EnableAdvancedChecklist();
+
+        // [GIVEN] Prepare shipment intrastat journal line with blanked "Transaction Specification"
+        PrepareIntrastatJnlLineWithBlankedTransactionSpecification(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
+
+        // [WHEN] Run "Intrastat - Form" report
+        asserterror RunIntrastatFormReport(IntrastatJnlLine, Format(IntrastatJnlLine.Type::Shipment));
+
+        // [THEN] Testfield error occurs: "Transaction Specification must have a value"
+        VerifyAdvanvedChecklistError(IntrastatJnlLine, IntrastatJnlLine.FieldName("Transaction Specification"));
+    end;
+
+    [Test]
+    [HandlerFunctions('IntrastatFormRPH')]
+    procedure IntrastatFormDoesntCheckForTransactionSpecificationForReceipts()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [Intrastat] [Intrastat - Form] [Receipt]
+        // [SCENARIO 396535] Report 501 "Intrastat - Form" doesn't check for "Transaction Specification" for receipts
+        Initialize();
+        EnableAdvancedChecklist();
+
+        // [GIVEN] Prepare receipt intrastat journal line with blanked "Transaction Specification"
+        PrepareIntrastatJnlLineWithBlankedTransactionSpecification(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
+
+        // [WHEN] Run "Intrastat - Form" report
+        RunIntrastatFormReport(IntrastatJnlLine, Format(IntrastatJnlLine.Type::Receipt));
+
+        // [THEN] There is no error occurs
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('Type_IntraJnlLine', 'Receipt');
+    end;
+
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntrastatFormRPH')]
+    procedure IntrastatFormForCorrectionShipmentLine()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Intrastat] [Intrastat - Form] [Shipments] [Correction]
+        // [SCENARIO 394971] Report 501 "Intrastat - Form"  in case of correction for shipments
+        // [SCENARIO 395404] Quantity has been printed with negative sign
+        // [SCENARIO 396681] Total Weight and Statistical Amount have been printed with negative sign
+        // [SCENARIO 396680] Report 594 "Get Item Ledger Entries" creates "Receipt" intrastat journal line with negative amounts
+        Initialize();
+
+        // [GIVEN] Posted purchase return order
+        CreatePostPurchaseReturnOrderWithSingleLine(ItemNo);
+
+        // [GIVEN] Run "Suggest Lines" from intrastat journal page
+        RunSuggestLines(IntrastatJnlLine, ItemNo);
+        IntrastatJnlLine."Transaction Type" := LibraryUtility.GenerateGUID();
+        IntrastatJnlLine.Modify();
+
+        // [WHEN] Run "Intrastat - Form" report
+        RunIntrastatFormReport(IntrastatJnlLine, Format(IntrastatJnlLine.Type::Receipt));
+
+        // [THEN] "Receipt" line type has been printed
+        Assert.IsTrue(IntrastatJnlLine.Quantity < 0, 'expected Quantity < 0');
+        Assert.IsTrue(IntrastatJnlLine."Total Weight" < 0, 'expected Total Weight < 0');
+        Assert.IsTrue(IntrastatJnlLine."Statistical Value" < 0, 'expected Statistical Value < 0');
+
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('Type_IntraJnlLine', 'Receipt');
+        LibraryReportDataset.AssertElementWithValueExists('Quantity_IntraJnlLine', IntrastatJnlLine.Quantity); // TFS 395404
+        LibraryReportDataset.AssertElementWithValueExists('TotalWeight_IntraJnlLine', ROUND(IntrastatJnlLine."Total Weight", 1)); // TFS 396681
+        LibraryReportDataset.AssertElementWithValueExists('SubTotalWeight', ROUND(IntrastatJnlLine."Total Weight", 1)); // TFS 396681
+        LibraryReportDataset.AssertElementWithValueExists('StatisValue_IntraJnlLine', IntrastatJnlLine."Statistical Value"); // TFS 396681
+    end;
+
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntrastatFormRPH')]
+    procedure IntrastatFormForCorrectionReceiptLine()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Intrastat] [Intrastat - Form] [Receipt] [Correction]
+        // [SCENARIO 394971] Report 501 "Intrastat - Form"  in case of correction for receipts
+        // [SCENARIO 395404] Quantity has been printed with negative sign
+        // [SCENARIO 396681] Total Weight and Statistical Amount have been printed with negative sign
+        // [SCENARIO 396680] Report 594 "Get Item Ledger Entries" creates "Shipment" intrastat journal line with negative amounts
+        Initialize();
+        EnableAdvancedChecklist();
+
+        // [GIVEN] Posted sales return order
+        CreatePostSalesReturnOrderWithSingleLine(ItemNo);
+
+        // [GIVEN] Run "Suggest Lines" from intrastat journal page
+        RunSuggestLines(IntrastatJnlLine, ItemNo);
+        IntrastatJnlLine."Transaction Specification" := LibraryUtility.GenerateGUID();
+        IntrastatJnlLine.Modify();
+
+        // [WHEN] Run "Intrastat - Form" report
+        RunIntrastatFormReport(IntrastatJnlLine, Format(IntrastatJnlLine.Type::Shipment));
+
+        // [THEN] "Shipment" line type has been printed
+        Assert.IsTrue(IntrastatJnlLine.Quantity < 0, 'expected Quantity < 0');
+        Assert.IsTrue(IntrastatJnlLine."Total Weight" < 0, 'expected Total Weight < 0');
+        Assert.IsTrue(IntrastatJnlLine."Statistical Value" < 0, 'expected Statistical Value < 0');
+
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('Type_IntraJnlLine', 'Shipment');
+        LibraryReportDataset.AssertElementWithValueExists('Quantity_IntraJnlLine', IntrastatJnlLine.Quantity); // TFS 395404
+        LibraryReportDataset.AssertElementWithValueExists('TotalWeight_IntraJnlLine', ROUND(IntrastatJnlLine."Total Weight", 1)); // TFS 396681
+        LibraryReportDataset.AssertElementWithValueExists('SubTotalWeight', ROUND(IntrastatJnlLine."Total Weight", 1)); // TFS 396681
+        LibraryReportDataset.AssertElementWithValueExists('StatisValue_IntraJnlLine', IntrastatJnlLine."Statistical Value"); // TFS 396681
+    end;
+
+    [Test]
+    procedure TestCheckIntrastatJournalLineForCorrection()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        IntrastatLocalMgt: Codeunit "Intrastat Local Mgt.";
+        ItemDirectType: Option;
+    begin
+        // [FEATURE] [Intrastat] [UT]
+        // [SCENARIO 394971] COD 11400 "Local Functionality Mgt.".CheckIntrastatJournalLineForCorrection()
+        Initialize();
+
+        IntrastatJnlLine."Source Entry No." := -1;
+        Assert.IsFalse(IntrastatLocalMgt.CheckIntrastatJournalLineForCorrection(IntrastatJnlLine, ItemDirectType), '');
+
+        IntrastatJnlLine."Source Entry No." := MockItemLedgerEntry(ItemLedgerEntry."Document Type"::"Purchase Return Shipment");
+        Assert.IsTrue(IntrastatLocalMgt.CheckIntrastatJournalLineForCorrection(IntrastatJnlLine, ItemDirectType), '');
+        Assert.AreEqual(IntrastatJnlLine.Type::Receipt, ItemDirectType, '');
+
+        IntrastatJnlLine."Source Entry No." := MockItemLedgerEntry(ItemLedgerEntry."Document Type"::"Purchase Credit Memo");
+        Assert.IsTrue(IntrastatLocalMgt.CheckIntrastatJournalLineForCorrection(IntrastatJnlLine, ItemDirectType), '');
+        Assert.AreEqual(IntrastatJnlLine.Type::Receipt, ItemDirectType, '');
+
+        IntrastatJnlLine."Source Entry No." := MockItemLedgerEntry(ItemLedgerEntry."Document Type"::"Sales Return Receipt");
+        Assert.IsTrue(IntrastatLocalMgt.CheckIntrastatJournalLineForCorrection(IntrastatJnlLine, ItemDirectType), '');
+        Assert.AreEqual(IntrastatJnlLine.Type::Shipment, ItemDirectType, '');
+
+        IntrastatJnlLine."Source Entry No." := MockItemLedgerEntry(ItemLedgerEntry."Document Type"::"Sales Credit Memo");
+        Assert.IsTrue(IntrastatLocalMgt.CheckIntrastatJournalLineForCorrection(IntrastatJnlLine, ItemDirectType), '');
+        Assert.AreEqual(IntrastatJnlLine.Type::Shipment, ItemDirectType, '');
+
+        IntrastatJnlLine."Source Entry No." := MockItemLedgerEntry(ItemLedgerEntry."Document Type"::"Service Credit Memo");
+        Assert.IsTrue(IntrastatLocalMgt.CheckIntrastatJournalLineForCorrection(IntrastatJnlLine, ItemDirectType), '');
+        Assert.AreEqual(IntrastatJnlLine.Type::Shipment, ItemDirectType, '');
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
+    procedure CreateDeclReportChecksForTransactionTypeForReceipts()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Receipt]
+        // [SCENARIO 394971] Report 11413 "Create Intrastat Decl. Disk" checks for "Transaction Type" for receipts
+        Initialize();
+        EnableAdvancedChecklist();
+
+        // [GIVEN] Prepare receipt intrastat journal line with blanked "Transaction Type"
+        PrepareIntrastatJnlLineWithBlankedTransactionType(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
+
+        // [WHEN] Run "Create Intrastat Decl. Disk" report
+        asserterror RunIntrastatMakeDiskTaxAuth(FileManagement.ServerTempFileName('txt'), false);
+
+        // [THEN] Error log contains 1 error: "Transaction Type must have a value"
+        VerifyBatchError(IntrastatJnlLine, IntrastatJnlLine.FIELDNAME("Transaction Type"));
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
+    procedure CreateDeclReportDoesntCheckForTransactionTypeForShipments()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Shipment]
+        // [SCENARIO 394971] Report 11413 "Create Intrastat Decl. Disk" doesn't check for "Transaction Type" for shipments
+        // [SCENARIO 395404] Quantity has been printed with positive sign
+        Initialize();
+        EnableAdvancedChecklist();
+
+        // [GIVEN] Prepare shipment intrastat journal line with blanked "Transaction Type"
+        PrepareIntrastatJnlLineWithBlankedTransactionType(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
+
+        // [WHEN] Run "Create Intrastat Decl. Disk" report
+        RunIntrastatMakeDiskTaxAuth(FileManagement.ServerTempFileName('txt'), false);
+
+        // [THEN] Error log contains no error
+        VerifyNoBatchError(IntrastatJnlLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
+    procedure CreateDeclReportChecksForTransactionSpecificationForShipments()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Shipment]
+        // [SCENARIO 396535] Report 11413 "Create Intrastat Decl. Disk" checks for "Transaction Specification" for shipments
+        Initialize();
+        EnableAdvancedChecklist();
+
+        // [GIVEN] Prepare shipment intrastat journal line with blanked "Transaction Specification"
+        PrepareIntrastatJnlLineWithBlankedTransactionSpecification(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
+
+        // [WHEN] Run "Create Intrastat Decl. Disk" report
+        asserterror RunIntrastatMakeDiskTaxAuth(FileManagement.ServerTempFileName('txt'), false);
+
+        // [THEN] Error log contains 1 error: "Transaction Specification must have a value"
+        VerifyBatchError(IntrastatJnlLine, IntrastatJnlLine.FIELDNAME("Transaction Specification"));
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
+    procedure CreateDeclReportDoesntCheckForTransactionSpecificationForReceipts()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Receipt]
+        // [SCENARIO 396535] Report 11413 "Create Intrastat Decl. Disk" doesn't check for "Transaction Specification" for receipts
+        Initialize();
+        EnableAdvancedChecklist();
+
+        // [GIVEN] Prepare receipt intrastat journal line with blanked "Transaction Specification"
+        PrepareIntrastatJnlLineWithBlankedTransactionSpecification(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
+
+        // [WHEN] Run "Create Intrastat Decl. Disk" report
+        RunIntrastatMakeDiskTaxAuth(FileManagement.ServerTempFileName('txt'), false);
+
+        // [THEN] Error log contains no error
+        VerifyNoBatchError(IntrastatJnlLine);
     end;
 
     local procedure Initialize()
@@ -762,6 +1173,22 @@
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM MISC");
     end;
 
+    local procedure EnableAdvancedChecklist()
+#if not CLEAN19
+    var
+        IntrastatSetup: Record "Intrastat Setup";
+    begin
+        if not IntrastatSetup.Get() then
+            IntrastatSetup.Insert();
+        IntrastatSetup."Use Advanced Checklist" := true;
+        IntrastatSetup."Report Receipts" := true;
+        IntrastatSetup."Report Shipments" := true;
+        IntrastatSetup.Modify();
+#else
+    begin
+#endif
+    end;
+
     local procedure GetEntryExitPointFromDeclarationFile(var DeclFile: File): Text[12]
     var
         DeclarationString: Text[256];
@@ -771,6 +1198,30 @@
         DeclFile.Read(DeclarationString);
         DeclarationString := CopyStr(DeclarationString, 33, 2);
         exit(DeclarationString);
+    end;
+
+    local procedure PrepareIntrastatJnlLineWithBlankedTransactionSpecification(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; Type: Option)
+    begin
+        PrepareIntrastatJournalLine(IntrastatJnlLine, Type);
+        IntrastatJnlLine."Transaction Specification" := '';
+        IntrastatJnlLine.Modify();
+    end;
+
+    local procedure PrepareIntrastatJnlLineWithBlankedTransactionType(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; Type: Option)
+    begin
+        PrepareIntrastatJournalLine(IntrastatJnlLine, Type);
+        IntrastatJnlLine."Transaction Type" := '';
+        IntrastatJnlLine.Modify();
+    end;
+
+    local procedure PrepareIntrastatJournalLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; Type: Option)
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+    begin
+        CreateSimpleIntrastatJnlTemplateAndBatch(IntrastatJnlBatch);
+        CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
+          IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
+        UpdatePartnerIDInIntrastatJnlLine(IntrastatJnlLine, Type);
     end;
 
     local procedure CreateCBGStatementWithTemplate(GenJnlTemplateName: Code[10]): Integer
@@ -883,7 +1334,11 @@
             CountryRegion.Code := CountryRegionCode;
             CountryRegion."Intrastat Code" := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(2, 0), 1, 2);
             CountryRegion.Insert();
-        end;
+        end else
+            if CountryRegion."Intrastat Code" = '' then begin
+                CountryRegion."Intrastat Code" := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(2, 0), 1, 2);
+                CountryRegion.Modify();
+            end;
 
         exit(CountryRegionCode);
     end;
@@ -896,6 +1351,16 @@
         Vendor.Validate("Country/Region Code", FindCountryRegionCode);
         Vendor.Modify(true);
         exit(Vendor."No.");
+    end;
+
+    local procedure CreateForeignCustomerNo(): Code[20]
+    var
+        Customer: Record Customer;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Country/Region Code", FindCountryRegionCode());
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateItem(): Code[20]
@@ -928,6 +1393,7 @@
             Validate("Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
             Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
             Validate("Last Direct Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+            Validate("Net Weight", LibraryRandom.RandDecInRange(100, 200, 2));
             Modify(true);
         end;
     end;
@@ -1001,6 +1467,21 @@
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
+    local procedure CreatePostPurchaseReturnOrderWithSingleLine(var ItemNo: Code[20])
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+    begin
+        CreateItemWithTariffNo(Item);
+        ItemNo := Item."No.";
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", CreateForeignVendorNo());
+        PurchaseHeader.Validate("Posting Date", CalcDate('<+1M>', WorkDate()));
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+    end;
+
     local procedure CreateAndPostSalesReturnOrder(var SalesHeader: Record "Sales Header") Amount: Decimal
     var
         SalesLine: Record "Sales Line";
@@ -1009,6 +1490,21 @@
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));  // Taking Random Quantity.
         Amount := SalesLine."Outstanding Amount" - (SalesLine."Outstanding Amount" / SalesHeader."Payment Discount %") / 100;
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
+    local procedure CreatePostSalesReturnOrderWithSingleLine(var ItemNo: Code[20])
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+    begin
+        CreateItemWithTariffNo(Item);
+        ItemNo := Item."No.";
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CreateForeignCustomerNo());
+        SalesHeader.Validate("Posting Date", CalcDate('<+1M>', WorkDate()));
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
@@ -1052,6 +1548,17 @@
           Code, LibraryUtility.GenerateRandomCode(VendorBankAccount.FieldNo("Vendor No."), DATABASE::"Vendor Bank Account"));
         VendorBankAccount.Insert(true);
         exit(VendorBankAccount.Code);
+    end;
+
+    local procedure MockItemLedgerEntry(DocumentType: Enum "Item Ledger Document Type"): Integer
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry.Init();
+        ItemLedgerEntry."Document Type" := DocumentType;
+        ItemLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, ItemLedgerEntry.FieldNo("Entry No."));
+        ItemLedgerEntry.Insert();
+        exit(ItemLedgerEntry."Entry No.");
     end;
 
     local procedure FindCountryRegionCode(): Code[10]
@@ -1135,6 +1642,23 @@
         IntrastatJournal.Close;
     end;
 
+    local procedure RunSuggestLines(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ItemNo: Code[20])
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+    begin
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
+        Commit();
+        RunGetItemLedgerEntriesToCreateJnlLinesWithFutureDates(IntrastatJnlBatch);
+
+        IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
+        IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
+        IntrastatJnlLine.SetFilter("Item No.", '<>%1', ItemNo);
+        IntrastatJnlLine.DeleteAll();
+
+        IntrastatJnlLine.SetRange("Item No.");
+        IntrastatJnlLine.FindFirst();
+    end;
+
     local procedure SetIntrastatCodeOnCountryRegion()
     var
         CompanyInformation: Record "Company Information";
@@ -1211,12 +1735,37 @@
           StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption));
     end;
 
-    local procedure RunIntrastatMakeDiskTaxAuth(Filename: Text)
+    local procedure RunIntrastatMakeDiskTaxAuth(Filename: Text; Counterparty: Boolean)
     var
         CreateIntrastatDeclDisk: Report "Create Intrastat Decl. Disk";
     begin
+        Commit();
+        LibraryVariableStorage.Enqueue(Counterparty);
         CreateIntrastatDeclDisk.InitializeRequest(Filename);
-        CreateIntrastatDeclDisk.Run;
+        CreateIntrastatDeclDisk.Run();
+    end;
+
+    local procedure RunIntrastatChecklistReport(IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+    begin
+        IntrastatJnlBatch."Journal Template Name" := IntrastatJnlLine."Journal Template Name";
+        IntrastatJnlBatch.Name := IntrastatJnlLine."Journal Batch Name";
+        IntrastatJnlBatch.SetRecFilter();
+        Commit();
+        Report.Run(Report::"Intrastat - Checklist", true, false, IntrastatJnlBatch);
+    end;
+
+    local procedure RunIntrastatFormReport(IntrastatJnlLine: Record "Intrastat Jnl. Line"; TypeFilter: Text)
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+    begin
+        IntrastatJnlBatch."Journal Template Name" := IntrastatJnlLine."Journal Template Name";
+        IntrastatJnlBatch.Name := IntrastatJnlLine."Journal Batch Name";
+        IntrastatJnlBatch.SetRecFilter();
+        LibraryVariableStorage.Enqueue(TypeFilter);
+        Commit();
+        Report.Run(Report::"Intrastat - Form", true, false, IntrastatJnlBatch);
     end;
 
     local procedure VerifyIntrastatJnlLinesExist(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
@@ -1247,11 +1796,53 @@
         Assert.IsTrue(DeclFile.Open(FileName), FileName);
         DeclFile.Read(DeclarationString);
         DeclFile.Read(DeclarationString);
-        Assert.AreEqual(ExpectedTransaction, CopyStr(DeclarationString, 116, 2), StrSubstNo(WrongValueErr, 'Transaction'));
-        Assert.AreEqual(ExpectedPartnedID, CopyStr(DeclarationString, 118, 17), StrSubstNo(WrongValueErr, 'Partner ID'));
-        Assert.AreEqual(ExpectedCountryOfOrigin, CopyStr(DeclarationString, 25, 2), StrSubstNo(WrongValueErr, 'Country of Origin'));
-        Assert.AreEqual(ExpectedTransactionType, COPYSTR(DeclarationString, 37, 1), STRSUBSTNO(WrongValueErr, 'Transaction Type'));
+        Assert.AreEqual(ExpectedTransaction, CopyStr(DeclarationString, 116, 2), 'Transaction');
+        Assert.AreEqual(ExpectedPartnedID, CopyStr(DeclarationString, 118, 17), 'Partner ID');
+        Assert.AreEqual(ExpectedCountryOfOrigin, CopyStr(DeclarationString, 25, 2), 'Country of Origin');
+        Assert.AreEqual(ExpectedTransactionType, CopyStr(DeclarationString, 37, 1), 'Transaction Type');
+        Assert.AreEqual('+', CopyStr(DeclarationString, 59, 1), 'Special Unit + sign'); // TFS 400682
+        Assert.AreEqual('         0', CopyStr(DeclarationString, 60, 10), 'Special Unit value');
         DeclFile.Close();
+    end;
+
+    local procedure VerifyTestfieldChecklistError(FieldName: Text)
+    begin
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(FieldName);
+    end;
+
+    local procedure VerifyAdvanvedChecklistError(IntrastatJnlLine: Record "Intrastat Jnl. Line"; FieldName: Text)
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        ErrorMessage: Record "Error Message";
+    begin
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(AdvChecklistErr);
+        VerifyBatchError(IntrastatJnlLine, FieldName);
+    end;
+
+    local procedure VerifyBatchError(IntrastatJnlLine: Record "Intrastat Jnl. Line"; FieldName: Text)
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        ErrorMessage: Record "Error Message";
+    begin
+        IntrastatJnlBatch."Journal Template Name" := IntrastatJnlLine."Journal Template Name";
+        IntrastatJnlBatch.Name := IntrastatJnlLine."Journal Batch Name";
+        ErrorMessage.SetContext(IntrastatJnlBatch);
+        Assert.AreEqual(1, ErrorMessage.ErrorMessageCount(ErrorMessage."Message Type"::Error), '');
+        ErrorMessage.FindFirst();
+        Assert.ExpectedMessage(FieldName, ErrorMessage.Description);
+    end;
+
+    local procedure VerifyNoBatchError(IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        ErrorMessage: Record "Error Message";
+    begin
+        IntrastatJnlBatch."Journal Template Name" := IntrastatJnlLine."Journal Template Name";
+        IntrastatJnlBatch.Name := IntrastatJnlLine."Journal Batch Name";
+        ErrorMessage.SetContext(IntrastatJnlBatch);
+        Assert.AreEqual(0, ErrorMessage.ErrorMessageCount(ErrorMessage."Message Type"::Error), '');
     end;
 
     [ModalPageHandler]
@@ -1316,5 +1907,19 @@
         CreateIntrastatDeclDisk.Counterparty.SetValue(LibraryVariableStorage.DequeueBoolean);
         CreateIntrastatDeclDisk.OK.Invoke;
     end;
+
+    [RequestPageHandler]
+    procedure IntrastatChecklistRPH(var IntrastatChecklist: TestRequestPage "Intrastat - Checklist")
+    begin
+        IntrastatChecklist.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    procedure IntrastatFormRPH(var IntrastatForm: TestRequestPage "Intrastat - Form")
+    begin
+        IntrastatForm."Intrastat Jnl. Line".SetFilter(Type, LibraryVariableStorage.DequeueText());
+        IntrastatForm.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
 }
 

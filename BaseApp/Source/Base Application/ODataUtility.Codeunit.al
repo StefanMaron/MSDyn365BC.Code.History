@@ -15,7 +15,9 @@
         WorksheetWriter: DotNet WorksheetWriter;
         WorkbookWriter: DotNet WorkbookWriter;
         ODataProtocolVersion: Option V3,V4;
-        ODataWizardTxt: Label 'Set Up Reporting Data';
+        ODataWizardTitleTxt: Label 'Set up reporting data for your own reports';
+        ODataWizardShortTitleTxt: Label 'Set Up Reporting Data';
+        ODataWizardDescriptionTxt: Label 'Create data sets that you can use for building reports in Excel, Power BI, or any other reporting tool that works with an OData data source.';
         BalanceSheetHeadingTxt: Label 'Balance Sheet';
         BalanceSheetNameTxt: Label 'BalanceSheet', Locked = true;
         CompanyTxt: Label 'Company';
@@ -344,7 +346,7 @@
         If (EnvironmentInfo.IsSaaS() or not CompanyInformationMgt.IsDemoCompany()) then
             exit;
         NavApp.GetCurrentModuleInfo(Info);
-        GuidedExperience.InsertAssistedSetup(ODataWizardTxt, CopyStr(ODataWizardTxt, 1, 50), '', 0, ObjectType::Page,
+        GuidedExperience.InsertAssistedSetup(ODataWizardTitleTxt, ODataWizardShortTitleTxt, ODataWizardDescriptionTxt, 10, ObjectType::Page,
             PAGE::"OData Setup Wizard", AssistedSetupGroup::GettingStarted, '', VideoCategory::Uncategorized, '');
     end;
 #endif
@@ -702,7 +704,7 @@
             DataEntityExportInfoParam.Headers.Add('Company', Format(Company.Id, 0, 4))
         else
             DataEntityExportInfoParam.Headers.Add('Company', TenantWebService.CurrentCompany);
-        
+
         if SearchFilter <> '' then
             DataEntityExportInfoParam.Headers.Add('pageSearchString', DelChr(SearchFilter, '=', '@*'));
         DataEntityInfo := DataEntityInfo.DataEntityInfo;

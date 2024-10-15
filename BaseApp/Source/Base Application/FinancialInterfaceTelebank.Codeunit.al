@@ -219,6 +219,7 @@ codeunit 11000001 "Financial Interface Telebank"
         GenJnlLine."Shortcut Dimension 1 Code" := PaymentHistLine."Global Dimension 1 Code";
         GenJnlLine."Shortcut Dimension 2 Code" := PaymentHistLine."Global Dimension 2 Code";
         GenJnlLine."Dimension Set ID" := PaymentHistLine."Dimension Set ID";
+        OnProcessPaymReceivedOnBeforeProcessGLJLTrMode(GenJnlLine, CBGStatementline);
         ProcessGLJL(GenJnlLine);
 
         "Initialize GJLine"(GenJnlLine);
@@ -315,6 +316,7 @@ codeunit 11000001 "Financial Interface Telebank"
                                         CustLedgerEntry.CalcFields("Payments in Process");
                                         CustLedgerEntry.Validate("Amount to Apply", -CustLedgerEntry."Payments in Process");
                                     end;
+                                    OnSetApplyCVLedgerEntriesOnBeforeCustLedgerEntryModify(CustLedgerEntry, DetailLine);
                                     CustLedgerEntry.Modify();
                                 end;
                         end;
@@ -338,6 +340,7 @@ codeunit 11000001 "Financial Interface Telebank"
                                         VendorLedgerEntry.CalcFields("Payments in Process");
                                         VendorLedgerEntry.Validate("Amount to Apply", -VendorLedgerEntry."Payments in Process")
                                     end;
+                                    OnSetApplyCVLedgerEntriesOnBeforeVendorLedgerEntryModify(VendorLedgerEntry, DetailLine);
                                     VendorLedgerEntry.Modify();
                                 end;
                         end;
@@ -451,6 +454,21 @@ codeunit 11000001 "Financial Interface Telebank"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetApplyCVLedgerEntries(var PaymentHistoryLine: Record "Payment History Line"; var AppliesToID: Code[50]; var Post: Boolean; var Check: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessPaymReceivedOnBeforeProcessGLJLTrMode(var GenJnlLine: Record "Gen. Journal Line"; CBGStatementline: Record "CBG Statement Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetApplyCVLedgerEntriesOnBeforeCustLedgerEntryModify(var CustLedgerEntry: Record "Cust. Ledger Entry"; DetailLine: Record "Detail Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetApplyCVLedgerEntriesOnBeforeVendorLedgerEntryModify(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DetailLine: Record "Detail Line")
     begin
     end;
 }

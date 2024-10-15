@@ -34,6 +34,9 @@ report 11405 "Submit Elec. Tax Declaration"
             trigger OnPostDataItem()
             var
                 EnvironmentInfo: Codeunit "Environment Information";
+                ElecTaxDeclarationMgt: Codeunit "Elec. Tax Declaration Mgt.";
+                XMLDOMMgt: Codeunit "XML DOM Management";
+                DotNet_SecureString: Codeunit DotNet_SecureString;
                 DeliveryService: DotNet DigipoortServices;
                 Request: DotNet aanleverRequest;
                 Response: DotNet aanleverResponse;
@@ -41,6 +44,9 @@ report 11405 "Submit Elec. Tax Declaration"
                 Content: DotNet berichtInhoudType;
                 Fault: DotNet foutType;
                 UTF8Encoding: DotNet UTF8Encoding;
+                DotNetSecureString: DotNet SecureString;
+                ClientCertificateBase64: Text;
+                ServiceCertificateBase64: Text;
                 ClientCertificateInStream: InStream;
                 ServiceCertificateInStream: InStream;
                 PreviewFileStream: OutStream;
@@ -49,7 +55,7 @@ report 11405 "Submit Elec. Tax Declaration"
                 UseVATRegNo: Text[20];
             begin
                 "Submission Message BLOB".CreateOutStream(BlobOutStream, TEXTENCODING::UTF8);
-                BlobOutStream.Write(XMLDoc.InnerXml);
+                BlobOutStream.WriteText(XMLDOMMgt.XMLTextIndent(XMLDoc.InnerXml));
                 if SaveToFile <> '' then begin
                     PreviewFile.Create(SaveToFile);
                     PreviewFile.CreateOutStream(PreviewFileStream);
@@ -97,21 +103,31 @@ report 11405 "Submit Elec. Tax Declaration"
 
                 Window.Update(1, WindowStatusSendMsg);
 
-                if EnvironmentInfo.IsSaaS then begin
-                    ClientCertificateTempBlob.CreateInStream(ClientCertificateInStream, TEXTENCODING::Windows);
-                    ServiceCertificateTempBlob.CreateInStream(ServiceCertificateInStream, TEXTENCODING::Windows);
+                if ElecTaxDeclarationSetup."Use Certificate Setup" then begin
+                    ElecTaxDeclarationMgt.InitCertificatesWithPassword(ClientCertificateBase64, DotNet_SecureString, ServiceCertificateBase64);
+                    DotNet_SecureString.GetSecureString(DotNetSecureString);
                     Response := DeliveryService.Deliver(Request,
                         ElecTaxDeclarationSetup."Digipoort Delivery URL",
-                        ClientCertificateInStream,
-                        ClientCertificatePassword,
-                        ServiceCertificateInStream,
+                        ClientCertificateBase64,
+                        DotNetSecureString,
+                        ServiceCertificateBase64,
                         30);
                 end else
-                    Response := DeliveryService.Deliver(Request,
-                        ElecTaxDeclarationSetup."Digipoort Delivery URL",
-                        ElecTaxDeclarationSetup."Digipoort Client Cert. Name",
-                        ElecTaxDeclarationSetup."Digipoort Service Cert. Name",
-                        30);
+                    if EnvironmentInfo.IsSaaS() then begin
+                        ClientCertificateTempBlob.CreateInStream(ClientCertificateInStream, TEXTENCODING::Windows);
+                        ServiceCertificateTempBlob.CreateInStream(ServiceCertificateInStream, TEXTENCODING::Windows);
+                        Response := DeliveryService.Deliver(Request,
+                            ElecTaxDeclarationSetup."Digipoort Delivery URL",
+                            ClientCertificateInStream,
+                            ClientCertificatePassword,
+                            ServiceCertificateInStream,
+                            30);
+                    end else
+                        Response := DeliveryService.Deliver(Request,
+                            ElecTaxDeclarationSetup."Digipoort Delivery URL",
+                            ElecTaxDeclarationSetup."Digipoort Client Cert. Name",
+                            ElecTaxDeclarationSetup."Digipoort Service Cert. Name",
+                            30);
 
                 Fault := Response.statusFoutcode;
                 if Fault.foutcode <> '' then begin

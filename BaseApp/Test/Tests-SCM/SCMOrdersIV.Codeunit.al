@@ -157,7 +157,7 @@ codeunit 137156 "SCM Orders IV"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('ConfirmHandler,SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure ReserveItemsManuallyConfirmOnSalesOrderAfterPurchaseOrderWithDifferentLocation()
     var
@@ -166,6 +166,7 @@ codeunit 137156 "SCM Orders IV"
         PurchaseLine: Record "Purchase Line";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         SalesOrder: TestPage "Sales Order";
     begin
         // Setup: Create Item with Reserve as Always. Open Sales Order page.
@@ -185,6 +186,8 @@ codeunit 137156 "SCM Orders IV"
         SalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
 
         // Verify: Verification is done by ConfirmHandlerNo.
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -2734,6 +2737,52 @@ codeunit 137156 "SCM Orders IV"
         JobPlanningLine.TestField("Remaining Qty.", Qty);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangeQtyOnSOAfterSortingOnReservedField()
+    var
+        Item: Array[2] of Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [SCENARIO 400405] Allow change of quantity in Sales Order after user changed sorting of "Reserved" field
+        Initialize;
+
+        // [GIVEN] Posted Purchase order with Items "I1" and "I2"
+        CreateItemWithReserveAsAlways(Item[1]);
+        CreateItemWithReserveAsAlways(Item[2]);
+        CreatePurchaseOrder(
+          PurchaseHeader, PurchaseLine, PurchaseLine.Type::Item, LibraryPurchase.CreateVendorNo, Item[1]."No.", 10);
+        UpdateLocationOnPurchaseLine(PurchaseLine, LocationBlue.Code);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item[2]."No.", 10);
+        UpdateLocationOnPurchaseLine(PurchaseLine, LocationBlue.Code);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, True, True);
+
+        // [GIVEN] Sales Order with Item "I1" - qty = 1, Item "I2" - qty = 2.
+        CreateSalesOrder(
+            SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo,
+            Item[1]."No.", 1, LocationBlue.Code);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item[2]."No.", 2);
+        SalesLine.Validate("Location Code", LocationBlue.Code);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Sales Order page is opened and Lines sorted by "Reserved Quantity"
+        SalesOrder.OpenEdit();
+        SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesOrder.SalesLines.Filter.SetCurrentKey("Reserved Quantity");
+
+        // [WHEN] Quantity set to 3 for line with Item "I1"
+        SalesOrder.SalesLines.First();
+        SalesOrder.SalesLines.Quantity.SetValue(3);
+
+        // [THEN] No error appears and "Reserved Quantity" = 3
+        SalesOrder.SalesLines."No.".AssertEquals(Item[1]."No.");
+        SalesOrder.SalesLines."Reserved Quantity".AssertEquals(3);
+    end;
+
     local procedure Initialize()
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
@@ -5280,6 +5329,11 @@ codeunit 137156 "SCM Orders IV"
         LibraryVariableStorage.Dequeue(LineDiscount);
         SalesOrder.SalesLines."Unit Price".AssertEquals(UnitPrice);
         SalesOrder.SalesLines."Line Discount %".AssertEquals(LineDiscount);
+    end;
+
+    [SendNotificationHandler]
+    procedure SendNotificationHandler(var Notification: Notification): Boolean
+    begin
     end;
 
     [RecallNotificationHandler]

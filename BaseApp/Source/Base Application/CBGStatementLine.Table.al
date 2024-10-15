@@ -576,7 +576,7 @@ table 11401 "CBG Statement Line"
                           CBGStatement.Currency, PaymentHistLine."Currency Code");
                     "Amount Settled" := PaymentHistLine.Amount;
                     "Applies-to ID" := "New Applies-to ID";
-                    FinancialInterfaceTelebank.SetApplyCVLedgerEntries(PaymentHistLine, "New Applies-to ID", false, false);
+                    SetApplyCVLedgerEntries(PaymentHistLine);
                     if CBGStatementLine.Amount = 0 then
                         Validate(Amount, PaymentHistLine.Amount)
                     else begin
@@ -948,10 +948,13 @@ table 11401 "CBG Statement Line"
             if "Applies-to ID" <> '' then
                 GenJnlLine.Validate("Applies-to ID", "Applies-to ID");
 
-        if "Debit Incl. VAT" <> 0 then
+        if "Debit Incl. VAT" <> 0 then begin
+            GenJnlLine.Amount := "Debit Incl. VAT";
             GenJnlLine.Validate("Debit Amount", "Debit Incl. VAT")
-        else
+        end else begin
+            GenJnlLine.Amount := -"Credit Incl. VAT";
             GenJnlLine.Validate("Credit Amount", "Credit Incl. VAT");
+        end;
 
         if GenJnlLine."VAT Calculation Type" <> GenJnlLine."VAT Calculation Type"::"Full VAT" then
             if ("Debit VAT" <> 0) and ("Debit VAT" <> GenJnlLine."VAT Amount") then
@@ -1502,6 +1505,18 @@ table 11401 "CBG Statement Line"
         EmployeeLedgerEntry.Modify();
     end;
 
+    local procedure SetApplyCVLedgerEntries(PaymentHistLine: Record "Payment History Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetApplyCVLedgerEntries(Rec, PaymentHistLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        FinancialInterfaceTelebank.SetApplyCVLedgerEntries(PaymentHistLine, "New Applies-to ID", false, false);
+    end;
+
     procedure ValidateApplyRequirements(CBGStatementLine: Record "CBG Statement Line")
     begin
         case CBGStatementLine."Account Type" of
@@ -1517,7 +1532,13 @@ table 11401 "CBG Statement Line"
     local procedure ValidateCustomerApplyRequirements(CBGStatementLine: Record "CBG Statement Line")
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateCustomerApplyRequirements(CBGStatementLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if (CBGStatementLine."Applies-to ID" = '') and (CBGStatementLine."Applies-to Doc. No." = '') then
             exit;
 
@@ -1542,7 +1563,13 @@ table 11401 "CBG Statement Line"
     local procedure ValidateVendorApplyRequirements(CBGStatementLine: Record "CBG Statement Line")
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateVendorApplyRequirements(CBGStatementLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if (CBGStatementLine."Applies-to ID" = '') and (CBGStatementLine."Applies-to Doc. No." = '') then
             exit;
 
@@ -1567,7 +1594,13 @@ table 11401 "CBG Statement Line"
     local procedure ValidateEmployeeApplyRequirements(CBGStatementLine: Record "CBG Statement Line")
     var
         EmplLedgEntry: Record "Employee Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateEmployeeApplyRequirements(CBGStatementLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if (CBGStatementLine."Applies-to ID" = '') and (CBGStatementLine."Applies-to Doc. No." = '') then
             exit;
 
@@ -1606,6 +1639,26 @@ table 11401 "CBG Statement Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReadGenJournalLine(var CBGStatementLine: Record "CBG Statement Line"; var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetApplyCVLedgerEntries(var CBGStatementLine: Record "CBG Statement Line"; PaymentHistLine: Record "Payment History Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCustomerApplyRequirements(var CBGStatementLine: Record "CBG Statement Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateEmployeeApplyRequirements(var CBGStatementLine: Record "CBG Statement Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateVendorApplyRequirements(var CBGStatementLine: Record "CBG Statement Line"; var IsHandled: Boolean)
     begin
     end;
 

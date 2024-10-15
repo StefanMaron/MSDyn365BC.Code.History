@@ -22,6 +22,7 @@ codeunit 137407 "SCM Warehouse IV"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         isInitialized: Boolean;
         QuantityError: Label 'Quantity must be equal to %1 in Reservation Entry Table.';
         EmptyWarehouseRegisterMustNotExist: Label 'Empty Warehouse Register must not exist.';
@@ -924,16 +925,20 @@ codeunit 137407 "SCM Warehouse IV"
         WarehouseJournalLine: Record "Warehouse Journal Line";
         WarehouseRegister: Record "Warehouse Register";
         SourceCodeSetup: Record "Source Code Setup";
+        SaveWorkDate: Date;
     begin
         // Test and verify Source Code on Warehouse Register after running Date Compress Warehouse Entries.
 
         // [GIVEN] Create Warehouse Journal Line with Item Tracking Line. Register Warehouse Journal Line. Calculate and post Warehouse Adjustment.
-        Initialize;
+        Initialize();
+        SaveWorkDate := WorkDate();
+        WorkDate(LibraryFiscalYear.GetFirstPostingDate(true));
         CreateWarehouseJournalLineWithItemTrackingLines(WarehouseJournalLine, WarehouseJournalLine."Entry Type"::"Positive Adjmt.");
         LibraryWarehouse.RegisterWhseJournalLine(
           WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", WarehouseJournalLine."Location Code",
           true);
         CalculateAndPostWarehouseAdjustment(WarehouseJournalLine."Item No.");
+        WorkDate(SaveWorkDate);
 
         // [WHEN] Run Date Compress Warehouse Entries.
         RunDateCompressWhseEntries(WarehouseJournalLine."Item No.");
@@ -951,16 +956,20 @@ codeunit 137407 "SCM Warehouse IV"
     var
         WarehouseJournalLine: Record "Warehouse Journal Line";
         ItemJournalBatchName: Code[10];
+        SaveWorkDate: Date;
     begin
         // Test and verify functionality of Delete Empty Warehouse Registers report.
 
         // [GIVEN] Create Warehouse Journal Line with Item Tracking Line. Register Warehouse Journal Line. Calculate and post Warehouse Adjustment. Run Date Compress Warehouse Entries.
-        Initialize;
+        Initialize();
+        SaveWorkDate := WorkDate();
+        WorkDate(LibraryFiscalYear.GetFirstPostingDate(true));
         CreateWarehouseJournalLineWithItemTrackingLines(WarehouseJournalLine, WarehouseJournalLine."Entry Type"::"Positive Adjmt.");
         LibraryWarehouse.RegisterWhseJournalLine(
           WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", WarehouseJournalLine."Location Code",
           true);
         ItemJournalBatchName := CalculateAndPostWarehouseAdjustment(WarehouseJournalLine."Item No.");
+        WorkDate(SaveWorkDate);
         RunDateCompressWhseEntries(WarehouseJournalLine."Item No.");
 
         // [WHEN] Run Delete Empty Warehouse Registers.
@@ -1873,6 +1882,7 @@ codeunit 137407 "SCM Warehouse IV"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Warehouse IV");
 
+        LibraryFiscalYear.CreateClosedAccountingPeriods();
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibrarySetupStorage.Save(DATABASE::"Service Mgt. Setup");
@@ -3160,9 +3170,10 @@ codeunit 137407 "SCM Warehouse IV"
     procedure DateCompressWarehouseEntriesHandler(var DateCompressWhseEntries: TestRequestPage "Date Compress Whse. Entries")
     var
         DateComprRegister: Record "Date Compr. Register";
+        DateCompression: Codeunit "Date Compression";
     begin
-        DateCompressWhseEntries.StartingDate.SetValue(Format(WorkDate));
-        DateCompressWhseEntries.EndingDate.SetValue(Format(WorkDate));
+        DateCompressWhseEntries.StartingDate.SetValue(LibraryFiscalYear.GetFirstPostingDate(true));
+        DateCompressWhseEntries.EndingDate.SetValue(DateCompression.CalcMaxEndDate());
         DateCompressWhseEntries.PeriodLength.SetValue(DateComprRegister."Period Length"::Week);
         DateCompressWhseEntries.SerialNo.SetValue(true);
         DateCompressWhseEntries.LotNo.SetValue(true);

@@ -2272,7 +2272,8 @@ page 21 "Customer Card"
             if "No." <> xRec."No." then
                 CRMIntegrationManagement.SendResultNotification(Rec);
         end;
-
+        if Rec.GetFilter("Date Filter") = '' then
+            SetRange("Date Filter", 0D, WorkDate());
         WorkflowWebhookManagement.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
         if AnyWorkflowExists then begin
             CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
@@ -2339,6 +2340,7 @@ page 21 "Customer Card"
         WorkFlowEventFilter :=
             WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode + '|' +
             WorkflowEventHandling.RunWorkflowOnCustomerChangedCode;
+
         SetWorkFlowEnabled();
         OnAfterOnOpenPage(Rec, xRec);
     end;
