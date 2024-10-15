@@ -44,12 +44,11 @@ table 2000040 "CODA Statement"
         }
         field(7; Information; Integer)
         {
-            BlankNumbers = BlankZeroAndPos;
+            BlankNumbers = BlankZero;
             BlankZero = true;
             CalcFormula = Count ("CODA Statement Line" WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                              "Statement No." = FIELD("Statement No."),
-                                                             ID = CONST("Free Message"),
-                                                             "Attached to Line No." = CONST(0)));
+                                                             ID = CONST(Information)));
             Caption = 'Information';
             Editable = false;
             FieldClass = FlowField;

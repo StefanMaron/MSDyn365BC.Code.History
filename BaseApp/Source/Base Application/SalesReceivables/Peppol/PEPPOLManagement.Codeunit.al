@@ -212,6 +212,8 @@
         SupplierRegAddrCityName := CompanyInfo.City;
         SupplierRegAddrCountryIdCode := GetCountryISOCode(CompanyInfo."Country/Region Code");
         SupplRegAddrCountryIdListId := GetISO3166_1Alpha2();
+
+        OnAfterGetAccountingSupplierPartyLegalEntityByFormat(PartyLegalEntityRegName, PartyLegalEntityCompanyID, PartyLegalEntitySchemeID, SupplierRegAddrCityName, SupplierRegAddrCountryIdCode, SupplRegAddrCountryIdListId, IsBISBilling);
     end;
 
     procedure GetAccountingSupplierPartyContact(SalesHeader: Record "Sales Header"; var ContactID: Text; var ContactName: Text; var Telephone: Text; var Telefax: Text; var ElectronicMail: Text)
@@ -1466,6 +1468,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetLineItemInfo(SalesLine: Record "Sales Line"; var Description: Text; var Name: Text; var SellersItemIdentificationID: Text; var StandardItemIdentificationID: Text; var StdItemIdIDSchemeID: Text; var OriginCountryIdCode: Text; var OriginCountryIdCodeListID: Text)
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAccountingSupplierPartyLegalEntityByFormat(var PartyLegalEntityRegName: Text; var PartyLegalEntityCompanyID: Text; var PartyLegalEntitySchemeID: Text; var SupplierRegAddrCityName: Text; var SupplierRegAddrCountryIdCode: Text; var SupplRegAddrCountryIdListId: Text; IsBISBilling: Boolean)
     begin
     end;
 }

@@ -1,7 +1,7 @@
 ﻿report 12 "VAT Statement"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './VATStatement.rdlc';
+    RDLCLayout = './FinancialMgt/VAT/VATStatement.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'VAT Statement';
     UsageCategory = ReportsAndAnalysis;

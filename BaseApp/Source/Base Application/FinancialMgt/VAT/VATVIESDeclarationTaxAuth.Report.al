@@ -1,7 +1,7 @@
 report 19 "VAT- VIES Declaration Tax Auth"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './VATVIESDeclarationTaxAuth.rdlc';
+    RDLCLayout = './FinancialMgt/VAT/VATVIESDeclarationTaxAuth.rdlc';
     ApplicationArea = VAT;
     Caption = 'VAT- VIES Declaration Tax Auth';
     UsageCategory = ReportsAndAnalysis;

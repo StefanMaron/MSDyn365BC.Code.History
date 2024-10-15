@@ -1,7 +1,7 @@
 report 2 "General Journal - Test"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './GeneralJournalTest.rdlc';
+    RDLCLayout = './FinancialMgt/GeneralLedger/GeneralJournalTest.rdlc';
     Caption = 'General Journal - Test';
     PreviewMode = PrintLayout;
 

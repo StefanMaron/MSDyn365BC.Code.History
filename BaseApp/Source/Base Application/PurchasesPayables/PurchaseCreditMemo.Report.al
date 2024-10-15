@@ -749,6 +749,7 @@ report 407 "Purchase - Credit Memo"
                 VATNoText := '';
                 NoText := '';
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Purch. Cr. Memo Hdr.");
                 FormatDocumentFields("Purch. Cr. Memo Hdr.");

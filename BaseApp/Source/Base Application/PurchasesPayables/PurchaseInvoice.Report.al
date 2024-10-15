@@ -794,6 +794,7 @@ report 406 "Purchase - Invoice"
                 VATNoText := '';
                 NoText := '';
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Purch. Inv. Header");
                 FormatDocumentFields("Purch. Inv. Header");

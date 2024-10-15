@@ -12,9 +12,18 @@ codeunit 144015 "CODA Import Tests"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryCODADataProvider: Codeunit "Library CODA Data Provider";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryRandom: Codeunit "Library - Random";
         BBLEURTxt: Label 'BBL-EUR', Locked = true;
         WWBEURTxt: Label 'WWB-EUR', Locked = true;
         NBLTxt: Label 'NBL', Locked = true;
+        EnterpriseNoTxt: Label '0448825928';
+        ProtocolNoTxt: Label '200';
+        VersionCodeTxt: Label '2';
+        BankAccountNoTxt: Label '230002155541';
+        SWIFTCodeTxt: Label 'GEBABEBB';
+        IBANTxt: Label 'BE 29 7340 2822 2864';
+        ExpectedValueAsZero: Label '0';
+        InformationErr: Label 'Information must not be equal to Zero';
 
     [Test]
     [HandlerFunctions('RequestPageHandlerPostCODAStatementLines,CODAStatementLineRequestPageHandler')]
@@ -613,6 +622,48 @@ codeunit 144015 "CODA Import Tests"
         RestoreTransactionCoding(TempTransactionCoding);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckInformationValueIsShowingInCODAStatement()
+    var
+        BankAccount: Record "Bank Account";
+        CODAStatement: Record "CODA Statement";
+        ImportCODAStatement: Report "Import CODA Statement";
+    begin
+        // [SCENARIO 469446] Import the CODA file and verify the information in the CODA statement Lines are showing values in the BE.
+        // [GIVEN] Update Enterprise No. in the Company Information.
+        UpdateCompanyInformation(EnterpriseNoTxt);
+
+        // [GIVEN] Find and create a new Bank Account.
+        FindBankAccount(BankAccount, LibraryRandom.RandText(5));
+
+        // [GIVEN] Updated the Bank Account Details.
+        UpdateBankAccountDetails(BankAccount);
+
+        // [THEN] Delete the Existing CODA Statements.
+        DeleteAllCODALines;
+
+        // [GIVEN] Run the Processing only report to import the sample data files.
+        ImportCODAStatement.SetBankAcc(BankAccount);
+        ImportCODAStatement.InitializeRequest(LibraryCODADataProvider.ImportAccountTypeTestDataFile());
+        ImportCODAStatement.Run();
+
+        // [THEN] Find the CODA Statement. 
+        CODAStatement.FindFirst();
+
+        // [VERIFY] Information must not be equal to zero.
+        Assert.AreNotEqual(
+            ExpectedValueAsZero,
+            GetInformationFromCODAStatement(CODAStatement."Bank Account No.", CODAStatement."Statement No."),
+            InformationErr);
+
+        Assert.AreNotEqual(
+            ExpectedValueAsZero,
+            GetInformationFromCODAStatementLine(CODAStatement."Bank Account No.", CODAStatement."Statement No."),
+            InformationErr);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RequestPageHandlerPostCODAStatementLines(var PostCODAStatementLines: TestRequestPage "Post CODA Stmt. Lines")
@@ -895,6 +946,42 @@ codeunit 144015 "CODA Import Tests"
         ImportCODAStatement.Run();
 
         Commit();
+    end;
+
+    local procedure UpdateBankAccountDetails(var BankAccount: Record "Bank Account")
+    begin
+        BankAccount.Validate("Protocol No.", ProtocolNoTxt);
+        BankAccount.Validate("Version Code", VersionCodeTxt);
+        BankAccount.Validate("Bank Account No.", BankAccountNoTxt);
+        BankAccount.Validate("SWIFT Code", SWIFTCodeTxt);
+        BankAccount.Validate(IBAN, IBANTxt);
+        BankAccount.Modify(true);
+    end;
+
+    local procedure GetInformationFromCODAStatement(BankAccountNo: Code[20]; StatementNo: Code[20]): Integer
+    var
+        CODAStatement: Record "CODA Statement";
+    begin
+        CODAStatement.Get(BankAccountNo, StatementNo);
+        CODAStatement.CalcFields(Information);
+
+        exit(CODAStatement.Information);
+    end;
+
+    local procedure GetInformationFromCODAStatementLine(BankAccountNo: Code[20]; StatementNo: Code[20]): Integer
+    var
+        CODAStatementLine: Record "CODA Statement Line";
+        TotalInformationValue: Integer;
+    begin
+        CODAStatementLine.SetAutoCalcFields(Information);
+        CODAStatementLine.SetRange("Bank Account No.", BankAccountNo);
+        CODAStatementLine.SetRange("Statement No.", StatementNo);
+        If CODAStatementLine.FindSet() then
+            repeat
+                TotalInformationValue += CODAStatementLine.Information;
+            until CODAStatementLine.Next() = 0;
+
+        exit(TotalInformationValue);
     end;
 
     [RequestPageHandler]

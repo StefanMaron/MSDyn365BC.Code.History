@@ -3,7 +3,7 @@ report 501 "Intrastat - Form"
 {
     // Could use COMPANYDISPLAYNAME for the companyname.
     DefaultLayout = RDLC;
-    RDLCLayout = '.Mgt/Intrastat/IntrastatForm.rdlc';
+    RDLCLayout = './InventoryMgt/Intrastat/IntrastatForm.rdlc';
     ApplicationArea = BasicEU;
     Caption = 'Intrastat - Form';
     UsageCategory = ReportsAndAnalysis;

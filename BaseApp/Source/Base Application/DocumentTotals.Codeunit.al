@@ -651,7 +651,7 @@ codeunit 57 "Document Totals"
         TotalPurchaseLine2.Reset();
         TotalPurchaseLine2.SetRange("Document Type", TotalPurchaseHeader."Document Type");
         TotalPurchaseLine2.SetRange("Document No.", TotalPurchaseHeader."No.");
-
+        OnCalculatePurchaseSubPageTotalsOnAfterSetFilter(TotalPurchaseLine2, TotalPurchaseHeader);
         if PurchasesPayablesSetup."Calc. Inv. Discount" and (TotalPurchaseHeader."No." <> '') and
            (TotalPurchaseHeader."Vendor Posting Group" <> '')
         then begin
@@ -1123,6 +1123,11 @@ codeunit 57 "Document Totals"
 
     [IntegrationEvent(false, false)]
     local procedure OnSalesUpdateTotalsControlsOnBeforeCheckDocumentNo(CurrentSalesLine: Record "Sales Line"; var TotalSalesHeader: Record "Sales Header"; var TotalsSalesLine: Record "Sales Line"; var RefreshMessageEnabled: Boolean; var ControlStyle: Text; var RefreshMessageText: Text; var InvDiscAmountEditable: Boolean; CurrPageEditable: Boolean; var VATAmount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculatePurchaseSubPageTotalsOnAfterSetFilter(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
     begin
     end;
 }

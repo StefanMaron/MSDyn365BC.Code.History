@@ -837,41 +837,45 @@ codeunit 900 "Assembly-Post"
     var
         WMSManagement: Codeunit "WMS Management";
         WhseMgt: Codeunit "Whse. Management";
+        isHandled: Boolean;
     begin
-        with ItemJnlLine do begin
-            case "Entry Type" of
-                "Entry Type"::"Assembly Consumption":
-                    WMSManagement.CheckAdjmtBin(Location, Quantity, true);
-                "Entry Type"::"Assembly Output":
-                    WMSManagement.CheckAdjmtBin(Location, Quantity, false);
-            end;
+        IsHandled := false;
+        OnBeforeCreateWhseJnlLine(Location, WhseJnlLine, AssemblyHeader, ItemJnlLine, IsHandled);
+        if not IsHandled then
+            with ItemJnlLine do begin
+                case "Entry Type" of
+                    "Entry Type"::"Assembly Consumption":
+                        WMSManagement.CheckAdjmtBin(Location, Quantity, true);
+                    "Entry Type"::"Assembly Output":
+                        WMSManagement.CheckAdjmtBin(Location, Quantity, false);
+                end;
 
-            WMSManagement.CreateWhseJnlLine(ItemJnlLine, 0, WhseJnlLine, false);
+                WMSManagement.CreateWhseJnlLine(ItemJnlLine, 0, WhseJnlLine, false);
 
-            case "Entry Type" of
-                "Entry Type"::"Assembly Consumption":
-                    WhseJnlLine."Source Type" := DATABASE::"Assembly Line";
-                "Entry Type"::"Assembly Output":
-                    WhseJnlLine."Source Type" := DATABASE::"Assembly Header";
+                case "Entry Type" of
+                    "Entry Type"::"Assembly Consumption":
+                        WhseJnlLine."Source Type" := DATABASE::"Assembly Line";
+                    "Entry Type"::"Assembly Output":
+                        WhseJnlLine."Source Type" := DATABASE::"Assembly Header";
+                end;
+                WhseJnlLine."Source Subtype" := AssemblyHeader."Document Type".AsInteger();
+                WhseJnlLine."Source Code" := SourceCode;
+                WhseJnlLine."Source Document" := WhseMgt.GetWhseJnlSourceDocument(WhseJnlLine."Source Type", WhseJnlLine."Source Subtype");
+                TestField("Order Type", "Order Type"::Assembly);
+                WhseJnlLine."Source No." := "Order No.";
+                WhseJnlLine."Source Line No." := "Order Line No.";
+                WhseJnlLine."Reason Code" := "Reason Code";
+                WhseJnlLine."Registering No. Series" := "Posting No. Series";
+                WhseJnlLine."Whse. Document Type" := WhseJnlLine."Whse. Document Type"::Assembly;
+                WhseJnlLine."Whse. Document No." := "Order No.";
+                WhseJnlLine."Whse. Document Line No." := "Order Line No.";
+                WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::Assembly;
+                WhseJnlLine."Reference No." := "Document No.";
+                if Location."Directed Put-away and Pick" then
+                    WMSManagement.CalcCubageAndWeight(
+                      "Item No.", "Unit of Measure Code", WhseJnlLine."Qty. (Absolute)",
+                      WhseJnlLine.Cubage, WhseJnlLine.Weight);
             end;
-            WhseJnlLine."Source Subtype" := AssemblyHeader."Document Type".AsInteger();
-            WhseJnlLine."Source Code" := SourceCode;
-            WhseJnlLine."Source Document" := WhseMgt.GetWhseJnlSourceDocument(WhseJnlLine."Source Type", WhseJnlLine."Source Subtype");
-            TestField("Order Type", "Order Type"::Assembly);
-            WhseJnlLine."Source No." := "Order No.";
-            WhseJnlLine."Source Line No." := "Order Line No.";
-            WhseJnlLine."Reason Code" := "Reason Code";
-            WhseJnlLine."Registering No. Series" := "Posting No. Series";
-            WhseJnlLine."Whse. Document Type" := WhseJnlLine."Whse. Document Type"::Assembly;
-            WhseJnlLine."Whse. Document No." := "Order No.";
-            WhseJnlLine."Whse. Document Line No." := "Order Line No.";
-            WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::Assembly;
-            WhseJnlLine."Reference No." := "Document No.";
-            if Location."Directed Put-away and Pick" then
-                WMSManagement.CalcCubageAndWeight(
-                  "Item No.", "Unit of Measure Code", WhseJnlLine."Qty. (Absolute)",
-                  WhseJnlLine.Cubage, WhseJnlLine.Weight);
-        end;
         OnAfterCreateWhseJnlLineFromItemJnlLine(WhseJnlLine, ItemJnlLine);
         CheckWhseJnlLine(WhseJnlLine, ItemJnlLine);
     end;
@@ -1081,6 +1085,7 @@ codeunit 900 "Assembly-Post"
         with PostedAsmLine do begin
             Reset();
             SetRange("Document No.", PostedAsmHeader."No.");
+            OnUndoPostLinesOnBeforeSortPostedLines(PostedAsmHeader, PostedAsmLine);
             SortPostedLines(PostedAsmLine);
 
             LineCounter := 0;
@@ -1375,47 +1380,51 @@ codeunit 900 "Assembly-Post"
         CreateReservEntry: Codeunit "Create Reserv. Entry";
         IsATOHeader: Boolean;
         ReservStatus: Enum "Reservation Status";
+        IsHandled: Boolean;
     begin
-        with ItemLedgEntry do begin
-            AsmHeader.Get(AsmHeader."Document Type"::Order, OrderNo);
-            IsATOHeader := (OrderLineNo = 0) and AsmHeader.IsAsmToOrder();
+        IsHandled := false;
+        OnBeforeRestoreItemTracking(ItemLedgEntry, OrderNo, OrderLineNo, SourceType, DocType, RcptDate, ShptDate, IsHandled);
+        if not IsHandled then
+            with ItemLedgEntry do begin
+                AsmHeader.Get(AsmHeader."Document Type"::Order, OrderNo);
+                IsATOHeader := (OrderLineNo = 0) and AsmHeader.IsAsmToOrder();
 
-            Reset();
-            SetRange("Order Type", "Order Type"::Assembly);
-            SetRange("Order No.", OrderNo);
-            SetRange("Order Line No.", OrderLineNo);
-            if FindSet() then
-                repeat
-                    if TrackingExists() then begin
-                        CreateReservEntry.SetDates("Warranty Date", "Expiration Date");
-                        CreateReservEntry.SetQtyToHandleAndInvoice(Quantity, Quantity);
-                        CreateReservEntry.SetItemLedgEntryNo("Entry No.");
-                        ReservEntry.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
-                        CreateReservEntry.CreateReservEntryFor(
-                          SourceType, DocType, "Order No.", '', 0, "Order Line No.",
-                          "Qty. per Unit of Measure", 0, Abs(Quantity), ReservEntry);
+                Reset();
+                SetRange("Order Type", "Order Type"::Assembly);
+                SetRange("Order No.", OrderNo);
+                SetRange("Order Line No.", OrderLineNo);
+                if FindSet() then
+                    repeat
+                        if TrackingExists() then begin
+                            CreateReservEntry.SetDates("Warranty Date", "Expiration Date");
+                            CreateReservEntry.SetQtyToHandleAndInvoice(Quantity, Quantity);
+                            CreateReservEntry.SetItemLedgEntryNo("Entry No.");
+                            ReservEntry.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
+                            CreateReservEntry.CreateReservEntryFor(
+                              SourceType, DocType, "Order No.", '', 0, "Order Line No.",
+                              "Qty. per Unit of Measure", 0, Abs(Quantity), ReservEntry);
 
-                        if IsATOHeader then begin
-                            ATOLink.Get(AsmHeader."Document Type", AsmHeader."No.");
-                            ATOLink.TestField(Type, ATOLink.Type::Sale);
-                            SalesLine.Get(ATOLink."Document Type", ATOLink."Document No.", ATOLink."Document Line No.");
+                            if IsATOHeader then begin
+                                ATOLink.Get(AsmHeader."Document Type", AsmHeader."No.");
+                                ATOLink.TestField(Type, ATOLink.Type::Sale);
+                                SalesLine.Get(ATOLink."Document Type", ATOLink."Document No.", ATOLink."Document Line No.");
 
-                            CreateReservEntry.SetDisallowCancellation(true);
-                            CreateReservEntry.SetBinding("Reservation Binding"::"Order-to-Order");
+                                CreateReservEntry.SetDisallowCancellation(true);
+                                CreateReservEntry.SetBinding("Reservation Binding"::"Order-to-Order");
 
-                            FromTrackingSpecification.InitFromSalesLine(SalesLine);
-                            FromTrackingSpecification."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
-                            FromTrackingSpecification.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
-                            CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
-                            ReservStatus := ReservStatus::Reservation;
-                        end else
-                            ReservStatus := ReservStatus::Surplus;
-                        CreateReservEntry.CreateEntry(
-                          "Item No.", "Variant Code", "Location Code", '', RcptDate, ShptDate, 0, ReservStatus);
-                    end;
-                until Next() = 0;
-            DeleteAll();
-        end;
+                                FromTrackingSpecification.InitFromSalesLine(SalesLine);
+                                FromTrackingSpecification."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
+                                FromTrackingSpecification.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
+                                CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+                                ReservStatus := ReservStatus::Reservation;
+                            end else
+                                ReservStatus := ReservStatus::Surplus;
+                            CreateReservEntry.CreateEntry(
+                              "Item No.", "Variant Code", "Location Code", '', RcptDate, ShptDate, 0, ReservStatus);
+                        end;
+                    until Next() = 0;
+                DeleteAll();
+            end;
     end;
 
     procedure InitPostATO(var AssemblyHeader: Record "Assembly Header")
@@ -1746,6 +1755,21 @@ codeunit 900 "Assembly-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnUndoPostLinesOnAfterTransferFields(var AssemblyLine: Record "Assembly Line"; AssemblyHeader: Record "Assembly Header"; PostedAssemblyHeader: Record "Posted Assembly Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUndoPostLinesOnBeforeSortPostedLines(PostedAssemblyHeader: Record "Posted Assembly Header"; var PostedAssemblyLine: Record "Posted Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRestoreItemTracking(var ItemLedgerEntry: Record "Item Ledger Entry"; OrderNo: Code[20]; OrderLineNo: Integer; SourceType: Integer; DocType: Option; RcptDate: Date; ShptDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateWhseJnlLine(Location: Record Location; var WarehouseJournalLine: Record "Warehouse Journal Line"; AssemblyHeader: Record "Assembly Header"; ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

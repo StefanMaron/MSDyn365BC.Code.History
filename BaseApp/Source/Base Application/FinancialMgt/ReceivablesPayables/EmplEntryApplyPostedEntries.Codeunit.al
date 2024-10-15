@@ -202,6 +202,7 @@
         DtldEmplLedgEntry.SetCurrentKey("Employee Ledger Entry No.", "Entry Type");
         DtldEmplLedgEntry.SetRange("Employee Ledger Entry No.", EmplLedgEntryNo);
         DtldEmplLedgEntry.SetRange(Unapplied, false);
+        OnFindLastTransactionNoOnAfterSetFilters(DtldEmplLedgEntry);
         LastTransactionNo := 0;
         if DtldEmplLedgEntry.FindSet() then
             repeat
@@ -563,6 +564,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostUnApplyEmployeeOnBeforeGenJnlPostLineUnapplyEmplLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; EmplLedgerEntry: Record "Employee Ledger Entry"; DetailedEmplLedgEntry: Record "Detailed Employee Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindLastTransactionNoOnAfterSetFilters(var DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry")
     begin
     end;
 }

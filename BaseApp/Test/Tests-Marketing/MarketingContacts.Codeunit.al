@@ -577,6 +577,33 @@ codeunit 136201 "Marketing Contacts"
     end;
 
     [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SyncCustomerOnModifyContactWithVATRegNumber()
+    var
+        Contact: Record Contact;
+        Customer: Record Customer;
+    begin
+        // [SCENARIO 473423] 'Registration Number' is syncronized for customer when contact is modified
+        Initialize();
+
+        // [GIVEN] Customer is created for contact of Company type
+        LibraryMarketing.CreateCompanyContact(Contact);
+        Contact.CreateCustomerFromTemplate('');
+        Customer.Get(GetCustFromContact(Contact."No."));
+        Customer.TestField("Registration Number", '');
+
+        // [WHEN] Set "Registration Number" = '1234567890' to Contact 
+        Contact.Find();
+        Contact.Validate("Registration Number", LibraryUtility.GenerateGUID());
+        Contact.Modify(true);
+
+        // [THEN] "Registration Number" = '1234567890' from contact is assigned to the customer
+        Customer.Find();
+        Customer.TestField("Registration Number", Contact."Registration Number");
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure CreateVendorFromContactError()
     var
@@ -622,6 +649,34 @@ codeunit 136201 "Marketing Contacts"
         Vendor.SetRange(Name, CompanyContact.Name);
         Vendor.FindFirst();
         Vendor.TestField("Registration Number", CompanyContact."Registration Number");
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SyncVendorOnModifyContactWithVATRegNumber()
+    var
+        Contact: Record Contact;
+        Vendor: Record Vendor;
+    begin
+        // [SCENARIO 473423] 'Registration Number' is syncronized for vendor when contact is modified
+        Initialize();
+
+        // [GIVEN] Vendor is created for contact of Company type
+        LibraryMarketing.CreateCompanyContact(Contact);
+        Contact.CreateVendorFromTemplate('');
+        Vendor.SetRange(Name, Contact.Name);
+        Vendor.FindFirst();
+        Vendor.TestField("Registration Number", '');
+
+        // [WHEN] Set "Registration Number" = '1234567890' to Contact 
+        Contact.Find();
+        Contact.Validate("Registration Number", LibraryUtility.GenerateGUID());
+        Contact.Modify(true);
+
+        // [THEN] "Registration Number" = '1234567890' from contact is assigned to the vendor
+        Vendor.Find();
+        Vendor.TestField("Registration Number", Contact."Registration Number");
     end;
 
     [Test]
@@ -1606,6 +1661,7 @@ codeunit 136201 "Marketing Contacts"
         CustomerCard: TestPage "Customer Card";
         NewName: Text[100];
         CurrMasterFields: Option Contact,Customer;
+        RegistrationNumber: Text[50];
     begin
         // Check that Contact Name gets updated after updating Customer Name for a Customer linked with Contact.
 
@@ -1613,6 +1669,7 @@ codeunit 136201 "Marketing Contacts"
         // Link Contact with an existing Customer.
         Initialize();
         NewName := LibraryUtility.GenerateGUID();
+        RegistrationNumber := LibraryUtility.GenerateGUID();
         CreateCustomerWithSetupBusinessRelation(Customer);
         LibraryVariableStorage.Enqueue(Customer."No.");
         LibraryVariableStorage.Enqueue(CurrMasterFields::Customer);
@@ -1623,11 +1680,13 @@ codeunit 136201 "Marketing Contacts"
         CustomerCard.OpenEdit;
         CustomerCard.FILTER.SetFilter("No.", Customer."No.");
         CustomerCard.Name.SetValue(NewName);
+        CustomerCard."Registration Number".SETVALUE(RegistrationNumber);
         CustomerCard.OK.Invoke;
 
         // 3. Verify: Verify that Contact Name gets updated with the new Customer Name.
         Contact.Get(Contact."No.");
         Contact.TestField(Name, NewName);
+        Contact.TESTFIELD("Registration Number", RegistrationNumber); // TFS 473423 "Registration Number" is synced from the customer
     end;
 
     [Test]
@@ -1640,6 +1699,7 @@ codeunit 136201 "Marketing Contacts"
         Vendor: Record Vendor;
         VendorCard: TestPage "Vendor Card";
         NewName: Text[100];
+        RegistrationNumber: Text[50];
     begin
         // Check that Contact Name gets updated after updating Vendor Name for a Vendor linked with Contact.
 
@@ -1647,6 +1707,7 @@ codeunit 136201 "Marketing Contacts"
         // Link Contact with an existing Vendor.
         Initialize();
         NewName := LibraryUtility.GenerateGUID();
+        RegistrationNumber := LibraryUtility.GenerateGUID();
         LibraryMarketing.CreateBusinessRelation(BusinessRelation);
         ChangeBusinessRelationCodeForVendors('');
         LibraryPurchase.CreateVendor(Vendor);
@@ -1659,11 +1720,13 @@ codeunit 136201 "Marketing Contacts"
         VendorCard.OpenEdit;
         VendorCard.FILTER.SetFilter("No.", Vendor."No.");
         VendorCard.Name.SetValue(NewName);
+        VendorCard."Registration Number".SETVALUE(RegistrationNumber);
         VendorCard.OK.Invoke;
 
         // 3. Verify: Verify that updated Vendor Name reflected in Contact Name.
         Contact.Get(Contact."No.");
         Contact.TestField(Name, NewName);
+        Contact.TESTFIELD("Registration Number", RegistrationNumber); // TFS 473423 "Registration Number" is synced from the vendor
     end;
 
     [Test]
@@ -5684,6 +5747,62 @@ codeunit 136201 "Marketing Contacts"
         ContactList.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,CustomerTemplateHandler,MessageHandler')]
+    procedure VerifyItemIsAutoReservedWhenSalesOrderIsCreatedFromSalesQuoteCreateFromContactRelatedForCustomerTemplate()
+    var
+        Item: Record Item;
+        CustomerTempl: Record "Customer Templ.";
+        Contact: Record Contact;
+        ContactCard: TestPage "Contact Card";
+        SalesQuote: TestPage "Sales Quote";
+        SalesOrder: TestPage "Sales Order";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        // [SCENARIO 470483] Verify Item is auto reserved when Sales Order is created from Sales Quote create from Contact Related for Customer Template
+        Initialize();
+
+        // [GIVEN] Create Customer Template
+        LibraryTemplates.CreateCustomerTemplateWithData(CustomerTempl);
+        CustomerTempl."Contact Type" := CustomerTempl."Contact Type"::Person;
+        CustomerTempl.Reserve := CustomerTempl.Reserve::Always;
+        CustomerTempl.Modify(true);
+
+        LibraryVariableStorage.Enqueue(CustomerTempl.Code);
+
+        // [GIVEN] Create Item and Post Inventory
+        LibraryInventory.CreateItem(Item);
+        CreateAndPostItemJournal(Item."No.");
+
+        // [GIVEN]  Create Person Contact
+        LibraryMarketing.CreatePersonContact(Contact);
+
+        // [GIVEN] "Contact Card" page is opened
+        ContactCard.OpenView;
+        ContactCard.GotoRecord(Contact);
+
+        // [GIVEN] Press action "New Sales Quote", confirm message "Do you want to select the customer template?" and select template "X"
+        SalesQuote.Trap;
+
+        // [GIVEN] Move cursor to the next field in "Sales Quote" page to create new record
+        ContactCard.NewSalesQuote.Invoke;
+
+        // [GIVEN] Create Sales Quote Line with Item
+        SalesQuote.SalesLines."No.".SetValue(Item."No.");
+        SalesQuote.SalesLines.Quantity.SetValue(1);
+        SalesQuote.SalesLines."Unit Price".SetValue(10);
+
+        // [GIVEN] Katch Sales Order
+        SalesOrder.Trap;
+
+        // [WHEN] Create Order from Quote
+        SalesQuote.MakeOrder.Invoke();
+
+        // [THEN] Verify Item is reserved        
+        ReservationEntry.SetRange("Item No.", Item."No.");
+        Assert.RecordCount(ReservationEntry, 2);
+    end;
+
     local procedure Initialize()
     var
         MarketingSetup: Record "Marketing Setup";
@@ -6486,6 +6605,39 @@ codeunit 136201 "Marketing Contacts"
         Contact.Modify(true);
     end;
 
+    local procedure CreateAndPostItemJournal(ItemNo: Code[20])
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        // Create Item Journal to populate Item Quantity.
+        ClearJournal(ItemJournalBatch);  // Clear Item Journal Template and Journal Batch.
+        ItemJournalSetup(ItemJournalTemplate, ItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, LibraryRandom.RandInt(10) + 10);  // Value important for test.
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure ItemJournalSetup(var ItemJournalTemplate: Record "Item Journal Template"; var ItemJournalBatch: Record "Item Journal Batch")
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Modify(true);
+    end;
+
+    local procedure ClearJournal(ItemJournalBatch: Record "Item Journal Batch")
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        Clear(ItemJournalLine);
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.DeleteAll();
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure NameDetailsModalFormHandler(var NameDetails: Page "Name Details"; var Reply: Action)
@@ -6677,6 +6829,16 @@ codeunit 136201 "Marketing Contacts"
         CustomerTemplate.Get(CreateCustomerTemplateForContact(VATPostingSetup."VAT Bus. Posting Group"));
         CustomerTemplateList.SetRecord(CustomerTemplate);
         LibraryVariableStorage.Enqueue(CustomerTemplate.Code);
+        Reply := ACTION::LookupOK;
+    end;
+
+    [ModalPageHandler]
+    procedure CustomerTemplateHandler(var CustomerTemplateList: Page "Select Customer Templ. List"; var Reply: Action)
+    var
+        CustomerTemplate: Record "Customer Templ.";
+    begin
+        CustomerTemplate.Get(LibraryVariableStorage.DequeueText);
+        CustomerTemplateList.SetRecord(CustomerTemplate);
         Reply := ACTION::LookupOK;
     end;
 

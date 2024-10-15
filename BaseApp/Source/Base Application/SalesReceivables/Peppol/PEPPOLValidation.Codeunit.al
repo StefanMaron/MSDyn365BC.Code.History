@@ -110,13 +110,18 @@ codeunit 1620 "PEPPOL Validation"
         PEPPOLMgt: Codeunit "PEPPOL Management";
         unitCode: Text;
         unitCodeListID: Text;
+        IsHandled: Boolean;
     begin
         PEPPOLMgt.GetLineUnitCodeInfo(SalesLine, unitCode, unitCodeListID);
         with SalesLine do begin
             if (Type <> Type::" ") and ("No." <> '') and (unitCode = '') then
                 Error(EmptyUnitOfMeasureErr, "Unit of Measure Code");
-            if Description = '' then
-                Error(MissingDescriptionErr);
+
+            IsHandled := false;
+            OnCheckSalesDocumentLineOnBeforeCheckEmptyDescription(SalesLine, IsHandled);
+            if not IsHandled then
+                if Description = '' then
+                    Error(MissingDescriptionErr);
 
             if (Type <> Type::" ") and ("No." <> '') then begin // Not a description line
                 if GeneralLedgerSetup.UseVat() then
@@ -293,6 +298,11 @@ codeunit 1620 "PEPPOL Validation"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnRun(SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckSalesDocumentLineOnBeforeCheckEmptyDescription(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

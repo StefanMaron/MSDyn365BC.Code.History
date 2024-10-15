@@ -2088,16 +2088,18 @@
         Vendor.SetFilter("Post Code", VendorFilterContains);
         OnGetVendorNoOpenCardonAfterSetvendorFilters(Vendor, VendorFilterContains);
 
-        if Vendor.Count = 0 then
+        if Vendor.Count() = 0 then
             MarkVendorsWithSimilarName(Vendor, VendorText);
 
-        if Vendor.Count = 1 then begin
+        if Vendor.Count() = 1 then begin
             Vendor.FindFirst();
             exit(Vendor."No.");
         end;
 
-        if not GuiAllowed then
+        if not GuiAllowed() then
             Error(SelectVendorErr);
+
+        OnGetVendorNoOpenCardOnAfterMarkCustomersWithSimilarName(Vendor);
 
         if Vendor.Count = 0 then begin
             if Vendor.WritePermission then
@@ -2268,6 +2270,7 @@
           ("Country/Region Code" <> xRec."Country/Region Code") or
           ("Fax No." <> xRec."Fax No.") or
           ("Telex Answer Back" <> xRec."Telex Answer Back") or
+          ("Registration Number" <> xRec."Registration Number") or
           ("VAT Registration No." <> xRec."VAT Registration No.") or
           ("Enterprise No." <> xRec."Enterprise No.") or
           ("Post Code" <> xRec."Post Code") or
@@ -2733,6 +2736,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckAllowMultiplePostingGroups(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetVendorNoOpenCardOnAfterMarkCustomersWithSimilarName(var Vendor: Record Vendor)
     begin
     end;
 }

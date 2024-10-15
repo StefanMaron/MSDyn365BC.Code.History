@@ -1,7 +1,7 @@
 report 412 "Purchase Prepmt. Doc. - Test"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './PurchasePrepmtDocTest.rdlc';
+    RDLCLayout = './PurchasesPayables/PurchasePrepmtDocTest.rdlc';
     Caption = 'Purchase Prepmt. Doc. - Test';
 
     dataset

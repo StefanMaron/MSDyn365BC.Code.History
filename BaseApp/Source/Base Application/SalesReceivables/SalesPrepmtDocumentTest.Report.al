@@ -1,7 +1,7 @@
 report 212 "Sales Prepmt. Document Test"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './SalesPrepmtDocumentTest.rdlc';
+    RDLCLayout = './SalesReceivables/SalesPrepmtDocumentTest.rdlc';
     Caption = 'Sales Prepmt. Document Test';
 
     dataset

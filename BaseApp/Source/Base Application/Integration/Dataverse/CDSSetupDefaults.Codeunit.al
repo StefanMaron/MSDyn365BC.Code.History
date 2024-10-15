@@ -743,6 +743,10 @@ codeunit 7204 "CDS Setup Defaults"
           '',
           true);
 
+        IntegrationTableMapping."Synch. After Bulk Coupling" := true;
+        IntegrationTableMapping."Create New in Case of No Match" := true;
+        IntegrationTableMapping.Modify();
+
         // Code > ISOCurrencyCode
         InsertIntegrationFieldMapping(
           IntegrationTableMappingName,
@@ -766,6 +770,12 @@ codeunit 7204 "CDS Setup Defaults"
           CRMTransactioncurrency.FieldNo(CurrencyName),
           IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
+
+        IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMappingName);
+        IntegrationFieldMapping.SetRange("Field No.", Currency.FieldNo(Code));
+        IntegrationFieldMapping.FindFirst();
+        IntegrationFieldMapping."Use For Match-Based Coupling" := true;
+        IntegrationFieldMapping.Modify();
 
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 720);
     end;

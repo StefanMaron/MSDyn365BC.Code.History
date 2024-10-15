@@ -513,6 +513,11 @@ page 9995 "Word Template Creation Wizard"
         CurrPage.RelatedTables.Page.SetUnrelatedTable(WordTemplate."Table ID", UnrelatedTableID, RecordSystemId, RelatedCode);
     end;
 
+    procedure SetFieldsToBeIncluded(TableId: Integer; IncludeFields: List of [Text[30]])
+    begin
+        CurrPage.RelatedTables.Page.SetFieldsToBeIncluded(TableId, IncludeFields);
+    end;
+
     local procedure SetDefaultWordTemplateLanguageCode()
     var
         Language: Codeunit Language;

@@ -26,6 +26,8 @@ codeunit 144024 "Test Financial Journals"
         NoSeriesFullfilledPurchaseCrMemoErr: Label 'You cannot cancel this posted purchase invoice because no unused posted credit memo numbers are available';
         NoSeriesFullfilledSalesInvoiceErr: Label 'You cannot cancel this posted sales credit memo because no unused posted invoice numbers are available';
         NoSeriesFullfilledPurchaseInvoiceErr: Label 'You cannot cancel this posted purchase credit memo because no unused posted invoice numbers are available';
+        AccountNoMustNotBlankErr: Label 'Account No. must have a value in Gen. Journal Line';
+        JournalMustNotPostErr: Label 'Financial Journal Lines should not post.';
 
     [Test]
     [HandlerFunctions('GeneralJournalTemplateListModalPageHandler,ApplyCustomerEntriesModalPageHandler,GeneralLedgerEntriesPageHandler,ConfirmHandler,MessageHandler')]
@@ -598,6 +600,126 @@ codeunit 144024 "Test Financial Journals"
 
         FinancialJournalPage.Previous();
         VerifyBalanceAmountsOnFinancialJournalPage(FinancialJournalPage, 210, 1900, 2790);
+    end;
+
+    [Test]
+    [HandlerFunctions('GeneralJournalTemplateListModalPageHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure PostFinancialJournalWithoutAccountNo()
+    var
+        FinancialJournalPage: TestPage "Financial Journal";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalLine: Record "Gen. Journal Line";
+        JournalTemplateName: Code[10];
+        JournalBatchName: Code[10];
+        DocumentNo: Code[20];
+        Amount: Decimal;
+    begin
+        // [SCENARIO 470385] BE local - On attempting to post a Financial Journal where a G/L Account is missing an inconssistency error message is shown instead of a TESTFIELD
+        Initialize();
+        SetGenJournalTemplateNameMandatoryOnGLSetup(true);
+
+        // [GIVEN] Create a Document Number and Random Amount for Financial Journal Line
+        DocumentNo := LibraryUtility.GenerateGUID();
+        Amount := LibraryRandom.RandDecInDecimalRange(100, 200, 2);
+
+        // [THEN] Get the Gen. Journal Template detail
+        JournalTemplateName := LibraryVariableStorage.DequeueText();
+        LibraryVariableStorage.Enqueue(JournalTemplateName);
+        GenJournalTemplate.Get(JournalTemplateName);
+
+        // [THEN] Open Financial Journal Page and delete all Financial Journal Lines based on Journal Template and Batch
+        FinancialJournalPage.OpenEdit();
+        JournalBatchName := Format(FinancialJournalPage.CurrentJnlBatchName.Value);
+        FinancialJournalPage.Close();
+        GenJournalLine.SetRange("Journal Template Name", JournalTemplateName);
+        GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
+        GenJournalLine.DeleteAll();
+
+        // [GIVEN] Create a Financial Journal Line
+        SetupFinancialJournalLineOnPage(
+            GenJournalLine, GenJournalLine."Document Type"::" ", DocumentNo,
+            GenJournalLine."Account Type"::Customer, '',
+            GenJournalLine."Bal. Account Type"::"Bank Account", GenJournalTemplate."Bal. Account No.");
+        GenJournalLine.Validate("Posting Date", WorkDate());
+        GenJournalLine.Validate(Amount, Amount);
+        GenJournalLine.Modify(true);
+
+        // [THEN] Open Financial Journal Page, set Balance Last Statement to 0, and negative amount in Statement Ending Balance
+        LibraryVariableStorage.Enqueue(JournalTemplateName);
+        FinancialJournalPage.OpenEdit();
+        FinancialJournalPage.BalanceLastStatement.SetValue(0);
+        FinancialJournalPage.StatementEndingBalance.SetValue(-Amount);
+
+        // [VERIFY] Verify Error should occur during post when Account No. is blank
+        asserterror FinancialJournalPage."P&ost".Invoke;
+        Assert.IsTrue(StrPos(GetLastErrorText, Format(AccountNoMustNotBlankErr)) <> 0, JournalMustNotPostErr);
+        FinancialJournalPage.Close();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('GeneralJournalTemplateListModalPageHandler,ConfirmHandler')]
+    procedure PostMultipleFinancialJournalLinesWhenAccountNoIsBlankForAnyJournalLine()
+    var
+        FinancialJournalPage: TestPage "Financial Journal";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalLine: Record "Gen. Journal Line";
+        JournalTemplateName: Code[10];
+        JournalBatchName: Code[10];
+        DocumentNo: Code[20];
+        Amounts: array[2] of Decimal;
+    begin
+        // [SCENARIO 470385] BE local - On attempting to post a Financial Journal where a G/L Account is missing an inconssistency error message is shown instead of a TESTFIELD
+        Initialize();
+        SetGenJournalTemplateNameMandatoryOnGLSetup(true);
+
+        // [GIVEN] Create a Document Number and Random Amount values for 2 different Financial Journal Lines
+        DocumentNo := LibraryUtility.GenerateGUID();
+        Amounts[1] := LibraryRandom.RandDecInDecimalRange(100, 200, 2);
+        Amounts[2] := LibraryRandom.RandDecInDecimalRange(100, 200, 2);
+
+        // [THEN] Get the Gen. Journal Template detail
+        JournalTemplateName := LibraryVariableStorage.DequeueText();
+        LibraryVariableStorage.Enqueue(JournalTemplateName);
+        GenJournalTemplate.Get(JournalTemplateName);
+
+        // [THEN] Open Financial Journal Page and delete all Financial Journal Line based on Journal Template and Batch
+        FinancialJournalPage.OpenEdit();
+        JournalBatchName := Format(FinancialJournalPage.CurrentJnlBatchName.Value);
+        FinancialJournalPage.Close();
+        GenJournalLine.SetRange("Journal Template Name", JournalTemplateName);
+        GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
+        GenJournalLine.DeleteAll();
+
+        // [GIVEN] Create 1st Financial Journal Line
+        SetupFinancialJournalLineOnPage(
+            GenJournalLine, GenJournalLine."Document Type"::" ", DocumentNo,
+            GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+            GenJournalLine."Bal. Account Type"::"Bank Account", GenJournalTemplate."Bal. Account No.");
+        GenJournalLine.Validate("Posting Date", WorkDate());
+        GenJournalLine.Validate(Amount, Amounts[1]);
+        GenJournalLine.Modify(true);
+
+        // [GIVEN] Create 2nd Financial Journal Line
+        SetupFinancialJournalLineOnPage(
+            GenJournalLine, GenJournalLine."Document Type"::" ", DocumentNo,
+            GenJournalLine."Account Type"::Customer, '',
+            GenJournalLine."Bal. Account Type"::"Bank Account", GenJournalTemplate."Bal. Account No.");
+        GenJournalLine.Validate("Posting Date", WorkDate());
+        GenJournalLine.Validate(Amount, Amounts[2]);
+        GenJournalLine.Modify(true);
+
+        // [THEN] Open Financial Journal Page, set Balance Last Statement to 0, and summed amount of Journal Lines in Statement Ending Balance
+        LibraryVariableStorage.Enqueue(JournalTemplateName);
+        FinancialJournalPage.OpenEdit();
+        FinancialJournalPage.BalanceLastStatement.SetValue(0);
+        FinancialJournalPage.StatementEndingBalance.SetValue(-(Amounts[1] + Amounts[2]));
+
+        // [VERIFY] Verify Error should occur during post multiple journal lines when Account No. is blank for any line
+        asserterror FinancialJournalPage."P&ost".Invoke;
+        Assert.IsTrue(StrPos(GetLastErrorText, Format(AccountNoMustNotBlankErr)) <> 0, JournalMustNotPostErr);
+        FinancialJournalPage.Close();
     end;
 
     local procedure Initialize()
