@@ -179,6 +179,8 @@
         PerDatabaseUpgradeTags.Add(GetUserGroupsMigrationUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetCustLedgerEntryYourReferenceUpdateTag());
         PerDatabaseUpgradeTags.Add(GetEssentialAttachUserGroupUpgradeTag());
+        
+        PerDatabaseUpgradeTags.Add(GetBCUserGroupUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"API Data Upgrade", 'OnGetAPIUpgradeTags', '', false, false)]
@@ -976,6 +978,11 @@
     internal procedure GetEssentialAttachUserGroupUpgradeTag(): Code[250];
     begin
         exit('MS-483944-GetD365EssentialAttachUserGroupUpgradeTag-20230911');
+    end;
+
+    internal procedure GetBCUserGroupUpgradeTag(): Code[250];
+    begin
+        exit('MS-498639-GetBCUserGroupUpgradeTag-20240502');
     end;
 
     internal procedure GetItemChargeHandleQtyUpgradeTag(): Code[250]

@@ -677,6 +677,8 @@
 
     trigger OnModify()
     begin
+        if Rec."Dimension Set ID" <> xRec."Dimension Set ID" then
+            exit;
         ReserveInvtDocLine.VerifyChange(Rec, xRec);
     end;
 

@@ -931,7 +931,7 @@ page 42 "Sales Order"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies that the shipment of one or more lines has been delayed, or that the shipment date is before the work date.';
+                    ToolTip = 'Indicates a delay in the shipment of one or more lines, or that the shipment date is either the same as or earlier than the work date.';
                 }
                 field("Combine Shipments"; Rec."Combine Shipments")
                 {

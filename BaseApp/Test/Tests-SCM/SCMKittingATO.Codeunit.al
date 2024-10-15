@@ -5367,6 +5367,103 @@ codeunit 137096 "SCM Kitting - ATO"
         FindLinkedAssemblyOrder(AssemblyHeader, SalesHeader."Document Type", SalesHeader."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('ATOLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure AssembleToOrderLinesPageShouldOpenForNewlyCopiedSalesQuoteFromArchiveQuote()
+    var
+        Item: Record Item;
+        AssemblyHeader: Record "Assembly Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesHeaderArchive: Record "Sales Header Archive";
+        ToSalesHeader: Record "Sales Header";
+        OrderQty: Integer;
+        DueDate: Date;
+    begin
+        // [SCENARIO 496851] There are Assemble-to-Order (ATO) Line Items with a non-zero number in the “Qty to Assemble to Order” column
+        // but without a linked Assembly Order when using the Copy Document from an Archived Sales Order with the ATO Item.
+        Initialize();
+
+        // [GIVEN] Setup. Create Assembly item and Sales Quote.
+        CreateAssembledItem(
+            Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10), LibraryRandom.RandInt(10),
+            LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000), Item."Costing Method"::FIFO);
+
+        OrderQty := LibraryRandom.RandInt(1000);
+        DueDate := WorkDate2 + LibraryRandom.RandInt(30);
+        CreateSaleLineWithShptDate(
+            SalesHeader, SalesHeader."Document Type"::Quote,
+            Item."No.", '', OrderQty, DueDate, '');
+
+        // [THEN] Find Record Sales Header and Sales Line
+        FindSOL(SalesHeader, SalesLine, 1);
+        FindAssemblyHeader(
+            AssemblyHeader, "Assembly Document Type"::Quote, Item,
+            '', '', DueDate, Item."Base Unit of Measure", OrderQty);
+
+        // [THEN] Add enough inventory for comp
+        AddInvNonDirectLocAllComponent(AssemblyHeader, 100);
+
+        // [VERIFY] Verify: Assemble to Order Lines page should open for Sales Quote
+        VerifyAssembleToOrderLinesPageOpened(SalesHeader, OrderQty);
+
+        // [GIVEN] Archive Sales Quote
+        ArchiveSalesDocument(SalesHeader, SalesHeaderArchive);
+
+        // [GIVEN] Prepare New Sales Quote
+        ToSalesHeader.Init();
+        ToSalesHeader.Validate("Document Type", ToSalesHeader."Document Type"::Quote);
+        TOSalesHeader.Validate("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        ToSalesHeader.Insert(true);
+
+        // [WHEN] Copy Sales Archive Quote to Sales Quote
+        RunCopySalesDoc(
+            SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Quote",
+            SalesHeaderArchive."Doc. No. Occurrence", SalesHeaderArchive."Version No.", true, true);
+
+        // [VERIFY] Verify: Assemble to Order Lines page should open for new Sales Quote
+        VerifyAssembleToOrderLinesPageOpened(ToSalesHeader, OrderQty);
+    end;
+
+    local procedure VerifyAssembleToOrderLinesPageOpened(SalesHeader: Record "Sales Header"; QtyAssembleToOrder: Decimal)
+    var
+        SalesQuote: TestPage "Sales Quote";
+    begin
+        SalesQuote.OpenEdit();
+        SalesQuote.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesQuote.GotoRecord(SalesHeader);
+        SalesQuote.SalesLines."Qty. to Assemble to Order".AssertEquals(QtyAssembleToOrder);
+        SalesQuote.SalesLines."Assemble-to-Order Lines".Invoke();
+    end;
+
+    local procedure ArchiveSalesDocument(SalesHeader: Record "Sales Header"; var SalesHeaderArchive: Record "Sales Header Archive")
+    var
+        ArchiveManagement: Codeunit ArchiveManagement;
+    begin
+        ArchiveManagement.StoreSalesDocument(SalesHeader, false);
+        SalesHeaderArchive.Get(SalesHeader."Document Type", SalesHeader."No.", 1, 1);
+    end;
+
+    local procedure RunCopySalesDoc(
+        DocumentNo: Code[20]; NewSalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type From";
+        FromDocNoOccurrence: Integer; FromDocVersionNo: Integer; IncludeHeader: Boolean; RecalculateLines: Boolean)
+    begin
+        RunCopySalesDocWithRequestPage(
+            DocumentNo, NewSalesHeader, DocType, FromDocNoOccurrence, FromDocVersionNo, IncludeHeader, RecalculateLines, false);
+    end;
+
+    local procedure RunCopySalesDocWithRequestPage(
+        DocumentNo: Code[20]; NewSalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type From";
+        FromDocNoOccurrence: Integer; FromDocVersionNo: Integer; IncludeHeader: Boolean; RecalculateLines: Boolean; UseRequestPage: Boolean)
+    var
+        CopyDocumentMgt: Codeunit "Copy Document Mgt.";
+    begin
+        CopyDocumentMgt.SetProperties(IncludeHeader, RecalculateLines, false, false, false, false, false);
+        CopyDocumentMgt.SetArchDocVal(FromDocNoOccurrence, FromDocVersionNo);
+        CopyDocumentMgt.CopySalesDoc("Sales Document Type From"::"Arch. Quote", DocumentNo, NewSalesHeader);
+    end;
+
     [ModalPageHandler]
     [HandlerFunctions('EnterQtyHandler')]
     [Scope('OnPrem')]

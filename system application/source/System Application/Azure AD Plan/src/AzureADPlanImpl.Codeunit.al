@@ -500,7 +500,7 @@ codeunit 9018 "Azure AD Plan Impl."
         // Check if the user is a member of the Device group
         if IsDeviceRole(GraphUserInfo) then begin
             // Only assign the device plan if the user doesn't have any other plans (except possibly Internal Admin or M365 Collaboration)
-            TempPlan.SetFilter("Plan ID", '<>%1&<>%2', PlanIDs.GetInternalAdminPlanId(), PlanIDs.GetMicrosoft365PlanId());
+            TempPlan.SetFilter("Plan ID", '<>%1&<>%2&<>%3', PlanIds.GetInternalAdminPlanId(), PlanIds.GetBCAdminPlanId(), PlanIds.GetMicrosoft365PlanId());
 
             if TempPlan.IsEmpty() then begin
                 // Remove the Internal Admin and M365 Collaboration plans, if assigned
@@ -536,7 +536,7 @@ codeunit 9018 "Azure AD Plan Impl."
         if not IsNull(GraphUserInfo.Roles()) then
             foreach DirectoryRole in GraphUserInfo.Roles() do begin
                 RoleId := DirectoryRole.RoleTemplateId();
-                if DirectoryRole.RoleTemplateId() = PlanIds.GetInternalAdminPlanId() then
+                if RoleId in [PlanIds.GetInternalAdminPlanId(), PlanIds.GetBCAdminPlanId()] then
                     exit(true);
             end;
 
