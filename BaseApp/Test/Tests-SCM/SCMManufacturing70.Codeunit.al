@@ -2611,6 +2611,144 @@ codeunit 137063 "SCM Manufacturing 7.0"
         until ProductionBOMCommentLine.Next() = 0;
     end;
 
+    [Test]
+    procedure VendorItemNoWhenCalculateSubcontractsItemVendorCatalog()
+    var
+        Item: Record Item;
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        ItemVendor: Record "Item Vendor";
+        ProductionOrder: Record "Production Order";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [FEATURE] [Vendor Item No.] [Subcontracting] [Calculate Subcontracts] [Item Vendor]
+        // [SCENARIO 395878] Vendor Item No. is set from Item Vendor Catalog for Requisition Line when it is created by Calculate Subcontracts from Subcontracting Worksheet.
+        Initialize();
+
+        // [GIVEN] Subcontracting Work Center "W" with Subcontractor "SV". Routing "R" that contains line with Work Center "W".
+        CreateSubcontractingSetup(WorkCenter, RoutingHeader, Format(10 + LibraryRandom.RandInt(10)));
+
+        // [GIVEN] Item "I" with Routing "R" and Vendor Item No. = "Item". Item Vendor Catalog for Item "I" and Vendor "SV" with Vendor Item No. = "ItemVendorCatalog".
+        CreateProdItem(Item, RoutingHeader."No.");
+        UpdateVendorItemNoOnItem(Item, LibraryUtility.GenerateGUID());
+        CreateItemVendor(ItemVendor, WorkCenter."Subcontractor No.", Item."No.", LibraryUtility.GenerateGUID());
+
+        // [GIVEN] Refreshed Production order for Item "I".
+        CreateAndRefreshProdOrder(
+          ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandDecInRange(10, 20, 2),
+          ProductionOrder."Source Type"::Item, false);
+
+        // [WHEN] Run subcontracting worksheet and execute "Calculate Subcontracts"
+        CalculateSubcontractOrder(RequisitionLine, WorkCenter."No.", ProductionOrder);
+
+        // [THEN] Requisition Line with Vendor "SV" and Vendor Item No. = "ItemVendorCatalog" is created.
+        RequisitionLine.TestField("Vendor No.", WorkCenter."Subcontractor No.");
+        RequisitionLine.TestField("Vendor Item No.", ItemVendor."Vendor Item No.");
+    end;
+
+    [Test]
+    procedure VendorItemNoWhenCalculateSubcontractsSKUAndNoItemVendorCatalog()
+    var
+        Item: Record Item;
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        ProductionOrder: Record "Production Order";
+        RequisitionLine: Record "Requisition Line";
+        StockkeepingUnit: Record "Stockkeeping Unit";
+    begin
+        // [FEATURE] [Vendor Item No.] [Subcontracting] [Calculate Subcontracts] [SKU]
+        // [SCENARIO 395878] Vendor Item No. is set from Item's SKU for Requisition Line when it is created by Calculate Subcontracts from Subcontracting Worksheet and there is no Item Vendor Catalog.
+        Initialize();
+
+        // [GIVEN] Subcontracting Work Center "W" with Subcontractor "SV". Routing "R" that contains line with Work Center "W".
+        CreateSubcontractingSetup(WorkCenter, RoutingHeader, Format(10 + LibraryRandom.RandInt(10)));
+
+        // [GIVEN] Item "I" with Routing "R" and Vendor Item No. = "Item". There is no Item Vendor Catalog for Item "I" and Vendor "SV".
+        // [GIVEN] SKU with Vendor Item No. = "StockKeepingUnit" for Item "I" and Location "L".
+        CreateProdItem(Item, RoutingHeader."No.");
+        UpdateVendorItemNoOnItem(Item, LibraryUtility.GenerateGUID());
+        CreateStockKeepingUnit(StockkeepingUnit, Item, LocationGreen.Code);
+        UpdateVendorItemNoOnSKU(StockkeepingUnit, LibraryUtility.GenerateGUID());
+
+        // [GIVEN] Refreshed Production order with Location "L" for Item "I".
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandDecInRange(10, 20, 2));
+        UpdateProductionOrder(ProductionOrder, StockkeepingUnit."Location Code", WorkDate());
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [WHEN] Run subcontracting worksheet and execute "Calculate Subcontracts"
+        CalculateSubcontractOrder(RequisitionLine, WorkCenter."No.", ProductionOrder);
+
+        // [THEN] Requisition Line with Vendor "SV" and Vendor Item No. = "StockKeepingUnit" is created.
+        RequisitionLine.TestField("Vendor No.", WorkCenter."Subcontractor No.");
+        RequisitionLine.TestField("Vendor Item No.", StockkeepingUnit."Vendor Item No.");
+    end;
+
+    [Test]
+    procedure VendorItemNoWhenCalculateSubcontractsNoItemVendorCatalogNoSKU()
+    var
+        Item: Record Item;
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        ProductionOrder: Record "Production Order";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [FEATURE] [Vendor Item No.] [Subcontracting] [Calculate Subcontracts]
+        // [SCENARIO 395878] Vendor Item No. is set from Item for Requisition Line when it is created by Calculate Subcontracts from Subcontracting Worksheet and there is no Item Vendor Catalog and SKU.
+        Initialize();
+
+        // [GIVEN] Subcontracting Work Center "W" with Subcontractor "SV". Routing "R" that contains line with Work Center "W".
+        CreateSubcontractingSetup(WorkCenter, RoutingHeader, Format(10 + LibraryRandom.RandInt(10)));
+
+        // [GIVEN] Item "I" with Routing "R" and Vendor Item No. = "Item". There is no Item Vendor Catalog for Item "I" and Vendor "SV". There is no SKU for Item "I".
+        CreateProdItem(Item, RoutingHeader."No.");
+        UpdateVendorItemNoOnItem(Item, LibraryUtility.GenerateGUID());
+
+        // [GIVEN] Refreshed Production order for Item "I".
+        CreateAndRefreshProdOrder(
+          ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandDecInRange(10, 20, 2),
+          ProductionOrder."Source Type"::Item, false);
+
+        // [WHEN] Run subcontracting worksheet and execute "Calculate Subcontracts"
+        CalculateSubcontractOrder(RequisitionLine, WorkCenter."No.", ProductionOrder);
+
+        // [THEN] Requisition Line with Vendor "SV" and Vendor Item No. = "Item" is created.
+        RequisitionLine.TestField("Vendor No.", WorkCenter."Subcontractor No.");
+        RequisitionLine.TestField("Vendor Item No.", Item."Vendor Item No.");
+    end;
+
+    [Test]
+    procedure VendorItemNoBlankWhenCalculateSubcontractsNoItemVendorCatalogNoSKUBlankItem()
+    var
+        Item: Record Item;
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        ProductionOrder: Record "Production Order";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [FEATURE] [Vendor Item No.] [Subcontracting] [Calculate Subcontracts]
+        // [SCENARIO 395878] Vendor Item No. is blank in Requisition Line when it is created by Calculate Subcontracts from Subcontracting Worksheet and there is no Item Vendor Catalog and SKU; Item."Vendor Item No." is blank.
+        Initialize();
+
+        // [GIVEN] Subcontracting Work Center "W" with Subcontractor "SV". Routing "R" that contains line with Work Center "W".
+        CreateSubcontractingSetup(WorkCenter, RoutingHeader, Format(10 + LibraryRandom.RandInt(10)));
+
+        // [GIVEN] Item "I" with Routing "R" and blank Vendor Item No.. There is no Item Vendor Catalog for Item "I" and Vendor "SV". There is no SKU for Item "I".
+        CreateProdItem(Item, RoutingHeader."No.");
+        UpdateVendorItemNoOnItem(Item, '');
+
+        // [GIVEN] Refreshed Production order for Item "I".
+        CreateAndRefreshProdOrder(
+          ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandDecInRange(10, 20, 2),
+          ProductionOrder."Source Type"::Item, false);
+
+        // [WHEN] Run subcontracting worksheet and execute "Calculate Subcontracts"
+        CalculateSubcontractOrder(RequisitionLine, WorkCenter."No.", ProductionOrder);
+
+        // [THEN] Requisition Line with Vendor "SV" and blank Vendor Item No. is created.
+        RequisitionLine.TestField("Vendor No.", WorkCenter."Subcontractor No.");
+        RequisitionLine.TestField("Vendor Item No.", '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3290,6 +3428,23 @@ codeunit 137063 "SCM Manufacturing 7.0"
         CreateProdItem(Item2, '');
         CreateRoutingSetup(RoutingHeader);
         CreateFamily(Family, RoutingHeader."No.", Item."No.", Item2."No.");
+    end;
+
+    local procedure CreateItemVendor(var ItemVendor: Record "Item Vendor"; VendorNo: Code[20]; ItemNo: Code[20]; VendorItemNo: Text[20])
+    begin
+        ItemVendor.Init();
+        ItemVendor.Validate("Vendor No.", VendorNo);
+        ItemVendor.Validate("Item No.", ItemNo);
+        ItemVendor.Validate("Vendor Item No.", VendorItemNo);
+        ItemVendor.Insert(true);
+    end;
+
+    local procedure CreateStockKeepingUnit(var StockkeepingUnit: Record "Stockkeeping Unit"; Item: Record Item; LocationCode: Code[10])
+    begin
+        Item.SetRange("No.", Item."No.");
+        Item.SetRange("Location Filter", LocationCode);
+        LibraryInventory.CreateStockKeepingUnit(Item, 0, false, false);
+        StockkeepingUnit.Get(LocationCode, Item."No.", '');
     end;
 
     local procedure FindLastOperationNo(RoutingNo: Code[20]): Code[10]
@@ -4148,6 +4303,18 @@ codeunit 137063 "SCM Manufacturing 7.0"
         PurchaseOrder.PurchLines."Expected Receipt Date".SetValue(
           CalcDate(StrSubstNo('%1D', LibraryRandom.RandInt(5)), PurchaseHeader."Due Date"));
         PurchaseOrder.Close;
+    end;
+
+    local procedure UpdateVendorItemNoOnItem(var Item: Record Item; VendorItemNo: Text[20])
+    begin
+        Item.Validate("Vendor Item No.", VendorItemNo);
+        Item.Modify(true);
+    end;
+
+    local procedure UpdateVendorItemNoOnSKU(var StockkeepingUnit: Record "Stockkeeping Unit"; VendorItemNo: Text[20])
+    begin
+        StockkeepingUnit.Validate("Vendor Item No.", VendorItemNo);
+        StockkeepingUnit.Modify(true);
     end;
 
     local procedure PostItemStockPurchase(Item: Record Item; Quantity: Decimal; LocationCode: Code[10]; EntryType: Enum "Item Ledger Document Type")

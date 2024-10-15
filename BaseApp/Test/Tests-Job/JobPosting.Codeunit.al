@@ -2054,6 +2054,58 @@ codeunit 136309 "Job Posting"
         Assert.AreEqual(JobPlanningLine."Bin Code", '', 'Expected default bin to be cleared. ');
     end;
 
+    [Test]
+    procedure PostingPurchaseOrderWithAlternateUoMAndJob()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Purchase] [Invoice] [Item Unit of Measure] [Unit Price]
+        // [SCENARIO 395884] Unit Price on job planning line created by posting purchase invoice respects item unit of measure.
+        Initialize();
+
+        // [GIVEN] Item with unit price = 8.0, base unit of measure = "PCS".
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Cost", LibraryRandom.RandDec(10, 2));
+        Item.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
+        Item.Modify(true);
+
+        // [GIVEN] Alternate Unit of Measure "BOX". 1 "BOX" = 10 "PCS".
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", LibraryRandom.RandIntInRange(5, 10));
+
+        // [GIVEN] Create job, job task and job planning line.
+        CreateJobWithJobTask(JobTask);
+        CreateJobPlanningLine(
+          JobPlanningLine, JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, Item."No.",
+          LibraryRandom.RandInt(10), Item."Unit Cost", Item."Unit Price");
+
+        // [GIVEN] Create purchase invoice for 1 "BOX", link it to the job.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        PurchaseLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        PurchaseLine.Validate("Job No.", JobTask."Job No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.Validate("Job Line Type", PurchaseLine."Job Line Type"::Billable);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post the purchase invoice.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] A new job planning line is created in base unit of measure "PCS".
+        // [THEN] The job planning line has Unit Price = Unit Price (LCY) = Item."Unit Price".
+        JobPlanningLine.SetRange("Job No.", JobTask."Job No.");
+        JobPlanningLine.SetRange("Job Task No.", JobTask."Job Task No.");
+        JobPlanningLine.SetRange("Line Type", JobPlanningLine."Line Type"::Billable);
+        JobPlanningLine.FindFirst();
+        JobPlanningLine.TestField("Unit of Measure Code", Item."Base Unit of Measure");
+        JobPlanningLine.TestField("Unit Price", Item."Unit Price");
+        JobPlanningLine.TestField("Unit Price (LCY)", Item."Unit Price");
+    end;
+
     local procedure Initialize()
     var
         NoSeries: Record "No. Series";

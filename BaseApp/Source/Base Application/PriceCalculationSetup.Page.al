@@ -71,9 +71,10 @@ page 7006 "Price Calculation Setup"
 
     trigger OnOpenPage()
     var
+        FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
-        PriceCalculationMgt.TestIsEnabled();
+        FeaturePriceCalculation.FailIfFeatureDisabled();
         if PriceCalculationMgt.RefreshSetup() then
             Commit();
     end;

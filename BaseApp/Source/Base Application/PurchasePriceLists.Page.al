@@ -93,9 +93,9 @@ page 7017 "Purchase Price Lists"
 
     trigger OnInit()
     var
-        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
     begin
-        PriceCalculationMgt.TestIsEnabled();
+        FeaturePriceCalculation.FailIfFeatureDisabled();
     end;
 
     trigger OnAfterGetRecord()
