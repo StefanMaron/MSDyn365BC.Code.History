@@ -207,7 +207,7 @@ page 11000005 "Payment History Card"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }

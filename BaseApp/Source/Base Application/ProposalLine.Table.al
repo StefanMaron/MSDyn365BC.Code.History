@@ -216,7 +216,7 @@ table 11000000 "Proposal Line"
                             end;
                     end;
                     CreateDim(
-                      DimManagement.TypeToTableID1(GenJnlLine."Account Type"::"Bank Account"), "Our Bank No.", 0, '', 0, '', 0, '', 0, '', true);
+                      DimManagement.TypeToTableID1(GenJnlLine."Account Type"::"Bank Account".AsInteger()), "Our Bank No.", 0, '', 0, '', 0, '', 0, '', true);
                 end;
                 DetailFilter("Detail line", Rec);
                 "Detail line".ModifyAll(Bank, Bank);
@@ -284,7 +284,7 @@ table 11000000 "Proposal Line"
         }
         field(17; "Our Bank Account No."; Text[30])
         {
-            CalcFormula = Lookup ("Bank Account"."Bank Account No." WHERE("No." = FIELD("Our Bank No.")));
+            CalcFormula = Lookup("Bank Account"."Bank Account No." WHERE("No." = FIELD("Our Bank No.")));
             Caption = 'Our Bank Account No.';
             Editable = false;
             FieldClass = FlowField;
@@ -323,7 +323,7 @@ table 11000000 "Proposal Line"
         }
         field(19; "Number of Detail Lines"; Integer)
         {
-            CalcFormula = Count ("Detail Line" WHERE("Our Bank" = FIELD("Our Bank No."),
+            CalcFormula = Count("Detail Line" WHERE("Our Bank" = FIELD("Our Bank No."),
                                                      "Connect Lines" = FIELD("Line No.")));
             Caption = 'Number of Detail Lines';
             Editable = false;
@@ -501,7 +501,7 @@ table 11000000 "Proposal Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -623,7 +623,7 @@ table 11000000 "Proposal Line"
         PostCodeMgt: Codeunit "Post Code Management";
         BankShouldBeEmployeeNoErr: Label 'The value in the Bank field must be the same as in the Account No. field, which is the employee number.';
 
-    [Obsolete('Replaced by GetSourceName','15.4')]
+    [Obsolete('Replaced by GetSourceName', '15.4')]
     [Scope('OnPrem')]
     procedure NoSourceName() Name: Text[50]
     begin
@@ -734,15 +734,15 @@ table 11000000 "Proposal Line"
         case "Account Type" of
             "Account Type"::Customer:
                 CreateDim(
-                  DimManagement.TypeToTableID1(GenJnlLine."Account Type"::Customer), "Account No.",
+                  DimManagement.TypeToTableID1(GenJnlLine."Account Type"::Customer.AsInteger()), "Account No.",
                   DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code", 0, '', 0, '', 0, '', false);
             "Account Type"::Vendor:
                 CreateDim(
-                  DimManagement.TypeToTableID1(GenJnlLine."Account Type"::Vendor), "Account No.",
+                  DimManagement.TypeToTableID1(GenJnlLine."Account Type"::Vendor.AsInteger()), "Account No.",
                   DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code", 0, '', 0, '', 0, '', false);
             "Account Type"::Employee:
                 CreateDim(
-                  DimManagement.TypeToTableID1(GenJnlLine."Account Type"::Employee), "Account No.",
+                  DimManagement.TypeToTableID1(GenJnlLine."Account Type"::Employee.AsInteger()), "Account No.",
                   DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code", 0, '', 0, '', 0, '', false);
         end;
     end;

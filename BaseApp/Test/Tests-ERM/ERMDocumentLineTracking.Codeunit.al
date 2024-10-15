@@ -549,7 +549,7 @@ codeunit 134347 "ERM Document Line Tracking"
         ReturnOrderNo := SalesHeader."No.";
     end;
 
-    local procedure CreatePurchaseHeaderWithTwoLines(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreatePurchaseHeaderWithTwoLines(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -560,7 +560,7 @@ codeunit 134347 "ERM Document Line Tracking"
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', LibraryRandom.RandIntInRange(20, 50));
     end;
 
-    local procedure CreateSalesHeaderWithTwoLines(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesHeaderWithTwoLines(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -569,7 +569,7 @@ codeunit 134347 "ERM Document Line Tracking"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, '', LibraryRandom.RandIntInRange(20, 50));
     end;
 
-    local procedure FindFirstLastPurchaseLines(DocumentNo: Code[20]; DocumentType: Option; var PurchaseLine: array[2] of Record "Purchase Line")
+    local procedure FindFirstLastPurchaseLines(DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type"; var PurchaseLine: array[2] of Record "Purchase Line")
     begin
         PurchaseLine[1].SetRange("Document No.", DocumentNo);
         PurchaseLine[1].SetRange("Document Type", DocumentType);
@@ -625,7 +625,7 @@ codeunit 134347 "ERM Document Line Tracking"
         PurchCrMemoLine[2].FindLast;
     end;
 
-    local procedure FindFirstLastSalesLines(DocumentNo: Code[20]; DocumentType: Option; var SalesLine: array[2] of Record "Sales Line")
+    local procedure FindFirstLastSalesLines(DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type"; var SalesLine: array[2] of Record "Sales Line")
     begin
         SalesLine[1].SetRange("Document No.", DocumentNo);
         SalesLine[1].SetRange("Document Type", DocumentType);

@@ -453,7 +453,7 @@ codeunit 144055 "UT TAB Telebank"
           GenJournalLine."Bal. Account Type"::Employee);
     end;
 
-    local procedure OnValidateAccountNoGenJournalLine(AccountType: Option; AccountNo: Code[20]; TransactionModeCode: Code[20]; BankAccountCode: Code[20]; BalAccountType: Option)
+    local procedure OnValidateAccountNoGenJournalLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; TransactionModeCode: Code[20]; BankAccountCode: Code[20]; BalAccountType: Enum "Gen. Journal Account Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -592,7 +592,7 @@ codeunit 144055 "UT TAB Telebank"
     end;
 
     [TransactionModel(TransactionModel::AutoRollback)]
-    local procedure OnValidateTransactionModeGenJournalLine(AccountType: Option; BalAccountType: Option; TransactionModeAccountType: Option)
+    local procedure OnValidateTransactionModeGenJournalLine(AccountType: Enum "Gen. Journal Account Type"; BalAccountType: Enum "Gen. Journal Account Type"; TransactionModeAccountType: Option)
     var
         GenJournalLine: Record "Gen. Journal Line";
         TransactionMode: Record "Transaction Mode";
@@ -830,7 +830,7 @@ codeunit 144055 "UT TAB Telebank"
         exit(ExportProtocol.Code);
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; BalAccountType: Option)
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; BalAccountType: Enum "Gen. Journal Account Type")
     begin
         GenJournalLine."Document Type" := GenJournalLine."Document Type"::Payment;
         GenJournalLine."Account Type" := AccountType;
@@ -970,7 +970,7 @@ codeunit 144055 "UT TAB Telebank"
         exit(AllObj."Object ID");
     end;
 
-    local procedure PostDocument(DocumentType: Option; AccountType: Option; AccountNo: Code[20]; LineAmount: Decimal): Code[20]
+    local procedure PostDocument(DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; LineAmount: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
         GLAccount: Record "G/L Account";

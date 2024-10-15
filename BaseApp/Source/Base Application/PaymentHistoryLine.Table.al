@@ -339,7 +339,7 @@ table 11000002 "Payment History Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(11400; "Foreign Currency"; Code[10])

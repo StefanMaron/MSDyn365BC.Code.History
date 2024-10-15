@@ -1,4 +1,4 @@
-﻿table 270 "Bank Account"
+table 270 "Bank Account"
 {
     Caption = 'Bank Account';
     DataCaptionFields = "No.", Name;
@@ -201,7 +201,7 @@
         }
         field(38; Comment; Boolean)
         {
-            CalcFormula = Exist ("Comment Line" WHERE("Table Name" = CONST("Bank Account"),
+            CalcFormula = Exist("Comment Line" WHERE("Table Name" = CONST("Bank Account"),
                                                       "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -253,7 +253,7 @@
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Bank Account Ledger Entry".Amount WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Bank Account Ledger Entry".Amount WHERE("Bank Account No." = FIELD("No."),
                                                                         "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                         "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter")));
             Caption = 'Balance';
@@ -263,7 +263,7 @@
         field(59; "Balance (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Bank Account Ledger Entry"."Amount (LCY)" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Bank Account Ledger Entry"."Amount (LCY)" WHERE("Bank Account No." = FIELD("No."),
                                                                                 "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                 "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter")));
             Caption = 'Balance (LCY)';
@@ -274,7 +274,7 @@
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Bank Account Ledger Entry".Amount WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Bank Account Ledger Entry".Amount WHERE("Bank Account No." = FIELD("No."),
                                                                         "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                         "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                         "Posting Date" = FIELD("Date Filter")));
@@ -285,7 +285,7 @@
         field(61; "Net Change (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Bank Account Ledger Entry"."Amount (LCY)" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Bank Account Ledger Entry"."Amount (LCY)" WHERE("Bank Account No." = FIELD("No."),
                                                                                 "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                 "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                 "Posting Date" = FIELD("Date Filter")));
@@ -297,7 +297,7 @@
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Check Ledger Entry".Amount WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Check Ledger Entry".Amount WHERE("Bank Account No." = FIELD("No."),
                                                                  "Entry Status" = FILTER(Posted),
                                                                  "Statement Status" = FILTER(<> Closed)));
             Caption = 'Total on Checks';
@@ -360,7 +360,7 @@
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Bank Account Ledger Entry".Amount WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Bank Account Ledger Entry".Amount WHERE("Bank Account No." = FIELD("No."),
                                                                         "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                         "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                         "Posting Date" = FIELD(UPPERLIMIT("Date Filter"))));
@@ -371,7 +371,7 @@
         field(96; "Balance at Date (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Bank Account Ledger Entry"."Amount (LCY)" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Bank Account Ledger Entry"."Amount (LCY)" WHERE("Bank Account No." = FIELD("No."),
                                                                                 "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                 "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                 "Posting Date" = FIELD(UPPERLIMIT("Date Filter"))));
@@ -384,7 +384,7 @@
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Bank Account Ledger Entry"."Debit Amount" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Bank Account Ledger Entry"."Debit Amount" WHERE("Bank Account No." = FIELD("No."),
                                                                                 "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                 "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                 "Posting Date" = FIELD("Date Filter")));
@@ -397,7 +397,7 @@
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Bank Account Ledger Entry"."Credit Amount" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Bank Account Ledger Entry"."Credit Amount" WHERE("Bank Account No." = FIELD("No."),
                                                                                  "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                  "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                  "Posting Date" = FIELD("Date Filter")));
@@ -409,7 +409,7 @@
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Bank Account Ledger Entry"."Debit Amount (LCY)" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Bank Account Ledger Entry"."Debit Amount (LCY)" WHERE("Bank Account No." = FIELD("No."),
                                                                                       "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                       "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                       "Posting Date" = FIELD("Date Filter")));
@@ -421,7 +421,7 @@
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Bank Account Ledger Entry"."Credit Amount (LCY)" WHERE("Bank Account No." = FIELD("No."),
+            CalcFormula = Sum("Bank Account Ledger Entry"."Credit Amount (LCY)" WHERE("Bank Account No." = FIELD("No."),
                                                                                        "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                        "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                        "Posting Date" = FIELD("Date Filter")));
@@ -463,7 +463,7 @@
         }
         field(109; "Check Report Name"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Name" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Name" WHERE("Object Type" = CONST(Report),
                                                                         "Object ID" = FIELD("Check Report ID")));
             Caption = 'Check Report Name';
             Editable = false;
@@ -601,6 +601,21 @@
         {
             Caption = 'Positive Pay Export Code';
             TableRelation = "Bank Export/Import Setup".Code WHERE(Direction = CONST("Export-Positive Pay"));
+        }
+        field(5061; "Mobile Phone No."; Text[30])
+        {
+            Caption = 'Mobile Phone No.';
+            ExtendedDatatype = PhoneNo;
+
+            trigger OnValidate()
+            var
+                Char: DotNet Char;
+                i: Integer;
+            begin
+                for i := 1 to StrLen("Mobile Phone No.") do
+                    if Char.IsLetter("Mobile Phone No."[i]) then
+                        FieldError("Mobile Phone No.", PhoneNoCannotContainLettersErr);
+            end;
         }
         field(11000000; "Account Holder Name"; Text[100])
         {
@@ -791,6 +806,7 @@
         BankAccNotLinkedErr: Label 'This bank account is not linked to an online bank account.';
         AutoLogonNotPossibleErr: Label 'Automatic logon is not possible for this bank account.';
         CancelTxt: Label 'Cancel';
+        PhoneNoCannotContainLettersErr: Label 'must not contain letters';
         OnlineFeedStatementStatus: Option "Not Linked",Linked,"Linked and Auto. Bank Statement Enabled";
         UnincrementableStringErr: Label 'The value in the %1 field must have a number so that we can assign the next number in the series.', Comment = '%1 = caption of field (Last Payment Statement No.)';
         CannotDeleteBalancingBankAccountErr: Label 'You cannot delete bank account that is used as balancing account in the Payment Registration Setup.', Locked = true;
@@ -821,7 +837,7 @@
             DimMgt.SaveDefaultDim(DATABASE::"Bank Account", "No.", FieldNumber, ShortcutDimCode);
             Modify;
         end;
-	
+
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
@@ -1264,6 +1280,7 @@
           ("Address 2" <> xRec."Address 2") or
           (City <> xRec.City) or
           ("Phone No." <> xRec."Phone No.") or
+          ("Mobile Phone No." <> xRec."Mobile Phone No.") or
           ("Telex No." <> xRec."Telex No.") or
           ("Territory Code" <> xRec."Territory Code") or
           ("Currency Code" <> xRec."Currency Code") or

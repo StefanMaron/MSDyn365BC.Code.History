@@ -338,7 +338,7 @@ report 11000009 "Export PAYMUL"
     begin
         SegmentCounter := SegmentCounter + 1;
         strData := 'MOA+9:' + MakeAmountText(Amount);
-        strData := strData + ':' + GetCurrencyCode;
+        strData := strData + ':' + GetCurrencyCode();
 
         Write(strData, StrLen(strData), '<', '', false);
         EndOfLine;

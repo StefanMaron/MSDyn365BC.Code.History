@@ -412,7 +412,7 @@ codeunit 144541 "Purchase Document - VAT"
             InvoiceCurrencyCode));
     end;
 
-    local procedure CreatePurchaseDocumentWithPriceIncludingVAT(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; CurrencyCode: Code[10])
+    local procedure CreatePurchaseDocumentWithPriceIncludingVAT(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; CurrencyCode: Code[10])
     var
         Item: Record Item;
         LibraryUtility: Codeunit "Library - Utility";

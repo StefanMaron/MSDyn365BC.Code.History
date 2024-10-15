@@ -237,8 +237,8 @@ codeunit 148000 "Digipoort XML"
     [Scope('OnPrem')]
     procedure VATStatementRequestPageHandler(var VATReportRequestPage: TestRequestPage "VAT Report Request Page")
     var
-        Selection: Option Open,Closed,"Open and Closed";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
     begin
         VATReportRequestPage."Start Date".SetValue(LibraryVariableStorage.DequeueDate());
         VATReportRequestPage."End Date".SetValue(LibraryVariableStorage.DequeueDate());

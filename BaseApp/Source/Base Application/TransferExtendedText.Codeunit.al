@@ -19,6 +19,12 @@ codeunit 378 "Transfer Extended Text"
     procedure SalesCheckIfAnyExtText(var SalesLine: Record "Sales Line"; Unconditionally: Boolean): Boolean
     var
         SalesHeader: Record "Sales Header";
+    begin
+        exit(SalesCheckIfAnyExtText(SalesLine, Unconditionally, SalesHeader));
+    end;
+
+    procedure SalesCheckIfAnyExtText(var SalesLine: Record "Sales Line"; Unconditionally: Boolean; SalesHeader: Record "Sales Header"): Boolean
+    var
         ExtTextHeader: Record "Extended Text Header";
     begin
         MakeUpdateRequired := false;
@@ -54,7 +60,10 @@ codeunit 378 "Transfer Extended Text"
 
         if AutoText then begin
             SalesLine.TestField("Document No.");
-            SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+
+            if SalesHeader."No." = '' then
+                SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+
             ExtTextHeader.SetRange("Table Name", SalesLine.Type.AsInteger());
             ExtTextHeader.SetRange("No.", SalesLine."No.");
             case SalesLine."Document Type" of
@@ -72,7 +81,7 @@ codeunit 378 "Transfer Extended Text"
                     ExtTextHeader.SetRange("Sales Credit Memo", true);
             end;
             OnSalesCheckIfAnyExtTextAutoText(ExtTextHeader, SalesHeader, SalesLine, Unconditionally, MakeUpdateRequired);
-            exit(ReadLines(ExtTextHeader, SalesHeader."Document Date", SalesHeader."Language Code"));
+            exit(ReadExtTextLines(ExtTextHeader, SalesHeader."Document Date", SalesHeader."Language Code"));
         end;
     end;
 
@@ -105,7 +114,7 @@ codeunit 378 "Transfer Extended Text"
             ExtTextHeader.SetRange("No.", ReminderLine."No.");
             ExtTextHeader.SetRange(Reminder, true);
             OnReminderCheckIfAnyExtTextAutoText(ExtTextHeader, ReminderHeader, ReminderLine, Unconditionally, MakeUpdateRequired);
-            exit(ReadLines(ExtTextHeader, ReminderHeader."Document Date", ReminderHeader."Language Code"));
+            exit(ReadExtTextLines(ExtTextHeader, ReminderHeader."Document Date", ReminderHeader."Language Code"));
         end;
     end;
 
@@ -138,13 +147,19 @@ codeunit 378 "Transfer Extended Text"
             ExtTextHeader.SetRange("No.", FinChrgMemoLine."No.");
             ExtTextHeader.SetRange("Finance Charge Memo", true);
             OnFinChrgMemoCheckIfAnyExtTextAutoText(ExtTextHeader, FinChrgMemoHeader, FinChrgMemoLine, Unconditionally, MakeUpdateRequired);
-            exit(ReadLines(ExtTextHeader, FinChrgMemoHeader."Document Date", FinChrgMemoHeader."Language Code"));
+            exit(ReadExtTextLines(ExtTextHeader, FinChrgMemoHeader."Document Date", FinChrgMemoHeader."Language Code"));
         end;
     end;
 
-    procedure PurchCheckIfAnyExtText(var PurchLine: Record "Purchase Line"; Unconditionally: Boolean): Boolean
+    procedure PurchCheckIfAnyExtText(var PurchaseLine: Record "Purchase Line"; Unconditionally: Boolean): Boolean
     var
-        PurchHeader: Record "Purchase Header";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        exit(PurchCheckIfAnyExtText(PurchaseLine, Unconditionally, PurchaseHeader));
+    end;
+
+    procedure PurchCheckIfAnyExtText(var PurchLine: Record "Purchase Line"; Unconditionally: Boolean; PurchaseHeader: Record "Purchase Header"): Boolean
+    var
         ExtTextHeader: Record "Extended Text Header";
     begin
         MakeUpdateRequired := false;
@@ -178,7 +193,8 @@ codeunit 378 "Transfer Extended Text"
 
         if AutoText then begin
             PurchLine.TestField("Document No.");
-            PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
+            if PurchaseHeader."No." = '' then
+                PurchaseHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
             ExtTextHeader.SetRange("Table Name", PurchLine.Type.AsInteger());
             ExtTextHeader.SetRange("No.", PurchLine."No.");
             case PurchLine."Document Type" of
@@ -195,8 +211,8 @@ codeunit 378 "Transfer Extended Text"
                 PurchLine."Document Type"::"Credit Memo":
                     ExtTextHeader.SetRange("Purchase Credit Memo", true);
             end;
-            OnPurchCheckIfAnyExtTextAutoText(ExtTextHeader, PurchHeader, PurchLine, Unconditionally, MakeUpdateRequired);
-            exit(ReadLines(ExtTextHeader, PurchHeader."Document Date", PurchHeader."Language Code"));
+            OnPurchCheckIfAnyExtTextAutoText(ExtTextHeader, PurchaseHeader, PurchLine, Unconditionally, MakeUpdateRequired);
+            exit(ReadExtTextLines(ExtTextHeader, PurchaseHeader."Document Date", PurchaseHeader."Language Code"));
         end;
     end;
 
@@ -224,7 +240,7 @@ codeunit 378 "Transfer Extended Text"
                 ExtTextHeader.SetRange("Prepmt. Purchase Credit Memo", true);
         end;
         OnPrepmtGetAnyExtTextBeforeReadLines(ExtTextHeader, DocumentDate, LanguageCode);
-        if ReadLines(ExtTextHeader, DocumentDate, LanguageCode) then begin
+        if ReadExtTextLines(ExtTextHeader, DocumentDate, LanguageCode) then begin
             OnPrepmtGetAnyExtTextAfterReadLines(ExtTextHeader, TempExtTextLine);
             TempExtTextLine.Find('-');
             repeat
@@ -483,7 +499,7 @@ codeunit 378 "Transfer Extended Text"
         exit(MakeUpdateRequired);
     end;
 
-    local procedure ReadLines(var ExtTextHeader: Record "Extended Text Header"; DocDate: Date; LanguageCode: Code[10]) Result: Boolean
+    procedure ReadExtTextLines(var ExtTextHeader: Record "Extended Text Header"; DocDate: Date; LanguageCode: Code[10]) Result: Boolean
     var
         ExtTextLine: Record "Extended Text Line";
         IsHandled: Boolean;
@@ -612,7 +628,7 @@ codeunit 378 "Transfer Extended Text"
             end;
             ServHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
             OnServCheckIfAnyExtTextAutoText(ExtTextHeader, ServHeader, ServiceLine, Unconditionally, MakeUpdateRequired);
-            exit(ReadLines(ExtTextHeader, ServHeader."Order Date", ServHeader."Language Code"));
+            exit(ReadExtTextLines(ExtTextHeader, ServHeader."Order Date", ServHeader."Language Code"));
         end;
     end;
 

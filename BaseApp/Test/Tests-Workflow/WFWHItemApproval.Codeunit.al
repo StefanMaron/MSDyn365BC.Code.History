@@ -68,7 +68,7 @@ codeunit 134214 "WFWH Item Approval"
 
         // Verify
         WorkflowTableRelation.Get(
-          DATABASE::Item, DummyItem.FieldNo(Id),
+          DATABASE::Item, DummyItem.FieldNo(SystemId),
           DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
     end;
 
@@ -95,7 +95,7 @@ codeunit 134214 "WFWH Item Approval"
         SendItemForApproval(Item);
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Item.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(Item.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
     end;
 
     [Test]
@@ -124,13 +124,13 @@ codeunit 134214 "WFWH Item Approval"
         Commit();
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Item.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(Item.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
-        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Item.Id));
+        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Item.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Item.Id, DummyWorkflowWebhookEntry.Response::Continue);
+        VerifyWorkflowWebhookEntryResponse(Item.SystemId, DummyWorkflowWebhookEntry.Response::Continue);
     end;
 
     [Test]
@@ -159,13 +159,13 @@ codeunit 134214 "WFWH Item Approval"
         Commit();
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Item.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(Item.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
-        WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Item.Id));
+        WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Item.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Item.Id, DummyWorkflowWebhookEntry.Response::Cancel);
+        VerifyWorkflowWebhookEntryResponse(Item.SystemId, DummyWorkflowWebhookEntry.Response::Cancel);
     end;
 
     [Test]
@@ -194,13 +194,13 @@ codeunit 134214 "WFWH Item Approval"
         Commit();
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Item.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(Item.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
-        WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Item.Id));
+        WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Item.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Item.Id, DummyWorkflowWebhookEntry.Response::Reject);
+        VerifyWorkflowWebhookEntryResponse(Item.SystemId, DummyWorkflowWebhookEntry.Response::Reject);
     end;
 
     [Test]
@@ -230,7 +230,7 @@ codeunit 134214 "WFWH Item Approval"
         Commit();
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Item.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(Item.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise - Create a new item and delete it to reuse the item No.
         LibraryInventory.CreateItem(NewItem);
@@ -238,8 +238,8 @@ codeunit 134214 "WFWH Item Approval"
         Item.Rename(NewItem."No.");
 
         // Verify - Request is approved since approval entry renamed to point to same record
-        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Item.Id));
-        VerifyWorkflowWebhookEntryResponse(Item.Id, DummyWorkflowWebhookEntry.Response::Continue);
+        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Item.SystemId));
+        VerifyWorkflowWebhookEntryResponse(Item.SystemId, DummyWorkflowWebhookEntry.Response::Continue);
     end;
 
     [Test]
@@ -268,13 +268,13 @@ codeunit 134214 "WFWH Item Approval"
         Commit();
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Item.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(Item.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
         Item.Delete(true);
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(Item.Id, DummyWorkflowWebhookEntry.Response::Cancel);
+        VerifyWorkflowWebhookEntryResponse(Item.SystemId, DummyWorkflowWebhookEntry.Response::Cancel);
         WorkflowStepInstance.SetRange("Workflow Code", WorkflowCode);
         Assert.IsTrue(WorkflowStepInstance.IsEmpty, UnexpectedNoOfWorkflowStepInstancesErr);
     end;

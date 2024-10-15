@@ -535,7 +535,7 @@ codeunit 144037 "ERM Telebank"
 
         // Exercise and Verify.
         asserterror PostPurchaseInvAndGetEntriesOnTelebankProposal(
-          true, CompanyInformation.IBAN, CompanyInformation."SWIFT Code", CompanyInformation."Country/Region Code",
+            true, CompanyInformation.IBAN, CompanyInformation."SWIFT Code", CompanyInformation."Country/Region Code",
             CompanyInformation."Country/Region Code", CompanyInformation.City, GetCheckID(), TransactionMode.Order::Debit, '');
         Assert.ExpectedErrorCode('RecordNotFound');
         Assert.ExpectedError('The Freely Transferable Maximum does not exist');
@@ -558,9 +558,9 @@ codeunit 144037 "ERM Telebank"
 
         // Exercise and Verify.
         asserterror PostPurchaseInvAndGetEntriesOnTelebankProposal(
-          true, CompanyInformation.IBAN, CompanyInformation."SWIFT Code", CompanyInformation."Country/Region Code",
+            true, CompanyInformation.IBAN, CompanyInformation."SWIFT Code", CompanyInformation."Country/Region Code",
             CompanyInformation."Country/Region Code", CompanyInformation.City, GetCheckID(), TransactionMode.Order::Debit,
-          StrSubstNo(ErrorTxt, GeneralLedgerSetup.FieldCaption("Currency Euro")));
+            StrSubstNo(ErrorTxt, GeneralLedgerSetup.FieldCaption("Currency Euro")));
         Assert.ExpectedErrorCode('RecordNotFound');
         Assert.ExpectedError('The Freely Transferable Maximum does not exist');
     end;

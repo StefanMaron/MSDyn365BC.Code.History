@@ -62,11 +62,9 @@ table 99000880 "Order Promising Line"
             Caption = 'Required Quantity (Base)';
             DecimalPlaces = 0 : 5;
         }
-        field(20; "Source Type"; Option)
+        field(20; "Source Type"; Enum "Order Promising Line Source Type")
         {
             Caption = 'Source Type';
-            OptionCaption = ' ,Sales,Requisition Line,Purchase,Item Journal,BOM Journal,Item Ledger Entry,Prod. Order Line,Prod. Order Component,Planning Line,Planning Component,Transfer,Service Order,Job';
-            OptionMembers = " ",Sales,"Requisition Line",Purchase,"Item Journal","BOM Journal","Item Ledger Entry","Prod. Order Line","Prod. Order Component","Planning Line","Planning Component",Transfer,"Service Order",Job;
         }
         field(21; "Source Subtype"; Integer)
         {
@@ -207,7 +205,7 @@ table 99000880 "Order Promising Line"
     procedure TransferFromSalesLine(var SalesLine: Record "Sales Line")
     begin
         "Source Type" := "Source Type"::Sales;
-        "Source Subtype" := SalesLine."Document Type";
+        "Source Subtype" := SalesLine."Document Type".AsInteger();
         "Source ID" := SalesLine."Document No.";
         "Source Line No." := SalesLine."Line No.";
 
@@ -228,7 +226,7 @@ table 99000880 "Order Promising Line"
     procedure TransferFromServLine(var ServLine: Record "Service Line")
     begin
         "Source Type" := "Source Type"::"Service Order";
-        "Source Subtype" := ServLine."Document Type";
+        "Source Subtype" := ServLine."Document Type".AsInteger();
         "Source ID" := ServLine."Document No.";
         "Source Line No." := ServLine."Line No.";
 

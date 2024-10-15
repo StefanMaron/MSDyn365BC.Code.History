@@ -48,7 +48,7 @@ page 11404 "Cash Journal Subform"
                     trigger OnValidate()
                     begin
                         ShowShortcutDimCode(ShortcutDimCode);
-                        AccountNoOnAfterValidate;
+                        AccountNoOnAfterValidate();
                     end;
                 }
                 field("Applies-to Doc. Type"; "Applies-to Doc. Type")
@@ -351,7 +351,7 @@ page 11404 "Cash Journal Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }

@@ -248,7 +248,7 @@ page 11000008 "Payment History Line Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }

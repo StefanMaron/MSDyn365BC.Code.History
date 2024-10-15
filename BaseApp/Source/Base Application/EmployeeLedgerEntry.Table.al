@@ -351,7 +351,7 @@ table 5222 "Employee Ledger Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(11000000; "Transaction Mode Code"; Code[20])

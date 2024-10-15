@@ -95,7 +95,14 @@ table 850 "Cash Flow Manual Expense"
     end;
 
     trigger OnInsert()
+    var
+        BlankCashFlowAccount: Record "Cash Flow Account";
+        ExistingCashFlowManualExpense: Record "Cash Flow Manual Expense";
     begin
+        if Rec.Code = '' then
+            if ExistingCashFlowManualExpense.Get('') then
+                Error(CodeIsNotSetErr, BlankCashFlowAccount.TableCaption(), BlankCashFlowAccount.FieldCaption(BlankCashFlowAccount."Source Type"), BlankCashFlowAccount."Source Type"::"Cash Flow Manual Expense");
+
         DimMgt.UpdateDefaultDim(
           DATABASE::"Cash Flow Manual Expense", Code,
           "Global Dimension 1 Code", "Global Dimension 2 Code");
@@ -153,5 +160,8 @@ table 850 "Cash Flow Manual Expense"
     local procedure OnBeforeValidateShortcutDimCode(var CashFlowManualExpense: Record "Cash Flow Manual Expense"; var xCashFlowManualExpense: Record "Cash Flow Manual Expense"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
+
+    var
+        CodeIsNotSetErr: Label 'Cannot insert the line because no code value is set. Please verify that you have set up the %1 with the %2 set to %3.', Comment = '%1 is Cash Flow Account, %2 is Source Type, %3 is Cash Flow Manual Expense';
 }
 

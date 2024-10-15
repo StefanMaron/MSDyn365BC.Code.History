@@ -228,7 +228,7 @@ codeunit 134988 "ERM Purchase Reports III"
         SetupPurchaseDocWarning(PurchaseHeader."Document Type"::Order);
     end;
 
-    local procedure SetupPurchaseDocWarning(DocumentType: Option)
+    local procedure SetupPurchaseDocWarning(DocumentType: Enum "Purchase Document Type")
     begin
         // Create Purchase Document and Save Purchase Document Test Report.
         CreatePurchaseDocSaveReport('', DocumentType);
@@ -262,7 +262,7 @@ codeunit 134988 "ERM Purchase Reports III"
         SetupPurchaseDocNoWarning(PurchaseHeader."Document Type"::Order);
     end;
 
-    local procedure SetupPurchaseDocNoWarning(DocumentType: Option)
+    local procedure SetupPurchaseDocNoWarning(DocumentType: Enum "Purchase Document Type")
     begin
         // Create Purchase Document and Save Purchase Document Test Report.
         CreatePurchaseDocSaveReport(Format(LibraryRandom.RandInt(100)), DocumentType);
@@ -912,6 +912,7 @@ codeunit 134988 "ERM Purchase Reports III"
 
         // Setup: Create purchase credit memo
         Initialize;
+        UpdatePurchPayablesSetup(false);
         CreatePurchaseOrder(
           PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", '', LibraryInventory.CreateItem(Item), CreateVendor, '');
         for Counter := 1 to LibraryRandom.RandInt(5) do
@@ -1797,7 +1798,7 @@ codeunit 134988 "ERM Purchase Reports III"
         end;
     end;
 
-    local procedure AssignedQuantityOnPurchaseDocumentTestReport(DocumentType: Option)
+    local procedure AssignedQuantityOnPurchaseDocumentTestReport(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         TotalAssignedQuantityForChargeItem: Decimal;
@@ -1874,7 +1875,7 @@ codeunit 134988 "ERM Purchase Reports III"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreateAndSetupPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreateAndSetupPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -2013,7 +2014,7 @@ codeunit 134988 "ERM Purchase Reports III"
         exit(PurchaseHeader."No.");
     end;
 
-    local procedure CreateAndReleasePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; LocationCode: Code[10])
+    local procedure CreateAndReleasePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; LocationCode: Code[10])
     begin
         CreatePurchaseOrder(
           PurchaseHeader, DocumentType, '', LibraryInventory.CreateItemNo, CreateVendor, LocationCode);  // Blank value for Currency Code.
@@ -2039,7 +2040,7 @@ codeunit 134988 "ERM Purchase Reports III"
         exit(PurchInvHeader."Amount Including VAT");
     end;
 
-    local procedure CreatePurchaseDocSaveReport(VendorInvoiceNo: Code[20]; DocumentType: Option)
+    local procedure CreatePurchaseDocSaveReport(VendorInvoiceNo: Code[20]; DocumentType: Enum "Purchase Document Type")
     var
         Vendor: Record Vendor;
         PurchaseHeader: Record "Purchase Header";
@@ -2059,7 +2060,7 @@ codeunit 134988 "ERM Purchase Reports III"
         PurchaseDocumentTest.Run;
     end;
 
-    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; CurrencyCode: Code[10]; ItemNo: Code[20]; VendorNo: Code[20]; LocationCode: Code[10])
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; CurrencyCode: Code[10]; ItemNo: Code[20]; VendorNo: Code[20]; LocationCode: Code[10])
     begin
         // Create Purchase Document with Random Quantity and Direct Unit Cost for Item.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
@@ -2151,7 +2152,7 @@ codeunit 134988 "ERM Purchase Reports III"
         exit(Location.Code);
     end;
 
-    local procedure CreateGenJnlLineWithBalAccount(var GenJournalLine: Record "Gen. Journal Line"; DocType: Integer; AccountType: Integer; AccountNo: Code[20]; BalAccountType: Integer; BalAccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGenJnlLineWithBalAccount(var GenJournalLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -2162,14 +2163,14 @@ codeunit 134988 "ERM Purchase Reports III"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Quantity: Decimal)
+    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Quantity: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Quantity);
     end;
 
     [Scope('OnPrem')]
-    procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; CustomerNo: Code[20]; DocumentType: Option; AppliesToDocType: Option; AppliesToDocNo: Code[20]; Amount: Integer)
+    procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; Amount: Integer)
     var
         GLAccount: Record "G/L Account";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -2192,7 +2193,7 @@ codeunit 134988 "ERM Purchase Reports III"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; VendorInvoiceNo: Code[20]; DocumentType: Option; No: Code[20]): Decimal
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; VendorInvoiceNo: Code[20]; DocumentType: Enum "Purchase Document Type"; No: Code[20]): Decimal
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -2371,7 +2372,7 @@ codeunit 134988 "ERM Purchase Reports III"
         LibraryERM.ClearGenJournalLines(GenJournalBatch)
     end;
 
-    local procedure ApplyVendLedgerEntry(DocumentType: Option; VendorNo: Code[20])
+    local procedure ApplyVendLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20])
     var
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
@@ -2632,7 +2633,7 @@ codeunit 134988 "ERM Purchase Reports III"
         VendorInvoiceDisc.Modify(true);
     end;
 
-    local procedure UpdatePurchasePayablesSetup(DefaultPostingDate: Option)
+    local procedure UpdatePurchasePayablesSetup(DefaultPostingDate: Enum "Default Posting Date")
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
@@ -2851,7 +2852,7 @@ codeunit 134988 "ERM Purchase Reports III"
           VATEntry."Document Type"::"Credit Memo", DocumentNo, -1, 'VALVATAmountLCY', 'VALVATBaseLCY');
     end;
 
-    local procedure VerifyPurchaseReportVATAmount(DocumentType: Option; DocumentNo: Code[20]; Sign: Integer; VATAmountElementName: Text; VATBaseAmountElementName: Text)
+    local procedure VerifyPurchaseReportVATAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Sign: Integer; VATAmountElementName: Text; VATBaseAmountElementName: Text)
     var
         VATEntry: Record "VAT Entry";
     begin

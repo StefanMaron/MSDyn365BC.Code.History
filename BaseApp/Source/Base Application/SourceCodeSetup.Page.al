@@ -110,7 +110,7 @@ page 279 "Source Code Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code linked to entries that are posted from Consolidation.';
                 }
-            }
+             }
             group(Sales)
             {
                 Caption = 'Sales';

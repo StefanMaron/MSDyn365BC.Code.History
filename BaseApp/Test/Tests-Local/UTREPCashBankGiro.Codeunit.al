@@ -720,7 +720,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
         DetailLine.Modify();
     end;
 
-    local procedure UpdateCustLedgerEntryForCBGReport(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option; DocumentNo: Code[20]; Description: Text[100]; Open: Boolean; ExtDocumentNo: Code[35]; AppliesToID: Code[50]; DocumentDate: Date)
+    local procedure UpdateCustLedgerEntryForCBGReport(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Description: Text[100]; Open: Boolean; ExtDocumentNo: Code[35]; AppliesToID: Code[50]; DocumentDate: Date)
     begin
         CustLedgerEntry."Applies-to ID" := AppliesToID;
         CustLedgerEntry."Document Type" := DocumentType;
@@ -732,7 +732,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
         CustLedgerEntry.Modify();
     end;
 
-    local procedure UpdateVendorLedgerEntryForCBGReport(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; DocumentNo: Code[20]; Description: Text[100]; Open: Boolean; ExtDocumentNo: Code[35]; AppliesToID: Code[50]; DocumentDate: Date)
+    local procedure UpdateVendorLedgerEntryForCBGReport(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Description: Text[100]; Open: Boolean; ExtDocumentNo: Code[35]; AppliesToID: Code[50]; DocumentDate: Date)
     begin
         VendorLedgerEntry."Applies-to ID" := AppliesToID;
         VendorLedgerEntry."Document Type" := DocumentType;
@@ -744,7 +744,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
         VendorLedgerEntry.Modify();
     end;
 
-    local procedure UpdateEmplLedgerEntryForCBGReport(var EmployeeLedgerEntry: Record "Employee Ledger Entry"; DocumentType: Option; DocumentNo: Code[20]; Description: Text[100]; Open: Boolean; AppliesToID: Code[50]; DocumentDate: Date)
+    local procedure UpdateEmplLedgerEntryForCBGReport(var EmployeeLedgerEntry: Record "Employee Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Description: Text[100]; Open: Boolean; AppliesToID: Code[50]; DocumentDate: Date)
     begin
         EmployeeLedgerEntry."Applies-to ID" := AppliesToID;
         EmployeeLedgerEntry."Document Type" := DocumentType;

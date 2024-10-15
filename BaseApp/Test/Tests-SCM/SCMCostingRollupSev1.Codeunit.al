@@ -509,7 +509,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Costing Rollup Sev 1");
     end;
 
-    local procedure SetupProduction(var ParentItem: Record Item; var CompItem: Record Item; var ProdOrderLine: Record "Prod. Order Line"; LocationCode: Code[10]; ParentCostingMethod: Option; CompCostingMethod: Option; ProdOrderDate: Date; ProducedQty: Decimal; QtyPer: Decimal)
+    local procedure SetupProduction(var ParentItem: Record Item; var CompItem: Record Item; var ProdOrderLine: Record "Prod. Order Line"; LocationCode: Code[10]; ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method"; ProdOrderDate: Date; ProducedQty: Decimal; QtyPer: Decimal)
     var
         ProductionOrder: Record "Production Order";
         ProductionBOMHeader: Record "Production BOM Header";
@@ -834,7 +834,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
 
         // copy document functionality
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
-        CopyPurchaseDocument.InitializeRequest(2, PurchaseOrderNo, false, true);  // parameter 2 mean Order, report has own OptionCaption
+        CopyPurchaseDocument.SetParameters("Purchase Document Type From"::Order, PurchaseOrderNo, false, true);
         CopyPurchaseDocument.UseRequestPage(false);
         CopyPurchaseDocument.RunModal;
 

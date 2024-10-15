@@ -112,7 +112,7 @@ codeunit 144018 "ERM MISC"
         DeclarationFile.Close;
     end;
 
-    local procedure CreateAndPostServiceDocument(DocumentType: Option)
+    local procedure CreateAndPostServiceDocument(DocumentType: Enum "Service Document Type")
     var
         ServiceHeader: Record "Service Header";
     begin
@@ -427,7 +427,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure EmptyEntryExitPointInIntrastatFile()
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
@@ -462,7 +462,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure FilledEntryExitPointInIntrastatFile()
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
@@ -747,7 +747,7 @@ codeunit 144018 "ERM MISC"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Option; ItemNo: Code[20])
+    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; ItemNo: Code[20])
     var
         ServiceItem: Record "Service Item";
         ServiceItemLine: Record "Service Item Line";

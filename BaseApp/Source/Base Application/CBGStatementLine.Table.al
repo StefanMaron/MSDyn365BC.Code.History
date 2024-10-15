@@ -250,11 +250,9 @@ table 11401 "CBG Statement Line"
                 Validate(Amount, -Credit);
             end;
         }
-        field(17; "Applies-to Doc. Type"; Option)
+        field(17; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder;
         }
         field(18; "Applies-to Doc. No."; Code[20])
         {
@@ -450,7 +448,7 @@ table 11401 "CBG Statement Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -942,6 +940,14 @@ table 11401 "CBG Statement Line"
         if Correction then
             GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
 
+        GenJnlLine.Description := Description;
+        if "Applies-to Doc. No." <> '' then begin
+            GenJnlLine.Validate("Applies-to Doc. Type", "Applies-to Doc. Type");
+            GenJnlLine.Validate("Applies-to Doc. No.", "Applies-to Doc. No.");
+        end else
+            if "Applies-to ID" <> '' then
+                GenJnlLine.Validate("Applies-to ID", "Applies-to ID");
+
         if "Debit Incl. VAT" <> 0 then
             GenJnlLine.Validate("Debit Amount", "Debit Incl. VAT")
         else
@@ -953,11 +959,6 @@ table 11401 "CBG Statement Line"
             else
                 if ("Credit VAT" <> 0) and (-"Credit VAT" <> GenJnlLine."VAT Amount") then
                     GenJnlLine.Validate("VAT Amount", -"Credit VAT");
-
-        GenJnlLine.Description := Description;
-        GenJnlLine."Applies-to Doc. Type" := "Applies-to Doc. Type";
-        GenJnlLine."Applies-to Doc. No." := "Applies-to Doc. No.";
-        GenJnlLine."Applies-to ID" := "Applies-to ID";
     end;
 
     procedure ReadGenJournalLine(var GenJnlLine: Record "Gen. Journal Line")

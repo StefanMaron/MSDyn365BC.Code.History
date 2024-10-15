@@ -1532,7 +1532,7 @@ codeunit 144019 "UT TAB Post Code"
         PostCodeRange.Insert();
     end;
 
-    local procedure CreatePurchaseHeader(DocumentType: Option): Code[20]
+    local procedure CreatePurchaseHeader(DocumentType: Enum "Purchase Document Type"): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1552,7 +1552,7 @@ codeunit 144019 "UT TAB Post Code"
         exit(Resource."No.");
     end;
 
-    local procedure CreateServiceHeader(DocumentType: Option): Code[20]
+    local procedure CreateServiceHeader(DocumentType: Enum "Service Document Type"): Code[20]
     var
         ServiceHeader: Record "Service Header";
     begin
@@ -1591,7 +1591,7 @@ codeunit 144019 "UT TAB Post Code"
         exit(VendorBankAccount.Code);
     end;
 
-    local procedure CreateSalesHeader(Type: Option): Code[20]
+    local procedure CreateSalesHeader(Type: Enum "Sales Document Type"): Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin

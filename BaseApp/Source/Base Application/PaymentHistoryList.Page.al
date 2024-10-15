@@ -192,7 +192,7 @@ page 11000007 "Payment History List"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }

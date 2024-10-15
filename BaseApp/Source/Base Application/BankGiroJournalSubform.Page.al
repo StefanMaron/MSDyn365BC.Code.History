@@ -360,7 +360,7 @@ page 11401 "Bank/Giro Journal Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(ShowStatementLineDetails)

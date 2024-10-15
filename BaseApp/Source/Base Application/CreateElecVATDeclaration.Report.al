@@ -287,7 +287,9 @@ report 11403 "Create Elec. VAT Declaration"
         VATStatementLine.SetRange("Date Filter",
           "Elec. Tax Declaration Header"."Declaration Period From Date", "Elec. Tax Declaration Header"."Declaration Period To Date");
         VATStatement.SetElectronicVAT(true);
-        VATStatement.InitializeRequest(VATStatementName, VATStatementLine, 0, 1, true, false);
+        VATStatement.InitializeRequest(
+          VATStatementName, VATStatementLine, "VAT Statement Report Selection"::Open,
+          "VAT Statement Report Period Selection"::"Within Period", true, false);
         VATStatement.CalcLineTotal(VATStatementLine, Value, 0);
 
         if VATStatementLine."Print with" = VATStatementLine."Print with"::"Opposite Sign" then

@@ -119,11 +119,9 @@ table 753 "Standard Item Journal Line"
                   DATABASE::"Work Center", "Work Center No.");
             end;
         }
-        field(5; "Entry Type"; Option)
+        field(5; "Entry Type"; Enum "Item Ledger Entry Type")
         {
             Caption = 'Entry Type';
-            OptionCaption = 'Purchase,Sale,Positive Adjmt.,Negative Adjmt.,Transfer,Consumption,Output, ,Assembly Consumption,Assembly Output';
-            OptionMembers = Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output," ","Assembly Consumption","Assembly Output";
 
             trigger OnValidate()
             begin
@@ -478,7 +476,7 @@ table 753 "Standard Item Journal Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -622,11 +620,9 @@ table 753 "Standard Item Journal Line"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
-        field(5800; "Value Entry Type"; Option)
+        field(5800; "Value Entry Type"; Enum "Cost Entry Type")
         {
             Caption = 'Value Entry Type';
-            OptionCaption = 'Direct Cost,Revaluation,Rounding,Indirect Cost,Variance';
-            OptionMembers = "Direct Cost",Revaluation,Rounding,"Indirect Cost",Variance;
         }
         field(5801; "Item Charge No."; Code[20])
         {
@@ -729,11 +725,20 @@ table 753 "Standard Item Journal Line"
 
     local procedure GetPriceCalculationHandler(PriceType: Enum "Price Type"; var PriceCalculation: Interface "Price Calculation")
     var
-        PriceCalculationMgt: codeunit "Price Calculation Mgt.";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        GetLineWithPrice(LineWithPrice);
+        LineWithPrice.SetLine(PriceType, Rec);
+        PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
+    end;
+
+    procedure GetLineWithPrice(var LineWithPrice: Interface "Line With Price")
+    var
         StdItemJournalLinePrice: Codeunit "Std. Item Jnl. Line - Price";
     begin
-        StdItemJournalLinePrice.SetLine(PriceType, Rec);
-        PriceCalculationMgt.GetHandler(StdItemJournalLinePrice, PriceCalculation);
+        LineWithPrice := StdItemJournalLinePrice;
+        OnAfterGetLineWithPrice(LineWithPrice);
     end;
 
     local procedure ApplyPrice(PriceType: Enum "Price Type"; CalledByFieldNo: Integer)
@@ -899,6 +904,11 @@ table 753 "Standard Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var StandardItemJournalLine: Record "Standard Item Journal Line"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetLineWithPrice(var LineWithPrice: Interface "Line With Price")
     begin
     end;
 

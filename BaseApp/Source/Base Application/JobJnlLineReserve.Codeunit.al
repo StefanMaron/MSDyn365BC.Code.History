@@ -69,7 +69,7 @@ codeunit 99000844 "Job Jnl. Line-Reserve"
                (not ReservMgt.CalcIsAvailTrackedQtyInBin(
                   NewJobJnlLine."No.", NewJobJnlLine."Bin Code",
                   NewJobJnlLine."Location Code", NewJobJnlLine."Variant Code",
-                  DATABASE::"Job Journal Line", NewJobJnlLine."Entry Type",
+                  DATABASE::"Job Journal Line", NewJobJnlLine."Entry Type".AsInteger(),
                   NewJobJnlLine."Journal Template Name", NewJobJnlLine."Journal Batch Name", 0, NewJobJnlLine."Line No."))
             then begin
                 if ShowError then
@@ -139,12 +139,12 @@ codeunit 99000844 "Job Jnl. Line-Reserve"
     procedure RenameLine(var NewJobJnlLine: Record "Job Journal Line"; var OldJobJnlLine: Record "Job Journal Line")
     begin
         ReservEngineMgt.RenamePointer(DATABASE::"Job Journal Line",
-          OldJobJnlLine."Entry Type",
+          OldJobJnlLine."Entry Type".AsInteger(),
           OldJobJnlLine."Journal Template Name",
           OldJobJnlLine."Journal Batch Name",
           0,
           OldJobJnlLine."Line No.",
-          NewJobJnlLine."Entry Type",
+          NewJobJnlLine."Entry Type".AsInteger(),
           NewJobJnlLine."Journal Template Name",
           NewJobJnlLine."Journal Batch Name",
           0,
@@ -209,7 +209,7 @@ codeunit 99000844 "Job Jnl. Line-Reserve"
                 OldReservEntry.TestItemFields(JobJnlLine."No.", JobJnlLine."Variant Code", JobJnlLine."Location Code");
 
                 TransferQty := CreateReservEntry.TransferReservEntry(DATABASE::"Item Journal Line",
-                    ItemJnlLine."Entry Type", ItemJnlLine."Journal Template Name",
+                    ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name",
                     ItemJnlLine."Journal Batch Name", 0, ItemJnlLine."Line No.",
                     ItemJnlLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
 

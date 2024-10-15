@@ -120,7 +120,7 @@ codeunit 144004 "UT REP Audit"
         VATRegNoError(CreateVendor, GLEntry."Source Type"::Vendor, LibraryRandom.RandInt(100), 0);  // Using Random for Debit Amount.
     end;
 
-    local procedure VATRegNoError(SourceNo: Code[20]; SourceType: Option; CrAmount: Decimal; DrAmount: Decimal)
+    local procedure VATRegNoError(SourceNo: Code[20]; SourceType: Enum "Gen. Journal Source Type"; CrAmount: Decimal; DrAmount: Decimal)
     begin
         // Setup: Create GL Entry with Customer/Vendor Vat Registration No more than 15 characters.
         CreateGLEntry(SourceNo, SourceType, CrAmount, DrAmount);
@@ -255,7 +255,7 @@ codeunit 144004 "UT REP Audit"
         exit(Customer."No.");
     end;
 
-    local procedure CreateGLEntry(SourceNo: Code[20]; SourceType: Option; CrAmount: Decimal; DrAmount: Decimal)
+    local procedure CreateGLEntry(SourceNo: Code[20]; SourceType: Enum "Gen. Journal Source Type"; CrAmount: Decimal; DrAmount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin

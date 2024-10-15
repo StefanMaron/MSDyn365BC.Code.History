@@ -127,7 +127,7 @@ codeunit 144034 "UT PAG EASINPPINV"
         LibraryPurchase.DisableWarningOnCloseUnpostedDoc;
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     begin
         PurchaseHeader."Document Type" := DocumentType;
         PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
@@ -135,7 +135,7 @@ codeunit 144034 "UT PAG EASINPPINV"
         PurchaseHeader.Insert();
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type")
     begin
         CreatePurchaseHeader(PurchaseHeader, DocumentType);
         PurchaseLine."Document Type" := PurchaseHeader."Document Type";

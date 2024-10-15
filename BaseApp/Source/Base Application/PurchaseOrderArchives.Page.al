@@ -260,7 +260,7 @@ page 9347 "Purchase Order Archives"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Co&mments")

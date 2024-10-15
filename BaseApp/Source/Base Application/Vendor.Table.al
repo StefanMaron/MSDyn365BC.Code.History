@@ -1,4 +1,4 @@
-﻿table 23 Vendor
+table 23 Vendor
 {
     Caption = 'Vendor';
     DataCaptionFields = "No.", Name;
@@ -6,6 +6,8 @@
     LookupPageID = "Vendor Lookup";
     Permissions = TableData "Vendor Ledger Entry" = r,
                   TableData "Service Item" = rm,
+                  TableData "Price List Header" = rd,
+                  TableData "Price List Line" = rd,
                   TableData "Purchase Price" = rd,
                   TableData "Purchase Line Discount" = rd;
 
@@ -270,11 +272,9 @@
             Editable = false;
             FieldClass = FlowField;
         }
-        field(39; Blocked; Option)
+        field(39; Blocked; Enum "Vendor Blocked")
         {
             Caption = 'Blocked';
-            OptionCaption = ' ,Payment,All';
-            OptionMembers = " ",Payment,All;
 
             trigger OnValidate()
             begin
@@ -634,7 +634,8 @@
                 if ApplicableCountryCode = '' then
                     ApplicableCountryCode := VATRegNoFormat."Country/Region Code";
                 if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
-                    VATRegistrationLogMgt.ValidateVATRegNoWithVIES(ResultRecordRef, Rec, "No.", VATRegistrationLog."Account Type"::Vendor, ApplicableCountryCode);
+                    VATRegistrationLogMgt.ValidateVATRegNoWithVIES(
+                        ResultRecordRef, Rec, "No.", VATRegistrationLog."Account Type"::Vendor.AsInteger(), ApplicableCountryCode);
                     ResultRecordRef.SetTable(Rec);
                 end;
             end;
@@ -1034,18 +1035,16 @@
             Caption = 'Buy-from No. Of Archived Doc.';
             FieldClass = FlowField;
         }
-        field(132; "Partner Type"; Option)
+        field(132; "Partner Type"; Enum "Partner Type")
         {
             Caption = 'Partner Type';
-            OptionCaption = ' ,Company,Person';
-            OptionMembers = " ",Company,Person;
 
             trigger OnValidate()
             var
                 AccountType: Option Customer,Vendor,Employee;
                 TransactionMode: Record "Transaction Mode";
             begin
-                if not TransactionMode.CheckTransModePartnerType(AccountType::Vendor, "Transaction Mode Code", "Partner Type") then
+                if not TransactionMode.CheckTransactionModePartnerType(AccountType::Vendor, "Transaction Mode Code", "Partner Type") then
                     if not Confirm(PartnerTypeMismatchMsg, false) then
                         Error('')
             end;
@@ -1139,6 +1138,22 @@
                 end;
             end;
         }
+        field(5061; "Mobile Phone No."; Text[30])
+        {
+            Caption = 'Mobile Phone No.';
+            ExtendedDatatype = PhoneNo;
+
+            trigger OnValidate()
+            var
+                Char: DotNet Char;
+                i: Integer;
+            begin
+                for i := 1 to StrLen("Mobile Phone No.") do
+                    if Char.IsLetter("Mobile Phone No."[i]) then
+                        FieldError("Mobile Phone No.", PhoneNoCannotContainLettersErr);
+            end;
+        }
+
         field(5700; "Responsibility Center"; Code[10])
         {
             Caption = 'Responsibility Center';
@@ -1366,7 +1381,7 @@
         field(8001; "Currency Id"; Guid)
         {
             Caption = 'Currency Id';
-            TableRelation = Currency.Id;
+            TableRelation = Currency.SystemId;
 
             trigger OnValidate()
             begin
@@ -1376,7 +1391,7 @@
         field(8002; "Payment Terms Id"; Guid)
         {
             Caption = 'Payment Terms Id';
-            TableRelation = "Payment Terms".Id;
+            TableRelation = "Payment Terms".SystemId;
 
             trigger OnValidate()
             begin
@@ -1386,7 +1401,7 @@
         field(8003; "Payment Method Id"; Guid)
         {
             Caption = 'Payment Method Id';
-            TableRelation = "Payment Method".Id;
+            TableRelation = "Payment Method".SystemId;
 
             trigger OnValidate()
             begin
@@ -1463,6 +1478,9 @@
         key(Key14; Blocked)
         {
         }
+        key(Key15; SystemModifiedAt)
+        {
+        }
     }
 
     fieldgroups
@@ -1501,12 +1519,6 @@
         OrderAddr.SetRange("Vendor No.", "No.");
         if not OrderAddr.IsEmpty then
             OrderAddr.DeleteAll();
-
-        ItemCrossReference.SetCurrentKey("Cross-Reference Type", "Cross-Reference Type No.");
-        ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Vendor);
-        ItemCrossReference.SetRange("Cross-Reference Type No.", "No.");
-        if not ItemCrossReference.IsEmpty then
-            ItemCrossReference.DeleteAll();
 
         PurchOrderLine.SetCurrentKey("Document Type", "Pay-to Vendor No.");
         PurchOrderLine.SetRange("Pay-to Vendor No.", "No.");
@@ -1594,7 +1606,7 @@
         SetLastModifiedDateTime;
 
         if IsContactUpdateNeeded then begin
-            if not TransactionMode.CheckTransModePartnerType(AccountType::Vendor, "Transaction Mode Code", "Partner Type") then
+            if not TransactionMode.CheckTransactionModePartnerType(AccountType::Vendor, "Transaction Mode Code", "Partner Type") then
                 Error(PartnerTypeMismatchErr);
             Modify;
             UpdateContFromVend.OnModify(Rec);
@@ -1625,7 +1637,6 @@
         VendBankAcc: Record "Vendor Bank Account";
         OrderAddr: Record "Order Address";
         GenBusPostingGrp: Record "Gen. Business Posting Group";
-        ItemCrossReference: Record "Item Cross Reference";
         RMSetup: Record "Marketing Setup";
         ServiceItem: Record "Service Item";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
@@ -1742,7 +1753,7 @@
     var
         Source: Option Journal,Document;
     begin
-        if IsOnBeforeCheckBlockedVendHandled(Vend2, Source::Document, 0, Transaction) then
+        if IsOnBeforeCheckBlockedVendHandled(Vend2, Source::Document, "Gen. Journal Document Type"::" ", Transaction) then
             exit;
 
         if Vend2."Privacy Blocked" then
@@ -1752,11 +1763,11 @@
             VendBlockedErrorMessage(Vend2, Transaction);
     end;
 
-    procedure CheckBlockedVendOnJnls(Vend2: Record Vendor; DocType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund; Transaction: Boolean)
+    procedure CheckBlockedVendOnJnls(Vend2: Record Vendor; DocType: Enum "Gen. Journal Document Type"; Transaction: Boolean)
     var
         Source: Option Journal,Document;
     begin
-        if IsOnBeforeCheckBlockedVendHandled(Vend2, Source::Journal, 0, Transaction) then
+        if IsOnBeforeCheckBlockedVendHandled(Vend2, Source::Journal, DocType::" ", Transaction) then
             exit;
 
         with Vend2 do begin
@@ -1867,8 +1878,11 @@
     var
         IsHandled: Boolean;
     begin
-        if not GuiAllowed then
+        IsHandled := false;
+        OnBeforeUpdateVendorBankAccounts(IsHandled);
+        if not GuiAllowed or IsHandled then
             exit;
+
         VendBankAcc.SetRange("Vendor No.", "No.");
         if VendBankAcc.Find('-') then begin
             IsHandled := false;
@@ -2114,6 +2128,11 @@
         exit(Vendor."No.");
     end;
 
+    procedure SelectVendor(var Vendor: Record Vendor): Boolean
+    begin
+        exit(LookupVendor(Vendor));
+    end;
+
     [Scope('OnPrem')]
     procedure LookupVendor(var Vendor: Record Vendor): Boolean
     var
@@ -2172,6 +2191,7 @@
           ("Address 2" <> xRec."Address 2") or
           (City <> xRec.City) or
           ("Phone No." <> xRec."Phone No.") or
+          ("Mobile Phone No." <> xRec."Mobile Phone No.") or
           ("Telex No." <> xRec."Telex No.") or
           ("Territory Code" <> xRec."Territory Code") or
           ("Currency Code" <> xRec."Currency Code") or
@@ -2263,8 +2283,8 @@
         if ApplicableCountryCode = '' then
             ApplicableCountryCode := VATRegistrationNoFormat."Country/Region Code";
         if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
-            VATRegistrationLogMgt.ValidateVATRegNoWithVIES(ResultRecordRef, Rec, "No.",
-              VATRegistrationLog."Account Type"::Vendor, ApplicableCountryCode);
+            VATRegistrationLogMgt.ValidateVATRegNoWithVIES(
+                ResultRecordRef, Rec, "No.", VATRegistrationLog."Account Type"::Vendor.AsInteger(), ApplicableCountryCode);
             ResultRecordRef.SetTable(Rec);
         end;
     end;
@@ -2281,7 +2301,7 @@
         if not Currency.Get("Currency Code") then
             exit;
 
-        "Currency Id" := Currency.Id;
+        "Currency Id" := Currency.SystemId;
     end;
 
     procedure UpdatePaymentTermsId()
@@ -2296,7 +2316,7 @@
         if not PaymentTerms.Get("Payment Terms Code") then
             exit;
 
-        "Payment Terms Id" := PaymentTerms.Id;
+        "Payment Terms Id" := PaymentTerms.SystemId;
     end;
 
     procedure UpdatePaymentMethodId()
@@ -2311,17 +2331,15 @@
         if not PaymentMethod.Get("Payment Method Code") then
             exit;
 
-        "Payment Method Id" := PaymentMethod.Id;
+        "Payment Method Id" := PaymentMethod.SystemId;
     end;
 
     local procedure UpdateCurrencyCode()
     var
         Currency: Record Currency;
     begin
-        if not IsNullGuid("Currency Id") then begin
-            Currency.SetRange(Id, "Currency Id");
-            Currency.FindFirst;
-        end;
+        if not IsNullGuid("Currency Id") then
+            Currency.GetBySystemId("Currency Id");
 
         Validate("Currency Code", Currency.Code);
     end;
@@ -2330,10 +2348,8 @@
     var
         PaymentTerms: Record "Payment Terms";
     begin
-        if not IsNullGuid("Payment Terms Id") then begin
-            PaymentTerms.SetRange(Id, "Payment Terms Id");
-            PaymentTerms.FindFirst;
-        end;
+        if not IsNullGuid("Payment Terms Id") then
+            PaymentTerms.GetBySystemId("Payment Terms Id");
 
         Validate("Payment Terms Code", PaymentTerms.Code);
     end;
@@ -2342,10 +2358,8 @@
     var
         PaymentMethod: Record "Payment Method";
     begin
-        if not IsNullGuid("Payment Method Id") then begin
-            PaymentMethod.SetRange(Id, "Payment Method Id");
-            PaymentMethod.FindFirst;
-        end;
+        if not IsNullGuid("Payment Method Id") then
+            PaymentMethod.GetBySystemId("Payment Method Id");
 
         Validate("Payment Method Code", PaymentMethod.Code);
     end;
@@ -2402,9 +2416,9 @@
     begin
     end;
 
-    local procedure IsOnBeforeCheckBlockedVendHandled(Vendor: Record Vendor; Source: Option Journal,Document; DocType: Option; Transaction: Boolean) IsHandled: Boolean
+    local procedure IsOnBeforeCheckBlockedVendHandled(Vendor: Record Vendor; Source: Option Journal,Document; DocType: Enum "Gen. Journal Document Type"; Transaction: Boolean) IsHandled: Boolean
     begin
-        OnBeforeCheckBlockedVend(Vendor, Source, DocType, Transaction, IsHandled)
+        OnBeforeCheckBlockedVend(Vendor, Source, DocType.AsInteger(), Transaction, IsHandled)
     end;
 
     [IntegrationEvent(false, false)]
@@ -2512,6 +2526,11 @@
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     [IntegrationEvent(false, false)]
     local procedure OnValidatePricesIncludingVATOnAfterGetVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeUpdateVendorBankAccounts(var IsHandled: Boolean)
     begin
     end;
 }

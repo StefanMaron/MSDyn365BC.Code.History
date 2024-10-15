@@ -426,7 +426,7 @@ codeunit 144049 "UT REP EVAT"
           ElecTaxDeclarationSetup."ICP Contact Type"::Agent, ElecTaxDeclarationHeader."Declaration Period"::Year, true, false, true);  // PartOfFiscalEntity, EUService as True and EU3PartyTrade as False.
     end;
 
-    local procedure CreateElectronicTaxDeclaration(ICPContactType: Option; DeclarationPeriod: Option; PartOfFiscalEntity: Boolean; EU3PartyTrade: Boolean; EUService: Boolean)
+    local procedure CreateElectronicTaxDeclaration(ICPContactType: Option; DeclarationPeriod: Enum "Elec. Tax Declaration Period"; PartOfFiscalEntity: Boolean; EU3PartyTrade: Boolean; EUService: Boolean)
     var
         ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header";
         ElecTaxDeclarationLine: Record "Elec. Tax Declaration Line";
@@ -1349,7 +1349,7 @@ codeunit 144049 "UT REP EVAT"
         LibraryVariableStorage.Enqueue(VATStatementLine."Statement Name");  // Enqueue value for CreateElecVATDeclarationRequestPageHandler.
     end;
 
-    local procedure CreateElecTaxDeclarationHeader(DeclarationPeriod: Option; DeclarationType: Option): Code[20]
+    local procedure CreateElecTaxDeclarationHeader(DeclarationPeriod: Enum "Elec. Tax Declaration Period"; DeclarationType: Option): Code[20]
     var
         ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header";
     begin
@@ -1410,7 +1410,7 @@ codeunit 144049 "UT REP EVAT"
           VATStatementLine."Gen. Posting Type"::" ");
     end;
 
-    local procedure InsertVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; CategoryCode: Code[10]; AmountType: Option; Type: Option; GenPostingType: Option)
+    local procedure InsertVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; CategoryCode: Code[10]; AmountType: Enum "VAT Statement Line Amount Type"; Type: Enum "VAT Statement Line Type"; GenPostingType: Enum "General Posting Type")
     var
         VATStatementTemplate: Record "VAT Statement Template";
         VATStatementName: Record "VAT Statement Name";
@@ -1462,7 +1462,7 @@ codeunit 144049 "UT REP EVAT"
         ElecTaxDeclarationSetup.Modify();
     end;
 
-    local procedure ModifyElecTaxDeclarationSetupAndCreateVATEntry(ICPContactType: Option; DeclarationPeriod: Option; PartOfFiscalEntity: Boolean; EU3PartyTrade: Boolean; EUService: Boolean) No: Code[20]
+    local procedure ModifyElecTaxDeclarationSetupAndCreateVATEntry(ICPContactType: Option; DeclarationPeriod: Enum "Elec. Tax Declaration Period"; PartOfFiscalEntity: Boolean; EU3PartyTrade: Boolean; EUService: Boolean) No: Code[20]
     var
         ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header";
         ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";

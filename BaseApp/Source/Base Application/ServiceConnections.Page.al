@@ -48,6 +48,9 @@ page 1279 "Service Connections"
                 Caption = 'Setup';
                 Enabled = SetupActive;
                 Image = Setup;
+                Promoted = true;
+                PromotedOnly = true;
+                PromotedCategory = Process;
                 Scope = Repeater;
                 ShortCutKey = 'Return';
                 ToolTip = 'Get a connection to a service up and running or manage an connection that is already working.';
@@ -114,13 +117,16 @@ page 1279 "Service Connections"
             AssistedSetup.Run("Assisted Setup Page ID")
         else begin
             CurrentRecordId := "Record ID";
+
             if CurrentRecordId = DummyRecordID then
-                PAGE.RunModal("Page ID")
-            else begin
-                RecordRef.Get("Record ID");
-                RecordRefVariant := RecordRef;
-                PAGE.RunModal("Page ID", RecordRefVariant);
-            end;
+                Page.RunModal("Page ID")
+            else
+                if not RecordRef.Get("Record ID") then
+                    Page.RunModal("Page ID")
+                else begin
+                    RecordRefVariant := RecordRef;
+                    Page.RunModal("Page ID", RecordRefVariant);
+                end;
         end;
         ReloadServiceConnections;
         if Get(xRec."No.") then;

@@ -71,7 +71,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
     begin
         // [SCENARIO] Post Purchase Invoice with wrong Document Amount Including VAT.
         Initialize;
-        PostPurchDocWithWrongDocAmountInclVAT(PurchaseHeader."Document Type"::Invoice);
+        PostPurchDocWithWrongDocAmountInclVAT("Purchase Document Type"::Invoice);
     end;
 
     [Test]
@@ -82,10 +82,10 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
     begin
         // [SCENARIO] Post Purchase Credit Memo with wrong Document Amount Including VAT.
         Initialize;
-        PostPurchDocWithWrongDocAmountInclVAT(PurchaseHeader."Document Type"::"Credit Memo");
+        PostPurchDocWithWrongDocAmountInclVAT("Purchase Document Type"::"Credit Memo");
     end;
 
-    local procedure PostPurchDocWithWrongDocAmountInclVAT(DocumentType: Option)
+    local procedure PostPurchDocWithWrongDocAmountInclVAT(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -153,7 +153,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
     begin
         // [SCENARIO] Purchase Invoice with multiple lines for different Items having different VAT %.
         Initialize;
-        PurchDocWithDiffItemsMultipleLinesDocAmountInclVAT(PurchaseHeader."Document Type"::Invoice);
+        PurchDocWithDiffItemsMultipleLinesDocAmountInclVAT("Purchase Document Type"::Invoice);
     end;
 
     [Test]
@@ -164,10 +164,10 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
     begin
         // [SCENARIO] Purchase Credit Memo with multiple lines for different Items having different VAT %.
         Initialize;
-        PurchDocWithDiffItemsMultipleLinesDocAmountInclVAT(PurchaseHeader."Document Type"::"Credit Memo");
+        PurchDocWithDiffItemsMultipleLinesDocAmountInclVAT("Purchase Document Type"::"Credit Memo");
     end;
 
-    local procedure PurchDocWithDiffItemsMultipleLinesDocAmountInclVAT(DocumentType: Option)
+    local procedure PurchDocWithDiffItemsMultipleLinesDocAmountInclVAT(DocumentType: Enum "Purchase Document Type")
     var
         Item: Record Item;
         PurchaseHeader: Record "Purchase Header";
@@ -203,7 +203,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
     begin
         // [SCENARIO] Purchase Invoice with multiple lines for same Item.
         Initialize;
-        PurchDocWithMultipleLinesDocAmountInclVAT(PurchaseHeader."Document Type"::Invoice);
+        PurchDocWithMultipleLinesDocAmountInclVAT("Purchase Document Type"::Invoice);
     end;
 
     [Test]
@@ -214,7 +214,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
     begin
         // [SCENARIO] Purchase Credit Memo with multiple lines for same Item.
         Initialize;
-        PurchDocWithMultipleLinesDocAmountInclVAT(PurchaseHeader."Document Type"::"Credit Memo");
+        PurchDocWithMultipleLinesDocAmountInclVAT("Purchase Document Type"::"Credit Memo");
     end;
 
     [Test]
@@ -258,7 +258,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purchase Doc. Amounts");
     end;
 
-    local procedure PurchDocWithMultipleLinesDocAmountInclVAT(DocumentType: Option)
+    local procedure PurchDocWithMultipleLinesDocAmountInclVAT(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -291,7 +291,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         Item.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option)
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         Vendor: Record Vendor;

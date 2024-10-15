@@ -463,7 +463,7 @@ report 11000000 "Get Proposal Entries"
         NumberOfWarnings: Integer;
         "Value Date": Date;
         PmtDiscExpiryDate: Date;
-        PartnerType: Option " ",Company,Person;
+        PartnerType: Enum "Partner Type";
         EmployeeNoMsg: Label 'Employee No. %1', Comment = '%1=Employee number;';
 
     local procedure FillDescription()

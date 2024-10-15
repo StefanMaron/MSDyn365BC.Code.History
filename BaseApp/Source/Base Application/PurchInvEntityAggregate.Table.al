@@ -175,7 +175,7 @@ table 5477 "Purch. Inv. Entity Aggregate"
         }
         field(56; "Recalculate Invoice Disc."; Boolean)
         {
-            CalcFormula = Exist ("Purchase Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("Purchase Line" WHERE("Document Type" = FIELD("Document Type"),
                                                        "Document No." = FIELD("No."),
                                                        "Recalculate Invoice Disc." = CONST(true)));
             Caption = 'Recalculate Invoice Disc.';
@@ -341,12 +341,10 @@ table 5477 "Purch. Inv. Entity Aggregate"
             Caption = 'Total Tax Amount';
             DataClassification = CustomerContent;
         }
-        field(9601; Status; Option)
+        field(9601; Status; Enum "Invoice Entity Aggregate Status")
         {
             Caption = 'Status';
             DataClassification = CustomerContent;
-            OptionCaption = ' ,Draft,In Review,Open,Paid,Canceled,Corrective', Locked = true;
-            OptionMembers = " ",Draft,"In Review",Open,Paid,Canceled,Corrective;
         }
         field(9602; Posted; Boolean)
         {
@@ -368,7 +366,7 @@ table 5477 "Purch. Inv. Entity Aggregate"
         {
             Caption = 'Vendor Id';
             DataClassification = SystemMetadata;
-            TableRelation = Vendor.Id;
+            TableRelation = Vendor.SystemId;
 
             trigger OnValidate()
             begin
@@ -389,7 +387,7 @@ table 5477 "Purch. Inv. Entity Aggregate"
         {
             Caption = 'Currency Id';
             DataClassification = SystemMetadata;
-            TableRelation = Currency.Id;
+            TableRelation = Currency.SystemId;
 
             trigger OnValidate()
             begin
@@ -400,7 +398,7 @@ table 5477 "Purch. Inv. Entity Aggregate"
         {
             Caption = 'Pay-to Vendor Id';
             DataClassification = SystemMetadata;
-            TableRelation = Vendor.Id;
+            TableRelation = Vendor.SystemId;
 
             trigger OnValidate()
             begin
@@ -463,8 +461,7 @@ table 5477 "Purch. Inv. Entity Aggregate"
         if IsNullGuid("Vendor Id") then
             exit;
 
-        Vendor.SetRange(Id, "Vendor Id");
-        if not Vendor.FindFirst then
+        if not Vendor.GetBySystemId("Vendor Id") then
             exit;
 
         "Buy-from Vendor No." := Vendor."No.";
@@ -477,8 +474,7 @@ table 5477 "Purch. Inv. Entity Aggregate"
         if IsNullGuid("Pay-to Vendor Id") then
             exit;
 
-        Vendor.SetRange(Id, "Pay-to Vendor Id");
-        if not Vendor.FindFirst then
+        if not Vendor.GetBySystemId("Pay-to Vendor Id") then
             exit;
 
         "Pay-to Vendor No." := Vendor."No.";
@@ -496,7 +492,7 @@ table 5477 "Purch. Inv. Entity Aggregate"
         if not Vendor.Get("Buy-from Vendor No.") then
             exit;
 
-        "Vendor Id" := Vendor.Id;
+        "Vendor Id" := Vendor.SystemId;
     end;
 
     local procedure UpdatePayToVendorId()
@@ -511,7 +507,7 @@ table 5477 "Purch. Inv. Entity Aggregate"
         if not Vendor.Get("Pay-to Vendor No.") then
             exit;
 
-        "Pay-to Vendor Id" := Vendor.Id;
+        "Pay-to Vendor Id" := Vendor.SystemId;
     end;
 
     local procedure UpdateOrderNo()
@@ -521,9 +517,7 @@ table 5477 "Purch. Inv. Entity Aggregate"
         if IsNullGuid("Order Id") then
             exit;
 
-        PurchaseHeader.SetRange(Id, "Order Id");
-        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
-        if not PurchaseHeader.FindFirst then
+        if not PurchaseHeader.GetBySystemId("Order Id") then
             exit;
 
         "Order No." := PurchaseHeader."No.";
@@ -536,17 +530,15 @@ table 5477 "Purch. Inv. Entity Aggregate"
         if not PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, "Order No.") then
             exit;
 
-        "Order Id" := PurchaseHeader.Id;
+        "Order Id" := PurchaseHeader.SystemId;
     end;
 
     local procedure UpdateCurrencyCode()
     var
         Currency: Record Currency;
     begin
-        if not IsNullGuid("Currency Id") then begin
-            Currency.SetRange(Id, "Currency Id");
-            Currency.FindFirst;
-        end;
+        if not IsNullGuid("Currency Id") then
+            Currency.GetBySystemId("Currency Id");
 
         Validate("Currency Code", Currency.Code);
     end;
@@ -563,7 +555,7 @@ table 5477 "Purch. Inv. Entity Aggregate"
         if not Currency.Get("Currency Code") then
             exit;
 
-        "Currency Id" := Currency.Id;
+        "Currency Id" := Currency.SystemId;
     end;
 
     procedure UpdateReferencedRecordIds()

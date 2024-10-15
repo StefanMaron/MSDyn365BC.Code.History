@@ -226,7 +226,7 @@ page 11000006 "Payment History Line Overview"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }

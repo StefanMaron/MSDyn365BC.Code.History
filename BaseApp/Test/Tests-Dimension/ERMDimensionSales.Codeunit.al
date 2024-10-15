@@ -1066,7 +1066,7 @@ codeunit 134475 "ERM Dimension Sales"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Dimension Sales");
     end;
 
-    local procedure ApplyAndPostCustomerEntry(DocumentNo: Code[20]; AmountToApply: Decimal; DocumentType: Option)
+    local procedure ApplyAndPostCustomerEntry(DocumentNo: Code[20]; AmountToApply: Decimal; DocumentType: Enum "Gen. Journal Document Type")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
@@ -1250,7 +1250,7 @@ codeunit 134475 "ERM Dimension Sales"
         DefaultDimension.Modify(true);
     end;
 
-    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerDimensionCode: Code[20]; ItemDimensionCode: Code[20]; ValuePosting: Option; DocumentType: Option)
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerDimensionCode: Code[20]; ItemDimensionCode: Code[20]; ValuePosting: Option; DocumentType: Enum "Sales Document Type")
     var
         DefaultDimension: Record "Default Dimension";
     begin
@@ -1356,7 +1356,7 @@ codeunit 134475 "ERM Dimension Sales"
         UpdateDimensionSetID(StandardSalesLine, DifferentDimensionCode);
     end;
 
-    local procedure CreateStandardSalesLine(var StandardSalesLine: Record "Standard Sales Line"; StandardSalesCode: Code[10]; Type: Option; No: Code[20])
+    local procedure CreateStandardSalesLine(var StandardSalesLine: Record "Standard Sales Line"; StandardSalesCode: Code[10]; Type: Enum "Sales Line Type"; No: Code[20])
     begin
         LibrarySales.CreateStandardSalesLine(StandardSalesLine, StandardSalesCode);
         StandardSalesLine.Validate(Type, Type);
@@ -1367,7 +1367,7 @@ codeunit 134475 "ERM Dimension Sales"
         StandardSalesLine.Modify(true);
     end;
 
-    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1484,12 +1484,11 @@ codeunit 134475 "ERM Dimension Sales"
     local procedure RunCopySalesDocument(SalesHeader: Record "Sales Header"; DocumentNo: Code[20])
     var
         CopySalesDocument: Report "Copy Sales Document";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         Commit();
         Clear(CopySalesDocument);
         CopySalesDocument.SetSalesHeader(SalesHeader);
-        CopySalesDocument.InitializeRequest(DocumentType::"Posted Shipment", DocumentNo, true, false);
+        CopySalesDocument.SetParameters("Sales Document Type From"::"Posted Shipment", DocumentNo, true, false);
         CopySalesDocument.UseRequestPage(false);
         CopySalesDocument.Run;
     end;
@@ -1569,7 +1568,7 @@ codeunit 134475 "ERM Dimension Sales"
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccountCode, LibraryRandom.RandDec(5, 2));
     end;
 
-    local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Option)
+    local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin
@@ -1648,7 +1647,7 @@ codeunit 134475 "ERM Dimension Sales"
         SalesLineArchive.TestField("Dimension Set ID", SalesLine."Dimension Set ID");
     end;
 
-    local procedure VerifyDimensionOnGLEntry(DocumentType: Option; DocumentNo: Code[20]; GenPostingType: Option; GlobalDimension1Code: Code[20])
+    local procedure VerifyDimensionOnGLEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GenPostingType: Enum "General Posting Type"; GlobalDimension1Code: Code[20])
     var
         GLEntry: Record "G/L Entry";
     begin

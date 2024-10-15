@@ -37,7 +37,7 @@ codeunit 144033 "UT TAB EASINPPINV"
         OnValidateDocAmountVATPurchaseHeader(PurchaseHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure OnValidateDocAmountVATPurchaseHeader(DocumentType: Option)
+    local procedure OnValidateDocAmountVATPurchaseHeader(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -74,7 +74,7 @@ codeunit 144033 "UT TAB EASINPPINV"
         OnValidateDocAmountInclVATPurchaseHeader(PurchaseHeader."Document Type"::"Credit Memo")
     end;
 
-    local procedure OnValidateDocAmountInclVATPurchaseHeader(DocumentType: Option)
+    local procedure OnValidateDocAmountInclVATPurchaseHeader(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -100,7 +100,7 @@ codeunit 144033 "UT TAB EASINPPINV"
         PurchaseHeader.TestField("Doc. Amount VAT", DocAmountVAT);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option): Decimal
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"): Decimal
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo);
         LibraryPurchase.CreatePurchaseLine(

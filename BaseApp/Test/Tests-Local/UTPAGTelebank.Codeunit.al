@@ -1477,7 +1477,7 @@ codeunit 144036 "UT PAG Telebank"
         ProposalLine.Insert();
     end;
 
-    local procedure CreatePurchaseDocument(DocumentType: Option): Code[20]
+    local procedure CreatePurchaseDocument(DocumentType: Enum "Purchase Document Type"): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1487,7 +1487,7 @@ codeunit 144036 "UT PAG Telebank"
         exit(PurchaseHeader."No.")
     end;
 
-    local procedure CreateSalesDocument(DocumentType: Option): Code[20]
+    local procedure CreateSalesDocument(DocumentType: Enum "Sales Document Type"): Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin

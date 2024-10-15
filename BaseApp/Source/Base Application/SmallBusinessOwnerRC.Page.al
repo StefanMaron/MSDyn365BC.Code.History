@@ -14,6 +14,10 @@ page 9020 "Small Business Owner RC"
                 {
                     ApplicationArea = Basic, Suite;
                 }
+                part("User Tasks Activities"; "User Tasks Activities")
+                {
+                    ApplicationArea = Suite;
+                }
             }
             group(Control1900724708)
             {
@@ -701,6 +705,9 @@ page 9020 "Small Business Owner RC"
                     Image = ResourcePrice;
                     RunObject = Page "Resource Price Changes";
                     ToolTip = 'Edit or update alternate resource prices, by running either the Suggest Res. Price Chg. (Res.) batch job or the Suggest Res. Price Chg. (Price) batch job.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
                 }
                 action("Resource Registers")
                 {
@@ -894,6 +901,9 @@ page 9020 "Small Business Owner RC"
                 Image = PriceWorksheet;
                 RunObject = Page "Sales Price Worksheet";
                 ToolTip = 'Manage sales prices for individual customers, for a group of customers, for all customers, or for a campaign.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                ObsoleteTag = '17.0';
             }
             action("Sales P&rices")
             {
@@ -902,6 +912,9 @@ page 9020 "Small Business Owner RC"
                 Image = SalesPrices;
                 RunObject = Page "Sales Prices";
                 ToolTip = 'View or edit special sales prices that you grant when certain conditions are met, such as customer, quantity, or ending date. The price agreements can be for individual customers, for a group of customers, for all customers or for a campaign.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                ObsoleteTag = '17.0';
             }
             action("Sales &Line Discounts")
             {
@@ -910,6 +923,9 @@ page 9020 "Small Business Owner RC"
                 Image = SalesLineDisc;
                 RunObject = Page "Sales Line Discounts";
                 ToolTip = 'View the sales line discounts that are available. These discount agreements can be for individual customers, for a group of customers, for all customers or for a campaign.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                ObsoleteTag = '17.0';
             }
             separator(Action19)
             {
@@ -1023,10 +1039,11 @@ page 9020 "Small Business Owner RC"
             action("Navi&gate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Navi&gate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 RunObject = Page Navigate;
-                ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
             }
         }
     }

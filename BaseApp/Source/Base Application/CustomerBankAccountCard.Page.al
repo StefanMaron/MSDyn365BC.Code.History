@@ -83,6 +83,7 @@ page 423 "Customer Bank Account Card"
                 field("Fax No."; "Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Importance = Additional;
                     ToolTip = 'Specifies the fax number of the bank where the customer has the bank account.';
                 }
                 field("E-Mail"; "E-Mail")

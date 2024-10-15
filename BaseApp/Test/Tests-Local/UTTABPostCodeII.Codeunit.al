@@ -830,7 +830,7 @@ codeunit 144020 "UT TAB Post Code - II"
         PostCodeRange.Insert();
     end;
 
-    local procedure CreatePurchaseHeader(DocumentType: Option): Code[20]
+    local procedure CreatePurchaseHeader(DocumentType: Enum "Purchase Document Type"): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -841,7 +841,7 @@ codeunit 144020 "UT TAB Post Code - II"
         exit(PurchaseHeader."No.");
     end;
 
-    local procedure CreateSalesHeader(DocumentType: Option): Code[20]
+    local procedure CreateSalesHeader(DocumentType: Enum "Sales Document Type"): Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin

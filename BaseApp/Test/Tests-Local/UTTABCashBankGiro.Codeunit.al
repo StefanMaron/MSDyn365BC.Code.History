@@ -521,7 +521,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         exit(NoSeries.Code);
     end;
 
-    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option)
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type")
     begin
         VATPostingSetup."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup;
         VATPostingSetup."VAT Prod. Posting Group" := CreateVATProductPostingGroup;

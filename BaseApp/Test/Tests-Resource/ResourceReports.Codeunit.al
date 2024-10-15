@@ -429,7 +429,7 @@ codeunit 136902 "Resource Reports"
         LibraryResource.CreateResourceJournalBatch(ResJournalBatch, ResJournalTemplate.Name);
     end;
 
-    local procedure CreateResourceJournalLine(var ResJournalLine: Record "Res. Journal Line"; ResJournalBatch: Record "Res. Journal Batch"; ResourceNo: Code[20]; WorkTypeCode: Code[10]; EntryType: Option)
+    local procedure CreateResourceJournalLine(var ResJournalLine: Record "Res. Journal Line"; ResJournalBatch: Record "Res. Journal Batch"; ResourceNo: Code[20]; WorkTypeCode: Code[10]; EntryType: Enum "Res. Journal Line Entry Type")
     begin
         LibraryResource.CreateResJournalLine(ResJournalLine, ResJournalBatch."Journal Template Name", ResJournalBatch.Name);
         ResJournalLine.Validate("Posting Date", WorkDate);

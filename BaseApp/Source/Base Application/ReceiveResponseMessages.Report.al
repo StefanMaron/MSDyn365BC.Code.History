@@ -29,7 +29,7 @@ report 11408 "Receive Response Messages"
                 if "Message ID" = '' then
                     CurrReport.Skip();
 
-                SendTraceTag('0000CJG', DigipoortTok, VERBOSITY::Normal, ReceiveResponseMsg, DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('0000CJG', ReceiveResponseMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
 
                 Window.Update(1, WindowStatusDeletingMsg);
                 ElecTaxDeclResponseMsg.SetRange("Declaration Type", "Declaration Type");
@@ -101,9 +101,9 @@ report 11408 "Receive Response Messages"
 
                             if FoundXmlContent then begin
                                 "Status Description" := CopyStr(BlobContentStatusMsg, 1, MaxStrLen("Status Description"));
-                                SendTraceTag('0000CJH', DigipoortTok, VERBOSITY::Normal, ReceiveResponseSuccessMsg, DATACLASSIFICATION::SystemMetadata);
+                                Session.LogMessage('0000CJH', ReceiveResponseSuccessMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
                             end else begin
-                                SendTraceTag('0000CJI', DigipoortTok, VERBOSITY::Error, ReceiveResponseErrMsg, DATACLASSIFICATION::SystemMetadata);
+                                Session.LogMessage('0000CJI', ReceiveResponseErrMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
                                 if StatusErrorDescription <> '' then
                                     "Status Description" := CopyStr(StatusErrorDescription, 1, MaxStrLen("Status Description"))
                                 else
@@ -115,7 +115,7 @@ report 11408 "Receive Response Messages"
                             Insert(true);
                         end;
                     end else begin
-                        SendTraceTag('0000CEJ', DigipoortTok, VERBOSITY::Error, UnknownStatusCodeErr, DATACLASSIFICATION::SystemMetadata);
+                        Session.LogMessage('0000CEJ', UnknownStatusCodeErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
                         Error(StatusResultat.statusFoutcode.foutbeschrijving);
                     end;
                 end;

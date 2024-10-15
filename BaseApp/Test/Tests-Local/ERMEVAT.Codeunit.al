@@ -1216,7 +1216,7 @@ codeunit 144051 "ERM EVAT"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreateAndPostGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; RelativeDate: Text)
+    local procedure CreateAndPostGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Account Type"; RelativeDate: Text)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1241,7 +1241,7 @@ codeunit 144051 "ERM EVAT"
           Base * (LibraryRandom.RandDecInRange(10, 30, 2) / 100), false, false);
     end;
 
-    local procedure CreateAndModifyVATStatementLine(VATStatementName: Record "VAT Statement Name"; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; Type: Option; RowNo: Code[20]; Print: Boolean)
+    local procedure CreateAndModifyVATStatementLine(VATStatementName: Record "VAT Statement Name"; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; Type: Enum "VAT Statement Line Type"; RowNo: Code[20]; Print: Boolean)
     var
         VATStatementLine: Record "VAT Statement Line";
     begin
@@ -1254,7 +1254,7 @@ codeunit 144051 "ERM EVAT"
         VATStatementLine.Modify(true);
     end;
 
-    local procedure CreateAndModifyVATStatementLineWithAccountTotaling(VATStatementName: Record "VAT Statement Name"; RowNo: Code[20]; Type: Option; AccountTotaling: Code[20]; CalculateWith: Option)
+    local procedure CreateAndModifyVATStatementLineWithAccountTotaling(VATStatementName: Record "VAT Statement Name"; RowNo: Code[20]; Type: Enum "VAT Statement Line Type"; AccountTotaling: Code[20]; CalculateWith: Option)
     var
         VATStatementLine: Record "VAT Statement Line";
     begin
@@ -1318,7 +1318,7 @@ codeunit 144051 "ERM EVAT"
         ElecTaxDeclarationCard.Close;
     end;
 
-    local procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; VATStatementName: Record "VAT Statement Name"; RowNo: Code[20]; Type: Option)
+    local procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; VATStatementName: Record "VAT Statement Name"; RowNo: Code[20]; Type: Enum "VAT Statement Line Type")
     begin
         LibraryERM.CreateVATStatementLine(VATStatementLine, VATStatementName."Statement Template Name", VATStatementName.Name);
         VATStatementLine.Validate("Elec. Tax Decl. Category Code", '5G');  // Using Hard Code Value '5G' of Electronic Tax Declaraton VAT Category table for Calculation.
@@ -1334,7 +1334,7 @@ codeunit 144051 "ERM EVAT"
           LibraryRandom.RandDec(250, 2), EUTrade, EUService);
     end;
 
-    local procedure CreateReverseChargeSalesVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Option; BaseValue: Decimal; AmountValue: Decimal; EUTrade: Boolean; EUService: Boolean)
+    local procedure CreateReverseChargeSalesVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; BaseValue: Decimal; AmountValue: Decimal; EUTrade: Boolean; EUService: Boolean)
     var
         NextEntryNo: Integer;
     begin
@@ -1375,14 +1375,14 @@ codeunit 144051 "ERM EVAT"
           CreateElectronicTaxDeclaration(ElecTaxDeclarationHeader."Declaration Type"::"VAT Declaration"));
     end;
 
-    local procedure MockVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Option; VATCalculationType: Option; TypeValue: Option; BaseValue: Decimal; AmountValue: Decimal; PostingDate: Date; CountryRegionCode: Code[10]; VATRegistrationNo: Text[20])
+    local procedure MockVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; VATCalculationType: Enum "Tax Calculation Type"; GenPostingType: Enum "General Posting Type"; BaseValue: Decimal; AmountValue: Decimal; PostingDate: Date; CountryRegionCode: Code[10]; VATRegistrationNo: Text[20])
     begin
         with VATEntry do begin
             Init;
             "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
             "Document Type" := DocumentType;
             "VAT Calculation Type" := VATCalculationType;
-            Type := TypeValue;
+            Type := GenPostingType;
             Base := BaseValue;
             Amount := AmountValue;
             "Posting Date" := PostingDate;
@@ -1429,9 +1429,8 @@ codeunit 144051 "ERM EVAT"
         end;
     end;
 
-    local procedure GetDeclarationPeriod(): Integer
+    local procedure GetDeclarationPeriod(): Enum "Elec. Tax Declaration Period"
     var
-        ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header";
         CurrentMonth: Integer;
     begin
         CurrentMonth := Date2DMY(Today, 2);
@@ -1439,13 +1438,13 @@ codeunit 144051 "ERM EVAT"
         // Taken previous quarter.
         case CurrentMonth of
             1 .. 3:
-                exit(ElecTaxDeclarationHeader."Declaration Period"::"Fourth Quarter");
+                exit("Elec. Tax Declaration Period"::"Fourth Quarter");
             4 .. 6:
-                exit(ElecTaxDeclarationHeader."Declaration Period"::"First Quarter");
+                exit("Elec. Tax Declaration Period"::"First Quarter");
             7 .. 9:
-                exit(ElecTaxDeclarationHeader."Declaration Period"::"Second Quarter");
+                exit("Elec. Tax Declaration Period"::"Second Quarter");
             10 .. 12:
-                exit(ElecTaxDeclarationHeader."Declaration Period"::"Third Quarter");
+                exit("Elec. Tax Declaration Period"::"Third Quarter");
         end;
     end;
 
@@ -1599,8 +1598,8 @@ codeunit 144051 "ERM EVAT"
     procedure VATStatementRequestPageHandler(var VATStatement: TestRequestPage "VAT Statement")
     var
         RoundToWholeNumbers: Variant;
-        Selection: Option Open,Closed,"Open and Closed";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
     begin
         LibraryVariableStorage.Dequeue(RoundToWholeNumbers);
         VATStatement.StartingDate.SetValue(GetDeclarationQuarterStartingDate);

@@ -82,7 +82,7 @@ table 11400 "CBG Statement"
         }
         field(15; "Net Change Debit"; Decimal)
         {
-            CalcFormula = Sum ("CBG Statement Line"."Debit Incl. VAT" WHERE("Journal Template Name" = FIELD("Journal Template Name"),
+            CalcFormula = Sum("CBG Statement Line"."Debit Incl. VAT" WHERE("Journal Template Name" = FIELD("Journal Template Name"),
                                                                             "No." = FIELD("No.")));
             Caption = 'Net Change Debit';
             Editable = false;
@@ -90,7 +90,7 @@ table 11400 "CBG Statement"
         }
         field(16; "Net Change Credit"; Decimal)
         {
-            CalcFormula = Sum ("CBG Statement Line"."Credit Incl. VAT" WHERE("Journal Template Name" = FIELD("Journal Template Name"),
+            CalcFormula = Sum("CBG Statement Line"."Credit Incl. VAT" WHERE("Journal Template Name" = FIELD("Journal Template Name"),
                                                                              "No." = FIELD("No.")));
             Caption = 'Net Change Credit';
             Editable = false;
@@ -116,7 +116,7 @@ table 11400 "CBG Statement"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -340,7 +340,7 @@ table 11400 "CBG Statement"
     [Scope('OnPrem')]
     procedure MakeGenJournalLine(var GenJnlLine: Record "Gen. Journal Line"; ForEachDocumentNo: Code[20]; ForEachDate: Date; TotAmountVV: Decimal; TotAmountLV: Decimal)
     var
-        DocumentType: Option;
+        DocumentType: Enum "Gen. Journal Document Type";
     begin
         DocumentType := GenJnlLine."Document Type";
         GenJnlLine.Init();

@@ -83,6 +83,7 @@ page 425 "Vendor Bank Account Card"
                 field("Fax No."; "Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Importance = Additional;
                     ToolTip = 'Specifies the fax number of the bank where the vendor has the bank account.';
                 }
                 field("E-Mail"; "E-Mail")

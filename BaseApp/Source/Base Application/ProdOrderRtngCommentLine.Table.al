@@ -36,11 +36,9 @@ table 5415 "Prod. Order Rtng Comment Line"
         {
             Caption = 'Code';
         }
-        field(22; Status; Option)
+        field(22; Status; Enum "Production Order Status")
         {
             Caption = 'Status';
-            OptionCaption = 'Simulated,Planned,Firm Planned,Released,Finished';
-            OptionMembers = Simulated,Planned,"Firm Planned",Released,Finished;
         }
         field(23; "Prod. Order No."; Code[20])
         {

@@ -1,4 +1,4 @@
-﻿table 9053 "Sales Cue"
+table 9053 "Sales Cue"
 {
     Caption = 'Sales Cue';
 

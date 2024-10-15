@@ -618,7 +618,7 @@ page 11000001 "Telebank Proposal"
 
                         trigger OnAction()
                         begin
-                            ShowDimensions;
+                            ShowDimensions();
                             CurrPage.SaveRecord;
                         end;
                     }

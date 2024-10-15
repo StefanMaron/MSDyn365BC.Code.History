@@ -12,7 +12,7 @@ codeunit 5602 "FA Get G/L Account No."
     procedure GetAccNo(var FALedgEntry: Record "FA Ledger Entry"): Code[20]
     begin
         with FALedgEntry do begin
-            FAPostingGr.Get("FA Posting Group");
+            FAPostingGr.GetPostingGroup("FA Posting Group", "Depreciation Book Code");
             GLAccNo := '';
             if "FA Posting Category" = "FA Posting Category"::" " then
                 case "FA Posting Type" of
@@ -82,7 +82,8 @@ codeunit 5602 "FA Get G/L Account No."
 
     procedure GetMaintenanceAccNo(var MaintenanceLedgEntry: Record "Maintenance Ledger Entry"): Code[20]
     begin
-        FAPostingGr.Get(MaintenanceLedgEntry."FA Posting Group");
+        FAPostingGr.GetPostingGroup(
+            MaintenanceLedgEntry."FA Posting Group", MaintenanceLedgEntry."Depreciation Book Code");
         exit(FAPostingGr.GetMaintenanceExpenseAccount);
     end;
 

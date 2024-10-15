@@ -1,5 +1,9 @@
 page 2831 "Native - Payments"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
+
     Caption = 'nativePayments', Locked = true;
     DelayedInsert = true;
     ModifyAllowed = false;
@@ -33,8 +37,7 @@ page 2831 "Native - Payments"
                     var
                         Customer: Record Customer;
                     begin
-                        Customer.SetRange(Id, "Customer Id");
-                        if not Customer.FindFirst then
+                        if not Customer.GetBySystemId(Rec."Customer Id") then
                             Error(CustomerIdDoesNotMatchACustomerErr);
 
                         "Customer No." := Customer."No.";
@@ -68,8 +71,7 @@ page 2831 "Native - Payments"
                         SalesInvoiceHeader: Record "Sales Invoice Header";
                     begin
                         SalesInvoiceHeader.Reset();
-                        SalesInvoiceHeader.SetRange(Id, "Applies-to Invoice Id");
-                        if not SalesInvoiceHeader.FindFirst then
+                        if not SalesInvoiceHeader.GetBySystemId("Applies-to Invoice Id") then
                             Error(AppliesToInvoiceIdDoesNotMatchAPostedInvoiceErr);
 
                         "Applies-to Invoice No." := SalesInvoiceHeader."No.";
@@ -91,8 +93,7 @@ page 2831 "Native - Payments"
                     var
                         PaymentMethod: Record "Payment Method";
                     begin
-                        PaymentMethod.SetRange(Id, "Payment Method Id");
-                        if not PaymentMethod.FindFirst then
+                        if not PaymentMethod.GetBySystemId(Rec."Payment Method Id") then
                             Error(PaymentMethodIdDoesNotMatchAPaymentMethodErr);
 
                         "Payment Method Code" := PaymentMethod.Code;
@@ -215,8 +216,8 @@ page 2831 "Native - Payments"
     var
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
     begin
-        SalesInvoiceEntityAggregate.SetRange(Id, InvoiceId);
-        SalesInvoiceEntityAggregate.FindFirst;
+        SalesInvoiceEntityAggregate.SetFilter(Id, InvoiceId);
+        SalesInvoiceEntityAggregate.FindFirst();
         if PaymentDate < SalesInvoiceEntityAggregate."Document Date" then
             Error(PaymentDateBeforeInvoicePostingDateErr);
     end;

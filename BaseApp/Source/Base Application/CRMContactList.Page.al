@@ -2,6 +2,7 @@ page 5342 "CRM Contact List"
 {
     ApplicationArea = Suite;
     Caption = 'Contacts - Common Data Service';
+    AdditionalSearchTerms = 'Contacts CDS';
     Editable = false;
     PageType = List;
     SourceTable = "CRM Contact";
@@ -118,7 +119,7 @@ page 5342 "CRM Contact List"
                     CRMIntegrationManagement: Codeunit "CRM Integration Management";
                 begin
                     CurrPage.SetSelectionFilter(CRMContact);
-                    CRMIntegrationManagement.CreateNewRecordsFromCRM(CRMContact);
+                    CRMIntegrationManagement.CreateNewRecordsFromSelectedCRMRecords(CRMContact);
                 end;
             }
         }
@@ -146,6 +147,7 @@ page 5342 "CRM Contact List"
     trigger OnInit()
     begin
         CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
+        Commit();
     end;
 
     trigger OnOpenPage()

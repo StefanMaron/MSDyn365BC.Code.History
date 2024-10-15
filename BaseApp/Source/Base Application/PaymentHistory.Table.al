@@ -150,7 +150,7 @@ table 11000001 "Payment History"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(11400; "Global Dimension 1 Code"; Code[20])

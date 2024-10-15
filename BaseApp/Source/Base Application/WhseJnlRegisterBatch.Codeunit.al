@@ -449,7 +449,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
                     then begin
                         ReservEntry.CopyTrackingFromWhseItemTrackingLine(WhseItemTrkgLine);
                         CreateReservEntry.CreateReservEntryFor(
-                          DATABASE::"Item Journal Line", ItemJnlLine."Entry Type", '', '', 0, "Line No.", WhseItemTrkgLine."Qty. per Unit of Measure",
+                          DATABASE::"Item Journal Line", ItemJnlLine."Entry Type".AsInteger(), '', '', 0, "Line No.", WhseItemTrkgLine."Qty. per Unit of Measure",
                           Abs(WhseItemTrkgLine."Qty. to Handle"), Abs(WhseItemTrkgLine."Qty. to Handle (Base)"), ReservEntry);
                         CreateReservEntry.SetNewTrackingFromNewWhseItemTrackingLine(WhseItemTrkgLine);
                         CreateReservEntry.SetDates(WhseItemTrkgLine."Warranty Date", WhseItemTrkgLine."Expiration Date");

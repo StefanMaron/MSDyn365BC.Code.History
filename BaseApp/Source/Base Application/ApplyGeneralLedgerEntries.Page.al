@@ -257,7 +257,7 @@ page 11309 "Apply General Ledger Entries"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }
@@ -316,7 +316,7 @@ page 11309 "Apply General Ledger Entries"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
@@ -376,19 +376,21 @@ page 11309 "Apply General Ledger Entries"
     end;
 
     var
-        TempGLEntryBuf: Record "G/L Entry Application Buffer" temporary;
-        TempGLEntryBuf2: Record "G/L Entry Application Buffer" temporary;
         Navigate: Page Navigate;
-        ShowAppliedAmount: Decimal;
-        ShowAmount: Decimal;
-        ShowTotalAppliedAmount: Decimal;
         Text11300: Label 'Preparing Entries      @1@@@@@@@@@@@@@';
         Header: Text[250];
         Text11302: Label 'Apply General Ledger Entries';
         Text11303: Label 'Applied General Ledger Entries';
         DynamicCaption: Text[100];
-        IncludeEntryFilter: Option All,Open,Closed;
         GLEntryApplicationBufferNotOpenErr: Label 'Not possible to set applies-to id for entry %1.', Comment = '%1 - Entry No.';
+
+    protected var
+        TempGLEntryBuf: Record "G/L Entry Application Buffer" temporary;
+        IncludeEntryFilter: Option All,Open,Closed;
+        ShowAppliedAmount: Decimal;
+        ShowAmount: Decimal;
+        ShowTotalAppliedAmount: Decimal;
+
 
     [Scope('OnPrem')]
     procedure SetApplId(var GLEntryBuf: Record "G/L Entry Application Buffer")
@@ -515,6 +517,7 @@ page 11309 "Apply General Ledger Entries"
     [Scope('OnPrem')]
     procedure DemoDataTool()
     var
+        TempGLEntryBuf2: Record "G/L Entry Application Buffer" temporary;
         Window: Dialog;
         tmpAmt: Decimal;
         Stop: Boolean;

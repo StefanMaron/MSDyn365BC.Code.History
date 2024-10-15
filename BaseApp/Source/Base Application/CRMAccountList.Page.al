@@ -2,6 +2,7 @@ page 5341 "CRM Account List"
 {
     ApplicationArea = Suite;
     Caption = 'Accounts - Common Data Service';
+    AdditionalSearchTerms = 'Accounts CDS';
     Editable = false;
     PageType = List;
     SourceTable = "CRM Account";
@@ -93,7 +94,7 @@ page 5341 "CRM Account List"
                     CRMIntegrationManagement: Codeunit "CRM Integration Management";
                 begin
                     CurrPage.SetSelectionFilter(CRMAccount);
-                    CRMIntegrationManagement.CreateNewRecordsFromCRM(CRMAccount);
+                    CRMIntegrationManagement.CreateNewRecordsFromSelectedCRMRecords(CRMAccount);
                 end;
             }
         }
@@ -133,6 +134,7 @@ page 5341 "CRM Account List"
     trigger OnInit()
     begin
         CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
+        Commit();
     end;
 
     trigger OnOpenPage()

@@ -212,7 +212,7 @@ codeunit 130100 "Library - Payment Export"
         end;
     end;
 
-    procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; BalAccountType: Option; BalAccountNo: Code[20]; AllowPaymentExport: Boolean)
+    procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; AllowPaymentExport: Boolean)
     begin
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryPurchase.SelectPmtJnlTemplate);
         GenJournalBatch.Validate("Bal. Account Type", BalAccountType);

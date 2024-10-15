@@ -91,7 +91,7 @@ codeunit 144026 "UT COD Required Description"
         CreateAndPostGeneralJournal(GenJournalLine."Account Type"::"Fixed Asset", CreateFixedAsset);
     end;
 
-    local procedure CreateAndPostGeneralJournal(AccountType: Option; AccountNo: Code[20])
+    local procedure CreateAndPostGeneralJournal(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -221,7 +221,7 @@ codeunit 144026 "UT COD Required Description"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin

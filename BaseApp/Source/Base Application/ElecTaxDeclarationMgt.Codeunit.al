@@ -59,7 +59,7 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
         Fault: DotNet foutType;
         UTF8Encoding: DotNet UTF8Encoding;
     begin
-        SendTraceTag('0000CJ9', DigipoortTok, VERBOSITY::Normal, SubmitDeclarationMsg, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('0000CJ9', SubmitDeclarationMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
         if GuiAllowed then begin
             Window.Open(WindowStatusMsg);
             Window.Update(1, WindowStatusBuildingMsg);
@@ -102,14 +102,14 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
         Fault := Response.statusFoutcode();
 
         if Fault.foutcode() <> '' then begin
-            SendTraceTag('0000CJA', DigipoortTok, VERBOSITY::Error, StrSubstNo(SubmitDeclarationErrMsg, Fault.foutcode), DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000CJA', StrSubstNo(SubmitDeclarationErrMsg, Fault.foutcode), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
             Error(SubmitErr, Reference, Fault.foutcode, Fault.foutbeschrijving);
         end;
 
         if GuiAllowed then
             Window.Close();
 
-        SendTraceTag('0000CJB', DigipoortTok, VERBOSITY::Normal, SubmitDeclarationSuccessMsg, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('0000CJB', SubmitDeclarationSuccessMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
 
         exit(Response.kenmerk());
     end;
@@ -185,7 +185,7 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
         StatusErrorDescription: Text;
         Window: Dialog;
     begin
-        SendTraceTag('0000CJC', DigipoortTok, VERBOSITY::Normal, ReceiveResponseMsg, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('0000CJC', ReceiveResponseMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
         Window.Open(WindowReceivingResponsesMsg);
         Request := Request.getStatussenProcesRequest();
         Request.kenmerk := MessageID;
@@ -234,9 +234,9 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
 
                 if FoundXmlContent then begin
                     ElecTaxDeclResponseMsg."Status Description" := CopyStr(BlobContentStatusMsg, 1, MaxStrLen(ElecTaxDeclResponseMsg."Status Description"));
-                    SendTraceTag('0000CJD', DigipoortTok, VERBOSITY::Normal, ReceiveResponseSuccessMsg, DATACLASSIFICATION::SystemMetadata);
+                    Session.LogMessage('0000CJD', ReceiveResponseSuccessMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
                 end else begin
-                    SendTraceTag('0000CJE', DigipoortTok, VERBOSITY::Error, ReceiveResponseErrMsg, DATACLASSIFICATION::SystemMetadata);
+                    Session.LogMessage('0000CJE', ReceiveResponseErrMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
                     if StatusErrorDescription <> '' then
                         ElecTaxDeclResponseMsg."Status Description" := CopyStr(StatusErrorDescription, 1, MaxStrLen(ElecTaxDeclResponseMsg."Status Description"))
                     else
@@ -247,7 +247,7 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
                 ElecTaxDeclResponseMsg.Status := ElecTaxDeclResponseMsg.Status::Received;
                 ElecTaxDeclResponseMsg.Insert(true);
             end else begin
-                SendTraceTag('0000CJF', DigipoortTok, VERBOSITY::Error, UnknownStatusCodeErr, DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('0000CJF', UnknownStatusCodeErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
                 Error(StatusResultat.statusFoutcode().foutbeschrijving());
             end;
         end;

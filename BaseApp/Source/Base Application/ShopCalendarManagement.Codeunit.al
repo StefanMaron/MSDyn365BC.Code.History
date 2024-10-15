@@ -53,7 +53,7 @@ codeunit 99000755 "Shop Calendar Management"
         exit(true);
     end;
 
-    procedure CalculateSchedule(CapacityType: Option "Work Center","Machine Center"; No: Code[20]; WorkCenterNo: Code[20]; StartingDate: Date; EndingDate: Date)
+    procedure CalculateSchedule(CapacityType: Enum "Capacity Type"; No: Code[20]; WorkCenterNo: Code[20]; StartingDate: Date; EndingDate: Date)
     var
         WorkCenter: Record "Work Center";
         CalendarEntry: Record "Calendar Entry";

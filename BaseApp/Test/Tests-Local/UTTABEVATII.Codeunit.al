@@ -138,7 +138,7 @@ codeunit 144046 "UT TAB EVAT II"
         // Setup: Create two Electronic Tax Declaration Headers with same Declaration Period and Declaration Year.
         Initialize;
         CreateElecTaxDeclarationHeader(ElecTaxDeclarationHeader, ElecTaxDeclarationHeader."Declaration Type"::"ICP Declaration");
-        UpdateDeclarationPeriodElecTaxDeclarationHeader(ElecTaxDeclarationHeader, LibraryRandom.RandIntInRange(1, 12));  // Declaration Period - January to December.
+        UpdateDeclarationPeriodElecTaxDeclarationHeader(ElecTaxDeclarationHeader, "Elec. Tax Declaration Period".FromInteger(LibraryRandom.RandIntInRange(1, 12)));  // Declaration Period - January to December.
         ElecTaxDeclarationHeader."Declaration Year" := Date2DMY(Today, 3) - 1;  // Declaration Year on the basis of Declaration Year - OnValidate Trigger of Table ID - 11409 Elec. Tax Declaration Header.
         ElecTaxDeclarationHeader.Modify();
 
@@ -165,7 +165,7 @@ codeunit 144046 "UT TAB EVAT II"
         // Setup: Create Electronic Tax Declaration Header.
         Initialize;
         CreateElecTaxDeclarationHeader(ElecTaxDeclarationHeader, ElecTaxDeclarationHeader."Declaration Type"::"VAT Declaration");
-        UpdateDeclarationPeriodElecTaxDeclarationHeader(ElecTaxDeclarationHeader, LibraryRandom.RandIntInRange(1, 12));  // Declaration Period - January to December.
+        UpdateDeclarationPeriodElecTaxDeclarationHeader(ElecTaxDeclarationHeader, "Elec. Tax Declaration Period".FromInteger(LibraryRandom.RandIntInRange(1, 12)));  // Declaration Period - January to December.
 
         // Exercise.
         asserterror ElecTaxDeclarationHeader.Validate("Declaration Year", Date2DMY(Today, 3) - LibraryRandom.RandIntInRange(2, 10));  // Declaration Year on the basis of Declaration Year - OnValidate Trigger Elec. Tax Declaration Header.
@@ -353,7 +353,7 @@ codeunit 144046 "UT TAB EVAT II"
 
         // Calculation of Declaration Period From Date for Declaration Period - January and Declaration Period To Date on - Current Month.
         OnValidateDeclPeriodElecTaxDeclarationHeader(
-          ElecTaxDeclarationHeader."Declaration Period"::January, ElecTaxDeclarationHeader."Declaration Period"::January, '<+CM>');
+          ElecTaxDeclarationHeader."Declaration Period"::January, ElecTaxDeclarationHeader."Declaration Period"::January.AsInteger(), '<+CM>');
     end;
 
     [Test]
@@ -423,7 +423,7 @@ codeunit 144046 "UT TAB EVAT II"
         OnValidateDeclPeriodElecTaxDeclarationHeader(ElecTaxDeclarationHeader."Declaration Period"::Year, 1, '<+CY>');
     end;
 
-    local procedure OnValidateDeclPeriodElecTaxDeclarationHeader(DeclarationPeriod: Option; ExpectedMonth: Integer; DateExpression: Text[5])
+    local procedure OnValidateDeclPeriodElecTaxDeclarationHeader(DeclarationPeriod: Enum "Elec. Tax Declaration Period"; ExpectedMonth: Integer; DateExpression: Text[5])
     var
         ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header";
         DeclarationDateExpression: DateFormula;
@@ -676,7 +676,7 @@ codeunit 144046 "UT TAB EVAT II"
         ElecTaxDeclarationSetup.Modify();
     end;
 
-    local procedure UpdateDeclarationPeriodElecTaxDeclarationHeader(var ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header"; DeclarationPeriod: Option)
+    local procedure UpdateDeclarationPeriodElecTaxDeclarationHeader(var ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header"; DeclarationPeriod: Enum "Elec. Tax Declaration Period")
     begin
         ElecTaxDeclarationHeader."Declaration Period" := DeclarationPeriod;
         ElecTaxDeclarationHeader.Modify();
@@ -693,7 +693,7 @@ codeunit 144046 "UT TAB EVAT II"
     var
         ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header";
     begin
-        ElecTaxDeclarationHeader."Declaration Period" := LibraryVariableStorage.DequeueInteger;
+        ElecTaxDeclarationHeader."Declaration Period" := "Elec. Tax Declaration Period".FromInteger(LibraryVariableStorage.DequeueInteger());
         Assert.IsTrue(
           StrPos(Question, StrSubstNo(DeclarationConfirmation, ElecTaxDeclarationHeader."Declaration Period", Format(Date2DMY(Today, 3) - 1))) >
           0, Question);

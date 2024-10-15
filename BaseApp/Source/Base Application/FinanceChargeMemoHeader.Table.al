@@ -273,7 +273,7 @@ table 302 "Finance Charge Memo Header"
         }
         field(30; Comment; Boolean)
         {
-            CalcFormula = Exist ("Fin. Charge Comment Line" WHERE(Type = CONST("Finance Charge Memo"),
+            CalcFormula = Exist("Fin. Charge Comment Line" WHERE(Type = CONST("Finance Charge Memo"),
                                                                   "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -283,7 +283,7 @@ table 302 "Finance Charge Memo Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Finance Charge Memo Line"."Remaining Amount" WHERE("Finance Charge Memo No." = FIELD("No."),
+            CalcFormula = Sum("Finance Charge Memo Line"."Remaining Amount" WHERE("Finance Charge Memo No." = FIELD("No."),
                                                                                    "Detailed Interest Rates Entry" = CONST(false)));
             Caption = 'Remaining Amount';
             Editable = false;
@@ -293,7 +293,7 @@ table 302 "Finance Charge Memo Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Finance Charge Memo Line".Amount WHERE("Finance Charge Memo No." = FIELD("No."),
+            CalcFormula = Sum("Finance Charge Memo Line".Amount WHERE("Finance Charge Memo No." = FIELD("No."),
                                                                        Type = CONST("Customer Ledger Entry"),
                                                                        "Detailed Interest Rates Entry" = CONST(false)));
             Caption = 'Interest Amount';
@@ -304,7 +304,7 @@ table 302 "Finance Charge Memo Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Finance Charge Memo Line".Amount WHERE("Finance Charge Memo No." = FIELD("No."),
+            CalcFormula = Sum("Finance Charge Memo Line".Amount WHERE("Finance Charge Memo No." = FIELD("No."),
                                                                        Type = CONST("G/L Account")));
             Caption = 'Additional Fee';
             Editable = false;
@@ -314,7 +314,7 @@ table 302 "Finance Charge Memo Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Finance Charge Memo Line"."VAT Amount" WHERE("Finance Charge Memo No." = FIELD("No."),
+            CalcFormula = Sum("Finance Charge Memo Line"."VAT Amount" WHERE("Finance Charge Memo No." = FIELD("No."),
                                                                              "Detailed Interest Rates Entry" = CONST(false)));
             Caption = 'VAT Amount';
             Editable = false;
@@ -769,7 +769,7 @@ table 302 "Finance Charge Memo Header"
     begin
         with FinChrgMemoHeader do begin
             Copy(Rec);
-            ReportSelection.Print(ReportSelection.Usage::"F.C.Test", FinChrgMemoHeader, FieldNo("Customer No."));
+            ReportSelection.PrintForCust(ReportSelection.Usage::"F.C.Test", FinChrgMemoHeader, FieldNo("Customer No."));
         end;
     end;
 

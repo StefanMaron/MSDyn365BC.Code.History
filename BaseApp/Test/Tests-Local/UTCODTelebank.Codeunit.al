@@ -348,7 +348,7 @@ codeunit 144057 "UT COD Telebank"
 
     local procedure VerifyTempJnlLineVsPmtHistoryLine(var TempGenJnlLine: Record "Gen. Journal Line" temporary; var PaymentHistoryLine: Record "Payment History Line"; AppliesToDocNo: Code[20])
     var
-        DocumentType: Option;
+        DocumentType: Enum "Gen. Journal Document Type";
     begin
         with TempGenJnlLine do begin
             Assert.AreEqual(PaymentHistoryLine.Count, Count, 'Wrong count');

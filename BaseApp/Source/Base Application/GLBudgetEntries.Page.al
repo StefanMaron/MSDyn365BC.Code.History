@@ -138,7 +138,7 @@ page 120 "G/L Budget Entries"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }

@@ -17,7 +17,6 @@ codeunit 135513 "Sales Order E2E Test"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
-        GraphContactIdFieldTxt: Label 'contactId';
         CustomerIdFieldTxt: Label 'customerId';
         CustomerNameFieldTxt: Label 'customerName';
         CustomerNumberFieldTxt: Label 'customerNumber';
@@ -220,7 +219,7 @@ codeunit 135513 "Sales Order E2E Test"
         SalesHeader.SetRange("No.", OrderID);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.FindFirst;
-        OrderIntegrationID := SalesHeader.Id;
+        OrderIntegrationID := SalesHeader.SystemId;
         Assert.AreNotEqual('', OrderIntegrationID, 'ID should not be empty');
 
         if EmptyData then
@@ -266,12 +265,12 @@ codeunit 135513 "Sales Order E2E Test"
         Initialize;
         LibrarySales.CreateSalesOrder(SalesHeader);
         OrderID[1] := SalesHeader."No.";
-        ID[1] := SalesHeader.Id;
+        ID[1] := SalesHeader.SystemId;
         Assert.AreNotEqual('', ID[1], 'ID should not be empty');
 
         LibrarySales.CreateSalesOrder(SalesHeader);
         OrderID[2] := SalesHeader."No.";
-        ID[2] := SalesHeader.Id;
+        ID[2] := SalesHeader.SystemId;
         Assert.AreNotEqual('', ID[2], 'ID should not be empty');
         Commit();
 
@@ -371,7 +370,7 @@ codeunit 135513 "Sales Order E2E Test"
         Commit();
 
         // [WHEN] we GET the order from the web service
-        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Order Entity", OrderServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.SystemId, PAGE::"Sales Order Entity", OrderServiceNameTxt);
         LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
 
         // [THEN] the order should exist in the response and Order Discount Should be Applied
@@ -406,115 +405,13 @@ codeunit 135513 "Sales Order E2E Test"
         Commit();
 
         // [WHEN] we GET the order from the web service
-        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Order Entity", OrderServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.SystemId, PAGE::"Sales Order Entity", OrderServiceNameTxt);
         LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
 
         // [THEN] the order should exist in the response and Order Discount Should be Applied
         LibraryGraphMgt.VerifyIDInJson(ResponseText);
         LibraryGraphDocumentTools.VerifySalesTotals(
           SalesHeader, ResponseText, DiscountAmt, SalesHeader."Invoice Discount Calculation"::Amount);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestGetOrdersWithContactId()
-    var
-        SalesHeader: Record "Sales Header";
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        OrderID: Code[20];
-        TargetURL: Text;
-        ResponseText: Text;
-    begin
-        // [FEATURE] [Contact] [ID]
-        // [SCENARIO 184721] Create an Order with a contact with graph ID (GET method should return Graph Contact ID)
-        // [GIVEN] One Order with contact ID
-        Initialize;
-
-        CreateSalesOrderWithGraphContactID(SalesHeader, GraphIntegrationRecord);
-        OrderID := SalesHeader.Id;
-
-        // [WHEN] We get Order from web service
-        TargetURL := LibraryGraphMgt.CreateTargetURL(OrderID, PAGE::"Sales Order Entity", OrderServiceNameTxt);
-        LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
-
-        // [THEN] The Order should contain the Contact ID
-        LibraryGraphMgt.VerifyIDInJson(ResponseText);
-        VerifyContactId(ResponseText, GraphIntegrationRecord."Graph ID");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestPostOrdersWithGraphContactId()
-    var
-        Contact: Record Contact;
-        Customer: Record Customer;
-        SalesHeader: Record "Sales Header";
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        OrderWithComplexJSON: Text;
-        TargetURL: Text;
-        ResponseText: Text;
-        OrderNumber: Text;
-    begin
-        // [FEATURE] [Contact] [ID]
-        // [SCENARIO 184721] Posting an Order with Graph Contact ID (POST method should find the customer based on Contact ID)
-        // [GIVEN] One Order with contact ID
-        Initialize;
-        LibraryGraphDocumentTools.CreateContactWithGraphId(Contact, GraphIntegrationRecord);
-        LibraryGraphDocumentTools.CreateCustomerFromContact(Customer, Contact);
-        OrderWithComplexJSON := CreateOrderJSONWithContactId(GraphIntegrationRecord);
-
-        TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Order Entity", OrderServiceNameTxt);
-        Commit();
-
-        // [WHEN] We post an Order to web service
-        LibraryGraphMgt.PostToWebService(TargetURL, OrderWithComplexJSON, ResponseText);
-
-        // [THEN] The Order should have a customer found based on contact ID
-        VerifyValidPostRequest(ResponseText, OrderNumber);
-        VerifyContactId(ResponseText, GraphIntegrationRecord."Graph ID");
-        VerifyCustomerFields(Customer, ResponseText);
-        VerifyContactFieldsUpdatedOnSalesHeader(OrderNumber, SalesHeader."Document Type"::Order, Contact);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestModifyingContactIdUpdatesSellToCustomer()
-    var
-        SalesHeader: Record "Sales Header";
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        SecondCustomer: Record Customer;
-        SecondContact: Record Contact;
-        SecondGraphIntegrationRecord: Record "Graph Integration Record";
-        OrderID: Code[20];
-        TargetURL: Text;
-        ResponseText: Text;
-        OrderWithComplexJSON: Text;
-        OrderNumber: Text;
-    begin
-        // [FEATURE] [Contact] [ID]
-        // [SCENARIO 184721] Create an Order with a contact with graph ID (Selecting a different contact will change sell-to customer)
-        // [GIVEN] One Order with contact ID
-        Initialize;
-
-        CreateSalesOrderWithGraphContactID(SalesHeader, GraphIntegrationRecord);
-        OrderID := SalesHeader.Id;
-
-        LibraryGraphDocumentTools.CreateContactWithGraphId(SecondContact, SecondGraphIntegrationRecord);
-        LibraryGraphDocumentTools.CreateCustomerFromContact(SecondCustomer, SecondContact);
-
-        TargetURL := LibraryGraphMgt.CreateTargetURL(OrderID, PAGE::"Sales Order Entity", OrderServiceNameTxt);
-        OrderWithComplexJSON := CreateOrderJSONWithContactId(SecondGraphIntegrationRecord);
-
-        Commit();
-
-        // [WHEN] We Patch to web service
-        LibraryGraphMgt.PatchToWebService(TargetURL, OrderWithComplexJSON, ResponseText);
-
-        // [THEN] The Order should have a new customer
-        VerifyValidPostRequest(ResponseText, OrderNumber);
-        VerifyContactId(ResponseText, SecondGraphIntegrationRecord."Graph ID");
-        VerifyCustomerFields(SecondCustomer, ResponseText);
-        VerifyContactFieldsUpdatedOnSalesHeader(OrderNumber, SalesHeader."Document Type"::Order, SecondContact);
     end;
 
     [Test]
@@ -550,7 +447,7 @@ codeunit 135513 "Sales Order E2E Test"
         InvoiceDiscountAmount := SalesHeader.Amount / 2;
 
         // [WHEN] we PATCH the JSON to the web service, with the unique Item ID
-        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Order Entity", OrderServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.SystemId, PAGE::"Sales Order Entity", OrderServiceNameTxt);
         OrderJSON := StrSubstNo('{"%1": %2}', DiscountAmountFieldTxt, Format(InvoiceDiscountAmount, 0, 9));
         Commit();
 
@@ -602,7 +499,7 @@ codeunit 135513 "Sales Order E2E Test"
 
         // [WHEN] we PATCH the JSON to the web service, with the unique Item ID
         OrderJSON := StrSubstNo('{"%1": %2}', DiscountAmountFieldTxt, Format(0, 0, 9));
-        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Order Entity", OrderServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.SystemId, PAGE::"Sales Order Entity", OrderServiceNameTxt);
         Commit();
 
         LibraryGraphMgt.PatchToWebService(TargetURL, OrderJSON, ResponseText);
@@ -652,39 +549,6 @@ codeunit 135513 "Sales Order E2E Test"
         SalesLine.FindFirst;
     end;
 
-    local procedure CreateSalesOrderWithGraphContactID(var SalesHeader: Record "Sales Header"; var GraphIntegrationRecord: Record "Graph Integration Record")
-    var
-        Contact: Record Contact;
-        Customer: Record Customer;
-    begin
-        LibraryGraphDocumentTools.CreateContactWithGraphId(Contact, GraphIntegrationRecord);
-        LibraryGraphDocumentTools.CreateCustomerFromContact(Customer, Contact);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
-    end;
-
-    local procedure CreateOrderJSONWithContactId(GraphIntegrationRecord: Record "Graph Integration Record"): Text
-    var
-        JSONManagement: Codeunit "JSON Management";
-        JObject: DotNet JObject;
-        OrderJSON: Text;
-    begin
-        JSONManagement.InitializeEmptyObject;
-        JSONManagement.GetJSONObject(JObject);
-
-        JSONManagement.AddJPropertyToJObject(JObject, GraphContactIdFieldTxt, GraphIntegrationRecord."Graph ID");
-        OrderJSON := JSONManagement.WriteObjectToString;
-
-        exit(OrderJSON);
-    end;
-
-    local procedure VerifyContactId(ResponseText: Text; ExpectedContactId: Text)
-    var
-        contactId: Text;
-    begin
-        LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, GraphContactIdFieldTxt, contactId);
-        Assert.AreEqual(ExpectedContactId, contactId, 'Wrong contact id was returned');
-    end;
-
     local procedure VerifyValidPostRequest(ResponseText: Text; var OrderNumber: Text)
     begin
         Assert.AreNotEqual('', ResponseText, 'response JSON should not be blank');
@@ -706,17 +570,9 @@ codeunit 135513 "Sales Order E2E Test"
         LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, CustomerNumberFieldTxt, customerNumberValue);
 
         Assert.AreEqual(
-          IntegrationManagement.GetIdWithoutBrackets(ExpectedCustomer.Id), UpperCase(customerIdValue), 'Wrong setting for Customer Id');
+          IntegrationManagement.GetIdWithoutBrackets(ExpectedCustomer.SystemId), UpperCase(customerIdValue), 'Wrong setting for Customer Id');
         Assert.AreEqual(ExpectedCustomer."No.", customerNumberValue, 'Wrong setting for Customer Number');
         Assert.AreEqual(ExpectedCustomer.Name, customerNameValue, 'Wrong setting for Customer Name');
-    end;
-
-    local procedure VerifyContactFieldsUpdatedOnSalesHeader(DocumentNumber: Text; DocumentType: Option; ExpectedContact: Record Contact)
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        Assert.IsTrue(SalesHeader.Get(DocumentType, DocumentNumber), 'Could not find the sales header for ' + DocumentNumber);
-        Assert.AreEqual(ExpectedContact."No.", SalesHeader."Sell-to Contact No.", 'Wrong sell to contact no');
     end;
 }
 

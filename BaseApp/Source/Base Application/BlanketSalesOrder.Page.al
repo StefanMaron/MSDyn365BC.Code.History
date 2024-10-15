@@ -54,6 +54,12 @@ page 507 "Blanket Sales Order"
 
                         CurrPage.Update;
                     end;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    begin
+                        if LookupSellToCustomerName() then
+                            CurrPage.Update();
+                    end;
                 }
                 group("Sell-to")
                 {
@@ -103,6 +109,33 @@ page 507 "Blanket Sales Order"
                                 if "Sell-to Contact No." <> xRec."Sell-to Contact No." then
                                     SetRange("Sell-to Contact No.");
                         end;
+                    }
+                    field(SellToPhoneNo; SellToContact."Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the contact person that the sales document will be sent to.';
+                    }
+                    field(SellToMobilePhoneNo; SellToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Mobile Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the contact person that the sales document will be sent to.';
+                    }
+                    field(SellToEmail; SellToContact."E-Mail")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Email';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the contact person that the sales document will be sent to.';
                     }
                 }
                 field("Sell-to Contact"; "Sell-to Contact")
@@ -555,6 +588,33 @@ page 507 "Blanket Sales Order"
                             Enabled = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
                             ToolTip = 'Specifies the name of the contact person at the billing address';
                         }
+                        field(BillToContactPhoneNo; BillToContact."Phone No.")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Phone No.';
+                            Editable = false;
+                            Importance = Additional;
+                            ExtendedDatatype = PhoneNo;
+                            ToolTip = 'Specifies the telephone number of the person you should contact at the customer you are sending the invoice to.';
+                        }
+                        field(BillToContactMobilePhoneNo; BillToContact."Mobile Phone No.")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Mobile Phone No.';
+                            Editable = false;
+                            Importance = Additional;
+                            ExtendedDatatype = PhoneNo;
+                            ToolTip = 'Specifies the mobile telephone number of the person you should contact at the customer you are sending the invoice to.';
+                        }
+                        field(BillToContactEmail; BillToContact."E-Mail")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Email';
+                            Editable = false;
+                            Importance = Additional;
+                            ExtendedDatatype = EMail;
+                            ToolTip = 'Specifies the email address of the person you should contact at the customer you are sending the invoice to.';
+                        }
                     }
                 }
             }
@@ -744,7 +804,7 @@ page 507 "Blanket Sales Order"
                     var
                         WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type", "No.");
+                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
                     end;
                 }
                 action(DocAttach)
@@ -1043,7 +1103,9 @@ page 507 "Blanket Sales Order"
     trigger OnAfterGetRecord()
     begin
         SetControlAppearance;
-        UpdateShipToBillToGroupVisibility
+        UpdateShipToBillToGroupVisibility();
+        if SellToContact.Get("Sell-to Contact No.") then;
+        if BillToContact.Get("Bill-to Contact No.") then;
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1082,6 +1144,8 @@ page 507 "Blanket Sales Order"
     end;
 
     var
+        SellToContact: Record Contact;
+        BillToContact: Record Contact;
         DocPrint: Codeunit "Document-Print";
         UserMgt: Codeunit "User Setup Management";
         ArchiveManagement: Codeunit ArchiveManagement;

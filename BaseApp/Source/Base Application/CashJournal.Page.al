@@ -106,7 +106,7 @@ page 11403 "Cash Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }

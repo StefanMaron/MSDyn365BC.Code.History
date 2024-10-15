@@ -237,7 +237,7 @@ report 11000022 "Import Rabobank vvmut.asc"
         end;
     end;
 
-    local procedure ProcessComment(Comment: Text[100]; Type: Integer)
+    local procedure ProcessComment(Comment: Text[100]; Type: Enum "CBG Statement Information Type")
     begin
         if Comment <> '' then begin
             CBGStatementLineDesc."Journal Template Name" := CBGStatementLine."Journal Template Name";

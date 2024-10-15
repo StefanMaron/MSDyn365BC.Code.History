@@ -61,12 +61,10 @@ table 99000756 "Work Center Group"
             Editable = false;
             FieldClass = FlowField;
         }
-        field(47; "Prod. Order Status Filter"; Option)
+        field(47; "Prod. Order Status Filter"; Enum "Production Order Status")
         {
             Caption = 'Prod. Order Status Filter';
             FieldClass = FlowFilter;
-            OptionCaption = 'Simulated,Planned,Firm Planned,Released,Finished';
-            OptionMembers = Simulated,Planned,"Firm Planned",Released,Finished;
         }
     }
 

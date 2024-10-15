@@ -103,7 +103,7 @@ page 1604 "Office New Contact Dlg"
         exit(ContBusRel.IsEmpty);
     end;
 
-    local procedure CreateNewContact(ContactType: Option)
+    local procedure CreateNewContact(ContactType: Enum "Contact Type")
     var
         TempContact: Record Contact temporary;
         Contact: Record Contact;

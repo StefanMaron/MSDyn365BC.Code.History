@@ -177,6 +177,7 @@ codeunit 9033 "Invite External Accountant"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced IsAnyAccountRegistered from codeunit "Email Account" from "System Application".', '17.0')]
     procedure VerifySMTPIsEnabledAndSetup(): Boolean
     var
         SMTPMail: Codeunit "SMTP Mail";
@@ -308,11 +309,9 @@ codeunit 9033 "Invite External Accountant"
         if HttpWebRequestMgt.SendRequestAndReadTextResponse(ResponseContent, ResponseErrorMessage, ResponseErrorDetails, HttpStatusCode, ResponseHeaders) then
             exit(true)
         else begin
-            SendTraceTag('0000B3O', InviteExternalAccountantTelemetryCategoryTxt, VERBOSITY::Error,
-              StrSubstNo(InvokeWebRequestFailedTxt, HttpStatusCode, ResponseErrorMessage), DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000B3O', StrSubstNo(InvokeWebRequestFailedTxt, HttpStatusCode, ResponseErrorMessage), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InviteExternalAccountantTelemetryCategoryTxt);
 
-            SendTraceTag('0000B3P', InviteExternalAccountantTelemetryCategoryTxt, VERBOSITY::Error,
-                StrSubstNo(InvokeWebRequestFailedDetailedTxt, HttpStatusCode, ResponseErrorMessage, ResponseErrorDetails), DATACLASSIFICATION::CustomerContent);
+            Session.LogMessage('0000B3P', StrSubstNo(InvokeWebRequestFailedDetailedTxt, HttpStatusCode, ResponseErrorMessage, ResponseErrorDetails), Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', InviteExternalAccountantTelemetryCategoryTxt);
 
             exit(false);
         end;
@@ -353,58 +352,49 @@ codeunit 9033 "Invite External Accountant"
 
     procedure SendTelemetryForWizardFailure(stepFailed: Text; ErrorMessage: Text)
     begin
-        SendTraceTag('0000B97', InviteExternalAccountantTelemetryCategoryTxt, VERBOSITY::Error,
-          StrSubstNo(InviteExternalAccountantWizardFailedTxt, stepFailed, ErrorMessage), DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('0000B97', StrSubstNo(InviteExternalAccountantWizardFailedTxt, stepFailed, ErrorMessage), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InviteExternalAccountantTelemetryCategoryTxt);
     end;
 
     [EventSubscriber(ObjectType::Page, 9033, 'OnInvitationStart', '', false, false)]
     local procedure SendTelemetryForInvitationStart()
     begin
-        SendTraceTag('0000178', InviteExternalAccountantTelemetryCategoryTxt, VERBOSITY::Normal,
-          InviteExternalAccountantTelemetryStartTxt, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('0000178', InviteExternalAccountantTelemetryStartTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InviteExternalAccountantTelemetryCategoryTxt);
     end;
 
     [EventSubscriber(ObjectType::Page, 9033, 'OnInvitationNoExternalAccountantLicenseFail', '', false, false)]
     local procedure SendTelemetryForInvitationNoExternalAccountantLicenseFail()
     begin
-        SendTraceTag('0000179', InviteExternalAccountantTelemetryCategoryTxt, VERBOSITY::Error,
-          InviteExternalAccountantTelemetryLicenseFailTxt, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('0000179', InviteExternalAccountantTelemetryLicenseFailTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InviteExternalAccountantTelemetryCategoryTxt);
     end;
 
     [EventSubscriber(ObjectType::Page, 9033, 'OnInvitationNoAADPermissionsFail', '', false, false)]
     local procedure SendTelemetryForInvitationNoAADPermissionsFail()
     begin
-        SendTraceTag('000017A', InviteExternalAccountantTelemetryCategoryTxt, VERBOSITY::Error,
-          InviteExternalAccountantTelemetryAADPermissionFailTxt, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000017A', InviteExternalAccountantTelemetryAADPermissionFailTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InviteExternalAccountantTelemetryCategoryTxt);
     end;
 
     [EventSubscriber(ObjectType::Page, 9033, 'OnInvitationNoUserTablePermissionsFail', '', false, false)]
     local procedure SendTelemetryForInvitationNoUserTableWritePermissionsFail()
     begin
-        SendTraceTag('00001DK', InviteExternalAccountantTelemetryCategoryTxt, VERBOSITY::Error,
-          InviteExternalAccountantTelemetryUserTablePermissionFailTxt, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00001DK', InviteExternalAccountantTelemetryUserTablePermissionFailTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InviteExternalAccountantTelemetryCategoryTxt);
     end;
 
     [EventSubscriber(ObjectType::Page, 9033, 'OnInvitationEnd', '', false, false)]
     local procedure SendTelemetryForInvitationEnd(WasInvitationSuccessful: Boolean; Result: Text; TargetLicense: Text)
     begin
         if WasInvitationSuccessful then
-            SendTraceTag('000017B', InviteExternalAccountantTelemetryCategoryTxt, VERBOSITY::Normal,
-              StrSubstNo(InviteExternalAccountantTelemetryEndTxt, Result, TargetLicense), DATACLASSIFICATION::SystemMetadata)
+            Session.LogMessage('000017B', StrSubstNo(InviteExternalAccountantTelemetryEndTxt, Result, TargetLicense), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InviteExternalAccountantTelemetryCategoryTxt)
         else
-            SendTraceTag('000017C', InviteExternalAccountantTelemetryCategoryTxt, VERBOSITY::Error,
-              StrSubstNo(InviteExternalAccountantTelemetryEndTxt, Result, TargetLicense), DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000017C', StrSubstNo(InviteExternalAccountantTelemetryEndTxt, Result, TargetLicense), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InviteExternalAccountantTelemetryCategoryTxt);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 9033, 'OnInvitationCreateNewUser', '', false, false)]
     local procedure SendTelemetryForInvitationCreateNewUser(UserCreated: Boolean)
     begin
         if UserCreated then
-            SendTraceTag('00001DL', InviteExternalAccountantTelemetryCategoryTxt, VERBOSITY::Normal,
-              InviteExternalAccountantTelemetryCreateNewUserSuccessTxt, DATACLASSIFICATION::SystemMetadata)
+            Session.LogMessage('00001DL', InviteExternalAccountantTelemetryCreateNewUserSuccessTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InviteExternalAccountantTelemetryCategoryTxt)
         else
-            SendTraceTag('00001DM', InviteExternalAccountantTelemetryCategoryTxt, VERBOSITY::Error,
-              InviteExternalAccountantTelemetryCreateNewUserFailedTxt, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00001DM', InviteExternalAccountantTelemetryCreateNewUserFailedTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InviteExternalAccountantTelemetryCategoryTxt);
     end;
 
     [IntegrationEvent(false, false)]

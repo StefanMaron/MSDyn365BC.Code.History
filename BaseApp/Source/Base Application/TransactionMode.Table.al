@@ -147,15 +147,13 @@ table 11000004 "Transaction Mode"
             OptionCaption = 'Principal,Balancing Account Holder';
             OptionMembers = Principal,"Balancing Account Holder";
         }
-        field(23; "Partner Type"; Option)
+        field(23; "Partner Type"; Enum "Partner Type")
         {
             Caption = 'Partner Type';
-            OptionCaption = ' ,Company,Person';
-            OptionMembers = " ",Company,Person;
 
             trigger OnValidate()
             begin
-                CheckPartnerTransactionMode
+                CheckPartnerTransactionMode();
             end;
         }
     }
@@ -218,8 +216,14 @@ table 11000004 "Transaction Mode"
         end;
     end;
 
+    [Obsolete('Replaced by CheckTransactionModePartnerType() with enum parameter PartnerType.', '17.0')]
     [Scope('OnPrem')]
     procedure CheckTransModePartnerType(AccountType: Option Customer,Vendor,Employee; TransactionModeCode: Code[20]; PartnerType: Option " ",Company,Person): Boolean
+    begin
+        exit(CheckTransactionModePartnerType(AccountType, TransactionModeCode, PartnerType));
+    end;
+
+    procedure CheckTransactionModePartnerType(AccountType: Option Customer,Vendor,Employee; TransactionModeCode: Code[20]; PartnerType: Enum "Partner Type"): Boolean
     begin
         if TransactionModeCode <> '' then begin
             SetRange("Account Type", AccountType);

@@ -13,6 +13,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
+        LibraryTemplates: Codeunit "Library - Templates";
         Sales17Q1Tok: Label 'SALES 17Q1', Locked = true;
         SalesBudgetQ1Txt: Label 'Sales Budget 2017,Q1';
         Purchase17Q1Tok: Label 'PURCH 17Q1', Locked = true;
@@ -280,6 +281,8 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
         AnalysisLineTemplate.DeleteAll();
         AnalysisColumnTemplate.DeleteAll();
         AnalysisReportName.DeleteAll();
+
+        LibraryTemplates.DisableTemplatesFeature();
     end;
 
     local procedure CreateItem() ItemNo: Code[20]
@@ -420,7 +423,7 @@ codeunit 135412 "Budgets & Analysis Reports E2E"
           AnalysisColumn."Ledger Entry Type"::"Item Entries", '(A2/A1-1)*100', AnalysisColumn."Value Type"::"Sales Amount");
     end;
 
-    local procedure CreateColumn(var AnalysisColumns: TestPage "Analysis Columns"; ColumnNo: Code[10]; ColumnHeader: Text[50]; Invoiced: Boolean; ColumnType: Option; LedgerEntryType: Option; Formula: Text[50]; ValueType: Option)
+    local procedure CreateColumn(var AnalysisColumns: TestPage "Analysis Columns"; ColumnNo: Code[10]; ColumnHeader: Text[50]; Invoiced: Boolean; ColumnType: Enum "Analysis Column Type"; LedgerEntryType: Option; Formula: Text[50]; ValueType: Enum "Analysis Value Type")
     begin
         AnalysisColumns.New;
         AnalysisColumns."Column No.".SetValue(ColumnNo);

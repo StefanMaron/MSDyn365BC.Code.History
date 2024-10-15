@@ -337,7 +337,7 @@ codeunit 135545 "Attachments E2E Test"
         Assert.AreEqual('', ResponseText, 'Response should be empty');
 
         // [THEN] The content is correctly updated.
-        IncomingDocumentAttachment.SetRange(Id, AttachmentId);
+        IncomingDocumentAttachment.SetRange(SystemId, AttachmentId);
         IncomingDocumentAttachment.FindFirst;
         ActualBase64Content := GetAttachmentBase64Content(IncomingDocumentAttachment);
         Assert.AreEqual(ExpectedBase64Content, ActualBase64Content, 'Wrong content');
@@ -374,7 +374,7 @@ codeunit 135545 "Attachments E2E Test"
         Assert.AreEqual('', ResponseText, 'Response should be empty');
 
         // [THEN] The content is correctly updated.
-        IncomingDocumentAttachment.SetRange(Id, AttachmentId);
+        IncomingDocumentAttachment.SetRange(SystemId, AttachmentId);
         IncomingDocumentAttachment.FindFirst;
         ActualBase64Content := GetAttachmentBase64Content(IncomingDocumentAttachment);
         Assert.AreEqual(ExpectedBase64Content, ActualBase64Content, 'Wrong content');
@@ -474,7 +474,7 @@ codeunit 135545 "Attachments E2E Test"
         // [THEN] The Attachment has been created in the database.
         LibraryGraphMgt.VerifyIDFieldInJson(ResponseText, 'id');
         LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, 'id', AttachmentId);
-        IncomingDocumentAttachment.SetFilter(Id, AttachmentId);
+        IncomingDocumentAttachment.SetFilter(SystemId, AttachmentId);
         IncomingDocumentAttachment.FindFirst;
 
         if IncomingDocument.Posted then begin
@@ -518,7 +518,7 @@ codeunit 135545 "Attachments E2E Test"
         // [THEN] The Attachment has been created in the database.
         LibraryGraphMgt.VerifyIDFieldInJson(ResponseText, 'id');
         LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, 'id', AttachmentId);
-        IncomingDocumentAttachment.SetFilter(Id, AttachmentId);
+        IncomingDocumentAttachment.SetFilter(SystemId, AttachmentId);
         IncomingDocumentAttachment.FindFirst;
 
         if IncomingDocument.Posted then begin
@@ -632,7 +632,7 @@ codeunit 135545 "Attachments E2E Test"
         Assert.AreEqual('', ResponseText, 'DELETE response should be empty.');
 
         // [THEN] The Attachment is no longer in the database.
-        IncomingDocumentAttachment.SetRange(Id, AttachmentId);
+        IncomingDocumentAttachment.SetRange(SystemId, AttachmentId);
         Assert.IsFalse(IncomingDocumentAttachment.FindFirst, 'The attachment should be deleted.');
     end;
 
@@ -660,7 +660,7 @@ codeunit 135545 "Attachments E2E Test"
         Assert.AreEqual('', ResponseText, 'DELETE response should be empty.');
 
         // [THEN] The Attachment is no longer in the database.
-        IncomingDocumentAttachment.SetRange(Id, AttachmentId);
+        IncomingDocumentAttachment.SetRange(SystemId, AttachmentId);
         Assert.IsFalse(IncomingDocumentAttachment.FindFirst, 'The attachment should be deleted.');
     end;
 
@@ -692,7 +692,7 @@ codeunit 135545 "Attachments E2E Test"
         LibraryGraphMgt.PostToWebServiceAndCheckResponseCode(TargetURL, '', ResponseText, 204);
 
         // [THEN] The Attachment exists and is correctly linked to the posted invoice.
-        IncomingDocumentAttachment.SetRange(Id, AttachmentId);
+        IncomingDocumentAttachment.SetRange(SystemId, AttachmentId);
         IncomingDocumentAttachment.FindFirst;
         SalesInvoiceHeader.SetRange("Draft Invoice SystemId", DocumentId);
         SalesInvoiceHeader.FindFirst;
@@ -732,7 +732,7 @@ codeunit 135545 "Attachments E2E Test"
         LibraryGraphMgt.PostToWebServiceAndCheckResponseCode(TargetURL, '', ResponseText, 204);
 
         // [THEN] The Attachment exists and is correctly linked to the posted invoice.
-        IncomingDocumentAttachment.SetRange(Id, AttachmentId);
+        IncomingDocumentAttachment.SetRange(SystemId, AttachmentId);
         IncomingDocumentAttachment.FindFirst;
         PurchInvHeader.SetRange("Draft Invoice SystemId", DocumentId);
         PurchInvHeader.FindFirst;
@@ -766,7 +766,7 @@ codeunit 135545 "Attachments E2E Test"
 
         // [GIVEN] A linked attachment exists.
         AttachmentId := CreateAttachment(DocumentRecordRef);
-        IncomingDocumentAttachment.SetRange(Id, AttachmentId);
+        IncomingDocumentAttachment.SetRange(SystemId, AttachmentId);
         IncomingDocumentAttachment.FindFirst;
         OldBase64Content := GetAttachmentBase64Content(IncomingDocumentAttachment);
         Commit();
@@ -783,7 +783,7 @@ codeunit 135545 "Attachments E2E Test"
         LibraryGraphMgt.VerifyGUIDFieldInJson(ResponseText, 'parentId', DocumentId);
 
         // [THEN] The attachment content is not changed.
-        IncomingDocumentAttachment.SetRange(Id, AttachmentId);
+        IncomingDocumentAttachment.SetRange(SystemId, AttachmentId);
         IncomingDocumentAttachment.FindFirst;
         NewBase64Content := GetAttachmentBase64Content(IncomingDocumentAttachment);
         Assert.AreEqual(OldBase64Content, NewBase64Content, 'Attachment content has been changed.');
@@ -814,7 +814,7 @@ codeunit 135545 "Attachments E2E Test"
 
         // [GIVEN] A linked attachment exists.
         AttachmentId := CreateAttachment(DocumentRecordRef);
-        IncomingDocumentAttachment.SetRange(Id, AttachmentId);
+        IncomingDocumentAttachment.SetRange(SystemId, AttachmentId);
         IncomingDocumentAttachment.FindFirst;
         OldFileName := NameAndExtensionToFileName(IncomingDocumentAttachment.Name, IncomingDocumentAttachment."File Extension");
         TempBlob.FromRecord(IncomingDocumentAttachment, IncomingDocumentAttachment.FieldNo(Content));
@@ -826,7 +826,7 @@ codeunit 135545 "Attachments E2E Test"
         LibraryGraphMgt.BinaryUpdateToWebServiceAndCheckResponseCode(TargetURL, TempBlob, 'PATCH', ResponseText, 204);
 
         // [THEN] The attachment name is not changed in the database.
-        IncomingDocumentAttachment.SetRange(Id, AttachmentId);
+        IncomingDocumentAttachment.SetRange(SystemId, AttachmentId);
         IncomingDocumentAttachment.FindFirst;
         NewFileName := NameAndExtensionToFileName(IncomingDocumentAttachment.Name, IncomingDocumentAttachment."File Extension");
         Assert.AreEqual(OldFileName, NewFileName, 'Attachment file name has been changed.');
@@ -988,9 +988,11 @@ codeunit 135545 "Attachments E2E Test"
     local procedure GetDocumentId(var DocumentRecordRef: RecordRef): Guid
     var
         DummySalesHeader: Record "Sales Header";
-        DataTypeManagement: Codeunit "Data Type Management";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         PurchInvHeader: Record "Purch. Inv. Header";
+        DataTypeManagement: Codeunit "Data Type Management";
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
+        PurchInvAggregator: Codeunit "Purch. Inv. Aggregator";
         IdFieldRef: FieldRef;
         Id: Guid;
     begin
@@ -998,12 +1000,12 @@ codeunit 135545 "Attachments E2E Test"
             database::"Sales Invoice Header":
                 begin
                     DocumentRecordRef.SetTable(SalesInvoiceHeader);
-                    exit(SalesInvoiceHeader."Draft Invoice SystemId");
+                    exit(SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader));
                 end;
             Database::"Purch. Inv. Header":
                 begin
                     DocumentRecordRef.SetTable(PurchInvHeader);
-                    exit(PurchInvHeader."Draft Invoice SystemId");
+                    exit(PurchInvAggregator.GetPurchaseInvoiceHeaderId(PurchInvHeader));
                 end;
             Database::"Gen. Journal Line":
                 begin
@@ -1012,8 +1014,7 @@ codeunit 135545 "Attachments E2E Test"
                 end;
         end;
 
-        if DataTypeManagement.FindFieldByName(DocumentRecordRef, IdFieldRef, DummySalesHeader.FieldName(Id)) then
-            Evaluate(Id, Format(IdFieldRef.Value));
+        Evaluate(Id, Format(DocumentRecordRef.Field(DocumentRecordRef.SystemIdNo()).Value()));
         exit(Id);
     end;
 
@@ -1160,7 +1161,7 @@ codeunit 135545 "Attachments E2E Test"
 
         CreateIncomingDocumentAttachment(IncomingDocument, IncomingDocumentAttachment);
         IncomingDocumentAttachment.Insert(true);
-        exit(IncomingDocumentAttachment.Id);
+        exit(IncomingDocumentAttachment.SystemId);
     end;
 
     local procedure CreateIncomingDocumentAttachment(var IncomingDocument: Record "Incoming Document"; var IncomingDocumentAttachment: Record "Incoming Document Attachment")
@@ -1211,7 +1212,7 @@ codeunit 135545 "Attachments E2E Test"
         JSONManagement.AddJPropertyToJObject(JsonObject, 'parentId', FormatGuid(DocumentId));
 
         if IncludeID then
-            JSONManagement.AddJPropertyToJObject(JsonObject, 'id', FormatGuid(IncomingDocumentAttachment.Id));
+            JSONManagement.AddJPropertyToJObject(JsonObject, 'id', FormatGuid(IncomingDocumentAttachment.SystemId));
 
         FileName := NameAndExtensionToFileName(IncomingDocumentAttachment.Name, IncomingDocumentAttachment."File Extension");
         JSONManagement.AddJPropertyToJObject(JsonObject, 'fileName', FileName);
@@ -1231,7 +1232,7 @@ codeunit 135545 "Attachments E2E Test"
         JSONManagement.AddJPropertyToJObject(JsonObject, 'generalLedgerEntryNumber', Format(GLEntryNo));
 
         if IncludeID then
-            JSONManagement.AddJPropertyToJObject(JsonObject, 'id', FormatGuid(IncomingDocumentAttachment.Id));
+            JSONManagement.AddJPropertyToJObject(JsonObject, 'id', FormatGuid(IncomingDocumentAttachment.SystemId));
 
         FileName := NameAndExtensionToFileName(IncomingDocumentAttachment.Name, IncomingDocumentAttachment."File Extension");
         JSONManagement.AddJPropertyToJObject(JsonObject, 'fileName', FileName);
@@ -1260,8 +1261,8 @@ codeunit 135545 "Attachments E2E Test"
         FileName: Text;
     begin
         Assert.AreNotEqual('', AttachmentJSON, EmptyJSONErr);
-        if not IsNullGuid(IncomingDocumentAttachment.Id) then
-            LibraryGraphMgt.VerifyGUIDFieldInJson(AttachmentJSON, 'id', IncomingDocumentAttachment.Id);
+        if not IsNullGuid(IncomingDocumentAttachment.SystemId) then
+            LibraryGraphMgt.VerifyGUIDFieldInJson(AttachmentJSON, 'id', IncomingDocumentAttachment.SystemId);
         FileName := NameAndExtensionToFileName(IncomingDocumentAttachment.Name, IncomingDocumentAttachment."File Extension");
         VerifyPropertyInJSON(AttachmentJSON, 'fileName', FileName);
         TempBlob.FromRecord(IncomingDocumentAttachment, IncomingDocumentAttachment.FieldNo(Content));

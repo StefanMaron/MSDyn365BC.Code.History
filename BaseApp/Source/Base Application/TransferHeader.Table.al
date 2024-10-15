@@ -1,4 +1,4 @@
-﻿table 5740 "Transfer Header"
+table 5740 "Transfer Header"
 {
     Caption = 'Transfer Header';
     DataCaptionFields = "No.";
@@ -697,11 +697,13 @@
         DimMgt: Codeunit DimensionManagement;
         NoSeriesMgt: Codeunit NoSeriesManagement;
         WhseSourceHeader: Codeunit "Whse. Validate Source Header";
-        HideValidationDialog: Boolean;
+        PostCodeMgt: Codeunit "Post Code Management";
         HasInventorySetup: Boolean;
         CalledFromWhse: Boolean;
         Text007: Label 'You may have changed a dimension.\\Do you want to update the lines?';
-        PostCodeMgt: Codeunit "Post Code Management";
+
+    protected var
+        HideValidationDialog: Boolean;
 
     procedure InitRecord()
     begin
@@ -1050,8 +1052,10 @@
 
         if NewParentDimSetID = OldParentDimSetID then
             exit;
-        if not (HideValidationDialog or ConfirmManagement.GetResponseOrDefault(Text007, true)) then
-            exit;
+
+        if not HideValidationDialog and GuiAllowed then
+            if not ConfirmManagement.GetResponseOrDefault(Text007, true) then
+                exit;
 
         TransLine.Reset();
         TransLine.SetRange("Document No.", "No.");

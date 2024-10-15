@@ -153,7 +153,7 @@ page 6657 "Return Shipment Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }

@@ -1,4 +1,4 @@
-﻿table 174 "Standard Purchase Line"
+table 174 "Standard Purchase Line"
 {
     Caption = 'Standard Purchase Line';
 
@@ -21,7 +21,7 @@
 
             trigger OnValidate()
             var
-                OldType: Integer;
+                OldType: Enum "Purchase Line Type";
             begin
                 OldType := Type;
                 Init;
@@ -201,7 +201,7 @@
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()

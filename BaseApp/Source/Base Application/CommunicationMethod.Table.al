@@ -25,11 +25,9 @@ table 5100 "Communication Method"
         {
             Caption = 'Name';
         }
-        field(6; Type; Option)
+        field(6; Type; Enum "Contact Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Company,Person';
-            OptionMembers = Company,Person;
         }
         field(7; "E-Mail"; Text[80])
         {

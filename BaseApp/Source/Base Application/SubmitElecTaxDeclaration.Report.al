@@ -62,7 +62,7 @@ report 11405 "Submit Elec. Tax Declaration"
                     exit;
                 end;
 
-                SendTraceTag('0000CEK', DigipoortTok, VERBOSITY::Normal, SubmitDeclarationMsg, DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('0000CEK', SubmitDeclarationMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
 
                 Window.Update(1, WindowStatusBuildingMsg);
                 Request := Request.aanleverRequest;
@@ -115,7 +115,7 @@ report 11405 "Submit Elec. Tax Declaration"
 
                 Fault := Response.statusFoutcode;
                 if Fault.foutcode <> '' then begin
-                    SendTraceTag('0000CEL', DigipoortTok, VERBOSITY::Error, StrSubstNo(SubmitDeclarationErrMsg, Fault.foutcode), DATACLASSIFICATION::SystemMetadata);
+                    Session.LogMessage('0000CEL', StrSubstNo(SubmitDeclarationErrMsg, Fault.foutcode), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
                     Error(SubmitErr, "No.", Fault.foutcode, Fault.foutbeschrijving);
                 end;
 
@@ -129,7 +129,7 @@ report 11405 "Submit Elec. Tax Declaration"
                 Commit();
 
                 Window.Close;
-                SendTraceTag('0000CEM', DigipoortTok, VERBOSITY::Normal, SubmitDeclarationSuccessMsg, DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('0000CEM', SubmitDeclarationSuccessMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
                 Message(StrSubstNo(SubmitSuccessMsg, "No."));
             end;
 

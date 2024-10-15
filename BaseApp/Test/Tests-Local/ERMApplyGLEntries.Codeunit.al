@@ -209,7 +209,7 @@ codeunit 144003 "ERM Apply GL Entries"
         exit(ApplyGeneralLedgerEntries.ShowTotalAppliedAmount.AsInteger);
     end;
 
-    local procedure CreateAndPostGeneralJournalLine(DocumentType: Option; Amount: Decimal; GLAccountNo: Code[20])
+    local procedure CreateAndPostGeneralJournalLine(DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; GLAccountNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -235,7 +235,7 @@ codeunit 144003 "ERM Apply GL Entries"
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Option; Amount: Decimal; GLAccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]): Code[20]
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; GLAccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]): Code[20]
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
@@ -280,7 +280,7 @@ codeunit 144003 "ERM Apply GL Entries"
         LibraryERM.ClearGenJournalLines(GenJournalBatch)
     end;
 
-    local procedure VerifyRemainingAmountOnGLEntry(DocumentType: Option; GLAccountNo: Code[20]; RemainingAmount: Decimal)
+    local procedure VerifyRemainingAmountOnGLEntry(DocumentType: Enum "Gen. Journal Document Type"; GLAccountNo: Code[20]; RemainingAmount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin

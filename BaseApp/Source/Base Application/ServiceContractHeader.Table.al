@@ -1739,7 +1739,6 @@ table 5965 "Service Contract Header"
         ContactNo: Code[20];
         Text052: Label '%1 service ledger entries exist for this service contract\Would you like to continue?';
         Text053: Label 'The deletion process has been interrupted.';
-        SuspendChangeStatus: Boolean;
         SkipContact: Boolean;
         SkipBillToContact: Boolean;
         Text054: Label 'You cannot checkmark this field because you do not have permissions for the Service Order Management Area.';
@@ -1760,6 +1759,7 @@ table 5965 "Service Contract Header"
 
     protected var
         HideValidationDialog: Boolean;
+        SuspendChangeStatus: Boolean;
 
     procedure UpdContractChangeLog(OldServContractHeader: Record "Service Contract Header")
     begin
@@ -2003,7 +2003,7 @@ table 5965 "Service Contract Header"
         OnAfterAssistEdit(OldServContract);
     end;
 
-    procedure ReturnNoOfPer(InvoicePeriod: Option Month,"Two Months",Quarter,"Half Year",Year) RetPer: Integer
+    procedure ReturnNoOfPer(InvoicePeriod: Enum "Service Contract Header Invoice Period") RetPer: Integer
     begin
         case InvoicePeriod of
             InvoicePeriod::Month:

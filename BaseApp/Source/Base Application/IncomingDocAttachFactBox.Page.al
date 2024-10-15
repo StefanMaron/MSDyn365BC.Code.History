@@ -72,7 +72,16 @@ page 193 "Incoming Doc. Attach. FactBox"
                 begin
                     IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Incoming Document Entry No.");
                     if GlobalRecordID.TableNo <> 0 then
-                        MainRecordRef := GlobalRecordID.GetRecord;
+                        MainRecordRef := GlobalRecordID.GetRecord
+                    else begin
+                        if GlobalDocumentNo <> '' then
+                            IncomingDocumentAttachment.SetRange("Document No.", GlobalDocumentNo);
+
+                        if GlobalPostingDate <> 0D then
+                            IncomingDocumentAttachment.SetRange("Posting Date", GlobalPostingDate);
+
+                    end;
+
                     IncomingDocumentAttachment.SetFiltersFromMainRecord(MainRecordRef, IncomingDocumentAttachment);
 
                     // check MainRecordRef is initialized
@@ -113,17 +122,84 @@ page 193 "Incoming Doc. Attach. FactBox"
         StyleExpressionTxt := GetStyleTxt;
     end;
 
+    trigger OnFindRecord(Which: Text): Boolean
+    begin
+        if LoadedDataFromRecord then
+            exit(FindFirst());
+
+        if not FilterWasChanged() then
+            exit(true);
+
+        PreviousViewFilter := GetView();
+        exit(LoadDataFromOnFindRecord());
+    end;
+
     var
         MainRecordRef: RecordRef;
         GlobalRecordID: RecordID;
         StyleExpressionTxt: Text;
         CreateMainDocumentFirstErr: Label 'You must fill in any field to create a main record before you try to attach a document. Refresh the page and try again.';
+        LoadedDataFromRecord: Boolean;
+        PreviousViewFilter: text;
+        GlobalDocumentNo: text;
+        GlobalPostingDate: Date;
+
+    procedure LoadDataFromOnFindRecord(): Boolean
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentFound: Boolean;
+        CurrentFilterGroup: Integer;
+    begin
+        CurrentFilterGroup := FilterGroup();
+        FilterGroup(4);
+        IncomingDocumentFound := FindIncomingDocumentFromFilters(IncomingDocument);
+        GlobalDocumentNo := GetFilter("Document No.");
+        Clear(GlobalPostingDate);
+        if GetFilter("Posting Date") <> '' then
+            if Evaluate(GlobalPostingDate, GetFilter("Posting Date")) then;
+
+        FilterGroup(CurrentFilterGroup);
+
+        Reset();
+        DeleteAll();
+
+        if not IncomingDocumentFound then
+            exit(false);
+
+        InsertFromIncomingDocument(IncomingDocument, Rec);
+        exit(true);
+    end;
+
+    local procedure FindIncomingDocumentFromFilters(var IncomingDocument: Record "Incoming Document"): Boolean
+    var
+        IncomingDocumentEntryNo: Text;
+    begin
+        IncomingDocumentEntryNo := GetFilter("Incoming Document Entry No.");
+        if IncomingDocumentEntryNo <> '' then
+            exit(IncomingDocument.Get(IncomingDocumentEntryNo));
+
+        exit(IncomingDocument.FindByDocumentNoAndPostingDate(IncomingDocument, GetFilter("Document No."), GetFilter("Posting Date")));
+    end;
+
+    local procedure FilterWasChanged(): Boolean
+    var
+        CurrentFilterGroup: Integer;
+        CurrentViewFilter: Text;
+    begin
+        CurrentFilterGroup := FilterGroup();
+        FilterGroup(4);
+        CurrentViewFilter := GetView();
+        FilterGroup(CurrentFilterGroup);
+        exit(PreviousViewFilter <> CurrentViewFilter);
+    end;
 
     procedure LoadDataFromRecord(MainRecordVariant: Variant)
     var
         IncomingDocument: Record "Incoming Document";
         DataTypeManagement: Codeunit "Data Type Management";
     begin
+        LoadedDataFromRecord := true;
+
         if not DataTypeManagement.GetRecordRef(MainRecordVariant, MainRecordRef) then
             exit;
 
@@ -136,7 +212,6 @@ page 193 "Incoming Doc. Attach. FactBox"
             InsertFromIncomingDocument(IncomingDocument, Rec);
 
         OnAfterLoadDataFromRecord(MainRecordRef);
-
         CurrPage.Update(false);
     end;
 
@@ -184,4 +259,3 @@ page 193 "Incoming Doc. Attach. FactBox"
     begin
     end;
 }
-

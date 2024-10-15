@@ -11,6 +11,8 @@ table 18 Customer
                   TableData "Service Ledger Entry" = r,
                   TableData "Service Item" = rm,
                   TableData "Service Contract Header" = rm,
+                  TableData "Price List Header" = rd,
+                  TableData "Price List Line" = rd,
                   TableData "Sales Price" = rd,
                   TableData "Sales Line Discount" = rd;
 
@@ -319,11 +321,9 @@ table 18 Customer
             Editable = false;
             FieldClass = FlowField;
         }
-        field(39; Blocked; Option)
+        field(39; Blocked; Enum "Customer Blocked")
         {
             Caption = 'Blocked';
-            OptionCaption = ' ,Ship,Invoice,All';
-            OptionMembers = " ",Ship,Invoice,All;
 
             trigger OnValidate()
             begin
@@ -1138,18 +1138,22 @@ table 18 Customer
             Caption = 'Sell-to No. Of Archived Doc.';
             FieldClass = FlowField;
         }
-        field(132; "Partner Type"; Option)
+        field(132; "Partner Type"; Enum "Partner Type")
         {
             Caption = 'Partner Type';
-            OptionCaption = ' ,Company,Person';
-            OptionMembers = " ",Company,Person;
 
             trigger OnValidate()
             var
                 AccountType: Option Customer,Vendor,Employee;
                 TransactionMode: Record "Transaction Mode";
+                IsHandled: Boolean;
             begin
-                if not TransactionMode.CheckTransModePartnerType(AccountType::Customer, "Transaction Mode Code", "Partner Type") then
+                IsHandled := false;
+                OnBeforeValidatePartnerType(IsHandled);
+                if IsHandled then
+                    exit;
+
+                if not TransactionMode.CheckTransactionModePartnerType(AccountType::Customer, "Transaction Mode Code", "Partner Type") then
                     if not Confirm(PartnerTypeMismatchMsg, false) then
                         Error('')
             end;
@@ -1216,16 +1220,17 @@ table 18 Customer
                         "Phone No." := Cont."Phone No.";
                     if Cont."E-Mail" <> '' then
                         "E-Mail" := Cont."E-Mail";
+                    if Cont."Mobile Phone No." <> '' then
+                        "Mobile Phone No." := Cont."Mobile Phone No.";
+
                 end else
                     if Image.HasValue then
                         Clear(Image);
             end;
         }
-        field(5050; "Contact Type"; Option)
+        field(5050; "Contact Type"; Enum "Contact Type")
         {
             Caption = 'Contact Type';
-            OptionCaption = 'Company,Person';
-            OptionMembers = Company,Person;
 
             trigger OnValidate()
             var
@@ -1241,6 +1246,21 @@ table 18 Customer
                             SalesHeader.Modify(true);
                         until SalesHeader.Next = 0;
                 end;
+            end;
+        }
+        field(5061; "Mobile Phone No."; Text[30])
+        {
+            Caption = 'Mobile Phone No.';
+            ExtendedDatatype = PhoneNo;
+
+            trigger OnValidate()
+            var
+                Char: DotNet Char;
+                i: Integer;
+            begin
+                for i := 1 to StrLen("Mobile Phone No.") do
+                    if Char.IsLetter("Mobile Phone No."[i]) then
+                        FieldError("Mobile Phone No.", PhoneNoCannotContainLettersErr);
             end;
         }
         field(5700; "Responsibility Center"; Code[10])
@@ -1519,12 +1539,10 @@ table 18 Customer
             Caption = 'Base Calendar Code';
             TableRelation = "Base Calendar";
         }
-        field(7601; "Copy Sell-to Addr. to Qte From"; Option)
+        field(7601; "Copy Sell-to Addr. to Qte From"; Enum "Contact Type")
         {
             AccessByPermission = TableData Contact = R;
             Caption = 'Copy Sell-to Addr. to Qte From';
-            OptionCaption = 'Company,Person';
-            OptionMembers = Company,Person;
         }
         field(7602; "Validate EU Vat Reg. No."; Boolean)
         {
@@ -1540,7 +1558,7 @@ table 18 Customer
         field(8001; "Currency Id"; Guid)
         {
             Caption = 'Currency Id';
-            TableRelation = Currency.Id;
+            TableRelation = Currency.SystemId;
 
             trigger OnValidate()
             begin
@@ -1550,7 +1568,7 @@ table 18 Customer
         field(8002; "Payment Terms Id"; Guid)
         {
             Caption = 'Payment Terms Id';
-            TableRelation = "Payment Terms".Id;
+            TableRelation = "Payment Terms".SystemId;
 
             trigger OnValidate()
             begin
@@ -1560,7 +1578,7 @@ table 18 Customer
         field(8003; "Shipment Method Id"; Guid)
         {
             Caption = 'Shipment Method Id';
-            TableRelation = "Shipment Method".Id;
+            TableRelation = "Shipment Method".SystemId;
 
             trigger OnValidate()
             begin
@@ -1570,7 +1588,7 @@ table 18 Customer
         field(8004; "Payment Method Id"; Guid)
         {
             Caption = 'Payment Method Id';
-            TableRelation = "Payment Method".Id;
+            TableRelation = "Payment Method".SystemId;
 
             trigger OnValidate()
             begin
@@ -1672,7 +1690,10 @@ table 18 Customer
         {
         }
         key(Key16; "Salesperson Code")
-        {            
+        {
+        }
+        key(Key17; SystemModifiedAt)
+        {
         }
     }
 
@@ -1734,11 +1755,6 @@ table 18 Customer
 
         StdCustSalesCode.SetRange("Customer No.", "No.");
         StdCustSalesCode.DeleteAll(true);
-
-        ItemCrossReference.SetCurrentKey("Cross-Reference Type", "Cross-Reference Type No.");
-        ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Customer);
-        ItemCrossReference.SetRange("Cross-Reference Type No.", "No.");
-        ItemCrossReference.DeleteAll();
 
         if not SocialListeningSearchTopic.IsEmpty then begin
             SocialListeningSearchTopic.FindSearchTopic(SocialListeningSearchTopic."Source Type"::Customer, "No.");
@@ -1839,7 +1855,7 @@ table 18 Customer
         UpdateReferencedIds;
         SetLastModifiedDateTime;
         if IsContactUpdateNeeded then begin
-            if not TransactionMode.CheckTransModePartnerType(AccountType::Customer, "Transaction Mode Code", "Partner Type") then
+            if not TransactionMode.CheckTransactionModePartnerType(AccountType::Customer, "Transaction Mode Code", "Partner Type") then
                 Error(PartnerTypeMismatchErr);
             Modify;
             UpdateContFromCust.OnModify(Rec);
@@ -1877,7 +1893,6 @@ table 18 Customer
         PostCode: Record "Post Code";
         GenBusPostingGrp: Record "Gen. Business Posting Group";
         ShippingAgentService: Record "Shipping Agent Services";
-        ItemCrossReference: Record "Item Cross Reference";
         RMSetup: Record "Marketing Setup";
         SalesPrepmtPct: Record "Sales Prepayment %";
         ServContract: Record "Service Contract Header";
@@ -2025,7 +2040,7 @@ table 18 Customer
         InsertFromContact := FromContact;
     end;
 
-    procedure CheckBlockedCustOnDocs(Cust2: Record Customer; DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; Shipment: Boolean; Transaction: Boolean)
+    procedure CheckBlockedCustOnDocs(Cust2: Record Customer; DocType: Enum "Sales Document Type"; Shipment: Boolean; Transaction: Boolean)
     var
         Source: Option Journal,Document;
     begin
@@ -2048,7 +2063,7 @@ table 18 Customer
         end;
     end;
 
-    procedure CheckBlockedCustOnJnls(Cust2: Record Customer; DocType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund; Transaction: Boolean)
+    procedure CheckBlockedCustOnJnls(Cust2: Record Customer; DocType: Enum "Gen. Journal Document Type"; Transaction: Boolean)
     var
         Source: Option Journal,Document;
     begin
@@ -2635,6 +2650,11 @@ table 18 Customer
         exit(Customer."No.");
     end;
 
+    procedure SelectCustomer(var Customer: Record Customer): Boolean
+    begin
+        exit(LookupCustomer(Customer));
+    end;
+
     [Scope('OnPrem')]
     procedure LookupCustomer(var Customer: Record Customer): Boolean
     var
@@ -2703,6 +2723,7 @@ table 18 Customer
           ("Address 2" <> xRec."Address 2") or
           (City <> xRec.City) or
           ("Phone No." <> xRec."Phone No.") or
+          ("Mobile Phone No." <> xRec."Mobile Phone No.") or
           ("Telex No." <> xRec."Telex No.") or
           ("Territory Code" <> xRec."Territory Code") or
           ("Currency Code" <> xRec."Currency Code") or
@@ -2865,8 +2886,8 @@ table 18 Customer
         if ApplicableCountryCode = '' then
             ApplicableCountryCode := VATRegistrationNoFormat."Country/Region Code";
         if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
-            VATRegistrationLogMgt.ValidateVATRegNoWithVIES(ResultRecordRef, Rec, "No.",
-              VATRegistrationLog."Account Type"::Customer, ApplicableCountryCode);
+            VATRegistrationLogMgt.ValidateVATRegNoWithVIES(
+                ResultRecordRef, Rec, "No.", VATRegistrationLog."Account Type"::Customer.AsInteger(), ApplicableCountryCode);
             ResultRecordRef.SetTable(Rec);
         end;
     end;
@@ -2943,10 +2964,8 @@ table 18 Customer
     var
         Currency: Record Currency;
     begin
-        if not IsNullGuid("Currency Id") then begin
-            Currency.SetRange(Id, "Currency Id");
-            Currency.FindFirst;
-        end;
+        if not IsNullGuid("Currency Id") then
+            Currency.GetBySystemId("Currency Id");
 
         Validate("Currency Code", Currency.Code);
     end;
@@ -2955,10 +2974,8 @@ table 18 Customer
     var
         PaymentTerms: Record "Payment Terms";
     begin
-        if not IsNullGuid("Payment Terms Id") then begin
-            PaymentTerms.SetRange(Id, "Payment Terms Id");
-            PaymentTerms.FindFirst;
-        end;
+        if not IsNullGuid("Payment Terms Id") then
+            PaymentTerms.GetBySystemId("Payment Terms Id");
 
         Validate("Payment Terms Code", PaymentTerms.Code);
     end;
@@ -2967,10 +2984,8 @@ table 18 Customer
     var
         ShipmentMethod: Record "Shipment Method";
     begin
-        if not IsNullGuid("Shipment Method Id") then begin
-            ShipmentMethod.SetRange(Id, "Shipment Method Id");
-            ShipmentMethod.FindFirst;
-        end;
+        if not IsNullGuid("Shipment Method Id") then
+            ShipmentMethod.GetBySystemId("Shipment Method Id");
 
         Validate("Shipment Method Code", ShipmentMethod.Code);
     end;
@@ -2979,10 +2994,8 @@ table 18 Customer
     var
         PaymentMethod: Record "Payment Method";
     begin
-        if not IsNullGuid("Payment Method Id") then begin
-            PaymentMethod.SetRange(Id, "Payment Method Id");
-            PaymentMethod.FindFirst;
-        end;
+        if not IsNullGuid("Payment Method Id") then
+            PaymentMethod.GetBySystemId("Payment Method Id");
 
         Validate("Payment Method Code", PaymentMethod.Code);
     end;
@@ -2999,7 +3012,7 @@ table 18 Customer
         if not Currency.Get("Currency Code") then
             exit;
 
-        "Currency Id" := Currency.Id;
+        "Currency Id" := Currency.SystemId;
     end;
 
     procedure UpdatePaymentTermsId()
@@ -3014,7 +3027,7 @@ table 18 Customer
         if not PaymentTerms.Get("Payment Terms Code") then
             exit;
 
-        "Payment Terms Id" := PaymentTerms.Id;
+        "Payment Terms Id" := PaymentTerms.SystemId;
     end;
 
     procedure UpdateShipmentMethodId()
@@ -3029,7 +3042,7 @@ table 18 Customer
         if not ShipmentMethod.Get("Shipment Method Code") then
             exit;
 
-        "Shipment Method Id" := ShipmentMethod.Id;
+        "Shipment Method Id" := ShipmentMethod.SystemId;
     end;
 
     procedure UpdatePaymentMethodId()
@@ -3044,7 +3057,7 @@ table 18 Customer
         if not PaymentMethod.Get("Payment Method Code") then
             exit;
 
-        "Payment Method Id" := PaymentMethod.Id;
+        "Payment Method Id" := PaymentMethod.SystemId;
     end;
 
     procedure UpdateTaxAreaId()
@@ -3062,7 +3075,7 @@ table 18 Customer
             if not VATBusinessPostingGroup.Get("VAT Bus. Posting Group") then
                 exit;
 
-            "Tax Area ID" := VATBusinessPostingGroup.Id;
+            "Tax Area ID" := VATBusinessPostingGroup.SystemId;
         end else begin
             if "Tax Area Code" = '' then begin
                 Clear("Tax Area ID");
@@ -3072,7 +3085,7 @@ table 18 Customer
             if not TaxArea.Get("Tax Area Code") then
                 exit;
 
-            "Tax Area ID" := TaxArea.Id;
+            "Tax Area ID" := TaxArea.SystemId;
         end;
     end;
 
@@ -3086,12 +3099,10 @@ table 18 Customer
             exit;
 
         if GeneralLedgerSetup.UseVat then begin
-            VATBusinessPostingGroup.SetRange(Id, "Tax Area ID");
-            VATBusinessPostingGroup.FindFirst;
+            VATBusinessPostingGroup.GetBySystemId("Tax Area ID");
             "VAT Bus. Posting Group" := VATBusinessPostingGroup.Code;
         end else begin
-            TaxArea.SetRange(Id, "Tax Area ID");
-            TaxArea.FindFirst;
+            TaxArea.GetBySystemId("Tax Area ID");
             "Tax Area Code" := TaxArea.Code;
         end;
     end;
@@ -3153,9 +3164,9 @@ table 18 Customer
     begin
     end;
 
-    local procedure IsOnBeforeCheckBlockedCustHandled(Customer: Record Customer; Source: Option Journal,Document; DocType: Option; Shipment: Boolean; Transaction: Boolean) IsHandled: Boolean
+    local procedure IsOnBeforeCheckBlockedCustHandled(Customer: Record Customer; Source: Option Journal,Document; DocType: Enum "Gen. Journal Document Type"; Shipment: Boolean; Transaction: Boolean) IsHandled: Boolean
     begin
-        OnBeforeCheckBlockedCust(Customer, Source, DocType, Shipment, Transaction, IsHandled)
+        OnBeforeCheckBlockedCust(Customer, Source, DocType.AsInteger(), Shipment, Transaction, IsHandled)
     end;
 
     [IntegrationEvent(false, false)]
@@ -3219,7 +3230,7 @@ table 18 Customer
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateCustomerBankAccounts(var Customer : Record Customer; var IsHandled : Boolean)
+    local procedure OnBeforeUpdateCustomerBankAccounts(var Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 

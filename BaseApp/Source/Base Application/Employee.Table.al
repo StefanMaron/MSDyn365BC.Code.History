@@ -207,11 +207,9 @@ table 5200 Employee
         {
             Caption = 'Employment Date';
         }
-        field(31; Status; Option)
+        field(31; Status; Enum "Employee Status")
         {
             Caption = 'Status';
-            OptionCaption = 'Active,Inactive,Terminated';
-            OptionMembers = Active,Inactive,Terminated;
 
             trigger OnValidate()
             begin
@@ -275,7 +273,7 @@ table 5200 Employee
         }
         field(39; Comment; Boolean)
         {
-            CalcFormula = Exist ("Human Resource Comment Line" WHERE("Table Name" = CONST(Employee),
+            CalcFormula = Exist("Human Resource Comment Line" WHERE("Table Name" = CONST(Employee),
                                                                      "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -313,7 +311,7 @@ table 5200 Employee
         }
         field(45; "Total Absence (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Employee Absence"."Quantity (Base)" WHERE("Employee No." = FIELD("No."),
+            CalcFormula = Sum("Employee Absence"."Quantity (Base)" WHERE("Employee No." = FIELD("No."),
                                                                           "Cause of Absence Code" = FIELD("Cause of Absence Filter"),
                                                                           "From Date" = FIELD("Date Filter")));
             Caption = 'Total Absence (Base)';
@@ -406,7 +404,7 @@ table 5200 Employee
         field(59; Balance; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum ("Detailed Employee Ledger Entry".Amount WHERE("Employee No." = FIELD("No."),
+            CalcFormula = - Sum("Detailed Employee Ledger Entry".Amount WHERE("Employee No." = FIELD("No."),
                                                                               "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                               "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
                                                                               "Posting Date" = FIELD("Date Filter")));
@@ -569,14 +567,12 @@ table 5200 Employee
         if Res.ReadPermission then
             EmployeeResUpdate.HumanResToRes(xRec, Rec);
 
-        if not TransactionMode.CheckTransModePartnerType(
-             AccountType::Employee, "Transaction Mode Code", TransactionMode."Partner Type"::" ")
-        then
+        if not TransactionMode.CheckTransactionModePartnerType(AccountType::Employee, "Transaction Mode Code", "Partner Type"::" ") then
             Error(PartnerTypeMismatchErr);
 
         if SalespersonPurchaser.ReadPermission then
             EmployeeSalespersonUpdate.HumanResToSalesPerson(xRec, Rec);
-        UpdateSearchName;
+        UpdateSearchName();
     end;
 
     trigger OnRename()
@@ -645,7 +641,7 @@ table 5200 Employee
             DimMgt.SaveDefaultDim(DATABASE::Employee, "No.", FieldNumber, ShortcutDimCode);
             Modify;
         end;
-	
+
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 

@@ -14,6 +14,10 @@ page 9017 "Service Technician Role Center"
                 {
                     ApplicationArea = Service;
                 }
+                part("User Tasks Activities"; "User Tasks Activities")
+                {
+                    ApplicationArea = Suite;
+                }
             }
             group(Control1900724708)
             {

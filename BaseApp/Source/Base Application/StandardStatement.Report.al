@@ -653,17 +653,17 @@ report 1316 "Standard Statement"
                     PrintLine := true;
 
                 IF (NOT PrintLine) AND PrintAllHavingEntry THEN BEGIN
-                  CustLedgerEntry.Reset();
-                  CustLedgerEntry.SetCurrentKey("Customer No.","Posting Date");
-                  CustLedgerEntry.SETRANGE("Customer No.","No.");
-                  CustLedgerEntry.SETRANGE("Posting Date",StartDate,EndDate);
-                  COPYFILTER("Currency Filter",CustLedgerEntry."Currency Code");
-                  PrintLine := NOT CustLedgerEntry.ISEMPTY;
+                    CustLedgerEntry.Reset();
+                    CustLedgerEntry.SetCurrentKey("Customer No.", "Posting Date");
+                    CustLedgerEntry.SETRANGE("Customer No.", "No.");
+                    CustLedgerEntry.SETRANGE("Posting Date", StartDate, EndDate);
+                    COPYFILTER("Currency Filter", CustLedgerEntry."Currency Code");
+                    PrintLine := NOT CustLedgerEntry.ISEMPTY;
                 END;
                 IF NOT PrintLine THEN
-                  CurrReport.Skip();
+                    CurrReport.Skip();
 
-                FormatAddr.Customer(CustAddr,Customer);
+                FormatAddr.Customer(CustAddr, Customer);
                 PrintedCustomersList.Add("No.");
 
                 IsFirstLoop := false;
@@ -705,12 +705,14 @@ report 1316 "Standard Statement"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Start Date';
                         ToolTip = 'Specifies the date from which the report or batch job processes information.';
+                        ShowMandatory = true;
                     }
                     field("End Date"; EndDate)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'End Date';
                         ToolTip = 'Specifies the date to which the report or batch job processes information.';
+                        ShowMandatory = true;
                     }
                     field(ShowOverdueEntries; PrintEntriesDue)
                     {
@@ -825,7 +827,7 @@ report 1316 "Standard Statement"
                     }
                     field(ChosenOutput; ChosenOutputMethod)
                     {
-                        ApplicationArea = Basic,Suite;
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Chosen Output';
                         ToolTip = 'Specifies how to output the report, such as Print or Excel.';
                         Visible = false;
@@ -834,7 +836,7 @@ report 1316 "Standard Statement"
                     {
                         Caption = 'Email Options';
                         Visible = ShowPrintIfEmailIsMissing;
-                        field(PrintMissingAddresses;PrintIfEmailIsMissing)
+                        field(PrintMissingAddresses; PrintIfEmailIsMissing)
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Print Although Email is Missing';
@@ -1154,9 +1156,9 @@ report 1316 "Standard Statement"
         CustLedgerEntry.SetCurrentKey("Currency Code");
         TempCurrency2.Init();
         while CustLedgerEntry.FindFirst do begin
-          TempCurrency2.Code := CustLedgerEntry."Currency Code";
-          TempCurrency2.Insert();
-          CustLedgerEntry.SetFilter("Currency Code",'>%1',CustLedgerEntry."Currency Code");
+            TempCurrency2.Code := CustLedgerEntry."Currency Code";
+            TempCurrency2.Insert();
+            CustLedgerEntry.SetFilter("Currency Code", '>%1', CustLedgerEntry."Currency Code");
         end;
     end;
 }

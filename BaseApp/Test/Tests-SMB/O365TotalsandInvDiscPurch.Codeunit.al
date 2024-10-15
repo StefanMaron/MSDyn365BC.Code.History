@@ -1621,7 +1621,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         PurchaseInvoice.DocAmountVAT.SetValue(PurchaseHeader."Doc. Amount VAT");
     end;
 
-    local procedure CreatePurchHeaderWithDocTypeAndNumberOfLines(var PurchaseHeader: Record "Purchase Header"; var Item: Record Item; var Vendor: Record Vendor; ItemQuantity: Decimal; NumberOfLines: Integer; DocumentType: Option)
+    local procedure CreatePurchHeaderWithDocTypeAndNumberOfLines(var PurchaseHeader: Record "Purchase Header"; var Item: Record Item; var Vendor: Record Vendor; ItemQuantity: Decimal; NumberOfLines: Integer; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
         I: Integer;

@@ -1639,17 +1639,40 @@ codeunit 134425 "Payment Services Test"
     [Test]
     [HandlerFunctions('EMailDialogHandler')]
     [Scope('OnPrem')]
+    procedure TestBodyLinkIsSetSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        BodyLinkIsSet();
+    end;
+
+    // [Test]
+    [HandlerFunctions('EmailEditorHandler,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
     procedure TestBodyLinkIsSet()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        BodyLinkIsSet();
+    end;
+
+    procedure BodyLinkIsSet()
     var
         TempTemplatePaymentServiceSetup: Record "Payment Service Setup" temporary;
         TempPaymentServiceSetup: Record "Payment Service Setup" temporary;
         PaymentMethod: Record "Payment Method";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         TempPaymentReportingArgument: Record "Payment Reporting Argument" temporary;
+        LibraryWorkflow: Codeunit "Library - Workflow";
+        EmailFeature: Codeunit "Email Feature";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
         // Setup
         Initialize;
+        if EmailFeature.IsEnabled() then
+            LibraryWorkflow.SetUpEmailAccount();
 
         CreateDefaultTemplate(TempTemplatePaymentServiceSetup);
         PaymentServiceExtensionMock.SetPaymentServiceTemplates(TempTemplatePaymentServiceSetup);
@@ -1710,8 +1733,9 @@ codeunit 134425 "Payment Services Test"
 
         GetCustomBodyLayout(CustomReportLayout);
 
-        ReportSelections.FilterPrintUsage(ReportSelections.Usage::"S.Invoice");
-        ReportSelections.FindFirst;
+        ReportSelections.Reset();
+        ReportSelections.SetRange(Usage, ReportSelections.Usage::"S.Invoice");
+        ReportSelections.FindFirst();
         ReportSelections.Validate("Use for Email Attachment", true);
         ReportSelections.Validate("Use for Email Body", true);
         ReportSelections.Validate("Email Body Layout Code", CustomReportLayout.Code);
@@ -1891,7 +1915,7 @@ codeunit 134425 "Payment Services Test"
         CreateSalesDocument(SalesHeader, PaymentMethod, CurrencyCode, SalesHeader."Document Type"::Order);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; PaymentMethod: Record "Payment Method"; CurrencyCode: Code[10]; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; PaymentMethod: Record "Payment Method"; CurrencyCode: Code[10]; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -2149,6 +2173,22 @@ codeunit 134425 "Payment Services Test"
     procedure EMailDialogHandler(var EMailDialog: TestPage "Email Dialog")
     begin
         LibraryVariableStorage.Enqueue(EMailDialog.BodyText.Value);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure EmailEditorHandler(var EmailEditor: TestPage "Email Editor")
+    var
+        EmailItem: Record "Email Item";
+    begin
+        LibraryVariableStorage.Enqueue(EmailEditor.BodyField.Value);
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure CloseEmailEditorHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        Choice := 1;
     end;
 
     [HyperlinkHandler]

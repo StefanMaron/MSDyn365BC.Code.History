@@ -168,43 +168,40 @@ codeunit 132202 "Library - Manufacturing"
         CalculateSubcontracts.RunModal;
     end;
 
-    procedure ChangeProdOrderStatus(var ProductionOrder: Record "Production Order"; NewStatus: Option; PostingDate: Date; UpdateUnitCost: Boolean)
+    procedure ChangeProdOrderStatus(var ProductionOrder: Record "Production Order"; NewStatus: Enum "Production Order Status"; PostingDate: Date; UpdateUnitCost: Boolean)
     var
         ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
     begin
-        ProdOrderStatusMgt.ChangeStatusOnProdOrder(ProductionOrder, NewStatus, PostingDate, UpdateUnitCost);
+        ProdOrderStatusMgt.ChangeProdOrderStatus(ProductionOrder, NewStatus, PostingDate, UpdateUnitCost);
     end;
 
     procedure ChangeStatusPlannedToFinished(ProductionOrderNo: Code[20]): Code[20]
     var
         ProductionOrder: Record "Production Order";
-        ProdOrderStatusManagement: Codeunit "Prod. Order Status Management";
     begin
         ProductionOrder.Get(ProductionOrder.Status::Planned, ProductionOrderNo);
-        ProdOrderStatusManagement.ChangeStatusOnProdOrder(ProductionOrder, ProductionOrder.Status::Released, WorkDate, false);
+        ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate, false);
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Released);
         ProductionOrder.SetRange("Source No.", ProductionOrder."Source No.");
         ProductionOrder.FindFirst;
-        ProdOrderStatusManagement.ChangeStatusOnProdOrder(ProductionOrder, ProductionOrder.Status::Finished, WorkDate, false);
+        ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate, false);
         exit(ProductionOrder."No.");
     end;
 
     procedure ChangeStatusReleasedToFinished(ProductionOrderNo: Code[20])
     var
         ProductionOrder: Record "Production Order";
-        ProdOrderStatusManagement: Codeunit "Prod. Order Status Management";
     begin
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
-        ProdOrderStatusManagement.ChangeStatusOnProdOrder(ProductionOrder, ProductionOrder.Status::Finished, WorkDate, false);
+        ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate, false);
     end;
 
-    procedure ChangeStatusFirmPlanToReleased(ProductionOrderNo: Code[20]; FromStatus: Option; ToStatus: Option): Code[20]
+    procedure ChangeStatusFirmPlanToReleased(ProductionOrderNo: Code[20]; FromStatus: Enum "Production Order Status"; ToStatus: Enum "Production Order Status"): Code[20]
     var
         ProductionOrder: Record "Production Order";
-        ProdOrderStatusManagement: Codeunit "Prod. Order Status Management";
     begin
         ProductionOrder.Get(FromStatus, ProductionOrderNo);
-        ProdOrderStatusManagement.ChangeStatusOnProdOrder(ProductionOrder, ToStatus, WorkDate, true);
+        ChangeProdOrderStatus(ProductionOrder, ToStatus, WorkDate, true);
         ProductionOrder.SetRange(Status, ToStatus);
         ProductionOrder.SetRange("Source No.", ProductionOrder."Source No.");
         ProductionOrder.FindFirst;
@@ -218,7 +215,7 @@ codeunit 132202 "Library - Manufacturing"
         exit(ChangeStatusFirmPlanToReleased(ProductionOrderNo, ProductionOrder.Status::Simulated, ProductionOrder.Status::Released));
     end;
 
-    procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; ProdOrderStatus: Option; SourceType: Option; SourceNo: Code[20]; Quantity: Decimal)
+    procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; ProdOrderStatus: Enum "Production Order Status"; SourceType: Enum "Prod. Order Source Type"; SourceNo: Code[20]; Quantity: Decimal)
     begin
         CreateProductionOrder(ProductionOrder, ProdOrderStatus, SourceType, SourceNo, Quantity);
         RefreshProdOrder(ProductionOrder, false, true, true, true, false);
@@ -243,7 +240,7 @@ codeunit 132202 "Library - Manufacturing"
         BOMComponent.Modify(true);
     end;
 
-    procedure CreateCalendarAbsenceEntry(var CalendarAbsenceEntry: Record "Calendar Absence Entry"; CapacityType: Option "Work Center","Machine Center"; No: Code[20]; Date: Date; StartingTime: Time; EndingTime: Time; Capacity: Decimal)
+    procedure CreateCalendarAbsenceEntry(var CalendarAbsenceEntry: Record "Calendar Absence Entry"; CapacityType: Enum "Capacity Type"; No: Code[20]; Date: Date; StartingTime: Time; EndingTime: Time; Capacity: Decimal)
     begin
         CalendarAbsenceEntry.Init();
         CalendarAbsenceEntry.Validate("Capacity Type", CapacityType);
@@ -256,7 +253,7 @@ codeunit 132202 "Library - Manufacturing"
         CalendarAbsenceEntry.Modify(true);
     end;
 
-    procedure CreateCapacityConstrainedResource(var CapacityConstrainedResource: Record "Capacity Constrained Resource"; CapacityType: Option; CapacityNo: Code[20])
+    procedure CreateCapacityConstrainedResource(var CapacityConstrainedResource: Record "Capacity Constrained Resource"; CapacityType: Enum "Capacity Type"; CapacityNo: Code[20])
     begin
         Clear(CapacityConstrainedResource);
         CapacityConstrainedResource.Init();
@@ -265,7 +262,7 @@ codeunit 132202 "Library - Manufacturing"
         CapacityConstrainedResource.Insert(true);
     end;
 
-    procedure CreateCapacityUnitOfMeasure(var CapacityUnitOfMeasure: Record "Capacity Unit of Measure"; Type: Integer)
+    procedure CreateCapacityUnitOfMeasure(var CapacityUnitOfMeasure: Record "Capacity Unit of Measure"; Type: Enum "Capacity Unit of Measure")
     begin
         CapacityUnitOfMeasure.Init();
         CapacityUnitOfMeasure.Validate(
@@ -298,7 +295,7 @@ codeunit 132202 "Library - Manufacturing"
         FamilyLine.Modify(true);
     end;
 
-    procedure CreateItemManufacturing(var Item: Record Item; CostingMethod: Option; UnitCost: Decimal; ReorderPolicy: Option; FlushingMethod: Option; RoutingNo: Code[20]; ProductionBOMNo: Code[20])
+    procedure CreateItemManufacturing(var Item: Record Item; CostingMethod: Enum "Costing Method"; UnitCost: Decimal; ReorderPolicy: Enum "Reordering Policy"; FlushingMethod: Enum "Flushing Method"; RoutingNo: Code[20]; ProductionBOMNo: Code[20])
     var
         InventoryPostingSetup: Record "Inventory Posting Setup";
     begin
@@ -363,7 +360,7 @@ codeunit 132202 "Library - Manufacturing"
         Commit();
     end;
 
-    procedure CreateProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderStatus: Option; ProdOrderNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; Qty: Decimal)
+    procedure CreateProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; Qty: Decimal)
     begin
         with ProdOrderLine do begin
             Init;
@@ -412,7 +409,7 @@ codeunit 132202 "Library - Manufacturing"
         exit(ProductionBOMHeader."No.");
     end;
 
-    procedure CreateProductionBOMLine(var ProductionBOMHeader: Record "Production BOM Header"; var ProductionBOMLine: Record "Production BOM Line"; VersionCode: Code[20]; Type: Option; No: Code[20]; QuantityPer: Decimal)
+    procedure CreateProductionBOMLine(var ProductionBOMHeader: Record "Production BOM Header"; var ProductionBOMLine: Record "Production BOM Line"; VersionCode: Code[20]; Type: Enum "Production BOM Line Type"; No: Code[20]; QuantityPer: Decimal)
     var
         RecRef: RecordRef;
     begin
@@ -485,7 +482,7 @@ codeunit 132202 "Library - Manufacturing"
         ProductionForecastName.Insert(true);
     end;
 
-    procedure CreateProductionOrder(var ProductionOrder: Record "Production Order"; Status: Option; SourceType: Enum "Prod. Order Source Type"; SourceNo: Code[20]; Quantity: Decimal)
+    procedure CreateProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceType: Enum "Prod. Order Source Type"; SourceNo: Code[20]; Quantity: Decimal)
     begin
         case Status of
             ProductionOrder.Status::Simulated:
@@ -512,7 +509,7 @@ codeunit 132202 "Library - Manufacturing"
         ProductionOrder.Modify(true);
     end;
 
-    procedure CreateProductionOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; Status: Option; ProdOrderNo: Code[20]; ProdOrderLineNo: Integer)
+    procedure CreateProductionOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; Status: Enum "Production Order Status"; ProdOrderNo: Code[20]; ProdOrderLineNo: Integer)
     var
         RecRef: RecordRef;
     begin
@@ -525,7 +522,7 @@ codeunit 132202 "Library - Manufacturing"
         ProdOrderComponent.Insert(true);
     end;
 
-    procedure CreateProductionOrderFromSalesOrder(SalesHeader: Record "Sales Header"; ProdOrderStatus: Option; OrderType: Option ItemOrder,ProjectOrder)
+    procedure CreateProductionOrderFromSalesOrder(SalesHeader: Record "Sales Header"; ProdOrderStatus: Enum "Production Order Status"; OrderType: Option ItemOrder,ProjectOrder)
     var
         SalesLine: Record "Sales Line";
         CreateProdOrderFromSale: Codeunit "Create Prod. Order from Sale";
@@ -541,7 +538,7 @@ codeunit 132202 "Library - Manufacturing"
         until (SalesLine.Next = 0) or EndLoop;
     end;
 
-    procedure CreateRegisteredAbsence(var RegisteredAbsence: Record "Registered Absence"; CapacityType: Option; No: Code[20]; Date: Date; StartingTime: Time; EndingTime: Time)
+    procedure CreateRegisteredAbsence(var RegisteredAbsence: Record "Registered Absence"; CapacityType: Enum "Capacity Type"; No: Code[20]; Date: Date; StartingTime: Time; EndingTime: Time)
     begin
         RegisteredAbsence.Init();
         RegisteredAbsence.Validate("Capacity Type", CapacityType);
@@ -564,7 +561,7 @@ codeunit 132202 "Library - Manufacturing"
         RoutingHeader.Modify(true);
     end;
 
-    procedure CreateRoutingLine(var RoutingHeader: Record "Routing Header"; var RoutingLine: Record "Routing Line"; VersionCode: Code[20]; OperationNo: Code[10]; Type: Option; No: Code[20])
+    procedure CreateRoutingLine(var RoutingHeader: Record "Routing Header"; var RoutingLine: Record "Routing Line"; VersionCode: Code[20]; OperationNo: Code[10]; Type: Enum "Capacity Type Routing"; No: Code[20])
     begin
         RoutingLine.Init();
         RoutingLine.Validate("Routing No.", RoutingHeader."No.");
@@ -920,13 +917,13 @@ codeunit 132202 "Library - Manufacturing"
         until ItemJournalLine.Next = 0;
     end;
 
-    procedure UpdateProductionBOMStatus(var ProductionBOMHeader: Record "Production BOM Header"; NewStatus: Option)
+    procedure UpdateProductionBOMStatus(var ProductionBOMHeader: Record "Production BOM Header"; NewStatus: Enum "Production Order Status")
     begin
         ProductionBOMHeader.Validate(Status, NewStatus);
         ProductionBOMHeader.Modify(true);
     end;
 
-    procedure UpdateRoutingStatus(var RoutingHeader: Record "Routing Header"; NewStatus: Option)
+    procedure UpdateRoutingStatus(var RoutingHeader: Record "Routing Header"; NewStatus: Enum "Routing Status")
     begin
         RoutingHeader.Validate(Status, NewStatus);
         RoutingHeader.Modify(true);

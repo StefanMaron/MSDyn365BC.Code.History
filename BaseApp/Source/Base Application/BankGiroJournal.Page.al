@@ -176,7 +176,7 @@ page 11400 "Bank/Giro Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }

@@ -915,6 +915,41 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         Assert.RecordIsEmpty(SalesLineOrder);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoInsertStdExtTextSalesLinesWhenCreateNewSalesOrderFromCustomerList()
+    var
+        Customer: Record Customer;
+        DummySalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CustomerList: TestPage "Customer List";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [UI] [Automatic mode] [Order] [Extended Text]
+        // [SCENARIO 369981] Recurring text sales line (with extended text) created when new Sales Order is created from Customer List
+        Initialize();
+
+        // [GIVEN] Customer "C" with text Std. Sales Code (with extended text) where Insert Rec. Lines On Orders = Automatic
+        Customer.Get(
+            GetNewCustNoWithStandardSalesCodeForCode(RefDocType::Order, RefMode::Automatic, CreateStandardSalesCodeWithStdExtTextLine()));
+
+        // [GIVEN] Customer List on customer "C" record
+        CustomerList.OpenEdit();
+        CustomerList.GotoRecord(Customer);
+
+        // [GIVEN] Perform page action: New Sales Document -> Sales Order
+        SalesOrder.Trap();
+        CustomerList.NewSalesOrder.Invoke();
+
+        // [WHEN] Activate "Sell-to Customer No." field
+        SalesOrder."Sell-to Customer No.".Activate();
+
+        // [THEN] Text recurring sales line with extended text is created
+        SalesLine.SetRange("Document Type", DummySalesHeader."Document Type"::Order);
+        SalesLine.SetRange("Document No.", SalesOrder."No.".Value);
+        Assert.RecordCount(SalesLine, 2);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -993,6 +1028,24 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         StandardSalesLine.Description := LibraryUTUtility.GetNewCode();
         StandardSalesLine.Insert();
         exit(StandardSalesLine."Standard Sales Code")
+    end;
+
+    local procedure CreateStandardSalesCodeWithStdExtTextLine(): Code[10]
+    var
+        StandardSalesLine: Record "Standard Sales Line";
+    begin
+        StandardSalesLine."Standard Sales Code" := CreateStandardSalesCode();
+        StandardSalesLine.Validate("No.", CreateStandardTextCodeWithExtendedText());
+        StandardSalesLine.Insert();
+        exit(StandardSalesLine."Standard Sales Code")
+    end;
+
+    local procedure CreateStandardTextCodeWithExtendedText(): Code[20]
+    var
+        StandardText: Record "Standard Text";
+        ExtendedText: Text;
+    begin
+        exit(LibrarySales.CreateStandardTextWithExtendedText(StandardText, ExtendedText));
     end;
 
     local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")

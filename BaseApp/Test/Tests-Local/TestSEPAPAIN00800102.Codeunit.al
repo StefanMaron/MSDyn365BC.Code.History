@@ -277,7 +277,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         SetUpSEPA(BankAccount, Customer1, DirectDebitMandate);
         CreateAndPostSalesInvoice(Customer1."No.", false);
 
-        SetUpTransactionMode(TransactionMode, BankAccount."No.", 3 - Customer1."Partner Type", TransactionMode."Account Type"::Customer); // Partner Type <> Customer1.Partner Type
+        SetUpTransactionMode(TransactionMode, BankAccount."No.", 3 - Customer1."Partner Type".AsInteger(), TransactionMode."Account Type"::Customer); // Partner Type <> Customer1.Partner Type
         CreateCustomerWithBankAccount(Customer2, BankAccount, TransactionMode.Code, TransactionMode."Partner Type", DirectDebitMandate);
         CreateAndPostSalesInvoice(Customer2."No.", false);
 

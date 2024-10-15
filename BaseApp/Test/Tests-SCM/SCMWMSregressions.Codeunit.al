@@ -532,7 +532,7 @@ codeunit 137005 "SCM WMS regressions"
           WarehouseRequest."Source Document"::"Prod. Output", ProductionOrder."No.", true, false, false);
     end;
 
-    local procedure FindAndSelInvActvOnSrcNoAndLoc(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ActivitySourceType: Option; ActivitySourceNo: Code[20]; LocationCode: Code[10]): Boolean
+    local procedure FindAndSelInvActvOnSrcNoAndLoc(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ActivitySourceType: Enum "Warehouse Activity Source Document"; ActivitySourceNo: Code[20]; LocationCode: Code[10]): Boolean
     begin
         WarehouseActivityHeader.Reset();
         WarehouseActivityHeader.SetRange("Location Code", LocationCode);
@@ -541,7 +541,7 @@ codeunit 137005 "SCM WMS regressions"
         exit(WarehouseActivityHeader.FindFirst);
     end;
 
-    local procedure FindAndSelPostPAwOnSrcNoAndLoc(var PostedInvtPutAwayHeader: Record "Posted Invt. Put-away Header"; SourceDoc: Option; SourceNo: Code[20]; LocationCode: Code[10]): Boolean
+    local procedure FindAndSelPostPAwOnSrcNoAndLoc(var PostedInvtPutAwayHeader: Record "Posted Invt. Put-away Header"; SourceDoc: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; LocationCode: Code[10]): Boolean
     begin
         PostedInvtPutAwayHeader.Reset();
         PostedInvtPutAwayHeader.SetRange("Location Code", LocationCode);
@@ -550,7 +550,7 @@ codeunit 137005 "SCM WMS regressions"
         exit(PostedInvtPutAwayHeader.FindFirst);
     end;
 
-    local procedure FindAndSelPstPickOnSrcNoAndLoc(var PostedInvtPickHeader: Record "Posted Invt. Pick Header"; SourceDoc: Option; SourceNo: Code[20]; LocationCode: Code[10]): Boolean
+    local procedure FindAndSelPstPickOnSrcNoAndLoc(var PostedInvtPickHeader: Record "Posted Invt. Pick Header"; SourceDoc: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; LocationCode: Code[10]): Boolean
     begin
         PostedInvtPickHeader.Reset();
         PostedInvtPickHeader.SetRange("Location Code", LocationCode);
@@ -559,14 +559,14 @@ codeunit 137005 "SCM WMS regressions"
         exit(PostedInvtPickHeader.FindFirst);
     end;
 
-    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderStatus: Option; ProdOrderNo: Code[20])
+    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20])
     begin
         ProdOrderLine.SetRange(Status, ProdOrderStatus);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivity(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceDocument: Option; SourceNo: Code[20])
+    local procedure FindWarehouseActivity(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         with WarehouseActivityHeader do begin
             SetRange("Source Document", SourceDocument);

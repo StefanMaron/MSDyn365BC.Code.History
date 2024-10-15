@@ -314,7 +314,7 @@ codeunit 137306 "SCM Costing Reports"
         SalesReceivablesSetup.Modify(true);
     end;
 
-    local procedure CreateItem(var Item: Record Item; CostingMethod: Option)
+    local procedure CreateItem(var Item: Record Item; CostingMethod: Enum "Costing Method")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Costing Method", CostingMethod);
@@ -436,7 +436,7 @@ codeunit 137306 "SCM Costing Reports"
         PurchRcptLine.FindFirst;
     end;
 
-    local procedure PostItemJournalLine(ItemJnlTemplateName: Code[10]; ItemJnlBatchName: Code[10]; EntryType: Option; ItemNo: Code[20]; Qty: Decimal; UnitAmount: Decimal; PostingDate: Date)
+    local procedure PostItemJournalLine(ItemJnlTemplateName: Code[10]; ItemJnlBatchName: Code[10]; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Qty: Decimal; UnitAmount: Decimal; PostingDate: Date)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin

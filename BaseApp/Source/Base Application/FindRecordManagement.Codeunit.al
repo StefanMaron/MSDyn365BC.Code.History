@@ -356,7 +356,7 @@ codeunit 703 "Find Record Management"
         GLAccount.SetRange("Direct Posting", true);
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
         GLAccount.SetRange(Blocked, false);
-        exit(GLAccount.GetView);
+        exit(GLAccount.GetView(false));
     end;
 
     [TryFunction]

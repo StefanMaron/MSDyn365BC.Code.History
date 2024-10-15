@@ -53,7 +53,7 @@ codeunit 11407 "Imp. SEPA CAMT Post-Mapping"
           CBGStatementLineAddInfo."Information Type"::"Payment Identification", false, false);
     end;
 
-    local procedure InsertRelatedPartyInformation(CurrentCBGStatementLine: Record "CBG Statement Line"; XmlPath: Text; InformationType: Option; Multiline: Boolean; OverrideDescription: Boolean)
+    local procedure InsertRelatedPartyInformation(CurrentCBGStatementLine: Record "CBG Statement Line"; XmlPath: Text; InformationType: Enum "CBG Statement Information Type"; Multiline: Boolean; OverrideDescription: Boolean)
     var
         DataExch: Record "Data Exch.";
         DataExchField: Record "Data Exch. Field";

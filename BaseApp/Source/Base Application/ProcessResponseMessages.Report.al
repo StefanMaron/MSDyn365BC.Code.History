@@ -23,10 +23,10 @@ report 11406 "Process Response Messages"
                 Index: Integer;
                 NextErrorNo: Integer;
             begin
-                SendTraceTag('0000CED', DigipoortTok, VERBOSITY::Normal, ProcessingResponseMsg, DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('0000CED', ProcessingResponseMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
 
                 if not ElecTaxDeclHeader.Get("Declaration Type", "Declaration No.") then begin
-                    SendTraceTag('0000CEE', DigipoortTok, VERBOSITY::Error, StrSubstNo(HeaderNotFoundErrMsg, "Declaration Type"), DATACLASSIFICATION::SystemMetadata);
+                    Session.LogMessage('0000CEE', StrSubstNo(HeaderNotFoundErrMsg, "Declaration Type"), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
                     Error(HeaderNotFoundErr, "Declaration Type", "Declaration No.");
                 end;
 
@@ -62,17 +62,17 @@ report 11406 "Process Response Messages"
                     '210', '220', '311', '410', '510', '710':
                         begin
                             ElecTaxDeclHeader.Status := ElecTaxDeclHeader.Status::Error;
-                            SendTraceTag('0000CEF', DigipoortTok, VERBOSITY::Error, StrSubstNo(ErrorStatusCodeMsg, "Declaration Type", "Status Code"), DATACLASSIFICATION::SystemMetadata);
+                            Session.LogMessage('0000CEF', StrSubstNo(ErrorStatusCodeMsg, "Declaration Type", "Status Code"), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
                         end;
                     '230', '321', '420', '720':
                         if ElecTaxDeclHeader.Status <> ElecTaxDeclHeader.Status::Error then begin
                             ElecTaxDeclHeader.Status := ElecTaxDeclHeader.Status::Warning;
-                            SendTraceTag('0000CEG', DigipoortTok, VERBOSITY::Warning, StrSubstNo(WarningStatusCodeMsg, "Declaration Type", "Status Code"), DATACLASSIFICATION::SystemMetadata);
+                            Session.LogMessage('0000CEG', StrSubstNo(WarningStatusCodeMsg, "Declaration Type", "Status Code"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
                         end;
                     '100':
                         if not (ElecTaxDeclHeader.Status in [ElecTaxDeclHeader.Status::Error, ElecTaxDeclHeader.Status::Warning]) then begin
                             ElecTaxDeclHeader.Status := ElecTaxDeclHeader.Status::Acknowledged;
-                            SendTraceTag('0000CEH', DigipoortTok, VERBOSITY::Normal, StrSubstNo(AcknowledgeStatusCodeMsg, "Declaration Type", "Status Code"), DATACLASSIFICATION::SystemMetadata);
+                            Session.LogMessage('0000CEH', StrSubstNo(AcknowledgeStatusCodeMsg, "Declaration Type", "Status Code"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
                         end;
                 end;
 
@@ -84,7 +84,7 @@ report 11406 "Process Response Messages"
 
                 ElecTaxDeclHeader.Modify(true);
 
-                SendTraceTag('0000CEI', DigipoortTok, VERBOSITY::Normal, ResponseProcessedSuccessMsg, DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('0000CEI', ResponseProcessedSuccessMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
             end;
         }
     }

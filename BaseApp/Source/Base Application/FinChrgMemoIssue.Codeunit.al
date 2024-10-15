@@ -121,6 +121,7 @@ codeunit 395 "FinChrgMemo-Issue"
                 repeat
                     GenJnlLine2 := GenJnlLine;
                     SetDimensions(GenJnlLine2, FinChrgMemoHeader);
+                    OnBeforeGenJnlPostLineRunWithCheck(GenJnlLine2, FinChrgMemoHeader);
                     GenJnlPostLine.RunWithCheck(GenJnlLine2);
                 until GenJnlLine.Next = 0;
 
@@ -212,7 +213,7 @@ codeunit 395 "FinChrgMemo-Issue"
         NewIssuedFinChrgMemoHeader := IssuedFinChrgMemoHeader;
     end;
 
-    local procedure InitGenJnlLine(AccType: Integer; AccNo: Code[20]; SystemCreatedEntry: Boolean)
+    local procedure InitGenJnlLine(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; SystemCreatedEntry: Boolean)
     begin
         with FinChrgMemoHeader do begin
             GenJnlLine.Init();
@@ -418,6 +419,11 @@ codeunit 395 "FinChrgMemo-Issue"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIssuedFinChrgMemoHeaderInsert(var IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header"; FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenJnlPostLineRunWithCheck(var GenJournalLine: Record "Gen. Journal Line"; FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
     begin
     end;
 

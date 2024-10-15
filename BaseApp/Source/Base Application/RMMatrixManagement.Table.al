@@ -17,11 +17,9 @@ table 5102 "RM Matrix Management"
         {
             Caption = 'Name';
         }
-        field(4; Type; Option)
+        field(4; Type; Enum "Contact Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Company,Person';
-            OptionMembers = Company,Person;
         }
         field(5; "No. of Opportunities"; Integer)
         {

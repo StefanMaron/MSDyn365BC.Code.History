@@ -300,7 +300,7 @@ table 11409 "Elec. Tax Declaration Header"
             "Declaration Period"::October,
             "Declaration Period"::November,
              "Declaration Period"::December:
-                "Declaration Period From Date" := DMY2Date(1, "Declaration Period", "Declaration Year");
+                "Declaration Period From Date" := DMY2Date(1, "Declaration Period".AsInteger(), "Declaration Year");
             "Declaration Period"::"First Quarter", "Declaration Period"::Year, "Declaration Period"::"January-February":
                 "Declaration Period From Date" := DMY2Date(1, 1, "Declaration Year");
             "Declaration Period"::"Second Quarter", "Declaration Period"::"April-May":

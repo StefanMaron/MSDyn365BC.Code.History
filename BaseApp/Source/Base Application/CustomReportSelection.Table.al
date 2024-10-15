@@ -40,7 +40,7 @@ table 9657 "Custom Report Selection"
         }
         field(6; "Report Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("Report ID")));
             Caption = 'Report Caption';
             Editable = false;
@@ -58,7 +58,7 @@ table 9657 "Custom Report Selection"
         }
         field(8; "Custom Report Description"; Text[250])
         {
-            CalcFormula = Lookup ("Custom Report Layout".Description WHERE(Code = FIELD("Custom Report Layout Code")));
+            CalcFormula = Lookup("Custom Report Layout".Description WHERE(Code = FIELD("Custom Report Layout Code")));
             Caption = 'Custom Report Description';
             Editable = false;
             FieldClass = FlowField;
@@ -115,7 +115,7 @@ table 9657 "Custom Report Selection"
         }
         field(22; "Email Body Layout Description"; Text[250])
         {
-            CalcFormula = Lookup ("Custom Report Layout".Description WHERE(Code = FIELD("Email Body Layout Code")));
+            CalcFormula = Lookup("Custom Report Layout".Description WHERE(Code = FIELD("Email Body Layout Code")));
             Caption = 'Email Body Layout Description';
             Editable = false;
             FieldClass = FlowField;
@@ -190,7 +190,7 @@ table 9657 "Custom Report Selection"
         ReportLayoutSelection: Record "Report Layout Selection";
     begin
         if "Use for Email Body" then begin
-            CustomReportSelection.FilterEmailBodyUsage("Source Type", "Source No.", Usage);
+            CustomReportSelection.FilterEmailBodyUsage("Source Type", "Source No.", Usage.AsInteger());
             CustomReportSelection.SetFilter(Sequence, '<>%1', Sequence);
             if not CustomReportSelection.IsEmpty then
                 Error(EmailBodyIsAlreadyDefinedErr, Usage);
@@ -273,7 +273,10 @@ table 9657 "Custom Report Selection"
         Contact: Record Contact;
         ContBusRel: Record "Contact Business Relation";
     begin
-        if ContBusRel.FindContactsByRelation(Contact, LinkType, LinkNo) then
+        ContBusRel.FindContactsByRelation(Contact, "Contact Business Relation Link to Table".FromInteger(LinkType), LinkNo);
+        if IsCustomerVendorLinkType("Contact Business Relation Link to Table".FromInteger(LinkType)) then
+            GetCustomerVendorAdditionalContacts(Contact, "Contact Business Relation Link to Table".FromInteger(LinkType), LinkNo);
+        if Contact.FindSet() then
             if Contact.GetContactsSelectionFromContactList(true) then
                 GetSendToEmailFromContacts(Contact);
     end;
@@ -419,6 +422,53 @@ table 9657 "Custom Report Selection"
         if CustomReportSelection.FindLast() then
             exit(CustomReportSelection.Sequence + 1);
         exit(1);
+    end;
+
+    local procedure IsCustomerVendorLinkType(LinkType: Enum "Contact Business Relation Link To Table"): Boolean
+    begin
+        exit((LinkType = LinkType::Customer) or (LinkType = LinkType::Vendor));
+    end;
+
+    local procedure GetCustomerVendorAdditionalContacts(var Contact: Record Contact; LinkType: Enum "Contact Business Relation Link To Table"; LinkNo: Code[20])
+    var
+        Customer: Record Customer;
+        Vendor: Record Vendor;
+        BillToPayToContact: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        CVNo: Code[20];
+    begin
+        case LinkType of
+            "Contact Business Relation Link To Table"::Customer:
+                begin
+                    Customer.Get(LinkNo);
+                    if Customer.Get(Customer."Bill-to Customer No.") then
+                        CVNo := Customer."No.";
+                end;
+            "Contact Business Relation Link To Table"::Vendor:
+                begin
+                    Vendor.Get(LinkNo);
+                    if Vendor.Get(Vendor."Pay-to Vendor No.") then
+                        CVNo := Vendor."No.";
+                end;
+        end;
+
+        if ContactBusinessRelation.FindContactsByRelation(BillToPayToContact, LinkType, CVNo) then
+            CombineContacts(Contact, BillToPayToContact);
+    end;
+
+    local procedure CombineContacts(var Contact: Record Contact; var BillToPayToContact: Record Contact)
+    var
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
+        ContactNoFilter: Text;
+    begin
+        ContactNoFilter := SelectionFilterManagement.GetSelectionFilterForContact(Contact);
+        if ContactNoFilter <> '' then
+            ContactNoFilter += '|' + SelectionFilterManagement.GetSelectionFilterForContact(BillToPayToContact)
+        else
+            ContactNoFilter := SelectionFilterManagement.GetSelectionFilterForContact(BillToPayToContact);
+
+        Contact.Reset();
+        Contact.SetFilter("No.", ContactNoFilter);
     end;
 
     [IntegrationEvent(false, false)]

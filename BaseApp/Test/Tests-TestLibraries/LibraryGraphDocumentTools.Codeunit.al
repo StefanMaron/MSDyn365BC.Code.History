@@ -89,6 +89,49 @@ codeunit 130619 "Library - Graph Document Tools"
     end;
 
     [Scope('OnPrem')]
+    procedure GetCustomerAddressJSON(var DocumentJSON: Text; var Customer: Record Customer; AddressType: Text; ShouldBeEmpty: Boolean; ShouldBePartiallyEmpty: Boolean)
+    var
+        GraphCollectionMgtContact: Codeunit "Graph Collection Mgt - Contact";
+        City: Text;
+        State: Text;
+        CountryCode: Text;
+        PostalCode: Text;
+        Address: Text;
+        Address2: Text;
+    begin
+        if ShouldBeEmpty then begin
+            Address := '';
+            Address2 := '';
+            City := '';
+            State := '';
+            CountryCode := '';
+            PostalCode := '';
+        end else
+            if ShouldBePartiallyEmpty then begin
+                Address := Customer.Address;
+                Address2 := Customer."Address 2";
+                City := '';
+                State := '';
+                CountryCode := Customer."Country/Region Code";
+                PostalCode := '';
+            end else begin
+                Address := Customer.Address;
+                Address2 := Customer."Address 2";
+                City := Customer.City;
+                State := Customer.County;
+                CountryCode := Customer."Country/Region Code";
+                PostalCode := Customer."Post Code";
+            end;
+
+        DocumentJSON := LibraryGraphMgt.AddPropertytoJSON(DocumentJSON, AddressType + 'AddressLine1', Address);
+        DocumentJSON := LibraryGraphMgt.AddPropertytoJSON(DocumentJSON, AddressType + 'AddressLine2', Address2);
+        DocumentJSON := LibraryGraphMgt.AddPropertytoJSON(DocumentJSON, AddressType + 'City', City);
+        DocumentJSON := LibraryGraphMgt.AddPropertytoJSON(DocumentJSON, AddressType + 'State', State);
+        DocumentJSON := LibraryGraphMgt.AddPropertytoJSON(DocumentJSON, AddressType + 'Country', CountryCode);
+        DocumentJSON := LibraryGraphMgt.AddPropertytoJSON(DocumentJSON, AddressType + 'PostCode', PostalCode);
+    end;
+
+    [Scope('OnPrem')]
     procedure GetVendorAddressComplexType(var ComplexTypeJSON: Text; var Vendor: Record Vendor; ShouldBeEmpty: Boolean; ShouldBePartiallyEmpty: Boolean)
     var
         CountryRegion: Record "Country/Region";
@@ -131,6 +174,51 @@ codeunit 130619 "Library - Graph Document Tools"
         ComplexTypeJSON := LibraryGraphMgt.AddPropertytoJSON(ComplexTypeJSON, 'state', State);
         ComplexTypeJSON := LibraryGraphMgt.AddPropertytoJSON(ComplexTypeJSON, 'countryLetterCode', CountryCode);
         ComplexTypeJSON := LibraryGraphMgt.AddPropertytoJSON(ComplexTypeJSON, 'postalCode', PostalCode);
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetVendorAddressJSON(var DocumentJSON: Text; var Vendor: Record Vendor; AddressType: Text; ShouldBeEmpty: Boolean; ShouldBePartiallyEmpty: Boolean)
+    var
+        CountryRegion: Record "Country/Region";
+        GraphCollectionMgtContact: Codeunit "Graph Collection Mgt - Contact";
+        City: Text;
+        State: Text;
+        CountryCode: Text;
+        PostalCode: Text;
+        Address: Text;
+        Address2: Text;
+    begin
+        if ShouldBeEmpty then begin
+            Address := '';
+            Address2 := '';
+            City := '';
+            State := '';
+            CountryCode := '';
+            PostalCode := '';
+        end else
+            if ShouldBePartiallyEmpty then begin
+                Address := Vendor.Address;
+                Address2 := Vendor."Address 2";
+                City := '';
+                State := '';
+                CountryCode := Vendor."Country/Region Code";
+                PostalCode := '';
+            end else begin
+                Address := Vendor.Address;
+                Address2 := Vendor."Address 2";
+                City := Vendor.City;
+                State := Vendor.County;
+                LibraryERM.CreateCountryRegion(CountryRegion);
+                CountryCode := Vendor."Country/Region Code";
+                PostalCode := Vendor."Post Code";
+            end;
+
+        DocumentJSON := LibraryGraphMgt.AddPropertytoJSON(DocumentJSON, AddressType + 'AddressLine1', Address);
+        DocumentJSON := LibraryGraphMgt.AddPropertytoJSON(DocumentJSON, AddressType + 'AddressLine2', Address2);
+        DocumentJSON := LibraryGraphMgt.AddPropertytoJSON(DocumentJSON, AddressType + 'City', City);
+        DocumentJSON := LibraryGraphMgt.AddPropertytoJSON(DocumentJSON, AddressType + 'State', State);
+        DocumentJSON := LibraryGraphMgt.AddPropertytoJSON(DocumentJSON, AddressType + 'Country', CountryCode);
+        DocumentJSON := LibraryGraphMgt.AddPropertytoJSON(DocumentJSON, AddressType + 'PostCode', PostalCode);
     end;
 
     [Scope('OnPrem')]
@@ -200,7 +288,7 @@ codeunit 130619 "Library - Graph Document Tools"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateDocumentWithDiscountPctPending(var SalesHeader: Record "Sales Header"; var DiscountPct: Decimal; DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order")
+    procedure CreateDocumentWithDiscountPctPending(var SalesHeader: Record "Sales Header"; var DiscountPct: Decimal; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
         Item: Record Item;
@@ -330,6 +418,12 @@ codeunit 130619 "Library - Graph Document Tools"
           'Could not find the sellingPostalAddress property in' + ResponseText);
         Assert.AreNotEqual('', JSONAddressValue, 'sellingPostalAddress should not be blank in ' + ResponseText);
 
+        CheckSalesDocumentSellToAddress(Customer, SalesHeader, EmptyData, PartiallyEmptyData);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CheckSalesDocumentSellToAddress(Customer: Record Customer; SalesHeader: Record "Sales Header"; EmptyData: Boolean; PartiallyEmptyData: Boolean)
+    begin
         with Customer do begin
             if EmptyData then
                 AssertSalesDocumentSellToAddress(SalesHeader, '', '', '', '', '', '')
@@ -354,6 +448,12 @@ codeunit 130619 "Library - Graph Document Tools"
           'Could not find the billingPostalAddress property in' + ResponseText);
         Assert.AreNotEqual('', JSONAddressValue, 'billingPostalAddress should not be blank in ' + ResponseText);
 
+        CheckSalesDocumentBillToAddress(Customer, SalesHeader, EmptyData, PartiallyEmptyData);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CheckSalesDocumentBillToAddress(Customer: Record Customer; SalesHeader: Record "Sales Header"; EmptyData: Boolean; PartiallyEmptyData: Boolean)
+    begin
         with Customer do begin
             if EmptyData then
                 AssertSalesDocumentBillToAddress(SalesHeader, '', '', '', '', '', '')
@@ -378,6 +478,12 @@ codeunit 130619 "Library - Graph Document Tools"
           'Could not find the shippingPostalAddress property in' + ResponseText);
         Assert.AreNotEqual('', JSONAddressValue, 'shippingPostalAddress should not be blank in ' + ResponseText);
 
+        CheckSalesDocumentShipToAddress(Customer, SalesHeader, EmptyData, PartiallyEmptyData);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CheckSalesDocumentShipToAddress(Customer: Record Customer; SalesHeader: Record "Sales Header"; EmptyData: Boolean; PartiallyEmptyData: Boolean)
+    begin
         with Customer do begin
             if EmptyData then
                 AssertSalesDocumentShipToAddress(SalesHeader, '', '', '', '', '', '')
@@ -402,6 +508,12 @@ codeunit 130619 "Library - Graph Document Tools"
           'Could not find the buyFromAddress property in' + ResponseText);
         Assert.AreNotEqual('', JSONAddressValue, 'buyFromAddress should not be blank in ' + ResponseText);
 
+        CheckPurchaseDocumentBuyFromAddress(Vendor, PurchaseHeader, EmptyData, PartiallyEmptyData)
+    end;
+
+    [Scope('OnPrem')]
+    procedure CheckPurchaseDocumentBuyFromAddress(Vendor: Record Vendor; PurchaseHeader: Record "Purchase Header"; EmptyData: Boolean; PartiallyEmptyData: Boolean)
+    begin
         with Vendor do begin
             if EmptyData then
                 AssertPurchaseDocumentBuyFromAddress(PurchaseHeader, '', '', '', '', '', '')
@@ -426,14 +538,20 @@ codeunit 130619 "Library - Graph Document Tools"
           'Could not find the payToAddress property in' + ResponseText);
         Assert.AreNotEqual('', JSONAddressValue, 'payToAddress should not be blank in ' + ResponseText);
 
+        CheckPurchaseDocumentPayToAddress(Vendor, PurchaseHeader, EmptyData, PartiallyEmptyData)
+    end;
+
+    [Scope('OnPrem')]
+    procedure CheckPurchaseDocumentPayToAddress(Vendor: Record Vendor; PurchaseHeader: Record "Purchase Header"; EmptyData: Boolean; PartiallyEmptyData: Boolean)
+    begin
         with Vendor do begin
             if EmptyData then
-                AssertPurchaseDocumentPayToAddress(PurchaseHeader, '', '', '', '', '', '')
+                AssertPurchaseDocumentBuyFromAddress(PurchaseHeader, '', '', '', '', '', '')
             else
                 if PartiallyEmptyData then
-                    AssertPurchaseDocumentPayToAddress(PurchaseHeader, Address, "Address 2", '', '', "Country/Region Code", '')
+                    AssertPurchaseDocumentBuyFromAddress(PurchaseHeader, Address, "Address 2", '', '', "Country/Region Code", '')
                 else
-                    AssertPurchaseDocumentPayToAddress(PurchaseHeader, Address, "Address 2", City, County, "Country/Region Code", "Post Code");
+                    AssertPurchaseDocumentBuyFromAddress(PurchaseHeader, Address, "Address 2", City, County, "Country/Region Code", "Post Code");
         end;
     end;
 
@@ -450,6 +568,12 @@ codeunit 130619 "Library - Graph Document Tools"
           'Could not find the shipToAddress property in' + ResponseText);
         Assert.AreNotEqual('', JSONAddressValue, 'shipToAddress should not be blank in ' + ResponseText);
 
+        CheckPurchaseDocumentShipToAddress(Vendor, PurchaseHeader, EmptyData, PartiallyEmptyData)
+    end;
+
+    [Scope('OnPrem')]
+    procedure CheckPurchaseDocumentShipToAddress(Vendor: Record Vendor; PurchaseHeader: Record "Purchase Header"; EmptyData: Boolean; PartiallyEmptyData: Boolean)
+    begin
         with Vendor do begin
             if EmptyData then
                 AssertPurchaseDocumentShipToAddress(PurchaseHeader, '', '', '', '', '', '')
@@ -542,13 +666,23 @@ codeunit 130619 "Library - Graph Document Tools"
     end;
 
     [Scope('OnPrem')]
+    procedure VerifySalesObjectTxtDescriptionWithoutComplexTypes(SalesLine: Record "Sales Line"; JObjectTxt: Text)
+    var
+        JSONManagement: Codeunit "JSON Management";
+        JsonObject: DotNet JObject;
+    begin
+        JSONManagement.InitializeObject(JObjectTxt);
+        JSONManagement.GetJSONObject(JsonObject);
+        VerifySalesObjectTypeAndSequence(SalesLine, JsonObject);
+    end;
+
+    [Scope('OnPrem')]
     procedure VerifySalesObjectDescription(var SalesLine: Record "Sales Line"; var JObject: DotNet JObject)
     var
         SalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate";
         JSONManagement: Codeunit "JSON Management";
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
         sequenceTxt: Text;
-        objectTypeTxt: Text;
         objectDetailsTxt: Text;
         No: Code[20];
         Description: Text[50];
@@ -556,17 +690,11 @@ codeunit 130619 "Library - Graph Document Tools"
     begin
         JSONManagement.InitializeObjectFromJObject(JObject);
 
-        Assert.IsTrue(JSONManagement.GetStringPropertyValueFromJObjectByName(JObject, 'sequence', sequenceTxt), 'Could not find sequence');
-        Assert.IsTrue(
-          JSONManagement.GetStringPropertyValueFromJObjectByName(JObject, LineTypeFieldNameTxt, objectTypeTxt),
-          'Could not find ' + LineTypeFieldNameTxt);
+        VerifySalesObjectTypeAndSequence(SalesLine, JObject);
+
         Assert.IsTrue(
           JSONManagement.GetStringPropertyValueFromJObjectByName(JObject, LineDetailsFieldNameTxt, objectDetailsTxt),
           'Could not find ' + LineDetailsFieldNameTxt);
-
-        SalesInvoiceLineAggregate."API Type" := SalesLine.Type;
-        Assert.AreEqual(objectTypeTxt, Format(SalesInvoiceLineAggregate."API Type"), 'Wrong value for the API Type');
-        Assert.AreEqual(sequenceTxt, Format(SalesLine."Line No."), 'Wrong value for Line No.');
 
         case SalesLine.Type of
             SalesLine.Type::" ":
@@ -577,6 +705,25 @@ codeunit 130619 "Library - Graph Document Tools"
                     Assert.AreEqual(SalesLine.Description, Name, 'Wrong name value');
                 end;
         end;
+    end;
+
+    local procedure VerifySalesObjectTypeAndSequence(SalesLine: Record "Sales Line"; JObject: Dotnet JObject)
+    var
+        SalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate";
+        JSONManagement: Codeunit "JSON Management";
+        GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
+        sequenceTxt: Text;
+        objectTypeTxt: Text;
+        xmlConvert: DotNet XmlConvert;
+    begin
+        Assert.IsTrue(JSONManagement.GetStringPropertyValueFromJObjectByName(JObject, 'sequence', sequenceTxt), 'Could not find sequence');
+        Assert.IsTrue(
+          JSONManagement.GetStringPropertyValueFromJObjectByName(JObject, LineTypeFieldNameTxt, objectTypeTxt),
+          'Could not find ' + LineTypeFieldNameTxt);
+
+        SalesInvoiceLineAggregate."API Type" := SalesLine.Type.AsInteger();
+        Assert.AreEqual(xmlConvert.DecodeName(objectTypeTxt), Format(SalesInvoiceLineAggregate."API Type"), 'Wrong value for the API Type');
+        Assert.AreEqual(sequenceTxt, Format(SalesLine."Line No."), 'Wrong value for Line No.');
     end;
 
     [Scope('OnPrem')]
@@ -591,13 +738,23 @@ codeunit 130619 "Library - Graph Document Tools"
     end;
 
     [Scope('OnPrem')]
+    procedure VerifyPurchaseObjectTxtDescriptionWithoutComplexType(PurchaseLine: Record "Purchase Line"; JObjectTxt: Text)
+    var
+        JSONManagement: Codeunit "JSON Management";
+        JsonObject: DotNet JObject;
+    begin
+        JSONManagement.InitializeObject(JObjectTxt);
+        JSONManagement.GetJSONObject(JsonObject);
+        VerifyPurchaseObjectTypeAndSequence(PurchaseLine, JsonObject);
+    end;
+
+    [Scope('OnPrem')]
     procedure VerifyPurchaseObjectDescription(var PurchaseLine: Record "Purchase Line"; var JObject: DotNet JObject)
     var
         PurchInvLineAggregate: Record "Purch. Inv. Line Aggregate";
         JSONManagement: Codeunit "JSON Management";
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
         sequenceTxt: Text;
-        objectTypeTxt: Text;
         objectDetailsTxt: Text;
         No: Code[20];
         Description: Text[50];
@@ -605,17 +762,11 @@ codeunit 130619 "Library - Graph Document Tools"
     begin
         JSONManagement.InitializeObjectFromJObject(JObject);
 
-        Assert.IsTrue(JSONManagement.GetStringPropertyValueFromJObjectByName(JObject, 'sequence', sequenceTxt), 'Could not find sequence');
-        Assert.IsTrue(
-          JSONManagement.GetStringPropertyValueFromJObjectByName(JObject, LineTypeFieldNameTxt, objectTypeTxt),
-          'Could not find ' + LineTypeFieldNameTxt);
+        VerifyPurchaseObjectTypeAndSequence(PurchaseLine, JObject);
+
         Assert.IsTrue(
           JSONManagement.GetStringPropertyValueFromJObjectByName(JObject, LineDetailsFieldNameTxt, objectDetailsTxt),
           'Could not find ' + LineDetailsFieldNameTxt);
-
-        PurchInvLineAggregate."API Type" := PurchaseLine.Type;
-        Assert.AreEqual(objectTypeTxt, Format(PurchInvLineAggregate."API Type"), 'Wrong value for the API Type');
-        Assert.AreEqual(sequenceTxt, Format(PurchaseLine."Line No."), 'Wrong value for Line No.');
 
         case PurchaseLine.Type of
             PurchaseLine.Type::" ":
@@ -626,6 +777,22 @@ codeunit 130619 "Library - Graph Document Tools"
                     Assert.AreEqual(PurchaseLine.Description, Name, 'Wrong name value');
                 end;
         end;
+    end;
+
+    local procedure VerifyPurchaseObjectTypeAndSequence(PurchaseLine: Record "Purchase Line"; JObject: Dotnet JObject)
+    var
+        PurchInvLineAggregate: Record "Purch. Inv. Line Aggregate";
+        JSONManagement: Codeunit "JSON Management";
+        sequenceTxt: Text;
+        objectTypeTxt: Text;
+    begin
+        Assert.IsTrue(JSONManagement.GetStringPropertyValueFromJObjectByName(JObject, 'sequence', sequenceTxt), 'Could not find sequence');
+        Assert.IsTrue(
+          JSONManagement.GetStringPropertyValueFromJObjectByName(JObject, LineTypeFieldNameTxt, objectTypeTxt),
+          'Could not find ' + LineTypeFieldNameTxt);
+        PurchInvLineAggregate."API Type" := PurchaseLine.Type.AsInteger();
+        Assert.AreEqual(objectTypeTxt, Format(PurchInvLineAggregate."API Type"), 'Wrong value for the API Type');
+        Assert.AreEqual(sequenceTxt, Format(PurchaseLine."Line No."), 'Wrong value for Line No.');
     end;
 
     [Scope('OnPrem')]
@@ -660,13 +827,13 @@ codeunit 130619 "Library - Graph Document Tools"
             SalesLine.Type::Item:
                 begin
                     Item.Get(SalesLine."No.");
-                    ExpectedItemId := IntegrationManagement.GetIdWithoutBrackets(Item.Id);
+                    ExpectedItemId := IntegrationManagement.GetIdWithoutBrackets(Item.SystemId);
                     Assert.AreNotEqual(ExpectedAccountId, ExpectedItemId, 'Account and Item Id cannot be same');
                 end;
             SalesLine.Type::"G/L Account":
                 begin
                     GLAccount.Get(SalesLine."No.");
-                    ExpectedAccountId := IntegrationManagement.GetIdWithoutBrackets(GLAccount.Id);
+                    ExpectedAccountId := IntegrationManagement.GetIdWithoutBrackets(GLAccount.SystemId);
                     Assert.AreNotEqual(ExpectedAccountId, ExpectedItemId, 'Account and Item Id cannot be same');
                 end;
         end;
@@ -696,13 +863,13 @@ codeunit 130619 "Library - Graph Document Tools"
             PurchaseLine.Type::Item:
                 begin
                     Item.Get(PurchaseLine."No.");
-                    ExpectedItemId := IntegrationManagement.GetIdWithoutBrackets(Item.Id);
+                    ExpectedItemId := IntegrationManagement.GetIdWithoutBrackets(Item.SystemId);
                     Assert.AreNotEqual(ExpectedAccountId, ExpectedItemId, 'Account and Item Id cannot be same');
                 end;
             PurchaseLine.Type::"G/L Account":
                 begin
                     GLAccount.Get(PurchaseLine."No.");
-                    ExpectedAccountId := IntegrationManagement.GetIdWithoutBrackets(GLAccount.Id);
+                    ExpectedAccountId := IntegrationManagement.GetIdWithoutBrackets(GLAccount.SystemId);
                     Assert.AreNotEqual(ExpectedAccountId, ExpectedItemId, 'Account and Item Id cannot be same');
                 end;
         end;

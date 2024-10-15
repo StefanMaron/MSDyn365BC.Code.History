@@ -253,7 +253,9 @@ codeunit 144101 "Test SEPA CT v03"
 
         // Must be a rec with same Document No. and Bal. Account No.
         GenJournalBatch.FindFirst;
-        LibraryERM.CreateGeneralJnlLine(GenJnlLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, 0, 0, '', 0);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJnlLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Gen. Journal document Type"::" ",
+            "Gen. Journal Account Type"::"G/L Account", '', 0);
         GenJnlLine."Bal. Account No." := PaymentHistory."Our Bank";
         GenJnlLine."Document No." := PaymentHistory."Run No.";
         GenJnlLine.Modify();
@@ -1373,7 +1375,7 @@ codeunit 144101 "Test SEPA CT v03"
 
     [Test]
     [HandlerFunctions('ProposalLineConfirmHandler,ProposalProcessedMsgHandler,SEPAExportReqPageHandler')]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure ChargeBearerIsDebtWhenDomesticAndForeignCostIsPrincipal()
     var
         VendorBankAccount: Record "Vendor Bank Account";
@@ -1410,7 +1412,7 @@ codeunit 144101 "Test SEPA CT v03"
 
     [Test]
     [HandlerFunctions('ProposalLineConfirmHandler,ProposalProcessedMsgHandler,SEPAExportReqPageHandler')]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure ChargeBearerIsCredWhenDomesticAndForeignCostIsBalancingAccountHolder()
     var
         VendorBankAccount: Record "Vendor Bank Account";
