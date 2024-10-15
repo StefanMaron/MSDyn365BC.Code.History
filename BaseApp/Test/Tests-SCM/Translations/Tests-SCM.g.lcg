@@ -14801,6 +14801,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Supply Planning -IV - NamedType EditableError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3754174171 - NamedType 4144387699" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Item No. must be equal]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Supply Planning -IV - NamedType ItemNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3754174171 - NamedType 4168306473" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Not all items were planned. A total of %1 items were not planned.]]></Val>
