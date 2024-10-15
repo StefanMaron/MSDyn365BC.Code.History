@@ -1,4 +1,4 @@
-codeunit 134930 "ERM Applies-To Doc. No."
+﻿codeunit 134930 "ERM Applies-To Doc. No."
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -323,6 +323,33 @@ codeunit 134930 "ERM Applies-To Doc. No."
 
         // [THEN] Bal. Account Type = "Bank Account" in Payment Line
         GenJournalLine.TestField("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostApplicationPageCanHandleLongExternalDocNo()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
+        PostApplicationPage: Page "Post Application";
+        ExternalDocNo: Code[35];
+        MaxStrLength: Integer;
+    begin
+        // [SCENARIO 292999] Post Application Page can handle External Document No. of Max size
+
+        // [GIVEN] External Doc. No. of max length
+        MaxStrLength := MaxStrLen(CustLedgerEntry."External Document No.");
+        CustLedgerEntry."External Document No." := CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLength), 1, MaxStrLength);
+
+        // [WHEN] Calling SetValues on Post Application page with External Doc No of max size
+        ApplyUnapplyParameters."Document No." := LibraryUtility.GenerateGUID();
+        ApplyUnapplyParameters."Posting Date" := WorkDate();
+        ApplyUnapplyParameters."External Document No." := CustLedgerEntry."External Document No.";
+        PostApplicationPage.SetParameters(ApplyUnapplyParameters);
+
+        // [THEN] No error and the value is set correctly
+        PostApplicationPage.GetParameters(ApplyUnapplyParameters);
+        CustLedgerEntry.TestField("External Document No.", ApplyUnapplyParameters."External Document No.");
     end;
 
     [Test]

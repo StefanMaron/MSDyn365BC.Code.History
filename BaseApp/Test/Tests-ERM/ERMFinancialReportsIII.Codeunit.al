@@ -138,7 +138,7 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('G_L_Account___No__', GenJournalLine."Account No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'G_L_Account___No__', GenJournalLine."Account No."));
+            Error(RowNotFoundErr, 'G_L_Account___No__', GenJournalLine."Account No.");
         VerifyTextAmountInXMLFile(
           'ColumnValuesAsText_1_', FormatAmount(Round(GLAccount."Debit Amount" / RoundingFactorAmount, 0.1), Decimals));
 
@@ -158,7 +158,7 @@ codeunit 134987 "ERM Financial Reports III"
 
         LibraryReportDataset.SetRange('G_L_Account___No__', GenJournalLine."Account No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'G_L_Account___No__', GenJournalLine."Account No."));
+            Error(RowNotFoundErr, 'G_L_Account___No__', GenJournalLine."Account No.");
         VerifyTextAmountInXMLFile(
           'ColumnValuesAsText_3_', FormatAmount(Round(GLAccount."Balance at Date" / RoundingFactorAmount, 0.1), Decimals));
 
@@ -261,7 +261,7 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('G_L_Account___No__', GLAccount."No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'G_L_Account___No__', GLAccount."No."));
+            Error(RowNotFoundErr, 'G_L_Account___No__', GLAccount."No.");
         VerifyTextAmountInXMLFile(
           'ColumnValuesAsText_3_', FormatAmount(Round(GenJournalLine.Amount / RoundingFactorAmount, 0.1), Decimals));
         LibraryReportDataset.Reset();
@@ -315,7 +315,7 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('StrsubNototalCurrCode', 'Total ' + CurrencyCode);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'StrsubNototalCurrCode', 'Total ' + CurrencyCode));
+            Error(RowNotFoundErr, 'StrsubNototalCurrCode', 'Total ' + CurrencyCode);
         LibraryReportDataset.AssertCurrentRowValueEquals('CalcTotalBalanceLCY', -GLAccount.Balance);
 
         Currency.Get(CurrencyCode);
@@ -357,7 +357,7 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('TrnsctnDte_BnkAcStmtLin', Format(BankAccountStatementLine."Transaction Date"));
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'TrnsctnDte_BnkAcStmtLin', Format(BankAccountStatementLine."Transaction Date")));
+            Error(RowNotFoundErr, 'TrnsctnDte_BnkAcStmtLin', Format(BankAccountStatementLine."Transaction Date"));
         LibraryReportDataset.AssertCurrentRowValueEquals('Amt_BankAccStmtLineStmt', BankAccountStatementLine."Statement Amount");
     end;
 

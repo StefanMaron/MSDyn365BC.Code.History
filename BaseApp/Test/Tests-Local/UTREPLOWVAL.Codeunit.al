@@ -1,9 +1,15 @@
-﻿codeunit 142068 "UT REP LOWVAL"
+﻿#if not CLEAN23
+codeunit 142068 "UT REP LOWVAL"
 {
     // // FEATURE [Adjust Exchange Rates]
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'The report was replaced by the report "Exch. Rate Adjustment".';
+    ObsoleteState = Pending;
+#pragma warning disable AS0072
+    ObsoleteTag = '20.0';
+#pragma warning restore AS0072
 
     trigger OnRun()
     begin
@@ -561,4 +567,4 @@
         Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Message);
     end;
 }
-
+#endif

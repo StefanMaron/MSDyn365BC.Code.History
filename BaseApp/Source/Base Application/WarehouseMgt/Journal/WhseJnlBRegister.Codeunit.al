@@ -1,3 +1,5 @@
+namespace Microsoft.Warehouse.Journal;
+
 codeunit 7305 "Whse. Jnl.-B.Register"
 {
     TableNo = "Warehouse Journal Batch";
@@ -6,7 +8,7 @@ codeunit 7305 "Whse. Jnl.-B.Register"
     begin
         WhseJnlBatch.Copy(Rec);
         Code();
-        Copy(WhseJnlBatch);
+        Rec.Copy(WhseJnlBatch);
     end;
 
     var

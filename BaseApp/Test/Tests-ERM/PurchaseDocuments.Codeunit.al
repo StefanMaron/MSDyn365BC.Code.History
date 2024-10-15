@@ -31,7 +31,7 @@ codeunit 134099 "Purchase Documents"
         PurchLinesNotUpdatedDateMsg: Label 'You have changed the %1 on the purchase order, which might affect the prices and discounts on the purchase order lines.';
         ReviewLinesManuallyMsg: Label 'You should review the lines and manually update prices and discounts if needed.';
         AffectExchangeRateMsg: Label 'The change may affect the exchange rate that is used for price calculation on the purchase lines.';
-        SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.';
+        SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.', Locked = true;
         UpdateManuallyMsg: Label 'You must update the existing purchase lines manually.';
         ConfirmZeroQuantityPostingMsg: Label 'One or more document lines with a value in the No. field do not have a quantity specified. \Do you want to continue?';
 
@@ -1975,4 +1975,3 @@ codeunit 134099 "Purchase Documents"
         ContactList.OK.Invoke;
     end;
 }
-

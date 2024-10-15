@@ -140,6 +140,34 @@
     [Test]
     [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
+    procedure UndoTransferShipmentLineWithRefDocChecking()
+    var
+        TransferHeader: Record "Transfer Header";
+        QtyToShip: Integer;
+    begin
+        // [Transfer] [Order] [Undo Shipment] [Warehouse Entry]
+        // [SCENARIO] Undo Transfer Shipment Line, and check if the Ref Doc is "Posted Transfer Shipment"
+        // This test case initialize "Location" with "Bin". Only in this way the table "Warehouse Entry" can be updated.
+        // For the other test, the table "Warehouse Entry" will not be updated for the "Location" does not contain "Bin".
+        Initialize();
+        QtyToShip := LibraryRandom.RandInt(10) + 1;
+
+        // [GIVEN] A shipped transfer order with one line
+        CreateAndShipTransferOrderWithBin(TransferHeader, QtyToShip, false, false);
+
+        // [WHEN] The posted transfer shipment line is undone
+        LibraryInventory.UndoTransferShipments(TransferHeader."No.");
+
+        // [THEN] The Transfer Order has been completely unshipped
+        VerifyTransferOrderCompletelyUnshippedWithRefDoc(TransferHeader, QtyToShip);
+
+        // [THEN] The order can be fully shipped and received with no error
+        ShipAndReceiveTransOrderFully(TransferHeader, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
     procedure UndoTransferShipmentLineTwice()
     var
         TransferHeader: Record "Transfer Header";
@@ -1444,6 +1472,7 @@
         // [WHEN] Turn on "Require Put-away" on "L2".
         Location.Get(TransferHeader[1]."Transfer-to Code");
         Location.Validate("Require Put-away", true);
+        Location.Validate("Always Create Put-away Line", true);
 
         // [THEN] Warehouse Request with "Released" status is created for "T1".
         WarehouseRequest.Get(
@@ -3854,6 +3883,15 @@
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Qty, LibraryRandom.RandIntInRange(10, 20), LocationCode, VariantCode);
     end;
 
+    local procedure CreateItemWithPositiveInventoryAndBin(var Item: Record Item; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", LocationCode, BinCode, Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
     local procedure CreateTransferOrderAndInitializeNewTransferLine(var TransferOrder: TestPage "Transfer Order"; ShippingAgentCode: Code[10])
     var
         TransferHeader: Record "Transfer Header";
@@ -4540,6 +4578,29 @@
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 
+    local procedure CreateAndShipTransferOrderWithBin(var TransferHeader: Record "Transfer Header"; QtyToShip: Integer; PartlyShippedLine: Boolean; NotShippedLine: Boolean)
+    var
+        Item: Record Item;
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+        TransferLine: Record "Transfer Line";
+        FromLocationBin: Record Bin;
+    begin
+
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
+        LibraryWarehouse.CreateLocationWMS(FromLocation, true, false, false, false, false);
+        LibraryWarehouse.CreateBin(FromLocationBin, FromLocation.Code, LibraryUtility.GenerateGUID(), '', '');
+
+        // Create Transfer Order
+        CreateItemWithPositiveInventoryAndBin(Item, FromLocation.code, FromLocationBin.Code, QtyToShip);
+        CreateTransferOrderNoRoute(TransferHeader, TransferLine, FromLocation.Code, ToLocation.Code, Item."No.", '', QtyToShip);
+        TransferLine.Validate("Transfer-From Bin Code", FromLocationBin.Code);
+        TransferLine.Modify(true);
+
+        // Ship the Transfer Order
+        LibraryInventory.PostTransferHeader(TransferHeader, true, false);
+    end;
+
     local procedure CreateAndShipTransferOrder(var TransferHeader: Record "Transfer Header"; QtyToShip: Integer; PartlyShippedLine: Boolean; NotShippedLine: Boolean)
     var
         Item: Record Item;
@@ -4697,9 +4758,14 @@
     end;
 
     local procedure VerifyTransferOrderCompletelyUnshipped(var TransferHeader: Record "Transfer Header"; QtyToShipPerLine: Decimal)
+    begin
+        VerifyTransferLineUpdated(TransferHeader, QtyToShipPerLine);
+        VerifyRelatedTransferShipmentUndo(TransferHeader);
+    end;
+
+    local procedure VerifyTransferLineUpdated(var TransferHeader: Record "Transfer Header"; QtyToShipPerLine: Decimal)
     var
         TransferLine: Record "Transfer Line";
-        TransferShipmentHeader: Record "Transfer Shipment Header";
     begin
         //For each Transfer Line on the order
         TransferLine.SetRange("Document No.", TransferHeader."No.");
@@ -4708,17 +4774,43 @@
             repeat
                 // The Transfer Line has been updated correctly to the state it was in before posting
                 VerifyTransLineUnshipped(TransferLine, QtyToShipPerLine);
-
                 // No derived transfer lines exists (Derived From original line - was added on posting)
                 VerifyNoDerivedTransferLine(TransferHeader."No.", TransferLine."Line No.");
             until TransferLine.Next() = 0;
+    end;
 
+    local procedure VerifyRelatedTransferShipmentUndo(var TransferHeader: Record "Transfer Header")
+    var
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+    begin
         // Every Transfer Shipment related to the Transfer Order has been undone
         TransferShipmentHeader.SetFilter("Transfer Order No.", TransferHeader."No.");
         if TransferShipmentHeader.FindSet() then
             repeat
                 VerifyTransferShipmentUndone(TransferShipmentHeader);
             until TransferShipmentHeader.Next() = 0;
+    end;
+
+
+    local procedure VerifyTransferOrderCompletelyUnshippedWithRefDoc(var TransferHeader: Record "Transfer Header"; QtyToShipPerLine: Decimal)
+    var
+        TransferLine: Record "Transfer Line";
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+    begin
+        VerifyTransferLineUpdated(TransferHeader, QtyToShipPerLine);
+        VerifyRefDocOfWarehouseEntry(TransferHeader."No.");
+        VerifyRelatedTransferShipmentUndo(TransferHeader);
+    end;
+
+    local procedure VerifyRefDocOfWarehouseEntry(SourceNo: Text[20])
+    var
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        WarehouseEntry.SetRange("Source No.", SourceNo);
+        WarehouseEntry.FindSet();
+        repeat
+            WarehouseEntry.TestField("Reference Document", WarehouseEntry."Reference Document"::"Posted T. Shipment");
+        until WarehouseEntry.Next() = 0;
     end;
 
     local procedure VerifyTransferShipmentUndone(var TransferShipmentHeader: Record "Transfer Shipment Header")

@@ -1,3 +1,7 @@
+namespace Microsoft.Warehouse.ADCS;
+
+using System;
+
 table 7710 "ADCS User"
 {
     Caption = 'ADCS User';

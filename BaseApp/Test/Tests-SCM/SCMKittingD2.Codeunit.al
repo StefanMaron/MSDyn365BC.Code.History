@@ -21,6 +21,8 @@ codeunit 137091 "SCM Kitting - D2"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryDimension: Codeunit "Library - Dimension";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
@@ -42,6 +44,7 @@ codeunit 137091 "SCM Kitting - D2"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Kitting - D2");
         // Initialize setup.
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Kitting - D2");
@@ -1419,6 +1422,146 @@ codeunit 137091 "SCM Kitting - D2"
         ClearLastError();
     end;
 
+    [Test]
+    [HandlerFunctions('ExplodeBOMWithDimensionsFromBOMStrMenuHandler')]
+    procedure TransferExplodeBOM()
+    var
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        TempTransferLine: Record "Transfer Line" temporary;
+        TempBOMComponent: Record "BOM Component" temporary;
+        TransferExplodeBOM: Codeunit "Transfer-Explode BOM";
+    begin
+        Initialize();
+
+        // [GIVEN] Item exists
+        LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::Assembly, '', '');
+
+        // [GIVEN] Item Assembly BOM exists
+        LibraryAssembly.CreateAssemblyList(Item."Costing Method"::Standard, Item."No.", true, 2, 0, 0, 1, '', '');
+        SaveInitialAssemblyList(TempBOMComponent, Item."No.");
+
+        // [GIVEN] Transfer order with the BOM exists
+        LibraryInventory.CreateTransferHeader(TransferHeader);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", LibraryRandom.RandDec(5, 2));
+
+        TempTransferLine.DeleteAll();
+        TempTransferLine := TransferLine;
+        TempTransferLine.Insert();
+
+        // [WHEN] Explode the transfer line BOM
+        TransferExplodeBOM.Run(TransferLine);
+
+        // [THEN] StrMenu ExplodeBOMWithDimensionsFromBOMStrMenuHandler is shown and Copy dimensions from BOM is selected     
+
+        // [THEN] All defined BOM lines were created, no other lines were created
+        VerifyExplodedTransferLines(TempBOMComponent, TransferHeader, TempTransferLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('ExplodeBOMWithDimensionsFromBOMStrMenuHandler,ExplodeBOMSkipNonItemLinesConfirmHandler')]
+    procedure TransferExplodeBOMForBOMWithResourceAndComment()
+    var
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        TempTransferLine: Record "Transfer Line" temporary;
+        TempBOMComponent: Record "BOM Component" temporary;
+        TransferExplodeBOM: Codeunit "Transfer-Explode BOM";
+    begin
+        Initialize();
+
+        // [GIVEN] Item exists
+        LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::Assembly, '', '');
+        LibraryVariableStorage.Enqueue(Item."No.");
+
+        // [GIVEN] Item Assembly BOM exists
+        LibraryAssembly.CreateAssemblyList(Item."Costing Method"::Standard, Item."No.", true, 2, 2, 2, 1, '', '');
+        SaveInitialAssemblyList(TempBOMComponent, Item."No.");
+
+        // [GIVEN] Transfer order with the BOM exists
+        LibraryInventory.CreateTransferHeader(TransferHeader);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", LibraryRandom.RandDec(5, 2));
+
+        TempTransferLine.DeleteAll();
+        TempTransferLine := TransferLine;
+        TempTransferLine.Insert();
+
+        // [WHEN] Explode the transfer line BOM
+        TransferExplodeBOM.Run(TransferLine);
+
+        // [THEN] Confirm ExplodeBOMSkipNonItemLinesConfirmHandler is shown      
+        // [THEN] StrMenu ExplodeBOMWithDimensionsFromBOMStrMenuHandler is shown and Copy dimensions from BOM is selected       
+
+        // [THEN] All defined BOM lines were created, no other lines were created
+        VerifyExplodedTransferLines(TempBOMComponent, TransferHeader, TempTransferLine);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ExplodeBOMWithDimensionsFromItemsStrMenuHandler')]
+    procedure TransferExplodeBOMAndRetrieveDimensionsFromComponents()
+    var
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        TempBOMComponent: Record "BOM Component" temporary;
+        TransferExplodeBOM: Codeunit "Transfer-Explode BOM";
+    begin
+        Initialize();
+
+        // [GIVEN] Item exists
+        LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::Assembly, '', '');
+
+        // [GIVEN] Item Assembly BOM exists
+        LibraryAssembly.CreateAssemblyList(Item."Costing Method"::Standard, Item."No.", true, 2, 0, 0, 1, '', '');
+        SaveInitialAssemblyList(TempBOMComponent, Item."No.");
+
+        // [GIVEN] Transfer order with the BOM exists
+        LibraryInventory.CreateTransferHeader(TransferHeader);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", LibraryRandom.RandDec(5, 2));
+
+        // [GIVEN] Set default dimensions for components
+        CreateDimensionsForItemComponents(TempBOMComponent);
+
+        // [WHEN] Explode the transfer line BOM
+        TransferExplodeBOM.Run(TransferLine);
+
+        // [THEN] StrMenu ExplodeBOMWithDimensionsFromItemsStrMenuHandler is shown and Retrieve dimensions from components is selected         
+
+        // [THEN] Dimensions were retrieved from the original items
+        VerifyExplodedTransferLineDimensions(TransferHeader);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure TransferExplodeBOMForNonBOMLine()
+    var
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        PurchaseLine1: Record "Purchase Line";
+        TransferExplodeBOM: Codeunit "Transfer-Explode BOM";
+    begin
+        Initialize();
+
+        // [GIVEN] Item exists
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Transfer order with the item (not BOM) exists
+        LibraryInventory.CreateTransferHeader(TransferHeader);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", LibraryRandom.RandDec(5, 2));
+
+        // [WHEN] Trying to explode the non BOM line
+        asserterror TransferExplodeBOM.Run(TransferLine);
+
+        // [THEN] Error that the item is not a BOM shown
+        Assert.ExpectedError(StrSubstNo(ErrorItemIsNotBOM, TransferLine."Item No."));
+    end;
+
     [Normal]
     [HandlerFunctions('AvailabilityWindowHandler')]
     local procedure ResUsage(CostingMethod: Enum "Costing Method"; UseSameRes: Boolean; LotSize: Integer)
@@ -1804,6 +1947,50 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Normal]
+    local procedure VerifyExplodedTransferLines(var TempBOMComponent: Record "BOM Component" temporary; TransferHeader: Record "Transfer Header"; TempTransferLine: Record "Transfer Line" temporary)
+    var
+        TransferLine: Record "Transfer Line";
+    begin
+        TransferLine.SetRange("Document No.", TransferHeader."No.");
+        TransferLine.SetFilter(Quantity, '<>0');
+        TransferLine.FindSet();
+        TempBOMComponent.FindSet();
+
+        repeat
+            TempBOMComponent.SetRange("Parent Item No.", TempTransferLine."Item No.");
+            // Filter for Item lines only - the non items must not be created
+            TempBOMComponent.SetRange(Type, TempBOMComponent.Type::Item);
+            TempBOMComponent.SetRange("No.", TransferLine."Item No.");
+            TempBOMComponent.SetRange("Variant Code", TransferLine."Variant Code");
+            TempBOMComponent.SetRange("Unit of Measure Code", TransferLine."Unit of Measure Code");
+            Assert.AreEqual(1, TempBOMComponent.Count, 'Too many order lines exploded.');
+            TempBOMComponent.FindFirst();
+            Assert.AreNearlyEqual(TempBOMComponent."Quantity per" * TempTransferLine.Quantity, TransferLine.Quantity,
+              LibraryERM.GetAmountRoundingPrecision, 'Wrong qty in exploded line for ' + TransferLine."Item No.");
+            TempBOMComponent.Delete(true);
+        until TransferLine.Next() = 0;
+
+        TempBOMComponent.Reset();
+        TempBOMComponent.SetRange(Type, TempBOMComponent.Type::Item);
+        Assert.AreEqual(0, TempBOMComponent.Count, 'Not all lines were exploded.');
+    end;
+
+    [Normal]
+    local procedure VerifyExplodedTransferLineDimensions(TransferHeader: Record "Transfer Header")
+    var
+        TransferLine: Record "Transfer Line";
+        Item: Record "Item";
+    begin
+        TransferLine.SetRange("Document No.", TransferHeader."No.");
+        TransferLine.SetFilter(Quantity, '<>0');
+        TransferLine.FindSet();
+        repeat
+            Item.Get(TransferLine."Item No.");
+            Assert.AreEqual(Item."Global Dimension 1 Code", TransferLine."Shortcut Dimension 1 Code", TransferLine.FieldCaption("Shortcut Dimension 1 Code"));
+        until TransferLine.Next() = 0;
+    end;
+
+    [Normal]
     local procedure VerifyOrderHeader(AssemblyHeaderNo: Code[20])
     var
         AssemblyHeader: Record "Assembly Header";
@@ -1836,6 +2023,25 @@ codeunit 137091 "SCM Kitting - D2"
                 TempBOMComponent := BOMComponent;
                 TempBOMComponent.Insert();
             until BOMComponent.Next() = 0;
+    end;
+
+    [Normal]
+    local procedure CreateDimensionsForItemComponents(TempBOMComponent: Record "BOM Component" temporary)
+    var
+        BOMComponent: Record "BOM Component";
+        Item: Record Item;
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+    begin
+        LibraryDimension.CreateDimension(Dimension);
+        TempBOMComponent.SetRange(Type, TempBOMComponent.Type::Item);
+        if TempBOMComponent.FindSet() then
+            repeat
+                Clear(DimensionValue);
+                LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
+                Item."Global Dimension 1 Code" := DimensionValue.Code;
+                Item.Modify();
+            until TempBOMComponent.Next() = 0;
     end;
 
     [Normal]
@@ -1901,6 +2107,29 @@ codeunit 137091 "SCM Kitting - D2"
     begin
         Assert.IsTrue(StrPos(Question, CnfmRefreshLines) > 0, Question);
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ExplodeBOMSkipNonItemLinesConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    var
+        ExpectedQst: Label 'The BOM %1 has non item lines. These lines will be skipped. Do you want to continue?';
+    begin
+        Assert.ExpectedConfirm(StrSubstNo(ExpectedQst, LibraryVariableStorage.DequeueText()), Question);
+        Reply := true;
+    end;
+
+    [StrMenuHandler]
+    procedure ExplodeBOMWithDimensionsFromBOMStrMenuHandler(Options: Text[1024]; var Choice: Integer; Instructions: Text[1024])
+    begin
+        Assert.ExpectedStrMenu('', '&Copy dimensions from BOM,&Retrieve dimensions from components', Instructions, Options);
+        Choice := 1;
+    end;
+
+    [StrMenuHandler]
+    procedure ExplodeBOMWithDimensionsFromItemsStrMenuHandler(Options: Text[1024]; var Choice: Integer; Instructions: Text[1024])
+    begin
+        Assert.ExpectedStrMenu('', '&Copy dimensions from BOM,&Retrieve dimensions from components', Instructions, Options);
+        Choice := 2;
     end;
 
     [RecallNotificationHandler]

@@ -1,17 +1,18 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.XBRL;
+
+using Microsoft.Finance.Consolidation;
+using Microsoft.Finance.Dimension;
+
 table 395 "XBRL Taxonomy Line"
 {
     Caption = 'XBRL Taxonomy Line';
-#if not CLEAN20
-    LookupPageID = "XBRL Taxonomy Lines";
-#endif
     ObsoleteReason = 'XBRL feature will be discontinued';
-#if not CLEAN20
-    ObsoleteState = Pending;
-    ObsoleteTag = '20.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
-#endif
     ReplicateData = false;
 
     fields
@@ -39,9 +40,9 @@ table 395 "XBRL Taxonomy Line"
         }
         field(5; Label; Text[250])
         {
-            CalcFormula = Lookup("XBRL Taxonomy Label".Label WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
-                                                                    "XBRL Taxonomy Line No." = FIELD("Line No."),
-                                                                    "XML Language Identifier" = FIELD("Label Language Filter")));
+            CalcFormula = Lookup("XBRL Taxonomy Label".Label where("XBRL Taxonomy Name" = field("XBRL Taxonomy Name"),
+                                                                    "XBRL Taxonomy Line No." = field("Line No."),
+                                                                    "XML Language Identifier" = field("Label Language Filter")));
             Caption = 'Label';
             Editable = false;
             FieldClass = FlowField;
@@ -71,34 +72,34 @@ table 395 "XBRL Taxonomy Line"
         }
         field(11; Information; Boolean)
         {
-            CalcFormula = Exist("XBRL Comment Line" WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
-                                                           "XBRL Taxonomy Line No." = FIELD("Line No."),
-                                                           "Comment Type" = CONST(Information)));
+            CalcFormula = exist("XBRL Comment Line" where("XBRL Taxonomy Name" = field("XBRL Taxonomy Name"),
+                                                           "XBRL Taxonomy Line No." = field("Line No."),
+                                                           "Comment Type" = const(Information)));
             Caption = 'Information';
             Editable = false;
             FieldClass = FlowField;
         }
         field(12; Rollup; Boolean)
         {
-            CalcFormula = Exist("XBRL Rollup Line" WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
-                                                          "XBRL Taxonomy Line No." = FIELD("Line No.")));
+            CalcFormula = exist("XBRL Rollup Line" where("XBRL Taxonomy Name" = field("XBRL Taxonomy Name"),
+                                                          "XBRL Taxonomy Line No." = field("Line No.")));
             Caption = 'Rollup';
             Editable = false;
             FieldClass = FlowField;
         }
         field(13; "G/L Map Lines"; Boolean)
         {
-            CalcFormula = Exist("XBRL G/L Map Line" WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
-                                                           "XBRL Taxonomy Line No." = FIELD("Line No.")));
+            CalcFormula = exist("XBRL G/L Map Line" where("XBRL Taxonomy Name" = field("XBRL Taxonomy Name"),
+                                                           "XBRL Taxonomy Line No." = field("Line No.")));
             Caption = 'G/L Map Lines';
             Editable = false;
             FieldClass = FlowField;
         }
         field(14; Notes; Boolean)
         {
-            CalcFormula = Exist("XBRL Comment Line" WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
-                                                           "XBRL Taxonomy Line No." = FIELD("Line No."),
-                                                           "Comment Type" = CONST(Notes)));
+            CalcFormula = exist("XBRL Comment Line" where("XBRL Taxonomy Name" = field("XBRL Taxonomy Name"),
+                                                           "XBRL Taxonomy Line No." = field("Line No."),
+                                                           "Comment Type" = const(Notes)));
             Caption = 'Notes';
             Editable = false;
             FieldClass = FlowField;
@@ -114,16 +115,16 @@ table 395 "XBRL Taxonomy Line"
             CaptionClass = '1,3,1';
             Caption = 'Global Dimension 1 Filter';
             FieldClass = FlowFilter;
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
-                                                          Blocked = CONST(false));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
+                                                          Blocked = const(false));
         }
         field(17; "Global Dimension 2 Filter"; Code[20])
         {
             CaptionClass = '1,3,2';
             Caption = 'Global Dimension 2 Filter';
             FieldClass = FlowFilter;
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
-                                                          Blocked = CONST(false));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
+                                                          Blocked = const(false));
         }
         field(18; "Date Filter"; Date)
         {
@@ -133,7 +134,7 @@ table 395 "XBRL Taxonomy Line"
         field(19; "XBRL Schema Line No."; Integer)
         {
             Caption = 'XBRL Schema Line No.';
-            TableRelation = "XBRL Schema"."Line No." WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"));
+            TableRelation = "XBRL Schema"."Line No." where("XBRL Taxonomy Name" = field("XBRL Taxonomy Name"));
         }
         field(20; "Label Language Filter"; Text[10])
         {
@@ -150,9 +151,9 @@ table 395 "XBRL Taxonomy Line"
         }
         field(23; Reference; Boolean)
         {
-            CalcFormula = Exist("XBRL Comment Line" WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
-                                                           "XBRL Taxonomy Line No." = FIELD("Line No."),
-                                                           "Comment Type" = CONST(Reference)));
+            CalcFormula = exist("XBRL Comment Line" where("XBRL Taxonomy Name" = field("XBRL Taxonomy Name"),
+                                                           "XBRL Taxonomy Line No." = field("Line No."),
+                                                           "Comment Type" = const(Reference)));
             Caption = 'Reference';
             Editable = false;
             FieldClass = FlowField;

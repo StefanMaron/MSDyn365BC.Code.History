@@ -22,6 +22,7 @@
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryTablesUT: Codeunit "Library - Tables UT";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         FileManagement: Codeunit "File Management";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -30,7 +31,7 @@
         CopyOfTxt: Label 'Copy of %1', Comment = '%1 - custom report layout description';
         DeleteBuiltInLayoutErr: Label 'This is a built-in custom report layout, and it cannot be deleted.';
         IsInitialized: Boolean;
-        LineInFileTxt: Label '<ReportDataSet name="Test Report - Default=Word" id="134600">', Locked = true;
+        LineInFileTxt: Label '<ReportDataSet name="Test Report - Default=Word" id="134600">';
         FileNameIsBlankMsg: Label 'File name is blank.';
 
     local procedure Initialize()
@@ -279,26 +280,6 @@
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestDeleteBuiltInLayoutFails()
-    var
-        CustomReportLayout: Record "Custom Report Layout";
-        LayoutDescription: Text[80];
-    begin
-        // Init
-        Initialize();
-        CustomReportLayout.Init();
-        CustomReportLayout."Report ID" := StandardSalesInvoiceReportID;
-        LayoutDescription := LibraryUtility.GenerateGUID();
-        CustomReportLayout.Description := LayoutDescription;
-        CustomReportLayout."Built-In" := true;
-        CustomReportLayout.Insert();
-
-        asserterror CustomReportLayout.Delete(true);
-        Assert.ExpectedError(DeleteBuiltInLayoutErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestValidateCustomRrdlcOk()
     var
         CustomReportLayout: Record "Custom Report Layout";
@@ -353,97 +334,6 @@
         // Validate
         Assert.IsTrue(StrPos(GetLastErrorText, 'The RDLC layout does not comply with the current report design (for example') = 1, '');
     end;
-
-#if not CLEAN20
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestCod1MergeDocument()
-    var
-        ReportLayoutSelection: Record "Report Layout Selection";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        DocumentReportMgt: Codeunit "Document Report Mgt.";
-        FileManagement: Codeunit "File Management";
-        InStr: InStream;
-        OutStream: OutStream;
-        FileXml: File;
-        FileNameDocx: Text;
-        FileNameXml: Text;
-    begin
-        Initialize();
-        FileNameXml := FileManagement.ServerTempFileName('xml');
-        FileNameDocx := FileManagement.ServerTempFileName('docx');
-
-        // Negative test, 'SaveAsWord'
-
-        InitCompanySetup;
-        if ReportLayoutSelection.Get(StandardSalesInvoiceReportID, CompanyName) then
-            ReportLayoutSelection.Delete();
-
-        // Activate built-in Word layout
-        ReportLayoutSelection.Init();
-        ReportLayoutSelection."Report ID" := StandardSalesInvoiceReportID;
-        ReportLayoutSelection.Type := ReportLayoutSelection.Type::"Word (built-in)";
-        ReportLayoutSelection.Insert(true);
-
-        if SalesInvoiceHeader.FindFirst() then
-            SalesInvoiceHeader.SetRecFilter();
-        REPORT.SaveAsXml(StandardSalesInvoiceReportID, FileNameXml, SalesInvoiceHeader);
-        FileXml.Open(FileNameXml, TEXTENCODING::UTF16);
-        FileXml.CreateInStream(InStr);
-        DocumentReportMgt.MergeWordLayout(StandardSalesInvoiceReportID, 1, InStr, FileNameDocx, OutStream);
-        Assert.IsTrue(Exists(FileNameDocx), '');
-
-        FileXml.Close();
-        Erase(FileNameXml);
-        Erase(FileNameDocx);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestCod1GetCustomRDLC()
-    var
-        ReportLayoutSelection: Record "Report Layout Selection";
-        CustomReportLayout: Record "Custom Report Layout";
-        InStr: InStream;
-        File1: File;
-        File2: File;
-        BuiltInRdlcTxt: Text;
-        CustomRdlcTxt: Text;
-        LayoutCode: Code[20];
-    begin
-        Initialize();
-        CustomReportLayout.SetRange("Report ID", StandardSalesInvoiceReportID);
-        CustomReportLayout.DeleteAll();
-
-        if ReportLayoutSelection.Get(StandardSalesInvoiceReportID, CompanyName) then
-            ReportLayoutSelection.Delete();
-
-        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::RDLC.AsInteger());
-        CustomReportLayout.Get(LayoutCode);
-
-        ReportLayoutSelection.Init();
-        ReportLayoutSelection."Report ID" := StandardSalesInvoiceReportID;
-        ReportLayoutSelection.Type := ReportLayoutSelection.Type::"Custom Layout";
-        ReportLayoutSelection."Custom Report Layout Code" := CustomReportLayout.Code;
-        ReportLayoutSelection.Insert(true);
-
-        REPORT.RdlcLayout(StandardSalesInvoiceReportID, InStr);
-        InStr.Read(BuiltInRdlcTxt);
-        CustomRdlcTxt := CustomReportLayout.GetCustomRdlc(StandardSalesInvoiceReportID);
-
-        File1.TextMode := true;
-        File2.TextMode := true;
-        File1.Create(TemporaryPath + 'BuiltInRdlc.xml', TEXTENCODING::UTF8);
-        File2.Create(TemporaryPath + 'CustomRdlc.xml', TEXTENCODING::UTF8);
-        File1.Write(BuiltInRdlcTxt);
-        File2.Write(CustomRdlcTxt);
-        File1.Close();
-        File2.Close();
-
-        Assert.AreNotEqual('', CustomRdlcTxt, '');
-        Assert.AreNotEqual('', CustomRdlcTxt, '');
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -852,21 +742,96 @@
           "Registration No.",
           LibraryUtility.GenerateRandomCode(CompanyInformation.FieldNo("Registration No."), DATABASE::"Company Information"));
         CompanyInformation.Modify();
-        Assert.AreEqual(CompanyInformation."Registration No.", CompanyInformation.GetRegistrationNumber, WrongRegNoErr);
+        Assert.AreEqual(CompanyInformation."Registration No.", CompanyInformation.GetRegistrationNumber(), WrongRegNoErr);
         Assert.AreEqual(
           CompanyInformation.FieldCaption("Registration No."), CompanyInformation.GetRegistrationNumberLbl(), WrongRegNoLblErr);
     end;
 
     [Test]
+    [HandlerFunctions('WorkOrder_RPH')]
     [Scope('OnPrem')]
-    procedure DemodataContainsDefaultEmailMergeReport()
+    procedure SalesOrder_Print_WorkOrder()
     var
-        DummyCustomReportLayout: Record "Custom Report Layout";
+        SalesHeader: Record "Sales Header";
+        DocumentPrint: Codeunit "Document-Print";
+        CustomerNo: Code[20];
     begin
-        // [FEATURE] [UT]
-        // [SCENARIO] Demodata contains default Email Merge report
-        DummyCustomReportLayout.SetRange("Report ID", REPORT::"Email Merge");
-        Assert.RecordIsNotEmpty(DummyCustomReportLayout);
+        Initialize();
+        // [FEATURE] [Sales] [Order] [Print]
+        // [SCENARIO 379027] REP 752 "Work Order" is shown when run "Work Order" action from Sales Order in case of "Order Confirmation" setup in customer document layout
+
+        // [GIVEN] Custom Report Layout "X" with "Report ID" = 752, "Report Name" = "Work Order"
+        // [GIVEN] Customer with Document Layout: Usage = "Work Order", "Report ID" = 752, "Customer Report Layout ID" = "X"
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        AddOrderConfirmationToCustomerDocumentLayout(CustomerNo);
+
+        // [GIVEN] Sales Order for the given customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+
+        // [WHEN] Run "Work Order" action from Sales Order
+        Commit();
+        DocumentPrint.PrintSalesOrder(SalesHeader, Usage::"Work Order");
+
+        // [THEN] REP 752 "Work Order" is shown
+        // WorkOrder_RPH
+    end;
+
+    [Test]
+    [HandlerFunctions('PickInstruction_RPH')]
+    [Scope('OnPrem')]
+    procedure SalesOrder_Print_PickInstruction()
+    var
+        SalesHeader: Record "Sales Header";
+        DocumentPrint: Codeunit "Document-Print";
+        CustomerNo: Code[20];
+    begin
+        Initialize();
+        // [FEATURE] [Sales] [Order] [Print]
+        // [SCENARIO 379027] REP 214 "Pick Instruction" is shown when run "Pick Instruction" action from Sales Order in case of "Order Confirmation" setup in customer document layout
+
+        // [GIVEN] Custom Report Layout "X" with "Report ID" = 214, "Report Name" = "Pick Instruction"
+        // [GIVEN] Customer with Document Layout: Usage = "Pick Instruction", "Report ID" = 214, "Customer Report Layout ID" = "X"
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        AddOrderConfirmationToCustomerDocumentLayout(CustomerNo);
+
+        // [GIVEN] Sales Order for the given customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+
+        // [WHEN] Run "Pick Instruction" action from Sales Order
+        Commit();
+        DocumentPrint.PrintSalesOrder(SalesHeader, Usage::"Pick Instruction");
+
+        // [THEN] REP 214 "Pick Instruction" is shown
+        // PickInstruction_RPH
+    end;
+
+    [Test]
+    [HandlerFunctions('OrderConfirmation_RPH')]
+    [Scope('OnPrem')]
+    procedure SalesOrder_Print_OrderConfirmation()
+    var
+        SalesHeader: Record "Sales Header";
+        DocumentPrint: Codeunit "Document-Print";
+        CustomerNo: Code[20];
+    begin
+        Initialize();
+        // [FEATURE] [Sales] [Order] [Print]
+        // [SCENARIO 379027] REP 1305 "Standard Sales - Order Conf." is shown when run "Print Confirmation" action from Sales Order in case of "Order Confirmation" setup in customer document layout
+
+        // [GIVEN] Custom Report Layout "X" with "Report ID" = 1305, "Report Name" = "Standard Sales - Order Conf."
+        // [GIVEN] Customer with Document Layout: Usage = "Confirmation Order", "Report ID" = 1305, "Customer Report Layout ID" = "X"
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        AddOrderConfirmationToCustomerDocumentLayout(CustomerNo);
+
+        // [GIVEN] Sales Order for the given customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+
+        // [WHEN] Run "Print Confirmation" action from Sales Order
+        Commit();
+        DocumentPrint.PrintSalesOrder(SalesHeader, Usage::"Order Confirmation");
+
+        // [THEN] REP 1305 "Order Confirmation" is shown
+        // OrderConfirmation_RPH
     end;
 
     [Test]
@@ -908,6 +873,67 @@
 
         // [THEN] The 2nd reported line contains "Job Task No." = "321"
         VerifyJobTaskNo(20000, SalesLine[2]."Job Task No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestLenghtOfDescriptionCustomReportLayout()
+    var
+        CustomReportLayout: Record "Custom Report Layout";
+        CustomReportSelection: Record "Custom Report Selection";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 252058] Length of "Custom Report Layout"."Description" shoud be equal to length of "Custom Report Selection"."Custom Report Description"
+
+        LibraryTablesUT.CompareFieldTypeAndLength(
+          CustomReportLayout, CustomReportLayout.FieldNo(Description),
+          CustomReportSelection, CustomReportSelection.FieldNo("Custom Report Description"));
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure PrintSalesOrderProperFiltering()
+    var
+        SalesHeader: Record "Sales Header";
+        NoSeries: array[2] of Record "No. Series";
+        NoSeriesLine: array[2] of Record "No. Series Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        DocumentPrint: Codeunit "Document-Print";
+        ReportLayoutTest: Codeunit "Report Layout Test";
+        CustomerNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Order] [Print]
+        // [SCENARIO 386769] PrintSalesOrder method should set correct filter on SalesHeader record
+        Initialize();
+
+        // [GIVEN] Sales Order "SO" and Sales Quote "SQ" with same Document No.
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        AddOrderConfirmationToCustomerDocumentLayout(CustomerNo);
+
+        LibraryUtility.CreateNoSeries(NoSeries[1], true, true, false);
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine[1], NoSeries[1].Code, '', '');
+
+        LibraryUtility.CreateNoSeries(NoSeries[2], true, false, false);
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine[2], NoSeries[2].Code, '', '');
+
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Order Nos.", NoSeries[1].Code);
+        SalesReceivablesSetup.Validate("Quote Nos.", NoSeries[2].Code);
+        SalesReceivablesSetup.Modify(true);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+
+        // [WHEN] Run "Print Confirmation" action from Sales Order "SO"
+        Commit();
+        BindSubscription(ReportLayoutTest);
+        DocumentPrint.PrintSalesOrder(SalesHeader, Usage::"Order Confirmation");
+
+        // [THEN] SalesHeader record points to Sales Order "SO"
+        // Checked by subscribing to OnBeforePrintSalesOrder event in method PrintSalesOrder of Codeunit "Document-Print"
+        // and getting Sales Header RecordId to be sure it point to correct record "SO"
+        Assert.ExpectedMessage(Format(SalesHeader.RecordId()), LibraryVariableStorage.DequeueText); // message from MessageHandler
     end;
 
     local procedure InitCustomReportLayout(var CustomReportLayout: Record "Custom Report Layout"; LayoutType: Enum "Custom Report Layout Type"; WithCompanyName: Boolean)
@@ -1232,6 +1258,23 @@
         LibraryVariableStorage.Enqueue(Msg);
     end;
 
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure WorkOrder_RPH(var WorkOrder: TestRequestPage "Work Order")
+    begin
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure PickInstruction_RPH(var PickInstruction: TestRequestPage "Pick Instruction")
+    begin
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure OrderConfirmation_RPH(var OrderConfirmation: TestRequestPage "Standard Sales - Order Conf.")
+    begin
+    end;
 
     local procedure StandardSalesInvoiceReportID(): Integer
     begin

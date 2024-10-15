@@ -1,4 +1,17 @@
-﻿report 596 "Exch. Rate Adjustment"
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Currency;
+
+using Microsoft.Bank.BankAccount;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+
+report 596 "Exch. Rate Adjustment"
 {
     Caption = 'Exchange Rates Adjustment';
     ProcessingOnly = true;
@@ -7,22 +20,22 @@
     {
         dataitem(CurrencyFilter; Currency)
         {
-            DataItemTableView = SORTING(Code);
+            DataItemTableView = sorting(Code);
             RequestFilterFields = "Code";
             dataitem(BankAccountFilter; "Bank Account")
             {
-                DataItemLink = "Currency Code" = FIELD(Code);
+                DataItemLink = "Currency Code" = field(Code);
                 RequestFilterFields = "No.";
             }
         }
         dataitem(CustomerFilter; Customer)
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.";
         }
         dataitem(VendorFilter; Vendor)
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.";
         }
     }
@@ -125,7 +138,7 @@
                         ToolTip = 'Specifies the document number that will appear on the general ledger entries that are created by the batch job.';
                         Visible = not IsJournalTemplNameVisible;
                     }
-                    field(JournalTemplateName; GenJnlLineReq."Journal Template Name")
+                    field(JournalTemplateName; GenJournalLineReq."Journal Template Name")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Journal Template Name';
@@ -135,10 +148,10 @@
 
                         trigger OnValidate()
                         begin
-                            GenJnlLineReq."Journal Batch Name" := '';
+                            GenJournalLineReq."Journal Batch Name" := '';
                         end;
                     }
-                    field(JournalBatchName; GenJnlLineReq."Journal Batch Name")
+                    field(JournalBatchName; GenJournalLineReq."Journal Batch Name")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Journal Batch Name';
@@ -150,16 +163,16 @@
                         var
                             GenJnlManagement: Codeunit GenJnlManagement;
                         begin
-                            GenJnlManagement.SetJnlBatchName(GenJnlLineReq);
-                            if GenJnlLineReq."Journal Batch Name" <> '' then
-                                GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
+                            GenJnlManagement.SetJnlBatchName(GenJournalLineReq);
+                            if GenJournalLineReq."Journal Batch Name" <> '' then
+                                GenJournalBatch.Get(GenJournalLineReq."Journal Template Name", GenJournalLineReq."Journal Batch Name");
                         end;
 
                         trigger OnValidate()
                         begin
-                            if GenJnlLineReq."Journal Batch Name" <> '' then begin
-                                GenJnlLineReq.TestField("Journal Template Name");
-                                GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
+                            if GenJournalLineReq."Journal Batch Name" <> '' then begin
+                                GenJournalLineReq.TestField("Journal Template Name");
+                                GenJournalBatch.Get(GenJournalLineReq."Journal Template Name", GenJournalLineReq."Journal Batch Name");
                             end;
                         end;
                     }
@@ -206,6 +219,12 @@
                         Caption = 'Preview Posting';
                         ToolTip = 'Specifies if you want to preview posting for currency fluctuations.';
                     }
+                    field(DimensionPost; DimensionPosting)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Dimension Posting';
+                        ToolTip = 'Specifies how you want to move dimensions to posted ledger entries.';
+                    }
                 }
             }
         }
@@ -235,8 +254,8 @@
 
             PreviewPosting := true;
 
-            GLSetup.Get();
-            IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
+            GeneralLedgerSetup.Get();
+            IsJournalTemplNameVisible := GeneralLedgerSetup."Journal Templ. Name Mandatory";
 
             UpdateControls();
         end;
@@ -258,27 +277,27 @@
 
     trigger OnPreReport()
     begin
-        GLSetup.Get();
+        GeneralLedgerSetup.Get();
 
         if EndDateReq = 0D then
             EndDate := DMY2Date(31, 12, 9999)
         else
             EndDate := EndDateReq;
 
-        GLSetup.Get();
-        if GLSetup."Journal Templ. Name Mandatory" then begin
-            if GenJnlLineReq."Journal Template Name" = '' then
-                Error(MustBeEnteredErr, GenJnlLineReq.FieldCaption("Journal Template Name"));
-            if GenJnlLineReq."Journal Batch Name" = '' then
-                Error(MustBeEnteredErr, GenJnlLineReq.FieldCaption("Journal Batch Name"));
-            Clear(NoSeriesMgt);
+        GeneralLedgerSetup.Get();
+        if GeneralLedgerSetup."Journal Templ. Name Mandatory" then begin
+            if GenJournalLineReq."Journal Template Name" = '' then
+                Error(MustBeEnteredErr, GenJournalLineReq.FieldCaption("Journal Template Name"));
+            if GenJournalLineReq."Journal Batch Name" = '' then
+                Error(MustBeEnteredErr, GenJournalLineReq.FieldCaption("Journal Batch Name"));
+            Clear(NoSeriesManagement);
             Clear(PostingDocNo);
-            GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
-            GenJnlBatch.TestField("No. Series");
-            PostingDocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", PostingDate, true);
+            GenJournalBatch.Get(GenJournalLineReq."Journal Template Name", GenJournalLineReq."Journal Batch Name");
+            GenJournalBatch.TestField("No. Series");
+            PostingDocNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", PostingDate, true);
         end else
             if (PostingDocNo = '') and (not PreviewPosting) then
-                Error(MustBeEnteredErr, GenJnlLineReq.FieldCaption("Document No."));
+                Error(MustBeEnteredErr, GenJournalLineReq.FieldCaption("Document No."));
 
         if PreviewPosting then
             PostingDocNo := '***';
@@ -298,10 +317,11 @@
     end;
 
     var
-        GenJnlBatch: Record "Gen. Journal Batch";
-        GenJnlLineReq: Record "Gen. Journal Line";
-        GLSetup: Record "General Ledger Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLineReq: Record "Gen. Journal Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        DimensionPosting: Enum "Exch. Rate Adjmt. Dimensions";
         PostingDate: Date;
         PostingDescription: Text[100];
         PostingDocNo: Code[20];
@@ -320,9 +340,7 @@
         ValuationMethod: Option Standard,"Lowest Value","BilMoG (Germany)";
         DueDateTo: Date;
         ValuationPeriodEndDate: Date;
-        [InDataSet]
         DueDateLimitEnable: Boolean;
-        [InDataSet]
         ValPerEndEnable: Boolean;
         MustBeEnteredErr: Label '%1 must be entered.', Comment = '%1 = field name';
         ConfirmationTxt: Label 'Do you want to adjust general ledger entries for currency fluctuations without adjusting customer, vendor and bank ledger entries? This may result in incorrect currency adjustments to payables, receivables and bank accounts.\\ ';
@@ -334,9 +352,11 @@
         ValuationReferenceDateErr: Label 'Short term liabilities until must not be before Valuation Reference Date.';
         AdjustVATExchRatesQst: Label 'You want to adjust the VAT exchange rate. Please check whether the VAT exchange rates are correct. They cannot be corrected anymore.\\ ';
 
+    protected var
+        ExchRateAdjmtParameters: Record "Exch. Rate Adjmt. Parameters";
+
     local procedure RunAdjustmentProcess()
     var
-        ExchRateAdjmtParameters: Record "Exch. Rate Adjmt. Parameters";
         ExchRateAdjmtProcess: Codeunit "Exch. Rate Adjmt. Process";
     begin
         Clear(ExchRateAdjmtProcess);
@@ -407,21 +427,22 @@
         ExchRateAdjmtParameters2."Adjust Vendors" := AdjVend;
         ExchRateAdjmtParameters2."Adjust G/L Accounts" := AdjGLAcc;
         ExchRateAdjmtParameters2."Adjust VAT Entries" := AdjVATEntries;
+        ExchRateAdjmtParameters2."Adjust Per Entry" := AdjPerEntry;
         ExchRateAdjmtParameters2."Hide UI" := HideUI;
         ExchRateAdjmtParameters2."Preview Posting" := PreviewPosting;
         ExchRateAdjmtParameters2."Valuation Method" := ValuationMethod;
         ExchRateAdjmtParameters2."Valuation Period End Date" := ValuationPeriodEndDate;
         ExchRateAdjmtParameters2."Due Date To" := DueDateTo;
-        if GLSetup."Journal Templ. Name Mandatory" then begin
-            ExchRateAdjmtParameters2."Journal Template Name" := GenJnlBatch."Journal Template Name";
-            ExchRateAdjmtParameters2."Journal Batch Name" := GenJnlBatch.Name;
+        if GeneralLedgerSetup."Journal Templ. Name Mandatory" then begin
+            ExchRateAdjmtParameters2."Journal Template Name" := GenJournalBatch."Journal Template Name";
+            ExchRateAdjmtParameters2."Journal Batch Name" := GenJournalBatch.Name;
         end;
         OnAfterCopyParameters(ExchRateAdjmtParameters2);
     end;
 
-    procedure SetGenJnlBatch(NewGenJnlBatch: Record "Gen. Journal Batch")
+    procedure SetGenJnlBatch(NewGenJournalBatch: Record "Gen. Journal Batch")
     begin
-        GenJnlBatch := NewGenJnlBatch;
+        GenJournalBatch := NewGenJournalBatch;
     end;
 
     procedure SetPreviewMode(NewPreviewPosting: Boolean)

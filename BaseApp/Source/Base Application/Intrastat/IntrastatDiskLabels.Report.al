@@ -1,14 +1,20 @@
+#if not CLEAN22
 report 11000 "Intrastat  Disk (Labels)"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './Intrastat/IntrastatDiskLabels.rdlc';
     Caption = 'Intrastat  Disk (Labels)';
+    ObsoleteState = Pending;
+#pragma warning disable AS0072
+    ObsoleteTag = '22.0';
+#pragma warning restore AS0072
+    ObsoleteReason = 'Intrastat related functionalities are moving to Intrastat extension.';
 
     dataset
     {
         dataitem("Intrastat Jnl. Batch"; "Intrastat Jnl. Batch")
         {
-            DataItemTableView = SORTING("Journal Template Name", Name);
+            DataItemTableView = sorting("Journal Template Name", Name);
             RequestFilterFields = "Journal Template Name", Name;
             column(Intrastat_Jnl__Batch_Journal_Template_Name; "Journal Template Name")
             {
@@ -18,7 +24,7 @@ report 11000 "Intrastat  Disk (Labels)"
             }
             dataitem("Company Information"; "Company Information")
             {
-                DataItemTableView = SORTING("Primary Key");
+                DataItemTableView = sorting("Primary Key");
                 MaxIteration = 1;
                 column(Company_Information_Name; Name)
                 {
@@ -230,4 +236,4 @@ report 11000 "Intrastat  Disk (Labels)"
         Reporting_MonthCaption_Control1140019Lbl: Label 'Reporting Month';
         No__of_RecordCaption_Control1140021Lbl: Label 'No. of Record';
 }
-
+#endif

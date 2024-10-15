@@ -1,3 +1,10 @@
+namespace Microsoft.RoleCenters;
+
+using Microsoft.Finance.RoleCenters;
+using System.Environment;
+using System.Environment.Configuration;
+using System.Reflection;
+
 codeunit 1449 "Start Trial"
 {
     Access = Public;

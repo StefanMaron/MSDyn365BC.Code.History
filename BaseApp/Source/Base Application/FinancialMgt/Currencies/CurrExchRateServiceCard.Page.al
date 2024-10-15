@@ -1,3 +1,18 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Currency;
+
+using Microsoft.Utilities;
+using System;
+using System.Environment;
+using System.Environment.Configuration;
+using System.Integration;
+using System.IO;
+using System.Reflection;
+using System.Xml;
+
 page 1651 "Curr. Exch. Rate Service Card"
 {
     Caption = 'Currency Exch. Rate Service';
@@ -10,7 +25,7 @@ page 1651 "Curr. Exch. Rate Service Card"
             group(General)
             {
                 Caption = 'General';
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Suite;
                     Editable = NotEnabledAndCurrPageEditable;
@@ -22,15 +37,15 @@ page 1651 "Curr. Exch. Rate Service Card"
                     Editable = NotEnabledAndCurrPageEditable;
                     ToolTip = 'Specifies the setup of a service to update currency exchange rates.';
                 }
-                field(Enabled; Enabled)
+                field(Enabled; Rec.Enabled)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if the currency exchange rate service is enabled.';
 
                     trigger OnValidate()
                     begin
-                        NotEnabledAndCurrPageEditable := not Enabled and CurrPage.Editable;
-                        EnabledAndCurrPageEditable := Enabled and CurrPage.Editable;
+                        NotEnabledAndCurrPageEditable := not Rec.Enabled and CurrPage.Editable;
+                        EnabledAndCurrPageEditable := Rec.Enabled and CurrPage.Editable;
                         CurrPage.Update();
                     end;
                 }
@@ -60,7 +75,7 @@ page 1651 "Curr. Exch. Rate Service Card"
 
                     trigger OnValidate()
                     begin
-                        SetWebServiceURL(WebServiceURL);
+                        Rec.SetWebServiceURL(WebServiceURL);
                         GenerateXMLStructure();
                     end;
                 }
@@ -108,9 +123,9 @@ page 1651 "Curr. Exch. Rate Service Card"
                     TempCurrencyExchangeRate: Record "Currency Exchange Rate" temporary;
                     UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
                 begin
-                    TestField(Code);
-                    VerifyServiceURL();
-                    VerifyDataExchangeLineDefinition();
+                    Rec.TestField(Code);
+                    Rec.VerifyServiceURL();
+                    Rec.VerifyDataExchangeLineDefinition();
                     UpdateCurrencyExchangeRates.GenerateTempDataFromService(TempCurrencyExchangeRate, Rec);
                     PAGE.Run(PAGE::"Currency Exchange Rates", TempCurrencyExchangeRate);
                 end;
@@ -119,13 +134,13 @@ page 1651 "Curr. Exch. Rate Service Card"
             {
                 ApplicationArea = Suite;
                 Caption = 'Job Queue Entry';
-                Enabled = Enabled;
+                Enabled = Rec.Enabled;
                 Image = JobListSetup;
                 ToolTip = 'View or edit the job that updates the exchange rates from the service. For example, you can see the status or change how often rates are updated.';
 
                 trigger OnAction()
                 begin
-                    ShowJobQueueEntry();
+                    Rec.ShowJobQueueEntry();
                 end;
             }
         }
@@ -185,7 +200,7 @@ page 1651 "Curr. Exch. Rate Service Card"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        if not Enabled then
+        if not Rec.Enabled then
             if not Confirm(StrSubstNo(EnableServiceQst, CurrPage.Caption), true) then
                 exit(false);
     end;
@@ -206,10 +221,10 @@ page 1651 "Curr. Exch. Rate Service Card"
 
     local procedure UpdateSimpleMappingsPart()
     begin
-        CurrPage.SimpleDataExchSetup.PAGE.SetDataExchDefCode("Data Exch. Def Code");
+        CurrPage.SimpleDataExchSetup.PAGE.SetDataExchDefCode(Rec."Data Exch. Def Code");
         CurrPage.SimpleDataExchSetup.PAGE.UpdateData();
         CurrPage.SimpleDataExchSetup.PAGE.Update(false);
-        CurrPage.SimpleDataExchSetup.PAGE.SetSourceToBeMandatory("Web Service URL".HasValue);
+        CurrPage.SimpleDataExchSetup.PAGE.SetSourceToBeMandatory(Rec."Web Service URL".HasValue);
     end;
 
     local procedure MakeWebServiceURL() Result: Boolean
@@ -222,7 +237,7 @@ page 1651 "Curr. Exch. Rate Service Card"
         if IsHandled then
             exit(Result);
 
-        WebServiceURL := GetWebServiceURL(ServiceURL);
+        WebServiceURL := Rec.GetWebServiceURL(ServiceURL);
         if WebServiceURL <> '' then
             if not GenerateXMLStructure() then begin
                 if PreviousWebServiceURL <> ServiceUrl then
@@ -248,8 +263,8 @@ page 1651 "Curr. Exch. Rate Service Card"
 
         TempXMLBuffer.Reset();
         TempXMLBuffer.DeleteAll();
-        GetWebServiceURL(ServiceURL);
-        if GetXMLStructure(TempXMLBuffer, ServiceURL) then begin
+        Rec.GetWebServiceURL(ServiceURL);
+        if Rec.GetXMLStructure(TempXMLBuffer, ServiceURL) then begin
             TempXMLBuffer.Reset();
             CurrPage.SimpleDataExchSetup.PAGE.SetXMLDefinition(TempXMLBuffer);
         end else
@@ -258,17 +273,17 @@ page 1651 "Curr. Exch. Rate Service Card"
 
     local procedure UpdateBasedOnEnable()
     begin
-        NotEnabledAndCurrPageEditable := not Enabled and CurrPage.Editable;
-        EnabledAndCurrPageEditable := Enabled and CurrPage.Editable;
+        NotEnabledAndCurrPageEditable := not Rec.Enabled and CurrPage.Editable;
+        EnabledAndCurrPageEditable := Rec.Enabled and CurrPage.Editable;
         ShowEnableWarning := '';
-        if CurrPage.Editable and Enabled then
+        if CurrPage.Editable and Rec.Enabled then
             ShowEnableWarning := EnabledWarningTok;
     end;
 
     local procedure DrilldownCode()
     begin
         if Confirm(DisableEnableQst, true) then begin
-            Enabled := false;
+            Rec.Enabled := false;
             UpdateBasedOnEnable();
             CurrPage.Update();
         end;
@@ -286,7 +301,7 @@ page 1651 "Curr. Exch. Rate Service Card"
     begin
         ErrorText := WebRequestHelper.GetWebResponseError(WebException, WebServiceURL);
 
-        ActivityLog.LogActivity(Rec, ActivityLog.Status::Failed, "Service Provider", Description, ErrorText);
+        ActivityLog.LogActivity(Rec, ActivityLog.Status::Failed, Rec."Service Provider", Rec.Description, ErrorText);
 
         if IsNull(WebException.Response) then
             Error(ErrorText);

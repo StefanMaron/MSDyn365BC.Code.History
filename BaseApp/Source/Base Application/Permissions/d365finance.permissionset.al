@@ -1,3 +1,5 @@
+namespace System.Security.AccessControl;
+
 permissionset 2917 "D365 FINANCE"
 {
     Assignable = true;

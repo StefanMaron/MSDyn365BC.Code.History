@@ -1,3 +1,7 @@
+namespace System.Reflection;
+
+using System.Environment;
+
 page 9510 "Event Subscriptions"
 {
     Caption = 'Event Subscriptions';
@@ -53,7 +57,7 @@ page 9510 "Event Subscriptions"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the name of the event publisher function in the publisher object that the event subscriber function subscribes to.';
                 }
-                field(Active; Active)
+                field(Active; Rec.Active)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies if the event subscription is active.';
@@ -78,6 +82,11 @@ page 9510 "Event Subscriptions"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the object that triggers the event.';
                 }
+                field("Originating Package ID"; Rec."Originating Package ID")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the object that triggers the event.';
+                }
                 field("Error Information"; Rec."Error Information")
                 {
                     ApplicationArea = All;
@@ -96,11 +105,10 @@ page 9510 "Event Subscriptions"
         AllObj: Record AllObj;
         CodeUnitMetadata: Record "CodeUnit Metadata";
     begin
-        if CodeUnitMetadata.Get("Subscriber Codeunit ID") then
+        if CodeUnitMetadata.Get(Rec."Subscriber Codeunit ID") then
             CodeunitName := CodeUnitMetadata.Name;
-
-        AllObj.SetRange("Object Type", "Publisher Object Type");
-        AllObj.SetRange("Object ID", "Publisher Object ID");
+        AllObj.SetRange("Object Type", Rec."Publisher Object Type");
+        AllObj.SetRange("Object ID", Rec."Publisher Object ID");
         if AllObj.FindFirst() then
             PublisherName := AllObj."Object Name";
     end;

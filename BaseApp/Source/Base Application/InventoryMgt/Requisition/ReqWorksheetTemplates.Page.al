@@ -1,3 +1,7 @@
+namespace Microsoft.Inventory.Requisition;
+
+using System.Reflection;
+
 page 293 "Req. Worksheet Templates"
 {
     AdditionalSearchTerms = 'supply planning template,mrp template,mps template';
@@ -43,7 +47,7 @@ page 293 "Req. Worksheet Templates"
                     ToolTip = 'Specifies the displayed name of the journal or worksheet that uses the template.';
                     Visible = false;
                 }
-                field("Increment Batch Name"; "Increment Batch Name")
+                field("Increment Batch Name"; Rec."Increment Batch Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if batch names using this template are automatically incremented. Example: The posting following BATCH001 is automatically named BATCH002.';
@@ -79,9 +83,16 @@ page 293 "Req. Worksheet Templates"
                     Caption = 'Requisition Worksheet Names';
                     Image = Description;
                     RunObject = Page "Req. Wksh. Names";
-                    RunPageLink = "Worksheet Template Name" = FIELD(Name);
+                    RunPageLink = "Worksheet Template Name" = field(Name);
                     ToolTip = 'View the list worksheets that are set up to handle requisition planning.';
                 }
+            }
+        }
+        area(Promoted)
+        {
+            actionref(Requisition_Worksheet_Names_Promoted; "Requisition Worksheet Names")
+            {
+
             }
         }
     }

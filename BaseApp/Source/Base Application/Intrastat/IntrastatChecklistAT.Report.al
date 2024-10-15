@@ -1,3 +1,4 @@
+#if not CLEAN22
 report 11105 "Intrastat - Checklist AT"
 {
     DefaultLayout = RDLC;
@@ -5,12 +6,17 @@ report 11105 "Intrastat - Checklist AT"
     ApplicationArea = Basic, Suite;
     Caption = 'Intrastat - Checklist AT';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+#pragma warning disable AS0072
+    ObsoleteTag = '22.0';
+#pragma warning restore AS0072
+    ObsoleteReason = 'Intrastat related functionalities are moving to Intrastat extension.';
 
     dataset
     {
         dataitem("Intrastat Jnl. Batch"; "Intrastat Jnl. Batch")
         {
-            DataItemTableView = SORTING("Journal Template Name", Name);
+            DataItemTableView = sorting("Journal Template Name", Name);
             RequestFilterFields = "Journal Template Name", Name;
             column(Intrastat_Jnl__Batch_Journal_Template_Name; "Journal Template Name")
             {
@@ -20,8 +26,8 @@ report 11105 "Intrastat - Checklist AT"
             }
             dataitem("Intrastat Jnl. Line"; "Intrastat Jnl. Line")
             {
-                DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
-                DataItemTableView = SORTING("Journal Template Name", "Journal Batch Name", Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", Area, "Transaction Specification", "Country/Region of Origin Code");
+                DataItemLink = "Journal Template Name" = field("Journal Template Name"), "Journal Batch Name" = field(Name);
+                DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", Area, "Transaction Specification", "Country/Region of Origin Code");
                 RequestFilterFields = Type;
                 column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
                 {
@@ -415,4 +421,4 @@ report 11105 "Intrastat - Checklist AT"
         TotalCaption_Control55Lbl: Label 'Total';
         NoOfRecords_Control62CaptionLbl: Label 'No. of Entries';
 }
-
+#endif

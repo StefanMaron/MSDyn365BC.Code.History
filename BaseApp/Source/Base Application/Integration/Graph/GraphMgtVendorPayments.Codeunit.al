@@ -1,3 +1,12 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.Graph;
+
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.API.Upgrade;
+
 codeunit 5011 "Graph Mgt - Vendor Payments"
 {
     trigger OnRun()
@@ -54,9 +63,6 @@ codeunit 5011 "Graph Mgt - Vendor Payments"
             if FindSet() then begin
                 repeat
                     UpdateVendorID();
-#if not CLEAN20                    
-                    UpdateGraphContactId();
-#endif                    
                     UpdateAppliesToInvoiceID();
                     UpdateJournalBatchID();
                     Modify(false);

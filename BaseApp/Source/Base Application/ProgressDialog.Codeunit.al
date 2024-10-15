@@ -1,3 +1,5 @@
+namespace Microsoft.Utilities;
+
 codeunit 1815 "Progress Dialog"
 {
 

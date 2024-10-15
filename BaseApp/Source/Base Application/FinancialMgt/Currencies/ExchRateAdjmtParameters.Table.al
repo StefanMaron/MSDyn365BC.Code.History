@@ -1,4 +1,10 @@
-﻿table 596 "Exch. Rate Adjmt. Parameters"
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Currency;
+
+table 596 "Exch. Rate Adjmt. Parameters"
 {
     Caption = 'Exch. Rate Adjmt. Parameters';
     ReplicateData = false;
@@ -59,6 +65,16 @@
         field(11; "Adjust VAT Entries"; Boolean)
         {
             Caption = 'Adjust VAT Entries';
+            DataClassification = SystemMetadata;
+        }
+        field(12; "Adjust Per Entry"; Boolean)
+        {
+            Caption = 'Adjust Per Entry';
+            DataClassification = SystemMetadata;
+        }
+        field(14; "Dimension Posting"; Enum "Exch. Rate Adjmt. Dimensions")
+        {
+            Caption = 'Dimension Posting';
             DataClassification = SystemMetadata;
         }
         field(20; "Currency Filter"; Text[2048])

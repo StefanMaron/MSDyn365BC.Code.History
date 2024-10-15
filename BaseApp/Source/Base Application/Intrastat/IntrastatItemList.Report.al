@@ -10,7 +10,7 @@ report 11001 "Intrastat - Item List"
     {
         dataitem("Tariff Number"; "Tariff Number")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
             column(CompInfoName; UpperCase(CompanyInfo.Name))
@@ -63,8 +63,8 @@ report 11001 "Intrastat - Item List"
             }
             dataitem(Item; Item)
             {
-                DataItemLink = "Tariff No." = FIELD("No.");
-                DataItemTableView = SORTING("No.");
+                DataItemLink = "Tariff No." = field("No.");
+                DataItemTableView = sorting("No.");
                 column(No_Item; "No.")
                 {
                 }

@@ -1,3 +1,7 @@
+namespace System.DataAdministration;
+
+using System.Threading;
+
 pageextension 3998 "Reten. Pol. Setup Card Ext." extends "Retention Policy Setup Card"
 {
     actions

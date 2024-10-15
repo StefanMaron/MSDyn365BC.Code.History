@@ -1,3 +1,12 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft;
+
+using System.Reflection;
+using System.Privacy;
+
 pageextension 1758 "Data Classification Wiz. Ext." extends "Data Classification Wizard"
 {
     layout
@@ -118,7 +127,7 @@ pageextension 1758 "Data Classification Wiz. Ext." extends "Data Classification 
         DataClassificationMgt: Codeunit "Data Classification Mgt.";
     begin
         DataClassificationMgt.SetDefaultDataSensitivity(Rec);
-        SetRange(Include, true);
+        Rec.SetRange(Include, true);
 
         NextStep(false);
     end;

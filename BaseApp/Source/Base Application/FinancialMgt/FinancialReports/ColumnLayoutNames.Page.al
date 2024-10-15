@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.FinancialReports;
+
 page 488 "Column Layout Names"
 {
     Caption = 'Column Definitions';
@@ -59,7 +61,7 @@ page 488 "Column Layout Names"
                 var
                     ColumnLayout: Page "Column Layout";
                 begin
-                    ColumnLayout.SetColumnLayoutName(Name);
+                    ColumnLayout.SetColumnLayoutName(Rec.Name);
                     ColumnLayout.Run();
                 end;
             }

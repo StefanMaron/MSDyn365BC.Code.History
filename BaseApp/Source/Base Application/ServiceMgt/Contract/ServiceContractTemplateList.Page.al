@@ -1,3 +1,7 @@
+namespace Microsoft.Service.Contract;
+
+using Microsoft.Finance.Dimension;
+
 page 6056 "Service Contract Template List"
 {
     ApplicationArea = Service;
@@ -25,7 +29,7 @@ page 6056 "Service Contract Template List"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a description of the service contract.';
                 }
-                field(Prepaid; Prepaid)
+                field(Prepaid; Rec.Prepaid)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that this service contract is prepaid.';
@@ -71,8 +75,8 @@ page 6056 "Service Contract Template List"
                     Caption = 'Dimensions';
                     Image = Dimensions;
                     RunObject = Page "Default Dimensions";
-                    RunPageLink = "Table ID" = CONST(5968),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table ID" = const(5968),
+                                  "No." = field("No.");
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
                 }
@@ -82,8 +86,8 @@ page 6056 "Service Contract Template List"
                     Caption = 'Service Dis&counts';
                     Image = Discount;
                     RunObject = Page "Contract/Service Discounts";
-                    RunPageLink = "Contract Type" = CONST(Template),
-                                  "Contract No." = FIELD("No.");
+                    RunPageLink = "Contract Type" = const(Template),
+                                  "Contract No." = field("No.");
                     ToolTip = 'View or edit the discounts that you grant for the contract on spare parts in particular service item groups, the discounts on resource hours for resources in particular resource groups, and the discounts on particular service costs.';
                 }
             }

@@ -1,3 +1,25 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Warehouse.Structure;
+using Microsoft.Finance.Dimension;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Planning;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Purchases.Document;
+using Microsoft.Inventory.Requisition;
+using Microsoft.Sales.Document;
+using System.Security.User;
+using Microsoft.Foundation.Period;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.UOM;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Finance.VAT.Reporting;
+
 permissionset 3691 "Consumption Journals - Post"
 {
     Access = Public;

@@ -34,13 +34,6 @@
         exit('MS-327839-CleanupPhysOrders-20191007');
     end;
 
-#if not CLEAN20
-    [Obsolete('Function will be removed', '20.0')]
-    procedure GetCheckPartnerVATIDTag(): Code[250]
-    begin
-        exit('MS-392540-CheckPartnerVATID-20210317');
-    end;
-#endif
     procedure GetDataOutOfGeoAppTagCh(): Code[250]
     begin
         exit('MS-390169-DataOutOfGeoAppTagCh-20210525');

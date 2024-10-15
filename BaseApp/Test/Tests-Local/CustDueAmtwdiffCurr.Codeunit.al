@@ -4,7 +4,12 @@ codeunit 144062 "Cust. Due Amt. w diff. Curr."
     TestPermissions = Disabled;
 
     trigger OnRun()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify();
     end;
 
     var

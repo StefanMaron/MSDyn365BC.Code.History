@@ -2247,16 +2247,10 @@ codeunit 134154 "ERM Intercompany III"
     procedure CreateICSetupUI()
     var
         ICSetup: Record "IC Setup";
-#if not CLEAN20
-        ERMIntercompanyIII: Codeunit "ERM Intercompany III";
-#endif
         IntercompanySetup: TestPage "Intercompany Setup";
     begin
         // [SCENARIO 290460] Create IC setup via "Intercompany Setup" page
         Initialize();
-#if not CLEAN20
-        BindSubscription(ERMIntercompanyIII);
-#endif
 
         // [GIVEN] IC setup does not exist
         if ICSetup.Get() then
@@ -2271,9 +2265,6 @@ codeunit 134154 "ERM Intercompany III"
         ICSetup.Get();
         // [THEN] "IC Partner Code" = 'abc'
         ICSetup.TestField("IC Partner Code", 'abc');
-#if not CLEAN20
-        UnbindSubscription(ERMIntercompanyIII)
-#endif
     end;
 
     [Test]
@@ -2284,16 +2275,10 @@ codeunit 134154 "ERM Intercompany III"
         ICInboxTransaction: Record "IC Inbox Transaction";
         ICInboxJnlLine: Record "IC Inbox Jnl. Line";
         ICGLAccount: Record "IC G/L Account";
-#if not CLEAN20
-        ERMIntercompanyIII: Codeunit "ERM Intercompany III";
-#endif
         ICPartnerCode: Code[20];
     begin
         // [SCENARIO 290460] Intercompany general journal line created when IC setup has filled in default intercompany template and batch
         Initialize();
-#if not CLEAN20
-        BindSubscription(ERMIntercompanyIII);
-#endif
 
         // [GIVEN] IC Setup with filled in default intercompany template and batch
         CreateICSetup(ICSetup);
@@ -2311,9 +2296,6 @@ codeunit 134154 "ERM Intercompany III"
         Assert.RecordCount(GenJournalLine, 1);
         GenJournalLine.FindFirst();
         GenJournalLine.TestField("Account No.", ICGLAccount."Map-to G/L Acc. No.");
-#if not CLEAN20
-        UnbindSubscription(ERMIntercompanyIII);
-#endif
     end;
 
     [Test]
@@ -4143,11 +4125,12 @@ codeunit 134154 "ERM Intercompany III"
 
     local procedure RunCopyICDimensionsFromDimensions()
     var
-        ICDimensions: TestPage "IC Dimensions";
+        ICDimensionsSelector: TestPage "IC Dimensions Selector";
+        ERMIntercompanyIII: Codeunit "ERM Intercompany III";
     begin
-        ICDimensions.OpenView;
-        ICDimensions.CopyFromDimensions.Invoke;
-        ICDimensions.Close();
+        ICDimensionsSelector.OpenView;
+        BindSubscription(ERMIntercompanyIII);
+        ICDimensionsSelector.CopyFromDimensions.Invoke;
     end;
 
     local procedure SetFilterDimensionSetEntry(var DimensionSetEntry: Record "Dimension Set Entry"; DimensionValue: Record "Dimension Value")
@@ -4626,21 +4609,12 @@ codeunit 134154 "ERM Intercompany III"
         LibraryVariableStorage.Enqueue(Question);
     end;
 
-#if not CLEAN20
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure ICSetupPageHandler(var ICSetup: TestPage "IC Setup")
-    begin
-        ICSetup.Cancel.Invoke;
-    end;
-#else
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ICSetupPageHandler(var ICSetup: TestPage "Intercompany Setup")
     begin
         ICSetup.Cancel.Invoke;
     end;
-#endif
 
     [PageHandler]
     procedure GLPostingPreviewPageHandler(var GLPostingPreview: TestPage "G/L Posting Preview")
@@ -4652,6 +4626,13 @@ codeunit 134154 "ERM Intercompany III"
     local procedure OnBeforeSendICDocument(var SalesHeader: Record "Sales Header"; var ModifyHeader: Boolean; var IsHandled: Boolean)
     begin
         Error('OnBeforeSendICDocument should not be called');
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"IC Dimensions Selector", 'OnBeforeSelectingDimensions', '', false, false)]
+    local procedure OnBeforeSelectingDimensions(var IsHandled: Boolean; var Dimension: Record Dimension)
+    begin
+        IsHandled := true;
+        Dimension.Reset();
     end;
 }
 

@@ -1,3 +1,8 @@
+namespace Microsoft.Warehouse.ADCS;
+
+using System;
+using System.Xml;
+
 codeunit 7700 "ADCS Management"
 {
     SingleInstance = true;

@@ -606,7 +606,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
     [Scope('OnPrem')]
     procedure OptionNoExistsUT_MoreThanMax_False()
     begin
-        CheckOptionNoExists('10', false);
+        CheckOptionNoExists('333', false);
     end;
 
     [Test]

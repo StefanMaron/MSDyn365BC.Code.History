@@ -1,3 +1,9 @@
+namespace System.Environment.Configuration;
+
+using Microsoft.Foundation.Reporting;
+using System.Reflection;
+using System.Security.AccessControl;
+
 page 1560 "Report Settings"
 {
     // RENAME does not work when primary key contains an option field, in this case "Object Type".
@@ -18,7 +24,7 @@ page 1560 "Report Settings"
         {
             repeater(Group)
             {
-                field(Name; "Parameter Name")
+                field(Name; Rec."Parameter Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Name';
@@ -29,13 +35,13 @@ page 1560 "Report Settings"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Report ID';
                     MinValue = 1;
-                    TableRelation = IF ("Object Type" = CONST(Report)) "Report Metadata".ID;
+                    TableRelation = if ("Object Type" = const(Report)) "Report Metadata".ID;
                     ToolTip = 'Specifies the ID of the report that uses the settings.';
 
                     trigger OnValidate()
                     begin
                         ValidateObjectID();
-                        LookupObjectName("Object ID", "Object Type");
+                        LookupObjectName(Rec."Object ID", Rec."Object Type");
                     end;
                 }
                 field("Report Name"; ReportName)
@@ -55,10 +61,10 @@ page 1560 "Report Settings"
 
                     trigger OnValidate()
                     begin
-                        if "User Name" <> '' then
-                            "Public Visible" := false
+                        if Rec."User Name" <> '' then
+                            Rec."Public Visible" := false
                         else
-                            "Public Visible" := true;
+                            Rec."Public Visible" := true;
                     end;
                 }
                 field("Created By"; Rec."Created By")
@@ -78,10 +84,10 @@ page 1560 "Report Settings"
 
                     trigger OnValidate()
                     begin
-                        if "Public Visible" then
-                            "User Name" := ''
+                        if Rec."Public Visible" then
+                            Rec."User Name" := ''
                         else
-                            "User Name" := "Created By";
+                            Rec."User Name" := Rec."Created By";
                     end;
                 }
                 field("Company Name"; Rec."Company Name")
@@ -111,7 +117,7 @@ page 1560 "Report Settings"
                     PickReport: Page "Pick Report";
                     OptionDataTxt: Text;
                 begin
-                    PickReport.SetReportObjectId("Object ID");
+                    PickReport.SetReportObjectId(Rec."Object ID");
                     if PickReport.RunModal() <> ACTION::OK then
                         exit;
 
@@ -136,11 +142,11 @@ page 1560 "Report Settings"
                 var
                     ObjectOptions: Record "Object Options";
                 begin
-                    if "Option Data".HasValue() then
-                        CalcFields("Option Data");
+                    if Rec."Option Data".HasValue() then
+                        Rec.CalcFields("Option Data");
 
                     ObjectOptions.TransferFields(Rec);
-                    ObjectOptions."Parameter Name" := CopyStr(StrSubstNo(CopyTxt, "Parameter Name"), 1, MaxStrLen(ObjectOptions."Parameter Name"));
+                    ObjectOptions."Parameter Name" := CopyStr(StrSubstNo(CopyTxt, Rec."Parameter Name"), 1, MaxStrLen(ObjectOptions."Parameter Name"));
                     ObjectOptions.Insert(true);
                 end;
             }
@@ -156,10 +162,10 @@ page 1560 "Report Settings"
                 var
                     OptionDataTxt: Text;
                 begin
-                    OptionDataTxt := REPORT.RunRequestPage("Object ID", GetOptionData());
+                    OptionDataTxt := REPORT.RunRequestPage(Rec."Object ID", GetOptionData());
                     if OptionDataTxt <> '' then begin
                         UpdateOptionData(Rec, OptionDataTxt);
-                        Modify(true);
+                        Rec.Modify(true);
                     end;
                 end;
             }
@@ -189,12 +195,12 @@ page 1560 "Report Settings"
 
     trigger OnAfterGetCurrRecord()
     begin
-        LastUsed := "Parameter Name" = LastUsedTxt;
+        LastUsed := Rec."Parameter Name" = LastUsedTxt;
     end;
 
     trigger OnAfterGetRecord()
     begin
-        LookupObjectName("Object ID", "Object Type");
+        LookupObjectName(Rec."Object ID", Rec."Object Type");
     end;
 
     var
@@ -209,7 +215,7 @@ page 1560 "Report Settings"
     var
         AllObj: Record AllObj;
     begin
-        if not AllObj.Get("Object Type", "Object ID") then
+        if not AllObj.Get(Rec."Object Type", Rec."Object ID") then
             Error(ObjectIdValidationErr);
     end;
 
@@ -239,9 +245,9 @@ page 1560 "Report Settings"
     var
         InStream: InStream;
     begin
-        if "Option Data".HasValue() then begin
-            CalcFields("Option Data");
-            "Option Data".CreateInStream(InStream, TEXTENCODING::UTF8);
+        if Rec."Option Data".HasValue() then begin
+            Rec.CalcFields("Option Data");
+            Rec."Option Data".CreateInStream(InStream, TEXTENCODING::UTF8);
             InStream.ReadText(Result);
         end;
     end;

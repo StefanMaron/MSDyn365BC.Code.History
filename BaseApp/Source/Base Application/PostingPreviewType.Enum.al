@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.GeneralLedger.Preview;
+
 enum 1570 "Posting Preview Type"
 {
     Extensible = true;

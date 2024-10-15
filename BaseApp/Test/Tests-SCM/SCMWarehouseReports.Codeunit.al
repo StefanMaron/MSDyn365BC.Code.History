@@ -1392,6 +1392,7 @@ codeunit 137305 "SCM Warehouse Reports"
         // [GIVEN] Inventory Put-away was created from Purchase Order
         LibraryWarehouse.CreateLocation(Location);
         Location.Validate("Require Put-away", true);
+        Location.Validate("Always Create Put-away Line", true);
         Location.Modify(true);
         CreateInventoryPutAwayFromPurchaseOrder(Location.Code, LibraryInventory.CreateItemNo);
         PurchaseHeader.SetRange("Location Code", Location.Code);

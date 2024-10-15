@@ -1,3 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.D365Sales;
+
+using Microsoft.Integration.Dataverse;
+
 page 5349 "CRM Case List"
 {
     ApplicationArea = Suite, Service;
@@ -7,7 +15,7 @@ page 5349 "CRM Case List"
     LinksAllowed = false;
     PageType = List;
     SourceTable = "CRM Incident";
-    SourceTableView = SORTING(Title);
+    SourceTableView = sorting(Title);
     UsageCategory = Lists;
 
     layout
@@ -16,26 +24,26 @@ page 5349 "CRM Case List"
         {
             repeater(Group)
             {
-                field(Title; Title)
+                field(Title; Rec.Title)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Case Title';
                     ToolTip = 'Specifies the name of the case.';
                 }
-                field(StateCode; StateCode)
+                field(StateCode; Rec.StateCode)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Status';
                     OptionCaption = 'Active,Resolved,Canceled';
                     ToolTip = 'Specifies the status of the case.';
                 }
-                field(TicketNumber; TicketNumber)
+                field(TicketNumber; Rec.TicketNumber)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Case Number';
                     ToolTip = 'Specifies the number of the case.';
                 }
-                field(CreatedOn; CreatedOn)
+                field(CreatedOn; Rec.CreatedOn)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Created On';
@@ -63,7 +71,7 @@ page 5349 "CRM Case List"
                     var
                         CRMIntegrationManagement: Codeunit "CRM Integration Management";
                     begin
-                        HyperLink(CRMIntegrationManagement.GetCRMEntityUrlFromCRMID(DATABASE::"CRM Incident", IncidentId));
+                        HyperLink(CRMIntegrationManagement.GetCRMEntityUrlFromCRMID(DATABASE::"CRM Incident", Rec.IncidentId));
                     end;
                 }
             }

@@ -1,7 +1,13 @@
+#if not CLEAN22
 codeunit 142038 "UT TAB Intrastat"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+#pragma warning disable AS0072
+    ObsoleteTag = '22.0';
+#pragma warning restore AS0072
+    ObsoleteReason = 'Intrastat related functionalities are moving to Intrastat extension.';
 
     trigger OnRun()
     begin
@@ -308,4 +314,4 @@ codeunit 142038 "UT TAB Intrastat"
         IntrastatJnlLine.Insert();
     end;
 }
-
+#endif

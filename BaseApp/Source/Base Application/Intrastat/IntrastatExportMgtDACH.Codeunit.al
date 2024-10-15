@@ -1,5 +1,12 @@
+#if not CLEAN22
 codeunit 11002 "Intrastat - Export Mgt. DACH"
 {
+
+    ObsoleteState = Pending;
+#pragma warning disable AS0072
+    ObsoleteTag = '22.0';
+#pragma warning restore AS0072
+    ObsoleteReason = 'Intrastat related functionalities are moving to Intrastat extension.';
 
     trigger OnRun()
     begin
@@ -10,9 +17,6 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
         IntrastatSetup: Record "Intrastat Setup";
         XMLDOMMgt: Codeunit "XML DOM Management";
         RegNoExcludeCharsTxt: Label 'ABCDEFGHIJKLMNOPQRSTUVWXYZ/-.+', Comment = 'Locked. Do not translate.';
-#if not CLEAN20
-        FieldLengthErr: Label 'It is not possible to display %1 in a field with a maximum length of %2.', Comment = '%1 -  text. %2 - length';
-#endif
         ExportTypeGlb: Option Receipt,Shipment;
         VATIDNo: Text;
         StartDate: Date;
@@ -47,172 +51,6 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
         CreationDate := DT2Date(CreationDateTime);
         CreationTime := DT2Time(CreationDateTime);
     end;
-
-#if not CLEAN20
-    [Scope('OnPrem')]
-    procedure SaveAndCloseFile(ASCIIFileBodyText: Text; var XMLDocument: DotNet XmlDocument; var ServerFileName: Text; FormatType: Option ASCII,XML)
-    var
-        FileMgt: Codeunit "File Management";
-        IntraFile: File;
-        OutStream: OutStream;
-        EndOfFile: Text[1];
-    begin
-        ServerFileName := FileMgt.ServerTempFileName('');
-        IntraFile.TextMode := true;
-        IntraFile.WriteMode := true;
-        IntraFile.Create(ServerFileName);
-
-        if FormatType = FormatType::ASCII then begin
-            EndOfFile[1] := 26;
-            ASCIIFileBodyText += EndOfFile;
-            IntraFile.Write(ASCIIFileBodyText);
-            IntraFile.Close();
-            IntraFile.Open(ServerFileName);
-            IntraFile.Seek(IntraFile.Len - 2);
-            IntraFile.Trunc();
-            IntraFile.Close();
-        end else begin
-            IntraFile.CreateOutStream(OutStream);
-            XMLDocument.Save(OutStream);
-            IntraFile.Close();
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    procedure DownloadFile(ZipFileName: Text; ServerFileReceipts: Text; ServerFileShipments: Text; FormatType: Option ASCII,XML; StatisticsPeriod: Text)
-    var
-        DataCompression: Codeunit "Data Compression";
-        FileMgt: Codeunit "File Management";
-        ServerShipmentsTempBlob: Codeunit "Temp Blob";
-        ServerReceiptsTempBlob: Codeunit "Temp Blob";
-        ServerZipArchive: File;
-        ServerShipmentsInStream: InStream;
-        ServerReceiptsInStream: InStream;
-        ServerZipArchiveOutStream: OutStream;
-        ServerZipArchiveName: Text;
-        ReceiptsFileExists: Boolean;
-        ShipmentsFileExists: Boolean;
-    begin
-        ReceiptsFileExists := FileMgt.ServerFileExists(ServerFileReceipts);
-        ShipmentsFileExists := FileMgt.ServerFileExists(ServerFileShipments);
-
-        if not ReceiptsFileExists and not ShipmentsFileExists then
-            exit;
-
-        if FormatType = FormatType::XML then
-            if not ShipmentsFileExists then
-                exit;
-
-        ServerZipArchiveName := FileMgt.ServerTempFileName('zip');
-        ServerZipArchive.Create(ServerZipArchiveName);
-        ServerZipArchive.CreateOutStream(ServerZipArchiveOutStream);
-        DataCompression.CreateZipArchive();
-        if FormatType = FormatType::ASCII then begin
-            VerifyCompanyInformation();
-            if ReceiptsFileExists then begin
-                FileMgt.BLOBImportFromServerFile(ServerReceiptsTempBlob, ServerFileReceipts);
-                ServerReceiptsTempBlob.CreateInStream(ServerReceiptsInStream);
-                DataCompression.AddEntry(ServerReceiptsInStream, GetAuthorizedNo(ExportTypeGlb::Receipt) + '.ASC');
-            end;
-            if ShipmentsFileExists then begin
-                FileMgt.BLOBImportFromServerFile(ServerShipmentsTempBlob, ServerFileShipments);
-                ServerShipmentsTempBlob.CreateInStream(ServerShipmentsInStream);
-                DataCompression.AddEntry(ServerShipmentsInStream, GetAuthorizedNo(ExportTypeGlb::Shipment) + '.ASC');
-            end;
-        end else begin
-            FileMgt.BLOBImportFromServerFile(ServerShipmentsTempBlob, ServerFileShipments);
-            ServerShipmentsTempBlob.CreateInStream(ServerShipmentsInStream);
-            DataCompression.AddEntry(ServerShipmentsInStream, MessageID + '.XML');
-        end;
-        DataCompression.SaveZipArchive(ServerZipArchiveOutStream);
-        DataCompression.CloseZipArchive();
-        ServerZipArchive.Close();
-
-        if ZipFileName = '' then begin
-            if FormatType = FormatType::ASCII then
-                ZipFileName := 'Intrastat-' + StatisticsPeriod + '-ASCII' + '.zip'
-            else
-                ZipFileName := 'Intrastat-' + StatisticsPeriod + '-XML' + '.zip';
-            FileMgt.DownloadHandler(ServerZipArchiveName, '', '', '', ZipFileName);
-        end else
-            FileMgt.CopyServerFile(ServerZipArchiveName, ZipFileName, true);
-    end;
-
-    [Obsolete('Replaced by codeunit 352 Intrastat File Writer', '20.0')]
-    procedure DownloadFile(ZipFileName: Text; ServerFileShipments: Text; StatisticsPeriod: Text)
-    var
-        DataCompression: Codeunit "Data Compression";
-        FileMgt: Codeunit "File Management";
-        ServerShipmentsTempBlob: Codeunit "Temp Blob";
-        ServerZipArchive: File;
-        ServerShipmentsInStream: InStream;
-        ServerZipArchiveOutStream: OutStream;
-        ServerZipArchiveName: Text;
-    begin
-        if not FileMgt.ServerFileExists(ServerFileShipments) then
-            exit;
-
-        ServerZipArchiveName := FileMgt.ServerTempFileName('zip');
-        ServerZipArchive.Create(ServerZipArchiveName);
-        ServerZipArchive.CreateOutStream(ServerZipArchiveOutStream);
-        DataCompression.CreateZipArchive();
-        FileMgt.BLOBImportFromServerFile(ServerShipmentsTempBlob, ServerFileShipments);
-        ServerShipmentsTempBlob.CreateInStream(ServerShipmentsInStream);
-        DataCompression.AddEntry(ServerShipmentsInStream, MessageID + '.XML');
-        DataCompression.SaveZipArchive(ServerZipArchiveOutStream);
-        DataCompression.CloseZipArchive();
-        ServerZipArchive.Close();
-
-        if ZipFileName = '' then begin
-            ZipFileName := 'Intrastat-' + StatisticsPeriod + '-XML' + '.zip';
-            FileMgt.DownloadHandler(ServerZipArchiveName, '', '', '', ZipFileName);
-        end else
-            FileMgt.CopyServerFile(ServerZipArchiveName, ZipFileName, true);
-    end;
-
-    [Scope('OnPrem')]
-    procedure WriteASCII(var ASCIIFileBodyText: Text; IntrastatJnlLine: Record "Intrastat Jnl. Line"; CurrencyIdentifier: Code[10]; LinePrefix: Text; DummyValue1: Text; DummyValue2: Text; DummyValue3: Text; DummyValue4: Text)
-    var
-        QuantityText: Text;
-        OriginCountryText: Text;
-        CRLF: Text[2];
-    begin
-        with IntrastatJnlLine do begin
-            if "Supplementary Units" and (Quantity <> 0) then
-                QuantityText := Format(Quantity, 11, 2);
-
-            if Type = Type::Receipt then
-                OriginCountryText := TextFormatRight(GetOriginCountryCode("Country/Region of Origin Code"), 3)
-            else
-                OriginCountryText := '     ';
-
-            ASCIIFileBodyText +=
-              Format(
-                LinePrefix +
-                DummyValue1 +
-                CopyStr("Internal Ref. No.", 3, 2) + '00' +
-                CopyStr("Internal Ref. No.", 5, 6) + '  ' +
-                Format(VATIDNo, 16) +
-                DummyValue2 +
-                TextFormatRight(GetCountryCode("Country/Region Code"), 3) + Format(Area, 2) +
-                DummyValue3 +
-                Format("Transaction Type", 2) +
-                Format("Transport Method", 1) + '             ' +
-                Format(DelChr("Tariff No."), 8) + OriginCountryText +
-                PadStr("Transaction Specification", 5) + Format(Round("Total Weight", 1), 11, 2) +
-                TextFormatRight(QuantityText, 11) + '  ' + Format(Amount, 11, 2) +
-                Format("Statistical Value", 11, 2) +
-                DummyValue4 +
-                DecimalNumeralZeroFormat(Date2DMY(Date, 2), 2) +
-                CopyStr(Format(Date2DMY(Date, 3), 4), 3, 2) +
-                Format(CurrencyIdentifier, 1), 128);
-
-            CRLF[1] := 13;
-            CRLF[2] := 10;
-            ASCIIFileBodyText += CRLF;
-        end;
-    end;
-#endif
 
     procedure GetXMLFileName(): Text
     begin
@@ -461,15 +299,6 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
         end;
     end;
 
-#if not CLEAN20
-    local procedure GetAuthorizedNo(ExportType: Option): Code[8]
-    begin
-        if ExportType = ExportTypeGlb::Receipt then
-            exit(CompanyInformation."Purch. Authorized No.");
-        exit(CompanyInformation."Sales Authorized No.");
-    end;
-#endif
-
     local procedure GetFlowCode(ExportType: Option): Text
     begin
         if ExportType = ExportTypeGlb::Shipment then
@@ -481,27 +310,6 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
     begin
         exit(Format(DecimalValue, 0, '<Precision,0><Standard Format,9>'));
     end;
-
-#if not CLEAN20
-    local procedure TextFormatRight(Text: Text; Length: Integer): Text
-    begin
-        if StrLen(Text) > Length then
-            Error(FieldLengthErr, Text, Length);
-        exit(PadStr('', Length - StrLen(Text), ' ') + Text);
-    end;
-
-    local procedure DecimalNumeralZeroFormat(DecimalNumeral: Decimal; Length: Integer): Text
-    begin
-        exit(TextZeroFormat(DelChr(Format(Round(Abs(DecimalNumeral), 1, '<'), 0, 1)), Length));
-    end;
-
-    local procedure TextZeroFormat(Text: Text; Length: Integer): Text
-    begin
-        if StrLen(Text) > Length then
-            Error(FieldLengthErr, Text, Length);
-        exit(PadStr('', Length - StrLen(Text), '0') + Text);
-    end;
-#endif
 
     local procedure CheckIntrastatContactMandatoryFields()
     var
@@ -529,16 +337,6 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
                 end;
         end;
     end;
-
-#if not CLEAN20
-    local procedure VerifyCompanyInformation()
-    begin
-        with CompanyInformation do begin
-            Get();
-            TestField("Sales Authorized No.");
-            TestField("Purch. Authorized No.");
-        end;
-    end;
-#endif
 }
 
+#endif

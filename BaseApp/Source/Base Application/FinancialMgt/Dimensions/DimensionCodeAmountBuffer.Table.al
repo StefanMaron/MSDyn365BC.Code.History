@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.Dimension;
+
 table 375 "Dimension Code Amount Buffer"
 {
     Caption = 'Dimension Code Amount Buffer';

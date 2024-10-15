@@ -41,7 +41,7 @@ page 2145 "O365 VAT Posting Setup Card"
 
                 trigger OnDrillDown()
                 begin
-                    O365TemplateManagement.SetDefaultVATProdPostingGroup(Code);
+                    O365TemplateManagement.SetDefaultVATProdPostingGroup(Rec.Code);
                     DefaultVATGroupTxt := DefaultGroupTxt;
                     DefaultGroup := true;
                 end;
@@ -58,18 +58,18 @@ page 2145 "O365 VAT Posting Setup Card"
 
     trigger OnAfterGetCurrRecord()
     begin
-        if not VATPostingSetup.Get(O365TemplateManagement.GetDefaultVATBusinessPostingGroup(), Code) then
+        if not VATPostingSetup.Get(O365TemplateManagement.GetDefaultVATBusinessPostingGroup(), Rec.Code) then
             exit;
 
         VATPercentage := VATPostingSetup."VAT %";
-        DefaultGroup := Code = O365TemplateManagement.GetDefaultVATProdPostingGroup();
+        DefaultGroup := Rec.Code = O365TemplateManagement.GetDefaultVATProdPostingGroup();
 
         // VAT Regulation Reference = Vat clause
         if not VATClause.Get(VATPostingSetup."VAT Clause Code") then begin
             VATClause.Init();
-            VATClause.Code := Code;
+            VATClause.Code := Rec.Code;
             VATClause.Insert();
-            VATPostingSetup.Validate("VAT Clause Code", Code);
+            VATPostingSetup.Validate("VAT Clause Code", Rec.Code);
             VATPostingSetup.Modify(true);
         end;
         VATRegulationReference := VATClause.Description;
@@ -98,7 +98,7 @@ page 2145 "O365 VAT Posting Setup Card"
 
     local procedure UpdateVATClause()
     begin
-        if Description = VATRegulationReference then
+        if Rec.Description = VATRegulationReference then
             exit;
 
         VATClause.Validate(Description, VATRegulationReference);
@@ -113,7 +113,7 @@ page 2145 "O365 VAT Posting Setup Card"
             exit;
         VATPostingSetup.Validate("VAT %", VATPercentage);
         VATPostingSetup.Modify(true);
-        SalesLine.SetRange("VAT Prod. Posting Group", Code);
+        SalesLine.SetRange("VAT Prod. Posting Group", Rec.Code);
         if SalesLine.FindSet() then
             repeat
                 SalesLine.Validate("VAT Prod. Posting Group");

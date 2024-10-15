@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.FinancialReports;
+
 table 136 "Acc. Sched. KPI Web Srv. Line"
 {
     Caption = 'Acc. Sched. KPI Web Srv. Line';
@@ -12,7 +14,7 @@ table 136 "Acc. Sched. KPI Web Srv. Line"
         }
         field(2; "Acc. Schedule Description"; Text[80])
         {
-            CalcFormula = Lookup("Acc. Schedule Name".Description WHERE(Name = FIELD("Acc. Schedule Name")));
+            CalcFormula = Lookup("Acc. Schedule Name".Description where(Name = field("Acc. Schedule Name")));
             Caption = 'Row Definition Description';
             Editable = false;
             FieldClass = FlowField;

@@ -192,6 +192,7 @@ codeunit 134091 "ERM Additional Currency II"
         SalesInvoiceWithPaymentGeneralAndModifiedExchRate(false, false);
     end;
 
+#if not CLEAN23
     [Test]
     [HandlerFunctions('AdjustExchReqPageHandler,AdjustExchConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -213,6 +214,7 @@ codeunit 134091 "ERM Additional Currency II"
         // in case of decreasing Exchange Rate and Adjust Exchange Rate
         SalesInvoiceWithPaymentGeneralAndModifiedExchRate(false, true);
     end;
+#endif
 
     local procedure SalesInvoiceWithPaymentGeneralAndModifiedExchRate(IsLossEntry: Boolean; IsAdjustExchRate: Boolean)
     var
@@ -233,7 +235,7 @@ codeunit 134091 "ERM Additional Currency II"
         ModifyExchangeRateAmount(CurrencyCode, IsLossEntry);
 
         if IsAdjustExchRate then
-#if not CLEAN20
+#if not CLEAN23
             RunAdjustExchangeRates(CurrencyCode);
 #else
             LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
@@ -413,6 +415,7 @@ codeunit 134091 "ERM Additional Currency II"
         PurchInvoiceWithPaymentGeneralAndModifiedExchRate(false, false);
     end;
 
+#if not CLEAN23
     [Test]
     [HandlerFunctions('AdjustExchReqPageHandler,AdjustExchConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -434,6 +437,7 @@ codeunit 134091 "ERM Additional Currency II"
         // in case of decreasing Exchange Rate and Adjust Exchange Rate
         PurchInvoiceWithPaymentGeneralAndModifiedExchRate(false, true);
     end;
+#endif
 
     local procedure PurchInvoiceWithPaymentGeneralAndModifiedExchRate(IsLossEntry: Boolean; IsAdjustExchRate: Boolean)
     var
@@ -454,7 +458,7 @@ codeunit 134091 "ERM Additional Currency II"
         ModifyExchangeRateAmount(CurrencyCode, not IsLossEntry);
 
         if IsAdjustExchRate then
-#if not CLEAN20
+#if not CLEAN23
             RunAdjustExchangeRates(CurrencyCode);
 #else
             LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
@@ -1002,6 +1006,7 @@ codeunit 134091 "ERM Additional Currency II"
         GeneralLedgerSetup.Modify(true);
     end;
 
+#if not CLEAN23
     local procedure RunAdjustExchangeRates(CurrencyCode: Code[20])
     var
         Currency: Record Currency;
@@ -1015,6 +1020,7 @@ codeunit 134091 "ERM Additional Currency II"
         Commit();
         AdjustExchangeRates.Run();
     end;
+#endif
 
     local procedure ApplyPostVendPayment2Invoices(PayDocNo: Code[20]; InvDocNo1: Code[20]; InvDocNo2: Code[20])
     var
@@ -1074,6 +1080,7 @@ codeunit 134091 "ERM Additional Currency II"
         LibraryERMUnapply.UnapplyCustomerLedgerEntryBase(CustLedgerEntry, PostingDate);
     end;
 
+#if not CLEAN23
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure AdjustExchReqPageHandler(var AdjustExchReqPage: TestRequestPage "Adjust Exchange Rates")
@@ -1083,7 +1090,7 @@ codeunit 134091 "ERM Additional Currency II"
         AdjustExchReqPage.Post.SetValue(true);
         AdjustExchReqPage.SaveAsXml(TemporaryPath + 'tmp', TemporaryPath + 'tmp2');
     end;
-
+#endif
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure AdjustExchConfirmHandler(Question: Text[1024]; var Reply: Boolean)

@@ -7,8 +7,8 @@ page 2170 "O365 Default Invoice Email Msg"
     PageType = StandardDialog;
     Permissions =;
     SourceTable = "O365 Default Email Message";
-    SourceTableView = SORTING("Document Type")
-                      WHERE("Document Type" = FILTER(Invoice));
+    SourceTableView = sorting("Document Type")
+                      where("Document Type" = filter(Invoice));
     ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
     ObsoleteState = Pending;
     ObsoleteTag = '21.0';
@@ -33,7 +33,7 @@ page 2170 "O365 Default Invoice Email Msg"
 
     trigger OnOpenPage()
     begin
-        EmailMessage := GetMessage("Document Type"::Invoice);
+        EmailMessage := Rec.GetMessage(Rec."Document Type"::Invoice);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -41,8 +41,8 @@ page 2170 "O365 Default Invoice Email Msg"
         if CloseAction <> ACTION::OK then
             exit;
 
-        "Document Type" := "Document Type"::Invoice;
-        SetMessage(EmailMessage);
+        Rec."Document Type" := Rec."Document Type"::Invoice;
+        Rec.SetMessage(EmailMessage);
     end;
 
     var

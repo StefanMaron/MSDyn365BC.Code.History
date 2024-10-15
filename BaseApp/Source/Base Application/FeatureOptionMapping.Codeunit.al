@@ -1,4 +1,11 @@
 #if not CLEAN22
+namespace System.Environment.Configuration;
+
+using Microsoft.Integration.Dataverse;
+using Microsoft.Integration.SyncEngine;
+using Microsoft.Foundation.Navigate;
+using Microsoft.Integration.D365Sales;
+
 codeunit 5408 "Feature - Option Mapping" implements "Feature Data Update"
 {
     ObsoleteReason = 'Feature OptionMapping will be enabled by default in version 22.0.';

@@ -116,7 +116,7 @@ codeunit 597 "Exch. Rate Adjmt. Subscribers"
         if VATEntry.FindSet() then
             repeat
                 VATEntriesCounter := VATEntriesCounter + 1;
-                Window.Update(2, Round(VATEntriesCounter / VATEntryNoTotal * 10000, 1));
+                Window.Update(1, Round(VATEntriesCounter / VATEntryNoTotal * 10000, 1));
 
                 ProcessVATEntryAdjustment(VATEntry, ExchRateAdjmtParameters, GenJnlPostLine);
             until VATEntry.Next() = 0;

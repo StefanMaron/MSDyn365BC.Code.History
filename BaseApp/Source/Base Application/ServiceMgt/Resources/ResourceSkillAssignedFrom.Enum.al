@@ -1,4 +1,6 @@
-﻿enum 5958 "Resource Skill Assigned From"
+﻿namespace Microsoft.Service.Resources;
+
+enum 5958 "Resource Skill Assigned From"
 {
     Extensible = true;
     AssignmentCompatibility = true;

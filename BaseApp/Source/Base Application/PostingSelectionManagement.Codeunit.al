@@ -1,3 +1,12 @@
+namespace Microsoft.Finance.ReceivablesPayables;
+
+using Microsoft.Purchases.Document;
+using Microsoft.Sales.Document;
+using Microsoft.Warehouse.Activity;
+using Microsoft.Warehouse.Document;
+using System.Security.User;
+using System.Utilities;
+
 codeunit 99 "Posting Selection Management"
 {
     trigger OnRun()
@@ -223,7 +232,7 @@ codeunit 99 "Posting Selection Management"
         exit(Result);
     end;
 
-    internal procedure CheckUserCanInvoiceSales()
+    procedure CheckUserCanInvoiceSales()
     var
         UserSetup: Record "User Setup";
         UserSetupManagement: Codeunit "User Setup Management";
@@ -238,7 +247,7 @@ codeunit 99 "Posting Selection Management"
               UserSetup.TableCaption);
     end;
 
-    internal procedure CheckUserCanInvoicePurchase()
+    procedure CheckUserCanInvoicePurchase()
     var
         UserSetup: Record "User Setup";
         UserSetupManagement: Codeunit "User Setup Management";
@@ -251,6 +260,16 @@ codeunit 99 "Posting Selection Management"
               PostingInvoiceProhibitedErr,
               UserSetup.FieldCaption("Purch. Invoice Posting Policy"), Format("Invoice Posting Policy"::Prohibited),
               UserSetup.TableCaption);
+    end;
+
+    internal procedure IsPostingInvoiceMandatoryPurchase(): Boolean
+    var
+        UserSetupManagement: Codeunit "User Setup Management";
+        Receive: Boolean;
+        Invoice: Boolean;
+    begin
+        UserSetupManagement.GetPurchaseInvoicePostingPolicy(Receive, Invoice);
+        exit(Receive and Invoice);
     end;
 
     local procedure GetShipInvoiceSelectionForWhseActivity(DefaultOption: Integer; var Selection: Integer): Boolean

@@ -1,18 +1,24 @@
+#if not CLEAN22
 report 11106 "Intrastat - Disk Tax Auth AT"
 {
     Caption = 'Intrastat - Disk Tax Auth AT';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+#pragma warning disable AS0072
+    ObsoleteTag = '22.0';
+#pragma warning restore AS0072
+    ObsoleteReason = 'Intrastat related functionalities are moving to Intrastat extension.';
 
     dataset
     {
         dataitem("Intrastat Jnl. Batch"; "Intrastat Jnl. Batch")
         {
-            DataItemTableView = SORTING("Journal Template Name", Name);
+            DataItemTableView = sorting("Journal Template Name", Name);
             RequestFilterFields = "Journal Template Name", Name;
             dataitem("Intrastat Jnl. Line"; "Intrastat Jnl. Line")
             {
-                DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
-                DataItemTableView = SORTING(Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", Area, "Entry/Exit Point", "Transaction Specification", "Country/Region of Origin Code");
+                DataItemLink = "Journal Template Name" = field("Journal Template Name"), "Journal Batch Name" = field(Name);
+                DataItemTableView = sorting(Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", Area, "Entry/Exit Point", "Transaction Specification", "Country/Region of Origin Code");
 
                 trigger OnAfterGetRecord()
                 begin
@@ -131,8 +137,8 @@ report 11106 "Intrastat - Disk Tax Auth AT"
             }
             dataitem(IntraJnlLineR; "Intrastat Jnl. Line")
             {
-                DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
-                DataItemTableView = SORTING(Type, "Internal Ref. No.") WHERE(Type = CONST(Receipt));
+                DataItemLink = "Journal Template Name" = field("Journal Template Name"), "Journal Batch Name" = field(Name);
+                DataItemTableView = sorting(Type, "Internal Ref. No.") where(Type = const(Receipt));
 
                 trigger OnAfterGetRecord()
                 begin
@@ -353,8 +359,8 @@ report 11106 "Intrastat - Disk Tax Auth AT"
             }
             dataitem(IntraJnlLineS; "Intrastat Jnl. Line")
             {
-                DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
-                DataItemTableView = SORTING(Type, "Internal Ref. No.") WHERE(Type = CONST(Shipment));
+                DataItemLink = "Journal Template Name" = field("Journal Template Name"), "Journal Batch Name" = field(Name);
+                DataItemTableView = sorting(Type, "Internal Ref. No.") where(Type = const(Shipment));
 
                 trigger OnAfterGetRecord()
                 begin
@@ -842,4 +848,4 @@ report 11106 "Intrastat - Disk Tax Auth AT"
         ServerPath := NewServerPath;
     end;
 }
-
+#endif

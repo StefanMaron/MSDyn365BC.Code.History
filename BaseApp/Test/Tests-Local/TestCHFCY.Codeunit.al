@@ -1,3 +1,4 @@
+#if not CLEAN23
 codeunit 144054 "Test CH FCY"
 {
     Subtype = Test;
@@ -76,6 +77,7 @@ codeunit 144054 "Test CH FCY"
         GLEntry: Record "G/L Entry";
         DateComprRegister: Record "Date Compr. Register";
         SourceCodeSetup: Record "Source Code Setup";
+        DateComprRetainFields: Record "Date Compr. Retain Fields";
         DateCompressGeneralLedger: Report "Date Compress General Ledger";
         SaveWorkDate: Date;
     begin
@@ -95,8 +97,14 @@ codeunit 144054 "Test CH FCY"
 
         // Exercise.
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.", GenJournalLine2."Document No.");
-        DateCompressGeneralLedger.InitializeRequest(GenJournalLine."Posting Date", GenJournalLine2."Posting Date",
-          DateComprRegister."Period Length"::Month, '', false, false, false, true, false, '');
+        DateComprRetainFields."Retain Document Type" := false;
+        DateComprRetainFields."Retain Document No." := false;
+        DateComprRetainFields."Retain Job No." := false;
+        DateComprRetainFields."Retain Business Unit Code" := true;
+        DateComprRetainFields."Retain Quantity" := false;
+        DateComprRetainFields."Retain Journal Template Name" := false;
+        DateCompressGeneralLedger.InitializeRequest(
+            GenJournalLine."Posting Date", GenJournalLine2."Posting Date", DateComprRegister."Period Length"::Month, '', DateComprRetainFields, '', false);
         DateCompressGeneralLedger.UseRequestPage(false);
         DateCompressGeneralLedger.SetTableView(GLEntry);
         DateCompressGeneralLedger.Run();
@@ -1016,3 +1024,4 @@ codeunit 144054 "Test CH FCY"
         AdjustExchangeRates.SAVEASXML(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
+#endif

@@ -5,7 +5,7 @@ query 132000 "Finishable Phys. Invt. Orders"
     {
         dataitem(Phys_Invt_Order_Header; "Phys. Invt. Order Header")
         {
-            DataItemTableFilter = Status = CONST(Open);
+            DataItemTableFilter = Status = const(Open);
             column(No; "No.")
             {
             }
@@ -15,14 +15,14 @@ query 132000 "Finishable Phys. Invt. Orders"
                 SqlJoinType = LeftOuterJoin;
                 filter(Status; Status)
                 {
-                    ColumnFilter = Status = CONST(Finished);
+                    ColumnFilter = Status = const(Finished);
                 }
                 dataitem(Phys_Invt_Order_Line; "Phys. Invt. Order Line")
                 {
                     DataItemLink = "Document No." = Phys_Invt_Record_Header."Order No.";
                     filter(Qty_Exp_Calculated; "Qty. Exp. Calculated")
                     {
-                        ColumnFilter = Qty_Exp_Calculated = CONST(true);
+                        ColumnFilter = Qty_Exp_Calculated = const(true);
                     }
                 }
             }

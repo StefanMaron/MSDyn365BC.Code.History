@@ -52,9 +52,9 @@ page 2137 "O365 Bank Information Settings"
         BankAccount: Record "Bank Account";
     begin
         if BankAccount.Get(CompanyInformationMgt.GetCompanyBankAccount()) then begin
-            BankAccount.Validate(Name, "Bank Name");
-            BankAccount.Validate("Bank Branch No.", "Bank Branch No.");
-            BankAccount.Validate("Bank Account No.", "Bank Account No.");
+            BankAccount.Validate(Name, Rec."Bank Name");
+            BankAccount.Validate("Bank Branch No.", Rec."Bank Branch No.");
+            BankAccount.Validate("Bank Account No.", Rec."Bank Account No.");
             BankAccount.Modify(true);
         end;
     end;
@@ -64,10 +64,10 @@ page 2137 "O365 Bank Information Settings"
 
     local procedure Initialize()
     begin
-        Reset();
-        if not Get() then begin
-            Init();
-            Insert();
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
     end;
 }

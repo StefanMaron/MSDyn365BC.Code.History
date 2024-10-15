@@ -1,3 +1,7 @@
+namespace Microsoft.Warehouse.Journal;
+
+using System.Reflection;
+
 page 7322 "Whse. Journal Template List"
 {
     Caption = 'Whse. Journal Template List';

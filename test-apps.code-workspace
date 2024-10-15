@@ -31,6 +31,12 @@
       "path": "./system application/source/System Application/Email/src/Test Email"
     },
     {
+      "path": "./EDocument/Test/E-Document Core Tests"
+    },
+    {
+      "path": "./EDocument/Test/E-Document Core Tests/src/TestImplementations"
+    },
+    {
       "path": "./SwissQRBill/Test/QR-Bill Management for Switzerland Tests"
     },
     {
@@ -178,6 +184,9 @@
       "path": "./BaseApp/Test/Tests-Workflow"
     },
     {
+      "path": "./BaseApp/Source/Base Application/System/DevTools/CALTest"
+    },
+    {
       "path": "./onprem permissions/test/OnPrem Permissions Tests"
     },
     {
@@ -227,11 +236,11 @@
     }
   ],
   "settings": {
-    "allint.enabled": false,
     "al.enableCodeActions": false,
     "search.exclude": {
       "**.xlf": true
     },
-    "al.enableCodeAnalysis": false
+    "al.enableCodeAnalysis": false,
+    "allint.enabled": false
   }
 }

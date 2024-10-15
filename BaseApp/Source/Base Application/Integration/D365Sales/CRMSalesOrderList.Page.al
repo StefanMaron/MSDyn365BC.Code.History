@@ -1,3 +1,12 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.D365Sales;
+
+using Microsoft.Integration.Dataverse;
+using Microsoft.Sales.Document;
+
 page 5353 "CRM Sales Order List"
 {
     ApplicationArea = Suite;
@@ -14,7 +23,7 @@ page 5353 "CRM Sales Order List"
         {
             repeater(Group)
             {
-                field(OrderNumber; OrderNumber)
+                field(OrderNumber; Rec.OrderNumber)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Order ID';
@@ -26,103 +35,103 @@ page 5353 "CRM Sales Order List"
                     Caption = 'Name';
                     ToolTip = 'Specifies the name of the record.';
                 }
-                field(TransactionCurrencyIdName; TransactionCurrencyIdName)
+                field(TransactionCurrencyIdName; Rec.TransactionCurrencyIdName)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Transaction Currency';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection. ';
                 }
-                field(PriceLevelIdName; PriceLevelIdName)
+                field(PriceLevelIdName; Rec.PriceLevelIdName)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Price List';
                     ToolTip = 'Specifies a list of your items and their prices, for example, to send to customers. You can create the list for specific customers, campaigns, currencies, or other criteria.';
                 }
-                field(IsPriceLocked; IsPriceLocked)
+                field(IsPriceLocked; Rec.IsPriceLocked)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Prices Locked';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection. ';
                 }
-                field(TotalAmount; TotalAmount)
+                field(TotalAmount; Rec.TotalAmount)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Total Amount';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection. ';
                 }
-                field(StateCode; StateCode)
+                field(StateCode; Rec.StateCode)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Status';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection. ';
                 }
-                field(StatusCode; StatusCode)
+                field(StatusCode; Rec.StatusCode)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Status Reason';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection. ';
                 }
-                field(RequestDeliveryBy; RequestDeliveryBy)
+                field(RequestDeliveryBy; Rec.RequestDeliveryBy)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Requested Delivery Date';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection. ';
                 }
-                field(DateFulfilled; DateFulfilled)
+                field(DateFulfilled; Rec.DateFulfilled)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Date Fulfilled';
                     ToolTip = 'Specifies when the sales order was delivered.';
                 }
-                field(ShippingMethodCode; ShippingMethodCodeEnum)
+                field(ShippingMethodCode; Rec.ShippingMethodCodeEnum)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Shipping Method';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection. ';
                 }
-                field(PaymentTermsCode; PaymentTermsCodeEnum)
+                field(PaymentTermsCode; Rec.PaymentTermsCodeEnum)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Payment Terms';
                     ToolTip = 'Specifies the payment terms that you select from on customer cards to define when the customer must pay, such as within 14 days.';
                 }
-                field(FreightTermsCode; FreightTermsCodeEnum)
+                field(FreightTermsCode; Rec.FreightTermsCodeEnum)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Freight Terms';
                     ToolTip = 'Specifies the shipment method.';
                 }
-                field(BillTo_Composite; BillTo_Composite)
+                field(BillTo_Composite; Rec.BillTo_Composite)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Bill To Address';
                     ToolTip = 'Specifies the address that the invoice will be sent to.';
                 }
-                field(WillCall; WillCall)
+                field(WillCall; Rec.WillCall)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Ship To';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection. ';
                 }
-                field(ShipTo_Composite; ShipTo_Composite)
+                field(ShipTo_Composite; Rec.ShipTo_Composite)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Ship To Address';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection. ';
                 }
-                field(OpportunityIdName; OpportunityIdName)
+                field(OpportunityIdName; Rec.OpportunityIdName)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Opportunity';
                     ToolTip = 'Specifies the sales opportunity that is coupled to this Dynamics 365 Sales opportunity.';
                 }
-                field(QuoteIdName; QuoteIdName)
+                field(QuoteIdName; Rec.QuoteIdName)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Quote';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection. ';
                 }
-                field(ContactIdName; ContactIdName)
+                field(ContactIdName; Rec.ContactIdName)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Contact';
@@ -152,9 +161,9 @@ page 5353 "CRM Sales Order List"
                     var
                         CRMIntegrationManagement: Codeunit "CRM Integration Management";
                     begin
-                        if IsEmpty() then
+                        if Rec.IsEmpty() then
                             exit;
-                        HyperLink(CRMIntegrationManagement.GetCRMEntityUrlFromCRMID(DATABASE::"CRM Salesorder", SalesOrderId));
+                        HyperLink(CRMIntegrationManagement.GetCRMEntityUrlFromCRMID(DATABASE::"CRM Salesorder", Rec.SalesOrderId));
                     end;
                 }
             }
@@ -177,7 +186,7 @@ page 5353 "CRM Sales Order List"
                         CRMSalesOrderToSalesOrder: Codeunit "CRM Sales Order to Sales Order";
                         CRMIntegrationManagement: Codeunit "CRM Integration Management";
                     begin
-                        if IsEmpty() then
+                        if Rec.IsEmpty() then
                             exit;
 
                         if BidirectionalSalesOrderIntEnabled then begin
@@ -203,7 +212,7 @@ page 5353 "CRM Sales Order List"
 
                     trigger OnAction()
                     begin
-                        MarkedOnly(true);
+                        Rec.MarkedOnly(true);
                     end;
                 }
                 action(ShowAll)
@@ -216,7 +225,7 @@ page 5353 "CRM Sales Order List"
 
                     trigger OnAction()
                     begin
-                        MarkedOnly(false);
+                        Rec.MarkedOnly(false);
                     end;
                 }
             }
@@ -247,26 +256,26 @@ page 5353 "CRM Sales Order List"
         RecordID: RecordID;
     begin
         if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
-            if CRMIntegrationRecord.FindRecordIDFromID(SalesOrderId, Database::"Sales Header", RecordID) then
-                if CurrentlyCoupledCRMSalesorder.SalesOrderId = SalesOrderId then begin
+            if CRMIntegrationRecord.FindRecordIDFromID(Rec.SalesOrderId, Database::"Sales Header", RecordID) then
+                if CurrentlyCoupledCRMSalesorder.SalesOrderId = Rec.SalesOrderId then begin
                     Coupled := 'Current';
                     FirstColumnStyle := 'Strong';
-                    Mark(true);
+                    Rec.Mark(true);
                 end else begin
                     Coupled := 'Yes';
                     FirstColumnStyle := 'Subordinate';
-                    Mark(false);
+                    Rec.Mark(false);
                 end
             else begin
                 Coupled := 'No';
                 FirstColumnStyle := 'None';
-                Mark(true);
+                Rec.Mark(true);
             end;
     end;
 
     trigger OnAfterGetCurrRecord()
     begin
-        HasRecords := not IsNullGuid(SalesOrderId);
+        HasRecords := not IsNullGuid(Rec.SalesOrderId);
     end;
 
     trigger OnInit()
@@ -276,17 +285,26 @@ page 5353 "CRM Sales Order List"
 
     trigger OnOpenPage()
     var
+        CDSCompany: Record "CDS Company";
         CRMConnectionSetup: Record "CRM Connection Setup";
         LookupCRMTables: Codeunit "Lookup CRM Tables";
+        MultipleCompanies: Boolean;
     begin
         BidirectionalSalesOrderIntEnabled := CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled();
+        MultipleCompanies := (CDSCompany.Count > 1);
         if BidirectionalSalesOrderIntEnabled then begin
-            FilterGroup(4);
-            SetView(LookupCRMTables.GetIntegrationTableMappingView(DATABASE::"CRM Salesorder"));
-            FilterGroup(0);
+            Rec.FilterGroup(4);
+            Rec.SetView(LookupCRMTables.GetIntegrationTableMappingView(DATABASE::"CRM Salesorder"));
+            Rec.FilterGroup(0);
         end else begin
-            SetRange(StateCode, StateCode::Submitted);
-            SetFilter(LastBackofficeSubmit, '%1|%2', 0D, DMY2Date(1, 1, 1900));
+            if MultipleCompanies then begin
+                Rec.FilterGroup(4);
+                Rec.SetView(LookupCRMTables.GetIntegrationTableMappingView(DATABASE::"CRM Salesorder"));
+            end;
+            Rec.FilterGroup(2);
+            Rec.SetRange(StateCode, Rec.StateCode::Submitted);
+            Rec.SetFilter(LastBackofficeSubmit, '%1|%2', 0D, DMY2Date(1, 1, 1900));
+            Rec.FilterGroup(0);
         end;
         CRMIntegrationEnabled := CRMConnectionSetup.IsEnabled();
     end;

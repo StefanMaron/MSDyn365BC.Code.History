@@ -1,3 +1,10 @@
+﻿namespace Microsoft.Warehouse.Journal;
+
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Warehouse.Reports;
+using System.Reflection;
+
 table 7309 "Warehouse Journal Template"
 {
     Caption = 'Warehouse Journal Template';
@@ -18,12 +25,12 @@ table 7309 "Warehouse Journal Template"
         field(5; "Test Report ID"; Integer)
         {
             Caption = 'Test Report ID';
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Report));
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Report));
         }
         field(6; "Page ID"; Integer)
         {
             Caption = 'Page ID';
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Page));
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Page));
 
             trigger OnValidate()
             begin
@@ -34,7 +41,7 @@ table 7309 "Warehouse Journal Template"
         field(7; "Registering Report ID"; Integer)
         {
             Caption = 'Registering Report ID';
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Report));
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Report));
         }
         field(8; "Force Registering Report"; Boolean)
         {
@@ -46,8 +53,8 @@ table 7309 "Warehouse Journal Template"
 
             trigger OnValidate()
             begin
-                "Test Report ID" := REPORT::"Whse. Invt.-Registering - Test";
-                "Registering Report ID" := REPORT::"Warehouse Register - Quantity";
+                "Test Report ID" := Report::"Whse. Invt.-Registering - Test";
+                "Registering Report ID" := Report::"Warehouse Register - Quantity";
                 SourceCodeSetup.Get();
                 case Type of
                     Type::Item:
@@ -87,24 +94,24 @@ table 7309 "Warehouse Journal Template"
         }
         field(15; "Test Report Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
-                                                                           "Object ID" = FIELD("Test Report ID")));
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
+                                                                           "Object ID" = field("Test Report ID")));
             Caption = 'Test Report Caption';
             Editable = false;
             FieldClass = FlowField;
         }
         field(16; "Page Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
-                                                                           "Object ID" = FIELD("Page ID")));
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
+                                                                           "Object ID" = field("Page ID")));
             Caption = 'Page Caption';
             Editable = false;
             FieldClass = FlowField;
         }
         field(17; "Registering Report Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
-                                                                           "Object ID" = FIELD("Registering Report ID")));
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
+                                                                           "Object ID" = field("Registering Report ID")));
             Caption = 'Registering Report Caption';
             Editable = false;
             FieldClass = FlowField;

@@ -1,3 +1,22 @@
+namespace Microsoft.Integration.MDM;
+
+using System.Threading;
+using System.Telemetry;
+using System.Environment;
+using System.Reflection;
+using System.IO;
+using System.Environment.Configuration;
+using Microsoft.Integration.Dataverse;
+using Microsoft.CRM.Contact;
+using Microsoft.Sales.Customer;
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.Purchases.Vendor;
+using Microsoft.CRM.Setup;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Inventory.Item;
+using Microsoft.Integration.SyncEngine;
+using Microsoft.Utilities;
+
 codeunit 7237 "Master Data Mgt. Subscribers"
 {
     Access = Internal;

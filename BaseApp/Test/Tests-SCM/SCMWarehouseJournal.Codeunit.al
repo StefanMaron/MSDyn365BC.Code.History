@@ -64,7 +64,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         TrackingAction: Option " ",VerifyTracking,AssignLotNo,AssistEdit,AssignSerialNo,AssitEditNewSerialNoExpDate,AssignMultipleLotNo,MultipleExpirationDate,SelectEntries,AssitEditSerialNoAndRemoveExpDate,EditSerialNo,AssitEditLotNo,AssitEditNewLotNoExpDate,AssignSerialAndLot,AssignNewSerialAndLotNo,SelectEntriesWithLot,SelectEntriesWithNewSerialNo,SetNewLotNoWithQty;
         UserIsNotWhseEmployeeErr: Label 'You must first set up user %1 as a warehouse employee.';
         UserIsNotWhseEmployeeAtWMSLocationErr: Label 'You must first set up user %1 as a warehouse employee at a location with the Bin Mandatory setting.';
-        DefaultLocationNotDirectedPutawayPickErr: Label 'You must set up a location with the Directed Put-away and Pick setting and assign it to user %1.';
+        DefaultLocationNotDirectedPutawayPickErr: Label 'You must set up a default location with the Directed Put-away and Pick setting and assign it to user %1.';
         WrongWhseJournalBatchOpenedErr: Label 'Wrong warehouse journal batch has been opened.';
         WrongBinCreationWkshOpenedErr: Label 'Wrong bin creation worksheet has been opened.';
         BinMustNotBeAdjustmentErr: Label 'Adjustment Bin must not be Yes in Bin';
@@ -72,6 +72,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         WrongWhseJournalBatchErr: Label 'Wrong warehouse journal batch name is added to the filter of a line.';
         WrongLocationCodeErr: Label 'Wrong location name is added to the filter of a line.';
         WhseJournalBatchDefaultNameTxt: Label 'DEFAULT';
+        DirectedWhseLocationErr: Label 'You cannot use %1 %2 because it is set up with %3.\Adjustments to this location must therefore be made in a Warehouse Item Journal.', Comment = '%1: Location Table Caption, %2: Location Code, %3: Location Field Caption';
 
     [Test]
     [HandlerFunctions('WhseItemTrackingLinesHandler,ConfirmHandler')]
@@ -390,6 +391,50 @@ codeunit 137153 "SCM Warehouse - Journal"
           WarehouseJournalLine, WarehouseEntry."Entry Type"::"Positive Adjmt.", WarehouseJournalLine.Quantity);
         VerifyWarehouseEntryWithBlockedItem(
           WarehouseJournalLine, WarehouseEntry."Entry Type"::"Negative Adjmt.", -WarehouseJournalLine.Quantity);
+    end;
+
+    [Test]
+    procedure GetBinContentForLocationNotAllowed()
+    var
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        Bin: Record Bin;
+        ItemNo: Code[20];
+    begin
+        //Setup: Create Warehouse Journal Line with Bin and Post it.
+        Initialize();
+
+        ItemNo := LibraryInventory.CreateItemNo();
+        FindBin(Bin, LocationWhite.Code, true);
+
+        CreateItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Item, true);
+
+        CreateWarehouseJournalLine(
+         WarehouseJournalLine, Bin, WarehouseJournalTemplate.Type::Item, ItemNo, LibraryRandom.RandDec(100, 2), false);
+
+        LibraryWarehouse.PostWhseJournalLine(
+         WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", LocationWhite.Code);
+
+        // Exercise: Get Bin Content for Location with Directed Put-away and Pick. Error must be thrown because of Location with Directed Put-away and Pick.
+        asserterror GetBinContentFromItemJournalLine(ItemJournalBatch, LocationWhite.Code, Bin.Code, ItemNo);
+
+        Assert.ExpectedError(StrSubstNo(DirectedWhseLocationErr, LocationWhite.TableCaption(), LocationWhite.Code, LocationWhite.FieldCaption("Directed Put-away and Pick")));
+    end;
+
+    local procedure GetBinContentFromItemJournalLine(ItemJournalBatch: Record "Item Journal Batch"; LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20])
+    var
+        BinContent: Record "Bin Content";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        ItemJournalLine.Init();
+        ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.Validate("Posting Date", WorkDate());
+        BinContent.SetRange("Location Code", LocationCode);
+        BinContent.SetRange("Bin Code", BinCode);
+        BinContent.SetRange("Item No.", ItemNo);
+        LibraryWarehouse.WhseGetBinContentFromItemJournalLine(BinContent, ItemJournalLine);
     end;
 
     [Test]
@@ -2318,7 +2363,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     end;
 
     [Test]
-    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerNo')]
     procedure WhseJournalNotOpenedIfUserNotSetAsWhseEmployee()
     var
         Location: array[3] of Record Location;
@@ -2343,11 +2388,11 @@ codeunit 137153 "SCM Warehouse - Journal"
         asserterror WarehouseJournalLine.OpenJnl(WarehouseJournalBatch.Name, Location[3].Code, WarehouseJournalLine);
 
         // [THEN] Error is thrown.
-        Assert.ExpectedError(StrSubstNo(UserIsNotWhseEmployeeErr, UserId));
+        Assert.ExpectedError(StrSubstNo(DefaultLocationNotDirectedPutawayPickErr, UserId));
     end;
 
     [Test]
-    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerNo')]
     procedure WhseJournalNotOpenedIfWhseEmployeeLocationIsNotDirectPutAwayAndPickup()
     var
         Location: array[3] of Record Location;
@@ -2380,38 +2425,6 @@ codeunit 137153 "SCM Warehouse - Journal"
 
         // [THEN] Error is thrown.
         Assert.ExpectedError(STRSUBSTNO(DefaultLocationNotDirectedPutawayPickErr, USERID));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure WhseJournalOpenedIfWhseEmpAnyLocationIsDirectPutAwayAndPickup()
-    var
-        Location: array[3] of Record Location;
-        WhseEmployee: Record "Warehouse Employee";
-        WarehouseJournalTemplate: Record "Warehouse Journal Template";
-        WarehouseJournalBatch: Record "Warehouse Journal Batch";
-        WarehouseJournalLine: Record "Warehouse Journal Line";
-    begin
-        // [FEATURE] [Warehouse Employee] [UT]
-        // [SCENARIO 386386] Warehouse Journal can be opened even if one of the locations for warehouse employee is directed put-away and pick.
-        Initialize();
-
-        // [GIVEN] 3 Locations -  basic "Blue", "Silver" with mandatory bin, "White" with directed put-away and pick.
-        // [GIVEN] Current user is set as warehouse employee at "Blue" (default) and "White".
-        CreateLocationsArray(Location);
-        LibraryWarehouse.CreateWarehouseEmployee(WhseEmployee, Location[1].Code, true);
-        LibraryWarehouse.CreateWarehouseEmployee(WhseEmployee, Location[3].Code, false);
-
-        // [WHEN] Open Warehouse Journal when default location for warehouse employee is not directed put-away and pick.
-        LibraryWarehouse.CreateWhseJournalTemplate(WarehouseJournalTemplate, WarehouseJournalTemplate.Type::Item);
-        WarehouseJournalLine.SetRange("Journal Template Name", WarehouseJournalTemplate.Name);
-        WarehouseJournalLine.OpenJnl(WarehouseJournalBatch.Name, Location[1].Code, WarehouseJournalLine);
-
-        // [THEN] Warehouse Journal at location "White" is shown because the default location is not directed put-away and pick.
-        WarehouseJournalLine.FilterGroup(2);
-        Assert.AreEqual(Location[3].Code, WarehouseJournalLine.GetFilter("Location Code"), WrongWhseJournalBatchOpenedErr);
-
-        WarehouseJournalTemplate.Delete();
     end;
 
     [Test]
@@ -3696,6 +3709,8 @@ codeunit 137153 "SCM Warehouse - Journal"
         TrackingSpecification."Lot No." := LotNo[1];
         TrackingSpecification."New Lot No." := LotNo[2];
         TrackingSpecification."Quantity (Base)" := QtyLot1;
+        if QtyLot1 < QtyLot2 then
+            QtyLot2 := QtyLot1;
         TrackingSpecification."Qty. to Handle (Base)" := QtyLot2;
         TrackingSpecification.Insert();
     end;
@@ -6162,6 +6177,12 @@ codeunit 137153 "SCM Warehouse - Journal"
     procedure DummyConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerNo(ConfirmMessage: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 
     [RequestPageHandler]
