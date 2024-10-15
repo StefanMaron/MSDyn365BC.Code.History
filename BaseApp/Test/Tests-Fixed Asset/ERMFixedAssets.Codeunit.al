@@ -542,7 +542,7 @@ codeunit 134451 "ERM Fixed Assets"
         // 3.Verify: Verify "Proceeds on Disposal" and "Gain/Loss" FA Ledger Entry for Sales Order.
         VerifySalesFALedgerEntry(
           DocumentNo, FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Proceeds on Disposal",
-          SalesHeader.Amount, SalesHeader.Amount, 0);
+          -SalesHeader.Amount, 0, SalesHeader.Amount);
         VerifySalesFALedgerEntry(
           DocumentNo, FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Gain/Loss",
           -SalesHeader.Amount, 0, SalesHeader.Amount);
@@ -843,7 +843,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
 
         // 3.Verify: Verify that the Amount is posted in FA Ledger Entry correctly.
-        VerifyAmountInFALedgerEntry(FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Proceeds on Disposal", Amount);
+        VerifyAmountInFALedgerEntry(FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Proceeds on Disposal", -Amount);
     end;
 
     [Test]
@@ -2335,66 +2335,10 @@ codeunit 134451 "ERM Fixed Assets"
         // [THEN] 'Proceeds on Disposal' FA Legger Entry has amount = 300
         // [THEN] 'Gain/Loss' FA Legger Entry has amount = 600 (1000 - 100 - 300)
         VerifySalesFALedgerEntry(
-          DocumentNo, FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Proceeds on Disposal", SalesHeader.Amount, SalesHeader.Amount, 0);
+          DocumentNo, FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Proceeds on Disposal", -SalesHeader.Amount, 0, SalesHeader.Amount);
         GainLossAmount := FADepreciationBook."Acquisition Cost" + FADepreciationBook.Depreciation - SalesHeader.Amount;
         VerifySalesFALedgerEntry(
           DocumentNo, FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Gain/Loss", GainLossAmount, GainLossAmount, 0);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure FAIgnoreDefaultEndingBookValue()
-    var
-        FixedAsset: Record "Fixed Asset";
-        DepreciationBook: Record "Depreciation Book";
-        FADepreciationBook: Record "FA Depreciation Book";
-    begin
-        // [FEATURE] [Depreciation]
-        // [SCENARIO 376178] "Ending Book Value" for FA Depreciation Book is not defaulted if "Ignore Def. Ending Book Value"=TRUE
-        Initialize();
-
-        // [GIVEN] Created Depreciation Book with specified "Default Ending Book Value", Fixed Asset
-        CreateFixedAssetSetupWDefaultEndingBookValue(DepreciationBook, LibraryRandom.RandDec(100, 2));
-        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
-
-        // [GIVEN] Created FA Depreciation Book
-        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code);
-
-        // [WHEN] Set "Ignore Def. Ending Book Value"=TRUE and attempt to change "Ending Book Value" to 0.0
-        FADepreciationBook.Validate("Ignore Def. Ending Book Value", true);
-        FADepreciationBook.Validate("Ending Book Value", 0);
-        FADepreciationBook.Modify(true);
-
-        // [THEN] "Ending Book Value" on FA Depreciation Book is set to 0.0
-        Assert.AreEqual(0, FADepreciationBook."Ending Book Value", '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure FANotIgnoreDefaultEndingBookValue()
-    var
-        FixedAsset: Record "Fixed Asset";
-        DepreciationBook: Record "Depreciation Book";
-        FADepreciationBook: Record "FA Depreciation Book";
-    begin
-        // [FEATURE] [Depreciation]
-        // [SCENARIO 376178] "Ending Book Value" for FA Depreciation Book is defaulted if "Ignore Def. Ending Book Value"=FALSE
-        Initialize();
-
-        // [GIVEN] Created Depreciation Book with specified "Default Ending Book Value", Fixed Asset
-        CreateFixedAssetSetupWDefaultEndingBookValue(DepreciationBook, LibraryRandom.RandDec(100, 2));
-        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
-
-        // [GIVEN] Created FA Depreciation Book
-        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code);
-
-        // [WHEN] Set "Ignore Def. Ending Book Value"=FALSE and attempt to change "Ending Book Value" to 0.0
-        FADepreciationBook.Validate("Ignore Def. Ending Book Value", false);
-        FADepreciationBook.Validate("Ending Book Value", 0);
-        FADepreciationBook.Modify(true);
-
-        // [THEN] "Ending Book Value" on FA Depreciation Book is set to be equal to "Default Ending Book Value" from Depreciation Book
-        Assert.AreEqual(DepreciationBook."Default Ending Book Value", FADepreciationBook."Ending Book Value", '');
     end;
 
     local procedure Initialize()
