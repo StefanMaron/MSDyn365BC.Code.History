@@ -887,8 +887,11 @@ codeunit 10 "Type Helper"
     end;
 
     procedure IsUpper(ch: Char): Boolean
+    var
+        charTxt: Text[1];
     begin
-        exit((ch >= 'A') AND (ch <= 'Z'));
+        charTxt[1] := ch;
+        exit(charTxt = UpperCase(charTxt));
     end;
 
     [TryFunction]

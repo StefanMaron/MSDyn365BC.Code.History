@@ -58,7 +58,9 @@ table 951 "Time Sheet Line"
                     TestField(Type, Type::Job);
                     Job.Get("Job No.");
                     if Job.Blocked = Job.Blocked::All then
-                        Job.TestBlocked;
+                        Job.TestBlocked();
+                    if Job.Status = Job.Status::Completed then
+                        Job.TestStatusCompleted();
                 end;
                 Validate("Job Task No.", '');
                 UpdateApproverID;

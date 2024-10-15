@@ -366,6 +366,38 @@ codeunit 144005 "Reference No Test"
         CustLedgerEntry.TestField("Reference No.", ServiceInvoiceHeader."Reference No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyRefNoInCustLedgerEntryFromPrepaymentInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Prepayment %]
+        // [SCENARIO 441637] Reference No is copied to related Customer Ledger Entry 
+
+        // [GIVEN] Sales Invoice with Prepayment percentage set to 100%
+        Initialize();
+
+        CreateSalesHeaderWithPrepaymentPercentage(SalesHeader, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+
+        // [WHEN] The Sales Order is posted
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Reference No. is copied to Customer Ledger Entry record
+        SalesInvoiceHeader.SetRange("No.", DocumentNo);
+        SalesInvoiceHeader.FindFirst();
+        SalesInvoiceHeader.TestField("Reference No.");
+
+        CustLedgerEntry.SetRange("Document No.", DocumentNo);
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry.TestField("Reference No.", SalesInvoiceHeader."Reference No.");
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Reference No Test");
