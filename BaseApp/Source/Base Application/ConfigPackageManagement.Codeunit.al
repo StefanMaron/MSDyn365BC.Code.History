@@ -517,19 +517,31 @@ codeunit 8611 "Config. Package Management"
     local procedure ValidateTableRelation(PackageCode: Code[20]; TableId: Integer; var ValidatedConfigPackageTable: Record "Config. Package Table")
     var
         ConfigPackageField: Record "Config. Package Field";
+        ConfigPackageRecord: Record "Config. Package Record";
+        RecRef: RecordRef;
+        DelayedInsert: Boolean;
     begin
-        ConfigPackageField.SetCurrentKey("Package Code", "Table ID", "Processing Order");
-        ConfigPackageField.SetRange("Package Code", PackageCode);
-        ConfigPackageField.SetRange("Table ID", TableId);
-        ConfigPackageField.SetRange("Validate Field", true);
-        if ConfigPackageField.FindSet then
+        ConfigPackageRecord.SetRange("Package Code", PackageCode);
+        ConfigPackageRecord.SetRange("Table ID", TableId);
+        if ConfigPackageRecord.FindSet() then
             repeat
-                ValidateFieldRelation(ConfigPackageField, ValidatedConfigPackageTable);
-            until ConfigPackageField.Next = 0;
+                Clear(RecRef);
+                RecRef.Open(TableId, true);
+                InsertPrimaryKeyFields(RecRef, ConfigPackageRecord, false, DelayedInsert);
+
+                ConfigPackageField.SetCurrentKey("Package Code", "Table ID", "Processing Order");
+                ConfigPackageField.SetRange("Package Code", PackageCode);
+                ConfigPackageField.SetRange("Table ID", TableId);
+                ConfigPackageField.SetRange("Validate Field", true);
+                if ConfigPackageField.FindSet() then
+                    repeat
+                        ValidateFieldRelationInRecord(ConfigPackageField, ValidatedConfigPackageTable, ConfigPackageRecord, RecRef);
+                    until ConfigPackageField.Next() = 0;
+                RecRef.Close();
+            until ConfigPackageRecord.Next() = 0;
     end;
 
-    [Scope('OnPrem')]
-    procedure ValidateFieldRelation(ConfigPackageField: Record "Config. Package Field"; var ValidatedConfigPackageTable: Record "Config. Package Table") NoValidateErrors: Boolean
+    procedure ValidateFieldRelationInRecord(ConfigPackageField: Record "Config. Package Field"; var ValidatedConfigPackageTable: Record "Config. Package Table"; ConfigPackageRecord: Record "Config. Package Record"; RecRef: RecordRef) NoValidateErrors: Boolean
     var
         ConfigPackageData: Record "Config. Package Data";
     begin
@@ -538,11 +550,37 @@ codeunit 8611 "Config. Package Management"
         ConfigPackageData.SetRange("Package Code", ConfigPackageField."Package Code");
         ConfigPackageData.SetRange("Table ID", ConfigPackageField."Table ID");
         ConfigPackageData.SetRange("Field ID", ConfigPackageField."Field ID");
-        if ConfigPackageData.FindSet then
+        ConfigPackageData.SetRange("No.", ConfigPackageRecord."No.");
+        if ConfigPackageData.FindSet() then
             repeat
                 NoValidateErrors :=
                   NoValidateErrors and
-                  ValidatePackageDataRelation(ConfigPackageData, ValidatedConfigPackageTable, ConfigPackageField, true);
+                  ValidatePackageDataRelation(
+                    ConfigPackageData, ValidatedConfigPackageTable, ConfigPackageField, true, ConfigPackageRecord, RecRef);
+            until ConfigPackageData.Next() = 0;
+    end;
+
+    [Obsolete('Replaced by ValidateFieldRelationInRecord(). This function is correct for the validation of a single field without record context. Please use ValidateFieldRelationInRecord function in case of record or table wide validation.', '17.0')]
+    [Scope('OnPrem')]
+    procedure ValidateFieldRelation(ConfigPackageField: Record "Config. Package Field"; var ValidatedConfigPackageTable: Record "Config. Package Table") NoValidateErrors: Boolean
+    var
+        ConfigPackageData: Record "Config. Package Data";
+        ConfigPackageRecord: Record "Config. Package Record";
+        RecRef: RecordRef;
+    begin
+        NoValidateErrors := true;
+        RecRef.Open(ConfigPackageField."Table ID", true);
+
+        ConfigPackageData.SetRange("Package Code", ConfigPackageField."Package Code");
+        ConfigPackageData.SetRange("Table ID", ConfigPackageField."Table ID");
+        ConfigPackageData.SetRange("Field ID", ConfigPackageField."Field ID");
+        if ConfigPackageData.FindSet() then
+            repeat
+                ConfigPackageRecord.Get(ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."No.");
+                NoValidateErrors :=
+                  NoValidateErrors and
+                  ValidatePackageDataRelation(
+                    ConfigPackageData, ValidatedConfigPackageTable, ConfigPackageField, true, ConfigPackageRecord, RecRef);
             until ConfigPackageData.Next = 0;
     end;
 
@@ -551,12 +589,18 @@ codeunit 8611 "Config. Package Management"
     var
         TempConfigPackageTable: Record "Config. Package Table" temporary;
         ConfigPackageField: Record "Config. Package Field";
+        ConfigPackageRecord: Record "Config. Package Record";
+        RecRef: RecordRef;
+        DelayedInsert: Boolean;
     begin
+        RecRef.Open(ConfigPackageData."Table ID", true);
+        ConfigPackageRecord.Get(ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."No.");
+        InsertPrimaryKeyFields(RecRef, ConfigPackageRecord, false, DelayedInsert);
         ConfigPackageField.Get(ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."Field ID");
-        exit(ValidatePackageDataRelation(ConfigPackageData, TempConfigPackageTable, ConfigPackageField, false));
+        exit(ValidatePackageDataRelation(ConfigPackageData, TempConfigPackageTable, ConfigPackageField, false, ConfigPackageRecord, RecRef));
     end;
 
-    local procedure ValidatePackageDataRelation(var ConfigPackageData: Record "Config. Package Data"; var ValidatedConfigPackageTable: Record "Config. Package Table"; var ConfigPackageField: Record "Config. Package Field"; GenerateFieldError: Boolean): Boolean
+    local procedure ValidatePackageDataRelation(var ConfigPackageData: Record "Config. Package Data"; var ValidatedConfigPackageTable: Record "Config. Package Table"; var ConfigPackageField: Record "Config. Package Field"; GenerateFieldError: Boolean; ConfigPackageRecord: Record "Config. Package Record"; RecRef: RecordRef): Boolean
     var
         ErrorText: Text[250];
         RelationTableNo: Integer;
@@ -574,7 +618,7 @@ codeunit 8611 "Config. Package Management"
               ConfigPackageData, ConfigPackageField, ValidatedConfigPackageTable, RelationTableNo, RelationFieldNo, DataInPackageData);
 
             if not DataInPackageData then begin
-                ErrorText := ValidateFieldRelationAgainstCompanyData(ConfigPackageData);
+                ErrorText := ValidateFieldRelationAgainstCompanyData(ConfigPackageData, ConfigPackageRecord, RecRef);
                 if ErrorText <> '' then begin
                     if GenerateFieldError then
                         FieldError(ConfigPackageData, ErrorText, ErrorTypeEnum::TableRelation);
@@ -642,18 +686,12 @@ codeunit 8611 "Config. Package Management"
             ConfigPackageField."Table ID", ConfigPackageField."Field ID", RelationTableNo, RelationFieldNo));
     end;
 
-    local procedure ValidateFieldRelationAgainstCompanyData(ConfigPackageData: Record "Config. Package Data"): Text[250]
+    local procedure ValidateFieldRelationAgainstCompanyData(ConfigPackageData: Record "Config. Package Data"; ConfigPackageRecord: Record "Config. Package Record"; RecRef: RecordRef): Text[250]
     var
-        ConfigPackageRecord: Record "Config. Package Record";
         ConfigPackageField: Record "Config. Package Field";
         ConfigPackageTable: Record "Config. Package Table";
-        RecRef: RecordRef;
         FieldRef: FieldRef;
-        DelayedInsert: Boolean;
     begin
-        RecRef.Open(ConfigPackageData."Table ID");
-        ConfigPackageRecord.Get(ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."No.");
-        InsertPrimaryKeyFields(RecRef, ConfigPackageRecord, false, DelayedInsert);
         ConfigPackageField.Get(ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."Field ID");
         ConfigPackageTable.Get(ConfigPackageData."Package Code", ConfigPackageData."Table ID");
         ModifyRecordDataField(ConfigPackageRecord, ConfigPackageField, ConfigPackageData, ConfigPackageTable, RecRef, false, false, false);

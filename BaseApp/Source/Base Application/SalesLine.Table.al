@@ -1424,10 +1424,10 @@ table 37 "Sales Line"
                 OnValidateVATProdPostingGroupOnBeforeUpdateUnitPrice(Rec, VATPostingSetup, IsHandled);
                 if not IsHandled then
                     if SalesHeader."Prices Including VAT" and (Type in [Type::Item, Type::Resource]) then
-                        "Unit Price" :=
+                        Validate("Unit Price",						
                             Round(
                                 "Unit Price" * (100 + "VAT %") / (100 + xRec."VAT %"),
-                                Currency."Unit-Amount Rounding Precision");
+                        Currency."Unit-Amount Rounding Precision"));
 
                 OnValidateVATProdPostingGroupOnBeforeUpdateAmounts(Rec, xRec, SalesHeader, Currency);
                 UpdateAmounts();
@@ -5112,7 +5112,7 @@ table 37 "Sales Line"
                             if Type = Type::"Charge (Item)" then
                                 UpdateItemChargeAssgnt();
                             if SalesSetup."Apply Inv. Round. Amt. To VAT" then begin
-                                if ("Amount Including VAT" - Amount) <> VATAmountLine."VAT Amount" then
+                                if ("Amount Including VAT" - Amount) <> VATAmount then
                                     Amount := Amount + TempVATDiff;
                                 TempVATDiff := 0;
                             end;

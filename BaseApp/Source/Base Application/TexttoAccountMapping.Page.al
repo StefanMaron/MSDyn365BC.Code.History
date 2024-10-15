@@ -30,7 +30,7 @@ page 1251 "Text-to-Account Mapping"
                 field("Bal. Source Type"; "Bal. Source Type")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the type of balancing account that payments or incoming document records with this text-to-account mapping are created for. The Bank Account option is used for incoming documents only.';
+                    ToolTip = 'Specifies the type of balancing account that amounts on payments or incoming documents that have this text to account mapping are posted to. The Bank Account option is used only for incoming documents and cannot be used in payment reconciliation journals.';
 
                     trigger OnValidate()
                     begin
@@ -41,7 +41,7 @@ page 1251 "Text-to-Account Mapping"
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = EnableBalSourceNo;
-                    ToolTip = 'Specifies the balancing account in the general ledger or on bank accounts that payments or incoming document records with this text-to-account mapping are created for.';
+                    ToolTip = 'Specifies the balancing account to post amounts on payments or incoming documents that have this text to account mapping. The Bank Account option in the Bal. Source Type cannot be used in payment reconciliation journals.';
                 }
             }
         }

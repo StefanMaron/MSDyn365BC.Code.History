@@ -1832,6 +1832,8 @@
         FixedAsset: Record "Fixed Asset";
         DeprBook: Record "Depreciation Book";
         FASetup: Record "FA Setup";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FACheckConsistency:	Codeunit "FA Check Consistency";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1846,6 +1848,8 @@
             FixedAsset.Get("No.");
             FixedAsset.TestField("Budgeted Asset", false);
             DeprBook.Get("Depreciation Book Code");
+            if FADepreciationBook.Get("No.", "Depreciation Book Code") then
+                FACheckConsistency.CheckDisposalDate(FADepreciationBook, FixedAsset);
             if "Budgeted FA No." <> '' then begin
                 FixedAsset.Get("Budgeted FA No.");
                 FixedAsset.TestField("Budgeted Asset", true);
@@ -4536,7 +4540,7 @@
 
             CopyDocumentFields(GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode, PurchHeader."Posting No. Series");
 
-            Validate("Account Type", "Account Type"::"IC Partner");
+            "Account Type" := "Account Type"::"IC Partner";
             Validate("Account No.", PurchLine."IC Partner Code");
             "Source Currency Code" := PurchHeader."Currency Code";
             "Source Currency Amount" := Amount;
