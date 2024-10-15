@@ -537,6 +537,17 @@ table 1226 "Payment Export Data"
         exit(CompanyInformation."VAT Registration No.");
     end;
 
+    procedure GetSenderCreditorNo(): Text
+    var
+        BankAccount: Record "Bank Account";
+        CreditorNo: Text;
+    begin
+        BankAccount.Get("Sender Bank Account Code");
+        CreditorNo := BankAccount."Creditor No.";
+        OnAfterGetSenderCreditorNo(Rec, CreditorNo);
+        exit(CreditorNo);
+    end;
+
     procedure AddGenJnlLineErrorText(GenJnlLine: Record "Gen. Journal Line"; NewText: Text)
     begin
         GenJnlLine.InsertPaymentFileError(NewText);
@@ -748,6 +759,12 @@ table 1226 "Payment Export Data"
                 end;
         end;
     end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetSenderCreditorNo(PaymentExportData: Record "Payment Export Data"; var CreditorNo: Text)
+    begin
+    end;
+
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterSetBankAsSenderBank(BankAccount: Record "Bank Account")

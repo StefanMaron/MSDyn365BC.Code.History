@@ -111,6 +111,7 @@ table 904 "Assemble-to-Order Link"
     var
         SalesLine2: Record "Sales Line";
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+        PostedATOLink: Record "Posted Assemble-to-Order Link";
         IsHandled: Boolean;
         ShouldDeleteAsm: Boolean;
     begin
@@ -126,10 +127,16 @@ table 904 "Assemble-to-Order Link"
                 OnUpdateAsmOnAfterCalcShouldDeleteAsm(NewSalesLine, ShouldDeleteAsm);
                 if ShouldDeleteAsm then begin
                     DeleteAsmFromSalesLine(NewSalesLine);
-                    InvtAdjmtEntryOrder.SetRange("Order Type", InvtAdjmtEntryOrder."Order Type"::Assembly);
-                    InvtAdjmtEntryOrder.SetRange("Order No.", "Assembly Document No.");
-                    if ("Assembly Document Type" = "Assembly Document Type"::Order) and not InvtAdjmtEntryOrder.IsEmpty() then
-                        Insert();
+                    if "Assembly Document Type" = "Assembly Document Type"::Order then begin
+                        InvtAdjmtEntryOrder.SetLoadFields("Order Type", "Order No.");
+                        InvtAdjmtEntryOrder.SetRange("Order Type", InvtAdjmtEntryOrder."Order Type"::Assembly);
+                        InvtAdjmtEntryOrder.SetRange("Order No.", "Assembly Document No.");
+                        if not InvtAdjmtEntryOrder.IsEmpty() then begin
+                            PostedATOLink.SetRange("Assembly Order No.", "Assembly Document No.");
+                            if PostedATOLink.IsEmpty() then
+                                Insert();
+                        end;
+                    end;
                     exit;
                 end;
                 if not GetAsmHeader() then begin
