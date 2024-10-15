@@ -146,6 +146,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
         trigger OnOpenPage()
         begin
+            ExportFormat := ExportFormat::"2022";
             FilterSourceLinesByIntrastatSetupExportTypes();
         end;
     }
