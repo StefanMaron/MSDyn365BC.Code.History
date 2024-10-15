@@ -1074,6 +1074,7 @@ codeunit 5802 "Inventory Posting To G/L"
                         FAInsertLedgEntry.AdjustFAEntry(TempGlobalInvtPostingBuffer, GenJnlLine);
                         OnBeforePostInvtPostBuf(GenJnlLine, TempGlobalInvtPostingBuffer, ValueEntry, GenJnlPostLine);
                         PostGenJnlLine(GenJnlLine);
+                        OnAfterPostInvtPostBuf(GenJnlLine, TempGlobalInvtPostingBuffer, ValueEntry, GenJnlPostLine);
                     end else begin
                         OnBeforeCheckInvtPostBuf(GenJnlLine, TempGlobalInvtPostingBuffer, ValueEntry, GenJnlPostLine, GenJnlCheckLine);
                         CheckGenJnlLine(GenJnlLine);
@@ -1560,6 +1561,11 @@ codeunit 5802 "Inventory Posting To G/L"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostInvtPostBuf(var GenJournalLine: Record "Gen. Journal Line"; var InvtPostingBuffer: Record "Invt. Posting Buffer"; ValueEntry: Record "Value Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostInvtPostBuf(var GenJournalLine: Record "Gen. Journal Line"; var InvtPostingBuffer: Record "Invt. Posting Buffer"; ValueEntry: Record "Value Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 

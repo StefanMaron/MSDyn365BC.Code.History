@@ -7,11 +7,7 @@ table 292 "Reminder Terms"
     Caption = 'Reminder Terms';
     DataCaptionFields = "Code", Description;
     DataClassification = CustomerContent;
-#if not CLEAN25
-    LookupPageID = "Reminder Terms";
-#else
     LookupPageID = "Reminder Terms List";
-#endif
 
     fields
     {

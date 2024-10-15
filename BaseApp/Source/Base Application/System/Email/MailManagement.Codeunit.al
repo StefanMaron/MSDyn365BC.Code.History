@@ -102,6 +102,7 @@ codeunit 9520 "Mail Management"
 
         ClearLastError();
         Cancelled := false;
+        OnSendViaEmailModuleOnBeforeOpenInEditorModally(CurrentEmailScenario, TempEmailModuleAccount, Message, HideMailDialog);
         if not HideMailDialog then begin
             Commit();
             MailSent := Email.OpenInEditorModallyWithScenario(Message, TempEmailModuleAccount, CurrentEmailScenario) = Enum::"Email Action"::Sent;
@@ -596,6 +597,11 @@ codeunit 9520 "Mail Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDownloadPDFAttachment()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendViaEmailModuleOnBeforeOpenInEditorModally(EmailScenario: Enum "Email Scenario"; var TempEmailAccount: Record "Email Account" temporary; var Message: Codeunit "Email Message"; var HideMailDialog: Boolean)
     begin
     end;
 }

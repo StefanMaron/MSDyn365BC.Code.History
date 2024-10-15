@@ -404,7 +404,7 @@ codeunit 21 "Item Jnl.-Check Line"
 
                     WarehousePickLocation := LocationToCheck."Prod. Consump. Whse. Handling" = Enum::"Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
                     OnAfterAssignWhsePickRequired(ItemJnlLine, LocationToCheck, WarehousePickLocation);
-                    if WarehousePickLocation then
+                    if WarehousePickLocation and (ItemJnlLine."Flushing Method" = ItemJnlLine."Flushing Method"::"Pick + Backward") then
                         if ItemJnlLine.Quantity < 0 then
                             exit(true);
                 end;
@@ -424,7 +424,7 @@ codeunit 21 "Item Jnl.-Check Line"
 
                     WarehousePickLocation := LocationToCheck."Prod. Consump. Whse. Handling" = Enum::"Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
                     OnAfterAssignWhsePickRequired(ItemJnlLine, LocationToCheck, WarehousePickLocation);
-                    if WarehousePickLocation then
+                    if WarehousePickLocation and (ItemJnlLine."Flushing Method" = ItemJnlLine."Flushing Method"::"Pick + Backward") then
                         if ItemJnlLine.Quantity >= 0 then
                             exit(true);
                 end;
@@ -444,7 +444,7 @@ codeunit 21 "Item Jnl.-Check Line"
 
                     WarehousePickLocation := LocationToCheck."Asm. Consump. Whse. Handling" = Enum::"Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
                     OnAfterAssignWhsePickRequired(ItemJnlLine, LocationToCheck, WarehousePickLocation);
-                    if WarehousePickLocation then
+                    if WarehousePickLocation and (ItemJnlLine."Flushing Method" = ItemJnlLine."Flushing Method"::"Pick + Backward") then
                         if ItemJnlLine.Quantity >= 0 then
                             exit(true);
                 end;

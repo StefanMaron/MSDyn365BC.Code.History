@@ -332,7 +332,6 @@ report 790 "Calculate Inventory"
     end;
 
     var
-        WhseEntry: Record "Warehouse Entry";
         SourceCodeSetup: Record "Source Code Setup";
         DimSetEntry: Record "Dimension Set Entry";
         OldWhseEntry: Record "Warehouse Entry";
@@ -359,6 +358,7 @@ report 790 "Calculate Inventory"
         Text003: Label 'Retain Dimensions';
 
     protected var
+        WhseEntry: Record "Warehouse Entry";
         ItemJnlBatch: Record "Item Journal Batch";
         ItemJnlLine: Record "Item Journal Line";
         Location: Record Location;
@@ -1013,7 +1013,7 @@ report 790 "Calculate Inventory"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeRetrieveBuffer(var TempInventoryBuffer: Record "Inventory Buffer" temporary; ItemLedgerEntry: Record "Item Ledger Entry"; BinCode: Code[20]; DimEntryNo: Integer; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;

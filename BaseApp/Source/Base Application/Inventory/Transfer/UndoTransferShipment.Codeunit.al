@@ -132,6 +132,8 @@ codeunit 9030 "Undo Transfer Shipment"
             TempWhseJnlLine.SetRange("Source Line No.", TransShptLine."Line No.");
             WhseUndoQty.PostTempWhseJnlLineCache(TempWhseJnlLine, WhseJnlRegisterLine);
 
+            OnCodeOnAfterPostTempWhseJnlLineCache(TransShptLine, ItemJnlPostLine, WhseJnlRegisterLine);
+
             UpdateOrderLine(TransShptLine);
             if PostedWhseShptLineFound then
                 WhseUndoQty.UpdateShptSourceDocLines(PostedWhseShptLine);
@@ -421,6 +423,11 @@ codeunit 9030 "Undo Transfer Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostCorrectiveItemLedgEntriesOnBeforeRun(var ItemJournalLine: Record "Item Journal Line"; var ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterPostTempWhseJnlLineCache(var TransferShipmentLine: Record "Transfer Shipment Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line")
     begin
     end;
 }

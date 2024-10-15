@@ -92,7 +92,7 @@ table 242 "Source Code Setup"
         }
         field(20; "Job Journal"; Code[10])
         {
-            Caption = 'Job Journal';
+            Caption = 'Project Journal';
             TableRelation = "Source Code";
         }
         field(21; "Sales Entry Application"; Code[10])
@@ -242,12 +242,12 @@ table 242 "Source Code Setup"
         }
         field(1000; "Job G/L Journal"; Code[10])
         {
-            Caption = 'Job G/L Journal';
+            Caption = 'Project G/L Journal';
             TableRelation = "Source Code";
         }
         field(1001; "Job G/L WIP"; Code[10])
         {
-            Caption = 'Job G/L WIP';
+            Caption = 'Project G/L WIP';
             TableRelation = "Source Code";
         }
         field(1100; "G/L Entry to CA"; Code[10])

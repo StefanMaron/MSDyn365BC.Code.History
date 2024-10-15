@@ -7,6 +7,7 @@ namespace Microsoft.Integration.FieldService;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Service.Item;
 using Microsoft.Integration.D365Sales;
+using System.Environment.Configuration;
 
 page 6422 "FS Customer Asset List"
 {
@@ -64,6 +65,23 @@ page 6422 "FS Customer Asset List"
     {
         area(processing)
         {
+            action(CreateFromFS)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Create in Business Central';
+                Image = NewItemNonStock;
+                ToolTip = 'Generate the entity from the Field Service customer asset.';
+                Visible = ShowCreateInBC;
+
+                trigger OnAction()
+                var
+                    FSCustomerAsset: Record "FS Customer Asset";
+                    CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                begin
+                    CurrPage.SetSelectionFilter(FSCustomerAsset);
+                    CRMIntegrationManagement.CreateNewRecordsFromSelectedCRMRecords(FSCustomerAsset);
+                end;
+            }
             action(ShowOnlyUncoupled)
             {
                 ApplicationArea = Suite;
@@ -95,6 +113,9 @@ page 6422 "FS Customer Asset List"
             {
                 Caption = 'Process';
 
+                actionref(CreateFromFS_Promoted; CreateFromFS)
+                {
+                }
                 actionref(ShowOnlyUncoupled_Promoted; ShowOnlyUncoupled)
                 {
                 }
@@ -139,11 +160,13 @@ page 6422 "FS Customer Asset List"
 
     trigger OnOpenPage()
     var
+        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         LookupCRMTables: Codeunit "Lookup CRM Tables";
     begin
         Rec.FilterGroup(4);
         Rec.SetView(LookupCRMTables.GetIntegrationTableMappingView(Database::"FS Customer Asset"));
         Rec.FilterGroup(0);
+        ShowCreateInBC := ApplicationAreaMgmtFacade.IsPremiumExperienceEnabled();
     end;
 
     var
@@ -151,6 +174,7 @@ page 6422 "FS Customer Asset List"
         Coupled: Text;
         FirstColumnStyle: Text;
         CustomerName: Text;
+        ShowCreateInBC: Boolean;
 
     procedure SetCurrentlyCoupledFSCustomerAsset(FSCustomerAsset: Record "FS Customer Asset")
     begin

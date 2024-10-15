@@ -1,6 +1,7 @@
 namespace Microsoft.Finance.FinancialReports;
 
 using Microsoft.Finance.GeneralLedger.Budget;
+using System.Environment;
 
 codeunit 198 "Acc. Sched. KPI Event Handler"
 {
@@ -75,31 +76,61 @@ codeunit 198 "Acc. Sched. KPI Event Handler"
         ResetIfAccSchedChanged(Rec."Schedule Name");
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"G/L Budget Entry", 'OnAfterInsertEvent', '', true, true)]
-    local procedure OnInsertGlBudgetEntry(var Rec: Record "G/L Budget Entry"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::GlobalTriggerManagement, 'OnAfterOnDatabaseInsert', '', true, true)]
+    local procedure OnInsertGlBudgetEntry(RecRef: RecordRef)
     begin
-        if Rec.IsTemporary then
+        if RecRef.Number <> Database::"G/L Budget Entry" then
             exit;
-        ResetIfGlBudgetChanged(Rec."Budget Name");
+
+        if RecRef.IsTemporary then
+            exit;
+
+        ResetIfGlBudgetChanged(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"G/L Budget Entry", 'OnAfterModifyEvent', '', true, true)]
-    local procedure OnModifyGlBudgetEntry(var Rec: Record "G/L Budget Entry"; var xRec: Record "G/L Budget Entry"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::GlobalTriggerManagement, 'OnAfterOnDatabaseModify', '', true, true)]
+    local procedure OnModifyGlBudgetEntry(RecRef: RecordRef)
     begin
-        if Rec.IsTemporary then
+        if RecRef.Number <> Database::"G/L Budget Entry" then
             exit;
-        ResetIfGlBudgetChanged(Rec."Budget Name");
+
+        if RecRef.IsTemporary then
+            exit;
+
+        ResetIfGlBudgetChanged(RecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"G/L Budget Entry", 'OnAfterDeleteEvent', '', true, true)]
-    local procedure OnDeleteGlBudgetEntry(var Rec: Record "G/L Budget Entry"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::GlobalTriggerManagement, 'OnAfterOnDatabaseDelete', '', true, true)]
+    local procedure OnDeleteGlBudgetEntry(RecRef: RecordRef)
     begin
-        if Rec.IsTemporary then
+        if RecRef.Number <> Database::"G/L Budget Entry" then
             exit;
-        ResetIfGlBudgetChanged(Rec."Budget Name");
+
+        if RecRef.IsTemporary then
+            exit;
+
+        ResetIfGlBudgetChanged(RecRef);
     end;
 
-    local procedure ResetAccSchedKPIWevSrvSetup()
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::GlobalTriggerManagement, 'OnAfterGetDatabaseTableTriggerSetup', '', true, true)]
+    local procedure EnableGLBudgetEntryTriggers(TableId: Integer; var OnDatabaseInsert: Boolean; var OnDatabaseModify: Boolean; var OnDatabaseDelete: Boolean; var OnDatabaseRename: Boolean)
+    begin
+        if TableId <> Database::"G/L Budget Entry" then
+            exit;
+
+        AccSchedKPIWebSrvSetup.SetLoadFields("Primary Key");
+        AccSchedKPIWebSrvSetup.SetAutoCalcFields(Published);
+        if not AccSchedKPIWebSrvSetup.Get() then
+            exit;
+
+        if AccSchedKPIWebSrvSetup.Published then begin
+            OnDatabaseDelete := true;
+            OnDatabaseInsert := true;
+            OnDatabaseModify := true;
+        end;
+    end;
+
+    internal procedure ResetAccSchedKPIWevSrvSetup()
     begin
         if not AccSchedKPIWebSrvSetup.Get() then
             exit;
@@ -133,18 +164,22 @@ codeunit 198 "Acc. Sched. KPI Event Handler"
         end;
     end;
 
-    local procedure ResetIfGlBudgetChanged(GlBudgetName: Code[10])
+    local procedure ResetIfGlBudgetChanged(GLBudgetEntryRecRef: RecordRef)
+    var
+        GLBudgetEntry: Record "G/L Budget Entry";
     begin
-        if GlBudgetName = PrevGlBudgetName then
+        GLBudgetEntryRecRef.SetTable(GLBudgetEntry);
+
+        if GLBudgetEntry."Budget Name" = PrevGlBudgetName then
             exit;
-        PrevGlBudgetName := GlBudgetName;
+        PrevGlBudgetName := GLBudgetEntry."Budget Name";
         if not AccSchedKPIWebSrvSetup.WritePermission then
             exit;
         if not AccSchedKPIWebSrvSetup.Get() then
             exit;
         if AccSchedKPIWebSrvSetup."G/L Budget Name" = '' then
             exit;
-        if AccSchedKPIWebSrvSetup."G/L Budget Name" = GlBudgetName then
+        if AccSchedKPIWebSrvSetup."G/L Budget Name" = GLBudgetEntry."Budget Name" then
             ResetAccSchedKPIWevSrvSetup();
     end;
 }

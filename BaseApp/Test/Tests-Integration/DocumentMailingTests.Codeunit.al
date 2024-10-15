@@ -514,4 +514,3 @@ codeunit 135060 "Document Mailing Tests"
         Choice := 2;    // discard email
     end;
 }
-

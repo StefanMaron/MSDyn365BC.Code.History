@@ -1154,7 +1154,7 @@ codeunit 137079 "SCM Production Order III"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerTRUE')]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure WhsePickAfterRefreshProductionOrderForAlreadyPickedItem()
     var
@@ -4847,7 +4847,7 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderComponent.SetRange("Item No.", ItemComponent."No.");
         ProdOrderComponent.FindFirst();
 
-        // Expected quantity = (39360 PCS / (180 PCS / BOX)) * 0.00027 = 0.0590445 ˜ 0.05904
+        // Expected quantity = (39360 PCS / (180 PCS / BOX)) * 0.00027 = 0.0590445 ï¿½ 0.05904
         ProdOrderComponent.TestField("Expected Quantity", 0.05904);
         ProdOrderComponent.TestField("Expected Qty. (Base)", 0.05904);
     end;
