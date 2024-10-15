@@ -2568,7 +2568,7 @@
                     "Line No." := BiggestLineNo;
                     Validate(Type, Type::"G/L Account");
                 end;
-                Validate("No.", CustPostingGr.GetInvRoundingAccount);
+                Validate("No.", CustPostingGr.GetInvRoundingAccount());
                 Validate(Quantity, 1);
                 if IsCreditDocType then
                     Validate("Return Qty. to Receive", Quantity)
@@ -5108,6 +5108,7 @@
             if not HasQtyToAsm(SalesLine, AsmHeader) then
                 exit;
 
+            AsmPost.SetSuppressCommit(SuppressCommit);
             AsmPost.SetPostingDate(true, SalesHeader."Posting Date");
             AsmPost.InitPostATO(AsmHeader);
 

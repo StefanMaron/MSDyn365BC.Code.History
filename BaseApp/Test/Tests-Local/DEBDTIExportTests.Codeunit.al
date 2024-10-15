@@ -863,7 +863,7 @@ codeunit 144000 "DEB DTI Export Tests"
     begin
         GetTariffNo(TariffNo, true);
         IntrastatJnlLine."Tariff No." := TariffNo."No.";
-        IntrastatJnlLine."Cust. VAT Registration No." := 'FI01137535';
+        IntrastatJnlLine."Partner VAT ID" := 'FI01137535';
         IntrastatJnlLine."Country/Region of Origin Code" := 'FI';
         IntrastatJnlLine."Total Weight" := 2009.1;
         IntrastatJnlLine."Supplementary Units" := true;
@@ -998,7 +998,7 @@ codeunit 144000 "DEB DTI Export Tests"
         LibraryXMLRead.VerifyNodeValue('countryOfOriginCode', IntrastatJnlLine."Country/Region of Origin Code");
         LibraryXMLRead.VerifyNodeValue('netMass', Format(Round(IntrastatJnlLine."Total Weight", 1), 0, 9));
         LibraryXMLRead.VerifyNodeValue('quantityInSU', Format(IntrastatJnlLine.Quantity, 0, 9));
-        LibraryXMLRead.VerifyNodeValue('partnerId', IntrastatJnlLine."Cust. VAT Registration No.");
+        LibraryXMLRead.VerifyNodeValue('partnerId', IntrastatJnlLine."Partner VAT ID");
         VerifyNodeHasChildren('NatureOfTransaction');
         LibraryXMLRead.VerifyNodeValue('natureOfTransactionACode', CopyStr(IntrastatJnlLine."Transaction Type", 1, 1));
         LibraryXMLRead.VerifyNodeValue('natureOfTransactionBCode', CopyStr(IntrastatJnlLine."Transaction Type", 2, 1));

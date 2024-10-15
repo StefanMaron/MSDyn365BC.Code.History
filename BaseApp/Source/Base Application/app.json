@@ -3,7 +3,7 @@
     "name":  "Base Application",
     "publisher":  "Microsoft",
     "description":  "Provides business processes that are typical for small and mid-sized companies, such as sales and purchasing, and customer and vendor management, plus complex processes, such as assembly, manufacturing, service, and directed warehouse management. https://docs.microsoft.com/en-us/dynamics365/business-central/across-business-functionality",
-    "version":  "16.12.23726.0",
+    "version":  "16.13.26491.0",
     "logo":  "ExtensionLogo.png",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
     "EULA":  "https://go.microsoft.com/fwlink/?linkid=2009120",
@@ -14,7 +14,7 @@
                              "id":  "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
                              "name":  "System Application",
                              "publisher":  "Microsoft",
-                             "version":  "16.12.0.0"
+                             "version":  "16.13.0.0"
                          }
                      ],
     "internalsVisibleTo":  [
@@ -31,6 +31,16 @@
                                {
                                    "id":  "7fe10be7-575f-4cce-957b-bcd0df8f9bd7",
                                    "name":  "Tests-Rapid Start",
+                                   "publisher":  "Microsoft"
+                               },
+                               {
+                                   "id":  "fa3e2564-a39e-417f-9be6-c0dbe3d94069",
+                                   "name":  "Tests-ERM",
+                                   "publisher":  "Microsoft"
+                               },
+                               {
+                                   "id":  "bd6c6741-7734-4109-bf2d-db58545d482c",
+                                   "name":  "Tests-Local",
                                    "publisher":  "Microsoft"
                                }
                            ],

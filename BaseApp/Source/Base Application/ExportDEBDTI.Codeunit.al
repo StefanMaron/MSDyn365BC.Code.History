@@ -302,8 +302,8 @@ codeunit 10821 "Export DEB DTI"
         if IntrastatJnlLine.Quantity <> 0 then
             XMLDomMgt.AddNode(XMLNode, 'quantityInSU', FormatToXML(IntrastatJnlLine.Quantity));
         XMLDomMgt.AddNode(XMLNode, 'invoicedAmount', FormatToXML(IntrastatJnlLine."Statistical Value"));
-        if IntrastatJnlLine."Cust. VAT Registration No." <> '' then
-            XMLDomMgt.AddNode(XMLNode, 'partnerId', IntrastatJnlLine."Cust. VAT Registration No.");
+        if IntrastatJnlLine."Partner VAT ID" <> '' then
+            XMLDomMgt.AddNode(XMLNode, 'partnerId', IntrastatJnlLine."Partner VAT ID");
         XMLDomMgt.AddNode(XMLNode, 'statisticalProcedureCode', IntrastatJnlLine."Transaction Specification");
 
         if TempIntrastatJnlLine."Transaction Type" <> '' then begin

@@ -56,6 +56,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
             CheckDates(GenJnlLine);
             ValidateSalesPersonPurchaserCode(GenJnlLine);
 
+            TestField("Source Code");
             TestField("Document No.");
 
             if ("Account Type" in

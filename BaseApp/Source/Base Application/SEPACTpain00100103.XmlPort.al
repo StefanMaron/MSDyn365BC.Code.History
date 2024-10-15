@@ -314,6 +314,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                 if not TempPaymentExportRemittanceText.FindFirst then
                                     currXMLport.Skip;
                                 RemittanceText := TempPaymentExportRemittanceText.Text;
+                                // there is not text combination like in W1.
                             end;
                         }
                     }

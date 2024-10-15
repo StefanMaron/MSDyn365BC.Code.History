@@ -1,7 +1,7 @@
 report 501 "Intrastat - Form"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './IntrastatForm.rdlc';
+    RDLCLayout = './Intrastat/IntrastatForm.rdlc';
     ApplicationArea = BasicEU;
     Caption = 'Intrastat - Form';
     UsageCategory = ReportsAndAnalysis;
@@ -83,7 +83,7 @@ report 501 "Intrastat - Form"
                 column(NoOfRecords; NoOfRecords)
                 {
                 }
-                column(CustVATRegNo_IntrastatJnlLine; "Cust. VAT Registration No.")
+                column(CustVATRegNo_IntrastatJnlLine; "Partner VAT ID")
                 {
                     IncludeCaption = true;
                 }
@@ -166,7 +166,6 @@ report 501 "Intrastat - Form"
                 trigger OnAfterGetRecord()
                 begin
                     NoOfRecords := NoOfRecords + 1;
-                    Country.Get("Country/Region Code");
 
                     if ("Tariff No." = '') and
                        ("Country/Region Code" = '') and
@@ -176,13 +175,18 @@ report 501 "Intrastat - Form"
                     then
                         CurrReport.Skip();
 
-                    TestField("Tariff No.");
-                    TestField("Country/Region Code");
-                    TestField("Transaction Type");
-                    TestField("Total Weight");
-                    if "Supplementary Units" then
-                        TestField(Quantity);
+                    if IntrastatSetup."Use Advanced Checklist" then
+                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Form", true)
+                    else begin
+                        TestField("Tariff No.");
+                        TestField("Country/Region Code");
+                        TestField("Transaction Type");
+                        TestField("Total Weight");
+                        if "Supplementary Units" then
+                            TestField(Quantity);
+                    end;
 
+                    Country.Get("Country/Region Code");
                     if (PrevIntrastatJnlLine.Type <> Type) or
                        (PrevIntrastatJnlLine."Tariff No." <> "Tariff No.") or
                        (PrevIntrastatJnlLine."Country/Region Code" <> "Country/Region Code") or
@@ -228,6 +232,7 @@ report 501 "Intrastat - Form"
                     HeaderLine := StrSubstNo(Text003, GLSetup."LCY Code");
                 end;
                 HeaderFilter := "Intrastat Jnl. Line".TableCaption + ': ' + IntraJnlLineFilter;
+                IntraJnlManagement.ChecklistClearBatchErrors("Intrastat Jnl. Batch");
             end;
         }
     }
@@ -290,6 +295,7 @@ report 501 "Intrastat - Form"
 
         CompanyInfo.Get();
         CompanyInfo."VAT Registration No." := ConvertStr(CompanyInfo."VAT Registration No.", Text001, '    ');
+        if IntrastatSetup.Get() then;
     end;
 
     var
@@ -301,6 +307,8 @@ report 501 "Intrastat - Form"
         Country: Record "Country/Region";
         GLSetup: Record "General Ledger Setup";
         PrevIntrastatJnlLine: Record "Intrastat Jnl. Line";
+        IntrastatSetup: Record "Intrastat Setup";
+        IntraJnlManagement: Codeunit IntraJnlManagement;
         IntraJnlLineFilter: Text;
         HeaderText: Text[100];
         NoOfRecords: Integer;

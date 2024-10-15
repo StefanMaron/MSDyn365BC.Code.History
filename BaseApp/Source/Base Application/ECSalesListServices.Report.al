@@ -2,6 +2,7 @@ report 10876 "EC Sales List - Services"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './ECSalesListServices.rdlc';
+    ApplicationArea = Basic, Suite;
     Caption = 'EC Sales List - Services';
     UsageCategory = ReportsAndAnalysis;
 

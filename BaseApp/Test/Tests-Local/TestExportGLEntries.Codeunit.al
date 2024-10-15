@@ -2221,6 +2221,44 @@ codeunit 144563 "Test Export G/L Entries"
         Assert.ExpectedError(CompRegNoTestfieldErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ExportGLEntriesReportWithDefaultSourceCodeHandler')]
+    [Scope('OnPrem')]
+    procedure DefaultSourceCodeUsedToExportGLEntryWithBlankSourceCode()
+    var
+        CompanyInformation: Record "Company Information";
+        GLAccount: Record "G/L Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        SourceCode: Record "Source Code";
+        GLEntry: Record "G/L Entry";
+        ReportFileName: Text[250];
+    begin
+        // [SCENARIO 394832] Stan can specify a "Default Source Code" on the request page of "Export G/L Entries" report to use when a G/L Entry has blank source code
+
+        CompanyInformation.Get();
+        CompanyInformation.Validate("Registration No.", Format(LibraryRandom.RandIntInRange(100000000, 999999999)));
+        CompanyInformation.Modify();
+
+        // [GIVEN] G/L Entry with blank source code
+        ReportFileName := GetTempFile;
+        LibraryERM.CreateGLAccount(GLAccount);
+        CreateAndPostGenJnlLine(
+          GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", 0, WorkDate, -LibraryRandom.RandDec(100, 2));
+        GLEntry.SetRange("G/L Account No.", GLAccount."No.");
+        GLEntry.FindFirst;
+        GLEntry."Source Code" := '';
+        GLEntry.Modify;
+
+        // [GIVEN] Source Code "X"
+        CreateSourceCodeAndDesc(SourceCode);
+
+        // Exercise: Generate Tax Audit Report.
+        ExportReportFileWithDefaultSourceCode(ReportFileName, WorkDate, WorkDate, GLAccount."No.", false, SourceCode.Code);
+
+        // Verify: Verify G/L Account No. Filter work correctly for G/L Entry on Tax Audit Report.
+        VerifySourceCodeOfExportedGLEntriesReport(ReportFileName, GLAccount."No.", SourceCode.Code);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -2781,7 +2819,24 @@ codeunit 144563 "Test Export G/L Entries"
         LibraryVariableStorage.Enqueue(AccNoFilter);
         LibraryVariableStorage.Enqueue(IncludeOpeningBalancesValue);
 
-        ExportGLEntriesTaxAudit.Init(StartingDateValue, EndingDateValue, IncludeOpeningBalancesValue, AccNoFilter, ReportTempFilePath);
+        ExportGLEntriesTaxAudit.Init(StartingDateValue, EndingDateValue, IncludeOpeningBalancesValue, AccNoFilter, ReportTempFilePath, '');
+        ExportGLEntriesTaxAudit.Run;
+    end;
+
+    [HandlerFunctions('MessageHandler')]
+    local procedure ExportReportFileWithDefaultSourceCode(ReportTempFilePath: Text[250]; StartingDateValue: Date; EndingDateValue: Date; AccNoFilter: Code[250]; IncludeOpeningBalancesValue: Boolean; SourceCode: Code[10])
+    var
+        ExportGLEntriesTaxAudit: Report "Export G/L Entries - Tax Audit";
+    begin
+        Commit;
+        LibraryVariableStorage.Enqueue(StartingDateValue);
+        LibraryVariableStorage.Enqueue(EndingDateValue);
+        LibraryVariableStorage.Enqueue(AccNoFilter);
+        LibraryVariableStorage.Enqueue(IncludeOpeningBalancesValue);
+        LibraryVariableStorage.Enqueue(SourceCode);
+
+        ExportGLEntriesTaxAudit.Init(
+          StartingDateValue, EndingDateValue, IncludeOpeningBalancesValue, AccNoFilter, ReportTempFilePath, SourceCode);
         ExportGLEntriesTaxAudit.Run;
     end;
 
@@ -2790,7 +2845,7 @@ codeunit 144563 "Test Export G/L Entries"
     var
         ExportGLEntriesTaxAudit: Report "Export G/L Entries - Tax Audit";
     begin
-        ExportGLEntriesTaxAudit.Init(StartingDateValue, EndingDateValue, IncludeOpeningBalancesValue, AccNoFilter, ReportTempFilePath);
+        ExportGLEntriesTaxAudit.Init(StartingDateValue, EndingDateValue, IncludeOpeningBalancesValue, AccNoFilter, ReportTempFilePath, '');
         ExportGLEntriesTaxAudit.UseRequestPage(false);
         ExportGLEntriesTaxAudit.Run;
     end;
@@ -3250,6 +3305,25 @@ codeunit 144563 "Test Export G/L Entries"
         InputFile.Close;
     end;
 
+    local procedure VerifySourceCodeOfExportedGLEntriesReport(ReportFile: Text[250]; GLAccountNo: Code[20]; SourceCode: Code[10])
+    var
+        GLRegister: Record "G/L Register";
+        GLEntry: Record "G/L Entry";
+        iStream: InStream;
+        InputFile: File;
+        LineToRead: Text[1024];
+        FieldsValueArray: array[18] of Text[50];
+    begin
+        GLRegister.FindLast;
+        CreateReadStream(iStream, InputFile, ReportFile);
+        iStream.ReadText(LineToRead); // Read Headers
+        GLEntry.SetFilter("G/L Account No.", GLAccountNo);
+        GLEntry.FindFirst;
+        PopulateFieldsArray(iStream, FieldsValueArray);
+        Assert.AreEqual(SourceCode, FieldsValueArray[1], GetErrorTextForAssertStmnt(1));
+        InputFile.Close;
+    end;
+
     local procedure VerifyLedgerFieldValues(FieldsValueArray: array[18] of Text[50]; PartyNo: Code[20]; PartyName: Text[100])
     begin
         Assert.AreEqual(PartyNo, FieldsValueArray[7], GetErrorTextForAssertStmnt(7));
@@ -3437,6 +3511,18 @@ codeunit 144563 "Test Export G/L Entries"
         ExportGLEntriesTaxAuditPage.EndingDate.SetValue(EndingDateValue);
         ExportGLEntriesTaxAuditPage.GLAccount.SetFilter("No.", AccNoFilterValue);
         ExportGLEntriesTaxAuditPage."Include Opening Balances".SetValue(IncludeOpeningBalancesValue);
+        ExportGLEntriesTaxAuditPage.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ExportGLEntriesReportWithDefaultSourceCodeHandler(var ExportGLEntriesTaxAuditPage: TestRequestPage "Export G/L Entries - Tax Audit")
+    begin
+        ExportGLEntriesTaxAuditPage.StartingDate.SetValue(LibraryVariableStorage.DequeueDate);
+        ExportGLEntriesTaxAuditPage.EndingDate.SetValue(LibraryVariableStorage.DequeueDate);
+        ExportGLEntriesTaxAuditPage.GLAccount.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        ExportGLEntriesTaxAuditPage."Include Opening Balances".SetValue(LibraryVariableStorage.DequeueBoolean);
+        ExportGLEntriesTaxAuditPage.DefaultSourceCodeControl.SetValue(LibraryVariableStorage.DequeueText);
         ExportGLEntriesTaxAuditPage.OK.Invoke;
     end;
 }

@@ -35,7 +35,7 @@ page 8901 "Finance Manager Role Center"
                 }
                 action("Balance Sheet & Income Stateme")
                 {
-                    ApplicationArea =;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Balance Sheet & Income Statement';
                     RunObject = page 10800;
                 }
@@ -337,7 +337,7 @@ page 8901 "Finance Manager Role Center"
                         }
                         action("FR Account Schedule")
                         {
-                            ApplicationArea =;
+                            ApplicationArea = Basic, Suite;
                             Caption = 'FR Account Schedule';
                             RunObject = report 10811;
                         }

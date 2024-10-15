@@ -71,6 +71,10 @@
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the customer''s VAT registration number.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Partner VAT ID';
+                    ObsoleteTag = '19.0';
                 }
                 field("Shpt. Method Code"; "Shpt. Method Code")
                 {
@@ -97,7 +101,6 @@
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the counter party''s VAT number.';
-                    Visible = false;
                 }
                 field("Country/Region of Origin Code"; "Country/Region of Origin Code")
                 {

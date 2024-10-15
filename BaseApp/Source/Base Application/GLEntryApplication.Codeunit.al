@@ -173,5 +173,11 @@ codeunit 10842 "G/L Entry Application"
                 break;
             end;
     end;
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnCheckGenJournalLinePostRestrictions', '', false, false)]
+    local procedure OnCheckGenJournalLinePostRestrictions(var Sender: Record "Gen. Journal Line")
+    begin
+        Sender.TestField("Source Code");
+    end;
+    
 }
 

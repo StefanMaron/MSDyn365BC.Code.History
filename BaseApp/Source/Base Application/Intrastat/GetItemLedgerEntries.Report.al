@@ -240,7 +240,7 @@ report 594 "Get Item Ledger Entries"
                     IntrastatJnlLine2.SetRange("Item No.", IntrastatJnlLine."Item No.");
                     IntrastatJnlLine2.SetRange("Country/Region Code", IntrastatJnlLine."Country/Region Code");
                     IntrastatJnlLine2.SetRange("Tariff No.", IntrastatJnlLine."Tariff No.");
-                    IntrastatJnlLine2.SetRange("Cust. VAT Registration No.", IntrastatJnlLine."Cust. VAT Registration No.");
+                    IntrastatJnlLine2.SetRange("Partner VAT ID", IntrastatJnlLine."Partner VAT ID");
                     Quantity := 0;
                     IndirectCost := 0;
                     TotalWeight := 0;
@@ -366,7 +366,7 @@ report 594 "Get Item Ledger Entries"
 
             if "Item Ledger Entry"."Source Type" = "Item Ledger Entry"."Source Type"::Customer then
                 if Customer.Get("Item Ledger Entry"."Source No.") then
-                    IntrastatJnlLine."Cust. VAT Registration No." := Customer."VAT Registration No.";
+                    "Partner VAT ID" := Customer."VAT Registration No.";
 
             SetCountryRegionCode(IntrastatJnlLine, "Item Ledger Entry");
 
