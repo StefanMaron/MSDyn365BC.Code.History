@@ -981,7 +981,7 @@ codeunit 137617 "Production & Assembly Costing"
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
     end;
 
-    local procedure SetAverageCostSetup(AvgCostCalcType: Option)
+    local procedure SetAverageCostSetup(AvgCostCalcType: Enum "Average Cost Calculation Type")
     var
         InventorySetup: Record "Inventory Setup";
     begin

@@ -190,13 +190,13 @@ report 1095 "Update Job Item Cost"
         OnAfterModifyAllValueEntries(ToValueEntry, FromValueEntry);
     end;
 
-    local procedure UpdatePostedTotalCost(var JobLedgerEntry: Record "Job Ledger Entry"; AdjustJobCost: Decimal; AdjustJobCostLCY: Decimal)
+    protected procedure UpdatePostedTotalCost(var JobLedgerEntry: Record "Job Ledger Entry"; AdjustJobCost: Decimal; AdjustJobCostLCY: Decimal)
     var
         JobUsageLink: Record "Job Usage Link";
         JobPlanningLine: Record "Job Planning Line";
     begin
         JobUsageLink.SetRange("Entry No.", JobLedgerEntry."Entry No.");
-        if JobUsageLink.FindSet then
+        if JobUsageLink.FindSet() then
             repeat
                 JobPlanningLine.Get(JobUsageLink."Job No.", JobUsageLink."Job Task No.", JobUsageLink."Line No.");
                 JobPlanningLine.UpdatePostedTotalCost(AdjustJobCost, AdjustJobCostLCY);

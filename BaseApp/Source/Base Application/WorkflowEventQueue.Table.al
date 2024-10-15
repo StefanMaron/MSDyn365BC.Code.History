@@ -17,12 +17,12 @@ table 1522 "Workflow Event Queue"
         field(3; "Step Record ID"; RecordID)
         {
             Caption = 'Step Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(4; "Record ID"; RecordID)
         {
             Caption = 'Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(5; Status; Option)
         {

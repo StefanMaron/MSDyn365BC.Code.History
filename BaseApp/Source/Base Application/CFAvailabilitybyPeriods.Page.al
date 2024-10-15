@@ -35,7 +35,7 @@ page 867 "CF Availability by Periods"
                 field(LiquidFunds; LiquidFunds)
                 {
                     ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = MatrixMgt.GetFormatString(RoundingFactor, false);
+                    AutoFormatExpression = MatrixMgt.FormatRoundingFactor(RoundingFactor, false);
                     AutoFormatType = 11;
                     Caption = 'Liquid Funds';
                     Editable = false;
@@ -56,7 +56,6 @@ page 867 "CF Availability by Periods"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Rounding Factor';
-                    OptionCaption = 'None,1,1000,1000000';
                     ToolTip = 'Specifies the factor that is used to round the amounts.';
 
                     trigger OnValidate()
@@ -68,7 +67,6 @@ page 867 "CF Availability by Periods"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
@@ -80,7 +78,6 @@ page 867 "CF Availability by Periods"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'View as';
-                    OptionCaption = 'Net Change,Balance at Date';
                     ToolTip = 'Specifies how amounts are displayed. Net Change: The net change in the balance for the selected period. Balance at Date: The balance as of the last day in the selected period.';
 
                     trigger OnValidate()
@@ -107,15 +104,15 @@ page 867 "CF Availability by Periods"
 
     var
         MatrixMgt: Codeunit "Matrix Management";
-        PeriodType: Option Day,Week,Month,Quarter,Year,Period;
-        AmountType: Option "Net Change","Balance at Date";
-        RoundingFactor: Option "None","1","1000","1000000";
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
+        RoundingFactor: Enum "Analysis Rounding Factor";
         LiquidFunds: Decimal;
 
     local procedure UpdateSubForm()
     begin
-        CurrPage.CFAvailabLines.PAGE.Set(Rec, PeriodType, AmountType, RoundingFactor);
-        LiquidFunds := MatrixMgt.RoundValue(CalcSourceTypeAmount("Source Type Filter"::"Liquid Funds"), RoundingFactor);
+        CurrPage.CFAvailabLines.PAGE.SetLines(Rec, PeriodType, AmountType, RoundingFactor);
+        LiquidFunds := MatrixMgt.RoundAmount(CalcSourceTypeAmount("Source Type Filter"::"Liquid Funds"), RoundingFactor);
     end;
 }
 

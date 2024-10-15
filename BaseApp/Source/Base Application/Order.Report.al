@@ -515,10 +515,9 @@ report 405 "Order"
                             then
                                 PurchLine."Line Amount" := 0;
 
-#if not CLEAN16
-                            if ("Purchase Line"."Cross-Reference No." <> '') and (not ShowInternalInfo) then
-                                "Purchase Line"."No." := "Purchase Line"."Cross-Reference No.";
-#endif                                
+                            if ("Purchase Line"."Item Reference No." <> '') and (not ShowInternalInfo) then
+                                "Purchase Line"."No." :=
+                                    CopyStr("Purchase Line"."Item Reference No.", 1, MaxStrLen("Purchase Line"."No."));
                             if (PurchLine.Type = PurchLine.Type::"G/L Account") and (not ShowInternalInfo) then
                                 "Purchase Line"."No." := '';
                             AllowInvDisctxt := Format("Purchase Line"."Allow Invoice Disc.");

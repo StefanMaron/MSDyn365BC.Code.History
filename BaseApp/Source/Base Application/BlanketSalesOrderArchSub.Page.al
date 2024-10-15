@@ -23,7 +23,7 @@ page 6621 "Blanket Sales Order Arch. Sub."
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the archived sales order.';
                 }
-#if not CLEAN16
+#if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ApplicationArea = Suite;
@@ -36,8 +36,9 @@ page 6621 "Blanket Sales Order Arch. Sub."
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
+                    Visible = ItemReferenceVisible;
                 }
                 field("Variant Code"; "Variant Code")
                 {
@@ -73,6 +74,13 @@ page 6621 "Blanket Sales Order Arch. Sub."
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a description of the record.';
+                }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
                 }
                 field("Drop Shipment"; "Drop Shipment")
                 {
@@ -381,6 +389,32 @@ page 6621 "Blanket Sales Order Arch. Sub."
                                                                   Blocked = CONST(false));
                     Visible = DimVisible8;
                 }
+                field("Gross Weight"; "Gross Weight")
+                {
+                    Caption = 'Unit Gross Weight';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the gross weight of one unit of the item. In the sales statistics window, the gross weight on the line is included in the total gross weight of all the lines for the particular sales document.';
+                    Visible = false;
+                }
+                field("Net Weight"; "Net Weight")
+                {
+                    Caption = 'Unit Net Weight';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the net weight of one unit of the item. In the sales statistics window, the net weight on the line is included in the total net weight of all the lines for the particular sales document.';
+                    Visible = false;
+                }
+                field("Unit Volume"; "Unit Volume")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the volume of one unit of the item. In the sales statistics window, the volume of one unit of the item on the line is included in the total volume of all the lines for the particular sales document.';
+                    Visible = false;
+                }
+                field("Units per Parcel"; "Units per Parcel")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of units per parcel of the item. In the sales statistics window, the number of units per parcel on the line helps to determine the total number of units for all the lines for the particular sales document.';
+                    Visible = false;
+                }
             }
         }
     }
@@ -436,6 +470,7 @@ page 6621 "Blanket Sales Order Arch. Sub."
     trigger OnOpenPage()
     begin
         SetDimensionsVisibility();
+        SetItemReferenceVisibility();
     end;
 
     trigger OnAfterGetRecord()
@@ -455,6 +490,8 @@ page 6621 "Blanket Sales Order Arch. Sub."
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
+        [InDataSet]
+        ItemReferenceVisible: Boolean;
 
     procedure ShowDocumentLineTracking()
     var
@@ -482,6 +519,13 @@ page 6621 "Blanket Sales Order Arch. Sub."
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+    end;
+
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReferenceMgt: Codeunit "Item Reference Management";
+    begin
+        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 }
 

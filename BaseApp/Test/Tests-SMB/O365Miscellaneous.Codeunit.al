@@ -226,6 +226,7 @@ codeunit 138017 "O365 Miscellaneous"
         Item.TestField("Costing Method", Item."Costing Method"::Standard);
     end;
 
+#if not CLEAN19
     [Test]
     [TestPermissions(TestPermissions::Disabled)]
     [Scope('OnPrem')]
@@ -305,6 +306,7 @@ codeunit 138017 "O365 Miscellaneous"
         // [THEN] Page is opened
         ContainerSandboxPage.Close;
     end;
+#endif
 
     [Test]
     [TestPermissions(TestPermissions::Disabled)]
@@ -384,7 +386,7 @@ codeunit 138017 "O365 Miscellaneous"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Miscellaneous");
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Miscellaneous");
     end;
@@ -413,14 +415,14 @@ codeunit 138017 "O365 Miscellaneous"
         Res: Record Resource;
         ItemCharge: Record "Item Charge";
         GenProductPostingGroup: Record "Gen. Product Posting Group";
-        ConfigTemplateHeader: Record "Config. Template Header";
+        ItemTempl: Record "Item Templ.";
     begin
         GLAcc.DeleteAll();
         Item.DeleteAll();
         Res.DeleteAll();
         ItemCharge.DeleteAll();
         GenProductPostingGroup.DeleteAll();
-        ConfigTemplateHeader.DeleteAll(true);
+        ItemTempl.DeleteAll(true);
     end;
 
     local procedure PrepareVatProductPostingGroup()

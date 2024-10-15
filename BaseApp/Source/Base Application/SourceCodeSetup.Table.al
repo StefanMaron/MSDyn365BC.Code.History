@@ -399,7 +399,6 @@ table 242 "Source Code Setup"
             Caption = 'Inward Registration';
             ObsoleteReason = 'Replaced by extension';
             ObsoleteState = Removed;
-            TableRelation = "Source Code";
             ObsoleteTag = '15.0';
         }
     }

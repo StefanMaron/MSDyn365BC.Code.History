@@ -516,6 +516,7 @@ codeunit 137409 "Analysis Reports Chart"
         ItemLedgerEntries.Quantity.AssertEquals(ItemLedgerEntry.Quantity);
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('GetSalesPriceHandler')]
     [Scope('OnPrem')]
@@ -539,6 +540,7 @@ codeunit 137409 "Analysis Reports Chart"
         LibraryVariableStorage.Enqueue(SalesPrice."Unit Price");
         CalcAnalysisReportCellValue(AnalysisLine, AnalysisColumn, true);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('GetPriceLineHandler')]
@@ -547,7 +549,6 @@ codeunit 137409 "Analysis Reports Chart"
     var
         AnalysisLine: Record "Analysis Line";
         AnalysisColumn: Record "Analysis Column";
-        SalesPrice: Record "Sales Price";
         Item: Record Item;
         PriceListLine: Record "Price List Line";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
@@ -561,11 +562,14 @@ codeunit 137409 "Analysis Reports Chart"
           AnalysisLine, AnalysisColumn, AnalysisLine."Analysis Area"::Inventory, AnalysisColumn."Value Type"::"Unit Price", true);
 
         Item.Get(AnalysisLine.Range);
-        LibrarySales.CreateSalesPrice(
-          SalesPrice, Item."No.", SalesPrice."Sales Type"::"All Customers", '', WorkDate, '', '', '', 0, LibraryRandom.RandDec(100, 2));
-        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, Item."No.");
+        PriceListLine."Starting Date" := WorkDate;
+        PriceListLine."Unit Price" := LibraryRandom.RandDec(100, 2);
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine.Modify();
 
-        LibraryVariableStorage.Enqueue(SalesPrice."Unit Price");
+        LibraryVariableStorage.Enqueue(PriceListLine."Unit Price");
         CalcAnalysisReportCellValue(AnalysisLine, AnalysisColumn, true);
     end;
 
@@ -1013,7 +1017,11 @@ codeunit 137409 "Analysis Reports Chart"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Analysis Reports Chart");
+#if not CLEAN19
         LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 15.0)");
+#else
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+#endif
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
@@ -1130,7 +1138,7 @@ codeunit 137409 "Analysis Reports Chart"
 
     local procedure VerifyChart2ItemAndTotalLines2Cols(var AnalysisReportChartSetup: Record "Analysis Report Chart Setup"; var BusinessChartBuffer: Record "Business Chart Buffer"; var AnalysisLine: Record "Analysis Line"; var AnalysisColumn: Record "Analysis Column"; StartDate: Date; EndDate: Date)
     var
-        PeriodFormManagement: Codeunit PeriodFormManagement;
+        PeriodPageManagement: Codeunit PeriodPageManagement;
         ActualChartValue: Variant;
         PeriodStart: Date;
         PeriodEnd: Date;
@@ -1150,7 +1158,7 @@ codeunit 137409 "Analysis Reports Chart"
                             Assert.AreEqual(PeriodEnd, DT2Date(ActualChartValue), StrSubstNo(DimensionValueNotEqualERR, RowIndex + 1))
                         else
                             Assert.AreEqual(
-                              PeriodFormManagement.CreatePeriodFormat(BusinessChartBuffer."Period Length", PeriodEnd), ActualChartValue,
+                              PeriodPageManagement.CreatePeriodFormat(BusinessChartBuffer."Period Length", PeriodEnd), ActualChartValue,
                               StrSubstNo(DimensionValueNotEqualERR, RowIndex + 1));
 
                         AnalysisLine.FindSet();
@@ -1702,12 +1710,14 @@ codeunit 137409 "Analysis Reports Chart"
               DrillDownAnalysisLine.GetFilter("Date Filter")), 1, 250));
     end;
 
+#if not CLEAN19
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetSalesPriceHandler(var GetSalesPrice: TestPage "Get Sales Price")
     begin
         GetSalesPrice."Unit Price".AssertEquals(LibraryVariableStorage.DequeueDecimal);
     end;
+#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]

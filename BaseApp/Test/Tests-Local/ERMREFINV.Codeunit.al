@@ -90,38 +90,6 @@ codeunit 144018 "ERM REFINV"
     end;
 
     [Test]
-    [HandlerFunctions('SalesCreditMemoRequestPageHandler,CopySalesDocumentRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure PostSalesCreditMemoWithMultipleLine()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        DocumentNo: Code[20];
-        PostedCreditMemoNo: Code[20];
-        VATAmount: Decimal;
-    begin
-        // Verify Program create a correct Source Inv No. on Sales Credit Memo Header created from Copy Sales Document with Multiple Sales Credit Memo Line.
-        // Setup.
-        Initialize;
-        DocumentNo := CreateAndPostSalesInvoice(SalesLine);
-        CreateSalesCreditMemoFromPage(SalesHeader, DocumentNo, SalesLine."Sell-to Customer No.", true);  // Using True for IncludeOrgInvInfo.
-        SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesHeader."No.");
-        UpdateQuantityOnSalesLine(SalesHeader."No.", SalesLine."No.", SalesLine.Quantity / 2, SalesLine."Line Amount");
-        SalesHeader.CalcFields(Amount);
-        VATAmount := (SalesHeader.Amount * SalesLine."VAT %") / 100;
-        PostedCreditMemoNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as Ship and Invoice.
-        LibraryVariableStorage.Enqueue(PostedCreditMemoNo);  // Enqueue value for SalesCreditMemoRequestPageHandler.
-
-        // Exercise.
-        REPORT.Run(REPORT::"Sales - Credit Memo");
-
-        // Verify.
-        VerifyCustomerLedgerEntry(PostedCreditMemoNo, -(SalesHeader.Amount + VATAmount));
-        VerifyGLEntry(PostedCreditMemoNo, SalesHeader.Amount + VATAmount);
-        VerifyValuesOnSalesCreditMemo(SalesHeader.Amount, Round(VATAmount));
-    end;
-
-    [Test]
     [HandlerFunctions('BatchPostSalesCrMemosRequestPageHandler,MessageHandler,CopySalesDocumentRequestPageHandler')]
     [Scope('OnPrem')]
     procedure RunBatchPostSalesCrMemos()
@@ -393,17 +361,6 @@ codeunit 144018 "ERM REFINV"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(AmtCap, Amount);
         LibraryReportDataset.AssertElementWithValueExists(VATAmtCap, VATAmount);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesCreditMemoRequestPageHandler(var SalesCreditMemo: TestRequestPage "Sales - Credit Memo")
-    var
-        No: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(No);
-        SalesCreditMemo."Sales Cr.Memo Header".SetFilter("No.", No);
-        SalesCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [RequestPageHandler]

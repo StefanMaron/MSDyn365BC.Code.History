@@ -74,6 +74,21 @@ page 99000921 "Demand Forecast Names"
                 ToolTip = 'Copy an existing demand forecast to quickly create a similar forecast.';
             }
         }
+        area(Navigation)
+        {
+            action("Demand Forecast Entries")
+            {
+                ApplicationArea = Planning;
+                Caption = 'Demand Forecast Entries';
+                Image = Forecast;
+                Promoted = true;
+                PromotedCategory = Process;
+                RunObject = Page "Demand Forecast Entries";
+                RunPageMode = View;
+                RunPageLink = "Production Forecast Name" = field(Name);
+                ToolTip = 'Opens a page with the demand forecast entries for the specified production forecast.';
+            }
+        }
     }
 }
 

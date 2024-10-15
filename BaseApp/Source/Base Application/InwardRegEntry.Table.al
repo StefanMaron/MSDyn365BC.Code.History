@@ -2,8 +2,8 @@ table 11202 "Inward Reg. Entry"
 {
     Caption = 'Inward Reg. Entry';
     ObsoleteReason = 'Replaced by extension';
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
+    ObsoleteState = Removed;
+    ObsoleteTag = '19.0';
 
     fields
     {

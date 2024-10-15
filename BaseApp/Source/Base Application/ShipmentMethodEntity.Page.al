@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5491 "Shipment Method Entity"
 {
     Caption = 'shipmentMethods', Locked = true;
@@ -105,4 +106,4 @@ page 5491 "Shipment Method Entity"
         TempFieldSet.Insert(true);
     end;
 }
-
+#endif

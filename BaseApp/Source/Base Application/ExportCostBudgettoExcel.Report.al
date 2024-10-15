@@ -90,7 +90,7 @@ report 1142 "Export Cost Budget to Excel"
                                         TempPeriod.Get(0, TempCostBudgetBuf2.Date);
                                         EnterCell(
                                           RowNo, 4 + TempPeriod."Period No.",
-                                          MatrixMgt.FormatValue(TempCostBudgetBuf2.Amount, RoundingFactor, false),
+                                          MatrixMgt.FormatAmount(TempCostBudgetBuf2.Amount, RoundingFactor, false),
                                           CostType.Type <> CostType.Type::"Cost Type",
                                           false, '', TempExcelBuffer."Cell Type"::Number);
                                         TempPeriod.Next;
@@ -225,7 +225,7 @@ report 1142 "Export Cost Budget to Excel"
         ServerFileName: Text;
         StartDate: Date;
         PeriodLength: DateFormula;
-        RoundingFactor: Option "None","1","1000","1000000";
+        RoundingFactor: Enum "Analysis Rounding Factor";
         NoOfPeriods: Integer;
         i: Integer;
         RowNo: Integer;
@@ -299,7 +299,15 @@ report 1142 "Export Cost Budget to Excel"
           CostType.Type <> CostType.Type::"Cost Type", false, '', TempExcelBuffer."Cell Type"::Text);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by SetRoundingFactor()', '19.0')]
     procedure SetParameters(NewRoundingFactor: Option "None","1","1000","1000000")
+    begin
+        SetRoundingFactor("Analysis Rounding Factor".FromInteger(NewRoundingFactor));
+    end;
+#endif
+
+    procedure SetRoundingFactor(NewRoundingFactor: Enum "Analysis Rounding Factor")
     begin
         RoundingFactor := NewRoundingFactor;
     end;

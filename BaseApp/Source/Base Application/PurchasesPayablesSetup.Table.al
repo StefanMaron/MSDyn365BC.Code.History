@@ -1,4 +1,4 @@
-table 312 "Purchases & Payables Setup"
+﻿table 312 "Purchases & Payables Setup"
 {
     Caption = 'Purchases & Payables Setup';
     DrillDownPageID = "Purchases & Payables Setup";
@@ -245,6 +245,10 @@ table 312 "Purchases & Payables Setup"
                         TestField("Report Output Type", "Report Output Type"::PDF);
             end;
         }
+        field(49; "Document Default Line Type"; Enum "Purchase Line Type")
+        {
+            Caption = 'Document Default Line Type';
+        }
         field(52; "Archive Quotes"; Option)
         {
             Caption = 'Archive Quotes';
@@ -333,6 +337,22 @@ table 312 "Purchases & Payables Setup"
         {
             Caption = 'Copy Line Descr. to G/L Entry';
             DataClassification = SystemMetadata;
+        }
+        field(810; "Invoice Posting Setup"; Enum "Purchase Invoice Posting")
+        {
+            Caption = 'Invoice Posting Setup';
+
+            trigger OnValidate()
+            var
+                AllObjWithCaption: Record AllObjWithCaption;
+                InvoicePostingInterface: Interface "Invoice Posting";
+            begin
+                if "Invoice Posting Setup" <> "Purchase Invoice Posting"::"Invoice Posting (Default)" then begin
+                    AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Codeunit, "Invoice Posting Setup".AsInteger());
+                    InvoicePostingInterface := "Invoice Posting Setup";
+                    InvoicePostingInterface.Check(Database::"Purchase Header");
+                end;
+            end;
         }
         field(1217; "Debit Acc. for Non-Item Lines"; Code[20])
         {
@@ -424,52 +444,50 @@ table 312 "Purchases & Payables Setup"
         {
             Caption = 'Inward Reg. Nos.';
             ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Pending;
-            TableRelation = "No. Series";
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
         }
         field(11201; "Inward Posting Description"; Text[50])
         {
             Caption = 'Inward Posting Description';
             ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
         }
         field(11202; "Reverse Posting Description"; Text[50])
         {
             Caption = 'Reverse Posting Description';
             ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
         }
         field(11204; "Latest Return Date Calc."; DateFormula)
         {
             Caption = 'Latest Return Date Calc.';
             ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
         }
         field(11205; "Accumulated Inward Reg. Lines"; Boolean)
         {
             Caption = 'Accumulated Inward Reg. Lines';
             ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
         }
         field(11206; "Def. Inward Reg. Prod. Post Gr"; Code[20])
         {
             Caption = 'Def. Inward Reg. Prod. Post Gr';
             ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Pending;
-            TableRelation = "Gen. Product Posting Group";
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
         }
         field(11207; "Copy Dimensions to Inward Reg."; Boolean)
         {
             Caption = 'Copy Dimensions to Inward Reg.';
             ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
         }
         field(11214; "Part. Pay. Nos."; Code[20])
         {
@@ -480,8 +498,8 @@ table 312 "Purchases & Payables Setup"
         {
             Caption = 'Show Inward Reg. in Balances';
             ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
         }
     }
 

@@ -2,7 +2,7 @@ page 9022 "Business Manager Role Center"
 {
     // CurrPage."Help And Setup List".ShowFeatured;
 
-    Caption = 'Business Manager', Comment = '{Dependency=Match,"ProfileDescription_SMALLBUSINESS"}';
+    Caption = 'Business Manager';
     PageType = RoleCenter;
 
     layout
@@ -263,10 +263,16 @@ page 9022 "Business Manager Role Center"
                     }
                 }
             }
+#if not CLEAN19
             group(Setup)
             {
                 Caption = 'Setup';
                 Image = Setup;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Setup is no longer shown in this page.';
+                ObsoleteTag = '19.0';
+
                 action("Company Settings")
                 {
                     ApplicationArea = Basic, Suite;
@@ -274,6 +280,9 @@ page 9022 "Business Manager Role Center"
                     Image = CompanyInformation;
                     RunObject = Page "Company Information";
                     ToolTip = 'Enter the company name, address, and bank information that will be inserted on your business documents.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Setup is no longer shown in this page.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Assisted Setup")
                 {
@@ -282,11 +291,18 @@ page 9022 "Business Manager Role Center"
                     Image = QuestionaireSetup;
                     RunObject = Page "Assisted Setup";
                     ToolTip = 'Set up core functionality such as sales tax, sending documents as email, and approval workflow by running through a few pages that guide you through the information.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Setup is no longer shown in this page.';
+                    ObsoleteTag = '19.0';
                 }
                 group("Services & Extensions")
                 {
                     Caption = 'Services & Extensions';
                     Image = ServiceSetup;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Setup is no longer shown in this page.';
+                    ObsoleteTag = '19.0';
+
                     action(Extensions)
                     {
                         ApplicationArea = Basic, Suite;
@@ -294,6 +310,9 @@ page 9022 "Business Manager Role Center"
                         Image = NonStockItemSetup;
                         RunObject = Page "Extension Management";
                         ToolTip = 'Install Extensions for greater functionality of the system.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Setup is no longer shown in this page.';
+                        ObsoleteTag = '19.0';
                     }
                     action("Service Connections")
                     {
@@ -302,9 +321,13 @@ page 9022 "Business Manager Role Center"
                         Image = ServiceTasks;
                         RunObject = Page "Service Connections";
                         ToolTip = 'Enable and configure external services, such as exchange rate updates, Microsoft Social Engagement, and electronic bank integration.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Setup is no longer shown in this page.';
+                        ObsoleteTag = '19.0';
                     }
                 }
             }
+#endif
         }
         area(reporting)
         {
@@ -974,6 +997,7 @@ page 9022 "Business Manager Role Center"
                 Caption = 'Setup & Extensions';
                 Image = Setup;
                 ToolTip = 'Overview and change system and application settings, and manage extensions and services';
+                Visible = false;
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
                 ObsoleteTag = '18.0';

@@ -252,6 +252,8 @@ codeunit 7322 "Create Inventory Pick/Movement"
                         NewWhseActivLine."Variant Code" := "Variant Code";
                         NewWhseActivLine."Unit of Measure Code" := "Unit of Measure Code";
                         NewWhseActivLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
+                        NewWhseActivLine."Qty. Rounding Precision" := "Qty. Rounding Precision";
+                        NewWhseActivLine."Qty. Rounding Precision (Base)" := "Qty. Rounding Precision (Base)";
                         NewWhseActivLine.Description := Description;
                         NewWhseActivLine."Description 2" := "Description 2";
                         NewWhseActivLine."Due Date" := "Expected Receipt Date";
@@ -327,6 +329,8 @@ codeunit 7322 "Create Inventory Pick/Movement"
                         NewWhseActivLine."Variant Code" := "Variant Code";
                         NewWhseActivLine."Unit of Measure Code" := "Unit of Measure Code";
                         NewWhseActivLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
+                        NewWhseActivLine."Qty. Rounding Precision" := "Qty. Rounding Precision";
+                        NewWhseActivLine."Qty. Rounding Precision (Base)" := "Qty. Rounding Precision (Base)";
                         NewWhseActivLine.Description := Description;
                         NewWhseActivLine."Description 2" := "Description 2";
                         NewWhseActivLine."Due Date" := "Planned Shipment Date";
@@ -427,6 +431,8 @@ codeunit 7322 "Create Inventory Pick/Movement"
                         NewWhseActivLine."Variant Code" := "Variant Code";
                         NewWhseActivLine."Unit of Measure Code" := "Unit of Measure Code";
                         NewWhseActivLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
+                        NewWhseActivLine."Qty. Rounding Precision" := "Qty. Rounding Precision";
+                        NewWhseActivLine."Qty. Rounding Precision (Base)" := "Qty. Rounding Precision (Base)";
                         NewWhseActivLine.Description := Description;
                         NewWhseActivLine."Description 2" := "Description 2";
                         NewWhseActivLine."Due Date" := "Shipment Date";
@@ -514,6 +520,8 @@ codeunit 7322 "Create Inventory Pick/Movement"
                         NewWhseActivLine."Variant Code" := "Variant Code";
                         NewWhseActivLine."Unit of Measure Code" := "Unit of Measure Code";
                         NewWhseActivLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
+                        NewWhseActivLine."Qty. Rounding Precision" := "Qty. Rounding Precision";
+                        NewWhseActivLine."Qty. Rounding Precision (Base)" := "Qty. Rounding Precision (Base)";
                         NewWhseActivLine.Description := Description;
                         NewWhseActivLine."Source Document" := NewWhseActivLine."Source Document"::"Prod. Consumption";
                         NewWhseActivLine."Due Date" := "Due Date";
@@ -568,6 +576,8 @@ codeunit 7322 "Create Inventory Pick/Movement"
                         NewWhseActivLine."Variant Code" := "Variant Code";
                         NewWhseActivLine."Unit of Measure Code" := "Unit of Measure Code";
                         NewWhseActivLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
+                        NewWhseActivLine."Qty. Rounding Precision" := "Qty. Rounding Precision";
+                        NewWhseActivLine."Qty. Rounding Precision (Base)" := "Qty. Rounding Precision (Base)";
                         NewWhseActivLine.Description := Description;
                         NewWhseActivLine."Source Document" := NewWhseActivLine."Source Document"::"Assembly Consumption";
                         NewWhseActivLine."Due Date" := "Due Date";
@@ -811,6 +821,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         QtyToPickBase: Decimal;
         QtyAvailToPickBase: Decimal;
         IsHandled: Boolean;
+        RemQtyToPick: Decimal;
     begin
         IsHandled := false;
         OnBeforeInsertPickOrMoveBinWhseActLine(
@@ -856,19 +867,24 @@ codeunit 7322 "Create Inventory Pick/Movement"
                     if RemQtyToPickBase < QtyAvailToPickBase then
                         QtyAvailToPickBase := RemQtyToPickBase;
                     if QtyAvailToPickBase > 0 then begin
+                        MakeHeader();
                         if WhseItemTrackingSetup."Serial No. Required" then begin
                             QtyAvailToPickBase := Round(QtyAvailToPickBase, 1, '<');
                             QtyToPickBase := 1;
-                        end else
+                            OnInsertPickOrMoveBinWhseActLineOnBeforeLoopMakeLine(WhseActivHeader, WhseRequest, NewWhseActivLine, FromBinContent, AutoCreation, QtyToPickBase);
+                            RemQtyToPick := NewWhseActivLine.CalcQty(RemQtyToPickBase);
+                            repeat
+                                MakeLineWhenSNoReq(NewWhseActivLine, "Bin Code", QtyToPickBase, RemQtyToPickBase, RemQtyToPick);
+                                QtyAvailToPickBase := QtyAvailToPickBase - QtyToPickBase;
+                            until QtyAvailToPickBase <= 0;
+                        end else begin
                             QtyToPickBase := QtyAvailToPickBase;
-
-                        MakeHeader();
-
-                        OnInsertPickOrMoveBinWhseActLineOnBeforeLoopMakeLine(WhseActivHeader, WhseRequest, NewWhseActivLine, FromBinContent, AutoCreation, QtyToPickBase);
-                        repeat
-                            MakeLine(NewWhseActivLine, "Bin Code", QtyToPickBase, RemQtyToPickBase);
-                            QtyAvailToPickBase := QtyAvailToPickBase - QtyToPickBase;
-                        until QtyAvailToPickBase <= 0;
+                            OnInsertPickOrMoveBinWhseActLineOnBeforeLoopMakeLine(WhseActivHeader, WhseRequest, NewWhseActivLine, FromBinContent, AutoCreation, QtyToPickBase);
+                            repeat
+                                MakeLine(NewWhseActivLine, "Bin Code", QtyToPickBase, RemQtyToPickBase);
+                                QtyAvailToPickBase := QtyAvailToPickBase - QtyToPickBase;
+                            until QtyAvailToPickBase <= 0;
+                        end;
                     end;
                 until (Next() = 0) or (RemQtyToPickBase = 0);
         end;
@@ -878,23 +894,28 @@ codeunit 7322 "Create Inventory Pick/Movement"
     local procedure InsertShelfWhseActivLine(NewWhseActivLine: Record "Warehouse Activity Line"; var RemQtyToPickBase: Decimal; WhseItemTrackingSetup: Record "Item Tracking Setup")
     var
         QtyToPickBase: Decimal;
+        RemQtyToPick: Decimal;
     begin
         CreateATOPickLine(NewWhseActivLine, '', RemQtyToPickBase);
         if RemQtyToPickBase = 0 then
             exit;
 
-        if WhseItemTrackingSetup."Serial No. Required" then begin
-            RemQtyToPickBase := Round(RemQtyToPickBase, 1, '<');
-            QtyToPickBase := 1;
-        end else
-            QtyToPickBase := RemQtyToPickBase;
-
         MakeHeader();
         OnInsertShelfWhseActivLineOnAfterMakeHeader(NewWhseActivLine);
 
-        repeat
-            MakeLine(NewWhseActivLine, '', QtyToPickBase, RemQtyToPickBase);
-        until RemQtyToPickBase = 0;
+        if WhseItemTrackingSetup."Serial No. Required" then begin
+            RemQtyToPickBase := Round(RemQtyToPickBase, 1, '<');
+            QtyToPickBase := 1;
+            RemQtyToPick := NewWhseActivLine.CalcQty(RemQtyToPickBase);
+            repeat
+                MakeLineWhenSNoReq(NewWhseActivLine, '', QtyToPickBase, RemQtyToPickBase, RemQtyToPick);
+            until RemQtyToPickBase = 0;
+        end else begin
+            QtyToPickBase := RemQtyToPickBase;
+            repeat
+                MakeLine(NewWhseActivLine, '', QtyToPickBase, RemQtyToPickBase);
+            until RemQtyToPickBase = 0;
+        end;
     end;
 
     local procedure CalcInvtAvailability(WhseActivLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup") Result: Decimal
@@ -949,7 +970,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                 WhseAvailMgt.CalcQtyOnBlockedITOrOnBlockedOutbndBins(
                     WhseActivLine."Location Code", WhseActivLine."Item No.", WhseActivLine."Variant Code", WhseItemTrackingSetup)
         else
-            QtyBlocked := 
+            QtyBlocked :=
                 WhseAvailMgt.CalcQtyOnBlockedItemTracking(
                     WhseActivLine."Location Code", WhseActivLine."Item No.", WhseActivLine."Variant Code");
         OnCalcInvtAvailabilityOnAfterCalcQtyBlocked(WhseActivLine, WhseItemTrackingSetup, QtyBlocked);
@@ -1130,7 +1151,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                     exit(0);
 
             if WhseItemTrackingSetup."Serial No." <> '' then begin
-                SetCurrentKey("Lot No.", "Serial No.");
+                SetTrackingKey();
                 SetRange("Serial No.", WhseItemTrackingSetup."Serial No.");
                 if IsEmpty() then
                     exit(0);
@@ -1139,7 +1160,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
             end;
 
             if WhseItemTrackingSetup."Lot No." <> '' then begin
-                SetCurrentKey("Lot No.", "Serial No.");
+                SetTrackingKey();
                 SetRange("Lot No.", WhseItemTrackingSetup."Lot No.");
                 if IsEmpty() then
                     exit(0);
@@ -1516,11 +1537,39 @@ codeunit 7322 "Create Inventory Pick/Movement"
     end;
 
     local procedure MakeLine(var NewWhseActivLine: Record "Warehouse Activity Line"; TakeBinCode: Code[20]; QtyToPickBase: Decimal; var RemQtyToPickBase: Decimal)
+    begin
+        NewWhseActivLine.Quantity := NewWhseActivLine.CalcQty(QtyToPickBase);
+        NewWhseActivLine."Qty. (Base)" := QtyToPickBase;
+        NewWhseActivLine."Qty. Outstanding" := NewWhseActivLine.Quantity;
+        NewWhseActivLine."Qty. Outstanding (Base)" := NewWhseActivLine."Qty. (Base)";
+        SetLineData(NewWhseActivLine, TakeBinCode);
+        RemQtyToPickBase := RemQtyToPickBase - QtyToPickBase;
+    end;
+
+    local procedure MakeLineWhenSNoReq(var NewWhseActivLine: Record "Warehouse Activity Line"; TakeBinCode: Code[20]; QtyToPickBase: Decimal; var RemQtyToPickBase: Decimal; var RemQtyToPick: Decimal)
+    var
+        UOMMgt: Codeunit "Unit of Measure Management";
+        CalculatedPickQty: Decimal;
+    begin
+        CalculatedPickQty := NewWhseActivLine.CalcQty(QtyToPickBase);
+        if UOMMgt.RoundQty(UOMMgt.CalcBaseQty(RemQtyToPick - CalculatedPickQty, NewWhseActivLine."Qty. per Unit of Measure"), 1) = 0 then
+            NewWhseActivLine.Quantity := RemQtyToPick
+        else
+            NewWhseActivLine.Quantity := CalculatedPickQty;
+        NewWhseActivLine."Qty. (Base)" := QtyToPickBase;
+        NewWhseActivLine."Qty. Outstanding" := NewWhseActivLine.Quantity;
+        NewWhseActivLine."Qty. Outstanding (Base)" := NewWhseActivLine."Qty. (Base)";
+        SetLineData(NewWhseActivLine, TakeBinCode);
+        RemQtyToPickBase -= QtyToPickBase;
+        RemQtyToPick -= NewWhseActivLine.Quantity;
+    end;
+
+
+    local procedure SetLineData(var NewWhseActivLine: Record "Warehouse Activity Line"; TakeBinCode: Code[20])
     var
         PlaceBinCode: Code[20];
     begin
         PlaceBinCode := NewWhseActivLine."Bin Code";
-
         NewWhseActivLine."No." := WhseActivHeader."No.";
         NewWhseActivLine."Line No." := NextLineNo;
         if Location."Bin Mandatory" then begin
@@ -1528,16 +1577,11 @@ codeunit 7322 "Create Inventory Pick/Movement"
             NewWhseActivLine."Bin Code" := TakeBinCode;
         end else
             NewWhseActivLine."Shelf No." := GetShelfNo(NewWhseActivLine."Item No.");
-        NewWhseActivLine.Quantity := NewWhseActivLine.CalcQty(QtyToPickBase);
-        NewWhseActivLine."Qty. (Base)" := QtyToPickBase;
-        NewWhseActivLine."Qty. Outstanding" := NewWhseActivLine.Quantity;
-        NewWhseActivLine."Qty. Outstanding (Base)" := NewWhseActivLine."Qty. (Base)";
         NewWhseActivLine."Qty. to Handle" := 0;
         NewWhseActivLine."Qty. to Handle (Base)" := 0;
-        RemQtyToPickBase := RemQtyToPickBase - QtyToPickBase;
+        NewWhseActivLine."Qty. Rounding Precision" := 0;
         OnBeforeNewWhseActivLineInsert(NewWhseActivLine, WhseActivHeader);
         NewWhseActivLine.Insert();
-
         if Location."Bin Mandatory" and IsInvtMovement then begin
             // Place Action for inventory movement
             OnMakeLineOnBeforeUpdatePlaceLine(NewWhseActivLine, PlaceBinCode);
@@ -1548,7 +1592,6 @@ codeunit 7322 "Create Inventory Pick/Movement"
             NewWhseActivLine.Insert();
             UpdateHandledWhseActivityLineBuffer(NewWhseActivLine, TakeBinCode);
         end;
-
         LineCreated := true;
         NextLineNo := NextLineNo + 10000;
     end;

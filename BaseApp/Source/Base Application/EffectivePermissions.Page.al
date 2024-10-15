@@ -120,7 +120,7 @@ page 9852 "Effective Permissions"
                         ToolTip = 'Specifies the ID of the object to which the permissions apply.';
                         Visible = false;
                     }
-                    field("Object Name"; "Object Name")
+                    field("Object Name"; "AL Object Name")
                     {
                         ApplicationArea = All;
                         Caption = 'Object Name';

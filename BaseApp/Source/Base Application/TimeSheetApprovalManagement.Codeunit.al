@@ -17,6 +17,31 @@ codeunit 951 "Time Sheet Approval Management"
         Text008: Label 'Reopen for editing';
         Text009: Label 'Approve for posting';
         Text010: Label 'Reject for correction';
+        SubmitConfirmQst: Label 'Do you want to submit open lines?';
+        ReopenConfirmQst: Label 'Do you want to reopen submitted lines?';
+        ApproveConfirmQst: Label 'Do you want to approve submitted lines?';
+        RejectConfirmQst: Label 'Do you want to reject submitted lines?';
+        ReopenApprovedConfirmQst: Label 'Do you want to reopen approved lines?';
+        SubmitLineQst: Label 'Do you want to submit line?';
+        ReopenLineQst: Label 'Do you want to reopen line?';
+        ApproveLineQst: Label 'Do you want to approve line?';
+        RejectLineQst: Label 'Do you want to reject line?';
+
+    procedure ProcessAction(var TimeSheetLine: Record "Time Sheet Line"; ActionType: Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject)
+    begin
+        case ActionType of
+            ActionType::Submit:
+                Submit(TimeSheetLine);
+            ActionType::ReopenSubmitted:
+                ReopenSubmitted(TimeSheetLine);
+            ActionType::Approve:
+                Approve(TimeSheetLine);
+            ActionType::ReopenApproved:
+                ReopenApproved(TimeSheetLine);
+            ActionType::Reject:
+                Reject(TimeSheetLine);
+        end;
+    end;
 
     procedure Submit(var TimeSheetLine: Record "Time Sheet Line")
     var
@@ -56,12 +81,22 @@ codeunit 951 "Time Sheet Approval Management"
         end;
     end;
 
+    procedure SubmitIfConfirmed(var TimeSheetLine: Record "Time Sheet Line")
+    begin
+        if Confirm(SubmitLineQst) then
+            Submit(TimeSheetLine);
+    end;
+
     procedure ReopenSubmitted(var TimeSheetLine: Record "Time Sheet Line")
+    var
+        TimeSheetMgt: Codeunit "Time Sheet Management";
     begin
         with TimeSheetLine do begin
             if Status = Status::Open then
                 exit;
-            TestField(Status, Status::Submitted);
+
+            if not TimeSheetMgt.TimeSheetV2Enabled() then
+                TestField(Status, Status::Submitted);
             Status := Status::Open;
             OnReopenSubmittedOnBeforeModify(TimeSheetLine);
             Modify(true);
@@ -71,12 +106,22 @@ codeunit 951 "Time Sheet Approval Management"
         end;
     end;
 
+    procedure ReopenSubmittedIfConfirmed(var TimeSheetLine: Record "Time Sheet Line")
+    begin
+        if Confirm(ReopenLineQst) then
+            ReopenSubmitted(TimeSheetLine);
+    end;
+
     procedure ReopenApproved(var TimeSheetLine: Record "Time Sheet Line")
+    var
+        TimeSheetMgt: Codeunit "Time Sheet Management";
     begin
         with TimeSheetLine do begin
             if Status = Status::Submitted then
                 exit;
-            TestField(Status, Status::Approved);
+
+            if not TimeSheetMgt.TimeSheetV2Enabled() then
+                TestField(Status, Status::Approved);
             TestField(Posted, false);
             CheckApproverPermissions(TimeSheetLine);
             CheckLinkedServiceDoc(TimeSheetLine);
@@ -87,6 +132,12 @@ codeunit 951 "Time Sheet Approval Management"
 
             OnAfterReopenApproved(TimeSheetLine);
         end;
+    end;
+
+    procedure ReopenApprovedIfConfirmed(var TimeSheetLine: Record "Time Sheet Line")
+    begin
+        if Confirm(ReopenLineQst) then
+            ReopenApproved(TimeSheetLine);
     end;
 
     procedure Reject(var TimeSheetLine: Record "Time Sheet Line")
@@ -102,6 +153,12 @@ codeunit 951 "Time Sheet Approval Management"
         end;
 
         OnAfterReject(TimeSheetLine);
+    end;
+
+    procedure RejectIfConfirmed(var TimeSheetLine: Record "Time Sheet Line")
+    begin
+        if Confirm(RejectLineQst) then
+            Reject(TimeSheetLine);
     end;
 
     procedure Approve(var TimeSheetLine: Record "Time Sheet Line")
@@ -132,6 +189,12 @@ codeunit 951 "Time Sheet Approval Management"
         end;
 
         OnAfterApprove(TimeSheetLine);
+    end;
+
+    procedure ApproveIfConfirmed(var TimeSheetLine: Record "Time Sheet Line")
+    begin
+        if Confirm(ApproveLineQst) then
+            Approve(TimeSheetLine);
     end;
 
     local procedure PostAbsence(var TimeSheetLine: Record "Time Sheet Line")
@@ -240,6 +303,49 @@ codeunit 951 "Time Sheet Approval Management"
         end;
     end;
 
+    procedure GetCommonTimeSheetDialogText(ActionType: Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject; LinesQty: Integer): Text[100]
+    var
+        IsHandled: Boolean;
+        ReturnText: Text[100];
+    begin
+        IsHandled := false;
+        OnBeforeGetTimeSheetDialogText(ActionType, LinesQty, ReturnText, IsHandled);
+        if IsHandled then
+            exit(ReturnText);
+
+        case ActionType of
+            ActionType::Submit:
+                exit(StrSubstNo(Text004, LinesQty));
+            ActionType::ReopenSubmitted,
+            ActionType::Approve,
+            ActionType::Reject:
+                exit(StrSubstNo(Text005, LinesQty));
+            ActionType::ReopenApproved:
+                exit(StrSubstNo(Text006, LinesQty));
+        end;
+    end;
+
+    procedure ConfirmAction(ActionType: Option Submit,Reopen,Approve,ReopenApproved,Reject): Boolean
+    begin
+        exit(Confirm(GetConfirmInstructions(ActionType)));
+    end;
+
+    local procedure GetConfirmInstructions(ActionType: Option Submit,Reopen,Approve,ReopenApproved,Reject): Text
+    begin
+        case ActionType of
+            ActionType::Submit:
+                exit(SubmitConfirmQst);
+            ActionType::Reopen:
+                exit(ReopenConfirmQst);
+            ActionType::ReopenApproved:
+                exit(ReopenApprovedConfirmQst);
+            ActionType::Approve:
+                exit(ApproveConfirmQst);
+            ActionType::Reject:
+                exit(RejectConfirmQst);
+        end;
+    end;
+
     procedure GetTimeSheetDialogInstruction(ActionType: Option Submit,Reopen): Text[100]
     begin
         case ActionType of
@@ -259,6 +365,21 @@ codeunit 951 "Time Sheet Approval Management"
                 exit(Text010);
             ActionType::Reopen:
                 exit(Text008);
+        end;
+    end;
+
+    procedure GetCommonTimeSheetDialogInstruction(ActionType: Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject): Text
+    begin
+        case ActionType of
+            ActionType::Submit:
+                exit(Text007);
+            ActionType::ReopenSubmitted,
+            ActionType::ReopenApproved:
+                exit(Text008);
+            ActionType::Approve:
+                exit(Text009);
+            ActionType::Reject:
+                exit(Text010);
         end;
     end;
 

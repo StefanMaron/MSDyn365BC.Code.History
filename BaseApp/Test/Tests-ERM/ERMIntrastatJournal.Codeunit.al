@@ -1,4 +1,4 @@
-codeunit 134150 "ERM Intrastat Journal"
+﻿codeunit 134150 "ERM Intrastat Journal"
 {
     Subtype = Test;
     TestPermissions = Disabled;

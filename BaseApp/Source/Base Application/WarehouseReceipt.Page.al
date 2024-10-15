@@ -127,18 +127,24 @@ page 5768 "Warehouse Receipt"
             {
                 Caption = '&Receipt';
                 Image = Receipt;
+#if not CLEAN19
                 action(List)
                 {
                     ApplicationArea = Location;
                     Caption = 'List';
                     Image = OpportunitiesList;
                     ToolTip = 'View all warehouse documents of this type that exist.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by platform capabilities.';
+                    ObsoleteTag = '19.0';
 
                     trigger OnAction()
                     begin
                         LookupWhseRcptHeader(Rec);
                     end;
                 }
+#endif
                 action("Co&mments")
                 {
                     ApplicationArea = Comments;

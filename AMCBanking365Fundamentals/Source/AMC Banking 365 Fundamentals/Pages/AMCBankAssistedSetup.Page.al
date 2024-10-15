@@ -1121,16 +1121,9 @@ page 20105 "AMC Bank Assisted Setup"
                                                             UpdDataExchDefBoolean, BANKDATACONVSERVCTBoolean, BANKDATACONVSERVPPBoolean, BANKDATACONVSERVSTMTBoolean, BANKDATACONVSERVCREMBoolean, ApplVerText, BuildNoText,
                                                             UpdBankClearStdBoolean, UpdBankAccountsBoolean, TempOnlineBankAccLink, CallLicenseServer);
 
-        AMCBankAssistedMgt.OnAfterRunBasisSetup(UpdURLBoolean, URLSChanged, SignupURLText, ServiceURLText, SupportURLText, UpdBankBoolean, UpdPayMethBoolean, BankCountryCodeCode, PaymCountryCodeCode,
-                                                UpdDataExchDefBoolean, BANKDATACONVSERVCTBoolean, BANKDATACONVSERVPPBoolean, BANKDATACONVSERVSTMTBoolean, BANKDATACONVSERVCREMBoolean, ApplVerText, BuildNoText,
-                                                UpdBankClearStdBoolean, UpdBankAccountsBoolean, CallLicenseServer);
-
         AMCBankAssistedMgt.OnAfterRunBasisSetupV16(UpdURLBoolean, URLSChanged, SignupURLText, ServiceURLText, SupportURLText, UpdBankBoolean, UpdPayMethBoolean, BankCountryCodeCode, PaymCountryCodeCode,
                                                    UpdDataExchDefBoolean, BANKDATACONVSERVCTBoolean, BANKDATACONVSERVPPBoolean, BANKDATACONVSERVSTMTBoolean, BANKDATACONVSERVCREMBoolean, ApplVerText, BuildNoText,
                                                    UpdBankClearStdBoolean, UpdBankAccountsBoolean, TempOnlineBankAccLink, CallLicenseServer);
     end;
-
-
-
 
 }

@@ -60,6 +60,10 @@ page 380 "Bank Acc. Reconciliation Lines"
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the amount of the transaction on the bank''s statement shown on this reconciliation line.';
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update();
+                    end;
                 }
                 field("Applied Amount"; "Applied Amount")
                 {

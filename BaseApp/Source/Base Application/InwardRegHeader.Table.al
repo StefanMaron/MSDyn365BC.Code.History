@@ -2,8 +2,8 @@ table 11200 "Inward Reg. Header"
 {
     Caption = 'Inward Reg. Header';
     ObsoleteReason = 'Replaced by extension';
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
+    ObsoleteState = Removed;
+    ObsoleteTag = '19.0';
 
     fields
     {
@@ -41,22 +41,6 @@ table 11200 "Inward Reg. Header"
         field(11; "Latest Return"; Date)
         {
             Caption = 'Latest Return';
-        }
-        field(20; "Vendor No."; Code[20])
-        {
-            CalcFormula = Lookup ("Purchase Header"."Buy-from Vendor No." WHERE("Document Type" = FIELD("Document Type"),
-                                                                                "No." = FIELD("Document No.")));
-            Caption = 'Vendor No.';
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(21; "Vendor Name"; Text[50])
-        {
-            CalcFormula = Lookup ("Purchase Header"."Buy-from Vendor Name" WHERE("Document Type" = FIELD("Document Type"),
-                                                                                 "No." = FIELD("Document No.")));
-            Caption = 'Vendor Name';
-            Editable = false;
-            FieldClass = FlowField;
         }
         field(22; "Vendor Invoice No."; Code[20])
         {

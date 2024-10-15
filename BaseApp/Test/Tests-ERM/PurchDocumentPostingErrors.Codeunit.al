@@ -108,6 +108,8 @@ codeunit 132502 "Purch. Document Posting Errors"
         Assert.RecordCount(TempErrorMessage, 1);
         TempErrorMessage.FindFirst;
         TempErrorMessage.TestField(Description, PostingDateNotAllowedErr);
+        // [THEN] Call Stack contains '"Purch.-Post"(CodeUnit 90).CheckAndUpdate'
+        Assert.ExpectedMessage('"Purch.-Post"(CodeUnit 90).CheckAndUpdate ', TempErrorMessage.GetErrorCallStack());
         // [THEN] "Context" is 'Purchase Header: Invoice, 1001', "Field Name" is 'Posting Date',
         TempErrorMessage.TestField("Context Record ID", PurchHeader.RecordId);
         TempErrorMessage.TestField("Context Field Number", PurchHeader.FieldNo("Posting Date"));
@@ -253,7 +255,8 @@ codeunit 132502 "Purch. Document Posting Errors"
         repeat
             JobQueueEntry.Status := JobQueueEntry.Status::Ready;
             JobQueueEntry.Modify();
-            Codeunit.Run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
+            asserterror LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);
+            LibraryJobQueue.RunJobQueueErrorHandler(JobQueueEntry);
         until JobQueueEntry.Next() = 0;
 
         // [THEN] "Error Message" table contains 3 lines:

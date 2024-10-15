@@ -18,9 +18,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         ClassifyVATReportHeader;
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cause of Absence");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Inward Reg. Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Inward Reg. Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Inward Reg. Entry");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Automatic Acc. Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Automatic Acc. Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SIE Dimension");

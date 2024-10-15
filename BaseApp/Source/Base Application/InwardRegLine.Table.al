@@ -2,15 +2,14 @@ table 11201 "Inward Reg. Line"
 {
     Caption = 'Inward Reg. Line';
     ObsoleteReason = 'Replaced by extension';
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
+    ObsoleteState = Removed;
+    ObsoleteTag = '19.0';
 
     fields
     {
         field(1; "Document No."; Code[20])
         {
             Caption = 'Document No.';
-            TableRelation = "Inward Reg. Header";
         }
         field(2; "Line No."; Integer)
         {

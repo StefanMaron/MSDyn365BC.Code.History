@@ -6,9 +6,6 @@ permissionset 1001 "LOCAL"
 
     Permissions = tabledata "Automatic Acc. Header" = RIMD,
                   tabledata "Automatic Acc. Line" = RIMD,
-                  tabledata "Inward Reg. Entry" = RIMD,
-                  tabledata "Inward Reg. Header" = RIMD,
-                  tabledata "Inward Reg. Line" = RIMD,
                   tabledata "SIE Dimension" = RIMD,
                   tabledata "SIE Import Buffer" = RIMD;
 }

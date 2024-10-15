@@ -85,7 +85,7 @@ page 351 "Customer Sales Lines"
         VariantRec: Variant;
     begin
         VariantRec := Rec;
-        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType);
+        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType.AsInteger());
         Rec := VariantRec;
     end;
 
@@ -94,7 +94,7 @@ page 351 "Customer Sales Lines"
         VariantRec: Variant;
     begin
         VariantRec := Rec;
-        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType);
+        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType.AsInteger());
         Rec := VariantRec;
     end;
 
@@ -110,18 +110,30 @@ page 351 "Customer Sales Lines"
 
     protected var
         Cust: Record Customer;
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Net Change","Balance at Date";
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
 
-    procedure Set(var NewCust: Record Customer; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
+#if not CLEAN19
+    [Obsolete('Replaced by SetLines().', '19.0')]
+    procedure Set(var NewCust: Record Customer; NewPeriodType: Integer; NewAmountType: Option)
+    begin
+        SetLines(
+            NewCust,
+            "Analysis Period Type".FromInteger(NewPeriodType), "Analysis Amount Type".FromInteger(NewAmountType));
+
+        OnAfterSet(Cust, PeriodType.AsInteger(), AmountType);
+    end;
+#endif
+
+    procedure SetLines(var NewCust: Record Customer; NewPeriodType: Enum "Analysis Period Type"; NewAmountType: Enum "Analysis Amount Type")
     begin
         Cust.Copy(NewCust);
-        DeleteAll();
+        Rec.DeleteAll();
         PeriodType := NewPeriodType;
         AmountType := NewAmountType;
         CurrPage.Update(false);
 
-        OnAfterSet(Cust, PeriodType, AmountType);
+        OnAfterSet(Cust, PeriodType.AsInteger(), AmountType);
     end;
 
     local procedure ShowCustEntries()
@@ -176,7 +188,7 @@ page 351 "Customer Sales Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSet(var NewCust: Record Customer; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
+    local procedure OnAfterSet(var NewCust: Record Customer; NewPeriodType: Integer; NewAmountType: Enum "Analysis Amount Type")
     begin
     end;
 }

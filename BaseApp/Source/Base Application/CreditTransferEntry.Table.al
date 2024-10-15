@@ -55,18 +55,33 @@ table 1206 "Credit Transfer Entry"
         }
         field(10; Canceled; Boolean)
         {
-            CalcFormula = Exist ("Credit Transfer Register" WHERE("No." = FIELD("Credit Transfer Register No."),
+            CalcFormula = Exist("Credit Transfer Register" WHERE("No." = FIELD("Credit Transfer Register No."),
                                                                   Status = CONST(Canceled)));
             Caption = 'Canceled';
             FieldClass = FlowField;
         }
         field(11; "Recipient Bank Acc. No."; Code[50])
         {
-            Caption = 'Recipient Bank Acc. No.';
+            Caption = 'Recipient Bank Account';
         }
         field(12; "Message to Recipient"; Text[140])
         {
             Caption = 'Message to Recipient';
+        }
+        field(13; "Recipient IBAN"; Code[50])
+        {
+            Caption = 'Recipient IBAN';
+            DataClassification = CustomerContent;
+        }
+        field(14; "Recipient Bank Account No."; Code[30])
+        {
+            Caption = 'Recipient Bank Account No.';
+            DataClassification = CustomerContent;
+        }
+        field(15; "Recipient Name"; Text[100])
+        {
+            Caption = 'Recipient Name';
+            DataClassification = CustomerContent;
         }
     }
 
@@ -117,72 +132,79 @@ table 1206 "Credit Transfer Entry"
         "Transaction ID" := TransActionID;
         "Recipient Bank Acc. No." := RecipientBankAccount;
         "Message to Recipient" := MessageToRecipient;
-        Insert;
+        FillRecipientData();
+        Insert();
     end;
 
-    procedure CreditorName(): Text
+    procedure FillRecipientData()
     var
         Customer: Record Customer;
-        Vendor: Record Vendor;
+        CustomerBankAccount: Record "Customer Bank Account";
         Employee: Record Employee;
+        Vendor: Record Vendor;
+        VendorBankAccount: Record "Vendor Bank Account";
     begin
-        if "Account No." = '' then
-            exit('');
+        if "Account No." = '' then begin
+            "Recipient Name" := '';
+            "Recipient IBAN" := '';
+            "Recipient Bank Account No." := '';
+            exit;
+        end;
         case "Account Type" of
             "Account Type"::Customer:
                 begin
-                    if Customer.Get("Account No.") then
-                        exit(Customer.Name);
+                    if "Recipient Name" = '' then
+                        if Customer.Get("Account No.") then
+                            "Recipient Name" := Customer.Name;
+                    if ("Recipient IBAN" = '') and ("Recipient Bank Account No." = '') then
+                        if CustomerBankAccount.Get("Account No.", "Recipient Bank Acc. No.") then begin
+                            "Recipient IBAN" := CustomerBankAccount.IBAN;
+                            "Recipient Bank Account No." := CustomerBankAccount."Bank Account No.";
+                        end;
                 end;
             "Account Type"::Vendor:
                 begin
-                    if Vendor.Get("Account No.") then
-                        exit(Vendor.Name);
+                    if "Recipient Name" = '' then
+                        if Vendor.Get("Account No.") then
+                            "Recipient Name" := Vendor.Name;
+                    if ("Recipient IBAN" = '') and ("Recipient Bank Account No." = '') then
+                        if VendorBankAccount.Get("Account No.", "Recipient Bank Acc. No.") then begin
+                            "Recipient IBAN" := VendorBankAccount.IBAN;
+                            "Recipient Bank Account No." := VendorBankAccount."Bank Account No.";
+                        end;
                 end;
             "Account Type"::Employee:
                 begin
-                    if Employee.Get("Account No.") then
-                        exit(Employee.FullName);
+                    if "Recipient Name" = '' then
+                        if Employee.Get("Account No.") then
+                            "Recipient Name" := Employee.FullName;
+                    if ("Recipient IBAN" = '') and ("Recipient Bank Account No." = '') then begin
+                        "Recipient IBAN" := Employee.IBAN;
+                        "Recipient Bank Account No." := Employee."Bank Account No.";
+                    end;
                 end;
         end;
-        exit('');
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by FillRecipientData', '19.0')]
+    procedure CreditorName(): Text;
+    var
+    begin
+        FillRecipientData();
+        exit("Recipient Name");
+    end;
+
+    [Obsolete('Replaced by FillRecipientData', '19.0')]
     procedure GetRecipientIBANOrBankAccNo(GetIBAN: Boolean): Text
     var
-        CustomerBankAccount: Record "Customer Bank Account";
-        VendorBankAccount: Record "Vendor Bank Account";
-        Employee: Record Employee;
     begin
-        if "Account No." = '' then
-            exit('');
-
-        case "Account Type" of
-            "Account Type"::Customer:
-                if CustomerBankAccount.Get("Account No.", "Recipient Bank Acc. No.") then begin
-                    if GetIBAN then
-                        exit(CustomerBankAccount.IBAN);
-
-                    exit(CustomerBankAccount."Bank Account No.");
-                end;
-            "Account Type"::Vendor:
-                if VendorBankAccount.Get("Account No.", "Recipient Bank Acc. No.") then begin
-                    if GetIBAN then
-                        exit(VendorBankAccount.IBAN);
-
-                    exit(VendorBankAccount."Bank Account No.");
-                end;
-            "Account Type"::Employee:
-                if Employee.Get("Account No.") then begin
-                    if GetIBAN then
-                        exit(Employee.IBAN);
-
-                    exit(Employee."Bank Account No.");
-                end;
-        end;
-
-        exit('');
+        FillRecipientData();
+        if GetIBAN then
+            exit("Recipient IBAN");
+        exit("Recipient Bank Account No.");
     end;
+#endif
 
     local procedure GetAppliesToEntry(var CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer")
     begin

@@ -140,20 +140,6 @@ codeunit 144050 "ERM Regoff SE"
           CompanyLegalOfficeLbl, CompanyBoardDirectorValue, CompanyAddressFullLbl);
     end;
 
-    [Test]
-    [HandlerFunctions('OrderConfirmationReportHandler')]
-    [Scope('OnPrem')]
-    procedure RegisteredOfficeInfoOnSalesOrderConfirmationReport()
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        // Run the Order Confirmation report and check that the value in the Registered Office field of the Company Information form is shown in the Board
-        // of dir. Loc field of the Order Confirmation report
-        RegisteredOfficeInfoOnSalesReports(
-          SalesHeader."Document Type"::Order, REPORT::"Order Confirmation",
-          CompanyBoardDirectorCap, CompanyBoardDirectorValue2, CompanyAddressCap);
-    end;
-
     local procedure RegisteredOfficeInfoOnSalesReports(DocumentType: Enum "Sales Document Type"; ReportID: Integer; ComBoardDirectorCap: Text[50]; ComBoardDirectorValue: Text[50]; ComAddressCap: Text[50])
     var
         CompanyInformation: Record "Company Information";
@@ -187,20 +173,6 @@ codeunit 144050 "ERM Regoff SE"
           CompanyAddressFullLbl);
     end;
 
-    [Test]
-    [HandlerFunctions('OrderConfirmationReportHandler')]
-    [Scope('OnPrem')]
-    procedure ChangeRegisteredOfficeInfoOnSalesOrderConfirmationReport()
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        // Run the Sales-Quote report and check that the change value in the Registered Office field of the Company Information form is shown in the Board of dir. Loc
-        // field of the Sales Quote report
-        ChangeRegisteredOfficeInfoOnSalesReports(
-          SalesHeader."Document Type"::Order, REPORT::"Order Confirmation", CompanyBoardDirectorCap, CompanyBoardDirectorValue2,
-          CompanyAddressCap);
-    end;
-
     local procedure ChangeRegisteredOfficeInfoOnSalesReports(DocumentType: Enum "Sales Document Type"; ReportID: Integer; ComBoardDirectorCap: Text[50]; ComBoardDirectorValue: Text[50]; ComInfoCap: Text[50])
     var
         CompanyInformation: Record "Company Information";
@@ -221,18 +193,6 @@ codeunit 144050 "ERM Regoff SE"
           ComInfoCap, Format(CompanyInformation."Post Code" + ' ' + CompanyInformation.City));
     end;
 
-    [Test]
-    [HandlerFunctions('SalesCreditMemoReportHandler')]
-    [Scope('OnPrem')]
-    procedure RegisteredOfficeInfoOnSalesCrMemoReport()
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        // Sales Credit Memo report and check that the value in the Registered Office field of the Company Information form is shown in the Board of dir. Loc
-        // field of the Sales Credit Memo report
-        RegisteredOfficeInfoOnSalesReport(SalesHeader."Document Type"::"Credit Memo", REPORT::"Sales - Credit Memo");
-    end;
-
     local procedure RegisteredOfficeInfoOnSalesReport(DocumentType: Enum "Sales Document Type"; ReportID: Integer)
     var
         CompanyInformation: Record "Company Information";
@@ -251,18 +211,6 @@ codeunit 144050 "ERM Regoff SE"
         VerifyReportValue(
           CompanyBoardDirectorCap, Format(CompanyBoardDirectorValue2),
           CompanyAddressCap, Format(CompanyInformation."Post Code" + ' ' + CompanyInformation.City));
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesCreditMemoReportHandler')]
-    [Scope('OnPrem')]
-    procedure ChangeRegisteredOfficeInfoOnSalesCrMemoReport()
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        // Sales Credit Memo report and check that the value in the Registered Office field of the Company Information form is shown in the Board of dir. Loc
-        // field of the Sales Credit Memo report
-        ChangeRegisteredOfficeInfoOnSalesReport(SalesHeader."Document Type"::"Credit Memo", REPORT::"Sales - Credit Memo");
     end;
 
     local procedure ChangeRegisteredOfficeInfoOnSalesReport(DocumentType: Enum "Sales Document Type"; ReportID: Integer)
@@ -446,33 +394,6 @@ codeunit 144050 "ERM Regoff SE"
         StandardSalesQuote.Header.SetFilter("Document Type", Format(DocumentType));
         StandardSalesQuote.Header.SetFilter("No.", No);
         StandardSalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure OrderConfirmationReportHandler(var OrderConfirmation: TestRequestPage "Order Confirmation")
-    var
-        DocumentType: Variant;
-        No: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(DocumentType);
-        LibraryVariableStorage.Dequeue(No);
-        OrderConfirmation."Sales Header".SetFilter("Document Type", Format(DocumentType));
-        OrderConfirmation."Sales Header".SetFilter("No.", No);
-        OrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesCreditMemoReportHandler(var SalesCreditMemo: TestRequestPage "Sales - Credit Memo")
-    var
-        DocumentType: Variant;
-        No: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(DocumentType);
-        LibraryVariableStorage.Dequeue(No);
-        SalesCreditMemo."Sales Cr.Memo Header".SetFilter("No.", No);
-        SalesCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
 

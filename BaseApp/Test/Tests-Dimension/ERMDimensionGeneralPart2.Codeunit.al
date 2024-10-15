@@ -1390,9 +1390,9 @@ codeunit 134480 "ERM Dimension General Part 2"
         InternalDateFilter := CopyStr(Item.GetFilter("Date Filter"), 1, MaxStrLen(InternalDateFilter));
 
         // Exercize
-        ItemAnalysisMgt.FindRec(
-          ItemAnalysisView, DimOption, DimCodeBuf, '', '', '',
-          PeriodType, DateFilter, PeriodInitialized, InternalDateFilter, '', '', '');
+        ItemAnalysisMgt.FindRecord(
+          ItemAnalysisView, "Item Analysis Dimension Type".FromInteger(DimOption), DimCodeBuf, '', '', '',
+          "Analysis Period Type".FromInteger(PeriodType), DateFilter, PeriodInitialized, InternalDateFilter, '', '', '');
 
         // Verify
         Assert.AreEqual(PeriodStart, DimCodeBuf."Period Start", StartPeriodErr);
@@ -3075,7 +3075,7 @@ codeunit 134480 "ERM Dimension General Part 2"
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandDec(100, 2));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(100));
         SalesLine.Validate("Dimension Set ID", DimSetId);
         SalesLine.Modify(true);
         TotalQuantity := SalesLine.Quantity;
@@ -3466,15 +3466,15 @@ codeunit 134480 "ERM Dimension General Part 2"
             SetRange("Dimension 1 Value Code", Dimension1Value);
             SetRange("Account No.", AccountNo);
             Assert.AreEqual(ExpectedNoOfEntries, Count, WrongNumberOfAnalysisViewEntriesErr);
-        end;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+        end;
     end;
 
     local procedure VerifyTestValidationError()
     begin
         Assert.ExpectedErrorCode('TestValidation');
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             Assert.ExpectedError('Validation error for Field');
-    end;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+        Assert.ExpectedError('Validation error for Field');
+    end;
+
     [Scope('OnPrem')]
     procedure CreatePostAndVerifyPurchaseOrderForServiceOrNonStockItem(ItemAnalysisView: Record "Item Analysis View"; ItemNo: Code[20])
     var

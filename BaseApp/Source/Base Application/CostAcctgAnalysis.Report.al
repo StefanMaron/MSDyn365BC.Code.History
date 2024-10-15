@@ -67,7 +67,7 @@ report 1127 "Cost Acctg. Analysis"
             column(Col5; Col[5])
             {
             }
-            column(LineType; LineType)
+            column(LineType; LineTypeInt)
             {
             }
             column(BlankLine; "Blank Line")
@@ -108,7 +108,7 @@ report 1127 "Cost Acctg. Analysis"
                 end;
                 NewPage := "New Page";
 
-                LineType := Type;
+                LineTypeInt := Type.AsInteger();
             end;
 
             trigger OnPreDataItem()
@@ -374,7 +374,7 @@ report 1127 "Cost Acctg. Analysis"
         SuppressWoAmt: Boolean;
         PageGroupNo: Integer;
         NewPage: Boolean;
-        LineType: Integer;
+        LineTypeInt: Integer;
         CAAnalysisCaptionLbl: Label 'Cost Acctg. Analysis';
         CostTypeCaptionLbl: Label 'Cost Type';
         PageCaptionLbl: Label 'Page';

@@ -36,7 +36,6 @@ codeunit 1800 "Assisted Company Setup"
     local procedure RunAssistedCompanySetup()
     var
         GuidedExperience: Codeunit "Guided Experience";
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
         GuidedExperienceType: Enum "Guided Experience Type";
     begin
         if GetExecutionContext() <> ExecutionContext::Normal then
@@ -44,9 +43,6 @@ codeunit 1800 "Assisted Company Setup"
 
         if not GuiAllowed then
             exit;
-
-        if EnvInfoProxy.IsInvoicing then
-            exit; // Invoicing handles company setup silently
 
         if CompanyActive then
             exit;
@@ -422,8 +418,16 @@ codeunit 1800 "Assisted Company Setup"
         RunAssistedCompanySetup();
     end;
 
+#if not CLEAN19
     [EventSubscriber(ObjectType::Page, Page::"Allowed Companies", 'OnBeforeActionEvent', 'Create New Company', false, false)]
     local procedure OnBeforeCreateNewCompanyActionOpenCompanyCreationWizard(var Rec: Record Company)
+    begin
+        PAGE.RunModal(PAGE::"Company Creation Wizard");
+    end;
+#endif
+
+    [EventSubscriber(ObjectType::Page, Page::"Accessible Companies", 'OnBeforeActionEvent', 'Create New Company', false, false)]
+    local procedure OnBeforeCreateNewCompanyActionAccessibleCompanies(var Rec: Record Company)
     begin
         PAGE.RunModal(PAGE::"Company Creation Wizard");
     end;
@@ -446,7 +450,7 @@ codeunit 1800 "Assisted Company Setup"
         // Send global notification that the company set up failed
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"My Settings", 'OnCompanyChange', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"User Settings", 'OnCompanyChange', '', false, false)]
     local procedure OnCompanyChangeCheckForSetupCompletion(NewCompanyName: Text; var IsSetupInProgress: Boolean)
     begin
         IsSetupInProgress := IsCompanySetupInProgress(NewCompanyName);

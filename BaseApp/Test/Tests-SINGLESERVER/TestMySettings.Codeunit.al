@@ -24,6 +24,7 @@ codeunit 139006 "Test My Settings"
         FilterFormOpened: Boolean;
         MyNotificationFilterTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Table18">VERSION(1) SORTING(Field1) WHERE(Field1=1(%1))</DataItem></DataItems></ReportParameters>';
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('AvailableRoleCentersHandler,StandardSessionSettingsHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -49,17 +50,18 @@ codeunit 139006 "Test My Settings"
         UserPersonalization.Get(UserSecurityId);
         Assert.AreEqual(AllProfile."Profile ID", UserPersonalization."Profile ID", 'Profile ID not set in User Personalization.');
     end;
+#endif
 
     [Test]
     [HandlerFunctions('AvailableRoleCentersHandlerBlankProfileIsHidden')]
     [Scope('OnPrem')]
     procedure TestBlankRoleCenterIsHiddenOnMySettings()
     var
-        MySettings: TestPage "My Settings";
+        UserSettings: TestPage "User Settings";
     begin
         // [WHEN] The user changes the Role Center in "My Settings" window, and chooses OK
-        MySettings.OpenEdit;
-        MySettings.UserRoleCenter.AssistEdit;
+        UserSettings.OpenEdit();
+        UserSettings.UserRoleCenter.AssistEdit();
         // [THEN] The Blank Role Center is Hidden
         // Verify in AvailableRoleCentersHandlerBlankProfileIsHidden
     end;
@@ -68,20 +70,20 @@ codeunit 139006 "Test My Settings"
     procedure TestDefaultRoleCenterShownByDefault()
     var
         AllProfile: Record "All Profile";
-        MySettings: TestPage "My Settings";
+        UserSettings: TestPage "User Settings";
         Scope: Option System,Tenant;
         AppID: Guid;
     begin
         // [GIVEN] The user hasn't chosen a Role Center
-        Initialize;
+        Initialize();
 
         // [THEN] The Default Role Center is shown in "My Settings" page "Role Center" field
         AllProfile.Get(Scope::Tenant, AppID, 'BUSINESS MANAGER');
         AllProfile.Validate("Default Role Center", true);
         AllProfile.Modify(true);
-        MySettings.OpenEdit;
-        MySettings.UserRoleCenter.AssertEquals(AllProfile.Description);
-        MySettings.OK.Invoke;
+        UserSettings.OpenEdit();
+        UserSettings.UserRoleCenter.AssertEquals(AllProfile.Description);
+        UserSettings.OK().Invoke();
     end;
 
     [Test]
@@ -90,29 +92,28 @@ codeunit 139006 "Test My Settings"
     procedure PostingOutsideFiscalYear()
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
-        MySettings: TestPage "My Settings";
+        UserSettings: TestPage "User Settings";
     begin
         // [FEATURE] [Fiscal Year] [Posting Outside Fiscal Year]
         // [SCENARIO 169269] "My Settings" page saved the value of setup "Posting Outside Fiscal Year"
-
-        Initialize;
+        Initialize();
 
         // [GIVEN] Opened page "My Settings"
-        MySettings.OpenEdit;
+        UserSettings.OpenEdit();
 
         // [WHEN] Set "Posting Outside Fiscal Year Not Allowed" = False, close "My Settings" page and open once again
         ActionToDo := ActionToDo::VerifyValue;
         EnabledValue := true;
-        MySettings.MyNotificationsLbl.DrillDown;
+        UserSettings.MyNotificationsLbl.DrillDown();
 
         // [THEN] Default value of the Posting dialog is True- verified in the MyNotificationsModalPageHandler.
 
         // [WHEN] Set "Posting Outside Fiscal Year Not Allowed" = False, close "My Settings" page and open once again
         ActionToDo := ActionToDo::SetValue;
         EnabledValue := false;
-        MySettings.MyNotificationsLbl.DrillDown;
-        MySettings.Close;
-        MySettings.OpenView;
+        UserSettings.MyNotificationsLbl.DrillDown();
+        UserSettings.Close();
+        UserSettings.OpenView();
 
         // [THEN] InstructionMgt
         Assert.IsFalse(InstructionMgt.IsEnabled(InstructionMgt.PostingAfterCurrentCalendarDateNotAllowedCode),
@@ -120,8 +121,8 @@ codeunit 139006 "Test My Settings"
 
         // [THEN] Value of "Posting Outside Fiscal Year" in "My Settings" page is FALSE
         ActionToDo := ActionToDo::VerifyValue;
-        MySettings.MyNotificationsLbl.DrillDown;
-        MySettings.Close;
+        UserSettings.MyNotificationsLbl.DrillDown();
+        UserSettings.Close();
 
         // Tear Down
         InstructionMgt.EnableMessageForCurrentUser(InstructionMgt.PostingAfterCurrentCalendarDateNotAllowedCode);
@@ -134,7 +135,7 @@ codeunit 139006 "Test My Settings"
     var
         Customer: Record Customer;
         CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit";
-        MySettings: TestPage "My Settings";
+        UserSettings: TestPage "User Settings";
         CrCheckEnabled: Boolean;
     begin
         // [FEATURE] [My Notifications]
@@ -142,14 +143,14 @@ codeunit 139006 "Test My Settings"
         Initialize();
 
         // [GIVEN] Opened page "My Settings"
-        MySettings.OpenEdit();
+        UserSettings.OpenEdit();
 
         // [WHEN] Set Credit limit warning for a certain customer
         LibrarySales.CreateCustomer(Customer);
         CustomerNum := Customer."No.";
         EnabledValue := true;
         RemoveFilterValues := false;
-        MySettings.MyNotificationsLbl.DrillDown();
+        UserSettings.MyNotificationsLbl.DrillDown();
 
         // [WHEN] Create sales invoice for the customer
         LibraryLowerPermissions.SetSalesDocsPost();
@@ -169,7 +170,7 @@ codeunit 139006 "Test My Settings"
 
         // [WHEN] Disable Credit limit warning
         EnabledValue := false;
-        MySettings.MyNotificationsLbl.DrillDown();
+        UserSettings.MyNotificationsLbl.DrillDown();
 
         // [WHEN] Create sales invoice for the customer
         CrCheckEnabled := CustCheckCrLimit.IsCreditLimitNotificationEnabled(Customer);
@@ -180,7 +181,7 @@ codeunit 139006 "Test My Settings"
         // [WHEN] Enable the check again but remove filters
         EnabledValue := true;
         RemoveFilterValues := true;
-        MySettings.MyNotificationsLbl.DrillDown;
+        UserSettings.MyNotificationsLbl.DrillDown();
 
         // [THEN] The filter form is opened.
         Assert.IsTrue(FilterFormOpened, 'Filter form should have been opened');
@@ -194,7 +195,7 @@ codeunit 139006 "Test My Settings"
     begin
         // [FEATURE] [My Notifications] [User] [UT]
         // [SCENARIO 382390] Page 1518 "My Notifications" is filtered with USERID value
-        MyNotifications.OpenView;
+        MyNotifications.OpenView();
         Assert.AreEqual(UserId, MyNotifications.FILTER.GetFilter("User Id"), '');
     end;
 
@@ -208,7 +209,7 @@ codeunit 139006 "Test My Settings"
         GLAccountNo: array[2] of Code[20];
     begin
         // [SCENARIO 211089] "My Accounts" subpage for GLAccount (Posting type) populates the Balance field and drills down with GL Entries filtered for that GLAccount.No.
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Accounts "AC1" and "AC2" with G/L Entries with Amounts = 100 and 200 respectively.
         PrepareTwoGLAccountsWithGLEntries(GLAccountNo, GLAccountBalance);
@@ -218,15 +219,15 @@ codeunit 139006 "Test My Settings"
         CreateMyAccountRecord(MyAccount, GLAccountNo[2]);
 
         // [WHEN] My Accounts page is opened for "MyAcc" for the "AC1" G/L Account.
-        MyAccountsTestPage.OpenEdit;
+        MyAccountsTestPage.OpenEdit();
         MyAccountsTestPage.GotoRecord(MyAccount);
 
         // [THEN] The Balance field is = 100 for "AC1" and 200 for "AC2"
         // [THEN] DrillDown on the Balance field is opening General Ledger Entries with filter for "AC1" or "AC2" accordingly.
-        MyAccountsTestPage.First;
+        MyAccountsTestPage.First();
         VerifyGLAccountBalanceAndEntriesFilterOnDrillDown(
           MyAccountsTestPage, GLAccountNo[1], GLAccountBalance[1]);
-        MyAccountsTestPage.Last;
+        MyAccountsTestPage.Last();
         VerifyGLAccountBalanceAndEntriesFilterOnDrillDown(
           MyAccountsTestPage, GLAccountNo[2], GLAccountBalance[2]);
     end;
@@ -244,7 +245,7 @@ codeunit 139006 "Test My Settings"
         GLAccountNo: array[2] of Code[20];
     begin
         // [SCENARIO 211089] "My Accounts" subpage for GLAccount (Totaling type) populates the Balance field and drills down with GL Entries filtered for that GLAccount.Totaling.
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Accounts "AC1" and "AC2" with G/L Entries with Amounts = 100 and 200 respectively.
         PrepareTwoGLAccountsWithGLEntries(GLAccountNo, GLAccountBalance);
@@ -252,20 +253,20 @@ codeunit 139006 "Test My Settings"
         // [GIVEN] Totaling G/L Account "ACT" where "ACT".Totaling = "AC1"|"AC2" and "ACT".Balance is 300.
         PrepareTotalingGLAccount(Format(GLAccountNo[1]) + '|' + Format(GLAccountNo[2]), TotalingGLAccount, TotalingBalance);
 
-        // [GIVEN] "ACT" isadded to "My Account" table as "MyAcc" record.
+        // [GIVEN] "ACT" is added to "My Account" table as "MyAcc" record.
         CreateMyAccountRecord(MyAccount, TotalingGLAccount."No.");
 
         // [WHEN] My Account page is opened for "MYACC".
-        MyAccountsTestPage.OpenEdit;
+        MyAccountsTestPage.OpenEdit();
         MyAccountsTestPage.GotoRecord(MyAccount);
-        MyAccountsTestPage.Last;
+        MyAccountsTestPage.Last();
 
         // [THEN] The Balance field is = 300 for "ACT" added to "MYACC".
         MyAccountsTestPage.Balance.AssertEquals(TotalingBalance);
 
         // [THEN] DrillDown for the Balance field is opening General Ledger Entries with filter for "AC2".Totaling value.
-        GeneralLedgerEntries.Trap;
-        MyAccountsTestPage.Balance.DrillDown;
+        GeneralLedgerEntries.Trap();
+        MyAccountsTestPage.Balance.DrillDown();
         Assert.AreEqual(
           Format(TotalingGLAccount.Totaling),
           GeneralLedgerEntries.FILTER.GetFilter("G/L Account No."),
@@ -284,7 +285,7 @@ codeunit 139006 "Test My Settings"
         GLAccountNo: array[2] of Code[20];
     begin
         // [SCENARIO 212332] Balance value is not cleared when the totaling G/L Account has been added to "My Accounts" page and then another account selected.
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Accounts "AC1" and "AC2" with G/L Entries with Amounts = 100 and 200 respectively.
         PrepareTwoGLAccountsWithGLEntries(GLAccountNo, GLAccountBalance);
@@ -297,22 +298,22 @@ codeunit 139006 "Test My Settings"
         CreateMyAccountRecord(MyAccount, GLAccountNo[2]);
 
         // [GIVEN] "My Accounts" page is opened for "MyAcc" record.
-        MyAccountsTestPage.OpenEdit;
+        MyAccountsTestPage.OpenEdit();
         MyAccountsTestPage.GotoRecord(MyAccount);
 
         // [WHEN] "ACT" is added on the "My Accounts" page.
-        MyAccountsTestPage.New;
+        MyAccountsTestPage.New();
         MyAccountsTestPage."Account No.".SetValue := TotalingGLAccount."No.";
 
         // [THEN] "ACT" Balance is 300.
         MyAccountsTestPage.Balance.AssertEquals(TotalingBalance);
 
         // [THEN] Moving through the page and selecting each record, the Balance amounts are not cleared.
-        MyAccountsTestPage.First;
+        MyAccountsTestPage.First();
         VerifyGLAccountNoAndBalance(MyAccountsTestPage, GLAccountNo[1], GLAccountBalance[1]);
-        MyAccountsTestPage.Next;
+        MyAccountsTestPage.Next();
         VerifyGLAccountNoAndBalance(MyAccountsTestPage, GLAccountNo[2], GLAccountBalance[2]);
-        MyAccountsTestPage.Last;
+        MyAccountsTestPage.Last();
         VerifyGLAccountNoAndBalance(MyAccountsTestPage, TotalingGLAccount."No.", TotalingBalance);
     end;
 
@@ -326,7 +327,7 @@ codeunit 139006 "Test My Settings"
     begin
         // [FEATURE] [My Notifications] [UT]
         // [SCENARIO 220587] MyNotification.IsEnabledForRecord returns FALSE when the record is out of the filters.
-        Initialize;
+        Initialize();
         MyNotifications.DeleteAll();
 
         // [GIVEN] Two Customers "C1" and "C2"
@@ -353,7 +354,7 @@ codeunit 139006 "Test My Settings"
     begin
         // [FEATURE] [My Notifications] [UT]
         // [SCENARIO 220587] MyNotification.IsEnabledForRecord returns TRUE when the record is within the filter.
-        Initialize;
+        Initialize();
         MyNotifications.DeleteAll();
 
         // [GIVEN] Customer.
@@ -379,10 +380,10 @@ codeunit 139006 "Test My Settings"
     begin
         // [FEATURE] [My Notifications] [UT] [Purchase] [External Document No.] [UI]
         // [SCENARIO 272152] "Purchase document with same external document number already exists." is enabled by default
-        Initialize;
+        Initialize();
         MyNotifications.DeleteAll();
 
-        MyNotificationsPage.OpenView;
+        MyNotificationsPage.OpenView();
 
         Assert.IsTrue(MyNotifications.IsEnabled(PurchaseHeader.GetShowExternalDocAlreadyExistNotificationId), '');
     end;
@@ -415,7 +416,7 @@ codeunit 139006 "Test My Settings"
                 "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
                 "G/L Account No." := GLAccount[AccountNo]."No.";
                 Amount := LibraryRandom.RandDec(100, 2);
-                Insert;
+                Insert();
                 GLAccountNo[AccountNo] := "G/L Account No.";
                 GLAccountBalance[AccountNo] := Amount;
             end;
@@ -435,10 +436,10 @@ codeunit 139006 "Test My Settings"
     local procedure CreateMyAccountRecord(var MyAccount: Record "My Account"; GLAccountNo: Code[20])
     begin
         with MyAccount do begin
-            Init;
+            Init();
             "User ID" := UserId;
             "Account No." := GLAccountNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -447,8 +448,8 @@ codeunit 139006 "Test My Settings"
         GeneralLedgerEntries: TestPage "General Ledger Entries";
     begin
         MyAccountsTestPage.Balance.AssertEquals(ExpectedBalance);
-        GeneralLedgerEntries.Trap;
-        MyAccountsTestPage.Balance.DrillDown;
+        GeneralLedgerEntries.Trap();
+        MyAccountsTestPage.Balance.DrillDown();
         Assert.AreEqual(
           Format(GLAccountNo),
           GeneralLedgerEntries.FILTER.GetFilter("G/L Account No."),
@@ -484,20 +485,20 @@ codeunit 139006 "Test My Settings"
     begin
         AllProfile.SetRange("Default Role Center", false);
         AllProfile.SetRange(Enabled, true);
-        AllProfile.FindFirst;
+        AllProfile.FindFirst();
         AvailableRoleCenters.GotoRecord(AllProfile);
         LibraryVariableStorage.Enqueue(AllProfile);
-        AvailableRoleCenters.OK.Invoke;
+        AvailableRoleCenters.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure AvailableRoleCentersHandlerBlankProfileIsHidden(var AvailableRoleCenters: TestPage "Available Roles")
+    procedure AvailableRoleCentersHandlerBlankProfileIsHidden(var Roles: TestPage Roles)
     var
         AllProfile: Record "All Profile";
     begin
         AllProfile.Get(AllProfile.Scope::Tenant, '63ca2fa4-4f03-4f2b-a480-172fef340d3f', 'BLANK');
-        Assert.IsFalse(AvailableRoleCenters.GotoRecord(AllProfile), 'The Blank Profile was not hidden.');
+        Assert.IsFalse(Roles.GotoRecord(AllProfile), 'The Blank Profile was not hidden.');
     end;
 
     [ModalPageHandler]
@@ -536,20 +537,20 @@ codeunit 139006 "Test My Settings"
 
             if RemoveFilterValues then begin
                 // [WHEN] A filter is chosen
-                MyNotifications.Filters.DrillDown;
+                MyNotifications.Filters.DrillDown();
 
                 // [THEN] The Filter column has a default text
                 MyNotifications.Filters.AssertEquals(ViewFilterDetailsTxt);
 
                 // [WHEN] The filter drill down is clicked again.
                 FilterFormOpened := false;
-                MyNotifications.Filters.DrillDown;
+                MyNotifications.Filters.DrillDown();
             end else begin
                 // [THEN] The Filter column has a default text
                 MyNotifications.Filters.AssertEquals(ViewFilterDetailsTxt);
 
                 // [WHEN] A filter is chosen
-                MyNotifications.Filters.DrillDown;
+                MyNotifications.Filters.DrillDown();
 
                 // [THEN] The Filter Column has the Customer filter visible
                 MyNotifications.Filters.AssertEquals(StrSubstNo('%1: %2', Customer.FieldName("No."), CustomerNum));
@@ -584,4 +585,3 @@ codeunit 139006 "Test My Settings"
     begin
     end;
 }
-

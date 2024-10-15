@@ -242,6 +242,7 @@ page 51 "Purchase Invoice"
                     Caption = 'Alternate Vendor Address Code';
                     Importance = Additional;
                     ToolTip = 'Specifies the order address of the related vendor.';
+                    Enabled = Rec."Buy-from Vendor No." <> '';
                 }
                 field("Responsibility Center"; "Responsibility Center")
                 {
@@ -1197,12 +1198,20 @@ page 51 "Purchase Invoice"
                         PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
                     end;
                 }
+#if not CLEAN19
                 separator(Action136)
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This separator will be removed to allign with W1.';
+                    ObsoleteTag = '19.0';
                 }
                 separator(Action137)
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This separator will be removed to allign with W1.';
+                    ObsoleteTag = '19.0';
                 }
+#endif
                 action("Create Tracking Information")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1249,9 +1258,9 @@ page 51 "Purchase Invoice"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsPurchase(Rec);
                     end;
                 }
                 action(SendApprovalRequest)
@@ -1356,6 +1365,7 @@ page 51 "Purchase Invoice"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category6;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -1456,8 +1466,8 @@ page 51 "Purchase Invoice"
     trigger OnAfterGetRecord()
     begin
         CalculateCurrentShippingAndPayToOption;
-        if BuyFromContact.Get("Buy-from Contact No.") then;
-        if PayToContact.Get("Pay-to Contact No.") then;
+        BuyFromContact.GetOrClear("Buy-from Contact No.");
+        PayToContact.GetOrClear("Pay-to Contact No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1496,11 +1506,8 @@ page 51 "Purchase Invoice"
         CreateIncomingDocumentVisible := not OfficeMgt.IsOutlookMobileApp;
         IsSaaS := EnvironmentInfo.IsSaaS;
 
-        if UserMgt.GetPurchasesFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetPurchasesFilter);
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
+
         if ("No." <> '') and ("Buy-from Vendor No." = '') then
             DocumentIsPosted := (not Get("Document Type", "No."));
 

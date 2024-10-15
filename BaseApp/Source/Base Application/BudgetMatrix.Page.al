@@ -28,7 +28,7 @@ page 9203 "Budget Matrix"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookUpCode(LineDimOption, LineDimCode, Code);
+                        LookUpCode(LineDimType, LineDimCode, Code);
                     end;
                 }
                 field(Name; Name)
@@ -333,18 +333,18 @@ page 9203 "Budget Matrix"
         NameIndent := 0;
         for MATRIX_CurrentColumnOrdinal := 1 to MATRIX_CurrentNoOfMatrixColumn do
             MATRIX_OnAfterGetRecord(MATRIX_CurrentColumnOrdinal);
-        Amount := MatrixMgt.RoundValue(CalcAmount(false), RoundingFactor);
+        Amount := MatrixMgt.RoundAmount(CalcAmount(false), RoundingFactor);
         FormatLine;
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        exit(FindRec(LineDimOption, Rec, Which));
+        exit(FindRec(LineDimType, Rec, Which));
     end;
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin
-        exit(NextRec(LineDimOption, Rec, Steps));
+        exit(NextRec(LineDimType, Rec, Steps));
     end;
 
     trigger OnOpenPage()
@@ -367,17 +367,17 @@ page 9203 "Budget Matrix"
         MATRIX_MatrixRecord: Record "Dimension Code Buffer";
         MatrixMgt: Codeunit "Matrix Management";
         BudgetName: Code[10];
-        LineDimOption: Option "G/L Account",Period,"Business Unit","Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3","Budget Dimension 4";
-        ColumnDimOption: Option "G/L Account",Period,"Business Unit","Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3","Budget Dimension 4";
+        LineDimType: Enum "G/L Budget Matrix Dimensions";
+        ColumnDimType: Enum "G/L Budget Matrix Dimensions";
         LineDimCode: Text[30];
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        RoundingFactor: Option "None","1","1000","1000000";
+        PeriodType: Enum "Analysis Period Type";
+        RoundingFactor: Enum "Analysis Rounding Factor";
         DateFilter: Text[30];
         InternalDateFilter: Text[30];
         BusUnitFilter: Code[250];
         GLAccFilter: Code[250];
-        IncomeBalanceGLAccFilter: Option " ","Income Statement","Balance Sheet";
-        GLAccCategoryFilter: Option " ",Assets,Liabilities,Equity,Income,"Cost of Goods Sold",Expense;
+        IncomeBalanceGLAccFilter: Enum "G/L Account Income/Balance";
+        GLAccCategoryFilter: Enum "G/L Account Category";
         GlobalDim1Filter: Code[250];
         GlobalDim2Filter: Code[250];
         BudgetDim1Filter: Code[250];
@@ -425,17 +425,17 @@ page 9203 "Budget Matrix"
         end;
     end;
 
-    local procedure FindRec(DimOption: Option "G/L Account",Period,"Business Unit","Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3","Budget Dimension 4"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]): Boolean
+    local procedure FindRec(DimType: Enum "G/L Budget Matrix Dimensions"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]): Boolean
     var
         GLAcc: Record "G/L Account";
         BusUnit: Record "Business Unit";
         Period: Record Date;
         DimVal: Record "Dimension Value";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
         Found: Boolean;
     begin
-        case DimOption of
-            DimOption::"G/L Account":
+        case DimType of
+            DimType::"G/L Account":
                 begin
                     GLAcc."No." := DimCodeBuf.Code;
                     if GLAccFilter <> '' then
@@ -447,7 +447,7 @@ page 9203 "Budget Matrix"
                     if Found then
                         CopyGLAccToBuf(GLAcc, DimCodeBuf);
                 end;
-            DimOption::Period:
+            DimType::Period:
                 begin
                     if not PeriodInitialized then
                         DateFilter := '';
@@ -458,11 +458,11 @@ page 9203 "Budget Matrix"
                     else
                         if not PeriodInitialized and (InternalDateFilter <> '') then
                             Period.SetFilter("Period Start", InternalDateFilter);
-                    Found := PeriodFormMgt.FindDate(Which, Period, PeriodType);
+                    Found := PeriodPageMgt.FindDate(Which, Period, PeriodType);
                     if Found then
                         CopyPeriodToBuf(Period, DimCodeBuf);
                 end;
-            DimOption::"Business Unit":
+            DimType::"Business Unit":
                 begin
                     BusUnit.Code := DimCodeBuf.Code;
                     if BusUnitFilter <> '' then
@@ -471,7 +471,7 @@ page 9203 "Budget Matrix"
                     if Found then
                         CopyBusUnitToBuf(BusUnit, DimCodeBuf);
                 end;
-            DimOption::"Global Dimension 1":
+            DimType::"Global Dimension 1":
                 begin
                     if GlobalDim1Filter <> '' then
                         DimVal.SetFilter(Code, GlobalDim1Filter);
@@ -482,7 +482,7 @@ page 9203 "Budget Matrix"
                     if Found then
                         CopyDimValToBuf(DimVal, DimCodeBuf);
                 end;
-            DimOption::"Global Dimension 2":
+            DimType::"Global Dimension 2":
                 begin
                     if GlobalDim2Filter <> '' then
                         DimVal.SetFilter(Code, GlobalDim2Filter);
@@ -493,7 +493,7 @@ page 9203 "Budget Matrix"
                     if Found then
                         CopyDimValToBuf(DimVal, DimCodeBuf);
                 end;
-            DimOption::"Budget Dimension 1":
+            DimType::"Budget Dimension 1":
                 begin
                     if BudgetDim1Filter <> '' then
                         DimVal.SetFilter(Code, BudgetDim1Filter);
@@ -504,7 +504,7 @@ page 9203 "Budget Matrix"
                     if Found then
                         CopyDimValToBuf(DimVal, DimCodeBuf);
                 end;
-            DimOption::"Budget Dimension 2":
+            DimType::"Budget Dimension 2":
                 begin
                     if BudgetDim2Filter <> '' then
                         DimVal.SetFilter(Code, BudgetDim2Filter);
@@ -515,7 +515,7 @@ page 9203 "Budget Matrix"
                     if Found then
                         CopyDimValToBuf(DimVal, DimCodeBuf);
                 end;
-            DimOption::"Budget Dimension 3":
+            DimType::"Budget Dimension 3":
                 begin
                     if BudgetDim3Filter <> '' then
                         DimVal.SetFilter(Code, BudgetDim3Filter);
@@ -526,7 +526,7 @@ page 9203 "Budget Matrix"
                     if Found then
                         CopyDimValToBuf(DimVal, DimCodeBuf);
                 end;
-            DimOption::"Budget Dimension 4":
+            DimType::"Budget Dimension 4":
                 begin
                     if BudgetDim4Filter <> '' then
                         DimVal.SetFilter(Code, BudgetDim4Filter);
@@ -541,17 +541,17 @@ page 9203 "Budget Matrix"
         exit(Found);
     end;
 
-    local procedure NextRec(DimOption: Option "G/L Account",Period,"Business Unit","Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3","Budget Dimension 4"; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer): Integer
+    local procedure NextRec(DimType: Enum "G/L Budget Matrix Dimensions"; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer): Integer
     var
         GLAcc: Record "G/L Account";
         BusUnit: Record "Business Unit";
         Period: Record Date;
         DimVal: Record "Dimension Value";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
         ResultSteps: Integer;
     begin
-        case DimOption of
-            DimOption::"G/L Account":
+        case DimType of
+            DimType::"G/L Account":
                 begin
                     GLAcc."No." := DimCodeBuf.Code;
                     if GLAccFilter <> '' then
@@ -563,16 +563,16 @@ page 9203 "Budget Matrix"
                     if ResultSteps <> 0 then
                         CopyGLAccToBuf(GLAcc, DimCodeBuf);
                 end;
-            DimOption::Period:
+            DimType::Period:
                 begin
                     if DateFilter <> '' then
                         Period.SetFilter("Period Start", DateFilter);
                     Period."Period Start" := DimCodeBuf."Period Start";
-                    ResultSteps := PeriodFormMgt.NextDate(Steps, Period, PeriodType);
+                    ResultSteps := PeriodPageMgt.NextDate(Steps, Period, PeriodType);
                     if ResultSteps <> 0 then
                         CopyPeriodToBuf(Period, DimCodeBuf);
                 end;
-            DimOption::"Business Unit":
+            DimType::"Business Unit":
                 begin
                     BusUnit.Code := DimCodeBuf.Code;
                     if BusUnitFilter <> '' then
@@ -581,7 +581,7 @@ page 9203 "Budget Matrix"
                     if ResultSteps <> 0 then
                         CopyBusUnitToBuf(BusUnit, DimCodeBuf);
                 end;
-            DimOption::"Global Dimension 1":
+            DimType::"Global Dimension 1":
                 begin
                     if GlobalDim1Filter <> '' then
                         DimVal.SetFilter(Code, GlobalDim1Filter);
@@ -592,7 +592,7 @@ page 9203 "Budget Matrix"
                     if ResultSteps <> 0 then
                         CopyDimValToBuf(DimVal, DimCodeBuf);
                 end;
-            DimOption::"Global Dimension 2":
+            DimType::"Global Dimension 2":
                 begin
                     if GlobalDim2Filter <> '' then
                         DimVal.SetFilter(Code, GlobalDim2Filter);
@@ -603,7 +603,7 @@ page 9203 "Budget Matrix"
                     if ResultSteps <> 0 then
                         CopyDimValToBuf(DimVal, DimCodeBuf);
                 end;
-            DimOption::"Budget Dimension 1":
+            DimType::"Budget Dimension 1":
                 begin
                     if BudgetDim1Filter <> '' then
                         DimVal.SetFilter(Code, BudgetDim1Filter);
@@ -614,7 +614,7 @@ page 9203 "Budget Matrix"
                     if ResultSteps <> 0 then
                         CopyDimValToBuf(DimVal, DimCodeBuf);
                 end;
-            DimOption::"Budget Dimension 2":
+            DimType::"Budget Dimension 2":
                 begin
                     if BudgetDim2Filter <> '' then
                         DimVal.SetFilter(Code, BudgetDim2Filter);
@@ -625,7 +625,7 @@ page 9203 "Budget Matrix"
                     if ResultSteps <> 0 then
                         CopyDimValToBuf(DimVal, DimCodeBuf);
                 end;
-            DimOption::"Budget Dimension 3":
+            DimType::"Budget Dimension 3":
                 begin
                     if BudgetDim3Filter <> '' then
                         DimVal.SetFilter(Code, BudgetDim3Filter);
@@ -636,7 +636,7 @@ page 9203 "Budget Matrix"
                     if ResultSteps <> 0 then
                         CopyDimValToBuf(DimVal, DimCodeBuf);
                 end;
-            DimOption::"Budget Dimension 4":
+            DimType::"Budget Dimension 4":
                 begin
                     if BudgetDim4Filter <> '' then
                         DimVal.SetFilter(Code, BudgetDim4Filter);
@@ -706,28 +706,28 @@ page 9203 "Budget Matrix"
         end;
     end;
 
-    local procedure LookUpCode(DimOption: Option "G/L Account",Period,"Business Unit","Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3","Budget Dimension 4"; DimCode: Text[30]; "Code": Text[30])
+    local procedure LookUpCode(DimType: Enum "G/L Budget Matrix Dimensions"; DimCode: Text[30]; "Code": Text[30])
     var
         GLAcc: Record "G/L Account";
         BusUnit: Record "Business Unit";
         DimVal: Record "Dimension Value";
     begin
-        case DimOption of
-            DimOption::"G/L Account":
+        case DimType of
+            DimType::"G/L Account":
                 begin
                     GLAcc.Get(Code);
                     PAGE.RunModal(PAGE::"G/L Account List", GLAcc);
                 end;
-            DimOption::Period:
+            DimType::Period:
                 ;
-            DimOption::"Business Unit":
+            DimType::"Business Unit":
                 begin
                     BusUnit.Get(Code);
                     PAGE.RunModal(PAGE::"Business Unit List", BusUnit);
                 end;
-            DimOption::"Global Dimension 1", DimOption::"Global Dimension 2",
-            DimOption::"Budget Dimension 1", DimOption::"Budget Dimension 2",
-            DimOption::"Budget Dimension 3", DimOption::"Budget Dimension 4":
+            DimType::"Global Dimension 1", DimType::"Global Dimension 2",
+            DimType::"Budget Dimension 1", DimType::"Budget Dimension 2",
+            DimType::"Budget Dimension 3", DimType::"Budget Dimension 4":
                 begin
                     DimVal.SetRange("Dimension Code", DimCode);
                     DimVal.Get(DimCode, Code);
@@ -768,53 +768,53 @@ page 9203 "Budget Matrix"
     local procedure SetDimFilters(var TheGLAccBudgetBuf: Record "G/L Acc. Budget Buffer"; LineOrColumn: Option Line,Column)
     var
         DimCodeBuf: Record "Dimension Code Buffer";
-        DimOption: Option "G/L Account",Period,"Business Unit","Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3","Budget Dimension 4";
+        DimType: Enum "G/L Budget Matrix Dimensions";
     begin
         if LineOrColumn = LineOrColumn::Line then begin
             DimCodeBuf := Rec;
-            DimOption := LineDimOption;
+            DimType := LineDimType;
         end else begin
             DimCodeBuf := MATRIX_MatrixRecord;
-            DimOption := ColumnDimOption;
+            DimType := ColumnDimType;
         end;
 
         with TheGLAccBudgetBuf do
-            case DimOption of
-                DimOption::"G/L Account":
+            case DimType of
+                DimType::"G/L Account":
                     if DimCodeBuf.Totaling <> '' then
                         GLAccBudgetBuf.SetFilter("G/L Account Filter", DimCodeBuf.Totaling)
                     else
                         GLAccBudgetBuf.SetRange("G/L Account Filter", DimCodeBuf.Code);
-                DimOption::Period:
+                DimType::Period:
                     SetRange("Date Filter", DimCodeBuf."Period Start", DimCodeBuf."Period End");
-                DimOption::"Business Unit":
+                DimType::"Business Unit":
                     SetRange("Business Unit Filter", DimCodeBuf.Code);
-                DimOption::"Global Dimension 1":
+                DimType::"Global Dimension 1":
                     if DimCodeBuf.Totaling <> '' then
                         SetFilter("Global Dimension 1 Filter", DimCodeBuf.Totaling)
                     else
                         SetRange("Global Dimension 1 Filter", DimCodeBuf.Code);
-                DimOption::"Global Dimension 2":
+                DimType::"Global Dimension 2":
                     if DimCodeBuf.Totaling <> '' then
                         SetFilter("Global Dimension 2 Filter", DimCodeBuf.Totaling)
                     else
                         SetRange("Global Dimension 2 Filter", DimCodeBuf.Code);
-                DimOption::"Budget Dimension 1":
+                DimType::"Budget Dimension 1":
                     if DimCodeBuf.Totaling <> '' then
                         SetFilter("Budget Dimension 1 Filter", DimCodeBuf.Totaling)
                     else
                         SetRange("Budget Dimension 1 Filter", DimCodeBuf.Code);
-                DimOption::"Budget Dimension 2":
+                DimType::"Budget Dimension 2":
                     if DimCodeBuf.Totaling <> '' then
                         SetFilter("Budget Dimension 2 Filter", DimCodeBuf.Totaling)
                     else
                         SetRange("Budget Dimension 2 Filter", DimCodeBuf.Code);
-                DimOption::"Budget Dimension 3":
+                DimType::"Budget Dimension 3":
                     if DimCodeBuf.Totaling <> '' then
                         SetFilter("Budget Dimension 3 Filter", DimCodeBuf.Totaling)
                     else
                         SetRange("Budget Dimension 3 Filter", DimCodeBuf.Code);
-                DimOption::"Budget Dimension 4":
+                DimType::"Budget Dimension 4":
                     if DimCodeBuf.Totaling <> '' then
                         SetFilter("Budget Dimension 4 Filter", DimCodeBuf.Totaling)
                     else
@@ -854,7 +854,7 @@ page 9203 "Budget Matrix"
                 SetCurrentKey("Budget Name", "G/L Account No.", "Business Unit Code", "Global Dimension 1 Code")
             else
                 SetCurrentKey("Budget Name", "G/L Account No.", Date);
-        PAGE.Run(0,GLBudgetEntry);
+        PAGE.Run(0, GLBudgetEntry);
     end;
 
     local procedure CalcAmount(SetColumnFilter: Boolean): Decimal
@@ -881,7 +881,22 @@ page 9203 "Budget Matrix"
         exit(NewAmount);
     end;
 
-    procedure Load(MatrixColumns1: array[32] of Text[80]; var MatrixRecords1: array[12] of Record "Dimension Code Buffer"; CurrentNoOfMatrixColumns: Integer; _LineDimCode: Text[30]; _LineDimOption: Integer; _ColumnDimOption: Integer; _GlobalDim1Filter: Code[250]; _GlobalDim2Filter: Code[250]; _BudgetDim1Filter: Code[250]; _BudgetDim2Filter: Code[250]; _BudgetDim3Filter: Code[250]; _BudgetDim4Filter: Code[250]; var _GLBudgetName: Record "G/L Budget Name"; _DateFilter: Text[30]; _GLAccFilter: Code[250]; _IncomeBalanceGLAccFilter: Option; _GLAccCategoryFilter: Option; _RoundingFactor: Integer; _PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period")
+#if not CLEAN19
+    [Obsolete('Replaced by LoadMatrix().', '19.0')]
+    procedure Load(MatrixColumns1: array[32] of Text[80]; var MatrixRecords1: array[12] of Record "Dimension Code Buffer"; CurrentNoOfMatrixColumns: Integer; NewLineDimCode: Text[30]; NewLineDimOption: Integer; NewColumnDimOption: Integer; NewGlobalDim1Filter: Code[250]; NewGlobalDim2Filter: Code[250]; NewBudgetDim1Filter: Code[250]; NewBudgetDim2Filter: Code[250]; NewBudgetDim3Filter: Code[250]; NewBudgetDim4Filter: Code[250]; var NewGLBudgetName: Record "G/L Budget Name"; NewDateFilter: Text[30]; NewGLAccFilter: Code[250]; NewIncomeBalanceGLAccFilter: Option; NewGLAccCategoryFilter: Enum "G/L Account Category"; NewRoundingFactor: Integer; NewPeriodType: Enum "Analysis Period Type")
+    begin
+        LoadMatrix(
+            MatrixColumns1, MatrixRecords1, CurrentNoOfMatrixColumns, NewLineDimCode,
+            "G/L Budget Matrix Dimensions".FromInteger(NewLineDimOption),
+            "G/L Budget Matrix Dimensions".FromInteger(NewColumnDimOption),
+            NewGlobalDim1Filter, NewGlobalDim2Filter, NewBudgetDim1Filter, NewBudgetDim2Filter,
+            NewBudgetDim3Filter, NewBudgetDim4Filter, NewGLBudgetName, NewDateFilter, NewGLAccFilter,
+            "G/L Account Income/Balance".FromInteger(NewIncomeBalanceGLAccFilter), NewGLAccCategoryFilter,
+            "Analysis Rounding Factor".FromInteger(NewRoundingFactor), NewPeriodType);
+    end;
+#endif
+
+    procedure LoadMatrix(NewMatrixColumns: array[32] of Text[80]; var NewMatrixRecords: array[12] of Record "Dimension Code Buffer"; CurrentNoOfMatrixColumns: Integer; NewLineDimCode: Text[30]; NewLineDimType: Enum "G/L Budget Matrix Dimensions"; NewColumnDimType: Enum "G/L Budget Matrix Dimensions"; NewGlobalDim1Filter: Code[250]; NewGlobalDim2Filter: Code[250]; NewBudgetDim1Filter: Code[250]; NewBudgetDim2Filter: Code[250]; NewBudgetDim3Filter: Code[250]; NewBudgetDim4Filter: Code[250]; var NewGLBudgetName: Record "G/L Budget Name"; NewDateFilter: Text[30]; NewGLAccFilter: Code[250]; NewIncomeBalanceGLAccFilter: Enum "G/L Account Income/Balance"; NewGLAccCategoryFilter: Enum "G/L Account Category"; NewRoundingFactor: Enum "Analysis Rounding Factor"; NewPeriodType: Enum "Analysis Period Type")
     var
         i: Integer;
     begin
@@ -889,33 +904,33 @@ page 9203 "Budget Matrix"
             MATRIX_CellData[i] := 0;
 
         for i := 1 to 12 do begin
-            if MatrixColumns1[i] = '' then
+            if NewMatrixColumns[i] = '' then
                 MATRIX_CaptionSet[i] := ' '
             else
-                MATRIX_CaptionSet[i] := MatrixColumns1[i];
-            MatrixRecords[i] := MatrixRecords1[i];
+                MATRIX_CaptionSet[i] := NewMatrixColumns[i];
+            MatrixRecords[i] := NewMatrixRecords[i];
         end;
         if CurrentNoOfMatrixColumns > ArrayLen(MATRIX_CellData) then
             MATRIX_CurrentNoOfMatrixColumn := ArrayLen(MATRIX_CellData)
         else
             MATRIX_CurrentNoOfMatrixColumn := CurrentNoOfMatrixColumns;
-        LineDimCode := _LineDimCode;
-        LineDimOption := _LineDimOption;
-        ColumnDimOption := _ColumnDimOption;
-        GlobalDim1Filter := _GlobalDim1Filter;
-        GlobalDim2Filter := _GlobalDim2Filter;
-        BudgetDim1Filter := _BudgetDim1Filter;
-        BudgetDim2Filter := _BudgetDim2Filter;
-        BudgetDim3Filter := _BudgetDim3Filter;
-        BudgetDim4Filter := _BudgetDim4Filter;
-        GLBudgetName := _GLBudgetName;
-        DateFilter := _DateFilter;
-        GLAccFilter := _GLAccFilter;
-        IncomeBalanceGLAccFilter := _IncomeBalanceGLAccFilter;
-        GLAccCategoryFilter := _GLAccCategoryFilter;
-        RoundingFactor := _RoundingFactor;
-        PeriodType := _PeriodType;
-        RoundingFactorFormatString := MatrixMgt.GetFormatString(RoundingFactor, false);
+        LineDimCode := NewLineDimCode;
+        LineDimType := NewLineDimType;
+        ColumnDimType := NewColumnDimType;
+        GlobalDim1Filter := NewGlobalDim1Filter;
+        GlobalDim2Filter := NewGlobalDim2Filter;
+        BudgetDim1Filter := NewBudgetDim1Filter;
+        BudgetDim2Filter := NewBudgetDim2Filter;
+        BudgetDim3Filter := NewBudgetDim3Filter;
+        BudgetDim4Filter := NewBudgetDim4Filter;
+        GLBudgetName := NewGLBudgetName;
+        DateFilter := NewDateFilter;
+        GLAccFilter := NewGLAccFilter;
+        IncomeBalanceGLAccFilter := NewIncomeBalanceGLAccFilter;
+        GLAccCategoryFilter := NewGLAccCategoryFilter;
+        RoundingFactor := NewRoundingFactor;
+        PeriodType := NewPeriodType;
+        RoundingFactorFormatString := MatrixMgt.FormatRoundingFactor(RoundingFactor, false);
         InternalDateFilter := '';
     end;
 
@@ -931,7 +946,7 @@ page 9203 "Budget Matrix"
     local procedure MATRIX_OnAfterGetRecord(MATRIX_ColumnOrdinal: Integer)
     begin
         MATRIX_MatrixRecord := MatrixRecords[MATRIX_ColumnOrdinal];
-        MATRIX_CellData[MATRIX_ColumnOrdinal] := MatrixMgt.RoundValue(CalcAmount(true), RoundingFactor);
+        MATRIX_CellData[MATRIX_ColumnOrdinal] := MatrixMgt.RoundAmount(CalcAmount(true), RoundingFactor);
     end;
 
     local procedure UpdateAmount(MATRIX_ColumnOrdinal: Integer)
@@ -945,7 +960,7 @@ page 9203 "Budget Matrix"
         if CalcAmount(true) = 0 then; // To set filters correctly
         GLAccBudgetBuf.CalcFields("Budgeted Amount");
         GLAccBudgetBuf.Validate("Budgeted Amount", NewAmount);
-        Amount := MatrixMgt.RoundValue(CalcAmount(false), RoundingFactor);
+        Amount := MatrixMgt.RoundAmount(CalcAmount(false), RoundingFactor);
         CurrPage.Update();
     end;
 

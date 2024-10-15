@@ -28,9 +28,9 @@ page 7159 "Invt. Analysis by Dimensions"
                         ItemAnalysisMgt.LookupItemAnalysisView(
                           CurrentAnalysisArea.AsInteger(), CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,
                           Dim1Filter, Dim2Filter, Dim3Filter);
-                        ItemAnalysisMgt.SetLineAndColDim(
-                          ItemAnalysisView, LineDimCode, LineDimOption, ColumnDimCode, ColumnDimOption);
-                        UpdateFilterFields;
+                        ItemAnalysisMgt.SetLineAndColumnDim(
+                          ItemAnalysisView, LineDimCode, LineDimType, ColumnDimCode, ColumnDimType);
+                        UpdateFilterFields();
                         CurrPage.Update(false);
                     end;
 
@@ -40,9 +40,10 @@ page 7159 "Invt. Analysis by Dimensions"
                         ItemAnalysisMgt.SetItemAnalysisView(
                           CurrentAnalysisArea.AsInteger(), CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,
                           Dim1Filter, Dim2Filter, Dim3Filter);
-                        ItemAnalysisMgt.SetLineAndColDim(
-                          ItemAnalysisView, LineDimCode, LineDimOption, ColumnDimCode, ColumnDimOption);
-                        UpdateFilterFields;
+                        OnValidateCurrentItemAnalysisViewCodeOnAfterSetItemAnalysisView(ItemAnalysisView);
+                        ItemAnalysisMgt.SetLineAndColumnDim(
+                          ItemAnalysisView, LineDimCode, LineDimType, ColumnDimCode, ColumnDimType);
+                        UpdateFilterFields();
                         CurrPage.Update(false);
                     end;
                 }
@@ -67,17 +68,17 @@ page 7159 "Invt. Analysis by Dimensions"
                     begin
                         if (UpperCase(LineDimCode) = UpperCase(ColumnDimCode)) and (LineDimCode <> '') then begin
                             ColumnDimCode := '';
-                            ItemAnalysisMgt.ValidateColumnDimCode(
-                              ItemAnalysisView, ColumnDimCode, ColumnDimOption, LineDimOption,
+                            ItemAnalysisMgt.ValidateColumnDimTypeAndCode(
+                              ItemAnalysisView, ColumnDimCode, ColumnDimType, LineDimType,
                               InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
                         end;
-                        ItemAnalysisMgt.ValidateLineDimCode(
-                          ItemAnalysisView, LineDimCode, LineDimOption, ColumnDimOption,
+                        ItemAnalysisMgt.ValidateLineDimTypeAndCode(
+                          ItemAnalysisView, LineDimCode, LineDimType, ColumnDimType,
                           InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
-                        if LineDimOption = LineDimOption::Period then
-                            SetCurrentKey("Period Start")
+                        if LineDimType = LineDimType::Period then
+                            Rec.SetCurrentKey("Period Start")
                         else
-                            SetCurrentKey(Code);
+                            Rec.SetCurrentKey(Code);
                         CurrPage.Update(false);
                     end;
                 }
@@ -94,7 +95,7 @@ page 7159 "Invt. Analysis by Dimensions"
                         NewCode := ItemAnalysisMgt.GetDimSelection(ColumnDimCode, ItemAnalysisView);
                         if NewCode <> ColumnDimCode then begin
                             Text := NewCode;
-                            MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
+                            GenerateColumnCaptions("Matrix Page Step Type"::Initial);
                             exit(true);
                         end;
                     end;
@@ -103,15 +104,15 @@ page 7159 "Invt. Analysis by Dimensions"
                     begin
                         if (UpperCase(LineDimCode) = UpperCase(ColumnDimCode)) and (LineDimCode <> '') then begin
                             LineDimCode := '';
-                            ItemAnalysisMgt.ValidateLineDimCode(
-                              ItemAnalysisView, LineDimCode, LineDimOption, ColumnDimOption,
+                            ItemAnalysisMgt.ValidateLineDimTypeAndCode(
+                              ItemAnalysisView, LineDimCode, LineDimType, ColumnDimType,
                               InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
                         end;
-                        ItemAnalysisMgt.ValidateColumnDimCode(
-                          ItemAnalysisView, ColumnDimCode, ColumnDimOption, LineDimOption,
+                        ItemAnalysisMgt.ValidateColumnDimTypeAndCode(
+                          ItemAnalysisView, ColumnDimCode, ColumnDimType, LineDimType,
                           InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
 
-                        MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
+                        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
                         CurrPage.Update(false);
                     end;
                 }
@@ -119,7 +120,6 @@ page 7159 "Invt. Analysis by Dimensions"
                 {
                     ApplicationArea = Dimensions;
                     Caption = 'Show Value As';
-                    OptionCaption = 'Sales Amount,Inventory Value,Quantity';
                     ToolTip = 'Specifies how data is shown in the analysis view.';
                 }
             }
@@ -141,7 +141,7 @@ page 7159 "Invt. Analysis by Dimensions"
                         DateFilter := ItemStatisticsBuffer.GetFilter("Date Filter");
                         InternalDateFilter := DateFilter;
 
-                        MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
+                        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
                         CurrPage.Update();
                     end;
                 }
@@ -156,6 +156,7 @@ page 7159 "Invt. Analysis by Dimensions"
                         ItemList: Page "Item List";
                     begin
                         ItemList.LookupMode(true);
+                        OnLookupItemFilterOnBeforeRunItemList(ItemList, ItemAnalysisView);
                         if ItemList.RunModal = ACTION::LookupOK then begin
                             Text := ItemList.GetSelectionFilter;
                             exit(true);
@@ -163,10 +164,14 @@ page 7159 "Invt. Analysis by Dimensions"
                     end;
 
                     trigger OnValidate()
+                    var
+                        ShouldUpdateColumnCaptions: Boolean;
                     begin
                         ItemStatisticsBuffer.SetFilter("Item Filter", ItemFilter);
-                        if ColumnDimOption = ColumnDimOption::Item then
-                            MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
+                        ShouldUpdateColumnCaptions := ColumnDimType = ColumnDimType::Item;
+                        OnValidateItemFilterOnAfterCalcShouldUpdateColumnCaptions(ItemAnalysisView, ItemStatisticsBuffer, ColumnDimType, ShouldUpdateColumnCaptions);
+                        if ShouldUpdateColumnCaptions then
+                            GenerateColumnCaptions("Matrix Page Step Type"::Initial);
                         CurrPage.Update(false);
                     end;
                 }
@@ -188,10 +193,14 @@ page 7159 "Invt. Analysis by Dimensions"
                     end;
 
                     trigger OnValidate()
+                    var
+                        ShouldUpdateColumnCaptions: Boolean;
                     begin
                         ItemStatisticsBuffer.SetFilter("Location Filter", LocationFilter);
-                        if ColumnDimOption = ColumnDimOption::Location then
-                            MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
+                        ShouldUpdateColumnCaptions := ColumnDimType = ColumnDimType::Location;
+                        OnValidateItemFilterOnAfterCalcShouldUpdateColumnCaptions(ItemAnalysisView, ItemStatisticsBuffer, ColumnDimType, ShouldUpdateColumnCaptions);
+                        if ShouldUpdateColumnCaptions then
+                            GenerateColumnCaptions("Matrix Page Step Type"::Initial);
                         CurrPage.Update(false);
                     end;
                 }
@@ -218,8 +227,8 @@ page 7159 "Invt. Analysis by Dimensions"
                     trigger OnValidate()
                     begin
                         ItemStatisticsBuffer.SetFilter("Dimension 1 Filter", Dim1Filter);
-                        if ColumnDimOption = ColumnDimOption::"Dimension 1" then
-                            MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
+                        if ColumnDimType = ColumnDimType::"Dimension 1" then
+                            GenerateColumnCaptions("Matrix Page Step Type"::Initial);
                         CurrPage.Update();
                     end;
                 }
@@ -239,8 +248,8 @@ page 7159 "Invt. Analysis by Dimensions"
                     trigger OnValidate()
                     begin
                         ItemStatisticsBuffer.SetFilter("Dimension 2 Filter", Dim2Filter);
-                        if ColumnDimOption = ColumnDimOption::"Dimension 2" then
-                            MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
+                        if ColumnDimType = ColumnDimType::"Dimension 2" then
+                            GenerateColumnCaptions("Matrix Page Step Type"::Initial);
                         CurrPage.Update();
                     end;
                 }
@@ -260,8 +269,8 @@ page 7159 "Invt. Analysis by Dimensions"
                     trigger OnValidate()
                     begin
                         ItemStatisticsBuffer.SetFilter("Dimension 3 Filter", Dim3Filter);
-                        if ColumnDimOption = ColumnDimOption::"Dimension 3" then
-                            MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
+                        if ColumnDimType = ColumnDimType::"Dimension 3" then
+                            GenerateColumnCaptions("Matrix Page Step Type"::Initial);
                         CurrPage.Update();
                     end;
                 }
@@ -273,14 +282,12 @@ page 7159 "Invt. Analysis by Dimensions"
                 {
                     ApplicationArea = Dimensions;
                     Caption = 'Show';
-                    OptionCaption = 'Actual Amounts,Budgeted Amounts,Variance,Variance%,Index%';
                     ToolTip = 'Specifies if the selected value is shown in the window.';
                 }
                 field(RoundingFactor; RoundingFactor)
                 {
                     ApplicationArea = Dimensions;
                     Caption = 'Rounding Factor';
-                    OptionCaption = 'None,1,1000,1000000';
                     ToolTip = 'Specifies the factor that is used to round the amounts.';
                 }
                 field(ShowColumnName; ShowColumnName)
@@ -291,7 +298,7 @@ page 7159 "Invt. Analysis by Dimensions"
 
                     trigger OnValidate()
                     begin
-                        MATRIX_GenerateColumnCaptions(MATRIX_Step::Same);
+                        GenerateColumnCaptions("Matrix Page Step Type"::Same);
                     end;
                 }
                 field(ShowOppositeSign; ShowOppositeSign)
@@ -309,14 +316,13 @@ page 7159 "Invt. Analysis by Dimensions"
                 {
                     ApplicationArea = Dimensions;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
                     begin
                         FindPeriod('');
-                        if ColumnDimOption = ColumnDimOption::Period then
-                            MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
+                        if ColumnDimType = ColumnDimType::Period then
+                            GenerateColumnCaptions("Matrix Page Step Type"::Initial);
                     end;
                 }
                 field(MATRIX_CaptionRange; MATRIX_CaptionRange)
@@ -352,11 +358,11 @@ page 7159 "Invt. Analysis by Dimensions"
                         TempDimCode := ColumnDimCode;
                         ColumnDimCode := LineDimCode;
                         LineDimCode := TempDimCode;
-                        ItemAnalysisMgt.ValidateLineDimCode(
-                          ItemAnalysisView, LineDimCode, LineDimOption, ColumnDimOption,
+                        ItemAnalysisMgt.ValidateLineDimTypeAndCode(
+                          ItemAnalysisView, LineDimCode, LineDimType, ColumnDimType,
                           InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
-                        ItemAnalysisMgt.ValidateColumnDimCode(
-                          ItemAnalysisView, ColumnDimCode, ColumnDimOption, LineDimOption,
+                        ItemAnalysisMgt.ValidateColumnDimTypeAndCode(
+                          ItemAnalysisView, ColumnDimCode, ColumnDimType, LineDimType,
                           InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
                     end;
                 }
@@ -378,7 +384,7 @@ page 7159 "Invt. Analysis by Dimensions"
                         ItemAnalysisViewEntry.FindFirst;
                         ItemAnalysisViewToExcel.ExportData(
                           ItemAnalysisViewEntry, ShowColumnName, DateFilter, ItemFilter, BudgetFilter,
-                          Dim1Filter, Dim2Filter, Dim3Filter, ShowActualBudget, LocationFilter, ShowOppositeSign);
+                          Dim1Filter, Dim2Filter, Dim3Filter, ShowActualBudget.AsInteger(), LocationFilter, ShowOppositeSign);
                     end;
                 }
             }
@@ -400,10 +406,12 @@ page 7159 "Invt. Analysis by Dimensions"
                     MatrixForm: Page "Invt. Analys by Dim. Matrix";
                 begin
                     Clear(MatrixForm);
-                    MatrixForm.Load(MATRIX_CaptionSet, MATRIX_MatrixRecords, MATRIX_CurrentNoOfColumns,
-                      LineDimOption, ColumnDimOption, RoundingFactor, DateFilter,
-                      ValueType, ItemAnalysisView, CurrentItemAnalysisViewCode,
-                      ItemFilter, LocationFilter, BudgetFilter, Dim1Filter, Dim2Filter, Dim3Filter, ShowOppositeSign);
+                    MatrixForm.LoadMatrix(
+                        MATRIX_CaptionSet, MATRIX_MatrixRecords, MATRIX_CurrentNoOfColumns,
+                        LineDimType, ColumnDimType, RoundingFactor, DateFilter,
+                        ValueType, ItemAnalysisView, CurrentItemAnalysisViewCode,
+                        ItemFilter, LocationFilter, BudgetFilter, Dim1Filter, Dim2Filter, Dim3Filter, ShowOppositeSign);
+                    OnShowMatrixActionOnBeforeRunMatrixForm(MatrixForm, ItemAnalysisView);
                     MatrixForm.RunModal;
                 end;
             }
@@ -419,7 +427,7 @@ page 7159 "Invt. Analysis by Dimensions"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(MATRIX_Step::Previous);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Previous);
                 end;
             }
             action("Next Set")
@@ -434,7 +442,7 @@ page 7159 "Invt. Analysis by Dimensions"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(MATRIX_Step::Next);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Next);
                 end;
             }
         }
@@ -465,12 +473,12 @@ page 7159 "Invt. Analysis by Dimensions"
               Dim1Filter, Dim2Filter, Dim3Filter);
         end;
 
-        ItemAnalysisMgt.SetLineAndColDim(
-          ItemAnalysisView, LineDimCode, LineDimOption, ColumnDimCode, ColumnDimOption);
-        UpdateFilterFields;
+        ItemAnalysisMgt.SetLineAndColumnDim(
+          ItemAnalysisView, LineDimCode, LineDimType, ColumnDimCode, ColumnDimType);
+        UpdateFilterFields();
 
         FindPeriod('');
-        MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
     var
@@ -485,18 +493,17 @@ page 7159 "Invt. Analysis by Dimensions"
         LastColumn: Text;
         MATRIX_PrimKeyFirstCaption: Text;
         MATRIX_CurrentNoOfColumns: Integer;
-        MATRIX_Step: Option Initial,Previous,Same,Next,PreviousColumn,NextColumn;
         CurrentAnalysisArea: Enum "Analysis Area Type";
         CurrentItemAnalysisViewCode: Code[10];
         ItemFilter: Code[250];
         LocationFilter: Code[250];
         BudgetFilter: Code[250];
-        ValueType: Option "Sales Amount","Inventory Value","Sales Quantity";
-        ShowActualBudget: Option "Actual Amounts","Budgeted Amounts",Variance,"Variance%","Index%";
-        RoundingFactor: Option "None","1","1000","1000000";
-        LineDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3";
-        ColumnDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        ValueType: Enum "Item Analysis Value Type";
+        ShowActualBudget: Enum "Item Analysis Show Type";
+        RoundingFactor: Enum "Analysis Rounding Factor";
+        LineDimType: Enum "Item Analysis Dimension Type";
+        ColumnDimType: Enum "Item Analysis Dimension Type";
+        PeriodType: Enum "Analysis Period Type";
         Dim1Filter: Code[250];
         Dim2Filter: Code[250];
         Dim3Filter: Code[250];
@@ -516,7 +523,7 @@ page 7159 "Invt. Analysis by Dimensions"
         [InDataSet]
         Dim3FilterEnable: Boolean;
 
-    local procedure MATRIX_GenerateColumnCaptions(MATRIX_SetWanted: Option Initial,Previous,Same,Next,PreviousColumn,NextColumn)
+    local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
     var
         MATRIX_PeriodRecords: array[32] of Record Date;
         Location: Record Location;
@@ -536,7 +543,7 @@ page 7159 "Invt. Analysis by Dimensions"
         case ColumnDimCode of
             Text100: // Period
                 begin
-                    MatrixMgt.GeneratePeriodMatrixData(MATRIX_SetWanted, ArrayLen(MATRIX_CaptionSet), ShowColumnName,
+                    MatrixMgt.GeneratePeriodMatrixData(StepType.AsInteger(), ArrayLen(MATRIX_CaptionSet), ShowColumnName,
                       PeriodType, DateFilter, MATRIX_PrimKeyFirstCaption,
                       MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns, MATRIX_PeriodRecords);
                     for i := 1 to ArrayLen(MATRIX_CaptionSet) do begin
@@ -552,13 +559,14 @@ page 7159 "Invt. Analysis by Dimensions"
                     Location.SetFilter(Code, LocationFilter);
                     RecRef.GetTable(Location);
                     RecRef.SetTable(Location);
-                    MatrixMgt.GenerateMatrixData(RecRef, MATRIX_SetWanted, ArrayLen(MATRIX_CaptionSet), 1,
+                    MatrixMgt.GenerateMatrixData(RecRef, StepType.AsInteger(), ArrayLen(MATRIX_CaptionSet), 1,
                       MATRIX_PrimKeyFirstCaption, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
                     for i := 1 to MATRIX_CurrentNoOfColumns do
                         MATRIX_MatrixRecords[i].Code := MATRIX_CaptionSet[i];
                     if ShowColumnName then
-                        MatrixMgt.GenerateMatrixData(RecRef, MATRIX_SetWanted::Same, ArrayLen(MATRIX_CaptionSet), 2,
-                          MATRIX_PrimKeyFirstCaption, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
+                        MatrixMgt.GenerateMatrixData(
+                            RecRef, "Matrix Page Step Type"::Same.AsInteger(), ArrayLen(MATRIX_CaptionSet), 2,
+                            MATRIX_PrimKeyFirstCaption, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
                 end;
             Item.TableCaption:
                 begin
@@ -567,25 +575,26 @@ page 7159 "Invt. Analysis by Dimensions"
                     RecRef.GetTable(Item);
                     RecRef.SetTable(Item);
 
-                    MatrixMgt.GenerateMatrixData(RecRef, MATRIX_SetWanted, ArrayLen(MATRIX_CaptionSet), 1,
+                    MatrixMgt.GenerateMatrixData(RecRef, StepType.AsInteger(), ArrayLen(MATRIX_CaptionSet), 1,
                       MATRIX_PrimKeyFirstCaption, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
                     for i := 1 to MATRIX_CurrentNoOfColumns do
                         MATRIX_MatrixRecords[i].Code := MATRIX_CaptionSet[i];
                     if ShowColumnName then
-                        MatrixMgt.GenerateMatrixData(RecRef, MATRIX_SetWanted::Same, ArrayLen(MATRIX_CaptionSet), 3,
-                          MATRIX_PrimKeyFirstCaption, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
+                        MatrixMgt.GenerateMatrixData(
+                            RecRef, "Matrix Page Step Type"::Same.AsInteger(), ArrayLen(MATRIX_CaptionSet), 3,
+                            MATRIX_PrimKeyFirstCaption, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
                 end;
             Customer.TableCaption:
                 begin
                     Clear(MATRIX_CaptionSet);
                     RecRef.GetTable(Customer);
                     RecRef.SetTable(Customer);
-                    MatrixMgt.GenerateMatrixData(RecRef, MATRIX_SetWanted, ArrayLen(MATRIX_CaptionSet), 1,
+                    MatrixMgt.GenerateMatrixData(RecRef, StepType.AsInteger(), ArrayLen(MATRIX_CaptionSet), 1,
                       MATRIX_PrimKeyFirstCaption, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
                     for i := 1 to MATRIX_CurrentNoOfColumns do
                         MATRIX_MatrixRecords[i].Code := MATRIX_CaptionSet[i];
                     if ShowColumnName then
-                        MatrixMgt.GenerateMatrixData(RecRef, MATRIX_SetWanted::Same, ArrayLen(MATRIX_CaptionSet), 2,
+                        MatrixMgt.GenerateMatrixData(RecRef, "Matrix Page Step Type"::Same.AsInteger(), ArrayLen(MATRIX_CaptionSet), 2,
                           MATRIX_PrimKeyFirstCaption, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
                 end;
             Vendor.TableCaption:
@@ -593,39 +602,44 @@ page 7159 "Invt. Analysis by Dimensions"
                     Clear(MATRIX_CaptionSet);
                     RecRef.GetTable(Vendor);
                     RecRef.SetTable(Vendor);
-                    MatrixMgt.GenerateMatrixData(RecRef, MATRIX_SetWanted, ArrayLen(MATRIX_CaptionSet), 1,
+                    MatrixMgt.GenerateMatrixData(RecRef, StepType.AsInteger(), ArrayLen(MATRIX_CaptionSet), 1,
                       MATRIX_PrimKeyFirstCaption, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
                     for i := 1 to MATRIX_CurrentNoOfColumns do
                         MATRIX_MatrixRecords[i].Code := MATRIX_CaptionSet[i];
                     if ShowColumnName then
-                        MatrixMgt.GenerateMatrixData(RecRef, MATRIX_SetWanted::Same, ArrayLen(MATRIX_CaptionSet), 2,
-                          MATRIX_PrimKeyFirstCaption, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
+                        MatrixMgt.GenerateMatrixData(
+                            RecRef, "Matrix Page Step Type"::Same.AsInteger(), ArrayLen(MATRIX_CaptionSet), 2,
+                            MATRIX_PrimKeyFirstCaption, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
                 end;
             ItemAnalysisView."Dimension 1 Code":
                 MatrixMgt.GenerateDimColumnCaption(
                   ItemAnalysisView."Dimension 1 Code",
-                  Dim1Filter, MATRIX_SetWanted, MATRIX_PrimKeyFirstCaption, FirstColumn, LastColumn,
+                  Dim1Filter, StepType.AsInteger(), MATRIX_PrimKeyFirstCaption, FirstColumn, LastColumn,
                   MATRIX_CaptionSet, MATRIX_MatrixRecords, MATRIX_CurrentNoOfColumns, ShowColumnName, MATRIX_CaptionRange);
             ItemAnalysisView."Dimension 2 Code":
                 MatrixMgt.GenerateDimColumnCaption(
                   ItemAnalysisView."Dimension 2 Code",
-                  Dim2Filter, MATRIX_SetWanted, MATRIX_PrimKeyFirstCaption, FirstColumn, LastColumn,
+                  Dim2Filter, StepType.AsInteger(), MATRIX_PrimKeyFirstCaption, FirstColumn, LastColumn,
                   MATRIX_CaptionSet, MATRIX_MatrixRecords, MATRIX_CurrentNoOfColumns, ShowColumnName, MATRIX_CaptionRange);
             ItemAnalysisView."Dimension 3 Code":
                 MatrixMgt.GenerateDimColumnCaption(
                   ItemAnalysisView."Dimension 3 Code",
-                  Dim3Filter, MATRIX_SetWanted, MATRIX_PrimKeyFirstCaption, FirstColumn, LastColumn,
+                  Dim3Filter, StepType.AsInteger(), MATRIX_PrimKeyFirstCaption, FirstColumn, LastColumn,
                   MATRIX_CaptionSet, MATRIX_MatrixRecords, MATRIX_CurrentNoOfColumns, ShowColumnName, MATRIX_CaptionRange);
         end;
+
+        OnAfterGenerateColumnCaptions(
+            MatrixMgt, ItemAnalysisView, MATRIX_MatrixRecords, MATRIX_CaptionSet, MATRIX_PrimKeyFirstCaption, MATRIX_CaptionRange,
+            MATRIX_CurrentNoOfColumns, ColumnDimCode, StepType, FirstColumn, LastColumn, ShowColumnName);
     end;
 
     local procedure FindPeriod(SearchText: Code[3])
     var
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
-        PeriodFormMgt.FindPeriodOnMatrixPage(
+        PeriodPageMgt.FindPeriodOnMatrixPage(
           DateFilter, InternalDateFilter, SearchText, PeriodType,
-          (LineDimOption <> LineDimOption::Period) and (ColumnDimOption <> ColumnDimOption::Period));
+          (LineDimType <> LineDimType::Period) and (ColumnDimType <> ColumnDimType::Period));
     end;
 
     local procedure UpdateFilterFields()
@@ -658,11 +672,43 @@ page 7159 "Invt. Analysis by Dimensions"
                  ItemAnalysisView."Analysis Area", ItemAnalysisView.Code, ItemAnalysisView."Dimension 3 Code")
             then
                 Dim3Filter := ItemAnalysisViewFilter."Dimension Value Filter";
+
+        OnAfterUpdateFilterFields(ItemAnalysisView, ItemFilter, Dim1Filter, Dim2Filter, Dim3Filter);
     end;
 
     procedure SetCurrentAnalysisViewCode(NewAnalysisViewCode: Code[10])
     begin
         NewItemAnalysisCode := NewAnalysisViewCode;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGenerateColumnCaptions(var MatrixMgt: Codeunit "Matrix Management"; var ItemAnalysisView: Record "Item Analysis View"; var MATRIX_MatrixRecords: array[32] of Record "Dimension Code Buffer"; var MATRIX_CaptionSet: array[32] of Text[1024]; var MATRIX_PrimKeyFirstCaption: Text; var MATRIX_CaptionRange: Text; MATRIX_CurrentNoOfColumns: Integer; ColumnDimCode: Text[30]; StepType: Enum "Matrix Page Step Type"; var FirstColumn: Text; var LastColumn: Text; ShowColumnName: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterUpdateFilterFields(var ItemAnalysisView: Record "Item Analysis View"; var ItemFilter: Code[250]; var Dim1Filter: Code[250]; var Dim2Filter: Code[250]; var Dim3Filter: Code[250])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnLookupItemFilterOnBeforeRunItemList(var ItemList: Page "Item List"; ItemAnalysisView: Record "Item Analysis View")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnShowMatrixActionOnBeforeRunMatrixForm(var InvtAnalysByDimMatrix: Page "Invt. Analys by Dim. Matrix"; ItemAnalysisView: Record "Item Analysis View")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnValidateCurrentItemAnalysisViewCodeOnAfterSetItemAnalysisView(var ItemAnalysisView: Record "Item Analysis View")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemFilterOnAfterCalcShouldUpdateColumnCaptions(var ItemAnalysisView: Record "Item Analysis View"; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; ColumnDimType: Enum "Item Analysis Dimension Type"; var ShouldUpdateColumnCaptions: Boolean)
+    begin
     end;
 }
 

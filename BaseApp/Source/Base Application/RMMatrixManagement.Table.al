@@ -23,7 +23,7 @@ table 5102 "RM Matrix Management"
         }
         field(5; "No. of Opportunities"; Integer)
         {
-            CalcFormula = Count ("Opportunity Entry" WHERE(Active = CONST(true),
+            CalcFormula = Count("Opportunity Entry" WHERE(Active = CONST(true),
                                                            "Salesperson Code" = FIELD("Salesperson Filter"),
                                                            "Campaign No." = FIELD("Campaign Filter"),
                                                            "Contact No." = FIELD("Contact Filter"),
@@ -45,7 +45,7 @@ table 5102 "RM Matrix Management"
         field(6; "Estimated Value (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Opportunity Entry"."Estimated Value (LCY)" WHERE(Active = CONST(true),
+            CalcFormula = Sum("Opportunity Entry"."Estimated Value (LCY)" WHERE(Active = CONST(true),
                                                                                  "Salesperson Code" = FIELD("Salesperson Filter"),
                                                                                  "Campaign No." = FIELD("Campaign Filter"),
                                                                                  "Contact No." = FIELD("Contact Filter"),
@@ -67,7 +67,7 @@ table 5102 "RM Matrix Management"
         field(7; "Calcd. Current Value (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Opportunity Entry"."Calcd. Current Value (LCY)" WHERE(Active = CONST(true),
+            CalcFormula = Sum("Opportunity Entry"."Calcd. Current Value (LCY)" WHERE(Active = CONST(true),
                                                                                       "Salesperson Code" = FIELD("Salesperson Filter"),
                                                                                       "Campaign No." = FIELD("Campaign Filter"),
                                                                                       "Contact No." = FIELD("Contact Filter"),
@@ -89,7 +89,7 @@ table 5102 "RM Matrix Management"
         field(8; "Avg. Estimated Value (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Average ("Opportunity Entry"."Estimated Value (LCY)" WHERE(Active = CONST(true),
+            CalcFormula = Average("Opportunity Entry"."Estimated Value (LCY)" WHERE(Active = CONST(true),
                                                                                      "Salesperson Code" = FIELD("Salesperson Filter"),
                                                                                      "Campaign No." = FIELD("Campaign Filter"),
                                                                                      "Contact No." = FIELD("Contact Filter"),
@@ -111,7 +111,7 @@ table 5102 "RM Matrix Management"
         field(9; "Avg.Calcd. Current Value (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Average ("Opportunity Entry"."Calcd. Current Value (LCY)" WHERE(Active = CONST(true),
+            CalcFormula = Average("Opportunity Entry"."Calcd. Current Value (LCY)" WHERE(Active = CONST(true),
                                                                                           "Salesperson Code" = FIELD("Salesperson Filter"),
                                                                                           "Campaign No." = FIELD("Campaign Filter"),
                                                                                           "Contact No." = FIELD("Contact Filter"),
@@ -199,12 +199,10 @@ table 5102 "RM Matrix Management"
             FieldClass = FlowFilter;
             TableRelation = Contact WHERE(Type = CONST(Company));
         }
-        field(21; "Task Status Filter"; Option)
+        field(21; "Task Status Filter"; Enum "Task Status")
         {
             Caption = 'Task Status Filter';
             FieldClass = FlowFilter;
-            OptionCaption = 'Not Started,In Progress,Completed,Waiting,Postponed';
-            OptionMembers = "Not Started","In Progress",Completed,Waiting,Postponed;
         }
         field(22; "Task Closed Filter"; Boolean)
         {
@@ -226,7 +224,7 @@ table 5102 "RM Matrix Management"
         }
         field(25; "No. of Tasks"; Integer)
         {
-            CalcFormula = Count ("To-do" WHERE(Date = FIELD("Date Filter"),
+            CalcFormula = Count("To-do" WHERE(Date = FIELD("Date Filter"),
                                                "Salesperson Code" = FIELD("Salesperson Filter"),
                                                "Team Code" = FIELD("Team Filter"),
                                                "Campaign No." = FIELD("Campaign Filter"),

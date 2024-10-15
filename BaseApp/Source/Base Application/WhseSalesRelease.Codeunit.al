@@ -51,7 +51,7 @@ codeunit 5771 "Whse.-Sales Release"
                     WhseType := WhseType::Inbound;
 
                 if First or (SalesLine."Location Code" <> OldLocationCode) or (WhseType <> OldWhseType) then
-                    CreateWarehouseRequest(SalesHeader, SalesLine, WhseType);
+                    CreateWarehouseRequest(SalesHeader, SalesLine, WhseType, WhseRqst);
 
                 OnAfterReleaseOnAfterCreateWhseRequest(
                     SalesHeader, SalesLine, WhseType.AsInteger(), First, OldWhseType.AsInteger(), OldLocationCode);
@@ -112,7 +112,7 @@ codeunit 5771 "Whse.-Sales Release"
         end;
     end;
 
-    local procedure CreateWarehouseRequest(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; WhseType: Enum "Warehouse Request Type")
+    procedure CreateWarehouseRequest(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; WhseType: Enum "Warehouse Request Type"; var WarehouseRequest: Record "Warehouse Request")
     var
         SalesLine2: Record "Sales Line";
     begin
@@ -123,28 +123,28 @@ codeunit 5771 "Whse.-Sales Release"
             if SalesLine2.FindFirst then
                 SalesLine2.TestField("Unit of Measure Code");
 
-            WhseRqst.Type := WhseType;
-            WhseRqst."Source Type" := DATABASE::"Sales Line";
-            WhseRqst."Source Subtype" := SalesHeader."Document Type".AsInteger();
-            WhseRqst."Source No." := SalesHeader."No.";
-            WhseRqst."Shipment Method Code" := SalesHeader."Shipment Method Code";
-            WhseRqst."Shipping Agent Code" := SalesHeader."Shipping Agent Code";
-            WhseRqst."Shipping Advice" := SalesHeader."Shipping Advice";
-            WhseRqst."Document Status" := SalesHeader.Status::Released.AsInteger();
-            WhseRqst."Location Code" := SalesLine."Location Code";
-            WhseRqst."Destination Type" := WhseRqst."Destination Type"::Customer;
-            WhseRqst."Destination No." := SalesHeader."Sell-to Customer No.";
-            WhseRqst."External Document No." := SalesHeader."External Document No.";
+            WarehouseRequest.Type := WhseType;
+            WarehouseRequest."Source Type" := DATABASE::"Sales Line";
+            WarehouseRequest."Source Subtype" := SalesHeader."Document Type".AsInteger();
+            WarehouseRequest."Source No." := SalesHeader."No.";
+            WarehouseRequest."Shipment Method Code" := SalesHeader."Shipment Method Code";
+            WarehouseRequest."Shipping Agent Code" := SalesHeader."Shipping Agent Code";
+            WarehouseRequest."Shipping Advice" := SalesHeader."Shipping Advice";
+            WarehouseRequest."Document Status" := SalesHeader.Status::Released.AsInteger();
+            WarehouseRequest."Location Code" := SalesLine."Location Code";
+            WarehouseRequest."Destination Type" := WarehouseRequest."Destination Type"::Customer;
+            WarehouseRequest."Destination No." := SalesHeader."Sell-to Customer No.";
+            WarehouseRequest."External Document No." := SalesHeader."External Document No.";
             if WhseType = WhseType::Inbound then
-                WhseRqst."Expected Receipt Date" := SalesHeader."Shipment Date"
+                WarehouseRequest."Expected Receipt Date" := SalesHeader."Shipment Date"
             else
-                WhseRqst."Shipment Date" := SalesHeader."Shipment Date";
+                WarehouseRequest."Shipment Date" := SalesHeader."Shipment Date";
             SalesHeader.SetRange("Location Filter", SalesLine."Location Code");
             SalesHeader.CalcFields("Completely Shipped");
-            WhseRqst."Completely Handled" := SalesHeader."Completely Shipped";
+            WarehouseRequest."Completely Handled" := SalesHeader."Completely Shipped";
             OnBeforeCreateWhseRequest(WhseRqst, SalesHeader, SalesLine, WhseType.AsInteger());
-            if not WhseRqst.Insert() then
-                WhseRqst.Modify();
+            if not WarehouseRequest.Insert() then
+                WarehouseRequest.Modify();
             OnAfterCreateWhseRequest(WhseRqst, SalesHeader, SalesLine, WhseType.AsInteger());
         end;
     end;

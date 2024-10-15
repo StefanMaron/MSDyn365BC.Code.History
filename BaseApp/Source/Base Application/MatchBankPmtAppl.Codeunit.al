@@ -20,6 +20,18 @@ codeunit 1254 "Match Bank Pmt. Appl."
         OnAfterMatchBankPayments(Rec);
     end;
 
+    procedure MatchNoOverwriteOfManualOrAccepted(BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    var
+        MatchBankPayments: Codeunit "Match Bank Payments";
+    begin
+        BankAccReconciliationLine.FilterBankRecLines(BankAccReconciliation);
+        if BankAccReconciliationLine.FindFirst() then begin
+            MatchBankPayments.SetApplyEntries(true);
+            MatchBankPayments.MatchNoOverwriteOfManualOrAccepted(BankAccReconciliationLine);
+        end;
+        OnAfterMatchBankPayments(BankAccReconciliation);
+    end;
+
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
 
