@@ -172,6 +172,9 @@ report 28025 "Income Statement"
                 column(Integer_Number; Number)
                 {
                 }
+                column(Precision; Precision)
+                {
+                }
             }
 
             trigger OnAfterGetRecord()
@@ -225,6 +228,9 @@ report 28025 "Income Statement"
                     then
                         CurrReport.Skip();
                 end;
+
+                Precision := GetDecimalPrecision();
+
                 PageGroupNo := NextPageGroupNo;
                 ShowAccType := "G/L Account"."Account Type";
                 if "G/L Account"."New Page" then
@@ -360,5 +366,18 @@ report 28025 "Income Statement"
         Current_YTDCaptionLbl: Label 'Current YTD';
         Last_YTDCaptionLbl: Label 'Last YTD';
         HideEmptyLines: Boolean;
+        Precision: Integer;
+
+    local procedure GetDecimalPrecision(): Integer
+    begin
+        case RoundingFactor of
+            RoundingFactor::" ":
+                exit(2);
+            RoundingFactor::Tens,RoundingFactor::Hundreds,RoundingFactor::"Hundred Thousands",RoundingFactor::Millions:
+                exit(1);
+            RoundingFactor::Thousands:
+                exit(0);
+        end;
+    end;
 }
 

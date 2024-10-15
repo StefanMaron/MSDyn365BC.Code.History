@@ -1293,11 +1293,10 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankNegAndZero(Fields!CurrentPeriodNetChange.Value)</Value>
+                                  <Value>=Code.BlankNegAndZero(FormatNumber(Fields!CurrentPeriodNetChange.Value, Fields!Precision.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>=IIF(Fields!G_L_Account___Account_Type_.Value = "Total" Or Fields!G_L_Account___Account_Type_.Value = "End-Total", "Bold", "Normal")</FontWeight>
-                                    <Format>=Fields!CurrentPeriodNetChangeFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -1349,11 +1348,10 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankNegAndZero(Fields!CurrentPeriodNetChange_Control1500025.Value)</Value>
+                                  <Value>=Code.BlankNegAndZero(FormatNumber(Fields!CurrentPeriodNetChange_Control1500025.Value, Fields!Precision.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>=IIF(Fields!G_L_Account___Account_Type_.Value = "Total" Or Fields!G_L_Account___Account_Type_.Value = "End-Total", "Bold", "Normal")</FontWeight>
-                                    <Format>=Fields!CurrentPeriodNetChange_Control1500025Format.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -1405,11 +1403,10 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(Fields!CurrentYTDNetChange.Value)</Value>
+                                  <Value>=Code.BlankZero(FormatNumber(Fields!CurrentYTDNetChange.Value, Fields!Precision.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>=IIF(Fields!G_L_Account___Account_Type_.Value = "Total" Or Fields!G_L_Account___Account_Type_.Value = "End-Total", "Bold", "Normal")</FontWeight>
-                                    <Format>=Fields!CurrentYTDNetChangeFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -1461,11 +1458,10 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(Fields!LastYrCurrPeriodNetChange.Value)</Value>
+                                  <Value>=Code.BlankZero(FormatNumber(Fields!LastYrCurrPeriodNetChange.Value, Fields!Precision.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>=IIF(Fields!G_L_Account___Account_Type_.Value = "Total" Or Fields!G_L_Account___Account_Type_.Value = "End-Total", "Bold", "Normal")</FontWeight>
-                                    <Format>=Fields!LastYrCurrPeriodNetChangeFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -1517,11 +1513,10 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(Fields!LastYTDNetChange.Value)</Value>
+                                  <Value>=Code.BlankZero(FormatNumber(Fields!LastYTDNetChange.Value, Fields!Precision.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>=IIF(Fields!G_L_Account___Account_Type_.Value = "Total" Or Fields!G_L_Account___Account_Type_.Value = "End-Total", "Bold", "Normal")</FontWeight>
-                                    <Format>=Fields!LastYTDNetChangeFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -1605,11 +1600,10 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankNegAndZero(Fields!CurrentPeriodNetChange.Value)</Value>
+                                  <Value>=Code.BlankNegAndZero(FormatNumber(Fields!CurrentPeriodNetChange.Value, Fields!Precision.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>=IIF(Fields!G_L_Account___Account_Type_.Value = "Total" Or Fields!G_L_Account___Account_Type_.Value = "End-Total", "Bold", "Normal")</FontWeight>
-                                    <Format>=Fields!CurrentPeriodNetChangeFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -1662,11 +1656,10 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankNegAndZero(Fields!CurrentPeriodNetChange_Control1500025.Value)</Value>
+                                  <Value>=Code.BlankNegAndZero(FormatNumber(Fields!CurrentPeriodNetChange_Control1500025.Value, Fields!Precision.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>=IIF(Fields!G_L_Account___Account_Type_.Value = "Total" Or Fields!G_L_Account___Account_Type_.Value = "End-Total", "Bold", "Normal")</FontWeight>
-                                    <Format>=Fields!CurrentPeriodNetChange_Control1500025Format.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -1719,11 +1712,10 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(Fields!CurrentYTDNetChange.Value)</Value>
+                                  <Value>=Code.BlankZero(FormatNumber(Fields!CurrentYTDNetChange.Value, Fields!Precision.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>=IIF(Fields!G_L_Account___Account_Type_.Value = "Total" Or Fields!G_L_Account___Account_Type_.Value = "End-Total", "Bold", "Normal")</FontWeight>
-                                    <Format>=Fields!CurrentYTDNetChangeFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -1776,11 +1768,10 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(Fields!LastYrCurrPeriodNetChange.Value)</Value>
+                                  <Value>=Code.BlankZero(FormatNumber(Fields!LastYrCurrPeriodNetChange.Value, Fields!Precision.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>=IIF(Fields!G_L_Account___Account_Type_.Value = "Total" Or Fields!G_L_Account___Account_Type_.Value = "End-Total", "Bold", "Normal")</FontWeight>
-                                    <Format>=Fields!LastYrCurrPeriodNetChangeFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -1833,11 +1824,10 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankZero(Fields!LastYTDNetChange.Value)</Value>
+                                  <Value>=Code.BlankZero(FormatNumber(Fields!LastYTDNetChange.Value, Fields!Precision.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>=IIF(Fields!G_L_Account___Account_Type_.Value = "Total" Or Fields!G_L_Account___Account_Type_.Value = "End-Total", "Bold", "Normal")</FontWeight>
-                                    <Format>=Fields!LastYTDNetChangeFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -3135,6 +3125,9 @@ End Function
         </Field>
         <Field Name="Integer_Number">
           <DataField>Integer_Number</DataField>
+        </Field>
+        <Field Name="Precision">
+          <DataField>Precision</DataField>
         </Field>
       </Fields>
       <Query>

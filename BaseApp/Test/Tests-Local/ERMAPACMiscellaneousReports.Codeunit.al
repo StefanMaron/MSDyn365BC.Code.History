@@ -28,6 +28,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         ReceivedCostCap: Label 'ReceivedCost';
         TotalBalanceAmountCap: Label 'TotalBalanceAmount';
         LibraryUtility: Codeunit "Library - Utility";
+        RoundingFactor: Option " ",Tens,Hundreds,Thousands,"Hundred Thousands",Millions;
 
     [Test]
     [HandlerFunctions('ItemsReceivedAndNotInvoicedRequestPageHandler')]
@@ -234,6 +235,260 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         LibraryReportDataset.AssertElementTagWithValueNotExist('Bank_Account_Ledger_Entry2__Document_No__', ExpectedDocumentNo[2]);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemsReceivedAndNotInvoicedRequestPageHandlerSimple')]
+    [Scope('OnPrem')]
+    procedure ItemsReceivedAndNotInvoicedFromVendorCard()
+    var
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        VendorCard: TestPage "Vendor Card";
+    begin
+        // [FEATURE] [Purchase] [Order] [Items Received and Not Invoiced] [UI]
+        // [SCENARIO 374783] Items Received and Not Invoiced can be run from Vendor Card action without error
+        Initialize();
+
+        // [GIVEN] Purchase order posted for Vendor
+        CreateAndPostPurchaseOrder(PurchaseLine, true, LibraryRandom.RandDecInRange(10, 50, 2), LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Vendor Card page was open
+        Vendor.Get(PurchaseLine."Buy-from Vendor No.");
+        VendorCard.OpenView();
+        VendorCard.Filter.SetFilter("No.", Vendor."No.");
+
+        Commit();
+
+        // [WHEN] Invoke "Items Received and Not Invoiced" action
+        VendorCard."Items Received".Invoke();
+
+        LibraryReportDataset.LoadDataSetFile();
+
+        // [THEN] No error. Report "Items Received and Not Invoiced" is run for this Vendor
+        PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        VerifyValuesOnItemsReceivedAndNotInvoicedReport(
+          PurchaseLine."Quantity Invoiced", PurchaseLine."Quantity Received", PurchaseLine."Qty. Rcd. Not Invoiced",
+          PurchaseLine."Amt. Rcd. Not Invoiced");
+
+        // Cleanup
+        VendorCard.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('IncomeStatementRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TheAllDecimalsPrintInIncomeStatementReportWhenRoundingFactorIsEmpty()
+    var
+        GLAccount: Record "G/L Account";
+        GLEntry: Record "G/L Entry";
+        ReportManagementAPAC: Codeunit "Report Management APAC";
+        ExpectedDebitAmount: Decimal;
+    begin
+        // [SCENARIO 374871] Run report 28025 "Income Statement" with Rounding Factor = " ". The all decimals is printed.
+        Initialize();
+
+        // [GIVEN] Rounding Factor set to " ", Decimal precision = 2.
+        RoundingFactor := RoundingFactor::" ";
+        LibraryVariableStorage.Enqueue(RoundingFactor);
+
+        // [GIVEN] Created G/L Account with entries
+        LibraryERM.CreateGLAccount(GLAccount);
+        ExpectedDebitAmount := ReportManagementAPAC.RoundAmount(PrepareTempDebitCreditGLEntries(
+              GLAccount, GLEntry, 1000000 * LibraryRandom.RandIntInRange(3, 9), 1000000 * LibraryRandom.RandIntInRange(1, 2)), RoundingFactor);
+        Commit();
+
+        // [WHEN] Run report 28025 "Income Statement" for created G/L Account.
+        GLAccount.SetRecFilter();
+        GLAccount.SetRange("Date Filter", WorkDate);
+        REPORT.Run(REPORT::"Income Statement", true, false, GLAccount);
+
+        // [THEN] The report is run with correct rounding factor.
+        // [THEN] The Precision for decimal places is equal to 2.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('RoundFactorText', ReportManagementAPAC.RoundDescription(RoundingFactor));
+        LibraryReportDataset.AssertElementWithValueExists('Precision', 2);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('IncomeStatementRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TheAllDecimalsPrintInIncomeStatementReportWhenRoundingFactorIsTens()
+    var
+        GLAccount: Record "G/L Account";
+        GLEntry: Record "G/L Entry";
+        ReportManagementAPAC: Codeunit "Report Management APAC";
+        ExpectedDebitAmount: Decimal;
+    begin
+        // [SCENARIO 374871] Run report 28025 "Income Statement" with Rounding Factor = "Tens". The all decimals is printed.
+        Initialize();
+
+        // [GIVEN] Rounding Factor set to "Tens" Decimal precision = 1.
+        RoundingFactor := RoundingFactor::Tens;
+        LibraryVariableStorage.Enqueue(RoundingFactor);
+
+        // [GIVEN] Created G/L Account with entries
+        LibraryERM.CreateGLAccount(GLAccount);
+        ExpectedDebitAmount := ReportManagementAPAC.RoundAmount(PrepareTempDebitCreditGLEntries(
+              GLAccount, GLEntry, 1000000 * LibraryRandom.RandIntInRange(3, 9), 1000000 * LibraryRandom.RandIntInRange(1, 2)), RoundingFactor);
+        Commit();
+
+        // [WHEN] Run report 28025 "Income Statement" for created G/L Account.
+        GLAccount.SetRecFilter;
+        GLAccount.SetRange("Date Filter", WorkDate);
+        REPORT.Run(REPORT::"Income Statement", true, false, GLAccount);
+
+        // [THEN] The report is run with correct rounding factor.
+        // [THEN] The Precision for decimal places is equal to 1.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('RoundFactorText', ReportManagementAPAC.RoundDescription(RoundingFactor));
+        LibraryReportDataset.AssertElementWithValueExists('Precision', 1);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('IncomeStatementRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TheAllDecimalsPrintInIncomeStatementReportWhenRoundingFactorIsHundreds()
+    var
+        GLAccount: Record "G/L Account";
+        GLEntry: Record "G/L Entry";
+        ReportManagementAPAC: Codeunit "Report Management APAC";
+        ExpectedDebitAmount: Decimal;
+    begin
+        // [SCENARIO 374871] Run report 28025 "Income Statement" with Rounding Factor = "Hundreds". The all decimals is printed.
+        Initialize();
+
+        // [GIVEN] Rounding Factor set to "Hundreds" Decimal precision = 1.
+        RoundingFactor := RoundingFactor::Hundreds;
+        LibraryVariableStorage.Enqueue(RoundingFactor);
+
+        // [GIVEN] Created G/L Account with entries
+        LibraryERM.CreateGLAccount(GLAccount);
+        ExpectedDebitAmount := ReportManagementAPAC.RoundAmount(PrepareTempDebitCreditGLEntries(
+              GLAccount, GLEntry, 1000000 * LibraryRandom.RandIntInRange(3, 9), 1000000 * LibraryRandom.RandIntInRange(1, 2)), RoundingFactor);
+        Commit();
+
+        // [WHEN] Run report 28025 "Income Statement" for created G/L Account.
+        GLAccount.SetRecFilter;
+        GLAccount.SetRange("Date Filter", WorkDate);
+        REPORT.Run(REPORT::"Income Statement", true, false, GLAccount);
+
+        // [THEN] The report is run with correct rounding factor.
+        // [THEN] The Precision for decimal places is equal to 1.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('RoundFactorText', ReportManagementAPAC.RoundDescription(RoundingFactor));
+        LibraryReportDataset.AssertElementWithValueExists('Precision', 1);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('IncomeStatementRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TheAllDecimalsPrintInIncomeStatementReportWhenRoundingFactorIsThousands()
+    var
+        GLAccount: Record "G/L Account";
+        GLEntry: Record "G/L Entry";
+        ReportManagementAPAC: Codeunit "Report Management APAC";
+        ExpectedDebitAmount: Decimal;
+    begin
+        // [SCENARIO 374871] Run report 28025 "Income Statement" with Rounding Factor = "Thousands". The all decimals is printed.
+        Initialize();
+
+        // [GIVEN] Rounding Factor set to "Thousands" Decimal precision = 0.
+        RoundingFactor := RoundingFactor::Thousands;
+        LibraryVariableStorage.Enqueue(RoundingFactor);
+
+        // [GIVEN] Created G/L Account with entries
+        LibraryERM.CreateGLAccount(GLAccount);
+        ExpectedDebitAmount := ReportManagementAPAC.RoundAmount(PrepareTempDebitCreditGLEntries(
+              GLAccount, GLEntry, 1000000 * LibraryRandom.RandIntInRange(3, 9), 1000000 * LibraryRandom.RandIntInRange(1, 2)), RoundingFactor);
+        Commit();
+
+        // [WHEN] Run report 28025 "Income Statement" for created G/L Account.
+        GLAccount.SetRecFilter();
+        GLAccount.SetRange("Date Filter", WorkDate);
+        REPORT.Run(REPORT::"Income Statement", true, false, GLAccount);
+
+        // [THEN] The report is run with correct rounding factor.
+        // [THEN] The Precision for decimal places is equal to 0.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('RoundFactorText', ReportManagementAPAC.RoundDescription(RoundingFactor));
+        LibraryReportDataset.AssertElementWithValueExists('Precision', 0);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('IncomeStatementRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TheAllDecimalsPrintInIncomeStatementReportWhenRoundingFactorIsHundredThousands()
+    var
+        GLAccount: Record "G/L Account";
+        GLEntry: Record "G/L Entry";
+        ReportManagementAPAC: Codeunit "Report Management APAC";
+        ExpectedDebitAmount: Decimal;
+    begin
+        // [SCENARIO 374871] Run report 28025 "Income Statement" with Rounding Factor = "Hundred Thousands". The all decimals is printed.
+        Initialize();
+
+        // [GIVEN] Rounding Factor set to "Hundred Thousands" Decimal precision = 1. 
+        RoundingFactor := RoundingFactor::"Hundred Thousands";
+        LibraryVariableStorage.Enqueue(RoundingFactor);
+
+        // [GIVEN] Created G/L Account with entries
+        LibraryERM.CreateGLAccount(GLAccount);
+        ExpectedDebitAmount := ReportManagementAPAC.RoundAmount(PrepareTempDebitCreditGLEntries(
+              GLAccount, GLEntry, 1000000 * LibraryRandom.RandIntInRange(3, 9), 1000000 * LibraryRandom.RandIntInRange(1, 2)), RoundingFactor);
+        Commit();
+
+        // [WHEN] Run report 28025 "Income Statement" for created G/L Account.
+        GLAccount.SetRecFilter();
+        GLAccount.SetRange("Date Filter", WorkDate);
+        REPORT.Run(REPORT::"Income Statement", true, false, GLAccount);
+
+        // [THEN] The report is run with correct rounding factor.
+        // [THEN] The Precision for decimal places is equal to 1. 
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('RoundFactorText', ReportManagementAPAC.RoundDescription(RoundingFactor));
+        LibraryReportDataset.AssertElementWithValueExists('Precision', 1);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('IncomeStatementRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TheAllDecimalsPrintInIncomeStatementReportWhenRoundingFactorIsMillions()
+    var
+        GLAccount: Record "G/L Account";
+        GLEntry: Record "G/L Entry";
+        ReportManagementAPAC: Codeunit "Report Management APAC";
+        ExpectedDebitAmount: Decimal;
+    begin
+        // [SCENARIO 374871] Run report 28025 "Income Statement" with Rounding Factor = "Millions". The all decimals is printed.
+        Initialize();
+
+        // [GIVEN] Rounding Factor set to "Millions". Decimal precision = 1. 
+        RoundingFactor := RoundingFactor::Millions;
+        LibraryVariableStorage.Enqueue(RoundingFactor);
+
+        // [GIVEN] Created G/L Account with entries
+        LibraryERM.CreateGLAccount(GLAccount);
+        ExpectedDebitAmount := ReportManagementAPAC.RoundAmount(PrepareTempDebitCreditGLEntries(
+              GLAccount, GLEntry, 1000000 * LibraryRandom.RandIntInRange(3, 9), 1000000 * LibraryRandom.RandIntInRange(1, 2)), RoundingFactor);
+        Commit();
+
+        // [WHEN] Run report 28025 "Income Statement" for created G/L Account.
+        GLAccount.SetRecFilter;
+        GLAccount.SetRange("Date Filter", WorkDate);
+        REPORT.Run(REPORT::"Income Statement", true, false, GLAccount);
+
+        // [THEN] The report is run with correct rounding factor.
+        // [THEN] The Precision for decimal places is equal to 1.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('RoundFactorText', ReportManagementAPAC.RoundDescription(RoundingFactor));
+        LibraryReportDataset.AssertElementWithValueExists('Precision', 1);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -411,6 +666,25 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         LibraryReportDataset.AssertElementWithValueExists('VATAmt_VATAmtLine', VATAmount);
     end;
 
+    local procedure PrepareTempDebitCreditGLEntries(var GLAccount: Record "G/L Account"; var GLEntry: Record "G/L Entry"; DebitAmount: Decimal; CreditAmount: Decimal): Decimal
+    begin
+        MockGLEntry(GLEntry, GLAccount."No.", DebitAmount, 0);
+        MockGLEntry(GLEntry, GLAccount."No.", 0, CreditAmount);
+        exit(DebitAmount - CreditAmount);
+    end;
+
+    local procedure MockGLEntry(var GLEntry: Record "G/L Entry"; GLAccNo: Code[20]; DebitAmount: Decimal; CreditAmount: Decimal)
+    begin
+        GLEntry.Init();
+        GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FieldNo("Entry No."));
+        GLEntry."G/L Account No." := GLAccNo;
+        GLEntry."Posting Date" := WorkDate;
+        GLEntry.Amount := DebitAmount - CreditAmount;
+        GLEntry."Debit Amount" := DebitAmount;
+        GLEntry."Credit Amount" := CreditAmount;
+        GLEntry.Insert();
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ItemsReceivedAndNotInvoicedRequestPageHandler(var ItemsReceivedAndNotInvoiced: TestRequestPage "Items Received & Not Invoiced")
@@ -422,6 +696,13 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         LibraryVariableStorage.Dequeue(BuyFromVendorNo2);
         ItemsReceivedAndNotInvoiced."Purchase Header".SetFilter(
           "Buy-from Vendor No.", StrSubstNo(BuyFromVendorNoFilterTxt, BuyFromVendorNo, BuyFromVendorNo2));
+        ItemsReceivedAndNotInvoiced.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemsReceivedAndNotInvoicedRequestPageHandlerSimple(var ItemsReceivedAndNotInvoiced: TestRequestPage "Items Received & Not Invoiced")
+    begin
         ItemsReceivedAndNotInvoiced.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -472,6 +753,14 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
     procedure BankAccountReconciliationRequestPageHandler(var BankAccountReconciliation: TestRequestPage "Bank Account Reconciliation")
     begin
         BankAccountReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure IncomeStatementRequestPageHandler(var IncomeStatement: TestRequestPage "Income Statement")
+    begin
+        IncomeStatement.AmountsInWhole.SetValue(LibraryVariableStorage.DequeueInteger);
+        IncomeStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
 
