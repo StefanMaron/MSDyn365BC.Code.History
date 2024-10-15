@@ -1022,6 +1022,24 @@
       <Cmt Name="Dev"><![CDATA[%1, %2 - codes]D;]A;(LookupHint=Codeunit Non-Deductible UT - NamedType DifferentNonDedVATRatesSameVATIdentifierErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1718597743 - NamedType 2155980144" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The entries were successfully reversed]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non-Deductible VAT Journal - NamedType EntriesReversedLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1718597743 - NamedType 3158364080" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to reverse the entries]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non-Deductible VAT Journal - NamedType ReverseEntriesQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 972101180 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2 in %3.]]></Val>

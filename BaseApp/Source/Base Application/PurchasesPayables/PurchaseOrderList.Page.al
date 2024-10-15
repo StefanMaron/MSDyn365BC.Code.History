@@ -7,6 +7,7 @@ page 9307 "Purchase Order List"
     Editable = false;
     PageType = List;
     QueryCategory = 'Purchase Order List';
+    RefreshOnActivate = true;
     SourceTable = "Purchase Header";
     SourceTableView = WHERE("Document Type" = CONST(Order));
     UsageCategory = Lists;

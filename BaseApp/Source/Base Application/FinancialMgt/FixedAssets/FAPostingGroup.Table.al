@@ -473,8 +473,11 @@
             exit;
         GLAcc.Get(AccNo);
         GLAcc.CheckGLAcc();
+        OnCheckGLAccOnBeforeTestfieldDirectPosting(Rec, AccNo, DirectPosting);
         if DirectPosting then
             GLAcc.TestField("Direct Posting");
+
+        OnAfterCheckGLAcc(AccNo, DirectPosting, Rec);
     end;
 
     procedure IsReadyForAcqusition(): Boolean
@@ -739,6 +742,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetPostingGroup(var FAPostingGroup: Record "FA Posting Group"; DepreciationBookCode: Code[10]; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckGLAccOnBeforeTestfieldDirectPosting(var FAPostingGroup: Record "FA Posting Group"; AccNo: Code[20]; var DirectPosting: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckGLAcc(AccNo: Code[20]; DirectPosting: Boolean; FAPostingGroup: Record "FA Posting Group")
     begin
     end;
 }
