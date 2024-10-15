@@ -332,6 +332,7 @@ table 39 "Purchase Line"
                     ValidateReturnReasonCode(FieldNo("Location Code"));
 
                 UpdateDirectUnitCostByField(FieldNo("Location Code"));
+                DeleteWarehouseRequest(xRec);
             end;
         }
         field(8; "Posting Group"; Code[20])
@@ -414,12 +415,12 @@ table 39 "Purchase Line"
                     Type::Item:
                         ValidateItemDescription();
                     else begin
-                            ReturnValue := FindRecordMgt.FindNoByDescription(Type.AsInteger(), Description, true);
-                            if ReturnValue <> '' then begin
-                                CurrFieldNo := FieldNo("No.");
-                                Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen("No.")));
-                            end;
+                        ReturnValue := FindRecordMgt.FindNoByDescription(Type.AsInteger(), Description, true);
+                        if ReturnValue <> '' then begin
+                            CurrFieldNo := FieldNo("No.");
+                            Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen("No.")));
                         end;
+                    end;
                 end;
 
                 ShouldErrorForFindDescription := ("No." = '') and GuiAllowed() and ApplicationAreaMgmtFacade.IsFoundationEnabled() and ("Document Type" = "Document Type"::Order);
@@ -3685,6 +3686,8 @@ table 39 "Purchase Line"
             DeferralUtilities.DeferralCodeOnDelete(
                 "Deferral Document Type"::Purchase.AsInteger(), '', '',
                 "Document Type".AsInteger(), "Document No.", "Line No.");
+        
+        DeleteWarehouseRequest(Rec);
     end;
 
     trigger OnInsert()
@@ -5583,9 +5586,9 @@ table 39 "Purchase Line"
                 '', "No.":
                     Description := xRec.Description;
                 else begin
-                        CurrFieldNo := FieldNo("No.");
-                        Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen(Item."No.")));
-                    end;
+                    CurrFieldNo := FieldNo("No.");
+                    Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen(Item."No.")));
+                end;
             end;
     end;
 
@@ -6423,9 +6426,9 @@ table 39 "Purchase Line"
                                                 VATAmountLine.Quantity += "Qty. to Invoice (Base)";
                                             end;
                                         else begin
-                                                QtyToHandle := "Qty. to Invoice";
-                                                VATAmountLine.Quantity += "Qty. to Invoice (Base)";
-                                            end;
+                                            QtyToHandle := "Qty. to Invoice";
+                                            VATAmountLine.Quantity += "Qty. to Invoice (Base)";
+                                        end;
                                     end;
                                     OnCalcVATAmountLinesOnQtyTypeInvoicingOnBeforeCalcAmtToHandle(PurchLine, PurchHeader, QtyToHandle, VATAmountLine);
                                     AmtToHandle := GetLineAmountToHandleInclPrepmt(QtyToHandle);
@@ -8857,6 +8860,22 @@ table 39 "Purchase Line"
         exit(UOMMgt.CalcBaseQty(
             JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Unit of Measure Code", Qty, JobPlanningLine."Qty. per Unit of Measure", JobPlanningLine."Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
+
+    local procedure DeleteWarehouseRequest(PurchaseLine: Record "Purchase Line")
+    var
+        WarehouseRequest: Record "Warehouse Request";
+    begin
+        WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
+        if ((PurchaseLine."Document Type" = "Purchase Document Type"::Order) and (PurchaseLine.Quantity >= 0)) or ((PurchaseLine."Document Type" = "Purchase Document Type"::"Return Order") and (PurchaseLine.Quantity < 0)) then
+            WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Inbound)
+        else
+            WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Outbound);
+        WarehouseRequest.SetSourceFilter(Database::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.");
+        WarehouseRequest.SetRange("Document Status", WarehouseRequest."Document Status"::Open);
+        WarehouseRequest.SetRange("Location Code", PurchaseLine."Location Code");
+        if not WarehouseRequest.IsEmpty() then
+            WarehouseRequest.DeleteAll(true);
+    end;    
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAddItem(var PurchaseLine: Record "Purchase Line"; LastPurchaseLine: Record "Purchase Line")

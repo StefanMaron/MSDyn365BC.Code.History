@@ -1023,6 +1023,8 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
         // [WHEN] Run copy sales document - "PSI" -> "CM"
         RunCopySalesDoc(PostedSalesDocNo, SalesHeader, "Sales Document Type From"::"Posted Invoice", true, false);
+        SalesHeader.Validate("Location Code");
+        SalesHeader.Modify();
 
         // [THEN] Ship-to address fields of "CM" are equal to "SA"
         VerifyShiptoAddressInSalesDocToCompanyInfo(SalesHeader);

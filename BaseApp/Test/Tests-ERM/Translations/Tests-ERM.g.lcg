@@ -12974,13 +12974,22 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Invoice - NamedType WarningMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 452260524 - NamedType 865617689" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 452260524 - NamedType 1926725597" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[If you change the Expected Cost Posting to G/L]]></Val>
+      <Val><![CDATA[If you disable the Expected Cost Posting to G/L]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Shipment - NamedType ExpectedCostPostingConfirm)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Shipment - NamedType ExpectedCostPostingDisableConfirm)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 452260524 - NamedType 3248033210" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[If you enable the Expected Cost Posting to G/L]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Shipment - NamedType ExpectedCostPostingEnableConfirm)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 452260524 - NamedType 2557886513" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -13055,13 +13064,22 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Undo Ship - NamedType ConfirmUndoSelectedShipment)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2017483446 - NamedType 865617689" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2017483446 - NamedType 1926725597" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[If you change the Expected Cost Posting to G/L]]></Val>
+      <Val><![CDATA[If you disable the Expected Cost Posting to G/L]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Undo Ship - NamedType ExpectedCostPostingConfirm)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Undo Ship - NamedType ExpectedCostPostingDisableConfirm)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2017483446 - NamedType 3248033210" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[If you enable the Expected Cost Posting to G/L]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Undo Ship - NamedType ExpectedCostPostingEnableConfirm)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2017483446 - NamedType 2557886513" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
