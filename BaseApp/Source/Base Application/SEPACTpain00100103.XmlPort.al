@@ -686,6 +686,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
         TempPaymentExportRemittanceText: Record "Payment Export Remittance Text" temporary;
         NoDataToExportErr: Label 'There is no data to export.', Comment = '%1=Field;%2=Value;%3=Value';
         CHMgt: Codeunit CHMgt;
+        BankMgt: Codeunit BankMgt;
         SwissExport: Boolean;
 
     local procedure InitData()
@@ -754,33 +755,56 @@ xmlport 1000 "SEPA CT pain.001.001.03"
     end;
 
     local procedure UpdateRemittanceInfo(PaymentExportData: Record "Payment Export Data")
+    var
+        IsQRReference: Boolean;
+        IsCRReference: Boolean;
     begin
         RmtStrdRef := '';
-        if SwissExport then begin
-            if PaymentExportData."Swiss Payment Type" in [PaymentExportData."Swiss Payment Type"::"2.1",
-                                                          PaymentExportData."Swiss Payment Type"::"2.2"]
-            then begin
-                RemittanceText1 := '';
-                exit;
-            end;
+        if not SwissExport then
+            exit;
 
-            RmtStrdRef := RemittanceText1;
+        if PaymentExportData."Swiss Payment Type" in [PaymentExportData."Swiss Payment Type"::"2.1",
+                                                      PaymentExportData."Swiss Payment Type"::"2.2"]
+        then begin
             RemittanceText1 := '';
-            if PaymentExportData."Swiss Payment Type" = PaymentExportData."Swiss Payment Type"::"1" then
-                remittancetext2 := ''
-            else
-                if PaymentExportData."Payment Reference" = '' then
-                    rmtstrdref := ''
-                else begin
-                    rmtstrdref := PaymentExportData."Payment Reference";
-                    if (STRLEN(DELCHR(RmtStrdRef)) = 27) and
-                       (PaymentExportData."Swiss Payment Type" <> PaymentExportData."Swiss Payment Type"::"5")
-                    then
-                        CdtrRefInf_CdOrPrtry_Prtry := 'QRR'
-                    else
-                        CdtrRefInf_CdOrPrtry_Cd := 'SCOR';
-                end;
+            exit;
         end;
+
+        RmtStrdRef := PaymentExportData."Payment Reference";
+        IsCRReference := BankMgt.IsCreditReferenceISO11649(RmtStrdRef);
+        IsQRReference := BankMgt.IsQRReference(RmtStrdRef);
+        if IsCRReference or IsQRReference then
+            RmtStrdRef := DelChr(RmtStrdRef);
+
+        case PaymentExportData."Swiss Payment Type" of
+            PaymentExportData."Swiss Payment Type"::"1":
+                begin
+                    RmtStrdRef := RemittanceText1;
+                    RemittanceText2 := '';
+                end;
+            // (QR Reference + QR-IBAN) or (CR Reference + IBAN) are allowed for payment type 3.
+            PaymentExportData."Swiss Payment Type"::"3":
+                case true of
+                    IsQRReference:
+                        CdtrRefInf_CdOrPrtry_Prtry := 'QRR';
+                    IsCRReference:
+                        CdtrRefInf_CdOrPrtry_Cd := 'SCOR';
+                    else
+                        RmtStrdRef := '';
+                end;
+            // Any non-blank reference is allowed for payment type 5.
+            PaymentExportData."Swiss Payment Type"::"5":
+                if RmtStrdRef <> '' then
+                    CdtrRefInf_CdOrPrtry_Cd := 'SCOR';
+            // CR Reference (ISO 11649) is allowed for all payment types.
+            else
+                if IsCRReference then
+                    CdtrRefInf_CdOrPrtry_Cd := 'SCOR'
+                else
+                    RmtStrdRef := '';
+        end;
+
+        RemittanceText1 := '';
     end;
 
     [IntegrationEvent(false, false)]

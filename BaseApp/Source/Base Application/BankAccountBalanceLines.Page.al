@@ -63,7 +63,6 @@ page 378 "Bank Account Balance Lines"
 
     trigger OnAfterGetRecord()
     begin
-        if DateRec.Get("Period Type", "Period Start") then;
         CalcLine();
     end;
 
@@ -103,7 +102,11 @@ page 378 "Bank Account Balance Lines"
     procedure Set(var NewBankAcc: Record "Bank Account"; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin
         BankAcc.Copy(NewBankAcc);
+
         DeleteAll();
+        Clear(Rec);
+        Rec.Init();
+
         PeriodType := NewPeriodType;
         AmountType := NewAmountType;
         CurrPage.Update(false);

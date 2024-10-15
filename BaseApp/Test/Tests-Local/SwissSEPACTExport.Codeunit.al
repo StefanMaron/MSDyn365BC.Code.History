@@ -31,6 +31,9 @@ codeunit 144352 "Swiss SEPA CT Export"
         ReferenceNumberIsDefinedErr: Label 'For vendor %1 and document %2, a reference number is defined. \The document type must be "Invoice".';
         MessageToRecipientMsg: Label 'Payment of %1 %2 to vendor %3', Comment = '%1 document type, %2 Document No., %3 Vendor No.';
         GetPaymentTypeErr: Label 'Wrong result of GetPaymentType';
+        IBANTypeErr: Label 'The IBAN type on the recipient bank account must match the payment reference type.';
+        QRIBANErr: Label 'The recipient bank account has an IBAN that is of type QR-IBAN. This type requires that the recipient bank account has a SEPA CT export payment type that is type 3.';
+        QRRefErr: Label 'The payment reference is a QR reference. This type requires that the recipient bank account has a SEPA CT export payment type that is type 3.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2216,24 +2219,23 @@ codeunit 144352 "Swiss SEPA CT Export"
     end;
 
     [Test]
-    procedure XMLExport_PaymentType21_QRReference()
+    procedure XMLExport_PaymentType21_QRReferenceNormalIBAN()
     var
         GenJournalLine: Record "Gen. Journal Line";
-        VendorBankAccount: Record "Vendor Bank Account";
         FileName: Text;
         MessageID: Text;
         VendorNo: Code[20];
     begin
         // [FEATURE] [XML] [Export] [Payment Reference]
-        // [SCENARIO 357682] Swiss SEPA CT export for "Payment Type" = "2.1" in case of QR Payment Reference
+        // [SCENARIO 423342] Swiss SEPA CT export for "Payment Type" = "2.1" in case of normal IBAN + QR Payment Reference.
         Initialize();
 
-        // [GIVEN] Vendor payment journal line for Payment Type = "2.1" and filled-in QR Payment Reference
+        // [GIVEN] Vendor payment journal line for Payment Type = "2.1" and filled-in QR Payment Reference.
+        // [GIVEN] Vendor Bank Account has normal IBAN (not QR-IBAN).
         VendorNo := CreateVendorWithBankAccount_GiroPost;
-        UpdateVendorBankAccPaymentFee(VendorNo, VendorBankAccount."Payment Fee Code"::" ");
         CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', GetQRReferenceNo);
 
-        // [WHEN] Export payment to file
+        // [WHEN] Export payment to file.
         MessageID := GetMessageID(GenJournalLine."Bal. Account No.");
         FileName := GenJournalLine_XMLExport(GenJournalLine);
 
@@ -2242,80 +2244,345 @@ codeunit 144352 "Swiss SEPA CT Export"
     end;
 
     [Test]
-    procedure XMLExport_PaymentType22_QRReference()
+    procedure XMLExport_PaymentType21_CRReferenceNormalIBAN()
     var
         GenJournalLine: Record "Gen. Journal Line";
-        VendorBankAccount: Record "Vendor Bank Account";
         FileName: Text;
         MessageID: Text;
         VendorNo: Code[20];
     begin
         // [FEATURE] [XML] [Export] [Payment Reference]
-        // [SCENARIO 357682] Swiss SEPA CT export for "Payment Type" = "2.2" in case of QR Payment Reference
+        // [SCENARIO 426123] Swiss SEPA CT export for "Payment Type" = "2.1" in case of normal IBAN + CR Payment Reference.
         Initialize();
 
-        // [GIVEN] Vendor payment journal line for Payment Type = "2.2" and filled-in QR Payment Reference
-        VendorNo := CreateVendorWithBankAccount_Clearing;
-        UpdateVendorBankAccPaymentFee(VendorNo, VendorBankAccount."Payment Fee Code"::Own);
-        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', GetQRReferenceNo);
+        // [GIVEN] Vendor payment journal line for Payment Type = "2.1" and filled-in CR Payment Reference.
+        // [GIVEN] Vendor Bank Account has normal IBAN (not QR-IBAN).
+        VendorNo := CreateVendorWithBankAccount_GiroPost;
+        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', GetCRReferenceNo());
 
-        // [WHEN] Export payment to file
+        // [WHEN] Export payment to file.
         MessageID := GetMessageID(GenJournalLine."Bal. Account No.");
         FileName := GenJournalLine_XMLExport(GenJournalLine);
 
-        // [THEN] XML File has been exported with correct Swiss SEPA CT scheme for "Payment Type" = "2.2"
+        // [THEN] XML File has been exported with correct Swiss SEPA CT scheme for "Payment Type" = "2.1".
+        VerifyXMLFile(GenJournalLine, FileName, MessageID, PaymentTypeGbl::"2.1");
+    end;
+
+    [Test]
+    procedure XMLExport_PaymentType22_QRReferenceNormalIBAN()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [XML] [Export] [Payment Reference]
+        // [SCENARIO 423342] Swiss SEPA CT export for "Payment Type" = "2.2" in case of normal IBAN and QR Payment Reference.
+        Initialize();
+
+        // [GIVEN] Vendor payment journal line for Payment Type = "2.2" and filled-in QR Payment Reference.
+        // [GIVEN] Vendor Bank Account has normal IBAN (not QR-IBAN).
+        VendorNo := CreateVendorWithBankAccount_Clearing();
+        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', GetQRReferenceNo());
+
+        // [WHEN] Export payment to file.
+        asserterror GenJournalLine_XMLExport(GenJournalLine);
+
+        // [THEN] XML File was not exported, an error is thrown: Payment Reference of QR type must only be used with Payment Type 3.
+        VerifyPaymentJnlExportErrorText(GenJournalLine, QRRefErr);
+    end;
+
+    [Test]
+    procedure XMLExport_PaymentType22_CRReferenceQRIBAN()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [XML] [Export] [Payment Reference]
+        // [SCENARIO 423342] Swiss SEPA CT export for "Payment Type" = "2.2" in case of QR-IBAN and CR Payment Reference.
+        Initialize();
+
+        // [GIVEN] Vendor payment journal line for Payment Type = "2.2" and filled-in CR Payment Reference.
+        // [GIVEN] Vendor Bank Account has QR-IBAN.
+        VendorNo := CreateVendorWithBankAccount_Clearing();
+        UpdateVendorBankAccIBAN(VendorNo, GetQRIBAN());
+        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', GetCRReferenceNo());
+
+        // [WHEN] Export payment to file.
+        asserterror GenJournalLine_XMLExport(GenJournalLine);
+
+        // [THEN] XML File was not exported, an error is thrown: IBAN of QR-IBAN type must only be used with Payment Type 3.
+        VerifyPaymentJnlExportErrorText(GenJournalLine, QRIBANErr);
+    end;
+
+    [Test]
+    procedure XMLExport_PaymentType22_QRReferenceQRIBAN()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PaymentJnlExportErrorText: Record "Payment Jnl. Export Error Text";
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [XML] [Export] [Payment Reference]
+        // [SCENARIO 423342] Swiss SEPA CT export for "Payment Type" = "2.2" in case of QR-IBAN and QR Payment Reference.
+        Initialize();
+
+        // [GIVEN] Vendor payment journal line for Payment Type = "2.2" and filled-in QR Payment Reference.
+        // [GIVEN] Vendor Bank Account has QR-IBAN.
+        VendorNo := CreateVendorWithBankAccount_Clearing();
+        UpdateVendorBankAccIBAN(VendorNo, GetQRIBAN());
+        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', GetQRReferenceNo());
+
+        // [WHEN] Export payment to file.
+        asserterror GenJournalLine_XMLExport(GenJournalLine);
+
+        // [THEN] XML File was not exported, two errors are thrown: Payment Reference of QR type and IBAN of QR-IBAN type must only be used with Payment Type 3.
+        PaymentJnlExportErrorText.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        PaymentJnlExportErrorText.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        PaymentJnlExportErrorText.SetRange("Journal Line No.", GenJournalLine."Line No.");
+        Assert.RecordCount(PaymentJnlExportErrorText, 2);
+        PaymentJnlExportErrorText.FindFirst();
+        PaymentJnlExportErrorText.TestField("Error Text", QRRefErr);
+        PaymentJnlExportErrorText.Next();
+        PaymentJnlExportErrorText.TestField("Error Text", QRIBANErr);
+    end;
+
+    [Test]
+    procedure XMLExport_PaymentType22_CRReferenceNormalIBAN()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        FileName: Text;
+        MessageID: Text;
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [XML] [Export] [Payment Reference]
+        // [SCENARIO 426123] Swiss SEPA CT export for "Payment Type" = "2.2" in case of normal IBAN + CR Payment Reference.
+        Initialize();
+
+        // [GIVEN] Vendor payment journal line for Payment Type = "2.2" and filled-in CR Payment Reference.
+        // [GIVEN] Vendor Bank Account has normal IBAN (not QR-IBAN).
+        VendorNo := CreateVendorWithBankAccount_Clearing();
+        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', GetCRReferenceNo());
+
+        // [WHEN] Export payment to file.
+        MessageID := GetMessageID(GenJournalLine."Bal. Account No.");
+        FileName := GenJournalLine_XMLExport(GenJournalLine);
+
+        // [THEN] XML File has been exported with correct Swiss SEPA CT scheme for "Payment Type" = "2.2".
         VerifyXMLFile(GenJournalLine, FileName, MessageID, PaymentTypeGbl::"2.2");
     end;
 
     [Test]
-    procedure XMLExport_PaymentType3_QRReference()
+    procedure XMLExport_PaymentType22_UnstrdReferenceNormalIBAN()
     var
         GenJournalLine: Record "Gen. Journal Line";
-        VendorBankAccount: Record "Vendor Bank Account";
         FileName: Text;
         MessageID: Text;
         VendorNo: Code[20];
     begin
         // [FEATURE] [XML] [Export] [Payment Reference]
-        // [SCENARIO 357682] Swiss SEPA CT export for "Payment Type" = "3" in case of QR Payment Reference
+        // [SCENARIO 426123] Swiss SEPA CT export for "Payment Type" = "2.2" in case of normal IBAN + unstructured Payment Reference.
         Initialize();
 
-        // [GIVEN] Vendor payment journal line for Payment Type = "3" and filled-in QR Payment Reference
-        VendorNo := CreateVendorWithBankAccount_DomesticSWIFT;
-        UpdateVendorBankAccPaymentFee(VendorNo, VendorBankAccount."Payment Fee Code"::Beneficiary);
-        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', GetQRReferenceNo);
+        // [GIVEN] Vendor payment journal line for Payment Type = "2.2" and filled-in unstructured Payment Reference.
+        // [GIVEN] Vendor Bank Account has normal IBAN (not QR-IBAN).
+        VendorNo := CreateVendorWithBankAccount_Clearing();
+        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', LibraryUtility.GenerateGUID());
 
-        // [WHEN] Export payment to file
+        // [WHEN] Export payment to file.
         MessageID := GetMessageID(GenJournalLine."Bal. Account No.");
         FileName := GenJournalLine_XMLExport(GenJournalLine);
 
-        // [THEN] XML File has been exported with correct Swiss SEPA CT scheme for "Payment Type" = "3"
+        // [THEN] XML File has been exported with correct Swiss SEPA CT scheme for "Payment Type" = "2.2". "SCOR" and IBAN were not added under <CdOrPrtry> tag.
+        VerifyXMLFile(GenJournalLine, FileName, MessageID, PaymentTypeGbl::"2.2");
+    end;
+
+    [Test]
+    procedure XMLExport_PaymentType3_QRReferenceNormalIBAN()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [XML] [Export] [Payment Reference]
+        // [SCENARIO 423342] Swiss SEPA CT export for "Payment Type" = "3" in case of QR Payment Reference and normal IBAN.
+        Initialize();
+
+        // [GIVEN] Vendor payment journal line for Payment Type = "3" and filled-in QR Payment Reference.
+        // [GIVEN] Vendor Bank Account has normal IBAN (not QR-IBAN).
+        VendorNo := CreateVendorWithBankAccount_DomesticSWIFT();
+        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', GetQRReferenceNo());
+
+        // [WHEN] Export payment to file.
+        asserterror GenJournalLine_XMLExport(GenJournalLine);
+
+        // [THEN] XML File was not exported, an error about matching Payment Reference type and IBAN type is thrown.
+        VerifyPaymentJnlExportErrorText(GenJournalLine, IBANTypeErr);
+    end;
+
+    [Test]
+    procedure XMLExport_PaymentType3_CRReferenceQRIBAN()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [XML] [Export] [Payment Reference]
+        // [SCENARIO 423342] Swiss SEPA CT export for "Payment Type" = "3" in case of CR Payment Reference and QR-IBAN.
+        Initialize();
+
+        // [GIVEN] Vendor payment journal line for Payment Type = "3" and filled-in CR Payment Reference.
+        // [GIVEN] Vendor Bank Account has QR-IBAN.
+        VendorNo := CreateVendorWithBankAccount_DomesticSWIFT();
+        UpdateVendorBankAccIBAN(VendorNo, GetQRIBAN());
+        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', GetCRReferenceNo());
+
+        // [WHEN] Export payment to file.
+        asserterror GenJournalLine_XMLExport(GenJournalLine);
+
+        // [THEN] XML File was not exported, an error about matching Payment Reference type and IBAN type is thrown.
+        VerifyPaymentJnlExportErrorText(GenJournalLine, IBANTypeErr);
+    end;
+
+    [Test]
+    procedure XMLExport_PaymentType3_UstrdReferenceQRIBAN()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [XML] [Export] [Payment Reference]
+        // [SCENARIO 423342] Swiss SEPA CT export for "Payment Type" = "3" in case of unstructured Payment Reference and QR-IBAN.
+        Initialize();
+
+        // [GIVEN] Vendor payment journal line for Payment Type = "3" and filled-in unstructured Payment Reference.
+        // [GIVEN] Vendor Bank Account has QR-IBAN.
+        VendorNo := CreateVendorWithBankAccount_DomesticSWIFT();
+        UpdateVendorBankAccIBAN(VendorNo, GetQRIBAN());
+        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', LibraryUtility.GenerateGUID());
+
+        // [WHEN] Export payment to file.
+        asserterror GenJournalLine_XMLExport(GenJournalLine);
+
+        // [THEN] XML File was not exported, an error about matching Payment Reference type and IBAN type is thrown.
+        VerifyPaymentJnlExportErrorText(GenJournalLine, IBANTypeErr);
+    end;
+
+    [Test]
+    procedure XMLExport_PaymentType3_BlankReferenceQRIBAN()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [XML] [Export] [Payment Reference]
+        // [SCENARIO 432184] Swiss SEPA CT export for "Payment Type" = "3" in case of blank Payment Reference and QR-IBAN.
+        Initialize();
+
+        // [GIVEN] Vendor payment journal line for Payment Type = "3" and blank Payment Reference.
+        // [GIVEN] Vendor Bank Account has QR-IBAN.
+        VendorNo := CreateVendorWithBankAccount_DomesticSWIFT();
+        UpdateVendorBankAccIBAN(VendorNo, GetQRIBAN());
+        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', '');
+
+        // [WHEN] Export payment to file.
+        asserterror GenJournalLine_XMLExport(GenJournalLine);
+
+        // [THEN] XML File was not exported, an error about matching Payment Reference type and IBAN type is thrown.
+        VerifyPaymentJnlExportErrorText(GenJournalLine, IBANTypeErr);
+    end;
+
+    [Test]
+    procedure XMLExport_PaymentType3_QRReferenceQRIBAN()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        FileName: Text;
+        MessageID: Text;
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [XML] [Export] [Payment Reference]
+        // [SCENARIO 423342] Swiss SEPA CT export for "Payment Type" = "3" in case of QR Payment Reference and QR-IBAN.
+        Initialize();
+
+        // [GIVEN] Vendor payment journal line for Payment Type = "3" and filled-in QR Payment Reference.
+        // [GIVEN] Vendor Bank Account has QR-IBAN.
+        VendorNo := CreateVendorWithBankAccount_DomesticSWIFT();
+        UpdateVendorBankAccIBAN(VendorNo, GetQRIBAN());
+        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', GetQRReferenceNo());
+
+        // [WHEN] Export payment to file.
+        MessageID := GetMessageID(GenJournalLine."Bal. Account No.");
+        FileName := GenJournalLine_XMLExport(GenJournalLine);
+
+        // [THEN] XML File has been exported with correct Swiss SEPA CT scheme for "Payment Type" = "3".
         VerifyXMLFile(GenJournalLine, FileName, MessageID, PaymentTypeGbl::"3");
     end;
 
     [Test]
-    procedure XMLExport_PaymentType3_CRReference()
+    procedure XMLExport_PaymentType3_CRReferenceNormalIBAN()
     var
         GenJournalLine: Record "Gen. Journal Line";
-        VendorBankAccount: Record "Vendor Bank Account";
         FileName: Text;
         MessageID: Text;
         VendorNo: Code[20];
     begin
         // [FEATURE] [XML] [Export] [Payment Reference]
-        // [SCENARIO 357682] Swiss SEPA CT export for "Payment Type" = "3" in case of CR Payment Reference
+        // [SCENARIO 423342] Swiss SEPA CT export for "Payment Type" = "3" in case of CR Payment Reference and normal IBAN.
         Initialize();
 
-        // [GIVEN] Vendor payment journal line for Payment Type = "3" and filled-in CR Payment Reference
-        VendorNo := CreateVendorWithBankAccount_DomesticSWIFT;
-        UpdateVendorBankAccPaymentFee(VendorNo, VendorBankAccount."Payment Fee Code"::Beneficiary);
-        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', GetCRReferenceNo);
+        // [GIVEN] Vendor payment journal line for Payment Type = "3" and filled-in CR Payment Reference.
+        // [GIVEN] Vendor Bank Account has normal IBAN (not QR-IBAN).
+        VendorNo := CreateVendorWithBankAccount_DomesticSWIFT();
+        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', GetCRReferenceNo());
 
-        // [WHEN] Export payment to file
+        // [WHEN] Export payment to file.
         MessageID := GetMessageID(GenJournalLine."Bal. Account No.");
         FileName := GenJournalLine_XMLExport(GenJournalLine);
 
-        // [THEN] XML File has been exported with correct Swiss SEPA CT scheme for "Payment Type" = "3"
+        // [THEN] XML File has been exported with correct Swiss SEPA CT scheme for "Payment Type" = "3".
+        VerifyXMLFile(GenJournalLine, FileName, MessageID, PaymentTypeGbl::"3");
+    end;
+
+    [Test]
+    procedure XMLExport_PaymentType3_UstrdReferenceNormalIBAN()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        FileName: Text;
+        MessageID: Text;
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [XML] [Export] [Payment Reference]
+        // [SCENARIO 426123] Swiss SEPA CT export for "Payment Type" = "3" in case of unstructured Payment Reference and normal IBAN.
+        Initialize();
+
+        // [GIVEN] Vendor payment journal line for Payment Type = "3" and filled-in unstructured Payment Reference.
+        // [GIVEN] Vendor Bank Account has normal IBAN (not QR-IBAN).
+        VendorNo := CreateVendorWithBankAccount_DomesticSWIFT();
+        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', LibraryUtility.GenerateGUID());
+
+        // [WHEN] Export payment to file.
+        MessageID := GetMessageID(GenJournalLine."Bal. Account No.");
+        FileName := GenJournalLine_XMLExport(GenJournalLine);
+
+        // [THEN] XML File has been exported with correct Swiss SEPA CT scheme for "Payment Type" = "3". "SCOR" and IBAN were not added under <CdOrPrtry> tag.
+        VerifyXMLFile(GenJournalLine, FileName, MessageID, PaymentTypeGbl::"3");
+    end;
+
+    [Test]
+    procedure XMLExport_PaymentType3_BlankReferenceNormalIBAN()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        FileName: Text;
+        MessageID: Text;
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [XML] [Export] [Payment Reference]
+        // [SCENARIO 432184] Swiss SEPA CT export for "Payment Type" = "3" in case of blank Payment Reference and normal IBAN.
+        Initialize();
+
+        // [GIVEN] Vendor payment journal line for Payment Type = "3" and blank Payment Reference.
+        // [GIVEN] Vendor Bank Account has normal IBAN (not QR-IBAN).
+        VendorNo := CreateVendorWithBankAccount_DomesticSWIFT();
+        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', '');
+
+        // [WHEN] Export payment to file.
+        MessageID := GetMessageID(GenJournalLine."Bal. Account No.");
+        FileName := GenJournalLine_XMLExport(GenJournalLine);
+
+        // [THEN] XML File has been exported with correct Swiss SEPA CT scheme for "Payment Type" = "3". "SCOR" and IBAN were not added under <CdOrPrtry> tag.
         VerifyXMLFile(GenJournalLine, FileName, MessageID, PaymentTypeGbl::"3");
     end;
 
@@ -2378,10 +2645,11 @@ codeunit 144352 "Swiss SEPA CT Export"
         // [SCENARIO 381289] Swiss SEPA CT combined export for 3 lines: Payment Type 1, Payment Type 3-SCOR, Payment Type 3-QRR
         Initialize();
 
-        // [GIVEN] Payment journal with 3 lines for different vendors having: Payment Type 1, Payment Type 3-SCOR, Payment Type 3-QRR
+        // [GIVEN] Payment journal with 3 lines for different vendors having: Payment Type 1, Payment Type 3-SCOR, Payment Type 3-QRR + QR-IBAN
         VendorNo[1] := CreateVendorWithBankAccount_ESR();
         VendorNo[2] := CreateVendorWithBankAccount_DomesticSWIFT();
         VendorNo[3] := CreateVendorWithBankAccount_DomesticSWIFT();
+        UpdateVendorBankAccIBAN(VendorNo[3], GetQRIBAN());
         ESRReferenceNo[1] := GetReferenceNo();
         PaymentReferenceNo[2] := GetCRReferenceNo();
         PaymentReferenceNo[3] := GetQRReferenceNo();
@@ -2402,10 +2670,11 @@ codeunit 144352 "Swiss SEPA CT Export"
         // [SCENARIO 381289] Swiss SEPA CT combined export for 3 lines: Payment Type 1, Payment Type 3-QRR, Payment Type 3-SCOR
         Initialize();
 
-        // [GIVEN] Payment journal with 3 lines for different vendors having: Payment Type 1, Payment Type 3-QRR, Payment Type 3-SCOR
+        // [GIVEN] Payment journal with 3 lines for different vendors having: Payment Type 1, Payment Type 3-QRR + QR-IBAN, Payment Type 3-SCOR
         VendorNo[1] := CreateVendorWithBankAccount_ESR();
         VendorNo[2] := CreateVendorWithBankAccount_DomesticSWIFT();
         VendorNo[3] := CreateVendorWithBankAccount_DomesticSWIFT();
+        UpdateVendorBankAccIBAN(VendorNo[2], GetQRIBAN());
         ESRReferenceNo[1] := GetReferenceNo();
         PaymentReferenceNo[2] := GetQRReferenceNo();
         PaymentReferenceNo[3] := GetCRReferenceNo();
@@ -2426,10 +2695,11 @@ codeunit 144352 "Swiss SEPA CT Export"
         // [SCENARIO 381289] Swiss SEPA CT combined export for 3 lines: Payment Type 3-SCOR, Payment Type 1, Payment Type 3-QRR
         Initialize();
 
-        // [GIVEN] Payment journal with 3 lines for different vendors having: Payment Type 3-SCOR, Payment Type 1, Payment Type 3-QRR
+        // [GIVEN] Payment journal with 3 lines for different vendors having: Payment Type 3-SCOR, Payment Type 1, Payment Type 3-QRR + QR-IBAN
         VendorNo[1] := CreateVendorWithBankAccount_DomesticSWIFT();
         VendorNo[2] := CreateVendorWithBankAccount_ESR();
         VendorNo[3] := CreateVendorWithBankAccount_DomesticSWIFT();
+        UpdateVendorBankAccIBAN(VendorNo[3], GetQRIBAN());
         PaymentReferenceNo[1] := GetCRReferenceNo();
         ESRReferenceNo[2] := GetReferenceNo();
         PaymentReferenceNo[3] := GetQRReferenceNo();
@@ -2450,10 +2720,11 @@ codeunit 144352 "Swiss SEPA CT Export"
         // [SCENARIO 381289] Swiss SEPA CT combined export for 3 lines: Payment Type 3-SCOR, Payment Type 3-QRR, Payment Type 1
         Initialize();
 
-        // [GIVEN] Payment journal with 3 lines for different vendors having: Payment Type 3-SCOR, Payment Type 3-QRR, Payment Type 1
+        // [GIVEN] Payment journal with 3 lines for different vendors having: Payment Type 3-SCOR, Payment Type 3-QRR + QR-IBAN, Payment Type 1
         VendorNo[1] := CreateVendorWithBankAccount_DomesticSWIFT();
         VendorNo[2] := CreateVendorWithBankAccount_DomesticSWIFT();
         VendorNo[3] := CreateVendorWithBankAccount_ESR();
+        UpdateVendorBankAccIBAN(VendorNo[2], GetQRIBAN());
         PaymentReferenceNo[1] := GetCRReferenceNo();
         PaymentReferenceNo[2] := GetQRReferenceNo();
         ESRReferenceNo[3] := GetReferenceNo();
@@ -2474,10 +2745,11 @@ codeunit 144352 "Swiss SEPA CT Export"
         // [SCENARIO 381289] Swiss SEPA CT combined export for 3 lines: Payment Type 3-QRR, Payment Type 3-SCOR, Payment Type 1
         Initialize();
 
-        // [GIVEN] Payment journal with 3 lines for different vendors having: Payment Type 3-QRR, Payment Type 3-SCOR, Payment Type 1
+        // [GIVEN] Payment journal with 3 lines for different vendors having: Payment Type 3-QRR + QR-IBAN, Payment Type 3-SCOR, Payment Type 1
         VendorNo[1] := CreateVendorWithBankAccount_DomesticSWIFT();
         VendorNo[2] := CreateVendorWithBankAccount_DomesticSWIFT();
         VendorNo[3] := CreateVendorWithBankAccount_ESR();
+        UpdateVendorBankAccIBAN(VendorNo[1], GetQRIBAN());
         PaymentReferenceNo[1] := GetQRReferenceNo();
         PaymentReferenceNo[2] := GetCRReferenceNo();
         ESRReferenceNo[3] := GetReferenceNo();
@@ -2498,10 +2770,11 @@ codeunit 144352 "Swiss SEPA CT Export"
         // [SCENARIO 381289] Swiss SEPA CT combined export for 3 lines: Payment Type 3-QRR, Payment Type 1, Payment Type 3-SCOR
         Initialize();
 
-        // [GIVEN] Payment journal with 3 lines for different vendors having: Payment Type 3-QRR, Payment Type 1, Payment Type 3-SCOR
+        // [GIVEN] Payment journal with 3 lines for different vendors having: Payment Type 3-QRR + QR-IBAN, Payment Type 1, Payment Type 3-SCOR
         VendorNo[1] := CreateVendorWithBankAccount_DomesticSWIFT();
         VendorNo[2] := CreateVendorWithBankAccount_ESR();
         VendorNo[3] := CreateVendorWithBankAccount_DomesticSWIFT();
+        UpdateVendorBankAccIBAN(VendorNo[1], GetQRIBAN());
         PaymentReferenceNo[1] := GetQRReferenceNo();
         ESRReferenceNo[2] := GetReferenceNo();
         PaymentReferenceNo[3] := GetCRReferenceNo();
@@ -2962,6 +3235,16 @@ codeunit 144352 "Swiss SEPA CT Export"
         VendorBankAccount.Modify(true);
     end;
 
+    local procedure UpdateVendorBankAccIBAN(VendorNo: Code[20]; NewIBAN: Code[50])
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+    begin
+        VendorBankAccount.SetRange("Vendor No.", VendorNo);
+        VendorBankAccount.FindFirst();
+        VendorBankAccount.Validate(IBAN, NewIBAN);
+        VendorBankAccount.Modify(true);
+    end;
+
     local procedure FindW1SEPACTBankExpImpCode(): Code[20]
     begin
         exit(FindSEPACTBankExpImpCode(CODEUNIT::"SEPA CT-Export File"));
@@ -3004,6 +3287,11 @@ codeunit 144352 "Swiss SEPA CT Export"
         if Domestic then
             exit('CH3808888123456789012');
         exit('DE62007620110623852957');
+    end;
+
+    local procedure GetQRIBAN(): Code[50]
+    begin
+        exit('CH9730024503254925417');
     end;
 
     local procedure GetReferenceNo(): Code[35]
@@ -3483,6 +3771,8 @@ codeunit 144352 "Swiss SEPA CT Export"
     end;
 
     local procedure VerifyXMLFileRmtInf(GenJournalLine: Record "Gen. Journal Line"; PaymentType: Option)
+    var
+        BankMgt: Codeunit BankMgt;
     begin
         case PaymentType of
             PaymentTypeGbl::"1":
@@ -3498,7 +3788,9 @@ codeunit 144352 "Swiss SEPA CT Export"
                     LibraryXMLRead.VerifyElementAbsenceInSubtree('RmtInf', 'Strd');
                 end;
             else
-                if GenJournalLine."Payment Reference" <> '' then begin
+                if (GenJournalLine."Payment Reference" <> '') and
+                   (BankMgt.IsQRReference(GenJournalLine."Payment Reference") or BankMgt.IsCreditReferenceISO11649(GenJournalLine."Payment Reference"))
+                then begin
                     LibraryXMLRead.VerifyElementAbsenceInSubtree('RmtInf', 'Ustrd');
                     LibraryXMLRead.VerifyNodeValueInSubtree('Strd', 'Ref', GenJournalLine."Payment Reference");
                     if (StrLen(DelChr(GenJournalLine."Payment Reference")) = 27) AND

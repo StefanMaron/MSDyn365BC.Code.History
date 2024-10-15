@@ -10,6 +10,7 @@ codeunit 142038 "UT TAB Intrastat"
     var
         Assert: Codeunit Assert;
         LibraryUTUtility: Codeunit "Library UT Utility";
+        LibraryRandom: Codeunit "Library - Random";
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -259,6 +260,20 @@ codeunit 142038 "UT TAB Intrastat"
         IntrastatJnlLine.Type := IntrastatJnlLine.Type::Receipt;
         IntrastatJnlLine."Partner VAT ID" := LibraryUTUtility.GetNewCode;
         IntrastatJnlLine.Validate("Partner VAT ID", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure StatisticalValueNotRoundedOnCostRegulationPctValidationInIntrastatJnlLine()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        // [SCENARIO 432342] Statistical value not rounded on the "Cost Regulation %" validation in the intrastat journal line
+
+        IntrastatJnlLine.Amount := LibraryRandom.RandDec(100, 2);
+        IntrastatJnlLine."Indirect Cost" := LibraryRandom.RandDec(100, 2);
+        IntrastatJnlLine.Validate("Cost Regulation %");
+        IntrastatJnlLine.TestField("Statistical Value", IntrastatJnlLine.Amount + IntrastatJnlLine."Indirect Cost");
     end;
 
     local procedure CreateItemWithTariffNumber(var Item: Record Item)

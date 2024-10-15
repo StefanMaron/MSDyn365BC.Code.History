@@ -1304,8 +1304,9 @@
         StartTime := CurrentDateTime();
         BankLedgerEntriesClosingDocumentNumbers.Add(TempLedgerEntryMatchingBuffer."Entry No.", ClosingEntriesDocumentNumbers);
 
-        CustLedgerEntry.SetRange("Document Type", TempLedgerEntryMatchingBuffer."Document Type");
+        CustLedgerEntry.SetCurrentKey("Document No.");
         CustLedgerEntry.SetRange("Document No.", TempLedgerEntryMatchingBuffer."Document No.");
+        CustLedgerEntry.SetRange("Document Type", TempLedgerEntryMatchingBuffer."Document Type");
         CustLedgerEntry.SetRange("Posting Date", TempLedgerEntryMatchingBuffer."Posting Date");
         if CustLedgerEntry.FindSet() then
             repeat
@@ -1315,8 +1316,9 @@
                     ClosingEntriesDocumentNumbers.Add(CustLedgerEntry2."Document No.");
             until CustLedgerEntry.Next() = 0;
 
-        VendLedgerEntry.SetRange("Document Type", TempLedgerEntryMatchingBuffer."Document Type");
+        VendLedgerEntry.SetCurrentKey("Document No.");
         VendLedgerEntry.SetRange("Document No.", TempLedgerEntryMatchingBuffer."Document No.");
+        VendLedgerEntry.SetRange("Document Type", TempLedgerEntryMatchingBuffer."Document Type");
         VendLedgerEntry.SetRange("Posting Date", TempLedgerEntryMatchingBuffer."Posting Date");
         if VendLedgerEntry.FindSet() then
             repeat

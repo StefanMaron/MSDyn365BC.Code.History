@@ -79,6 +79,7 @@ page 55 "Purch. Invoice Subform"
                     begin
                         CrossReferenceNoLookUp();
                         NoOnAfterValidate();
+                        DeltaUpdateTotals();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
@@ -101,6 +102,7 @@ page 55 "Purch. Invoice Subform"
                     begin
                         ItemReferenceMgt.PurchaseReferenceNoLookUp(Rec);
                         NoOnAfterValidate();
+                        DeltaUpdateTotals();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
