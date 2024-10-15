@@ -3,6 +3,7 @@ table 1455 "Headline RC Whse. Basic"
     Caption = 'Headline RC Whse. Basic';
     ObsoleteState = Removed;
     ObsoleteReason = 'Replaced with "RC Headlines User Data" table';
+    ObsoleteTag = '15.0';
 
     fields
     {

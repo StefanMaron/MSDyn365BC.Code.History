@@ -258,6 +258,9 @@ page 5870 "BOM Structure"
         IsParentExpr := not "Is Leaf";
 
         HasWarning := not IsLineOk(false, DummyBOMWarningLog);
+
+        if Type = Type::Item then
+            "Low-Level Code" := Indentation;
     end;
 
     trigger OnOpenPage()

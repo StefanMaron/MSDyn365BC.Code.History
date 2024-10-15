@@ -4,6 +4,7 @@ table 7860 "MS- PayPal Standard Account"
     ObsoleteReason = 'This table is no longer used by any user.';
     ObsoleteState = Removed;
     Permissions = TableData "Webhook Subscription" = rimd;
+    ObsoleteTag = '15.0';
 
     fields
     {

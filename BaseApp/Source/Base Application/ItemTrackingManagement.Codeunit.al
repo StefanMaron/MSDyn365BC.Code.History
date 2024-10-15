@@ -324,17 +324,25 @@ codeunit 6500 "Item Tracking Management"
         exit(SumUpItemTracking(ReservEntry, TempHandlingSpecification, true, true));
     end;
 
-    procedure SumUpItemTracking(var ReservEntry: Record "Reservation Entry"; var TempHandlingSpecification: Record "Tracking Specification" temporary; SumPerLine: Boolean; SumPerLotSN: Boolean): Boolean
+    procedure SumUpItemTracking(var ReservEntry: Record "Reservation Entry"; var TempHandlingSpecification: Record "Tracking Specification" temporary; SumPerLine: Boolean; SumPerTracking: Boolean): Boolean
     var
         ItemTrackingCode: Record "Item Tracking Code";
         NextEntryNo: Integer;
         ExpDate: Date;
         EntriesExist: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSumUpItemTracking(ReservEntry, TempHandlingSpecification, SumPerLine, SumPerTracking, IsHandled);
+        if IsHandled then begin
+            TempHandlingSpecification.Reset();
+            exit(TempHandlingSpecification.FindFirst());
+        end;
+
         // Sum up Item Tracking in a temporary table (to defragment the ReservEntry records)
-        TempHandlingSpecification.Reset;
-        TempHandlingSpecification.DeleteAll;
-        if SumPerLotSN then
+        TempHandlingSpecification.Reset();
+        TempHandlingSpecification.DeleteAll();
+        if SumPerTracking then
             TempHandlingSpecification.SetCurrentKey("Lot No.", "Serial No.");
 
         if ReservEntry.FindSet then begin
@@ -343,7 +351,7 @@ codeunit 6500 "Item Tracking Management"
                 if ReservEntry.TrackingExists then begin
                     if SumPerLine then
                         TempHandlingSpecification.SetRange("Source Ref. No.", ReservEntry."Source Ref. No."); // Sum up line per line
-                    if SumPerLotSN then begin
+                    if SumPerTracking then begin
                         TempHandlingSpecification.SetTrackingFilterFromReservEntry(ReservEntry);
                         if ReservEntry."New Serial No." <> '' then
                             TempHandlingSpecification.SetRange("New Serial No.", ReservEntry."New Serial No.");
@@ -791,12 +799,13 @@ codeunit 6500 "Item Tracking Management"
         LineNo: Integer;
         WhseSNRequired: Boolean;
         WhseLNRequired: Boolean;
+        IsHandled: Boolean;
     begin
         TempWhseJnlLine2.DeleteAll;
 
         CheckWhseItemTrkgSetup(TempWhseJnlLine."Item No.", WhseSNRequired, WhseLNRequired, false);
 
-        OnSplitWhseJnlLineOnAfterCheckWhseItemTrkgSetup(TempWhseJnlLine, TempWhseSplitTrackingSpec, WhseSNRequired, WhseLNRequired);
+        OnSplitWhseJnlLineOnAfterCheckWhseItemTrkgSetup(TempWhseJnlLine, TempWhseSplitTrackingSpec, WhseSNRequired, WhseLNRequired, TempWhseJnlLine2);
 
         if not (WhseSNRequired or WhseLNRequired) then begin
             TempWhseJnlLine2 := TempWhseJnlLine;
@@ -807,7 +816,7 @@ codeunit 6500 "Item Tracking Management"
 
         LineNo := TempWhseJnlLine."Line No.";
         with TempWhseSplitTrackingSpec do begin
-            Reset;
+            Reset();
             case TempWhseJnlLine."Source Type" of
                 DATABASE::"Item Journal Line",
               DATABASE::"Job Journal Line":
@@ -824,15 +833,19 @@ codeunit 6500 "Item Tracking Management"
             NonDistrQtyBase := TempWhseJnlLine."Qty. (Absolute, Base)";
             NonDistrCubage := TempWhseJnlLine.Cubage;
             NonDistrWeight := TempWhseJnlLine.Weight;
-            if FindSet then
+            if FindSet() then
                 repeat
                     LineNo += 10000;
                     TempWhseJnlLine2 := TempWhseJnlLine;
                     TempWhseJnlLine2."Line No." := LineNo;
 
-                    if "Serial No." <> '' then
-                        if Abs("Quantity (Base)") <> 1 then
-                            FieldError("Quantity (Base)");
+                    if "Serial No." <> '' then begin
+                        IsHandled := false;
+                        OnSplitWhseJnlLineOnBeforeCheckSerialNo(TempWhseSplitTrackingSpec, IsHandled);
+                        if not IsHandled then
+                            if Abs("Quantity (Base)") <> 1 then
+                                FieldError("Quantity (Base)");
+                    end;
 
                     if ToTransfer then begin
                         SetWhseSerialLotNo(TempWhseJnlLine2."Serial No.", "New Serial No.", WhseSNRequired);
@@ -3252,6 +3265,11 @@ codeunit 6500 "Item Tracking Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSumUpItemTracking(var ReservEntry: Record "Reservation Entry"; var TempHandlingSpecification: Record "Tracking Specification" temporary; var SumPerLine: Boolean; var SumPerTracking: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTempTrackingSpecSummedUpModify(var TempTrackingSpecSummedUp: Record "Tracking Specification" temporary; var TempInvoicingTrackingSpecification: Record "Tracking Specification" temporary)
     begin
     end;
@@ -3387,7 +3405,12 @@ codeunit 6500 "Item Tracking Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSplitWhseJnlLineOnAfterCheckWhseItemTrkgSetup(var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var TempWhseSplitTrackingSpec: Record "Tracking Specification" temporary; var WhseSNRequired: Boolean; var WhseLNRequired: Boolean)
+    local procedure OnSplitWhseJnlLineOnAfterCheckWhseItemTrkgSetup(var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var TempWhseSplitTrackingSpec: Record "Tracking Specification" temporary; var WhseSNRequired: Boolean; var WhseLNRequired: Boolean; var TempWhseJnlLine2: Record "Warehouse Journal Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSplitWhseJnlLineOnBeforeCheckSerialNo(var TempWhseTrackingSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean)
     begin
     end;
 

@@ -48,6 +48,8 @@ codeunit 7324 "Whse.-Activity-Post"
         Text005: Label 'The source document %1 %2 is not released.';
         InvoiceSourceDoc: Boolean;
         PrintDoc: Boolean;
+        SuppressCommit: Boolean;
+        PostingDateErr: Label 'is before the posting date';
 
     local procedure "Code"()
     var
@@ -56,7 +58,7 @@ codeunit 7324 "Whse.-Activity-Post"
         Selection: Option " ",Shipment,Receipt;
         ForceDelete: Boolean;
     begin
-        OnBeforeCode(WhseActivLine);
+        OnBeforeCode(WhseActivLine, SuppressCommit);
 
         PostingReference := WhseSetup.GetNextReference;
 
@@ -169,9 +171,9 @@ codeunit 7324 "Whse.-Activity-Post"
                         TransferOrderPostPrint.PrintReport(TransHeader, Selection::Shipment);
                 end;
 
-            OnAfterCode(WhseActivLine);
-
-            Commit;
+            OnAfterCode(WhseActivLine, SuppressCommit, PrintDoc);
+            if not SuppressCommit then
+                Commit();
             OnAfterPostWhseActivHeader(WhseActivHeader);
 
             Clear(WhseJnlRegisterLine);
@@ -422,12 +424,15 @@ codeunit 7324 "Whse.-Activity-Post"
         TransferPostReceipt: Codeunit "TransferOrder-Post Receipt";
         TransferPostShip: Codeunit "TransferOrder-Post Shipment";
     begin
+        OnBeforePostSourceDocument(WhseActivHeader, PostedSourceType, PostedSourceNo, PostedSourceSubType);
+
         with WhseActivHeader do
             case "Source Type" of
                 DATABASE::"Purchase Line":
                     begin
                         Clear(PurchPost);
-                        Commit;
+                        if not SuppressCommit then
+                            Commit();
                         if "Source Document" = "Source Document"::"Purchase Order" then
                             PurchHeader.Receive := true
                         else
@@ -447,7 +452,8 @@ codeunit 7324 "Whse.-Activity-Post"
                 DATABASE::"Sales Line":
                     begin
                         Clear(SalesPost);
-                        Commit;
+                        if not SuppressCommit then
+                            Commit();
                         if "Source Document" = "Source Document"::"Sales Order" then
                             SalesHeader.Ship := true
                         else
@@ -468,7 +474,8 @@ codeunit 7324 "Whse.-Activity-Post"
                 DATABASE::"Transfer Line":
                     begin
                         Clear(TransferPostReceipt);
-                        Commit;
+                        if not SuppressCommit then
+                            Commit();
                         if Type = Type::"Invt. Put-away" then begin
                             if HideDialog then
                                 TransferPostReceipt.SetHideValidationDialog(HideDialog);
@@ -936,13 +943,21 @@ codeunit 7324 "Whse.-Activity-Post"
                 TestField("Serial No.");
             if LNRequired then
                 TestField("Lot No.");
+            if ("Expiration Date" <> 0D) and ItemTrackingMgt.StrictExpirationPosting("Item No.") then
+                if WhseActivHeader."Posting Date" > "Expiration Date" then
+                    FieldError("Expiration Date", PostingDateErr);
         end;
 
         exit(SNRequired or LNRequired);
     end;
 
+    procedure SetSuppressCommit(NewSuppressCommit: Boolean)
+    begin
+        SuppressCommit := NewSuppressCommit;
+    end;
+
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCode(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    local procedure OnAfterCode(var WarehouseActivityLine: Record "Warehouse Activity Line"; var SuppressCommit: Boolean; PrintDoc: Boolean)
     begin
     end;
 
@@ -997,7 +1012,7 @@ codeunit 7324 "Whse.-Activity-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCode(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    local procedure OnBeforeCode(var WarehouseActivityLine: Record "Warehouse Activity Line"; var SuppressCommit: Boolean)
     begin
     end;
 
@@ -1038,6 +1053,11 @@ codeunit 7324 "Whse.-Activity-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostedInvtPutAwayLineInsert(var PostedInvtPutAwayLine: Record "Posted Invt. Put-away Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostSourceDocument(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var PostedSourceType: Integer; var PostedSourceNo: Code[20]; var PostedSourceSubType: Integer)
     begin
     end;
 

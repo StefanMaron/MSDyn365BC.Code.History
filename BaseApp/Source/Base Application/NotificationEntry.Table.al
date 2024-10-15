@@ -60,18 +60,21 @@ table 1511 "Notification Entry"
             Caption = 'Error Message 2';
             ObsoleteReason = 'Error Message field size has been increased ';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(16; "Error Message 3"; Text[250])
         {
             Caption = 'Error Message 3';
             ObsoleteReason = 'Error Message field size has been increased ';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(17; "Error Message 4"; Text[250])
         {
             Caption = 'Error Message 4';
             ObsoleteReason = 'Error Message field size has been increased ';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(18; "Sender User ID"; Code[50])
         {

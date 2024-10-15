@@ -244,6 +244,8 @@ report 1005 "Job Journal - Test"
                         if "Document No." = '' then
                             AddError(StrSubstNo(Text001, FieldCaption("Document No.")));
 
+                        OnAfterGetrecordOnAfterCheckDocumentNo("Job Journal Line", ErrorCounter, ErrorText);
+
                         if "No." = '' then
                             AddError(StrSubstNo(Text001, FieldCaption("No.")))
                         else
@@ -310,6 +312,8 @@ report 1005 "Job Journal - Test"
                         No[2] := "No.";
                         TableID[3] := DATABASE::"Resource Group";
                         No[3] := "Resource Group No.";
+                        OnAfterAssignDimTableID("Job Journal Line", TableID, No);
+
                         if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
                             AddError(DimMgt.GetDimValuePostingErr);
                     end;
@@ -465,7 +469,7 @@ report 1005 "Job Journal - Test"
             end;
     end;
 
-    local procedure AddError(Text: Text[250])
+    procedure AddError(Text: Text[250])
     begin
         ErrorCounter := ErrorCounter + 1;
         ErrorText[ErrorCounter] := Text;
@@ -474,6 +478,16 @@ report 1005 "Job Journal - Test"
     procedure InitializeRequest(NewShowDim: Boolean)
     begin
         ShowDim := NewShowDim;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAssignDimTableID(JobJournalLine: Record "Job Journal Line"; TableID: array[10] of Integer; No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterCheckDocumentNo(JobJournalLine: Record "Job Journal Line"; var ErrorCounter: Integer; var ErrorText: array[50] of Text[50])
+    begin
     end;
 }
 

@@ -493,6 +493,7 @@ codeunit 5817 "Undo Posting Management"
                 exit;
 
             repeat
+                OnCheckItemLedgEntriesOnBeforeCheckTempItemLedgEntry(TempItemLedgEntry);
                 if Positive then begin
                     if ("Job No." = '') and
                        not (("Order Type" = "Order Type"::Assembly) and
@@ -1009,6 +1010,11 @@ codeunit 5817 "Undo Posting Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUndoValuePostingFromJob(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckItemLedgEntriesOnBeforeCheckTempItemLedgEntry(var TempItemLedgEntry: Record "Item Ledger Entry" temporary)
     begin
     end;
 

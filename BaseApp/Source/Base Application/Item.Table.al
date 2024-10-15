@@ -1,4 +1,4 @@
-﻿table 27 Item
+table 27 Item
 {
     Caption = 'Item';
     DataCaptionFields = "No.", Description;
@@ -1595,6 +1595,7 @@
             Caption = 'Product Group Code';
             ObsoleteReason = 'Product Groups became first level children of Item Categories.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(5706; "Substitutes Exist"; Boolean)
         {
@@ -1960,6 +1961,7 @@
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(8001; "Unit of Measure Id"; Guid)
         {
@@ -3252,8 +3254,16 @@
 
     procedure TryGetItemNoOpenCard(var ReturnValue: Text; ItemText: Text; DefaultCreate: Boolean; ShowItemCard: Boolean; ShowCreateItemOption: Boolean): Boolean
     var
-        Item: Record Item;
         ItemView: Record Item;
+    begin
+        ItemView.SetRange(Blocked, false);
+        exit(TryGetItemNoOpenCardWithView(ReturnValue, ItemText, DefaultCreate, ShowItemCard, ShowCreateItemOption, ItemView.GetView));
+    end;
+
+    [Scope('Internal')]
+    procedure TryGetItemNoOpenCardWithView(var ReturnValue: Text; ItemText: Text; DefaultCreate: Boolean; ShowItemCard: Boolean; ShowCreateItemOption: Boolean; View: Text): Boolean
+    var
+        Item: Record Item;
         SalesLine: Record "Sales Line";
         FindRecordMgt: Codeunit "Find Record Management";
         ItemNo: Code[20];
@@ -3265,9 +3275,7 @@
         if ItemText = '' then
             exit(DefaultCreate);
 
-        ItemView.SetRange(Blocked, false);
-
-        FoundRecordCount := FindRecordMgt.FindRecordByDescriptionAndView(ReturnValue, SalesLine.Type::Item, ItemText, ItemView.GetView);
+        FoundRecordCount := FindRecordMgt.FindRecordByDescriptionAndView(ReturnValue, SalesLine.Type::Item, ItemText, View);
 
         if FoundRecordCount = 1 then
             exit(true);
