@@ -2,7 +2,7 @@ page 99000835 "Routing Tools"
 {
     AutoSplitKey = true;
     Caption = 'Routing Tools';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     MultipleNewLines = true;
     PageType = List;
     SourceTable = "Routing Tool";

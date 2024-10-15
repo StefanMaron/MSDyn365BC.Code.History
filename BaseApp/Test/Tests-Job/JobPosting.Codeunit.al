@@ -1698,6 +1698,73 @@ codeunit 136309 "Job Posting"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure S492799_PostJobGLJournalVerifyApplyUsageLinkEnabled()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobJournalLine: Record "Job Journal Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        JobCost: Decimal;
+    begin
+        // [SCENARIO 492799] Verify "Apply Usage Link" can be changed with "Over Budget" updated on validation.
+        Initialize();
+
+        // [GIVEN] Change Jobs Setup.
+        DummyJobsSetup."Apply Usage Link by Default" := true;
+        DummyJobsSetup.Modify();
+
+        // [GIVEN] Job with Job Task, Resource and Job Journal Line is created.
+        CreateJobWithJobTask(JobTask);
+
+        // [THEN] Verify job is not over budget as nothing has been consumed against it yet.
+        Job.Get(JobTask."Job No.");
+        Assert.AreEqual(false, Job."Over Budget", OverBudgetSetIncorrectlyErr);
+
+        CreateJobJournalLine(
+          LibraryJob.UsageLineTypeBoth(), JobJournalLine.Type::Resource, JobJournalLine, JobTask, LibraryResource.CreateResourceNo(),
+          10, 10, 10);  // Using Random because value is not important.
+        // [THEN] Verify job is not over budget as nothing has been consumed against it yet.
+        Job.Get(JobTask."Job No.");
+        Assert.IsFalse(Job."Over Budget", OverBudgetSetIncorrectlyErr);
+
+        // [WHEN] Job Journal is Posted and additional Job Journal line is created and posted to push job over budget.
+        LibraryJob.PostJobJournal(JobJournalLine);
+
+        JobTask.CalcFields("Schedule (Total Cost)");
+        JobCost := JobTask."Schedule (Total Cost)";
+
+        CreateJobGLJournalLineFixedCost(GenJournalLine, JobTask, JobCost);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Verify "Over Budget" value in job table is still false.
+        if Job.Get(JobTask."Job No.") then
+            Job.TestField("Over Budget", false);
+
+        // [GIVEN] Mock that "Over Budget" is true.
+        Job."Over Budget" := true;
+        Job.Modify();
+
+        // [GIVEN] "Apply Usage Link" is disabled.
+        Job.Validate("Apply Usage Link", false);
+        Job.Modify(true);
+
+        // [WHEN] "Apply Usage Link" is enabled.
+        Job.Validate("Apply Usage Link", true);
+        Job.Modify(true);
+
+        // [THEN] Verify "Over Budget" is updated to false.
+        Job.Get(JobTask."Job No.");
+        Job.TestField("Apply Usage Link", true);
+        Job.TestField("Over Budget", false);
+
+        // Restore Jobs Setup.
+        DummyJobsSetup."Apply Usage Link by Default" := false;
+        DummyJobsSetup.Modify();
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure JobRoleCenterTests()
     var
