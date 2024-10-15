@@ -58,12 +58,19 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
 
     local procedure PrepareSOAPRequestBody(var TempBlob: Codeunit "Temp Blob")
     var
+        Customer: Record Customer;
+        VATRegNoSrvTemplate: Record "VAT Reg. No. Srv. Template";
         XMLDOMMgt: Codeunit "XML DOM Management";
+        RecordRef: RecordRef;
         BodyContentInputStream: InStream;
         BodyContentOutputStream: OutStream;
         BodyContentXmlDoc: DotNet XmlDocument;
         EnvelopeXmlNode: DotNet XmlNode;
         CreatedXmlNode: DotNet XmlNode;
+        AccountName: Text;
+        AccountStreet: Text;
+        AccountCity: Text;
+        AccountPostCode: Text;
     begin
         TempBlob.CreateInStream(BodyContentInputStream);
         BodyContentXmlDoc := BodyContentXmlDoc.XmlDocument;
@@ -76,9 +83,40 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
         XMLDOMMgt.AddElement(
           EnvelopeXmlNode, 'requesterVatNumber', VATRegistrationLog.GetVATRegNo, NamespaceTxt, CreatedXmlNode);
 
+        InitializeVATRegistrationLog(VATRegistrationLog);
+
+        if VATRegistrationLog.GetAccountRecordRef(RecordRef) then begin
+            AccountName := GetField(RecordRef, Customer.FieldName(Name));
+            AccountStreet := GetField(RecordRef, Customer.FieldName(Address));
+            AccountPostCode := GetField(RecordRef, Customer.FieldName("Post Code"));
+            AccountCity := GetField(RecordRef, Customer.FieldName(City));
+            VATRegistrationLog.SetAccountDetails(AccountName, AccountStreet, AccountCity, AccountPostCode);
+        end;
+
+        VATRegistrationLog.CheckGetTemplate(VATRegNoSrvTemplate);
+        if VATRegNoSrvTemplate."Validate Name" then
+            XMLDOMMgt.AddElement(EnvelopeXmlNode, 'traderName', AccountName, NamespaceTxt, CreatedXmlNode);
+        if VATRegNoSrvTemplate."Validate Street" then
+            XMLDOMMgt.AddElement(EnvelopeXmlNode, 'traderStreet', AccountStreet, NamespaceTxt, CreatedXmlNode);
+        if VATRegNoSrvTemplate."Validate City" then
+            XMLDOMMgt.AddElement(EnvelopeXmlNode, 'traderCity', AccountCity, NamespaceTxt, CreatedXmlNode);
+        if VATRegNoSrvTemplate."Validate Post Code" then
+            XMLDOMMgt.AddElement(EnvelopeXmlNode, 'traderPostcode', AccountPostCode, NamespaceTxt, CreatedXmlNode);
+
         Clear(TempBlob);
         TempBlob.CreateOutStream(BodyContentOutputStream);
         BodyContentXmlDoc.Save(BodyContentOutputStream);
+    end;
+
+    local procedure InitializeVATRegistrationLog(var VATRegistrationLog: Record "VAT Registration Log")
+    begin
+        VATRegistrationLog."Verified Name" := '';
+        VATRegistrationLog."Verified City" := '';
+        VATRegistrationLog."Verified Street" := '';
+        VATRegistrationLog."Verified Postcode" := '';
+        VATRegistrationLog."Verified Address" := '';
+        VATRegistrationLog.Template := '';
+        VATRegistrationLog."Details Status" := VATRegistrationLog."Details Status"::"Not Verified";
     end;
 
     local procedure InsertLogEntry(TempBlobRequestBody: Codeunit "Temp Blob")
@@ -96,6 +134,15 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
     procedure GetVATRegNrValidationWebServiceURL(): Text[250]
     begin
         exit(VatRegNrValidationWebServiceURLTxt);
+    end;
+
+    local procedure GetField(var RecordRef: RecordRef; FieldName: Text) Result: Text;
+    var
+        DataTypeManagement: Codeunit "Data Type Management";
+        FieldRef: FieldRef;
+    begin
+        if DataTypeManagement.FindFieldByName(RecordRef, FieldRef, FieldName) then
+            Result := FieldRef.Value();
     end;
 }
 

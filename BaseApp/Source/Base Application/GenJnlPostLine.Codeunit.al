@@ -5298,6 +5298,11 @@
         ApplnCurrency.Get(CurrencyCode);
         if ApplnCurrency."Appln. Rounding Precision" <> 0 then
             exit(ApplnCurrency."Appln. Rounding Precision");
+
+        if not ('' in [OldCVLedgEntryBuf."Currency Code", NewCVLedgEntryBuf."Currency Code"]) then
+            exit(0);
+
+        GetGLSetup();
         exit(GLSetup."Appln. Rounding Precision");
     end;
 
