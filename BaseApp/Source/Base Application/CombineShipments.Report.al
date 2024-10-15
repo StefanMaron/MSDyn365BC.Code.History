@@ -199,7 +199,7 @@ report 295 "Combine Shipments"
                     Error(Text000);
                 if DocDateReq = 0D then
                     Error(Text001);
-                LocalAppMgt.CheckData(PostingDateReq, DocDateReq, PostingDateTxt, DocumentDateTxt);
+                LocalAppMgt.CheckData(DocDateReq, PostingDateReq, DocumentDateTxt, PostingDateTxt);
                 Window.Open(
                   Text002 +
                   Text003 +

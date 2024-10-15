@@ -261,7 +261,7 @@ codeunit 134476 "ERM Dimension Purchase"
 
         // [GIVEN] Create Vendor.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryPurchase.CreateVendor(Vendor);
 
         // [WHEN] Create Purchase Header and Update Shortcut Dimension 2 Code on Purchase Header.
@@ -491,7 +491,7 @@ codeunit 134476 "ERM Dimension Purchase"
         Initialize;
 
         // [WHEN] Create Purchase Credit Memo.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CreatePurchaseDocument(PurchaseLine, SetGLAccountDefaultDimension(DefaultDimension, GeneralLedgerSetup."Global Dimension 1 Code"),
           CreateVendorWithDimension(DefaultDimension2, DefaultDimension."Value Posting", GeneralLedgerSetup."Global Dimension 1 Code"));
 
@@ -520,13 +520,13 @@ codeunit 134476 "ERM Dimension Purchase"
 
         // [GIVEN] Set Default Dimension for G/L Account and Create Purchase Credit Memo.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Vendor.Get(
           CreateVendorWithDimension(
             DefaultDimension2, DefaultDimension."Value Posting", GeneralLedgerSetup."Global Dimension 1 Code"));
         GLAccount.Get(SetGLAccountDefaultDimension(DefaultDimension, GeneralLedgerSetup."Global Dimension 1 Code"));
         GLAccount."VAT Bus. Posting Group" := Vendor."VAT Bus. Posting Group";
-        GLAccount.Modify;
+        GLAccount.Modify();
         CreatePurchaseDocument(PurchaseLine, GLAccount."No.", Vendor."No.");
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Validate("IC Partner Code", LibraryERM.CreateICPartnerNo);
@@ -993,6 +993,52 @@ codeunit 134476 "ERM Dimension Purchase"
         PurchaseLine.TestField("Dimension Set ID", SavedDimSetID);
     end;
 
+    [Test]
+    [HandlerFunctions('SalesListModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchGetDropShptTransfersDimensions()
+    var
+        DefaultDimension: Record "Default Dimension";
+        DimensionValue: Record "Dimension Value";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesLine: Record "Sales Line";
+        Vendor: Record Vendor;
+        DimMgt: Codeunit DimensionManagement;
+        GlobalDimension: array[2] of Code[10];
+        CombinedDimensionSetID: Integer;
+        DimensionSetID: array[10] of Integer;
+    begin
+        // [FEATURE] [Drop Shipment]
+        // [SCENARIO 346249] Codeunit "Purch.-Get Drop Shpt" combines Default dimensions of Vendor with Dimensions of Sales Line.
+        Initialize();
+
+        // [GIVEN] Sales Order with Drop Shipment True and Sales Line with Dimension "D1".
+        CreateSalesOrderPurchasingCode(SalesLine);
+        CreateDimensionForSalesLine(SalesLine);
+
+        // [GIVEN] Purchase Header for Vendor with Dimension "D2".
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        Vendor.Get(CreateVendorWithDimension(DefaultDimension, DefaultDimension."Value Posting"::" ", DimensionValue."Dimension Code"));
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        PurchaseHeader.Validate("Sell-to Customer No.", SalesLine."Sell-to Customer No.");
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Codeunit "Purch.-Get Drop Shpt." is run to create Puchase Line from Sales Line for Drop Shipment.
+        LibraryVariableStorage.Enqueue(SalesLine."Sell-to Customer No.");
+        CODEUNIT.Run(CODEUNIT::"Purch.-Get Drop Shpt.", PurchaseHeader);
+
+        // [THEN] Dimension set of Purchase Line is equal to combination of Default Dimensions of Vendor and Dimension Set of Sales Line.
+        DimensionSetID[1] := PurchaseHeader."Dimension Set ID";
+        DimensionSetID[2] := SalesLine."Dimension Set ID";
+        CombinedDimensionSetID := DimMgt.GetCombinedDimensionSetID(DimensionSetID, GlobalDimension[1], GlobalDimension[2]);
+
+        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
+        Assert.AreEqual(CombinedDimensionSetID, PurchaseLine."Dimension Set ID", '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1010,7 +1056,7 @@ codeunit 134476 "ERM Dimension Purchase"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -1054,7 +1100,7 @@ codeunit 134476 "ERM Dimension Purchase"
     begin
         repeat
             TempDimensionSetEntry := DimensionSetEntry;
-            TempDimensionSetEntry.Insert;
+            TempDimensionSetEntry.Insert();
         until DimensionSetEntry.Next = 0;
     end;
 
@@ -1145,7 +1191,7 @@ codeunit 134476 "ERM Dimension Purchase"
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         // [GIVEN] Create Vendor, Item, Purchase Header and Purchase Line with Dimension.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ShortcutDimensionCode := GeneralLedgerSetup."Shortcut Dimension 1 Code";
         CreatePurchaseOrder(
           PurchaseHeader, PurchaseLine, '', '', DefaultDimension."Value Posting"::" ", PurchaseHeader."Document Type"::Order);
@@ -1334,7 +1380,7 @@ codeunit 134476 "ERM Dimension Purchase"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue, GLSetup."Global Dimension 1 Code");
         exit(DimensionValue.Code);
     end;
@@ -1389,7 +1435,7 @@ codeunit 134476 "ERM Dimension Purchase"
         Purchasing: Record Purchasing;
         RecordRef: RecordRef;
     begin
-        Purchasing.Init;
+        Purchasing.Init();
         Purchasing.SetRange("Drop Shipment", true);
         RecordRef.GetTable(Purchasing);
         LibraryUtility.FindRecord(RecordRef);
@@ -1413,8 +1459,8 @@ codeunit 134476 "ERM Dimension Purchase"
         ReqWkshTemplate.SetRange(Type, RequisitionWkshName."Template Type"::"Req.");
         ReqWkshTemplate.FindFirst;
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
-        Commit;
-        RequisitionLine.Init;
+        Commit();
+        RequisitionLine.Init();
         RequisitionLine.Validate("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         RequisitionLine.Validate("Journal Batch Name", RequisitionWkshName.Name);
 
@@ -1437,7 +1483,7 @@ codeunit 134476 "ERM Dimension Purchase"
         CopyPurchaseDocument: Report "Copy Purchase Document";
         DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
-        Commit;
+        Commit();
         Clear(CopyPurchaseDocument);
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
         CopyPurchaseDocument.InitializeRequest(DocumentType::"Posted Shipment", DocumentNo, true, false);
@@ -1825,6 +1871,14 @@ codeunit 134476 "ERM Dimension Purchase"
         EditDimensionSetEntries."Dimension Code".SetValue(LibraryVariableStorage.DequeueText);
         EditDimensionSetEntries.DimensionValueCode.SetValue(LibraryVariableStorage.DequeueText);
         EditDimensionSetEntries.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesListModalPageHandler(var SalesList: TestPage "Sales List")
+    begin
+        SalesList.FILTER.SetFilter("Sell-to Customer No.", LibraryVariableStorage.DequeueText());
+        SalesList.OK.Invoke();
     end;
 }
 

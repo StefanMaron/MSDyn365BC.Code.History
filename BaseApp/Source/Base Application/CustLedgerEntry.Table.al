@@ -507,6 +507,10 @@ table 21 "Cust. Ledger Entry"
         {
             Caption = 'Prepayment';
         }
+        field(171; "Payment Reference"; Code[50])
+        {
+            Caption = 'Payment Reference';
+        }
         field(172; "Payment Method Code"; Code[10])
         {
             Caption = 'Payment Method Code';

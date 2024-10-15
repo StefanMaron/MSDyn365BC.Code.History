@@ -64,6 +64,8 @@
 
                         UpdateTypeText;
                         DeltaUpdateTotals;
+
+                        CurrPage.Update();
                     end;
                 }
                 field("Service Tariff No."; "Service Tariff No.")
@@ -660,6 +662,8 @@
 
                     trigger OnAssistEdit()
                     begin
+                        CurrPage.SaveRecord;
+                        Commit;
                         ShowDeferralSchedule;
                     end;
                 }

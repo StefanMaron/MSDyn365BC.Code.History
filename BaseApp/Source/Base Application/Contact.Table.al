@@ -2302,10 +2302,12 @@
 
     procedure SetLastDateTimeModified()
     var
-        DotNet_DateTimeOffset: Codeunit DotNet_DateTimeOffset;
         UtcNow: DateTime;
+        UserTimeZoneOffset: Duration;
     begin
-        UtcNow := DotNet_DateTimeOffset.ConvertToUtcDateTime(CurrentDateTime);
+        UtcNow := CurrentDateTime();
+        UserTimeZoneOffset := GetTimeZoneOffset();
+        UtcNow := UtcNow - UserTimeZoneOffset;
         "Last Date Modified" := DT2Date(UtcNow);
         "Last Time Modified" := DT2Time(UtcNow);
 
@@ -2314,32 +2316,33 @@
 
     procedure GetLastDateTimeModified(): DateTime
     var
-        DotNet_DateTime: Codeunit DotNet_DateTime;
-        TypeHelper: Codeunit "Type Helper";
-        Hour: Integer;
-        Minute: Integer;
-        Second: Integer;
+        Result: DateTime;
+        UserTimeZoneOffset: Duration;
     begin
         if "Last Date Modified" = 0D then
             exit(0DT);
 
-        TypeHelper.GetHMSFromTime(Hour, Minute, Second, "Last Time Modified");
+        Result := CreateDateTime("Last Date Modified", "Last Time Modified");
+        UserTimeZoneOffset := GetTimeZoneOffset();
+        exit(Result + UserTimeZoneOffset);
+    end;
 
-        DotNet_DateTime.CreateUTC(
-          Date2DMY("Last Date Modified", 3),
-          Date2DMY("Last Date Modified", 2),
-          Date2DMY("Last Date Modified", 1),
-          Hour, Minute, Second);
-        exit(DotNet_DateTime.ToDateTime);
+    local procedure GetTimeZoneOffset() UserTimeZoneOffset: Duration
+    var
+        TypeHelper: Codeunit "Type Helper";
+        DotNet_DateTimeOffset: Codeunit DotNet_DateTimeOffset;
+    begin
+        if not TypeHelper.GetUserTimezoneOffset(UserTimeZoneOffset) then
+            UserTimeZoneOffset := DotNet_DateTimeOffset.GetOffset();
     end;
 
     procedure SetLastDateTimeFilter(DateFilter: DateTime)
     var
-        DotNet_DateTimeOffset: Codeunit DotNet_DateTimeOffset;
         SyncDateTimeUtc: DateTime;
         CurrentFilterGroup: Integer;
     begin
-        SyncDateTimeUtc := DotNet_DateTimeOffset.ConvertToUtcDateTime(DateFilter);
+        SyncDateTimeUtc := DateFilter;
+        SyncDateTimeUtc := SyncDateTimeUtc - GetTimeZoneOffset();
         CurrentFilterGroup := FilterGroup;
         SetFilter("Last Date Modified", '>=%1', DT2Date(SyncDateTimeUtc));
         FilterGroup(-1);

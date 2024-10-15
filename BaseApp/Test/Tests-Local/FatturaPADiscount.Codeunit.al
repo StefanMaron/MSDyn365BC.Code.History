@@ -56,6 +56,8 @@ codeunit 144204 "FatturaPA Discount"
         // TFS ID: 308856
         // [THEN] Prezzo Totale node has value 100.
         // [THEN] Importo node under DettaglioLinee has value 4 (Invoice Discount Amount / Quantity)
+        // [THEN] An invoice discount amount under ScontoMaggiorazione xml node has eight decimal places
+        // TFS ID 348540: Changes in the format of Italian electronic invoices
         VerifyInvDiscAmount(ServerFileName, SalesLine.Quantity, SalesLine."Line Amount", SalesLine."Inv. Discount Amount");
     end;
 
@@ -94,6 +96,8 @@ codeunit 144204 "FatturaPA Discount"
         // TFS ID: 308856
         // [THEN] Prezzo Totale node has value 100.
         // [THEN] Importo node under DettaglioLinee has value 4 (Invoice Discount Amount / Quantity)
+        // [THEN] An invoice discount amount under ScontoMaggiorazione xml node has eight decimal places
+        // TFS ID 348540: Changes in the format of Italian electronic invoices
         VerifyInvDiscAmount(ServerFileName, SalesLine.Quantity, SalesLine."Line Amount", SalesLine."Inv. Discount Amount");
     end;
 
@@ -104,6 +108,7 @@ codeunit 144204 "FatturaPA Discount"
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
         ServiceInvoiceHeader: Record "Service Invoice Header";
+        ServiceInvoiceLine: Record "Service Invoice Line";
         ElectronicDocumentFormat: Record "Electronic Document Format";
         CustomerNo: Code[20];
         ClientFileName: Text[250];
@@ -131,7 +136,12 @@ codeunit 144204 "FatturaPA Discount"
         // TFS ID: 308856
         // [THEN] Prezzo Totale node has value 100.
         // [THEN] Importo node under DettaglioLinee has value 4 (Invoice Discount Amount / Quantity)
-        VerifyInvDiscAmount(ServerFileName, ServiceLine.Quantity, ServiceLine."Line Amount", ServiceLine."Inv. Discount Amount");
+        // [THEN] An invoice discount amount under ScontoMaggiorazione xml node has eight decimal places
+        // TFS ID 348540: Changes in the format of Italian electronic invoices
+        ServiceInvoiceHeader.FindFirst();
+        ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
+        ServiceInvoiceLine.FindFirst();
+        VerifyInvDiscAmount(ServerFileName, ServiceLine.Quantity, ServiceLine."Line Amount", ServiceInvoiceLine."Inv. Discount Amount");
     end;
 
     [Test]
@@ -141,6 +151,7 @@ codeunit 144204 "FatturaPA Discount"
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        ServiceCrMemoLine: Record "Service Cr.Memo Line";
         ElectronicDocumentFormat: Record "Electronic Document Format";
         CustomerNo: Code[20];
         ClientFileName: Text[250];
@@ -168,7 +179,12 @@ codeunit 144204 "FatturaPA Discount"
         // TFS ID: 308856
         // [THEN] Prezzo Totale node has value 100.
         // [THEN] Importo node under DettaglioLinee has value 4 (Invoice Discount Amount / Quantity)
-        VerifyInvDiscAmount(ServerFileName, ServiceLine.Quantity, ServiceLine."Line Amount", ServiceLine."Inv. Discount Amount");
+        // [THEN] An invoice discount amount under ScontoMaggiorazione xml node has eight decimal places
+        // TFS ID 348540: Changes in the format of Italian electronic invoices
+        ServiceCrMemoHeader.FindFirst();
+        ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
+        ServiceCrMemoLine.FindFirst();
+        VerifyInvDiscAmount(ServerFileName, ServiceLine.Quantity, ServiceLine."Line Amount", ServiceCrMemoLine."Inv. Discount Amount");
     end;
 
     [Test]
@@ -646,6 +662,11 @@ codeunit 144204 "FatturaPA Discount"
         exit(Format(Amount, 0, '<Precision,2:2><Standard Format,9>'))
     end;
 
+    local procedure FormatAmountEightDecimalPlaces(Amount: Decimal): Text[250]
+    begin
+        exit(Format(Amount, 0, '<Sign><Integer><Decimals,8><Comma,.>'))
+    end;
+
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
@@ -683,13 +704,13 @@ codeunit 144204 "FatturaPA Discount"
         TempXMLBuffer.Load(ServerFileName);
         AssertCurrentElementValue(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiGeneraliDocumento/ScontoMaggiorazione/Importo',
-          FormatAmount(InvDiscAmount));
+          FormatAmountEightDecimalPlaces(InvDiscAmount));
         AssertCurrentElementValue(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/PrezzoTotale',
           FormatAmount(LineAmount));
         AssertCurrentElementValue(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/ScontoMaggiorazione/Importo',
-          FormatAmount(Round(InvDiscAmount / Quantity)));
+          FormatAmountEightDecimalPlaces(Round(InvDiscAmount / Quantity)));
 
         DeleteServerFile(ServerFileName);
     end;

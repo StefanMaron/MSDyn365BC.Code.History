@@ -545,6 +545,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Details Sales - NamedType OriginalAmtCap)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2608433948 - NamedType 3505401897" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Document Date must be less than Posting Date.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Details Sales - NamedType PostingBeforeDocumentDateErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2608433948 - NamedType 2487716753" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[VendLedgEntry1__Amount__LCY___Control1130017]]></Val>

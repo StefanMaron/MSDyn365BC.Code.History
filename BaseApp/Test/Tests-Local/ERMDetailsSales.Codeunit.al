@@ -51,6 +51,7 @@ codeunit 144178 "ERM Details Sales"
         DetailedVendDocNo: Label 'Detailed_Vendor_Ledg__Entry__Document_No__';
         DocNoCap: Label 'DocNo_CustLedgEntry';
         OriginalAmtCap: Label 'VendLedgEntry3__Original_Amt___LCY__';
+        PostingBeforeDocumentDateErr: Label 'Document Date must be less than Posting Date.';
         VendAmountCap: Label 'VendLedgEntry1__Amount__LCY___Control1130017';
         ValueEqualErr: Label 'Value must be equal.';
         ValueNotEqualErr: Label 'Value must not be equal.';
@@ -75,15 +76,12 @@ codeunit 144178 "ERM Details Sales"
         DocumentNo := CreateAndPostSalesOrder(SalesLine, CreateCustomer, '', OperationType, false);  // Currency Code as blank and Invoice as False.
         DocumentNo2 := CreateAndPostSalesOrder(SalesLine, SalesLine."Sell-to Customer No.", '', OperationType, false);  // Currency Code as blank and Invoice as False.
 
-        // Enqueue for CombineShipmentsRequestPageHandler.
-        LibraryVariableStorage.Enqueue(SalesLine."Sell-to Customer No.");
-        LibraryVariableStorage.Enqueue(OperationType);
-
-        // Exercise.
-        REPORT.Run(REPORT::"Combine Shipments");  // Opens CombineShipmentsRequestPageHandler.
+        // Run Combine Shipments Report
+        RunCombineShipmentsReport(SalesLine."Sell-to Customer No.", OperationType, WorkDate, WorkDate);
 
         // Verify: Verify different Sales Invoice created after Combine Shipment.
         Assert.AreNotEqual(FindSalesLine(DocumentNo), FindSalesLine(DocumentNo2), ValueNotEqualErr);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -409,9 +407,71 @@ codeunit 144178 "ERM Details Sales"
         VerifyVendorLedgerEntryDetails(VendorBillLine."Vendor No.", PostedInvoiceNo, PostedVendorBillNo, VendorBillLine."Vendor Bill No.");
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,CombineShipmentRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CombineShipmentsWithPostingDateAfterDocumentDate()
+    var
+        SalesLine: Record "Sales Line";
+        DocumentNo: Code[20];
+        DocumentNo2: Code[20];
+        OperationType: Code[20];
+    begin
+        // [FEATURE] [Combine Shipment] [Posting Date]
+        // [SCENARIO 348826] Combine Shipment with Posting Date > Document Date has been run on two Sales Orders, resulting in two Sales Invoice lines created
+        Initialize();
+
+        // [GIVEN] Created and posted two Sales Orders without invoicing
+        OperationType := LibraryERM.CreateNoSeriesSalesCode();
+        DocumentNo := CreateAndPostSalesOrder(SalesLine, CreateCustomer, '', OperationType, false);
+        DocumentNo2 := CreateAndPostSalesOrder(SalesLine, SalesLine."Sell-to Customer No.", '', OperationType, false);
+
+        // [WHEN] Run Combine Shipments report with Posting Date > Document Date
+        RunCombineShipmentsReport(SalesLine."Sell-to Customer No.", OperationType, WorkDate + 1, WorkDate);
+
+        // [THEN] Two different Sales Invoice lines created successfully
+        Assert.AreNotEqual(FindSalesLine(DocumentNo), FindSalesLine(DocumentNo2), ValueNotEqualErr);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CombineShipmentRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CombineShipmentsWithPostingDateBeforeDocumentDate()
+    var
+        SalesLine: Record "Sales Line";
+        OperationType: Code[20];
+    begin
+        // [FEATURE] [Combine Shipment] [Posting Date]
+        // [SCENARIO 348826] Cannot run Combine Shipments report with Posting Date < Document Date
+        Initialize();
+
+        // [GIVEN] Created and posted two Sales Orders without invoicing
+        OperationType := LibraryERM.CreateNoSeriesSalesCode();
+        CreateAndPostSalesOrder(SalesLine, CreateCustomer, '', OperationType, false);
+        CreateAndPostSalesOrder(SalesLine, SalesLine."Sell-to Customer No.", '', OperationType, false);
+
+        // [WHEN] Run Combine Shipments report with Posting Date < Document Date
+        asserterror RunCombineShipmentsReport(SalesLine."Sell-to Customer No.", OperationType, WorkDate, WorkDate + 1);
+
+        // [THEN] The error is thrown: "Document Date must be less than Posting Date."
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(PostingBeforeDocumentDateErr);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
+    end;
+
+    local procedure RunCombineShipmentsReport(CustomerNo: Code[20]; OperationType: Code[20]; PostingDate: Date; DocumentDate: Date)
+    begin
+        LibraryVariableStorage.Enqueue(CustomerNo);
+        LibraryVariableStorage.Enqueue(OperationType);
+        LibraryVariableStorage.Enqueue(PostingDate);
+        LibraryVariableStorage.Enqueue(DocumentDate);
+        REPORT.Run(REPORT::"Combine Shipments");
     end;
 
     local procedure ApplyAndPostGeneralJournalLine(CustomerNo: Code[20]; DocumentType: Option; Amount: Decimal) DocumentNo: Code[20]
@@ -924,16 +984,13 @@ codeunit 144178 "ERM Details Sales"
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CombineShipmentRequestPageHandler(var CombineShipments: TestRequestPage "Combine Shipments")
-    var
-        SellToCustomerNo: Variant;
-        OperationType: Variant;
     begin
-        LibraryVariableStorage.Dequeue(SellToCustomerNo);
-        LibraryVariableStorage.Dequeue(OperationType);
-        CombineShipments.SalesOrderHeader.SetFilter("Sell-to Customer No.", SellToCustomerNo);
+        CombineShipments.SalesOrderHeader.SetFilter("Sell-to Customer No.", LibraryVariableStorage.DequeueText);
+        CombineShipments.OperationType.SetValue(LibraryVariableStorage.DequeueText);
         CombineShipments.CombineFromDate.SetValue(WorkDate);
         CombineShipments.CombineToDate.SetValue(WorkDate);
-        CombineShipments.OperationType.SetValue(OperationType);
+        CombineShipments.PostingDate.SetValue(LibraryVariableStorage.DequeueDate);
+        CombineShipments.DocDateReq.SetValue(LibraryVariableStorage.DequeueDate);
         CombineShipments.OK.Invoke;
     end;
 

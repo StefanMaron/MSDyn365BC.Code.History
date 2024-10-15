@@ -452,6 +452,35 @@ codeunit 144127 "ERM  Miscellaneous"
         Assert.ExpectedError('Cancelled by user.');
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure JobLedgerEntryAfterPostPurchCrMemoWithNonDeductibleVAT()
+    var
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        JobLedgerEntry: Record "Job Ledger Entry";
+        PostedCrMemoNo: Code[20];
+    begin
+        // [FEATURE] [Non-Deductible] [VAT] [Job]
+        // [SCENARIO 348104] When you post Non-deductible VAT Credit Memo the Job Ledger Entry gets correct amounts
+        Initialize;
+
+        // [GIVEN] VAT Posting Setup with Non-deductible VAT
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDec(40, 2));
+        VATPostingSetup.Validate("Deductible %", 0);
+        VATPostingSetup.Modify(true);
+
+        // [WHEN] Credit Memo posted with this VAT Setup and Job No.
+        PostedCrMemoNo := CreateAndPostCrMemoWithJobAndVATPostingSetup(PurchaseLine, VATPostingSetup);
+
+        // [THEN] Unit Cost on Job Ledger Entry is Amount Including VAT for original purchase line
+        JobLedgerEntry.SetRange("Document No.", PostedCrMemoNo);
+        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.TestField("Total Cost", -PurchaseLine."Amount Including VAT");
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -515,6 +544,27 @@ codeunit 144127 "ERM  Miscellaneous"
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));  // Use random Unit Price.
         SalesLine.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));  // Post as ship and invoice.
+    end;
+
+    local procedure CreateAndPostCrMemoWithJobAndVATPostingSetup(var PurchaseLine: Record "Purchase Line"; VATPostingSetup: Record "VAT Posting Setup"): Code[20]
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        JobTask: Record "Job Task";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        CreateJobWithJobsUtil(JobTask);
+        LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", CreateVendor(
+            VATPostingSetup."VAT Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group"));
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", CreateGLAccount(
+            VATPostingSetup."VAT Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group"), LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Validate("Job No.", JobTask."Job No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.Modify(true);
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
     local procedure CreateCustomer(): Code[20]
