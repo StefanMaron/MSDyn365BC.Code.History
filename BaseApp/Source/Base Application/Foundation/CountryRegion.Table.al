@@ -1,4 +1,4 @@
-table 9 "Country/Region"
+﻿table 9 "Country/Region"
 {
     Caption = 'Country/Region';
     LookupPageID = "Countries/Regions";
@@ -111,6 +111,10 @@ table 9 "Country/Region"
         field(12102; "Foreign Country/Region Code"; Code[3])
         {
             Caption = 'Foreign Country/Region Code';
+        }
+        field(12103; "On Deny List"; Boolean)
+        {
+            Caption = 'On Deny List';
         }
     }
 

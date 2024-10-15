@@ -22,7 +22,12 @@ codeunit 139515 "Digital Vouchers Tests"
         IsInitialized: Boolean;
         NotPossibleToPostWithoutVoucherErr: Label 'Not possible to post without attaching the digital voucher.';
         DialogErrorCodeTok: Label 'Dialog', Locked = true;
+        CannotRemoveReferenceRecordFromIncDocErr: Label 'Cannot remove the reference record from the incoming document because it is used for the enforced digital voucher functionality';
+        DetachQst: Label 'Do you want to remove the reference from this incoming document to posted document';
+        RemovePostedRecordManuallyMsg: Label 'The reference to the posted record has been removed.\\Remember to correct the posted record if needed.';
         DoYouWantToPostQst: Label 'Do you want to post the journal lines?';
+        PaymentLineAppliedMsg: Label '%1 payment lines out of 1 are applied.\\', Comment = '%1 - number';
+        DoYouWantTPostPmtQst: Label 'Do you want to post the payments?';
 
     trigger OnRun()
     begin
@@ -44,7 +49,7 @@ codeunit 139515 "Digital Vouchers Tests"
         // [GIVEN] Digital voucher entry setup for purchase document is "Attachment"
         InitSetupCheckOnly("Digital Voucher Entry Type"::"Purchase Document", "Digital Voucher Check Type"::Attachment);
         // [WHEN] Post purchase document
-        DocNo := ReceiveAndInvoicePurchaseDocument();
+        DocNo := ReceiveAndInvoicePurchaseInvoice();
         // [THEN] The document is posted without the digital voucher
         AssertVendorLedgerEntryExists(DocNo);
         UnbindSubscription(DigVouchersDisableEnforce);
@@ -65,7 +70,7 @@ codeunit 139515 "Digital Vouchers Tests"
         // [GIVEN] Digital voucher entry setup for purchase document is "No Check"
         InitSetupCheckOnly("Digital Voucher Entry Type"::"Purchase Document", "Digital Voucher Check Type"::"No Check");
         // [WHEN] Post purchase document
-        DocNo := ReceiveAndInvoicePurchaseDocument();
+        DocNo := ReceiveAndInvoicePurchaseInvoice();
         // [THEN] The document is posted without the digital voucher
         AssertVendorLedgerEntryExists(DocNo);
         UnbindSubscription(DigVouchersDisableEnforce);
@@ -85,7 +90,7 @@ codeunit 139515 "Digital Vouchers Tests"
         // [GIVEN] Digital Voucher Entry Setup for Purchase Document is "Attachment"
         InitSetupCheckOnly("Digital Voucher Entry Type"::"Purchase Document", "Digital Voucher Check Type"::Attachment);
         // [WHEN] Post purchase document
-        asserterror ReceiveAndInvoicePurchaseDocument();
+        asserterror ReceiveAndInvoicePurchaseInvoice();
         // [THEN] Error "Not possible to post without the voucher" is shown
         Assert.ExpectedErrorCode(DialogErrorCodeTok);
         Assert.ExpectedError(NotPossibleToPostWithoutVoucherErr);
@@ -108,7 +113,7 @@ codeunit 139515 "Digital Vouchers Tests"
         InitSetupCheckOnly("Digital Voucher Entry Type"::"Purchase Document", "Digital Voucher Check Type"::Attachment);
         // [GIVEN] Purchase invoice and Incoming document with attachment is created for the purchase document        
         // [WHEN] Post the purchase document
-        DocNo := ReceiveAndInvoicePurchaseDocumentWithIncDoc();
+        DocNo := ReceiveAndInvoicePurchaseInvoiceWithIncDoc();
         // [THEN] The document is posted with the digital voucher
         AssertVendorLedgerEntryExists(DocNo);
         UnbindSubscription(DigVouchersDisableEnforce);
@@ -132,7 +137,7 @@ codeunit 139515 "Digital Vouchers Tests"
         // [GIVEN] Digital voucher entry setup for purchase document is "Attachment", "Generate Automatically" is enabled
         InitSetupGenerateAutomatically("Digital Voucher Entry Type"::"Purchase Document", "Digital Voucher Check Type"::Attachment);
         // [WHEN] Post purchase document
-        DocNo := ReceiveAndInvoicePurchaseDocument(PurchHeader);
+        DocNo := ReceiveAndInvoicePurchaseInvoice(PurchHeader);
         // [THEN] Incoming document with attachment is connected to the posted purchase document
         VerifyIncomingDocumentWithAttachmentsExists(PurchHeader."Posting Date", DocNo, 1);
         NotificationLifecycleMgt.RecallAllNotifications();
@@ -158,7 +163,7 @@ codeunit 139515 "Digital Vouchers Tests"
         InitSetupGenerateAutomatically("Digital Voucher Entry Type"::"Purchase Document", "Digital Voucher Check Type"::Attachment);
         // [GIVEN] Purcnase invoice and Incoming document with attachment is created for the purchase document        
         // [WHEN] Post purchase document
-        DocNo := ReceiveAndInvoicePurchaseDocumentWithIncDoc(PurchHeader);
+        DocNo := ReceiveAndInvoicePurchaseInvoiceWithIncDoc(PurchHeader);
         // [THEN] Incoming document with two attachments is connected to the posted purchase document
         VerifyIncomingDocumentWithAttachmentsExists(PurchHeader."Posting Date", DocNo, 2);
         NotificationLifecycleMgt.RecallAllNotifications();
@@ -184,11 +189,68 @@ codeunit 139515 "Digital Vouchers Tests"
         InitSetupGenerateAutomaticallySkipIfManuallyAdded("Digital Voucher Entry Type"::"Purchase Document", "Digital Voucher Check Type"::Attachment);
         // [GIVEN] Purchase invoice and Incoming document with attachment is created for the purchase document
         // [WHEN] Post purchase document
-        DocNo := ReceiveAndInvoicePurchaseDocumentWithIncDoc(PurchHeader);
+        DocNo := ReceiveAndInvoicePurchaseInvoiceWithIncDoc(PurchHeader);
         // [THEN] Incoming document with one attachment is connected to the posted purchase document
         VerifyIncomingDocumentWithAttachmentsExists(PurchHeader."Posting Date", DocNo, 1);
         NotificationLifecycleMgt.RecallAllNotifications();
         UnbindSubscription(DigVouchersDisableEnforce);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler')]
+    procedure DotNotCheckVoucherOnBeforeRemoveReferencedRecordsWhenFeatureDisabled()
+    var
+        IncomingDocument: Record "Incoming Document";
+        SalesInvHeader: Record "Sales Invoice Header";
+        DigVouchersDisableEnforce: Codeunit "Dig. Vouchers Disable Enforce";
+        BlankRecID: RecordId;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 498196] Stan can remove the reference to the posted document from the incoming document when the feature is disabled
+        Initialize();
+        BindSubscription(DigVouchersDisableEnforce);
+        DisableDigitalVoucherFeature();
+        // [GIVEN] Sales invoice and Incoming document is created
+        SalesInvHeader."No." := LibraryUtility.GenerateGUID();
+        SalesInvHeader.Insert();
+        IncomingDocument."Entry No." := LibraryUtility.GetNewRecNo(IncomingDocument, IncomingDocument.FieldNo("Entry No."));
+        IncomingDocument.Posted := true;
+        IncomingDocument."Related Record ID" := SalesInvHeader.RecordId();
+        IncomingDocument.Insert();
+        LibraryVariableStorage.Enqueue(DetachQst);
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(RemovePostedRecordManuallyMsg);
+        // [WHEN] Remove the reference to the posted document from the incoming document
+        IncomingDocument.RemoveReferencedRecords();
+        // [THEN] The reference to the posted document is removed from the incoming document
+        IncomingDocument.Find();
+        IncomingDocument.TestField("Related Record ID", BlankRecID);
+
+        LibraryVariableStorage.AssertEmpty();
+        UnbindSubscription(DigVouchersDisableEnforce);
+    end;
+
+    [Test]
+    procedure CheckVoucherOnBeforeRemoveReferencedRecordsWhenFeatureEnabled()
+    var
+        IncomingDocument: Record "Incoming Document";
+        SalesInvHeader: Record "Sales Invoice Header";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 498196] Stan cannot remove the reference to the posted document from the incoming document when the feature is enabled
+        Initialize();
+        EnableDigitalVoucherFeature();
+        // [GIVEN] Sales invoice and Incoming document is created
+        SalesInvHeader."No." := LibraryUtility.GenerateGUID();
+        SalesInvHeader.Insert();
+        IncomingDocument."Entry No." := LibraryUtility.GetNewRecNo(IncomingDocument, IncomingDocument.FieldNo("Entry No."));
+        IncomingDocument.Posted := true;
+        IncomingDocument."Related Record ID" := SalesInvHeader.RecordId();
+        IncomingDocument.Insert();
+        // [WHEN] Remove the reference to the posted document from the incoming document
+        asserterror IncomingDocument.RemoveReferencedRecords();
+        // [THEN] Error "Cannot remove the reference record from the incoming document because it is used for the enforced digital voucher functionality" is shown
+        Assert.ExpectedError(CannotRemoveReferenceRecordFromIncDocErr);
     end;
 
     [Test]
@@ -352,7 +414,7 @@ codeunit 139515 "Digital Vouchers Tests"
         for i := 1 to ArrayLen(GenJournalLine) do
             LibraryJournals.CreateGenJournalLine(
                 GenJournalLine[i], GenJournalTemplate.Name, GenJournalBatch.Name,
-                GenJournalLine[i]."Document Type"::" ", GenJournalLine[i]."Account Type"::"G/L Account",
+                GenJournalLine[i]."Document Type"::Invoice, GenJournalLine[i]."Account Type"::"G/L Account",
                 LibraryERM.CreateGLAccountNo(), GenJournalLine[i]."Bal. Account Type"::"G/L Account",
                 LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDec(100, 2));
         GenJournalLineToPost.SetRange("Journal Template Name", GenJournalTemplate.Name);
@@ -390,7 +452,7 @@ codeunit 139515 "Digital Vouchers Tests"
         // [GIVEN] Digital voucher entry setup for purchase document is "Attachment", "Generate Automatically" is not enabled
         InitSetupCheckOnly("Digital Voucher Entry Type"::"Purchase Document", "Digital Voucher Check Type"::Attachment);
         // [GIVEN] Posted purchase invoice and Incoming document with attachment
-        PurchInvHeader.Get(ReceiveAndInvoicePurchaseDocumentWithIncDoc());
+        PurchInvHeader.Get(ReceiveAndInvoicePurchaseInvoiceWithIncDoc());
         // [WHEN] Correct the posted purchase invoice
         CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
         // [THEN] Incoming document with attachment is connected to the posted corrective credit memo
@@ -529,10 +591,167 @@ codeunit 139515 "Digital Vouchers Tests"
         UnbindSubscription(DigVouchersDisableEnforce);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,ConfirmHandler')]
+    procedure PaymentReconciliationDoesNotRequireDigitalVoucher()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        VendLedgEntry: Record "Vendor Ledger Entry";
+        PostedPmtReconHdr: Record "Posted Payment Recon. Hdr";
+        BankAccReconPostYesNo: Codeunit "Bank Acc. Recon. Post (Yes/No)";
+        DigVouchersDisableEnforce: Codeunit "Dig. Vouchers Disable Enforce";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        BankAccountNo: Code[20];
+    begin
+        // [SCENARIO 539186] Stan can post a payment reconciliation without a digital voucher
+
+        Initialize();
+        BindSubscription(DigVouchersDisableEnforce);
+        // [GIVEN] Digital voucher feature is enabled for purchase document and purchase journal
+        EnableDigitalVoucherFeature();
+        InitSetupCheckOnly("Digital Voucher Entry Type"::"Purchase Document", "Digital Voucher Check Type"::Attachment);
+        InitSetupCheckOnly("Digital Voucher Entry Type"::"Purchase Journal", "Digital Voucher Check Type"::Attachment);
+
+        // [GIVEN] Payment account reconciliation with the purchase invoice
+        BankAccountNo := CreateBankAccForPaymentReconciliation();
+        LibraryERM.FindVendorLedgerEntry(
+            VendLedgEntry, VendLedgEntry."Document Type"::Invoice, ReceiveAndInvoicePurchaseInvoiceWithIncDoc());
+        CreatePmtReconForVendor(BankAccReconciliation, VendLedgEntry, BankAccountNo);
+        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentLineAppliedMsg, 1));
+        LibraryVariableStorage.Enqueue(DoYouWantTPostPmtQst);
+        LibraryVariableStorage.Enqueue(true);
+        CODEUNIT.Run(CODEUNIT::"Match Bank Pmt. Appl.", BankAccReconciliation);
+
+        // [WHEN] Post payment account reconciliation
+        Assert.IsTrue(BankAccReconPostYesNo.BankAccReconPostYesNo(BankAccReconciliation), 'Not all payments posted.');
+
+        // [THEN] Payment Acc. Reconciliation has been posted
+        PostedPmtReconHdr.Get(BankAccReconciliation."Bank Account No.", BankAccReconciliation."Statement No.");
+
+        LibraryVariableStorage.AssertEmpty();
+
+        UnbindSubscription(DigVouchersDisableEnforce);
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    procedure SalesCrMemoVoucherFeatureEnabledGenerateAutomatically()
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        DigVouchersDisableEnforce: Codeunit "Dig. Vouchers Disable Enforce";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 539494] Stan can post a sales credit memo with the digital voucher automatically generated
+
+        Initialize();
+        BindSubscription(DigVouchersDisableEnforce);
+        // [GIVEN] Digital voucher feature is enabled
+        EnableDigitalVoucherFeature();
+        InitializeReportSelectionSalesCrMemo();
+        // [GIVEN] Digital voucher entry setup for sales document is "Attachment", "Generate Automatically" is not enabled
+        InitSetupGenerateAutomatically("Digital Voucher Entry Type"::"Sales Document", "Digital Voucher Check Type"::Attachment);
+        // [When] Post sales credit memo
+        SalesCrMemoHeader.Get(ReceiveAndInvoiceSalesCrMemo());
+        // [THEN] Incoming document with attachment is connected to the posted sales credit memo
+        VerifyIncomingDocumentWithAttachmentsExists(SalesCrMemoHeader."Posting Date", SalesCrMemoHeader."No.", 1);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+        UnbindSubscription(DigVouchersDisableEnforce);
+    end;
+
+    [Test]
+    procedure PurchCrMemoVoucherFeatureEnabledGenerateAutomatically()
+    var
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        DigVouchersDisableEnforce: Codeunit "Dig. Vouchers Disable Enforce";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 539494] Stan can post a purchase credit memo with the digital voucher automatically generated
+
+        Initialize();
+        BindSubscription(DigVouchersDisableEnforce);
+        // [GIVEN] Digital voucher feature is enabled
+        EnableDigitalVoucherFeature();
+        InitializeReportSelectionPurchaseCrMemo();
+        // [GIVEN] Digital voucher entry setup for purchase document is "Attachment", "Generate Automatically" is not enabled
+        InitSetupGenerateAutomatically("Digital Voucher Entry Type"::"Purchase Document", "Digital Voucher Check Type"::Attachment);
+        // [When] Post purchase credit memo
+        PurchCrMemoHdr.Get(ShipAndInvoicePurchaseCrMemo());
+        // [THEN] Incoming document with attachment is connected to the posted purchase credit memo
+        VerifyIncomingDocumentWithAttachmentsExists(PurchCrMemoHdr."Posting Date", PurchCrMemoHdr."No.", 1);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+        UnbindSubscription(DigVouchersDisableEnforce);
+    end;
+
+    [Test]
+    procedure PrepmtSalesInvVoucherFeatureEnabledGenerateAutomatically()
+    var
+        SalesInvHeader: Record "Sales Invoice Header";
+        DigVouchersDisableEnforce: Codeunit "Dig. Vouchers Disable Enforce";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 539494] Stan can post a prepayment sales invoice with the digital voucher automatically generated
+
+        Initialize();
+        BindSubscription(DigVouchersDisableEnforce);
+        // [GIVEN] Digital voucher feature is enabled
+        EnableDigitalVoucherFeature();
+        InitializeReportSelectionSalesInvoice();
+        // [GIVEN] Digital voucher entry setup for sales document is "Attachment", "Generate Automatically" is not enabled
+        InitSetupGenerateAutomatically("Digital Voucher Entry Type"::"Sales Document", "Digital Voucher Check Type"::Attachment);
+        // [WHEN] Post prepayment sales invoice
+        SalesInvHeader.Get(PostSalesPrepmtInv());
+        // [THEN] Incoming document with attachment is connected to the posted prepayment sales invoice
+        VerifyIncomingDocumentWithAttachmentsExists(SalesInvHeader."Posting Date", SalesInvHeader."No.", 1);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+        UnbindSubscription(DigVouchersDisableEnforce);
+    end;
+
+    [Test]
+    procedure PrepmtSalesCrMemoVoucherFeatureEnabledGenerateAutomatically()
+    var
+        SalesHeader: Record "Sales Header";
+        DigVouchersDisableEnforce: Codeunit "Dig. Vouchers Disable Enforce";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 539494] Stan can post a prepayment sales credit memo with the digital voucher automatically generated
+
+        Initialize();
+        BindSubscription(DigVouchersDisableEnforce);
+        // [GIVEN] Digital voucher feature is enabled
+        EnableDigitalVoucherFeature();
+        InitializeReportSelectionSalesInvoice();
+        // [GIVEN] Digital voucher entry setup for sales document is "Attachment", "Generate Automatically" is not enabled
+        InitSetupGenerateAutomatically("Digital Voucher Entry Type"::"Sales Document", "Digital Voucher Check Type"::Attachment);
+        // [GIVEN] Posted prepayment sales invoice
+        CreateSalesPrepmtInv(SalesHeader);
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+        DocumentNo := NoSeriesManagement.GetNextNo(SalesHeader."Prepmt. Cr. Memo No. Series", WorkDate(), false);
+        // [WHEN] Post prepayment sales credit memo
+        LibrarySales.PostSalesPrepaymentCrMemo(SalesHeader);
+        // [THEN] Incoming document with attachment is connected to the posted prepayment sales credit memo
+        VerifyIncomingDocumentWithAttachmentsExists(SalesHeader."Posting Date", DocumentNo, 1);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+        UnbindSubscription(DigVouchersDisableEnforce);
+    end;
+
     local procedure Initialize()
     var
+        CompanyInformation: Record "Company Information";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        CompanyInformation.Get();
+        CompanyInformation.Validate("Allow Blank Payment Info.", true);
+        CompanyInformation.Modify(true);
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Digital Vouchers Tests");
         if IsInitialized then
             exit;
@@ -540,6 +759,7 @@ codeunit 139515 "Digital Vouchers Tests"
 
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Digital Vouchers Tests");
@@ -597,6 +817,11 @@ codeunit 139515 "Digital Vouchers Tests"
         InitializeReportSelection("Report Selection Usage"::"P.Invoice", Report::"Purchase - Invoice");
     end;
 
+    local procedure InitializeReportSelectionPurchaseCrMemo()
+    begin
+        InitializeReportSelection("Report Selection Usage"::"P.Cr.Memo", Report::"Purchase - Credit Memo");
+    end;
+
     local procedure InitializeReportSelectionServiceInvoice()
     begin
         InitializeReportSelection("Report Selection Usage"::"SM.Invoice", Report::"Service - Invoice");
@@ -631,6 +856,43 @@ codeunit 139515 "Digital Vouchers Tests"
         ReportSelections.Insert();
     end;
 
+    local procedure InitializeReportSelectionSalesCrMemo()
+    var
+        ReportSelections: Record "Report Selections";
+        Usage: Enum "Report Selection Usage";
+    begin
+        Usage := "Report Selection Usage"::"S.Cr.Memo";
+        ReportSelections.SetRange("Usage", Usage);
+        ReportSelections.DeleteAll();
+        ReportSelections.Usage := Usage;
+        ReportSelections."Report ID" := Report::"Standard Sales - Credit Memo";
+        ReportSelections.Insert();
+    end;
+
+    local procedure CreateBankAccForPaymentReconciliation(): Code[20]
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Last Statement No.", Format(LibraryRandom.RandInt(10)));
+        BankAccount.Modify(true);
+        exit(BankAccount."No.");
+    end;
+
+    local procedure CreatePmtReconForVendor(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; VendLedgEntry: Record "Vendor Ledger Entry"; BankAccountNo: Code[20])
+    var
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        VendLedgEntry.CalcFields("Remaining Amount");
+        LibraryERM.CreateBankAccReconciliation(
+          BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Payment Application");
+        CreateBankAccReconciliationLine(
+            BankAccReconciliation, BankAccReconciliationLine, BankAccReconciliationLine."Account Type"::Vendor,
+            VendLedgEntry."Vendor No.", VendLedgEntry."Remaining Amount", WorkDate());
+        BankAccReconciliation.Validate("Post Payments Only", true);
+        BankAccReconciliationLine.Modify(true);
+    end;
+
     local procedure MockIncomingDocument(PostingDate: Date; DocNo: Code[20]): Integer
     var
         IncomingDocument: Record "Incoming Document";
@@ -646,32 +908,48 @@ codeunit 139515 "Digital Vouchers Tests"
         exit(IncomingDocument."Entry No.");
     end;
 
-    local procedure ReceiveAndInvoicePurchaseDocument(): Code[20]
+    local procedure ReceiveAndInvoicePurchaseInvoice(): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        exit(ReceiveAndInvoicePurchaseDocument(PurchaseHeader));
+        exit(ReceiveAndInvoicePurchaseInvoice(PurchaseHeader));
     end;
 
-    local procedure ReceiveAndInvoicePurchaseDocumentWithIncDoc(): Code[20]
+    local procedure ReceiveAndInvoicePurchaseInvoiceWithIncDoc(): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        exit(ReceiveAndInvoicePurchaseDocumentWithIncDoc(PurchaseHeader));
+        exit(ReceiveAndInvoicePurchaseInvoiceWithIncDoc(PurchaseHeader));
     end;
 
-    local procedure ReceiveAndInvoicePurchaseDocument(var PurchaseHeader: Record "Purchase Header"): Code[20]
+    local procedure ReceiveAndInvoicePurchaseInvoice(var PurchaseHeader: Record "Purchase Header"): Code[20]
     begin
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure ReceiveAndInvoicePurchaseDocumentWithIncDoc(var PurchaseHeader: Record "Purchase Header"): Code[20]
+    local procedure ShipAndInvoicePurchaseCrMemo(): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
+    local procedure ReceiveAndInvoicePurchaseInvoiceWithIncDoc(var PurchaseHeader: Record "Purchase Header"): Code[20]
     begin
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
         PurchaseHeader.Validate("Incoming Document Entry No.", MockIncomingDocument(PurchaseHeader."Posting Date", PurchaseHeader."No."));
         PurchaseHeader.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
+    local procedure ReceiveAndInvoiceSalesCrMemo(): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        LibrarySales.CreateSalesCreditMemo(SalesHeader);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
     local procedure ShipAndInvoiceSalesDocumentWithIncDoc(): Code[20]
@@ -682,6 +960,32 @@ codeunit 139515 "Digital Vouchers Tests"
         SalesHeader.Validate("Incoming Document Entry No.", MockIncomingDocument(SalesHeader."Posting Date", SalesHeader."No."));
         SalesHeader.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure PostSalesPrepmtInv(): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        CreateSalesPrepmtInv(SalesHeader);
+        exit(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader));
+    end;
+
+    local procedure CreateSalesPrepmtInv(var SalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Prepayment %", LibraryRandom.RandInt(50));
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
+            LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(5));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 1));
+        SalesLine.Modify(true);
+        GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        GeneralPostingSetup."Sales Prepayments Account" := LibraryERM.CreateGLAccountWithSalesSetup();
+        GeneralPostingSetup.Modify(true);
     end;
 
     local procedure PostServiceInvoice(): Code[20]
@@ -787,6 +1091,18 @@ codeunit 139515 "Digital Vouchers Tests"
             exit;
         BindSubscription(ActiveDirectoryMockEvents);
         ActiveDirectoryMockEvents.Enable();
+    end;
+
+    local procedure CreateBankAccReconciliationLine(BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; Date: Date)
+    begin
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
+        BankAccReconciliationLine.Validate("Account Type", AccountType);
+        BankAccReconciliationLine.Validate("Account No.", AccountNo);
+        BankAccReconciliationLine.Validate("Document No.", LibraryUtility.GenerateGUID());
+        BankAccReconciliationLine.Validate("Statement Amount", Amount);
+        BankAccReconciliationLine.Validate("Transaction Date", Date);
+        BankAccReconciliationLine.Validate(Description, AccountNo);
+        BankAccReconciliationLine.Modify(true);
     end;
 
     local procedure VerifyIncomingDocumentWithAttachmentsExists(PostingDate: Date; DocNo: Code[20]; AttachmentsCount: Integer)

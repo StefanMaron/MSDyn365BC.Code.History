@@ -201,9 +201,6 @@
     procedure TestCorrectInvoiceIsAllowed(var PurchInvHeader: Record "Purch. Inv. Header"; Cancelling: Boolean)
     begin
         CancellingOnly := Cancelling;
-
-        PurchInvHeader.CalcFields(Amount);
-        PurchInvHeader.TestField(Amount);
         TestIfPostingIsAllowed(PurchInvHeader);
         TestIfInvoiceIsCorrectedOnce(PurchInvHeader);
         TestIfInvoiceIsNotCorrectiveDoc(PurchInvHeader);
