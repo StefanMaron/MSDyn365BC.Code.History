@@ -18,6 +18,9 @@ codeunit 134376 "ERM Reminders - Grace Period"
         LibraryRandom: Codeunit "Library - Random";
         IsInitialized: Boolean;
         AmountErr: Label '%1 must be equal to %2 in %3.';
+        RemainingAmount4Txt: Label 'Remaining Amount %4';
+        RemainingAmount1Txt: Label 'Remaining Amount %1';
+        OpenEntriesNotDueTxt: Label 'Open Entries Not Due';
 
     [Test]
     [Scope('OnPrem')]
@@ -611,12 +614,115 @@ codeunit 134376 "ERM Reminders - Grace Period"
         // [GIVEN] The reminder has a line for invoice "I1" with reminder level = 2
         CreateIssueReminderAndVerifyLevel(CustomerNo, DMY2Date(30, 9, Date2DMY(WorkDate, 3)), InvoiceNo[1], 2);
 
-        // [WHEN] Create and suggest reminder on "Posting Date" = 15-10-2020
-        ReminderNo := CreateReminder(CustomerNo, DMY2Date(15, 10, Date2DMY(WorkDate, 3)), true, false);
+        // [WHEN] Create and suggest reminder on "Posting Date" = 15-11-2020
+        ReminderNo := CreateReminder(CustomerNo, DMY2Date(15, 11, Date2DMY(WorkDate, 3)), true, false);
 
-        // [GIVEN] The reminder has a line for invoice "I1" with reminder level = 3 and a line for invoice "I2" with reminder level = 1
+        // [THEN] The reminder has a line for invoice "I1" with reminder level = 3 and a line for invoice "I2" with reminder level = 1
         VerifyReminderLineLevel(ReminderNo, InvoiceNo[1], 3);
         VerifyReminderLineLevel(ReminderNo, InvoiceNo[2], 1);
+    end;
+
+    [Test]
+    procedure ReminderWhenOneInvoiceGraceExpiredOneInvoiceGraceNotExpired()
+    var
+        ReminderTerms: Record "Reminder Terms";
+        ReminderLine: Record "Reminder Line";
+        CustomerNo: Code[20];
+        ReminderNo: Code[20];
+        InvoiceNo: array[2] of Code[20];
+        RemainingAmountValue: Text;
+        AddFeePerLine: Decimal;
+    begin
+        // [SCENARIO 401910] Suggest reminder lines for two overdue invoices. Grace period expired for first and not expired for second. Fee per line and Ending Text with Remaining Amount are set.
+        Initialize();
+
+        // [GIVEN] Reminder Terms with one Level with Grace Period = 10D, Add. Fee per Line = 2, Ending Text = "Remaining Amount %4".
+        LibraryERM.CreateReminderTerms(ReminderTerms);
+        AddFeePerLine := LibraryRandom.RandDecInRange(2, 4, 2);
+        CreateReminderLevelWithText(ReminderTerms.Code, 10, 0, AddFeePerLine, RemainingAmount4Txt);
+
+        // [GIVEN] Customer with given Reminder Terms.
+        // [GIVEN] Posted Sales Invoice "I1" with "Due Date" = 01-09-2021 and Amount = "A1". Grace Period expires after 11-09-2021.
+        // [GIVEN] Posted Sales Invoice "I2" with "Due Date" = 01-10-2021. Grace Period expires after 11-10-2021.
+        CustomerNo := CreateCustomerWithGivenReminderTerms(ReminderTerms.Code);
+        InvoiceNo[1] := CreateAndPostSalesInvoiceWithPostingDate(CustomerNo, DMY2Date(1, 9, Date2DMY(WorkDate(), 3)));
+        InvoiceNo[2] := CreateAndPostSalesInvoiceWithPostingDate(CustomerNo, DMY2Date(1, 10, Date2DMY(WorkDate(), 3)));
+
+        // [WHEN] Create reminder with Document Date = 11-10-2021 and suggest reminder lines.
+        ReminderNo := CreateReminder(CustomerNo, DMY2Date(11, 10, Date2DMY(WorkDate(), 3)), true, false);
+
+        // [THEN] One reminder line with Type "Reminder Line" was created. Document No. = "I1".
+        VerifyReminderLinesCount(ReminderLine, ReminderNo, ReminderLine."Line Type"::"Reminder Line", 1);
+        ReminderLine.FindFirst();
+        VerifyReminderLineDocument(ReminderLine, ReminderLine."Document Type"::Invoice, InvoiceNo[1]);
+
+        // [THEN] One reminder line with Type "Line Fee" was created. Applies-to Document No. = "I1", Amount = 2.
+        VerifyReminderLinesCount(ReminderLine, ReminderNo, ReminderLine."Line Type"::"Line Fee", 1);
+        ReminderLine.FindFirst();
+        VerifyReminderLineAppliesToDoc(ReminderLine, ReminderLine."Document Type"::Invoice, InvoiceNo[1], AddFeePerLine);
+
+        // [THEN] One reminder line with Type "Ending Text" was created. Description = "Remaining Amount A1".
+        VerifyReminderLinesCount(ReminderLine, ReminderNo, ReminderLine."Line Type"::"Ending Text", 1);
+        ReminderLine.FindFirst();
+        RemainingAmountValue := Format(GetSalesInvoiceRemainingAmount(InvoiceNo[1]), 0, '<Precision,2:2><Standard Format,0>');
+        ReminderLine.TestField(Description, StrSubstNo(RemainingAmount1Txt, RemainingAmountValue));
+
+        // [THEN] Two reminder lines with Type "Not Due" was created. First with Description "Open Entries Not Due", second is for Document No. = "I2".
+        VerifyReminderLinesCount(ReminderLine, ReminderNo, ReminderLine."Line Type"::"Not Due", 2);
+        ReminderLine.FindFirst();
+        ReminderLine.TestField(Description, OpenEntriesNotDueTxt);
+        ReminderLine.FindLast();
+        VerifyReminderLineDocument(ReminderLine, ReminderLine."Document Type"::Invoice, InvoiceNo[2]);
+    end;
+
+    [Test]
+    procedure ReminderWhenTwoInvoicesGraceExpired()
+    var
+        ReminderTerms: Record "Reminder Terms";
+        ReminderLine: Record "Reminder Line";
+        CustomerNo: Code[20];
+        ReminderNo: Code[20];
+        InvoiceNo: array[2] of Code[20];
+        TotalRemainingAmountValue: Text;
+        AddFeePerLine: Decimal;
+    begin
+        // [SCENARIO 401910] Suggest reminder lines for two overdue invoices. Grace period expired for both. Fee per line and Ending Text with Remaining Amount are set.
+        Initialize();
+
+        // [GIVEN] Reminder Terms with one Level with Grace Period = 10D, Add. Fee per Line = 2, Ending Text = "Remaining Amount %4".
+        LibraryERM.CreateReminderTerms(ReminderTerms);
+        AddFeePerLine := LibraryRandom.RandDecInRange(2, 4, 2);
+        CreateReminderLevelWithText(ReminderTerms.Code, 10, 0, AddFeePerLine, RemainingAmount4Txt);
+
+        // [GIVEN] Customer with given Reminder Terms.
+        // [GIVEN] Posted Sales Invoice "I1" with "Due Date" = 01-09-2021 and Amount = "A1". Grace Period expires after 11-09-2021.
+        // [GIVEN] Posted Sales Invoice "I2" with "Due Date" = 01-10-2021 and Amount = "A2". Grace Period expires after 11-10-2021.
+        CustomerNo := CreateCustomerWithGivenReminderTerms(ReminderTerms.Code);
+        InvoiceNo[1] := CreateAndPostSalesInvoiceWithPostingDate(CustomerNo, DMY2Date(1, 9, Date2DMY(WorkDate(), 3)));
+        InvoiceNo[2] := CreateAndPostSalesInvoiceWithPostingDate(CustomerNo, DMY2Date(1, 10, Date2DMY(WorkDate(), 3)));
+
+        // [WHEN] Create reminder with Document Date = 12-10-2021 and suggest reminder lines.
+        ReminderNo := CreateReminder(CustomerNo, DMY2Date(12, 10, Date2DMY(WorkDate(), 3)), true, false);
+
+        // [THEN] Two reminder lines with Type "Reminder Line" was created. Document No. = "I1" / "I2".
+        VerifyReminderLinesCount(ReminderLine, ReminderNo, ReminderLine."Line Type"::"Reminder Line", 2);
+        ReminderLine.FindFirst();
+        VerifyReminderLineDocument(ReminderLine, ReminderLine."Document Type"::Invoice, InvoiceNo[1]);
+        ReminderLine.FindLast();
+        VerifyReminderLineDocument(ReminderLine, ReminderLine."Document Type"::Invoice, InvoiceNo[2]);
+
+        // [THEN] Two reminder lines with Type "Line Fee" was created. Applies-to Document No. = "I1" / "I2", Amount = 2.
+        VerifyReminderLinesCount(ReminderLine, ReminderNo, ReminderLine."Line Type"::"Line Fee", 2);
+        ReminderLine.FindFirst();
+        VerifyReminderLineAppliesToDoc(ReminderLine, ReminderLine."Document Type"::Invoice, InvoiceNo[1], AddFeePerLine);
+        ReminderLine.FindLast();
+        VerifyReminderLineAppliesToDoc(ReminderLine, ReminderLine."Document Type"::Invoice, InvoiceNo[2], AddFeePerLine);
+
+        // [THEN] One reminder line with Type "Ending Text" was created. Description = "Remaining Amount <A1 + A2>".
+        VerifyReminderLinesCount(ReminderLine, ReminderNo, ReminderLine."Line Type"::"Ending Text", 1);
+        ReminderLine.FindFirst();
+        TotalRemainingAmountValue := Format(GetSalesInvoiceRemainingAmount(InvoiceNo[1]) + GetSalesInvoiceRemainingAmount(InvoiceNo[2]), 0, '<Precision,2:2><Standard Format,0>');
+        ReminderLine.TestField(Description, StrSubstNo(RemainingAmount1Txt, TotalRemainingAmountValue));
     end;
 
     local procedure Initialize()
@@ -743,8 +849,12 @@ codeunit 134376 "ERM Reminders - Grace Period"
     local procedure CreateCustomerWithGivenReminderTerms(ReminderTermsCode: Code[10]): Code[20]
     var
         Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
     begin
         LibrarySales.CreateCustomer(Customer);
+        CustomerPostingGroup.Get(Customer."Customer Posting Group");
+        CustomerPostingGroup.Validate("Add. Fee per Line Account", CustomerPostingGroup."Additional Fee Account");
+        CustomerPostingGroup.Modify(true);
         with Customer do begin
             Validate("Reminder Terms Code", ReminderTermsCode);
             Modify(true);
@@ -824,6 +934,20 @@ codeunit 134376 "ERM Reminders - Grace Period"
         ReminderLevel.Modify(true);
     end;
 
+    local procedure CreateReminderLevelWithText(ReminderTermsCode: Code[10]; GracePeriod: Integer; AdditionalFee: Decimal; AddFeePerLine: Decimal; ReminderEndingText: Text[100])
+    var
+        ReminderLevel: Record "Reminder Level";
+        ReminderText: Record "Reminder Text";
+    begin
+        LibraryERM.CreateReminderLevel(ReminderLevel, ReminderTermsCode);
+        Evaluate(ReminderLevel."Grace Period", '<' + Format(GracePeriod) + 'D>');
+        ReminderLevel.Validate("Additional Fee (LCY)", AdditionalFee);
+        ReminderLevel.Validate("Add. Fee per Line Amount (LCY)", AddFeePerLine);
+        ReminderLevel.Modify(true);
+
+        LibraryERM.CreateReminderText(ReminderText, ReminderTermsCode, ReminderLevel."No.", ReminderText.Position::Ending, ReminderEndingText);
+    end;
+
     local procedure CreateReminderTerms(): Code[10]
     var
         ReminderTerms: Record "Reminder Terms";
@@ -889,6 +1013,15 @@ codeunit 134376 "ERM Reminders - Grace Period"
     begin
         SalesInvoiceHeader.Get(No);
         exit(SalesInvoiceHeader."Due Date");
+    end;
+
+    local procedure GetSalesInvoiceRemainingAmount(DocumentNo: Code[20]): Decimal
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        SalesInvoiceHeader.Get(DocumentNo);
+        SalesInvoiceHeader.CalcFields("Remaining Amount");
+        exit(SalesInvoiceHeader."Remaining Amount");
     end;
 
     local procedure GetPaymentDueDate(PaymentNo: Code[20]): Date
@@ -1070,6 +1203,28 @@ codeunit 134376 "ERM Reminders - Grace Period"
             FindFirst;
             TestField("No. of Reminders", ExpectedLevel);
         end;
+    end;
+
+    local procedure VerifyReminderLinesCount(var ReminderLine: Record "Reminder Line"; ReminderNo: Code[20]; LineType: Option; LinesCount: Integer)
+    begin
+        ReminderLine.Reset();
+        ReminderLine.SetRange("Reminder No.", ReminderNo);
+        ReminderLine.SetRange("Line Type", LineType);
+        ReminderLine.SetFilter(Description, '<>%1', '');
+        Assert.RecordCount(ReminderLine, LinesCount);
+    end;
+
+    local procedure VerifyReminderLineDocument(ReminderLine: Record "Reminder Line"; DocumentType: Option; DocumentNo: Code[20])
+    begin
+        ReminderLine.TestField("Document Type", DocumentType);
+        ReminderLine.TestField("Document No.", DocumentNo);
+    end;
+
+    local procedure VerifyReminderLineAppliesToDoc(ReminderLine: Record "Reminder Line"; AppliesToDocType: Option; AppliesToDocNo: Code[20]; AmountValue: Decimal)
+    begin
+        ReminderLine.TestField("Applies-to Document Type", AppliesToDocType);
+        ReminderLine.TestField("Applies-to Document No.", AppliesToDocNo);
+        ReminderLine.TestField(Amount, AmountValue);
     end;
 }
 

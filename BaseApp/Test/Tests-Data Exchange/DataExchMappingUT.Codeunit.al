@@ -94,6 +94,35 @@ codeunit 132545 "Data Exch. Mapping UT"
         VerifyExistingDataExchFieldMapping(DataExchMapping);
     end;
 
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestDeleteDataExchMappingSameTable()
+    var
+        DataExchDef: Record "Data Exch. Def";
+        DataExchLineDef: Array[2] of Record "Data Exch. Line Def";
+        DataExchMapping: Array[2] of Record "Data Exch. Mapping";
+    begin
+        // [SCENARIO 402216] Removal of "Data Exch. Mapping" entry should not delete entries from "Data Exch. Field Mapping" with same "Data Exch. Def Code", same "Table ID" and different "Data Exch. Line Def Code"
+        // [GIVEN] Data Exchange Definition - "DED" with two "Data Exch. Mapping" - "DEM1" and "DEM2"
+        // [GIVEN] "DEM1" with "Data Exch. Field Mapping" - "DEFM1", "Data Exch. Def Code" = "DED" and Table Id = "TID1"
+        // [GIVEN] "DEM2" with "Data Exch. Field Mapping" - "DEFM2", "Data Exch. Def Code" = "DED" and Table Id = "TID1"
+        CreateDataExchDef(DataExchDef, DataExchDef.Type::"Bank Statement Import", DataExchDef."File Type"::Xml);
+        CreateDataExchLineDef(DataExchDef, DataExchLineDef[1]);
+        CreateDataExchLineDef(DataExchDef, DataExchLineDef[2]);
+
+        CreateDataExchColumnMappingField(DataExchMapping[1], DataExchLineDef[1], DATABASE::"Intermediate Data Import");
+        CreateDataExchColumnMappingField(DataExchMapping[2], DataExchLineDef[2], DATABASE::"Intermediate Data Import");
+
+        // [WHEN] Delete "DEM2"
+        DataExchMapping[2].Delete(true);
+
+        // [THEN] "DEFM2" deleted
+        // [THEN] "DEFM1" is not deleted
+        VerifyNotExistingDataExchFieldMapping(DataExchMapping[2]);
+        VerifyExistingDataExchFieldMapping(DataExchMapping[1]);
+    end;
+
     local procedure CreateDataExchDef(var DataExchDef: Record "Data Exch. Def"; ParamaterType: Option; FileType: Option)
     begin
         DataExchDef.Init();
