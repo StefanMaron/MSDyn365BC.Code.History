@@ -420,14 +420,14 @@ report 11307 "VAT - Form"
         INTERVATHelper.AddElementPeriod(XMLCurrNode, ChoicePeriodType, Vperiod, Vyear, '');
         XMLCurrNode := XMLFirstNode;
 
-        AddElementComment(XMLFirstNode);
-        XMLCurrNode := XMLFirstNode;
-
         AddElementData(XMLCurrNode);
         XMLCurrNode := XMLFirstNode;
 
         AddElementClientListingNihil(XMLFirstNode);
         AddElementAsk(XMLFirstNode);
+
+        AddElementComment(XMLFirstNode);
+        XMLCurrNode := XMLFirstNode;
 
         ServerFileName := FileManagement.ServerTempFileName('.xml');
         XMLDocOut.Save(ServerFileName);

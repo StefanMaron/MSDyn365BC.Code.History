@@ -528,7 +528,7 @@ codeunit 144009 "SEPA DD Integration Test - BE"
 
         // [THEN] Exported XML contains node "../RmtInf/Ustrd" = "A, B"
         ExpectedValue := DomiciliationJournalLine."Message 1" + ', ' + DomiciliationJournalLine."Message 2";
-        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.08');
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.02');
         LibraryXPathXMLReader.VerifyNodeValueByXPath(
           '/Document/CstmrDrctDbtInitn/PmtInf/DrctDbtTxInf/RmtInf/Ustrd', ExpectedValue);
     end;
