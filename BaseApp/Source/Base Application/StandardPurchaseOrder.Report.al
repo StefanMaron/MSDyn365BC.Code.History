@@ -588,6 +588,9 @@ report 1322 "Standard Purchase - Order"
                 column(RequestedReceiptDate; Format("Requested Receipt Date", 0, 4))
                 {
                 }
+                column(PurchLine_VATPct; "VAT %")
+                {
+                }
 
                 trigger OnAfterGetRecord()
                 var
