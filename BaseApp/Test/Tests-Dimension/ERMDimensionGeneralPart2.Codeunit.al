@@ -1601,7 +1601,7 @@ codeunit 134480 "ERM Dimension General Part 2"
 
         // [GIVEN] Dimension Value with type End-Total and Totaling = "D1".."D2"
         CreateDimensionValueWithRangeTotaling(
-            DimensionValueTotal, AnalysisView."Dimension 1 Code", DimensionValueTotal."Dimension Value Type"::"End-Total", 
+            DimensionValueTotal, AnalysisView."Dimension 1 Code", DimensionValueTotal."Dimension Value Type"::"End-Total",
             DimensionValue1.Code, DimensionValue2.Code);
 
         // [GIVEN] Posted Entries for G/L Account = "G" with Amounts = "X1" for "D1" dimension, "X2" for "D2" dimension
@@ -2323,7 +2323,7 @@ codeunit 134480 "ERM Dimension General Part 2"
 
         // [GIVEN] Dimension Value "DT" with type Total and Totaling = "D1".."D2"
         CreateDimensionValueWithRangeTotaling(
-            DimensionValueTotal, AnalysisView."Dimension 1 Code", DimensionValueTotal."Dimension Value Type"::Total, 
+            DimensionValueTotal, AnalysisView."Dimension 1 Code", DimensionValueTotal."Dimension Value Type"::Total,
             DimensionValue[1].Code, DimensionValue[2].Code);
 
         // [WHEN] Open Analysis by Dimension Matrix page using dimension filter "DT|D3"
@@ -2369,7 +2369,7 @@ codeunit 134480 "ERM Dimension General Part 2"
 
         // [GIVEN] Dimension Value "DT" with type Total and Totaling = "D1".."D2"
         CreateDimensionValueWithRangeTotaling(
-            DimensionValueTotal, GlobalDim1Code, DimensionValueTotal."Dimension Value Type"::Total, 
+            DimensionValueTotal, GlobalDim1Code, DimensionValueTotal."Dimension Value Type"::Total,
             DimensionValue[1].Code, DimensionValue[2].Code);
 
         // [WHEN] Open Balance by Dim. Matrix page using dimension filter "DT|D3"
@@ -2379,179 +2379,12 @@ codeunit 134480 "ERM Dimension General Part 2"
         // Verification is done in GLBalancebyDimMatrixPageHandler
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure GLBalancebyDimensionLastUsedValuesSaved()
-    var
-        AnalysisByDimUserParam: Record "Analysis by Dim. User Param.";
-        GLBalancebyDimension: TestPage "G/L Balance by Dimension";
-        GLAccountNo: Code[20];
-    begin
-        // [FEATURE] [GL Balance By Dimension] [UI]
-        // [SCENARIO 365722] G/L Balance By Dimension page keeps last used parameters values 
-        Initialize();
-
-        // [GIVEN] G/L Account "XXX"
-        GLAccountNo := LibraryERM.CreateGLAccountNo();
-
-        // [GIVEN] Open G/L Balance By Dimension page
-        GLBalancebyDimension.OpenEdit();
-
-        // [GIVEN] Set G/L Account Filter = "XXX"
-        GLBalancebyDimension.GLAccFilter.SetValue(GLAccountNo);
-
-        // [WHEN] G/L Balance By Dimension page is being closed
-        GLBalancebyDimension.OK().Invoke();
-
-        // [THEN] G/L Account Filter saved to "Analysis by Dim. User Param."
-        AnalysisByDimUserParam.Get(UserId(), Page::"G/L Balance by Dimension");
-        AnalysisByDimUserParam.TestField("Account Filter", GLAccountNo);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure GLBalancebyDimensionValuesFromAnalysisByDimUserParam()
-    var
-        AnalysisByDimUserParam: Record "Analysis by Dim. User Param.";
-        GLBalancebyDimension: TestPage "G/L Balance by Dimension";
-        GLAccountNo: Code[20];
-    begin
-        // [FEATURE] [GL Balance By Dimension] [UI]
-        // [SCENARIO 365722] Page G/L Balance By Dimension uses parameters values from "Analysis by Dim. User Param."
-        Initialize();
-
-        // [GIVEN] G/L Account "XXX"
-        GLAccountNo := LibraryERM.CreateGLAccountNo();
-
-        // [GIVEN] "Analysis by Dim. User Param." for current user and page 408 with G/L Account Filter = "XXX"
-        AnalysisByDimUserParam.Init();
-        AnalysisByDimUserParam."User ID" := UserId();
-        AnalysisByDimUserParam."Page ID" := Page::"G/L Balance by Dimension";
-        AnalysisByDimUserParam."Account Filter" := GLAccountNo;
-        AnalysisByDimUserParam.Insert();
-
-        // [WHEN] Open G/L Balance By Dimension page
-        GLBalancebyDimension.OpenEdit();
-
-        // [THEN] G/L Account Filter = "XXX"
-        GLBalancebyDimension.GLAccFilter.AssertEquals(GLAccountNo);
-    end;
-
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure AnalysisbyDimensionsLastUsedValuesSaved()
-    var
-        AnalysisByDimUserParam: Record "Analysis by Dim. User Param.";
-        AnalysisView: Record "Analysis View";
-        GLBudgetName: Record "G/L Budget Name";
-        AnalysisViewList: TestPage "Analysis View List";
-        AnalysisbyDimensions: TestPage "Analysis by Dimensions";
-    begin
-        // [FEATURE] [GL Balance By Dimension] [UI]
-        // [SCENARIO 365722] Analysis by Dimensions page keeps last used parameters values 
-        Initialize();
-
-        // [GIVEN] Analysis View "A"
-        LibraryERM.CreateAnalysisView(AnalysisView);
-
-        // [GIVEN] G/L Budget "XXX"
-        LibraryERM.CreateGLBudgetName(GLBudgetName);
-
-        // [GIVEN] Open Analysis by Dimensions page
-        AnalysisViewList.OpenView();
-        AnalysisViewList.Filter.SetFilter(Code, AnalysisView.Code);
-        AnalysisbyDimensions.Trap();
-        AnalysisViewList.EditAnalysis.Invoke();
-
-        // [GIVEN] Set G/L Budget Filter = "XXX"
-        AnalysisbyDimensions.BudgetFilter.SetValue(GLBudgetName.Name);
-
-        // [WHEN] Analysis by Dimensions page is being closed
-        AnalysisbyDimensions.OK().Invoke();
-
-        // [THEN] G/L Budget Filter saved to "Analysis by Dim. User Param."
-        AnalysisByDimUserParam.Get(UserId(), Page::"Analysis by Dimensions");
-        AnalysisByDimUserParam.TestField("Budget Filter", GLBudgetName.Name);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure AnalysisbyDimensionsFromAnalysisViewValuesFromAnalysisByDimUserParam()
-    var
-        AnalysisByDimUserParam: Record "Analysis by Dim. User Param.";
-        AnalysisView: Record "Analysis View";
-        GLBudgetName: Record "G/L Budget Name";
-        AnalysisViewList: TestPage "Analysis View List";
-        AnalysisbyDimensions: TestPage "Analysis by Dimensions";
-    begin
-        // [FEATURE] [GL Balance By Dimension] [UI]
-        // [SCENARIO 365722] Page Analysis by Dimensions uses parameters values from "Analysis by Dim. User Param." when run from Analysis View List page
-        Initialize();
-
-        // [GIVEN] Analysis View "A"
-        LibraryERM.CreateAnalysisView(AnalysisView);
-        // [GIVEN] G/L Budget "XXX"
-        LibraryERM.CreateGLBudgetName(GLBudgetName);
-
-        // [GIVEN] "Analysis by Dim. User Param." for current user and page 408 with G/L Budget Filter = "XXX"
-        AnalysisByDimUserParam.Init();
-        AnalysisByDimUserParam."User ID" := UserId();
-        AnalysisByDimUserParam."Page ID" := Page::"Analysis by Dimensions";
-        AnalysisByDimUserParam."Budget Filter" := GLBudgetName.Name;
-        AnalysisByDimUserParam.Insert();
-
-        // [WHEN] Open Analysis by Dimensions page
-        AnalysisViewList.OpenView();
-        AnalysisViewList.Filter.SetFilter(Code, AnalysisView.Code);
-        AnalysisbyDimensions.Trap();
-        AnalysisViewList.EditAnalysis.Invoke();
-
-        // [THEN] G/L Budget Filter = "XXX"
-        AnalysisbyDimensions.BudgetFilter.AssertEquals(GLBudgetName.Name);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure AnalysisbyDimensionsValuesFromAnalysisByDimUserParam()
-    var
-        AnalysisByDimUserParam: Record "Analysis by Dim. User Param.";
-        GLBudgetName: Record "G/L Budget Name";
-        AnalysisView: Record "Analysis View";
-        AnalysisbyDimensions: TestPage "Analysis by Dimensions";
-    begin
-        // [FEATURE] [GL Balance By Dimension] [UI]
-        // [SCENARIO 365722] Page Analysis by Dimensions uses parameters values from "Analysis by Dim. User Param." when run directly
-        Initialize();
-
-        // [GIVEN] Remove existing analysis views to clear dependencies
-        AnalysisView.DeleteAll();
-        LibraryERM.CreateAnalysisView(AnalysisView);
-
-        // [GIVEN] G/L Budget "XXX"
-        LibraryERM.CreateGLBudgetName(GLBudgetName);
-
-        // [GIVEN] "Analysis by Dim. User Param." for current user and page 408 with G/L Budget Filter = "XXX"
-        AnalysisByDimUserParam.Init();
-        AnalysisByDimUserParam."User ID" := UserId();
-        AnalysisByDimUserParam."Page ID" := Page::"Analysis by Dimensions";
-        AnalysisByDimUserParam."Budget Filter" := GLBudgetName.Name;
-        AnalysisByDimUserParam.Insert();
-
-        // [WHEN] Open Analysis by Dimensions page
-        AnalysisbyDimensions.OpenEdit();
-
-        // [THEN] G/L Budget Filter = "XXX"
-        AnalysisbyDimensions.BudgetFilter.AssertEquals(GLBudgetName.Name);
-    end;
-
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Dimension General Part 2");
         LibraryVariableStorage.Clear;
-        ClearAnalysisByDimUserParam();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Dimension General Part 2");
@@ -2564,13 +2397,6 @@ codeunit 134480 "ERM Dimension General Part 2"
 
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Dimension General Part 2");
-    end;
-
-    local procedure ClearAnalysisByDimUserParam()
-    var
-        AnalysisByDimUserParam: Record "Analysis by Dim. User Param.";
-    begin
-        AnalysisByDimUserParam.DeleteAll();
     end;
 
     local procedure CreateDimensionValueWithRangeTotaling(var DimValTotal: Record "Dimension Value"; DimCode: Code[20]; DimValType: Option; DimValFirstCode: Code[20]; DimValLastCode: Code[20])

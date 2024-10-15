@@ -1435,8 +1435,20 @@ codeunit 1535 "Approvals Mgmt."
             DATABASE::"Sales Header":
                 ShowSalesApprovalStatus(Variant);
             else
-                ShowApprovalStatus(RecRef.RecordId, WorkflowInstanceId);
+                ShowCommonApprovalStatus(RecRef, WorkflowInstanceId);
         end;
+    end;
+
+    local procedure ShowCommonApprovalStatus(var RecRef: RecordRef; WorkflowInstanceId: Guid)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowCommonApprovalStatus(RecRef, IsHandled);
+        if IsHandled then
+            exit;
+
+        ShowApprovalStatus(RecRef.RecordId, WorkflowInstanceId);
     end;
 
     procedure GetApprovalComment(Variant: Variant)
@@ -1479,17 +1491,28 @@ codeunit 1535 "Approvals Mgmt."
                     ApprovalCommentLine.SetRange("Record ID to Approve", RecRef.RecordId);
                     FindOpenApprovalEntryForCurrUser(ApprovalEntry, RecRef.RecordId);
                 end;
-            else begin
-                    ApprovalCommentLine.SetRange("Table ID", RecRef.Number);
-                    ApprovalCommentLine.SetRange("Record ID to Approve", RecRef.RecordId);
-                    FindOpenApprovalEntryForCurrUser(ApprovalEntry, RecRef.RecordId);
-                end;
+            else
+                SetCommonApprovalCommentLineFilters(RecRef, ApprovalEntry, ApprovalCommentLine);
         end;
 
         if IsNullGuid(WorkflowStepInstanceID) and (not IsNullGuid(ApprovalEntry."Workflow Step Instance ID")) then
             WorkflowStepInstanceID := ApprovalEntry."Workflow Step Instance ID";
 
         RunApprovalCommentsPage(ApprovalCommentLine, WorkflowStepInstanceID);
+    end;
+
+    local procedure SetCommonApprovalCommentLineFilters(var RecRef: RecordRef; var ApprovalEntry: Record "Approval Entry"; var ApprovalCommentLine: Record "Approval Comment Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetCommonApprovalCommentLineFilters(RecRef, ApprovalCommentLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        ApprovalCommentLine.SetRange("Table ID", RecRef.Number);
+        ApprovalCommentLine.SetRange("Record ID to Approve", RecRef.RecordId);
+        FindOpenApprovalEntryForCurrUser(ApprovalEntry, RecRef.RecordId);
     end;
 
     local procedure RunApprovalCommentsPage(var ApprovalCommentLine: Record "Approval Comment Line"; WorkflowStepInstanceID: Guid)
@@ -1927,6 +1950,16 @@ codeunit 1535 "Approvals Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsSufficientPurchApprover(UserSetup: Record "User Setup"; DocumentType: Enum "Purchase Document Type"; ApprovalAmountLCY: Decimal; var IsSufficient: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetCommonApprovalCommentLineFilters(var RecRef: RecordRef; var ApprovalCommentLine: Record "Approval Comment Line"; var IsHandle: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowCommonApprovalStatus(var RecRef: RecordRef; var IsHandle: Boolean)
     begin
     end;
 

@@ -372,7 +372,7 @@ report 5855 "Implement Standard Cost Change"
         CalculatePer: Option "Item Ledger Entry",Item;
         IsHandled: Boolean;
     begin
-        OnBeforeCalculateInventoryValue(RevalItemJnlTemplate, "Standard Cost Worksheet", PostingDate, DocNo, HideDuplWarning, IsHandled);
+        OnBeforeCalculateInventoryValue(RevalItemJnlTemplate, "Standard Cost Worksheet", PostingDate, DocNo, HideDuplWarning, IsHandled, RevalItemJnlBatch);
         if IsHandled then
             exit;
 
@@ -405,7 +405,7 @@ report 5855 "Implement Standard Cost Change"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculateInventoryValue(var ItemJournalTemplate: Record "Item Journal Template"; var StandardCostWorksheet: Record "Standard Cost Worksheet"; PostingDate: Date; DocNo: Code[20]; HideDuplWarning: Boolean; var IsHandled: Boolean);
+    local procedure OnBeforeCalculateInventoryValue(var ItemJournalTemplate: Record "Item Journal Template"; var StandardCostWorksheet: Record "Standard Cost Worksheet"; PostingDate: Date; DocNo: Code[20]; HideDuplWarning: Boolean; var IsHandled: Boolean; var ItemJournalBatch: Record "Item Journal Batch");
     begin
     end;
 

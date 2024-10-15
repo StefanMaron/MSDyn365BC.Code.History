@@ -13,7 +13,6 @@ page 9095 "Vendor Hist. Buy-from FactBox"
                 ApplicationArea = All;
                 Caption = 'Vendor No.';
                 ToolTip = 'Specifies the number of the vendor. The field is either filled automatically from a defined number series, or you enter the number manually because you have enabled manual number entry in the number-series setup.';
-                Visible = ShowVendorNo;
 
                 trigger OnDrillDown()
                 begin
@@ -181,11 +180,6 @@ page 9095 "Vendor Hist. Buy-from FactBox"
     {
     }
 
-    trigger OnInit()
-    begin
-        ShowVendorNo := true;
-    end;
-
     trigger OnOpenPage()
     var
         OfficeManagement: Codeunit "Office Management";
@@ -205,6 +199,7 @@ page 9095 "Vendor Hist. Buy-from FactBox"
         PAGE.Run(PAGE::"Vendor Card", Rec);
     end;
 
+    [Obsolete('Visibility of the Vendor No. can be controlled through personalizaition or PTE', '16.0')]
     procedure SetVendorNoVisibility(Visible: Boolean)
     begin
         ShowVendorNo := Visible;

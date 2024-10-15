@@ -24,6 +24,7 @@ table 175 "Standard Vendor Purchase Code"
                     exit;
                 StdPurchCode.Get(Code);
                 Description := StdPurchCode.Description;
+                "Currency Code" := StdPurchCode."Currency Code";
             end;
         }
         field(3; Description; Text[100])

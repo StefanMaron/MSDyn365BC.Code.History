@@ -320,6 +320,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
         ReturnRcptLine: Record "Return Receipt Line";
         CurrencyCode: Code[10];
         TotalAppliesToDocLineAmount: Decimal;
+        IsHandled: Boolean;
     begin
         repeat
             if not ItemChargeAssignmentSales.SalesLineInvoiced then begin
@@ -332,6 +333,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                     ItemChargeAssignmentSales."Applies-to Doc. Type"::"Return Order",
                     ItemChargeAssignmentSales."Applies-to Doc. Type"::"Credit Memo":
                         begin
+                            OnAssignByAmountOnBeforeGetSalesLine(SalesLine, ItemChargeAssignmentSales, IsHandled);
                             SalesLine.Get(
                               ItemChargeAssignmentSales."Applies-to Doc. Type",
                               ItemChargeAssignmentSales."Applies-to Doc. No.",
@@ -684,6 +686,11 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
 
     [IntegrationEvent(false, false)]
     local procedure OnSuggestAssignmentOnBeforeAssignItemCharges(var SalesLine: Record "Sales Line"; ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignByAmountOnBeforeGetSalesLine(var SalesLine: Record "Sales Line"; ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; var IsHandled: Boolean)
     begin
     end;
 }

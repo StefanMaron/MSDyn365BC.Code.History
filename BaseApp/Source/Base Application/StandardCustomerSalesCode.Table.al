@@ -24,6 +24,7 @@
                     exit;
                 StdSalesCode.Get(Code);
                 Description := StdSalesCode.Description;
+                "Currency Code" := StdSalesCode."Currency Code";
             end;
         }
         field(3; Description; Text[100])
