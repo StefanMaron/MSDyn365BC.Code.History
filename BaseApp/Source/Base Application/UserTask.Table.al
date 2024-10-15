@@ -283,12 +283,16 @@ table 1170 "User Task"
 
     procedure SetCompleted()
     begin
+        OnBeforeSetCompleted(Rec);
+
         "Percent Complete" := 100;
         "Completed By" := UserSecurityId();
         "Completed DateTime" := CurrentDateTime;
 
         if "Start DateTime" = 0DT then
             "Start DateTime" := CurrentDateTime;
+
+        OnAfterSetCompleted(Rec);
     end;
 
     procedure SetStyle(): Text
@@ -350,6 +354,16 @@ table 1170 "User Task"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateRecurrenceOnBeforeInsert(var UserTask: Record "User Task"; fromUserTask: Record "User Task"; Counter: Integer; RecurringStartDate: Date; Recurrence: DateFormula)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetCompleted(var UserTask: Record "User Task")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCompleted(var UserTask: Record "User Task")
     begin
     end;
 }

@@ -7,6 +7,7 @@ page 9305 "Sales Order List"
     Editable = false;
     PageType = List;
     QueryCategory = 'Sales Order List';
+    RefreshOnActivate = true;
     SourceTable = "Sales Header";
     SourceTableView = WHERE("Document Type" = CONST(Order));
     UsageCategory = Lists;

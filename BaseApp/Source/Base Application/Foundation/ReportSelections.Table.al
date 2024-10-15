@@ -2263,7 +2263,7 @@ table 77 "Report Selections"
     [IntegrationEvent(false, false)]
     local procedure OnSendEmailDirectlyOnBeforeSendFileLoop(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant;
                                                                              DocNo: Code[20];
-                                                                             DocName: Text[150]; var DefaultEmailAddress: Text[250]; ShowDialog: Boolean; var TempAttachReportSelections: Record "Report Selections" temporary; var CustomReportSelection: Record "Custom Report Selection"; var IsHandled: Boolean)
+                                                                             var DocName: Text[150]; var DefaultEmailAddress: Text[250]; ShowDialog: Boolean; var TempAttachReportSelections: Record "Report Selections" temporary; var CustomReportSelection: Record "Custom Report Selection"; var IsHandled: Boolean)
     begin
     end;
 

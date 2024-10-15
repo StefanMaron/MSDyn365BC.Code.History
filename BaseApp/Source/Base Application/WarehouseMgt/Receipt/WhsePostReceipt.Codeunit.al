@@ -666,6 +666,8 @@ codeunit 5760 "Whse.-Post Receipt"
         WhseSetup.Get();
         with WhseRcptLine do begin
             WhseRcptHeader.Get("No.");
+
+            OnPostSourceDocumentOnAfterGetWhseRcptHeader(WhseRcptLine, WhseRcptHeader, WhseSetup, SuppressCommit);
             case "Source Type" of
                 DATABASE::"Purchase Line":
                     begin
@@ -1898,6 +1900,11 @@ codeunit 5760 "Whse.-Post Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostSourceDocumentOnAfterPostTransferHeader(TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostSourceDocumentOnAfterGetWhseRcptHeader(WarehouseReceiptLine: Record "Warehouse Receipt Line"; var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var WarehouseSetup: Record "Warehouse Setup"; SuppressCommit: Boolean)
     begin
     end;
 }

@@ -51,6 +51,7 @@ page 5416 "Item Availability by UOM"
             part(ItemAvailUOMLines; "Item Avail. by UOM Lines")
             {
                 ApplicationArea = Basic, Suite;
+                Caption = 'Item Availability by UOM';
                 Editable = false;
                 SubPageLink = "Item No." = FIELD("No.");
             }

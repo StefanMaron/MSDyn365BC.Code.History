@@ -564,6 +564,8 @@
             InitAdjmtJnlLine(
               ItemJnlLine, OrigValueEntry, OrigValueEntry."Entry Type", OrigValueEntry."Variance Type", OrigValueEntry."Invoiced Quantity");
             PostItemJnlLine(ItemJnlLine, OrigValueEntry, NewAdjustedCost, NewAdjustedCostACY);
+
+            OnCreateIndirectCostAdjmtOnAfterPostItemJnlLine(OrigValueEntry, NewAdjustedCost, NewAdjustedCostACY);            
             CorrectPostedItemShipment(OrigValueEntry, NewAdjustedCost, NewAdjustedCostACY);
             UpdateAvgCostAdjmtEntryPoint(OrigValueEntry);
         end;
@@ -1824,6 +1826,8 @@
                             InitAdjmtJnlLine(ItemJnlLine, OrigValueEntry, "Entry Type", "Variance Type", OrigValueEntry."Invoiced Quantity");
                             PostItemJnlLine(ItemJnlLine, OrigValueEntry, "Cost Amount (Expected)", "Cost Amount (Expected) (ACY)");
                             CorrectPostedItemShipment(OrigValueEntry, "Cost Amount (Expected)", "Cost Amount (Expected) (ACY)");
+
+                            OnPostAdjmtBufOnAfterPostExpectedCost(OrigValueEntry, TempInvtAdjmtBuf);
                         end
                     end else
                         if HasNewCost("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)") then begin
@@ -1834,6 +1838,8 @@
                             InitAdjmtJnlLine(ItemJnlLine, OrigValueEntry, "Entry Type", "Variance Type", OrigValueEntry."Invoiced Quantity");
                             PostItemJnlLine(ItemJnlLine, OrigValueEntry, "Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
                             CorrectPostedItemShipment(OrigValueEntry, "Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
+
+                            OnPostAdjmtBufOnAfterPostNewCost(OrigValueEntry, TempInvtAdjmtBuf);
                         end;
                 until Next() = 0;
                 DeleteAll();
@@ -3107,6 +3113,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAdjustAppliedInbndEntriesOnAfterSetFilter(var InbndValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateIndirectCostAdjmtOnAfterPostItemJnlLine(ValueEntry: Record "Value Entry"; NewAdjustedCost: Decimal; NewAdjustedCostACY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostAdjmtBufOnAfterPostExpectedCost(ValueEntry: Record "Value Entry"; TempInventoryAdjustmentBuffer: Record "Inventory Adjustment Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostAdjmtBufOnAfterPostNewCost(ValueEntry: Record "Value Entry"; TempInventoryAdjustmentBuffer: Record "Inventory Adjustment Buffer" temporary)
     begin
     end;
 }

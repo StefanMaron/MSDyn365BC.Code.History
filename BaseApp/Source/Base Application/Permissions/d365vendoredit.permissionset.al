@@ -12,6 +12,7 @@ permissionset 9921 "D365 VENDOR, EDIT"
                   tabledata "Contact Business Relation" = RImD,
                   tabledata "Contact Duplicate" = R,
                   tabledata "Contract Gain/Loss Entry" = rm,
+                  tabledata "Company Size" = rimd,
                   tabledata Currency = RM,
                   tabledata "Cust. Ledger Entry" = r,
                   tabledata "Detailed Vendor Ledg. Entry" = Rimd,

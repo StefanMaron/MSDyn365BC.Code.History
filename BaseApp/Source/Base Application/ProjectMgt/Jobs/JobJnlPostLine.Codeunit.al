@@ -365,8 +365,10 @@
                     ItemJnlPostLine.RunWithCheck(ItemJnlLine);
                     ItemJnlPostLine.CollectTrackingSpecification(TempTrackingSpecification);
 
-                    if JobJnlLine.IsInventoriableItem() then
+                    if JobJnlLine.IsInventoriableItem() then begin
                         PostWhseJnlLine(ItemJnlLine2, ItemJnlLine2.Quantity, ItemJnlLine2."Quantity (Base)", TempTrackingSpecification);
+                        OnPostItemOnAfterPostWhseJnlLine(JobJnlLine2, ItemJnlPostLine);
+                    end;
                 end;
             end;
 
@@ -813,6 +815,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateJobLedgEntryFromPostItem(var JobJournalLine: Record "Job Journal Line"; var ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemOnAfterPostWhseJnlLine(var JobJournalLine2: Record "Job Journal Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
     begin
     end;
 }

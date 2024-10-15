@@ -43,6 +43,8 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
             if Location."Require Receive" or Location."Require Put-away" then
                 Error(WarehouseHandlingRequiredErr, "Location Code");
 
+            OnRunOnAfterCheckLocation(Rec);
+
             if not HideProgressWindow then begin
                 Window.Open('#1#################################\\' + PostingLinesMsg);
 
@@ -69,8 +71,6 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
 
             TestField(Status, Status::Released);
 
-            NoSeriesLine.LockTable();
-            if NoSeriesLine.FindLast() then;
             if InvtSetup."Automatic Cost Posting" then begin
                 GLEntry.LockTable();
                 if GLEntry.FindLast() then;
@@ -209,7 +209,6 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
         ItemJnlLine: Record "Item Journal Line";
         Location: Record Location;
         TempValueEntryRelation: Record "Value Entry Relation" temporary;
-        NoSeriesLine: Record "No. Series Line";
         GLEntry: Record "G/L Entry";
         DocSign: Record "Document Signature";
         WMSMgmt: Codeunit "WMS Management";
@@ -558,6 +557,11 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeInvtRcptLineInsert(var InvtRcptLine: Record "Invt. Receipt Line"; InvtDocLine: Record "Invt. Document Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterCheckLocation(var InvtDocumentHeader: Record "Invt. Document Header")
     begin
     end;
 }

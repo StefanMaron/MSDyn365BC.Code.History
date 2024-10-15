@@ -704,8 +704,10 @@ table 6651 "Return Shipment Line"
 
             ItemTrackingMgt.CopyHandledItemTrkgToInvLine(PurchOrderLine, PurchLine);
 
-            if "Attached to Line No." = 0 then
+            if "Attached to Line No." = 0 then begin
                 SetRange("Attached to Line No.", "Line No.");
+                SetRange(Type, Type::" ");
+            end;
         until (Next() = 0) or ("Attached to Line No." = 0);
     end;
 

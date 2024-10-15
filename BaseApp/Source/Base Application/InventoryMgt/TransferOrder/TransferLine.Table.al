@@ -2210,7 +2210,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckWarehouseOnBeforeShowDialog(TransferLine: Record "Transfer Line"; Location: Record Location; ShowDialog: Option " ",Message,Error; var DialogText: Text[50])
+    local procedure OnCheckWarehouseOnBeforeShowDialog(TransferLine: Record "Transfer Line"; Location: Record Location; var ShowDialog: Option " ",Message,Error; var DialogText: Text[50])
     begin
     end;
 

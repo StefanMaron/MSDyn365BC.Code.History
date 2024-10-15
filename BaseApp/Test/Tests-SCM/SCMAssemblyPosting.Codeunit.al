@@ -31,6 +31,7 @@ codeunit 137915 "SCM Assembly Posting"
         LibraryResource: Codeunit "Library - Resource";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryERM: Codeunit "Library - ERM";
         WorkDate2: Date;
         Initialized: Boolean;
         CnfmUpdateDimensions: Label 'Do you want to update the Dimensions on the lines?';
@@ -555,6 +556,96 @@ codeunit 137915 "SCM Assembly Posting"
         CapLedgEntry.SetRange("No.", Resource."No.");
         CapLedgEntry.FindFirst();
         Assert.AreEqual(CapLedgEntry."Dimension Set ID", AssemblyLineResource."Dimension Set ID", '');
+    end;
+
+    [Test]
+    procedure VerifyGlobalDimensionOnItemLedgerEntryOnPostAssemblyOrder()
+    var
+        CompItem: Record Item;
+        AsmItem: Record Item;
+        Location: Record Location;
+        DefaultDimension: Record "Default Dimension";
+        ItemJournalLine: Record "Item Journal Line";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        PostedAsmHeader: Record "Posted Assembly Header";
+        ItemLedgEntry: Record "Item Ledger Entry";
+        DimensionValue: array[3] of Record "Dimension Value";
+    begin
+        // [SCENARIO 481659] Verify Global Dimension On Item Ledger Entry On Post Assembly Order
+        Initialize();
+
+        // [GIVEN] Create Dimension Values for Global Dimension 1
+        LibraryDimension.CreateDimensionValue(DimensionValue[1], LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDimensionValue(DimensionValue[3], LibraryERM.GetGlobalDimensionCode(1));
+
+        // [GIVEN] Create Dimension Value for Global Dimension 2
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], LibraryERM.GetGlobalDimensionCode(2));
+
+        // [GIVEN] Create Location with default dimension
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryDimension.CreateDefaultDimension(
+          DefaultDimension, Database::Location, Location.Code, DimensionValue[2]."Dimension Code", DimensionValue[2].Code);
+        DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
+        DefaultDimension.Modify(true);
+
+        // [GIVEN] Create Component and Assembly Items
+        LibraryInventory.CreateItem(CompItem);
+        LibraryInventory.CreateItem(AsmItem);
+
+        // [GIVEN] Create Default Dimension for Component Item
+        LibraryDimension.CreateDefaultDimensionItem(DefaultDimension, CompItem."No.", DimensionValue[1]."Dimension Code", DimensionValue[1].Code);
+
+        // [GIVEN] Create and Post Item Journal Line for Assembly Item
+        CreateAndPostItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", CompItem."No.", 100, WorkDate(), Location.Code);
+
+        // [GIVEN] Create Assembly Order
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate2, AsmItem."No.", Location.Code, 1, '');
+        CreateAssemblyOrderLine(
+          AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
+
+        // [GIVEN] Update Global Dimension 1 on Assembly Order Line
+        AssemblyLine.Validate("Shortcut Dimension 1 Code", DimensionValue[3].Code);
+        AssemblyLine.Modify(true);
+
+        // [WHEN] Post Assembly Order
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+
+        // [GIVEN] Find Posted Assembly Order
+        PostedAsmHeader.SetRange("Order No.", AssemblyHeader."No.");
+        PostedAsmHeader.FindFirst();
+
+        // [GIVEN] Find Item Ledger Entry for Assembly Consumption
+        ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::"Assembly Consumption");
+        ItemLedgEntry.SetRange("Document Type", ItemLedgEntry."Document Type"::"Posted Assembly");
+        ItemLedgEntry.SetRange("Document No.", PostedAsmHeader."No.");
+        ItemLedgEntry.FindFirst();
+
+        // [THEN] Verify Global Dimension 1 on Item Ledger Entry
+        ItemLedgEntry.TestField("Global Dimension 1 Code", DimensionValue[3].Code);
+    end;
+
+    local procedure CreateAndPostItemJournalLine(ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Quantity: Decimal; PostingDate: Date; LocationCode: Code[10])
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        SelectItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Item);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, EntryType, ItemNo, Quantity);
+        ItemJournalLine.Validate("Posting Date", PostingDate);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalTemplateType: Enum "Item Journal Template Type")
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplateType);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplateType, ItemJournalTemplate.Name);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 
     [ConfirmHandler]
