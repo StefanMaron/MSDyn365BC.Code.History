@@ -912,6 +912,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
         SalesCrMemoLine.SetFilter(Quantity, '<>%1', 0);
         if SalesCrMemoLine.FindSet() then
             repeat
+                Clear(SalesInvoiceLine);
                 SalesCrMemoLine.GetSalesInvoiceLine(SalesInvoiceLine);
                 if SalesInvoiceLine."Line No." <> 0 then
                     UpdateSalesOrderLinesFromCreditMemo(SalesInvoiceLine);
