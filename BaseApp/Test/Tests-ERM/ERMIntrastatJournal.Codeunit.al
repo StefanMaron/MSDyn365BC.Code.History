@@ -1705,6 +1705,38 @@ codeunit 134150 "ERM Intrastat Journal"
 
     [Test]
     [Scope('OnPrem')]
+    procedure GetPartnerIDFromVATRegNoOfPurchaseReceipt()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+    begin
+        // [FEATURE] [Purchase] [Receipt]
+        // [SCENARIO 389253] Partner VAT ID is blank for Purchase Receipt
+        Initialize;
+
+        // [GIVEN] Posted purchase order with Pay-to Vendor with VAT Registration No = 'AT0123456'
+        Vendor.Get(CreateVendorWithVATRegNo(true));
+        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, WorkDate, Vendor."No.");
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine, PurchaseLine.Type::Item, CreateItem);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Intrastat Journal Line is created
+        CreateIntrastatJnlLine(IntrastatJnlLine);
+        IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
+        RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
+
+        // [THEN] Partner VAT ID  = '' in Intrastat Journal Line
+        PurchRcptHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
+        PurchRcptHeader.FindFirst;
+        VerifyPartnerID(IntrastatJnlBatch, PurchaseLine."No.", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure GetPartnerIDNonEUVendor()
     var
         Vendor: Record Vendor;

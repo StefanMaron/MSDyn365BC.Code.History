@@ -3719,15 +3719,15 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         JournalBatch := GenJnlBatch.Name;
     end;
 
-    local procedure ValidateGLEntry(GLRegister: Record "G/L Register"; Account: Code[20]; Amount: Decimal)
+    local procedure ValidateGLEntry(GLRegister: Record "G/L Register"; GLAccountNo: Code[20]; ExpectedAmount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin
         // Validate account and amount on GL entry
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
-        GLEntry.SetFilter("G/L Account No.", Account);
-        GLEntry.SetFilter(Amount, '%1', Amount);
-        Assert.IsTrue(GLEntry.FindFirst, StrSubstNo(GLEntryError, Account, Amount));
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.SetFilter(Amount, '%1', ExpectedAmount);
+        Assert.IsTrue(GLEntry.FindFirst(), StrSubstNo(GLEntryError, GLAccountNo, ExpectedAmount));
     end;
 
     local procedure ValidateVATEntry(GLRegister: Record "G/L Register"; VATBase: Decimal; VATAmount: Decimal; UnrealizedVATEntryNo: Integer)

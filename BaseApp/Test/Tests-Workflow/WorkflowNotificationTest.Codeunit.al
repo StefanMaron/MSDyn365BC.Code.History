@@ -41,6 +41,7 @@ codeunit 134301 "Workflow Notification Test"
         URLFilterNotFoundErr: Label 'URL filter is not found in RecordLink.';
         CreatedByUserTxt: Label 'Created By %1', Comment = 'Created By User1';
         IgnoringFailureSendingEmailErr: Label 'A call to MailKit.Net.Smtp.SmtpClient.Connect failed';
+        OnBeforeSendEmailTxt: Label 'OnBeforeSendEmail';
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -1820,7 +1821,6 @@ codeunit 134301 "Workflow Notification Test"
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         LibrarySMTPMailHandler: Codeunit "Library - SMTP Mail Handler";
         ExpectedValues: array[20] of Text;
-        ErrorText: Text[250];
         Index: Integer;
     begin
         // [FEATURE] [SMTP] [Workflow] [Notification]
@@ -1877,15 +1877,11 @@ codeunit 134301 "Workflow Notification Test"
         Assert.IsSubstring(TempErrorMessage.Description, IgnoringFailureSendingEmailErr);
 
         // [THEN] Three emails generated: 2 from "User1" Email and Full Name, 1 from "User3" Email and Full Name
-        VerifyDataTypeBuffer(User[1]."Full Name");
-        VerifyDataTypeBuffer(UserSetup[1]."E-Mail");
-        VerifyDataTypeBuffer(User[1]."Full Name");
-        VerifyDataTypeBuffer(UserSetup[1]."E-Mail");
+        VerifyDataTypeBuffer(User[1]."Full Name", 2);
+        VerifyDataTypeBuffer(UserSetup[1]."E-Mail", 2);
 
-        VerifyDataTypeBuffer(User[3]."Full Name");
-        VerifyDataTypeBuffer(UserSetup[3]."E-Mail");
-
-        Assert.RecordIsEmpty(DataTypeBuffer);
+        VerifyDataTypeBuffer(User[3]."Full Name", 1);
+        VerifyDataTypeBuffer(UserSetup[3]."E-Mail", 1);
     end;
 
     [Test]
@@ -2052,6 +2048,74 @@ codeunit 134301 "Workflow Notification Test"
         // [THEN] Notification Entry created for sender with linked approval entry
         NotificationEntry.SetRange("Triggered By Record", ApprovalEntry.RecordId);
         Assert.RecordCount(NotificationEntry, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NotificationEmailBodyIsNotEmpty()
+    var
+        Item: Record Item;
+        UserSetup: array[2] of Record "User Setup";
+        User: array[2] of Record User;
+        NotificationEntry: Record "Notification Entry";
+        DataTypeBuffer: Record "Data Type Buffer";
+        ApprovalEntry: Record "Approval Entry";
+        JobQueueEntry: Record "Job Queue Entry";
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        WorkflowNotificationTest: Codeunit "Workflow Notification Test";
+        InStream: InStream;
+        Index: Integer;
+        EmailBody: Text;
+        ExpectedValues: array[20] of Text;
+    begin
+        // [FEATURE] [SMTP] [Workflow] [Notification]
+        // [SCENARIO 388413] Notification email body contains sender and receiver User names.
+        Initialize();
+
+        // [GIVEN] "User1" and "User2" Users with emails.
+        for Index := 1 to ArrayLen(User) do
+            CreateUserWithUserSetupWithEmail(User[Index], UserSetup[Index]);
+
+        // [GIVEN] SMTP Mail Setup with Anonymous authentication and User ID is blank.
+        CreateAnonymousSMTPMailSetup();
+
+        // [GIVEN] Item and Approval Entry for it.
+        LibraryInventory.CreateItem(Item);
+        LibraryDocumentApprovals.CreateApprovalEntryBasic(
+            ApprovalEntry, DATABASE::Item, 0, Item."No.",
+            ApprovalEntry.Status::Created, ApprovalEntry."Limit Type"::"Approval Limits",
+            Item.RecordId, ApprovalEntry."Approval Type"::Approver, 0D, 0);
+
+        // [GIVEN] Notification Entry addressed from "User1" to "User2".
+        NotificationEntry.CreateNewEntry(
+            NotificationEntry.Type::Approval, UserSetup[2]."User ID", ApprovalEntry, 1, '', UserSetup[1]."User ID");
+
+        // [WHEN] Notification Entry is dispatched - OnBeforeSendEmail checks if server file with Email Body exists and saves it.
+        BindSubscription(WorkflowNotificationTest);
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Background);
+        BindSubscription(TestClientTypeSubscriber);
+
+        JobQueueEntry.SetRange("Job Queue Category Code", 'NOTIFYNOW');
+        JobQueueEntry.FindFirst();
+        asserterror Codeunit.Run(Codeunit::"Notification Entry Dispatcher", JobQueueEntry);
+        assert.IsTrue(ErrorMessageHandler.AppendTo(TempErrorMessage), 'SMTP connection error is expected');
+        TempErrorMessage.FindFirst();
+        Assert.IsSubstring(TempErrorMessage.Description, IgnoringFailureSendingEmailErr);
+
+        // [THEN] Email Body contains "User1", "User2" names and Item No.
+        ExpectedValues[1] := StrSubstNo(CreatedByUserTxt, User[1]."Full Name");
+        ExpectedValues[2] := User[2]."Full Name";
+        ExpectedValues[3] := Item."No.";
+        DataTypeBuffer.SetRange(Text, OnBeforeSendEmailTxt);
+        DataTypeBuffer.FindFirst();
+        DataTypeBuffer.CalcFields(BLOB);
+        DataTypeBuffer.BLOB.CreateInStream(InStream, TEXTENCODING::UTF8);
+        InStream.Read(EmailBody);
+        VerifyHTMLBodyText(EmailBody, ExpectedValues);
     end;
 
     local procedure Initialize()
@@ -2839,14 +2903,12 @@ codeunit 134301 "Workflow Notification Test"
     end;
 
     [Scope('OnPrem')]
-    procedure VerifyDataTypeBuffer(VerifyText: Text)
+    procedure VerifyDataTypeBuffer(VerifyText: Text; ExpectedCount: Integer)
     var
         DataTypeBuffer: Record "Data Type Buffer";
     begin
-        DataTypeBuffer.SetRange(Text, VerifyText);
-        Assert.RecordIsNotEmpty(DataTypeBuffer);
-        DataTypeBuffer.FindFirst;
-        DataTypeBuffer.Delete();
+        DataTypeBuffer.SetFilter(Text, '''%1''', VerifyText);
+        Assert.RecordCount(DataTypeBuffer, ExpectedCount);
     end;
 
     local procedure VerifyNotificationEntry(var RecRef: RecordRef; ExpectedValues: array[20] of Text; IndividualNotifications: Boolean)
@@ -2866,10 +2928,16 @@ codeunit 134301 "Workflow Notification Test"
     var
         NotificationEntryDispatcher: Codeunit "Notification Entry Dispatcher";
         HtmlBodyText: Text;
-        index: Integer;
     begin
         NotificationEntryDispatcher.GetHTMLBodyText(NotificationEntry, HtmlBodyText);
 
+        VerifyHTMLBodyText(HtmlBodyText, ExpectedValues);
+    end;
+
+    local procedure VerifyHTMLBodyText(HtmlBodyText: Text; ExpectedValues: array[20] of Text)
+    var
+        index: Integer;
+    begin
         for index := 1 to ArrayLen(ExpectedValues) do
             if ExpectedValues[index] <> '' then
                 Assert.AreNotEqual(0, StrPos(HtmlBodyText, ExpectedValues[index]),
@@ -3033,6 +3101,29 @@ codeunit 134301 "Workflow Notification Test"
     begin
         InsertDataTypeBuffer(TempEmailItem."From Address");
         InsertDataTypeBuffer(TempEmailItem."From Name");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 260, 'OnBeforeSendEmail', '', false, false)]
+    [Scope('OnPrem')]
+    procedure SubscribeOnBeforeSendEmail(var TempEmailItem: Record "Email Item" temporary; var IsFromPostedDoc: Boolean; var PostedDocNo: Code[20]; var HideDialog: Boolean; var ReportUsage: Integer)
+    var
+        DataTypeBuffer: Record "Data Type Buffer";
+        TempBlob: Codeunit "Temp Blob";
+        FileManagement: Codeunit "File Management";
+        InStream: InStream;
+        OutStream: OutStream;
+    begin
+        FileManagement.ServerFileExists(TempEmailItem."Body File Path");
+        FileManagement.BLOBImportFromServerFile(TempBlob, TempEmailItem."Body File Path");
+        TempBlob.CreateInStream(InStream, TEXTENCODING::UTF8);
+
+        if DataTypeBuffer.FindLast() then;
+        DataTypeBuffer.Init();
+        DataTypeBuffer.ID += 1;
+        DataTypeBuffer.Text := OnBeforeSendEmailTxt;
+        DataTypeBuffer.BLOB.CreateOutStream(OutStream);
+        CopyStream(OutStream, InStream);
+        DataTypeBuffer.Insert();
     end;
 }
 

@@ -575,10 +575,10 @@ report 206 "Sales - Invoice"
                                 VATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
                             VATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
                             VATAmountLine."VAT Clause Code" := "VAT Clause Code";
-                            VATAmountLine.InsertLine;
                             CalcVATAmountLineLCY(
                               "Sales Invoice Header", VATAmountLine, TempVATAmountLineLCY,
                               VATBaseRemainderAfterRoundingLCY, AmtInclVATRemainderAfterRoundingLCY);
+                            VATAmountLine.InsertLine();
 
                             TotalSubTotal += "Line Amount";
                             TotalInvDiscAmount -= "Inv. Discount Amount";

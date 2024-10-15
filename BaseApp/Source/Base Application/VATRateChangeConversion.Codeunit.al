@@ -743,6 +743,7 @@ codeunit 550 "VAT Rate Change Conversion"
             SalesLine2.SetFilter("Blanket Order Line No.", '=%1', OriginalLineNo);
             SalesLine2.SetRange(Type, SalesLine.Type);
             SalesLine2.SetRange("No.", SalesLine."No.");
+            SalesLine2.SetRange("Quantity Shipped", 0);
             Clear(SalesHeader);
             if SalesLine2.FindSet then
                 repeat
@@ -1145,6 +1146,7 @@ codeunit 550 "VAT Rate Change Conversion"
             PurchaseLine2.SetFilter("Blanket Order Line No.", '=%1', OriginalLineNo);
             PurchaseLine2.SetRange(Type, PurchaseLine.Type);
             PurchaseLine2.SetRange("No.", PurchaseLine."No.");
+            PurchaseLine2.SetRange("Quantity Received", 0);
             Clear(PurchaseHeader);
             if PurchaseLine2.Find('-') then
                 repeat
