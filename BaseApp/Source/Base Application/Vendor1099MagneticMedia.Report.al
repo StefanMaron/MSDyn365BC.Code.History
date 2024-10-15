@@ -425,7 +425,7 @@ report 10115 "Vendor 1099 Magnetic Media"
     var
         IRS1099Management: Codeunit "IRS 1099 Management";
     begin
-        IRS1099Management.ThrowErrorfUpgradeNeeded;
+        IRS1099Management.ThrowErrorfUpgrade2019Needed();
         TestFile := ' ';
         PriorYear := ' ';
         SequenceNo := 0;

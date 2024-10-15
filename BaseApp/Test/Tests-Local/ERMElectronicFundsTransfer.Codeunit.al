@@ -467,17 +467,21 @@
     procedure ExportPaymentPostPaymentJournal()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        Vendor: Record Vendor;
         BankAccount: Record "Bank Account";
         CheckLedgerEntry: Record "Check Ledger Entry";
         ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        FileManagement: Codeunit "File Management";
         PaymentJournal: TestPage "Payment Journal";
         GenerateEFTFiles: TestPage "Generate EFT Files";
         "Count": Integer;
+        FilePath: Text;
     begin
         // [SCENARIO] Verify Entry Status on Check Ledger Entry after Post Electronic Payment Journal.
         // 270132: One check ledger entry creates when export electronic payment journal
         // 286778: Entry Status is "Posted"
+        // 377993: Resulting file name = Remittance Advice <Vendor's Name>.pdf
 
         // [GIVEN] Create and Export Electronic Payment Journal.
         Initialize();
@@ -491,6 +495,7 @@
 
         PaymentJournal.OpenEdit();
         ExportPaymentJournal(PaymentJournal, GenJournalLine);
+        Vendor.Get(GenJournalLine."Account No.");
 
         // [WHEN] Post the General Journal Line and open up the Generate EFT Files Page
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -511,6 +516,9 @@
         BankAccount.Get(GenJournalLine."Bal. Account No.");
         VerifyCheckLedgEntryCount(
           GenJournalLine."Posting Date", BankAccount."Last Remittance Advice No.", CheckLedgerEntry."Entry Status"::Posted, 1);
+        // 377993: Resulting file name = Remittance Advice <Vendor's Name>.pdf
+        FilePath := FileManagement.CombinePath(TemporaryPath, StrSubstNo('Remittance Advice for %1.pdf', Vendor.Name));
+        Assert.IsTrue(File.Exists(FilePath), 'Remittance Advice file has not been found');
     end;
 
     [Test]
@@ -2800,7 +2808,7 @@
         VendorBankAccount.Validate("Transit No.", TransitNoTxt);
         VendorBankAccount.Validate("Use for Electronic Payments", true);
         VendorBankAccount.Modify(true);
-        Vendor.Validate(Name, CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Vendor.Name), 0), 1, MaxStrLen(Vendor.Name)));
+        Vendor.Validate(Name, Vendor.Name + '_Name');
         Vendor.Validate("Currency Code", '');
         Vendor.Modify(true);
     end;

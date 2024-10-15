@@ -2602,7 +2602,7 @@
         }
         field(10009; "Outstanding Amount ($)"; Decimal)
         {
-            CalcFormula = Sum ("Sales Line"."Outstanding Amount (LCY)" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Sales Line"."Outstanding Amount (LCY)" WHERE("Document Type" = FIELD("Document Type"),
                                                                              "Document No." = FIELD("No.")));
             Caption = 'Outstanding Amount ($)';
             Editable = false;
@@ -2620,6 +2620,10 @@
         field(12600; "Prepmt. Include Tax"; Boolean)
         {
             Caption = 'Prepmt. Include Tax';
+            Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+            ObsoleteReason = 'The feature may cause wrong ledger entries. It is not under support.';
 
             trigger OnValidate()
             var

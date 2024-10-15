@@ -114,6 +114,7 @@ codeunit 142062 "ERM Misc. Report III"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryReportValidation: Codeunit "Library - Report Validation";
@@ -481,10 +482,12 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         // Setup: Create Sales Order
         Initialize;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order);
 
         // Exercise.
-        RunPurchaseAdviceReport(DateFilter, No);
+        RunPurchaseAdviceReport(DateFilter, No, false);
 
         // Verify.
         LibraryReportDataset.LoadDataSetFile;
@@ -1560,10 +1563,11 @@ codeunit 142062 "ERM Misc. Report III"
         // [FEATURE] [Purchase] [UT]
         // [SCENARIO 333888] Report "Purchase Advice" can be printed without RDLC rendering errors
         Initialize;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // [WHEN] Report "Purchase Advice" is being printed to PDF
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order);
-        RunPurchaseAdviceReport(WorkDate, SalesLine."No.");
+        RunPurchaseAdviceReport(WorkDate, SalesLine."No.", false);
 
         // [THEN] No RDLC rendering errors
     end;
@@ -1614,18 +1618,95 @@ codeunit 142062 "ERM Misc. Report III"
         LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
+    [Test]
+    [HandlerFunctions('PurchaseAdviceReqPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseAdviceReportRespectsOrderMultipleOnItem()
+    var
+        Item: Record Item;
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Purchase Advice] [Item]
+        // [SCENARIO 373974] Purchase Advice report respects "Order Multiple" setting on item.
+        Initialize();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+
+        // [GIVEN] Item with "Maximum Inventory" = 100, "Order Multiple" = 10.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Maximum Qty.");
+        Item.Validate("Maximum Inventory", 100);
+        Item.Validate("Order Multiple", 10);
+        Item.Modify(true);
+
+        // [GIVEN] Create sales order for 5 pcs.
+        CreateSalesDocumentWithItem(SalesLine, SalesLine."Document Type"::Order, Item."No.", 5);
+
+        // [WHEN] Run Purchase Advice report per item.
+        RunPurchaseAdviceReport(WorkDate, Item."No.", false);
+
+        // [THEN] The report suggests reordering 110 pcs (105 to reach the maximum inventory and round up to 110).
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('ReorderAmount1', 110);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchaseAdviceReqPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseAdviceReportRespectsOrderMultipleOnSKU()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        SKU: Record "Stockkeeping Unit";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Purchase Advice] [Stockkeeping Unit]
+        // [SCENARIO 373974] Purchase Advice report respects "Order Multiple" setting on SKU.
+        Initialize();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+
+        // [GIVEN] Item with "Reorder Policy" = 50, "Reorder Quantity" = 40, "Order Multiple" = 30.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Fixed Reorder Qty.");
+        Item.Validate("Reorder Point", 50);
+        Item.Validate("Reorder Quantity", 40);
+        Item.Validate("Order Multiple", 30);
+        Item.Modify(true);
+
+        // [GIVEN] Create stockkeeping unit on location "L".
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(SKU, Location.Code, Item."No.", '');
+
+        // [GIVEN] Create sales order for 5 pcs on location "L".
+        CreateSalesDocumentWithItem(SalesLine, SalesLine."Document Type"::Order, Item."No.", 5);
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Modify(true);
+
+        // [WHEN] Run Purchase Advice report per SKU.
+        RunPurchaseAdviceReport(WorkDate, Item."No.", true);
+
+        // [THEN] The report suggests reordering 90 pcs (55 to reach reorder point, round up to 80 = 2 orders for 40 pcs, round up to 90).
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('ReorderAmount1', 90);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
         TaxSetup: Record "Tax Setup";
     begin
         LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
         LibraryApplicationArea.EnableFoundationSetup;
 
         if IsInitialized then
             exit;
 
-        LibraryVariableStorage.Clear;
         LibraryInventory.NoSeriesSetup(InventorySetup);
         LibraryERMCountryData.CreateVATData;
 
@@ -2142,10 +2223,11 @@ codeunit 142062 "ERM Misc. Report III"
         REPORT.Run(REPORT::"Item Turnover");
     end;
 
-    local procedure RunPurchaseAdviceReport(PostingDate: Date; ItemNo: Code[20])
+    local procedure RunPurchaseAdviceReport(PostingDate: Date; ItemNo: Code[20]; PerSKU: Boolean)
     begin
         LibraryVariableStorage.Enqueue(PostingDate);  // Enqueue value for PurchaseAdviceReqPageHandler.
         LibraryVariableStorage.Enqueue(ItemNo);  // Enqueue value for PurchaseAdviceReqPageHandler.
+        LibraryVariableStorage.Enqueue(PerSKU);
         Commit();  // Commit is required to run Report.
         REPORT.Run(REPORT::"Purchase Advice");
     end;
@@ -2688,6 +2770,7 @@ codeunit 142062 "ERM Misc. Report III"
         LibraryVariableStorage.Dequeue(ItemNo);
         PurchaseAdvice.Item.SetFilter("Date Filter", Format(PostingDate));
         PurchaseAdvice.Item.SetFilter("No.", ItemNo);
+        PurchaseAdvice.UseSKU.SetValue(LibraryVariableStorage.DequeueBoolean());
         PurchaseAdvice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 

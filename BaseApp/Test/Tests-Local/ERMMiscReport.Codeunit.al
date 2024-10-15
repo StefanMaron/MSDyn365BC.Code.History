@@ -1785,14 +1785,15 @@ codeunit 142060 "ERM Misc. Report"
         // Setup: Create and Post Purchase order with Payment Discount and Run Suggest Vendor Payment with Pmt. Discount Date .
         Initialize;
         CreateAndPostPurchaseOrder(PurchaseHeader, PurchaseLine);
-        PostGenJournalLineAfterSuggestVendorPaymentMsg(PurchaseHeader."Buy-from Vendor No.", PurchaseHeader."Pmt. Discount Date");
+        PostGenJournalLineAfterSuggestVendorPayment(PurchaseHeader."Buy-from Vendor No.", PurchaseHeader."Pmt. Discount Date");
 
         // Exercise: Run Vendor 1099 Misc Report.
         REPORT.Run(REPORT::"Vendor 1099 Misc");
 
         // Verify: Verify Misc 07 Amount on Report.
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists(
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals(
           GetAmtMISC07MISC15BTxt, PurchaseLine."Line Amount" - (PurchaseLine."Line Amount" * PurchaseHeader."Payment Discount %" / 100));
     end;
 
@@ -1801,23 +1802,21 @@ codeunit 142060 "ERM Misc. Report"
     [Scope('OnPrem')]
     procedure Vendor1099MiscReportWithoutPaymentDisc()
     var
-        PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
         // Verify Misc 07 Amount on Vendor 1099 Misc. Test Report without Payment Discount.
 
         // Setup: Create and Post Purchase order with Payment Discount and Run Suggest Vendor Payment with greater than Due date .
         Initialize;
-        CreateAndPostPurchaseOrder(PurchaseHeader, PurchaseLine);
-        PostGenJournalLineAfterSuggestVendorPaymentMsg(PurchaseHeader."Buy-from Vendor No.",
-          CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandIntInRange(2, 5)), PurchaseHeader."Pmt. Discount Date"));
+        PostPurchOrderWithPmtGreaterThanDueDate(PurchaseLine);
 
         // Exercise: Run Vendor 1099 Misc Report.
         REPORT.Run(REPORT::"Vendor 1099 Misc");
 
         // Verify: Verify Misc 07 Amount on Report.
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists(GetAmtMISC07MISC15BTxt, PurchaseLine."Line Amount");
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals(GetAmtMISC07MISC15BTxt, PurchaseLine."Line Amount");
     end;
 
     [Test]
@@ -2108,7 +2107,7 @@ codeunit 142060 "ERM Misc. Report"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
         PurchaseHeader.Validate("Payment Discount %", LibraryRandom.RandInt(10));
         PurchaseHeader.Validate("Pmt. Discount Date", LibraryRandom.RandDate(10));
-        PurchaseHeader.Validate("Due Date", LibraryRandom.RandDateFromInRange(WorkDate(),11,20));
+        PurchaseHeader.Validate("Due Date", LibraryRandom.RandDateFromInRange(WorkDate(), 11, 20));
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', 1);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(1000, 15000));
@@ -2116,7 +2115,7 @@ codeunit 142060 "ERM Misc. Report"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [GIVEN] Payment for posted Invoice, posted after Payment Discount Date on "10.01.20".
-        PostGenJournalLineAfterSuggestVendorPaymentMsg(VendorNo, PurchaseHeader."Due Date");
+        PostGenJournalLineAfterSuggestVendorPayment(VendorNo, PurchaseHeader."Due Date");
 
         // [WHEN] Report "Vendor 1099 Misc" is run for Vendor.
         REPORT.Run(REPORT::"Vendor 1099 Misc");
@@ -2158,6 +2157,27 @@ codeunit 142060 "ERM Misc. Report"
         VerifyValuesOnReport(SalesLine."No.", ItemNoCapLbl, 'Profit', -SalesLine.Quantity * SalesLine."Unit Price");
 
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsRequestPageHandler,MessageHandler,Vendor1099Misc2020RequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure Vendor1099Misc2020ReportDoesNotContainMISC07()
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 374401] A "Vendor 1099 Misc 2020" report does not contain the "MISC-07" code
+
+        // [GIVEN] Purchase invoice with MISC-07 code
+        Initialize();
+        PostPurchOrderWithPmtGreaterThanDueDate(PurchaseLine);
+
+        // [WHEN] Run Vendor 1099 Misc 2020 Report
+        REPORT.Run(REPORT::"Vendor 1099 Misc 2020");
+
+        // [THEN] "Misc 07" values does not exists in the Report
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueNotExist('GetAmtMISC07MISC15B', PurchaseLine."Line Amount");
     end;
 
     local procedure Initialize()
@@ -2430,7 +2450,7 @@ codeunit 142060 "ERM Misc. Report"
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandInt(5));
         PurchaseLine.Validate("VAT %", 0);
-        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(1000, 1500));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(5000, 10000));
         PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
@@ -2668,7 +2688,7 @@ codeunit 142060 "ERM Misc. Report"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure PostGenJournalLineAfterSuggestVendorPaymentMsg(VendorNo: Code[20]; PmtDiscountDate: Date)
+    local procedure PostGenJournalLineAfterSuggestVendorPayment(VendorNo: Code[20]; PmtDiscountDate: Date)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -2712,6 +2732,15 @@ codeunit 142060 "ERM Misc. Report"
         end;
         ApplyAndPostVendorEntry(
           InvoiceNo, PaymentNo, VendorLedgerEntry."Document Type"::Invoice, VendorLedgerEntry."Document Type"::Payment);
+    end;
+
+    local procedure PostPurchOrderWithPmtGreaterThanDueDate(var PurchaseLine: Record "Purchase Line")
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        CreateAndPostPurchaseOrder(PurchaseHeader, PurchaseLine);
+        PostGenJournalLineAfterSuggestVendorPayment(PurchaseHeader."Buy-from Vendor No.",
+          CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandIntInRange(2, 5)), PurchaseHeader."Pmt. Discount Date"));
     end;
 
     local procedure SetAppliesAfterValidatingAmountToApply(var CustLedgerEntry: Record "Cust. Ledger Entry"; AmountToApply: Decimal)
@@ -3300,6 +3329,17 @@ codeunit 142060 "ERM Misc. Report"
         LibraryVariableStorage.Dequeue(No);
         Vendor1099Misc.Vendor.SetFilter("No.", No);
         Vendor1099Misc.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure Vendor1099Misc2020RequestPageHandler(var Vendor1099Misc2020: TestRequestPage "Vendor 1099 Misc 2020")
+    var
+        No: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(No);
+        Vendor1099Misc2020.Vendor.SetFilter("No.", No);
+        Vendor1099Misc2020.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [RequestPageHandler]

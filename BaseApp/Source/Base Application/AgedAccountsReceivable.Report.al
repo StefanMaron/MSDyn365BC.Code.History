@@ -22,7 +22,7 @@ report 120 "Aged Accounts Receivable"
             column(PrintAmountInLCY; PrintAmountInLCY)
             {
             }
-            column(TableCaptnCustFilter; TableCaption + ': ' + CustFilter)
+            column(TableCaptnCustFilter; Customer.TableCaption + ': ' + CustFilter)
             {
             }
             column(CustFilter; CustFilter)
