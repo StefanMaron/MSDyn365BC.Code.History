@@ -872,6 +872,15 @@ codeunit 10 "Type Helper"
         exit('<Standard Format,9>');
     end;
 
+    procedure CopyRecVariantToRecRef(RecordVariant: Variant; var RecRef: RecordRef)
+    begin
+        if RecordVariant.IsRecord() then
+            RecRef.GetTable(RecordVariant)
+        else
+            if RecordVariant.IsRecordRef() then
+                RecRef := RecordVariant;
+    end;
+
     [TryFunction]
     local procedure GetCurrencyStyle(LocaleId: Integer; var CurrencyPositivePattern: Integer)
     var
