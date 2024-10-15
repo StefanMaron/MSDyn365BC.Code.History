@@ -15,6 +15,7 @@ codeunit 104100 "Upg Local Functionality"
 
         UpdatePhysInventoryOrders();
         CleanupPhysOrders();
+        UpdateVendorRegistrationNo();
     end;
 
     local procedure UpdatePhysInventoryOrders()
@@ -250,5 +251,22 @@ codeunit 104100 "Upg Local Functionality"
     end;
 #endif
 #endif
+
+    procedure UpdateVendorRegistrationNo()
+    var
+        Vendor: Record Vendor;
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
+        VendorDataTransfer: DataTransfer;
+    begin
+        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetVendorRegistrationNoTag()) THEN
+            EXIT;
+
+        VendorDataTransfer.SetTables(Database::Vendor, Database::Vendor);
+        VendorDataTransfer.AddFieldValue(Vendor.FieldNo("Registration No."), Vendor.FieldNo("Registration Number"));
+        VendorDataTransfer.CopyFields();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetVendorRegistrationNoTag());
+    end;
 }
 

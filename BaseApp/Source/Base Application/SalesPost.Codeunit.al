@@ -618,7 +618,7 @@ codeunit 80 "Sales-Post"
                   SetupRecID, ErrorMessageMgt.GetFieldNo(SetupRecID.TableNo, GLSetup.FieldName("Allow Posting From")),
                   ForwardLinkMgt.GetHelpCodeForAllowedPostingDate());
 
-            GenJnlCheckLine.CheckVATDateAllowed("VAT Reporting Date");
+            CheckVATDate(SalesHeader);
 
             if LogErrorMode then
                 SetLogErrorModePostingFlags(SalesHeader)
@@ -1079,7 +1079,7 @@ codeunit 80 "Sales-Post"
                     0, '', DummyTrackingSpecification, false);
 
             IsHandled := false;
-            OnPostItemLineOnBeforeMakeSalesLineToShip(SalesHeader, SalesLine, TempPostedATOLink, ItemLedgShptEntryNo, IsHandled);
+            OnPostItemLineOnBeforeMakeSalesLineToShip(SalesHeader, SalesLine, TempPostedATOLink, ItemLedgShptEntryNo, IsHandled, GenJnlLineDocNo, GenJnlLineExtDocNo, ReturnRcptHeader, TempHandlingSpecification, TempTrackingSpecificationInv);
             if not IsHandled then begin
                 // Invoice discount amount is also included in expected sales amount posted for shipment or return receipt.
                 MakeSalesLineToShip(SalesLineToShip, SalesLine);
@@ -3365,7 +3365,7 @@ codeunit 80 "Sales-Post"
                       "Unit Price",
                       Round(
                         InvoiceRoundingAmount /
-                        (1 + (1 - SalesHeader."VAT Base Discount %" / 100) * "VAT %" / 100),
+                        (1 + (1 - SalesLine.GetVatBaseDiscountPct(SalesHeader) / 100) * "VAT %" / 100),
                         Currency."Amount Rounding Precision"));
                 Validate("Amount Including VAT", InvoiceRoundingAmount);
                 "Line No." := BiggestLineNo;
@@ -6439,9 +6439,12 @@ codeunit 80 "Sales-Post"
                 SalesShipmentHeader."Sell-to Country/Region Code"));
         end;
 
-        if SalesHeader.IsCreditDocType() then
-            exit(SalesHeader."Sell-to Country/Region Code")
-        else begin
+        if SalesHeader.IsCreditDocType() then begin
+            if (SalesHeader."Ship-to Country/Region Code" <> '') then
+                exit(SalesHeader."Ship-to Country/Region Code")
+            else
+                exit(SalesHeader."Sell-to Country/Region Code");
+        end else begin
             CountryRegionCode := SalesHeader."Ship-to Country/Region Code";
 
             exit(
@@ -8562,6 +8565,30 @@ codeunit 80 "Sales-Post"
             NoSeries.TestField("Default Nos.", true);
     end;
 
+    local procedure CheckVATDate(var SalesHeader: Record "Sales Header")
+    var
+        GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
+        ForwardLinkMgt: Codeunit "Forward Link Mgt.";
+        SetupRecID: RecordID;
+    begin
+        // ensure VAT Date is filled in
+        If SalesHeader."VAT Reporting Date" = 0D then begin
+            SalesHeader."VAT Reporting Date" := GLSetup.GetVATDate(SalesHeader."Posting Date", SalesHeader."Document Date");
+            SalesHeader.Modify();
+        end;
+
+        // check whether VAT Date is within allowed VAT Periods
+        GenJnlCheckLine.CheckVATDateAllowed(SalesHeader."VAT Reporting Date");
+
+        // check whether VAT Date is within Allowed period fedined in Gen. Ledger Setup
+        if GenJnlCheckLine.IsDateNotAllowed(SalesHeader."VAT Reporting Date", SetupRecID, SalesHeader."Journal Templ. Name") then
+            ErrorMessageMgt.LogContextFieldError(
+              SalesHeader.FieldNo("VAT Reporting Date"), StrSubstNo(PostingDateNotAllowedErr, SalesHeader.FieldCaption("VAT Reporting Date")),
+              SetupRecID, ErrorMessageMgt.GetFieldNo(SetupRecID.TableNo, GLSetup.FieldName("Allow Posting From")),
+              ForwardLinkMgt.GetHelpCodeForAllowedPostingDate());
+    end;
+
+
 #if not CLEAN20
     local procedure UseLegacyInvoicePosting(): Boolean
     var
@@ -10026,7 +10053,7 @@ codeunit 80 "Sales-Post"
 
         SalesLine."VAT Base Amount" :=
           Round(
-            SalesLine.Amount * (1 - SalesHeader."VAT Base Discount %" / 100), Currency."Amount Rounding Precision");
+            SalesLine.Amount * (1 - SalesLine.GetVatBaseDiscountPct(SalesHeader) / 100), Currency."Amount Rounding Precision");
     end;
 
     local procedure SalesShptLineInsert(var SalesShptLine: Record "Sales Shipment Line"; SalesShptHeader: Record "Sales Shipment Header"; SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
@@ -11000,7 +11027,7 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemLineOnBeforeMakeSalesLineToShip(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempPostedATOLink: Record "Posted Assemble-to-Order Link" temporary; var ItemLedgShptEntryNo: Integer; var IsHandled: Boolean);
+    local procedure OnPostItemLineOnBeforeMakeSalesLineToShip(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempPostedATOLink: Record "Posted Assemble-to-Order Link" temporary; var ItemLedgShptEntryNo: Integer; var IsHandled: Boolean; var GenJnlLineDocNo: Code[20]; var GenJnlLineExtDocNo: Code[35]; ReturnReceiptHeader: Record "Return Receipt Header"; var TempHandlingSpecification: Record "Tracking Specification" temporary; var TempHandlingSpecificationInv: Record "Tracking Specification" temporary)
     begin
     end;
 
@@ -11020,7 +11047,7 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemChargeLineOnBeforePostItemCharge(var TempItemChargeAssgntSales: record "Item Charge Assignment (Sales)" temporary; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
+    local procedure OnPostItemChargeLineOnBeforePostItemCharge(var TempItemChargeAssgntSales: Record "Item Charge Assignment (Sales)" temporary; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
     begin
     end;
 

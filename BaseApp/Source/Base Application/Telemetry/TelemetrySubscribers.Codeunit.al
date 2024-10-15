@@ -33,6 +33,7 @@ codeunit 1351 "Telemetry Subscribers"
         JobQueueEntryFinishedTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, Status = Finished, Result = %4, Company = %5, Scheduled Task Id = %6', Locked = true;
         JobQueueEntryStartedAllTxt: Label 'Job queue entry started: %1', Comment = '%1 = Job queue id', Locked = true;
         JobQueueEntryFinishedAllTxt: Label 'Job queue entry finished: %1', Comment = '%1 = Job queue id', Locked = true;
+        JobQueueEntryErrorTxt: Label 'Job queue entry %1 errored after %2 attempts', Comment = '%1 = Job queue id, %2 = Number of attempts', Locked = true;
         JobQueueEntryErrorAllTxt: Label 'Job queue entry errored: %1', Comment = '%1 = Job queue id', Locked = true;
         JobQueueEntryEnqueuedAllTxt: Label 'Job queue entry enqueued: %1', Comment = '%1 = Job queue id', Locked = true;
         JobQueueEntryNotEnqueuedTxt: Label 'Job queue entry not enqueued: %1', Comment = '%1 = Job queue id', Locked = true;
@@ -368,6 +369,25 @@ codeunit 1351 "Telemetry Subscribers"
         TranslationHelper.RestoreGlobalLanguage();
     end;
 
+    internal procedure SendTraceOnJobQueueEntryFinalRunErrored(var JobQueueLogEntry: Record "Job Queue Log Entry"; var JobQueueEntry: Record "Job Queue Entry")
+    var
+        TranslationHelper: Codeunit "Translation Helper";
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        TranslationHelper.SetGlobalLanguageToDefault();
+
+        SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
+        Dimensions.Add('JobQueueStacktrace', JobQueueLogEntry.GetErrorCallStack());
+        Telemetry.LogMessage('0000JRG',
+                                StrSubstNo(JobQueueEntryErrorTxt, Format(JobQueueEntry.ID, 0, 4), Format(JobQueueEntry."No. of Attempts to Run")),
+                                Verbosity::Warning,
+                                DataClassification::OrganizationIdentifiableInformation,
+                                TelemetryScope::All,
+                                Dimensions);
+
+        TranslationHelper.RestoreGlobalLanguage();
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue Dispatcher", 'OnAfterSuccessHandleRequest', '', false, false)]
     local procedure SendTraceOnJobQueueEntryRequestFinishedSuccessfully(var JobQueueEntry: Record "Job Queue Entry"; JobQueueExecutionTime: Integer)
     var
@@ -399,6 +419,8 @@ codeunit 1351 "Telemetry Subscribers"
         Dimensions.Add('JobQueueEarliestStartDateTime', Format(JobQueueEntry."Earliest Start Date/Time", 0, 9)); // UTC time
         Dimensions.Add('JobQueueCompanyName', JobQueueEntry.CurrentCompany());
         Dimensions.Add('JobQueueScheduledTaskId', Format(JobQueueEntry."System Task ID", 0, 4));
+        Dimensions.Add('JobQueueMaxNumberOfAttemptsToRun', Format(JobQueueEntry."Maximum No. of Attempts to Run"));
+        Dimensions.Add('JobQueueNumberOfAttemptsToRun', Format(JobQueueEntry."No. of Attempts to Run"));
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Undo Sales Shipment Line", 'OnAfterCode', '', false, false)]
@@ -529,6 +551,13 @@ codeunit 1351 "Telemetry Subscribers"
         exit(EnvironmentInfo.IsSaaS());
     end;
 
+    local procedure IsSandbox(): Boolean
+    var
+        EnvironmentInfo: Codeunit "Environment Information";
+    begin
+        exit(EnvironmentInfo.IsSandbox());
+    end;
+
     [EventSubscriber(ObjectType::Page, Page::"Setup Email Logging", 'OnOpenPageEvent', '', false, false)]
     local procedure LogTelemetryOnOpenSetupEmailLoggingPage()
     var
@@ -616,7 +645,11 @@ codeunit 1351 "Telemetry Subscribers"
     begin
         if not IsSaaS() then
             exit;
-        Telemetry.LogMessage('0000EIW', 'Onboarding Started', Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher);
+
+        if IsSandbox() then
+            exit;
+
+        Telemetry.LogMessage('0000EIW', 'Onboarding Started', Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Telemetry Management", 'OnSendDailyTelemetry', '', true, true)]

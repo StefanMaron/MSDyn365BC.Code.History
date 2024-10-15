@@ -38,5 +38,10 @@ codeunit 9997 "Upgrade Tag Def - Country"
         exit('MS-392540-CheckPartnerVATID-20210317');
     end;
 #endif
+
+    procedure GetVendorRegistrationNoTag(): Code[250]
+    begin
+        exit('MS-359959-GetVendorRegistrationNo-20230208');
+    end;
 }
 

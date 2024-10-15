@@ -16,6 +16,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryERM: Codeunit "Library - ERM";
         isInitialized: Boolean;
         MatchSummaryMsg: Label '%1 reconciliation lines out of %2 are matched.';
         WrongValueOfFieldErr: Label 'Wrong value of field.';
@@ -1244,6 +1245,86 @@ codeunit 134252 "Match Bank Reconciliation - UT"
 
         // [THEN] No match is produced
         VerifyNoMatch(BankAccReconciliation, BankAccReconciliationLineNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('MatchRecLinesReqPageHandler,MessageHandler,ConfirmOverwriteAutoMatchHandlerDefault')]
+    [Scope('OnPrem')]
+    procedure VerifyBankEntryMatchToExactBankAccReconciliationLine()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        MatchBankEntries: Report "Match Bank Entries";
+        PostingDate: Date;
+        BankAccountNo: Code[20];
+        StatementNo: Code[20];
+        DocumentNo: Code[20];
+        Description: Text[50];
+        RendomDescText: Text;
+        Amount: Decimal;
+        DateRange: Integer;
+        ExpectedMatchedLineNo: Integer;
+        ExpectedMatchedEntryNo: Integer;
+    begin
+        // [SCENARIO 460336] Amount is matched incorrectly when using Bank reconciliation auto-matching 
+        // [GIVEN] Prepare data for Posting Date, Amount, DocumentNo, and Description
+        Initialize();
+        CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
+        DateRange := LibraryRandom.RandIntInRange(2, 10);
+        RendomDescText := LibraryUtility.GenerateRandomAlphabeticText(2, 0);
+        // [GIVEN] Bank Acc Ledger Enrty exists with Desc = "123456"
+        Description := RendomDescText + ' ' + Description;
+        // [GIVEN] Bank Account Reconcilition for this bank is created
+        ExpectedMatchedEntryNo := CreateBankAccLedgerEntry(BankAccountNo, PostingDate, DocumentNo, '', Amount, Description);
+        // [GIVEN] Create a Bank Acc Reconciliation Line with differen Descriptions, with matching amount
+        CreateBankAccRec(BankAccReconciliation, BankAccountNo, StatementNo);
+        CreateBankAccRecLine(BankAccReconciliation, PostingDate, RendomDescText, '', Amount);
+        // [GIVEN] Exercise, run Match Bank Entries report for Bank Account Reconciliation
+        ExpectedMatchedLineNo := CreateBankAccRecLine(BankAccReconciliation, PostingDate, Description, '', Amount);
+        LibraryVariableStorage.Enqueue(DateRange);
+        Commit();
+        MatchBankEntries.UseRequestPage(true);
+        MatchBankEntries.SetTableView(BankAccReconciliation);
+        // [VERIFY] Verify: Bank Acc Ledger Entry with expected Bank Reconciliation Line
+        REPORT.Run(REPORT::"Match Bank Entries", true, false, BankAccReconciliation);
+        VerifyOneToOneMatch(BankAccReconciliation, ExpectedMatchedLineNo, ExpectedMatchedEntryNo, Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('MatchRecLinesReqPageHandler,MessageHandler,ConfirmOverwriteAutoMatchHandlerDefault')]
+    procedure MatchToSimilarLinesShouldBeKept()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        BankAccount: Record "Bank Account";
+        PostingDate: Date;
+        BankAccountNo: Code[20];
+        StatementNo: Code[20];
+        DocumentNo: Code[20];
+        Description: Text[50];
+        Amount: Decimal;
+        FirstEntryNo: Integer;
+        SecondEntryNo: Integer;
+        FirstLineNo: Integer;
+        SecondLineNo: Integer;
+    begin
+        // [SCENARIO]
+        Initialize();
+        LibraryERM.CreateBankAccount(BankAccount);
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.", BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
+        BankAccountNo := BankAccount."No.";
+        StatementNo := BankAccReconciliation."Statement No.";
+        FirstEntryNo := CreateBankAccLedgerEntry(BankAccountNo, PostingDate, DocumentNo, '', Amount, 'ABCDE');
+        SecondEntryNo := CreateBankAccLedgerEntry(BankAccountNo, PostingDate, DocumentNo, '', Amount, 'ZYXWV');
+        FirstLineNo := CreateBankAccRecLine(BankAccReconciliation, PostingDate, '', '', Amount);
+        SecondLineNo := CreateBankAccRecLine(BankAccReconciliation, PostingDate, 'ABCDE', '', Amount);
+        LibraryVariableStorage.Enqueue(0);
+        Commit();
+        Report.Run(Report::"Match Bank Entries", true, false, BankAccReconciliation);
+        BankAccountLedgerEntry.Get(FirstEntryNo);
+        Assert.AreEqual(SecondLineNo, BankAccountLedgerEntry."Statement Line No.", 'First BLE should be matched with the second bank rec. line since it''s a high confidence match, they match in description, date, and amount');
+        BankAccountLedgerEntry.Get(SecondEntryNo);
+        Assert.AreEqual(FirstLineNo, BankAccountLedgerEntry."Statement Line No.", 'Second BLE should be matched with the first bank rec. line since the match is acceptable (same amount although not same description) ');
     end;
 
     local procedure Initialize()

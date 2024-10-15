@@ -268,7 +268,7 @@ report 4 "Detail Trial Balance"
         GLFilter := "G/L Account".GetFilters();
         GLDateFilter := "G/L Account".GetFilter("Date Filter");
 
-        OnAfterOnPreReport("G/L Account");
+        OnAfterOnPreReport("G/L Account", ExcludeBalanceOnly);
     end;
 
     trigger OnPostReport()
@@ -336,7 +336,7 @@ report 4 "Detail Trial Balance"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterOnPreReport(var GLAccount: Record "G/L Account")
+    local procedure OnAfterOnPreReport(var GLAccount: Record "G/L Account"; var ExcludeBalanceOnly: Boolean)
     begin
     end;
 }

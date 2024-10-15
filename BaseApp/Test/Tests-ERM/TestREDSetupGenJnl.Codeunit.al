@@ -395,6 +395,8 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     var
         GenJournalLine: Record "Gen. Journal Line";
         DeferralTemplate: Record "Deferral Template";
+        SourceCodeSetup: Record "Source Code Setup";
+        GLEntry: Record "G/L Entry";
         DeferralCode: Code[10];
     begin
         Initialize();
@@ -408,6 +410,11 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
 
         // [THEN] Verify the count of posted GL Entries with total number of lines entered for deferral schedule.
         VerifyTotalNumberOfPostedGLEntries(GenJournalLine, 14);
+        // [THEN] G/L enties posted with Source Code for deferrals (TFS 422924)
+        SourceCodeSetup.Get();
+        GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
+        GLEntry.SetRange("Source Code", SourceCodeSetup."General Deferral");
+        Assert.RecordCount(GLEntry, 12);
 
         // [THEN] Description in total deferral line matches Gen. Journal Line's Description (TFS 203345)
         DeferralTemplate.Get(DeferralCode);

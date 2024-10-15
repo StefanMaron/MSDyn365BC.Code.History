@@ -51,14 +51,7 @@ page 6400 "Flow Template Selector"
 
                             trigger ControlAddInReady()
                             begin
-                                CurrPage.FlowAddin.Initialize(
-                                  FlowServiceManagement.GetFlowUrl(), FlowServiceManagement.GetLocale(),
-                                  AzureAdMgt.GetAccessToken(FlowServiceManagement.GetFlowServiceResourceUrl(), FlowServiceManagement.GetFlowResourceName(), false)
-                                );
-
-                                LoadTemplates();
-
-                                AddInReady := true;
+                                InitializeAddIn();
                             end;
 
                             trigger ErrorOccurred(error: Text; description: Text)
@@ -177,6 +170,7 @@ page 6400 "Flow Template Selector"
         end;
     end;
 
+    [NonDebuggable]
     [TryFunction]
     local procedure TryGetAccessTokenForFlowService()
     begin
@@ -191,6 +185,19 @@ page 6400 "Flow Template Selector"
             TextToShow := FlowServiceManagement.GetGenericError();
         ErrorMessageText := TextToShow;
         CurrPage.Update();
+    end;
+
+    [NonDebuggable]
+    local procedure InitializeAddIn()
+    begin
+        CurrPage.FlowAddin.Initialize(
+            FlowServiceManagement.GetFlowUrl(), FlowServiceManagement.GetLocale(),
+            AzureAdMgt.GetAccessToken(FlowServiceManagement.GetFlowServiceResourceUrl(), FlowServiceManagement.GetFlowResourceName(), false)
+        );
+
+        LoadTemplates();
+
+        AddInReady := true;
     end;
 }
 

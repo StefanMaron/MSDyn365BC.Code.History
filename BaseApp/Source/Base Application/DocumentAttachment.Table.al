@@ -164,13 +164,19 @@ table 1173 "Document Attachment"
         NoContentErr: Label 'The selected file has no content. Please choose another file.';
         DuplicateErr: Label 'This file is already attached to the document. Please choose another file.';
 
-    procedure Export(ShowFileDialog: Boolean): Text
+    procedure Export(ShowFileDialog: Boolean) Result: Text
     var
         TempBlob: Codeunit "Temp Blob";
         FileManagement: Codeunit "File Management";
         DocumentStream: OutStream;
         FullFileName: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeExport(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ID = 0 then
             exit;
         // Ensure document has value in DB
@@ -396,6 +402,11 @@ table 1173 "Document Attachment"
     local procedure GetNextFileName(FileName: Text[250]; FileIndex: Integer): Text[250]
     begin
         exit(StrSubstNo('%1 (%2)', FileName, FileIndex));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExport(var DocumentAttachment: Record "Document Attachment"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]
