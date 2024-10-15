@@ -44,5 +44,6 @@ permissionset 8823 "Item Journals - Post"
                   tabledata "VAT Product Posting Group" = R,
                   tabledata "VAT Rate Change Conversion" = R,
                   tabledata "VAT Rate Change Log Entry" = Ri,
+                  tabledata "VAT Setup" = RM,
                   tabledata "Warehouse Register" = r;
 }
