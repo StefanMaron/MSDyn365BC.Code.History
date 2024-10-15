@@ -202,9 +202,9 @@
 
                 "System-Created Entry" := TempSalesLine."System-Created Entry";
                 GetSalesHeader();
-                OnValidateNoOnBeforeInitHeaderDefaults(SalesHeader, Rec);
+                OnValidateNoOnBeforeInitHeaderDefaults(SalesHeader, Rec, TempSalesLine);
                 InitHeaderDefaults(SalesHeader);
-                OnValidateNoOnAfterInitHeaderDefaults(SalesHeader, TempSalesLine);
+                OnValidateNoOnAfterInitHeaderDefaults(SalesHeader, TempSalesLine, Rec);
 
                 CalcFields("Substitution Available");
 
@@ -3978,21 +3978,21 @@
         GLAcc.CheckGLAcc();
         IsHandled := false;
         OnCopyFromGLAccountOnBeforeTestDirectPosting(Rec, GLAcc, SalesHeader, IsHandled);
-
-
-        if not "System-Created Entry" then
-            GLAcc.TestField("Direct Posting", true);
-        Description := GLAcc.Name;
-        "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
-        "VAT Prod. Posting Group" := GLAcc."VAT Prod. Posting Group";
-        if SalesHeader."Prepmt. Diff. Appln. Entry No." <> 0 then begin
-            "Gen. Prod. Posting Group" := TempSalesLine."Gen. Prod. Posting Group";
-            "VAT Prod. Posting Group" := TempSalesLine."VAT Prod. Posting Group";
+        if not IsHandled then begin
+            if not "System-Created Entry" then
+                GLAcc.TestField("Direct Posting", true);
+            Description := GLAcc.Name;
+            "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
+            "VAT Prod. Posting Group" := GLAcc."VAT Prod. Posting Group";
+            if SalesHeader."Prepmt. Diff. Appln. Entry No." <> 0 then begin
+                "Gen. Prod. Posting Group" := TempSalesLine."Gen. Prod. Posting Group";
+                "VAT Prod. Posting Group" := TempSalesLine."VAT Prod. Posting Group";
+            end;
+            "Tax Group Code" := GLAcc."Tax Group Code";
+            "Allow Invoice Disc." := false;
+            "Allow Item Charge Assignment" := false;
+            InitDeferralCode();
         end;
-        "Tax Group Code" := GLAcc."Tax Group Code";
-        "Allow Invoice Disc." := false;
-        "Allow Item Charge Assignment" := false;
-        InitDeferralCode();
         OnAfterAssignGLAccountValues(Rec, GLAcc, SalesHeader);
     end;
 
@@ -4878,6 +4878,7 @@
         Totals: array[4] of Decimal;
         SalesSetup: Record "Sales & Receivables Setup";
         IsHandled: Boolean;
+        LineIsInvDiscountAmount: Boolean;
     begin
         OnBeforeUpdateVATAmounts(Rec);
 
@@ -4896,7 +4897,9 @@
         if IsHandled then
             exit;
 
-        if "Line Amount" = "Inv. Discount Amount" then begin
+        LineIsInvDiscountAmount := "Line Amount" = "Inv. Discount Amount";
+        OnUpdateVATAmountsOnBeforeIfLineIsInvDiscountAmount(Rec, LineIsInvDiscountAmount);
+        if LineIsInvDiscountAmount then begin
             Amount := 0;
             "VAT Base Amount" := 0;
             "Amount Including VAT" := 0;
@@ -5496,7 +5499,7 @@
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Sales,
-            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", SalesHeader."Dimension Set ID", 0);
+            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", SalesHeader."Dimension Set ID", Database::Customer);
 
         OnCreateDimOnBeforeUpdateGlobalDimFromDimSetID(Rec);
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
@@ -7300,14 +7303,14 @@
         SetFilter("Shipment Date", AvailabilityFilter);
         if DocumentType = "Document Type"::"Return Order" then
             if Positive then
-            SetFilter("Quantity (Base)", '>0')
+                SetFilter("Quantity (Base)", '>0')
+            else
+                SetFilter("Quantity (Base)", '<0')
         else
-            SetFilter("Quantity (Base)", '<0')
-        else
-        if Positive then
-            SetFilter("Quantity (Base)", '<0')
-        else
-            SetFilter("Quantity (Base)", '>0');
+            if Positive then
+                SetFilter("Quantity (Base)", '<0')
+            else
+                SetFilter("Quantity (Base)", '>0');
         SetRange("Job No.", ' ');
 
         OnAfterFilterLinesForReservation(Rec, ReservationEntry, DocumentType, AvailabilityFilter, Positive);
@@ -9866,7 +9869,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateNoOnAfterInitHeaderDefaults(var SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary)
+    local procedure OnValidateNoOnAfterInitHeaderDefaults(var SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary; var SalesLine: Record "Sales Line")
     begin
     end;
 
@@ -9891,7 +9894,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateNoOnBeforeInitHeaderDefaults(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    local procedure OnValidateNoOnBeforeInitHeaderDefaults(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary)
     begin
     end;
 
@@ -10655,6 +10658,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityOnBeforeCalcWithQuantityShipped(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVATAmountsOnBeforeIfLineIsInvDiscountAmount(var SalesLine: Record "Sales Line"; var LineIsInvDiscountAmount: Boolean)
     begin
     end;
 

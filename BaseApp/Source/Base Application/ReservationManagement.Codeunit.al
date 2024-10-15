@@ -345,7 +345,7 @@
                     UpdateItemTrackingLineStats(CalcReservEntry, TempEntrySummary, AvailabilityDate);
             end;
 
-            OnUpdateStatistics(CalcReservEntry, TempEntrySummary, AvailabilityDate, Positive, TotalQuantity);
+            OnUpdateStatistics(CalcReservEntry, TempEntrySummary, AvailabilityDate, Positive, TotalQuantity, HandleItemTracking2, QtyOnOutBound);
         end;
 
         OnAfterUpdateStatistics(TempEntrySummary, AvailabilityDate, TotalQuantity);
@@ -3270,7 +3270,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateStatistics(CalcReservEntry: Record "Reservation Entry"; var ReservSummEntry: Record "Entry Summary"; AvailabilityDate: Date; Positive: Boolean; var TotalQuantity: Decimal)
+    local procedure OnUpdateStatistics(CalcReservEntry: Record "Reservation Entry"; var ReservSummEntry: Record "Entry Summary"; AvailabilityDate: Date; Positive: Boolean; var TotalQuantity: Decimal; HandleItemTracking2: Boolean; var QtyOnOutBound: Decimal)
     begin
     end;
 

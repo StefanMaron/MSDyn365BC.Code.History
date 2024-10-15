@@ -384,7 +384,13 @@ table 5406 "Prod. Order Line"
                 CapLedgEntry: Record "Capacity Ledger Entry";
                 PurchLine: Record "Purchase Line";
                 ModifyRecord: Boolean;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateRoutingNo(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 "Routing Version Code" := '';
 
                 if "Routing No." <> xRec."Routing No." then begin
@@ -1526,7 +1532,7 @@ table 5406 "Prod. Order Line"
     local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text) Result: Decimal
     begin
         Result := UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName);
-        OnAfterCalcBaseQty(Rec, xRec, Result);
+        OnAfterCalcBaseQty(Rec, xRec, Result, FromFieldName, ToFieldName);
     end;
 
     procedure IsStatusLessThanReleased(): Boolean
@@ -1603,7 +1609,7 @@ table 5406 "Prod. Order Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcBaseQty(var ProdOrderLine: Record "Prod. Order Line"; var xProdOrderLine: Record "Prod. Order Line"; var Result: Decimal)
+    local procedure OnAfterCalcBaseQty(var ProdOrderLine: Record "Prod. Order Line"; var xProdOrderLine: Record "Prod. Order Line"; var Result: Decimal; FromFieldName: Text; ToFieldName: Text)
     begin
     end;
 
@@ -1706,6 +1712,11 @@ table 5406 "Prod. Order Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var ProdOrderLine: Record "Prod. Order Line"; var xProdOrderLine: Record "Prod. Order Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateRoutingNo(var ProdOrderLine: Record "Prod. Order Line"; var xProdOrderLine: Record "Prod. Order Line"; FieldNumber: Integer; var IsHandled: Boolean)
     begin
     end;
 

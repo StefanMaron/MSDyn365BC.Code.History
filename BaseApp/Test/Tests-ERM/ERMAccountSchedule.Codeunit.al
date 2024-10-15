@@ -97,7 +97,7 @@ codeunit 134902 "ERM Account Schedule"
     end;
 
     [Test]
-    [HandlerFunctions('ValuesOnOverviewPageHandler,ConfirmYesHandler')]
+    [HandlerFunctions('ValuesOnOverviewPageHandler')]
     [Scope('OnPrem')]
     procedure AccountScheduleOverviewByAccountingPeriod()
     begin
@@ -109,7 +109,7 @@ codeunit 134902 "ERM Account Schedule"
     end;
 
     [Test]
-    [HandlerFunctions('ValuesOnOverviewPageHandler,ConfirmYesHandler')]
+    [HandlerFunctions('ValuesOnOverviewPageHandler')]
     [Scope('OnPrem')]
     procedure AccountScheduleOverviewByDay()
     begin
@@ -121,7 +121,7 @@ codeunit 134902 "ERM Account Schedule"
     end;
 
     [Test]
-    [HandlerFunctions('ValuesOnOverviewPageHandler,ConfirmYesHandler')]
+    [HandlerFunctions('ValuesOnOverviewPageHandler')]
     [Scope('OnPrem')]
     procedure AccountScheduleOverviewByMonth()
     begin
@@ -172,7 +172,7 @@ codeunit 134902 "ERM Account Schedule"
     end;
 
     [Test]
-    [HandlerFunctions('ValuesOnOverviewPageHandler,ConfirmYesHandler')]
+    [HandlerFunctions('ValuesOnOverviewPageHandler')]
     [Scope('OnPrem')]
     procedure AccountScheduleOverviewByQuarter()
     begin
@@ -184,7 +184,7 @@ codeunit 134902 "ERM Account Schedule"
     end;
 
     [Test]
-    [HandlerFunctions('ValuesOnOverviewPageHandler,ConfirmYesHandler')]
+    [HandlerFunctions('ValuesOnOverviewPageHandler')]
     [Scope('OnPrem')]
     procedure AccountScheduleOverviewByWeek()
     begin
@@ -196,7 +196,7 @@ codeunit 134902 "ERM Account Schedule"
     end;
 
     [Test]
-    [HandlerFunctions('ValuesOnOverviewPageHandler,ConfirmYesHandler')]
+    [HandlerFunctions('ValuesOnOverviewPageHandler')]
     [Scope('OnPrem')]
     procedure AccountScheduleOverviewByYear()
     begin
@@ -276,7 +276,7 @@ codeunit 134902 "ERM Account Schedule"
     end;
 
     [Test]
-    [HandlerFunctions('ColumnLayoutOnOverviewPageHandler,ConfirmYesHandler')]
+    [HandlerFunctions('ColumnLayoutOnOverviewPageHandler')]
     [Scope('OnPrem')]
     procedure AccountScheduleOverviewWithChangeLayoutName()
     var
@@ -506,7 +506,7 @@ codeunit 134902 "ERM Account Schedule"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,AccScheduleOverviewPageDrillDownHandler,ConfirmYesHandler')]
+    [HandlerFunctions('MessageHandler,AccScheduleOverviewPageDrillDownHandler')]
     [Scope('OnPrem')]
     procedure AccScheduleCostCenterTotalingDrillDown()
     var
@@ -1815,7 +1815,7 @@ codeunit 134902 "ERM Account Schedule"
     end;
 
     [Test]
-    [HandlerFunctions('BlankCellOverviewPageHandler,ConfirmYesHandler')]
+    [HandlerFunctions('BlankCellOverviewPageHandler')]
     [Scope('OnPrem')]
     procedure AccountScheduleOverviewPageRoundingOptionNone()
     var
@@ -1881,7 +1881,7 @@ codeunit 134902 "ERM Account Schedule"
     end;
 
     [Test]
-    [HandlerFunctions('BlankCellOverviewPageHandler,ConfirmYesHandler')]
+    [HandlerFunctions('BlankCellOverviewPageHandler')]
     [Scope('OnPrem')]
     procedure AccountScheduleOverviewPageRoundingOptionNoneSmallNumber()
     var
@@ -2848,7 +2848,7 @@ codeunit 134902 "ERM Account Schedule"
     end;
 
     [Test]
-    [HandlerFunctions('AccScheduleOverviewColumnLayoutChangePageHandler,ConfirmYesHandler')]
+    [HandlerFunctions('AccScheduleOverviewColumnLayoutChangePageHandler')]
     [Scope('OnPrem')]
     procedure AccScheduleOverviewColumnLayoutChange()
     var
@@ -3109,7 +3109,6 @@ codeunit 134902 "ERM Account Schedule"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('ConfirmYesHandler')]
     procedure VerifyDimensionWithTotallingSetup()
     var
         GLAccount: Record "G/L Account";
@@ -3811,7 +3810,6 @@ codeunit 134902 "ERM Account Schedule"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('ConfirmYesHandler')]
     procedure VerifyDimensionFilterWithStandardDimValues()
     var
         AccScheduleLine: Record "Acc. Schedule Line";
@@ -3859,7 +3857,6 @@ codeunit 134902 "ERM Account Schedule"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('ConfirmYesHandler')]
     procedure VerifyDimensionFilterWithTotallingDimValues()
     var
         AccScheduleLine: Record "Acc. Schedule Line";
@@ -3914,7 +3911,6 @@ codeunit 134902 "ERM Account Schedule"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('ConfirmYesHandler')]
     procedure VerifyDimensionFilterWithNestedTotalingDimValues()
     var
         AccScheduleLine: Record "Acc. Schedule Line";
@@ -3964,7 +3960,6 @@ codeunit 134902 "ERM Account Schedule"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('ConfirmYesHandler')]
     procedure VerifyDimensionFilterWithLoopingTotalingDimValues()
     var
         AccScheduleLine: Record "Acc. Schedule Line";
@@ -4012,7 +4007,6 @@ codeunit 134902 "ERM Account Schedule"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('ConfirmYesHandler')]
     procedure VerifyDimensionFilterWithBeginEndTotallingDimValues()
     var
         AccScheduleLine: Record "Acc. Schedule Line";
@@ -4066,7 +4060,6 @@ codeunit 134902 "ERM Account Schedule"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('ConfirmYesHandler')]
     procedure VerifyDimensionFilterWithLongResultingDimValue()
     var
         AccScheduleLine: Record "Acc. Schedule Line";
@@ -4270,7 +4263,6 @@ codeunit 134902 "ERM Account Schedule"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('ConfirmYesHandler')]
     procedure Overview_ChangeAccountScheduleColumnWithColumnOffset()
     var
         AccScheduleName: Record "Acc. Schedule Name";
@@ -4316,7 +4308,6 @@ codeunit 134902 "ERM Account Schedule"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('ConfirmYesHandler')]
     procedure VerifyDimensionFilterWithIncludeExcludeBlankDimValues()
     var
         ColumnLayout: Record "Column Layout";
@@ -4374,7 +4365,6 @@ codeunit 134902 "ERM Account Schedule"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('ConfirmYesHandler')]
     procedure VerifyDimensionFilterWithExcludedValuesIncludedinTotalingFilter()
     var
         ColumnLayout: Record "Column Layout";
@@ -5274,7 +5264,7 @@ codeunit 134902 "ERM Account Schedule"
     end;
 
     [Test]
-    [HandlerFunctions('DimensionValueListPageHandler,ConfirmYesHandler')]
+    [HandlerFunctions('DimensionValueListPageHandler')]
     [Scope('OnPrem')]
     procedure VerifyDimension1FilterNotCopiedfromDimension3Filter()
     var
@@ -5325,7 +5315,7 @@ codeunit 134902 "ERM Account Schedule"
     end;
 
     [Test]
-    [HandlerFunctions('DimensionValueListPageHandler,ConfirmYesHandler')]
+    [HandlerFunctions('DimensionValueListPageHandler')]
     [Scope('OnPrem')]
     procedure VerifyDimension1FilterNotCopiedfromDimension4Filter()
     var
@@ -5373,6 +5363,40 @@ codeunit 134902 "ERM Account Schedule"
         // Tear down
         ResultDimValue.Reset();
         ResultDimValue.DeleteAll();
+    end;
+
+    [Test]
+    [HandlerFunctions('AccountScheduleSetStartEndDatesRequestHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleReportSetsCloseEndate()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        StartDate: Date;
+        EndDate: Date;
+        PeriodTxt: Variant;
+    begin
+        // [SCENARIO 445234] Closing Date should be considered in the Account Schedule Print report.
+        Initialize();
+
+        // [WHEN] Run Account Schedule report with february end date and where start date has blank value (AccountScheduleSetStartEndDatesRequestHandler).
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        Commit();
+
+        // [GIVEN] Assign value to Start Date and End date as close date.
+        StartDate := DMY2Date(1, 1, DATE2DMY(WorkDate(), 3) - 1);
+        EndDate := ClosingDate(DMY2Date(31, 12, DATE2DMY(WorkDate(), 3) - 1));
+        LibraryVariableStorage.Enqueue(StartDate);
+        LibraryVariableStorage.Enqueue(EndDate);
+        AccScheduleName.SetRecFilter;
+
+        // [THEN] Run Account Schedule report.
+        REPORT.Run(REPORT::"Account Schedule", true, false, AccScheduleName);
+
+        // [VERIFY] PeriodText field consists of first day of the last Year of work date and end date as last day of the year work date itself.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.FindCurrentRowValue('PeriodText', PeriodTxt);
+        Assert.IsSubstring(PeriodTxt, Format(EndDate));
     end;
 
     local procedure Initialize()
@@ -6858,12 +6882,6 @@ codeunit 134902 "ERM Account Schedule"
     begin
         Reply := LibraryVariableStorage.DequeueBoolean;
         LibraryVariableStorage.Enqueue(Question);
-    end;
-
-    [ConfirmHandler]
-    procedure ConfirmYesHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := true;
     end;
 
     [MessageHandler]

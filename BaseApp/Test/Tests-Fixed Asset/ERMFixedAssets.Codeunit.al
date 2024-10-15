@@ -2325,7 +2325,7 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
         TempErrorMessage.FindFirst();
         TempErrorMessage.TestField(
-            Description,
+            "Message",
             LibraryErrorMessage.GetMissingAccountErrorMessage(
                 FAPostingGroup.FieldCaption("Depreciation Expense Acc."),
                 FAPostingGroup));

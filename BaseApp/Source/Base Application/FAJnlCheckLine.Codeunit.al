@@ -92,12 +92,12 @@
         Text17300: Label 'Norm Depreciation for Future Expense is not calculated.\Journal Template %1 Journal Batch %2\Future Expence No. %3 %4';
         Text12401: Label 'Fixed Asset No. %1 has been already purchased.';
 
-    procedure CheckFAJnlLine(var FAJnlLine2: Record "FA Journal Line")
+    procedure CheckFAJnlLine(var FAJournalLine: Record "FA Journal Line")
     var
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        with FAJnlLine2 do begin
+        with FAJournalLine do begin
             if "FA No." = '' then
                 exit;
             TestField("FA Posting Date");
@@ -131,10 +131,11 @@
                     Error(DimMgt.GetDimValuePostingErr());
         end;
         GenJnlPosting := false;
-        FAJnlLine := FAJnlLine2;
+        OnCheckFAJnlLineOnBeforeCheckJnlLine(FAJournalLine);
+        FAJnlLine := FAJournalLine;
         CheckJnlLine();
 
-        OnAfterCheckFAJnlLine(FAJnlLine2);
+        OnAfterCheckFAJnlLine(FAJournalLine);
     end;
 
     local procedure CheckAccountNo(var GenJournalLine: Record "Gen. Journal Line")
@@ -728,6 +729,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckConsistencyOnBeforeCheckQuantity(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean; var FAJournalLine: Record "FA Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckFAJnlLineOnBeforeCheckJnlLine(var FAJournalLine2: Record "FA Journal Line")
     begin
     end;
 }

@@ -221,7 +221,7 @@
         if BankAccReconciliationLine.IsEmpty() then
             exit;
 
-        MapLedgerEntriesToStatementLines(BankAccReconciliationLine, Overwrite);
+        MapLedgerEntriesToStatementLines(BankAccReconciliationLine, Overwrite, ApplyEntries);
 
         if ApplyEntries then
             ApplyLedgerEntriesToStatementLines(BankAccReconciliationLine, Overwrite);
@@ -330,7 +330,7 @@
         ShowMatchSummary(BankAccReconciliation);
     end;
 
-    local procedure MapLedgerEntriesToStatementLines(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; Overwrite: Boolean)
+    local procedure MapLedgerEntriesToStatementLines(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; Overwrite: Boolean; ApplyEntries: Boolean)
     var
         Window: Dialog;
         TotalNoOfLines: Integer;
@@ -379,7 +379,7 @@
                 InitializeVendorLedgerEntriesMatchingBuffer(BankAccReconciliationLine, TempVendorLedgerEntryMatchingBuffer);
 
             if not DisableBankLedgerEntriesMatch then
-                InitializeBankAccLedgerEntriesMatchingBuffer(BankAccReconciliationLine, TempBankAccLedgerEntryMatchingBuffer);
+                InitializeBankAccLedgerEntriesMatchingBuffer(BankAccReconciliationLine, TempBankAccLedgerEntryMatchingBuffer, ApplyEntries);
 
             InitializeDirectDebitCollectionEntriesMatchingBuffer(TempDirectDebitCollectionEntryBuffer);
 
@@ -852,6 +852,11 @@
     end;
 
     procedure InitializeBankAccLedgerEntriesMatchingBuffer(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary)
+    begin
+        InitializeBankAccLedgerEntriesMatchingBuffer(BankAccReconciliationLine, TempLedgerEntryMatchingBuffer, false);
+    end;
+
+    procedure InitializeBankAccLedgerEntriesMatchingBuffer(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; SkipReversed: Boolean)
     var
         BankAccLedgerEntry: Record "Bank Account Ledger Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -862,6 +867,8 @@
 
         BankAccLedgerEntry.SetRange(Open, true);
         BankAccLedgerEntry.SetRange("Bank Account No.", BankAccReconciliationLine."Bank Account No.");
+        if SkipReversed then
+            BankAccLedgerEntry.SetRange(Reversed, false);
 
         OnInitBankAccLedgerEntriesMatchingBufferSetFilter(BankAccLedgerEntry, BankAccReconciliationLine);
 

@@ -321,6 +321,7 @@
 
         ItemLedgEntry.SetCurrentKey("Item No.", Open);
         ItemLedgEntry.SetRange(Open, true);
+        OnMoveItemEntriesOnBeforeCheckForOpenEtries(ItemLedgEntry);
         if not ItemLedgEntry.IsEmpty() then
             Error(
               Text001,
@@ -975,6 +976,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeMoveDocRelatedEntries(TableNo: Integer; DocNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMoveItemEntriesOnBeforeCheckForOpenEtries(var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 

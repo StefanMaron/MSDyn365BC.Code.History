@@ -478,6 +478,7 @@
         OldFALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type");
         OldFALedgEntry.SetRange("Document No.", FALedgEntry."Document No.");
         OldFALedgEntry.SetRange("Entry No.", 0, LastEntryNo);
+        OnCheckFADocNoOnAfterOldFALedgEntrySetFilters(OldFALedgEntry, FALedgEntry);
         if OldFALedgEntry.FindFirst() then
             Error(
               Text007,
@@ -1142,6 +1143,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeInsertRegister(var FALedgerEntry: Record "FA Ledger Entry"; var FALedgerEntry2: Record "FA Ledger Entry"; var NextEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckFADocNoOnAfterOldFALedgEntrySetFilters(OldFALedgEntry: Record "FA Ledger Entry"; FALedgEntry: Record "FA Ledger Entry")
     begin
     end;
 

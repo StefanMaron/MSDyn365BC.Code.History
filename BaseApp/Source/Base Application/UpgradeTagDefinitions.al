@@ -124,6 +124,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetVATDateFieldGLEntriesUpgrade());
         PerCompanyUpgradeTags.Add(GetVATDateFieldVATEntriesUpgrade());
         PerCompanyUpgradeTags.Add(GetVATDateFieldSalesPurchUpgrade());
+        PerCompanyUpgradeTags.Add(GetSendCloudMigrationUpgradeTelemetryBaseAppTag());
         PerCompanyUpgradeTags.Add(GetVATDateFieldIssuedDocsUpgrade());
     end;
 
@@ -1007,6 +1008,21 @@ codeunit 9998 "Upgrade Tag Definitions"
     procedure GetPurchaserOnRequisitionLineUpdateTag(): Code[250]
     begin
         exit('MS-449640-GetPurchaserOnRequisitionLineUpdateTag-20221117');
+    end;
+
+    internal procedure GetErrorMessageDescriptionUpgradeTag(): Code[250]
+    begin
+        exit('MS-459826-GetErrorMessageDescriptionUpgradeTag-20220109');
+    end;
+
+    internal procedure GetErrorMessageRegisterDescriptionUpgradeTag(): Code[250]
+    begin
+        exit('MS-459826-GetErrorMessageRegisterDescriptionUpgradeTag-20220109');
+    end;
+
+    internal procedure GetSendCloudMigrationUpgradeTelemetryBaseAppTag(): Text[250]
+    begin
+        exit('MS-456494-CloudMigrationUptakeBaseApp-20220130');
     end;
 }
 
