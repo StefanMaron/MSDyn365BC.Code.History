@@ -13,6 +13,7 @@ permissionset 6719 "Jobs - Edit"
                   tabledata "G/L Entry" = r,
                   tabledata "Gen. Journal Line" = r,
                   tabledata "General Ledger Setup" = RM,
+                  tabledata "VAT Setup" = RM,
                   tabledata Job = RIMD,
 #if not CLEAN21
                   tabledata "Job G/L Account Price" = RIMD,
