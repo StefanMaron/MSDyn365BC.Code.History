@@ -34,6 +34,7 @@ codeunit 1023 "Job Jnl.-B.Post"
                 JobJnlLine."Journal Template Name" := "Journal Template Name";
                 JobJnlLine."Journal Batch Name" := Name;
                 JobJnlLine."Line No." := 1;
+                OnCodeOnBeforeJobJnlPostBatchRun(JobJnlLine, JobJnlBatch);
                 Clear(JobJnlPostbatch);
                 if JobJnlPostbatch.Run(JobJnlLine) then
                     Mark(false)
@@ -58,6 +59,11 @@ codeunit 1023 "Job Jnl.-B.Post"
                 Name := '';
             end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeJobJnlPostBatchRun(var JobJournalLine: Record "Job Journal Line"; var JobJournalBatch: Record "Job Journal Batch")
+    begin
     end;
 }
 

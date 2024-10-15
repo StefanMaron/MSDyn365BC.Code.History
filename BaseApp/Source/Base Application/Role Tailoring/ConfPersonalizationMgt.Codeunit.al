@@ -479,32 +479,32 @@ codeunit 9170 "Conf./Personalization Mgt."
 
     procedure GetProfileConfigurationUrlForWeb(AllProfile: Record "All Profile"): Text
     var
-        DotNetUriBuilder: Codeunit DotNet_UriBuilder;
-        DotNetUri: Codeunit DotNet_Uri;
+        UriBuilder: Codeunit "Uri Builder";
+        Uri: Codeunit Uri;
         BaseUrl: Text;
         QueryString: Text;
     begin
-        DotNetUriBuilder.Init(GetUrl(ClientType::Web));
+        UriBuilder.Init(GetUrl(ClientType::Web));
 
         // From the DotNet UriBuilder.Query Property documentation:
         //   *Note* Do not append a string directly to this property. If the length of Query is greater than 1, retrieve the property value as a string, 
         //   remove the leading question mark, append the new query string, and set the property with the combined string. 
         // Should be moved to a URL helper codeunit when time allows, that also checks that we are not adding query parameters that are there already
-        QueryString := DotNetUriBuilder.GetQuery();
+        QueryString := UriBuilder.GetQuery();
         QueryString := DelChr(QueryString, '<', '?');
         if StrLen(QueryString) > 0 then
             QueryString := StrSubstNo('%1&%2&%3',
                 QueryString,
                 UrlConfigureParameterTxt,
-                StrSubstNo(UrlProfileParameterTxt, DotNetUri.EscapeDataString(AllProfile."Profile ID")))
+                StrSubstNo(UrlProfileParameterTxt, Uri.EscapeDataString(AllProfile."Profile ID")))
         else
             QueryString := StrSubstNo('%1&%2',
                 UrlConfigureParameterTxt,
-                StrSubstNo(UrlProfileParameterTxt, DotNetUri.EscapeDataString(AllProfile."Profile ID")));
+                StrSubstNo(UrlProfileParameterTxt, Uri.EscapeDataString(AllProfile."Profile ID")));
 
-        DotNetUriBuilder.SetQuery(QueryString);
-        DotNetUriBuilder.GetUri(DotNetUri);
-        exit(DotNetUri.AbsoluteUri());
+        UriBuilder.SetQuery(QueryString);
+        UriBuilder.GetUri(Uri);
+        exit(Uri.GetAbsoluteUri());
     end;
 
     procedure CanDeleteProfile(AllProfile: Record "All Profile"): Boolean

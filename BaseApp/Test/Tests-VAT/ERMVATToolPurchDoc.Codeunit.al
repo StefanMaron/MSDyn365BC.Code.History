@@ -22,6 +22,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         LibraryRandom: Codeunit "Library - Random";
         LibraryERM: Codeunit "Library - ERM";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
         GroupFilter: Label '%1|%2';
 
@@ -31,7 +32,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM VAT Tool - Purch. Doc");
         ERMVATToolHelper.ResetToolSetup;  // This resets the setup table for all test cases.
-
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
@@ -42,6 +43,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         ERMVATToolHelper.SetupItemNos;
         ERMVATToolHelper.ResetToolSetup;  // This resets setup table for the first test case after database is restored.
+        LibrarySetupStorage.SavePurchasesSetup();
 
         isInitialized := true;
         Commit();
@@ -976,6 +978,39 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         PurchaseLine.Find();
         PurchaseLine.TestField("Direct Unit Cost", ExpectedUnitPrice);
 
+        ERMVATToolHelper.DeleteGroups();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ConvertPartiallyReceivedOrderWithBlankQtyToReceive()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TempRecRef: RecordRef;
+    begin
+        // [SCENARIO 362310] Stan can convert a VAT group of the Purchase Order that was partially received and "Default Qty. to Receive" is enabled in Purchase & Payables setup
+
+        Initialize();
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate(
+          "Default Qty. to Receive", PurchasesPayablesSetup."Default Qty. to Receive"::Blank);
+        PurchasesPayablesSetup.Modify(true);
+
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        ERMVATToolHelper.CreatePurchaseDocumentWithRef(PurchaseHeader, TempRecRef, PurchaseHeader."Document Type"::Order, '', 1);
+        ERMVATToolHelper.UpdateQtyToReceive(PurchaseHeader);
+        ERMVATToolHelper.CreateLinesRefPurchase(TempRecRef, PurchaseHeader);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        ERMVATToolHelper.UpdateQtyToReceive(PurchaseHeader);
+        SetupToolPurch(VATRateChangeSetup2."Update Purchase Documents"::"VAT Prod. Posting Group", true, true);
+        GetPurchaseLine(PurchaseHeader, PurchaseLine);
+
+        ERMVATToolHelper.RunVATRateChangeTool();
+
+        VerifyLineConverted(PurchaseHeader, PurchaseLine."Quantity Received", PurchaseLine.Quantity - PurchaseLine."Quantity Received");
         ERMVATToolHelper.DeleteGroups();
     end;
 
@@ -1959,6 +1994,27 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
             TestField("VAT Prod. Posting Group", VATProdPostingGroup);
             TestField("Gen. Prod. Posting Group", GenProdPostingGroup);
         end;
+    end;
+
+    local procedure VerifyLineConverted(PurchaseHeader: Record "Purchase Header"; QtyReceived: Decimal; QtyToBeConverted: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+        VATProdPostingGroupCode: Code[20];
+        GenProdPostingGroupCode: Code[20];
+    begin
+        GetPurchaseLine(PurchaseHeader, PurchaseLine);
+        PurchaseLine.TestField(Quantity, QtyReceived);
+        PurchaseLine.TestField("Quantity Received", QtyReceived);
+        ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroupCode, GenProdPostingGroupCode);
+        PurchaseLine.TestField("Gen. Prod. Posting Group", GenProdPostingGroupCode);
+        PurchaseLine.TestField("VAT Prod. Posting Group", VATProdPostingGroupCode);
+        Assert.AreEqual(1, PurchaseLine.Next(), 'No second line has been generated');
+        PurchaseLine.TestField(Quantity, QtyToBeConverted);
+        PurchaseLine.TestField("Quantity Received", 0);
+        ERMVATToolHelper.GetGroupsAfter(VATProdPostingGroupCode, GenProdPostingGroupCode, DATABASE::"Purchase Line");
+        PurchaseLine.TestField("Gen. Prod. Posting Group", GenProdPostingGroupCode);
+        PurchaseLine.TestField("VAT Prod. Posting Group", VATProdPostingGroupCode);
+        Assert.AreEqual(0, PurchaseLine.Next(), 'The third line has been generated');
     end;
 
     [ModalPageHandler]

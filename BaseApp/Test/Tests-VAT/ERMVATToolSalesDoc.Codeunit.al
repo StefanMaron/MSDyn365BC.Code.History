@@ -23,6 +23,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
         GroupFilter: Label '%1|%2';
 
@@ -31,8 +32,8 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM VAT Tool - Sales Doc");
-        ERMVATToolHelper.ResetToolSetup;  // This resets the setup table for all test cases.
-
+        ERMVATToolHelper.ResetToolSetup();  // This resets the setup table for all test cases.
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
@@ -42,6 +43,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         ERMVATToolHelper.SetupItemNos;
         ERMVATToolHelper.ResetToolSetup;  // This resets setup table for the first test case after database is restored.
+        LibrarySetupStorage.SaveSalesSetup();
 
         isInitialized := true;
         Commit();
@@ -1047,6 +1049,38 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesLine.Find();
         SalesLine.TestField("Unit Price", ExpectedUnitPrice);
 
+        ERMVATToolHelper.DeleteGroups();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ConvertPartiallyReceivedOrderWithBlankQtyToReceive()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TempRecRef: RecordRef;
+    begin
+        // [SCENARIO 362310] Stan can convert a VAT group of the Sales Order that was partially received and "Default Quantity to Shup" is enabled in the Sales & Receivables setup
+
+        Initialize();
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Default Quantity to Ship", SalesReceivablesSetup."Default Quantity to Ship"::Blank);
+        SalesReceivablesSetup.Modify(true);
+
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        ERMVATToolHelper.CreateSalesDocumentWithRef(SalesHeader, TempRecRef, SalesHeader."Document Type"::Order, '', 1);
+        ERMVATToolHelper.UpdateQtyToShip(SalesHeader);
+        ERMVATToolHelper.CreateLinesRefSales(TempRecRef, SalesHeader);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        ERMVATToolHelper.UpdateQtyToShip(SalesHeader);
+        SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::"VAT Prod. Posting Group", true, true);
+        GetSalesLine(SalesHeader, SalesLine);
+
+        ERMVATToolHelper.RunVATRateChangeTool();
+
+        VerifyLineConverted(SalesHeader, SalesLine."Quantity Shipped", SalesLine.Quantity - SalesLine."Quantity Shipped");
         ERMVATToolHelper.DeleteGroups();
     end;
 
@@ -2295,6 +2329,27 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
     begin
         ERMVATToolHelper.VerifyUpdate(SalesTempRecRef, false);
         ERMVATToolHelper.VerifyUpdate(PurchaseTempRecRef, false);
+    end;
+
+    local procedure VerifyLineConverted(SalesHeader: Record "Sales Header"; QtyShipped: Decimal; QtyToBeConverted: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+        VATProdPostingGroupCode: Code[20];
+        GenProdPostingGroupCode: Code[20];
+    begin
+        GetSalesLine(SalesHeader, SalesLine);
+        SalesLine.TestField(Quantity, QtyShipped);
+        SalesLine.TestField("Quantity Shipped", QtyShipped);
+        ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroupCode, GenProdPostingGroupCode);
+        SalesLine.TestField("Gen. Prod. Posting Group", GenProdPostingGroupCode);
+        SalesLine.TestField("VAT Prod. Posting Group", VATProdPostingGroupCode);
+        Assert.AreEqual(1, SalesLine.Next(), 'No second line has been generated');
+        SalesLine.TestField(Quantity, QtyToBeConverted);
+        SalesLine.TestField("Quantity Shipped", 0);
+        ERMVATToolHelper.GetGroupsAfter(VATProdPostingGroupCode, GenProdPostingGroupCode, DATABASE::"Sales Line");
+        SalesLine.TestField("Gen. Prod. Posting Group", GenProdPostingGroupCode);
+        SalesLine.TestField("VAT Prod. Posting Group", VATProdPostingGroupCode);
+        Assert.AreEqual(0, SalesLine.Next(), 'The third line has been generated');
     end;
 
     [ModalPageHandler]

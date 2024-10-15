@@ -832,8 +832,6 @@ table 246 "Requisition Line"
             Caption = 'Product Group Code';
             ObsoleteReason = 'Product Groups became first level children of Item Categories.';
             ObsoleteState = Removed;
-            TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
-            ValidateTableRelation = false;
             ObsoleteTag = '15.0';
         }
         field(5706; "Transfer-from Code"; Code[10])

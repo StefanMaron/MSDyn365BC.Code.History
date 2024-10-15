@@ -397,11 +397,17 @@ table 9657 "Custom Report Selection"
         "Send To Email" := CopyStr(EmailList, 1, MaxStrLen("Send To Email"));
     end;
 
+    [Obsolete('Replaced by UpdateSendtoEmail(Update: Boolean).', '17.0')]
     procedure UpdateSendtoEmail()
+    begin
+        UpdateSendtoEmail(true);
+    end;
+
+    procedure UpdateSendtoEmail(Update: Boolean)
     begin
         if FindSet() then
             repeat
-                GetSendToEmail(true);
+                GetSendToEmail(Update);
             until Next() = 0;
     end;
 

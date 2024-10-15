@@ -1105,7 +1105,6 @@ codeunit 134462 "ERM Copy Item"
     procedure ValuesFromCopyItemParameters()
     var
         Item: Record Item;
-        CopyItemBuffer: Record "Copy Item Buffer";
         CopyItemParameters: Record "Copy Item Parameters";
     begin
         // [FEATURE] [UI]
@@ -1128,6 +1127,36 @@ codeunit 134462 "ERM Copy Item"
         // [THEN] Copy Item page has Comment = "Yes" and "Units of Measure" = "Yes"
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Comment must be Yes');
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Units of Measure must be Yes');
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyItemCheckSourceItemNoPageHandler')]
+    [Scope('OnPrem')]
+    procedure SourceItemNo()
+    var
+        Item: array[2] of Record Item;
+        CopyItemParameters: Record "Copy Item Parameters";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 364110] Source item number initialized correctly after previous item was copied
+        Initialize();
+
+        // [GIVEN] Item "I1" 
+        LibraryInventory.CreateItem(Item[1]);
+        // [GIVEN] Item "I2" 
+        LibraryInventory.CreateItem(Item[2]);
+
+        // [GIVEN] Mock Copy Item Parameters for current user with "Source Item No." = "I1"
+        CopyItemParameters.DeleteAll();
+        CopyItemParameters."User ID" := UserId();
+        CopyItemParameters."Source Item No." := Item[1]."No.";
+        CopyItemParameters.Insert();
+
+        // [WHEN] Run copy item function 
+        CopyItem(Item[2]."No.");
+
+        // [THEN] Copy Item page has "Source Item No." = "I2"
+        Assert.AreEqual(Item[2]."No.", LibraryVariableStorage.DequeueText(), 'Invalid Source Item No.');
     end;
 
     local procedure Initialize()
@@ -1637,6 +1666,14 @@ codeunit 134462 "ERM Copy Item"
     begin
         LibraryVariableStorage.Enqueue(CopyItem.Comments.AsBoolean());
         LibraryVariableStorage.Enqueue(CopyItem.UnitsOfMeasure.AsBoolean());
+        CopyItem.Cancel.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CopyItemCheckSourceItemNoPageHandler(var CopyItem: TestPage "Copy Item")
+    begin
+        LibraryVariableStorage.Enqueue(CopyItem.SourceItemNo.Value);
         CopyItem.Cancel.Invoke;
     end;
 

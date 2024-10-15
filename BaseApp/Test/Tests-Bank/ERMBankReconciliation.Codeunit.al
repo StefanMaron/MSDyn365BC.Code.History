@@ -1566,6 +1566,28 @@ codeunit 134141 "ERM Bank Reconciliation"
         LibraryReportDataset.AssertElementWithValueExists('Difference', 0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TheFieldExternalDocumentNoAddedToApplyBankAccLedgerEntries()
+    var
+        ApplyBankAccLedgerEntries: TestPage "Apply Bank Acc. Ledger Entries";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 361628] Open page "Apply Bank Acc. Ledger Entries" and ckeck visibility of "External Document No." variable
+        Initialize();
+
+        // [GIVEN] Enabled foundation setup
+        LibraryApplicationArea.EnableFoundationSetup();
+
+        // [WHEN] Page "Apply Bank Acc. Ledger Entries" is opened
+        ApplyBankAccLedgerEntries.OpenEdit();
+
+        // [THEN] The variable "External Document No." is visible
+        Assert.IsTrue(ApplyBankAccLedgerEntries."External Document No.".Visible, '');
+        ApplyBankAccLedgerEntries.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Bank Reconciliation");
