@@ -517,6 +517,12 @@
                     ToolTip = 'Specifies an insurance number if you have selected the Acquisition Cost option in the FA Posting Type field.';
                     Visible = false;
                 }
+                field("FA Posting Date"; Rec."FA Posting Date")
+                {
+                    ApplicationArea = FixedAssets;
+                    ToolTip = 'Specifies the FA posting date if you have selected Fixed Asset in the Type field for this line.';
+                    Visible = false;
+                }
                 field("Budgeted FA No."; "Budgeted FA No.")
                 {
                     ApplicationArea = FixedAssets;
@@ -1242,7 +1248,9 @@
         UnitofMeasureCodeIsChangeable := Type <> Type::" ";
 
         CurrPageIsEditable := CurrPage.Editable;
-        InvDiscAmountEditable := CurrPageIsEditable and not PurchasesPayablesSetup."Calc. Inv. Discount";
+        InvDiscAmountEditable := 
+            CurrPageIsEditable and not PurchasesPayablesSetup."Calc. Inv. Discount" and
+            (TotalPurchaseHeader.Status = TotalPurchaseHeader.Status::Open);
 
         OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);
     end;
@@ -1261,6 +1269,11 @@
     local procedure GetTotalPurchHeader()
     begin
         DocumentTotals.GetTotalPurchaseHeaderAndCurrency(Rec, TotalPurchaseHeader, Currency);
+    end;
+
+    procedure ClearTotalPurchaseHeader();
+    begin
+        Clear(TotalPurchaseHeader);
     end;
 
     procedure CalculateTotals()

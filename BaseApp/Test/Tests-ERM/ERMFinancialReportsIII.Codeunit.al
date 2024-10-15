@@ -1529,6 +1529,7 @@ codeunit 134987 "ERM Financial Reports III"
 
         PaymentJournal.OpenEdit;
         PaymentJournal.CurrentJnlBatchName.SetValue := BatchName;
+        Commit();
         PaymentJournal.PrintCheck.Invoke;
     end;
 

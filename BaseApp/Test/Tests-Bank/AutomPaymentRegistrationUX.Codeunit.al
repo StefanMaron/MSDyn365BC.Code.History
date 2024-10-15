@@ -98,7 +98,7 @@ codeunit 134711 "Autom. Payment Registration.UX"
     end;
 
     [Test]
-    [HandlerFunctions('UIConfirmHandler')]
+    [HandlerFunctions('UIConfirmHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure Post_YesNo()
     var
@@ -116,6 +116,7 @@ codeunit 134711 "Autom. Payment Registration.UX"
 
         BankPaymentApplication.OpenEdit;
         BankPaymentApplication.GotoRecord(BankAccReconciliationLine);
+        UpdateBankAccRecStmEndingBalance(BankAccReconciliation, BankAccReconciliation."Balance Last Statement" + BankAccReconciliationLine."Statement Amount");
         asserterror BankPaymentApplication.Post.Invoke;
         Assert.ExpectedError(
           StrSubstNo(LineNoTAppliedErr, BankAccReconciliationLine."Transaction Date", BankAccReconciliationLine."Transaction Text"));
@@ -191,6 +192,12 @@ codeunit 134711 "Autom. Payment Registration.UX"
         exit(BankAccount."No.");
     end;
 
+    local procedure UpdateBankAccRecStmEndingBalance(var BankAccRecon: Record "Bank Acc. Reconciliation"; NewStmEndingBalance: Decimal)
+    begin
+        BankAccRecon.Validate("Statement Ending Balance", NewStmEndingBalance);
+        BankAccRecon.Modify();
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure UIConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -215,6 +222,13 @@ codeunit 134711 "Autom. Payment Registration.UX"
     procedure ModalBasicBankAccountCardHandler(var BasicBankAccountCard: TestPage "Bank Account Card")
     begin
         BasicBankAccountCard.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
+    begin
+        PostPmtsAndRecBankAcc.OK.Invoke();
     end;
 }
 

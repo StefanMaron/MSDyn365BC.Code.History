@@ -281,9 +281,7 @@ page 9302 "Sales Credit Memos"
 
                     trigger OnAction()
                     begin
-                        CalcInvDiscForHeader;
-                        Commit();
-                        PAGE.RunModal(PAGE::"Sales Statistics", Rec);
+                        OpenDocumentStatistics();
                     end;
                 }
                 action("Co&mments")

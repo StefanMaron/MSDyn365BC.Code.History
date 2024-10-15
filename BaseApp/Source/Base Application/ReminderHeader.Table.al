@@ -897,7 +897,13 @@ table 295 "Reminder Header"
         SourceCodeSetup: Record "Source Code Setup";
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateDim(Rec, CurrFieldNo, TableID, No, Type1, No1, SourceCodeSetup, IsHandled);
+        if IsHandled then
+            exit;
+
         SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
@@ -908,6 +914,8 @@ table 295 "Reminder Header"
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, TableID, No, SourceCodeSetup.Reminder, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+        OnAfterCreateDim(Rec, CurrFieldNo, TableID, No);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -1017,6 +1025,8 @@ table 295 "Reminder Header"
           DimMgt.EditDimensionSet(
             "Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterShowDocDim(Rec);
     end;
 
     procedure CalculateLineFeeVATAmount(): Decimal
@@ -1104,6 +1114,11 @@ table 295 "Reminder Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var ReminderHeader: Record "Reminder Header"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetNoSeriesCode(var ReminderHeader: Record "Reminder Header"; SalesSetup: Record "Sales & Receivables Setup"; var NoSeriesCode: Code[20])
     begin
     end;
@@ -1130,6 +1145,16 @@ table 295 "Reminder Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateLines(var ReminderHeader: Record "Reminder Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDocDim(var ReminderHeader: Record "Reminder Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDim(var ReminderHeader: Record "Reminder Header"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20]; Type1: Integer; No1: Code[20]; SourceCodeSetup: Record "Source Code Setup"; var IsHandled: Boolean)
     begin
     end;
 

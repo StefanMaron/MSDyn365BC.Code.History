@@ -27,6 +27,7 @@
 
             trigger OnValidate()
             begin
+                OnBeforeValidateCustomerNo(Rec);
                 if CurrFieldNo = FieldNo("Customer No.") then
                     if Undo then begin
                         "Customer No." := xRec."Customer No.";
@@ -805,6 +806,8 @@
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
 
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterCreateDim(Rec, CurrFieldNo, TableID, No);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -914,6 +917,8 @@
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterShowDocDim(Rec);
     end;
 
     local procedure GetFilterCustNo(): Code[20]
@@ -945,6 +950,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDocDim(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; CurrFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterTestNoSeries(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
     begin
     end;
@@ -966,6 +981,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertFinChrgMemoLine(var FinChrgMemoLine: Record "Finance Charge Memo Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCustomerNo(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
     begin
     end;
 

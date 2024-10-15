@@ -34,7 +34,7 @@ codeunit 1393 "Cancel Issued Reminder"
         EmptyTemplateNameErr: Label 'Enter a Journal Template Name.';
         EmptyBatchNameErr: Label 'Enter a Journal Batch Name.';
 
-    local procedure CheckIssuedReminder(IssuedReminderHeader: Record "Issued Reminder Header"): Boolean
+    local procedure CheckIssuedReminder(IssuedReminderHeader: Record "Issued Reminder Header") Result: Boolean
     begin
         IssuedReminderHeader.TestField(Canceled, false);
 
@@ -48,7 +48,8 @@ codeunit 1393 "Cancel Issued Reminder"
         if not CheckNextReminderLevel(IssuedReminderHeader) then
             exit(false);
 
-        exit(true);
+        Result := true;
+        OnAfterCheckIssuedReminder(IssuedReminderHeader, SkipShowNotification, TempErrorMessage, Result);
     end;
 
     local procedure CancelIssuedReminder(var IssuedReminderHeader: Record "Issued Reminder Header")
@@ -395,6 +396,11 @@ codeunit 1393 "Cancel Issued Reminder"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; IssuedReminderHeader: Record "Issued Reminder Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckIssuedReminder(IssuedReminderHeader: Record "Issued Reminder Header"; SkipShowNotification: boolean; var TempErrMessage: Record "Error Message" temporary; var Result: Boolean)
     begin
     end;
 
