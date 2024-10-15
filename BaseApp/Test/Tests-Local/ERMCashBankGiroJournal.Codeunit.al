@@ -935,6 +935,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CBGStatement: Record "CBG Statement";
         CBGStatementLine: Record "CBG Statement Line";
         CBGStatementLineAddInfo: Record "CBG Statement Line Add. Info.";
+        DummyPaymentHistoryLine: Record "Payment History Line";
         CBGStatementReconciliation: Codeunit "CBG Statement Reconciliation";
     begin
         // [FEATURE] [CBG Statement] [UT]
@@ -958,7 +959,8 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
           UpperCase(LibraryUtility.GenerateRandomText(MaxStrLen(CBGStatementLine.Identification)));
         CBGStatementLineAddInfo.Modify;
 
-        CreatePaymentHistoryLine(CBGStatementLine, CBGStatementLineAddInfo.Description);
+        CreatePaymentHistoryLine(
+          CBGStatementLine, CBGStatementLineAddInfo.Description, DummyPaymentHistoryLine."Account Type"::Customer, '');
 
         // [WHEN] MatchCBGStatementLine function of "CBG Statement Reconciliation" codeunit is called for created CBG Statement
         CBGStatementReconciliation.MatchCBGStatementLine(CBGStatement, CBGStatementLine);
@@ -1885,6 +1887,44 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [THEN] Reconciliation status of CBG Statement Line is Applied.
         CBGStatementLine.Find;
+        CBGStatementLine.TestField("Reconciliation Status", CBGStatementLine."Reconciliation Status"::Applied);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MatchCBGStatementLineAmountSettledIsSetWhenPaymentIdentification()
+    var
+        CBGStatement: Record "CBG Statement";
+        CBGStatementLine: Record "CBG Statement Line";
+        CBGStatementLineAddInfo: Record "CBG Statement Line Add. Info.";
+        DummyPaymentHistoryLine: Record "Payment History Line";
+        CBGStatementReconciliation: Codeunit "CBG Statement Reconciliation";
+        PaymentAmount: Decimal;
+    begin
+        // [FEATURE] [CBG Statement] [UT]
+        // [SCENARIO 328711] "Amount Settled" of CBG Statement line is set during reconciliation process in case Information Type = "Payment Identification".
+
+        // [GIVEN] CBG Statement. CBG Statement Line with Debit amount 150.
+        PaymentAmount := LibraryRandom.RandDecInRange(100, 200, 2);
+        CreateCBGStatement(CBGStatement);
+        AddCBGStatementLine(
+          CBGStatementLine, CBGStatement."Journal Template Name", CBGStatement."No.",
+          CBGStatement."Account Type", CBGStatement."Account No.", PaymentAmount, 0);
+
+        // [GIVEN] CBG Statement Line Add. Info with Information Type = "Payment Identification" and Description "D1".
+        // [GIVEN] Payment History Line with Amount = 150, Identification = "D1".
+        CreateCBGStatementLineAddInfo(
+          CBGStatementLineAddInfo, CBGStatement."Journal Template Name", CBGStatement."No.", CBGStatementLine."Line No.",
+          CBGStatementLineAddInfo."Information Type"::"Payment Identification", LibraryUtility.GenerateGUID);
+        CreatePaymentHistoryLine(
+          CBGStatementLine, CBGStatementLineAddInfo.Description,
+          DummyPaymentHistoryLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo);
+
+        // [WHEN] Run MatchCBGStatementLine function of "CBG Statement Reconciliation" codeunit.
+        CBGStatementReconciliation.MatchCBGStatementLine(CBGStatement, CBGStatementLine);
+
+        // [THEN] "Amount Settled" of CBG Statement line has value 150.
+        CBGStatementLine.TestField("Amount Settled", PaymentAmount);
         CBGStatementLine.TestField("Reconciliation Status", CBGStatementLine."Reconciliation Status"::Applied);
     end;
 
@@ -3092,14 +3132,15 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         end;
     end;
 
-    local procedure CreatePaymentHistoryLine(CBGStatementLine: Record "CBG Statement Line"; Identification: Code[80])
+    local procedure CreatePaymentHistoryLine(CBGStatementLine: Record "CBG Statement Line"; Identification: Code[80]; AccountType: Option; AccountNo: Code[20])
     var
         PaymentHistoryLine: Record "Payment History Line";
     begin
         PaymentHistoryLine.Init;
         PaymentHistoryLine."Our Bank" := CBGStatementLine."Statement No.";
         PaymentHistoryLine.Amount := CBGStatementLine.Amount;
-        PaymentHistoryLine."Account No." := CBGStatementLine."Account No.";
+        PaymentHistoryLine."Account Type" := AccountType;
+        PaymentHistoryLine."Account No." := AccountNo;
         PaymentHistoryLine.Status := PaymentHistoryLine.Status::Transmitted;
         PaymentHistoryLine.Identification := Identification;
         PaymentHistoryLine.Insert;
@@ -3421,8 +3462,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
             Validate("Statement Type", StatementType);
             Validate("Statement No.", StatementNo);
             Validate(Date, WorkDate);
-            Validate(Debit, CBGDebit);
-            Validate(Credit, CBGCredit);
+            Validate(Amount, CBGDebit - CBGCredit);
             Modify(true);
         end;
     end;

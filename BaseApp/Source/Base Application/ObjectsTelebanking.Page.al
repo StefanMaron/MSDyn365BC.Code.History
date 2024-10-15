@@ -3,6 +3,8 @@ page 11000013 "Objects (Telebanking)"
     Caption = 'Objects';
     PageType = List;
     SourceTable = "Object";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced with the AL Objects (Telebanking) page';
 
     layout
     {

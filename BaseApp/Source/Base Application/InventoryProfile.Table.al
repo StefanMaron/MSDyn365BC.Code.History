@@ -521,6 +521,8 @@ table 99000853 "Inventory Profile"
                 "Primary Order Type" := OppositeReservEntry."Source Type";
                 "Primary Order Status" := OppositeReservEntry."Source Subtype";
                 "Primary Order No." := OppositeReservEntry."Source ID";
+                if OppositeReservEntry."Source Type" = DATABASE::"Prod. Order Component" then
+                    "Primary Order Line" := OppositeReservEntry."Source Prod. Order Line";
             end;
 
             Binding := ReservEntry.Binding;
@@ -920,7 +922,9 @@ table 99000853 "Inventory Profile"
                                 "Primary Order Status" := OppositeReservEntry."Source Subtype";
                                 "Primary Order No." := OppositeReservEntry."Source ID";
                                 if OppositeReservEntry."Source Type" <> DATABASE::"Prod. Order Component" then
-                                    "Primary Order Line" := OppositeReservEntry."Source Ref. No.";
+                                    "Primary Order Line" := OppositeReservEntry."Source Ref. No."
+                                else
+                                    "Primary Order Line" := OppositeReservEntry."Source Prod. Order Line";
                             end;
                             Binding := ReservEntry.Binding;
                             "Disallow Cancellation" := ReservEntry."Disallow Cancellation";

@@ -30,6 +30,7 @@ codeunit 144013 "UT Cash Bank Giro"
 
     trigger OnRun()
     begin
+        // [FEATURE] [UT]
     end;
 
     var
@@ -129,7 +130,6 @@ codeunit 144013 "UT Cash Bank Giro"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure CheckBankAccNoAccLengthTenLocalFunctionalityMgt()
@@ -247,6 +247,62 @@ codeunit 144013 "UT Cash Bank Giro"
 
         // Verify: Verify Phone No.
         Assert.AreEqual('+31' + CopyStr(PhoneNo, CopyFrom), LocalFunctionalityMgt.ConvertPhoneNumber(PhoneNo), 'Value must be equal.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckBankAccNoIsNotDoingMod11Check()
+    var
+        LocalFunctionalityMgt: Codeunit "Local Functionality Mgt.";
+        AccountNo: Text[30];
+    begin
+        // [SCENARIO 331593] CheckBankAccountNo return TRUE for Bank Account No. which does not satisfy MOD11 check.
+        Initialize;
+
+        AccountNo := Format(387080820);
+        Assert.IsTrue(LocalFunctionalityMgt.CheckBankAccNo(AccountNo, '', AccountNo), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckBankAccNoAccLengthEight()
+    var
+        LocalFunctionalityMgt: Codeunit "Local Functionality Mgt.";
+        AccountNo: Text[30];
+    begin
+        // [SCENARIO 331593] CheckBankAccountNo return FALSE for Bank Account No. of length 8.
+        Initialize;
+
+        AccountNo := Format(LibraryRandom.RandIntInRange(10000000, 99999999));
+        Assert.IsFalse(LocalFunctionalityMgt.CheckBankAccNo(AccountNo, '', AccountNo), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckBankAccNoAccLengthNine()
+    var
+        LocalFunctionalityMgt: Codeunit "Local Functionality Mgt.";
+        AccountNo: Text[30];
+    begin
+        // [SCENARIO 331593] CheckBankAccountNo return TRUE for Bank Account No. of length 9.
+        Initialize;
+
+        AccountNo := Format(LibraryRandom.RandIntInRange(100000000, 999999999));
+        Assert.IsTrue(LocalFunctionalityMgt.CheckBankAccNo(AccountNo, '', AccountNo), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckBankAccNoAccLengthEleven()
+    var
+        LocalFunctionalityMgt: Codeunit "Local Functionality Mgt.";
+        AccountNo: Text[30];
+    begin
+        // [SCENARIO 331593] CheckBankAccountNo return FALSE for Bank Account No. of length 11.
+        Initialize;
+
+        AccountNo := Format(LibraryRandom.RandIntInRange(100000000, 999999999)) + '00';
+        Assert.IsFalse(LocalFunctionalityMgt.CheckBankAccNo(AccountNo, '', AccountNo), '');
     end;
 
     local procedure Initialize()

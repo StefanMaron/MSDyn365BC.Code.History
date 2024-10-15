@@ -84,9 +84,9 @@ page 2343 "BC O365 Payment Instr. Card"
         DefaultTxt: Text;
         InstructionsAreDefaultTxt: Label 'These are the default payment instructions';
         IsDefault: Boolean;
-        PaymentInstrCategoryLbl: Label 'AL Payment Instructions', Comment = '{LOCKED}';
-        SetAsDefaultTelemetryTxt: Label 'Default payment instructions changed.', Comment = '{LOCKED}';
-        NewRecordTelemetryTxt: Label 'New payment instructions inserted.', Comment = '{LOCKED}';
+        PaymentInstrCategoryLbl: Label 'AL Payment Instructions', Locked = true;
+        SetAsDefaultTelemetryTxt: Label 'Default payment instructions changed.', Locked = true;
+        NewRecordTelemetryTxt: Label 'New payment instructions inserted.', Locked = true;
 
     procedure SetPaymentInstructionsOnPage(NewO365PaymentInstructions: Record "O365 Payment Instructions")
     begin

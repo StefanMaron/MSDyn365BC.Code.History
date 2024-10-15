@@ -423,6 +423,8 @@ codeunit 90 "Purch.-Post"
                   ForwardLinkMgt.GetHelpCodeForAllowedPostingDate);
 
             SetPostingFlags(PurchHeader);
+            OnCheckAndUpdateOnAfterSetPostingFlags(PurchHeader, TempPurchLineGlobal);
+
             InitProgressWindow(PurchHeader);
 
             InvtPickPutaway := "Posting from Whse. Ref." <> 0;
@@ -946,7 +948,7 @@ codeunit 90 "Purch.-Post"
             TempHandlingSpecification.DeleteAll;
 
             IsHandled := false;
-            OnBeforeItemJnlPostLine(ItemJnlLine, PurchLine, PurchHeader, SuppressCommit, IsHandled);
+            OnBeforeItemJnlPostLine(ItemJnlLine, PurchLine, PurchHeader, SuppressCommit, IsHandled, WhseRcptHeader, WhseShptHeader);
             if not IsHandled then
                 if PurchLine."Job No." <> '' then begin
                     PostJobConsumptionBeforePurch := IsPurchaseReturn;
@@ -1698,12 +1700,14 @@ codeunit 90 "Purch.-Post"
 
             PurchaseHeaderCopy := PurchHeader;
             PrevStatus := Status;
+            OnBeforeReleasePurchDoc(PurchHeader);
             LinesWereModified := ReleasePurchaseDocument.ReleasePurchaseHeader(PurchHeader, PreviewMode);
             if LinesWereModified then
                 RefreshTempLines(PurchHeader, TempPurchLineGlobal);
             TestStatusRelease(PurchHeader);
             Status := PrevStatus;
             RestorePurchaseHeader(PurchHeader, PurchaseHeaderCopy);
+            OnAfterReleasePurchDoc(PurchHeader);
             if not PreviewMode then begin
                 Modify;
                 if not SuppressCommit then
@@ -3718,6 +3722,8 @@ codeunit 90 "Purch.-Post"
                 [PurchHeader."Document Type"::Order, PurchHeader."Document Type"::"Return Order"])
         then
             exit;
+
+        OnBeforeCheckTrackingSpecification(PurchHeader, TempItemPurchLine);
 
         TrackingQtyToHandle := 0;
 
@@ -7082,6 +7088,11 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterReleasePurchDoc(var PurchHeader: Record "Purchase Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterResetTempLines(var TempPurchLineGlobal: Record "Purchase Line" temporary)
     begin
     end;
@@ -7167,6 +7178,11 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckTrackingSpecification(PurchHeader: Record "Purchase Header"; var TempItemPurchLine: Record "Purchase Line" temporary);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckWarehouse(var TempItemPurchLine: Record "Purchase Line" temporary; var IsHandled: Boolean)
     begin
     end;
@@ -7232,7 +7248,7 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnBeforeItemJnlPostLine(var ItemJournalLine: Record "Item Journal Line"; PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; CommitIsSupressed: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeItemJnlPostLine(var ItemJournalLine: Record "Item Journal Line"; PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; CommitIsSupressed: Boolean; var IsHandled: Boolean; WhseReceiptHeader: Record "Warehouse Receipt Header"; WhseShipmentHeader: Record "Warehouse Shipment Header")
     begin
     end;
 
@@ -7298,6 +7314,11 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchCrMemoLineInsert(var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var PurchLine: Record "Purchase Line"; CommitIsSupressed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReleasePurchDoc(var PurchHeader: Record "Purchase Header");
     begin
     end;
 
@@ -7523,6 +7544,11 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcInvDiscountSetFilter(var PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckAndUpdateOnAfterSetPostingFlags(var PurchHeader: Record "Purchase Header"; var TempPurchLineGlobal: Record "Purchase Line" temporary);
     begin
     end;
 

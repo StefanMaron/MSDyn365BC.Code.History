@@ -183,9 +183,9 @@ report 11000013 "SEPA ISO20022 Pain 008.001.02"
         BtchBookg: Text[250];
     begin
         BtchBookg := 'false';
-        OnBeforeAddPaymentInformation(PaymentHistoryLine, BankAcc, Customer, BtchBookg);
-
         Customer.Get(PaymentHistoryLine."Account No.");
+
+        OnBeforeAddPaymentInformation(PaymentHistoryLine, BankAcc, Customer, BtchBookg);
 
         AddElement(XMLNodeCurr, 'PmtInf', '', '', XMLNewChild);
         XMLNodeCurr := XMLNewChild;

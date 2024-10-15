@@ -63,6 +63,12 @@ page 8905 "Purchasing Manager Role Center"
                     Caption = 'Purchase Credit Memos';
                     RunObject = page "Purchase Credit Memos";
                 }
+                action("CMR - Return Shipment")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'CMR - Return Shipment';
+                    RunObject = report 11410;
+                }
                 action("Certificates of Supply")
                 {
                     ApplicationArea = Basic, Suite;
@@ -262,9 +268,9 @@ page 8905 "Purchasing Manager Role Center"
                     }
                     // action("Order")
                     // {
-                    //	ApplicationArea = Suite;
-                    //	Caption = 'Order';
-                    //	RunObject = codeunit 8815;
+                    //     ApplicationArea = Suite;
+                    //     Caption = 'Order';
+                    //     RunObject = codeunit 8815;
                     // }
                     action("Purchasing Deferral Summary")
                     {
@@ -715,6 +721,7 @@ page 8905 "Purchasing Manager Role Center"
                 }
                 action("Item Journal Templates")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Item Journal Templates';
                     RunObject = page "Item Journal Templates";
                 }
@@ -726,16 +733,19 @@ page 8905 "Purchasing Manager Role Center"
                 }
                 action("Item Disc. Groups")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Item Discount Groups';
                     RunObject = page "Item Disc. Groups";
                 }
                 action("Item Tracking Codes")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Item Tracking Codes';
                     RunObject = page "Item Tracking Codes";
                 }
                 action("Inventory Setup")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Inventory Setup';
                     RunObject = page "Inventory Setup";
                 }

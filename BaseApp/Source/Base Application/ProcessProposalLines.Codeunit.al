@@ -5,10 +5,10 @@ codeunit 11000000 "Process Proposal Lines"
     trigger OnRun()
     begin
         ClearAll;
-        Prop := Rec;
-        Prop.CopyFilters(Rec);
-        Prop.SetCurrentKey("Our Bank No.", Process);
-        Prop.SetRange(Process, true)
+        ProposalLine := Rec;
+        ProposalLine.CopyFilters(Rec);
+        ProposalLine.SetCurrentKey("Our Bank No.", Process);
+        ProposalLine.SetRange(Process, true)
     end;
 
     var
@@ -42,51 +42,65 @@ codeunit 11000000 "Process Proposal Lines"
         Text1000028: Label '%1 is filled in, but %2 is 0.';
         Text1000029: Label '%1 must not be zero in detail line for %2 %3.';
         Text1000030: Label 'No Check ID entered in %1 %2.';
-        Prop: Record "Proposal Line";
-        PaymHist: Record "Payment History";
+        ProposalLine: Record "Proposal Line";
+        PaymentHistory: Record "Payment History";
+        GenJnlLine: Record "Gen. Journal Line" temporary;
+        FinancialInterfaceTelebank: Codeunit "Financial Interface Telebank";
+        LocalFuncMgt: Codeunit "Local Functionality Mgt.";
         NumberPosted: Integer;
         ErrorNumber: Integer;
-        Errortext: Text[125];
-        Warningstext: Text[125];
+        ErrorText: Text[125];
+        WarningsText: Text[125];
         WarningNumber: Integer;
-        TelebankFinancialConnection: Codeunit "Financial Interface Telebank";
-        GenJnlLine: Record "Gen. Journal Line" temporary;
-        LocalFuncMgt: Codeunit "Local Functionality Mgt.";
         AccountNo: Text[30];
         Text1000035: Label '%1 must not be zero in %2.';
 
     [Scope('OnPrem')]
-    procedure CheckProposallines()
+    procedure CheckProposalLines()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckProposalLines(ProposalLine, IsHandled);
+        if IsHandled then
+            exit;
+
         ErrorNumber := 0;
         NumberPosted := 0;
         WarningNumber := 0;
 
-        if Prop.Find('-') then
+        if ProposalLine.Find('-') then
             repeat
                 NumberPosted := NumberPosted + 1;
-                if not CheckAProposalLine(Prop) then
+                if not CheckAProposalLine(ProposalLine) then
                     ErrorNumber := ErrorNumber + 1;
                 if Warningstext <> '' then
                     WarningNumber := WarningNumber + 1;
-                if (Errortext <> Prop."Error Message") or
-                   (Warningstext <> Prop.Warning)
+                if (Errortext <> ProposalLine."Error Message") or
+                   (Warningstext <> ProposalLine.Warning)
                 then begin
-                    Prop."Error Message" := Errortext;
-                    Prop.Warning := Warningstext;
-                    Prop.Modify;
+                    ProposalLine."Error Message" := Errortext;
+                    ProposalLine.Warning := Warningstext;
+                    ProposalLine.Modify;
                 end;
-            until Prop.Next = 0;
+            until ProposalLine.Next = 0;
 
         if NumberPosted = 0 then
             Message(Text1000000)
         else
-            Message(Text1000001 + Text1000002 + Text1000003 + Text1000004, NumberPosted, ErrorNumber, WarningNumber, Prop.TableCaption);
+            Message(Text1000001 + Text1000002 + Text1000003 + Text1000004, NumberPosted, ErrorNumber, WarningNumber, ProposalLine.TableCaption);
     end;
 
     [Scope('OnPrem')]
-    procedure ProcessProposallines()
+    procedure ProcessProposalLines()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeProcessProposalLines(ProposalLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if not Confirm(Text1000005, false) then
             Error(Text1000006);
 
@@ -94,26 +108,26 @@ codeunit 11000000 "Process Proposal Lines"
         NumberPosted := 0;
         GenJnlLine.DeleteAll;
 
-        if Prop.Find('-') then begin
+        if ProposalLine.Find('-') then begin
             repeat
                 NumberPosted := NumberPosted + 1;
-                if CheckAProposalLine(Prop) then begin
-                    if not PaymentHistoryPresent(Prop, PaymHist) then
-                        CreatePaymentHistory(Prop, PaymHist);
-                    CreatePaymentHistoryLine(Prop, PaymHist);
-                    DeleteProposallines(Prop);
+                if CheckAProposalLine(ProposalLine) then begin
+                    if not PaymentHistoryPresent(ProposalLine, PaymentHistory) then
+                        CreatePaymentHistory(ProposalLine, PaymentHistory);
+                    CreatePaymentHistoryLine(ProposalLine, PaymentHistory);
+                    DeleteProposallines(ProposalLine);
                 end else begin
-                    if (Errortext <> Prop."Error Message") or
-                       (Warningstext <> Prop.Warning)
+                    if (Errortext <> ProposalLine."Error Message") or
+                       (Warningstext <> ProposalLine.Warning)
                     then begin
-                        Prop."Error Message" := Errortext;
-                        Prop.Warning := Warningstext;
-                        Prop.Modify;
+                        ProposalLine."Error Message" := Errortext;
+                        ProposalLine.Warning := Warningstext;
+                        ProposalLine.Modify;
                     end;
                     ErrorNumber := ErrorNumber + 1;
                 end
-            until Prop.Next = 0;
-            TelebankFinancialConnection.PostFDBR(GenJnlLine);
+            until ProposalLine.Next = 0;
+            FinancialInterfaceTelebank.PostFDBR(GenJnlLine);
             GenJnlLine.DeleteAll;
         end;
 
@@ -139,9 +153,9 @@ codeunit 11000000 "Process Proposal Lines"
         ExportProtocol: Record "Export Protocol";
         NoSeries: Record "No. Series";
         OurBnk: Record "Bank Account";
-        "Detail line": Record "Detail Line";
-        PaymentHistLine: Record "Payment History Line";
-        Propline: Record "Proposal Line";
+        DetailLine: Record "Detail Line";
+        PaymentHistoryLine: Record "Payment History Line";
+        ProposalLine: Record "Proposal Line";
     begin
         Errortext := '';
         Warningstext := '';
@@ -208,23 +222,23 @@ codeunit 11000000 "Process Proposal Lines"
             exit(false);
         end;
 
-        PaymentHistLine.SetCurrentKey("Our Bank", Identification, Status);
-        PaymentHistLine.SetRange("Our Bank", CheckRecord."Our Bank No.");
-        PaymentHistLine.SetRange(Identification, CheckRecord.Identification);
-        PaymentHistLine.SetFilter(Status, '<>%1&<>%2&<>%3',
-          PaymentHistLine.Status::Posted,
-          PaymentHistLine.Status::Cancelled,
-          PaymentHistLine.Status::Rejected);
-        if PaymentHistLine.FindFirst then begin
+        PaymentHistoryLine.SetCurrentKey("Our Bank", Identification, Status);
+        PaymentHistoryLine.SetRange("Our Bank", CheckRecord."Our Bank No.");
+        PaymentHistoryLine.SetRange(Identification, CheckRecord.Identification);
+        PaymentHistoryLine.SetFilter(Status, '<>%1&<>%2&<>%3',
+          PaymentHistoryLine.Status::Posted,
+          PaymentHistoryLine.Status::Cancelled,
+          PaymentHistoryLine.Status::Rejected);
+        if PaymentHistoryLine.FindFirst then begin
             Errortext := StrSubstNo(Text1000019,
                 CheckRecord.FieldCaption(Identification));
             exit(false);
         end;
-        Propline.SetCurrentKey("Our Bank No.", Identification);
-        Propline.SetRange("Our Bank No.", CheckRecord."Our Bank No.");
-        Propline.SetRange(Identification, CheckRecord.Identification);
-        Propline.SetFilter("Line No.", '<>%1', CheckRecord."Line No.");
-        if Propline.FindFirst then begin
+        ProposalLine.SetCurrentKey("Our Bank No.", Identification);
+        ProposalLine.SetRange("Our Bank No.", CheckRecord."Our Bank No.");
+        ProposalLine.SetRange(Identification, CheckRecord.Identification);
+        ProposalLine.SetFilter("Line No.", '<>%1', CheckRecord."Line No.");
+        if ProposalLine.FindFirst then begin
             Errortext := StrSubstNo(Text1000020,
                 CheckRecord.FieldCaption(Identification));
             exit(false);
@@ -275,31 +289,31 @@ codeunit 11000000 "Process Proposal Lines"
         // /////////////////////////////////////////////////////////////////////
         // Per detail line
 
-        "Detail line".SetCurrentKey("Our Bank", Status, "Connect Batches", "Connect Lines");
-        "Detail line".SetRange("Our Bank", CheckRecord."Our Bank No.");
-        "Detail line".SetRange(Status, "Detail line".Status::Proposal);
-        "Detail line".SetRange("Connect Batches", '');
-        "Detail line".SetRange("Connect Lines", CheckRecord."Line No.");
-        if "Detail line".Find('-') then
+        DetailLine.SetCurrentKey("Our Bank", Status, "Connect Batches", "Connect Lines");
+        DetailLine.SetRange("Our Bank", CheckRecord."Our Bank No.");
+        DetailLine.SetRange(Status, DetailLine.Status::Proposal);
+        DetailLine.SetRange("Connect Batches", '');
+        DetailLine.SetRange("Connect Lines", CheckRecord."Line No.");
+        if DetailLine.Find('-') then
             repeat
-                if "Detail line".Amount = 0 then begin
+                if DetailLine.Amount = 0 then begin
                     Errortext :=
                       StrSubstNo(
                         Text1000029,
-                        "Detail line".FieldCaption(Amount),
-                        "Detail line".FieldCaption("Serial No. (Entry)"),
-                        "Detail line"."Serial No. (Entry)");
+                        DetailLine.FieldCaption(Amount),
+                        DetailLine.FieldCaption("Serial No. (Entry)"),
+                        DetailLine."Serial No. (Entry)");
                     exit(false);
                 end;
-                if "Detail line"."Serial No. (Entry)" = 0 then begin
+                if DetailLine."Serial No. (Entry)" = 0 then begin
                     Errortext :=
                       StrSubstNo(
                         Text1000035,
-                        "Detail line".FieldCaption("Serial No. (Entry)"),
-                        "Detail line".TableCaption);
+                        DetailLine.FieldCaption("Serial No. (Entry)"),
+                        DetailLine.TableCaption);
                     exit(false);
                 end;
-            until "Detail line".Next = 0;
+            until DetailLine.Next = 0;
 
         // //////////////////////////////////////////////////////////////////////
         // Protocol specific
@@ -417,160 +431,161 @@ codeunit 11000000 "Process Proposal Lines"
     end;
 
     [Scope('OnPrem')]
-    procedure PaymentHistoryPresent(var Prop: Record "Proposal Line"; var PaymHist: Record "Payment History") Present: Boolean
+    procedure PaymentHistoryPresent(var Prop: Record "Proposal Line"; var PaymentHistory: Record "Payment History") Present: Boolean
     var
         TranMode: Record "Transaction Mode";
     begin
-        TranMode.Get(Prop."Account Type", Prop."Transaction Mode");
+        TranMode.Get(ProposalLine."Account Type", ProposalLine."Transaction Mode");
 
-        PaymHist.SetCurrentKey("Our Bank", "Export Protocol", Status, "User ID");
-        PaymHist.SetRange("Our Bank", Prop."Our Bank No.");
-        PaymHist.SetRange("Export Protocol", TranMode."Export Protocol");
-        PaymHist.SetRange(Status, PaymHist.Status::New);
-        PaymHist.SetRange("User ID", UserId);
+        PaymentHistory.SetCurrentKey("Our Bank", "Export Protocol", Status, "User ID");
+        PaymentHistory.SetRange("Our Bank", ProposalLine."Our Bank No.");
+        PaymentHistory.SetRange("Export Protocol", TranMode."Export Protocol");
+        PaymentHistory.SetRange(Status, PaymentHistory.Status::New);
+        PaymentHistory.SetRange("User ID", UserId);
 
-        exit(PaymHist.Find('-'));
+        exit(PaymentHistory.Find('-'));
     end;
 
     [Scope('OnPrem')]
-    procedure CreatePaymentHistory(var ProposalLine: Record "Proposal Line"; var PaymHist: Record "Payment History")
+    procedure CreatePaymentHistory(var ProposalLine: Record "Proposal Line"; var PaymentHistory: Record "Payment History")
     var
         TranMode: Record "Transaction Mode";
         OurBnk: Record "Bank Account";
         NoSeriesManagement: Codeunit NoSeriesManagement;
         DimManagement: Codeunit DimensionManagement;
     begin
-        Clear(PaymHist);
-        TranMode.Get(Prop."Account Type", Prop."Transaction Mode");
+        Clear(PaymentHistory);
+        TranMode.Get(ProposalLine."Account Type", ProposalLine."Transaction Mode");
         TranMode.TestField("Run No. Series");
 
-        PaymHist."Our Bank" := Prop."Our Bank No.";
-        NoSeriesManagement.InitSeries(TranMode."Run No. Series", '', Today, PaymHist."Run No.", PaymHist."No. Series");
-        PaymHist.Init;
+        PaymentHistory."Our Bank" := ProposalLine."Our Bank No.";
+        NoSeriesManagement.InitSeries(TranMode."Run No. Series", '', Today, PaymentHistory."Run No.", PaymentHistory."No. Series");
+        PaymentHistory.Init;
 
-        PaymHist.Status := PaymHist.Status::New;
-        PaymHist."Creation Date" := Today;
-        PaymHist."User ID" := UserId;
+        PaymentHistory.Status := PaymentHistory.Status::New;
+        PaymentHistory."Creation Date" := Today;
+        PaymentHistory."User ID" := UserId;
 
-        TranMode.Get(Prop."Account Type", Prop."Transaction Mode");
-        PaymHist."Export Protocol" := TranMode."Export Protocol";
+        TranMode.Get(ProposalLine."Account Type", ProposalLine."Transaction Mode");
+        PaymentHistory."Export Protocol" := TranMode."Export Protocol";
 
-        OurBnk.Get(Prop."Our Bank No.");
+        OurBnk.Get(ProposalLine."Our Bank No.");
 
-        PaymHist."Account No." := OurBnk."Bank Account No.";
-        PaymHist."Account Holder Name" := OurBnk."Account Holder Name";
-        PaymHist."Account Holder Address" := OurBnk."Account Holder Address";
-        PaymHist."Account Holder Post Code" := OurBnk."Account Holder Post Code";
-        PaymHist."Account Holder City" := OurBnk."Account Holder City";
-        PaymHist."Acc. Hold. Country/Region Code" := OurBnk."Acc. Hold. Country/Region Code";
+        PaymentHistory."Account No." := OurBnk."Bank Account No.";
+        PaymentHistory."Account Holder Name" := OurBnk."Account Holder Name";
+        PaymentHistory."Account Holder Address" := OurBnk."Account Holder Address";
+        PaymentHistory."Account Holder Post Code" := OurBnk."Account Holder Post Code";
+        PaymentHistory."Account Holder City" := OurBnk."Account Holder City";
+        PaymentHistory."Acc. Hold. Country/Region Code" := OurBnk."Acc. Hold. Country/Region Code";
 
-        PaymHist."Dimension Set ID" := ProposalLine."Header Dimension Set ID";
+        PaymentHistory."Dimension Set ID" := ProposalLine."Header Dimension Set ID";
 
-        DimManagement.UpdateGlobalDimFromDimSetID(PaymHist."Dimension Set ID",
-          PaymHist."Global Dimension 1 Code", PaymHist."Global Dimension 2 Code");
+        DimManagement.UpdateGlobalDimFromDimSetID(PaymentHistory."Dimension Set ID",
+          PaymentHistory."Global Dimension 1 Code", PaymentHistory."Global Dimension 2 Code");
 
-        PaymHist.Insert(true);
+        PaymentHistory.Insert(true);
     end;
 
     [Scope('OnPrem')]
-    procedure CreatePaymentHistoryLine(var ProposalLine: Record "Proposal Line"; var PaymHist: Record "Payment History")
+    procedure CreatePaymentHistoryLine(var ProposalLine: Record "Proposal Line"; var PaymentHistory: Record "Payment History")
     var
-        PaymentHistLine: Record "Payment History Line";
-        "Detail line": Record "Detail Line";
+        PaymentHistoryLine: Record "Payment History Line";
+        DetailLine: Record "Detail Line";
     begin
-        PaymHist."No. of Transactions" := PaymHist."No. of Transactions" + 1;
+        PaymentHistory."No. of Transactions" := PaymentHistory."No. of Transactions" + 1;
         if ProposalLine.Docket then
-            PaymHist."Print Docket" := true;
-        PaymHist.Modify(true);
+            PaymentHistory."Print Docket" := true;
+        PaymentHistory.Modify(true);
 
-        PaymentHistLine."Our Bank" := PaymHist."Our Bank";
-        PaymentHistLine."Run No." := PaymHist."Run No.";
-        PaymentHistLine."Line No." := PaymHist."No. of Transactions";
-        PaymentHistLine.Status := PaymentHistLine.Status::New;
+        PaymentHistoryLine."Our Bank" := PaymentHistory."Our Bank";
+        PaymentHistoryLine."Run No." := PaymentHistory."Run No.";
+        PaymentHistoryLine."Line No." := PaymentHistory."No. of Transactions";
+        PaymentHistoryLine.Status := PaymentHistoryLine.Status::New;
 
-        PaymentHistLine."Account Type" := ProposalLine."Account Type";
-        PaymentHistLine."Account No." := ProposalLine."Account No.";
-        PaymentHistLine.Date := ProposalLine."Transaction Date";
-        PaymentHistLine.Amount := ProposalLine.Amount;
-        PaymentHistLine.Bank := ProposalLine.Bank;
-        PaymentHistLine."Bank Account No." := ProposalLine."Bank Account No.";
+        PaymentHistoryLine."Account Type" := ProposalLine."Account Type";
+        PaymentHistoryLine."Account No." := ProposalLine."Account No.";
+        PaymentHistoryLine.Date := ProposalLine."Transaction Date";
+        PaymentHistoryLine.Amount := ProposalLine.Amount;
+        PaymentHistoryLine.Bank := ProposalLine.Bank;
+        PaymentHistoryLine."Bank Account No." := ProposalLine."Bank Account No.";
 
-        PaymentHistLine."Description 1" := ProposalLine."Description 1";
-        PaymentHistLine."Description 2" := ProposalLine."Description 2";
-        PaymentHistLine."Description 3" := ProposalLine."Description 3";
-        PaymentHistLine."Description 4" := ProposalLine."Description 4";
-        PaymentHistLine.Identification := ProposalLine.Identification;
+        PaymentHistoryLine."Description 1" := ProposalLine."Description 1";
+        PaymentHistoryLine."Description 2" := ProposalLine."Description 2";
+        PaymentHistoryLine."Description 3" := ProposalLine."Description 3";
+        PaymentHistoryLine."Description 4" := ProposalLine."Description 4";
+        PaymentHistoryLine.Identification := ProposalLine.Identification;
 
-        PaymentHistLine."Account Holder Name" := ProposalLine."Account Holder Name";
-        PaymentHistLine."Account Holder Address" := ProposalLine."Account Holder Address";
-        PaymentHistLine."Account Holder Post Code" := ProposalLine."Account Holder Post Code";
-        PaymentHistLine."Account Holder City" := ProposalLine."Account Holder City";
-        PaymentHistLine."Acc. Hold. Country/Region Code" := ProposalLine."Acc. Hold. Country/Region Code";
-        PaymentHistLine."National Bank Code" := ProposalLine."National Bank Code";
-        PaymentHistLine."SWIFT Code" := ProposalLine."SWIFT Code";
-        PaymentHistLine.IBAN := ProposalLine.IBAN;
-        PaymentHistLine."Direct Debit Mandate ID" := ProposalLine."Direct Debit Mandate ID";
-        PaymentHistLine."Abbrev. National Bank Code" := ProposalLine."Abbrev. National Bank Code";
-        PaymentHistLine."Bank Name" := ProposalLine."Bank Name";
-        PaymentHistLine."Bank Address" := ProposalLine."Bank Address";
-        PaymentHistLine."Bank City" := ProposalLine."Bank City";
-        PaymentHistLine."Bank Country/Region" := ProposalLine."Bank Country/Region Code";
-        PaymentHistLine."Transfer Cost Domestic" := ProposalLine."Transfer Cost Domestic";
-        PaymentHistLine."Transfer Cost Foreign" := ProposalLine."Transfer Cost Foreign";
+        PaymentHistoryLine."Account Holder Name" := ProposalLine."Account Holder Name";
+        PaymentHistoryLine."Account Holder Address" := ProposalLine."Account Holder Address";
+        PaymentHistoryLine."Account Holder Post Code" := ProposalLine."Account Holder Post Code";
+        PaymentHistoryLine."Account Holder City" := ProposalLine."Account Holder City";
+        PaymentHistoryLine."Acc. Hold. Country/Region Code" := ProposalLine."Acc. Hold. Country/Region Code";
+        PaymentHistoryLine."National Bank Code" := ProposalLine."National Bank Code";
+        PaymentHistoryLine."SWIFT Code" := ProposalLine."SWIFT Code";
+        PaymentHistoryLine.IBAN := ProposalLine.IBAN;
+        PaymentHistoryLine."Direct Debit Mandate ID" := ProposalLine."Direct Debit Mandate ID";
+        PaymentHistoryLine."Abbrev. National Bank Code" := ProposalLine."Abbrev. National Bank Code";
+        PaymentHistoryLine."Bank Name" := ProposalLine."Bank Name";
+        PaymentHistoryLine."Bank Address" := ProposalLine."Bank Address";
+        PaymentHistoryLine."Bank City" := ProposalLine."Bank City";
+        PaymentHistoryLine."Bank Country/Region" := ProposalLine."Bank Country/Region Code";
+        PaymentHistoryLine."Transfer Cost Domestic" := ProposalLine."Transfer Cost Domestic";
+        PaymentHistoryLine."Transfer Cost Foreign" := ProposalLine."Transfer Cost Foreign";
 
-        PaymentHistLine."Currency Code" := ProposalLine."Currency Code";
-        PaymentHistLine.Order := ProposalLine.Order;
-        PaymentHistLine."Transaction Mode" := ProposalLine."Transaction Mode";
-        PaymentHistLine.Docket := ProposalLine.Docket;
+        PaymentHistoryLine."Currency Code" := ProposalLine."Currency Code";
+        PaymentHistoryLine.Order := ProposalLine.Order;
+        PaymentHistoryLine."Transaction Mode" := ProposalLine."Transaction Mode";
+        PaymentHistoryLine.Docket := ProposalLine.Docket;
 
-        PaymentHistLine."Nature of the Payment" := ProposalLine."Nature of the Payment";
-        PaymentHistLine."Registration No. DNB" := ProposalLine."Registration No. DNB";
-        PaymentHistLine."Description Payment" := ProposalLine."Description Payment";
-        PaymentHistLine."Item No." := ProposalLine."Item No.";
-        PaymentHistLine."Traders No." := ProposalLine."Traders No.";
-        PaymentHistLine.Urgent := ProposalLine.Urgent;
+        PaymentHistoryLine."Nature of the Payment" := ProposalLine."Nature of the Payment";
+        PaymentHistoryLine."Registration No. DNB" := ProposalLine."Registration No. DNB";
+        PaymentHistoryLine."Description Payment" := ProposalLine."Description Payment";
+        PaymentHistoryLine."Item No." := ProposalLine."Item No.";
+        PaymentHistoryLine."Traders No." := ProposalLine."Traders No.";
+        PaymentHistoryLine.Urgent := ProposalLine.Urgent;
 
-        if ((PaymentHistLine.Order = PaymentHistLine.Order::Credit) and
-            (PaymentHistLine."Account Type" = PaymentHistLine."Account Type"::Vendor)) or
-           ((PaymentHistLine.Order = PaymentHistLine.Order::Credit) and
-            (PaymentHistLine."Account Type" = PaymentHistLine."Account Type"::Customer)) or
-           ((PaymentHistLine.Order = PaymentHistLine.Order::Credit) and
-            (PaymentHistLine."Account Type" = PaymentHistLine."Account Type"::Employee))
+        if ((PaymentHistoryLine.Order = PaymentHistoryLine.Order::Credit) and
+            (PaymentHistoryLine."Account Type" = PaymentHistoryLine."Account Type"::Vendor)) or
+           ((PaymentHistoryLine.Order = PaymentHistoryLine.Order::Credit) and
+            (PaymentHistoryLine."Account Type" = PaymentHistoryLine."Account Type"::Customer)) or
+           ((PaymentHistoryLine.Order = PaymentHistoryLine.Order::Credit) and
+            (PaymentHistoryLine."Account Type" = PaymentHistoryLine."Account Type"::Employee))
         then
-            PaymentHistLine."Payment/Receipt" := PaymentHistLine."Payment/Receipt"::Receipt
+            PaymentHistoryLine."Payment/Receipt" := PaymentHistoryLine."Payment/Receipt"::Receipt
         else
-            PaymentHistLine."Payment/Receipt" := PaymentHistLine."Payment/Receipt"::Payment;
+            PaymentHistoryLine."Payment/Receipt" := PaymentHistoryLine."Payment/Receipt"::Payment;
 
-        PaymentHistLine."Foreign Currency" := ProposalLine."Foreign Currency";
-        PaymentHistLine."Foreign Amount" := ProposalLine."Foreign Amount";
+        PaymentHistoryLine."Foreign Currency" := ProposalLine."Foreign Currency";
+        PaymentHistoryLine."Foreign Amount" := ProposalLine."Foreign Amount";
 
-        PaymentHistLine."Global Dimension 1 Code" := ProposalLine."Shortcut Dimension 1 Code";
-        PaymentHistLine."Global Dimension 2 Code" := ProposalLine."Shortcut Dimension 2 Code";
-        PaymentHistLine."Dimension Set ID" := ProposalLine."Dimension Set ID";
-        if ((PaymentHistLine.Order = PaymentHistLine.Order::Credit) and
-            (PaymentHistLine."Account Type" = PaymentHistLine."Account Type"::Customer))
+        PaymentHistoryLine."Global Dimension 1 Code" := ProposalLine."Shortcut Dimension 1 Code";
+        PaymentHistoryLine."Global Dimension 2 Code" := ProposalLine."Shortcut Dimension 2 Code";
+        PaymentHistoryLine."Dimension Set ID" := ProposalLine."Dimension Set ID";
+        if ((PaymentHistoryLine.Order = PaymentHistoryLine.Order::Credit) and
+            (PaymentHistoryLine."Account Type" = PaymentHistoryLine."Account Type"::Customer))
         then
-            UpdateDirectDebitMandate(PaymentHistLine);
-        PaymentHistLine.Insert(true);
+            UpdateDirectDebitMandate(PaymentHistoryLine);
+        PaymentHistoryLine.Insert(true);
 
-        "Detail line".SetCurrentKey("Our Bank", Status, "Connect Batches", "Connect Lines");
-        "Detail line".SetRange("Our Bank", ProposalLine."Our Bank No.");
-        "Detail line".SetRange(Status, "Detail line".Status::Proposal);
-        "Detail line".SetRange("Connect Batches", '');
-        "Detail line".SetRange("Connect Lines", ProposalLine."Line No.");
-        while "Detail line".FindFirst do begin
-            "Detail line".Status := "Detail line".Status::"In process";
-            "Detail line"."Connect Batches" := PaymentHistLine."Run No.";
-            "Detail line"."Connect Lines" := PaymentHistLine."Line No.";
-            "Detail line".Modify(true);
+        DetailLine.SetCurrentKey("Our Bank", Status, "Connect Batches", "Connect Lines");
+        DetailLine.SetRange("Our Bank", ProposalLine."Our Bank No.");
+        DetailLine.SetRange(Status, DetailLine.Status::Proposal);
+        DetailLine.SetRange("Connect Batches", '');
+        DetailLine.SetRange("Connect Lines", ProposalLine."Line No.");
+        while DetailLine.FindFirst do begin
+            DetailLine.Status := DetailLine.Status::"In process";
+            DetailLine."Connect Batches" := PaymentHistoryLine."Run No.";
+            DetailLine."Connect Lines" := PaymentHistoryLine."Line No.";
+            DetailLine.Modify(true);
         end;
-        TelebankFinancialConnection.PostPaymReceived(GenJnlLine, PaymentHistLine, PaymHist);
+
+        FinancialInterfaceTelebank.PostPaymReceived(GenJnlLine, PaymentHistoryLine, PaymentHistory);
     end;
 
     [Scope('OnPrem')]
     procedure DeleteProposallines(var Prop: Record "Proposal Line")
     begin
-        Prop.Delete(true);
+        ProposalLine.Delete(true);
     end;
 
     [Scope('OnPrem')]
@@ -607,6 +622,16 @@ codeunit 11000000 "Process Proposal Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckLedgerEntries(ProposalLine: Record "Proposal Line"; var WarningsText: Text[125]; var ErrorText: Text[125]; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckProposalLines(ProposalLine: Record "Proposal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessProposalLines(ProposalLine: Record "Proposal Line"; var IsHandled: Boolean)
     begin
     end;
 

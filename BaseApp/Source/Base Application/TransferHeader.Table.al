@@ -69,6 +69,7 @@ table 5740 "Transfer Header"
                                 TransferRoute.GetTransferRoute(
                                   "Transfer-from Code", "Transfer-to Code", "In-Transit Code",
                                   "Shipping Agent Code", "Shipping Agent Service Code");
+                                OnAfterGetTransferRoute(Rec, TransferRoute);
                                 TransferRoute.GetShippingTime(
                                   "Transfer-from Code", "Transfer-to Code",
                                   "Shipping Agent Code", "Shipping Agent Service Code",
@@ -226,6 +227,7 @@ table 5740 "Transfer Header"
                                 TransferRoute.GetTransferRoute(
                                   "Transfer-from Code", "Transfer-to Code", "In-Transit Code",
                                   "Shipping Agent Code", "Shipping Agent Service Code");
+                                OnAfterGetTransferRoute(Rec, TransferRoute);
                                 TransferRoute.GetShippingTime(
                                   "Transfer-from Code", "Transfer-to Code",
                                   "Shipping Agent Code", "Shipping Agent Service Code",
@@ -1250,6 +1252,11 @@ table 5740 "Transfer Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetNoSeriesCode(var TransferHeader: Record "Transfer Header"; var NoSeriesCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetTransferRoute(var TransferHeader: Record "Transfer Header"; TransferRoute: Record "Transfer Route");
     begin
     end;
 

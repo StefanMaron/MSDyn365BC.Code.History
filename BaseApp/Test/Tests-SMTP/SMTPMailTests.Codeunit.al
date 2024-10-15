@@ -2,18 +2,20 @@ codeunit 139017 "SMTP Mail Test"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     var
         SMTPMailSetup: Record "SMTP Mail Setup";
         Assert: Codeunit "Assert";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
+        MailManagement: Codeunit "Mail Management";
         NameTxt: Label 'Test Name';
         Test1AddressTxt: Label 'test1@test.com';
         Test2AddressTxt: Label 'test2@test.com';
         Test3AddressTxt: Label 'test3@test.com';
         Test1AddressInternationalTxt: Label 'navre´Š¢cepient5@micros´Š¢oft.c´Š¢m';
-        MultipleAddressesTxt: Label 'test1@test.com, test2@test.com, test3@test.com';
+        MultipleAddressesTxt: Label 'test%1@test.com; test%2@test.com; test%3@test.com';
         MultipleAddressesInternationalTxt: Label 'test1@test.com, navre´Š¢cepient5@micros´Š¢oft.c´Š¢m';
         SubjectTxt: Label 'Test Subject';
         BodyTxt: Label 'Test body without html block';
@@ -106,6 +108,33 @@ codeunit 139017 "SMTP Mail Test"
             ResultRecipients.Get(Counter, ResultRecipient);
             Assert.IsTrue(Recipients.Contains(ResultRecipient), 'The recipient list does not contain a recipient.');
         end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('NoConfirmHandler')]
+    procedure AddMultipleRecepients()
+    var
+        TempEmailItem: Record "Email Item" temporary;
+        SMTPMailTest: Codeunit "SMTP Mail Test";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 332563] Add multiple recipients to "Send to" / "Send CC" / "Send BCC" fields of Email Item.
+        SMTPMailSetupInitialize();
+
+        // [GIVEN] Email Item with "Send to" / "Send CC" / "Send BCC" = 'test1@test.com; test2@test.com; test3@test.com'.
+        TempEmailItem.Initialize();
+        TempEmailItem."From Address" := Test1AddressTxt;
+        TempEmailItem."Send to" := StrSubstNo(MultipleAddressesTxt, 1, 2, 3);
+        TempEmailItem."Send CC" := StrSubstNo(MultipleAddressesTxt, 4, 5, 6);
+        TempEmailItem."Send BCC" := StrSubstNo(MultipleAddressesTxt, 7, 8, 9);
+
+        // [WHEN] Run SendMailOrDownload function of Mail Management codeunit on this Email Item record.
+        // [WHEN] Wait for GetEmailRecepientsOnBeforeSentViaSMTP subscriber catches OnBeforeSentViaSMTP event.
+        BindSubscription(SMTPMailTest);
+        MailManagement.SendMailOrDownload(TempEmailItem, true);
+
+        // [THEN] Email."To" / Email.Cc / Email.Bcc fields of DotNet object MimeMessage contain lists of all corresponding recipients.
     end;
 
     [Test]
@@ -396,7 +425,7 @@ codeunit 139017 "SMTP Mail Test"
         SMTP.Initialize();
         Clear(ResultRecipients);
 
-        // [WHEN] Add multiple BCC recipients    
+        // [WHEN] Add multiple BCC recipients
         Recipients.Add(Test1AddressTxt);
         Recipients.Add(Test2AddressTxt);
         Recipients.Add(Test3AddressTxt);
@@ -654,6 +683,63 @@ codeunit 139017 "SMTP Mail Test"
         // [THEN] Body is added
         SMTP.AddBody(BodyHTMLBase64Txt);
         Assert.AreEqual(1, SMTP.GetLinkedResourcesCount(), 'The number of converted base64 strings is incorrect.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AddBodyPlainTextTest()
+    var
+        SMTP: Codeunit "SMTP Mail";
+        AppendTxt: Label 'Text to be appended.';
+    begin
+        // [SCENARIO] Add and change plain text body
+
+        // [GIVEN] Initialized SMTP codeunit
+        SMTP.Initialize();
+
+        // [WHEN] Add a plain text body
+        // [THEN] Plain text body is added
+        SMTP.AddTextBody(BodyTxt);
+        Assert.AreEqual(BodyTxt, SMTP.GetBody(), 'The body contents are incorrect.');
+
+        // [WHEN] Append more text to body
+        // [THEN] Plain text body has appended text
+        SMTP.AppendTextBody(AppendTxt);
+        Assert.AreEqual(BodyTxt + AppendTxt, SMTP.GetBody(), 'The body contents are incorrect.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure IsBodyHTMLFormattedText()
+    var
+        SMTP: Codeunit "SMTP Mail";
+    begin
+        // [SCENARIO] Check if the body is HTML formatted varying on html or plain text body
+
+        // [GIVEN] Initialized SMTP codeunit
+        SMTP.Initialize();
+        // [THEN] The initialized body is not HTML formatted
+        Assert.IsFalse(SMTP.IsBodyHtmlFormatted(), 'Body is HTML formatted.');
+
+        // [WHEN] Add a plain text body
+        // [THEN] Body is not HTML formatted
+        SMTP.AddTextBody(BodyTxt);
+        Assert.IsFalse(SMTP.IsBodyHtmlFormatted(), 'Body is HTML formatted.');
+
+        // [WHEN] Append a plain text body
+        // [THEN] Body is not HTML formatted
+        SMTP.AppendTextBody(BodyTxt);
+        Assert.IsFalse(SMTP.IsBodyHtmlFormatted(), 'Body is HTML formatted.');
+
+        // [WHEN] Add a HTML text body
+        // [THEN] Body is HTML formatted
+        SMTP.AddBody(BodyHTMLTxt);
+        Assert.IsTrue(SMTP.IsBodyHtmlFormatted(), 'Body is not HTML formatted.');
+
+        // [WHEN] Append a HTML text body
+        // [THEN] Body is HTML formatted
+        SMTP.AppendBody(BodyHTMLTxt);
+        Assert.IsTrue(SMTP.IsBodyHtmlFormatted(), 'Body is not HTML formatted.');
     end;
 
     [Test]
@@ -1029,5 +1115,41 @@ codeunit 139017 "SMTP Mail Test"
     local procedure FormatToSemiColon(String: Text): Text
     begin
         exit(String.Replace(',', ';'));
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure NoConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Mail Management", 'OnBeforeSentViaSMTP', '', false, false)]
+    [Scope('OnPrem')]
+    procedure GetRecepientsOnBeforeSentViaSMTP(var TempEmailItem: Record "Email Item" temporary; var SMTPMail: Codeunit "SMTP Mail")
+    var
+        Recipients: List of [Text];
+        RecipientsCount: Integer;
+        i: Integer;
+    begin
+        SMTPMail.GetRecipients(Recipients);
+        RecipientsCount := Recipients.Count();
+        Assert.AreEqual(3, RecipientsCount, '');
+        for i := 1 to RecipientsCount do
+            Assert.AreEqual(StrSubstNo('test%1@test.com', i), Recipients.Get(i), '');
+
+        Clear(Recipients);
+        SMTPMail.GetCC(Recipients);
+        RecipientsCount := Recipients.Count();
+        Assert.AreEqual(3, RecipientsCount, '');
+        for i := 1 to RecipientsCount do
+            Assert.AreEqual(StrSubstNo('test%1@test.com', i + 3), Recipients.Get(i), '');
+
+        Clear(Recipients);
+        SMTPMail.GetBCC(Recipients);
+        RecipientsCount := Recipients.Count();
+        Assert.AreEqual(3, RecipientsCount, '');
+        for i := 1 to RecipientsCount do
+            Assert.AreEqual(StrSubstNo('test%1@test.com', i + 6), Recipients.Get(i), '');
     end;
 }

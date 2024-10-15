@@ -61,10 +61,8 @@ codeunit 11400 "Local Functionality Mgt."
                 exit(false)
         end;
         if BaseLen < 12 then
-            Result := (StrCheckSum(Acc, '55987654321', 11) = 0);
-
-        if Result then
             AccountNo := CopyStr(Acc, 12 - BaseLen);
+        exit(true);
     end;
 
     [Scope('OnPrem')]

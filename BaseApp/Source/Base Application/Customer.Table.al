@@ -1942,9 +1942,11 @@ table 18 Customer
             exit;
 
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
-        DimMgt.SaveDefaultDim(DATABASE::Customer, "No.", FieldNumber, ShortcutDimCode);
-        Modify;
-
+        if not IsTemporary then begin
+            DimMgt.SaveDefaultDim(DATABASE::Customer, "No.", FieldNumber, ShortcutDimCode);
+            Modify;
+        end;
+	
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
@@ -2427,6 +2429,7 @@ table 18 Customer
         Customer.SetFilter(Contact, CustomerFilterContains);
         Customer.SetFilter("Phone No.", CustomerFilterContains);
         Customer.SetFilter("Post Code", CustomerFilterContains);
+        OnGetCustNoOpenCardOnAfterSetCustomerFilters(Customer, CustomerFilterContains);
 
         if Customer.Count = 0 then
             MarkCustomersWithSimilarName(Customer, CustomerText);
@@ -3073,6 +3076,11 @@ table 18 Customer
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVATRegistrationValidation(var Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCustNoOpenCardOnAfterSetCustomerFilters(var Customer: Record Customer; var CustomerFilterContains: Text);
     begin
     end;
 }

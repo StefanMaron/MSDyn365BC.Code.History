@@ -683,7 +683,7 @@ page 402 "Sales Order Statistics"
         AllowVATDifference :=
           SalesSetup."Allow VAT Difference" and
           not ("Document Type" in ["Document Type"::Quote, "Document Type"::"Blanket Order"]);
-        OnOpenPageOnBeforeSetEditable(AllowInvDisc, AllowVATDifference);
+        OnOpenPageOnBeforeSetEditable(AllowInvDisc, AllowVATDifference, Rec);
         VATLinesFormIsEditable := AllowVATDifference or AllowInvDisc;
         CurrPage.Editable := VATLinesFormIsEditable;
     end;
@@ -1097,7 +1097,7 @@ page 402 "Sales Order Statistics"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnOpenPageOnBeforeSetEditable(var AllowInvDisc: Boolean; var AllowVATDifference: Boolean)
+    local procedure OnOpenPageOnBeforeSetEditable(var AllowInvDisc: Boolean; var AllowVATDifference: Boolean; SalesHeader: Record "Sales Header")
     begin
     end;
 }

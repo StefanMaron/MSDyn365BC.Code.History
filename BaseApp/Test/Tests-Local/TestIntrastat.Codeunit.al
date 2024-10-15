@@ -25,26 +25,6 @@ codeunit 134153 "Test Intrastat"
         FileNotCreatedErr: Label 'Intrastat file was not created';
         ExportCancelledErr: Label 'Export cancelled.';
 
-    local procedure Initialize()
-    var
-        IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
-    begin
-        LibraryVariableStorage.Clear;
-        LibraryReportDataset.Reset;
-        IntrastatJnlTemplate.DeleteAll(true);
-
-        if IsInitialized then
-            exit;
-
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        SetIntrastatCodeOnCountryRegion;
-        SetTariffNoOnItems;
-
-        IsInitialized := true;
-        Commit;
-    end;
-
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
@@ -281,6 +261,76 @@ codeunit 134153 "Test Intrastat"
 
         // [THEN] Intrastat Journal Line Amount = "X"
         VerifyIntrastatJnlLine(IntrastatJnlBatch, Item."No.", 1, Round(Item."Last Direct Cost", 1));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure IntrastatJournalStatisticalValueEditable()
+    var
+        IntrastatJournal: TestPage "Intrastat Journal";
+    begin
+        // [FEATURE] [UI] [UT]
+        // [SCENARIO 331036] Statistical Value is editable on Intrastat Journal page
+        Initialize;
+        RunIntrastatJournal(IntrastatJournal);
+        Assert.IsTrue(IntrastatJournal."Statistical Value".Editable, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure IntrastatMakeDiskStatisticalValue()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        Item: Record 27;
+        Filename: Text;
+    begin
+        // [FEATURE] [Report] [Export]
+        // [SCENARIO 331036] 'Intrastat - Make Disk Tax Auth' report with Amount = 0 and given Statistical Value
+        Initialize;
+
+        // [GIVEN] Intrastat Journal Line has blank Item No., Amount = 0 and Statistical Value = 100, all mandatory fields are filled in.
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
+        CreateItemWithTariffNo(Item);
+        IntrastatJnlLine.Validate("Item No.", Item."No.");
+        IntrastatJnlLine."Source Entry No." := LibraryRandom.RandInt(100);
+        IntrastatJnlLine.Validate(Amount, 0);
+        IntrastatJnlLine.Validate("Statistical Value", LibraryRandom.RandDecInRange(100, 200, 2));
+        IntrastatJnlLine.Validate("Country/Region Code", FindCountryRegionCode);
+        IntrastatJnlLine.Modify(true);
+        SetMandatoryFieldsOnJnlLines(IntrastatJnlLine, IntrastatJnlBatch,
+          FindOrCreateIntrastatTransportMethod, FindOrCreateIntrastatTransactionType,
+          FindOrCreateIntrastatEntryExitPoint);
+        IntrastatJnlLine.Validate("Total Weight", LibraryRandom.RandIntInRange(100, 200));
+        IntrastatJnlLine.Modify(true);
+
+        // [WHEN] Run 'Intrastat - Make Disk Tax Auth' report
+        Filename := FileManagement.ServerTempFileName('txt');
+        RunIntrastatMakeDiskTaxAuth(Filename);
+
+        // [THEN] The file is created
+        Assert.IsTrue(FileManagement.ServerFileExists(Filename), FileNotCreatedErr);
+    end;
+
+    local procedure Initialize()
+    var
+        IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
+    begin
+        LibraryVariableStorage.Clear;
+        LibraryReportDataset.Reset;
+        IntrastatJnlTemplate.DeleteAll(true);
+
+        if IsInitialized then
+            exit;
+
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        SetIntrastatCodeOnCountryRegion;
+        SetTariffNoOnItems;
+
+        IsInitialized := true;
+        Commit;
     end;
 
     local procedure CreateIntrastatJournalTemplateAndBatch(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; PostingDate: Date)

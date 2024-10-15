@@ -723,7 +723,13 @@
     var
         "Action": Option "Submit Selected","Submit All","Reopen Selected","Reopen All";
         ActionType: Option Submit,Reopen;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSubmitLines(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         case ShowDialog(ActionType::Submit) of
             1:
                 Process(Action::"Submit All");
@@ -736,7 +742,13 @@
     var
         ActionType: Option Submit,Reopen;
         "Action": Option "Submit Selected","Submit All","Reopen Selected","Reopen All";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeReopenLines(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         case ShowDialog(ActionType::Reopen) of
             1:
                 Process(Action::"Reopen All");
@@ -801,6 +813,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterProcess(var TimeSheetLine: Record "Time Sheet Line"; "Action": Option "Submit Selected","Submit All","Reopen Selected","Reopen All")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReopenLines(var TimeSheetLine: Record "Time Sheet Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSubmitLines(var TimeSheetLine: Record "Time Sheet Line"; var IsHandled: Boolean);
     begin
     end;
 }

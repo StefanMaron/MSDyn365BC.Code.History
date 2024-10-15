@@ -1,4 +1,4 @@
-table 81 "Gen. Journal Line"
+﻿table 81 "Gen. Journal Line"
 {
     Caption = 'Gen. Journal Line';
     Permissions = TableData "Sales Invoice Header" = r,
@@ -2732,6 +2732,7 @@ table 81 "Gen. Journal Line"
         }
         key(Key4; "Document No.")
         {
+            SumIndexFields = "Debit Amount", "Credit Amount";
         }
         key(Key5; "Incoming Document Entry No.")
         {
@@ -4775,7 +4776,8 @@ table 81 "Gen. Journal Line"
             end;
     end;
 
-    local procedure SetJournalLineFieldsFromApplication()
+    [Scope('OnPrem')]
+    procedure SetJournalLineFieldsFromApplication()
     var
         AccType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee;
         AccNo: Code[20];

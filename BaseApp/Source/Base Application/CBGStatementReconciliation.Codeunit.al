@@ -116,6 +116,7 @@ codeunit 11000006 "CBG Statement Reconciliation"
                     end;
                     PaymentHistoryFound := true;
                     CBGStatementLine.Validate("Account No.", PaymentHistoryLine."Account No.");
+                    CBGStatementLine."Amount Settled" := PaymentHistoryLine.Amount;
                     CBGStatementLine."Reconciliation Status" := CBGStatementLine."Reconciliation Status"::Applied;
                     CBGStatementLine."Applies-to ID" := CBGStatementLine."New Applies-to ID";
                     CBGStatementLine."Applies-to Doc. Type" := CBGStatementLine."Applies-to Doc. Type"::" ";

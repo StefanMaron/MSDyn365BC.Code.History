@@ -1463,6 +1463,15 @@ table 5409 "Prod. Order Routing Line"
         exit(ProdOrderLine."Routing Type" = ProdOrderLine."Routing Type"::Serial)
     end;
 
+    [Scope('OnPrem')]
+    procedure GetStartingEndingDateAndTime(var StartingTime: Time; var StartingDate: Date; var EndingTime: Time; var EndingDate: Date)
+    begin
+        StartingTime := DT2Time("Starting Date-Time");
+        StartingDate := DT2Date("Starting Date-Time");
+        EndingTime := DT2Time("Ending Date-Time");
+        EndingDate := DT2Date("Ending Date-Time");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcStartingEndingDates(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var xProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderLine: Record "Prod. Order Line"; CallingFieldNo: Integer)
     begin

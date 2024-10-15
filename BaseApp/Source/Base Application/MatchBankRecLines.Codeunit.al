@@ -75,16 +75,19 @@ codeunit 1252 "Match Bank Rec. Lines"
         BankRecMatchCandidates: Query "Bank Rec. Match Candidates";
         Window: Dialog;
         Score: Integer;
+        CountMatchCandidates: Integer;
     begin
         TempBankStatementMatchingBuffer.DeleteAll;
 
         Window.Open(ProgressBarMsg);
+        CountMatchCandidates := 0;
         SetMatchLengthTreshold(4);
         SetNormalizingFactor(10);
         BankRecMatchCandidates.SetRange(Rec_Line_Bank_Account_No, BankAccReconciliation."Bank Account No.");
         BankRecMatchCandidates.SetRange(Rec_Line_Statement_No, BankAccReconciliation."Statement No.");
         if BankRecMatchCandidates.Open then
             while BankRecMatchCandidates.Read do begin
+                CountMatchCandidates += 1;
                 Score := 0;
 
                 if BankRecMatchCandidates.Rec_Line_Difference = BankRecMatchCandidates.Remaining_Amount then
@@ -114,6 +117,8 @@ codeunit 1252 "Match Bank Rec. Lines"
 
         SaveOneToOneMatching(TempBankStatementMatchingBuffer, BankAccReconciliation."Bank Account No.",
           BankAccReconciliation."Statement No.");
+
+        OnAfterMatchBankRecLinesMatchSingle(CountMatchCandidates, TempBankStatementMatchingBuffer);
 
         Window.Close;
         ShowMatchSummary(BankAccReconciliation);
@@ -214,6 +219,11 @@ codeunit 1252 "Match Bank Rec. Lines"
     local procedure GetNormalizingFactor(): Integer
     begin
         exit(NormalizingFactor);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterMatchBankRecLinesMatchSingle(CountMatchCandidates: Integer; TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary)
+    begin
     end;
 }
 

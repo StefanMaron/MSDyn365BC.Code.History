@@ -958,7 +958,13 @@ table 11401 "CBG Statement Line"
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         UseCurrencyFactor: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeReadGenJournalLine(Rec, GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         GetCBGStatementHeader;
         Correction := GenJnlLine.Correction;
         GetCurrency;
@@ -1311,6 +1317,7 @@ table 11401 "CBG Statement Line"
                         CustLedgEntry.SetCurrentKey("Customer No.");
                         CustLedgEntry.SetRange("Customer No.", CBGStatementlineRec."Account No.");
                         CustLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
+                        OnDeleteAppliesToIDOnAfterSetCustomerLedgerEntryFilters(CBGStatementlineRec, CustLedgEntry);
                         if CustLedgEntry.Find('-') then
                             repeat
                                 ClearCustApplnEntryFields(CustLedgEntry);
@@ -1321,6 +1328,7 @@ table 11401 "CBG Statement Line"
                         VendLedgEntry.SetCurrentKey("Vendor No.");
                         VendLedgEntry.SetRange("Vendor No.", CBGStatementlineRec."Account No.");
                         VendLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
+                        OnDeleteAppliesToIDOnAfterSetVendorLedgerEntryFilters(CBGStatementlineRec, VendLedgEntry);
                         if VendLedgEntry.Find('-') then
                             repeat
                                 ClearVendApplnEntryFields(VendLedgEntry);
@@ -1331,6 +1339,7 @@ table 11401 "CBG Statement Line"
                         EmployeeLedgerEntry.SetCurrentKey("Employee No.");
                         EmployeeLedgerEntry.SetRange("Employee No.", CBGStatementlineRec."Account No.");
                         EmployeeLedgerEntry.SetRange("Applies-to ID", "Applies-to ID");
+                        OnDeleteAppliesToIDOnAfterSetEmployeeLedgerEntryFilters(CBGStatementlineRec, EmployeeLedgerEntry);
                         if EmployeeLedgerEntry.Find('-') then
                             repeat
                                 ClearEmployeeApplnEntryFields(EmployeeLedgerEntry);
@@ -1573,6 +1582,26 @@ table 11401 "CBG Statement Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var CBGStatementLine: Record "CBG Statement Line"; CurrentFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReadGenJournalLine(var CBGStatementLine: Record "CBG Statement Line"; var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteAppliesToIDOnAfterSetCustomerLedgerEntryFilters(var CBGStatementLine: Record "CBG Statement Line"; CustLedgEntry: Record "Cust. Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteAppliesToIDOnAfterSetEmployeeLedgerEntryFilters(var CBGStatementLine: Record "CBG Statement Line"; EmployeeLedgEntry: Record "Employee Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteAppliesToIDOnAfterSetVendorLedgerEntryFilters(var CBGStatementLine: Record "CBG Statement Line"; VendorLedgEntry: Record "Vendor Ledger Entry");
     begin
     end;
 }

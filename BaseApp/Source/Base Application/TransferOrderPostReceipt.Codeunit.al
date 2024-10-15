@@ -211,7 +211,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
     var
         IsHandled: Boolean;
     begin
-        OnBeforePostItemJnlLine(TransRcptHeader2, IsHandled);
+        OnBeforePostItemJnlLine(TransRcptHeader2, IsHandled, TransRcptLine2);
         if IsHandled then
             exit;
 
@@ -697,7 +697,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostItemJnlLine(var TransferReceiptHeader: Record "Transfer Receipt Header"; var IsHandled: Boolean)
+    local procedure OnBeforePostItemJnlLine(var TransferReceiptHeader: Record "Transfer Receipt Header"; var IsHandled: Boolean; TransferReceiptLine: Record "Transfer Receipt Line")
     begin
     end;
 
