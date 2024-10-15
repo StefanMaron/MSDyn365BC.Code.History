@@ -10,6 +10,7 @@ page 1263 Certificate
         {
             group(General)
             {
+                Caption = 'General';
                 field(Name; Name)
                 {
                     ApplicationArea = Basic, Suite;
@@ -54,6 +55,7 @@ page 1263 Certificate
             }
             group("Certificate Information")
             {
+                Caption = 'Certificate Information';
                 Visible = IsShowCertInfo;
                 field("Has Private Key"; "Has Private Key")
                 {
@@ -97,6 +99,7 @@ page 1263 Certificate
                 PromotedIsBig = true;
                 PromotedOnly = true;
                 ToolTip = 'Upload a new certificate file for the certificate. Typically, you use this when a certificate will expire soon.';
+                Caption = 'Upload Certificate';
 
                 trigger OnAction()
                 begin
