@@ -244,7 +244,7 @@ table 263 "Intrastat Jnl. Line"
         {
             Caption = 'Partner VAT ID';
         }
-        field(31;"Location Code";Code[10])
+        field(31; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
             TableRelation = Location;
@@ -550,7 +550,18 @@ table 263 "Intrastat Jnl. Line"
     end;
 
     procedure GetCountryOfOriginCode(): Code[10]
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        StatReportingSetup: Record "Stat. Reporting Setup";
     begin
+        // NAVCZ
+        StatReportingSetup.Get();
+        if StatReportingSetup."Get Country/Region of Origin" = StatReportingSetup."Get Country/Region of Origin"::"Posted Entries" then begin
+            if not ItemLedgerEntry.Get("Source Entry No.") then
+                exit('');
+            exit(ItemLedgerEntry."Country/Region of Origin Code");
+        end;
+        // NAVCZ
         if not Item.Get("Item No.") then
             exit('');
         exit(Item."Country/Region of Origin Code");
@@ -585,7 +596,7 @@ table 263 "Intrastat Jnl. Line"
         TransferShipmentHeader: Record "Transfer Shipment Header";
         EU3rdPartyTrade: Boolean;
     begin
-        if not ItemLedgerEntry.Get("Source Entry No.") then 
+        if not ItemLedgerEntry.Get("Source Entry No.") then
             exit('');
         case ItemLedgerEntry."Document Type" of
             ItemLedgerEntry."Document Type"::"Sales Invoice":
@@ -680,9 +691,9 @@ table 263 "Intrastat Jnl. Line"
         JobLedgerEntry: Record "Job Ledger Entry";
         Customer: Record Customer;
     begin
-        if not JobLedgerEntry.Get("Source Entry No.") then 
+        if not JobLedgerEntry.Get("Source Entry No.") then
             exit('');
-        if not Job.Get(JobLedgerEntry."Job No.") then 
+        if not Job.Get(JobLedgerEntry."Job No.") then
             exit('');
         if not Customer.Get(Job."Bill-to Customer No.") then
             exit('');

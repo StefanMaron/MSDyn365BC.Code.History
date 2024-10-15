@@ -272,7 +272,7 @@ table 5330 "CRM Connection Setup"
         field(135; "Authentication Type"; Option)
         {
             Caption = 'Authentication Type';
-            OptionCaption = 'Office365,AD,IFD,OAuth';
+            OptionCaption = 'OAuth 2.0,AD,IFD,OAuth';
             OptionMembers = Office365,AD,IFD,OAuth;
 
             trigger OnValidate()
@@ -953,23 +953,11 @@ table 5330 "CRM Connection Setup"
     end;
 
     procedure EnableCRMConnectionFromWizard()
-    var
-        CRMSystemuser: Record "CRM Systemuser";
     begin
         Get;
         "Is User Mapping Required" := false;
         Validate("Is Enabled", true);
         Modify(true);
-
-        FilterCRMSystemUser(CRMSystemuser);
-        CRMSystemuser.FindFirst;
-        if (CRMSystemuser.InviteStatusCode <> CRMSystemuser.InviteStatusCode::InvitationAccepted) or
-           (not CRMSystemuser.IsIntegrationUser)
-        then begin
-            CRMSystemuser.InviteStatusCode := CRMSystemuser.InviteStatusCode::InvitationAccepted;
-            CRMSystemuser.IsIntegrationUser := true;
-            CRMSystemuser.Modify(true);
-        end;
     end;
 
     procedure RestoreConnection()

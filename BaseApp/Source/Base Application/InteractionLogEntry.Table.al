@@ -323,6 +323,7 @@ table 5065 "Interaction Log Entry"
         Text009: Label 'Do you want to remove Attachment?';
         Text010: Label 'Do you want to remove unique Attachments for the selected lines?';
         Text011: Label 'Very Positive,Positive,Neutral,Negative,Very Negative';
+        OpenMessageQst: Label 'You are about to open an email message in Outlook Online. Email messages might contain harmful content. Use caution when interacting with the message. Do you want to continue?';
 
     procedure AssignNewOpportunity()
     var
@@ -457,7 +458,8 @@ table 5065 "Interaction Log Entry"
                 Attachment."Email Message Url".CreateInStream(IStream);
                 IStream.Read(EmailMessageUrl);
                 if WebRequestHelper.IsHttpUrl(EmailMessageUrl) then begin
-                    HyperLink(EmailMessageUrl);
+                    if Confirm(OpenMessageQst, true) then
+                        HyperLink(EmailMessageUrl);
                     exit;
                 end;
             end;

@@ -22,7 +22,6 @@ report 502 "Intrastat - Checklist"
             {
                 DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
                 DataItemTableView = SORTING(Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method");
-                RequestFilterFields = Type;
                 column(TodayFormatted; Format(Today, 0, 4))
                 {
                 }
@@ -216,6 +215,9 @@ report 502 "Intrastat - Checklist"
                 begin
                     IntrastatJnlLineTemp.DeleteAll();
                     NoOfRecordsRTC := 0;
+
+                    if GetFilter(Type) <> '' then
+                        exit;
 
                     if not IntrastatSetup.Get then
                         exit;

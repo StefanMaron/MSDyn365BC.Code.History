@@ -78,7 +78,7 @@ page 11754 "Unrel. Payer Service Setup CZL"
 
                 trigger OnAction()
                 begin
-                    Rec."Unreliable Payer Web Service" := UnreliablePayerMgtCZL.GetUnreliablePayerServiceURL();
+                    UnreliablePayerMgtCZL.SetDefaultUnreliablePayerServiceURL(Rec);
                     Rec.Modify(true);
                 end;
             }
@@ -92,7 +92,7 @@ page 11754 "Unrel. Payer Service Setup CZL"
         Rec.Reset();
         if not Rec.Get() then begin
             Rec.Init();
-            Rec."Unreliable Payer Web Service" := UnreliablePayerMgtCZL.GetUnreliablePayerServiceURL();
+            UnreliablePayerMgtCZL.SetDefaultUnreliablePayerServiceURL(Rec);
             Rec.Enabled := false;
             Rec.Insert();
         end;

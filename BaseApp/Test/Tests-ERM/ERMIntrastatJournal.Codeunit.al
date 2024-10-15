@@ -1103,6 +1103,7 @@
     var
         Item: Record Item;
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        StatReportingSetup: Record "Stat. Reporting Setup";
     begin
         // [FEATURE] [UT]
         // [SCENARIO 373278] GetCountryOfOriginCode takes value from Item when it is not blank
@@ -1112,6 +1113,12 @@
         Item.Insert;
         IntrastatJnlLine.Init;
         IntrastatJnlLine."Item No." := Item."No.";
+
+        // NAVCZ
+        StatReportingSetup.Get();
+        StatReportingSetup."Get Country/Region of Origin" := StatReportingSetup."Get Country/Region of Origin"::"Item Card";
+        StatReportingSetup.Modify();
+        // NAVCZ
 
         Assert.AreEqual(
           Item."Country/Region of Origin Code", IntrastatJnlLine.GetCountryOfOriginCode, '');

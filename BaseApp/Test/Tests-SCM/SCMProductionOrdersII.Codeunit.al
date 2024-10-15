@@ -3281,6 +3281,40 @@ codeunit 137072 "SCM Production Orders II"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure OutputJournalValidateItemNo()
+    var
+        Item: Record Item;
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        SavedGenProdPostingGroup: Code[20];
+    begin
+        // [FEATURE] [Output Journal]
+        // [SCENARIO 429057] Gen. Prod. Posting Group is not changed when validating Item No. for output journal filled in with Explode Routing
+        Initialize();
+
+        // [GIVEN] Item with "Gen. Prod. Posting Group" = "X" 
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Mock output journal line with "Gen. Prod. Posting Group" = "Y"
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Output);
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+            ItemJournalLine."Entry Type"::Output, Item."No.", 1);
+        ChangeItemJnlLineGenProdPostingGroup(ItemJournalLine);
+        SavedGenProdPostingGroup := ItemJournalLine."Gen. Prod. Posting Group";
+        Assert.AreNotEqual(Item."Gen. Prod. Posting Group", SavedGenProdPostingGroup, 'Groups must be different');
+
+        // [WHEN] Validate same Item No.
+        ItemJournalLine.Validate("Item No.", Item."No.");
+
+        // [THEN] "Gen. Prod. Posting Group" is not changed
+        ItemJournalLine.TestField("Gen. Prod. Posting Group", SavedGenProdPostingGroup);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3310,6 +3344,16 @@ codeunit 137072 "SCM Production Orders II"
 
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Production Orders II");
+    end;
+
+    local procedure ChangeItemJnlLineGenProdPostingGroup(var ItemJournalLine: Record "Item Journal Line")
+    var
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
+    begin
+        GenProductPostingGroup.SetFilter(Code, '<>%1', ItemJournalLine."Gen. Prod. Posting Group");
+        GenProductPostingGroup.FindFirst();
+        ItemJournalLine."Gen. Prod. Posting Group" := GenProductPostingGroup.Code;
+        ItemJournalLine.Modify();
     end;
 
     local procedure CreateLocationSetup()
