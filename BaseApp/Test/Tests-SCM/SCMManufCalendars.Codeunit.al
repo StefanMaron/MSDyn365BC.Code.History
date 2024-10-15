@@ -587,6 +587,36 @@ codeunit 137076 "SCM Manuf Calendars"
         // [THEN] No error occurs
     end;
 
+    [Test]
+    procedure ClearGlobalVarsInSingleInstanceShopCalendarMgtOnModifyRecord()
+    var
+        WorkCenter: Record "Work Center";
+        CapUnitOfMeasure: Record "Capacity Unit of Measure";
+    begin
+        // [FEATURE] [Shop Calendar] [UT]
+        // [SCENARIO 451879] Clear global record variables in the single instance Shop Calendar Mgt. when these records are modified.
+        Initialize();
+
+        CreateWorkCenter(WorkCenter);
+        LibraryManufacturing.CreateCapacityUnitOfMeasure(CapUnitOfMeasure, CapUnitOfMeasure.Type::Seconds);
+        WorkCenter.Validate("Unit of Measure Code", CapUnitOfMeasure.Code);
+        WorkCenter.Modify(true);
+
+        LibraryManufacturing.CreateCapacityUnitOfMeasure(CapUnitOfMeasure, CapUnitOfMeasure.Type::Minutes);
+
+        Assert.AreEqual(60, CalendarMgt.QtyperTimeUnitofMeasure(WorkCenter."No.", CapUnitOfMeasure.Code), '');
+
+        CapUnitOfMeasure.Validate(Type, CapUnitOfMeasure.Type::Hours);
+        CapUnitOfMeasure.Modify(true);
+
+        Assert.AreEqual(3600, CalendarMgt.QtyperTimeUnitofMeasure(WorkCenter."No.", CapUnitOfMeasure.Code), '');
+
+        WorkCenter.Validate("Unit of Measure Code", CapUnitOfMeasure.Code);
+        WorkCenter.Modify(true);
+
+        Assert.AreEqual(1, CalendarMgt.QtyperTimeUnitofMeasure(WorkCenter."No.", CapUnitOfMeasure.Code), '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
