@@ -6009,7 +6009,7 @@ table 39 "Purchase Line"
            ("Line Discount Amount" = 0) and
            (not PurchHeader."Prices Including VAT")
         then
-            ItemChargeAssgntLineAmt := "Line Amount"
+            ItemChargeAssgntLineAmt := "Line Amount" + NonDeductibleVAT.GetNonDeductibleVATAmountForItemCost(Rec)
         else
             if PurchHeader."Prices Including VAT" then
                 ItemChargeAssgntLineAmt :=
@@ -7452,7 +7452,7 @@ table 39 "Purchase Line"
         end else
             if PurchOrderLine.Get(PurchOrderLine."Document Type"::Order, ReceiptLine."Order No.", ReceiptLine."Order Line No.") then begin
                 if ("Prepayment %" = 100) and (Quantity <> PurchOrderLine.Quantity - PurchOrderLine."Quantity Invoiced") then
-                    "Prepmt Amt to Deduct" := "Line Amount"
+                    "Prepmt Amt to Deduct" := GetLineAmountToHandle(Quantity) - "Inv. Disc. Amount to Invoice"
                 else
                     "Prepmt Amt to Deduct" :=
                       Round((PurchOrderLine."Prepmt. Amt. Inv." - PurchOrderLine."Prepmt Amt Deducted") *

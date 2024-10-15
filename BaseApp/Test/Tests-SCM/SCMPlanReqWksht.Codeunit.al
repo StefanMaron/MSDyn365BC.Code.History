@@ -4697,6 +4697,69 @@
         UpdateManufacturingSetup(OldCombinedMPSMRPCalculation);
     end;
 
+    [Test]
+    procedure CalcRegPlanCreateReqLineForItemHavingMinQtyAndLotforLotforReplenSysAssembly()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        LibrarySales: Codeunit "Library - Sales";
+        Quantity: Decimal;
+        MinOrderQty: Decimal;
+        CalulatedDate: Date;
+    begin
+        // [SCENARIO 502028] When Calculate Regenerative Planning in Planning Worksheet for Items having Minimum Order Quantity,
+        // Replenshiment System as Assembly, Reorder policy set as Lot-for-Lot.
+        Initialize();
+
+        // [GIVEN] Generate and save Minimum Order Quantity in a Variable.
+        MinOrderQty := LibraryRandom.RandIntInRange(100, 100);
+
+        // [GIVEN] Create Item with Lot-for-Lot Reordering Policy.
+        CreatItemWithLotForLotReorderingPolicy(Item, MinOrderQty);
+
+        // [GIVEN] Generate and save Quantity in a Variable.
+        Quantity := LibraryRandom.RandIntInRange(5, 5);
+
+        // [GIVEN] Generate and save Date in a Variable.
+        CalulatedDate := CalcDate('<30D>', WorkDate());
+
+        // [GIVEN] Create Sales Header and Validate Posting Date.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.Validate("Posting Date", CalulatedDate);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Create  Sales Lines with Item.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Quantity);
+        SalesLine.Validate("Planned Delivery Date", CalulatedDate);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Release Sales Document.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Run Calculate Regenerative Plan.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(
+            Item,
+            CalcDate('<-CM>', CalulatedDate),
+            CalulatedDate);
+
+        // [WHEN] Find Requisition Line.
+        RequisitionLine.SetRange("No.", Item."No.");
+        RequisitionLine.FindFirst();
+
+        // [THEN] Quantity of Requisition Line must be equal to Minimum Order Quantity.
+        Assert.AreEqual(
+            MinOrderQty,
+            RequisitionLine.Quantity,
+            StrSubstNo(
+                QuantityErr,
+                RequisitionLine.FieldCaption(Quantity),
+                MinOrderQty,
+                RequisitionLine.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -6413,6 +6476,15 @@ ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name
         CreateItem(Item, Item."Reordering Policy"::"Lot-for-Lot", Item."Replenishment System"::Purchase);
         Item.Validate("Safety Stock Quantity", SafetyStockQty);
         Item.Validate("Include Inventory", true);
+        Item.Modify(true);
+    end;
+
+    local procedure CreatItemWithLotForLotReorderingPolicy(var Item: Record Item; MinOrderQty: Decimal)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Validate("Minimum Order Quantity", MinOrderQty);
         Item.Modify(true);
     end;
 
