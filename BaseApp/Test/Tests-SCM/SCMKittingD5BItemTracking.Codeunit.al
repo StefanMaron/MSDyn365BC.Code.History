@@ -26,7 +26,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         PAR_ITPage_ItemNo: Code[20];
         IsInitialized: Boolean;
         Tracking: Option Untracked,Lot,Serial,LotSerial;
-        ErrorQtyHandle: Label 'Qty. to Handle (Base) in Tracking Specification for';
+        ErrorQtyHandle: Label 'Qty. to Handle (Base) in the item tracking';
         LotNoAvailabilityWarning: Label 'You have insufficient quantity of Item %1 on inventory.';
         SerialNoAvailabilityWarning: Label 'You have insufficient quantity of Item %1 on inventory.';
         WorkDate2: Date;
@@ -694,8 +694,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         AssemblyOrderPage.OK.Invoke;
 
         asserterror PostAssemblyHeader(AssemblyHeader);
-        Assert.IsTrue(StrPos(GetLastErrorText, 'Qty. to Handle (Base) in Tracking Specification') > 0,
-          StrSubstNo('Unexpected error: "%1"', GetLastErrorText));
+        Assert.ExpectedError(ErrorQtyHandle);
     end;
 
     local procedure ATO_ItemTrackingOnSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemTracking: Option; PartialShipment: Boolean; PositiveTest: Boolean)

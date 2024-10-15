@@ -89,7 +89,6 @@ page 7379 "Item Bin Contents"
                 SubPageLink = "Item No." = FIELD("Item No."),
                               "Variant Code" = FIELD("Variant Code"),
                               "Location Code" = FIELD("Location Code");
-                Visible = false;
             }
             systempart(Control1900383207; Links)
             {

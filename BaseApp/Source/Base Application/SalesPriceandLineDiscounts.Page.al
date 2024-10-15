@@ -177,10 +177,20 @@ page 1345 "Sales Price and Line Discounts"
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedIsBig = true;
-                RunObject = Page "Sales Prices";
-                RunPageLink = "Item No." = FIELD("Loaded Item No.");
-                RunPageView = SORTING("Item No.");
                 ToolTip = 'Set up different prices for items that you sell to the customer. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                trigger OnAction()
+                var
+                    SalesPrice: Record "Sales Price";
+                begin
+                    if not Find() then
+                        exit;
+                    SalesPrice.SetCurrentKey("Sales Type", "Sales Code", "Item No.");
+                    SalesPrice.SetRange("Sales Type", "Sales Type");
+                    SalesPrice.SetRange("Sales Code", "Sales Code");
+                    SalesPrice.SetRange("Item No.", Code);
+                    Page.Run(Page::"Sales Prices", SalesPrice);
+                end;
             }
             action("Set Special Discounts")
             {
@@ -190,11 +200,21 @@ page 1345 "Sales Price and Line Discounts"
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedIsBig = true;
-                RunObject = Page "Sales Line Discounts";
-                RunPageLink = Type = CONST(Item),
-                              Code = FIELD("Loaded Item No.");
-                RunPageView = SORTING(Type, Code);
                 ToolTip = 'Set up different discounts for items that you sell to the customer. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                trigger OnAction()
+                var
+                    SalesLineDiscount: Record "Sales Line Discount";
+                begin
+                    if not Find() then
+                        exit;
+                    SalesLineDiscount.SetCurrentKey("Sales Type", "Sales Code", Type, Code);
+                    SalesLineDiscount.SetRange("Sales Type", "Sales Type");
+                    SalesLineDiscount.SetRange("Sales Code", "Sales Code");
+                    SalesLineDiscount.SetRange(Type, Type);
+                    SalesLineDiscount.SetRange(Code, Code);
+                    Page.Run(Page::"Sales Line Discounts", SalesLineDiscount);
+                end;
             }
         }
     }

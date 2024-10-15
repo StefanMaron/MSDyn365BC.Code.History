@@ -216,6 +216,7 @@ report 7318 "Whse.-Shipment - Create Pick"
         WhseActivHeader: Record "Warehouse Activity Header";
         TempWhseItemTrkgLine: Record "Whse. Item Tracking Line" temporary;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+        WarehouseDocumentPrint: Codeunit "Warehouse Document-Print";
         IsHandled: Boolean;
     begin
         CreatePick.CreateWhseDocument(FirstActivityNo, LastActivityNo, true);
@@ -236,7 +237,7 @@ report 7318 "Whse.-Shipment - Create Pick"
                 IsHandled := false;
                 OnBeforePrintPickingList(WhseActivHeader, IsHandled);
                 if not IsHandled then
-                    REPORT.Run(REPORT::"Picking List", false, false, WhseActivHeader);
+                    WarehouseDocumentPrint.PrintPickHeader(WhseActivHeader);
             end;
         end else
             if not HideNothingToHandleErr then
