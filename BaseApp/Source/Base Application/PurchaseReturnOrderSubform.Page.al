@@ -208,6 +208,8 @@
                     trigger OnValidate()
                     begin
                         DeltaUpdateTotals();
+                        if PurchasesPayablesSetup."Calc. Inv. Discount" and (Quantity = 0) then
+                            CurrPage.Update(false);
                     end;
                 }
                 field("Reserved Quantity"; ReverseReservedQtySign)

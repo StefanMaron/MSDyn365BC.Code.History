@@ -1517,6 +1517,8 @@ codeunit 139155 "PEPPOL Management Tests"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
         VATPostingSetup1.Get(SalesHeader."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
+        VATPostingSetup2."VAT %" := VATPostingSetup1."VAT %" + 1;
+        VATPostingSetup2.Modify();
         // [GIVEN] Two  sales lines of VAT Posting Setup "VAT10" with Amount Incl. VAT = 30 and 40
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
         SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup2."VAT Prod. Posting Group");
@@ -1532,7 +1534,7 @@ codeunit 139155 "PEPPOL Management Tests"
         repeat
             PEPPOLManagement.GetTotals(SalesLine, TempVATAmountLine);
             TempVATAmountLine.TestField("VAT %", SalesLine."VAT %");
-            TempVATAmountLine.TestField("VAT Identifier", SalesLine."VAT Identifier");
+            TempVATAmountLine.TestField("VAT Identifier", Format(SalesLine."VAT %"));
         until SalesLine.Next = 0;
 
         // [THEN] Two TempVATAmountLines generated for the Sales Invoice
@@ -1541,6 +1543,7 @@ codeunit 139155 "PEPPOL Management Tests"
         Assert.RecordCount(TempVATAmountLine, 2);
         VerifyVATAmountLine(TempVATAmountLine, SalesLine, VATPostingSetup1);
         VerifyVATAmountLine(TempVATAmountLine, SalesLine, VATPostingSetup2);
+        VATPostingSetup2.Delete();
     end;
 
     [Test]
@@ -1573,7 +1576,7 @@ codeunit 139155 "PEPPOL Management Tests"
         repeat
             PEPPOLManagement.GetTotals(SalesLine, TempVATAmountLine);
             TempVATAmountLine.TestField("VAT %", SalesLine."VAT %");
-            TempVATAmountLine.TestField("VAT Identifier", SalesLine."VAT Identifier");
+            TempVATAmountLine.TestField("VAT Identifier", Format(SalesLine."VAT %"));
         until SalesLine.Next = 0;
 
         // [THEN] One TempVATAmountLine generated for the Sales Invoice
@@ -3729,7 +3732,7 @@ codeunit 139155 "PEPPOL Management Tests"
 
     local procedure VerifyVATAmountLine(var VATAmountLine: Record "VAT Amount Line"; var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup")
     begin
-        VATAmountLine.SetRange("VAT Identifier", VATPostingSetup."VAT Identifier");
+        VATAmountLine.SetRange("VAT Identifier", Format(VATPostingSetup."VAT %"));
         VATAmountLine.FindFirst;
         SalesLine.SetRange("VAT Identifier", VATPostingSetup."VAT Identifier");
         SalesLine.CalcSums(Amount, "Amount Including VAT");

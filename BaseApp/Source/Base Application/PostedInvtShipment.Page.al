@@ -208,6 +208,7 @@ page 6570 "Posted Invt. Shipment"
                 var
                     InvtShptHeader: Record "Invt. Shipment Header";
                 begin
+                    InvtShptHeader := Rec;
                     CurrPage.SetSelectionFilter(InvtShptHeader);
                     InvtShptHeader.PrintRecords(true);
                 end;
