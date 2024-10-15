@@ -21,10 +21,14 @@ codeunit 7309 "Whse. Jnl.-Register+Print"
         TempJnlBatchName: Code[10];
         IsHandled: Boolean;
 
+#pragma warning disable AA0074
         Text001: Label 'Do you want to register the journal lines?';
         Text002: Label 'There is nothing to register.';
         Text003: Label 'The journal lines were successfully registered.';
+#pragma warning disable AA0470
         Text004: Label 'You are now in the %1 journal.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure "Code"()
     begin

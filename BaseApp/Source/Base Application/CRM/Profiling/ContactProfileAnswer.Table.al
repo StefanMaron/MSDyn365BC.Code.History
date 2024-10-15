@@ -207,7 +207,11 @@ table 5089 "Contact Profile Answer"
     var
         UpdateContactClassification: Report "Update Contact Classification";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'This Question does not allow %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure Question(): Text[250]
     var

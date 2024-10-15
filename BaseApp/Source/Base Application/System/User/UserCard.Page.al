@@ -279,21 +279,6 @@ page 9807 "User Card"
                     ToolTip = 'Specifies if the user will be prompted to change the password at next login.';
                 }
             }
-#if not CLEAN22
-            part(UserGroups; "User Groups User SubPage")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'User Group Memberships';
-                SubPageLink = "User Security ID" = field("User Security ID");
-                UpdatePropagation = Both;
-                AboutTitle = 'Assigning group memberships';
-                AboutText = 'You add or remove memberships by updating the lines here. The user inherits permission sets from all the assigned user groups. Note: User groups will be replaced by security groups and composable permission sets in a future release.';
-                Visible = LegacyUserGroupsVisible;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by the User Security Groups part.';
-                ObsoleteTag = '22.0';
-            }
-#endif
             part(Permissions; "User Subform")
             {
                 ApplicationArea = Basic, Suite;
@@ -592,13 +577,7 @@ page 9807 "User Card"
 #if not CLEAN23
         UserManagement: Codeunit "User Management";
 #endif        
-#if not CLEAN22
-        LegacyUserGroups: Codeunit "Legacy User Groups";
-#endif
     begin
-#if not CLEAN22
-        LegacyUserGroupsVisible := LegacyUserGroups.UiElementsVisible();
-#endif
         IsSaaS := EnvironmentInfo.IsSaaS();
         if not IsSaaS then
             IsWebServiceAccesskeyAllowed := true
@@ -629,9 +608,11 @@ page 9807 "User Card"
         BasicAuthDepricationNotification: Notification;
 #endif
         WindowsUserName: Text[208];
+#pragma warning disable AA0470
         Text001Err: Label 'The account %1 is not a valid Windows account.', Comment = 'USERID';
         Text002Err: Label 'The account %1 already exists.', Comment = 'USERID';
         Text003Err: Label 'The account %1 is not allowed.', Comment = 'USERID';
+#pragma warning restore AA0470
         CreateUserInSaaSErr: Label 'Creating users is not allowed in the online environment.';
         DeleteUserInSaaSErr: Label 'Deleting users is not allowed in the online environment.';
         Password: Text[80];
@@ -640,7 +621,9 @@ page 9807 "User Card"
         TelemetryUserID: Guid;
         Confirm001Qst: Label 'The current Web Service Access Key will not be valid after editing. All clients that use it have to be updated. Do you want to continue?';
         WebServiceExpiryDate: DateTime;
+#pragma warning disable AA0470
         Confirm002Qst: Label 'You have not completed all necessary fields for the Credential Type that this client is currently using. The user will not be able to log in unless you provide a value in the %1 field. Are you sure that you want to close the window?', Comment = 'USERID';
+#pragma warning restore AA0470
         DeployedToAzure: Boolean;
         Confirm003Qst: Label 'The user will not be able to sign in unless you change the state to Enabled. Are you sure that you want to close the page?';
         HasExchangeIdentifier: Boolean;
@@ -657,7 +640,9 @@ page 9807 "User Card"
         InitialState: Option;
         CannotCreateWindowsGroupErr: Label 'User accounts of type ''Windows Group'' can only be created by creating a security group.';
         CannotCreateAadGroupErr: Label 'User accounts of type ''Microsoft Entra group'' are only available in SaaS.';
+#pragma warning disable AA0470
         CreateFirstUserQst: Label 'You will be locked out after creating first user. Would you first like to create a SUPER user for %1?', Comment = 'USERID';
+#pragma warning restore AA0470
         CannotEditForOtherUsersErr: Label 'You can only change your own web service access keys.';
         CannotCreateWebServiceAccessKeyErr: Label 'You cannot create a web service access key for this user because they have delegated administration privileges.';
         ReadWebServiceKeyTxt: Label 'Read web service key', Locked = true;
@@ -665,9 +650,6 @@ page 9807 "User Card"
         NewWebSeriveKeyTxt: label 'New web service key', Locked = true;
         NewWebSeriveKeyForUserTxt: Label 'New web service key was created for user %1', Locked = true;
         PermissionsVisible: Boolean;
-#if not CLEAN22
-        LegacyUserGroupsVisible: Boolean;
-#endif
 
     local procedure SetPermissionsVisibility(): Boolean
     var
@@ -713,6 +695,8 @@ page 9807 "User Card"
     var
         ValidationField: Text;
         ShowConfirmDisableUser: Boolean;
+        IsDisableUserMsgConfirmed: Boolean;
+        UserDisabledLbl: Label 'The user with UserSecurityID %1 has been disabled by user with UserSecurityID %2.', Locked = true;
     begin
         UserSecID.Reset();
         if (UserSecID.Count = 1) or (UserSecurityId() = Rec."User Security ID") then begin
@@ -733,8 +717,12 @@ page 9807 "User Card"
 
         ShowConfirmDisableUser := (InitialState = Rec.State::Enabled) and (Rec.State = Rec.State::Disabled);
         OnValidateAuthenticationOnAfterCalcShowConfirmDisableUser(InitialState, Rec, ShowConfirmDisableUser);
-        if ShowConfirmDisableUser then
-            exit(Confirm(Confirm003Qst, false));
+        if ShowConfirmDisableUser then begin
+            IsDisableUserMsgConfirmed := Confirm(Confirm003Qst, false);
+            if IsDisableUserMsgConfirmed then
+                Session.LogAuditMessage(StrSubstNo(UserDisabledLbl, Rec."Windows Security ID", UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 2, 0);
+            exit(IsDisableUserMsgConfirmed);
+        end;
 
         exit(true);
     end;

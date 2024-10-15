@@ -191,8 +191,12 @@ table 5913 Loaner
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'You cannot delete a loaner that is lent.';
+#pragma warning disable AA0470
         Text001: Label 'You can only delete a %1 that is %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ServMgtSetup: Record "Service Mgt. Setup";
         Item: Record Item;
         Loaner: Record Loaner;

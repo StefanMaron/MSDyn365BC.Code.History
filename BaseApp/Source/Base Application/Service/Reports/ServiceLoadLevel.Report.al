@@ -189,8 +189,10 @@ report 5956 "Service Load Level"
         ResourceFilter: Text;
         Selection: Option Quantity,Cost,Price;
         Values: array[6] of Decimal;
+#pragma warning disable AA0074
         Text001: Label 'Selection :';
         Text002: Label 'Quantity,Cost,Price';
+#pragma warning restore AA0074
         ServiceLoadLevelCaptionLbl: Label 'Service Load Level';
         CurrReportPageNoCaptionLbl: Label 'Page';
         UnusedCaptionLbl: Label 'Unused';

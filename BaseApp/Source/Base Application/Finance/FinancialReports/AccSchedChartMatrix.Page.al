@@ -243,7 +243,9 @@ page 764 "Acc. Sched. Chart Matrix"
         ColumnCaptions: array[12] of Text[100];
         ColumnLineNos: array[12] of Integer;
         MaxColumns: Integer;
+#pragma warning disable AA0074
         Text001: Label 'Invalid Column Layout.';
+#pragma warning restore AA0074
 
     procedure SetFilters(AccountSchedulesChartSetup: Record "Account Schedules Chart Setup")
     begin

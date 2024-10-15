@@ -4421,15 +4421,12 @@ codeunit 137054 "SCM Supply Planning"
 
         // [WHEN] Calculate Regenerative Plan
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));
-
         // [THEN] Two Requisition Line are created for Item: with Quantity = "M" and "Q" accordingly
-        with ReqLine do begin
-            SetRange("No.", Item."No.");
-            FindSet();
-            Assert.AreEqual(MaxQty, Quantity, QuantityErr);
-            Next();
-            Assert.AreEqual(Qty, Quantity, QuantityErr);
-        end;
+        ReqLine.SetRange("No.", Item."No.");
+        ReqLine.FindSet();
+        Assert.AreEqual(MaxQty, ReqLine.Quantity, QuantityErr);
+        ReqLine.Next();
+        Assert.AreEqual(Qty, ReqLine.Quantity, QuantityErr);
     end;
 
     [Test]
@@ -5624,15 +5621,14 @@ codeunit 137054 "SCM Supply Planning"
     local procedure CreateLFLItemWithSettingPlanningTab(var Item: Record Item)
     begin
         LibraryInventory.CreateItem(Item);
-        with Item do begin
-            Validate("Reordering Policy", "Reordering Policy"::"Lot-for-Lot");
-            Validate("Include Inventory", true); // Only Setup Include Inventory as TRUE if set value in Safety Stock Quantity.
-            Validate("Safety Stock Quantity", LibraryRandom.RandInt(100));
-            Validate("Minimum Order Quantity", LibraryRandom.RandInt(100));
-            Validate("Maximum Order Quantity", LibraryRandom.RandIntInRange(100, 200));
-            Validate("Order Multiple", LibraryRandom.RandInt(100));
-            Modify(true);
-        end;
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Validate("Include Inventory", true);
+        // Only Setup Include Inventory as TRUE if set value in Safety Stock Quantity.
+        Item.Validate("Safety Stock Quantity", LibraryRandom.RandInt(100));
+        Item.Validate("Minimum Order Quantity", LibraryRandom.RandInt(100));
+        Item.Validate("Maximum Order Quantity", LibraryRandom.RandIntInRange(100, 200));
+        Item.Validate("Order Multiple", LibraryRandom.RandInt(100));
+        Item.Modify(true);
     end;
 
     local procedure CreateLFLItemWithVendorNo(var Item: Record Item; VendorNo: Code[20])
@@ -5646,13 +5642,11 @@ codeunit 137054 "SCM Supply Planning"
     local procedure CreateLFLItemWithMaximumAndMinimumOrderQuantity(var Item: Record Item; Quantity: Decimal)
     begin
         LibraryInventory.CreateItem(Item);
-        with Item do begin
-            Validate("Reordering Policy", "Reordering Policy"::"Lot-for-Lot");
-            Validate("Minimum Order Quantity", Quantity);
-            Validate("Maximum Order Quantity", Quantity);
-            Validate("Replenishment System", "Replenishment System"::"Prod. Order");
-            Modify(true);
-        end;
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Validate("Minimum Order Quantity", Quantity);
+        Item.Validate("Maximum Order Quantity", Quantity);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Modify(true);
     end;
 
     local procedure CreateItemWithVendorNoReorderingPolicy(var Item: Record Item): Code[20]
@@ -5851,12 +5845,10 @@ codeunit 137054 "SCM Supply Planning"
 
     local procedure ChangeQuantityAndAcceptActionMessageInRequisitionLine(ItemNo: Code[20]; MaximumOrderQuantity: Decimal)
     begin
-        with RequisitionLine do begin
-            SelectRequisitionLineForActionMessage(RequisitionLine, ItemNo, "Action Message"::New, WorkDate());
-            Validate(Quantity, MaximumOrderQuantity);
-            Validate("Accept Action Message", true);
-            Modify(true);
-        end;
+        SelectRequisitionLineForActionMessage(RequisitionLine, ItemNo, RequisitionLine."Action Message"::New, WorkDate());
+        RequisitionLine.Validate(Quantity, MaximumOrderQuantity);
+        RequisitionLine.Validate("Accept Action Message", true);
+        RequisitionLine.Modify(true);
     end;
 
     local procedure UpdateItemVendorNo(var Item: Record Item; VendorNo: Code[20])
@@ -6951,18 +6943,16 @@ codeunit 137054 "SCM Supply Planning"
     var
         EntryNo: Integer;
     begin
-        with TempItemLedgerEntry do begin
-            if FindLast() then
-                EntryNo := "Entry No." + 1
-            else
-                EntryNo := 1;
+        if TempItemLedgerEntry.FindLast() then
+            EntryNo := TempItemLedgerEntry."Entry No." + 1
+        else
+            EntryNo := 1;
 
-            Init();
-            "Entry No." := EntryNo;
-            Quantity := Qty;
-            "Posting Date" := Date;
-            Insert();
-        end;
+        TempItemLedgerEntry.Init();
+        TempItemLedgerEntry."Entry No." := EntryNo;
+        TempItemLedgerEntry.Quantity := Qty;
+        TempItemLedgerEntry."Posting Date" := Date;
+        TempItemLedgerEntry.Insert();
     end;
 
     local procedure SetDemandDates(var DemandDateValue: array[3] of Date; FromRange: Integer; ToRange: Integer)
@@ -7144,12 +7134,10 @@ codeunit 137054 "SCM Supply Planning"
         RequisitionLine: Record "Requisition Line";
         i: Integer;
     begin
-        with RequisitionLine do begin
-            FindRequisitionLine(RequisitionLine, ItemNo);
-            for i := 1 to ArrayLen(DueDates) do begin
-                TestField("Due Date", DueDates[i] - 1);
-                Next();
-            end;
+        FindRequisitionLine(RequisitionLine, ItemNo);
+        for i := 1 to ArrayLen(DueDates) do begin
+            RequisitionLine.TestField("Due Date", DueDates[i] - 1);
+            RequisitionLine.Next();
         end;
     end;
 

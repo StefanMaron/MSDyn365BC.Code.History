@@ -26,24 +26,17 @@ codeunit 134123 "Price List Line UT"
         StartingDateErr: Label 'Starting Date %1 cannot be after Ending Date %2.', Comment = '%1 and %2 - dates';
         CampaignDateErr: Label 'If Source Type is Campaign, then you can only change Starting Date and Ending Date from the Campaign Card.';
         AssetTypeForUOMErr: Label 'Product Type must be equal to Item or Resource.';
-        AssetTypeMustBeItemErr: Label 'Product Type must be equal to ''Item''';
-        AssetTypeMustBeResourceErr: Label 'Product Type must be equal to ''Resource''';
         AssetTypeMustNotBeAllErr: Label 'Product Type must not be (All)';
         AssetNoMustHaveValueErr: Label 'Product No. must have a value';
-        NotPostingJobTaskTypeErr: Label 'Project Task Type must be equal to ''Posting''';
         WrongPriceListCodeErr: Label 'The field Price List Code of table Price List Line contains a value (%1) that cannot be found';
         FieldNotAllowedForAmountTypeErr: Label 'Field %1 is not allowed in the price list line where %2 is %3.',
             Comment = '%1 - the field caption; %2 - Amount Type field caption; %3 - amount type value: Discount or Price';
         AmountTypeMustBeDiscountErr: Label 'Defines must be equal to ''Discount''';
         ItemDiscGroupMustNotBePurchaseErr: Label 'Product Type must not be Item Discount Group';
         LineSourceTypeErr: Label 'cannot be set to %1 if the header''s source type is %2.', Comment = '%1 and %2 - the source type value.';
-        SourceTypeMustBeErr: Label 'Assign-to Type must be equal to ''%1''', Comment = '%1 - source type value';
         ParentSourceNoMustBeFilledErr: Label 'Assign-to Parent No. (custom) must have a value';
-        ParentSourceNoMustBeBlankErr: Label 'Assign-to Parent No. (custom) must be equal to ''''';
         CustomSourceNoMustBeFilledErr: Label 'Assign-to No. (custom) must have a value';
-        CustomSourceNoMustBeBlankErr: Label 'Assign-to No. (custom) must be equal to ''''';
         CannotDeleteActivePriceListLineErr: Label 'You cannot delete the active price list line %1 %2.', Comment = '%1 - the price list code, %2 - line no';
-        SourceGroupJobErr: Label 'Source Group must be equal to ''Project''';
         OutOfSyncNotificationMsg: Label 'We have detected that price list lines exists, which are out of sync. We have disabled the new lookups to prevent issues.';
         IsInitialized: Boolean;
         ResourceNoErr: Label 'Resource Group is not updated';
@@ -515,7 +508,7 @@ codeunit 134123 "Price List Line UT"
         // [WHEN] set "Source Type" as 'Job Task' in the line
         asserterror PriceListLine.Validate("Source Type", "Price Source Type"::"Job Task");
         // [THEN] Error message: "Source Type must be equal to Job"
-        Assert.ExpectedError(StrSubstNo(SourceTypeMustBeErr, "Price Source Type"::Job));
+        Assert.ExpectedTestFieldError(PriceListLine.FieldCaption("Source Type"), Format(PriceListLine."Source Type"::Job));
     end;
 
     [Test]
@@ -787,7 +780,7 @@ codeunit 134123 "Price List Line UT"
         // [WHEN] Validate "Work Type Code" with a valid code
         asserterror PriceListLine.Validate("Work Type Code", GetWorkTypeCode());
         // [THEN] Error message: 'Asset Type must be Resource'
-        Assert.ExpectedError(AssetTypeMustBeResourceErr);
+        Assert.ExpectedTestFieldError(PriceListLine.FieldCaption("Asset Type"), Format(PriceListLine."Asset Type"::Resource));
     end;
 
     [Test]
@@ -1076,7 +1069,7 @@ codeunit 134123 "Price List Line UT"
         Assert.ExpectedError(AmountTypeMustBeDiscountErr);
 
         asserterror PriceListLine.Validate("Amount Type", PriceListLine."Amount Type"::Any);
-        Assert.ExpectedError(AmountTypeMustBeDiscountErr);
+        Assert.ExpectedTestFieldError(PriceListLine.FieldCaption("Amount Type"), Format(PriceListLine."Amount Type"::Discount));
     end;
 
     [Test]
@@ -1298,7 +1291,7 @@ codeunit 134123 "Price List Line UT"
         asserterror PriceListLine.CopyFrom(PriceListHeader);
 
         // [THEN] Error: 'Defines must be equal to 'Discount''
-        Assert.ExpectedError(AmountTypeMustBeDiscountErr);
+        Assert.ExpectedTestFieldError(PriceListHeader.FieldCaption("Amount Type"), Format(PriceListLine."Amount Type"::Discount));
     end;
 
     [Test]
@@ -1345,7 +1338,7 @@ codeunit 134123 "Price List Line UT"
         asserterror PriceListLine.Verify();
 
         // [THEN] Error: "Assign-to No. (custom) must be equal to ''''"
-        Assert.ExpectedError(CustomSourceNoMustBeBlankErr);
+        Assert.ExpectedTestFieldError(PriceListLine.FieldCaption("Source No."), '''');
     end;
 
     [Test]
@@ -1384,7 +1377,7 @@ codeunit 134123 "Price List Line UT"
         asserterror PriceListLine.Verify();
 
         // [THEN] Error: "Assign-to Parent No. (custom) must be equal to ''''"
-        Assert.ExpectedError(ParentSourceNoMustBeBlankErr);
+        Assert.ExpectedTestFieldError(PriceListLine.FieldCaption("Parent Source No."), '''');
     end;
 
     [Test]
@@ -2601,7 +2594,7 @@ codeunit 134123 "Price List Line UT"
         asserterror PriceListLine.Validate("Variant Code", ItemVariant.Code);
 
         // [THEN] Error message: 'Asset Type must be Item.'
-        Assert.ExpectedError(AssetTypeMustBeItemErr);
+        Assert.ExpectedTestFieldError(PriceListLine.FieldCaption("Asset Type"), Format(PriceListLine."Asset Type"::Item));
     end;
 
     [Test]
@@ -2658,8 +2651,8 @@ codeunit 134123 "Price List Line UT"
         PriceListLine."Asset No." := 'ACC';
         // [WHEN] Set "Cost Factor" as 1
         asserterror PriceListLine.Validate("Cost Factor", 1);
-        // [THEN] Error message: 'Source Group must be equal to Project'
-        Assert.ExpectedError(SourceGroupJobErr);
+        // [THEN] Error message: 'Source Group must be equal to Job'
+        Assert.ExpectedTestFieldError(PriceListLine.FieldCaption("Source Group"), Format(PriceListLine."Source Group"::Job));
     end;
 
     [Test]
@@ -2683,7 +2676,7 @@ codeunit 134123 "Price List Line UT"
         // [WHEN] Set "Source No." as 'JT'
         asserterror PriceListLine.Validate("Source No.", JobTask."Job Task No.");
         // [THEN] Error message: 'Project Task Type must be equal to Posting'
-        Assert.ExpectedError(NotPostingJobTaskTypeErr);
+        Assert.ExpectedTestFieldError(JobTask.FieldCaption("Job Task Type"), Format(JobTask."Job Task Type"::Posting));
     end;
 
     [Test]

@@ -23,7 +23,6 @@ codeunit 134350 "Test Item Charge Extendibility"
         NewInstruction: Text;
         EquallyTok: Label 'Equally';
         ByFairyDustTok: Label 'By Fairy Dust';
-        QtyToHandleMustBeErr: Label 'Qty. to Handle must be equal to ''%1''  in %2';
         IsInitialized: Boolean;
 
     [Test]
@@ -332,7 +331,7 @@ codeunit 134350 "Test Item Charge Extendibility"
         InitItemChargeAssignmentSales(ItemChargeAssignmentSales);
         ItemChargeAssignmentSales.Validate("Qty. to Assign", LibraryRandom.RandInt(50));
         asserterror ItemChargeAssignmentSales.Validate("Qty. to Handle", ItemChargeAssignmentSales."Qty. to Assign" - 1);
-        Assert.ExpectedError(StrSubstNo(QtyToHandleMustBeErr, ItemChargeAssignmentSales."Qty. to Assign", ItemChargeAssignmentSales.TableName()));
+        Assert.ExpectedTestFieldError(ItemChargeAssignmentSales.FieldCaption("Qty. to Handle"), Format(ItemChargeAssignmentSales."Qty. to Assign"));
     end;
 
     [Test]
@@ -377,7 +376,7 @@ codeunit 134350 "Test Item Charge Extendibility"
         InitItemChargeAssignmentPurch(ItemChargeAssignmentPurch);
         ItemChargeAssignmentPurch.Validate("Qty. to Assign", LibraryRandom.RandInt(50));
         asserterror ItemChargeAssignmentPurch.Validate("Qty. to Handle", ItemChargeAssignmentPurch."Qty. to Assign" - 1);
-        Assert.ExpectedError(StrSubstNo(QtyToHandleMustBeErr, ItemChargeAssignmentPurch."Qty. to Assign", ItemChargeAssignmentPurch.TableName()));
+        Assert.ExpectedTestFieldError(ItemChargeAssignmentPurch.FieldCaption("Qty. to Handle"), Format(ItemChargeAssignmentPurch."Qty. to Assign"));
     end;
 
     local procedure Initialize()

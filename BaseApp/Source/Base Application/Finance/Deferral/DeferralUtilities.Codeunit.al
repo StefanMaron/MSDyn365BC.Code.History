@@ -964,7 +964,7 @@ codeunit 1720 "Deferral Utilities"
         TotalVATBase := TotalAmount;
         TotalVATBaseACY := TotalAmountACY;
         if DeferralCode <> '' then
-            if (AmtToDefer = TotalAmount) and (AmtToDeferACY = TotalAmountACY) then begin
+            if (AmtToDefer = TotalAmount - DiscountAmount) and (AmtToDeferACY = TotalAmountACY - DiscountAmountACY) then begin
                 AmtToDefer := 0;
                 AmtToDeferACY := 0;
             end else begin
@@ -983,7 +983,7 @@ codeunit 1720 "Deferral Utilities"
     procedure AdjustTotalAmountForDeferralsNoBase(DeferralCode: Code[10]; var AmtToDefer: Decimal; var AmtToDeferACY: Decimal; var TotalAmount: Decimal; var TotalAmountACY: Decimal; DiscountAmount: Decimal; DiscountAmountACY: Decimal)
     begin
         if DeferralCode <> '' then
-            if (AmtToDefer = TotalAmount) and (AmtToDeferACY = TotalAmountACY) then begin
+            if (AmtToDefer = TotalAmount - DiscountAmount) and (AmtToDeferACY = TotalAmountACY - DiscountAmountACY) then begin
                 AmtToDefer := 0;
                 AmtToDeferACY := 0;
             end else begin

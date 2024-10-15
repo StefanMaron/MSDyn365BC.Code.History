@@ -97,7 +97,7 @@ page 5772 "Warehouse Pick Summary"
             part(SummaryPart; "Warehouse Pick Summary Part")
             {
                 Caption = 'Summary';
-                SubPageLink = "Source Document" = field("Source Document"), "Source No." = field("Source No."), "Source Line No." = field("Source Line No.");
+                SubPageLink = "Source Document" = field("Source Document"), "Source No." = field("Source No."), "Source Line No." = field("Source Line No."), "Source Subline No." = field("Source Subline No.");
             }
             part(LocationPart; "Location Card Part")
             {

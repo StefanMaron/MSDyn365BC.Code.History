@@ -190,6 +190,8 @@ page 375 "Bank Account Statistics"
         BankAccNetChange: array[4] of Decimal;
         BankAccNetChangeLCY: array[4] of Decimal;
         i: Integer;
+#pragma warning disable AA0074
         Text000: Label 'Placeholder';
+#pragma warning restore AA0074
 }
 

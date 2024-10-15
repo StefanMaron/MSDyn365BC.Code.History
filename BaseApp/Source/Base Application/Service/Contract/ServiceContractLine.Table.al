@@ -721,9 +721,13 @@ table 5964 "Service Contract Line"
         StatusCheckSuspended: Boolean;
         UseServContractLineAsxRec: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'This service item does not belong to customer no. %1.';
         Text001: Label 'Service item %1 has a different ship-to code for this customer.\\Do you want to continue?';
+#pragma warning restore AA0470
         Text003: Label 'This service item already exists in this service contract.';
+#pragma warning disable AA0470
         Text008: Label '%1 field value cannot be later than the %2 field value on the contract line.';
         Text009: Label 'The %1 cannot be less than the %2.';
         Text011: Label 'Service ledger entry exists for service contract line %1.\\You may need to create a credit memo.';
@@ -735,10 +739,14 @@ table 5964 "Service Contract Line"
         Text019: Label 'Service item %1 already belongs to one or more service contracts/quotes.\\Do you want to continue?';
         Text020: Label 'The service period for service item %1 under contract %2 has not yet started.';
         Text021: Label 'The service period for service item %1 under contract %2 has expired.';
+#pragma warning restore AA0470
         Text022: Label 'If you delete this contract line while the Automatic Credit Memos check box is not selected, a credit memo will not be created.\Do you want to continue?';
         Text023: Label 'The update has been interrupted to respect the warning.';
+#pragma warning disable AA0470
         Text024: Label 'You cannot enter a later date in or clear the %1 field on the contract line that has been invoiced for the period containing that date.';
         Text025: Label 'You cannot add a new %1 because the service contract has expired. Renew the %2 on the service contract.', Comment = 'You cannot add a new Service Item Line because the service contract has expired. Renew the Expiration Date on the service contract.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure SetupNewLine()
     var

@@ -17,7 +17,7 @@ codeunit 136200 "Marketing Campaign Segments"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-#if not CLEAN23
+#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
 #endif
         IsInitialized: Boolean;
@@ -33,7 +33,7 @@ codeunit 136200 "Marketing Campaign Segments"
         WrongMailingGroupDescriptionFieldLengthErr: Label 'Wrong Mailing Group Description field length.';
         InteractionTemplateCode2: Code[10];
         SegmentHeaderNo2: Code[20];
-#if not CLEAN23
+#if not CLEAN25
         InterTemplateSalesInvoicesNotSpecifiedErr: Label 'The Invoices field on the Sales FastTab in the Interaction Template Setup window must be filled in.';
 #endif
         ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
@@ -381,7 +381,7 @@ codeunit 136200 "Marketing Campaign Segments"
         VerifySaveCriteriaAndReuse(SegmentHeader."No.", SegmentHeader2."No.");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
@@ -649,7 +649,7 @@ codeunit 136200 "Marketing Campaign Segments"
         VerifyCampaignWithDetails(CampaignNo, SalespersonCode, CampaignStatus.Code);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
@@ -1310,7 +1310,7 @@ codeunit 136200 "Marketing Campaign Segments"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Marketing Campaign Segments");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure SalesPriceDiscountScenario(var Campaign: Record Campaign; var SalesPrice: Record "Sales Price"; var CustomerNo: Code[20]; var SalesLineDiscount: Record "Sales Line Discount")
     var
         SalesAndReceivablesSetup: Record "Sales & Receivables Setup";
@@ -1383,7 +1383,7 @@ codeunit 136200 "Marketing Campaign Segments"
         ApplyMailingGroup.RunModal();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateCampaignPriceDiscount(var Campaign: Record Campaign; var SalesPrice: Record "Sales Price"; var SalesLineDiscount: Record "Sales Line Discount")
     begin
         LibraryMarketing.CreateCampaign(Campaign);
@@ -1426,7 +1426,7 @@ codeunit 136200 "Marketing Campaign Segments"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; SalesPrice: Record "Sales Price")
     begin
         LibraryMarketing.CreateSalesLineDiscount(SalesLineDiscount, SalesPrice."Sales Code", SalesPrice."Item No.");
@@ -1681,7 +1681,7 @@ codeunit 136200 "Marketing Campaign Segments"
         Campaign.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure UpdateSalesOrderForCampaign(SalesPrice: Record "Sales Price"; No: Code[20]; CustomerName: Text; Quantity: Decimal)
     var
         SalesLine: Record "Sales Line";
@@ -1806,7 +1806,7 @@ codeunit 136200 "Marketing Campaign Segments"
         InteractionLogEntry.TestField("Attempt Failed", false);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure VerifyPriceDiscountsActivated(SalesPrice: Record "Sales Price"; SalesLineDiscount: Record "Sales Line Discount"; SalesHeaderNo: Code[20])
     var
         SalesLine: Record "Sales Line";

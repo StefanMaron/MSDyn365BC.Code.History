@@ -389,7 +389,11 @@ page 5783 "Cross-Dock Opportunities"
         QtyToHandleBase: Decimal;
         QtyNeededSumBase: Decimal;
         QtyOnCrossDockBase: Decimal;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'The current %1 lines will be deleted, do you want to continue?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ItemNo2: Code[20];
         VariantCode2: Code[10];
         LocationCode2: Code[10];
@@ -399,7 +403,9 @@ page 5783 "Cross-Dock Opportunities"
         QtyToBeCrossDockedBase: Decimal;
         UOMCode2: Code[10];
         QtyPerUOM2: Decimal;
+#pragma warning disable AA0074
         Text000: Label 'Placeholder';
+#pragma warning restore AA0074
 
     procedure SetValues(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; TemplateName: Code[10]; NameNo: Code[20]; LineNo: Integer; UOMCode: Code[10]; QtyPerUOM: Decimal)
     begin

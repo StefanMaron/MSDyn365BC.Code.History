@@ -13,7 +13,6 @@ using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
-using Microsoft.Service.Pricing;
 
 table 7008 "Dtld. Price Calculation Setup"
 {
@@ -153,9 +152,7 @@ table 7008 "Dtld. Price Calculation Setup"
             else
             if ("Asset Type" = const("Resource Group")) "Resource Group"
             else
-            if ("Asset Type" = const("Item Discount Group")) "Item Discount Group"
-            else
-            if ("Asset Type" = const("Service Cost")) "Service Cost";
+            if ("Asset Type" = const("Item Discount Group")) "Item Discount Group";
             ValidateTableRelation = false;
 
             trigger OnValidate()

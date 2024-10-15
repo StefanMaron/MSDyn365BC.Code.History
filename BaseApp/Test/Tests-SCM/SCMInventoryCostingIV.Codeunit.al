@@ -28,14 +28,11 @@ codeunit 137289 "SCM Inventory Costing IV"
         isInitialized: Boolean;
         ValueEntryNotMatched: Label '%1 must be %2 in %3.';
         UndoReceiptMessage: Label 'Do you really want to undo the selected Receipt lines?';
-        AppliedQuantityUndoError: Label 'Remaining Quantity must be equal to ''%1''  in Item Ledger Entry: Entry No.=%2. Current value is ''0''.';
-        UndoRcptReservedQtyError: Label 'Reserved Quantity must be equal to ';
         PutAwayCreatedUndoError: Label 'You cannot undo line 10000 because warehouse put-away lines have already been created.';
         UndoInvoicedReceiptError: Label 'You cannot undo line 10000 because an item charge has already been invoiced.';
         UndoPurchRetOrderMessage: Label 'Do you really want to undo the selected Return Shipment lines?';
         UndoPickedLineMessage: Label 'The items have been picked.';
         UndoSalesShipmentMsg: Label 'Do you really want to undo the selected Shipment lines?';
-        UndoDropShipmentError: Label 'Drop Shipment must be equal to ''No''  in Sales Shipment Line';
         ChangeLocationMessage: Label 'You have changed Location Code on the sales header, but it has not been changed on the existing sales lines.';
         UndoSalesRetReceiptMsg: Label 'Do you really want to undo the selected Return Receipt lines?';
         ChangeCurrCodeMessage: Label 'If you change';
@@ -443,16 +440,13 @@ codeunit 137289 "SCM Inventory Costing IV"
 
         // Post Purchase Document.
         DocumentNo := PostPurchaseDocument(PurchaseLine, true);
-
         // Verify: Verify Value Entry for Cost Amount (Non-Invtbl.)(ACY).
-        with ValueEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Item Charge No.", PurchaseLine."No.");
-            FindFirst();
-            CostAmountNonInvtblACY := Round("Cost Amount (Non-Invtbl.)" * CurrencyExchangeRate."Exchange Rate Amount" /
-                CurrencyExchangeRate."Relational Exch. Rate Amount", LibraryERM.GetAmountRoundingPrecision());
-            TestField("Cost Amount (Non-Invtbl.)(ACY)", CostAmountNonInvtblACY);
-        end;
+        ValueEntry.SetRange("Document No.", DocumentNo);
+        ValueEntry.SetRange("Item Charge No.", PurchaseLine."No.");
+        ValueEntry.FindFirst();
+        CostAmountNonInvtblACY := Round(ValueEntry."Cost Amount (Non-Invtbl.)" * CurrencyExchangeRate."Exchange Rate Amount" /
+            CurrencyExchangeRate."Relational Exch. Rate Amount", LibraryERM.GetAmountRoundingPrecision());
+        ValueEntry.TestField("Cost Amount (Non-Invtbl.)(ACY)", CostAmountNonInvtblACY);
     end;
 
     [Test]
@@ -507,7 +501,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         asserterror UndoPurchaseReceiptLines(PurchaseLine);
 
         // Verify. Verify Error while Undo Receipt of reserved Item.
-        Assert.ExpectedError(UndoRcptReservedQtyError);
+        Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption("Reserved Quantity"), '');
     end;
 
     [Test]
@@ -560,7 +554,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         asserterror UndoPurchaseReceiptLines(PurchaseLine);
 
         // Verify: Verify error after undo Receipt with applied Quantity.
-        Assert.ExpectedError(StrSubstNo(AppliedQuantityUndoError, PurchaseLine.Quantity, ItemLedgerEntry."Entry No."));
+        Assert.ExpectedTestFieldError(ItemLedgerEntry.FieldCaption("Remaining Quantity"), Format(PurchaseLine.Quantity));
     end;
 
     [Test]
@@ -699,7 +693,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         asserterror UndoReturnShipment(PurchaseLine);
 
         // Verify: Verify error after undo Receipt with applied negative Quantity.
-        Assert.ExpectedError(StrSubstNo(AppliedQuantityUndoError, Abs(PurchaseLine.Quantity), ItemLedgerEntry."Entry No."));
+        Assert.ExpectedTestFieldError(ItemLedgerEntry.FieldCaption("Remaining Quantity"), Format(Abs(PurchaseLine.Quantity)));
     end;
 
     [Test]
@@ -778,7 +772,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         asserterror UndoSalesShipment(SalesLine);
 
         // Verify: Verify Error while Undo Reserved Shipment.
-        Assert.ExpectedError(UndoRcptReservedQtyError);
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption("Reserved Quantity"), '');
     end;
 
     [Test]
@@ -800,7 +794,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         asserterror UndoSalesShipment(SalesLine);
 
         // Verify: Verify Error while Undo Sales Shipment which have Drop Shipment.
-        Assert.ExpectedError(UndoDropShipmentError);
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption("Drop Shipment"), Format(false));
     end;
 
     [Test]
@@ -883,7 +877,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         asserterror UndoReturnReceipt(SalesLine);
 
         // Verify: Verify Error while Undo Reserved Shipment.
-        Assert.ExpectedError(UndoRcptReservedQtyError);
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption("Reserved Quantity"), '');
     end;
 
     [Test]
@@ -1126,12 +1120,10 @@ codeunit 137289 "SCM Inventory Costing IV"
         Item.Get(BomComponent."No.");
         Item2.Get(BomComponent2."No.");
 
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", AssemblyItem."No.");
-            SetRange("Entry Type", "Entry Type"::Sale);
-            FindFirst();
-            CalcFields("Cost Amount (Actual)"); // CALCFIELDS because "Cost Amount (Actual)" is a flow field
-        end;
+        ItemLedgerEntry.SetRange("Item No.", AssemblyItem."No.");
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.CalcFields("Cost Amount (Actual)"); // CALCFIELDS because "Cost Amount (Actual)" is a flow field
 
         Assert.AreNearlyEqual(
           -Quantity * (BomComponent."Quantity per" * Item."Unit Cost" + BomComponent2."Quantity per" * Item2."Unit Cost"),
@@ -2001,16 +1993,14 @@ codeunit 137289 "SCM Inventory Costing IV"
         Item.Validate("Unit Cost", LibraryRandom.RandDec(10, 2));
         Item.Modify(true);
 
-        with BomComponent do begin
-            Init();
-            Validate("Parent Item No.", ParentItemNo);
-            RecRef.GetTable(BomComponent);
-            Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
-            Validate(Type, Type::Item);
-            Validate("No.", Item."No.");
-            Validate("Quantity per", LibraryRandom.RandInt(10));
-            Insert(true);
-        end;
+        BomComponent.Init();
+        BomComponent.Validate("Parent Item No.", ParentItemNo);
+        RecRef.GetTable(BomComponent);
+        BomComponent.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, BomComponent.FieldNo("Line No.")));
+        BomComponent.Validate(Type, BomComponent.Type::Item);
+        BomComponent.Validate("No.", Item."No.");
+        BomComponent.Validate("Quantity per", LibraryRandom.RandInt(10));
+        BomComponent.Insert(true);
     end;
 
     local procedure CreateAssemblyItemWithBOM(var AssemblyItem: Record Item; var BomComponent: Record "BOM Component"; var BomComponent2: Record "BOM Component"; AssemblyPolicy: Enum "Assembly Policy")
@@ -2051,13 +2041,11 @@ codeunit 137289 "SCM Inventory Costing IV"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, StartingDate);
-        with CurrencyExchangeRate do begin
-            Validate("Exchange Rate Amount", LibraryRandom.RandDec(10, 2));
-            Validate("Relational Exch. Rate Amount", LibraryRandom.RandDec(10, 2));
-            Validate("Adjustment Exch. Rate Amount", "Exchange Rate Amount");
-            Validate("Relational Adjmt Exch Rate Amt", "Relational Exch. Rate Amount");
-            Modify(true);
-        end;
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", LibraryRandom.RandDec(10, 2));
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", LibraryRandom.RandDec(10, 2));
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount");
+        CurrencyExchangeRate.Modify(true);
     end;
 
     local procedure CreateProdBOMLineWithStartingEndingDates(var ProductionBOMHeader: Record "Production BOM Header"; ItemNo: Code[20]; Qty: Decimal; StartingDate: Date; EndingDate: Date)
@@ -2122,11 +2110,9 @@ codeunit 137289 "SCM Inventory Costing IV"
 
     local procedure FindRequisitionLine(var RequisitionLine: Record "Requisition Line"; No: Code[20])
     begin
-        with RequisitionLine do begin
-            SetRange(Type, Type::Item);
-            SetRange("No.", No);
-            FindFirst();
-        end
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", No);
+        RequisitionLine.FindFirst();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
@@ -2596,13 +2582,11 @@ codeunit 137289 "SCM Inventory Costing IV"
 
     local procedure UpdateItemParametersForPlanning(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; ReorderingPolicy: Enum "Reordering Policy"; IncludeInventory: Boolean)
     begin
-        with Item do begin
-            Validate("Replenishment System", ReplenishmentSystem);
-            Validate("Reordering Policy", ReorderingPolicy);
-            Validate("Include Inventory", IncludeInventory);
-            Validate("Unit Cost", LibraryRandom.RandInt(10));
-            Modify(true);
-        end
+        Item.Validate("Replenishment System", ReplenishmentSystem);
+        Item.Validate("Reordering Policy", ReorderingPolicy);
+        Item.Validate("Include Inventory", IncludeInventory);
+        Item.Validate("Unit Cost", LibraryRandom.RandInt(10));
+        Item.Modify(true);
     end;
 
     local procedure UpdateSalesHeader(var SalesHeader: Record "Sales Header"; CurrencyCode: Code[10])
@@ -2748,25 +2732,21 @@ codeunit 137289 "SCM Inventory Costing IV"
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Document Type", "Document Type"::"Purchase Invoice");
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            Assert.IsTrue("Cost Amount (Non-Invtbl.)" < 0, CostAmountNonInvtblErr);
-        end;
+        ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Purchase Invoice");
+        ValueEntry.SetRange("Document No.", DocumentNo);
+        ValueEntry.FindFirst();
+        Assert.IsTrue(ValueEntry."Cost Amount (Non-Invtbl.)" < 0, CostAmountNonInvtblErr);
     end;
 
     local procedure VerifyAmountsInACYOnValueEntry(ItemNo: Code[20]; CostPerUnitACY: Decimal; Delta: Decimal; CostPostedToGLACY: Decimal)
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Entry Type", "Entry Type"::Revaluation);
-            FindFirst();
-            Assert.AreNearlyEqual(CostPerUnitACY, "Cost per Unit (ACY)", Delta, CostPerUnitACYErr);
-            Assert.AreNearlyEqual(CostPostedToGLACY, "Cost Posted to G/L (ACY)", Delta, CostPostedToGLACYErr);
-        end;
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Revaluation);
+        ValueEntry.FindFirst();
+        Assert.AreNearlyEqual(CostPerUnitACY, ValueEntry."Cost per Unit (ACY)", Delta, CostPerUnitACYErr);
+        Assert.AreNearlyEqual(CostPostedToGLACY, ValueEntry."Cost Posted to G/L (ACY)", Delta, CostPostedToGLACYErr);
     end;
 
     [ModalPageHandler]

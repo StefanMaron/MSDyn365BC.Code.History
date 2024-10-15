@@ -113,7 +113,9 @@ report 5635 "Maintenance - Next Service"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'The Starting Date is later than the Ending Date.';
+#pragma warning restore AA0074
         FAGenReport: Codeunit "FA General Report";
         StartingDate: Date;
         EndingDate: Date;

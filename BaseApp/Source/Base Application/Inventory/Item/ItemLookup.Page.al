@@ -54,7 +54,7 @@ page 32 "Item Lookup"
                 field("Routing No."; Rec."Routing No.")
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of the production routing that the item is used in.';
+                    ToolTip = 'Specifies the production route that contains the operations needed to manufacture this item.';
                 }
                 field("Shelf No."; Rec."Shelf No.")
                 {

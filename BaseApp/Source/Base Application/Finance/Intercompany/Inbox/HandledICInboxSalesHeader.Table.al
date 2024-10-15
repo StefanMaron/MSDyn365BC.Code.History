@@ -128,6 +128,11 @@ table 438 "Handled IC Inbox Sales Header"
             OptionCaption = 'Returned by Partner,Created by Partner';
             OptionMembers = "Returned by Partner","Created by Partner";
         }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
         field(5790; "Requested Delivery Date"; Date)
         {
             Caption = 'Requested Delivery Date';

@@ -18,8 +18,10 @@ codeunit 7318 "Bin Create"
         Bin: Record Bin;
         Location: Record Location;
 
+#pragma warning disable AA0074
         Text000: Label 'Do you want to create the bin?';
         Text001: Label 'There is nothing to create.';
+#pragma warning restore AA0074
 
     local procedure "Code"()
     begin

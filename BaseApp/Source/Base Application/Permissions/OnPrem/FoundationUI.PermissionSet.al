@@ -1,84 +1,81 @@
 namespace System.Security.AccessControl;
 
-using Microsoft.Utilities;
-using Microsoft.Sales.Analysis;
-using Microsoft.Sales.Customer;
-using Microsoft.Sales.Document;
-using Microsoft.Projects.TimeSheet;
-using Microsoft.CostAccounting.Setup;
+using Microsoft.Assembly.Setup;
 using Microsoft.Bank.Payment;
-using Microsoft.Foundation.Reporting;
+using Microsoft.Bank.Setup;
+using Microsoft.CashFlow.Forecast;
+using Microsoft.CashFlow.Setup;
+using Microsoft.CostAccounting.Setup;
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.CRM.Duplicates;
+using Microsoft.CRM.Interaction;
+using Microsoft.CRM.Opportunity;
+using Microsoft.CRM.Setup;
+using Microsoft.CRM.Task;
 using Microsoft.EServices.EDocument;
-using Microsoft.Foundation.Navigate;
-using Microsoft.Finance.VAT.Reporting;
 using Microsoft.eServices.OnlineMap;
-using Microsoft.Projects.Project.Journal;
-using Microsoft.Projects.Project.WIP;
-using Microsoft.Projects.Project.Setup;
-using Microsoft.Foundation.AuditCodes;
+using Microsoft.Finance.Analysis;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.FinancialReports;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Finance.VAT.RateChange;
-using System.Reflection;
-using System.Environment;
-using Microsoft.Finance.FinancialReports;
-using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Inventory.Analysis;
-using System.Environment.Configuration;
-using Microsoft.Assembly.Setup;
-using Microsoft.Inventory.Availability;
-using System.AI;
-using Microsoft.Bank.Setup;
-using System.Visualization;
-using Microsoft.CashFlow.Setup;
-using Microsoft.Integration.Dataverse;
-using System.Diagnostics;
-using Microsoft.Foundation.Company;
-using System.IO;
-using Microsoft.CRM.BusinessRelation;
-using Microsoft.Integration.D365Sales;
+using Microsoft.Finance.VAT.Reporting;
 using Microsoft.FixedAssets.Depreciation;
-using Microsoft.Finance.Dimension;
-using Microsoft.CRM.Duplicates;
-using System.Utilities;
-using Microsoft.Foundation.ExtendedText;
 using Microsoft.FixedAssets.Journal;
 using Microsoft.FixedAssets.Posting;
 using Microsoft.FixedAssets.Setup;
-using Microsoft.Finance.GeneralLedger.Journal;
-using Microsoft.HumanResources.Setup;
-using Microsoft.CRM.Interaction;
-using Microsoft.Inventory.Setup;
-using Microsoft.Inventory.Item;
-using System.Threading;
-using Microsoft.Manufacturing.Setup;
-using Microsoft.CRM.Setup;
-using Microsoft.Foundation.NoSeries;
-using Microsoft.Inventory.Item.Catalog;
-using Microsoft.CRM.Opportunity;
 using Microsoft.Foundation.Address;
-using System.Device;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Calendar;
+using Microsoft.Foundation.Company;
+using Microsoft.Foundation.ExtendedText;
+using Microsoft.Foundation.Navigate;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Foundation.Period;
+using Microsoft.Foundation.Reporting;
+using Microsoft.HumanResources.Setup;
+using Microsoft.Integration.D365Sales;
+using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.Entity;
-using Microsoft.Purchases.Setup;
-using Microsoft.Projects.Resources.Setup;
-using System.Automation;
-using Microsoft.Sales.Setup;
-using Microsoft.Service.Pricing;
-using Microsoft.Service.Setup;
-using Microsoft.Service.Document;
-using Microsoft.CRM.Task;
-using Microsoft.Service.Maintenance;
-using System.Security.User;
+using Microsoft.Inventory.Analysis;
+using Microsoft.Inventory.Availability;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Setup;
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Projects.Project.Journal;
+using Microsoft.Projects.Project.Setup;
+using Microsoft.Projects.Project.WIP;
+using Microsoft.Projects.Resources.Setup;
+using Microsoft.Projects.TimeSheet;
+using Microsoft.Purchases.Setup;
+using Microsoft.Sales.Analysis;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.Pricing;
+using Microsoft.Sales.Setup;
+using Microsoft.Utilities;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Tracking;
-using Microsoft.Foundation.Period;
-using Microsoft.Finance.Analysis;
-using Microsoft.Foundation.Calendar;
-using Microsoft.CashFlow.Forecast;
-using Microsoft.Sales.Pricing;
 using Microsoft;
+
+using System.Automation;
+using System.AI;
+using System.Device;
+using System.Diagnostics;
+using System.Environment;
+using System.Environment.Configuration;
+using System.IO;
+using System.Reflection;
+using System.Security.User;
+using System.Threading;
+using System.Utilities;
+using System.Visualization;
 
 permissionset 6946 "Foundation UI"
 {
@@ -90,8 +87,8 @@ permissionset 6946 "Foundation UI"
                              "System App - Basic";
 
     Permissions = tabledata Field = R,
-                  tabledata Media = imd,
-                  tabledata "Media Set" = imd,
+                  tabledata Media = rimd,
+                  tabledata "Media Set" = rimd,
                   tabledata User = R,
                   tabledata "Acc. Sched. KPI Web Srv. Setup" = Rim,
                   tabledata "Account Schedules Chart Setup" = Rim,
@@ -169,6 +166,7 @@ permissionset 6946 "Foundation UI"
                   tabledata "Job Queue Category" = Rimd,
                   tabledata "Job Queue Entry" = Rimd,
                   tabledata "Job Queue Log Entry" = Rimd,
+                  tabledata "Job Queue Role Center Cue" = Rimd,
                   tabledata "Job WIP Buffer" = RIMD,
                   tabledata "Jobs Setup" = Rim,
                   tabledata "License Agreement" = RIM,
@@ -206,10 +204,7 @@ permissionset 6946 "Foundation UI"
                   tabledata "Sales Order Entity Buffer" = RIMD,
                   tabledata "Selected Dimension" = RIMD,
                   tabledata "Sent Notification Entry" = Rimd,
-                  tabledata "Serv. Price Group Setup" = Rim,
                   tabledata "Service Connection" = RIMD,
-                  tabledata "Service Mgt. Setup" = Rim,
-                  tabledata "Service Status Priority Setup" = Rim,
                   tabledata "Source Code" = R,
                   tabledata "Source Code Setup" = Rim,
                   tabledata "Standard Text" = R,
@@ -218,7 +213,6 @@ permissionset 6946 "Foundation UI"
                   tabledata "Top Customers By Sales Buffer" = RIMD,
                   tabledata "Trailing Sales Orders Setup" = RIm,
                   tabledata "Trial Balance Setup" = Rim,
-                  tabledata "Troubleshooting Setup" = Rim,
                   tabledata "User Setup" = Rim,
                   tabledata "User Time Register" = rim,
                   tabledata "Value Entry Relation" = Rimd,
@@ -229,8 +223,8 @@ permissionset 6946 "Foundation UI"
                   tabledata "VAT Report Setup" = Rim,
                   tabledata "VAT Reporting Code" = Rim,
                   tabledata "VAT Setup Posting Groups" = Rim,
-                  tabledata "VAT Setup" = R,
-                  tabledata "VAT Posting Parameters" = R,
+                  tabledata "VAT Setup" = Rim,
+                  tabledata "VAT Posting Parameters" = Rim,
                   tabledata "Warehouse Setup" = Rim,
                   tabledata "Where Used Base Calendar" = Rimd,
                   tabledata "Whse. Item Entry Relation" = Rimd,

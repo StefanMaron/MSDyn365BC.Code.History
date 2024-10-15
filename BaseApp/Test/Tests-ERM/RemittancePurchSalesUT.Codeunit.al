@@ -412,24 +412,22 @@ codeunit 133772 "Remittance Purch & Sales UT"
     var
         RecRef: RecordRef;
     begin
-        with GenJournalLine do begin
-            RecRef.GetTable(GenJournalLine);
-            "Journal Template Name" := GenJournalBatch."Journal Template Name";
-            "Journal Batch Name" := GenJournalBatch.Name;
-            "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
-            "Account Type" := "Account Type"::Vendor;
-            "Account No." := VendorNo;
-            "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
-            "Bal. Account No." := "Account No.";
-            "Document Type" := "Document Type"::Payment;
-            "Document No." := LibraryUTUtility.GetNewCode();
-            "Bank Payment Type" := "Bank Payment Type"::"Computer Check";
-            "Applies-to ID" := LibraryUTUtility.GetNewCode();
-            "Posting Date" := WorkDate();
-            Amount := LibraryRandom.RandDecInDecimalRange(20, 50, 2);
-            Insert();
-            exit(Amount);
-        end;
+        RecRef.GetTable(GenJournalLine);
+        GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
+        GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
+        GenJournalLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, GenJournalLine.FieldNo("Line No."));
+        GenJournalLine."Account Type" := GenJournalLine."Account Type"::Vendor;
+        GenJournalLine."Account No." := VendorNo;
+        GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::"Bank Account";
+        GenJournalLine."Bal. Account No." := GenJournalLine."Account No.";
+        GenJournalLine."Document Type" := GenJournalLine."Document Type"::Payment;
+        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode();
+        GenJournalLine."Bank Payment Type" := GenJournalLine."Bank Payment Type"::"Computer Check";
+        GenJournalLine."Applies-to ID" := LibraryUTUtility.GetNewCode();
+        GenJournalLine."Posting Date" := WorkDate();
+        GenJournalLine.Amount := LibraryRandom.RandDecInDecimalRange(20, 50, 2);
+        GenJournalLine.Insert();
+        exit(GenJournalLine.Amount);
     end;
 
     local procedure CreateGenJournalTemplateAndBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -468,14 +466,12 @@ codeunit 133772 "Remittance Purch & Sales UT"
 
     local procedure CreatePaymentGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; PaymentAmount: Decimal)
     begin
-        with GenJournalLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, "Journal Template Name", "Journal Batch Name", "Document Type"::Payment,
-              "Account Type"::Vendor, "Account No.", PaymentAmount);
-            Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-            Validate("Applies-to Doc. No.", DocumentNo);
-            Modify(true);
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor, GenJournalLine."Account No.", PaymentAmount);
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", DocumentNo);
+        GenJournalLine.Modify(true);
     end;
 
     local procedure CreateVendor(): Code[20]

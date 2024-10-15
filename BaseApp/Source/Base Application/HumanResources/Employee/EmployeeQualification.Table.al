@@ -116,6 +116,8 @@ table 5203 "Employee Qualification"
         Qualification: Record Qualification;
         Employee: Record Employee;
 
+#pragma warning disable AA0074
         Text000: Label 'You cannot delete employee qualification information if there are comments associated with it.';
+#pragma warning restore AA0074
 }
 

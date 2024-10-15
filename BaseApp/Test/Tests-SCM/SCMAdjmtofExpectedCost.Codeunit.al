@@ -87,24 +87,22 @@ codeunit 137018 "SCM Adjmt. of Expected Cost"
     var
         SavedInventorySetup: Record "Inventory Setup";
     begin
-        with InventorySetup do begin
-            if NewSetup then begin
-                "Automatic Cost Posting" := AutomaticCostPosting;
-                "Expected Cost Posting to G/L" := ExpectedCostPosting;
-                "Automatic Cost Adjustment" := AutomaticCostAdjustment;
-                "Average Cost Calc. Type" := "Average Cost Calc. Type"::Item;
-                "Average Cost Period" := "Average Cost Period"::Day;
-            end else begin
-                SavedInventorySetup.Get();
-                SavedInventorySetup."Automatic Cost Posting" := AutomaticCostPosting;
-                SavedInventorySetup."Expected Cost Posting to G/L" := ExpectedCostPosting;
-                SavedInventorySetup."Automatic Cost Adjustment" := AutomaticCostAdjustment;
-                SavedInventorySetup."Average Cost Calc. Type" := "Average Cost Calc. Type";
-                SavedInventorySetup."Average Cost Period" := "Average Cost Period";
-                InventorySetup := SavedInventorySetup;
-            end;
-            Modify();
+        if NewSetup then begin
+            InventorySetup."Automatic Cost Posting" := AutomaticCostPosting;
+            InventorySetup."Expected Cost Posting to G/L" := ExpectedCostPosting;
+            InventorySetup."Automatic Cost Adjustment" := AutomaticCostAdjustment;
+            InventorySetup."Average Cost Calc. Type" := InventorySetup."Average Cost Calc. Type"::Item;
+            InventorySetup."Average Cost Period" := InventorySetup."Average Cost Period"::Day;
+        end else begin
+            SavedInventorySetup.Get();
+            SavedInventorySetup."Automatic Cost Posting" := AutomaticCostPosting;
+            SavedInventorySetup."Expected Cost Posting to G/L" := ExpectedCostPosting;
+            SavedInventorySetup."Automatic Cost Adjustment" := AutomaticCostAdjustment;
+            SavedInventorySetup."Average Cost Calc. Type" := InventorySetup."Average Cost Calc. Type";
+            SavedInventorySetup."Average Cost Period" := InventorySetup."Average Cost Period";
+            InventorySetup := SavedInventorySetup;
         end;
+        InventorySetup.Modify();
         CODEUNIT.Run(CODEUNIT::"Change Average Cost Setting", InventorySetup);
     end;
 
@@ -112,17 +110,15 @@ codeunit 137018 "SCM Adjmt. of Expected Cost"
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            SetRange(Type, Type::Item);
-            FindFirst();
-            Validate("Qty. to Invoice", QuantityToInv);
-            Modify();
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        SalesLine.FindFirst();
+        SalesLine.Validate("Qty. to Invoice", QuantityToInv);
+        SalesLine.Modify();
 
-            SalesHeader.Find('=');
-            LibrarySales.PostSalesDocument(SalesHeader, false, true);
-        end;
+        SalesHeader.Find('=');
+        LibrarySales.PostSalesDocument(SalesHeader, false, true);
     end;
 
     local procedure PurchaseOrderWithItemCharge(var PurchaseHeader: Record "Purchase Header"; DirectUnitCost: Decimal)
@@ -151,15 +147,13 @@ codeunit 137018 "SCM Adjmt. of Expected Cost"
     begin
         // last value entry has to have Cost Amount Expected = 75, Cost Amount Actual has to equal -75
         // previous value entry has to have Cost Amount Expected = 250, Cost Amount Actual has to equal -250
-        with ValueEntry do begin
-            if "Entry No." = 0 then
-                FindLast()
-            else
-                Get("Entry No." - 1);
+        if ValueEntry."Entry No." = 0 then
+            ValueEntry.FindLast()
+        else
+            ValueEntry.Get(ValueEntry."Entry No." - 1);
 
-            Assert.AreEqual(EntryCost, "Cost Amount (Expected)", '');
-            Assert.AreEqual(-EntryCost, "Cost Amount (Actual)", '');
-        end;
+        Assert.AreEqual(EntryCost, ValueEntry."Cost Amount (Expected)", '');
+        Assert.AreEqual(-EntryCost, ValueEntry."Cost Amount (Actual)", '');
     end;
 }
 

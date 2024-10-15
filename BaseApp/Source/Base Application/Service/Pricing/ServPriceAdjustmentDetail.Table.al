@@ -130,9 +130,13 @@ table 6083 "Serv. Price Adjustment Detail"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 already exists with adjustments for specific %2 numbers. Delete these lines if you need an adjustment for all %2 records.';
         Text002: Label '%1 already exists for this %2 with %3 set to blank. Delete this line if you need adjustments for specific %4 numbers.';
         Text003: Label '%1 can only be entered when %2 is %3 or %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure ValidateRecord()
     var

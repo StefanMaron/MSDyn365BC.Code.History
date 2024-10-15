@@ -47,9 +47,6 @@ page 953 "Manager Time Sheet List"
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the description for a time sheet.';
-#if not CLEAN22
-                    Visible = TimeSheetV2Enabled;
-#endif
                 }
                 field("Resource No."; Rec."Resource No.")
                 {
@@ -67,81 +64,54 @@ page 953 "Manager Time Sheet List"
                     ApplicationArea = Jobs;
                     Caption = 'Total';
                     ToolTip = 'Specifies the total number of hours that are registered on the time sheet.';
-#if not CLEAN22
-                    Visible = TimeSheetV2Enabled;
-#endif
                 }
                 field("Quantity Open"; Rec."Quantity Open")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Open';
                     ToolTip = 'Specifies the total number of hours with the status Open on the time sheet.';
-#if not CLEAN22
-                    Visible = TimeSheetV2Enabled;
-#endif
                 }
                 field("Quantity Submitted"; Rec."Quantity Submitted")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Submitted';
                     ToolTip = 'Specifies the total number of hours with the status Submitted on the time sheet.';
-#if not CLEAN22
-                    Visible = TimeSheetV2Enabled;
-#endif
                 }
                 field("Quantity Approved"; Rec."Quantity Approved")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Approved';
                     ToolTip = 'Specifies the total number of hours with the status Approved on the time sheet.';
-#if not CLEAN22
-                    Visible = TimeSheetV2Enabled;
-#endif
                 }
                 field("Quantity Rejected"; Rec."Quantity Rejected")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Rejected';
                     ToolTip = 'Specifies the total number of hours with the status Rejected on the time sheet.';
-#if not CLEAN22
-                    Visible = TimeSheetV2Enabled;
-#endif
                 }
                 field("Open Exists"; Rec."Open Exists")
                 {
                     ApplicationArea = Jobs;
                     DrillDown = false;
                     ToolTip = 'Specifies if there are time sheet lines with the status Open.';
-#if not CLEAN22
-                    Visible = TimeSheetV2Enabled;
-#endif
                 }
                 field("Submitted Exists"; Rec."Submitted Exists")
                 {
                     ApplicationArea = Jobs;
                     DrillDown = false;
                     ToolTip = 'Specifies if there are time sheet lines with the status Submitted.';
-#if not CLEAN22
-                    Visible = TimeSheetV2Enabled;
-#endif
                 }
                 field("Rejected Exists"; Rec."Rejected Exists")
                 {
                     ApplicationArea = Jobs;
                     DrillDown = false;
                     ToolTip = 'Specifies whether there are time sheet lines with the status Rejected.';
-#if not CLEAN22
-                    Visible = TimeSheetV2Enabled;
-#endif
                 }
                 field("Approved Exists"; Rec."Approved Exists")
                 {
                     ApplicationArea = Jobs;
                     DrillDown = false;
                     ToolTip = 'Specifies whether there are time sheet lines with the status Approved.';
-#if not CLEAN22
-                    Visible = TimeSheetV2Enabled;
-#endif
                 }
                 field("Posted Exists"; Rec."Posted Exists")
                 {
@@ -173,25 +143,6 @@ page 953 "Manager Time Sheet List"
     {
         area(processing)
         {
-#if not CLEAN22
-            action("&Edit Time Sheet")
-            {
-                ApplicationArea = Jobs;
-                Caption = '&Review Time Sheet';
-                Image = OpenJournal;
-                ShortCutKey = 'Return';
-                ToolTip = 'Open the time sheet to approve its details. This requires that you''re the time sheet owner, administrator, or approver.';
-                Visible = not TimeSheetV2Enabled;
-                ObsoleteReason = 'Removed as part of old Time Sheet UI.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '22.0';
-
-                trigger OnAction()
-                begin
-                    ReviewTimeSheet();
-                end;
-            }
-#endif
             action(MoveTimeSheetsToArchive)
             {
                 ApplicationArea = Jobs;
@@ -266,16 +217,6 @@ page 953 "Manager Time Sheet List"
             {
                 Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
 
-#if not CLEAN22
-                actionref("&Edit Time Sheet_Promoted"; "&Edit Time Sheet")
-                {
-                    ObsoleteReason = 'Removed as part of old Time Sheet UI.';
-                    ObsoleteState = Pending;
-#pragma warning disable AS0072
-                    ObsoleteTag = '22.0';
-#pragma warning restore AS0072
-                }
-#endif
                 actionref(MoveTimeSheetsToArchive_Promoted; MoveTimeSheetsToArchive)
                 {
                 }
@@ -291,15 +232,9 @@ page 953 "Manager Time Sheet List"
 
     trigger OnOpenPage()
     begin
-#if not CLEAN22
-        TimeSheetV2Enabled := TimeSheetMgt.TimeSheetV2Enabled();
-#endif
         TimeSheetAdminActionsVisible := true;
         if UserSetup.Get(UserId) then
             CurrPage.Editable := UserSetup."Time Sheet Admin.";
-#if not CLEAN22
-        if TimeSheetV2Enabled then
-#endif
         TimeSheetAdminActionsVisible := UserSetup."Time Sheet Admin.";
 
         TimeSheetMgt.FilterTimeSheets(Rec, Rec.FieldNo("Approver User ID"));
@@ -315,29 +250,8 @@ page 953 "Manager Time Sheet List"
     var
         UserSetup: Record "User Setup";
         TimeSheetMgt: Codeunit "Time Sheet Management";
-#if not CLEAN22
-        TimeSheetV2Enabled: Boolean;
-#endif
         TimeSheetAdminActionsVisible: Boolean;
         ArchiveEnabled: Boolean;
-
-#if not CLEAN22
-    local procedure ReviewTimeSheet()
-    var
-        TimeSheetLine: Record "Time Sheet Line";
-        TimeSheetCard: Page "Time Sheet Card";
-    begin
-        if not TimeSheetV2Enabled then begin
-            TimeSheetMgt.SetTimeSheetNo(Rec."No.", TimeSheetLine);
-            Page.Run(Page::"Manager Time Sheet", TimeSheetLine);
-            exit;
-        end;
-        TimeSheetCard.SetManagerTimeSheetMode();
-        TimeSheetCard.SetTableView(Rec);
-        TimeSheetCard.SetRecord(Rec);
-        TimeSheetCard.Run();
-    end;
-#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterOnOpenPage(var TimeSheetHeader: Record "Time Sheet Header")

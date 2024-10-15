@@ -10,7 +10,6 @@ using Microsoft.Purchases.History;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.History;
-using Microsoft.Service.History;
 
 codeunit 6520 "Item Tracing Mgt."
 {
@@ -533,9 +532,6 @@ codeunit 6520 "Item Tracing Mgt."
         TransShipHeader: Record "Transfer Shipment Header";
         TransRcptHeader: Record "Transfer Receipt Header";
         ProductionOrder: Record "Production Order";
-        ServShptHeader: Record "Service Shipment Header";
-        ServInvHeader: Record "Service Invoice Header";
-        ServCrMemoHeader: Record "Service Cr.Memo Header";
         RecRef: RecordRef;
         IsHandled: Boolean;
     begin
@@ -575,35 +571,9 @@ codeunit 6520 "Item Tracing Mgt."
                                 TrackingEntry."Record Identifier" := RecRef.RecordId;
                             end;
             TrackingEntry."Entry Type"::Sale:
-                if IsServiceDocument(TrackingEntry."Item Ledger Entry No.", ItemLedgEntry) then begin
-                    OnSetRecordIDOnBeforeProcessServiceDocument(ItemLedgEntry, TrackingEntry);
-                    case ItemLedgEntry."Document Type" of
-                        ItemLedgEntry."Document Type"::"Service Shipment":
-                            if ServShptHeader.Get(TrackingEntry."Document No.") then begin
-                                RecRef.GetTable(ServShptHeader);
-                                TrackingEntry."Record Identifier" := RecRef.RecordId;
-                            end else begin
-                                RecRef.GetTable(ItemLedgEntry);
-                                TrackingEntry."Record Identifier" := RecRef.RecordId;
-                            end;
-                        ItemLedgEntry."Document Type"::"Service Invoice":
-                            if ServInvHeader.Get(TrackingEntry."Document No.") then begin
-                                RecRef.GetTable(ServInvHeader);
-                                TrackingEntry."Record Identifier" := RecRef.RecordId;
-                            end else begin
-                                RecRef.GetTable(ItemLedgEntry);
-                                TrackingEntry."Record Identifier" := RecRef.RecordId;
-                            end;
-                        ItemLedgEntry."Document Type"::"Service Credit Memo":
-                            if ServCrMemoHeader.Get(TrackingEntry."Document No.") then begin
-                                RecRef.GetTable(ServCrMemoHeader);
-                                TrackingEntry."Record Identifier" := RecRef.RecordId;
-                            end else begin
-                                RecRef.GetTable(ItemLedgEntry);
-                                TrackingEntry."Record Identifier" := RecRef.RecordId;
-                            end;
-                    end
-                end else
+                if IsServiceDocument(TrackingEntry."Item Ledger Entry No.", ItemLedgEntry) then
+                    OnSetRecordIDOnProcessServiceDocument(ItemLedgEntry, TrackingEntry)
+                else
                     if TrackingEntry.Positive then begin
                         if SalesCrMemoHeader.Get(TrackingEntry."Document No.") then begin
                             RecRef.GetTable(SalesCrMemoHeader);
@@ -682,9 +652,6 @@ codeunit 6520 "Item Tracing Mgt."
         SalesShptHeader: Record "Sales Shipment Header";
         SalesInvHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        ServShptHeader: Record "Service Shipment Header";
-        ServInvHeader: Record "Service Invoice Header";
-        ServCrMemoHeader: Record "Service Cr.Memo Header";
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
@@ -727,21 +694,6 @@ codeunit 6520 "Item Tracing Mgt."
                 begin
                     RecRef.SetTable(SalesCrMemoHeader);
                     PAGE.RunModal(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
-                end;
-            Database::"Service Shipment Header":
-                begin
-                    RecRef.SetTable(ServShptHeader);
-                    PAGE.RunModal(PAGE::"Posted Service Shipment", ServShptHeader);
-                end;
-            Database::"Service Invoice Header":
-                begin
-                    RecRef.SetTable(ServInvHeader);
-                    PAGE.RunModal(PAGE::"Posted Service Invoice", ServInvHeader);
-                end;
-            Database::"Service Cr.Memo Header":
-                begin
-                    RecRef.SetTable(ServCrMemoHeader);
-                    PAGE.RunModal(PAGE::"Posted Service Credit Memo", ServCrMemoHeader);
                 end;
             Database::"Purch. Rcpt. Header":
                 begin
@@ -793,6 +745,8 @@ codeunit 6520 "Item Tracing Mgt."
                         if ProductionOrder.Status = ProductionOrder.Status::Finished then
                             PAGE.RunModal(PAGE::"Finished Production Order", ProductionOrder);
                 end;
+            else
+                OnShowDocument(RecRef);
         end;
     end;
 
@@ -1118,12 +1072,30 @@ codeunit 6520 "Item Tracing Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnSetRecordIDOnProcessServiceDocument(ItemLedgEntry: Record "Item Ledger Entry"; var TrackingEntry: Record "Item Tracing Buffer")
+    begin
+    end;
+
+#if not CLEAN25
+    internal procedure RunOnSetRecordIDOnBeforeProcessServiceDocument(ItemLedgEntry: Record "Item Ledger Entry"; var TrackingEntry: Record "Item Tracing Buffer")
+    begin
+        OnSetRecordIDOnBeforeProcessServiceDocument(ItemLedgEntry, TrackingEntry);
+    end;
+
+    [Obsolete('Moved to codeunit Serv. Item Tracing Mgt.', '25.0')]
+    [IntegrationEvent(false, false)]
     local procedure OnSetRecordIDOnBeforeProcessServiceDocument(ItemLedgEntry: Record "Item Ledger Entry"; var TrackingEntry: Record "Item Tracing Buffer")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitSearchCriteria(var SearchCriteria: Option "None",Lot,Serial,Both,Item,Package; SerialNoFilter: Text; LotNoFilter: Text; PackageNoFilter: Text; ItemNoFilter: Text; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitSearchCriteria(var SearchCriteria: Option "None",Lot,Serial,Both,Item,Package; SerialNoFilter: Text; LotNoFilter: Text; PackageNoFilter: Text; ItemNoFilter: Text; var IsHandled: Boolean)
+    local procedure OnShowDocument(RecRef: RecordRef)
     begin
     end;
 }

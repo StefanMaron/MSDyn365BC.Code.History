@@ -23,11 +23,11 @@ using Microsoft.Warehouse.InventoryDocument;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Request;
-using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Warehouse.Tracking;
 using Microsoft.Warehouse.Worksheet;
 using System.Utilities;
+using Microsoft.Warehouse.Setup;
 
 codeunit 7307 "Whse.-Activity-Register"
 {
@@ -50,9 +50,13 @@ codeunit 7307 "Whse.-Activity-Register"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Warehouse Activity    #1##########\\';
         Text001: Label 'Checking lines        #2######\';
         Text002: Label 'Registering lines     #3###### @4@@@@@@@@@@@@@';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Location: Record Location;
         Item: Record Item;
         GlobalWhseActivHeader: Record "Warehouse Activity Header";
@@ -85,9 +89,13 @@ codeunit 7307 "Whse.-Activity-Register"
         NoOfRecords: Integer;
         LineCount: Integer;
         HideDialog: Boolean;
+#pragma warning disable AA0074
         Text003: Label 'There is nothing to register.';
+#pragma warning restore AA0074
         InsufficientQtyItemTrkgErr: Label 'Item tracking defined for source line %1 of %2 %3 amounts to more than the quantity you have entered.\\You must adjust the existing item tracking specification and then reenter a new quantity.', Comment = '%1=Source Line No.,%2=Source Document,%3=Source No.';
+#pragma warning disable AA0470
         InventoryNotAvailableErr: Label '%1 %2 is not available on inventory or it has already been reserved for another document.';
+#pragma warning restore AA0470
         ItemAlreadyConsumedErr: Label 'Cannot register pick for more than %1 %2 for %3 %4. %5 %6 is partially or completely consumed in %7 of %8 %9 %10.', Comment = 'Cannot Register Pick for more than %1=3 %2=BOX for %3=Line No %4=10000. %5=Item, %6=Item No. is partially or completely consumed in the %7=Project Usage of %8=Project No. %9=Source Line No. %10=Project Contract Entry No.';
         OrderToOrderBindingOnSalesLineQst: Label 'Registering the pick will remove the existing order-to-order reservation for the sales order.\Do you want to continue?';
         RegisterInterruptedErr: Label 'The action has been interrupted to respect the warning.';
@@ -128,8 +136,9 @@ codeunit 7307 "Whse.-Activity-Register"
         TempWhseActivLineToReserve.DeleteAll();
         TempWhseActivityLineGrouped.DeleteAll();
 
-        GlobalWhseActivLine.LockTable();
-        WhseJnlRegisterLine.LockTables();
+        GlobalWhseActivLine.ReadIsolation(IsolationLevel::UpdLock);
+        WhseJnlRegisterLine.LockIfLegacyPosting();
+
         // breakbulk first to provide quantity for pick lines in smaller UoM
         GlobalWhseActivLine.SetFilter("Breakbulk No.", '<>0');
         RegisterWhseActivityLines(GlobalWhseActivLine, TempWhseActivLineToReserve, TempWhseActivityLineGrouped);
@@ -189,7 +198,8 @@ codeunit 7307 "Whse.-Activity-Register"
             GlobalWhseActivHeader."Registering No." := '';
             OnCodeOnBeforeModifyGlobalWhseActivHeader(GlobalWhseActivHeader);
             GlobalWhseActivHeader.Modify();
-            AutofillQtyToHandle(GlobalWhseActivLine);
+            if not GlobalWhseActivHeader."Do Not Fill Qty. to Handle" then
+                AutofillQtyToHandle(GlobalWhseActivLine);
         end;
         if not HideDialog then
             Window.Close();
@@ -459,6 +469,10 @@ codeunit 7307 "Whse.-Activity-Register"
         end;
     end;
 
+    /// <summary>
+    /// Updates the source document line quantity information based on a provided warehouse activity line.
+    /// </summary>
+    /// <param name="WhseActivLineGrouped">Provided warehouse activity line.</param>
     procedure UpdateWhseSourceDocLine(WhseActivLineGrouped: Record "Warehouse Activity Line")
     var
         WhseDocType2: Enum "Warehouse Activity Document Type";
@@ -508,6 +522,10 @@ codeunit 7307 "Whse.-Activity-Register"
         OnAfterUpdateWhseSourceDocLine(WhseActivLineGrouped, WhseDocType2.AsInteger());
     end;
 
+    /// <summary>
+    /// Updates the warehouse document status based on the provided warehouse activity line.
+    /// </summary>
+    /// <param name="WhseActivLine">Provided warehouse activity line.</param>
     procedure UpdateWhseDocHeader(WhseActivLine: Record "Warehouse Activity Line")
     var
         WhsePutAwayRqst: Record "Whse. Put-away Request";
@@ -625,6 +643,15 @@ codeunit 7307 "Whse.-Activity-Register"
         OnAfterUpdateWhseDocHeader(WhseActivLine);
     end;
 
+    /// <summary>
+    /// Updates the warehouse shipment line based on the provided warehouse activity line, with the provided quantities.
+    /// </summary>
+    /// <param name="WhseActivityLineGrouped">Provided warehouse activity line.</param>
+    /// <param name="WhseDocNo">Warehouse document number.</param>
+    /// <param name="WhseDocLineNo">Warehouse document line number.</param>
+    /// <param name="QtyToHandle">Quantity to handle.</param>
+    /// <param name="QtyToHandleBase">Quantity to handle in base unit.</param>
+    /// <param name="QtyPerUOM">Quantity per unit of measure.</param>
     procedure UpdateWhseShipmentLine(WhseActivityLineGrouped: Record "Warehouse Activity Line"; WhseDocNo: Code[20]; WhseDocLineNo: Integer; QtyToHandle: Decimal; QtyToHandleBase: Decimal; QtyPerUOM: Decimal)
     var
         WhseShptLine: Record "Warehouse Shipment Line";
@@ -779,6 +806,10 @@ codeunit 7307 "Whse.-Activity-Register"
         end
     end;
 
+    /// <summary>
+    /// Retrieves the global location record based on the 'LocationCode' parameter. In case that the blank 'LocationCode' is passed record instance will be cleared.
+    /// </summary>
+    /// <param name="LocationCode">Specified location code.</param>
     procedure LocationGet(LocationCode: Code[10])
     begin
         if LocationCode = '' then
@@ -788,6 +819,11 @@ codeunit 7307 "Whse.-Activity-Register"
                 Location.Get(LocationCode);
     end;
 
+    /// <summary>
+    /// Retrieves the item unit of measure record for the provided item number and unit of measure code.
+    /// </summary>
+    /// <param name="ItemNo">Item number.</param>
+    /// <param name="UOMCode">Unit of measure code.</param>
     procedure GetItemUnitOfMeasure(ItemNo: Code[20]; UOMCode: Code[10])
     begin
         if (ItemUnitOfMeasure."Item No." <> ItemNo) or
@@ -1001,6 +1037,10 @@ codeunit 7307 "Whse.-Activity-Register"
         OnAfterCheckSourceDocumentForAvailableQty(GroupedWhseActivLine);
     end;
 
+    /// <summary>
+    /// Checks warehouse item trackings for the provided warehouse activity line.
+    /// </summary>
+    /// <param name="WhseActivLine">Warehouse activity line to check.</param>
     procedure CheckWhseItemTrkgLine(var WhseActivLine: Record "Warehouse Activity Line")
     var
         TempWhseActivLine: Record "Warehouse Activity Line" temporary;
@@ -1441,6 +1481,11 @@ codeunit 7307 "Whse.-Activity-Register"
         OnAfterInsRegWhseItemTrkgLine(WhseActivLine, WhseItemTrkgLine2);
     end;
 
+    /// <summary>
+    /// Sets the warehouse item tracking source based on the provided warehouse activity line warehouse document type.
+    /// </summary>
+    /// <param name="WhseActivLine">Warehouse activity line.</param>
+    /// <param name="WhseItemTrkgLine">Warehouse item tracking line to set the source for.</param>
     procedure SetPointer(WhseActivLine: Record "Warehouse Activity Line"; var WhseItemTrkgLine: Record "Whse. Item Tracking Line")
     var
         WhseDocType2: Enum "Warehouse Activity Document Type";
@@ -1488,6 +1533,11 @@ codeunit 7307 "Whse.-Activity-Register"
         end;
     end;
 
+    /// <summary>
+    /// Sets filters on the warehouse item tracking line based on the provided warehouse activity line.
+    /// </summary>
+    /// <param name="WhseActivLine">Warehouse activity line source information.</param>
+    /// <param name="WhseItemTrkgLine">Warehouse item tracking line to filter.</param>
     procedure SetPointerFilter(WhseActivLine: Record "Warehouse Activity Line"; var WhseItemTrkgLine: Record "Whse. Item Tracking Line")
     var
         WhseItemTrkgLine2: Record "Whse. Item Tracking Line";
@@ -1500,11 +1550,21 @@ codeunit 7307 "Whse.-Activity-Register"
         WhseItemTrkgLine.SetRange("Location Code", WhseItemTrkgLine2."Location Code");
     end;
 
+    /// <summary>
+    /// Shows or hides a dialog based on the provided value.
+    /// </summary>
+    /// <param name="HideDialog2">Indicates whether  the dialog should be show hidden 'true' or shown 'false'</param>
     procedure ShowHideDialog(HideDialog2: Boolean)
     begin
         HideDialog := HideDialog2;
     end;
 
+    /// <summary>
+    /// Calculates the total available quantity to pick based on the provided warehouse activity line and item tracking setup.
+    /// </summary>
+    /// <param name="WhseActivLine">Warehouse activity line.</param>
+    /// <param name="WhseItemTrackingSetup">Item tracking setup.</param>
+    /// <returns>Returns total available quantity to pick in base units.</returns>
     procedure CalcTotalAvailQtyToPick(WhseActivLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"): Decimal
     var
         WhseEntry: Record "Warehouse Entry";
@@ -1699,6 +1759,10 @@ codeunit 7307 "Whse.-Activity-Register"
             QtyBasePicked := QtyBasePicked + WhseActivLine."Qty. Handled (Base)";
     end;
 
+    /// <summary>
+    /// Retrieves the global Item record based on the 'ItemNo' parameter.
+    /// </summary>
+    /// <param name="ItemNo">Specified itme number.</param>
     procedure GetItem(ItemNo: Code[20])
     begin
         if ItemNo <> Item."No." then
@@ -2177,6 +2241,15 @@ codeunit 7307 "Whse.-Activity-Register"
         exit(AssemblyLine.Quantity = AssemblyLine."Reserved Quantity");
     end;
 
+    /// <summary>
+    /// Sets the option to suppress committing transactions to the database.
+    /// </summary>
+    /// <param name="NewSuppressCommit">Boolean flag indicating whether to suppress commit.</param>
+    /// <remarks>
+    /// When 'SuppressCommit' is set to true, it indicates that transaction committed to the
+    /// database should be suppressed. This can be useful in scenarios where batch processing or
+    /// testing requires transactions to be rolled back rather than committed permanently.
+    /// </remarks>
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)
     begin
         SuppressCommit := NewSuppressCommit;

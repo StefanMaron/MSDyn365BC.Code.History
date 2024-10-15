@@ -2,6 +2,7 @@ namespace Microsoft.Manufacturing.StandardCost;
 
 using Microsoft.Inventory.Item;
 using Microsoft.Manufacturing.MachineCenter;
+using Microsoft.Inventory.StandardCost;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Projects.Resources.Resource;
 
@@ -17,11 +18,9 @@ table 5841 "Standard Cost Worksheet"
             Caption = 'Standard Cost Worksheet Name';
             TableRelation = "Standard Cost Worksheet Name";
         }
-        field(3; Type; Option)
+        field(3; Type; Enum "Standard Cost Source Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Item,Work Center,Machine Center,Resource';
-            OptionMembers = Item,"Work Center","Machine Center",Resource;
 
             trigger OnValidate()
             begin

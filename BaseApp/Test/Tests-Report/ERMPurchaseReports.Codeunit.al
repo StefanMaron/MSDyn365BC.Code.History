@@ -490,13 +490,12 @@ codeunit 134983 "ERM Purchase Reports"
         VATAmountLine.SetFilter("VAT %", '>0');
         VATAmountLine.FindSet();
 
-        with VATAmountLine do
-            repeat
-                LibraryReportDataset.AssertElementWithValueExists('VATAmtLineVAT_VATCounter', "VAT %");
-                LibraryReportDataset.AssertElementWithValueExists('VATAmtLineVATBase', "VAT Base");
-                LibraryReportDataset.AssertElementWithValueExists('VATAmtLineLineAmt', "Line Amount");
-                LibraryReportDataset.AssertElementWithValueExists('VATAmtLineInvDiscBaseAmt', "Inv. Disc. Base Amount");
-            until Next() = 0;
+        repeat
+            LibraryReportDataset.AssertElementWithValueExists('VATAmtLineVAT_VATCounter', VATAmountLine."VAT %");
+            LibraryReportDataset.AssertElementWithValueExists('VATAmtLineVATBase', VATAmountLine."VAT Base");
+            LibraryReportDataset.AssertElementWithValueExists('VATAmtLineLineAmt', VATAmountLine."Line Amount");
+            LibraryReportDataset.AssertElementWithValueExists('VATAmtLineInvDiscBaseAmt', VATAmountLine."Inv. Disc. Base Amount");
+        until VATAmountLine.Next() = 0;
     end;
 
     [Test]
@@ -618,13 +617,12 @@ codeunit 134983 "ERM Purchase Reports"
         LibraryReportDataset.LoadDataSetFile();
         VATAmountLine.SetFilter("VAT %", '>0');
         VATAmountLine.FindSet();
-        with VATAmountLine do
-            repeat
-                LibraryReportDataset.AssertElementWithValueExists('VATAmountLineVAT_VATCounter', "VAT %");
-                LibraryReportDataset.AssertElementWithValueExists('VATAmountLineVATBase', "VAT Base");
-                LibraryReportDataset.AssertElementWithValueExists('VATAmountLineLineAmount', "Line Amount");
-                LibraryReportDataset.AssertElementWithValueExists('VATAmtLineInvDiscBaseAmt', "Inv. Disc. Base Amount");
-            until Next() = 0;
+        repeat
+            LibraryReportDataset.AssertElementWithValueExists('VATAmountLineVAT_VATCounter', VATAmountLine."VAT %");
+            LibraryReportDataset.AssertElementWithValueExists('VATAmountLineVATBase', VATAmountLine."VAT Base");
+            LibraryReportDataset.AssertElementWithValueExists('VATAmountLineLineAmount', VATAmountLine."Line Amount");
+            LibraryReportDataset.AssertElementWithValueExists('VATAmtLineInvDiscBaseAmt', VATAmountLine."Inv. Disc. Base Amount");
+        until VATAmountLine.Next() = 0;
     end;
 
     [Test]
@@ -1999,12 +1997,11 @@ codeunit 134983 "ERM Purchase Reports"
         PurchCrMemoLine.SetRange("Document No.", DocumentNo);
         PurchCrMemoLine.SetRange(Type, PurchCrMemoLine.Type::Item);
         PurchCrMemoLine.FindSet();
-        with PurchCrMemoLine do
-            repeat
-                LibraryReportDataset.AssertElementWithValueExists('Quantity_PurchCrMemoLine', Quantity);
-                LibraryReportDataset.AssertElementWithValueExists('LineAmt_PurchCrMemoLine', "Line Amount");
-                LibraryReportDataset.AssertElementWithValueExists('DirUntCst_PurchCrMemoLine', "Direct Unit Cost");
-            until Next() = 0;
+        repeat
+            LibraryReportDataset.AssertElementWithValueExists('Quantity_PurchCrMemoLine', PurchCrMemoLine.Quantity);
+            LibraryReportDataset.AssertElementWithValueExists('LineAmt_PurchCrMemoLine', PurchCrMemoLine."Line Amount");
+            LibraryReportDataset.AssertElementWithValueExists('DirUntCst_PurchCrMemoLine', PurchCrMemoLine."Direct Unit Cost");
+        until PurchCrMemoLine.Next() = 0;
     end;
 
     local procedure VerifyInteractionLogEntry(DocumentType: Enum "Interaction Log Entry Document Type"; DocumentNo: Code[20])
@@ -2024,12 +2021,11 @@ codeunit 134983 "ERM Purchase Reports"
         PurchInvLine.SetRange("Document No.", DocumentNo);
         PurchInvLine.FindSet();
 
-        with PurchInvLine do
-            repeat
-                LibraryReportDataset.AssertElementWithValueExists('Qty_PurchInvLine', Quantity);
-                LibraryReportDataset.AssertElementWithValueExists('LineAmt_PurchInvLine', "Line Amount");
-                LibraryReportDataset.AssertElementWithValueExists('DirectUnitCost_PurchInvLine', "Direct Unit Cost");
-            until Next() = 0;
+        repeat
+            LibraryReportDataset.AssertElementWithValueExists('Qty_PurchInvLine', PurchInvLine.Quantity);
+            LibraryReportDataset.AssertElementWithValueExists('LineAmt_PurchInvLine', PurchInvLine."Line Amount");
+            LibraryReportDataset.AssertElementWithValueExists('DirectUnitCost_PurchInvLine', PurchInvLine."Direct Unit Cost");
+        until PurchInvLine.Next() = 0;
     end;
 
     local procedure VerifyPurchaseArchive(DocumentType: Enum "Purchase Document Type"; No: Code[20])

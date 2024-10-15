@@ -109,16 +109,6 @@ page 5968 "Service Document Registers"
             group(Category_Process)
             {
                 Caption = 'Process';
-
-#if not CLEAN22
-                actionref(Card_Promoted; ShowDocument)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '22.0';
-                }
-#endif
             }
         }
     }

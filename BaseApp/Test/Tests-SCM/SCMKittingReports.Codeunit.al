@@ -48,6 +48,7 @@ codeunit 137390 "SCM Kitting -  Reports"
         GlobalMaterialVariance: Decimal;
         DemandLabel: Label 'Demand';
         AssemblyLabel: Label 'Assembly';
+        AssemblyDemandLabel: Label 'Assembly Demand';
 
     local procedure Initialize()
     begin
@@ -2323,36 +2324,30 @@ codeunit 137390 "SCM Kitting -  Reports"
 
     local procedure FindInventoryReportDifferenceEntry(var InventoryReportEntry: Record "Inventory Report Entry")
     begin
-        with InventoryReportEntry do begin
-            SetRange(Type, Type::" ");
-            FindFirst();
-        end;
+        InventoryReportEntry.SetRange(Type, InventoryReportEntry.Type::" ");
+        InventoryReportEntry.FindFirst();
     end;
 
     local procedure MockGLEntry(GLAccountNo: Code[20]): Integer
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
-            "G/L Account No." := GLAccountNo;
-            Amount := LibraryRandom.RandDecInRange(100, 200, 2);
-            "Posting Date" := WorkDate();
-            Insert();
+        GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FieldNo("Entry No."));
+        GLEntry."G/L Account No." := GLAccountNo;
+        GLEntry.Amount := LibraryRandom.RandDecInRange(100, 200, 2);
+        GLEntry."Posting Date" := WorkDate();
+        GLEntry.Insert();
 
-            exit("Entry No.");
-        end;
+        exit(GLEntry."Entry No.");
     end;
 
     local procedure MockGLEntryOnDate(GLAccountNo: Code[20]; PostingDate: Date)
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            Get(MockGLEntry(GLAccountNo));
-            "Posting Date" := PostingDate;
-            Modify();
-        end;
+        GLEntry.Get(MockGLEntry(GLAccountNo));
+        GLEntry."Posting Date" := PostingDate;
+        GLEntry.Modify();
     end;
 
     local procedure MockGLEntryOnInventoryAccount(InventoryPostingGroup: Code[20])
@@ -2365,26 +2360,22 @@ codeunit 137390 "SCM Kitting -  Reports"
 
     local procedure MockInventoryReportEntry(var InventoryReportEntry: Record "Inventory Report Entry"; ReportEntryType: Option)
     begin
-        with InventoryReportEntry do begin
-            Type := ReportEntryType;
-            "No." := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        InventoryReportEntry.Type := ReportEntryType;
+        InventoryReportEntry."No." := LibraryUtility.GenerateGUID();
+        InventoryReportEntry.Insert();
     end;
 
     local procedure MockValueEntry(ItemNo: Code[20]; ItemLedgerEntryType: Enum "Item Ledger Document Type"; EntryType: Enum "Cost Entry Type"): Integer
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            "Entry No." := LibraryUtility.GetNewRecNo(ValueEntry, FieldNo("Entry No."));
-            "Item No." := ItemNo;
-            "Item Ledger Entry Type" := ItemLedgerEntryType;
-            "Entry Type" := EntryType;
-            Insert();
+        ValueEntry."Entry No." := LibraryUtility.GetNewRecNo(ValueEntry, ValueEntry.FieldNo("Entry No."));
+        ValueEntry."Item No." := ItemNo;
+        ValueEntry."Item Ledger Entry Type" := ItemLedgerEntryType;
+        ValueEntry."Entry Type" := EntryType;
+        ValueEntry.Insert();
 
-            exit("Entry No.");
-        end;
+        exit(ValueEntry."Entry No.");
     end;
 
     local procedure MockValueEntryWithOrderType(ItemNo: Code[20]; ItemLedgerEntryType: Enum "Item Ledger Document Type"; EntryType: Enum "Cost Entry Type"; OrderType: Enum "Inventory Order Type")
@@ -2660,7 +2651,7 @@ codeunit 137390 "SCM Kitting -  Reports"
         DemandOverview.OpenEdit();
         DemandOverview.StartDate.SetValue(AssemblyHeader."Starting Date");
         DemandOverview.EndDate.SetValue(AssemblyHeader."Ending Date");
-        DemandOverview.DemandType.SetValue(AssemblyLabel);
+        DemandOverview.DemandType.SetValue(AssemblyDemandLabel);
         DemandOverview.DemandNoCtrl.SetValue(AssemblyHeader."No.");
         DemandOverview.Calculate.Invoke();
 

@@ -22,7 +22,6 @@ codeunit 134390 "ERM Sales Doc. Reports"
         LibraryERM: Codeunit "Library - ERM";
         LibraryPurchase: Codeunit "Library - Purchase";
         isInitialized: Boolean;
-        DocumentOrderErrorTxt: Label 'The documents are not listed according to Posting Date because they were not entered in that order.';
         SameAmountErrorTxt: Label 'Amount must be same.';
         HeaderDimensionTxt: Label '%1 %2', Comment = '%1 = Dimension Code, %2 = Dimension Value Code';
 
@@ -42,118 +41,6 @@ codeunit 134390 "ERM Sales Doc. Reports"
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Doc. Reports");
-    end;
-
-    [Test]
-    [HandlerFunctions('ReportHandlerSalesInvoiceNos')]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceNumberReport()
-    var
-        SalesLine: Record "Sales Line";
-        SalesHeader: Record "Sales Header";
-        PostedInvoiceNo: Code[20];
-    begin
-        // Test that the values of Bill-to Customer No.,Bill-to Name,Source Code in Sales Invoice Nos. Report
-        // must match in Corresponding Sales Invoice Header Table values.
-
-        // 1. Setup: Create and Post Sales Invoice and find Posted Sales Invoice.
-        Initialize();
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice);
-        PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        // 2. Exercise: Generate Sales Invoice Nos. Report.
-        RunSalesInvoiceNos(PostedInvoiceNo);
-
-        // 3. Verify: Test that the values of Bill-to Customer No.,Bill-to Name,Source Code in Sales Invoice Nos. Report
-        // must match in Corresponding Sales Invoice Header Table values.
-        LibraryReportDataset.LoadDataSetFile();
-        VerifySalesInvoiceNumber(SalesHeader);
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,ReportHandlerSalesInvoiceNos')]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceNumberWarning()
-    var
-        SalesLine: Record "Sales Line";
-        SalesHeader: Record "Sales Header";
-        PostingDate: Date;
-        PostedInvoiceNo: Code[20];
-    begin
-        // Test Warning Message of Sales Invoice Nos. Report.
-
-        // 1. Setup: Create two Sales Invoices with different Posting Dates.
-        Initialize();
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice);
-        PostingDate := SalesHeader."Posting Date";
-        LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice);
-        PostingDateLessThanPrevious(SalesHeader, PostingDate);
-        PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        // 2. Exercise: Generate Sales Invoice Nos. Report.
-        RunSalesInvoiceNos(PostedInvoiceNo);
-
-        // 3. Verify: Verify Warning Message of Sales Invoice Nos. Report.
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number__Control15', Format(DocumentOrderErrorTxt));
-    end;
-
-    [Test]
-    [HandlerFunctions('ReportHandlerSalesCrMemoNos')]
-    [Scope('OnPrem')]
-    procedure SalesCreditMemoNumberReport()
-    var
-        SalesLine: Record "Sales Line";
-        SalesHeader: Record "Sales Header";
-        PostedCrMemoNo: Code[20];
-    begin
-        // Test that the values of Bill-to Customer No.,Bill-to Name,Source Code in Sales Credit Memo Nos. Report
-        // must match in Corresponding Sales Credit Memo Header Table values.
-
-        // 1. Setup: Create and Post Sales Credit Memo and find Posted Sales Credit Memo.
-        Initialize();
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo");
-        PostedCrMemoNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        // 2. Exercise: Generate Sales Credit Memo Nos. Report.
-        RunSalesCrMemoNos(PostedCrMemoNo);
-
-        // 3. Verify: Verify that the values of Bill-to Customer No.,Bill-to Name,Source Code in Sales Credit Memo Nos. Report
-        // must match in Corresponding Sales Credit Memo Header Table values.
-        LibraryReportDataset.LoadDataSetFile();
-        VerifySalesCreditMemo(SalesHeader);
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,ReportHandlerSalesCrMemoNos')]
-    [Scope('OnPrem')]
-    procedure SalesCreditMemoWarning()
-    var
-        SalesLine: Record "Sales Line";
-        SalesHeader: Record "Sales Header";
-        PostingDate: Date;
-        PostedCrMemoNo: Code[20];
-    begin
-        // Test Warning Message of Sales Credit Memo Nos Report.
-
-        // 1. Setup: Create two Sales Credit Memos with different Posting Dates.
-        Initialize();
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo");
-        PostingDate := SalesHeader."Posting Date";
-        LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo");
-        PostingDateLessThanPrevious(SalesHeader, PostingDate);
-        PostedCrMemoNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        // 2. Exercise: Generate Sales Credit Memo Nos. Report.
-        RunSalesCrMemoNos(PostedCrMemoNo);
-
-        // 3. Verify: Verify Warning Message of Sales Credit Memo Nos Report.
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number__Control15', Format(DocumentOrderErrorTxt));
     end;
 
     [Test]
@@ -722,6 +609,34 @@ codeunit 134390 "ERM Sales Doc. Reports"
         LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format(CustLedgerEntryInvoice."Original Amount"));
     end;
 
+    [Test]
+    procedure VerifyLinesWithZeroQuantityAreHiddenWhenOptionSelected()
+    var
+        SalesLine: Record "Sales Line";
+        SalesHeader: Record "Sales Header";
+        FormatDocument: Codeunit "Format Document";
+    begin
+        // Test that the sales lines with zero quantity are hidden during printout
+
+        // Setup: Create Sales Invoice
+        Initialize();
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice);
+
+        // Exercise: Set quantity to 0 for sales line
+        SalesLine.Validate(Quantity, 0);
+
+        // Verify: The function HideDocumentLine should either hide or display the line depending on the HideLinesWithZeroQuantity int the report request page
+        Assert.IsTrue(FormatDocument.HideDocumentLine(true, SalesLine, SalesLine.FieldNo(Quantity)), 'The Line with zero quantity is displayed but should be hidden.');
+        Assert.IsFalse(FormatDocument.HideDocumentLine(false, SalesLine, SalesLine.FieldNo(Quantity)), 'The Line with zero quantity should be displayed.');
+
+        // Exercise: Set quantity to non zero value for sales line
+        SalesLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));
+
+        // Verify: The function HideDocumentLine should never hide lines that contain the quantity
+        Assert.IsFalse(FormatDocument.HideDocumentLine(true, SalesLine, SalesLine.FieldNo(Quantity)), 'The Line with quantity different from 0 should be displayed.');
+        Assert.IsFalse(FormatDocument.HideDocumentLine(false, SalesLine, SalesLine.FieldNo(Quantity)), 'The Line with quantity different from 0 should be displayed.');
+    end;
+
     local procedure FindDetailedCustomerLedgerEntry(CustomerNo: Code[20]): Decimal
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
@@ -920,12 +835,10 @@ codeunit 134390 "ERM Sales Doc. Reports"
     begin
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroupCode, VATProductPostingGroup.Code);
-        with VATPostingSetup do begin
-            Validate("VAT Identifier", VATProductPostingGroup.Code);
-            Validate("VAT %", LibraryRandom.RandInt(20));
-            Validate("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
-            Modify(true);
-        end;
+        VATPostingSetup.Validate("VAT Identifier", VATProductPostingGroup.Code);
+        VATPostingSetup.Validate("VAT %", LibraryRandom.RandInt(20));
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure CreateCustomer(VATBusPostingGroup: Code[20]): Code[20]
@@ -1029,30 +942,6 @@ codeunit 134390 "ERM Sales Doc. Reports"
         VATPostingSetup.Modify(true);
     end;
 
-    local procedure RunSalesCrMemoNos(PostedCrMemoNo: Code[20])
-    var
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        SalesCreditMemoNos: Report "Sales Credit Memo Nos.";
-    begin
-        Commit();
-        Clear(SalesCreditMemoNos);
-        SalesCrMemoHeader.Get(PostedCrMemoNo);
-        SalesCreditMemoNos.SetTableView(SalesCrMemoHeader);
-        SalesCreditMemoNos.Run();
-    end;
-
-    local procedure RunSalesInvoiceNos(PostedInvoiceNo: Code[20])
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        SalesInvoiceNos: Report "Sales Invoice Nos.";
-    begin
-        Commit(); // Required to run report with request page.
-        Clear(SalesInvoiceNos);
-        SalesInvoiceHeader.Get(PostedInvoiceNo);
-        SalesInvoiceNos.SetTableView(SalesInvoiceHeader);
-        SalesInvoiceNos.Run();
-    end;
-
     local procedure RunReturnOrderConfirmation(SalesHeader: Record "Sales Header"; ShowInternalInformation: Boolean; LogInteraction: Boolean)
     var
         ReturnOrderConfirmation: Report "Return Order Confirmation";
@@ -1114,12 +1003,10 @@ codeunit 134390 "ERM Sales Doc. Reports"
 
     local procedure UpdateSalesLine(var SalesLine: Record "Sales Line"; QtyToInvoice: Decimal)
     begin
-        with SalesLine do begin
-            Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
-            Validate("Qty. to Invoice", QtyToInvoice);
-            Validate("Inv. Discount Amount", Round("Line Amount" / LibraryRandom.RandInt(5)));
-            Modify(true);
-        end;
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
+        SalesLine.Validate("Qty. to Invoice", QtyToInvoice);
+        SalesLine.Validate("Inv. Discount Amount", Round(SalesLine."Line Amount" / LibraryRandom.RandInt(5)));
+        SalesLine.Modify(true);
     end;
 
     local procedure VerifySalesInvoiceNumber(SalesHeader: Record "Sales Header")
@@ -1161,24 +1048,20 @@ codeunit 134390 "ERM Sales Doc. Reports"
 
     local procedure VerifySalesCreditMemoReport(VATIdentifier: Code[20]; VATAmount: Decimal)
     begin
-        with LibraryReportDataset do begin
-            LoadDataSetFile();
-            AssertElementWithValueExists('VATAmtLineVATIdentifier', VATIdentifier);
-            AssertElementWithValueExists('VATAmtLineVATAmt', VATAmount);
-            AssertElementWithValueExists('VATIdentifier_VATCounterLCY', VATIdentifier);
-            AssertElementWithValueExists('VALVATAmountLCY', VATAmount);
-        end;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('VATAmtLineVATIdentifier', VATIdentifier);
+        LibraryReportDataset.AssertElementWithValueExists('VATAmtLineVATAmt', VATAmount);
+        LibraryReportDataset.AssertElementWithValueExists('VATIdentifier_VATCounterLCY', VATIdentifier);
+        LibraryReportDataset.AssertElementWithValueExists('VALVATAmountLCY', VATAmount);
     end;
 
     local procedure VerifyPurchaseCreditMemoReport(VATIdentifier: Code[20]; VATAmount: Decimal)
     begin
-        with LibraryReportDataset do begin
-            LoadDataSetFile();
-            AssertElementWithValueExists('VATAmtLineVATIdentifier_VATCounter', VATIdentifier);
-            AssertElementWithValueExists('VATAmountLineVATAmount', VATAmount);
-            AssertElementWithValueExists('VATAmtLineVATIdentifier_VATCounterLCY', VATIdentifier);
-            AssertElementWithValueExists('VALVATAmountLCY', VATAmount);
-        end;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('VATAmtLineVATIdentifier_VATCounter', VATIdentifier);
+        LibraryReportDataset.AssertElementWithValueExists('VATAmountLineVATAmount', VATAmount);
+        LibraryReportDataset.AssertElementWithValueExists('VATAmtLineVATIdentifier_VATCounterLCY', VATIdentifier);
+        LibraryReportDataset.AssertElementWithValueExists('VALVATAmountLCY', VATAmount);
     end;
 
     local procedure CreateSalesDocumentWithZeroAmount(
@@ -1216,20 +1099,6 @@ codeunit 134390 "ERM Sales Doc. Reports"
     procedure ReportHandlerBlanketSalesOrder(var BlanketSalesOrder: TestRequestPage "Blanket Sales Order")
     begin
         BlanketSalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure ReportHandlerSalesCrMemoNos(var SalesCrMemoNos: TestRequestPage "Sales Credit Memo Nos.")
-    begin
-        SalesCrMemoNos.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure ReportHandlerSalesInvoiceNos(var SalesInvoiceNos: TestRequestPage "Sales Invoice Nos.")
-    begin
-        SalesInvoiceNos.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

@@ -355,10 +355,16 @@ report 5811 "Calc. Inventory Value - Test"
         ByLocationEnable: Boolean;
         ByVariantEnable: Boolean;
         CalcBaseEnable: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Posting Date of %1';
         Text005: Label 'You cannot enter a %1.';
+#pragma warning restore AA0470
         Text006: Label 'You must enter a posting date.';
+#pragma warning disable AA0470
         Text007: Label 'You cannot enter a %1, if Calculate Per is Item.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Standard_Cost_Revaluation___TestCaptionLbl: Label 'Standard Cost Revaluation - Test';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         ItemLedgEntryErrBuf__Document_Date_CaptionLbl: Label 'Document Date';

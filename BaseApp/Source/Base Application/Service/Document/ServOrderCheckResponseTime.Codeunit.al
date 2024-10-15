@@ -80,10 +80,16 @@ codeunit 5918 "ServOrder-Check Response Time"
         CheckTime2: Time;
         CheckTime3: Time;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1. Warning Message for Service Order %2';
         Text001: Label 'Check the response time for service order %1';
+#pragma warning restore AA0470
         Text004: Label 'Email address is missing.';
+#pragma warning disable AA0470
         Text005: Label '%1 with the field %2 selected cannot be found.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ServHrNotSetupErr: Label '%1 is not setup. Please set it up before running this scenario.', Comment = '%1 = page name';
 
     local procedure CheckResponseTime(ResponseDate: Date; ResponseTime: Time): Integer

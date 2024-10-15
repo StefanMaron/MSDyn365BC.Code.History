@@ -79,14 +79,12 @@ codeunit 6132 "E-Document Log"
     internal procedure UpdateServiceStatus(EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service"; EDocumentStatus: Enum "E-Document Service Status")
     var
         EDocumentServiceStatus: Record "E-Document Service Status";
-        Exists: Boolean;
     begin
         EDocument.Get(EDocument."Entry No");
-        Exists := EDocumentServiceStatus.Get(EDocument."Entry No", EDocumentService.Code);
-        EDocumentServiceStatus.Validate(Status, EDocumentStatus);
-        if Exists then
+        if EDocumentServiceStatus.Get(EDocument."Entry No", EDocumentService.Code) then begin
+            EDocumentServiceStatus.Validate(Status, EDocumentStatus);
             EDocumentServiceStatus.Modify()
-        else begin
+        end else begin
             EDocumentServiceStatus.Validate("E-Document Entry No", EDocument."Entry No");
             EDocumentServiceStatus.Validate("E-Document Service Code", EDocumentService.Code);
             EDocumentServiceStatus.Validate(Status, EDocumentStatus);
@@ -108,7 +106,10 @@ codeunit 6132 "E-Document Log"
         EDocumentIntegrationLog.Validate("E-Doc. Entry No", EDocument."Entry No");
         EDocumentIntegrationLog.Validate("Service Code", EDocumentService.Code);
         EDocumentIntegrationLog.Validate("Response Status", HttpResponse.HttpStatusCode());
-        EDocumentIntegrationLog.Validate(URL, HttpRequest.GetRequestUri());
+#if not CLEAN25
+        EDocumentIntegrationLog.Validate("Url", CopyStr(HttpRequest.GetRequestUri(), 1, 250));
+#endif
+        EDocumentIntegrationLog.Validate("Request URL", HttpRequest.GetRequestUri());
         EDocumentIntegrationLog.Validate(Method, HttpRequest.Method());
         EDocumentIntegrationLog.Insert();
 
@@ -245,7 +246,7 @@ codeunit 6132 "E-Document Log"
         else
             EDocument.Status := EDocument.Status::"In Progress";
 
-        EDocument.Modify();
+        EDocument.Modify(true);
     end;
 
     local procedure EDocumentHasErrors(var EDocument: Record "E-Document"): Boolean
@@ -264,7 +265,7 @@ codeunit 6132 "E-Document Log"
             exit(false);
 
         EDocument.Validate(Status, EDocument.Status::Error);
-        EDocument.Modify();
+        EDocument.Modify(true);
         exit(true);
     end;
 

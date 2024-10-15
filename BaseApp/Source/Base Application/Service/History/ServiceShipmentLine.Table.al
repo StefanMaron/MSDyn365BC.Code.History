@@ -17,6 +17,8 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Pricing.Calculation;
+using Microsoft.Inventory.Journal;
+using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.TimeSheet;
 using Microsoft.Sales.Customer;
@@ -602,8 +604,12 @@ table 5991 "Service Shipment Line"
         DimMgt: Codeunit DimensionManagement;
         CurrencyRead: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Shipment No. %1:';
+#pragma warning restore AA0470
         Text001: Label 'The program cannot find this Service line.';
+#pragma warning restore AA0074
 
     procedure ShowDimensions()
     begin
@@ -626,7 +632,7 @@ table 5991 "Service Shipment Line"
         TempServiceLine: Record "Service Line" temporary;
         ServDocReg: Record "Service Document Register";
         TransferOldExtLines: Codeunit "Transfer Old Ext. Text Lines";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        ServItemTrackingMgt: Codeunit "Serv. Item Tracking Mgt.";
         ExtTextLine: Boolean;
         NextLineNo: Integer;
     begin
@@ -743,7 +749,7 @@ table 5991 "Service Shipment Line"
                           ServDocReg."Destination Document Type"::"Credit Memo", ServiceLine."Document No.")
                 end;
 
-            ItemTrackingMgt.CopyHandledItemTrkgToServLine(ServiceOrderLine, ServiceLine);
+            ServItemTrackingMgt.CopyHandledItemTrkgToServLine(ServiceOrderLine, ServiceLine);
 
             NextLineNo := NextLineNo + 10000;
             if "Attached to Line No." = 0 then
@@ -873,6 +879,99 @@ table 5991 "Service Shipment Line"
         end;
     end;
 
+    procedure CopyToItemJnlLine(var ItemJournalLine: Record "Item Journal Line");
+    begin
+        ItemJournalLine."Item No." := Rec."No.";
+        ItemJournalLine.Description := Rec.Description;
+        ItemJournalLine."Gen. Bus. Posting Group" := Rec."Gen. Bus. Posting Group";
+        ItemJournalLine."Gen. Prod. Posting Group" := Rec."Gen. Prod. Posting Group";
+        ItemJournalLine."Inventory Posting Group" := Rec."Posting Group";
+        ItemJournalLine."Location Code" := Rec."Location Code";
+        ItemJournalLine."Unit of Measure Code" := Rec."Unit of Measure Code";
+        ItemJournalLine."Qty. per Unit of Measure" := Rec."Qty. per Unit of Measure";
+        ItemJournalLine."Variant Code" := Rec."Variant Code";
+        ItemJournalLine."Bin Code" := Rec."Bin Code";
+        ItemJournalLine."Shortcut Dimension 1 Code" := Rec."Shortcut Dimension 1 Code";
+        ItemJournalLine."Shortcut Dimension 2 Code" := Rec."Shortcut Dimension 2 Code";
+        ItemJournalLine."Dimension Set ID" := Rec."Dimension Set ID";
+        ItemJournalLine."Entry/Exit Point" := Rec."Exit Point";
+        ItemJournalLine."Value Entry Type" := ItemJournalLine."Value Entry Type"::"Direct Cost";
+        ItemJournalLine."Transaction Type" := Rec."Transaction Type";
+        ItemJournalLine."Transport Method" := Rec."Transport Method";
+        ItemJournalLine.Area := Rec.Area;
+        ItemJournalLine."Transaction Specification" := Rec."Transaction Specification";
+        ItemJournalLine."Qty. per Unit of Measure" := Rec."Qty. per Unit of Measure";
+        ItemJournalLine."Item Category Code" := Rec."Item Category Code";
+        ItemJournalLine.Nonstock := Rec.Nonstock;
+        ItemJournalLine."Return Reason Code" := Rec."Return Reason Code";
+
+        OnAfterCopyToItemJnlLine(ItemJournalLine, Rec);
+#if not CLEAN25
+        ItemJournalLine.RunOnAfterCopyItemJnlLineFromServShptLine(ItemJournalLine, Rec);
+#endif
+    end;
+
+    procedure CopyToItemJnlLineUndo(var ItemJournalLine: Record "Item Journal Line")
+    begin
+        ItemJournalLine."Item No." := Rec."No.";
+        ItemJournalLine."Posting Date" := Rec."Posting Date";
+        ItemJournalLine."Order Date" := Rec."Order Date";
+        ItemJournalLine."Inventory Posting Group" := Rec."Posting Group";
+        ItemJournalLine."Gen. Bus. Posting Group" := Rec."Gen. Bus. Posting Group";
+        ItemJournalLine."Gen. Prod. Posting Group" := Rec."Gen. Prod. Posting Group";
+        ItemJournalLine."Location Code" := Rec."Location Code";
+        ItemJournalLine."Variant Code" := Rec."Variant Code";
+        ItemJournalLine."Bin Code" := Rec."Bin Code";
+        ItemJournalLine."Entry/Exit Point" := Rec."Exit Point";
+        ItemJournalLine."Shortcut Dimension 1 Code" := Rec."Shortcut Dimension 1 Code";
+        ItemJournalLine."Shortcut Dimension 2 Code" := Rec."Shortcut Dimension 2 Code";
+        ItemJournalLine."Dimension Set ID" := Rec."Dimension Set ID";
+        ItemJournalLine."Value Entry Type" := ItemJournalLine."Value Entry Type"::"Direct Cost";
+        ItemJournalLine."Item No." := Rec."No.";
+        ItemJournalLine.Description := Rec.Description;
+        ItemJournalLine."Location Code" := Rec."Location Code";
+        ItemJournalLine."Variant Code" := Rec."Variant Code";
+        ItemJournalLine."Transaction Type" := Rec."Transaction Type";
+        ItemJournalLine."Transport Method" := Rec."Transport Method";
+        ItemJournalLine.Area := Rec.Area;
+        ItemJournalLine."Transaction Specification" := Rec."Transaction Specification";
+        ItemJournalLine."Unit of Measure Code" := Rec."Unit of Measure Code";
+        ItemJournalLine."Qty. per Unit of Measure" := Rec."Qty. per Unit of Measure";
+        ItemJournalLine."Derived from Blanket Order" := false;
+        ItemJournalLine."Item Category Code" := Rec."Item Category Code";
+        ItemJournalLine.Nonstock := Rec.Nonstock;
+        ItemJournalLine."Return Reason Code" := Rec."Return Reason Code";
+
+        OnAfterCopyToItemJnlLineUndo(ItemJournalLine, Rec);
+#if not CLEAN25
+        ItemJournalLine.RunOnAfterCopyItemJnlLineFromServShptLineUndo(ItemJournalLine, Rec);
+#endif
+    end;
+
+    procedure CopyToResJournalLine(var ResJournalLine: Record "Res. Journal Line")
+    begin
+        ResJournalLine."Posting Date" := Rec."Posting Date";
+        ResJournalLine."Resource No." := Rec."No.";
+        ResJournalLine.Description := Rec.Description;
+        ResJournalLine."Work Type Code" := Rec."Work Type Code";
+        ResJournalLine."Unit of Measure Code" := Rec."Unit of Measure Code";
+        ResJournalLine."Qty. per Unit of Measure" := Rec."Qty. per Unit of Measure";
+        ResJournalLine."Shortcut Dimension 1 Code" := Rec."Shortcut Dimension 1 Code";
+        ResJournalLine."Shortcut Dimension 2 Code" := Rec."Shortcut Dimension 2 Code";
+        ResJournalLine."Dimension Set ID" := Rec."Dimension Set ID";
+        ResJournalLine."Gen. Bus. Posting Group" := Rec."Gen. Bus. Posting Group";
+        ResJournalLine."Gen. Prod. Posting Group" := Rec."Gen. Prod. Posting Group";
+        ResJournalLine."Entry Type" := ResJournalLine."Entry Type"::Usage;
+
+        OnAfterCopyToResJournalLine(ResJournalLine, Rec);
+    end;
+
+    procedure TransferToItemEntryRelation(var ItemEntryRelation: Record "Item Entry Relation")
+    begin
+        ItemEntryRelation.SetSource(DATABASE::"Service Shipment Line", 0, Rec."Document No.", Rec."Line No.");
+        ItemEntryRelation.SetOrderInfo(Rec."Order No.", Rec."Order Line No.");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterServiceInvLineInsert(var ToServiceLine: Record "Service Line"; FromServiceLine: Record "Service Line"; ServiceShipmentLine: Record "Service Shipment Line"; var NextLineNo: Integer)
     begin
@@ -895,6 +994,21 @@ table 5991 "Service Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var ServiceShipmentLine: Record "Service Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyToItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ServiceShipmentLine: Record "Service Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyToResJournalLine(var ResJournalLine: Record "Res. Journal Line"; ServiceShipmentLine: Record "Service Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyToItemJnlLineUndo(var ItemJournalLine: Record "Item Journal Line"; ServiceShipmentLine: Record "Service Shipment Line")
     begin
     end;
 }

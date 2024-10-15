@@ -502,13 +502,10 @@ codeunit 134417 "ERM Delete Documents"
 
         // [WHEN] Run Report "Delete Invd Blnkt Sales Orders"
         RunReport(REPORT::"Delete Invd Blnkt Sales Orders", DATABASE::"Sales Header", SalesHeader.FieldNo("No."), SalesHeader."No.");
-
         // [THEN] Assembly Order "A" is deleted
-        with AssemblyHeader do begin
-            SetRange("Document Type", "Document Type"::"Blanket Order");
-            SetRange("No.", "No.");
-            Assert.RecordIsEmpty(AssemblyHeader);
-        end;
+        AssemblyHeader.SetRange("Document Type", AssemblyHeader."Document Type"::"Blanket Order");
+        AssemblyHeader.SetRange("No.", AssemblyHeader."No.");
+        Assert.RecordIsEmpty(AssemblyHeader);
     end;
 
     [Test]
@@ -1959,14 +1956,12 @@ codeunit 134417 "ERM Delete Documents"
     var
         ApprovalEntry: Record "Approval Entry";
     begin
-        with ApprovalEntry do begin
-            Init();
-            "Sequence No." := 1;
-            "Table ID" := SourceRecordID.TableNo;
-            "Sender ID" := UserId;
-            "Record ID to Approve" := SourceRecordID;
-            Insert();
-        end;
+        ApprovalEntry.Init();
+        ApprovalEntry."Sequence No." := 1;
+        ApprovalEntry."Table ID" := SourceRecordID.TableNo;
+        ApprovalEntry."Sender ID" := UserId;
+        ApprovalEntry."Record ID to Approve" := SourceRecordID;
+        ApprovalEntry.Insert();
     end;
 
     local procedure MockSalesOrder(DocumentType: Enum "Sales Document Type"; var SalesHeader: Record "Sales Header")
@@ -1982,91 +1977,79 @@ codeunit 134417 "ERM Delete Documents"
         SalesHeader.Status := SalesHeader.Status::Released;
         SalesHeader.Modify();
 
-        with SalesLine do begin
-            "Quantity Invoiced" := Quantity;
-            "Qty. to Invoice" := 0;
-            "Quantity Shipped" := Quantity;
-            "Qty. to Ship" := 0;
-            "Outstanding Quantity" := 0;
-            "Qty. Shipped Not Invoiced" := 0;
-            "Qty. Assigned" := Quantity;
-            Modify();
-        end;
+        SalesLine."Quantity Invoiced" := SalesLine.Quantity;
+        SalesLine."Qty. to Invoice" := 0;
+        SalesLine."Quantity Shipped" := SalesLine.Quantity;
+        SalesLine."Qty. to Ship" := 0;
+        SalesLine."Outstanding Quantity" := 0;
+        SalesLine."Qty. Shipped Not Invoiced" := 0;
+        SalesLine."Qty. Assigned" := SalesLine.Quantity;
+        SalesLine.Modify();
     end;
 
     local procedure MockBlanketAssemblyOrder(SalesHeaderNo: Code[20]; var AssemblyHeader: Record "Assembly Header"; var ATOLink: Record "Assemble-to-Order Link")
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", "Document Type"::"Blanket Order");
-            SetRange("Document No.", SalesHeaderNo);
-            FindFirst();
-            "Qty. to Assemble to Order" := LibraryRandom.RandInt(10);
-            Modify();
-        end;
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Blanket Order");
+        SalesLine.SetRange("Document No.", SalesHeaderNo);
+        SalesLine.FindFirst();
+        SalesLine."Qty. to Assemble to Order" := LibraryRandom.RandInt(10);
+        SalesLine.Modify();
 
-        with AssemblyHeader do begin
-            Init();
-            "Document Type" := "Document Type"::"Blanket Order";
-            "No." := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        AssemblyHeader.Init();
+        AssemblyHeader."Document Type" := AssemblyHeader."Document Type"::"Blanket Order";
+        AssemblyHeader."No." := LibraryUtility.GenerateGUID();
+        AssemblyHeader.Insert();
 
-        with ATOLink do begin
-            Init();
-            Type := Type::Sale;
-            "Assembly Document Type" := "Assembly Document Type"::"Blanket Order";
-            "Assembly Document No." := AssemblyHeader."No.";
-            "Document Type" := "Document Type"::"Blanket Order";
-            "Document No." := SalesHeaderNo;
-            "Document Line No." := SalesLine."Line No.";
-            Insert();
-        end;
+        ATOLink.Init();
+        ATOLink.Type := ATOLink.Type::Sale;
+        ATOLink."Assembly Document Type" := ATOLink."Assembly Document Type"::"Blanket Order";
+        ATOLink."Assembly Document No." := AssemblyHeader."No.";
+        ATOLink."Document Type" := ATOLink."Document Type"::"Blanket Order";
+        ATOLink."Document No." := SalesHeaderNo;
+        ATOLink."Document Line No." := SalesLine."Line No.";
+        ATOLink.Insert();
     end;
 
     local procedure MockPostedSalesInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header"; PostingDate: Date)
     begin
-        with SalesInvoiceHeader do begin
-            Init();
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Sales Invoice Header");
-            "Posting Date" := PostingDate;
-            "No. Printed" := 1; // to avoid confirm on deletion
-            Insert();
-        end;
+        SalesInvoiceHeader.Init();
+        SalesInvoiceHeader."No." := LibraryUtility.GenerateRandomCode(SalesInvoiceHeader.FieldNo("No."), DATABASE::"Sales Invoice Header");
+        SalesInvoiceHeader."Posting Date" := PostingDate;
+        SalesInvoiceHeader."No. Printed" := 1;
+        // to avoid confirm on deletion
+        SalesInvoiceHeader.Insert();
     end;
 
     local procedure MockPostedSalesCrMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; PostingDate: Date)
     begin
-        with SalesCrMemoHeader do begin
-            Init();
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Sales Invoice Header");
-            "Posting Date" := PostingDate;
-            "No. Printed" := 1; // to avoid confirm on deletion
-            Insert();
-        end;
+        SalesCrMemoHeader.Init();
+        SalesCrMemoHeader."No." := LibraryUtility.GenerateRandomCode(SalesCrMemoHeader.FieldNo("No."), DATABASE::"Sales Invoice Header");
+        SalesCrMemoHeader."Posting Date" := PostingDate;
+        SalesCrMemoHeader."No. Printed" := 1;
+        // to avoid confirm on deletion
+        SalesCrMemoHeader.Insert();
     end;
 
     local procedure MockPostedPurchaseInvoice(var PurchInvHeader: Record "Purch. Inv. Header"; PostingDate: Date)
     begin
-        with PurchInvHeader do begin
-            Init();
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Sales Invoice Header");
-            "Posting Date" := PostingDate;
-            "No. Printed" := 1; // to avoid confirm on deletion
-            Insert();
-        end;
+        PurchInvHeader.Init();
+        PurchInvHeader."No." := LibraryUtility.GenerateRandomCode(PurchInvHeader.FieldNo("No."), DATABASE::"Sales Invoice Header");
+        PurchInvHeader."Posting Date" := PostingDate;
+        PurchInvHeader."No. Printed" := 1;
+        // to avoid confirm on deletion
+        PurchInvHeader.Insert();
     end;
 
     local procedure MockPostedPurchaseCrMemo(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; PostingDate: Date)
     begin
-        with PurchCrMemoHdr do begin
-            Init();
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Sales Invoice Header");
-            "Posting Date" := PostingDate;
-            "No. Printed" := 1; // to avoid confirm on deletion
-            Insert();
-        end;
+        PurchCrMemoHdr.Init();
+        PurchCrMemoHdr."No." := LibraryUtility.GenerateRandomCode(PurchCrMemoHdr.FieldNo("No."), DATABASE::"Sales Invoice Header");
+        PurchCrMemoHdr."Posting Date" := PostingDate;
+        PurchCrMemoHdr."No. Printed" := 1;
+        // to avoid confirm on deletion
+        PurchCrMemoHdr.Insert();
     end;
 
     local procedure PostPurchaseDocument(var PurchaseHeader: Record "Purchase Header")

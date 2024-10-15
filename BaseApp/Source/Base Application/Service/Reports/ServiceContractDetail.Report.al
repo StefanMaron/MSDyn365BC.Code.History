@@ -18,7 +18,7 @@ report 5971 "Service Contract-Detail"
     {
         dataitem("Service Contract Header"; "Service Contract Header")
         {
-            CalcFields = "Bill-to Name";
+            CalcFields = "Bill-to Name", "Ship-to Phone No.";
             DataItemTableView = sorting("Contract Type", "Contract No.") where("Contract Type" = const(Contract));
             PrintOnlyIfDetail = true;
             RequestFilterFields = "Contract No.", "Customer No.";
@@ -268,6 +268,9 @@ report 5971 "Service Contract-Detail"
                 column(ShiptoAddressCaption; ShiptoAddressCaptionLbl)
                 {
                 }
+                column(ShipToPhoneNo; "Service Contract Header"."Ship-to Phone No.")
+                {
+                }
 
                 trigger OnPreDataItem()
                 begin
@@ -298,12 +301,14 @@ report 5971 "Service Contract-Detail"
             }
 
             trigger OnAfterGetRecord()
+            var
+                ServiceFormatAddress: Codeunit "Service Format Address";
             begin
                 FormatAddr.GetCompanyAddr("Responsibility Center", RespCenter, CompanyInfo, CompanyAddr);
-                FormatAddr.ServContractSellto(CustAddr, "Service Contract Header");
+                ServiceFormatAddress.ServContractSellto(CustAddr, "Service Contract Header");
                 ShowShippingAddr := "Ship-to Code" <> '';
                 if ShowShippingAddr then
-                    FormatAddr.ServContractShipto(ShipToAddr, "Service Contract Header");
+                    ServiceFormatAddress.ServContractShipto(ShipToAddr, "Service Contract Header");
             end;
         }
     }

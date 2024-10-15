@@ -18,7 +18,6 @@ codeunit 134811 "ERM CA Cost Journal"
         CostRegisterFieldError: Label 'Incorrect value of %1 field of Cost Register.';
         CostJournalBatchNameError: Label 'Incorrect value of Cost Journal Batch Name.';
         CostRegisterSourceCodeError: Label 'Incorrect value of Source Code field of Cost Register Entry. ';
-        BlockedErrorMsg: Label 'Blocked must be equal to ''No''';
         BalCCAndCOErrorMsg: Label 'You cannot define both balance cost center and balance cost object.';
         CCAndCOErrorMsg: Label 'You cannot define both cost center and cost object.';
         CostJournalFieldErrorMsg: Label '%1 must have a value in Cost Journal Line';
@@ -195,7 +194,7 @@ codeunit 134811 "ERM CA Cost Journal"
 
         // Verify:
         asserterror CostJournalLine.Validate("Cost Center Code", CostCenter.Code);
-        Assert.IsTrue(StrPos(GetLastErrorText, BlockedErrorMsg) > 0, UnexpectedErrorMessage);
+        Assert.ExpectedTestFieldError(CostCenter.FieldCaption(Blocked), Format(false));
 
         // Teardown.
         ClearLastError();
@@ -223,7 +222,7 @@ codeunit 134811 "ERM CA Cost Journal"
 
         // Verify:
         asserterror CostJournalLine.Validate("Cost Object Code", CostObject.Code);
-        Assert.IsTrue(StrPos(GetLastErrorText, BlockedErrorMsg) > 0, UnexpectedErrorMessage);
+        Assert.ExpectedTestFieldError(CostObject.FieldCaption(Blocked), Format(false));
 
         // Teardown.
         ClearLastError();
@@ -252,7 +251,7 @@ codeunit 134811 "ERM CA Cost Journal"
 
         // Verify:
         asserterror CostJournalLine.Validate("Cost Type No.", CostType."No.");
-        Assert.IsTrue(StrPos(GetLastErrorText, BlockedErrorMsg) > 0, UnexpectedErrorMessage);
+        Assert.ExpectedTestFieldError(CostType.FieldCaption(Blocked), Format(false));
 
         // Teardown.
         ClearLastError();

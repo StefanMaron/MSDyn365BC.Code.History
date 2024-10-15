@@ -322,14 +322,20 @@ table 7354 Bin
         Item: Record Item;
         WMSMgt: Codeunit "WMS Management";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot %1 the %2 with %3 = %4, %5 = %6, because the %2 contains items.';
         Text001: Label 'You cannot %1 the %2 with %3 = %4, %5 = %6, because one or more %7 exists for this %2.';
         Text002: Label 'One or more %1 exists for this bin. Do you still want to delete this %2?';
+#pragma warning restore AA0470
         Text003: Label 'Cancelled.';
+#pragma warning disable AA0470
         Text005: Label 'The total cubage %1 of the %2 in the bin contents exceeds the entered %3 %4.\Do you still want to enter this %3?';
         Text006: Label 'The total weight %1 of the %2 in the bin contents exceeds the entered %3 %4.\Do you still want to enter this %3?';
+#pragma warning restore AA0470
         Text007: Label 'modify';
         Text008: Label 'delete';
+#pragma warning restore AA0074
 
     procedure SetUpNewLine()
     begin
@@ -403,7 +409,7 @@ table 7354 Bin
     var
         WhseEntry: Record "Warehouse Entry";
     begin
-        WhseEntry.SetCurrentKey("Bin Code", "Location Code");
+        WhseEntry.ReadIsolation(IsolationLevel::ReadUnCommitted);
         WhseEntry.SetRange("Bin Code", Code);
         WhseEntry.SetRange("Location Code", "Location Code");
         WhseEntry.CalcSums(Cubage, Weight);

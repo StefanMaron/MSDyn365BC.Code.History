@@ -23,7 +23,7 @@ report 10940 "VAT Reconciliation A"
     {
         dataitem("G/L Account"; "G/L Account")
         {
-            DataItemTableView = sorting("No.") ORDER(Ascending) where("Account Type" = const(Posting));
+            DataItemTableView = sorting("No.") order(ascending) where("Account Type" = const(Posting));
             column(DateRangeformatted; Format(DateFrom) + '  til  ' + Format(DateTo))
             {
             }

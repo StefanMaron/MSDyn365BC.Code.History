@@ -55,7 +55,7 @@ page 6301 "Azure AD App Setup Part"
         HomePageUrl := GetUrl(CLIENTTYPE::Web);
         RedirectUrl := AzureADMgt.GetRedirectUrl();
         AppId := Rec."App ID";
-        SecretKey := Rec.GetSecretKeyFromIsolatedStorage();
+        SetSecretKeyGlobalFromIsolatedStorage();
     end;
 
     var
@@ -66,6 +66,12 @@ page 6301 "Azure AD App Setup Part"
         AppId: Guid;
         InvalidAppIdErr: Label 'Enter valid GUID for Application ID.';
         InvalidClientSecretErr: Label 'Key is required.';
+
+    [NonDebuggable]
+    local procedure SetSecretKeyGlobalFromIsolatedStorage()
+    begin
+        SecretKey := Rec.GetSecretKeyFromIsolatedStorageAsSecretText().Unwrap();
+    end;
 
     [NonDebuggable]
     procedure Save()
@@ -94,12 +100,24 @@ page 6301 "Azure AD App Setup Part"
     begin
         RedirectUrl := AzureADMgt.GetDefaultRedirectUrl();
     end;
+#if not CLEAN25
 
     [NonDebuggable]
+    [Obsolete('Replaced by SetAppDetails(ApplicationId: Guid; "Key": SecretText)', '25.0')]
     procedure SetAppDetails(ApplicationId: Guid; "Key": Text)
+    var
+        KeyAsSecretText: SecretText;
+    begin
+        KeyAsSecretText := Key;
+        SetAppDetails(ApplicationId, KeyAsSecretText);
+    end;
+#endif
+
+    [NonDebuggable]
+    procedure SetAppDetails(ApplicationId: Guid; "Key": SecretText)
     begin
         AppId := ApplicationId;
-        SecretKey := Key;
+        SecretKey := Key.Unwrap();
     end;
 
     procedure GetRedirectUrl(): Text

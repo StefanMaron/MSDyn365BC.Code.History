@@ -24,6 +24,7 @@ permissionset 30102 "Shpfy - Edit"
         tabledata "Shpfy Customer Address" = IMD,
         tabledata "Shpfy Customer Template" = IMD,
         tabledata "Shpfy Data Capture" = IMD,
+        tabledata "Shpfy Dispute" = IMD,
         tabledata "Shpfy Doc. Link To Doc." = IMD,
         tabledata "Shpfy Fulfillment Line" = IMD,
         tabledata "Shpfy FulFillment Order Header" = IMD,
@@ -31,6 +32,8 @@ permissionset 30102 "Shpfy - Edit"
         tabledata "Shpfy Gift Card" = IMD,
         tabledata "Shpfy Initial Import Line" = imd,
         tabledata "Shpfy Inventory Item" = IMD,
+        tabledata "Shpfy Invoice Header" = IMD,
+        tabledata "Shpfy Language" = IMD,
         tabledata "Shpfy Log Entry" = IMD,
         tabledata "Shpfy Metafield" = IMD,
         tabledata "Shpfy Refund Header" = IMD,
@@ -50,12 +53,10 @@ permissionset 30102 "Shpfy - Edit"
         tabledata "Shpfy Order Tax Line" = IMD,
         tabledata "Shpfy Order Transaction" = IMD,
         tabledata "Shpfy Payment Method Mapping" = IMD,
+        tabledata "Shpfy Payment Terms" = IMD,
         tabledata "Shpfy Payment Transaction" = IMD,
         tabledata "Shpfy Payout" = IMD,
         tabledata "Shpfy Product" = IMD,
-#if not CLEAN22
-        tabledata "Shpfy Province" = IMD,
-#endif
         tabledata "Shpfy Registered Store New" = imd,
         tabledata "Shpfy Shipment Method Mapping" = IMD,
         tabledata "Shpfy Shop" = IMD,
@@ -65,9 +66,7 @@ permissionset 30102 "Shpfy - Edit"
         tabledata "Shpfy Synchronization Info" = IMD,
         tabledata "Shpfy Tag" = IMD,
         tabledata "Shpfy Tax Area" = IMD,
-#if not CLEAN22
-        tabledata "Shpfy Templates Warnings" = IMD,
-#endif
         tabledata "Shpfy Transaction Gateway" = IMD,
+        tabledata "Shpfy Translation" = IMD,
         tabledata "Shpfy Variant" = IMD;
 }

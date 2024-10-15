@@ -5,6 +5,7 @@
 namespace Microsoft.Finance.VAT.Setup;
 
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.VAT.Registration;
 using Microsoft.Finance.VAT.Calculation;
 using System.Security.User;
 using System.Telemetry;
@@ -80,6 +81,18 @@ table 189 "VAT Setup"
             begin
                 UserSetupManagement.CheckAllowedVATDatesRange("Allow VAT Date From", "Allow VAT Date To", 0, Database::"General Ledger Setup");
             end;
+        }
+        field(21; "Alt. Cust. VAT Reg. Consistent"; Enum "Alt. Cust. VAT Reg. Consist.")
+        {
+            Caption = 'Alt. Cust. VAT Reg. Consistente';
+        }
+        field(22; "Alt. Cust. VAT Reg. Doc."; Enum "Alt. Cust VAT Reg. Doc.")
+        {
+            Caption = 'Alt. Cust. VAT Reg. Doc.';
+        }
+        field(23; "Ship-To Alt. Cust. VAT Reg."; Enum "Ship-To Alt. Cust. VAT Reg.")
+        {
+            Caption = 'Ship-To Alt. Cust. VAT Reg.';
         }
     }
 

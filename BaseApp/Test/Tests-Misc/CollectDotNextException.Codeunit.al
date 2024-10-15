@@ -62,11 +62,9 @@ codeunit 132568 "Collect DotNext Exception"
     begin
         MasterDataSetupSample.DeleteAll();
 
-        with MasterDataSetupSample do begin
-            Name := CopyStr(FileMgt.GetFileName(FileName), 1, MaxStrLen(Name));
-            Path := CopyStr(FileMgt.GetDirectoryName(FileName), 1, MaxStrLen(Path));
-            Insert();
-        end;
+        MasterDataSetupSample.Name := CopyStr(FileMgt.GetFileName(FileName), 1, MaxStrLen(MasterDataSetupSample.Name));
+        MasterDataSetupSample.Path := CopyStr(FileMgt.GetDirectoryName(FileName), 1, MaxStrLen(MasterDataSetupSample.Path));
+        MasterDataSetupSample.Insert();
     end;
 
     local procedure ReadFileContentAsBase64(FileName: Text): Text

@@ -78,10 +78,14 @@ report 84 "Update Analysis Views"
 
     var
         UpdateAnalysisView: Codeunit "Update Analysis View";
+#pragma warning disable AA0074
         Text000: Label 'One or more of the selected Analysis Views is Blocked, and could not be updated.';
+#pragma warning restore AA0074
         BlockedOccured: Boolean;
         RecreateAnalysisViews: Boolean;
+#pragma warning disable AA0074
         Text001: Label 'All selected Analysis Views were updated successfully.';
+#pragma warning restore AA0074
         RecreateAnalysisViewMsg: Label 'Recreating entries can take time to complete. We recommend that you schedule the update to happen outside business hours.';
 }
 

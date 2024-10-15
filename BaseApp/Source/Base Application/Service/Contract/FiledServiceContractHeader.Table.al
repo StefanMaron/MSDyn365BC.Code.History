@@ -1,5 +1,8 @@
 ﻿namespace Microsoft.Service.Contract;
 
+using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.DirectDebit;
+using Microsoft.CRM.Contact;
 using Microsoft.CRM.Team;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -9,20 +12,25 @@ using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Inventory.Location;
 using Microsoft.Sales.Customer;
+using Microsoft.Service.Comment;
 using Microsoft.Service.Setup;
 using Microsoft.Utilities;
-using Microsoft.Warehouse.Request;
 using System.Email;
 using System.Globalization;
 using System.Security.AccessControl;
+using System.Security.User;
+using System.Utilities;
 
 table 5970 "Filed Service Contract Header"
 {
     Caption = 'Filed Service Contract Header';
     DrillDownPageID = "Filed Service Contract List";
     LookupPageID = "Filed Service Contract List";
-    Permissions = TableData "Filed Service Contract Header" = rimd,
-                  TableData "Filed Contract Line" = rimd;
+    Permissions = tabledata "Filed Service Contract Header" = rimd,
+                  tabledata "Filed Contract Line" = rimd,
+                  tabledata "Filed Serv. Contract Cmt. Line" = rimd,
+                  tabledata "Filed Contract Service Hour" = rimd,
+                  tabledata "Filed Contract/Serv. Discount" = rimd;
     DataClassification = CustomerContent;
 
     fields
@@ -31,11 +39,9 @@ table 5970 "Filed Service Contract Header"
         {
             Caption = 'Contract No.';
         }
-        field(2; "Contract Type"; Option)
+        field(2; "Contract Type"; Enum "Service Contract Type")
         {
             Caption = 'Contract Type';
-            OptionCaption = 'Quote,Contract';
-            OptionMembers = Quote,Contract;
         }
         field(3; Description; Text[100])
         {
@@ -48,15 +54,12 @@ table 5970 "Filed Service Contract Header"
         field(5; Status; Option)
         {
             Caption = 'Status';
-            Editable = true;
             OptionCaption = ' ,Signed,Canceled';
             OptionMembers = " ",Signed,Canceled;
         }
-        field(6; "Change Status"; Option)
+        field(6; "Change Status"; Enum "Service Contract Change Status")
         {
             Caption = 'Change Status';
-            OptionCaption = 'Open,Locked';
-            OptionMembers = Open,Locked;
         }
         field(7; "Customer No."; Code[20])
         {
@@ -179,11 +182,9 @@ table 5970 "Filed Service Contract Header"
             Caption = 'Serv. Contract Acc. Gr. Code';
             TableRelation = "Service Contract Account Group".Code;
         }
-        field(32; "Invoice Period"; Option)
+        field(32; "Invoice Period"; Enum "Service Contract Header Invoice Period")
         {
             Caption = 'Invoice Period';
-            OptionCaption = 'Month,Two Months,Quarter,Half Year,Year,None';
-            OptionMembers = Month,"Two Months",Quarter,"Half Year",Year,"None";
         }
         field(33; "Last Invoice Date"; Date)
         {
@@ -210,20 +211,25 @@ table 5970 "Filed Service Contract Header"
         {
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 2;
+            BlankZero = true;
             Caption = 'Max. Labor Unit Price';
         }
         field(40; "Calcd. Annual Amount"; Decimal)
         {
+            AutoFormatType = 1;
             Caption = 'Calcd. Annual Amount';
         }
         field(42; "Annual Amount"; Decimal)
         {
             AutoFormatType = 1;
+            BlankZero = true;
             Caption = 'Annual Amount';
+            MinValue = 0;
         }
         field(43; "Amount per Period"; Decimal)
         {
             AutoFormatType = 1;
+            BlankZero = true;
             Caption = 'Amount per Period';
             Editable = false;
         }
@@ -250,6 +256,11 @@ table 5970 "Filed Service Contract Header"
             Caption = 'Language Code';
             TableRelation = Language;
         }
+        field(49; "Format Region"; Text[80])
+        {
+            Caption = 'Format Region';
+            TableRelation = "Language Selection"."Language Tag";
+        }
         field(50; "Cancel Reason Code"; Code[10])
         {
             Caption = 'Cancel Reason Code';
@@ -272,6 +283,7 @@ table 5970 "Filed Service Contract Header"
         }
         field(55; "Response Time (Hours)"; Decimal)
         {
+            BlankZero = true;
             Caption = 'Response Time (Hours)';
             DecimalPlaces = 0 : 5;
         }
@@ -366,6 +378,13 @@ table 5970 "Filed Service Contract Header"
             DecimalPlaces = 0 : 5;
             InitValue = 100;
         }
+        field(84; Comment; Boolean)
+        {
+            CalcFormula = exist("Filed Serv. Contract Cmt. Line" where("Entry No." = field("Entry No.")));
+            Caption = 'Comment';
+            Editable = false;
+            FieldClass = FlowField;
+        }
         field(85; "Responsibility Center"; Code[10])
         {
             Caption = 'Responsibility Center';
@@ -389,7 +408,9 @@ table 5970 "Filed Service Contract Header"
             var
                 MailManagement: Codeunit "Mail Management";
             begin
-                MailManagement.ValidateEmailAddressField("E-Mail");
+                if "E-Mail" = '' then
+                    exit;
+                MailManagement.CheckValidEmailAddresses("E-Mail");
             end;
         }
         field(89; "Bill-to County"; Text[30])
@@ -450,6 +471,7 @@ table 5970 "Filed Service Contract Header"
         field(100; "Entry No."; Integer)
         {
             Caption = 'Entry No.';
+            ToolTip = 'Specifies the unique number of filed service contract or service contract quote.';
         }
         field(101; "File Date"; Date)
         {
@@ -480,6 +502,46 @@ table 5970 "Filed Service Contract Header"
             Caption = 'Contract No. Relation';
             TableRelation = "Service Contract Header"."Contract No." where("Contract Type" = field("Contract Type Relation"));
         }
+#pragma warning disable AA0232
+        field(109; "No. of Filed Versions"; Integer)
+#pragma warning restore AA0232
+        {
+            Caption = 'No. of Filed Versions';
+            FieldClass = FlowField;
+            CalcFormula = max("Filed Service Contract Header"."Entry No." where("Contract Type Relation" = field("Contract Type Relation"),
+                                                                                "Contract No. Relation" = field("Contract No. Relation")));
+            Editable = false;
+        }
+        field(110; "Restorable"; Boolean)
+        {
+            Caption = 'Restorable';
+        }
+        field(111; "Source Contract Exists"; Boolean)
+        {
+            Caption = 'Source Contract Exists';
+            FieldClass = FlowField;
+            CalcFormula = exist("Service Contract Header" where("Contract Type" = field("Contract Type Relation"),
+                                                                "Contract No." = field("Contract No. Relation")));
+            Editable = false;
+        }
+        field(112; "Last Filed DateTime"; DateTime)
+        {
+            Caption = 'Last Filed DateTime';
+            FieldClass = FlowField;
+            CalcFormula = max("Filed Service Contract Header".SystemCreatedAt where("Contract Type Relation" = field("Contract Type Relation"),
+                                                                                    "Contract No. Relation" = field("Contract No. Relation")));
+            Editable = false;
+        }
+        field(204; "Payment Method Code"; Code[10])
+        {
+            Caption = 'Payment Method Code';
+            TableRelation = "Payment Method";
+        }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -491,18 +553,29 @@ table 5970 "Filed Service Contract Header"
                 ShowDimensions();
             end;
         }
+        field(1200; "Direct Debit Mandate ID"; Code[35])
+        {
+            Caption = 'Direct Debit Mandate ID';
+            TableRelation = "SEPA Direct Debit Mandate" where("Customer No." = field("Bill-to Customer No."));
+            DataClassification = SystemMetadata;
+        }
         field(5050; "Contact No."; Code[20])
         {
             Caption = 'Contact No.';
+            TableRelation = Contact;
         }
         field(5051; "Bill-to Contact No."; Code[20])
         {
-            AccessByPermission = TableData "Warehouse Source Filter" = R;
             Caption = 'Bill-to Contact No.';
+            TableRelation = Contact;
         }
         field(5052; "Bill-to Contact"; Text[100])
         {
             Caption = 'Bill-to Contact';
+        }
+        field(5053; "Last Invoice Period End"; Date)
+        {
+            Caption = 'Last Invoice Period End';
         }
     }
 
@@ -525,19 +598,32 @@ table 5970 "Filed Service Contract Header"
     }
 
     trigger OnDelete()
+    var
+        FiledContractLine: Record "Filed Contract Line";
+        FiledServContractCmtLine: Record "Filed Serv. Contract Cmt. Line";
+        FiledContractServiceHour: Record "Filed Contract Service Hour";
+        FiledContractServDiscount: Record "Filed Contract/Serv. Discount";
     begin
-        FiledContractLine.Reset();
         FiledContractLine.SetRange("Entry No.", "Entry No.");
         FiledContractLine.DeleteAll();
+
+        FiledServContractCmtLine.SetRange("Entry No.", "Entry No.");
+        if not FiledServContractCmtLine.IsEmpty() then
+            FiledServContractCmtLine.DeleteAll();
+
+        FiledContractServiceHour.SetRange("Entry No.", "Entry No.");
+        if not FiledContractServiceHour.IsEmpty() then
+            FiledContractServiceHour.DeleteAll();
+
+        FiledContractServDiscount.SetRange("Entry No.", "Entry No.");
+        if not FiledContractServDiscount.IsEmpty() then
+            FiledContractServDiscount.DeleteAll();
     end;
 
     var
-        FiledServContractHeader: Record "Filed Service Contract Header";
-        FiledContractLine: Record "Filed Contract Line";
-        DimMgt: Codeunit DimensionManagement;
         SigningQuotation: Boolean;
         CancelContract: Boolean;
-        Text027: Label '%1 to %2';
+        InvocePeriodRangeLbl: Label '%1 to %2', Comment = '%1 = Next Invoice Period Start, %2 = Next Invoice Period End';
 
     procedure GetLastEntryNo(): Integer;
     var
@@ -546,120 +632,199 @@ table 5970 "Filed Service Contract Header"
         exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
 
-    procedure FileContract(ServContractHeader: Record "Service Contract Header")
+    procedure FileContract(ServiceContractHeader: Record "Service Contract Header")
     var
-        ServContractLine: Record "Service Contract Line";
+        FiledServiceContractHeader: Record "Filed Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        FiledContractLine: Record "Filed Contract Line";
+        RecordLinkManagement: Codeunit "Record Link Management";
         NextEntryNo: Integer;
     begin
-        ServContractHeader.TestField("Contract No.");
+        ServiceContractHeader.TestField("Contract No.");
 
-        FiledContractLine.LockTable();
-        FiledServContractHeader.LockTable();
+        FiledServiceContractHeader.LockTable();
+        NextEntryNo := FiledServiceContractHeader.GetLastEntryNo() + 1;
 
-        FiledServContractHeader.Reset();
-        NextEntryNo := FiledServContractHeader.GetLastEntryNo() + 1;
-
-        FiledServContractHeader.Init();
-        ServContractHeader.CalcFields(
+        FiledServiceContractHeader.Init();
+        ServiceContractHeader.CalcFields(
           Name, Address, "Address 2", "Post Code", City, County, "Country/Region Code", "Name 2",
           "Bill-to Name", "Bill-to Address", "Bill-to Address 2", "Bill-to Post Code",
           "Bill-to City", "Bill-to County", "Bill-to Country/Region Code", "Bill-to Name 2",
           "Calcd. Annual Amount");
-        if ServContractHeader."Ship-to Code" = '' then begin
-            ServContractHeader."Ship-to Name" := ServContractHeader.Name;
-            ServContractHeader."Ship-to Address" := ServContractHeader.Address;
-            ServContractHeader."Ship-to Address 2" := ServContractHeader."Address 2";
-            ServContractHeader."Ship-to Post Code" := ServContractHeader."Post Code";
-            ServContractHeader."Ship-to City" := ServContractHeader.City;
-            ServContractHeader."Ship-to County" := ServContractHeader.County;
-            ServContractHeader."Ship-to Country/Region Code" := ServContractHeader."Country/Region Code";
-            ServContractHeader."Ship-to Name 2" := ServContractHeader."Name 2";
+        if ServiceContractHeader."Ship-to Code" = '' then begin
+            ServiceContractHeader."Ship-to Name" := ServiceContractHeader.Name;
+            ServiceContractHeader."Ship-to Address" := ServiceContractHeader.Address;
+            ServiceContractHeader."Ship-to Address 2" := ServiceContractHeader."Address 2";
+            ServiceContractHeader."Ship-to Post Code" := ServiceContractHeader."Post Code";
+            ServiceContractHeader."Ship-to City" := ServiceContractHeader.City;
+            ServiceContractHeader."Ship-to County" := ServiceContractHeader.County;
+            ServiceContractHeader."Ship-to Country/Region Code" := ServiceContractHeader."Country/Region Code";
+            ServiceContractHeader."Ship-to Name 2" := ServiceContractHeader."Name 2";
+            ServiceContractHeader."Ship-to Phone No." := ServiceContractHeader."Phone No.";
         end else
-            ServContractHeader.CalcFields(
+            ServiceContractHeader.CalcFields(
               "Ship-to Name", "Ship-to Address", "Ship-to Address 2", "Ship-to Post Code", "Ship-to City",
-              "Ship-to County", "Ship-to Country/Region Code", "Ship-to Name 2");
+              "Ship-to County", "Ship-to Country/Region Code", "Ship-to Name 2", "Ship-to Phone No.");
 
-        FiledServContractHeader.TransferFields(ServContractHeader);
+        FiledServiceContractHeader.TransferFields(ServiceContractHeader);
 
         if SigningQuotation then
-            FiledServContractHeader."Reason for Filing" :=
-              FiledServContractHeader."Reason for Filing"::"Contract Signed";
+            FiledServiceContractHeader."Reason for Filing" :=
+              FiledServiceContractHeader."Reason for Filing"::"Contract Signed";
 
         if CancelContract then
-            FiledServContractHeader."Reason for Filing" :=
-              FiledServContractHeader."Reason for Filing"::"Contract Canceled";
+            FiledServiceContractHeader."Reason for Filing" :=
+              FiledServiceContractHeader."Reason for Filing"::"Contract Canceled";
 
-        FiledServContractHeader."Contract Type Relation" := ServContractHeader."Contract Type";
-        FiledServContractHeader."Contract No. Relation" := ServContractHeader."Contract No.";
-        FiledServContractHeader."Entry No." := NextEntryNo;
-        FiledServContractHeader."File Date" := Today;
-        FiledServContractHeader."File Time" := Time;
-        FiledServContractHeader."Filed By" := UserId;
-        FiledServContractHeader.Name := ServContractHeader.Name;
-        FiledServContractHeader.Address := ServContractHeader.Address;
-        FiledServContractHeader."Address 2" := ServContractHeader."Address 2";
-        FiledServContractHeader."Post Code" := ServContractHeader."Post Code";
-        FiledServContractHeader.City := ServContractHeader.City;
-        FiledServContractHeader."Bill-to Name" := ServContractHeader."Bill-to Name";
-        FiledServContractHeader."Bill-to Address" := ServContractHeader."Bill-to Address";
-        FiledServContractHeader."Bill-to Address 2" := ServContractHeader."Bill-to Address 2";
-        FiledServContractHeader."Bill-to Post Code" := ServContractHeader."Bill-to Post Code";
-        FiledServContractHeader."Bill-to City" := ServContractHeader."Bill-to City";
-        FiledServContractHeader."Ship-to Name" := ServContractHeader."Ship-to Name";
-        FiledServContractHeader."Ship-to Address" := ServContractHeader."Ship-to Address";
-        FiledServContractHeader."Ship-to Address 2" := ServContractHeader."Ship-to Address 2";
-        FiledServContractHeader."Ship-to Post Code" := ServContractHeader."Ship-to Post Code";
-        FiledServContractHeader."Ship-to City" := ServContractHeader."Ship-to City";
-        FiledServContractHeader."Calcd. Annual Amount" := ServContractHeader."Calcd. Annual Amount";
-        FiledServContractHeader."Bill-to County" := ServContractHeader."Bill-to County";
-        FiledServContractHeader.County := ServContractHeader.County;
-        FiledServContractHeader."Ship-to County" := ServContractHeader."Ship-to County";
-        FiledServContractHeader."Country/Region Code" := ServContractHeader."Country/Region Code";
-        FiledServContractHeader."Bill-to Country/Region Code" := ServContractHeader."Bill-to Country/Region Code";
-        FiledServContractHeader."Ship-to Country/Region Code" := ServContractHeader."Ship-to Country/Region Code";
-        FiledServContractHeader."Name 2" := ServContractHeader."Name 2";
-        FiledServContractHeader."Bill-to Name 2" := ServContractHeader."Bill-to Name 2";
-        FiledServContractHeader."Ship-to Name 2" := ServContractHeader."Ship-to Name 2";
-        OnFileContractOnBeforeFiledServContractHeaderInsert(ServContractHeader, FiledServContractHeader);
-        FiledServContractHeader.Insert();
+        FiledServiceContractHeader."Contract Type Relation" := ServiceContractHeader."Contract Type";
+        FiledServiceContractHeader."Contract No. Relation" := ServiceContractHeader."Contract No.";
+        FiledServiceContractHeader."Entry No." := NextEntryNo;
+        FiledServiceContractHeader."File Date" := Today();
+        FiledServiceContractHeader."File Time" := Time();
+        FiledServiceContractHeader."Filed By" := CopyStr(UserId(), 1, MaxStrLen(FiledServiceContractHeader."Filed By"));
+        FiledServiceContractHeader.Restorable := true;
+        FiledServiceContractHeader.Name := ServiceContractHeader.Name;
+        FiledServiceContractHeader.Address := ServiceContractHeader.Address;
+        FiledServiceContractHeader."Address 2" := ServiceContractHeader."Address 2";
+        FiledServiceContractHeader."Post Code" := ServiceContractHeader."Post Code";
+        FiledServiceContractHeader.City := ServiceContractHeader.City;
+        FiledServiceContractHeader."Bill-to Name" := ServiceContractHeader."Bill-to Name";
+        FiledServiceContractHeader."Bill-to Address" := ServiceContractHeader."Bill-to Address";
+        FiledServiceContractHeader."Bill-to Address 2" := ServiceContractHeader."Bill-to Address 2";
+        FiledServiceContractHeader."Bill-to Post Code" := ServiceContractHeader."Bill-to Post Code";
+        FiledServiceContractHeader."Bill-to City" := ServiceContractHeader."Bill-to City";
+        FiledServiceContractHeader."Ship-to Name" := ServiceContractHeader."Ship-to Name";
+        FiledServiceContractHeader."Ship-to Address" := ServiceContractHeader."Ship-to Address";
+        FiledServiceContractHeader."Ship-to Address 2" := ServiceContractHeader."Ship-to Address 2";
+        FiledServiceContractHeader."Ship-to Post Code" := ServiceContractHeader."Ship-to Post Code";
+        FiledServiceContractHeader."Ship-to City" := ServiceContractHeader."Ship-to City";
+        FiledServiceContractHeader."Calcd. Annual Amount" := ServiceContractHeader."Calcd. Annual Amount";
+        FiledServiceContractHeader."Bill-to County" := ServiceContractHeader."Bill-to County";
+        FiledServiceContractHeader.County := ServiceContractHeader.County;
+        FiledServiceContractHeader."Ship-to County" := ServiceContractHeader."Ship-to County";
+        FiledServiceContractHeader."Country/Region Code" := ServiceContractHeader."Country/Region Code";
+        FiledServiceContractHeader."Bill-to Country/Region Code" := ServiceContractHeader."Bill-to Country/Region Code";
+        FiledServiceContractHeader."Ship-to Country/Region Code" := ServiceContractHeader."Ship-to Country/Region Code";
+        FiledServiceContractHeader."Ship-to Phone No." := ServiceContractHeader."Ship-to Phone No.";
+        FiledServiceContractHeader."Name 2" := ServiceContractHeader."Name 2";
+        FiledServiceContractHeader."Bill-to Name 2" := ServiceContractHeader."Bill-to Name 2";
+        FiledServiceContractHeader."Ship-to Name 2" := ServiceContractHeader."Ship-to Name 2";
+        RecordLinkManagement.CopyLinks(ServiceContractHeader, FiledServiceContractHeader);
+        OnFileContractOnBeforeFiledServContractHeaderInsert(ServiceContractHeader, FiledServiceContractHeader);
+        FiledServiceContractHeader.Insert();
 
-        ServContractLine.Reset();
-        ServContractLine.SetRange("Contract Type", ServContractHeader."Contract Type");
-        ServContractLine.SetRange("Contract No.", ServContractHeader."Contract No.");
-        if ServContractLine.Find('-') then
+        ServiceContractLine.SetRange("Contract Type", ServiceContractHeader."Contract Type");
+        ServiceContractLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
+        if ServiceContractLine.FindSet() then
             repeat
                 FiledContractLine.Init();
-                FiledContractLine."Entry No." := FiledServContractHeader."Entry No.";
-                FiledContractLine.TransferFields(ServContractLine);
+                FiledContractLine."Entry No." := FiledServiceContractHeader."Entry No.";
+                FiledContractLine.TransferFields(ServiceContractLine);
+                RecordLinkManagement.CopyLinks(ServiceContractLine, FiledContractLine);
                 FiledContractLine.Insert();
-            until ServContractLine.Next() = 0;
+            until ServiceContractLine.Next() = 0;
 
-        OnAfterFileContract(FiledServContractHeader, ServContractHeader);
+        FileServiceContractComments(ServiceContractHeader, FiledServiceContractHeader);
+        FileServiceContractServiceHours(ServiceContractHeader, FiledServiceContractHeader);
+        FileServiceContractContractServDiscounts(ServiceContractHeader, FiledServiceContractHeader);
+
+        OnAfterFileContract(FiledServiceContractHeader, ServiceContractHeader);
     end;
 
-    procedure FileQuotationBeforeSigning(ServContract: Record "Service Contract Header")
+    procedure FileQuotationBeforeSigning(ServiceContractHeader: Record "Service Contract Header")
     begin
         SigningQuotation := true;
-        FileContract(ServContract);
+        FileContract(ServiceContractHeader);
         SigningQuotation := false;
     end;
 
-    procedure FileContractBeforeCancellation(ServContract: Record "Service Contract Header")
+    procedure FileContractBeforeCancellation(ServiceContractHeader: Record "Service Contract Header")
     begin
         CancelContract := true;
-        FileContract(ServContract);
+        FileContract(ServiceContractHeader);
         CancelContract := false;
     end;
 
     procedure NextInvoicePeriod(): Text[250]
     begin
         if ("Next Invoice Period Start" <> 0D) and ("Next Invoice Period End" <> 0D) then
-            exit(StrSubstNo(Text027, "Next Invoice Period Start", "Next Invoice Period End"));
+            exit(StrSubstNo(InvocePeriodRangeLbl, "Next Invoice Period Start", "Next Invoice Period End"));
     end;
 
     local procedure ShowDimensions()
+    var
+        DimensionManagement: Codeunit DimensionManagement;
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Contract No."));
+        DimensionManagement.ShowDimensionSet("Dimension Set ID", CopyStr(StrSubstNo('%1 %2', TableCaption(), "Contract No."), 1, 250));
+    end;
+
+    internal procedure SetSecurityFilterOnResponsibilityCenter()
+    var
+        UserSetupManagement: Codeunit "User Setup Management";
+    begin
+        if UserSetupManagement.GetServiceFilter() <> '' then begin
+            FilterGroup(2);
+            SetRange("Responsibility Center", UserSetupManagement.GetServiceFilter());
+            FilterGroup(0);
+        end;
+    end;
+
+    local procedure FileServiceContractComments(ServiceContractHeader: Record "Service Contract Header"; var FiledServiceContractHeader: Record "Filed Service Contract Header")
+    var
+        ServiceCommentLine: Record "Service Comment Line";
+        FiledServContractCmtLine: Record "Filed Serv. Contract Cmt. Line";
+    begin
+        ServiceCommentLine.SetRange("Table Name", ServiceCommentLine."Table Name"::"Service Contract");
+        ServiceCommentLine.SetRange("Table Subtype", ServiceContractHeader."Contract Type");
+        ServiceCommentLine.SetRange("No.", ServiceContractHeader."Contract No.");
+        if ServiceCommentLine.FindSet() then
+            repeat
+                FiledServContractCmtLine.Init();
+                FiledServContractCmtLine.TransferFields(ServiceCommentLine);
+                FiledServContractCmtLine."Entry No." := FiledServiceContractHeader."Entry No.";
+                FiledServContractCmtLine.Insert();
+            until ServiceCommentLine.Next() = 0;
+    end;
+
+    local procedure FileServiceContractServiceHours(ServiceContractHeader: Record "Service Contract Header"; var FiledServiceContractHeader: Record "Filed Service Contract Header")
+    var
+        ServiceHour: Record "Service Hour";
+        FiledContractServiceHour: Record "Filed Contract Service Hour";
+        RecordLinkManagement: Codeunit "Record Link Management";
+    begin
+        case ServiceContractHeader."Contract Type" of
+            ServiceContractHeader."Contract Type"::Quote:
+                ServiceHour.SetRange("Service Contract Type", ServiceHour."Service Contract Type"::Quote);
+            ServiceContractHeader."Contract Type"::Contract:
+                ServiceHour.SetRange("Service Contract Type", ServiceHour."Service Contract Type"::Contract);
+        end;
+        ServiceHour.SetRange("Service Contract No.", ServiceContractHeader."Contract No.");
+        if ServiceHour.FindSet() then
+            repeat
+                FiledContractServiceHour.Init();
+                FiledContractServiceHour.TransferFields(ServiceHour);
+                FiledContractServiceHour."Entry No." := FiledServiceContractHeader."Entry No.";
+                RecordLinkManagement.CopyLinks(ServiceHour, FiledContractServiceHour);
+                FiledContractServiceHour.Insert();
+            until ServiceHour.Next() = 0;
+    end;
+
+    local procedure FileServiceContractContractServDiscounts(ServiceContractHeader: Record "Service Contract Header"; var FiledServiceContractHeader: Record "Filed Service Contract Header")
+    var
+        ContractServiceDiscount: Record "Contract/Service Discount";
+        FiledContractServDiscount: Record "Filed Contract/Serv. Discount";
+        RecordLinkManagement: Codeunit "Record Link Management";
+    begin
+        ContractServiceDiscount.SetRange("Contract Type", ServiceContractHeader."Contract Type");
+        ContractServiceDiscount.SetRange("Contract No.", ServiceContractHeader."Contract No.");
+        if ContractServiceDiscount.FindSet() then
+            repeat
+                FiledContractServDiscount.Init();
+                FiledContractServDiscount.TransferFields(ContractServiceDiscount);
+                FiledContractServDiscount."Entry No." := FiledServiceContractHeader."Entry No.";
+                RecordLinkManagement.CopyLinks(ContractServiceDiscount, FiledContractServDiscount);
+                FiledContractServDiscount.Insert();
+            until ContractServiceDiscount.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]
@@ -672,4 +837,3 @@ table 5970 "Filed Service Contract Header"
     begin
     end;
 }
-

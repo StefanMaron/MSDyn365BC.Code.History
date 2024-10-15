@@ -82,10 +82,6 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 390634] Action "Open Active Time Sheet" opens time sheet for work date period
         Initialize();
 
-#if not CLEAN22
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-#endif
         // [GIVEN] Create 3 time sheets "1", "2" and "3"
         CreateMultipleTimeSheet(Resource, TimeSheetHeader, 3);
 
@@ -120,10 +116,6 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 448247] Action Approve in subform not available for blank Type.
         Initialize();
 
-#if not CLEAN22
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-#endif
         // [GIVEN] Create time sheet with 5 open lines
         CreateTimeSheetWithLines(TimeSheetHeader, false, false, false);
         // [GIVEN] Open time sheet card
@@ -170,10 +162,6 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 390634] Action Submit on Time Sheet Subform page does submit lines
         Initialize();
 
-#if not CLEAN22
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-#endif
         // [GIVEN] Create time sheet with 5 open lines
         CreateTimeSheetWithLines(TimeSheetHeader, false, false, false);
         // [GIVEN] Open time sheet card
@@ -206,10 +194,6 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 390634] Action Submit on Time Sheet Card page does submit lines
         Initialize();
 
-#if not CLEAN22
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-#endif
         // [GIVEN] Create time sheet with 5 submitted lines
         CreateTimeSheetWithLines(TimeSheetHeader, true, false, false);
         // [GIVEN] Open time sheet card
@@ -242,10 +226,6 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 390634] Action Submit on Time Sheet Subform page does submit lines
         Initialize();
 
-#if not CLEAN22
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-#endif
         // [GIVEN] Create time sheet with 5 submitted lines
         CreateTimeSheetWithLines(TimeSheetHeader, true, false, false);
         // [GIVEN] Open time sheet card
@@ -266,357 +246,6 @@ codeunit 136506 "New Time Sheet Experience"
         Assert.IsFalse(TimeSheetCard.TimeSheetLines.ReopenSubmitted.Enabled(), 'Reopen must be disabled');
     end;
 
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure ManagerTimeSheetCard()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        ManagerTimeSheetList: TestPage "Manager Time Sheet List";
-        TimeSheetCard: TestPage "Time Sheet Card";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 390634] Manager time sheet list page opens Time Sheet Card page with manager actions
-        Initialize();
-
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-        // [GIVEN] Create time sheet with 5 submitted lines
-        CreateTimeSheetWithLines(TimeSheetHeader, true, false, false);
-
-        // [GIVEN] Open manager time sheet list
-        ManagerTimeSheetList.OpenView();
-        TimeSheetCard.Trap();
-        ManagerTimeSheetList.Filter.SetFilter("No.", TimeSheetHeader."No.");
-        // [WHEN] Action "Edit Time Sheet" is selected
-        ManagerTimeSheetList."&Edit Time Sheet".Invoke();
-
-        // [THEN] Time Sheet Card page opened 
-        // [THEN] Manager actions are visible
-        Assert.IsTrue(TimeSheetCard.Approve.Visible(), 'Approve must be visible');
-        Assert.IsTrue(TimeSheetCard.Reject.Visible(), 'Reject must be visible');
-        Assert.IsTrue(TimeSheetCard.ReopenApproved.Visible(), 'Reopen approved must be visible');
-
-        // [THEN] Time sheet owner's actions are invisible
-        Assert.IsFalse(TimeSheetCard.Submit.Visible(), 'Submit must be invisible');
-        Assert.IsFalse(TimeSheetCard.ReopenSubmitted.Visible(), 'Reopen submitted must be invisible');
-        Assert.IsFalse(TimeSheetCard.CreateLinesFromJobPlanning.Visible(), 'CreateLinesFromJobPlanning must be invisible');
-        Assert.IsFalse(TimeSheetCard.CopyLinesFromPrevTS.Visible(), 'CopyLinesFromPrevTS must be invisible');
-
-        TimeSheetCard.Close();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
-    [Scope('OnPrem')]
-    procedure TimeSheetCardApprove()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        ManagerTimeSheetList: TestPage "Manager Time Sheet List";
-        TimeSheetCard: TestPage "Time Sheet Card";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 390634] Action Approve on Time Sheet Card page does approve lines
-        Initialize();
-
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-
-        // [GIVEN] Create time sheet with 5 submitted lines
-        CreateTimeSheetWithLines(TimeSheetHeader, true, false, false);
-
-        // [GIVEN] Open manager time sheet 
-        ManagerTimeSheetList.OpenView();
-        TimeSheetCard.Trap();
-        ManagerTimeSheetList.Filter.SetFilter("No.", TimeSheetHeader."No.");
-        ManagerTimeSheetList."&Edit Time Sheet".Invoke();
-
-        // [THEN] Action "Reopen Approved" is disabled
-        Assert.IsFalse(TimeSheetCard.ReopenApproved.Enabled(), 'Reopen Approved must be disabled');
-        // [WHEN] Run action "Approve"
-        TimeSheetCard.Approve.Invoke();
-
-        // [THEN] All 5 lines are approved
-        VerifyTimeSheetLinesStatus(TimeSheetHeader."No.", "Time Sheet Status"::Approved);
-
-        // [THEN] Action "Reopen Approved" is enabled
-        Assert.IsTrue(TimeSheetCard.ReopenApproved.Enabled(), 'Reopen Approved must be enabled');
-        // [THEN] Action "Approve" is disabled
-        Assert.IsFalse(TimeSheetCard.Approve.Enabled(), 'Approve must be disabled');
-
-        TimeSheetCard.Close();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure TimeSheetCardApproveAllFromSubform()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        ManagerTimeSheetList: TestPage "Manager Time Sheet List";
-        TimeSheetCard: TestPage "Time Sheet Card";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 390634] Action Approve on Time Sheet Subform page does approve lines
-        Initialize();
-
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-
-        // [GIVEN] Create time sheet with 5 submitted lines
-        CreateTimeSheetWithLines(TimeSheetHeader, true, false, false);
-
-        // [GIVEN] Open manager time sheet 
-        ManagerTimeSheetList.OpenView();
-        TimeSheetCard.Trap();
-        ManagerTimeSheetList.Filter.SetFilter("No.", TimeSheetHeader."No.");
-        ManagerTimeSheetList."&Edit Time Sheet".Invoke();
-
-        // [THEN] Action "Reopen Approved" is disabled
-        Assert.IsFalse(TimeSheetCard.TimeSheetLines.ReopenApproved.Enabled(), 'Reopen Approved must be disabled');
-        // [WHEN] Run action "Approve"
-        TimeSheetCard.TimeSheetLines.Approve.Invoke();
-
-        // [THEN] All 5 lines are approved
-        VerifyTimeSheetLinesStatus(TimeSheetHeader."No.", "Time Sheet Status"::Approved);
-
-        // [THEN] Action "Reopen Approved" is enabled
-        Assert.IsTrue(TimeSheetCard.TimeSheetLines.ReopenApproved.Enabled(), 'Reopen Approved must be enabled');
-        // [THEN] Action "Approve" is disabled
-        Assert.IsFalse(TimeSheetCard.TimeSheetLines.Approve.Enabled(), 'Approve must be disabled');
-
-        TimeSheetCard.Close();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
-    [Scope('OnPrem')]
-    procedure TimeSheetCardReject()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        ManagerTimeSheetList: TestPage "Manager Time Sheet List";
-        TimeSheetCard: TestPage "Time Sheet Card";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 390634] Action Reject on Time Sheet Card page does reject lines
-        Initialize();
-
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-
-        // [GIVEN] Create time sheet with 5 submitted lines
-        CreateTimeSheetWithLines(TimeSheetHeader, true, false, false);
-
-        // [GIVEN] Open manager time sheet 
-        ManagerTimeSheetList.OpenView();
-        TimeSheetCard.Trap();
-        ManagerTimeSheetList.Filter.SetFilter("No.", TimeSheetHeader."No.");
-        ManagerTimeSheetList."&Edit Time Sheet".Invoke();
-
-        // [WHEN] Run action "Reject"
-        TimeSheetCard.Reject.Invoke();
-
-        // [THEN] All 5 lines are rejected
-        VerifyTimeSheetLinesStatus(TimeSheetHeader."No.", "Time Sheet Status"::Rejected);
-
-        // [THEN] Action "Reopen Approved" is enabled
-        Assert.IsTrue(TimeSheetCard.ReopenApproved.Enabled(), 'Reopen Approved must be enabled');
-        // [THEN] Action "Reject" is disabled
-        Assert.IsFalse(TimeSheetCard.Reject.Enabled(), 'Reject must be disabled');
-
-        TimeSheetCard.Close();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure TimeSheetCardRejectAllFromSubform()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        ManagerTimeSheetList: TestPage "Manager Time Sheet List";
-        TimeSheetCard: TestPage "Time Sheet Card";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 390634] Action Reject on Time Sheet Subform page does reject lines
-        Initialize();
-
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-
-        // [GIVEN] Create time sheet with 5 submitted lines
-        CreateTimeSheetWithLines(TimeSheetHeader, true, false, false);
-
-        // [GIVEN] Open manager time sheet 
-        ManagerTimeSheetList.OpenView();
-        TimeSheetCard.Trap();
-        ManagerTimeSheetList.Filter.SetFilter("No.", TimeSheetHeader."No.");
-        ManagerTimeSheetList."&Edit Time Sheet".Invoke();
-
-        // [WHEN] Run action "Reject"
-        TimeSheetCard.TimeSheetLines.Reject.Invoke();
-
-        // [THEN] All 5 lines are rejected
-        VerifyTimeSheetLinesStatus(TimeSheetHeader."No.", "Time Sheet Status"::Rejected);
-
-        // [THEN] Action "Reopen Approved" is enabled
-        Assert.IsTrue(TimeSheetCard.TimeSheetLines.ReopenApproved.Enabled(), 'Reopen Approved must be enabled');
-        // [THEN] Action "Reject" is disabled
-        Assert.IsFalse(TimeSheetCard.TimeSheetLines.Reject.Enabled(), 'Reject must be disabled');
-
-        TimeSheetCard.Close();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
-    [Scope('OnPrem')]
-    procedure TimeSheetCardReopenApproved()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        ManagerTimeSheetList: TestPage "Manager Time Sheet List";
-        TimeSheetCard: TestPage "Time Sheet Card";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 390634] Action Reopen for approved lines on Time Sheet Card page does reopen lines
-        Initialize();
-
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-
-        // [GIVEN] Create time sheet with 5 approved lines
-        CreateTimeSheetWithLines(TimeSheetHeader, true, true, false);
-
-        // [GIVEN] Open manager time sheet 
-        ManagerTimeSheetList.OpenView();
-        TimeSheetCard.Trap();
-        ManagerTimeSheetList.Filter.SetFilter("No.", TimeSheetHeader."No.");
-        ManagerTimeSheetList."&Edit Time Sheet".Invoke();
-
-        // [WHEN] Run action "Reopen"
-        TimeSheetCard.ReopenApproved.Invoke();
-
-        // [THEN] All 5 lines are submitted
-        VerifyTimeSheetLinesStatus(TimeSheetHeader."No.", "Time Sheet Status"::Submitted);
-
-        TimeSheetCard.Close();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure TimeSheetCardReopenApprovedAllFromSubform()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        ManagerTimeSheetList: TestPage "Manager Time Sheet List";
-        TimeSheetCard: TestPage "Time Sheet Card";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 390634] Action Reopen for approved lines on Time Sheet Subform page does reopen lines
-        Initialize();
-
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-
-        // [GIVEN] Create time sheet with 5 approved lines
-        CreateTimeSheetWithLines(TimeSheetHeader, true, true, false);
-
-        // [GIVEN] Open manager time sheet 
-        ManagerTimeSheetList.OpenView();
-        TimeSheetCard.Trap();
-        ManagerTimeSheetList.Filter.SetFilter("No.", TimeSheetHeader."No.");
-        ManagerTimeSheetList."&Edit Time Sheet".Invoke();
-
-        // [WHEN] Run action "Reopen"
-        TimeSheetCard.TimeSheetLines.ReopenApproved.Invoke();
-
-        // [THEN] All 5 lines are submitted
-        VerifyTimeSheetLinesStatus(TimeSheetHeader."No.", "Time Sheet Status"::Submitted);
-
-        TimeSheetCard.Close();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
-    [Scope('OnPrem')]
-    procedure TimeSheetCardReopenRejected()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        ManagerTimeSheetList: TestPage "Manager Time Sheet List";
-        TimeSheetCard: TestPage "Time Sheet Card";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 390634] Action Reopen for approved lines on Time Sheet Card page does reopen lines
-        Initialize();
-
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-
-        // [GIVEN] Create time sheet with 5 rejected lines
-        CreateTimeSheetWithLines(TimeSheetHeader, true, false, true);
-
-        // [GIVEN] Open manager time sheet 
-        ManagerTimeSheetList.OpenView();
-        TimeSheetCard.Trap();
-        ManagerTimeSheetList.Filter.SetFilter("No.", TimeSheetHeader."No.");
-        ManagerTimeSheetList."&Edit Time Sheet".Invoke();
-
-        // [WHEN] Run action "Reopen"
-        TimeSheetCard.ReopenApproved.Invoke();
-
-        // [THEN] All 5 lines are submitted
-        VerifyTimeSheetLinesStatus(TimeSheetHeader."No.", "Time Sheet Status"::Submitted);
-
-        TimeSheetCard.Close();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure TimeSheetCardReopenRejectedAllFromSubform()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        ManagerTimeSheetList: TestPage "Manager Time Sheet List";
-        TimeSheetCard: TestPage "Time Sheet Card";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 390634] Action Reopen for approved lines on Time Sheet Subform page does reopen lines
-        Initialize();
-
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-        CreateTimeSheetWithLines(TimeSheetHeader, true, false, true);
-
-        // [GIVEN] Open manager time sheet 
-        ManagerTimeSheetList.OpenView();
-        TimeSheetCard.Trap();
-        ManagerTimeSheetList.Filter.SetFilter("No.", TimeSheetHeader."No.");
-        ManagerTimeSheetList."&Edit Time Sheet".Invoke();
-
-        // [WHEN] Run action "Reopen"
-        TimeSheetCard.TimeSheetLines.ReopenApproved.Invoke();
-
-        // [THEN] All 5 lines are submitted
-        VerifyTimeSheetLinesStatus(TimeSheetHeader."No.", "Time Sheet Status"::Submitted);
-
-        TimeSheetCard.Close();
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure OpenTimeSheetArchiveCard()
@@ -629,10 +258,6 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 390634] Action "View Time Sheet" of "Time Sheet Archive List" page opens "Time Sheet Archive Card" page
         Initialize();
 
-#if not CLEAN22
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-#endif
         // [GIVEN] Create archived time sheet "TS01"
         MockArchivedTimeSheet(TimeSheetHeaderArchive);
 
@@ -662,10 +287,6 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 390634] Action "View Time Sheet" of "Manager Time Sheet Arc. List" page opens "Time Sheet Archive Card" page
         Initialize();
 
-#if not CLEAN22
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-#endif
         // [GIVEN] Create archived time sheet "TS01"
         MockArchivedTimeSheet(TimeSheetHeaderArchive);
 
@@ -694,10 +315,6 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 496952] Time Sheet Archive should be part of Time Sheet Lines list
         Initialize();
 
-#if not CLEAN22
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-#endif
         // [GIVEN] Create archived time sheet "TS01"
         MockArchivedTimeSheet(TimeSheetHeaderArchive);
 
@@ -710,195 +327,6 @@ codeunit 136506 "New Time Sheet Experience"
 
         TimeSheetLines.Close();
     end;
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure TimeSheetListAdminActions_V2NotTimeSheetAdmin()
-    var
-        UserSetup: Record "User Setup";
-        TimeSheetList: TestPage "Time Sheet List";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 390634] Actions "Create Time Sheets", "Move Time Sheets to Archive" are invisible for not admin user on Time Sheet List page
-        Initialize();
-
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-
-        // [GIVEN] Create user setup with Time Sheet Admin = Yes
-        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
-        UserSetup.Validate("Time Sheet Admin.", false);
-        UserSetup.Modify();
-
-        // [WHEN] Open Time Sheet List page
-        TimeSheetList.OpenView();
-
-        // [THEN] Actions "Create Time Sheets", "Move Time Sheets to Archive" are invisible
-        Assert.IsFalse(TimeSheetList."Create Time Sheets".Visible(), 'Create Time Sheets must be invisible');
-        Assert.IsFalse(TimeSheetList.MoveTimeSheetsToArchive.Visible(), 'Move Time Sheets to Archive must be invisible');
-
-        // [THEN] Action "Edit Time Sheet" is invisible
-        Assert.IsFalse(TimeSheetList.EditTimeSheet.Visible(), 'Edit Time Sheet must be invisible');
-
-        UserSetup.Delete();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure TimeSheetListAdminActions_V2TimeSheetAdmin()
-    var
-        UserSetup: Record "User Setup";
-        TimeSheetList: TestPage "Time Sheet List";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 390634] Actions "Create Time Sheets", "Move Time Sheets to Archive" are visible for time sheet admin on Time Sheet List page
-        Initialize();
-
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-
-        // [GIVEN] Create user setup with Time Sheet Admin = Yes
-        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
-
-        // [WHEN] Open Time Sheet List page
-        TimeSheetList.OpenView();
-
-        // [THEN] Actions "Create Time Sheets", "Move Time Sheets to Archive" are visible
-        Assert.IsTrue(TimeSheetList."Create Time Sheets".Visible(), 'Create Time Sheets must be visible');
-        Assert.IsTrue(TimeSheetList.MoveTimeSheetsToArchive.Visible(), 'Move Time Sheets to Archive must be visible');
-        // [THEN] Action "Edit Time Sheet" is invisible
-        Assert.IsFalse(TimeSheetList.EditTimeSheet.Visible(), 'Edit Time Sheet must be invisible');
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure TimeSheetListAdminActions_NotTimeSheetAdmin()
-    var
-        UserSetup: Record "User Setup";
-        TimeSheetList: TestPage "Time Sheet List";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 390634] Actions "Create Time Sheets", "Move Time Sheets to Archive" are visible on Time Sheet List page for not admin user if New Timesheet feature is not enabled
-        Initialize();
-
-        // [GIVEN] Disable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(false);
-
-        // [GIVEN] Create user setup with Time Sheet Admin = No
-        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
-        UserSetup.Validate("Time Sheet Admin.", false);
-        UserSetup.Modify();
-
-        // [WHEN] Open Time Sheet List page
-        TimeSheetList.OpenView();
-
-        // [THEN] Actions "Create Time Sheets", "Move Time Sheets to Archive" are visible
-        Assert.IsTrue(TimeSheetList."Create Time Sheets".Visible(), 'Create Time Sheets must be visible');
-        Assert.IsTrue(TimeSheetList.MoveTimeSheetsToArchive.Visible(), 'Move Time Sheets to Archive must be visible');
-        // [THEN] Action "Edit Time Sheet" is visible
-        Assert.IsTrue(TimeSheetList.EditTimeSheet.Visible(), 'Edit Time Sheet must be visible');
-
-        UserSetup.Delete();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure ManagerTimeSheetListAdminActions_V2NotTimeSheetAdmin()
-    var
-        UserSetup: Record "User Setup";
-        ManagerTimeSheetList: TestPage "Manager Time Sheet List";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 390634] Action "Move Time Sheets to Archive" is invisible for not admin user on Manager Time Sheet List page
-        Initialize();
-
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-
-        // [GIVEN] Create user setup with Time Sheet Admin = No
-        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
-        UserSetup.Validate("Time Sheet Admin.", false);
-        UserSetup.Modify();
-
-        // [WHEN] Open Time Sheet List page
-        ManagerTimeSheetList.OpenView();
-
-        // [THEN] Action "Move Time Sheets to Archive" is invisible
-        Assert.IsFalse(ManagerTimeSheetList.MoveTimeSheetsToArchive.Visible(), 'Move Time Sheets to Archive must be invisible');
-
-        // [THEN] Action "Edit Time Sheet" is invisible
-        Assert.IsFalse(ManagerTimeSheetList."&Edit Time Sheet".Visible(), 'Edit Time Sheet must be invisible');
-
-        UserSetup.Delete();
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure ManagerTimeSheetListAdminActions_V2TimeSheetAdmin()
-    var
-        UserSetup: Record "User Setup";
-        ManagerTimeSheetList: TestPage "Manager Time Sheet List";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 390634] Action "Move Time Sheets to Archive" is visible for time sheet admin 
-        Initialize();
-
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-
-        // [GIVEN] Create user setup with Time Sheet Admin = Yes
-        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
-
-        // [WHEN] Open Time Sheet List page
-        ManagerTimeSheetList.OpenView();
-
-        // [THEN] Action "Move Time Sheets to Archive" is visible
-        Assert.IsTrue(ManagerTimeSheetList.MoveTimeSheetsToArchive.Visible(), 'Move Time Sheets to Archive must be visible');
-        // [THEN] Action "Edit Time Sheet" is invisible
-        Assert.IsFalse(ManagerTimeSheetList."&Edit Time Sheet".Visible(), 'Edit Time Sheet must be invisible');
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure ManagerTimeSheetListAdminActions_NotTimeSheetAdmin()
-    var
-        UserSetup: Record "User Setup";
-        ManagerTimeSheetList: TestPage "Manager Time Sheet List";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 390634] Action "Move Time Sheets to Archive" are visible for not admin user if New Timesheet feature is not enabled
-        Initialize();
-
-        // [GIVEN] Disable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(false);
-
-        // [GIVEN] Create user setup with Time Sheet Admin = No
-        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
-        UserSetup.Validate("Time Sheet Admin.", false);
-        UserSetup.Modify();
-
-        // [WHEN] Open Time Sheet List page
-        ManagerTimeSheetList.OpenView();
-
-        // [THEN] Action "Move Time Sheets to Archive" is visible
-        Assert.IsTrue(ManagerTimeSheetList.MoveTimeSheetsToArchive.Visible(), 'Move Time Sheets to Archive must be visible');
-        // [THEN] Action "Edit Time Sheet" is visible
-        Assert.IsTrue(ManagerTimeSheetList."&Edit Time Sheet".Visible(), 'Edit Time Sheet must be visible');
-
-        UserSetup.Delete();
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -945,10 +373,6 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 496952] Time Sheet from different owner/approver should not be part of Time Sheet Lines list
         Initialize();
 
-#if not CLEAN22
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-#endif
         // [GIVEN] Create time sheet "TS01"
         CreateMultipleTimeSheet(Resource, TimeSheetHeader, 1);
         CreateTimeSheetLineWithTimeAllocaiton(TimeSheetHeader, TimeSheetLine);
@@ -1136,10 +560,6 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 390634] Data entered into Day1 - Day7 fields recorded correctly
         Initialize();
 
-#if not CLEAN22
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-#endif
         // [GIVEN] Create time sheet
         CreateTimeSheet(TimeSheetHeader);
 
@@ -1801,10 +1221,6 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 421062] Time Sheet Card page has defult filter by owner id if current user is not time sheet admin
         Initialize();
 
-#if not CLEAN22
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-#endif
         BindSubscription(NewTimeSheetExperience);
 
         // [GIVEN] Create time sheet 
@@ -1837,10 +1253,6 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 421062] Time Sheet Card page has no defult filter by owner id if current user is time sheet admin
         Initialize();
 
-#if not CLEAN22
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-#endif
         BindSubscription(NewTimeSheetExperience);
 
         // [GIVEN] Create time sheet 
@@ -1871,10 +1283,6 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 421062] Time Sheet Card page has defult filter by owner id if current user does not have user setup
         Initialize();
 
-#if not CLEAN22
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-#endif
         BindSubscription(NewTimeSheetExperience);
 
         // [GIVEN] Create time sheet 
@@ -1905,10 +1313,6 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 421062] Time Sheet Archive Card page has defult filter by owner id if current user is not time sheet admin
         Initialize();
 
-#if not CLEAN22
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-#endif
         BindSubscription(NewTimeSheetExperience);
 
         // [GIVEN] Mock time sheet archive
@@ -1941,10 +1345,6 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 421062] Time Sheet Archive Card page has no defult filter by owner id if current user is time sheet admin
         Initialize();
 
-#if not CLEAN22
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-#endif
         BindSubscription(NewTimeSheetExperience);
 
         // [GIVEN] Mock time sheet archive
@@ -1975,10 +1375,6 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 421062] Time Sheet Archive Card page has defult filter by owner id if current user is not time sheet admin
         Initialize();
 
-#if not CLEAN22
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-#endif
         BindSubscription(NewTimeSheetExperience);
 
         // [GIVEN] Mock time sheet archive
@@ -2057,9 +1453,6 @@ codeunit 136506 "New Time Sheet Experience"
     begin
         // [SCENARIO 447634] Open Current Time sheet' in the role center through error when timesheet exist for some other dates
         Initialize();
-#if not CLEAN22
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-#endif
         BindSubscription(NewTimeSheetExperience);
 
         // [THEN] Deleteall the records created by other test automation for current user. 
@@ -2112,10 +1505,6 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 458927] Create 3 Jobs: J1 with Blocked = All, J2 with default Blocked and Status, J3 in Status = Completed.
         // [SCENARIO 458927] Verify that "Create lines from job planning" only processed J2.
         Initialize();
-
-#if not CLEAN22
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-#endif
 
         // [GIVEN] Set "Time Sheet by Job Approval" in "Resources Setup"
         ResourcesSetup.Get();
@@ -2171,10 +1560,6 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 459803] Resources are able to enter time in time sheets prior to the date in their Employment Date field without error
         Initialize();
 
-#if not CLEAN22
-        // [GIVEN] Enable Time Sheet V2
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-#endif
         // [GIVEN] Create time sheet with 5 open lines
         CreateTimeSheetWithLines(TimeSheetHeader, false, false, false);
 
@@ -2211,9 +1596,6 @@ codeunit 136506 "New Time Sheet Experience"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"New Time Sheet Experience");
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-#if not CLEAN22
-        LibraryTimeSheet.SetNewTimeSheetExperience(true);
-#endif
         LibrarySetupStorage.Save(DATABASE::"Resources Setup");
 
         IsInitialized := true;

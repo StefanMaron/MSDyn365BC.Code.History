@@ -162,6 +162,9 @@ codeunit 135153 "Data Classs Demo Data Tests"
         DataSensitivity.SetRange("Table No", DATABASE::"Service Contract Header");
         Assert.RecordIsNotEmpty(DataSensitivity);
 
+        DataSensitivity.SetRange("Table No", DATABASE::"Service Header Archive");
+        Assert.RecordIsNotEmpty(DataSensitivity);
+
         DataSensitivity.SetRange("Table No", DATABASE::"IC Outbox Purchase Header");
         Assert.RecordIsNotEmpty(DataSensitivity);
 
@@ -217,6 +220,9 @@ codeunit 135153 "Data Classs Demo Data Tests"
         Assert.RecordIsNotEmpty(DataSensitivity);
 
         DataSensitivity.SetRange("Table No", DATABASE::"Service Cr.Memo Line");
+        Assert.RecordIsNotEmpty(DataSensitivity);
+
+        DataSensitivity.SetRange("Table No", DATABASE::"Service Line Archive");
         Assert.RecordIsNotEmpty(DataSensitivity);
 
         DataSensitivity.SetRange("Table No", DATABASE::"Return Shipment Line");

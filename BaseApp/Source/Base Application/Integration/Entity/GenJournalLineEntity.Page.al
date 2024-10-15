@@ -515,17 +515,6 @@ page 6407 "Gen. Journal Line Entity"
                     ApplicationArea = All;
                     Caption = 'IC Direction', Locked = true;
                 }
-#if not CLEAN22
-                field(icPartnerGLAccNumber; Rec."IC Partner G/L Acc. No.")
-                {
-                    ApplicationArea = All;
-                    Caption = 'IC Partner G/L Acc. No.', Locked = true;
-                    ToolTip = 'Specifies the account in your IC partner''s company that corresponds to the G/L account on the line.';
-                    ObsoleteReason = 'This field will be replaced by IC Account No.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                }
-#endif
                 field(icPartnerTransactionNumber; Rec."IC Partner Transaction No.")
                 {
                     ApplicationArea = All;

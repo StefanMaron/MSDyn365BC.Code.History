@@ -135,6 +135,8 @@ codeunit 131103 "Library - Report Selection"
                 ReportId := Report::"Service Contract";
             RecUsage::"SM.Test":
                 ReportId := Report::"Service Document - Test";
+            RecUsage::"SM.Item Worksheet":
+                ReportId := Report::"Service Item Worksheet";
             RecUsage::"Asm.Order":
                 ReportId := Report::"Assembly Order";
             RecUsage::"P.Asm.Order":

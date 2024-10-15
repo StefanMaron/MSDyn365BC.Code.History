@@ -222,7 +222,11 @@ report 109 "Customer - Summary Aging Simp."
         PrintCust: Boolean;
         i: Integer;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'As of %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Customer___Summary_Aging_Simp_CaptionLbl: Label 'Customer - Summary Aging Simp.';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         All_amounts_are_in_LCYCaptionLbl: Label 'All amounts are in LCY';

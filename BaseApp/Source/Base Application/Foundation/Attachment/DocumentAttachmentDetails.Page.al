@@ -179,6 +179,24 @@ page 1173 "Document Attachment Details"
                     InitiateAttachFromEmail();
                 end;
             }
+            fileuploadaction(AttachmentsUpload)
+            {
+                ApplicationArea = All;
+                Caption = 'Upload files';
+                Image = Document;
+                Enabled = true;
+                Scope = Page;
+                ToolTip = 'Upload one or more files';
+                Visible = true;
+                AllowMultipleFiles = true;
+
+                trigger OnAction(files: List of [FileUpload])
+                var
+                    DocumentAttachment: Record "Document Attachment";
+                begin
+                    DocumentAttachment.SaveAttachment(files, FromRecRef);
+                end;
+            }
             action(UploadFile)
             {
                 ApplicationArea = All;

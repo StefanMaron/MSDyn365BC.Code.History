@@ -24,7 +24,7 @@ report 10911 "IRS Details"
     {
         dataitem("IRS Numbers"; "IRS Numbers")
         {
-            DataItemTableView = sorting("IRS Number") order(Ascending);
+            DataItemTableView = sorting("IRS Number") order(ascending);
             PrintOnlyIfDetail = true;
             RequestFilterFields = "IRS Number";
             column(CompanyName; COMPANYPROPERTY.DisplayName())
@@ -70,7 +70,7 @@ report 10911 "IRS Details"
             {
                 CalcFields = "Balance at Date";
                 DataItemLink = "IRS Number" = field("IRS Number");
-                DataItemTableView = sorting("IRS Number", "No.") ORDER(Ascending) where("Account Type" = const(Posting));
+                DataItemTableView = sorting("IRS Number", "No.") order(ascending) where("Account Type" = const(Posting));
                 RequestFilterFields = "Date Filter";
                 column(No_GLAcc; "No.")
                 {

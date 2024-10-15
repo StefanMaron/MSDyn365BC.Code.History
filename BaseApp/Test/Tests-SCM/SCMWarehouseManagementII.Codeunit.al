@@ -49,7 +49,6 @@ codeunit 137154 "SCM Warehouse Management II"
         ExpiredItemMessage: Label 'There is nothing to handle. \\Some items were not included in the pick due to their expiration date.';
         PickCreated: Label 'Number of Invt. Pick activities created';
         QuantityMustBeSame: Label 'Quantity must be same.';
-        ActionTypeOnWarehouseActivity: Label 'Action Type must be equal to ''%1''  in Warehouse Activity Line: Activity Type=%2, No.=%3, Line No.=%4. Current value is ''%5''.', Comment = '%1 = Action Type Value, %2 = Activity Type Value, %3 = No. Value, %4 = Line No. Value, %5 = Action Type Value';
         MustBeEmpty: Label '%1 must be empty.';
         TransferOrderDeleted: Label 'Transfer order %1 was successfully posted and is now deleted.', Comment = '%1 = Transfer Order No.';
         LotNumberRequiredForItem: Label 'You must assign a lot number for item %1', Comment = '%1 - Item No.';
@@ -57,14 +56,12 @@ codeunit 137154 "SCM Warehouse Management II"
         PickedConfirmMessage: Label 'The items have been picked.';
         UndoErrorMessage: Label 'You cannot undo line %1 because warehouse activity lines have already been created.';
         UndoErrorMessage_Shipment: Label 'You cannot undo line %1 because warehouse shipment lines have already been created.';
-        ReservedQuantityError: Label 'Reserved Quantity must be equal to ''0''  in Item Ledger Entry: Entry No.=%1. Current value is ''%2''.', Comment = '%1 = Entry No., %2 = Quantity';
         CancelReservationConfirmMessage: Label 'Do you want to cancel all reservations in the %1?';
         GetSourceDocErr: Label '%1 source documents were not included because the customer is blocked.';
         CheckShipmentLineErr: Label 'Expect shipment line from Source No. %1 exist: %2, contrary to actual result';
         CheckReceiptLineErr: Label 'Expect Receipt Linefrom Source No. %1 exist: %2, contrary to actual result';
         ShipmentLinesNotCreatedErr: Label 'There are no warehouse shipment lines created.';
         ReceiptLinesNotCreatedErr: Label 'There are no warehouse receipt lines created.';
-        LocationValidationError: Label 'Directed Put-away and Pick must be equal to ''No''';
         ItemTrackingMode: Option " ","Assign Lot No.","Assign Multiple Lot No.","Assign Serial No.","Assign Lot And Serial","Select Entries","Blank Quantity Base","Assign Lot No. & Expiration Date";
         DescriptionMustBeSame: Label 'Description must be same.';
 
@@ -1013,10 +1010,7 @@ codeunit 137154 "SCM Warehouse Management II"
             asserterror ChangeUnitOfMeasureOnPutAway(WarehouseActivityLine."No.");
 
             // Verify.
-            Assert.ExpectedError(
-              StrSubstNo(
-                ActionTypeOnWarehouseActivity, WarehouseActivityLine."Action Type"::Place, WarehouseActivityLine."Activity Type",
-                WarehouseActivityLine."No.", WarehouseActivityLine."Line No.", WarehouseActivityLine."Action Type"));
+            Assert.ExpectedTestFieldError(WarehouseActivityLine.FieldCaption("Action Type"), Format(WarehouseActivityLine."Action Type"::Place));
         end else begin
             // Exercise.
             ChangeUnitOfMeasureOnWarehouseActivityLine(
@@ -1078,10 +1072,7 @@ codeunit 137154 "SCM Warehouse Management II"
             asserterror ChangeUnitOfMeasureOnPick(WarehouseActivityLine."No.");
 
             // Verify.
-            Assert.ExpectedError(
-              StrSubstNo(
-                ActionTypeOnWarehouseActivity, WarehouseActivityLine."Action Type"::Take, WarehouseActivityLine."Activity Type",
-                WarehouseActivityLine."No.", WarehouseActivityLine."Line No.", WarehouseActivityLine."Action Type"));
+            Assert.ExpectedTestFieldError(WarehouseActivityLine.FieldCaption("Action Type"), Format(WarehouseActivityLine."Action Type"::Take));
         end else begin
             // Exercise.
             ChangeUnitOfMeasureOnWarehouseActivityLine(
@@ -1899,7 +1890,7 @@ codeunit 137154 "SCM Warehouse Management II"
         end;
         CreateAndReleasePurchaseOrder(
           PurchaseHeader, PurchaseLine, Item."No.", '', '', LocationWhite.Code, '', Quantity, WorkDate(), true);  // Tracking as True.
-        if LotTracking Then begin
+        if LotTracking then begin
             GetLotNoFromItemTrackingLinesPageHandler(LotNo);
             LibraryItemTracking.CreateLotNoInformation(LotNoInformation, Item."No.", '', LotNo);
         end;
@@ -2131,7 +2122,7 @@ codeunit 137154 "SCM Warehouse Management II"
         SalesLine.Find();
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
         ItemLedgerEntry.FindFirst();
-        Assert.ExpectedError(StrSubstNo(ReservedQuantityError, ItemLedgerEntry."Entry No.", ItemLedgerEntry.Quantity));
+        Assert.ExpectedTestFieldError(ItemLedgerEntry.FieldCaption("Reserved Quantity"), Format(0));
 
         if CancelReservation then begin
             // Exercise.
@@ -2708,7 +2699,7 @@ codeunit 137154 "SCM Warehouse Management II"
         asserterror PurchaseLine.Validate("Location Code", LocationWhite.Code);
 
         // [THEN] A validation error occurs.
-        Assert.ExpectedError(LocationValidationError);
+        Assert.ExpectedTestFieldError(LocationWhite.FieldCaption("Directed Put-away and Pick"), Format(false));
     end;
 
     [Test]
@@ -2738,7 +2729,7 @@ codeunit 137154 "SCM Warehouse Management II"
         asserterror PurchaseLine.Validate("Job No.", Job."No.");
 
         // [THEN] A validation error occurs.
-        Assert.ExpectedError(LocationValidationError);
+        Assert.ExpectedTestFieldError(LocationWhite.FieldCaption("Directed Put-away and Pick"), Format(false));
     end;
 
     [Test]
@@ -3873,17 +3864,15 @@ codeunit 137154 "SCM Warehouse Management II"
         Bin: Record Bin;
         WarehouseEmployee: Record "Warehouse Employee";
     begin
-        with Location do begin
-            CreateAndUpdateLocation(Location, true, true, true, true, true);
-            LibraryWarehouse.CreateNumberOfBins(Code, '', '', 3, false);
-            LibraryWarehouse.FindBin(Bin, Code, '', 1);
-            Validate("Receipt Bin Code", Bin.Code);
-            LibraryWarehouse.FindBin(Bin, Code, '', 2);
-            Validate("Shipment Bin Code", Bin.Code);
-            Modify(true);
+        CreateAndUpdateLocation(Location, true, true, true, true, true);
+        LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', 3, false);
+        LibraryWarehouse.FindBin(Bin, Location.Code, '', 1);
+        Location.Validate("Receipt Bin Code", Bin.Code);
+        LibraryWarehouse.FindBin(Bin, Location.Code, '', 2);
+        Location.Validate("Shipment Bin Code", Bin.Code);
+        Location.Modify(true);
 
-            LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Code, false);
-        end;
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
     end;
 
     local procedure CreateBaseCalendarWithBaseCalendarChange(var BaseCalendar: Record "Base Calendar")
@@ -4166,18 +4155,14 @@ codeunit 137154 "SCM Warehouse Management II"
 
     local procedure MockWarehouseActivityLineAndBin(var WarehouseActivityLine: Record "Warehouse Activity Line"; var Bin: Record Bin)
     begin
-        with Bin do begin
-            Code := LibraryUtility.GenerateGUID();
-            "Location Code" := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        Bin.Code := LibraryUtility.GenerateGUID();
+        Bin."Location Code" := LibraryUtility.GenerateGUID();
+        Bin.Insert();
 
-        with WarehouseActivityLine do begin
-            "No." := LibraryUtility.GenerateGUID();
-            "Bin Code" := Bin.Code;
-            "Location Code" := Bin."Location Code";
-            Insert();
-        end;
+        WarehouseActivityLine."No." := LibraryUtility.GenerateGUID();
+        WarehouseActivityLine."Bin Code" := Bin.Code;
+        WarehouseActivityLine."Location Code" := Bin."Location Code";
+        WarehouseActivityLine.Insert();
     end;
 
     local procedure DeletePick(SourceNo: Code[20])
@@ -4516,11 +4501,9 @@ codeunit 137154 "SCM Warehouse Management II"
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Lot No.", LotNo);
-            ModifyAll("Expiration Date", LibraryVariableStorage.DequeueDate(), true);
-        end;
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.SetRange("Lot No.", LotNo);
+        ReservationEntry.ModifyAll("Expiration Date", LibraryVariableStorage.DequeueDate(), true);
     end;
 
     local procedure UpdateInventoryUsingWarehouseJournal(Bin: Record Bin; Item: Record Item; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; Quantity: Decimal)
@@ -4559,11 +4542,9 @@ codeunit 137154 "SCM Warehouse Management II"
 
     local procedure UpdatePickAccordingToFEFOOnLocation(var Location: Record Location; NewPickAccordingToFEFO: Boolean) OldPickAccordingToFEFO: Boolean
     begin
-        with Location do begin
-            OldPickAccordingToFEFO := "Pick According to FEFO";
-            Validate("Pick According to FEFO", NewPickAccordingToFEFO);
-            Modify(true);
-        end;
+        OldPickAccordingToFEFO := Location."Pick According to FEFO";
+        Location.Validate("Pick According to FEFO", NewPickAccordingToFEFO);
+        Location.Modify(true);
     end;
 
     local procedure UpdatePurchaseUnitOfMeasureOnItem(var Item: Record Item; PurchaseUnitOfMeasure: Code[10])

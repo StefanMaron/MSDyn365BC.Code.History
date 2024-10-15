@@ -531,10 +531,14 @@ report 512 "IC Transactions"
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
         EndingDate: Date;
         StartingDate: Date;
+#pragma warning disable AA0074
         Text001: Label 'Total';
+#pragma warning restore AA0074
         BalanceAmount: Decimal;
+#pragma warning disable AA0074
         Text003: Label 'Ending date must not be before starting date.';
         Text004: Label 'Period';
+#pragma warning restore AA0074
         ICPartnerFilter: Text;
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Intercompany_TransactionsCaptionLbl: Label 'Intercompany Transactions';

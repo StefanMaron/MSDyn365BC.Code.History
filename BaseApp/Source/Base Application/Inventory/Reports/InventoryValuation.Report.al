@@ -200,6 +200,8 @@ report 1001 "Inventory Valuation"
 
     requestpage
     {
+        AboutTitle = 'About Inventory Valuation';
+        AboutText = 'Reconcile your inventory subledger to the inventory account(s) in the general ledger at the end of each period. Include Expected Costs and Apply Location Filters to ensure that the Ending Date Value, Cost Posted to G/L and the Balance in the related Inventory or Inventory (Interim) Account are all in balance.';
         SaveValues = true;
 
         layout
@@ -262,7 +264,11 @@ report 1001 "Inventory Valuation"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'As of %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         BoM_TextLbl: Label 'Base UoM';
         Inventory_ValuationCaptionLbl: Label 'Inventory Valuation';
         CurrReport_PAGENOCaptionLbl: Label 'Page';

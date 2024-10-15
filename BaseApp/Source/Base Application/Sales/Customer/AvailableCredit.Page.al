@@ -60,21 +60,6 @@ page 7177 "Available Credit"
                     Caption = 'Outstanding Invoices (LCY)';
                     ToolTip = 'Specifies your expected sales income from the customer in LCY based on unpaid sales invoices.';
                 }
-                field("Outstanding Serv. Orders (LCY)"; Rec."Outstanding Serv. Orders (LCY)")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies your expected service income from the customer in LCY based on ongoing service orders.';
-                }
-                field("Serv Shipped Not Invoiced(LCY)"; Rec."Serv Shipped Not Invoiced(LCY)")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies your expected service income from the customer in LCY based on service orders that are shipped but not invoiced.';
-                }
-                field("Outstanding Serv.Invoices(LCY)"; Rec."Outstanding Serv.Invoices(LCY)")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies your expected service income from the customer in LCY based on unpaid service invoices.';
-                }
                 field(GetTotalAmountLCYUI; Rec.GetTotalAmountLCYUI())
                 {
                     ApplicationArea = Suite;
@@ -145,7 +130,11 @@ page 7177 "Available Credit"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Overdue Amounts (LCY) as of %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         StyleTxt: Text;
 }
 

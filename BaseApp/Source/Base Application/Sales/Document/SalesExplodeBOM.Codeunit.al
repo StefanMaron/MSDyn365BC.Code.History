@@ -117,10 +117,14 @@ codeunit 63 "Sales-Explode BOM"
         NoOfBOMComp: Integer;
         Selection: Integer;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The BOM cannot be exploded on the sales lines because it is associated with purchase order %1.';
         Text001: Label 'Item %1 is not a BOM.';
+#pragma warning restore AA0470
         Text003: Label 'There is not enough space to explode the BOM.';
         Text004: Label '&Copy dimensions from BOM,&Retrieve dimensions from components';
+#pragma warning restore AA0074
 
     procedure CallExplodeBOMCompLines(SalesLine: Record "Sales Line")
     begin

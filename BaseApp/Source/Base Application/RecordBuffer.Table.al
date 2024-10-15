@@ -187,6 +187,90 @@ table 6529 "Record Buffer"
         OnAfterSetTrackingFilterFromItemTrackingSetup(Rec, ItemTrackingSetup);
     end;
 
+    procedure InsertRecordBuffer(RecRef: RecordRef)
+    var
+        KeyFldRef: FieldRef;
+        KeyRef1: KeyRef;
+        i: Integer;
+    begin
+        SetRange("Record Identifier", RecRef.RecordId);
+        if not Find('-') then begin
+            Init();
+            "Entry No." := "Entry No." + 10;
+            "Table No." := RecRef.Number;
+            "Record Identifier" := RecRef.RecordId;
+            "Search Record ID" :=
+                CopyStr(Format("Record Identifier"), 1, MaxStrLen("Search Record ID"));
+
+            KeyRef1 := RecRef.KeyIndex(1);
+            for i := 1 to KeyRef1.FieldCount do begin
+                KeyFldRef := KeyRef1.FieldIndex(i);
+                if i = 1 then
+                    "Primary Key" :=
+                        CopyStr(
+                            StrSubstNo('%1=%2', KeyFldRef.Caption, FormatValue(KeyFldRef, RecRef.Number)),
+                            1, MaxStrLen("Primary Key"))
+                else
+                    if MaxStrLen("Primary Key") >
+                       StrLen("Primary Key") +
+                       StrLen(StrSubstNo(', %1=%2', KeyFldRef.Caption, FormatValue(KeyFldRef, RecRef.Number)))
+                    then
+                        "Primary Key" :=
+                            CopyStr(
+                                "Primary Key" +
+                                StrSubstNo(', %1=%2', KeyFldRef.Caption, FormatValue(KeyFldRef, RecRef.Number)),
+                                1, MaxStrLen("Primary Key"));
+                case i of
+                    1:
+                        begin
+                            "Primary Key Field 1 No." := KeyFldRef.Number;
+                            "Primary Key Field 1 Value" :=
+                                CopyStr(
+                                    FormatValue(KeyFldRef, RecRef.Number), 1, MaxStrLen("Primary Key Field 1 Value"));
+                        end;
+                    2:
+                        begin
+                            "Primary Key Field 2 No." := KeyFldRef.Number;
+                            "Primary Key Field 2 Value" :=
+                                CopyStr(
+                                    FormatValue(KeyFldRef, RecRef.Number), 1, MaxStrLen("Primary Key Field 2 Value"));
+                        end;
+                    3:
+                        begin
+                            "Primary Key Field 3 No." := KeyFldRef.Number;
+                            "Primary Key Field 3 Value" :=
+                                CopyStr(
+                                    FormatValue(KeyFldRef, RecRef.Number), 1, MaxStrLen("Primary Key Field 3 Value"));
+                        end;
+                end;
+            end;
+            Insert();
+        end;
+    end;
+
+    procedure FormatValue(var FldRef: FieldRef; TableNumber: Integer): Text
+    var
+        "Field": Record System.Reflection.Field;
+        OptionNo: Integer;
+        OptionStr: Text;
+        i: Integer;
+    begin
+        Field.Get(TableNumber, FldRef.Number);
+        if Field.Type = Field.Type::Option then begin
+            OptionNo := FldRef.Value();
+            OptionStr := Format(FldRef.OptionCaption);
+            for i := 1 to OptionNo do
+                OptionStr := CopyStr(OptionStr, StrPos(OptionStr, ',') + 1);
+            if StrPos(OptionStr, ',') > 0 then
+                if StrPos(OptionStr, ',') = 1 then
+                    OptionStr := ''
+                else
+                    OptionStr := CopyStr(OptionStr, 1, StrPos(OptionStr, ',') - 1);
+            exit(OptionStr);
+        end;
+        exit(Format(FldRef.Value));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromItemTrackingSetup(var RecordBuffer: Record "Record Buffer"; ItemTrackingSetup: Record "Item Tracking Setup")
     begin

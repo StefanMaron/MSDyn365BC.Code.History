@@ -18,10 +18,12 @@ codeunit 5645 "FA Reclass. Jnl.-B.Transfer"
         FAReclassTransferBatch: Codeunit "FA Reclass. Transfer Batch";
         JournalWithErrors: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Do you want to reclassify the journals?';
         Text001: Label 'The journals were successfully reclassified.';
         Text002: Label 'It was not possible to reclassify all of the journals. ';
         Text003: Label 'The journals that were not successfully reclassified are now marked.';
+#pragma warning restore AA0074
 
     local procedure "Code"()
     begin

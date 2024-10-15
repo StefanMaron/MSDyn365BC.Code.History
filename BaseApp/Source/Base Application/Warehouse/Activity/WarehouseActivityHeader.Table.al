@@ -346,8 +346,6 @@ table 5766 "Warehouse Activity Header"
                         end;
                     "Source Document"::"Job Usage":
                         "Source Type" := Database::Job;
-                    "Source Document"::"Service Order":
-                        Error(NotSupportedSourceDocumentTypeErr, "Source Document"::"Service Order");
                 end;
 
                 if "Source Document" = "Source Document"::" " then begin
@@ -401,6 +399,10 @@ table 5766 "Warehouse Activity Header"
         field(7315; "External Document No.2"; Code[35])
         {
             Caption = 'External Document No.2';
+        }
+        field(7316; "Do Not Fill Qty. to Handle"; Boolean)
+        {
+            Caption = 'Do Not Fill Qty. to Handle';
         }
     }
 
@@ -477,10 +479,17 @@ table 5766 "Warehouse Activity Header"
         WhseSetup: Record "Warehouse Setup";
         InvtSetup: Record "Inventory Setup";
         NoSeries: Codeunit "No. Series";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot rename a %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         SetUpWarehouseEmployeeInLocationErr: Label 'You must first set up user %1 as a warehouse employee. %2 %3', Comment = '%1 - user ID, %2 - caption, %3 - location code.';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'You cannot change %1 because one or more lines exist.';
-        NotSupportedSourceDocumentTypeErr: Label 'Source Document type %1 is not supported.', Comment = '%1 - source document type, like Sales Order.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure AssistEdit(OldWhseActivHeader: Record "Warehouse Activity Header"): Boolean
     begin

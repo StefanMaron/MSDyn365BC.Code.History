@@ -1809,21 +1809,19 @@ codeunit 136149 "Chart Configuration Tool"
         TempGenericChartQueryColumn: Record "Generic Chart Query Column" temporary;
     begin
         Clear(TempGenericChartQueryColumn);
-        with TempGenericChartQueryColumn do begin
-            Insert();
-            SetAggregationType('none');
-            Assert.IsTrue("Aggregation Type" = "Aggregation Type"::None, 'Setting aggregation type for query column to None');
-            SetAggregationType('count');
-            Assert.IsTrue("Aggregation Type" = "Aggregation Type"::Count, 'Setting aggregation type for query column to Count');
-            SetAggregationType('sum');
-            Assert.IsTrue("Aggregation Type" = "Aggregation Type"::Sum, 'Setting aggregation type for query column to Sum');
-            SetAggregationType('min');
-            Assert.IsTrue("Aggregation Type" = "Aggregation Type"::Min, 'Setting aggregation type for query column to Min');
-            SetAggregationType('max');
-            Assert.IsTrue("Aggregation Type" = "Aggregation Type"::Max, 'Setting aggregation type for query column to Max');
-            SetAggregationType('average');
-            Assert.IsTrue("Aggregation Type" = "Aggregation Type"::Avg, 'Setting aggregation type for query column to Average');
-        end;
+        TempGenericChartQueryColumn.Insert();
+        TempGenericChartQueryColumn.SetAggregationType('none');
+        Assert.IsTrue(TempGenericChartQueryColumn."Aggregation Type" = TempGenericChartQueryColumn."Aggregation Type"::None, 'Setting aggregation type for query column to None');
+        TempGenericChartQueryColumn.SetAggregationType('count');
+        Assert.IsTrue(TempGenericChartQueryColumn."Aggregation Type" = TempGenericChartQueryColumn."Aggregation Type"::Count, 'Setting aggregation type for query column to Count');
+        TempGenericChartQueryColumn.SetAggregationType('sum');
+        Assert.IsTrue(TempGenericChartQueryColumn."Aggregation Type" = TempGenericChartQueryColumn."Aggregation Type"::Sum, 'Setting aggregation type for query column to Sum');
+        TempGenericChartQueryColumn.SetAggregationType('min');
+        Assert.IsTrue(TempGenericChartQueryColumn."Aggregation Type" = TempGenericChartQueryColumn."Aggregation Type"::Min, 'Setting aggregation type for query column to Min');
+        TempGenericChartQueryColumn.SetAggregationType('max');
+        Assert.IsTrue(TempGenericChartQueryColumn."Aggregation Type" = TempGenericChartQueryColumn."Aggregation Type"::Max, 'Setting aggregation type for query column to Max');
+        TempGenericChartQueryColumn.SetAggregationType('average');
+        Assert.IsTrue(TempGenericChartQueryColumn."Aggregation Type" = TempGenericChartQueryColumn."Aggregation Type"::Avg, 'Setting aggregation type for query column to Average');
     end;
 
     [Test]
@@ -1843,12 +1841,10 @@ codeunit 136149 "Chart Configuration Tool"
         TempGenericChartYAxis: Record "Generic Chart Y-Axis" temporary;
     begin
         //TAB9182
-        with TempGenericChartYAxis do begin
-            Init();
-            "Y-Axis Measure Field ID" := 1;
-            Insert(true);
-            Delete();
-        end;
+        TempGenericChartYAxis.Init();
+        TempGenericChartYAxis."Y-Axis Measure Field ID" := 1;
+        TempGenericChartYAxis.Insert(true);
+        TempGenericChartYAxis.Delete();
     end;
 
     [Test]
@@ -1858,20 +1854,18 @@ codeunit 136149 "Chart Configuration Tool"
         GenericChartQueryColumn: Record "Generic Chart Query Column";
     begin
         //TAB9183
-        with GenericChartQueryColumn do begin
-            SetAggregationType(Text000);
-            TestField("Aggregation Type", "Aggregation Type"::None);
-            SetAggregationType(Text001);
-            TestField("Aggregation Type", "Aggregation Type"::Count);
-            SetAggregationType(Text002);
-            TestField("Aggregation Type", "Aggregation Type"::Sum);
-            SetAggregationType(Text003);
-            TestField("Aggregation Type", "Aggregation Type"::Min);
-            SetAggregationType(Text004);
-            TestField("Aggregation Type", "Aggregation Type"::Max);
-            SetAggregationType(Text005);
-            TestField("Aggregation Type", "Aggregation Type"::Avg);
-        end;
+        GenericChartQueryColumn.SetAggregationType(Text000);
+        GenericChartQueryColumn.TestField("Aggregation Type", GenericChartQueryColumn."Aggregation Type"::None);
+        GenericChartQueryColumn.SetAggregationType(Text001);
+        GenericChartQueryColumn.TestField("Aggregation Type", GenericChartQueryColumn."Aggregation Type"::Count);
+        GenericChartQueryColumn.SetAggregationType(Text002);
+        GenericChartQueryColumn.TestField("Aggregation Type", GenericChartQueryColumn."Aggregation Type"::Sum);
+        GenericChartQueryColumn.SetAggregationType(Text003);
+        GenericChartQueryColumn.TestField("Aggregation Type", GenericChartQueryColumn."Aggregation Type"::Min);
+        GenericChartQueryColumn.SetAggregationType(Text004);
+        GenericChartQueryColumn.TestField("Aggregation Type", GenericChartQueryColumn."Aggregation Type"::Max);
+        GenericChartQueryColumn.SetAggregationType(Text005);
+        GenericChartQueryColumn.TestField("Aggregation Type", GenericChartQueryColumn."Aggregation Type"::Avg);
     end;
 
     [Test]
@@ -1881,20 +1875,18 @@ codeunit 136149 "Chart Configuration Tool"
         GenericChartQueryColumn: Record "Generic Chart Query Column";
         "Field": Record "Field";
     begin
-        with GenericChartQueryColumn do begin
-            SetAndVerifyColumnDataType(Field.Type::Date, "Column Data Type"::Date);
-            SetAndVerifyColumnDataType(Field.Type::Time, "Column Data Type"::Time);
-            SetAndVerifyColumnDataType(Field.Type::DateFormula, "Column Data Type"::DateFormula);
-            SetAndVerifyColumnDataType(Field.Type::Decimal, "Column Data Type"::Decimal);
-            SetAndVerifyColumnDataType(Field.Type::Text, "Column Data Type"::Text);
-            SetAndVerifyColumnDataType(Field.Type::Code, "Column Data Type"::Code);
-            SetAndVerifyColumnDataType(Field.Type::Binary, "Column Data Type"::Binary);
-            SetAndVerifyColumnDataType(Field.Type::Boolean, "Column Data Type"::Boolean);
-            SetAndVerifyColumnDataType(Field.Type::Integer, "Column Data Type"::Integer);
-            SetAndVerifyColumnDataType(Field.Type::Option, "Column Data Type"::Option);
-            SetAndVerifyColumnDataType(Field.Type::BigInteger, "Column Data Type"::BigInteger);
-            SetAndVerifyColumnDataType(Field.Type::DateTime, "Column Data Type"::DateTime);
-        end;
+        SetAndVerifyColumnDataType(Field.Type::Date, GenericChartQueryColumn."Column Data Type"::Date);
+        SetAndVerifyColumnDataType(Field.Type::Time, GenericChartQueryColumn."Column Data Type"::Time);
+        SetAndVerifyColumnDataType(Field.Type::DateFormula, GenericChartQueryColumn."Column Data Type"::DateFormula);
+        SetAndVerifyColumnDataType(Field.Type::Decimal, GenericChartQueryColumn."Column Data Type"::Decimal);
+        SetAndVerifyColumnDataType(Field.Type::Text, GenericChartQueryColumn."Column Data Type"::Text);
+        SetAndVerifyColumnDataType(Field.Type::Code, GenericChartQueryColumn."Column Data Type"::Code);
+        SetAndVerifyColumnDataType(Field.Type::Binary, GenericChartQueryColumn."Column Data Type"::Binary);
+        SetAndVerifyColumnDataType(Field.Type::Boolean, GenericChartQueryColumn."Column Data Type"::Boolean);
+        SetAndVerifyColumnDataType(Field.Type::Integer, GenericChartQueryColumn."Column Data Type"::Integer);
+        SetAndVerifyColumnDataType(Field.Type::Option, GenericChartQueryColumn."Column Data Type"::Option);
+        SetAndVerifyColumnDataType(Field.Type::BigInteger, GenericChartQueryColumn."Column Data Type"::BigInteger);
+        SetAndVerifyColumnDataType(Field.Type::DateTime, GenericChartQueryColumn."Column Data Type"::DateTime);
     end;
 
     [Test]
@@ -2556,39 +2548,36 @@ codeunit 136149 "Chart Configuration Tool"
     begin
         case SourceType of
             SourceType::Table:
-                with Field do
-                    if FieldColNo > 0 then begin
-                        FieldColName := '';
-                        if Get(SourceNo, FieldColNo) then
-                            FieldColName := FieldName;
-                    end else begin
-                        SetRange(TableNo, SourceNo);
-                        if FindSet() then
-                            repeat
-                                if UpperCase(FieldName) = UpperCase(FieldColName) then begin
-                                    Found := true;
-                                    FieldColNo := "No.";
-                                end;
-                            until (Next() = 0) or Found;
-                    end;
+                if FieldColNo > 0 then begin
+                    FieldColName := '';
+                    if Field.Get(SourceNo, FieldColNo) then
+                        FieldColName := Field.FieldName;
+                end else begin
+                    Field.SetRange(TableNo, SourceNo);
+                    if Field.FindSet() then
+                        repeat
+                            if UpperCase(Field.FieldName) = UpperCase(FieldColName) then begin
+                                Found := true;
+                                FieldColNo := Field."No.";
+                            end;
+                        until (Field.Next() = 0) or Found;
+                end;
             SourceType::Query:
                 begin
                     GenericChartMgt.GetQueryColumnList(TempGenericChartQueryColumn, SourceNo, 0, false);
-                    with TempGenericChartQueryColumn do
-                        if FieldColNo > 0 then begin
-                            FieldColName := '';
-                            SetRange("Query Column No.", FieldColNo);
-                            if FindFirst() then
-                                FieldColName := "Column Name";
-                        end else begin
-                            if FindSet() then
-                                repeat
-                                    if UpperCase("Column Name") = UpperCase(FieldColName) then begin
-                                        Found := true;
-                                        FieldColNo := "Query Column No.";
-                                    end;
-                                until (Next() = 0) or Found;
-                        end;
+                    if FieldColNo > 0 then begin
+                        FieldColName := '';
+                        TempGenericChartQueryColumn.SetRange("Query Column No.", FieldColNo);
+                        if TempGenericChartQueryColumn.FindFirst() then
+                            FieldColName := TempGenericChartQueryColumn."Column Name";
+                    end else
+                        if TempGenericChartQueryColumn.FindSet() then
+                            repeat
+                                if UpperCase(TempGenericChartQueryColumn."Column Name") = UpperCase(FieldColName) then begin
+                                    Found := true;
+                                    FieldColNo := TempGenericChartQueryColumn."Query Column No.";
+                                end;
+                            until (TempGenericChartQueryColumn.Next() = 0) or Found;
                 end;
         end;
     end;
@@ -2762,15 +2751,14 @@ codeunit 136149 "Chart Configuration Tool"
     var
         DummyField: Record "Field";
     begin
-        with DummyField do
-            case Category of
-                1:
-                    exit(
-                      StrSubstNo(
-                        '%1|%2|%3|%4|%5|%6|%7', Type::Date, Type::Time, Type::DateFormula, Type::Text, Type::Code, Type::Option, Type::DateTime));
-                2:
-                    exit(StrSubstNo('%1|%2|%3|%4|%5', Type::Decimal, Type::Binary, Type::Integer, Type::BigInteger, Type::Duration));
-            end;
+        case Category of
+            1:
+                exit(
+                  StrSubstNo(
+                    '%1|%2|%3|%4|%5|%6|%7', DummyField.Type::Date, DummyField.Type::Time, DummyField.Type::DateFormula, DummyField.Type::Text, DummyField.Type::Code, DummyField.Type::Option, DummyField.Type::DateTime));
+            2:
+                exit(StrSubstNo('%1|%2|%3|%4|%5', DummyField.Type::Decimal, DummyField.Type::Binary, DummyField.Type::Integer, DummyField.Type::BigInteger, DummyField.Type::Duration));
+        end;
     end;
 
     local procedure "Min"(A: Integer; B: Integer): Integer

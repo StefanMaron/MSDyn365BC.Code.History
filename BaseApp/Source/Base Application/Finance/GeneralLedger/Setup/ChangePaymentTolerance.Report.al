@@ -224,16 +224,22 @@ report 34 "Change Payment Tolerance"
         CurrencyCode: Code[10];
         PaymentTolerancePct: Decimal;
         MaxPmtToleranceAmount: Decimal;
+#pragma warning disable AA0074
         Text001: Label 'Do you want to change all open entries for every customer and vendor that are not blocked?';
+#pragma warning restore AA0074
         AmountRoundingPrecision: Decimal;
         DecimalPlaces: Integer;
         AllCurrencies: Boolean;
         FormatString: Text[80];
         TextFormat: Text[250];
         TextInput: Text[250];
+#pragma warning disable AA0074
         Text002: Label '<Precision,', Locked = true;
         Text003: Label '><Standard Format,0>', Locked = true;
+#pragma warning disable AA0470
         Text004: Label 'The field can have a maximum of %1 decimal places.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CurrencyCodeEnable: Boolean;
 
     local procedure CheckApplnRounding(AmountDecimalPlaces: Text[5]): Integer

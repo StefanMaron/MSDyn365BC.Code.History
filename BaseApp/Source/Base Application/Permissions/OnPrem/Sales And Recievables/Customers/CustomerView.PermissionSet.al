@@ -10,7 +10,6 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Location;
 using Microsoft.Sales.FinanceCharge;
-using Microsoft.Service.Document;
 using Microsoft.Foundation.Shipping;
 
 permissionset 4970 "Customer - View"
@@ -34,7 +33,6 @@ permissionset 4970 "Customer - View"
                   tabledata "Profile Questionnaire Line" = R,
                   tabledata "Reminder/Fin. Charge Entry" = R,
                   tabledata "Responsibility Center" = R,
-                  tabledata "Service Line" = r,
                   tabledata "Ship-to Address" = R,
                   tabledata "Shipping Agent" = R,
                   tabledata "Shipping Agent Services" = R;

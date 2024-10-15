@@ -8,7 +8,6 @@ using Microsoft.Foundation.Enums;
 using Microsoft.Inventory.Reports;
 using Microsoft.Purchases.History;
 using Microsoft.Sales.History;
-using Microsoft.Service.History;
 
 table 780 "Certificate of Supply"
 {
@@ -25,8 +24,6 @@ table 780 "Certificate of Supply"
         {
             Caption = 'Document No.';
             TableRelation = if ("Document Type" = filter("Sales Shipment")) "Sales Shipment Header"."No."
-            else
-            if ("Document Type" = filter("Service Shipment")) "Service Shipment Header"."No."
             else
             if ("Document Type" = filter("Return Shipment")) "Return Shipment Header"."No.";
         }
@@ -134,11 +131,19 @@ table 780 "Certificate of Supply"
         CertRecDateBeforeShipmPostDateErr: Label 'The Receipt Date of the certificate cannot be earlier than the Shipment/Posting Date.';
         NoCannotBeEnteredErr: Label 'The No. field cannot be filled in when the status of the Certificate of Supply is set to Not Applicable.';
         NoCannotBeEmptyErr: Label 'The No. field cannot be empty when the status of the Certificate of Supply is set to Required, Received, or Not Received.';
+#pragma warning disable AA0470
         VehicleRegNoCannotBeChangedErr: Label 'The %1 field cannot be changed when the status of the Certificate of Supply is set to %2.';
+#pragma warning restore AA0470
 
     procedure Print()
     begin
-        REPORT.RunModal(REPORT::"Certificate of Supply", true, false, Rec);
+        case "Document Type" of
+            "Document Type"::"Sales Shipment",
+            "Document Type"::"Return Shipment":
+                REPORT.RunModal(REPORT::"Certificate of Supply", true, false, Rec);
+            else
+                OnPrint(Rec);
+        end;
     end;
 
     procedure SetPrintedTrue()
@@ -202,26 +207,17 @@ table 780 "Certificate of Supply"
         end
     end;
 
-    procedure InitFromService(var ServiceShipmentHeader: Record "Service Shipment Header")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure InitCertificateOfSupply in table Service Shipment Header', '25.0')]
+    procedure InitFromService(var ServiceShipmentHeader: Record Microsoft.Service.History."Service Shipment Header")
     begin
-        if not Get("Document Type"::"Service Shipment", ServiceShipmentHeader."No.") then begin
-            Init();
-            "Document Type" := "Document Type"::"Service Shipment";
-            "Document No." := ServiceShipmentHeader."No.";
-            "Customer/Vendor Name" := ServiceShipmentHeader."Ship-to Name";
-            "Shipment Method Code" := '';
-            "Shipment/Posting Date" := ServiceShipmentHeader."Posting Date";
-            "Ship-to Country/Region Code" := ServiceShipmentHeader."Ship-to Country/Region Code";
-            "Customer/Vendor No." := ServiceShipmentHeader."Bill-to Customer No.";
-            OnAfterInitFromService(Rec, ServiceShipmentHeader);
-            Insert(true);
-        end
+        ServiceShipmentHeader.InitCertificateOfSupply(Rec);
     end;
+#endif
 
     procedure InitRecord(DocumentType: Option; DocumentNo: Code[20])
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
-        ServiceShipmentHeader: Record "Service Shipment Header";
         ReturnShipmentHeader: Record "Return Shipment Header";
         IsHandled: Boolean;
     begin
@@ -235,11 +231,6 @@ table 780 "Certificate of Supply"
                 begin
                     SalesShipmentHeader.Get(DocumentNo);
                     InitFromSales(SalesShipmentHeader);
-                end;
-            "Document Type"::"Service Shipment":
-                begin
-                    ServiceShipmentHeader.Get(DocumentNo);
-                    InitFromService(ServiceShipmentHeader);
                 end;
             "Document Type"::"Return Shipment":
                 begin
@@ -259,13 +250,26 @@ table 780 "Certificate of Supply"
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnAfterInitFromService(var CertificateOfSupply: Record "Certificate of Supply"; ServiceShipmentHeader: Record Microsoft.Service.History."Service Shipment Header")
+    begin
+        OnAfterInitFromService(CertificateOfSupply, ServiceShipmentHeader);
+    end;
+
+    [Obsolete('Replaced by event OnAfterInitCertificateOfSupply in table Service Shipment Header', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitFromService(var CertificateOfSupply: Record "Certificate of Supply"; ServiceShipmentHeader: Record "Service Shipment Header")
+    local procedure OnAfterInitFromService(var CertificateOfSupply: Record "Certificate of Supply"; ServiceShipmentHeader: Record Microsoft.Service.History."Service Shipment Header")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitRecord(var CertificateOfSupply: Record "Certificate of Supply"; DocumentType: Option; DocumentNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitRecord(var CertificateOfSupply: Record "Certificate of Supply"; DocumentType: Option; DocumentNo: Code[20]; var IsHandled: Boolean)
+    local procedure OnPrint(var CertificateOfSupply: Record "Certificate of Supply")
     begin
     end;
 }

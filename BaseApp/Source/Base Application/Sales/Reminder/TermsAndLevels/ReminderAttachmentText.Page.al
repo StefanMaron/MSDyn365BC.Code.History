@@ -11,6 +11,7 @@ page 833 "Reminder Attachment Text"
     SourceTable = "Reminder Attachment Text";
     Editable = true;
     UsageCategory = None;
+    RefreshOnActivate = true;
 
     layout
     {
@@ -32,20 +33,55 @@ page 833 "Reminder Attachment Text"
                     Caption = 'Inline Fee Description';
                     ToolTip = 'Specifies the description line that will appear in the attachment along side the fee.';
                 }
-                field("Beginning Line"; Rec."Beginning Line")
+                field("Beginning Line"; Rec."Beginning Lines")
                 {
                     ApplicationArea = All;
-                    Importance = Additional;
                     Caption = 'Beginning Line';
-                    ToolTip = 'Specifies the first line of the attachment.';
+                    ToolTip = 'Shows if there are beginning lines for the current language.';
+                    Editable = false;
+                    Enabled = false;
                 }
-                field("Ending Line"; Rec."Ending Line")
+                field("Ending Line"; Rec."Ending Lines")
                 {
                     ApplicationArea = All;
-                    Importance = Additional;
                     Caption = 'Ending Line';
-                    ToolTip = 'Specifies the last line of the attachment.';
+                    ToolTip = 'Shows if there are ending lines for the current language.';
+                    Editable = false;
+                    Enabled = false;
                 }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action("Edit Text Lines")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Edit Text Lines';
+                ToolTip = 'Edit the attachment text lines that would be generated in the reminder.';
+                Image = EditLines;
+
+                trigger OnAction()
+                var
+                    ReminderAttachmentTLTerm: Page "Reminder Attachment T.L. Term";
+                    ReminderAttachmentTLLevel: Page "Reminder Attachment T.L. Level";
+                begin
+                    case SourceRecord of
+                        SourceRecord::"Reminder Term":
+                            begin
+                                ReminderAttachmentTLTerm.SetRecord(Rec);
+                                ReminderAttachmentTLTerm.Run();
+                            end;
+                        SourceRecord::"Reminder Level":
+                            begin
+                                ReminderAttachmentTLLevel.SetRecord(Rec);
+                                ReminderAttachmentTLLevel.Run();
+                            end;
+                    end;
+                end;
             }
         }
     }
@@ -61,10 +97,18 @@ page 833 "Reminder Attachment Text"
 
     var
         LanguageCode: Code[10];
+        SourceRecord: Option "Reminder Term","Reminder Level";
         NoAttachmentTextFoundErr: Label 'No attachment text found for the selected language %1.', Comment = '%1 = Language code';
 
-    internal procedure SetSourceData(SelectedLanguageCode: Code[10])
+    internal procedure SetSourceDataAsTerm(SelectedLanguageCode: Code[10])
     begin
         LanguageCode := SelectedLanguageCode;
+        SourceRecord := SourceRecord::"Reminder Term";
+    end;
+
+    internal procedure SetSourceDataAsLevel(SelectedLanguageCode: Code[10])
+    begin
+        LanguageCode := SelectedLanguageCode;
+        SourceRecord := SourceRecord::"Reminder Level";
     end;
 }

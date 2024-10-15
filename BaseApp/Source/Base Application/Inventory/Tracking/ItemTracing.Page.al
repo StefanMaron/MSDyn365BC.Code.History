@@ -157,7 +157,7 @@ page 6520 "Item Tracing"
                     ApplicationArea = ItemTracking;
                     Caption = 'Trace Method';
                     OptionCaption = 'Origin -> Usage,Usage -> Origin';
-                    ToolTip = 'Specifies posted serial/lot numbers that can be traced either forward or backward in a supply chain.';
+                    ToolTip = 'Specifies posted serial, lot or package numbers that can be traced either forward or backward in a supply chain.';
                 }
             }
             label(Control35)
@@ -491,7 +491,7 @@ page 6520 "Item Tracing"
                 ApplicationArea = ItemTracking;
                 Caption = '&Trace';
                 Image = Trace;
-                ToolTip = 'Trace where a lot or serial number assigned to the item was used, for example, to find which lot a defective component came from or to find all the customers that have received items containing the defective component.';
+                ToolTip = 'Trace where a serial, lot or package number assigned to the item was used, for example, to find which lot a defective component came from or to find all the customers that have received items containing the defective component.';
 
                 trigger OnAction()
                 begin
@@ -565,14 +565,20 @@ page 6520 "Item Tracing"
         TempTrackEntry: Record "Item Tracing Buffer" temporary;
         ItemTracingMgt: Codeunit "Item Tracing Mgt.";
         ActualExpansionStatus: Option "Has Children",Expanded,"No Children";
+#pragma warning disable AA0074
         Text001: Label 'Item No. Filter is required.';
+#pragma warning restore AA0074
         TraceText: Text;
+#pragma warning disable AA0470
         TraceTextTxt: Label 'Serial No.: %1, Lot No.: %2, Package No. %3, Item: %4, Variant: %5, Trace Method: %6, Show Components: %7', Comment = '%1 - Serial No.';
+#pragma warning restore AA0470
         PreviousExists: Boolean;
         NextExists: Boolean;
+#pragma warning disable AA0074
         Text003: Label 'Filters are too large to show.';
         Text004: Label 'Origin->Usage,Usage->Origin';
         Text005: Label 'No,Item-tracked Only,All';
+#pragma warning restore AA0074
         DescriptionIndent: Integer;
         FunctionsEnable: Boolean;
         PrintEnable: Boolean;

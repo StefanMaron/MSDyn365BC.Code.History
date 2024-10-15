@@ -192,9 +192,13 @@ table 8616 "Config. Package Field"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 is part of the primary key and must be included.';
         Text001: Label '%1 value ''%2'' does not exist.';
+#pragma warning restore AA0470
         Text002: Label 'Updating validation errors';
+#pragma warning restore AA0074
         MustBeIntegersErr: Label 'must be Integer or BigInteger';
 
     local procedure UpdateFieldErrors()

@@ -55,7 +55,7 @@ codeunit 14611 "Enable IS Core App"
             SourceField.SetRange(TableNo, SourceTableId);
             SourceField.SetRange(Class, SourceField.Class::Normal);
             SourceField.SetFilter(ObsoleteState, '<>%1', SourceField.ObsoleteState::Removed);
-            SourceField.SetFilter(SourceField."No.", '<%1', 14620); // do not copy table extenison
+            SourceField.SetFilter(SourceField."No.", '<%1', 14620); // do not copy table extenison. 14620 is max field number for this app.
             SourceField.SetRange(Enabled, true);
             if SourceField.Findset() then
                 repeat

@@ -172,12 +172,10 @@ codeunit 134286 "Non. Ded. VAT Currency"
     var
         Vendor: Record Vendor;
     begin
-        with Vendor do begin
-            Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATBusPostingGroup));
-            Validate("Currency Code", CurrencyCode);
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATBusPostingGroup));
+        Vendor.Validate("Currency Code", CurrencyCode);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreateNonDeductibleNormalVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")

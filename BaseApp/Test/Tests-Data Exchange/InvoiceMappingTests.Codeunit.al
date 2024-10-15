@@ -932,45 +932,39 @@ codeunit 139158 "Invoice Mapping Tests"
     var
         IntermediateDataImport: Record "Intermediate Data Import";
     begin
-        with IntermediateDataImport do begin
-            Init();
-            "Data Exch. No." := DataExch."Entry No.";
-            "Table ID" := TableID;
-            "Record No." := RecordNo;
-            "Field ID" := FieldID;
-            Value := Val;
-            "Validate Only" := IsOptional;
-            "Parent Record No." := ParentRecordNo;
-            Insert();
-        end;
+        IntermediateDataImport.Init();
+        IntermediateDataImport."Data Exch. No." := DataExch."Entry No.";
+        IntermediateDataImport."Table ID" := TableID;
+        IntermediateDataImport."Record No." := RecordNo;
+        IntermediateDataImport."Field ID" := FieldID;
+        IntermediateDataImport.Value := Val;
+        IntermediateDataImport."Validate Only" := IsOptional;
+        IntermediateDataImport."Parent Record No." := ParentRecordNo;
+        IntermediateDataImport.Insert();
     end;
 
     local procedure UpdateIntermediateTableRow(DataExch: Record "Data Exch."; TableID: Integer; FieldID: Integer; Val: Text[250])
     var
         IntermediateDataImport: Record "Intermediate Data Import";
     begin
-        with IntermediateDataImport do begin
-            SetRange("Data Exch. No.", DataExch."Entry No.");
-            SetRange("Table ID", TableID);
-            SetRange("Field ID", FieldID);
-            FindFirst();
-            Value := Val;
-            Modify();
-        end;
+        IntermediateDataImport.SetRange("Data Exch. No.", DataExch."Entry No.");
+        IntermediateDataImport.SetRange("Table ID", TableID);
+        IntermediateDataImport.SetRange("Field ID", FieldID);
+        IntermediateDataImport.FindFirst();
+        IntermediateDataImport.Value := Val;
+        IntermediateDataImport.Modify();
     end;
 
     local procedure DeleteIntermediateTableRow(DataExch: Record "Data Exch."; TableID: Integer; FieldID: Integer)
     var
         IntermediateDataImport: Record "Intermediate Data Import";
     begin
-        with IntermediateDataImport do begin
-            SetRange("Data Exch. No.", DataExch."Entry No.");
-            SetRange("Table ID", TableID);
-            SetRange("Field ID", FieldID);
+        IntermediateDataImport.SetRange("Data Exch. No.", DataExch."Entry No.");
+        IntermediateDataImport.SetRange("Table ID", TableID);
+        IntermediateDataImport.SetRange("Field ID", FieldID);
 
-            if FindFirst() then
-                DeleteAll();
-        end;
+        if IntermediateDataImport.FindFirst() then
+            IntermediateDataImport.DeleteAll();
     end;
 
     local procedure AssertPurchaseDoc(DataExch: Record "Data Exch."; BuyFromVendor: Record Vendor; PayToVendor: Record Vendor; Item1: Record Item; Item2: Record Item; Currency: Record Currency; DiscountAmount: Decimal)

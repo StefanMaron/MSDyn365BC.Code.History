@@ -25,7 +25,6 @@ enum 338 "Reservation Summary Type"
     value(74; "Released Prod. Order Comp.") { Caption = 'Released Prod. Order Comp.'; }
     value(101; "Transfer Shipment") { Caption = 'Transfer Shipment'; }
     value(102; "Transfer Receipt") { Caption = 'Transfer Receipt'; }
-    value(110; "Service Order") { Caption = 'Service Order'; }
     value(131; "Job Planning Planned") { Caption = 'Project Planning Planned'; }
     value(132; "Job Planning Quote") { Caption = 'Project Planning Quote'; }
     value(133; "Job Planning Order") { Caption = 'Project Planning Order'; }

@@ -347,12 +347,16 @@ codeunit 432 Consolidate
         DeletedIndex: Integer;
         MaxDeletedIndex: Integer;
         AnalysisViewEntriesDeleted: Boolean;
+#pragma warning disable AA0074
         Text000: Label 'Enter a document number.';
         Text001: Label 'Consolidating companies...\\';
+#pragma warning disable AA0470
         Text002: Label 'Business Unit Code   #1###################\';
         Text003: Label 'Phase                #2############################\';
         Text004: Label 'G/L Account No.      #3##################';
+#pragma warning restore AA0470
         Text005: Label 'Analysis View Entries were deleted during the consolidation. An update is necessary.';
+#pragma warning disable AA0470
         Text006: Label 'There are more than %1 errors.';
         Text008: Label 'The consolidation can include a maximum of %1 days.';
         Text010: Label 'Previously consolidated entries cannot be erased because this would cause the general ledger to be out of balance by an amount of %1. ';
@@ -362,32 +366,44 @@ codeunit 432 Consolidate
         Text015: Label 'Exchange rate adjustment on %1';
         Text016: Label 'Posted %2 to residual account as of %1';
         Text017: Label '%1 at exchange rate %2 on %3';
+#pragma warning restore AA0470
         Text018: Label 'Clear Previous Consolidation';
+#pragma warning restore AA0074
         SkipAllDimensions: Boolean;
+#pragma warning disable AA0074
         Text019: Label 'Update Prior Period Balances';
+#pragma warning restore AA0074
         ConsolidatingClosingDate: Boolean;
         ExchRateAdjAmount: Decimal;
         HistoricalCurrencyFactor: Decimal;
         NextLineNo: Integer;
+#pragma warning disable AA0074
         Text020: Label 'Consolidate Current Data';
+#pragma warning disable AA0470
         Text021: Label 'Within the Subsidiary (%5), there are two G/L Accounts: %1 and %4; which refer to the same %2, but with a different %3.';
         Text022: Label '%1 %2, referenced by %5 %3 %4, does not exist in the consolidated %3 table.';
         Text023: Label '%7 %1 %2 must have the same %3 as consolidated %1 %4. (%5 and %6, respectively)';
         Text024: Label '%1 at %2 %3';
+#pragma warning restore AA0470
         Text025: Label 'Calculate Residual Entries';
         Text026: Label 'Post to General Ledger';
         Text027: Label 'Composite ';
         Text028: Label 'Equity ';
         Text029: Label 'Minority ';
+#pragma warning restore AA0074
         TestMode: Boolean;
         CurErrorIdx: Integer;
         ErrorText: array[500] of Text;
+#pragma warning disable AA0074
         Text030: Label 'When using closing dates, the starting and ending dates must be the same.';
+#pragma warning disable AA0470
         Text031: Label 'A %1 with %2 on a closing date (%3) was found while consolidating non-closing entries.';
         Text032: Label 'The %1 is later than the %2 in company %3.';
         Text033: Label '%1 must not be empty when %2 is not empty, in company %3.';
         Text034: Label 'It is not possible to consolidate ledger entry dimensions for G/L Entry No. %1, because there are conflicting dimension values %2 and %3 for consolidation dimension %4.';
-       ConsolidationAccMissingErr: Label 'The G/L account %1 can''t be found in the consolidation company, but it is specified in the business unit %2. Verify that the G/L account exists in the consolidation company or that it''s correctly mapped by setting the Consolidation fields in the subsidiary G/L account.', Comment = '%1 - A G/L account code, %2 - A Business Unit code';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+        ConsolidationAccMissingErr: Label 'The G/L account %1 can''t be found in the consolidation company, but it is specified in the business unit %2. Verify that the G/L account exists in the consolidation company or that it''s correctly mapped by setting the Consolidation fields in the subsidiary G/L account.', Comment = '%1 - A G/L account code, %2 - A Business Unit code';
 
     procedure SetDocNo(NewDocNo: Code[20])
     begin
@@ -1111,7 +1127,7 @@ codeunit 432 Consolidate
             TempGLEntry := GLEntry;
             TempGLEntry."Entry No." := DimBufMgt.InsertDimensions(TempDimBufIn);
             TempGLEntry.Insert();
-        end else begin
+        end else
             if TempGLEntry.Get(DimEntryNo) then begin
                 TempGLEntry.Amount := TempGLEntry.Amount + GLEntry.Amount;
                 TempGLEntry."Debit Amount" := TempGLEntry."Debit Amount" + GLEntry."Debit Amount";
@@ -1126,7 +1142,6 @@ codeunit 432 Consolidate
                 TempGLEntry."Entry No." := DimEntryNo;
                 TempGLEntry.Insert();
             end;
-        end;
     end;
 
     procedure CreateAndPostGenJnlLine(GenJnlLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; var DimBuf: Record "Dimension Buffer")

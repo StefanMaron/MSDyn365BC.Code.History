@@ -17,11 +17,15 @@ codeunit 6080 "Service Price Management"
         Currency: Record Currency;
         TotalAmount: Decimal;
 
+#pragma warning disable AA0074
         Text001: Label 'There are no Service Lines to adjust.';
         Text002: Label 'Perform price adjustment?';
         Text003: Label 'This will remove all discounts on the Service Lines. Continue?';
+#pragma warning disable AA0470
         Text004: Label 'No Service Lines were found for %1 no. %2.';
+#pragma warning restore AA0470
         Text008: Label 'Perform price adjustment?';
+#pragma warning restore AA0074
 
     procedure ShowPriceAdjustment(ServItemLine: Record "Service Item Line")
     var

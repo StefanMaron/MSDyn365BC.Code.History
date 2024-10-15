@@ -132,41 +132,37 @@ codeunit 139351 "Day Book Reports"
     begin
         MockGLEntry(GLEntry);
 
-        with CustLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
-            Insert();
+        CustLedgerEntry.Init();
+        CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
+        CustLedgerEntry.Insert();
 
-            "Document Type" := "Document Type"::Invoice;
-            "Customer No." := MockCustomer();
-            Open := true;
-            Positive := true;
-            "Pmt. Disc. Given (LCY)" := LibraryRandom.RandDec(10, 2);
-            "Due Date" := WorkDate();
-            "Posting Date" := WorkDate();
-            "Transaction No." := GLEntry."Transaction No.";
-            "Closed by Entry No." := "Entry No.";
-            Modify();
-        end;
+        CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
+        CustLedgerEntry."Customer No." := MockCustomer();
+        CustLedgerEntry.Open := true;
+        CustLedgerEntry.Positive := true;
+        CustLedgerEntry."Pmt. Disc. Given (LCY)" := LibraryRandom.RandDec(10, 2);
+        CustLedgerEntry."Due Date" := WorkDate();
+        CustLedgerEntry."Posting Date" := WorkDate();
+        CustLedgerEntry."Transaction No." := GLEntry."Transaction No.";
+        CustLedgerEntry."Closed by Entry No." := CustLedgerEntry."Entry No.";
+        CustLedgerEntry.Modify();
     end;
 
     local procedure MockDetailedCustomerLedgerEntry(CustLedgerEntryNo: Integer; TransactionNo: Integer): Integer
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DetailedCustLedgEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
-            Insert();
+        DetailedCustLedgEntry.Init();
+        DetailedCustLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, DetailedCustLedgEntry.FieldNo("Entry No."));
+        DetailedCustLedgEntry.Insert();
 
-            "Cust. Ledger Entry No." := CustLedgerEntryNo;
-            "Entry Type" := "Entry Type"::"Realized Loss";
-            "Amount (LCY)" := LibraryRandom.RandDec(10, 2);
-            "Transaction No." := TransactionNo;
-            Modify();
+        DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntryNo;
+        DetailedCustLedgEntry."Entry Type" := DetailedCustLedgEntry."Entry Type"::"Realized Loss";
+        DetailedCustLedgEntry."Amount (LCY)" := LibraryRandom.RandDec(10, 2);
+        DetailedCustLedgEntry."Transaction No." := TransactionNo;
+        DetailedCustLedgEntry.Modify();
 
-            exit("Entry No.");
-        end;
+        exit(DetailedCustLedgEntry."Entry No.");
     end;
 
     local procedure MockCustomer(): Code[20]
@@ -185,43 +181,39 @@ codeunit 139351 "Day Book Reports"
     begin
         MockGLEntry(GLEntry);
 
-        with VendorLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
-            Insert();
+        VendorLedgerEntry.Init();
+        VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
+        VendorLedgerEntry.Insert();
 
-            "Vendor No." := MockVendor();
-            "Posting Date" := WorkDate();
-            "Remaining Pmt. Disc. Possible" := LibraryRandom.RandDecInRange(10, 20, 2);
-            "Pmt. Disc. Rcd.(LCY)" := LibraryRandom.RandDecInRange(10, 20, 2);
-            "Pmt. Discount Date" := WorkDate();
+        VendorLedgerEntry."Vendor No." := MockVendor();
+        VendorLedgerEntry."Posting Date" := WorkDate();
+        VendorLedgerEntry."Remaining Pmt. Disc. Possible" := LibraryRandom.RandDecInRange(10, 20, 2);
+        VendorLedgerEntry."Pmt. Disc. Rcd.(LCY)" := LibraryRandom.RandDecInRange(10, 20, 2);
+        VendorLedgerEntry."Pmt. Discount Date" := WorkDate();
 
-            "Document Type" := "Document Type"::Invoice;
-            "Transaction No." := GLEntry."Transaction No.";
-            Open := true;
-            "Closed by Entry No." := "Entry No.";
-            Modify();
-        end;
+        VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
+        VendorLedgerEntry."Transaction No." := GLEntry."Transaction No.";
+        VendorLedgerEntry.Open := true;
+        VendorLedgerEntry."Closed by Entry No." := VendorLedgerEntry."Entry No.";
+        VendorLedgerEntry.Modify();
     end;
 
     local procedure MockDetailedVendorLedgerEntry(VendorLedgerEntryNo: Integer; TransactionNo: Integer): Integer
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with DetailedVendorLedgEntry do begin
-            "Entry No." :=
-              LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
-            Insert();
+        DetailedVendorLedgEntry."Entry No." :=
+          LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, DetailedVendorLedgEntry.FieldNo("Entry No."));
+        DetailedVendorLedgEntry.Insert();
 
-            "Vendor Ledger Entry No." := VendorLedgerEntryNo;
-            "Entry Type" := "Entry Type"::"Realized Loss";
-            Amount := LibraryRandom.RandDecInDecimalRange(10, 20, 2);
-            "Amount (LCY)" := Amount;
-            "Transaction No." := TransactionNo;
-            Modify();
+        DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorLedgerEntryNo;
+        DetailedVendorLedgEntry."Entry Type" := DetailedVendorLedgEntry."Entry Type"::"Realized Loss";
+        DetailedVendorLedgEntry.Amount := LibraryRandom.RandDecInDecimalRange(10, 20, 2);
+        DetailedVendorLedgEntry."Amount (LCY)" := DetailedVendorLedgEntry.Amount;
+        DetailedVendorLedgEntry."Transaction No." := TransactionNo;
+        DetailedVendorLedgEntry.Modify();
 
-            exit("Entry No.");
-        end;
+        exit(DetailedVendorLedgEntry."Entry No.");
     end;
 
     local procedure MockVendor(): Code[20]
@@ -236,26 +228,22 @@ codeunit 139351 "Day Book Reports"
 
     local procedure MockGLEntry(var GLEntry: Record "G/L Entry")
     begin
-        with GLEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
-            "G/L Account No." := LibraryUTUtility.GetNewCode();
-            "Document No." := LibraryUTUtility.GetNewCode();
-            "Transaction No." := LibraryUtility.GetLastTransactionNo() + 1;
-            Insert();
-        end;
+        GLEntry.Init();
+        GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FieldNo("Entry No."));
+        GLEntry."G/L Account No." := LibraryUTUtility.GetNewCode();
+        GLEntry."Document No." := LibraryUTUtility.GetNewCode();
+        GLEntry."Transaction No." := LibraryUtility.GetLastTransactionNo() + 1;
+        GLEntry.Insert();
     end;
 
     local procedure MockVATEntry(var VATEntry: Record "VAT Entry"; TransactionNo: Integer)
     begin
-        with VATEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
-            "Transaction No." := TransactionNo;
-            Amount := LibraryRandom.RandDec(10, 2);
-            Base := LibraryRandom.RandDec(10, 2);
-            Insert();
-        end;
+        VATEntry.Init();
+        VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
+        VATEntry."Transaction No." := TransactionNo;
+        VATEntry.Amount := LibraryRandom.RandDec(10, 2);
+        VATEntry.Base := LibraryRandom.RandDec(10, 2);
+        VATEntry.Insert();
     end;
 
     [RequestPageHandler]

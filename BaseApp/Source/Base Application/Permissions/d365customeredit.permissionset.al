@@ -7,7 +7,6 @@ using Microsoft.CRM.Duplicates;
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Profiling;
-using Microsoft.Service.Contract;
 using Microsoft.Finance.Currency;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
@@ -32,10 +31,6 @@ using Microsoft.Sales.History;
 using Microsoft.CRM.Comment;
 using Microsoft.Sales.Archive;
 using Microsoft.Sales.Pricing;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
-using Microsoft.Service.Item;
-using Microsoft.Service.Ledger;
 using Microsoft.Sales.Document;
 using Microsoft.CRM.Task;
 using Microsoft.Purchases.Payables;
@@ -45,6 +40,13 @@ using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Worksheet;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Registration;
+
+using Microsoft.Service.Archive;
+using Microsoft.Service.Contract;
+using Microsoft.Service.Document;
+using Microsoft.Service.History;
+using Microsoft.Service.Item;
+using Microsoft.Service.Ledger;
 
 permissionset 5729 "D365 CUSTOMER, EDIT"
 {
@@ -65,7 +67,6 @@ permissionset 5729 "D365 CUSTOMER, EDIT"
                   tabledata "Contact Mailing Group" = Rd,
                   tabledata "Contact Profile Answer" = d,
                   tabledata "Contact Web Source" = Rd,
-                  tabledata "Contract Gain/Loss Entry" = rm,
                   tabledata Currency = RM,
                   tabledata "Cust. Invoice Disc." = IMD,
                   tabledata "Cust. Ledger Entry" = M,
@@ -78,7 +79,6 @@ permissionset 5729 "D365 CUSTOMER, EDIT"
                   tabledata "Duplicate Price Line" = Rid,
                   tabledata "Duplicate Search String Setup" = R,
                   tabledata "Employee Ledger Entry" = rm,
-                  tabledata "Filed Contract Line" = rm,
                   tabledata "Finance Charge Text" = R,
                   tabledata "G/L Entry - VAT Entry Link" = rm,
                   tabledata "G/L Entry" = rm,
@@ -118,21 +118,13 @@ permissionset 5729 "D365 CUSTOMER, EDIT"
                   tabledata "Sales Discount Access" = Rd,
                   tabledata "Sales Header Archive" = rm,
                   tabledata "Sales Invoice Line" = rm,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Sales Line Discount" = Rd,
                   tabledata "Sales Price" = Rid,
 #endif
                   tabledata "Sales Price Access" = Rid,
                   tabledata "Sales Shipment Header" = rm,
                   tabledata "Sales Shipment Line" = Rm,
-                  tabledata "Service Contract Header" = Rm,
-                  tabledata "Service Contract Line" = Rm,
-                  tabledata "Service Header" = Rm,
-                  tabledata "Service Invoice Line" = Rm,
-                  tabledata "Service Item" = Rm,
-                  tabledata "Service Item Line" = Rm,
-                  tabledata "Service Ledger Entry" = rm,
-                  tabledata "Service Line" = r,
                   tabledata "Ship-to Address" = RIMD,
                   tabledata "Standard Customer Sales Code" = RIMD,
                   tabledata "Standard Sales Code" = RIMD,
@@ -149,6 +141,21 @@ permissionset 5729 "D365 CUSTOMER, EDIT"
                   tabledata "Warehouse Reason Code" = RM,
                   tabledata "Warehouse Request" = rm,
                   tabledata "Warehouse Shipment Line" = rm,
-                  tabledata "Warranty Ledger Entry" = rm,
-                  tabledata "Whse. Worksheet Line" = r;
+                  tabledata "Whse. Worksheet Line" = r,
+
+                  // Service
+                  tabledata "Contract Gain/Loss Entry" = rm,
+                  tabledata "Filed Contract Line" = rm,
+                  tabledata "Service Contract Header" = Rm,
+                  tabledata "Service Contract Line" = Rm,
+                  tabledata "Service Header" = Rm,
+                  tabledata "Service Header Archive" = rm,
+                  tabledata "Service Invoice Line" = Rm,
+                  tabledata "Service Item" = Rm,
+                  tabledata "Service Item Line" = Rm,
+                  tabledata "Service Item Line Archive" = rm,
+                  tabledata "Service Ledger Entry" = rm,
+                  tabledata "Service Line" = r,
+                  tabledata "Service Line Archive" = r,
+                  tabledata "Warranty Ledger Entry" = rm;
 }

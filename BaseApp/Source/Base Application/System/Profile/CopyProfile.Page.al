@@ -118,7 +118,9 @@ page 9175 "Copy Profile"
         TempDestinationAllProfile: Record "All Profile" temporary; // Used only to display fields in the page
         OutputAllProfile: Record "All Profile";
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
+#pragma warning disable AA0470
         ProfileIdAlreadyExistErr: Label 'A profile with Profile ID "%1" already exist, please provide another Profile ID.';
+#pragma warning restore AA0470
 }
 
 

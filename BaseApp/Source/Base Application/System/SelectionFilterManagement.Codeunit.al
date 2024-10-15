@@ -27,8 +27,6 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Pricing;
 using Microsoft.Sales.Reminder;
-using Microsoft.Service.Document;
-using Microsoft.Service.Item;
 using System.Automation;
 using System.Security.AccessControl;
 
@@ -183,13 +181,15 @@ codeunit 46 SelectionFilterManagement
         exit(GetSelectionFilter(RecRef, Item.FieldNo("No.")));
     end;
 
-    procedure GetSelectionFilterForServiceItem(var ServiceItem: Record "Service Item"): Text
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit Serv. Selection Filter Mgt.', '25.0')]
+    procedure GetSelectionFilterForServiceItem(var ServiceItem: Record Microsoft.Service.Item."Service Item"): Text
     var
-        RecRef: RecordRef;
+        ServSelectionFilterMgt: Codeunit "Serv. Selection Filter Mgt.";
     begin
-        RecRef.GetTable(ServiceItem);
-        exit(GetSelectionFilter(RecRef, ServiceItem.FieldNo("No.")));
+        exit(ServSelectionFilterMgt.GetSelectionFilterForServiceItem(ServiceItem));
     end;
+#endif
 
     procedure GetSelectionFilterForDimensionValue(var DimVal: Record "Dimension Value"): Text
     var
@@ -618,12 +618,14 @@ codeunit 46 SelectionFilterManagement
         exit(2000);
     end;
 
-    procedure GetSelectionFilterForServiceHeader(var ServiceHeader: Record "Service Header"): Text
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit Serv. Selection Filter Mgt.', '25.0')]
+    procedure GetSelectionFilterForServiceHeader(var ServiceHeader: Record Microsoft.Service.Document."Service Header"): Text
     var
-        RecRef: RecordRef;
+        ServSelectionFilterMgt: Codeunit "Serv. Selection Filter Mgt.";
     begin
-        RecRef.GetTable(ServiceHeader);
-        exit(GetSelectionFilter(RecRef, ServiceHeader.FieldNo("No.")));
+        exit(ServSelectionFilterMgt.GetSelectionFilterForServiceHeader(ServiceHeader));
     end;
+#endif
 }
 

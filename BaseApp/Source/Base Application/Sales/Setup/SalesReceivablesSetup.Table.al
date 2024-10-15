@@ -360,6 +360,10 @@ table 311 "Sales & Receivables Setup"
         {
             Caption = 'Archive Return Orders';
         }
+        field(56; "Default G/L Account Quantity"; Boolean)
+        {
+            Caption = 'Default G/L Account Quantity';
+        }
         field(57; "Create Item from Item No."; Boolean)
         {
             Caption = 'Create Item from Item No.';
@@ -713,8 +717,8 @@ table 311 "Sales & Receivables Setup"
         {
             Caption = 'Credit Memo Nos. Paym. Disc.';
             ObsoleteReason = 'This is an unused rogue field from legacy functionality that was removed.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
         }
         field(10901; "Electronic Invoicing"; Boolean)
         {

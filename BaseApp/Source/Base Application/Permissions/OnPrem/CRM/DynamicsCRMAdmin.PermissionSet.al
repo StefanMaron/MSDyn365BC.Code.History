@@ -13,9 +13,6 @@ permissionset 2393 "Dynamics CRM - Admin"
     Permissions = tabledata "CDS Solution" = RIMD,
                   tabledata "CDS Teammembership" = RIMD,
                   tabledata "CDS Teamroles" = RIMD,
-#if not CLEAN22
-                  tabledata "Coupling Field Buffer" = RIMD,
-#endif
                   tabledata "Coupling Record Buffer" = RIMD,
                   tabledata "Dataverse Entity Change" = RID,
                   tabledata "CRM Account" = RIMD,

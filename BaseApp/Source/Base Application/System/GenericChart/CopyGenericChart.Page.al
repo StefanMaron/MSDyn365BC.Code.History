@@ -49,8 +49,10 @@ page 9187 "Copy Generic Chart"
         SourceChart: Record Chart;
         NewChartID: Code[20];
         NewChartTitle: Text[50];
+#pragma warning disable AA0074
         Text001: Label 'The chart was successfully copied.';
         Text002: Label 'Specify a chart ID.';
+#pragma warning restore AA0074
 
     local procedure ValidateUserInput()
     begin

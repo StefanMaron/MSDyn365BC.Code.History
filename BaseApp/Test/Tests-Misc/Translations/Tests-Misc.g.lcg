@@ -11,7 +11,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BarcodeScannerItemTrackTest - NamedType ScanQtyExceedMaximumMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Inventory.Tracking)(LookupHint=Codeunit BarcodeScannerItemTrackTest - NamedType ScanQtyExceedMaximumMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1863825474 - NamedType 229276628" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -20,7 +20,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CameraBarcodeScanItemTrackTest - NamedType ExpFalseButTrueErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Inventory.Tracking)(LookupHint=Codeunit CameraBarcodeScanItemTrackTest - NamedType ExpFalseButTrueErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1863825474 - NamedType 4069456148" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -29,7 +29,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CameraBarcodeScanItemTrackTest - NamedType ExpTrueButFalseErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Inventory.Tracking)(LookupHint=Codeunit CameraBarcodeScanItemTrackTest - NamedType ExpTrueButFalseErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 423607225 - NamedType 3779438608" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -38,7 +38,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit No. Series Check Tests - NamedType EndingNumberTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.Foundation.NoSeries)(LookupHint=Codeunit No. Series Check Tests - NamedType EndingNumberTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 423607225 - NamedType 2182457253" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -47,7 +47,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit No. Series Check Tests - NamedType StartingNumberTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.Foundation.NoSeries)(LookupHint=Codeunit No. Series Check Tests - NamedType StartingNumberTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 2310708758 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
@@ -138,15 +138,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Analysis View Table-UT - NamedType AreNotEqualError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 686750671 - NamedType 2243457362" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Blocked must be equal to 'No'  in Analysis View: Code=%1. Current value is 'Yes']]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Analysis View Table-UT - NamedType Expected)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 686750671 - NamedType 4256849289" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -275,24 +266,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Attachment Storage Type - NamedType SendAttachmentErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3808007876 - NamedType 3302565684" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[amcname]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Azure Key Vault Module Test - NamedType AmcNameTok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3808007876 - NamedType 2589093524" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[amcpassword]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Azure Key Vault Module Test - NamedType AmcPasswordTok)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3808007876 - NamedType 478234251" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[machinelearning]]></Val>
@@ -356,49 +329,40 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit AzureADUserMgtTest - NamedType DeviceUserCannotBeFirstUser)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3007113063 - NamedType 2924252020" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3007113063 - Method 543396120 - NamedType 2995153383" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Expected the user to have the '%1' user group assigned.]]></Val>
+      <Val><![CDATA[Rainy Cloud]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - user group code]D;]A;(LookupHint=Codeunit AzureADUserMgtTest - NamedType ExpectedUserGroupAssignedTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit AzureADUserMgtTest - Method TestPermissionsAppendedOnUserSyncNoCustomPermissions - NamedType RainyCloudRoleId)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3007113063 - Method 3949896595 - NamedType 1616598201" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3007113063 - Method 543396120 - NamedType 2229895758" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Rainy Cloud Group]]></Val>
+      <Val><![CDATA[Shiny Sunlight]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit AzureADUserMgtTest - Method TestUserGroupsAppendedOnUserSyncNoCustomPermissions - NamedType RainyCloudUserGroupCode)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit AzureADUserMgtTest - Method TestPermissionsAppendedOnUserSyncNoCustomPermissions - NamedType ShinySunlightRoleId)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3007113063 - Method 3949896595 - NamedType 2657149124" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3007113063 - Method 821868945 - NamedType 2995153383" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Shiny Sunlight Group]]></Val>
+      <Val><![CDATA[Rainy Cloud]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit AzureADUserMgtTest - Method TestUserGroupsAppendedOnUserSyncNoCustomPermissions - NamedType ShinySunlightUserGroupCode)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit AzureADUserMgtTest - Method TestPermissionsAppendedOnUserSyncWithCustomPermissions - NamedType RainyCloudRoleId)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3007113063 - Method 4053469054 - NamedType 1616598201" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3007113063 - Method 821868945 - NamedType 2229895758" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Rainy Cloud Group]]></Val>
+      <Val><![CDATA[Shiny Sunlight]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit AzureADUserMgtTest - Method TestUserGroupsAppendedOnUserSyncWithCustomPermissions - NamedType RainyCloudUserGroupCode)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3007113063 - Method 4053469054 - NamedType 2657149124" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Shiny Sunlight Group]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit AzureADUserMgtTest - Method TestUserGroupsAppendedOnUserSyncWithCustomPermissions - NamedType ShinySunlightUserGroupCode)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit AzureADUserMgtTest - Method TestPermissionsAppendedOnUserSyncWithCustomPermissions - NamedType ShinySunlightRoleId)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2240440029 - NamedType 190996590" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4487,24 +4451,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Error Message Tests - NamedType SupportUrlTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1407597554 - Method 2327174967 - NamedType 918378481" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Error Message Tests - Method TestSyncingOfErrorMessageDescriptionAndMessage - NamedType TextLbl)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1407597554 - Method 485520760 - NamedType 918378481" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Error Message Tests - Method TestSyncingOfErrorMessageRegisterDescriptionAndMessage - NamedType TextLbl)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3382136491 - NamedType 3433788095" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Error does not contain the file name %1. Actual: %2.]]></Val>
@@ -4865,15 +4811,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Setup Storage UT - NamedType TableWasNotRestoredErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3426270887 - NamedType 3644142597" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The User Setup does not exist.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Setup Storage UT - NamedType UserSetupErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 978685309 - NamedType 4169142232" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Field %1 in Table %2 must be option type.]]></Val>
@@ -4908,15 +4845,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Normal DemoData - NamedType EmptyBlobErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 591093988 - NamedType 566374801" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is no Purchase Header within the filter.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Normal DemoData - NamedType NoPurchHeaderErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 591093988 - NamedType 1925180759" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5243,6 +5171,105 @@
       <Cmt Name="Dev"><![CDATA[%1 - Client File Name]D;]A;(LookupHint=Codeunit PEPPOL BIS BillingTests - NamedType WrongFileNameErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1779272939 - NamedType 2482625703" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Failed Job Queue Entry For Another User]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RC Page Job Queue Failed Test - NamedType FailedJobQueueEntryNameForAnotherUserLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1779272939 - NamedType 712964304" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Failed Job Queue Entry For Current User]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RC Page Job Queue Failed Test - NamedType FailedJobQueueEntryNameLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1779272939 - NamedType 1540739494" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[In Process Job Queue Entry For Another User]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RC Page Job Queue Failed Test - NamedType InProcessJobQueueEntryNameForAnotherUserLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1779272939 - NamedType 1224751197" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[In Process Job Queue Entry For Current User]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RC Page Job Queue Failed Test - NamedType InProcessJobQueueEntryNameLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1779272939 - NamedType 2464540511" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Ready Job Queue Entry For Another User]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RC Page Job Queue Failed Test - NamedType ReadyJobQueueEntryNameForAnotherUserLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1779272939 - NamedType 3663269992" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Ready Job Queue Entry For Current User]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RC Page Job Queue Failed Test - NamedType ReadyJobQueueEntryNameLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1779272939 - NamedType 400045346" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Task failed count is incorrect.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RC Page Job Queue Failed Test - NamedType TaskFailedCountIncorrectLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1779272939 - NamedType 4099269147" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Task in process count is incorrect.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RC Page Job Queue Failed Test - NamedType TaskInProcessCountIncorrectLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1779272939 - NamedType 3002861733" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Task in queue count is incorrect.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RC Page Job Queue Failed Test - NamedType TaskInQueueCountIncorrectLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1779272939 - NamedType 3625058687" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Waiting Job Queue Entry For Another User]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RC Page Job Queue Failed Test - NamedType WaitingJobQueueEntryNameForAnotherUserLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1779272939 - NamedType 1951790792" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Waiting Job Queue Entry For Current User]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RC Page Job Queue Failed Test - NamedType WaitingJobQueueEntryNameLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2801231272 - NamedType 1508165219" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot use %1 for this action.]]></Val>
@@ -5441,24 +5468,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RS Pack Content - Standard - NamedType NonStockNoSeriesTok)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4291575073 - NamedType 566374801" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is no Purchase Header within the filter.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RS Pack Content - Standard - NamedType NoPurchHeaderErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4291575073 - NamedType 1855598725" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is no Sales Header within the filter.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RS Pack Content - Standard - NamedType NoSalesHeaderErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4291575073 - NamedType 2979876091" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Posting After Working Date option is on]]></Val>
@@ -5511,78 +5520,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Expected value]D;]A;(LookupHint=Codeunit Send Job To Calendar - NamedType CouldNotFindValueErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 646086067 - NamedType 3084977767" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[All Demand]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Demand Overview - NamedType DemandOverviewAllFilter)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 646086067 - NamedType 183745473" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Sale]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Demand Overview - NamedType DemandOverviewSaleFilter)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 646086067 - NamedType 1314462029" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[NTF_TEST_NTF_TEST]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Demand Overview - NamedType DescriptionText)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 646086067 - NamedType 830554127" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No. of Lines in %1 must be equal to %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Demand Overview - NamedType LineCountError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 646086067 - NamedType 544155420" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Validation error for Field: Needed by Date,  Message = 'Needed by Date must have a value in Service Line: Document Type=Order, Document No.=%1, Line No.=10000. It cannot be zero or empty.']]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Demand Overview - NamedType NeededDateBlankErrorText)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 646086067 - NamedType 2014715412" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No service item has a non-blocked customer and non-blocked item. Execution stops.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Demand Overview - NamedType NoDataForExecutionError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 646086067 - NamedType 529860193" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No Purchase Line found with sales order no %1.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Demand Overview - NamedType ReceiptDateDocumentError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 646086067 - NamedType 3430581069" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No Sales Line found with sales order no %1.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Demand Overview - NamedType ShipmentDateDocumentError)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4097039479 - NamedType 1785681046" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5772,15 +5709,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Item Charge Extendibility - NamedType EquallyTok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3244926151 - NamedType 486026524" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Qty. to Handle must be equal to '%1'  in %2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Item Charge Extendibility - NamedType QtyToHandleMustBeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3613402004 - NamedType 171361402" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

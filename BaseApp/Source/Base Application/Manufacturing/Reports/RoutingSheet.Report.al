@@ -371,8 +371,10 @@ report 99000787 "Routing Sheet"
         TotalTime: Decimal;
         ActiveVersionCode: Code[20];
 
+#pragma warning disable AA0074
         Text000: Label 'Copy number:';
         Text001: Label 'Active Version';
+#pragma warning restore AA0074
         OutputNo: Integer;
         CurrReportPageNoCaptionLbl: Label 'Page';
         RoutingSheetCaptionLbl: Label 'Routing Sheet';

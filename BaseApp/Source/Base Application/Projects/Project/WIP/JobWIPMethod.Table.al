@@ -138,13 +138,19 @@ table 1006 "Job WIP Method"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'You cannot delete methods that are %1.';
         Text002: Label 'You cannot modify methods that are %1.';
         Text003: Label 'You cannot modify this field when %1 is %2.';
         Text004: Label 'You cannot delete methods that have entries in %1 or %2.';
         Text005: Label 'You cannot modify methods that have entries in %1 or %2.';
+#pragma warning restore AA0470
         Text006: Label 'You cannot delete the default method.';
+#pragma warning disable AA0470
         Text007: Label 'This method must be valid because it is defined as the %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure ValidateModification()
     var

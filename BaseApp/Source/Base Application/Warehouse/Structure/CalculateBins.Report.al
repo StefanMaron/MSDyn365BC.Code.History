@@ -332,10 +332,16 @@ report 7310 "Calculate Bins"
         Section: Code[20];
         Level: Code[20];
         CheckOnBin: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The length of From Rack+From Section+From Level is greater than the maximum length of Bin Code (%1).';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         LenFieldSeparator: Integer;
         LineNo: Integer;
+#pragma warning disable AA0074
         Text004: Label 'The length of the strings inserted in From No. and To No. must be identical.';
+#pragma warning restore AA0074
 
     local procedure BinCreateWksh()
     begin

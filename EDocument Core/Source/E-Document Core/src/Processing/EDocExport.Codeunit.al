@@ -186,7 +186,7 @@ codeunit 6102 "E-Doc. Export"
         RemainingAmount, InterestAmount, AdditionalFee, VATAmount : Decimal;
     begin
         EDocument.Init();
-        EDocument."Document Record ID" := SourceDocumentHeader.RecordId;
+        EDocument.Validate("Document Record ID", SourceDocumentHeader.RecordId);
         EDocument.Validate(Status, EDocument.Status::"In Progress");
         DocumentSendingProfile.Get(EDocumentHelper.GetDocSendingProfileForDocRef(SourceDocumentHeader).Code);
         EDocument."Document Sending Profile" := DocumentSendingProfile.Code;

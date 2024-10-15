@@ -712,6 +712,19 @@ page 16 "Chart of Accounts"
             }
         }
     }
+    views
+    {
+        view(OnlyPostingAccounts)
+        {
+            Caption = 'Show only posting accounts';
+            Filters = where("Account Type" = const(Posting));
+        }
+        view(Unblocked)
+        {
+            Caption = 'Hide blocked accounts';
+            Filters = where(Blocked = const(false));
+        }
+    }
 
     protected var
 #if not CLEAN24     

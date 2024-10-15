@@ -216,7 +216,7 @@ report 10941 "VAT Balancing Report"
         }
         dataitem("Integer"; "Integer")
         {
-            DataItemTableView = sorting(Number) order(Descending);
+            DataItemTableView = sorting(Number) order(descending);
             column(VATBufferNumber1; StrSubstNo(Text003, Format(VATBuffer[Number] [1])))
             {
             }
@@ -274,7 +274,7 @@ report 10941 "VAT Balancing Report"
                         BlankZero = true;
                         Caption = 'Year';
                         Style = Strong;
-                        StyleExpr = TRUE;
+                        StyleExpr = true;
                         ToolTip = 'Specifies the VAT reporting year.';
 
                         trigger OnValidate()

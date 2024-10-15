@@ -209,16 +209,24 @@ report 1136 "Copy Cost Acctg. Budget to G/L"
         NoSkipped: Integer;
         NoInserted: Integer;
 
+#pragma warning disable AA0074
         Text000: Label 'The multiplication factor must not be 0 or less than 0.';
         Text001: Label 'Number of copies must be at least 1.';
         Text002: Label 'If more than one copy is created, a formula for date change must be defined.';
+#pragma warning disable AA0470
         Text004: Label 'Cost budget "%1" will be copied to G/L budget "%2". The budget amounts will be multiplied by factor %3. \%4 copies will be created and the posting will be increased from the range of "%5" to "%6".\\Do you want do copy the budget?', Comment = '%3=multiplication factor (decimal);%4=No of copies (integer)';
         Text005: Label 'Copying budget entries\No of entries #1#####\No of copies  #2#####\Copied        #3#####';
+#pragma warning restore AA0470
         Text006: Label 'Copy of cost budget %1', Comment = '%1 - Budget Name.';
+#pragma warning disable AA0470
         Text007: Label '%1 entries generated in budget %2.\\%3 entries were skipped because there were no corresponding G/L accounts defined.\\Copy entries?', Comment = '%2=budget name;%3=integer value';
+#pragma warning restore AA0470
         Text008: Label 'Define name of source budget.';
         Text009: Label 'Define name of target budget.';
+#pragma warning disable AA0470
         Text010: Label 'No entries were copied. %1 entries were skipped because no corresponding general ledger accounts were defined.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure UpdateBudgetDimensions(var GLBudgetEntry: Record "G/L Budget Entry")
     var

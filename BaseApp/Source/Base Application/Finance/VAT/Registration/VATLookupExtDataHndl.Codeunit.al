@@ -69,6 +69,7 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
         InStream: InStream;
         ResponseOutStream: OutStream;
         IsHandled: Boolean;
+        BlankSecretText: SecretText;
     begin
         VATRegistrationURL := VATRegNoSrvConfig.GetVATRegNoURL();
 
@@ -78,7 +79,7 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
         PrepareSOAPRequestBody(TempBlobBody);
 
         TempBlobBody.CreateInStream(InStream);
-        SOAPWebServiceRequestMgt.SetGlobals(InStream, VATRegistrationURL, '', '');
+        SOAPWebServiceRequestMgt.SetGlobals(InStream, VATRegistrationURL, '', BlankSecretText);
         SOAPWebServiceRequestMgt.DisableHttpsCheck();
         SOAPWebServiceRequestMgt.SetTimeout(60000);
         SOAPWebServiceRequestMgt.SetContentType('text/xml;charset=utf-8');

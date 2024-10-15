@@ -9,9 +9,11 @@ using Microsoft.Inventory.Location;
 table 6635 "Return Reason"
 {
     Caption = 'Return Reason';
-    DrillDownPageID = "Return Reasons";
-    LookupPageID = "Return Reasons";
     DataClassification = CustomerContent;
+    ObsoleteReason = 'Return Reason is moved to Business Foundation';
+    ObsoleteState = Moved;
+    ObsoleteTag = '25.0';
+    MovedTo = 'f3552374-a1f2-4356-848e-196002525837';
 
     fields
     {

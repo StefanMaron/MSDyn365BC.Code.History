@@ -23,7 +23,6 @@ codeunit 137510 "SMB Service Item"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
-        IndirectCostErr: Label 'Indirect Cost % must be equal to ''0''';
 
     [Test]
     [Scope('OnPrem')]
@@ -113,9 +112,9 @@ codeunit 137510 "SMB Service Item"
 
         // Check that it is not possible change from reserve = never
         asserterror Item.Validate(Reserve, Item.Reserve::Always);
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
         asserterror Item.Validate(Reserve, Item.Reserve::Optional);
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
 
         // EXERCISE
         Item.Validate(Type, Item.Type::"Non-Inventory");
@@ -130,9 +129,9 @@ codeunit 137510 "SMB Service Item"
 
         // Check that it is not possible change from reserve = never
         asserterror Item.Validate(Reserve, Item.Reserve::Always);
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
         asserterror Item.Validate(Reserve, Item.Reserve::Optional);
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
     end;
 
     [Test]
@@ -160,7 +159,7 @@ codeunit 137510 "SMB Service Item"
 
         // Check that it is not possible set an item tracking code
         asserterror Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
 
         // EXERCISE
         Item.Validate(Type, Item.Type::"Non-Inventory");
@@ -174,7 +173,7 @@ codeunit 137510 "SMB Service Item"
 
         // Check that it is not possible set an item tracking code
         asserterror Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
     end;
 
     [Test]
@@ -298,11 +297,11 @@ codeunit 137510 "SMB Service Item"
 
         // Check that it is not possible change from costing method = FIFO
         asserterror Item.Validate("Costing Method", Item."Costing Method"::Standard);
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
         asserterror Item.Validate("Costing Method", Item."Costing Method"::Average);
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
         asserterror Item.Validate("Costing Method", Item."Costing Method"::LIFO);
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
 
         // EXERCISE
         Item.Validate(Type, Item.Type::"Non-Inventory");
@@ -316,11 +315,11 @@ codeunit 137510 "SMB Service Item"
 
         // Check that it is not possible change from costing method = FIFO
         asserterror Item.Validate("Costing Method", Item."Costing Method"::Standard);
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
         asserterror Item.Validate("Costing Method", Item."Costing Method"::Average);
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
         asserterror Item.Validate("Costing Method", Item."Costing Method"::LIFO);
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
     end;
 
     [Test]
@@ -352,7 +351,8 @@ codeunit 137510 "SMB Service Item"
 
         // Check that it is not possible to have a Production BOM on a Service Item
         asserterror Item.Validate("Production BOM No.", ProdBOMHeader."No.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
+
 
         // EXERCISE
         Item.Validate(Type, Item.Type::"Non-Inventory");
@@ -365,7 +365,8 @@ codeunit 137510 "SMB Service Item"
 
         // Check that it is not possible to have a Production BOM on a Non-Inventory Item
         asserterror Item.Validate("Production BOM No.", ProdBOMHeader."No.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
+
     end;
 
     [Test]
@@ -393,7 +394,7 @@ codeunit 137510 "SMB Service Item"
 
         // Check that it is not possible change from reserve = standard
         asserterror Item.Validate("Routing No.", RtngHeader."No.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
 
         // EXERCISE
         Item.Validate(Type, Item.Type::"Non-Inventory");
@@ -407,7 +408,7 @@ codeunit 137510 "SMB Service Item"
 
         // Check that it is not possible change from reserve = standard
         asserterror Item.Validate("Routing No.", RtngHeader."No.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
     end;
 
     [Test]
@@ -431,11 +432,11 @@ codeunit 137510 "SMB Service Item"
         Commit();
 
         asserterror Item.Validate(Type, Item.Type::Service);
-        AssertRunTime('Assembly BOM must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption("Assembly BOM"), '');
         asserterror ChildItem.Validate(Type, Item.Type::Service);
         AssertRunTime('You cannot change the Type field', '');
         asserterror Item.Validate(Type, Item.Type::"Non-Inventory");
-        AssertRunTime('Assembly BOM must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption("Assembly BOM"), Format(false));
         asserterror ChildItem.Validate(Type, Item.Type::"Non-Inventory");
         AssertRunTime('You cannot change the Type field', '');
 
@@ -542,13 +543,13 @@ codeunit 137510 "SMB Service Item"
         SKU.Insert(true);
 
         asserterror Item.Validate(Type, Item.Type::Service);
-        AssertRunTime('Stockkeeping Unit Exists must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption("Stockkeeping Unit Exists"), Format(false));
 
         SKU.Validate("Item No.", Item."No.");
         SKU.Insert(true);
 
         asserterror Item.Validate(Type, Item.Type::"Non-Inventory");
-        AssertRunTime('Stockkeeping Unit Exists must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption("Stockkeeping Unit Exists"), Format(false));
 
         Item.Validate(Type, Item.Type::Service);
         Item.Modify(true);
@@ -576,52 +577,52 @@ codeunit 137510 "SMB Service Item"
         ItemJnlLine.Init();
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::" ");
         asserterror ItemJnlLine.Validate("Item No.", Item."No.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
 
         ItemJnlLine.Init();
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::"Assembly Consumption");
         asserterror ItemJnlLine.Validate("Item No.", Item."No.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
 
         ItemJnlLine.Init();
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::"Assembly Output");
         asserterror ItemJnlLine.Validate("Item No.", Item."No.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
 
         ItemJnlLine.Init();
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Consumption);
         asserterror ItemJnlLine.Validate("Item No.", Item."No.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
 
         ItemJnlLine.Init();
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::"Negative Adjmt.");
         asserterror ItemJnlLine.Validate("Item No.", Item."No.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
 
         ItemJnlLine.Init();
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Output);
         asserterror ItemJnlLine.Validate("Item No.", Item."No.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
 
         ItemJnlLine.Init();
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::"Positive Adjmt.");
         asserterror ItemJnlLine.Validate("Item No.", Item."No.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
 
         ItemJnlLine.Init();
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Purchase);
         asserterror ItemJnlLine.Validate("Item No.", Item."No.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
 
         ItemJnlLine.Init();
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Sale);
         asserterror ItemJnlLine.Validate("Item No.", Item."No.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
 
         ItemJnlLine.Init();
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Transfer);
         asserterror ItemJnlLine.Validate("Item No.", Item."No.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
     end;
 
     [Test]
@@ -640,7 +641,7 @@ codeunit 137510 "SMB Service Item"
         ItemJnlLine.Init();
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::" ");
         asserterror ItemJnlLine.Validate("Item No.", Item."No.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
 
         ItemJnlLine.Init();
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::"Assembly Consumption");
@@ -649,7 +650,7 @@ codeunit 137510 "SMB Service Item"
         ItemJnlLine.Init();
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::"Assembly Output");
         asserterror ItemJnlLine.Validate("Item No.", Item."No.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
 
         ItemJnlLine.Init();
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Consumption);
@@ -658,32 +659,32 @@ codeunit 137510 "SMB Service Item"
         ItemJnlLine.Init();
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::"Negative Adjmt.");
         asserterror ItemJnlLine.Validate("Item No.", Item."No.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
 
         ItemJnlLine.Init();
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Output);
         asserterror ItemJnlLine.Validate("Item No.", Item."No.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
 
         ItemJnlLine.Init();
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::"Positive Adjmt.");
         asserterror ItemJnlLine.Validate("Item No.", Item."No.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
 
         ItemJnlLine.Init();
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Purchase);
         asserterror ItemJnlLine.Validate("Item No.", Item."No.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
 
         ItemJnlLine.Init();
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Sale);
         asserterror ItemJnlLine.Validate("Item No.", Item."No.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
 
         ItemJnlLine.Init();
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Transfer);
         asserterror ItemJnlLine.Validate("Item No.", Item."No.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
     end;
 
     [Test]
@@ -1340,7 +1341,7 @@ codeunit 137510 "SMB Service Item"
 
         // EXERCISE
         asserterror CreateTransOrder(Item);
-        AssertRunTime('Type must be equal to ''Inventory''', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), Format(Item.Type::Inventory));
     end;
 
     [Test]
@@ -1394,7 +1395,7 @@ codeunit 137510 "SMB Service Item"
         asserterror
           LibraryInventory.CreateItemJournalLine(
             ItemJnlLine, ItemJnlTemplate.Name, ItemJnlBatch.Name, ItemJnlLine."Entry Type"::Purchase, Item."No.", 1);
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
 
         // Check that it is possible to create an an item journal line when type = inventory
         Item.Validate(Type, Item.Type::Inventory);
@@ -1447,7 +1448,7 @@ codeunit 137510 "SMB Service Item"
 
         // Check that it is not possible change from replenishment system = Purchase
         asserterror Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
     end;
 
     [Scope('OnPrem')]
@@ -1472,7 +1473,7 @@ codeunit 137510 "SMB Service Item"
                 Item.FieldName("Inventory Posting Group"), '', Item.Type::"Non-Inventory"));
 
         asserterror Item.Validate("Inventory Posting Group", InventoryPostingGr.Code);
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
     end;
 
     [Scope('OnPrem')]
@@ -1500,13 +1501,13 @@ codeunit 137510 "SMB Service Item"
 
         // Check that it is not possible change from reordering policy = empty
         asserterror Item.Validate("Reordering Policy", Item."Reordering Policy"::"Fixed Reorder Qty.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
         asserterror Item.Validate("Reordering Policy", Item."Reordering Policy"::"Maximum Qty.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
         asserterror Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
         asserterror Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
     end;
 
     [Scope('OnPrem')]
@@ -1534,9 +1535,9 @@ codeunit 137510 "SMB Service Item"
 
         // Check that it is not possible change from reserve = standard
         asserterror Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking Only");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
         asserterror Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking & Action Msg.");
-        AssertRunTime('Type must be equal to', '');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), '');
     end;
 
     [Scope('OnPrem')]
@@ -1978,8 +1979,7 @@ codeunit 137510 "SMB Service Item"
         LibraryInventory.CreateServiceTypeItem(Item);
 
         asserterror Item.Validate("Indirect Cost %", LibraryRandom.RandDec(100, 2));
-
-        AssertRunTime('Type must be equal to', 'You cannot set Indirect Cost % for non-inventory item.');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), Format(Item.Type::Inventory));
     end;
 
     [Test]
@@ -1995,8 +1995,7 @@ codeunit 137510 "SMB Service Item"
         LibraryInventory.CreateServiceTypeItem(Item);
 
         asserterror Item.Validate("Overhead Rate", LibraryRandom.RandDec(100, 2));
-
-        AssertRunTime('Type must be equal to', 'You cannot set Overhead Rate for non-inventory item.');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), Format(Item.Type::Inventory));
     end;
 
     [Test]
@@ -2050,8 +2049,7 @@ codeunit 137510 "SMB Service Item"
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
 
         asserterror PurchaseLine.Validate("Indirect Cost %", LibraryRandom.RandDec(100, 2));
-
-        AssertRunTime('Type must be equal to', 'You cannot set Indirect Cost % on purchase line for non-inventory item.');
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Type), Format(Item.Type::Inventory));
     end;
 
     [Test]
@@ -2083,11 +2081,11 @@ codeunit 137510 "SMB Service Item"
             PurchaseLine."Direct Unit Cost" := LibraryRandom.RandDecInRange(100, 200, 2);
             if PurchaseLine.Type <> PurchaseLine.Type::Item then begin
                 asserterror PurchaseLine.Validate("Indirect Cost %", 1 + LibraryRandom.RandIntInRange(1, 99));
-                Assert.ExpectedError(IndirectCostErr);
+                Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption("Indirect Cost %"), Format(0));
                 ClearLastError();
 
                 asserterror PurchaseLine.Validate("Unit Cost (LCY)", Round(PurchaseLine."Direct Unit Cost" * 1.1));
-                Assert.ExpectedError(IndirectCostErr);
+                Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption("Indirect Cost %"), Format(0));
                 ClearLastError();
             end;
         end;
@@ -2352,25 +2350,23 @@ codeunit 137510 "SMB Service Item"
         LibraryPurchase.CreatePurchaseLine(
             PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(10, 20, 2));
 
-        with PurchaseLine do begin
-            Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
-            Modify(true);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseLine.Modify(true);
 
-            TestField("Indirect Cost %", 0);
+        PurchaseLine.TestField("Indirect Cost %", 0);
 
-            ExpectedIndirectPercent := 10;
-            ExpectedUnitCost := Round("Direct Unit Cost" * (100 + ExpectedIndirectPercent) / 100);
+        ExpectedIndirectPercent := 10;
+        ExpectedUnitCost := Round(PurchaseLine."Direct Unit Cost" * (100 + ExpectedIndirectPercent) / 100);
 
-            Validate("Unit Cost (LCY)", ExpectedUnitCost);
-            Modify(true);
+        PurchaseLine.Validate("Unit Cost (LCY)", ExpectedUnitCost);
+        PurchaseLine.Modify(true);
 
-            GeneralLedgerSetup.GetRecordOnce();
-            ExpectedIndirectPercent :=
-                Round(("Unit Cost (LCY)" - "Direct Unit Cost") * 100 / "Direct Unit Cost", 0.00001); // we have fixed rounding precision
-
-            TestField("Unit Cost (LCY)", ExpectedUnitCost);
-            TestField("Indirect Cost %", ExpectedIndirectPercent);
-        end;
+        GeneralLedgerSetup.GetRecordOnce();
+        ExpectedIndirectPercent :=
+            Round((PurchaseLine."Unit Cost (LCY)" - PurchaseLine."Direct Unit Cost") * 100 / PurchaseLine."Direct Unit Cost", 0.00001);
+        // we have fixed rounding precision
+        PurchaseLine.TestField("Unit Cost (LCY)", ExpectedUnitCost);
+        PurchaseLine.TestField("Indirect Cost %", ExpectedIndirectPercent);
     end;
 
     [Test]
@@ -2817,12 +2813,10 @@ codeunit 137510 "SMB Service Item"
 
     local procedure FindPurchReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; PurchReceiptNo: Code[20]; ItemNo: Code[20])
     begin
-        with PurchRcptLine do begin
-            SetRange("Document No.", PurchReceiptNo);
-            SetRange(Type, Type::Item);
-            SetRange("No.", ItemNo);
-            FindSet();
-        end;
+        PurchRcptLine.SetRange("Document No.", PurchReceiptNo);
+        PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
+        PurchRcptLine.SetRange("No.", ItemNo);
+        PurchRcptLine.FindSet();
     end;
 
     local procedure CheckEntries(Item: Record Item)

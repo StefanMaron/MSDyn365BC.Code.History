@@ -20,31 +20,29 @@ codeunit 137225 "SCM Test UpdateDateTime"
         ProductionOrder: Record "Production Order";
     begin
         Initialize();
-        with ProductionOrder do begin
-            SetNullNull("Starting Date", "Starting Time");
-            SetNullNull("Ending Date", "Ending Time");
-            UpdateDatetime();
-            TestField("Starting Date-Time", 0DT);
-            TestField("Ending Date-Time", 0DT);
+        SetNullNull(ProductionOrder."Starting Date", ProductionOrder."Starting Time");
+        SetNullNull(ProductionOrder."Ending Date", ProductionOrder."Ending Time");
+        ProductionOrder.UpdateDatetime();
+        ProductionOrder.TestField("Starting Date-Time", 0DT);
+        ProductionOrder.TestField("Ending Date-Time", 0DT);
 
-            SetDateNull("Starting Date", "Starting Time");
-            SetDateNull("Ending Date", "Ending Time");
-            UpdateDatetime();
-            TestField("Starting Date-Time", 0DT);
-            TestField("Ending Date-Time", 0DT);
+        SetDateNull(ProductionOrder."Starting Date", ProductionOrder."Starting Time");
+        SetDateNull(ProductionOrder."Ending Date", ProductionOrder."Ending Time");
+        ProductionOrder.UpdateDatetime();
+        ProductionOrder.TestField("Starting Date-Time", 0DT);
+        ProductionOrder.TestField("Ending Date-Time", 0DT);
 
-            SetNullTime("Starting Date", "Starting Time");
-            SetNullTime("Ending Date", "Ending Time");
-            UpdateDatetime();
-            TestField("Starting Date-Time", 0DT);
-            TestField("Ending Date-Time", 0DT);
+        SetNullTime(ProductionOrder."Starting Date", ProductionOrder."Starting Time");
+        SetNullTime(ProductionOrder."Ending Date", ProductionOrder."Ending Time");
+        ProductionOrder.UpdateDatetime();
+        ProductionOrder.TestField("Starting Date-Time", 0DT);
+        ProductionOrder.TestField("Ending Date-Time", 0DT);
 
-            SetDateTime("Starting Date", "Starting Time");
-            SetDateTime("Ending Date", "Ending Time");
-            UpdateDatetime();
-            TestField("Starting Date-Time");
-            TestField("Ending Date-Time");
-        end;
+        SetDateTime(ProductionOrder."Starting Date", ProductionOrder."Starting Time");
+        SetDateTime(ProductionOrder."Ending Date", ProductionOrder."Ending Time");
+        ProductionOrder.UpdateDatetime();
+        ProductionOrder.TestField("Starting Date-Time");
+        ProductionOrder.TestField("Ending Date-Time");
     end;
 
     [Test]
@@ -54,25 +52,23 @@ codeunit 137225 "SCM Test UpdateDateTime"
         ProdOrderLine: Record "Prod. Order Line";
     begin
         Initialize();
-        with ProdOrderLine do begin
-            SetNullNull("Starting Date", "Starting Time");
-            SetNullNull("Ending Date", "Ending Time");
-            UpdateDatetime();
-            TestField("Starting Date-Time", 0DT);
-            TestField("Ending Date-Time", 0DT);
+        SetNullNull(ProdOrderLine."Starting Date", ProdOrderLine."Starting Time");
+        SetNullNull(ProdOrderLine."Ending Date", ProdOrderLine."Ending Time");
+        ProdOrderLine.UpdateDatetime();
+        ProdOrderLine.TestField("Starting Date-Time", 0DT);
+        ProdOrderLine.TestField("Ending Date-Time", 0DT);
 
-            SetNullTime("Starting Date", "Starting Time");
-            SetNullTime("Ending Date", "Ending Time");
-            UpdateDatetime();
-            TestField("Starting Date-Time", 0DT);
-            TestField("Ending Date-Time", 0DT);
+        SetNullTime(ProdOrderLine."Starting Date", ProdOrderLine."Starting Time");
+        SetNullTime(ProdOrderLine."Ending Date", ProdOrderLine."Ending Time");
+        ProdOrderLine.UpdateDatetime();
+        ProdOrderLine.TestField("Starting Date-Time", 0DT);
+        ProdOrderLine.TestField("Ending Date-Time", 0DT);
 
-            SetDateTime("Starting Date", "Starting Time");
-            SetDateTime("Ending Date", "Ending Time");
-            UpdateDatetime();
-            TestField("Starting Date-Time");
-            TestField("Ending Date-Time");
-        end;
+        SetDateTime(ProdOrderLine."Starting Date", ProdOrderLine."Starting Time");
+        SetDateTime(ProdOrderLine."Ending Date", ProdOrderLine."Ending Time");
+        ProdOrderLine.UpdateDatetime();
+        ProdOrderLine.TestField("Starting Date-Time");
+        ProdOrderLine.TestField("Ending Date-Time");
     end;
 
     [Test]
@@ -82,23 +78,21 @@ codeunit 137225 "SCM Test UpdateDateTime"
         ProdOrderComponent: Record "Prod. Order Component";
     begin
         Initialize();
-        with ProdOrderComponent do begin
-            SetNullNull("Due Date", "Due Time");
-            UpdateDatetime();
-            TestField("Due Date-Time", 0DT);
+        SetNullNull(ProdOrderComponent."Due Date", ProdOrderComponent."Due Time");
+        ProdOrderComponent.UpdateDatetime();
+        ProdOrderComponent.TestField("Due Date-Time", 0DT);
 
-            SetDateNull("Due Date", "Due Time");
-            UpdateDatetime();
-            TestField("Due Date-Time", 0DT);
+        SetDateNull(ProdOrderComponent."Due Date", ProdOrderComponent."Due Time");
+        ProdOrderComponent.UpdateDatetime();
+        ProdOrderComponent.TestField("Due Date-Time", 0DT);
 
-            SetNullTime("Due Date", "Due Time");
-            UpdateDatetime();
-            TestField("Due Date-Time", 0DT);
+        SetNullTime(ProdOrderComponent."Due Date", ProdOrderComponent."Due Time");
+        ProdOrderComponent.UpdateDatetime();
+        ProdOrderComponent.TestField("Due Date-Time", 0DT);
 
-            SetDateTime("Due Date", "Due Time");
-            UpdateDatetime();
-            TestField("Due Date-Time");
-        end;
+        SetDateTime(ProdOrderComponent."Due Date", ProdOrderComponent."Due Time");
+        ProdOrderComponent.UpdateDatetime();
+        ProdOrderComponent.TestField("Due Date-Time");
     end;
 
     [Test]
@@ -108,31 +102,29 @@ codeunit 137225 "SCM Test UpdateDateTime"
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
         Initialize();
-        with ProdOrderRoutingLine do begin
-            SetNullNull("Starting Date", "Starting Time");
-            SetNullNull("Ending Date", "Ending Time");
-            UpdateDatetime();
-            TestField("Starting Date-Time", 0DT);
-            TestField("Ending Date-Time", 0DT);
+        SetNullNull(ProdOrderRoutingLine."Starting Date", ProdOrderRoutingLine."Starting Time");
+        SetNullNull(ProdOrderRoutingLine."Ending Date", ProdOrderRoutingLine."Ending Time");
+        ProdOrderRoutingLine.UpdateDatetime();
+        ProdOrderRoutingLine.TestField("Starting Date-Time", 0DT);
+        ProdOrderRoutingLine.TestField("Ending Date-Time", 0DT);
 
-            SetDateNull("Starting Date", "Starting Time");
-            SetDateNull("Ending Date", "Ending Time");
-            UpdateDatetime();
-            TestField("Starting Date-Time", 0DT);
-            TestField("Ending Date-Time", 0DT);
+        SetDateNull(ProdOrderRoutingLine."Starting Date", ProdOrderRoutingLine."Starting Time");
+        SetDateNull(ProdOrderRoutingLine."Ending Date", ProdOrderRoutingLine."Ending Time");
+        ProdOrderRoutingLine.UpdateDatetime();
+        ProdOrderRoutingLine.TestField("Starting Date-Time", 0DT);
+        ProdOrderRoutingLine.TestField("Ending Date-Time", 0DT);
 
-            SetNullTime("Starting Date", "Starting Time");
-            SetNullTime("Ending Date", "Ending Time");
-            UpdateDatetime();
-            TestField("Starting Date-Time", 0DT);
-            TestField("Ending Date-Time", 0DT);
+        SetNullTime(ProdOrderRoutingLine."Starting Date", ProdOrderRoutingLine."Starting Time");
+        SetNullTime(ProdOrderRoutingLine."Ending Date", ProdOrderRoutingLine."Ending Time");
+        ProdOrderRoutingLine.UpdateDatetime();
+        ProdOrderRoutingLine.TestField("Starting Date-Time", 0DT);
+        ProdOrderRoutingLine.TestField("Ending Date-Time", 0DT);
 
-            SetDateTime("Starting Date", "Starting Time");
-            SetDateTime("Ending Date", "Ending Time");
-            UpdateDatetime();
-            TestField("Starting Date-Time");
-            TestField("Ending Date-Time");
-        end;
+        SetDateTime(ProdOrderRoutingLine."Starting Date", ProdOrderRoutingLine."Starting Time");
+        SetDateTime(ProdOrderRoutingLine."Ending Date", ProdOrderRoutingLine."Ending Time");
+        ProdOrderRoutingLine.UpdateDatetime();
+        ProdOrderRoutingLine.TestField("Starting Date-Time");
+        ProdOrderRoutingLine.TestField("Ending Date-Time");
     end;
 
     [Test]
@@ -142,31 +134,29 @@ codeunit 137225 "SCM Test UpdateDateTime"
         ProdOrderCapNeed: Record "Prod. Order Capacity Need";
     begin
         Initialize();
-        with ProdOrderCapNeed do begin
-            SetNullNull(Date, "Starting Time");
-            SetNullNull(Date, "Ending Time");
-            UpdateDatetime();
-            TestField("Starting Date-Time", 0DT);
-            TestField("Ending Date-Time", 0DT);
+        SetNullNull(ProdOrderCapNeed.Date, ProdOrderCapNeed."Starting Time");
+        SetNullNull(ProdOrderCapNeed.Date, ProdOrderCapNeed."Ending Time");
+        ProdOrderCapNeed.UpdateDatetime();
+        ProdOrderCapNeed.TestField("Starting Date-Time", 0DT);
+        ProdOrderCapNeed.TestField("Ending Date-Time", 0DT);
 
-            SetDateNull(Date, "Starting Time");
-            SetDateNull(Date, "Ending Time");
-            UpdateDatetime();
-            TestField("Starting Date-Time", 0DT);
-            TestField("Ending Date-Time", 0DT);
+        SetDateNull(ProdOrderCapNeed.Date, ProdOrderCapNeed."Starting Time");
+        SetDateNull(ProdOrderCapNeed.Date, ProdOrderCapNeed."Ending Time");
+        ProdOrderCapNeed.UpdateDatetime();
+        ProdOrderCapNeed.TestField("Starting Date-Time", 0DT);
+        ProdOrderCapNeed.TestField("Ending Date-Time", 0DT);
 
-            SetNullTime(Date, "Starting Time");
-            SetNullTime(Date, "Ending Time");
-            UpdateDatetime();
-            TestField("Starting Date-Time", 0DT);
-            TestField("Ending Date-Time", 0DT);
+        SetNullTime(ProdOrderCapNeed.Date, ProdOrderCapNeed."Starting Time");
+        SetNullTime(ProdOrderCapNeed.Date, ProdOrderCapNeed."Ending Time");
+        ProdOrderCapNeed.UpdateDatetime();
+        ProdOrderCapNeed.TestField("Starting Date-Time", 0DT);
+        ProdOrderCapNeed.TestField("Ending Date-Time", 0DT);
 
-            SetDateTime(Date, "Starting Time");
-            SetDateTime(Date, "Ending Time");
-            UpdateDatetime();
-            TestField("Starting Date-Time");
-            TestField("Ending Date-Time");
-        end;
+        SetDateTime(ProdOrderCapNeed.Date, ProdOrderCapNeed."Starting Time");
+        SetDateTime(ProdOrderCapNeed.Date, ProdOrderCapNeed."Ending Time");
+        ProdOrderCapNeed.UpdateDatetime();
+        ProdOrderCapNeed.TestField("Starting Date-Time");
+        ProdOrderCapNeed.TestField("Ending Date-Time");
     end;
 
     [Test]
@@ -181,21 +171,16 @@ codeunit 137225 "SCM Test UpdateDateTime"
 
         // [GIVEN] Prod. Order Line with "Due Date" = "D" and "Due Time" = "T".
         MockProdOrderLine(ProdOrderLine);
-
-        with ProdOrderComponent do begin
-            // [GIVEN] Prod. order component.
-            "Prod. Order No." := ProdOrderLine."Prod. Order No.";
-            "Qty. per Unit of Measure" := 1;
-            Insert();
-
-            // [WHEN] Validate "Calculation Formula" on the component to trigger copying due date and time from production order line.
-            Validate("Calculation Formula");
-
-            // [THEN] "Due Date" on the component = "D", "Due Time" = "T", "Due Date-Time" = "D" "T".
-            TestField("Due Date", ProdOrderLine."Starting Date");
-            TestField("Due Time", ProdOrderLine."Starting Time");
-            TestField("Due Date-Time", CreateDateTime("Due Date", "Due Time"));
-        end;
+        // [GIVEN] Prod. order component.
+        ProdOrderComponent."Prod. Order No." := ProdOrderLine."Prod. Order No.";
+        ProdOrderComponent."Qty. per Unit of Measure" := 1;
+        ProdOrderComponent.Insert();
+        // [WHEN] Validate "Calculation Formula" on the component to trigger copying due date and time from production order line.
+        ProdOrderComponent.Validate("Calculation Formula");
+        // [THEN] "Due Date" on the component = "D", "Due Time" = "T", "Due Date-Time" = "D" "T".
+        ProdOrderComponent.TestField("Due Date", ProdOrderLine."Starting Date");
+        ProdOrderComponent.TestField("Due Time", ProdOrderLine."Starting Time");
+        ProdOrderComponent.TestField("Due Date-Time", CreateDateTime(ProdOrderComponent."Due Date", ProdOrderComponent."Due Time"));
     end;
 
     local procedure SetNullNull(var DateVar: Date; var TimeVar: Time)
@@ -224,13 +209,11 @@ codeunit 137225 "SCM Test UpdateDateTime"
 
     local procedure MockProdOrderLine(var ProdOrderLine: Record "Prod. Order Line")
     begin
-        with ProdOrderLine do begin
-            Init();
-            "Prod. Order No." := LibraryUtility.GenerateGUID();
-            "Starting Date" := WorkDate();
-            "Starting Time" := 120000T;
-            Insert();
-        end;
+        ProdOrderLine.Init();
+        ProdOrderLine."Prod. Order No." := LibraryUtility.GenerateGUID();
+        ProdOrderLine."Starting Date" := WorkDate();
+        ProdOrderLine."Starting Time" := 120000T;
+        ProdOrderLine.Insert();
     end;
 
     local procedure Initialize()

@@ -159,6 +159,7 @@ page 7201 "CDS Connection Setup Wizard"
 
                     trigger OnValidate()
                     begin
+                        ClientSecretEdited := true;
                         Rec.SetClientSecret(ClientSecret);
                     end;
                 }
@@ -239,7 +240,10 @@ page 7201 "CDS Connection Setup Wizard"
                                 Sleep(5000);
 
                                 AreAdminCredentialsCorrect := true;
-                                Rec.SetPassword(UserPassword);
+                                if UserPasswordEdited then
+                                    Rec.SetPassword(UserPassword)
+                                else
+                                    Rec.SetPassword(CurrentCDSConnectionSetupPassword());
                                 NextActionEnabled := true;
 
                                 CurrPage.Update(false);
@@ -322,6 +326,7 @@ page 7201 "CDS Connection Setup Wizard"
 
                         trigger OnValidate()
                         begin
+                            UserPasswordEdited := true;
                             Rec.SetPassword(UserPassword);
                         end;
                     }
@@ -424,7 +429,10 @@ page 7201 "CDS Connection Setup Wizard"
                     var
                         CDSCoupleSalespersons: Page "CDS Couple Salespersons";
                     begin
-                        Rec.SetPassword(UserPassword);
+                        if UserPasswordEdited then
+                            Rec.SetPassword(UserPassword)
+                        else
+                            Rec.SetPassword(CurrentCDSConnectionSetupPassword());
                         CDSIntegrationImpl.CheckConnectionRequiredFields(Rec, false);
 
                         CDSCoupleSalespersons.Editable := true;
@@ -473,7 +481,10 @@ page 7201 "CDS Connection Setup Wizard"
                         CDSFullSynchReview: Page "CDS Full Synch. Review";
                     begin
                         Window.Open(GettingThingsReadyTxt);
-                        Rec.SetPassword(UserPassword);
+                        if UserPasswordEdited then
+                            Rec.SetPassword(UserPassword)
+                        else
+                            Rec.SetPassword(CurrentCDSConnectionSetupPassword());
 
                         CDSFullSynchReview.SetRecord(CRMFullSynchReviewLine);
                         CDSFullSynchReview.SetTableView(CRMFullSynchReviewLine);
@@ -650,8 +661,12 @@ page 7201 "CDS Connection Setup Wizard"
                                     CDSConnectionSetup.Init();
                                     CDSConnectionSetup.Insert();
                                 end;
+
                                 CDSConnectionSetup.Validate("Client Id", Rec."Client Id");
-                                CDSConnectionSetup.SetClientSecret(ClientSecret);
+                                if ClientSecretEdited then
+                                    CDSConnectionSetup.SetClientSecret(ClientSecret)
+                                else
+                                    CDSConnectionSetup.SetClientSecret(CDSConnectionSetup.GetSecretClientSecret());
                                 CDSConnectionSetup.Validate("Redirect URL", Rec."Redirect URL");
                                 Rec.Modify();
                             end;
@@ -669,7 +684,10 @@ page 7201 "CDS Connection Setup Wizard"
                             begin
                                 if (Rec."User Name" = '') or (UserPassword = '') then
                                     Error(UsernameAndPasswordShouldNotBeEmptyErr);
-                                Rec.SetPassword(UserPassword);
+                                if UserPasswordEdited then
+                                    Rec.SetPassword(UserPassword)
+                                else
+                                    Rec.SetPassword(CurrentCDSConnectionSetupPassword());
                                 if not CDSIntegrationImpl.TryCheckCredentials(Rec) then
                                     Error(WrongCredentialsErr);
                                 CDSIntegrationImpl.CheckIntegrationUserPrerequisites(Rec, AdminUserName, AdminPassword, AdminAccessToken, AdminADDomain);
@@ -798,11 +816,15 @@ page 7201 "CDS Connection Setup Wizard"
     trigger OnOpenPage()
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        CDSConnectionSetup2: Record "CDS Connection Setup";
         OAuth2: Codeunit "OAuth2";
         FeatureTelemetry: Codeunit "Feature Telemetry";
         RedirectUrl: Text;
+        SecretUserPassword: SecretText;
+        SecretClientSecret: SecretText;
     begin
-        if not CDSConnectionSetup.WritePermission() then
+        if not CDSConnectionSetup2.WritePermission() then
             Error(NoPermissionsErr);
         FeatureTelemetry.LogUptake('0000H7I', 'Dataverse', Enum::"Feature Uptake Status"::Discovered);
         FeatureTelemetry.LogUptake('0000IIP', 'Dataverse Base Entities', Enum::"Feature Uptake Status"::Discovered);
@@ -814,15 +836,19 @@ page 7201 "CDS Connection Setup Wizard"
             Rec."Authentication Type" := CDSConnectionSetup."Authentication Type";
             Rec."Server Address" := CDSConnectionSetup."Server Address";
             Rec."User Name" := CDSConnectionSetup."User Name";
-            UserPassword := CDSConnectionSetup.GetPassword();
-            Rec.SetPassword(UserPassword);
+            UserPassword := '**********';
+            SecretUserPassword := CDSConnectionSetup.GetSecretPassword();
+            Rec.SetPassword(SecretUserPassword);
             if not SoftwareAsAService then begin
                 Rec."Client Id" := CDSConnectionSetup."Client Id";
-                ClientSecret := CDSConnectionSetup.GetClientSecret();
-                Rec.SetClientSecret(ClientSecret);
+                ClientSecret := '**********';
+                SecretClientSecret := CDSConnectionSetup.GetSecretClientSecret();
+                Rec.SetClientSecret(SecretClientSecret);
                 Rec."Redirect URL" := CDSConnectionSetup."Redirect URL";
             end;
         end else begin
+            CDSConnectionSetup.Init();
+            CDSConnectionSetup.Insert();
             TempCDSConnectionSetup."Ownership Model" := TempCDSConnectionSetup."Ownership Model"::Team;
             InitializeDefaultAuthenticationType();
             InitializeDefaultProxyVersion();
@@ -873,16 +899,15 @@ page 7201 "CDS Connection Setup Wizard"
         CrmHelper: DotNet CrmHelper;
         Step: Option Info,Consent,Application,Admin,IntegrationUser,OwnershipModel,CoupleSalespersons,FullSynchReview,BusinessEvents,Finish;
         Window: Dialog;
-        [NonDebuggable]
-        AdminAccessToken: Text;
+        AdminAccessToken: SecretText;
         [NonDebuggable]
         AdminUserName: Text;
-        [NonDebuggable]
-        AdminPassword: Text;
+        AdminPassword: SecretText;
         [NonDebuggable]
         AdminADDomain: Text;
         [NonDebuggable]
         ClientSecret: Text;
+        ClientSecretEdited: Boolean;
         SoftwareAsAService: Boolean;
         ApplicationStepVisible: Boolean;
         TopBannerVisible: Boolean;
@@ -918,6 +943,7 @@ page 7201 "CDS Connection Setup Wizard"
         LearnMoreTok: Label 'Privacy and Cookies';
         [NonDebuggable]
         UserPassword: Text;
+        UserPasswordEdited: Boolean;
         SuccesfullyLoggedInTxt: Label 'The administrator is signed in.';
         UnsuccesfullyLoggedInTxt: Label 'Could not sign in the administrator.';
         VirtualTableAppInstalledTxt: Label 'The Business Central Virtual Table app is installed.';
@@ -1248,7 +1274,10 @@ page 7201 "CDS Connection Setup Wizard"
     begin
         Rec."Business Events Enabled" := true;
         if not SoftwareAsAService then
-            Rec.SetClientSecret(ClientSecret);
+            if ClientSecretEdited then
+                Rec.SetClientSecret(ClientSecret)
+            else
+                Rec.SetClientSecret(CurrentCDSConnectionSetupClientSecret());
         CDSIntegrationImpl.UpdateBusinessEventsSetupFromWizard(Rec);
     end;
 
@@ -1257,8 +1286,30 @@ page 7201 "CDS Connection Setup Wizard"
         Rec."Ownership Model" := TempCDSConnectionSetup."Ownership Model";
         Rec."Is Enabled" := true;
         if not SoftwareAsAService then
-            Rec.SetClientSecret(ClientSecret);
-        CDSIntegrationImpl.UpdateConnectionSetupFromWizard(Rec, UserPassword);
+            if ClientSecretEdited then
+                Rec.SetClientSecret(ClientSecret)
+            else
+                Rec.SetClientSecret(CurrentCDSConnectionSetupClientSecret());
+        if UserPasswordEdited then
+            CDSIntegrationImpl.UpdateConnectionSetupFromWizard(Rec, UserPassword)
+        else
+            CDSIntegrationImpl.UpdateConnectionSetupFromWizard(Rec, CurrentCDSConnectionSetupPassword());
+    end;
+
+    local procedure CurrentCDSConnectionSetupClientSecret(): SecretText
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+    begin
+        CDSConnectionSetup.Get();
+        exit(CDSConnectionSetup.GetSecretClientSecret());
+    end;
+
+    local procedure CurrentCDSConnectionSetupPassword(): SecretText
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+    begin
+        CDSConnectionSetup.Get();
+        exit(CDSConnectionSetup.GetSecretPassword());
     end;
 
     [NonDebuggable]
@@ -1267,7 +1318,10 @@ page 7201 "CDS Connection Setup Wizard"
         CDSConectionSetup: Record "CDS Connection Setup";
     begin
         if Rec."Authentication Type" <> Rec."Authentication Type"::Office365 then begin
-            Rec.SetPassword(UserPassword);
+            if UserPasswordEdited then
+                Rec.SetPassword(UserPassword)
+            else
+                Rec.SetPassword(CurrentCDSConnectionSetupPassword());
             CDSIntegrationImpl.CheckCredentials(Rec);
         end;
         CDSIntegrationImpl.ConfigureIntegrationSolution(Rec, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, AdminADDomain, true);

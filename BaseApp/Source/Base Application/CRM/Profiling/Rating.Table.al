@@ -81,7 +81,11 @@ table 5111 Rating
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Rating deadlock involving question %1 - insert aborted.\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ErrorMessage: Text[1024];
 
     local procedure RatingDeadlock(TargetProfileQuestnLine: Record "Profile Questionnaire Line"; NextRating: Record Rating) Deadlock: Boolean

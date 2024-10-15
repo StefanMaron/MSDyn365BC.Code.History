@@ -148,7 +148,7 @@ page 99000883 "Sales Order Planning"
                             Item: Record Item;
                         begin
                             if Item.Get(Rec."Item No.") then
-                                ItemAvailFormsMgt.ShowItemAvailFromItem(Item, ItemAvailFormsMgt.ByEvent());
+                                ItemAvailFormsMgt.ShowItemAvailabilityFromItem(Item, "Item Availability Type"::"Event");
                         end;
                     }
                     action("<Action31>")
@@ -172,7 +172,7 @@ page 99000883 "Sales Order Planning"
                             Item: Record Item;
                         begin
                             if Item.Get(Rec."Item No.") then
-                                ItemAvailFormsMgt.ShowItemAvailFromItem(Item, ItemAvailFormsMgt.ByBOM());
+                                ItemAvailFormsMgt.ShowItemAvailabilityFromItem(Item, "Item Availability Type"::BOM);
                         end;
                     }
                 }
@@ -279,15 +279,13 @@ page 99000883 "Sales Order Planning"
                     trigger OnAction()
                     var
                         SalesOrderLine: Record "Sales Line";
-                        TrackingForm: Page "Order Tracking";
+                        OrderTracking: Page "Order Tracking";
                     begin
-                        SalesOrderLine.Get(
-                          SalesOrderLine."Document Type"::Order,
-                          Rec."Sales Order No.",
-                          Rec."Sales Order Line No.");
-
-                        TrackingForm.SetSalesLine(SalesOrderLine);
-                        TrackingForm.RunModal();
+                        SalesOrderLine.Get("Sales Document Type"::Order, Rec."Sales Order No.", Rec."Sales Order Line No.");
+                        OrderTracking.SetVariantRec(
+                            SalesOrderLine, SalesOrderLine."No.", SalesOrderLine."Outstanding Qty. (Base)",
+                            SalesOrderLine."Shipment Date", SalesOrderLine."Shipment Date");
+                        OrderTracking.RunModal();
                         BuildForm();
                     end;
                 }
@@ -341,8 +339,10 @@ page 99000883 "Sales Order Planning"
         NewStatus: Enum "Production Order Status";
         NewOrderType: Enum "Create Production Order Type";
 
+#pragma warning disable AA0074
         Text000: Label 'All Lines to last Shipment Date,Each line own Shipment Date';
         Text001: Label 'There is nothing to plan.';
+#pragma warning restore AA0074
 
     procedure SetSalesOrder(SalesOrderNo: Code[20])
     begin

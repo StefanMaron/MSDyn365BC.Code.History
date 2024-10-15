@@ -9,6 +9,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Document;
+using System.Utilities;
 using Microsoft.Warehouse.Request;
 using System.Environment.Configuration;
 
@@ -20,8 +21,14 @@ codeunit 8510 "Over-Receipt Mgt."
     end;
 
     var
-        OverReceiptQuantityErr: Label 'You cannot enter more than %1 in the Over-Receipt Quantity field.';
+        OverReceiptQuantityErrTitleTxt: Label 'Qty. to Receive isn''t valid.';
+        OverReceiptQuantityErrDescriptionTxt: Label 'The selected Over-Receipt Code - %1, allows you to receive up to %2 units.', Comment = '%1 = Over Receipt Code, %2 = numbers of allowed quantity to receive.';
         OverReceiptNotificationTxt: Label 'An over-receipt quantity is recorded on purchase order %1.', Comment = '%1 - document number';
+        QtyToSetCustomDimKeyTxt: Label 'Qty. to Set', Locked = true;
+        OverReceiptSetQtyActionCaptionTxt: Label 'Set value to %1', Comment = '%1 = Quantity to set';
+#pragma warning disable AA0470
+        OverReceiptSetQtyActionTooltipTxt: Label 'Corrects %1 value to %2.';
+#pragma warning restore AA0470
 
     procedure IsOverReceiptAllowed() OverReceiptAllowed: Boolean
     begin
@@ -115,11 +122,14 @@ codeunit 8510 "Over-Receipt Mgt."
     var
         OverReceiptCode: Record "Over-Receipt Code";
         UoMMgt: Codeunit "Unit of Measure Management";
+        ErrorMessageManagement: Codeunit "Error Message Management";
         OverReceiptQtyBase: Decimal;
         LineBaseQty: Decimal;
-        MaxOverReceiptQtyAllowed: Decimal;
+        MaxOverReceiptBaseQtyAllowed: Decimal;
+        MaxQtyAllowed: Decimal;
         IsHandled: Boolean;
         ShouldCallError: Boolean;
+        ActionableErrorInfo: ErrorInfo;
     begin
         IsHandled := false;
         OnBeforeVerifyOverReceiptQuantity(PurchaseLine, xPurchaseLine, IsHandled);
@@ -131,12 +141,26 @@ codeunit 8510 "Over-Receipt Mgt."
         OverReceiptCode.Get(PurchaseLine."Over-Receipt Code");
         OverReceiptQtyBase := UOMMgt.CalcBaseQty(PurchaseLine."Over-Receipt Quantity", PurchaseLine."Qty. per Unit of Measure");
         LineBaseQty := UoMMgt.CalcBaseQty(xPurchaseLine.Quantity - xPurchaseLine."Over-Receipt Quantity", xPurchaseLine."Qty. per Unit of Measure");
-        MaxOverReceiptQtyAllowed := UOMMgt.RoundQty(LineBaseQty / 100 * OverReceiptCode."Over-Receipt Tolerance %");
+        MaxOverReceiptBaseQtyAllowed := UOMMgt.RoundQty(LineBaseQty / 100 * OverReceiptCode."Over-Receipt Tolerance %");
+        MaxQtyAllowed := (xPurchaseLine.Quantity - xPurchaseLine."Over-Receipt Quantity") * (1 + OverReceiptCode."Over-Receipt Tolerance %" / 100);
+        MaxQtyAllowed := UoMMgt.RoundQty(MaxQtyAllowed, xPurchaseLine."Qty. Rounding Precision", '<');
 
-        ShouldCallError := OverReceiptQtyBase > MaxOverReceiptQtyAllowed;
-        OnVerifyOverReceiptQuantityOnAfterCalcShouldCallError(PurchaseLine, OverReceiptQtyBase, MaxOverReceiptQtyAllowed, ShouldCallError);
+        ShouldCallError := OverReceiptQtyBase > MaxOverReceiptBaseQtyAllowed;
+        OnVerifyOverReceiptQuantityOnAfterCalcShouldCallError(PurchaseLine, OverReceiptQtyBase, MaxOverReceiptBaseQtyAllowed, ShouldCallError);
         if ShouldCallError then
-            Error(OverReceiptQuantityErr, MaxOverReceiptQtyAllowed);
+            if MaxQtyAllowed = xPurchaseLine."Qty. to Receive" then
+                Error(OverReceiptQuantityErrTitleTxt)
+            else begin
+                ActionableErrorInfo := ErrorMessageManagement.BuildActionableErrorInfo(OverReceiptQuantityErrTitleTxt,
+                    StrSubstNo(OverReceiptQuantityErrDescriptionTxt, OverReceiptCode.Code, MaxQtyAllowed),
+                    PurchaseLine.SystemId,
+                    StrSubstNo(OverReceiptSetQtyActionCaptionTxt, MaxQtyAllowed),
+                    Codeunit::"Over-Receipt Mgt.",
+                    'SetMaxAllowedOverReceiptQtyOnPurchaseLine',
+                    StrSubstNo(OverReceiptSetQtyActionTooltipTxt, PurchaseLine.FieldCaption("Qty. to Receive"), MaxQtyAllowed));
+                ActionableErrorInfo.CustomDimensions.Add(QtyToSetCustomDimKeyTxt, Format(MaxQtyAllowed));
+                Error(ActionableErrorInfo);
+            end;
     end;
 
     procedure GetDefaultOverReceiptCode(PurchaseLine: Record "Purchase Line") DefaultOverReceiptCode: Code[20]
@@ -214,6 +238,18 @@ codeunit 8510 "Over-Receipt Mgt."
         PurchaseLine.SetFilter("Over-Receipt Quantity", '<>0');
         if not PurchaseLine.IsEmpty() then
             ShowOverReceiptNotification(PurchaseHeader.RecordId(), StrSubstNo(OverReceiptNotificationTxt, PurchaseHeader."No."));
+    end;
+
+    internal procedure SetMaxAllowedOverReceiptQtyOnPurchaseLine(ErrorInfo: ErrorInfo)
+    var
+        PurchaseLine: Record "Purchase Line";
+        QtyToReceive: Decimal;
+    begin
+        Evaluate(QtyToReceive, ErrorInfo.CustomDimensions.Get(QtyToSetCustomDimKeyTxt));
+        PurchaseLine.GetBySystemId(ErrorInfo.SystemId);
+
+        PurchaseLine.Validate("Qty. to Receive", QtyToReceive);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure GetOverReceiptNotificationId(): Guid

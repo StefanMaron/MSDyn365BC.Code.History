@@ -29,6 +29,11 @@ page 540 "Default Dimensions"
                     AboutTitle = 'Enter default values';
                     AboutText = 'Default values could be departments or teams, geographic regions or area codes, customers or vendors, salespeople or purchasers, and so on. Use them to filter, total, and do other types of analyses on reports.';
                 }
+                field("Dimension Value Name"; Rec."Dimension Value Name")
+                {
+                    ApplicationArea = Dimensions;
+                    ToolTip = 'Specifies the name of selected dimension value.';
+                }
                 field("Value Posting"; Rec."Value Posting")
                 {
                     ApplicationArea = Dimensions;

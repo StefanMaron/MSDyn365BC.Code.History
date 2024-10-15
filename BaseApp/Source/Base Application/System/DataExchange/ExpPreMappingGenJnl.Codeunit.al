@@ -35,7 +35,9 @@ codeunit 1273 "Exp. Pre-Mapping Gen. Jnl."
     end;
 
     var
+#pragma warning disable AA0470
         ProgressMsg: Label 'Pre-processing line no. #1######.', Comment = 'Line no.';
+#pragma warning restore AA0470
         EmployeeMustHaveBankAccountNoErr: Label 'You must specify either Bank Account No. or IBAN for employee %1.', Comment = '%1 - Employee name';
 
     local procedure PreparePaymentExportDataJnl(GenJnlLine: Record "Gen. Journal Line"; DataExchEntryNo: Integer; LineNo: Integer)

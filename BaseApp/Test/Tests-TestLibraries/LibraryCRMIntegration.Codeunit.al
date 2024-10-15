@@ -298,7 +298,7 @@ codeunit 139164 "Library - CRM Integration"
         CustomerPriceGroup.Find();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Scope('OnPrem')]
     procedure CreateCoupledSalesPriceAndPricelistLine(CustomerPriceGroup: Record "Customer Price Group"; var SalesPrice: Record "Sales Price"; var CRMProductpricelevel: Record "CRM Productpricelevel")
     var

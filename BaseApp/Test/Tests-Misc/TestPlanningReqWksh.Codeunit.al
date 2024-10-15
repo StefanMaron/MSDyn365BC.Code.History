@@ -805,39 +805,32 @@ codeunit 136127 "Test Planning/Req.Wksh"
         ServiceHeader: Record "Service Header";
         Job: Record Job;
     begin
-        with SalesHeader do begin
-            SetRange("Document Type", "Document Type"::Order);
-            if Find('-') then
-                repeat
-                    if "Bill-to Name" = TESTTEXT then
-                        Delete(true);
-                until Next() = 0;
-        end;
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
+        if SalesHeader.Find('-') then
+            repeat
+                if SalesHeader."Bill-to Name" = TESTTEXT then
+                    SalesHeader.Delete(true);
+            until SalesHeader.Next() = 0;
 
-        with PurchHeader do begin
-            SetRange("Document Type", "Document Type"::Order);
-            if Find('-') then
-                repeat
-                    if "Pay-to Name" = TESTTEXT then
-                        Delete(true);
-                until Next() = 0;
-        end;
+        PurchHeader.SetRange("Document Type", PurchHeader."Document Type"::Order);
+        if PurchHeader.Find('-') then
+            repeat
+                if PurchHeader."Pay-to Name" = TESTTEXT then
+                    PurchHeader.Delete(true);
+            until PurchHeader.Next() = 0;
 
-        with ServiceHeader do begin
-            SetRange("Document Type", "Document Type"::Order);
-            if Find('-') then
-                repeat
-                    if "Bill-to Name" = TESTTEXT then
-                        Delete(true);
-                until Next() = 0;
-        end;
+        ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Order);
+        if ServiceHeader.Find('-') then
+            repeat
+                if ServiceHeader."Bill-to Name" = TESTTEXT then
+                    ServiceHeader.Delete(true);
+            until ServiceHeader.Next() = 0;
 
-        with Job do
-            if Find('-') then
-                repeat
-                    if "Description 2" = TESTTEXT then
-                        Delete(true);
-                until Next() = 0;
+        if Job.Find('-') then
+            repeat
+                if Job."Description 2" = TESTTEXT then
+                    Job.Delete(true);
+            until Job.Next() = 0;
     end;
 
     local procedure CreateServiceDemand(ItemQty: Integer): Code[20]

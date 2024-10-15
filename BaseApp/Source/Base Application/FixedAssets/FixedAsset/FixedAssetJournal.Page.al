@@ -19,6 +19,8 @@ page 5629 "Fixed Asset Journal"
     SaveValues = true;
     SourceTable = "FA Journal Line";
     UsageCategory = Tasks;
+    AboutTitle = 'About Fixed Asset Journal';
+    AboutText = 'With the **Fixed Asset Journal**, all entries are posted to the fixed asset ledger entry only such as acquisition, depreciation, disposal, write-down, appreciation and maintenance.';
 
     layout
     {
@@ -88,6 +90,8 @@ page 5629 "Fixed Asset Journal"
                 field("FA Posting Type"; Rec."FA Posting Type")
                 {
                     ApplicationArea = FixedAssets;
+                    AboutTitle = 'Manage FA posting type';
+                    AboutText = 'Specify the FA posting type for the fixed asset transactions such as acquisition, depreciation, disposal, write-down, appreciation and maintenance.';
                     ToolTip = 'Specifies the posting type, if Account Type field contains Fixed Asset.';
                 }
                 field(Description; Rec.Description)

@@ -72,8 +72,7 @@ codeunit 137229 "SCM Item Analysis View"
         CreateInvPickFromTransferLine(WarehouseActivityHeader, WarehouseActivityLine, TransferLine);
 
         // [GIVEN] Post reclassification for item I from bin B to some other bin. That means the unpossibility of posting the Inventory Pick P.
-        with TransferLine do
-            ReclassItemWithNewBin("Transfer-from Code", "Item No.", Quantity, WarehouseActivityLine."Bin Code");
+        ReclassItemWithNewBin(TransferLine."Transfer-from Code", TransferLine."Item No.", TransferLine.Quantity, WarehouseActivityLine."Bin Code");
 
         // [WHEN] Posting inventory pick P and error occurs
         asserterror LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
@@ -106,29 +105,27 @@ codeunit 137229 "SCM Item Analysis View"
         Dim: Record Dimension;
         i: Integer;
     begin
-        with ItemAnalysisView do begin
-            Init();
-            "Analysis Area" := "Analysis Area"::Inventory;
-            Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Item Analysis View"));
-            Insert(true);
+        ItemAnalysisView.Init();
+        ItemAnalysisView."Analysis Area" := ItemAnalysisView."Analysis Area"::Inventory;
+        ItemAnalysisView.Validate(Code, LibraryUtility.GenerateRandomCode(ItemAnalysisView.FieldNo(Code), DATABASE::"Item Analysis View"));
+        ItemAnalysisView.Insert(true);
 
-            Validate("Update on Posting", UpdateOnPosting);
-            Validate("Include Budgets", IncludeBudgets);
-            if Dim.FindSet() then
-                repeat
-                    i += 1;
-                    case i of
-                        1:
-                            Validate("Dimension 1 Code", Dim.Code);
-                        2:
-                            Validate("Dimension 2 Code", Dim.Code);
-                        3:
-                            Validate("Dimension 3 Code", Dim.Code);
-                    end;
-                until (i = 3) or (Dim.Next() = 0);
+        ItemAnalysisView.Validate("Update on Posting", UpdateOnPosting);
+        ItemAnalysisView.Validate("Include Budgets", IncludeBudgets);
+        if Dim.FindSet() then
+            repeat
+                i += 1;
+                case i of
+                    1:
+                        ItemAnalysisView.Validate("Dimension 1 Code", Dim.Code);
+                    2:
+                        ItemAnalysisView.Validate("Dimension 2 Code", Dim.Code);
+                    3:
+                        ItemAnalysisView.Validate("Dimension 3 Code", Dim.Code);
+                end;
+            until (i = 3) or (Dim.Next() = 0);
 
-            Modify(true);
-        end;
+        ItemAnalysisView.Modify(true);
     end;
 
     local procedure PostSalesOrder()
@@ -272,20 +269,17 @@ codeunit 137229 "SCM Item Analysis View"
 
     local procedure CreateInvPickFromTransferLine(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseActivityLine: Record "Warehouse Activity Line"; TransferLine: Record "Transfer Line")
     begin
-        with TransferLine do
-            CreateInvPick(
+        CreateInvPick(
               WarehouseActivityHeader, WarehouseActivityLine,
-              WarehouseActivityHeader."Source Document"::"Outbound Transfer", "Document No.", "Transfer-from Code");
+              WarehouseActivityHeader."Source Document"::"Outbound Transfer", TransferLine."Document No.", TransferLine."Transfer-from Code");
     end;
 
     local procedure FindWarehouseActivityNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; LocationCode: Code[10])
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Source No.", SourceNo);
-            SetRange("Location Code", LocationCode);
-            SetRange("Action Type", "Action Type"::Take);
-            FindFirst();
-        end;
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Location Code", LocationCode);
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.FindFirst();
     end;
 
     [MessageHandler]

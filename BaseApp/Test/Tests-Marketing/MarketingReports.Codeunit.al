@@ -1391,23 +1391,11 @@ codeunit 136901 "Marketing Reports"
         LibraryReportDataset.SetRange('Opportunity__No__', Opportunity."No.");
         LibraryReportDataset.GetNextRow();
 
-        with Opportunity do begin
-            LibraryReportDataset.AssertCurrentRowValueEquals(
-              'Opportunity__Sales_Cycle_Code_',
-              "Sales Cycle Code");
-            LibraryReportDataset.AssertCurrentRowValueEquals(
-              'Opportunity__Salesperson_Code_',
-              "Salesperson Code");
-            LibraryReportDataset.AssertCurrentRowValueEquals(
-              'Opportunity__Contact_No__',
-              "Contact No.");
-            LibraryReportDataset.AssertCurrentRowValueEquals(
-              'Opportunity__Probability___',
-              "Probability %");
-            LibraryReportDataset.AssertCurrentRowValueEquals(
-              'Opportunity__Completed___',
-              "Completed %");
-        end;
+        LibraryReportDataset.AssertCurrentRowValueEquals('Opportunity__Sales_Cycle_Code_', Opportunity."Sales Cycle Code");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Opportunity__Salesperson_Code_', Opportunity."Salesperson Code");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Opportunity__Contact_No__', Opportunity."Contact No.");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Opportunity__Probability___', Opportunity."Probability %");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Opportunity__Completed___', Opportunity."Completed %");
     end;
 
     local procedure VerifyValuesSalesCycleAnalysis(SalesCycleCode: Code[10]; Stage: Integer)
@@ -1419,29 +1407,13 @@ codeunit 136901 "Marketing Reports"
 
         LibraryReportDataset.SetRange('Stage_SalesCycleStage', Format(Stage));
 
-        with SalesCycleStage do begin
-            LibraryReportDataset.GetNextRow();
-            LibraryReportDataset.AssertCurrentRowValueEquals(
-              'Descriptn_SalesCycleStage',
-              Description);
-
-            LibraryReportDataset.AssertCurrentRowValueEquals(
-              'ActyCode_SalesCycleStage',
-              "Activity Code");
-            LibraryReportDataset.AssertCurrentRowValueEquals(
-              'NoOfOppt_SalesCycleStage',
-              "No. of Opportunities");
-
-            LibraryReportDataset.AssertCurrentRowValueEquals(
-              'EstValLCY_SalesCycleStage',
-              "Estimated Value (LCY)");
-            LibraryReportDataset.AssertCurrentRowValueEquals(
-              'CurValLCY_SalesCycleStage',
-              "Calcd. Current Value (LCY)");
-            LibraryReportDataset.AssertCurrentRowValueEquals(
-              'AvgNoOfDay_SalesCycleStage',
-              "Average No. of Days");
-        end;
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals('Descriptn_SalesCycleStage', SalesCycleStage.Description);
+        LibraryReportDataset.AssertCurrentRowValueEquals('ActyCode_SalesCycleStage', SalesCycleStage."Activity Code");
+        LibraryReportDataset.AssertCurrentRowValueEquals('NoOfOppt_SalesCycleStage', SalesCycleStage."No. of Opportunities");
+        LibraryReportDataset.AssertCurrentRowValueEquals('EstValLCY_SalesCycleStage', SalesCycleStage."Estimated Value (LCY)");
+        LibraryReportDataset.AssertCurrentRowValueEquals('CurValLCY_SalesCycleStage', SalesCycleStage."Calcd. Current Value (LCY)");
+        LibraryReportDataset.AssertCurrentRowValueEquals('AvgNoOfDay_SalesCycleStage', SalesCycleStage."Average No. of Days");
     end;
 
     [ModalPageHandler]

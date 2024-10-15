@@ -199,6 +199,7 @@ codeunit 40 LogInManagement
     begin
         if CompanyInformationMgt.IsDemoCompany() then begin
             GLEntry.SetCurrentKey("Posting Date");
+            GLEntry.SecurityFiltering(SecurityFilter::Ignored);
             if GLEntry.FindLast() then begin
                 LogInWorkDate := NormalDate(GLEntry."Posting Date");
                 exit(NormalDate(GLEntry."Posting Date"));

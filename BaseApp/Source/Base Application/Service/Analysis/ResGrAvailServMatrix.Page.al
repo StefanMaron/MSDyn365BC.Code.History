@@ -531,7 +531,11 @@ page 9221 "Res. Gr. Avail. (Serv.) Matrix"
         Field32Visible: Boolean;
         QtytoallocateEnable: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot allocate a resource when selected period is %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure SetData(DocumentType: Integer; DocumentNo: Code[20]; EntryNo: Integer; NewMatrixColumnCaptions: array[32] of Text[100]; var NewMatrixDateFilters: array[32] of Record Date; Period: Enum "Analysis Period Type")
     begin

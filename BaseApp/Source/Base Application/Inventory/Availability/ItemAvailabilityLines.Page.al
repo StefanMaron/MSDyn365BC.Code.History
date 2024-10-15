@@ -3,7 +3,7 @@ namespace Microsoft.Inventory.Availability;
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.Period;
 using Microsoft.Inventory.Item;
-using System.Utilities;
+using Microsoft.Inventory.Transfer;
 
 page 353 "Item Availability Lines"
 {
@@ -110,8 +110,10 @@ page 353 "Item Availability Lines"
                     Visible = false;
 
                     trigger OnDrillDown()
+                    var
+                        PurchAvailabilityMgt: Codeunit Microsoft.Purchases.Document."Purch. Availability Mgt.";
                     begin
-                        ItemAvailFormsMgt.ShowPurchLines(Item);
+                        PurchAvailabilityMgt.ShowPurchLines(Item);
                     end;
                 }
 #pragma warning disable AA0100
@@ -126,23 +128,10 @@ page 353 "Item Availability Lines"
                     Visible = false;
 
                     trigger OnDrillDown()
+                    var
+                        SalesAvailabilityMgt: Codeunit Microsoft.Sales.Document."Sales Availability Mgt.";
                     begin
-                        ItemAvailFormsMgt.ShowSalesLines(Item);
-                    end;
-                }
-#pragma warning disable AA0100
-                field("Item.""Qty. on Service Order"""; Rec."Qty. on Service Order")
-#pragma warning restore AA0100
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Qty. on Service Order';
-                    DecimalPlaces = 0 : 5;
-                    ToolTip = 'Specifies how many units of the item are allocated to service orders, meaning listed on outstanding service order lines.';
-                    Visible = false;
-
-                    trigger OnDrillDown()
-                    begin
-                        ItemAvailFormsMgt.ShowServLines(Item);
+                        SalesAvailabilityMgt.ShowSalesLines(Item);
                     end;
                 }
 #pragma warning disable AA0100
@@ -156,8 +145,10 @@ page 353 "Item Availability Lines"
                     Visible = false;
 
                     trigger OnDrillDown()
+                    var
+                        JobPlanningAvailabilityiMgt: Codeunit Microsoft.Projects.Project.Planning."Job Planning Availability Mgt.";
                     begin
-                        ItemAvailFormsMgt.ShowJobPlanningLines(Item);
+                        JobPlanningAvailabilityiMgt.ShowJobPlanningLines(Item);
                     end;
                 }
 #pragma warning disable AA0100
@@ -171,8 +162,10 @@ page 353 "Item Availability Lines"
                     Visible = false;
 
                     trigger OnDrillDown()
+                    var
+                        TransferAvailabilityMgt: Codeunit "Transfer Availability Mgt.";
                     begin
-                        ItemAvailFormsMgt.ShowTransLines(Item, Item.FieldNo("Trans. Ord. Shipment (Qty.)"));
+                        TransferAvailabilityMgt.ShowTransLines(Item, Item.FieldNo("Trans. Ord. Shipment (Qty.)"));
                     end;
                 }
 #pragma warning disable AA0100
@@ -186,8 +179,10 @@ page 353 "Item Availability Lines"
                     Visible = false;
 
                     trigger OnDrillDown()
+                    var
+                        TransferAvailabilityMgt: Codeunit "Transfer Availability Mgt.";
                     begin
-                        ItemAvailFormsMgt.ShowTransLines(Item, Item.FieldNo("Qty. in Transit"));
+                        TransferAvailabilityMgt.ShowTransLines(Item, Item.FieldNo("Qty. in Transit"));
                     end;
                 }
 #pragma warning disable AA0100
@@ -201,8 +196,10 @@ page 353 "Item Availability Lines"
                     Visible = false;
 
                     trigger OnDrillDown()
+                    var
+                        TransferAvailabilityMgt: Codeunit "Transfer Availability Mgt.";
                     begin
-                        ItemAvailFormsMgt.ShowTransLines(Item, Item.FieldNo("Trans. Ord. Receipt (Qty.)"));
+                        TransferAvailabilityMgt.ShowTransLines(Item, Item.FieldNo("Trans. Ord. Receipt (Qty.)"));
                     end;
                 }
 #pragma warning disable AA0100
@@ -216,9 +213,9 @@ page 353 "Item Availability Lines"
 
                     trigger OnDrillDown()
                     var
-                        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+                        AssemblyAvailabilityMgt: Codeunit Microsoft.Assembly.Document."Assembly Availability Mgt.";
                     begin
-                        ItemAvailFormsMgt.ShowAsmCompLines(Item);
+                        AssemblyAvailabilityMgt.ShowAsmCompLines(Item);
                     end;
                 }
 #pragma warning disable AA0100
@@ -232,9 +229,9 @@ page 353 "Item Availability Lines"
 
                     trigger OnDrillDown()
                     var
-                        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+                        AssemblyAvailabilityMgt: Codeunit Microsoft.Assembly.Document."Assembly Availability Mgt.";
                     begin
-                        ItemAvailFormsMgt.ShowAsmOrders(Item);
+                        AssemblyAvailabilityMgt.ShowAsmOrders(Item);
                     end;
                 }
                 field(ExpectedInventory; Rec."Expected Inventory")
@@ -265,8 +262,10 @@ page 353 "Item Availability Lines"
                     Visible = false;
 
                     trigger OnDrillDown()
+                    var
+                        ProdOrderAvailabilityMgt: Codeunit Microsoft.Manufacturing.Document."Prod. Order Availability Mgt.";
                     begin
-                        ItemAvailFormsMgt.ShowSchedReceipt(Item);
+                        ProdOrderAvailabilityMgt.ShowSchedReceipt(Item);
                     end;
                 }
 #pragma warning disable AA0100
@@ -281,8 +280,10 @@ page 353 "Item Availability Lines"
                     Visible = false;
 
                     trigger OnDrillDown()
+                    var
+                        ProdOrderAvailabilityMgt: Codeunit Microsoft.Manufacturing.Document."Prod. Order Availability Mgt.";
                     begin
-                        ItemAvailFormsMgt.ShowSchedNeed(Item);
+                        ProdOrderAvailabilityMgt.ShowSchedNeed(Item);
                     end;
                 }
                 field(PlannedOrderReleases; Rec."Planned Order Releases")
@@ -357,7 +358,7 @@ page 353 "Item Availability Lines"
     end;
 
     var
-        DateRec: Record Date;
+        DateRec: Record System.Utilities.Date;
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
 
@@ -405,7 +406,6 @@ page 353 "Item Availability Lines"
         Rec.Inventory := Item.Inventory;
         Rec."Qty. on Purch. Order" := Item."Qty. on Purch. Order";
         Rec."Qty. on Sales Order" := Item."Qty. on Sales Order";
-        Rec."Qty. on Service Order" := Item."Qty. on Service Order";
         Rec."Qty. on Job Order" := Item."Qty. on Job Order";
         Rec."Trans. Ord. Shipment (Qty.)" := Item."Trans. Ord. Shipment (Qty.)";
         Rec."Qty. in Transit" := Item."Qty. in Transit";

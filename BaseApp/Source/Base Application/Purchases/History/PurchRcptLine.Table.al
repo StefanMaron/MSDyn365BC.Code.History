@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.History;
+namespace Microsoft.Purchases.History;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -782,8 +782,12 @@ table 121 "Purch. Rcpt. Line"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Receipt No. %1:';
+#pragma warning restore AA0470
         Text001: Label 'The program cannot find this purchase line.';
+#pragma warning restore AA0074
         Currency: Record Currency;
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         DimMgt: Codeunit DimensionManagement;

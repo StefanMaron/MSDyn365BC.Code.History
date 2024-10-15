@@ -6,10 +6,9 @@ using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Projects.Project.Analysis;
 using Microsoft.Projects.Resources.Analysis;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
 #endif
-using Microsoft.Service.Analysis;
 
 page 72 "Resource Groups"
 {
@@ -123,7 +122,7 @@ page 72 "Resource Groups"
             {
                 Caption = '&Prices';
                 Image = Price;
-#if not CLEAN23
+#if not CLEAN25
                 action(Costs)
                 {
                     ApplicationArea = Jobs;
@@ -208,15 +207,6 @@ page 72 "Resource Groups"
                     RunPageLink = "Resource Gr. Filter" = field("No.");
                     ToolTip = 'View the project allocations of the resource group.';
                 }
-                action("Res. Group Allocated per Service &Order")
-                {
-                    ApplicationArea = Jobs;
-                    Caption = 'Res. Group Allocated per Service &Order';
-                    Image = ViewServiceOrder;
-                    RunObject = Page "Res. Gr. Alloc. per Serv Order";
-                    RunPageLink = "Resource Group Filter" = field("No.");
-                    ToolTip = 'View the service order allocations of the resource group.';
-                }
                 action("Res. Group Availa&bility")
                 {
                     ApplicationArea = Jobs;
@@ -295,7 +285,7 @@ page 72 "Resource Groups"
                 actionref(SalesPriceLists_Promoted; SalesPriceLists)
                 {
                 }
-#if not CLEAN23
+#if not CLEAN25
                 actionref(Costs_Promoted; Costs)
                 {
                     ObsoleteState = Pending;
@@ -303,7 +293,7 @@ page 72 "Resource Groups"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN23
+#if not CLEAN25
                 actionref(Prices_Promoted; Prices)
                 {
                     ObsoleteState = Pending;

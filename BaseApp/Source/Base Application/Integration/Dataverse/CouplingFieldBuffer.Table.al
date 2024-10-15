@@ -8,13 +8,8 @@ table 5333 "Coupling Field Buffer"
 {
     Caption = 'Coupling Field Buffer';
     ReplicateData = false;
-#if not CLEAN22
-    ObsoleteState = Pending;
-    ObsoleteTag = '22.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '25.0';
-#endif 
     ObsoleteReason = 'This table is no longer used. Use Coupling Field Buffer table instead.';
     DataClassification = CustomerContent;
 
