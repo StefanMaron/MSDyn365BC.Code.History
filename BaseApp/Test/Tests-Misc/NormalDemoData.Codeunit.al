@@ -272,20 +272,29 @@ codeunit 138200 "Normal DemoData"
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
+        ReportId: Integer;
     begin
         Assert.RecordCount(AdvancedIntrastatChecklist, 26);
 
         AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Checklist");
         AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Form");
         AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Make Disk Tax Auth");
-        AdvancedIntrastatChecklistCommonFields(Report::"Create Intrastat Decl. Disk");
 
         AdvancedIntrastatChecklistField(Report::"Intrastat - Checklist", IntrastatJnlLine.FieldNo(Quantity), '');
         AdvancedIntrastatChecklistField(Report::"Intrastat - Form", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: Yes');
         AdvancedIntrastatChecklistField(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: Yes');
-        AdvancedIntrastatChecklistField(Report::"Create Intrastat Decl. Disk", IntrastatJnlLine.FieldNo("Item No."), '');
-        AdvancedIntrastatChecklistField(Report::"Create Intrastat Decl. Disk", IntrastatJnlLine.FieldNo("Transport Method"), '');
-        AdvancedIntrastatChecklistField(Report::"Create Intrastat Decl. Disk", IntrastatJnlLine.FieldNo("Net Weight"), '');
+
+        ReportId := Report::"Create Intrastat Decl. Disk";
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Item No."), '');
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Transport Method"), '');
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Net Weight"), '');
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Tariff No."), '');
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Country/Region Code"), '');
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Total Weight"), '');
+        AdvancedIntrastatChecklistField(
+            ReportId, IntrastatJnlLine.FieldNo("Transaction Specification"), 'Type: Shipment, Counterparty: Yes');
+        AdvancedIntrastatChecklistFieldFull(
+            ReportId, IntrastatJnlLine.FieldNo("Transaction Type"), 'Type: Shipment, Counterparty: Yes', true);
     end;
 
     local procedure AdvancedIntrastatChecklistCommonFields(ReportId: Integer)
@@ -300,6 +309,11 @@ codeunit 138200 "Normal DemoData"
     end;
 
     local procedure AdvancedIntrastatChecklistField(ReportId: Integer; FieldNo: Integer; FilterExpr: Text)
+    begin
+        AdvancedIntrastatChecklistFieldFull(ReportId, FieldNo, FilterExpr, false);
+    end;
+
+    local procedure AdvancedIntrastatChecklistFieldFull(ReportId: Integer; FieldNo: Integer; FilterExpr: Text; Reverse: Boolean)
     var
         AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
     begin
@@ -307,7 +321,18 @@ codeunit 138200 "Normal DemoData"
         AdvancedIntrastatChecklist.SetRange("Object Id", ReportId);
         AdvancedIntrastatChecklist.SetRange("Field No.", FieldNo);
         AdvancedIntrastatChecklist.SetRange("Filter Expression", FilterExpr);
+        AdvancedIntrastatChecklist.SetRange("Reversed Filter Expression", Reverse);
         Assert.IsFalse(AdvancedIntrastatChecklist.IsEmpty(), 'Advanced Intrastat Checklist Setup');
+    end;
+
+    [Test]
+    procedure GBIsExcludedFromEUCountry()
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        // [SCENARIO 402208] "GB" is excluded from country\region "EU Country/Region Code" field value for all countries
+        CountryRegion.SetRange("EU Country/Region Code", 'GB');
+        Assert.RecordIsEmpty(CountryRegion);
     end;
 }
 

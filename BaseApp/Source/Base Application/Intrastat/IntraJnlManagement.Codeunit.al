@@ -291,19 +291,27 @@ codeunit 350 IntraJnlManagement
     procedure CreateDefaultAdvancedIntrastatSetup()
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        ReportId: Integer;
     begin
         CreateAdvancedChecklistSetupCommonFields(Report::"Intrastat - Checklist");
         CreateAdvancedChecklistSetupCommonFields(Report::"Intrastat - Form");
         CreateAdvancedChecklistSetupCommonFields(Report::"Intrastat - Make Disk Tax Auth");
-        CreateAdvancedChecklistSetupCommonFields(Report::"Create Intrastat Decl. Disk");
 
         CreateAdvancedChecklistFieldSetup(Report::"Intrastat - Checklist", IntrastatJnlLine.FieldNo(Quantity), '');
         CreateAdvancedChecklistFieldSetup(Report::"Intrastat - Form", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: True');
         CreateAdvancedChecklistFieldSetup(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: True');
 
-        CreateAdvancedChecklistFieldSetup(Report::"Create Intrastat Decl. Disk", IntrastatJnlLine.FieldNo("Item No."), '');
-        CreateAdvancedChecklistFieldSetup(Report::"Create Intrastat Decl. Disk", IntrastatJnlLine.FieldNo("Transport Method"), '');
-        CreateAdvancedChecklistFieldSetup(Report::"Create Intrastat Decl. Disk", IntrastatJnlLine.FieldNo("Net Weight"), '');
+        ReportId := Report::"Create Intrastat Decl. Disk";
+        CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Tariff No."), '');
+        CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Country/Region Code"), '');
+        CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Total Weight"), '');
+        CreateAdvancedChecklistFieldSetup(
+            ReportId, IntrastatJnlLine.FieldNo("Transaction Specification"), 'Type: Shipment, Counterparty: True');
+        CreateAdvancedChecklistFieldSetupFull(
+            ReportId, IntrastatJnlLine.FieldNo("Transaction Type"), 'Type: Shipment, Counterparty: True', true);
+        CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Item No."), '');
+        CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Transport Method"), '');
+        CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Net Weight"), '');
     end;
 
     local procedure CreateAdvancedChecklistSetupCommonFields(ReportId: Integer)
@@ -318,6 +326,11 @@ codeunit 350 IntraJnlManagement
     end;
 
     local procedure CreateAdvancedChecklistFieldSetup(ReportId: Integer; FieldNo: Integer; FilterExpr: Text)
+    begin
+        CreateAdvancedChecklistFieldSetupFull(ReportId, FieldNo, FilterExpr, false);
+    end;
+
+    local procedure CreateAdvancedChecklistFieldSetupFull(ReportId: Integer; FieldNo: Integer; FilterExpr: Text; Reverse: Boolean)
     var
         AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
     begin
@@ -325,7 +338,8 @@ codeunit 350 IntraJnlManagement
         AdvancedIntrastatChecklist.Validate("Object Type", AdvancedIntrastatChecklist."Object Type"::Report);
         AdvancedIntrastatChecklist.Validate("Object Id", ReportId);
         AdvancedIntrastatChecklist.Validate("Field No.", FieldNo);
-        AdvancedIntrastatChecklist.Validate("Filter Expression", FilterExpr);
+        AdvancedIntrastatChecklist.Validate("Filter Expression", CopyStr(FilterExpr, 1, MaxStrLen(AdvancedIntrastatChecklist."Filter Expression")));
+        AdvancedIntrastatChecklist.Validate("Reversed Filter Expression", Reverse);
         if AdvancedIntrastatChecklist.Insert() then;
     end;
 }

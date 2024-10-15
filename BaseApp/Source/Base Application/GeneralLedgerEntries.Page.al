@@ -392,13 +392,24 @@ page 20 "General Ledger Entries"
                     trigger OnAction()
                     var
                         GLEABRec: Record "G/L Entry Application Buffer";
+                        GLSetup: Record "General Ledger Setup";
+                        ApplyGLEntries: Page "Apply General Ledger Entries";
+                        GeneralLedgerEntriesApply: Page "General Ledger Entries Apply";
                     begin
-                        ApplyGLEntries.SetAppliedEntries(Rec);
                         GLEABRec.Init();
-                        GLEABRec."Entry No." := "Entry No.";
+                        GLEABRec."Entry No." := Rec."Entry No.";
+                        GLSetup.Get();
+                        if not GLSetup."Use New Apply G/L Entries Page" then begin
+                            ApplyGLEntries.SetAppliedEntries(Rec);
+                            if GLEABRec.Find('=><') then
+                                ApplyGLEntries.SetRecord(GLEABRec);
+                            ApplyGLEntries.Run;
+                            exit;
+                        end;
+                        GeneralLedgerEntriesApply.SetAppliedEntries(Rec);
                         if GLEABRec.Find('=><') then
-                            ApplyGLEntries.SetRecord(GLEABRec);
-                        ApplyGLEntries.Run;
+                            GeneralLedgerEntriesApply.SetRecord(GLEABRec);
+                        GeneralLedgerEntriesApply.Run();
                     end;
                 }
             }
@@ -441,10 +452,21 @@ page 20 "General Ledger Entries"
                     ToolTip = 'Select one or more ledger entries that you want to apply this entry to so that the related posted documents are closed as paid or refunded.';
 
                     trigger OnAction()
+                    var
+                        GLSetup: Record "General Ledger Setup";
+                        ApplyGLEntries: Page "Apply General Ledger Entries";
+                        GeneralLedgerEntriesApply: Page "General Ledger Entries Apply";
                     begin
-                        Clear(ApplyGLEntries);
-                        ApplyGLEntries.SetAllEntries("G/L Account No.");
-                        ApplyGLEntries.Run;
+                        GLSetup.Get();
+                        if not GLSetup."Use New Apply G/L Entries Page" then begin
+                            Clear(ApplyGLEntries);
+                            ApplyGLEntries.SetAllEntries(Rec."G/L Account No.");
+                            ApplyGLEntries.Run();
+                            exit;
+                        end;
+                        Clear(GeneralLedgerEntriesApply);
+                        GeneralLedgerEntriesApply.SetAllEntries(Rec."G/L Account No.");
+                        GeneralLedgerEntriesApply.Run();
                     end;
                 }
                 group(IncomingDocument)
@@ -580,7 +602,6 @@ page 20 "General Ledger Entries"
     var
         GLAcc: Record "G/L Account";
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
-        ApplyGLEntries: Page "Apply General Ledger Entries";
         HasIncomingDocument: Boolean;
         AmountVisible: Boolean;
         DebitCreditVisible: Boolean;

@@ -6,6 +6,9 @@ page 11309 "Apply General Ledger Entries"
     Permissions = TableData "G/L Entry" = rm,
                   TableData "G/L Entry Application Buffer" = rim;
     SourceTable = "G/L Entry Application Buffer";
+    ObsoleteTag = '19.0';
+    ObsoleteReason = 'Replaced by new page 11310 "General Ledger Entries Apply".';
+    ObsoleteState = Pending;
 
     layout
     {

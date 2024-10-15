@@ -1485,6 +1485,8 @@ page 26 "Vendor Card"
 
         if "No." <> '' then
             CurrPage.AgedAccPayableChart.PAGE.UpdateChartForVendor("No.");
+        if Rec.GetFilter("Date Filter") = '' then
+            SetRange("Date Filter", 0D, WorkDate());
 
         CRMIsCoupledToRecord := CRMIntegrationEnabled or CDSIntegrationEnabled;
         if CRMIsCoupledToRecord then
