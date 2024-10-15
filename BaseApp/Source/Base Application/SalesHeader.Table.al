@@ -3882,7 +3882,7 @@
         if SalesLine.FindSet then
             repeat
                 IsHandled := false;
-                OnBeforeSalesLineByChangedFieldNo(Rec, SalesLine, ChangedFieldNo, IsHandled);
+                OnBeforeSalesLineByChangedFieldNo(Rec, SalesLine, ChangedFieldNo, IsHandled, xRec);
                 if not IsHandled then
                     case ChangedFieldNo of
                         FieldNo("Shipment Date"):
@@ -4096,6 +4096,8 @@
         if Prompt then
             if not ConfirmManagement.GetResponseOrDefault(Text035, true) then
                 exit(false);
+
+        OnCheckCustomerCreatedOnAfterConfirmProcess(Rec);
 
         if "Sell-to Customer No." = '' then begin
             TestField("Sell-to Contact No.");
@@ -4727,7 +4729,7 @@
                 SalesHeader."Bill-to Customer No." := Cust."Bill-to Customer No."
             else
                 SalesHeader."Bill-to Customer No." := Cust."No.";
-            OnCheckCreditMaxBeforeInsertOnCaseIfOnBeforeSalesHeaderCheckCase(SalesHeader);
+            OnCheckCreditMaxBeforeInsertOnCaseIfOnBeforeSalesHeaderCheckCase(SalesHeader, Rec);
             CustCheckCreditLimit.SalesHeaderCheck(SalesHeader);
         end else
             if GetFilterContNo <> '' then begin
@@ -5736,10 +5738,14 @@
     end;
 
     local procedure RecreateReservEntryReqLine(var TempSalesLine: Record "Sales Line" temporary; var TempATOLink: Record "Assemble-to-Order Link" temporary; var ATOLink: Record "Assemble-to-Order Link")
+    var
+        ShouldValidateLocationCode: Boolean;
     begin
         repeat
             TestSalesLineFieldsBeforeRecreate;
-            if (SalesLine."Location Code" <> "Location Code") and (not SalesLine.IsNonInventoriableItem) then
+            ShouldValidateLocationCode := (SalesLine."Location Code" <> "Location Code") and not SalesLine.IsNonInventoriableItem;
+            OnRecreateReservEntryReqLineOnAfterCalcShouldValidateLocationCode(Rec, xRec, SalesLine, ShouldValidateLocationCode);
+            if ShouldValidateLocationCode then
                 SalesLine.Validate("Location Code", "Location Code");
             TempSalesLine := SalesLine;
             if SalesLine.Nonstock then begin
@@ -5801,6 +5807,7 @@
         end else begin
             SalesLine.Validate("No.", TempSalesLine."No.");
             if SalesLine.Type <> SalesLine.Type::" " then begin
+                OnCreateSalesLineOnBeforeTransferFieldsFromTempSalesLine(SalesLine, TempSalesLine, Rec);
                 SalesLine.Validate("Unit of Measure Code", TempSalesLine."Unit of Measure Code");
                 SalesLine.Validate("Variant Code", TempSalesLine."Variant Code");
                 OnCreateSalesLineOnBeforeValidateQuantity(SalesLine, TempSalesLine);
@@ -7609,7 +7616,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCopyShipToCustomerAddressFieldsFromShipToAddr(var SalesHeader: Record "Sales Header"; ShipToAddress: Record "Ship-to Address"; var IsHandled: Boolean)
+    local procedure OnBeforeCopyShipToCustomerAddressFieldsFromShipToAddr(var SalesHeader: Record "Sales Header"; var ShipToAddress: Record "Ship-to Address"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7859,7 +7866,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesLineByChangedFieldNo(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ChangedFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeSalesLineByChangedFieldNo(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ChangedFieldNo: Integer; var IsHandled: Boolean; xSalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -7990,6 +7997,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesLineOnBeforeValidateQuantity(var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesLineOnBeforeTransferFieldsFromTempSalesLine(var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary; var SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -8163,6 +8175,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRecreateReservEntryReqLineOnAfterLoop(var SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecreateReservEntryReqLineOnAfterCalcShouldValidateLocationCode(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var ShouldValidateLocationCode: Boolean)
     begin
     end;
 
@@ -8467,7 +8484,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckCreditMaxBeforeInsertOnCaseIfOnBeforeSalesHeaderCheckCase(var SalesHeader: Record "Sales Header")
+    local procedure OnCheckCreditMaxBeforeInsertOnCaseIfOnBeforeSalesHeaderCheckCase(var SalesHeader: Record "Sales Header"; Rec: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckCustomerCreatedOnAfterConfirmProcess(var SalesHeader: Record "Sales Header")
     begin
     end;
 

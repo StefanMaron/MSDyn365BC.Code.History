@@ -113,6 +113,9 @@ report 7318 "Whse.-Shipment - Create Pick"
                     repeat
                         ItemTrackingMgt.CalcWhseItemTrkgLine(TempWhseItemTrkgLine);
                     until TempWhseItemTrkgLine.Next() = 0;
+
+                if ApplyCustomSorting then
+                    WhseShptHeader.SortWhseDoc();
             end;
 
             trigger OnPreDataItem()
@@ -122,6 +125,11 @@ report 7318 "Whse.-Shipment - Create Pick"
 
                 CopyFilters(WhseShptLine);
                 SetFilter("Qty. (Base)", '>0');
+
+                if ApplyCustomSorting then begin
+                    WhseShptHeader.ApplyCustomSortingToWhseShptLines("Warehouse Shipment Line");
+                    SetCurrentKey("Sorting Sequence No.");
+                end;
             end;
         }
     }
@@ -184,6 +192,12 @@ report 7318 "Whse.-Shipment - Create Pick"
                         ApplicationArea = Warehouse;
                         Caption = 'Do Not Fill Qty. to Handle';
                         ToolTip = 'Specifies if you want to manually fill in the Quantity to Handle field on each line.';
+                    }
+                    field(CustomSorting; ApplyCustomSorting)
+                    {
+                        ApplicationArea = Warehouse;
+                        Caption = 'Prioritize lines with item tracking';
+                        ToolTip = 'Specifies if you want to pick the shipment lines with item tracking first.';
                     }
                     field(PrintDoc; PrintDoc)
                     {
@@ -278,6 +292,7 @@ report 7318 "Whse.-Shipment - Create Pick"
         MultipleActivCreatedMsg: Label '%1 activities no. %2 to %3 have been created.%4', Comment = '%1=WhseActivHeader.Type;%2=First Whse. Activity No.;%3=Last Whse. Activity No.;%4=Concatenates ExpiredItemMessageText';
         MultipleActivAndWhseShptCreatedMsg: Label '%1 activities no. %2 to %3 have been created.\For Warehouse Shipment lines that have existing Pick Worksheet lines, no %4 lines have been created.%5', Comment = '%1=WhseActivHeader.Type;%2=First Whse. Activity No.;%3=Last Whse. Activity No.;%4=WhseActivHeader.Type;%5=Concatenates ExpiredItemMessageText';
         NothingToHandleErr: Label 'There is nothing to handle.';
+        ApplyCustomSorting: Boolean;
 
     protected var
         HideValidationDialog: Boolean;

@@ -523,8 +523,15 @@ table 376 "G/L Account (Analysis View)"
         Text003: Label '1,6,,Dimension 4 Filter';
         AnalysisView: Record "Analysis View";
 
-    procedure GetCaptionClass(AnalysisViewDimType: Integer): Text[250]
+    procedure GetCaptionClass(AnalysisViewDimType: Integer) Result: Text[250]
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCaptionClass(Rec, AnalysisViewDimType, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         if AnalysisView.Code <> GetFilter("Analysis View Filter") then
             AnalysisView.Get(GetFilter("Analysis View Filter"));
         case AnalysisViewDimType of
@@ -573,6 +580,11 @@ table 376 "G/L Account (Analysis View)"
         SetFilter("Dimension 2 Filter", DimFilter2);
         SetFilter("Dimension 3 Filter", DimFilter3);
         SetFilter("Dimension 4 Filter", DimFilter4);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCaptionClass(var GLAccountAnalysisView: Record "G/L Account (Analysis View)"; AnalysisViewDimType: Integer; var Result: Text[250]; var IsHandled: Boolean)
+    begin
     end;
 }
 

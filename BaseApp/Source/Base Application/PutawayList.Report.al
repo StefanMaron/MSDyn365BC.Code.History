@@ -1,4 +1,4 @@
-report 5751 "Put-away List"
+﻿report 5751 "Put-away List"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './PutawayList.rdlc';
@@ -332,6 +332,11 @@ report 5751 "Put-away List"
         WhseActLineSourceNoCaption = 'Source No.';
     }
 
+    trigger OnInitReport()
+    begin
+        OnBeforeOnInitReport(ShowLotSN);
+    end;
+
     trigger OnPreReport()
     begin
         PutAwayFilter := "Warehouse Activity Header".GetFilters;
@@ -390,6 +395,11 @@ report 5751 "Put-away List"
     procedure SetInventory(SetHideOptions: Boolean)
     begin
         HideOptions := SetHideOptions;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnInitReport(var ShowLotSN: Boolean)
+    begin
     end;
 }
 

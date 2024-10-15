@@ -1,4 +1,4 @@
-table 295 "Reminder Header"
+﻿table 295 "Reminder Header"
 {
     Caption = 'Reminder Header';
     DataCaptionFields = "No.", Name;
@@ -1229,7 +1229,7 @@ table 295 "Reminder Header"
 
     [Obsolete('Replaced with OnInsertTextLinesOnBeforeReminderLineInsert', '20.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertReminderTextLine(var ReminderLine: Record "Reminder Line"; var ReminderText: Record "Reminder Text"; ReminderHeader: Record "Reminder Header")
+    local procedure OnBeforeInsertReminderTextLine(var ReminderLine: Record "Reminder Line"; var ReminderText: Record "Reminder Text"; var ReminderHeader: Record "Reminder Header")
     begin
     end;
 

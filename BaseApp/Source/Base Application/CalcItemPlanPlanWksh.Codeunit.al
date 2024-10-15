@@ -1,4 +1,4 @@
-codeunit 5431 "Calc. Item Plan - Plan Wksh."
+﻿codeunit 5431 "Calc. Item Plan - Plan Wksh."
 {
     TableNo = Item;
 
@@ -48,7 +48,7 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
             CopyFilter("Location Filter", ReqLineExtern."Location Code");
             ReqLineExtern.SetRange(Type, ReqLineExtern.Type::Item);
             ReqLineExtern.SetRange("No.", "No.");
-            OnCodeOnAfterSetReqLineFilters(ReqLineExtern);
+            OnCodeOnAfterSetReqLineFilters(ReqLineExtern, CurrTemplateName, CurrWorksheetName);
             if ReqLineExtern.Find('-') then
                 repeat
                     ReqLineExtern.Delete(true);
@@ -327,7 +327,7 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCodeOnAfterSetReqLineFilters(var ReqLineExtern: Record "Requisition Line")
+    local procedure OnCodeOnAfterSetReqLineFilters(var ReqLineExtern: Record "Requisition Line"; CurrTemplateName: Code[10]; CurrWorksheetName: Code[10])
     begin
     end;
 
