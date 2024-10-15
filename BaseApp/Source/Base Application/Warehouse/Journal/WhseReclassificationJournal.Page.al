@@ -343,12 +343,7 @@ page 7365 "Whse. Reclassification Journal"
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
-    var
-        ClientTypeManagement: Codeunit "Client Type Management";
     begin
-        // if called from API (such as edit-in-excel), do not refresh 
-        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
-            exit;
         Rec.SetUpNewLine(xRec);
     end;
 

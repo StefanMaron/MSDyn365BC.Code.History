@@ -2574,7 +2574,7 @@ table 5901 "Service Item Line"
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
         if OldDimSetID <> "Dimension Set ID" then begin
-            OnShowDimensionsOnBeforeServiceItemLineModify(Rec);
+            OnShowDimensionsOnBeforeServiceItemLineModify(Rec, xRec);
             Modify();
             if ServLineExists() then
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
@@ -3083,7 +3083,7 @@ table 5901 "Service Item Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnShowDimensionsOnBeforeServiceItemLineModify(var ServiceItemLine: Record "Service Item Line")
+    local procedure OnShowDimensionsOnBeforeServiceItemLineModify(var ServiceItemLine: Record "Service Item Line"; xServiceItemLine: Record "Service Item Line")
     begin
     end;
 

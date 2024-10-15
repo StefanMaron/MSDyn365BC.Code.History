@@ -19,6 +19,7 @@ codeunit 134924 "ERM Cues"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryERM: Codeunit "Library - ERM";
         ShipStatus: Option Full,Partial,"Not Shipped";
         WrongNumberOfDelayedOrdersErr: Label 'Wrong number of delayed Sales Orders.';
         RedundantSalesOnListErr: Label 'List of delayed Sales Order contains redundant documents.';
@@ -716,9 +717,9 @@ codeunit 134924 "ERM Cues"
         // [GIVEN] Cust. ledger entry 1, due date = today - 10days, open = true, amount (LCY) = 100.34, remaining amount (LCY) = 50.17 (detailed cust. ledger entry 1 amount (LCY) = 100.34, detailed cust. ledger entry 2 amount (LCY) = 50.17)
         // [GIVEN] Cust. ledger entry 2, due date = today, open = false, amount (LCY) = 120.23, remaining amount (LCY) = 0 (detailed cust. ledger entry 1 amount (LCY) = 120.23, detailed cust. ledger entry 2 amount (LCY) = 120.23)
         // [GIVEN] Cust. ledger entry 3, due date = today + 20days, open = true, amount (LCY) = 150.82, remaining amount (LCY) = 150.82 (detailed cust. ledger entry 1 amount (LCY) = 150.82, detailed cust. ledger entry 2 amount (LCY) = 150.82)
-        CreateCustomerLedgerEntry(CalcDate('<-10D>', Today), true, 100.34, 50.17);
-        CreateCustomerLedgerEntry(Today, false, 120.23, 120.23);
-        CreateCustomerLedgerEntry(CalcDate('<+20D>', Today), true, 150.82, 0);
+        CreateCustomerLedgerEntryWithDetailedCustLedgerEntry(CalcDate('<-10D>', Today), true, 100.34, 50.17);
+        CreateCustomerLedgerEntryWithDetailedCustLedgerEntry(Today, false, 120.23, 120.23);
+        CreateCustomerLedgerEntryWithDetailedCustLedgerEntry(CalcDate('<+20D>', Today), true, 150.82, 0);
 
         // [WHEN] Open Account Receivables KPIs page with overdue date filter
         AccountReceivablesKPIs.OpenView();
@@ -740,6 +741,61 @@ codeunit 134924 "ERM Cues"
         Assert.AreEqual(Format(CustomerLedgerEntries."Remaining Amt. (LCY)"), AccountReceivablesKPIs."Sales - Total Overdue (LCY)".Value, TotalOverDueLCYErr);
         Assert.IsFalse(CustomerLedgerEntries.Next(), '');
         CustomerLedgerEntries.Close();
+    end;
+
+    [Test]
+    procedure AverageCollectionDaysInFinanceCue()
+    var
+        ActivitiesMgt: Codeunit "Activities Mgt.";
+        AccountReceivablesKPIs: TestPage "Account Receivables KPIs";
+        AverageCollectionDaysErr: Label 'The average collection days field is not calculated correctly.', Locked = true;
+    begin
+        // [FEATURE] [Finance Cue] [Accounts Receivables Overview]
+        // [SCENARIO 507389] Average collection days cue in Finance Cue displays the average days between closed at date and posting date for paid invoices
+        Initialize();
+
+        // [GIVEN] Create customer ledger entries
+        // [GIVEN] Cust. ledger entry 1, document type = invoice, posting date = workdate - 11days, closed at date = workdate, open = false
+        // [GIVEN] Cust. ledger entry 2, document type = invoice, posting date = workdate + 20days, closed at date = workdate + 25days, open = false 
+        CreateCustomerLedgerEntry(CalcDate('<-11D>', WorkDate()), WorkDate(), false);
+        CreateCustomerLedgerEntry(CalcDate('<+20D>', WorkDate()), CalcDate('<+25D>', WorkDate()), false);
+
+        // [WHEN] Open Account Receivables KPIs page
+        AccountReceivablesKPIs.OpenView();
+
+        // [THEN] Verify the average collection days value is correct
+        Assert.AreEqual(ActivitiesMgt.CalcAverageCollectionDays(), AccountReceivablesKPIs."Average Collection Days".AsDecimal(), AverageCollectionDaysErr);
+    end;
+
+    [Test]
+    procedure ARAccountsBalanceInFinanceCue()
+    var
+        GLAccountCategory: Record "G/L Account Category";
+        ActivitiesMgt: Codeunit "Activities Mgt.";
+        AccountReceivablesKPIs: TestPage "Account Receivables KPIs";
+        ARAccountsBalanceErr: Label 'A/R Accounts Balance is not calculated correctly.', Locked = true;
+    begin
+        // [FEATURE] [Finance Cue] [Accounts Receivables Overview]
+        // [SCENARIO 507389] A/R Accounts Balance cue in Finance Cue displays the sum of the accounts that have the account receivables account category
+        Initialize();
+
+        // [GIVEN] Create G/L Account Category X
+        LibraryERM.CreateGLAccountCategory(GLAccountCategory);
+
+        // [GIVEN] Set G/L Account Category X as "Acc. Receivables Category" on GL Setup
+        SetGLAccountCategoryOnGLSetup(GLAccountCategory."Entry No.");
+
+        // [GIVEN] Create general ledger entries
+        // [GIVEN] General ledger entry 1, GL Account X, amount = 100
+        // [GIVEN] General ledger entry 2, GL Account Y, amount = 120
+        CreateGLEntry(CreateGLAccount(GLAccountCategory."Entry No."), 100);
+        CreateGLEntry(CreateGLAccount(GLAccountCategory."Entry No."), 120);
+
+        // [WHEN] Open Account Receivables KPIs page
+        AccountReceivablesKPIs.OpenView();
+
+        // [THEN] Verify A/R Accounts Balance is correct
+        Assert.AreEqual(ActivitiesMgt.CalcARAccountsBalances(), AccountReceivablesKPIs."A/R Accounts Balance".AsDecimal(), ARAccountsBalanceErr);
     end;
 
     local procedure Initialize()
@@ -972,7 +1028,7 @@ codeunit 134924 "ERM Cues"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateCustomerLedgerEntry(DueDate: Date; Open: Boolean; Amount1: Decimal; Amount2: Decimal)
+    local procedure CreateCustomerLedgerEntryWithDetailedCustLedgerEntry(DueDate: Date; Open: Boolean; Amount1: Decimal; Amount2: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -999,6 +1055,18 @@ codeunit 134924 "ERM Cues"
         DetailedCustLedgEntry."Initial Entry Due Date" := PostingDate;
         DetailedCustLedgEntry."Ledger Entry Amount" := LedgerEntryAmount;
         DetailedCustLedgEntry.Insert();
+    end;
+
+    local procedure CreateCustomerLedgerEntry(PostingDate: Date; ClosedAtDate: Date; Open: Boolean)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        CustLedgerEntry."Entry No." := CustLedgerEntry.GetLastEntryNo() + 1;
+        CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
+        CustLedgerEntry."Posting Date" := PostingDate;
+        CustLedgerEntry."Closed at Date" := ClosedAtDate;
+        CustLedgerEntry.Open := Open;
+        CustLedgerEntry.Insert();
     end;
 
     local procedure VerifySalesCueFlowFields()
@@ -1141,6 +1209,34 @@ codeunit 134924 "ERM Cues"
         WarehouseWMSCue.CalcFields("Posted Shipments - Today");
         Assert.AreEqual(
           0, WarehouseWMSCue."Posted Shipments - Today", StrSubstNo(WrongValueErr, WarehouseWMSCue.FieldCaption("Posted Shipments - Today"), WarehouseWMSCue.TableCaption));
+    end;
+
+    local procedure CreateGLEntry(GLAccount: Record "G/L Account"; Amount: Decimal)
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry."Entry No." := GLEntry.GetLastEntryNo() + 1;
+        GLEntry."G/L Account No." := GLAccount."No.";
+        GLEntry.Amount := Amount;
+        GLEntry.Insert();
+    end;
+
+    local procedure CreateGLAccount(GLAccountCategoryEntryNo: Integer) GLAccount: Record "G/L Account"
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount."Account Category" := GLAccount."Account Category"::Assets;
+        GLAccount."Account Type" := GLAccount."Account Type"::Posting;
+        GLAccount."Account Subcategory Entry No." := GLAccountCategoryEntryNo;
+        GLAccount.Modify();
+    end;
+
+    local procedure SetGLAccountCategoryOnGLSetup(AccReceivablesCategoryNo: Integer)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Acc. Receivables Category" := AccReceivablesCategoryNo;
+        GeneralLedgerSetup.Modify();
     end;
 
     [ConfirmHandler]

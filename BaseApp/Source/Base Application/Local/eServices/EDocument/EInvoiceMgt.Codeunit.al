@@ -2551,7 +2551,7 @@ codeunit 10145 "E-Invoice Mgt."
 
                 XMLCurrNode := XMLCurrNode.ParentNode;
 
-                    CalcComercioExteriorLine(TempDocumentLineCCE, TempDocumentLine, TempDocumentHeader."Foreign Trade", false);
+                CalcComercioExteriorLine(TempDocumentLineCCE, TempDocumentLine, TempDocumentHeader."Foreign Trade", false);
             until TempDocumentLine.Next() = 0;
         XMLCurrNode := XMLCurrNode.ParentNode;
 
@@ -7166,12 +7166,12 @@ IsVATExemptLine(TempDocumentLine));
         TempErrorMessage.LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("Insurer Policy Number"), TempErrorMessage."Message Type"::Error);
         TempErrorMessage.LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("Vehicle Code"), TempErrorMessage."Message Type"::Error);
         TempErrorMessage.LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("SAT Weight Unit Of Measure"), TempErrorMessage."Message Type"::Error);
-            if DocumentHeader."Foreign Trade" then begin
-                TempErrorMessage.LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("SAT International Trade Term"), TempErrorMessage."Message Type"::Error);
-                TempErrorMessage.LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("SAT Customs Regime"), TempErrorMessage."Message Type"::Error);
-                TempErrorMessage.LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("SAT Transfer Reason"), TempErrorMessage."Message Type"::Error);
-                TempErrorMessage.LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("Exchange Rate USD"), TempErrorMessage."Message Type"::Error);
-            end;
+        if DocumentHeader."Foreign Trade" then begin
+            TempErrorMessage.LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("SAT International Trade Term"), TempErrorMessage."Message Type"::Error);
+            TempErrorMessage.LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("SAT Customs Regime"), TempErrorMessage."Message Type"::Error);
+            TempErrorMessage.LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("SAT Transfer Reason"), TempErrorMessage."Message Type"::Error);
+            TempErrorMessage.LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("Exchange Rate USD"), TempErrorMessage."Message Type"::Error);
+        end;
         CFDITransportOperator.SetRange("Document Table ID", DocumentHeader."Document Table ID");
         CFDITransportOperator.SetRange("Document No.", DocumentHeader."No.");
         if not CFDITransportOperator.FindSet() then
@@ -7181,8 +7181,8 @@ IsVATExemptLine(TempDocumentLine));
                 Employee.Get(CFDITransportOperator."Operator Code");
                 TempErrorMessage.LogIfEmpty(Employee, Employee.FieldNo("RFC No."), TempErrorMessage."Message Type"::Error);
                 TempErrorMessage.LogIfEmpty(Employee, Employee.FieldNo("License No."), TempErrorMessage."Message Type"::Error);
-                    if Employee.FullName() = '' then
-                        TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, StrSubstNo(ValueIsNotDefinedErr, 'Full Name', Employee.RecordId));
+                if Employee.FullName() = '' then
+                    TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, StrSubstNo(ValueIsNotDefinedErr, 'Full Name', Employee.RecordId));
             until CFDITransportOperator.Next() = 0;
         CheckAutotransport(TempErrorMessage, DocumentHeader."Vehicle Code", false);
         CheckAutotransport(TempErrorMessage, DocumentHeader."Trailer 1", true);
@@ -7226,7 +7226,7 @@ IsVATExemptLine(TempDocumentLine));
             if (DocumentLine.Type = DocumentLine.Type::Item) and Item.Get(DocumentLine."No.") then
                 TempErrorMessage.LogIfEmpty(Item, Item.FieldNo("SAT Item Classification"), TempErrorMessage."Message Type"::Error);
             if not IsPrepayment then
-                 if (DocumentLine.Type = DocumentLine.Type::"G/L Account") and GLAccount.Get(DocumentLine."No.") then
+                if (DocumentLine.Type = DocumentLine.Type::"G/L Account") and GLAccount.Get(DocumentLine."No.") then
                     TempErrorMessage.LogIfEmpty(GLAccount, GLAccount.FieldNo("SAT Classification Code"), TempErrorMessage."Message Type"::Error);
             if (DocumentLine.Type = DocumentLine.Type::"Charge (Item)") and ItemCharge.Get(DocumentLine."No.") then
                 TempErrorMessage.LogIfEmpty(ItemCharge, ItemCharge.FieldNo("SAT Classification Code"), TempErrorMessage."Message Type"::Error);
@@ -7413,7 +7413,7 @@ IsVATExemptLine(TempDocumentLine));
             TempErrorMessage.LogIfEmpty(FixedAsset, FixedAsset.FieldNo("SAT Trailer Type"), TempErrorMessage."Message Type"::Error)
         else begin
             TempErrorMessage.LogIfEmpty(FixedAsset, FixedAsset.FieldNo("Vehicle Year"), TempErrorMessage."Message Type"::Error);
-                TempErrorMessage.LogIfEmpty(FixedAsset, FixedAsset.FieldNo("Vehicle Gross Weight"), TempErrorMessage."Message Type"::Error);
+            TempErrorMessage.LogIfEmpty(FixedAsset, FixedAsset.FieldNo("Vehicle Gross Weight"), TempErrorMessage."Message Type"::Error);
             TempErrorMessage.LogIfEmpty(FixedAsset, FixedAsset.FieldNo("SAT Federal Autotransport"), TempErrorMessage."Message Type"::Error);
             TempErrorMessage.LogIfEmpty(FixedAsset, FixedAsset.FieldNo("SCT Permission Type"), TempErrorMessage."Message Type"::Error);
             TempErrorMessage.LogIfEmpty(FixedAsset, FixedAsset.FieldNo("SCT Permission No."), TempErrorMessage."Message Type"::Error);

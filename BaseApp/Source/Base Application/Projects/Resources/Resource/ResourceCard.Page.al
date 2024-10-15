@@ -6,7 +6,6 @@ using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Comment;
 using Microsoft.Foundation.ExtendedText;
 using Microsoft.Integration.Dataverse;
-using Microsoft.Integration.FieldService;
 using Microsoft.Integration.SyncEngine;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
@@ -513,17 +512,24 @@ page 76 "Resource Card"
                     end;
                 }
             }
+#if not CLEAN25
             group(ActionGroupFS)
             {
                 Caption = 'Dynamics 365 Field Service';
-                Visible = FSIntegrationEnabled;
-                Enabled = (BlockedFilterApplied and (not Rec.Blocked)) or not BlockedFilterApplied;
+                Visible = false;
+                ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '25.0';
+
                 action(FSGoToProduct)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Product';
                     Image = CoupledItem;
-                    ToolTip = 'Open the coupled Dynamics 365 Field Service product.';
+                    ToolTip = 'Open the coupled Dynamics 365 Field Service bookable resource.';
+                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
 
                     trigger OnAction()
                     var
@@ -539,6 +545,9 @@ page 76 "Resource Card"
                     Caption = 'Synchronize';
                     Image = Refresh;
                     ToolTip = 'Send updated data to Dynamics 365 Sales.';
+                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
 
                     trigger OnAction()
                     var
@@ -562,6 +571,10 @@ page 76 "Resource Card"
                     Caption = 'Coupling', Comment = 'Coupling is a noun';
                     Image = LinkAccount;
                     ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dynamics 365 Sales record.';
+                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
+
                     action(ManageFSCoupling)
                     {
                         AccessByPermission = TableData "CRM Integration Record" = IM;
@@ -569,6 +582,9 @@ page 76 "Resource Card"
                         Caption = 'Set Up Coupling';
                         Image = LinkAccount;
                         ToolTip = 'Create or modify the coupling to a Dynamics 365 Sales product.';
+                        ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '25.0';
 
                         trigger OnAction()
                         var
@@ -584,6 +600,9 @@ page 76 "Resource Card"
                         Caption = 'Match-Based Coupling';
                         Image = CoupledItem;
                         ToolTip = 'Couple resources to products in Dynamics 365 Sales based on matching criteria.';
+                        ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '25.0';
 
                         trigger OnAction()
                         var
@@ -604,6 +623,9 @@ page 76 "Resource Card"
                         Enabled = CRMIsCoupledToRecord;
                         Image = UnLinkAccount;
                         ToolTip = 'Delete the coupling to a Dynamics 365 Sales product.';
+                        ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '25.0';
 
                         trigger OnAction()
                         var
@@ -623,6 +645,9 @@ page 76 "Resource Card"
                     Caption = 'Synchronization Log';
                     Image = Log;
                     ToolTip = 'View integration synchronization jobs for the resource table.';
+                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
 
                     trigger OnAction()
                     var
@@ -632,6 +657,7 @@ page 76 "Resource Card"
                     end;
                 }
             }
+#endif
             group("&Prices")
             {
                 Caption = '&Prices';
@@ -919,39 +945,68 @@ page 76 "Resource Card"
                 {
                 }
             }
+#if not CLEAN25
             group(Category_Synchronize_FS)
             {
                 Caption = 'Synchronize';
-                Visible = FSIntegrationEnabled;
+                Visible = false;
+                ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '25.0';
 
                 group(Category_Coupling_FS)
                 {
                     Caption = 'Coupling';
                     ShowAs = SplitButton;
+                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
 
                     actionref(ManageFSCoupling_Promoted; ManageFSCoupling)
                     {
+                        ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '25.0';
                     }
                     actionref(DeleteFSCoupling_Promoted; DeleteFSCoupling)
                     {
+                        ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '25.0';
                     }
                     actionref(MatchBasedCouplingFS_Promoted; MatchBasedCouplingFS)
                     {
+                        ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '25.0';
                     }
                 }
                 actionref(FSSynchronizeNow_Promoted; FSSynchronizeNow)
                 {
+                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
                 actionref(FSGoToProduct_Promoted; FSGoToProduct)
                 {
+                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
                 actionref(ShowLogFS_Promoted; ShowLogFS)
                 {
+                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
                 actionref("Unit Group_Promoted_FS"; "Unit Group")
                 {
+                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
             }
+#endif
             group(Category_Synchronize)
             {
                 Caption = 'Synchronize';
@@ -999,26 +1054,10 @@ page 76 "Resource Card"
     trigger OnOpenPage()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
-        FSConnectionSetup: Record "FS Connection Setup";
     begin
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
-        if CRMIntegrationEnabled then begin
-            FSIntegrationEnabled := FSConnectionSetup.IsEnabled();
-            case FSIntegrationEnabled of
-                true:
-                    begin
-                        IntegrationTableMapping.SetRange(Type, IntegrationTableMapping.Type::Dataverse);
-                        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
-                        IntegrationTableMapping.SetRange("Table ID", Database::Resource);
-                        IntegrationTableMapping.SetRange("Integration Table ID", Database::"FS Bookable Resource");
-                        if IntegrationTableMapping.FindFirst() then
-                            BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field38=1(0)');
-                    end;
-                false:
-                    if IntegrationTableMapping.Get('RESOURCE-PRODUCT') then
-                        BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field38=1(0)');
-            end;
-        end;
+        if IntegrationTableMapping.Get('RESOURCE-PRODUCT') then
+            BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field38=1(0)');
         SetNoFieldVisible();
         IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
@@ -1029,7 +1068,6 @@ page 76 "Resource Card"
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         FormatAddress: Codeunit "Format Address";
         CRMIntegrationEnabled: Boolean;
-        FSIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
         BlockedFilterApplied: Boolean;
         ExtendedPriceEnabled: Boolean;

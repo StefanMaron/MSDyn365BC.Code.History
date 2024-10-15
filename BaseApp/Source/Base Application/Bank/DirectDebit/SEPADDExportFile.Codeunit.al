@@ -43,6 +43,12 @@ codeunit 1230 "SEPA DD-Export File"
     var
         ExportToServerFile: Boolean;
         ExportWithoutIBANErr: Label 'Either the Bank Account No. and Bank Branch No. fields or the IBAN field must be filled in for %1 %2.', Comment = '%1= table name, %2=key field value. Example: Either the Bank Account No. and Bank Branch No. fields or the IBAN field must be filled in for Bank Account WWB-OPERATING.';
+        FeatureNameTxt: label 'SEPA Direct Debit Export', locked = true;
+
+    internal procedure FeatureName(): Text
+    begin
+        exit(FeatureNameTxt)
+    end;
 
     local procedure Export(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; XMLPortID: Integer; FileName: Text) Result: Boolean
     var

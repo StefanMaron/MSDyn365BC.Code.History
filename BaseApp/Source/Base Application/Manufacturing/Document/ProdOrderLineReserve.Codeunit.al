@@ -34,6 +34,7 @@ codeunit 99000837 "Prod. Order Line-Reserve"
     procedure CreateReservation(var ProdOrderLine: Record "Prod. Order Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservationEntry: Record "Reservation Entry")
     var
         ShipmentDate: Date;
+        IsHandled: Boolean;
     begin
         if FromTrackingSpecification."Source Type" = 0 then
             Error(Text004);
@@ -60,11 +61,15 @@ codeunit 99000837 "Prod. Order Line-Reserve"
         if ProdOrderLine."Planning Flexibility" <> ProdOrderLine."Planning Flexibility"::Unlimited then
             CreateReservEntry.SetPlanningFlexibility(ProdOrderLine."Planning Flexibility");
 
-        CreateReservEntry.CreateReservEntryFor(
-            Database::"Prod. Order Line", ProdOrderLine.Status.AsInteger(),
-            ProdOrderLine."Prod. Order No.", '', ProdOrderLine."Line No.", 0,
-            ProdOrderLine."Qty. per Unit of Measure", Quantity, QuantityBase, ForReservationEntry);
-        CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+        IsHandled := false;
+        OnCreateReservationOnBeforeCreateReservEntry(ProdOrderLine, Quantity, QuantityBase, ForReservationEntry, FromTrackingSpecification, IsHandled, ExpectedReceiptDate, Description, ShipmentDate);
+        if not IsHandled then begin
+            CreateReservEntry.CreateReservEntryFor(
+                Database::"Prod. Order Line", ProdOrderLine.Status.AsInteger(),
+                ProdOrderLine."Prod. Order No.", '', ProdOrderLine."Line No.", 0,
+                ProdOrderLine."Qty. per Unit of Measure", Quantity, QuantityBase, ForReservationEntry);
+            CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+        end;
         CreateReservEntry.CreateReservEntry(
             ProdOrderLine."Item No.", ProdOrderLine."Variant Code", ProdOrderLine."Location Code",
             Description, ExpectedReceiptDate, ShipmentDate, 0);
@@ -707,6 +712,11 @@ codeunit 99000837 "Prod. Order Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCallItemTracking(var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateReservationOnBeforeCreateReservEntry(var ProdOrderLine: Record "Prod. Order Line"; var Quantity: Decimal; var QuantityBase: Decimal; var ReservationEntry: Record "Reservation Entry"; var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean; ExpectedReceiptDate: Date; Description: Text[100]; ShipmentDate: Date)
     begin
     end;
 }

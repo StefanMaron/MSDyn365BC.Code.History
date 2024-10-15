@@ -3,8 +3,9 @@ namespace Microsoft.Projects.Project.Job;
 using Microsoft.Finance.Dimension;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Projects.Project.Reports;
+#if not CLEAN25
 using Microsoft.Integration.Dataverse;
-using Microsoft.Integration.FieldService;
+#endif
 
 page 1004 "Job Task List"
 {
@@ -61,12 +62,17 @@ page 1004 "Job Task List"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the project posting group of the task.';
                 }
+#if not CLEAN25
                 field("Coupled to Dataverse"; Rec."Coupled to Dataverse")
                 {
                     ApplicationArea = Jobs;
-                    Visible = FSIntegrationEnabled;
                     ToolTip = 'Specifies if the project task is coupled to an entity in Field Service.';
+                    Visible = false;
+                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
+#endif
             }
         }
         area(factboxes)
@@ -126,17 +132,35 @@ page 1004 "Job Task List"
                         end;
                     }
                 }
+                action(JobTaskStatistics)
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Statistics';
+                    Image = StatisticsDocument;
+                    RunObject = Page "Job Task Statistics";
+                    RunPageLink = "Job No." = field("Job No."),
+                                  "Job Task No." = field("Job Task No.");
+                    ToolTip = 'View statistics for the project task.';
+                }
             }
+#if not CLEAN25
             group(ActionGroupFS)
             {
                 Caption = 'Dynamics 365 Field Service';
-                Enabled = FSActionGroupEnabled;
+                Visible = false;
+                ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '25.0';
+
                 action(CRMGoToProduct)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Project Task in Field Service';
                     Image = CoupledItem;
                     ToolTip = 'Open the coupled Dynamics 365 Field Service entity.';
+                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
 
                     trigger OnAction()
                     var
@@ -152,6 +176,9 @@ page 1004 "Job Task List"
                     Caption = 'Synchronize';
                     Image = Refresh;
                     ToolTip = 'Send updated data to Dynamics 365 Field Service.';
+                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
 
                     trigger OnAction()
                     var
@@ -165,6 +192,10 @@ page 1004 "Job Task List"
                     Caption = 'Coupling', Comment = 'Coupling is a noun';
                     Image = LinkAccount;
                     ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dynamics 365 Field Service entity.';
+                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
+
                     action(ManageCRMCoupling)
                     {
                         AccessByPermission = TableData "CRM Integration Record" = IM;
@@ -172,6 +203,9 @@ page 1004 "Job Task List"
                         Caption = 'Set Up Coupling';
                         Image = LinkAccount;
                         ToolTip = 'Create or modify the coupling to a Dynamics 365 Field Service entity.';
+                        ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '25.0';
 
                         trigger OnAction()
                         var
@@ -185,9 +219,12 @@ page 1004 "Job Task List"
                         AccessByPermission = TableData "CRM Integration Record" = D;
                         ApplicationArea = Suite;
                         Caption = 'Delete Coupling';
-                        Enabled = CRMIsCoupledToRecord;
+                        Enabled = false;
                         Image = UnLinkAccount;
                         ToolTip = 'Delete the coupling to a Dynamics 365 Field Service entity.';
+                        ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '25.0';
 
                         trigger OnAction()
                         var
@@ -203,6 +240,9 @@ page 1004 "Job Task List"
                     Caption = 'Synchronization Log';
                     Image = Log;
                     ToolTip = 'View integration synchronization jobs for this table.';
+                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
 
                     trigger OnAction()
                     var
@@ -212,6 +252,7 @@ page 1004 "Job Task List"
                     end;
                 }
             }
+#endif
         }
         area(processing)
         {
@@ -375,38 +416,12 @@ page 1004 "Job Task List"
         }
     }
 
-    trigger OnAfterGetCurrRecord()
-    var
-        Job: Record Job;
-        CRMCouplingManagement: Codeunit "CRM Coupling Management";
-    begin
-        if FSIntegrationEnabled then
-            CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(Rec.RecordId);
-
-        if not Job.Get(Rec."Job No.") then
-            FSActionGroupEnabled := false
-        else
-            FSActionGroupEnabled := FSIntegrationEnabled and (Rec."Job Task Type" = Rec."Job Task Type"::Posting) and Job."Apply Usage Link";
-    end;
-
     trigger OnAfterGetRecord()
     begin
         StyleIsStrong := Rec."Job Task Type" <> Rec."Job Task Type"::Posting;
     end;
 
-    trigger OnOpenPage()
     var
-        FSConnectionSetup: Record "FS Connection Setup";
-    begin
-        if CRMIntegrationManagement.IsCRMIntegrationEnabled() then
-            FSIntegrationEnabled := FSConnectionSetup.IsEnabled();
-    end;
-
-    var
-        CRMIntegrationManagement: Codeunit "CRM Integration Management";
-        FSIntegrationEnabled: Boolean;
-        FSActionGroupEnabled: Boolean;
-        CRMIsCoupledToRecord: Boolean;
         StyleIsStrong: Boolean;
 }
 

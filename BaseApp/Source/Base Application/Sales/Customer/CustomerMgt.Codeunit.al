@@ -74,7 +74,13 @@ codeunit 1302 "Customer Mgt."
     procedure CalculateStatisticsWithCurrentCustomerValues(var Customer: Record Customer; var AdjmtCostLCY: Decimal; var AdjCustProfit: Decimal; var AdjProfitPct: Decimal; var CustInvDiscAmountLCY: Decimal; var CustPaymentsLCY: Decimal; var CustSalesLCY: Decimal; var CustProfit: Decimal)
     var
         CostCalcuMgt: Codeunit "Cost Calculation Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculateStatisticsWithCurrentCustomerValues(Customer, AdjmtCostLCY, AdjCustProfit, AdjProfitPct, CustInvDiscAmountLCY, CustPaymentsLCY, CustSalesLCY, CustProfit, IsHandled);
+        if IsHandled then
+            exit;
+
         // Costs (LCY):
         CustSalesLCY := Customer."Sales (LCY)";
         CustProfit := Customer."Profit (LCY)" + CostCalcuMgt.NonInvtblCostAmt(Customer);
@@ -434,5 +440,10 @@ codeunit 1302 "Customer Mgt."
     begin
     end;
 #endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateStatisticsWithCurrentCustomerValues(var Customer: Record Customer; var AdjmtCostLCY: Decimal; var AdjCustProfit: Decimal; var AdjProfitPct: Decimal; var CustInvDiscAmountLCY: Decimal; var CustPaymentsLCY: Decimal; var CustSalesLCY: Decimal; var CustProfit: Decimal; var IsHandled: Boolean)
+    begin
+    end;
 }
 

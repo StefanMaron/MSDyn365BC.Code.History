@@ -1231,7 +1231,13 @@ codeunit 699 "Exch. Rate Adjmt. Process"
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
         DtldCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePrepareTempCustLedgEntry(CustLedgerEntry2, TempCustLedgerEntry, Customer, IsHandled);
+        if IsHandled then
+            exit;
+
         TempCustLedgerEntry.DeleteAll();
 
         Currency.CopyFilter(Code, CustLedgerEntry2."Currency Code");
@@ -1274,7 +1280,12 @@ codeunit 699 "Exch. Rate Adjmt. Process"
     var
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
         DtldVendLedgEntry2: Record "Detailed Vendor Ledg. Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePrepareTempVendLedgEntry(VendorLedgerEntry2, TempVendorLedgerEntry, Vendor, IsHandled);
+        if IsHandled then
+            exit;
         TempVendorLedgerEntry.DeleteAll();
 
         Currency.CopyFilter(Code, VendorLedgerEntry2."Currency Code");
@@ -1744,6 +1755,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
                     GenJournalLine."Shortcut Dimension 1 Code" := GetGlobalDimVal(GLSetup."Global Dimension 1 Code", DimensionSetEntry);
                     GenJournalLine."Shortcut Dimension 2 Code" := GetGlobalDimVal(GLSetup."Global Dimension 2 Code", DimensionSetEntry);
                     GenJournalLine."Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
+                    OnSetPostingDimensionsOnCaseSourceEntryDimensions(GenJournalLine, DimensionSetEntry);
                 end;
             "Exch. Rate Adjmt. Dimensions"::"G/L Account Dimensions":
                 if GenJournalLine."Account Type" = "Gen. Journal Account Type"::"G/L Account" then begin
@@ -3010,6 +3022,21 @@ codeunit 699 "Exch. Rate Adjmt. Process"
 
     [IntegrationEvent(false, false)]
     local procedure OnPrepareTempEmplLedgEntryOnAfterSetDtldEmplLedgerEntryFilters(var DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetPostingDimensionsOnCaseSourceEntryDimensions(var GenJournalLine: Record "Gen. Journal Line"; var DimensionSetEntry: Record "Dimension Set Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrepareTempCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrepareTempVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary; Vendor: Record Vendor; var IsHandled: Boolean)
     begin
     end;
 }

@@ -831,18 +831,23 @@ codeunit 13 "Gen. Jnl.-Post Batch"
     end;
 
     local procedure CheckDocumentNo(var GenJnlLine2: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
     begin
-        if GenJnlLine2."Posting No. Series" = '' then
-            GenJnlLine2."Posting No. Series" := GenJnlBatch."No. Series"
-        else
-            if not GenJnlLine2.EmptyLine() then
-                if ShouldSetDocNoToLastPosted(GenJnlLine2) then
-                    GenJnlLine2."Document No." := LastPostedDocNo
-                else begin
-                    LastDocNo := GenJnlLine2."Document No.";
-                    GenJnlLine2."Document No." := NoSeriesBatch.GetNextNo(GenJnlLine2."Posting No. Series", GenJnlLine2."Posting Date");
-                    LastPostedDocNo := GenJnlLine2."Document No.";
-                end;
+        IsHandled := false;
+        OnBeforeCheckDocumentNo(GenJnlLine2, LastDocNo, LastPostedDocNo, NoSeriesBatch, IsHandled);
+        if not IsHandled then
+            if GenJnlLine2."Posting No. Series" = '' then
+                GenJnlLine2."Posting No. Series" := GenJnlBatch."No. Series"
+            else
+                if not GenJnlLine2.EmptyLine() then
+                    if ShouldSetDocNoToLastPosted(GenJnlLine2) then
+                        GenJnlLine2."Document No." := LastPostedDocNo
+                    else begin
+                        LastDocNo := GenJnlLine2."Document No.";
+                        GenJnlLine2."Document No." := NoSeriesBatch.GetNextNo(GenJnlLine2."Posting No. Series", GenJnlLine2."Posting Date");
+                        LastPostedDocNo := GenJnlLine2."Document No.";
+                    end;
         OnAfterCheckDocumentNo(GenJnlLine2, LastDocNo, LastPostedDocNo);
     end;
 
@@ -2229,6 +2234,11 @@ codeunit 13 "Gen. Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyGenJnlLineBalancingData(var IsHandled: Boolean; GenJnlLineTo: Record "Gen. Journal Line"; GenJnlLineFrom: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDocumentNo(var GenJournalLine: Record "Gen. Journal Line"; var LastDocumentNo: code[20]; var LastPostedDocumentNo: code[20]; var NoSeriesBatch: Codeunit "No. Series - Batch"; var IsHandled: Boolean)
     begin
     end;
 }

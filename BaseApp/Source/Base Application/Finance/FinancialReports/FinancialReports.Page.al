@@ -4,14 +4,15 @@ using Microsoft.Finance.Analysis;
 
 page 108 "Financial Reports"
 {
+    AboutText = 'With the Financial Reports feature, you can get insights into the financial data shown on your chart of accounts (COA). Using row and column definitions, you can set up financial reports to analyse figures in general ledger (G/L) accounts, and compare general ledger entries with budget entries.';
+    AboutTitle = 'About Financial Reports';
+    AdditionalSearchTerms = 'account schedule,finance reports,financial reporting';
+    AnalysisModeEnabled = false;
     ApplicationArea = Basic, Suite;
     Caption = 'Financial Reports';
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Print/Send';
     SourceTable = "Financial Report";
-    AnalysisModeEnabled = false;
-    AdditionalSearchTerms = 'account schedule,finance reports,financial reporting';
-    UsageCategory = Lists;
+    UsageCategory = ReportsAndAnalysis;
 
     layout
     {
@@ -23,7 +24,7 @@ page 108 "Financial Reports"
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the financial report.';
+                    ToolTip = 'Specifies the unique name (code) of the financial report.';
                     trigger OnDrillDown()
                     var
                         AccScheduleOverview: Page "Acc. Schedule Overview";
@@ -36,19 +37,19 @@ page 108 "Financial Reports"
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a description of the financial report.';
+                    ToolTip = 'Specifies a description of the financial report definition. The description is shown as a title on the final report when you run it to get a PDF or to print it.';
                 }
                 field("Financial Report Row Group"; Rec."Financial Report Row Group")
                 {
                     Caption = 'Row Definition';
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the row definition to be used for this financial report.';
+                    ToolTip = 'Specifies the row definition (code) to be used for this financial report.';
                 }
                 field(AnalysisViewRow; AnalysisViewRow)
                 {
                     Caption = 'Row Analysis View Name';
                     ApplicationArea = Basic, Suite;
-                    Tooltip = 'Specifies the name of the analysis view you want the row definitions to be based on.';
+                    Tooltip = 'Specifies the name of the analysis view you want the row definitions to be based on. Using an analysis view is optional.';
                     TableRelation = "Analysis View".Code;
 
                     trigger OnValidate()
@@ -70,13 +71,13 @@ page 108 "Financial Reports"
                 {
                     Caption = 'Column Definition';
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the column definition to be used for this financial report.';
+                    ToolTip = 'Specifies the column definition (code) to be used for this financial report.';
                 }
                 field(AnalysisViewColumn; AnalysisViewColumn)
                 {
                     Caption = 'Column Analysis View Name';
                     ApplicationArea = Basic, Suite;
-                    Tooltip = 'Specifies the name of the analysis view you want the column layout to be based on.';
+                    Tooltip = 'Specifies the name of the analysis view you want the column layout to be based on. Using an analysis view is optional.';
                     TableRelation = "Analysis View".Code;
 
                     trigger OnValidate()
@@ -121,9 +122,7 @@ page 108 "Financial Reports"
                 ApplicationArea = Basic, Suite;
                 Caption = 'View Financial Report';
                 Image = View;
-                Promoted = true;
-                PromotedCategory = Process;
-                ToolTip = 'View the financial report.';
+                ToolTip = 'View the selected financial report with data.';
                 AboutTitle = 'View Financial Report';
                 AboutText = 'This action will open the financial report in a sandbox like environment, where all changes are saved to the user and not the report';
                 trigger OnAction()
@@ -140,10 +139,8 @@ page 108 "Financial Reports"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Edit Row Definition';
                 Image = Edit;
-                Promoted = true;
-                PromotedCategory = Process;
                 ShortCutKey = 'Return';
-                ToolTip = 'Edit the row definition of this financial report.';
+                ToolTip = 'Edit the row definition of the selected financial report.';
 
                 trigger OnAction()
                 var
@@ -157,11 +154,9 @@ page 108 "Financial Reports"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Edit Column Definition';
-                Ellipsis = true;
-                Image = SetupColumns;
-                Promoted = true;
-                PromotedCategory = Process;
-                ToolTip = 'Create or change the column definition of this financial report.';
+                Ellipsis = false;
+                Image = Edit;
+                ToolTip = 'Edit the column definition of the selected financial report.';
 
                 trigger OnAction()
                 var
@@ -174,12 +169,10 @@ page 108 "Financial Reports"
             action(CopyFinancialReport)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Copy Financial Report';
+                Caption = 'Copy Report Definition';
                 Image = Copy;
-                Promoted = true;
-                PromotedCategory = Process;
                 Scope = Repeater;
-                ToolTip = 'Create a copy of the current financial report.';
+                ToolTip = 'Create a copy of the selected financial report definition.';
 
                 trigger OnAction()
                 var
@@ -192,13 +185,10 @@ page 108 "Financial Reports"
             action(ImportFinancialReport)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Import Financial Report';
+                Caption = 'Import Report Definition';
                 Image = Import;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = false;
                 Scope = Repeater;
-                ToolTip = 'Import a RapidStart configuration package that contains settings for a financial report. Importing financial reports lets you share them, for example, with another business unit. This requires that the financial report has been exported.';
+                ToolTip = 'Import a RapidStart configuration package that contains the definition for a financial report. Importing a financial report definition lets you share it, for example, with another business unit. This requires that the financial report definition has been exported.';
 
                 trigger OnAction()
                 var
@@ -210,13 +200,10 @@ page 108 "Financial Reports"
             action(ExportFinancialReport)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Export Financial Report';
+                Caption = 'Export Report Definition';
                 Image = Export;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = false;
                 Scope = Repeater;
-                ToolTip = 'Export settings for the selected financial report to a RapidStart configuration package. Exporting a financial report lets you share it with another business unit.';
+                ToolTip = 'Export the definition for the selected financial report to a RapidStart configuration package. Exporting a financial report definition lets you share it with another business unit.';
 
                 trigger OnAction()
                 var
@@ -231,15 +218,12 @@ page 108 "Financial Reports"
             action(Overview)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Edit Financial Report';
-                Ellipsis = true;
+                Caption = 'Edit Report Definition';
+                Ellipsis = false;
                 Image = Edit;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 AboutTitle = 'Edit Financial Report';
                 AboutText = 'This action will open the financial report in edit mode, where all changes are visible to other users';
-                ToolTip = 'Edit the default values on the selected financial report.';
+                ToolTip = 'Edit the default settings (such as row/column definitions to be used) on the selected financial report.';
                 trigger OnAction()
                 var
                     AccSchedOverview: Page "Acc. Schedule Overview";
@@ -255,15 +239,11 @@ page 108 "Financial Reports"
             action(Print)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Print';
-                Ellipsis = true;
+                Caption = '&Print/PDF';
+                Ellipsis = false;
                 Image = Print;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 Scope = Repeater;
-                ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
+                ToolTip = 'Prepare to print or get a PDF of the selected report. A report request window opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
                 var
@@ -271,6 +251,26 @@ page 108 "Financial Reports"
                 begin
                     FinancialReportMgt.Print(Rec);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            actionref(ViewFinancialReport_Promoted; ViewFinancialReport) { }
+            actionref(Print_Promoted; Print) { }
+
+            group(Category_Edit)
+            {
+                Caption = 'Edit definitions';
+                actionref(Overview_Promoted; Overview) { }
+                actionref(EditRowGroup_Promoted; EditRowGroup) { }
+                actionref(EditColumnGroup_Promoted; EditColumnGroup) { }
+            }
+            group(CopyExportImport)
+            {
+                Caption = 'Copy/Export/Import';
+                actionref(CopyFinancialReport_Promoted; CopyFinancialReport) { }
+                actionref(ExportFinancialReport_Promoted; ExportFinancialReport) { }
+                actionref(ImportFinancialReport_Promoted; ImportFinancialReport) { }
             }
         }
     }

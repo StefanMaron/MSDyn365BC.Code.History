@@ -8,7 +8,6 @@ using Microsoft.Purchases.History;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
-using System.Telemetry;
 using System.Threading;
 using System.Xml;
 
@@ -2367,28 +2366,6 @@ codeunit 1502 "Workflow Setup"
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertApprovalsTableRelations()
     begin
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::Workflow, 'OnAfterInsertEvent', '', false, false)]
-    local procedure LogTelemetryOnAfterInsertWorkflow(var Rec: Record "Workflow"; RunTrigger: Boolean)
-    begin
-        LogWorkflowUptakeTelemetry(Rec);
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::Workflow, 'OnAfterModifyEvent', '', false, false)]
-    local procedure LogTelemetryOnAfterModifyWorkflow(var Rec: Record "Workflow"; RunTrigger: Boolean)
-    begin
-        LogWorkflowUptakeTelemetry(Rec);
-    end;
-
-    local procedure LogWorkflowUptakeTelemetry(Workflow: Record "Workflow")
-    var
-        FeatureTelemetry: Codeunit "Feature Telemetry";
-    begin
-        if Workflow.IsTemporary() or Workflow.Template or (not Workflow.Enabled) then
-            exit;
-
-        FeatureTelemetry.LogUptake('0000GDS', 'Workflows', Enum::"Feature Uptake Status"::"Set up");
     end;
 }
 

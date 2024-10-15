@@ -11,6 +11,8 @@ using System.Text;
 
 page 490 "Acc. Schedule Overview"
 {
+    AboutTitle = 'About financial report';
+    AboutText = 'On this page, you can run a financial report and see data based on filter values. You can also export the data to Excel or get a PDF version (or print it). When the page is in "Edit mode", you can also change the report definition, such as the choice of column and row definitions used.';
     Caption = 'Financial Report';
     DataCaptionExpression = CurrentFinancialReportNameTxt;
     DeleteAllowed = false;
@@ -21,9 +23,8 @@ page 490 "Acc. Schedule Overview"
     SaveValues = true;
     ShowFilter = false;
     SourceTable = "Acc. Schedule Line";
-    AboutTitle = 'About financial report';
-    AboutText = 'On this page, you can build financial reports based on your choice of column and row definitions';
     RefreshOnActivate = true;
+    UsageCategory = None;
 
     layout
     {
@@ -49,7 +50,7 @@ page 490 "Acc. Schedule Overview"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Caption = 'Name';
-                    Tooltip = 'Specifies the name of the financial report.';
+                    Tooltip = 'Specifies the name (code) of the financial report.';
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         Page.RunModal(Page::"Financial Reports");
@@ -73,9 +74,9 @@ page 490 "Acc. Schedule Overview"
                     Importance = Promoted;
                     Lookup = true;
                     LookupPageID = "Account Schedule Names";
-                    ToolTip = 'Specifies the name of the row definition to be shown in the window.';
+                    ToolTip = 'Specifies the name (code) of the row definition to be used for the report.';
                     AboutTitle = 'About row definition';
-                    AboutText = 'Change the row definition of the analysis. You can use the built-in row definitions, or create your own';
+                    AboutText = 'Change the row definition of the report. You can use the built-in row definitions, or create your own';
                     trigger OnLookup(var Text: Text): Boolean
                     var
                         FinancialReportRowGroup: Text[10];
@@ -102,9 +103,9 @@ page 490 "Acc. Schedule Overview"
                     Caption = 'Column Definition';
                     Lookup = true;
                     LookupPageId = "Column Layout Names";
-                    ToolTip = 'Specifies the name of the column definition that you want to use in the window.';
+                    ToolTip = 'Specifies the name (code) of the column definition to be used for the report.';
                     AboutTitle = 'About column definition';
-                    AboutText = 'Change the column definition of the analysis. You can use the built-in column definitions, or create your own.';
+                    AboutText = 'Change the column definition of the report. You can use the built-in column definitions, or create your own.';
                     trigger OnLookup(var Text: Text): Boolean
                     var
                         FinancialReportColumnGroup: Text[10];
@@ -675,7 +676,7 @@ page 490 "Acc. Schedule Overview"
                 Caption = 'Print';
                 Ellipsis = true;
                 Image = Print;
-                ToolTip = 'Print the information in the window. A print request window opens where you can specify what to include on the print-out.';
+                ToolTip = 'Get a PDF or print the financial report. A print request window opens where you can specify what to include in the PDF/print-out.';
 
                 trigger OnAction()
                 var
@@ -782,9 +783,9 @@ page 490 "Acc. Schedule Overview"
             action(EditDefinition)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Edit defaults';
+                Caption = 'Edit report definition';
                 Image = Edit;
-                ToolTip = 'Edit the definition for all users';
+                ToolTip = 'Edit the report definition for all users';
                 Enabled = ViewOnlyMode;
 
                 trigger OnAction()
@@ -800,8 +801,8 @@ page 490 "Acc. Schedule Overview"
             action(EditRowDefinition)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Row definition';
-                Image = SetupLines;
+                Caption = 'Edit row definition';
+                Image = Edit;
                 ToolTip = 'Edit the row definition of this financial report.';
 
                 trigger OnAction()
@@ -816,8 +817,8 @@ page 490 "Acc. Schedule Overview"
             action(EditColumnDefinition)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Column definition';
-                Image = SetupColumns;
+                Caption = 'Edit column definition';
+                Image = Edit;
                 ToolTip = 'Create or edit the column definition of this financial report.';
 
                 trigger OnAction()
@@ -887,9 +888,9 @@ page 490 "Acc. Schedule Overview"
                     action("Create New Document")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Create New Document';
+                        Caption = 'Create New Excel template';
                         Image = ExportToExcel;
-                        ToolTip = 'Open the financial report in a new Excel workbook. This creates an Excel workbook on your device.';
+                        ToolTip = 'Open the financial report in a new Excel workbook. This creates an Excel workbook on your device that you can use as a template for an Excel version of the report.';
                         trigger OnAction()
                         var
                             ExportAccSchedToExcel: Report "Export Acc. Sched. to Excel";
@@ -901,9 +902,9 @@ page 490 "Acc. Schedule Overview"
                     action("Update Existing Document")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Update Copy Of Existing Document';
+                        Caption = 'Update Excel template with data';
                         Image = ExportToExcel;
-                        ToolTip = 'Refresh the data in the copy of the existing Excel workbook, and download it to your device. You must specify the workbook that you want to update.';
+                        ToolTip = 'Upload an Excel template workbook and get an updated Excel workbook downloaded it to your device. You must specify the template workbook that you want to update.';
                         trigger OnAction()
                         var
                             ExportAccSchedToExcel: Report "Export Acc. Sched. to Excel";
@@ -928,38 +929,22 @@ page 490 "Acc. Schedule Overview"
                 actionref(RestoreFinRepFilters_Promoted; RestoreFinRepFilters)
                 {
                 }
-                actionref(Print_Promoted; Print)
-                {
-                }
-                actionref(EditDefinition_Promoted; EditDefinition)
-                {
-                }
-                group(DisplayPromoted)
-                {
-                    Caption = 'Show';
-                    ShowAs = SplitButton;
-                    actionref(ShowNone_Promoted; DisplayNone)
-                    {
-                    }
-                    actionref(ShowFiltersOnly_Promoted; DisplayFiltersOnly)
-                    {
-                    }
-                    actionref(ShowAll_Promoted; DisplayAll)
-                    {
-                    }
-                }
             }
-            group(Category_Definitions)
+            group(DisplayPromoted)
             {
-                Caption = 'Definitions';
-
-                actionref(EditRowDefinition_Promoted; EditRowDefinition)
+                Caption = 'Show';
+                ShowAs = SplitButton;
+                actionref(ShowNone_Promoted; DisplayNone)
                 {
                 }
-                actionref(EditColumnDefinition_Promoted; EditColumnDefinition)
+                actionref(ShowFiltersOnly_Promoted; DisplayFiltersOnly)
+                {
+                }
+                actionref(ShowAll_Promoted; DisplayAll)
                 {
                 }
             }
+
             group(Category_Category4)
             {
                 Caption = 'Column', Comment = 'Generated from the PromotedActionCategories property index 3.';
@@ -984,12 +969,29 @@ page 490 "Acc. Schedule Overview"
             }
             group("Category_Export to Excel")
             {
-                Caption = 'Export to Excel';
+                Caption = 'Export to Excel/Print';
 
                 actionref("Create New Document_Promoted"; "Create New Document")
                 {
                 }
                 actionref("Update Existing Document_Promoted"; "Update Existing Document")
+                {
+                }
+                actionref(Print_Promoted; Print)
+                {
+                }
+
+            }
+            group(Category_Definitions)
+            {
+                Caption = 'Definitions';
+                actionref(EditDefinition_Promoted; EditDefinition)
+                {
+                }
+                actionref(EditRowDefinition_Promoted; EditRowDefinition)
+                {
+                }
+                actionref(EditColumnDefinition_Promoted; EditColumnDefinition)
                 {
                 }
             }

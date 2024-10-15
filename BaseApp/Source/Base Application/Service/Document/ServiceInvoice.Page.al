@@ -8,13 +8,13 @@ using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Reporting;
+using Microsoft.EServices.EDocument;
 using Microsoft.Sales.Customer;
 using Microsoft.Service.Comment;
 using Microsoft.Service.History;
 using Microsoft.Service.Posting;
 using Microsoft.Utilities;
 using System.Security.User;
-using Microsoft.eServices.EDocument;
 
 page 5933 "Service Invoice"
 {
@@ -623,6 +623,12 @@ page 5933 "Service Invoice"
                               "Date Filter" = field("Date Filter");
                 Visible = false;
             }
+            part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
+            {
+                ApplicationArea = Service;
+                ShowFilter = false;
+                Visible = false;
+            }
             part(Control1907829707; "Service Hist. Sell-to FactBox")
             {
                 ApplicationArea = Service;
@@ -976,6 +982,7 @@ page 5933 "Service Invoice"
     trigger OnAfterGetCurrRecord()
     begin
         SetControlAppearance();
+        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1024,6 +1031,7 @@ page 5933 "Service Invoice"
     begin
         SellToContact.GetOrClear(Rec."Contact No.");
         BillToContact.GetOrClear(Rec."Bill-to Contact No.");
+        CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(Rec.RecordId);
 
         OnAfterOnAfterGetRecord(Rec);
     end;
