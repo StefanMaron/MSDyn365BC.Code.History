@@ -55,6 +55,28 @@ codeunit 500 "Enum Assignment Management"
                     OnGetSalesIncomingDocumentType(SalesDocumentType, IncomingDocumentType, IsHandled);
                     if not IsHandled then
                         error(DocumentTypeEnumErr, 'Sales', SalesDocumentType, 'Incoming');
+            end;
+        end;
+    end;
+
+    procedure GetServiceIncomingDocumentType(ServiceDocumentType: Enum "Service Document Type") IncomingDocumentType: Enum "Incoming Document Type"
+    var
+        IsHandled: Boolean;
+    begin
+        case ServiceDocumentType of
+            ServiceDocumentType::Quote:
+                exit(IncomingDocumentType::Quote);
+            ServiceDocumentType::Order:
+                exit(IncomingDocumentType::Order);
+            ServiceDocumentType::Invoice:
+                exit(IncomingDocumentType::Invoice);
+            ServiceDocumentType::"Credit Memo":
+                exit(IncomingDocumentType::"Credit Memo");
+            else begin
+                IsHandled := false;
+                OnGetSalesIncomingDocumentType(ServiceDocumentType, IncomingDocumentType, IsHandled);
+                if not IsHandled then
+                    error(DocumentTypeEnumErr, 'Service', ServiceDocumentType, 'Incoming');
                 end;
         end;
     end;
