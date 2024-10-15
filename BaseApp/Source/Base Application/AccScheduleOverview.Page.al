@@ -1,4 +1,4 @@
-page 490 "Acc. Schedule Overview"
+﻿page 490 "Acc. Schedule Overview"
 {
     Caption = 'Acc. Schedule Overview';
     DataCaptionExpression = CurrentSchedName + ' - ' + CurrentColumnName;
@@ -790,7 +790,7 @@ page 490 "Acc. Schedule Overview"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Update Copy Of Existing Document';
                         Image = ExportToExcel;
-                        ToolTip = 'Refresh the data in the copy of existing Excel workbook and download it to your device. You must specify the workbook that you want to update.';
+                        ToolTip = 'Refresh the data in the copy of the existing Excel workbook, and download it to your device. You must specify the workbook that you want to update.';
 
                         trigger OnAction()
                         var

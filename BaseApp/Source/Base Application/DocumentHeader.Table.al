@@ -226,6 +226,12 @@
             Caption = 'CFDI Export Code';
             TableRelation = "CFDI Export Code";
         }
+        field(27005; "CFDI Period"; Option) 
+        {
+            Caption = 'CFDI Period';
+            OptionCaption = 'Diario,Semanal,Quincenal,Mensual';
+            OptionMembers = "Diario","Semanal","Quincenal","Mensual"; 
+        }
         field(27010; "Document Table ID"; Integer)
         {
             Caption = 'Document Table ID';

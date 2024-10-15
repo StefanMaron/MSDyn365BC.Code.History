@@ -1050,8 +1050,8 @@ page 256 "Payment Journal"
                         Image = TransmitElectronicDoc;
                         Promoted = true;
                         PromotedCategory = Category4;
-                        ToolTip = 'Transmit the exported electronic payment file to the bank.';
-
+                        ToolTip = 'Create an electronic payment file for the bank.';
+                        
                         trigger OnAction()
                         var
                             BankAccount: Record "Bank Account";

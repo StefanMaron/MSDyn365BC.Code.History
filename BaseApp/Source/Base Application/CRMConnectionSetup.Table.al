@@ -71,6 +71,7 @@ table 5330 "CRM Connection Setup"
             var
                 CRMIntegrationTelemetry: Codeunit "CRM Integration Telemetry";
                 CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+                CDSIntTableSubscriber: Codeunit "CDS Int. Table. Subscriber";
             begin
                 EnableCRMConnection;
 #if not CLEAN20
@@ -81,6 +82,8 @@ table 5330 "CRM Connection Setup"
                     CRMIntegrationTelemetry.LogTelemetryWhenConnectionEnabled();
                     TestIntegrationUserRequirements;
                     CRMSetupDefaults.ResetSalesOrderMappingConfiguration(Rec);
+                    if CRMIntegrationManagement.IsOptionMappingEnabled() then
+                        CDSIntTableSubscriber.SyncDocumentOptionSets();
                     SetUseNewestUI;
                     Session.LogMessage('0000CM8', CRMConnEnabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 end else begin

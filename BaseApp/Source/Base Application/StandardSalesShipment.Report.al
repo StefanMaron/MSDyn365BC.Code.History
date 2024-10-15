@@ -947,7 +947,13 @@ report 1308 "Standard Sales - Shipment"
         ItemTotalQty: Decimal;
         EntryNo: Integer;
         FirstRow: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateTrackingSpecBuffer(ShowCorrectionLines, LocalTrackingSpecBuffer,  TempTrackingSpecBuffer, IsHandled);
+        if IsHandled then
+            exit;
+
         if not ShowCorrectionLines then
             LocalTrackingSpecBuffer.SetRange(Correction, false);
         if LocalTrackingSpecBuffer.FindSet() then begin
@@ -1090,7 +1096,12 @@ report 1308 "Standard Sales - Shipment"
     begin
     end;
 
-    [IntegrationEvent(TRUE, FALSE)]
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeUpdateTrackingSpecBuffer(ShowCorrectionLines: Boolean; var TempTrackingSpecificationLocal: Record "Tracking Specification" temporary; var TempTrackingSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, FALSE)]
     local procedure OnAfterGetSalesHeader(SalesShipmentHeader: Record "Sales Shipment Header")
     begin
     end;

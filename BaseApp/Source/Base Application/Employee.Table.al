@@ -544,14 +544,20 @@
     end;
 
     trigger OnModify()
+    var
+        IsHandled: Boolean;
     begin
         "Last Modified Date Time" := CurrentDateTime;
         "Last Date Modified" := Today;
         if Res.ReadPermission then
             EmployeeResUpdate.HumanResToRes(xRec, Rec);
-        if SalespersonPurchaser.ReadPermission then
-            EmployeeSalespersonUpdate.HumanResToSalesPerson(xRec, Rec);
-        UpdateSearchName;
+
+        IsHandled := false;
+        OnModifyOnBeforeEmployeeSalespersonUpdate(Rec, xRec, IsHandled);
+        if not IsHandled then
+            if SalespersonPurchaser.ReadPermission then
+                EmployeeSalespersonUpdate.HumanResToSalesPerson(xRec, Rec);
+        UpdateSearchName();
     end;
 
     trigger OnRename()
@@ -719,6 +725,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBlockedEmployee(Employee: Record Employee; IsPosting: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnModifyOnBeforeEmployeeSalespersonUpdate(var Employee: Record "Employee"; xEmployee: Record "Employee"; var IsHandled: Boolean)
     begin
     end;
 }

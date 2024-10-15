@@ -116,6 +116,9 @@ codeunit 99000755 "Shop Calendar Management"
                             end;
                     end;
                 until ShopCalendar.Next() = 0;
+
+            OnCalculateScheduleOnAfterProcessShopCalendar(CapacityType, No, WorkCenterNo, PeriodDate);
+
             CalAbsentEntry.SetRange(Updated, false);
             if PeriodDate = StartingDate then
                 CalAbsEntryExists := not CalAbsentEntry.IsEmpty;
@@ -196,6 +199,11 @@ codeunit 99000755 "Shop Calendar Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateSchedule(CapacityType: Enum "Capacity Type"; No: Code[20]; WorkCenterNo: Code[20]; StartingDate: Date; EndingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateScheduleOnAfterProcessShopCalendar(CapacityType: Enum "Capacity Type"; No: Code[20]; WorkCenterNo: Code[20]; PeriodDate: Date)
     begin
     end;
 }

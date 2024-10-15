@@ -643,6 +643,7 @@
         with SalesHeader do begin
             ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, CheckSalesHeaderMsg);
             CheckMandatoryHeaderFields(SalesHeader);
+            GLSetup.Get();
             if GLSetup."Journal Templ. Name Mandatory" then
                 TestField("Journal Templ. Name", ErrorInfo.Create());
             if GenJnlCheckLine.IsDateNotAllowed("Posting Date", SetupRecID, "Journal Templ. Name") then
@@ -650,7 +651,6 @@
                   FieldNo("Posting Date"), StrSubstNo(PostingDateNotAllowedErr, FieldCaption("Posting Date")),
                   SetupRecID, ErrorMessageMgt.GetFieldNo(SetupRecID.TableNo, GLSetup.FieldName("Allow Posting From")),
                   ForwardLinkMgt.GetHelpCodeForAllowedPostingDate);
-            GLSetup.Get();
             if GLSetup."PAC Environment" <> GLSetup."PAC Environment"::Disabled then begin
                 TestField("Payment Method Code", ErrorInfo.Create());
                 SalesSetup.TestField("Shipment on Invoice", ErrorInfo.Create());
@@ -828,7 +828,9 @@
             RemQtyToBeInvoiced := "Qty. to Invoice";
             RemQtyToBeInvoicedBase := "Qty. to Invoice (Base)";
 
-            OnPostSalesLineOnBeforePostItemTrackingLine(SalesHeader, SalesLine, WhseShip, WhseReceive, InvtPickPutaway);
+            OnPostSalesLineOnBeforePostItemTrackingLine(
+                SalesHeader, SalesLine, WhseShip, WhseReceive, InvtPickPutaway, SalesInvHeader, SalesCrMemoHeader,
+                ItemLedgShptEntryNo, RemQtyToBeInvoiced, RemQtyToBeInvoicedBase);
 
             PostItemTrackingLine(SalesHeader, SalesLine, TempItemLedgEntryNotInvoiced, HasATOShippedNotInvoiced);
 
@@ -1750,6 +1752,7 @@
                             OnPostItemChargePerOrderOnBeforeLastRunWithCheck(NonDistrItemJnlLine, SalesLine, IsHandled);
                             if not IsHandled then
                                 ItemJnlPostLine.RunWithCheck(NonDistrItemJnlLine);
+
                             NonDistrItemJnlLine."Location Code" := ItemJnlLine2."Location Code";
                         end;
                     until Next() = 0;
@@ -2195,7 +2198,7 @@
                     TestGenPostingGroups(SalesLine)
                 else
                     if not (Type in [Type::"Fixed Asset", Type::"G/L Account"]) then
-                        TestField("Gen. Prod. Posting Group");            
+                        TestField("Gen. Prod. Posting Group");
             end;
         end;
     end;
@@ -2485,7 +2488,7 @@
                             PurchOrderHeader.Get(PurchOrderHeader."Document Type"::Order, TempSalesLine."Purchase Order No.");
                             PurchOrderHeader.TestField("Pay-to Vendor No.");
                             PurchOrderHeader.Receive := true;
-                            OnUpdateAssosOrderPostingNosOnBeforeReleasePurchaseDocument(PurchOrderHeader);
+                            OnUpdateAssosOrderPostingNosOnBeforeReleasePurchaseDocument(PurchOrderHeader, SalesHeader);
                             ReleasePurchaseDocument.ReleasePurchaseHeader(PurchOrderHeader, PreviewMode);
                             if PurchOrderHeader."Receiving No." = '' then begin
                                 PurchOrderHeader.TestField("Receiving No. Series");
@@ -2493,7 +2496,7 @@
                                   NoSeriesMgt.GetNextNo(PurchOrderHeader."Receiving No. Series", "Posting Date", true);
                                 PurchOrderHeader.Modify();
                             end;
-                            OnUpdateAssosOrderPostingNosOnAfterReleasePurchaseDocument(PurchOrderHeader);
+                            OnUpdateAssosOrderPostingNosOnAfterReleasePurchaseDocument(PurchOrderHeader, SalesHeader);
                         end;
                     until TempSalesLine.Next() = 0;
         end;
@@ -2738,27 +2741,27 @@
                             InsertTrackingSpecification(SalesHeader);
                         end;
                     else begin
-                            UpdateAssociatedPurchaseOrder(TempDropShptPostBuffer, SalesHeader);
-                            if DropShipOrder then
-                                InsertTrackingSpecification(SalesHeader);
+                        UpdateAssociatedPurchaseOrder(TempDropShptPostBuffer, SalesHeader);
+                        if DropShipOrder then
+                            InsertTrackingSpecification(SalesHeader);
 
-                            ResetTempLines(TempSalesLine);
-                            TempSalesLine.SetFilter("Purch. Order Line No.", '<>0');
-                            if TempSalesLine.FindSet() then
-                                repeat
-                                    UpdateAssocLines(TempSalesLine);
-                                    TempSalesLine.Modify();
-                                until TempSalesLine.Next() = 0;
+                        ResetTempLines(TempSalesLine);
+                        TempSalesLine.SetFilter("Purch. Order Line No.", '<>0');
+                        if TempSalesLine.FindSet() then
+                            repeat
+                                UpdateAssocLines(TempSalesLine);
+                                TempSalesLine.Modify();
+                            until TempSalesLine.Next() = 0;
 
-                            ResetTempLines(TempSalesLine);
-                            TempSalesLine.SetFilter("Prepayment %", '<>0');
-                            if TempSalesLine.FindSet() then
-                                repeat
-                                    DecrementPrepmtAmtInvLCY(
-                                      SalesHeader, TempSalesLine, TempSalesLine."Prepmt. Amount Inv. (LCY)", TempSalesLine."Prepmt. VAT Amount Inv. (LCY)");
-                                    TempSalesLine.Modify();
-                                until TempSalesLine.Next() = 0;
-                        end;
+                        ResetTempLines(TempSalesLine);
+                        TempSalesLine.SetFilter("Prepayment %", '<>0');
+                        if TempSalesLine.FindSet() then
+                            repeat
+                                DecrementPrepmtAmtInvLCY(
+                                    SalesHeader, TempSalesLine, TempSalesLine."Prepmt. Amount Inv. (LCY)", TempSalesLine."Prepmt. VAT Amount Inv. (LCY)");
+                                TempSalesLine.Modify();
+                            until TempSalesLine.Next() = 0;
+                    end;
                 end;
                 UpdateAfterPosting(SalesHeader);
                 UpdateEmailParameters(SalesHeader);
@@ -4719,7 +4722,11 @@
                            ("Gen. Prod. Posting Group" <> GenPostingSetup."Gen. Prod. Posting Group")
                         then
                             GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
-                        GLAcc.Get(GenPostingSetup.GetSalesPrepmtAccount());
+
+                        IsHandled := false;
+                        OnCreatePrepaymentLinesOnBeforeGetSalesPrepmtAccount(GLAcc, TempSalesLine, SalesHeader, GenPostingSetup, CompleteFunctionality, IsHandled);
+                        if not IsHandled then
+                            GLAcc.Get(GenPostingSetup.GetSalesPrepmtAccount());
                         OnCreatePrepaymentLinesOnAfterGetSalesPrepmtAccount(GLAcc, TempSalesLine, SalesHeader, CompleteFunctionality);
                         TempLineFound := false;
                         if SalesHeader."Compress Prepayment" then begin
@@ -4929,11 +4936,11 @@
             SetRange("Attached to Line No.", PrepmtSalesLineNo);
             if FindSet(true) then
                 repeat
-                    if PrepmtIncludeTax then
-                        "Prepmt. Amount Inv. (LCY)" := "Prepmt Amt to Deduct"
-                    else
-                        "Prepmt. Amount Inv. (LCY)" :=
-                          CalcRoundedAmount(CurrencyFactor * "VAT Base Amount", PrepmtAmtRemainder);
+                        if PrepmtIncludeTax then
+                            "Prepmt. Amount Inv. (LCY)" := "Prepmt Amt to Deduct"
+                        else
+                            "Prepmt. Amount Inv. (LCY)" :=
+                              CalcRoundedAmount(CurrencyFactor * "VAT Base Amount", PrepmtAmtRemainder);
                     Modify();
                 until Next() = 0;
         end;
@@ -5259,13 +5266,18 @@
 
         if SalesLine."Job Contract Entry No." = 0 then
             exit;
-        if (SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice) and
-           (SalesHeader."Document Type" <> SalesHeader."Document Type"::"Credit Memo")
-        then
-            SalesLine.TestField("Job Contract Entry No.", 0);
 
-        SalesLine.TestField("Job No.");
-        SalesLine.TestField("Job Task No.");
+        IsHandled := false;
+        OnPostJobContractLineBeforeTestFields(SalesHeader, SalesLine, IsHandled);
+        if not IsHandled then begin
+            if (SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice) and
+               (SalesHeader."Document Type" <> SalesHeader."Document Type"::"Credit Memo")
+            then
+                SalesLine.TestField("Job Contract Entry No.", 0);
+
+            SalesLine.TestField("Job No.");
+            SalesLine.TestField("Job Task No.");
+        end;
 
         if SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice then
             SalesLine."Document No." := SalesInvHeader."No.";
@@ -6451,99 +6463,99 @@
         RemSalesTaxAmt := SalesHeader."Sales Tax Amount Rounding";
         RemSalesTaxSrcAmt := 0;
         if TempSalesTaxAmtLine.Find('-') then begin
-            repeat
-                TaxLineCount := TaxLineCount + 1;
-                if GuiAllowed then
-                    Window.Update(3, StrSubstNo('%1 / %2', LineCount, TaxLineCount));
-                if ((TempSalesTaxAmtLine."Tax Base Amount" <> 0) and
-                    (TempSalesTaxAmtLine."Tax Type" = TempSalesTaxAmtLine."Tax Type"::"Sales and Use Tax")) or
-                   ((TempSalesTaxAmtLine.Quantity <> 0) and
-                    (TempSalesTaxAmtLine."Tax Type" = TempSalesTaxAmtLine."Tax Type"::"Excise Tax"))
-                then begin
-                    GenJnlLine.Init();
-                    GenJnlLine."Posting Date" := SalesHeader."Posting Date";
-                    GenJnlLine."Document Date" := SalesHeader."Document Date";
-                    GenJnlLine.Description := SalesHeader."Posting Description";
-                    GenJnlLine."Reason Code" := SalesHeader."Reason Code";
-                    GenJnlLine."Document Type" := GenJnlLineDocType;
-                    GenJnlLine."Document No." := GenJnlLineDocNo;
-                    GenJnlLine."External Document No." := GenJnlLineExtDocNo;
-                    GenJnlLine."System-Created Entry" := true;
-                    GenJnlLine.Amount := 0;
-                    GenJnlLine."Source Currency Code" := SalesHeader."Currency Code";
-                    GenJnlLine."Source Currency Amount" := 0;
-                    GenJnlLine.Correction := SalesHeader.Correction;
-                    GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Sale;
-                    GenJnlLine."Tax Area Code" := TempSalesTaxAmtLine."Tax Area Code";
-                    GenJnlLine."Tax Type" := TempSalesTaxAmtLine."Tax Type";
-                    GenJnlLine."Tax Exemption No." := SalesHeader."Tax Exemption No.";
-                    GenJnlLine."Tax Group Code" := TempSalesTaxAmtLine."Tax Group Code";
-                    GenJnlLine."Tax Liable" := TempSalesTaxAmtLine."Tax Liable";
-                    GenJnlLine.Quantity := TempSalesTaxAmtLine.Quantity;
-                    GenJnlLine."VAT Calculation Type" := GenJnlLine."VAT Calculation Type"::"Sales Tax";
-                    GenJnlLine."VAT Posting" := GenJnlLine."VAT Posting"::"Manual VAT Entry";
-                    GenJnlLine."Shortcut Dimension 1 Code" := SalesHeader."Shortcut Dimension 1 Code";
-                    GenJnlLine."Shortcut Dimension 2 Code" := SalesHeader."Shortcut Dimension 2 Code";
-                    GenJnlLine."Dimension Set ID" := SalesHeader."Dimension Set ID";
-                    GenJnlLine."Source Code" := SrcCode;
-                    GenJnlLine."EU 3-Party Trade" := SalesHeader."EU 3-Party Trade";
-                    GenJnlLine."Bill-to/Pay-to No." := SalesHeader."Sell-to Customer No.";
-                    GenJnlLine."Source Type" := GenJnlLine."Source Type"::Customer;
-                    GenJnlLine."Source No." := SalesHeader."Bill-to Customer No.";
-                    GenJnlLine."Posting No. Series" := SalesHeader."Posting No. Series";
-                    GenJnlLine."STE Transaction ID" := SalesHeader."STE Transaction ID";
-                    GenJnlLine."Source Curr. VAT Base Amount" :=
-                      CurrExchRate.ExchangeAmtLCYToFCY(
-                        SalesHeader.GetUseDate(), SalesHeader."Currency Code", TempSalesTaxAmtLine."Tax Base Amount", SalesHeader."Currency Factor");
-                    GenJnlLine."VAT Base Amount (LCY)" :=
-                      Round(TempSalesTaxAmtLine."Tax Base Amount");
-                    GenJnlLine."VAT Base Amount" := GenJnlLine."VAT Base Amount (LCY)";
+                                                  repeat
+                                                      TaxLineCount := TaxLineCount + 1;
+                                                      if GuiAllowed then
+                                                          Window.Update(3, StrSubstNo('%1 / %2', LineCount, TaxLineCount));
+                                                      if ((TempSalesTaxAmtLine."Tax Base Amount" <> 0) and
+                                                          (TempSalesTaxAmtLine."Tax Type" = TempSalesTaxAmtLine."Tax Type"::"Sales and Use Tax")) or
+                                                         ((TempSalesTaxAmtLine.Quantity <> 0) and
+                                                          (TempSalesTaxAmtLine."Tax Type" = TempSalesTaxAmtLine."Tax Type"::"Excise Tax"))
+                                                      then begin
+                                                          GenJnlLine.Init();
+                                                          GenJnlLine."Posting Date" := SalesHeader."Posting Date";
+                                                          GenJnlLine."Document Date" := SalesHeader."Document Date";
+                                                          GenJnlLine.Description := SalesHeader."Posting Description";
+                                                          GenJnlLine."Reason Code" := SalesHeader."Reason Code";
+                                                          GenJnlLine."Document Type" := GenJnlLineDocType;
+                                                          GenJnlLine."Document No." := GenJnlLineDocNo;
+                                                          GenJnlLine."External Document No." := GenJnlLineExtDocNo;
+                                                          GenJnlLine."System-Created Entry" := true;
+                                                          GenJnlLine.Amount := 0;
+                                                          GenJnlLine."Source Currency Code" := SalesHeader."Currency Code";
+                                                          GenJnlLine."Source Currency Amount" := 0;
+                                                          GenJnlLine.Correction := SalesHeader.Correction;
+                                                          GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Sale;
+                                                          GenJnlLine."Tax Area Code" := TempSalesTaxAmtLine."Tax Area Code";
+                                                          GenJnlLine."Tax Type" := TempSalesTaxAmtLine."Tax Type";
+                                                          GenJnlLine."Tax Exemption No." := SalesHeader."Tax Exemption No.";
+                                                          GenJnlLine."Tax Group Code" := TempSalesTaxAmtLine."Tax Group Code";
+                                                          GenJnlLine."Tax Liable" := TempSalesTaxAmtLine."Tax Liable";
+                                                          GenJnlLine.Quantity := TempSalesTaxAmtLine.Quantity;
+                                                          GenJnlLine."VAT Calculation Type" := GenJnlLine."VAT Calculation Type"::"Sales Tax";
+                                                          GenJnlLine."VAT Posting" := GenJnlLine."VAT Posting"::"Manual VAT Entry";
+                                                          GenJnlLine."Shortcut Dimension 1 Code" := SalesHeader."Shortcut Dimension 1 Code";
+                                                          GenJnlLine."Shortcut Dimension 2 Code" := SalesHeader."Shortcut Dimension 2 Code";
+                                                          GenJnlLine."Dimension Set ID" := SalesHeader."Dimension Set ID";
+                                                          GenJnlLine."Source Code" := SrcCode;
+                                                          GenJnlLine."EU 3-Party Trade" := SalesHeader."EU 3-Party Trade";
+                                                          GenJnlLine."Bill-to/Pay-to No." := SalesHeader."Sell-to Customer No.";
+                                                          GenJnlLine."Source Type" := GenJnlLine."Source Type"::Customer;
+                                                          GenJnlLine."Source No." := SalesHeader."Bill-to Customer No.";
+                                                          GenJnlLine."Posting No. Series" := SalesHeader."Posting No. Series";
+                                                          GenJnlLine."STE Transaction ID" := SalesHeader."STE Transaction ID";
+                                                          GenJnlLine."Source Curr. VAT Base Amount" :=
+                                                            CurrExchRate.ExchangeAmtLCYToFCY(
+                                                              SalesHeader.GetUseDate(), SalesHeader."Currency Code", TempSalesTaxAmtLine."Tax Base Amount", SalesHeader."Currency Factor");
+                                                          GenJnlLine."VAT Base Amount (LCY)" :=
+                                                            Round(TempSalesTaxAmtLine."Tax Base Amount");
+                                                          GenJnlLine."VAT Base Amount" := GenJnlLine."VAT Base Amount (LCY)";
 
-                    if TaxJurisdiction.Code <> TempSalesTaxAmtLine."Tax Jurisdiction Code" then begin
-                        TaxJurisdiction.Get(TempSalesTaxAmtLine."Tax Jurisdiction Code");
-                        if SalesTaxCountry = SalesTaxCountry::CA then begin
-                            RemSalesTaxAmt := 0;
-                            RemSalesTaxSrcAmt := 0;
-                        end;
-                    end;
-                    if TaxJurisdiction."Unrealized VAT Type" > 0 then begin
-                        TaxJurisdiction.TestField("Unreal. Tax Acc. (Sales)");
-                        GenJnlLine."Account No." := TaxJurisdiction."Unreal. Tax Acc. (Sales)";
-                    end else begin
-                        TaxJurisdiction.TestField("Tax Account (Sales)");
-                        GenJnlLine."Account No." := TaxJurisdiction."Tax Account (Sales)";
-                    end;
-                    GenJnlLine."Tax Jurisdiction Code" := TempSalesTaxAmtLine."Tax Jurisdiction Code";
-                    if TempSalesTaxAmtLine."Tax Amount" <> 0 then begin
-                        RemSalesTaxSrcAmt := RemSalesTaxSrcAmt +
-                          TempSalesTaxAmtLine."Tax Base Amount FCY" * TempSalesTaxAmtLine."Tax %" / 100;
-                        GenJnlLine."Source Curr. VAT Amount" := Round(RemSalesTaxSrcAmt, Currency."Amount Rounding Precision");
-                        RemSalesTaxSrcAmt := RemSalesTaxSrcAmt - GenJnlLine."Source Curr. VAT Amount";
-                        RemSalesTaxAmt := RemSalesTaxAmt + TempSalesTaxAmtLine."Tax Amount";
-                        GenJnlLine."VAT Amount (LCY)" := Round(RemSalesTaxAmt, GLSetup."Amount Rounding Precision");
-                        RemSalesTaxAmt := RemSalesTaxAmt - GenJnlLine."VAT Amount (LCY)";
-                        GenJnlLine."VAT Amount" := GenJnlLine."VAT Amount (LCY)";
-                    end;
-                    GenJnlLine."VAT Difference" := TempSalesTaxAmtLine."Tax Difference";
+                                                          if TaxJurisdiction.Code <> TempSalesTaxAmtLine."Tax Jurisdiction Code" then begin
+                                                              TaxJurisdiction.Get(TempSalesTaxAmtLine."Tax Jurisdiction Code");
+                                                              if SalesTaxCountry = SalesTaxCountry::CA then begin
+                                                                  RemSalesTaxAmt := 0;
+                                                                  RemSalesTaxSrcAmt := 0;
+                                                              end;
+                                                          end;
+                                                          if TaxJurisdiction."Unrealized VAT Type" > 0 then begin
+                                                              TaxJurisdiction.TestField("Unreal. Tax Acc. (Sales)");
+                                                              GenJnlLine."Account No." := TaxJurisdiction."Unreal. Tax Acc. (Sales)";
+                                                          end else begin
+                                                              TaxJurisdiction.TestField("Tax Account (Sales)");
+                                                              GenJnlLine."Account No." := TaxJurisdiction."Tax Account (Sales)";
+                                                          end;
+                                                          GenJnlLine."Tax Jurisdiction Code" := TempSalesTaxAmtLine."Tax Jurisdiction Code";
+                                                          if TempSalesTaxAmtLine."Tax Amount" <> 0 then begin
+                                                              RemSalesTaxSrcAmt := RemSalesTaxSrcAmt +
+                                                                TempSalesTaxAmtLine."Tax Base Amount FCY" * TempSalesTaxAmtLine."Tax %" / 100;
+                                                              GenJnlLine."Source Curr. VAT Amount" := Round(RemSalesTaxSrcAmt, Currency."Amount Rounding Precision");
+                                                              RemSalesTaxSrcAmt := RemSalesTaxSrcAmt - GenJnlLine."Source Curr. VAT Amount";
+                                                              RemSalesTaxAmt := RemSalesTaxAmt + TempSalesTaxAmtLine."Tax Amount";
+                                                              GenJnlLine."VAT Amount (LCY)" := Round(RemSalesTaxAmt, GLSetup."Amount Rounding Precision");
+                                                              RemSalesTaxAmt := RemSalesTaxAmt - GenJnlLine."VAT Amount (LCY)";
+                                                              GenJnlLine."VAT Amount" := GenJnlLine."VAT Amount (LCY)";
+                                                          end;
+                                                          GenJnlLine."VAT Difference" := TempSalesTaxAmtLine."Tax Difference";
 
-                    if not
-                       (SalesHeader."Document Type" in
-                        [SalesHeader."Document Type"::"Return Order", SalesHeader."Document Type"::"Credit Memo"])
-                    then begin
-                        GenJnlLine."Source Curr. VAT Base Amount" := -GenJnlLine."Source Curr. VAT Base Amount";
-                        GenJnlLine."VAT Base Amount (LCY)" := -GenJnlLine."VAT Base Amount (LCY)";
-                        GenJnlLine."VAT Base Amount" := -GenJnlLine."VAT Base Amount";
-                        GenJnlLine."Source Curr. VAT Amount" := -GenJnlLine."Source Curr. VAT Amount";
-                        GenJnlLine."VAT Amount (LCY)" := -GenJnlLine."VAT Amount (LCY)";
-                        GenJnlLine."VAT Amount" := -GenJnlLine."VAT Amount";
-                        GenJnlLine.Quantity := -GenJnlLine.Quantity;
-                        GenJnlLine."VAT Difference" := -GenJnlLine."VAT Difference";
-                    end;
-                    TotalTaxAmount += GenJnlLine."VAT Amount";
-                    OnBeforePostSalesTaxToGL(GenJnlLine, SalesHeader, TempSalesTaxAmtLine);
-                    GenJnlPostLine.RunWithCheck(GenJnlLine);
-                end;
-            until TempSalesTaxAmtLine.Next() = 0;
+                                                          if not
+                                                             (SalesHeader."Document Type" in
+                                                              [SalesHeader."Document Type"::"Return Order", SalesHeader."Document Type"::"Credit Memo"])
+                                                          then begin
+                                                              GenJnlLine."Source Curr. VAT Base Amount" := -GenJnlLine."Source Curr. VAT Base Amount";
+                                                              GenJnlLine."VAT Base Amount (LCY)" := -GenJnlLine."VAT Base Amount (LCY)";
+                                                              GenJnlLine."VAT Base Amount" := -GenJnlLine."VAT Base Amount";
+                                                              GenJnlLine."Source Curr. VAT Amount" := -GenJnlLine."Source Curr. VAT Amount";
+                                                              GenJnlLine."VAT Amount (LCY)" := -GenJnlLine."VAT Amount (LCY)";
+                                                              GenJnlLine."VAT Amount" := -GenJnlLine."VAT Amount";
+                                                              GenJnlLine.Quantity := -GenJnlLine.Quantity;
+                                                              GenJnlLine."VAT Difference" := -GenJnlLine."VAT Difference";
+                                                          end;
+                                                          TotalTaxAmount += GenJnlLine."VAT Amount";
+                                                          OnBeforePostSalesTaxToGL(GenJnlLine, SalesHeader, TempSalesTaxAmtLine);
+                                                          GenJnlPostLine.RunWithCheck(GenJnlLine);
+                                                      end;
+                                                  until TempSalesTaxAmtLine.Next() = 0;
 
             // Sales Tax rounding adjustment for Invoice with 100% Prepayment
             if Is100PctPrepmtInvoice(TempSalesLineGlobal) then
@@ -6685,15 +6697,18 @@
                 SalesShipmentHeader."Ship-to Code",
                 SalesShipmentHeader."Sell-to Country/Region Code"));
         end;
+
         if SalesHeader.IsCreditDocType() then
-            CountryRegionCode := SalesHeader."Sell-to Country/Region Code"
-        else
+            exit(SalesHeader."Sell-to Country/Region Code")
+        else begin
             CountryRegionCode := SalesHeader."Ship-to Country/Region Code";
-        exit(
-          GetCountryRegionCode(
-            SalesLine."Sell-to Customer No.",
-            SalesHeader."Ship-to Code",
-            CountryRegionCode));
+
+            exit(
+              GetCountryRegionCode(
+                SalesLine."Sell-to Customer No.",
+                SalesHeader."Ship-to Code",
+                CountryRegionCode));
+        end;
     end;
 
     local procedure GetCountryRegionCode(CustNo: Code[20]; ShipToCode: Code[10]; SellToCountryRegionCode: Code[10]) Result: Code[10]
@@ -6992,6 +7007,8 @@
                 WhsePostRcpt.CreatePostedRcptHeader(PostedWhseRcptHeader, WhseRcptHeader, "Shipping No.", "Posting Date");
             end;
             EInvoiceMgt.InsertSalesShipmentCFDITransportOperators(SalesHeader, SalesShptHeader."No.");
+
+            OnAfterInsertShipmentHeader(SalesHeader, SalesShptHeader);
         end;
     end;
 
@@ -7059,6 +7076,8 @@
                 WhsePostShpt.CreatePostedShptHeader(PostedWhseShptHeader, WhseShptHeader, "Return Receipt No.", "Posting Date");
             end;
         end;
+
+        OnAfterInsertReturnReceiptHeader(SalesHeader, ReturnRcptHeader);
     end;
 
     local procedure InsertInvoiceHeader(var SalesHeader: Record "Sales Header"; var SalesInvHeader: Record "Sales Invoice Header")
@@ -7503,11 +7522,11 @@
                         PostedSalesDocumentVariant := SalesCrMemoHeader;
                     end;
                 else begin
-                        IsHandled := false;
-                        OnGetPostedDocumentRecordElseCase(SalesHeader, PostedSalesDocumentVariant, IsHandled);
-                        if not IsHandled then
-                            Error(NotSupportedDocumentTypeErr, "Document Type");
-                    end;
+                    IsHandled := false;
+                    OnGetPostedDocumentRecordElseCase(SalesHeader, PostedSalesDocumentVariant, IsHandled);
+                    if not IsHandled then
+                        Error(NotSupportedDocumentTypeErr, "Document Type");
+                end;
             end;
     end;
 
@@ -7572,11 +7591,11 @@
                         SalesCrMemoHeader.SendProfile(DocumentSendingProfile);
                     end;
                 else begin
-                        IsHandled := false;
-                        OnSendPostedDocumentRecordElseCase(SalesHeader, DocumentSendingProfile, IsHandled);
-                        if not IsHandled then
-                            Error(NotSupportedDocumentTypeErr, "Document Type");
-                    end;
+                    IsHandled := false;
+                    OnSendPostedDocumentRecordElseCase(SalesHeader, DocumentSendingProfile, IsHandled);
+                    if not IsHandled then
+                        Error(NotSupportedDocumentTypeErr, "Document Type");
+                end;
             end;
     end;
 
@@ -8526,6 +8545,8 @@
             AmtToDefer := -AmtToDefer;
             AmtToDeferACY := -AmtToDeferACY;
         end;
+
+        OnAfterGetAmountsForDeferral(SalesLine, AmtToDefer, AmtToDeferACY, DeferralAccount);
     end;
 #endif
 
@@ -8613,33 +8634,33 @@
             SalesLine.SetFilter("Qty. to Invoice", '<>0');
             if SalesLine.Find('-') then
                 repeat
-                    if SalesLine."VAT Calculation Type" = SalesLine."VAT Calculation Type"::"Sales Tax" then begin
-                        if SalesLine."Tax Area Code" <> '' then begin
-                            if SalesTaxCountry = SalesTaxCountry::NoTax then
-                                Error(EveryLineMustHaveSameErr, SalesLine.FieldCaption("Tax Area Code"), SalesLine."Tax Area Code");
-                            TaxArea.Get(SalesLine."Tax Area Code");
-                            if TaxArea."Country/Region" <> SalesTaxCountry then
-                                Error(TaxAreaSetupShouldBeSameErr, TaxArea.FieldCaption("Country/Region"), SalesTaxCountry);
-                            if TaxArea."Use External Tax Engine" <> UseExternalTaxEngine then
-                                Error(TaxAreaSetupShouldBeSameErr, TaxArea.FieldCaption("Use External Tax Engine"), UseExternalTaxEngine);
-                        end;
-                        if TaxOption = 0 then begin
-                            TaxOption := TaxOption::SalesTax;
-                            if SalesLine."Tax Area Code" <> '' then
-                                AddSalesTaxLineToSalesTaxCalc(SalesHeader, SalesLine, true);
-                        end else
-                            if TaxOption = TaxOption::VAT then
-                                Error(EveryLineMustHaveSameErr, SalesLine.FieldCaption("VAT Calculation Type"), TaxOption)
-                            else
+                        if SalesLine."VAT Calculation Type" = SalesLine."VAT Calculation Type"::"Sales Tax" then begin
+                            if SalesLine."Tax Area Code" <> '' then begin
+                                if SalesTaxCountry = SalesTaxCountry::NoTax then
+                                    Error(EveryLineMustHaveSameErr, SalesLine.FieldCaption("Tax Area Code"), SalesLine."Tax Area Code");
+                                TaxArea.Get(SalesLine."Tax Area Code");
+                                if TaxArea."Country/Region" <> SalesTaxCountry then
+                                    Error(TaxAreaSetupShouldBeSameErr, TaxArea.FieldCaption("Country/Region"), SalesTaxCountry);
+                                if TaxArea."Use External Tax Engine" <> UseExternalTaxEngine then
+                                    Error(TaxAreaSetupShouldBeSameErr, TaxArea.FieldCaption("Use External Tax Engine"), UseExternalTaxEngine);
+                            end;
+                            if TaxOption = 0 then begin
+                                TaxOption := TaxOption::SalesTax;
                                 if SalesLine."Tax Area Code" <> '' then
-                                    AddSalesTaxLineToSalesTaxCalc(SalesHeader, SalesLine, false);
-                    end else begin
-                        if TaxOption = 0 then
-                            TaxOption := TaxOption::VAT
-                        else
-                            if TaxOption = TaxOption::SalesTax then
-                                Error(EveryLineMustHaveSameErr, SalesLine.FieldCaption("VAT Calculation Type"), TaxOption);
-                    end;
+                                    AddSalesTaxLineToSalesTaxCalc(SalesHeader, SalesLine, true);
+                            end else
+                                if TaxOption = TaxOption::VAT then
+                                    Error(EveryLineMustHaveSameErr, SalesLine.FieldCaption("VAT Calculation Type"), TaxOption)
+                                else
+                                    if SalesLine."Tax Area Code" <> '' then
+                                        AddSalesTaxLineToSalesTaxCalc(SalesHeader, SalesLine, false);
+                        end else begin
+                            if TaxOption = 0 then
+                                TaxOption := TaxOption::VAT
+                            else
+                                if TaxOption = TaxOption::SalesTax then
+                                    Error(EveryLineMustHaveSameErr, SalesLine.FieldCaption("VAT Calculation Type"), TaxOption);
+                        end;
                 until SalesLine.Next() = 0;
             SalesLine.SetRange("Qty. to Invoice");
             SalesLine.SetRange("Prepayment Line");
@@ -8826,6 +8847,7 @@
         exit(SalesSetup."Invoice Posting Setup" = "Sales Invoice Posting"::"Invoice Posting (Default)");
     end;
 #endif
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostLines(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; var TempWhseShptHeader: Record "Warehouse Shipment Header" temporary)
     begin
@@ -8930,8 +8952,9 @@
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetSalesAccount(SalesLine: Record "Sales Line"; GenPostingSetup: Record "General Posting Setup"; var SalesAccountNo: Code[20]; var IsHandled: Boolean)
     begin
-    end;  
+    end;
 #endif
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSalesSetup(var SalesSetup: Record "Sales & Receivables Setup")
     begin
@@ -9000,6 +9023,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertPostedHeaders(var SalesHeader: Record "Sales Header"; var SalesShipmentHeader: Record "Sales Shipment Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHdr: Record "Sales Cr.Memo Header"; var ReceiptHeader: Record "Return Receipt Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertShipmentHeader(var SalesHeader: Record "Sales Header"; var SalesShipmentHeader: Record "Sales Shipment Header")
     begin
     end;
 
@@ -9613,7 +9641,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckJobNoOnShptLineEqualToSales(SalesShipmentLine: Record "Sales Shipment Line"; SalesLine: Record "Sales Line"; IsHandled: Boolean)
+    local procedure OnBeforeCheckJobNoOnShptLineEqualToSales(SalesShipmentLine: Record "Sales Shipment Line"; SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -10772,6 +10800,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreatePrepaymentLinesOnBeforeGetSalesPrepmtAccount(var GLAcc: Record "G/L Account"; var TempSalesLine: Record "Sales Line" temporary; SalesHeader: Record "Sales Header"; var GenPostingSetup: Record "General Posting Setup"; CompleteFunctionality: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreatePrepaymentLinesOnAfterTempSalesLineSetFilters(var TempSalesLine: Record "Sales Line" temporary; var SalesHeader: Record "Sales Header"; var TempPrepmtSalesLine: Record "Sales Line" temporary; var NextLineNo: Integer)
     begin
     end;
@@ -11097,7 +11130,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostSalesLineOnBeforePostItemTrackingLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; WhseShip: Boolean; WhseReceive: Boolean; InvtPickPutaway: Boolean)
+    local procedure OnPostSalesLineOnBeforePostItemTrackingLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; WhseShip: Boolean; WhseReceive: Boolean; InvtPickPutaway: Boolean; SalesInvHeader: Record "Sales Invoice Header"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var ItemLedgShptEntryNo: Integer; var RemQtyToBeInvoiced: Decimal; var RemQtyToBeInvoicedBase: Decimal)
     begin
     end;
 
@@ -11297,12 +11330,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateAssosOrderPostingNosOnAfterReleasePurchaseDocument(var PurchOrderHeader: Record "Purchase Header")
+    local procedure OnUpdateAssosOrderPostingNosOnAfterReleasePurchaseDocument(var PurchOrderHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateAssosOrderPostingNosOnBeforeReleasePurchaseDocument(var PurchOrderHeader: Record "Purchase Header")
+    local procedure OnUpdateAssosOrderPostingNosOnBeforeReleasePurchaseDocument(var PurchOrderHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -11496,6 +11529,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCreatePrepaymentLinesOnBeforeInsertedPrepmtVATBaseToDeduct(var TempPrepmtSalesLine: Record "Sales Line" temporary; var SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertReturnReceiptHeader(var SalesHeader: Record "Sales Header"; var ReturnReceiptHeader: Record "Return Receipt Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAmountsForDeferral(SalesLine: Record "Sales Line"; var AmtToDefer: Decimal; var AmtToDeferACY: Decimal; var DeferralAccount: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostJobContractLineBeforeTestFields(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }
