@@ -17,32 +17,32 @@ page 926 "Available - Assembly Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the type of assembly document that the assembly order header represents in assemble-to-order scenarios.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the number of the assembly order header that the assembly order line refers to.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location from which you want to post consumption of the assembly component.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the date when the assembly component must be available for consumption by the assembly order.';
                 }
-                field("Remaining Quantity"; "Remaining Quantity")
+                field("Remaining Quantity"; Rec."Remaining Quantity")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies how many units of the assembly component remain to be consumed during assembly.';
                 }
-                field("Reserved Qty. (Base)"; "Reserved Qty. (Base)")
+                field("Reserved Qty. (Base)"; Rec."Reserved Qty. (Base)")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
@@ -56,7 +56,7 @@ page 926 "Available - Assembly Lines"
                     Editable = false;
                     ToolTip = 'Specifies the quantity of the item that is available.';
                 }
-                field(ReservedQuantity; GetReservedQtyInLine)
+                field(ReservedQuantity; GetReservedQtyInLine())
                 {
                     ApplicationArea = Reservation;
                     Caption = 'Current Reserved Quantity';
@@ -66,11 +66,11 @@ page 926 "Available - Assembly Lines"
                     trigger OnDrillDown()
                     begin
                         ReservEntry2.Reset();
-                        SetReservationFilters(ReservEntry2);
+                        Rec.SetReservationFilters(ReservEntry2);
                         ReservEntry2.SetRange("Reservation Status", ReservEntry2."Reservation Status"::Reservation);
                         ReservMgt.MarkReservConnection(ReservEntry2, ReservEntry);
                         PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry2);
-                        UpdateReservFrom;
+                        UpdateReservFrom();
                         CurrPage.Update();
                     end;
                 }
@@ -109,7 +109,7 @@ page 926 "Available - Assembly Lines"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines();
+                        Rec.OpenItemTrackingLines();
                     end;
                 }
             }
@@ -130,8 +130,8 @@ page 926 "Available - Assembly Lines"
                     trigger OnAction()
                     begin
                         ReservEntry.LockTable();
-                        UpdateReservMgt;
-                        GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
+                        UpdateReservMgt();
+                        Rec.GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
                         ReservMgt.CalculateRemainingQty(NewQtyReserved, NewQtyReservedBase);
                         ReservMgt.CopySign(NewQtyReserved, QtyToReserve);
                         ReservMgt.CopySign(NewQtyReservedBase, QtyToReserveBase);
@@ -158,14 +158,14 @@ page 926 "Available - Assembly Lines"
                             exit;
 
                         ReservEntry2.Copy(ReservEntry);
-                        SetReservationFilters(ReservEntry2);
+                        Rec.SetReservationFilters(ReservEntry2);
                         if ReservEntry2.Find('-') then begin
-                            UpdateReservMgt;
+                            UpdateReservMgt();
                             repeat
                                 ReservEngineMgt.CancelReservation(ReservEntry2);
                             until ReservEntry2.Next() = 0;
 
-                            UpdateReservFrom;
+                            UpdateReservFrom();
                         end;
                     end;
                 }
@@ -175,14 +175,14 @@ page 926 "Available - Assembly Lines"
 
     trigger OnAfterGetRecord()
     begin
-        GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
+        Rec.GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
     end;
 
     trigger OnOpenPage()
     begin
         ReservEntry.TestField("Source Type");
 
-        SetFilters;
+        SetFilters();
     end;
 
     var
@@ -194,14 +194,16 @@ page 926 "Available - Assembly Lines"
         ReservMgt: Codeunit "Reservation Management";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         SourceRecRef: RecordRef;
-        QtyToReserve: Decimal;
-        QtyToReserveBase: Decimal;
         QtyReserved: Decimal;
         QtyReservedBase: Decimal;
         NewQtyReserved: Decimal;
         NewQtyReservedBase: Decimal;
         CaptionText: Text;
         CurrentSubType: Option;
+
+    protected var
+        QtyToReserve: Decimal;
+        QtyToReserveBase: Decimal;
 
     procedure SetSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry")
     var
@@ -222,106 +224,27 @@ page 926 "Available - Assembly Lines"
         CaptionText := ReservMgt.FilterReservFor(SourceRecRef, ReservEntry, TransferDirection);
     end;
 
-#if not CLEAN16
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetSalesLine(var CurrentSalesLine: Record "Sales Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentSalesLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetReqLine(var CurrentReqLine: Record "Requisition Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentReqLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetPurchLine(var CurrentPurchLine: Record "Purchase Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentPurchLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetProdOrderLine(var CurrentProdOrderLine: Record "Prod. Order Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentProdOrderLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetProdOrderComponent(var CurrentProdOrderComp: Record "Prod. Order Component"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentProdOrderComp);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetPlanningComponent(var CurrentPlanningComponent: Record "Planning Component"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentPlanningComponent);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetTransferLine(var CurrentTransLine: Record "Transfer Line"; CurrentReservEntry: Record "Reservation Entry"; TransferDirection: Enum "Transfer Direction")
-    begin
-        SourceRecRef.GetTable(CurrentTransLine);
-        SetSource(SourceRecRef, CurrentReservEntry, TransferDirection);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetServiceInvLine(var CurrentServiceLine: Record "Service Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentServiceLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetJobPlanningLine(var CurrentJobPlanningLine: Record "Job Planning Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentJobPlanningLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetAssemblyHeader(var CurrentAssemblyHeader: Record "Assembly Header"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentAssemblyHeader);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetAssemblyLine(var CurrentAssemblyLine: Record "Assembly Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentAssemblyLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-#endif
-
     local procedure CreateReservation(ReserveQuantity: Decimal; ReserveQuantityBase: Decimal)
     var
         TrackingSpecification: Record "Tracking Specification";
     begin
-        CalcFields("Reserved Qty. (Base)");
+        Rec.CalcFields("Reserved Qty. (Base)");
 
-        if "Remaining Quantity (Base)" + "Reserved Qty. (Base)" < ReserveQuantityBase then
-            Error(Text002, "Remaining Quantity (Base)" + "Reserved Qty. (Base)");
+        if Rec."Remaining Quantity (Base)" + Rec."Reserved Qty. (Base)" < ReserveQuantityBase then
+            Error(Text002, Rec."Remaining Quantity (Base)" + Rec."Reserved Qty. (Base)");
 
-        TestField(Type, Type::Item);
-        TestField("No.", ReservEntry."Item No.");
-        TestField("Variant Code", ReservEntry."Variant Code");
-        TestField("Location Code", ReservEntry."Location Code");
+        Rec.TestField(Type, Rec.Type::Item);
+        Rec.TestField("No.", ReservEntry."Item No.");
+        Rec.TestField("Variant Code", ReservEntry."Variant Code");
+        Rec.TestField("Location Code", ReservEntry."Location Code");
 
-        UpdateReservMgt;
+        UpdateReservMgt();
         TrackingSpecification.InitTrackingSpecification(
-          DATABASE::"Assembly Line", "Document Type".AsInteger(), "Document No.", '', 0, "Line No.",
-          "Variant Code", "Location Code", "Qty. per Unit of Measure");
+          DATABASE::"Assembly Line", Rec."Document Type".AsInteger(), Rec."Document No.", '', 0, Rec."Line No.",
+          Rec."Variant Code", Rec."Location Code", Rec."Qty. per Unit of Measure");
         ReservMgt.CreateReservation(
-          ReservEntry.Description, "Due Date", ReserveQuantity, ReserveQuantityBase, TrackingSpecification);
-        UpdateReservFrom;
+          ReservEntry.Description, Rec."Due Date", ReserveQuantity, ReserveQuantityBase, TrackingSpecification);
+        UpdateReservFrom();
     end;
 
     local procedure UpdateReservFrom()
@@ -339,10 +262,10 @@ page 926 "Available - Assembly Lines"
         OnAfterUpdateReservMgt(ReservEntry);
     end;
 
-    local procedure GetReservedQtyInLine(): Decimal
+    protected procedure GetReservedQtyInLine(): Decimal
     begin
         ReservEntry2.Reset();
-        SetReservationFilters(ReservEntry2);
+        Rec.SetReservationFilters(ReservEntry2);
         ReservEntry2.SetRange("Reservation Status", ReservEntry2."Reservation Status"::Reservation);
         exit(ReservMgt.MarkReservConnection(ReservEntry2, ReservEntry));
     end;
@@ -354,16 +277,16 @@ page 926 "Available - Assembly Lines"
 
     local procedure SetFilters()
     begin
-        SetRange("Document Type", CurrentSubType);
-        SetRange(Type, Type::Item);
-        SetRange("No.", ReservEntry."Item No.");
-        SetRange("Variant Code", ReservEntry."Variant Code");
-        SetRange("Location Code", ReservEntry."Location Code");
-        SetFilter("Due Date", ReservMgt.GetAvailabilityFilter(ReservEntry."Shipment Date"));
+        Rec.SetRange("Document Type", CurrentSubType);
+        Rec.SetRange(Type, Rec.Type::Item);
+        Rec.SetRange("No.", ReservEntry."Item No.");
+        Rec.SetRange("Variant Code", ReservEntry."Variant Code");
+        Rec.SetRange("Location Code", ReservEntry."Location Code");
+        Rec.SetFilter("Due Date", ReservMgt.GetAvailabilityFilter(ReservEntry."Shipment Date"));
         if ReservMgt.IsPositive then
-            SetFilter("Remaining Quantity (Base)", '<0')
+            Rec.SetFilter("Remaining Quantity (Base)", '<0')
         else
-            SetFilter("Remaining Quantity (Base)", '>0');
+            Rec.SetFilter("Remaining Quantity (Base)", '>0');
 
         OnAfterSetFilters(Rec, ReservEntry);
     end;

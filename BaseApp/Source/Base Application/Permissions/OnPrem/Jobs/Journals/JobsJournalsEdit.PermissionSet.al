@@ -23,8 +23,10 @@ permissionset 7787 "Jobs Journals - Edit"
                   tabledata "Item Unit of Measure" = R,
                   tabledata "Item Variant" = R,
                   tabledata Job = R,
+#if not CLEAN19
                   tabledata "Job G/L Account Price" = R,
                   tabledata "Job Item Price" = R,
+#endif
                   tabledata "Job Journal Batch" = RI,
                   tabledata "Job Journal Line" = RIMD,
                   tabledata "Job Journal Quantity" = RIMD,
@@ -32,7 +34,9 @@ permissionset 7787 "Jobs Journals - Edit"
                   tabledata "Job Ledger Entry" = R,
                   tabledata "Job Planning Line - Calendar" = R,
                   tabledata "Job Planning Line" = R,
+#if not CLEAN19
                   tabledata "Job Resource Price" = R,
+#endif
                   tabledata "Job Task" = R,
                   tabledata "Job WIP Entry" = R,
                   tabledata "Job WIP G/L Entry" = R,
@@ -47,11 +51,17 @@ permissionset 7787 "Jobs Journals - Edit"
                   tabledata "Price Worksheet Line" = R,
                   tabledata "Reason Code" = R,
                   tabledata Resource = R,
+#if not CLEAN19
                   tabledata "Resource Cost" = R,
+#endif
                   tabledata "Resource Group" = R,
+#if not CLEAN19
                   tabledata "Resource Price" = R,
+#endif
                   tabledata "Resource Unit of Measure" = R,
+#if not CLEAN19
                   tabledata "Sales Price" = R,
+#endif
                   tabledata "Sales Price Access" = R,
                   tabledata "Source Code Setup" = R,
                   tabledata "Time Sheet Chart Setup" = R,

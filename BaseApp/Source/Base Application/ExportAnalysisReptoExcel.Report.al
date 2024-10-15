@@ -146,7 +146,7 @@ report 7113 "Export Analysis Rep. to Excel"
                                 EnterCell(
                                   RowNo,
                                   ColumnNo,
-                                  MatrixMgt.FormatValue(ColumnValue, ColumnLayout."Rounding Factor", false),
+                                  MatrixMgt.FormatAmount(ColumnValue, ColumnLayout."Rounding Factor", false),
                                   AnalysisLine.Bold,
                                   AnalysisLine.Italic,
                                   AnalysisLine.Underline,

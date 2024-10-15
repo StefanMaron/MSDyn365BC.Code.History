@@ -75,7 +75,119 @@ page 210 "Resource Units of Measure"
 
     actions
     {
+        area(navigation)
+        {
+            group(ActionGroupCRM)
+            {
+                Caption = 'Dynamics 365 Sales';
+                Image = Administration;
+                Visible = CRMIntegrationEnabled;
+                action(CRMGotoUnitGroup)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Unit';
+                    Image = CoupledUnitOfMeasure;
+                    ToolTip = 'Open the coupled Dynamics 365 Sales unit of measure.';
+
+                    trigger OnAction()
+                    var
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    begin
+                        CRMIntegrationManagement.ShowCRMEntityFromRecordID(Rec.RecordId);
+                    end;
+                }
+                action(CRMSynchronizeNow)
+                {
+                    AccessByPermission = TableData "CRM Integration Record" = IM;
+                    ApplicationArea = Suite;
+                    Caption = 'Synchronize';
+                    Image = Refresh;
+                    ToolTip = 'Send updated data to Dynamics 365 Sales.';
+
+                    trigger OnAction()
+                    var
+                        ResourceUnitOfMeasure: Record "Resource Unit of Measure";
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                        ResourceUnitOfMeasureRecordRef: RecordRef;
+                    begin
+                        CurrPage.SetSelectionFilter(ResourceUnitOfMeasure);
+                        ResourceUnitOfMeasure.Next();
+
+                        if ResourceUnitOfMeasure.Count() = 1 then
+                            CRMIntegrationManagement.UpdateOneNow(ResourceUnitOfMeasure.RecordId)
+                        else begin
+                            ResourceUnitOfMeasureRecordRef.GetTable(ResourceUnitOfMeasure);
+                            CRMIntegrationManagement.UpdateMultipleNow(ResourceUnitOfMeasureRecordRef);
+                        end
+                    end;
+                }
+                group(Coupling)
+                {
+                    Caption = 'Coupling', Comment = 'Coupling is a noun';
+                    Image = LinkAccount;
+                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dynamics 365 Sales record.';
+                    action(ManageCRMCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        ApplicationArea = Suite;
+                        Caption = 'Set Up Coupling';
+                        Image = LinkAccount;
+                        ToolTip = 'Create or modify the coupling to a Dynamics 365 Sales unit of measure.';
+
+                        trigger OnAction()
+                        var
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                        begin
+                            CRMIntegrationManagement.DefineCoupling(Rec.RecordId);
+                        end;
+                    }
+                    action(DeleteCRMCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = D;
+                        ApplicationArea = Suite;
+                        Caption = 'Delete Coupling';
+                        Enabled = CRMIsCoupledToRecord;
+                        Image = UnLinkAccount;
+                        ToolTip = 'Delete the coupling to a Dynamics 365 Sales unit of measure.';
+
+                        trigger OnAction()
+                        var
+                            ResourceUnitOfMeasure: Record "Resource Unit of Measure";
+                            CRMCouplingManagement: Codeunit "CRM Coupling Management";
+                            ResourceUnitOfMeasureRecordRef: RecordRef;
+                        begin
+                            CurrPage.SetSelectionFilter(ResourceUnitOfMeasure);
+                            ResourceUnitOfMeasureRecordRef.GetTable(ResourceUnitOfMeasure);
+                            CRMCouplingManagement.RemoveCoupling(ResourceUnitOfMeasureRecordRef);
+                        end;
+                    }
+                }
+                action(ShowLog)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Synchronization Log';
+                    Image = Log;
+                    ToolTip = 'View integration synchronization jobs for the resource unit of measure table.';
+
+                    trigger OnAction()
+                    var
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    begin
+                        CRMIntegrationManagement.ShowLog(Rec.RecordId);
+                    end;
+                }
+            }
+        }
     }
+
+    trigger OnAfterGetCurrRecord()
+    var
+        CRMCouplingManagement: Codeunit "CRM Coupling Management";
+    begin
+        CRMIsCoupledToRecord := CRMIntegrationEnabled;
+        if CRMIsCoupledToRecord then
+            CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(Rec.RecordId);
+    end;
 
     trigger OnAfterGetRecord()
     begin
@@ -88,13 +200,18 @@ page 210 "Resource Units of Measure"
     end;
 
     trigger OnOpenPage()
+    var
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         if Res.Get("Resource No.") then
             ResBaseUOM := Res."Base Unit of Measure";
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled() and CRMIntegrationManagement.IsUnitGroupMappingEnabled();
     end;
 
     var
         Res: Record Resource;
+        CRMIntegrationEnabled: Boolean;
+        CRMIsCoupledToRecord: Boolean;
         ResBaseUOM: Code[10];
         StyleName: Text;
 

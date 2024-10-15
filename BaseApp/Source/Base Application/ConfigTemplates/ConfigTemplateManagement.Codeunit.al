@@ -115,7 +115,7 @@ codeunit 8612 "Config. Template Management"
         exit(true);
     end;
 
-    local procedure ModifyRecordWithField(var RecRef: RecordRef; FieldRef: FieldRef; Value: Text[250]; LanguageID: Integer)
+    local procedure ModifyRecordWithField(var RecRef: RecordRef; FieldRef: FieldRef; Value: Text[2048]; LanguageID: Integer)
     var
         ConfigValidateMgt: Codeunit "Config. Validate Management";
     begin
@@ -380,7 +380,7 @@ codeunit 8612 "Config. Template Management"
         InsertConfigTemplateLine(ConfigTemplateHeaderCode, FieldRef.Number, DummyConfigTemplateLine."Default Value", TableID);
     end;
 
-    procedure InsertConfigTemplateLine(ConfigTemplateHeaderCode: Code[10]; FieldID: Integer; DefaultValue: Text[250]; TableID: Integer)
+    procedure InsertConfigTemplateLine(ConfigTemplateHeaderCode: Code[10]; FieldID: Integer; DefaultValue: Text[2048]; TableID: Integer)
     var
         ConfigTemplateLine: Record "Config. Template Line";
     begin
@@ -508,7 +508,7 @@ codeunit 8612 "Config. Template Management"
     local procedure UpdateConfigTemplateLines(Code: Code[10]; FieldRef: FieldRef; TableID: Integer)
     var
         ConfigTemplateLine: Record "Config. Template Line";
-        Value: Text[250];
+        Value: Text[2048];
     begin
         if IsNotInitializedFieldRef(FieldRef) then
             exit;

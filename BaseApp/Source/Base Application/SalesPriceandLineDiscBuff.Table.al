@@ -1,9 +1,14 @@
 table 1304 "Sales Price and Line Disc Buff"
 {
     Caption = 'Sales Price and Line Disc Buff';
+#if not CLEAN19
     ObsoleteState = Pending;
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
     ObsoleteTag = '16.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '22.0';
+#endif    
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price Worksheet Line';
 
     fields
     {
@@ -11,6 +16,7 @@ table 1304 "Sales Price and Line Disc Buff"
         {
             Caption = 'Code';
             DataClassification = SystemMetadata;
+#if not CLEAN19
             NotBlank = true;
             TableRelation = IF (Type = CONST(Item)) Item
             ELSE
@@ -55,6 +61,7 @@ table 1304 "Sales Price and Line Disc Buff"
                     UpdateValuesFromItem;
                 end;
             end;
+#endif
         }
         field(2; "Sales Code"; Code[20])
         {
@@ -204,6 +211,7 @@ table 1304 "Sales Price and Line Disc Buff"
             Caption = 'Type';
             DataClassification = SystemMetadata;
 
+#if not CLEAN19
             trigger OnValidate()
             begin
                 case Type of
@@ -224,6 +232,7 @@ table 1304 "Sales Price and Line Disc Buff"
                         OnValidateTypeCaseElse();
                 end;
             end;
+#endif
         }
         field(1300; "Line Type"; Option)
         {
@@ -314,6 +323,7 @@ table 1304 "Sales Price and Line Disc Buff"
     {
     }
 
+#if not CLEAN19
     trigger OnDelete()
     begin
         DeleteOldRecordVersion;
@@ -346,17 +356,20 @@ table 1304 "Sales Price and Line Disc Buff"
         DeleteOldRecordVersion;
         InsertNewRecordVersion;
     end;
+#endif
 
     var
         EndDateErr: Label '%1 cannot be after %2.';
         MustBeBlankErr: Label '%1 must be blank.';
         CustNotInPriceGrErr: Label 'This customer is not assigned to any price group, therefore a price group could not be used in context of this customer.';
         CustNotInDiscGrErr: Label 'This customer is not assigned to any discount group, therefore a discount group could not be used in context of this customer.';
+#if not CLEAN19
         ItemNotInDiscGrErr: Label 'This item is not assigned to any discount group, therefore a discount group could not be used in context of this item.';
         IncludeVATQst: Label 'One or more of the sales prices do not include VAT.\Do you want to update all sales prices to include VAT?';
         ExcludeVATQst: Label 'One or more of the sales prices include VAT.\Do you want to update all sales prices to exclude VAT?';
         PricesAndDiscountsCountLbl: Label 'Prices and Discounts', Locked = true;
         PricesAndDiscountsCountMsg: Label 'Total count of Prices and Discounts loaded are: %1', Locked = true;
+#endif
 
     local procedure UpdateValuesFromItem()
     var
@@ -374,6 +387,7 @@ table 1304 "Sales Price and Line Disc Buff"
         end;
     end;
 
+#if not CLEAN19
     procedure LoadDataForItem(Item: Record Item)
     var
         SalesPrice: Record "Sales Price";
@@ -968,5 +982,6 @@ table 1304 "Sales Price and Line Disc Buff"
     local procedure OnAfterFilterToActualRecords(var SalesPriceandLineDiscBuff: Record "Sales Price and Line Disc Buff")
     begin
     end;
+#endif
 }
 

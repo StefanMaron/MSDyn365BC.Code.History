@@ -6,7 +6,7 @@ page 100 "Accounting Periods"
     PageType = List;
     RefreshOnActivate = true;
     SourceTable = "Accounting Period";
-    UsageCategory = Lists;
+    UsageCategory = Administration;
 
     layout
     {

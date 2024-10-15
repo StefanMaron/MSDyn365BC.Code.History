@@ -78,7 +78,6 @@ page 251 "General Journal Batches"
                 field(BackgroundErrorCheck; "Background Error Check")
                 {
                     ApplicationArea = Basic, Suite;
-                    Visible = BackgroundErrorCheckFeatureEnabled;
                     ToolTip = 'Specifies if you want the journal lines to be checked automatically for potential issues.';
                 }
                 field("Copy to Posted Jnl. Lines"; "Copy to Posted Jnl. Lines")
@@ -258,7 +257,6 @@ page 251 "General Journal Batches"
     trigger OnOpenPage()
     var
         ClientTypeManagement: Codeunit "Client Type Management";
-        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
     begin
         if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::SOAP, CLIENTTYPE::OData, CLIENTTYPE::ODataV4]
         then
@@ -269,13 +267,11 @@ page 251 "General Journal Batches"
         // Since filter is removed we need to persist value for template
         // name and use it 'OnNewRecord'
         GenJnlTemplateName := "Journal Template Name";
-        BackgroundErrorCheckFeatureEnabled := JournalErrorsMgt.IsEnabled();
     end;
 
     var
         ReportPrint: Codeunit "Test Report-Print";
         GenJnlManagement: Codeunit GenJnlManagement;
-        BackgroundErrorCheckFeatureEnabled: Boolean;
         IsPaymentTemplate: Boolean;
         GenJnlTemplateName: Code[10];
 

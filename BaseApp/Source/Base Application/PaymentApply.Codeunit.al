@@ -348,6 +348,7 @@ codeunit 10861 "Payment-Apply"
                         CustLedgEntry.SetRange("Document Type", Rec."Applies-to Doc. Type");
                     end;
                     CustLedgEntry.SetRange("Applies-to ID", Rec."Applies-to ID");
+                    OnDeleteApplyOnBeforeCustLedgEntryModifyAll(Rec, CustLedgEntry);
                     CustLedgEntry.ModifyAll("Applies-to ID", '');
                 end;
             Rec."Account Type"::Vendor:
@@ -359,6 +360,7 @@ codeunit 10861 "Payment-Apply"
                         VendLedgEntry.SetRange("Document Type", Rec."Applies-to Doc. Type");
                     end;
                     VendLedgEntry.SetRange("Applies-to ID", Rec."Applies-to ID");
+                    OnDeleteApplyOnBeforeVendLedgEntryModifyAll(Rec, VendLedgEntry);
                     VendLedgEntry.ModifyAll("Applies-to ID", '');
                 end;
         end;
@@ -404,6 +406,16 @@ codeunit 10861 "Payment-Apply"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteApply(Rec: Record "Payment Line"; CustLedgEntry: Record "Cust. Ledger Entry"; VendLedgEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteApplyOnBeforeCustLedgEntryModifyAll(PaymentLine: Record "Payment Line"; var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteApplyOnBeforeVendLedgEntryModifyAll(PaymentLine: Record "Payment Line"; var VendLedgEntry: Record "Vendor Ledger Entry")
     begin
     end;
 }

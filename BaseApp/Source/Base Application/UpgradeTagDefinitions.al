@@ -1,4 +1,3 @@
-﻿//r01
 codeunit 9998 "Upgrade Tag Definitions"
 {
     // Tag Structure - MS-[TFSID]-[Description]-[DateChangeWasDoneToSeeHowOldItWas]
@@ -76,15 +75,31 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetUserTaskDescriptionToUTF8UpgradeTag());
         PerCompanyUpgradeTags.Add(GetDefaultWordTemplateAllowedTablesUpgradeTag());
         PerCompanyUpgradeTags.Add(GetSalesCreditMemoReasonCodeUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetPowerBIWorkspacesUpgradeTag());
         PerCompanyUpgradeTags.Add(GetClearTemporaryTablesUpgradeTag());
         PerCompanyUpgradeTags.Add(GetDimSetEntryGlobalDimNoUpgradeTag());
         PerCompanyUpgradeTags.Add(GetPriceSourceGroupUpgradeTag());
         PerCompanyUpgradeTags.Add(GetPriceSourceGroupFixedUpgradeTag());
         PerCompanyUpgradeTags.Add(GetSyncPriceListLineStatusUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetUpdateEditInExcelPermissionSetUpgradeTag());
         PerCompanyUpgradeTags.Add(GetAdvancedIntrastatBaseDemoDataUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetItemCrossReferenceUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetSalesInvoiceShortcutDimensionsUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetPurchInvoiceShortcutDimensionsUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetPurchaseOrderShortcutDimensionsUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetSalesOrderShortcutDimensionsUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetSalesQuoteShortcutDimensionsUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetSalesCrMemoShortcutDimensionsUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetItemPostingGroupsUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetCreditTransferIBANUpgradeTag());
         PerCompanyUpgradeTags.Add(GetVendorTemplatesUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCustomerTemplatesUpgradeTag());
         PerCompanyUpgradeTags.Add(GetItemTemplatesUpgradeTag());
+#if not CLEAN19
+        PerCompanyUpgradeTags.Add(GetRemoveSmartListManualSetupEntryUpgradeTag());
+#endif
+        PerCompanyUpgradeTags.Add(GetAzureADSetupFixTag());
+        PerCompanyUpgradeTags.Add(GetDocumentDefaultLineTypeUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -107,9 +122,9 @@ codeunit 9998 "Upgrade Tag Definitions"
 #if not CLEAN19
         PerDatabaseUpgradeTags.Add(GetDataOutOfGeoAppUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetExportExcelReportUpgradeTag());
+        PerDatabaseUpgradeTags.Add(GetUserSettingsUpgradeTag());
 #endif
         PerDatabaseUpgradeTags.Add(GetUpgradePowerBIOptinImageUpgradeTag());
-        PerDatabaseUpgradeTags.Add(GetUserCalloutsUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetUserGroupsSetAppIdUpgradeTag());
     end;
 
@@ -214,6 +229,12 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-383010-SalesShipmentLineDocumentId-20201210');
     end;
 
+    [Obsolete('Function will be removed', '19.0')]
+    procedure GetSetCoupledFlagsUpgradeTag(): Code[250]
+    begin
+        exit('MS-394960-SetCoupledFlags-20210327');
+    end;
+
     [Obsolete('Function will be removed', '16.0')]
     procedure GetNewISVPlansUpgradeTag(): Code[250]
     begin
@@ -262,6 +283,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-383899-ContactBusinessRelation-20210119');
     end;
 
+    [Obsolete('Function will be removed', '19.0')]
     procedure GetContactBusinessRelationEnumUpgradeTag(): Code[250]
     begin
         exit('MS-395036-ContactBusinessRelation-20210324');
@@ -506,6 +528,12 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-368854-IntegrationTableMapping-20200818');
     end;
 
+    [Obsolete('Function will be removed', '19.0')]
+    procedure GetIntegrationTableMappingCouplingCodeunitIdUpgradeTag(): Code[250];
+    begin
+        exit('MS-394964-IntegrationTableMappingCouplingCodeunitId-20210412');
+    end;
+
     [Obsolete('Function will be removed', '18.0')]
     procedure GetIntegrationTableMappingFilterForOpportunitiesUpgradeTag(): Code[250];
     begin
@@ -664,15 +692,29 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-375813-DefaultWordTemplateAllowedTables-20210119');
     end;
 
+    procedure GetPowerBIWorkspacesUpgradeTag(): Code[250]
+    begin
+        exit('MS-363514-AddPowerBIWorkspaces-20210503');
+    end;
+
     procedure GetUpgradePowerBIOptinImageUpgradeTag(): Code[250]
     begin
         exit('MS-330739-PowerBIOptinImage-20210129');
     end;
 
+#if not CLEAN19
+    [Obsolete('Function will be removed', '19.0')]
     procedure GetUserCalloutsUpgradeTag(): Code[250]
     begin
         exit('MS-77747-UserCallouts-20210209');
     end;
+
+    [Obsolete('Function will be removed', '19.0')]
+    procedure GetUserSettingsUpgradeTag(): Code[250]
+    begin
+        exit('MS-390343-UserSettings-20210707');
+    end;
+#endif
 
     procedure GetUpgradeMonitorNotificationUpgradeTag(): Code[250]
     var
@@ -698,19 +740,36 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-400024-PriceLineStatusSync-20210519');
     end;
 
+#if not CLEAN19
+    [Obsolete('Function will be removed', '19.0')]
+    procedure GetRemoveSmartListManualSetupEntryUpgradeTag(): Code[250]
+    var
+    begin
+        exit('MS-401573-SmartListManualSetup-20210609');
+    end;
+#endif
+
+    [Obsolete('Function will be removed', '19.0')]
     procedure GetSalesCreditMemoReasonCodeUpgradeTag(): Code[250]
     begin
         exit('MS-395664-SalesCrMemoAPIReasonCode-20210406');
     end;
 
+    [Obsolete('Function will be removed', '19.0')]
     procedure GetClearTemporaryTablesUpgradeTag(): Code[250]
     begin
         exit('MS-396184-CleanTemporaryTables-20210427');
     end;
 
+    [Obsolete('Function will be removed', '19.0')]
     procedure GetDimSetEntryGlobalDimNoUpgradeTag(): Code[250]
     begin
         exit('MS-396220-DimSetEntryGlobalDimNo-20210503');
+    end;
+
+    procedure GetUpdateEditInExcelPermissionSetUpgradeTag(): Code[250]
+    begin
+        exit('MS-385783-UseEditInExcelExecPermissionSet-20210526');
     end;
 
     procedure GetAdvancedIntrastatBaseDemoDataUpgradeTag(): Code[250]
@@ -718,9 +777,54 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-395476-AdvancedIntrastatChecklistSetup-20210525');
     end;
 
+    procedure GetItemCrossReferenceUpgradeTag(): Code[250]
+    begin
+        exit('MS-398144-ItemCrossReference-20210625');
+    end;
+
+    procedure GetSalesInvoiceShortcutDimensionsUpgradeTag(): Code[250]
+    begin
+        exit('MS-403657-SalesInvoiceShortcutDimensions-20210628');
+    end;
+
+    procedure GetPurchInvoiceShortcutDimensionsUpgradeTag(): Code[250]
+    begin
+        exit('MS-403657-PurchInvoiceShortcutDimensions-20210628');
+    end;
+
+    procedure GetPurchaseOrderShortcutDimensionsUpgradeTag(): Code[250]
+    begin
+        exit('MS-403657-PurchaseOrderShortcutDimensions-20210628');
+    end;
+
+    procedure GetSalesOrderShortcutDimensionsUpgradeTag(): Code[250]
+    begin
+        exit('MS-403657-SalesOrderShortcutDimensions-20210628');
+    end;
+
+    procedure GetSalesQuoteShortcutDimensionsUpgradeTag(): Code[250]
+    begin
+        exit('MS-403657-GetSalesQuoteShortcutDimensions-20210628');
+    end;
+
+    procedure GetSalesCrMemoShortcutDimensionsUpgradeTag(): Code[250]
+    begin
+        exit('MS-403657-SalesCrMemoShortcutDimensions-20210628');
+    end;
+
+    procedure GetItemPostingGroupsUpgradeTag(): Code[250]
+    begin
+        exit('MS-405484-GenItemPostingGroups-20210719')
+    end;
+
     procedure GetJobPlanningLinePlanningDueDateUpgradeTag(): Code[250]
     begin
         exit('MS-402915-JobPlanningLinePlanningDueDate-20210809');
+    end;
+
+    procedure GetCreditTransferIBANUpgradeTag(): Code[250]
+    begin
+        exit('MS-326295-CreditTransferIBAN-20210812');
     end;
 
     procedure GetVendorTemplatesUpgradeTag(): Code[250];
@@ -736,6 +840,16 @@ codeunit 9998 "Upgrade Tag Definitions"
     procedure GetitemTemplatesUpgradeTag(): Code[250];
     begin
         exit('MS-332155-ItemTemplates-20210817');
+    end;
+
+    procedure GetAzureADSetupFixTag(): Code[250];
+    begin
+        exit('MS-408786-FixAzureAdSetup-20210826');
+    end;
+
+    procedure GetDocumentDefaultLineTypeUpgradeTag(): Code[250]
+    begin
+        exit('MS-410225-DocumentDefaultLineType');
     end;
 }
 

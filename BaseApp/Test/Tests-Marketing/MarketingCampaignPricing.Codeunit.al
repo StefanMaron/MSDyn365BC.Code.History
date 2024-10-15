@@ -19,6 +19,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+        LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
         PriceDateChangeError: Label 'If Sales Type = Campaign, then you can only change Starting Date and Ending Date from the Campaign Card.';
         DiscountDateChangeError: Label 'You can only change the Starting Date and Ending Date from the Campaign Card when Sales Type = Campaign';
@@ -30,6 +31,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         ValueMustMatch: Label 'Value must match.';
         FeatureIsOnErr: Label 'This page is no longer available. It was used by a feature that has been replaced or removed.';
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure CampaignSalesPriceDateChangeError()
@@ -130,6 +132,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         // Verify: Verify price on Sales Order.
         Assert.AreNotEqual(SalesPrice."Unit Price", SalesLine."Unit Price", ValueMustNotMatch);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ConfirmHandler')]
@@ -178,6 +181,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         // Verify: Verification is done in MessageHandler.
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
@@ -522,6 +526,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         asserterror Page.Run(Page::"Sales Price Worksheet");
         Assert.ExpectedError(FeatureIsOnErr);
     end;
+#endif
 
     local procedure Initialize()
     var
@@ -537,6 +542,7 @@ codeunit 136214 "Marketing Campaign Pricing"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Marketing Campaign Pricing");
 
+        LibraryTemplates.EnableTemplatesFeature();
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
@@ -568,6 +574,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         LibraryMarketing.RunAddContactsReport(LibraryVariableStorageVariant, false);
     end;
 
+#if not CLEAN19
     local procedure ChangeDateOnSalesPricePage(CampaignNo: Code[20])
     var
         SalesPrices: TestPage "Sales Prices";
@@ -587,6 +594,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         SalesLineDiscounts.FILTER.SetFilter("Sales Code", CampaignNo);
         SalesLineDiscounts."Starting Date".SetValue(CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Use RandInt to change Date.
     end;
+#endif
 
     local procedure ChangeDateOnCampaignCard(var CampaignCard: TestPage "Campaign Card"; CampaignNo: Code[20])
     begin
@@ -609,7 +617,7 @@ codeunit 136214 "Marketing Campaign Pricing"
     begin
         LibraryMarketing.CreateCompanyContact(Contact);
         LibraryVariableStorage.Enqueue(StrSubstNo(CustomerCreationMessage, Customer.TableCaption));  // Enqueue for MessageHandler.
-        Contact.CreateCustomer(GetCustomerTemplateCode);
+        Contact.CreateCustomerFromTemplate(GetCustomerTemplateCode);
     end;
 
     local procedure CreateItem(): Code[20]
@@ -651,6 +659,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
     end;
 
+#if not CLEAN19
     local procedure CreateSalesPriceForCampaign(var SalesPrice: Record "Sales Price")
     var
         Campaign: Record Campaign;
@@ -682,6 +691,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(99, 2));  // Any Random percentage between 1 and 99.
         SalesLineDiscount.Modify(true);
     end;
+#endif
 
     local procedure CreateSegment(CampaignNo: Code[20]; ContactNo: Code[20]): Code[20]
     var
@@ -699,9 +709,9 @@ codeunit 136214 "Marketing Campaign Pricing"
         exit(SegmentHeader."No.");
     end;
 
-    local procedure GetCustomerTemplateCode(): Code[10]
+    local procedure GetCustomerTemplateCode(): Code[20]
     var
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         with CustomerTemplate do begin
@@ -784,6 +794,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         SegmentHeader.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure VerifySalesPriceWksht(SalesPrice: Record "Sales Price")
     var
         SalesPriceWorksheet: Record "Sales Price Worksheet";
@@ -804,6 +815,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         SalesPriceAndLineDiscBuff.SetRange("Unit Price", SalesPrice."Unit Price");
         Assert.RecordIsNotEmpty(SalesPriceAndLineDiscBuff);
     end;
+#endif
 
     [ConfirmHandler]
     [Scope('OnPrem')]
@@ -826,6 +838,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         Assert.IsTrue(StrPos(Message, ExpectedMessage) > 0, Message);
     end;
 
+#if not CLEAN19
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetSalesPricePageHandler(var GetSalesPrice: TestPage "Get Sales Price")
@@ -836,5 +849,6 @@ codeunit 136214 "Marketing Campaign Pricing"
         Assert.AreEqual(GetSalesPrice."Unit Price".AsDEcimal, UnitPrice, ValueMustMatch);
         GetSalesPrice.OK.Invoke;
     end;
+#endif
 }
 

@@ -39,7 +39,7 @@ page 510 "Blanket Purchase Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-#if not CLEAN16
+#if not CLEAN19
                 field("Cross-Reference No."; Rec."Cross-Reference No.")
                 {
                     ApplicationArea = Suite;
@@ -65,7 +65,7 @@ page 510 "Blanket Purchase Order Subform"
 #endif
                 field("Item Reference No."; Rec."Item Reference No.")
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
                     Visible = ItemReferenceVisible;
 
@@ -115,6 +115,13 @@ page 510 "Blanket Purchase Order Subform"
                     begin
                         DeltaUpdateTotals();
                     end;
+                }
+                field("Description 2"; Rec."Description 2")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
@@ -385,6 +392,32 @@ page 510 "Blanket Purchase Order Subform"
 
                         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 8);
                     end;
+                }
+                field("Gross Weight"; "Gross Weight")
+                {
+                    Caption = 'Unit Gross Weight';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the gross weight of one unit of the item. In the purchase statistics window, the gross weight on the line is included in the total gross weight of all the lines for the particular purchase document.';
+                    Visible = false;
+                }
+                field("Net Weight"; "Net Weight")
+                {
+                    Caption = 'Unit Net Weight';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the net weight of one unit of the item. In the purchase statistics window, the net weight on the line is included in the total net weight of all the lines for the particular purchase document.';
+                    Visible = false;
+                }
+                field("Unit Volume"; "Unit Volume")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the volume of one unit of the item. In the purchase statistics window, the volume of one unit of the item on the line is included in the total volume of all the lines for the particular purchase document.';
+                    Visible = false;
+                }
+                field("Units per Parcel"; "Units per Parcel")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of units per parcel of the item. In the purchase statistics window, the number of units per parcel on the line helps to determine the total number of units for all the lines for the particular purchase document.';
+                    Visible = false;
                 }
             }
             group(Control37)
@@ -802,6 +835,7 @@ page 510 "Blanket Purchase Order Subform"
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Rec.InitType();
+        SetDefaultType();
         Clear(ShortcutDimCode);
     end;
 
@@ -996,6 +1030,19 @@ page 510 "Blanket Purchase Order Subform"
         ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
+    local procedure SetDefaultType()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetDefaultType(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if xRec."Document No." = '' then
+            Type := GetDefaultLineType();
+    end;
+
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterNoOnAfterValidate(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line")
     begin
@@ -1026,13 +1073,21 @@ page 510 "Blanket Purchase Order Subform"
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Use OnItemReferenceNoOnLookup', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoOnLookup(var PurchaseLine: Record "Purchase Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnItemReferenceNoOnLookup(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultType(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }

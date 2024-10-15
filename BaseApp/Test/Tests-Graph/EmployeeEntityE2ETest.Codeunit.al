@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135527 "Employee Entity E2E Test"
 {
     Subtype = Test;
@@ -188,4 +189,4 @@ codeunit 135527 "Employee Entity E2E Test"
         EmployeeJSON := JSONManagement.WriteObjectToString;
     end;
 }
-
+#endif

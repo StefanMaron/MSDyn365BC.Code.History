@@ -25,6 +25,13 @@ page 2114 "O365 Posted Sales Inv. Lines"
                     ShowCaption = false;
                     ToolTip = 'Specifies a description of the item or service on the line.';
                 }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Invoicing, Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field(LineQuantity; LineQuantity)
                 {
                     ApplicationArea = Basic, Suite, Invoicing;

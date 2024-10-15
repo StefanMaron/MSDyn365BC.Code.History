@@ -67,6 +67,13 @@ page 5970 "Posted Service Shipment Lines"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the description of an item, resource, cost, or a standard text on the service line.';
                 }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Service;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Work Type Code"; "Work Type Code")
                 {
                     ApplicationArea = Service;

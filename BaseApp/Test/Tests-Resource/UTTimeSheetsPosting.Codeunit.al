@@ -599,7 +599,7 @@ codeunit 136502 "UT Time Sheets Posting"
     begin
         Initialize;
         LibraryTimeSheet.InitJobScenario(TimeSheetHeader, TimeSheetLine);
-        Delta := TimeSheetLine."Total Quantity" * (LibraryTimeSheet.GetRandomDecimal / 100);
+        Delta := Round(TimeSheetLine."Total Quantity" * (LibraryTimeSheet.GetRandomDecimal / 100), 0.00001);
 
         // create resource journal lines based on approved time sheet line
         SuggestJobJournalLines(JobJnlLine, TimeSheetHeader, TimeSheetLine);
@@ -855,6 +855,7 @@ codeunit 136502 "UT Time Sheets Posting"
         CheckTimeSheetPostingEntry(TimeSheetLine, PostedAssemblyLine."Document No.", PostedAssemblyLine.Quantity);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure SuggestJobJournalLineTSLineDiscountPct()
@@ -895,6 +896,7 @@ codeunit 136502 "UT Time Sheets Posting"
         JobJnlLine.FindFirst;
         JobJnlLine.TestField("Line Discount %", JobResourcePrice."Line Discount %");
     end;
+#endif
 
     local procedure Initialize()
     var
@@ -918,6 +920,7 @@ codeunit 136502 "UT Time Sheets Posting"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UT Time Sheets Posting");
     end;
 
+#if not CLEAN19
     local procedure CreateJobResourcePriceWithLineDiscountPct(var JobResourcePrice: Record "Job Resource Price"; JobNo: Code[20]; JobTaskNo: Code[20]; Type: Option; "Code": Code[20])
     begin
         LibraryJob.CreateJobResourcePrice(
@@ -926,6 +929,7 @@ codeunit 136502 "UT Time Sheets Posting"
         JobResourcePrice.Validate("Line Discount %", LibraryRandom.RandInt(10));
         JobResourcePrice.Modify(true);
     end;
+#endif
 
     local procedure CreateServiceLine(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; ResourceNo: Code[20]; Qty: Decimal)
     begin

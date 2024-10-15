@@ -84,7 +84,9 @@ report 10821 "Export DEB DTI"
         FileName: Text;
         Text001: Label 'The journal lines were successfully exported.';
         ObligationLevel: Option ,"1","2","3","4";
+#if not CLEAN17
         Text002: Label 'Export DEB DTI+ to XML.';
+#endif
         Text004: Label 'A destination file must be specified.';
 
     [Scope('OnPrem')]

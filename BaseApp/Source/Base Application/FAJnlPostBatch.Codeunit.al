@@ -1,4 +1,4 @@
-﻿codeunit 5633 "FA Jnl.-Post Batch"
+codeunit 5633 "FA Jnl.-Post Batch"
 {
     Permissions = TableData "FA Journal Batch" = imd;
     TableNo = "FA Journal Line";
@@ -17,7 +17,6 @@
         Text004: Label 'Updating lines        #5###### @6@@@@@@@@@@@@@';
         Text005: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
         Text006: Label 'A maximum of %1 posting number series can be used in each journal.';
-        Text007: Label '<Month Text>', Locked = true;
         FAJnlLine: Record "FA Journal Line";
         FAJnlLine2: Record "FA Journal Line";
         FAJnlLine3: Record "FA Journal Line";
@@ -209,33 +208,10 @@
     local procedure MakeRecurringTexts(var FAJnlLine2: Record "FA Journal Line")
     var
         AccountingPeriod: Record "Accounting Period";
-        Day: Integer;
-        Month: Integer;
-        Week: Integer;
-        MonthText: Text[30];
     begin
         with FAJnlLine2 do
-            if ("FA No." <> '') and ("Recurring Method" <> 0) then begin
-                Day := Date2DMY("FA Posting Date", 1);
-                Week := Date2DWY("FA Posting Date", 2);
-                Month := Date2DMY("FA Posting Date", 2);
-                MonthText := Format("FA Posting Date", 0, Text007);
-                AccountingPeriod.SetRange("Starting Date", 0D, "FA Posting Date");
-                if not AccountingPeriod.FindLast then
-                    AccountingPeriod.Name := '';
-                "Document No." :=
-                  DelChr(
-                    PadStr(
-                      StrSubstNo("Document No.", Day, Week, Month, MonthText, AccountingPeriod.Name),
-                      MaxStrLen("Document No.")),
-                    '>');
-                Description :=
-                  DelChr(
-                    PadStr(
-                      StrSubstNo(Description, Day, Week, Month, MonthText, AccountingPeriod.Name),
-                      MaxStrLen(Description)),
-                    '>');
-            end;
+            if ("FA No." <> '') and ("Recurring Method" <> 0) then
+                AccountingPeriod.MakeRecurringTexts("FA Posting Date", "Document No.", Description);
     end;
 
     local procedure ZeroAmounts(var FAJnlLine: Record "FA Journal Line")

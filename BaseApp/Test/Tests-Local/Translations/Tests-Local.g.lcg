@@ -644,15 +644,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM SEPA - NamedType SWIFTCodeCap)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 439137971 - NamedType 2877541949" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Shipment No. %1:]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Ship Invoice - NamedType ShipmentNoCap)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2824869966 - NamedType 345083800" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Only customer transactions are allowed.]]></Val>

@@ -1881,7 +1881,7 @@ codeunit 134150 "ERM Intrastat Journal"
         // [GIVEN] Posted Sales Invoice with Bill-to Customer with VAT Registration No = 'AT0123456'
         Customer.Get(CreateCustomerWithVATRegNo(true));
         CreateSalesDocument(
-            SalesHeader, SalesLine, Customer."No.", WorkDate(), SalesLine."Document Type"::Invoice,
+        SalesHeader, SalesLine, Customer."No.", WorkDate(), SalesLine."Document Type"::Invoice,
             SalesLine.Type::Item, CreateItem, 1);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 

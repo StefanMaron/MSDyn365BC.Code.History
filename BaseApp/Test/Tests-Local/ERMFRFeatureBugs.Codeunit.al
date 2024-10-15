@@ -223,53 +223,6 @@ codeunit 144015 "ERM FR Feature Bugs"
     end;
 
     [Test]
-    [HandlerFunctions('GetShipmentLinesPageHandler,SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceWithShipmentOnSalesInvoiceReport()
-    var
-        InvoiceNo: Code[20];
-        ShipmentNo: Code[20];
-    begin
-        // Test to verify that Sales Invoice is printed with associated Shipment after posting Sales Invoice with GetShipmentLine.
-
-        // Setup: Create a Sales Shipment and Sales Invoice. Invoke GetShipmentLine function on Sales Invoice created.
-        Initialize;
-        InvoiceNo := PostSalesInvoiceWithGetShipmentLine(ShipmentNo);
-
-        // Exercise.
-        RunSalesInvoiceReport(InvoiceNo, true);  // Include Shipment No - TRUE.
-
-        // Verify: Verify that Sales Invoice is printed with associated Shipment.
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists(SalesShipmentNo, ShipmentNo);
-        LibraryReportDataset.AssertElementWithValueExists(SalesInvoiceNo, InvoiceNo);
-    end;
-
-    [Test]
-    [HandlerFunctions('GetShipmentLinesPageHandler,SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceWithoutShipmentOnSalesInvoiceReport()
-    var
-        InvoiceNo: Code[20];
-        ShipmentNo: Code[20];
-    begin
-        // Test to verify that Sales Invoice is printed without associated Shipment after posting Sales Invoice with GetShipmentLine.
-
-        // Setup: Create a Sales Shipment and Sales Invoice. Invoke GetShipmentLine function on Sales Invoice created.
-        Initialize;
-        InvoiceNo := PostSalesInvoiceWithGetShipmentLine(ShipmentNo);
-
-        // Exercise.
-        RunSalesInvoiceReport(InvoiceNo, false);  // Include Shipment No - FALSE.
-
-        // Verify: Verify that Sales Invoice is printed without associated Shipment.
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetNextRow;
-        LibraryReportDataset.CurrentRowHasElement(SalesShipmentNo);
-        LibraryReportDataset.AssertElementWithValueExists(SalesInvoiceNo, InvoiceNo);
-    end;
-
-    [Test]
     [HandlerFunctions('GetShipmentLinesPageHandler')]
     [Scope('OnPrem')]
     procedure ShipmentInvoicedForPostedSalesInvoiceGetShipmentLine()
@@ -750,14 +703,6 @@ codeunit 144015 "ERM FR Feature Bugs"
         REPORT.Run(REPORT::"Calculate Depreciation");
     end;
 
-    local procedure RunSalesInvoiceReport(DocumentNo: Code[20]; IncludeShipmentNo: Boolean)
-    begin
-        // Enqueue values for use in SalesInvoiceRequestPageHandler.
-        LibraryVariableStorage.Enqueue(IncludeShipmentNo);
-        LibraryVariableStorage.Enqueue(DocumentNo);
-        REPORT.Run(REPORT::"Sales - Invoice");
-    end;
-
     local procedure UpdateFAJournalSetup(var FAJournalSetup: Record "FA Journal Setup")
     var
         FAJournalSetup2: Record "FA Journal Setup";
@@ -866,20 +811,6 @@ codeunit 144015 "ERM FR Feature Bugs"
         ItemTrackingLines."Lot No.".SetValue(TrackingQuantity);
         ItemTrackingLines."Quantity (Base)".SetValue(TrackingQuantity);
         ItemTrackingLines.OK.Invoke;
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceRequestPageHandler(var SalesInvoice: TestRequestPage "Sales - Invoice")
-    var
-        IncludeShipmentNo: Variant;
-        No: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(IncludeShipmentNo);
-        LibraryVariableStorage.Dequeue(No);
-        SalesInvoice."Sales Invoice Header".SetFilter("No.", No);
-        SalesInvoice.IncludeShipmentNo.SetValue(IncludeShipmentNo);
-        SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [ModalPageHandler]

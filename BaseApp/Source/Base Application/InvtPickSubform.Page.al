@@ -449,9 +449,7 @@ page 7378 "Invt. Pick Subform"
         EntriesExist: Boolean;
     begin
         if Rec."Serial No." <> '' then
-            ExpDate :=
-                ItemTrackingMgt.ExistingExpirationDate(
-                    Rec."Item No.", Rec."Variant Code", Rec."Lot No.", Rec."Serial No.", false, EntriesExist);
+            ExpDate := ItemTrackingMgt.ExistingExpirationDate(Rec, false, EntriesExist);
 
         if ExpDate <> 0D then
             Rec."Expiration Date" := ExpDate;
@@ -464,9 +462,7 @@ page 7378 "Invt. Pick Subform"
         EntriesExist: Boolean;
     begin
         if Rec."Lot No." <> '' then
-            ExpDate :=
-                ItemTrackingMgt.ExistingExpirationDate(
-                    Rec."Item No.", Rec."Variant Code", Rec."Lot No.", Rec."Serial No.", false, EntriesExist);
+            ExpDate := ItemTrackingMgt.ExistingExpirationDate(Rec, false, EntriesExist);
 
         if ExpDate <> 0D then
             Rec."Expiration Date" := ExpDate;

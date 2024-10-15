@@ -70,6 +70,8 @@ codeunit 5857 "Copy Invt. Document Mgt."
                                     ToInvtDocLine."Bin Code" := FromInvtDocLine."Bin Code";
                                     ToInvtDocLine."Unit of Measure Code" := FromInvtDocLine."Unit of Measure Code";
                                     ToInvtDocLine."Qty. per Unit of Measure" := FromInvtDocLine."Qty. per Unit of Measure";
+                                    ToInvtDocLine."Qty. Rounding Precision" := FromInvtDocLine."Qty. Rounding Precision";
+                                    ToInvtDocLine."Qty. Rounding Precision (Base)" := FromInvtDocLine."Qty. Rounding Precision (Base)";
                                     ToInvtDocLine.Quantity := FromInvtDocLine.Quantity;
                                     CheckItemAvailable(ToInvtDocHeader, ToInvtDocLine);
                                 end;
@@ -90,6 +92,8 @@ codeunit 5857 "Copy Invt. Document Mgt."
                                     ToInvtDocLine."Bin Code" := FromInvtRcptLine."Bin Code";
                                     ToInvtDocLine."Unit of Measure Code" := FromInvtRcptLine."Unit of Measure Code";
                                     ToInvtDocLine."Qty. per Unit of Measure" := FromInvtRcptLine."Qty. per Unit of Measure";
+                                    ToInvtDocLine."Qty. Rounding Precision" := FromInvtRcptLine."Qty. Rounding Precision";
+                                    ToInvtDocLine."Qty. Rounding Precision (Base)" := FromInvtRcptLine."Qty. Rounding Precision (Base)";
                                     ToInvtDocLine.Quantity := FromInvtRcptLine.Quantity;
                                     CheckItemAvailable(ToInvtDocHeader, ToInvtDocLine);
                                 end;
@@ -110,6 +114,8 @@ codeunit 5857 "Copy Invt. Document Mgt."
                                     ToInvtDocLine."Bin Code" := FromInvtShptLine."Bin Code";
                                     ToInvtDocLine."Unit of Measure Code" := FromInvtShptLine."Unit of Measure Code";
                                     ToInvtDocLine."Qty. per Unit of Measure" := FromInvtShptLine."Qty. per Unit of Measure";
+                                    ToInvtDocLine."Qty. Rounding Precision" := FromInvtShptLine."Qty. Rounding Precision";
+                                    ToInvtDocLine."Qty. Rounding Precision (Base)" := FromInvtShptLine."Qty. Rounding Precision (Base)";
                                     ToInvtDocLine.Quantity := FromInvtShptLine.Quantity;
                                     CheckItemAvailable(ToInvtDocHeader, ToInvtDocLine);
                                 end;

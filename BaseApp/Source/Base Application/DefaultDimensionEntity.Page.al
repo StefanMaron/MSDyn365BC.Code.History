@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5509 "Default Dimension Entity"
 {
     Caption = 'defaultDimension', Locked = true;
@@ -98,4 +99,4 @@ page 5509 "Default Dimension Entity"
         CannotModifyKeyFieldErr: Label 'You cannot change the value of the key field %1.', Locked = true;
         ParentIdSpecifiedInGetRequest: Boolean;
 }
-
+#endif

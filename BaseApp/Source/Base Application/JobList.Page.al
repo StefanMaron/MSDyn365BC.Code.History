@@ -251,6 +251,7 @@ page 89 "Job List"
                     ToolTip = 'View the job''s WIP G/L entries.';
                 }
             }
+#if not CLEAN19
             group("&Prices")
             {
                 Caption = '&Prices';
@@ -305,6 +306,7 @@ page 89 "Job List"
                     ObsoleteTag = '17.0';
                 }
             }
+#endif
             group(Prices)
             {
                 Caption = '&Prices';

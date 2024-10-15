@@ -5,7 +5,9 @@ permissionset 5951 "Payables Documents - View"
     Caption = 'Read posted receipts etc.';
 
     Permissions = tabledata "General Posting Setup" = r,
+#if not CLEAN19
                   tabledata "Item Cross Reference" = R,
+#endif
                   tabledata "Item Reference" = R,
                   tabledata "Item Tracking Code" = R,
                   tabledata "Purch. Comment Line" = RIMD,

@@ -400,6 +400,7 @@ codeunit 134462 "ERM Copy Item"
         NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('CopyItemPageHandler')]
     [Scope('OnPrem')]
@@ -461,7 +462,7 @@ codeunit 134462 "ERM Copy Item"
         VerifyPurchaseLineDiscount(PurchaseLineDiscount, CopyItemBuffer."Target Item No.");
         NotificationLifecycleMgt.RecallAllNotifications;
     end;
-
+#endif
     [Test]
     [HandlerFunctions('CopyItemPageHandler')]
     [Scope('OnPrem')]
@@ -1285,7 +1286,7 @@ codeunit 134462 "ERM Copy Item"
 
         NotificationLifecycleMgt.RecallAllNotifications;
     end;
-    
+
     [Test]
     [HandlerFunctions('CopyItemWithoutGeneralInformationPageHandler')]
     [Scope('OnPrem')]
@@ -1394,7 +1395,7 @@ codeunit 134462 "ERM Copy Item"
         BOMComponent: Record "BOM Component";
     begin
         LibraryManufacturing.CreateBOMComponent(
-          BOMComponent, ParentItemNo, BOMComponent.Type::Item, Item."No.", QuantityPer, Item."Base Unit of Measure");
+          BOMComponent, ParentItemNo, BOMComponent.Type::Item.AsInteger(), Item."No.", QuantityPer, Item."Base Unit of Measure");
     end;
 
     local procedure CreateDefaultDimensionForItem(var DefaultDimension: Record "Default Dimension"; ItemNo: Code[20])
@@ -1502,6 +1503,7 @@ codeunit 134462 "ERM Copy Item"
         LibraryResource.CreateResourceSkill(ResourceSkill, ResourceSkill.Type::Item, ItemNo, SkillCode.Code);
     end;
 
+#if not CLEAN19
     local procedure CreatePurchasePriceWithLineDiscount(var PurchasePrice: Record "Purchase Price"; var PurchaseLineDiscount: Record "Purchase Line Discount"; Item: Record Item)
     begin
         LibraryCosting.CreatePurchasePrice(
@@ -1521,7 +1523,7 @@ codeunit 134462 "ERM Copy Item"
           SalesLineDiscount, SalesLineDiscount.Type::Item, Item."No.", SalesLineDiscount."Sales Type"::Customer,
           SalesPrice."Sales Code", WorkDate, '', '', Item."Base Unit of Measure", LibraryRandom.RandDec(10, 2));
     end;
-
+#endif
     local procedure CreateTroubleshootingHeader(var TroubleshootingHeader: Record "Troubleshooting Header")
     begin
         TroubleshootingHeader.Init();
@@ -1662,6 +1664,7 @@ codeunit 134462 "ERM Copy Item"
           ExtendedTextLine."Line No.");
     end;
 
+#if not CLEAN19
     local procedure VerifyPurchasePrice(PurchasePrice: Record "Purchase Price"; ItemNo: Code[20])
     var
         PurchasePrice2: Record "Purchase Price";
@@ -1700,6 +1703,7 @@ codeunit 134462 "ERM Copy Item"
         SalesPrice2.FindFirst;
         SalesPrice2.TestField("Minimum Quantity", SalesPrice."Minimum Quantity");
     end;
+#endif
 
     local procedure VerifyItemGeneralInformation(ItemNo: Code[20]; Description: Text[100])
     var

@@ -202,10 +202,13 @@ report 7391 "Whse. Get Bin Content"
         ReportInitialized := true;
     end;
 
+#if not CLEAN19
+    [Obsolete('This procedure should be local.', '19.0')]
     procedure InsertWWL()
     begin
         InsertWhseWorksheetLine("Bin Content");
     end;
+#endif
 
     local procedure InsertWhseWorksheetLine(BinContent: Record "Bin Content")
     begin
@@ -233,10 +236,13 @@ report 7391 "Whse. Get Bin Content"
         end;
     end;
 
+#if not CLEAN19
+    [Obsolete('This procedure should be local.', '19.0')]
     procedure InsertWIPL()
     begin
         InsertWhseInternalPutawayLine("Bin Content");
     end;
+#endif
 
     local procedure InsertWhseInternalPutawayLine(BinContent: Record "Bin Content")
     begin
@@ -260,10 +266,13 @@ report 7391 "Whse. Get Bin Content"
         end;
     end;
 
+#if not CLEAN19
+    [Obsolete('This procedure should be local.', '19.0')]
     procedure InsertItemJournalLine()
     begin
         InsertItemJournalLine("Bin Content");
     end;
+#endif
 
     local procedure InsertItemJournalLine(BinContent: Record "Bin Content")
     var
@@ -295,10 +304,13 @@ report 7391 "Whse. Get Bin Content"
         end;
     end;
 
+#if not CLEAN19
+    [Obsolete('This procedure should be local.', '19.0')]
     procedure InsertTransferLine()
     begin
         InsertTransferLine("Bin Content");
     end;
+#endif
 
     local procedure InsertTransferLine(BinContent: Record "Bin Content")
     begin
@@ -316,10 +328,13 @@ report 7391 "Whse. Get Bin Content"
         end;
     end;
 
+#if not CLEAN19
+    [Obsolete('This procedure should be local.', '19.0')]
     procedure InsertIntMovementLine()
     begin
         InsertIntMovementLine("Bin Content");
     end;
+#endif
 
     local procedure InsertIntMovementLine(BinContent: Record "Bin Content")
     begin
@@ -339,10 +354,13 @@ report 7391 "Whse. Get Bin Content"
         end;
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by procedure GetTrackingData().', '19.0')]
     procedure GetSerialNoAndLotNo()
     begin
         GetItemTracking("Bin Content");
     end;
+#endif
 
     local procedure GetItemTracking(BinContent: Record "Bin Content")
     var
@@ -427,10 +445,13 @@ report 7391 "Whse. Get Bin Content"
             Location.Get(LocationCode);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by local procedure InsertTempTrackingSpecification().', '19.0')]
     procedure InsertTempTrackingSpec(WarehouseEntry: Record "Warehouse Entry"; QtyOnBin: Decimal; var TempTrackingSpecification: Record "Tracking Specification" temporary)
     begin
         InsertTempTrackingSpecification(WarehouseEntry, QtyOnBin, TempTrackingSpecification);
     end;
+#endif
 
     local procedure InsertTempTrackingSpecification(WarehouseEntry: Record "Warehouse Entry"; QtyOnBin: Decimal; var TempTrackingSpecification: Record "Tracking Specification" temporary)
     begin

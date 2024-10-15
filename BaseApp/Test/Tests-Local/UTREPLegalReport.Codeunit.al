@@ -1,4 +1,4 @@
-﻿codeunit 144036 "UT REP Legal Report"
+codeunit 144036 "UT REP Legal Report"
 {
     // // [FEATURE] [Report]
     //       1. Verify the Bank Account No, Debit Amount and Credit Amount after running report Bank Account Trial Balance with Balance.

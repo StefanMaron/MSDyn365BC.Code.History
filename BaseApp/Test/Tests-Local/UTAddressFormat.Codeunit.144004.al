@@ -33,75 +33,6 @@ codeunit 144004 "UT Address Format"
         CountryRegionCodeErr: Label 'Country Region should not exist';
 
     [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecAddrFormatPostCodeCity()
-    var
-        CountryRegion: Record "Country/Region";
-    begin
-        // Purpose of the test is to verify Post Code and City and Country Region Code without blank line on Customer Address of Report ID - 206 Sales - Invoice.
-        CustomerAddressFormatSalesInvoice(CreateCountryRegionCode(CountryRegion."Address Format"::"Post Code+City"));
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecAddrFormatPostCodeCityGLSetup()
-    begin
-        // Purpose of the test is to verify Post Code and City and Local Address Format on General Ledger Setup without blank line on Customer Address of Report ID - 206 Sales - Invoice.
-        CustomerAddressFormatSalesInvoice('');  // Using Blank for Country Region.
-    end;
-
-    local procedure CustomerAddressFormatSalesInvoice(CountryRegion: Code[10])
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-    begin
-        // Setup & Excercise.
-        PostedSalesInvoicePostCodeAndCity(SalesInvoiceHeader, CountryRegion);
-
-        // Verify: Verify Bill To Post code and Bill To City on Customer Address.
-        VerifyPostCodeAndCityOnCustomerAddress(SalesInvoiceHeader, PostCodeCityWithoutBlankLineTxt);
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecAddrFormatBlankLinePostCodeCity()
-    var
-        CountryRegion: Record "Country/Region";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-    begin
-        // Purpose of the test is to verify Post Code and City and Country Region Code with blank line on Customer Address of Report ID - 206 Sales - Invoice.
-
-        // Setup & Excercise.
-        PostedSalesInvoicePostCodeAndCity(
-          SalesInvoiceHeader, CreateCountryRegionCode(CountryRegion."Address Format"::"Blank Line+Post Code+City"));
-
-        // Verify: Verify Blank Line, Bill To Post code and Bill To City in Customer Address.
-        VerifyPostCodeAndCityOnCustomerAddress(SalesInvoiceHeader, PostCodeCityWithBlankLineTxt);
-        LibraryReportDataset.AssertElementWithValueExists(PostCodeCityWithoutBlankLineTxt, '');
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecAddrFormatBlankLinePostCodeCityGLSetup()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-    begin
-        // Purpose of the test is to verify Post Code and City and Local Address Format on General Ledger Setup with blank line on Customer Address of Report ID - 206 Sales - Invoice.
-
-        // Setup & Excercise.
-        UpdateGeneralLedgerSetup(GeneralLedgerSetup."Local Address Format"::"Blank Line+Post Code+City");
-        PostedSalesInvoicePostCodeAndCity(SalesInvoiceHeader, '');  // Using Blank for Country Region.
-
-        // Verify: Verify Blank Line, Bill To Post code and Bill To City in Customer Address.
-        VerifyPostCodeAndCityOnCustomerAddress(SalesInvoiceHeader, PostCodeCityWithBlankLineTxt);
-        LibraryReportDataset.AssertElementWithValueExists(PostCodeCityWithoutBlankLineTxt, '');
-    end;
-
-    [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure OnAfterGetRecordCountryRegionCustomerCard()
@@ -263,29 +194,6 @@ codeunit 144004 "UT Address Format"
         exit(CountryRegion.Code);
     end;
 
-    local procedure PostedSalesInvoicePostCodeAndCity(var SalesInvoiceHeader: Record "Sales Invoice Header"; CountryRegionCode: Code[10])
-    begin
-        // Setup: Create Customer and Posted Sales Invoice and update General Ledger Setup.
-        Initialize;
-        CreatePostedSalesInvoice(SalesInvoiceHeader, CountryRegionCode);
-        LibraryVariableStorage.Enqueue(SalesInvoiceHeader."No.");  // Enqueue value for SalesInvoiceRequestPageHandler.
-        Commit();  // Commit required since explicit Commit used on OnRun Trigger of COD315: Sales Inv.-Printed.
-
-        // Exercise.
-        RunSalesInvoiceReport(SalesInvoiceHeader."No.");
-    end;
-
-    local procedure RunSalesInvoiceReport(No: Code[20])
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        SalesInvoice: Report "Sales - Invoice";
-    begin
-        Clear(SalesInvoice);
-        SalesInvoiceHeader.SetRange("No.", No);
-        SalesInvoice.SetTableView(SalesInvoiceHeader);
-        SalesInvoice.Run;  // Open SalesInvoiceRequestPageHandler.
-    end;
-
     local procedure UpdateGeneralLedgerSetup(LocalAddressFormat: Option)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -300,17 +208,6 @@ codeunit 144004 "UT Address Format"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(
           CustomerAddressCityAndPostCode, SalesInvoiceHeader."Bill-to Post Code" + ' ' + SalesInvoiceHeader."Bill-to City");
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceRequestPageHandler(var SalesInvoice: TestRequestPage "Sales - Invoice")
-    var
-        No: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(No);
-        SalesInvoice."Sales Invoice Header".SetFilter("No.", No);
-        SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
 

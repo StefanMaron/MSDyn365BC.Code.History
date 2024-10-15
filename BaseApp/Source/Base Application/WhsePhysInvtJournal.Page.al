@@ -412,10 +412,10 @@ page 7326 "Whse. Phys. Invt. Journal"
             Rec.OpenJnl(CurrentJnlBatchName, CurrentLocationCode, Rec);
             exit;
         end;
-        TemplateSelection(PAGE::"Whse. Phys. Invt. Journal", 1, Rec, JnlSelected);
+        JnlSelected := Rec.TemplateSelection(PAGE::"Whse. Phys. Invt. Journal", "Warehouse Journal Template Type"::"Physical Inventory", Rec);
         if not JnlSelected then
             Error('');
-        OpenJnl(CurrentJnlBatchName, CurrentLocationCode, Rec);
+        Rec.OpenJnl(CurrentJnlBatchName, CurrentLocationCode, Rec);
     end;
 
     var

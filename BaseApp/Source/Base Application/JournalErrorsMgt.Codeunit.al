@@ -14,43 +14,26 @@ codeunit 9080 "Journal Errors Mgt."
         TempGenJnlLineBeforeModify: Record "Gen. Journal Line" temporary;
         TempGenJnlLineAfterModify: Record "Gen. Journal Line" temporary;
         FullBatchCheck: Boolean;
-
+#if not CLEAN19
+    [Obsolete('FeatureKey JournalErrorBackgroundCheck removed', '19.0')]
     procedure IsEnabled() Result: Boolean
-    var
-        FeatureKey: Record "Feature Key";
     begin
-        if FeatureKey.Get(GetFeatureKey()) then
-            Result := FeatureKey.Enabled = FeatureKey.Enabled::"All Users";
+        Result := true;
 
         OnAfterIsEnabled(Result);
     end;
 
+    [Obsolete('FeatureKey JournalErrorBackgroundCheck removed', '19.0')]
     procedure GetFeatureKey(): Text[50]
     begin
         exit('JournalErrorBackgroundCheck');
     end;
 
+    [Obsolete('FeatureKey JournalErrorBackgroundCheck removed', '19.0')]
     procedure TestIsEnabled()
-    var
-        FeatureKey: Record "Feature Key";
     begin
-        if not IsEnabled() then begin
-            FeatureKey.ID := GetFeatureKey();
-            FeatureKey.TestField(Enabled, FeatureKey.Enabled::"All Users");
-        end;
     end;
-
-    local procedure ClearBackgroundErrorCheckInAllCompanies()
-    var
-        Company: Record Company;
-        GenJnlBatch: Record "Gen. Journal Batch";
-    begin
-        if Company.FindSet() then
-            repeat
-                if GenJnlBatch.ChangeCompany(Company.Name) then
-                    GenJnlBatch.ModifyAll("Background Error Check", false);
-            until Company.Next() = 0;
-    end;
+#endif
 
     procedure SetErrorMessages(var SourceTempErrorMessage: Record "Error Message" temporary)
     begin
@@ -297,12 +280,5 @@ codeunit 9080 "Journal Errors Mgt."
     local procedure OnInsertRecordEventFixedAssetGLJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowInsert: Boolean)
     begin
         SetRecXRecOnModify(xRec, Rec);
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Feature Key", 'OnAfterValidateEvent', 'Enabled', false, false)]
-    local procedure AfterValidateEnabledHandler(var Rec: Record "Feature Key"; var xRec: Record "Feature Key"; CurrFieldNo: Integer)
-    begin
-        if (Rec.ID = GetFeatureKey()) and (Rec.Enabled = Rec.Enabled::None) and (Rec.Enabled <> xRec.Enabled) then
-            ClearBackgroundErrorCheckInAllCompanies();
     end;
 }

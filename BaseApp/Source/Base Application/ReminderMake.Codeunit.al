@@ -408,7 +408,7 @@ codeunit 392 "Reminder-Make"
         exit(Amount);
     end;
 
-    local procedure FilterCustLedgEntries(var ReminderLevel2: Record "Reminder Level")
+    procedure FilterCustLedgEntries(var ReminderLevel2: Record "Reminder Level")
     var
         ReminderLevel3: Record "Reminder Level";
         LastLevel: Boolean;
@@ -470,14 +470,14 @@ codeunit 392 "Reminder-Make"
         OnAfterFilterCustLedgEntryReminderLevel(CustLedgEntry, ReminderLevel, ReminderTerms, Cust);
     end;
 
-    local procedure SetReminderLine(var LineLevel2: Integer; var ReminderDueDate2: Date)
+    procedure SetReminderLine(var LineLevel2: Integer; var ReminderDueDate2: Date)
     begin
         if CustLedgEntry."Last Issued Reminder Level" > 0 then begin
             ReminderEntry.SetCurrentKey("Customer Entry No.", Type);
             ReminderEntry.SetRange("Customer Entry No.", CustLedgEntry."Entry No.");
             ReminderEntry.SetRange(Type, ReminderEntry.Type::Reminder);
             ReminderEntry.SetRange("Reminder Level", CustLedgEntry."Last Issued Reminder Level");
-            if ReminderEntry.FindLast then begin
+            if ReminderEntry.FindLast() then begin
                 ReminderDueDate2 := ReminderEntry."Due Date";
                 LineLevel2 := ReminderEntry."Reminder Level" + 1;
                 exit;

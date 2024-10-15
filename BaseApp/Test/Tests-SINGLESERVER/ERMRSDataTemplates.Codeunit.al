@@ -775,6 +775,7 @@ codeunit 136601 "ERM RS Data Templates"
         Cleanup('', ConfigTemplateHeader.Code);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure TestFindTemplateBasedOnRecordFindsTheRecord()
@@ -860,6 +861,7 @@ codeunit 136601 "ERM RS Data Templates"
         Assert.IsFalse(RecordFound, 'Record should not have been found for given filter');
         Assert.AreEqual('', ConfigTemplateHeader.Code, 'Template code should not have been set');
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -905,6 +907,7 @@ codeunit 136601 "ERM RS Data Templates"
         Assert.AreEqual('', ConfigTemplateHeader.Code, 'Template code should not have been set');
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure TestDeletingConfigTemplateHeaderRemovesSelections()
@@ -943,6 +946,7 @@ codeunit 136601 "ERM RS Data Templates"
         Assert.IsTrue(
           DifferentConfigTmplSelectionRules.Find, 'Config Template Selection rule for different template should not have been deleted');
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -2175,6 +2179,7 @@ codeunit 136601 "ERM RS Data Templates"
         ItemLedgerEntry.Insert();
     end;
 
+#if not CLEAN19
     local procedure SetupItemAndCreateTemplateSelectionRule(var Item: Record Item; var ConfigTmplSelectionRules: Record "Config. Tmpl. Selection Rules"; var "Order": Integer)
     var
         ConfigTemplateHeader: Record "Config. Template Header";
@@ -2203,6 +2208,7 @@ codeunit 136601 "ERM RS Data Templates"
           ConfigTmplSelectionRules, Item.FieldNo("Item Category Code"), ItemCategory.Code, Order, PAGE::"Item Entity", ConfigTemplateHeader);
         Order += 1;
     end;
+#endif
 
     [ConfirmHandler]
     [Scope('OnPrem')]

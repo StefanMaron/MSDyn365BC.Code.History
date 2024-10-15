@@ -46,7 +46,7 @@ codeunit 144000 "DEB DTI Export Tests"
         VerifyXMLItemContent(TempIntrastatJnlLine);
         VerifyNoOptionalXMLItemContent;
 
-        FileManagement.DeleteClientFile(FileName);
+        FileManagement.DeleteServerFile(FileName);
     end;
 
     [Test]
@@ -128,7 +128,7 @@ codeunit 144000 "DEB DTI Export Tests"
 
         VerifyLastDeclarationId(ExpectedDeclarationID);
 
-        FileManagement.DeleteClientFile(FileName);
+        FileManagement.DeleteServerFile(FileName);
     end;
 
     [Test]
@@ -166,7 +166,7 @@ codeunit 144000 "DEB DTI Export Tests"
 
         VerifyLastDeclarationId(ExpectedDeclarationID);
 
-        FileManagement.DeleteClientFile(FileName);
+        FileManagement.DeleteServerFile(FileName);
     end;
 
     [Test]
@@ -238,7 +238,7 @@ codeunit 144000 "DEB DTI Export Tests"
         ObligationLevel := 1;
         ExportDEBDTI.ExportToXML(TempIntrastatJnlLine, ObligationLevel, FileName);
 
-        Assert.IsTrue(FileManagement.ClientFileExists(FileName), FileNotExistErr);
+        Assert.IsTrue(FileManagement.ServerFileExists(FileName), FileNotExistErr);
         InitReader(FileName);
 
         LibraryXMLRead.GetNodeListByElementName('Declaration', NodeList);
@@ -258,7 +258,7 @@ codeunit 144000 "DEB DTI Export Tests"
         Assert.IsTrue(ReceiptExists, 'Information for Receipts not found');
         Assert.IsTrue(ShipmentExists, 'Information for Shipments not found');
 
-        FileManagement.DeleteClientFile(FileName);
+        FileManagement.DeleteServerFile(FileName);
     end;
 
     [Test]
@@ -281,7 +281,7 @@ codeunit 144000 "DEB DTI Export Tests"
         asserterror LibraryXMLRead.VerifyNodeValue('natureOfTransactionBCode', '0');
         Assert.ExpectedError('natureOfTransactionBCode');
 
-        FileManagement.DeleteClientFile(FileName);
+        FileManagement.DeleteServerFile(FileName);
     end;
 
     [Test]
@@ -338,9 +338,9 @@ codeunit 144000 "DEB DTI Export Tests"
         ObligationLevel := 2;
         ExportDEBDTI.ExportToXML(TempIntrastatJnlLine, ObligationLevel, FileName);
 
-        Assert.IsTrue(FileManagement.ClientFileExists(FileName), FileNotExistErr);
+        Assert.IsTrue(FileManagement.ServerFileExists(FileName), FileNotExistErr);
 
-        FileManagement.DeleteClientFile(FileName);
+        FileManagement.DeleteServerFile(FileName);
     end;
 
     [Test]
@@ -368,9 +368,9 @@ codeunit 144000 "DEB DTI Export Tests"
         ExportDEBDTI.SetTableView(IntrastatJnlBatch);
         ExportDEBDTI.Run;
 
-        Assert.IsTrue(FileManagement.ClientFileExists(FileName), FileNotExistErr);
+        Assert.IsTrue(FileManagement.ServerFileExists(FileName), FileNotExistErr);
 
-        FileManagement.DeleteClientFile(FileName);
+        FileManagement.DeleteServerFile(FileName);
     end;
 
     [Test]
@@ -485,7 +485,7 @@ codeunit 144000 "DEB DTI Export Tests"
         VerifyXMLItemContent(TempIntrastatJnlLine);
         VerifyOptionalXMLItemContent(TempIntrastatJnlLine);
 
-        FileManagement.DeleteClientFile(FileName);
+        FileManagement.DeleteServerFile(FileName);
     end;
 
     [Test]
@@ -501,7 +501,7 @@ codeunit 144000 "DEB DTI Export Tests"
         asserterror LibraryXMLRead.VerifyNodeValue('quantityInSU', '0');
         Assert.ExpectedError('quantityInSU');
 
-        FileManagement.DeleteClientFile(FileName);
+        FileManagement.DeleteServerFile(FileName);
     end;
 
     [Test]
@@ -516,7 +516,7 @@ codeunit 144000 "DEB DTI Export Tests"
         FileName := SetTariffNoWithSupplemUnit(TempIntrastatJnlLine, true);
         LibraryXMLRead.VerifyNodeValue('quantityInSU', Format(Round(TempIntrastatJnlLine.Quantity, 1), 0, 9));
 
-        FileManagement.DeleteClientFile(FileName);
+        FileManagement.DeleteServerFile(FileName);
     end;
 
     [Test]
@@ -549,7 +549,7 @@ codeunit 144000 "DEB DTI Export Tests"
         FileName := DefaultExportToXML(TempIntrastatJnlLine);
 
         VerifyExpectedReportedFlag(TempIntrastatJnlLine, true);
-        FileManagement.DeleteClientFile(FileName);
+        FileManagement.DeleteServerFile(FileName);
     end;
 
     [Test]
@@ -573,7 +573,7 @@ codeunit 144000 "DEB DTI Export Tests"
             TempIntrastatJnlLine."Journal Template Name",
             IntrastatJnlBatch.FieldCaption(Name), TempIntrastatJnlLine."Journal Batch Name"));
 
-        FileManagement.DeleteClientFile(FileName);
+        FileManagement.DeleteServerFile(FileName);
     end;
 
     [Test]
@@ -637,7 +637,7 @@ codeunit 144000 "DEB DTI Export Tests"
         for ItemNodeCount := 1 to LineCount do
             LibraryXMLRead.VerifyNodeValueInSubtree('Item', 'itemNumber', Format(ItemNodeCount, 0, '<Integer,6><Filler Character,0>'));
 
-        FileManagement.DeleteClientFile(FileName);
+        FileManagement.DeleteServerFile(FileName);
     end;
 
     local procedure Initialize()
@@ -740,7 +740,7 @@ codeunit 144000 "DEB DTI Export Tests"
 
     local procedure CreateFile(): Text
     begin
-        exit(FileManagement.ClientTempFileName(''));
+        exit(FileManagement.ServerTempFileName(''));
     end;
 
     local procedure GenerateSetOfRcptShpt(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; var TotalAmountForReceipt: Decimal; var TotalAmountForShipment: Decimal)

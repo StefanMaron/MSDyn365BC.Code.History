@@ -231,10 +231,10 @@ table 288 "Vendor Bank Account"
 
     fieldgroups
     {
-        fieldgroup(Brick; "Code", Name, "Phone No.", Contact)
+        fieldgroup(DropDown; "Code", Name)
         {
         }
-        fieldgroup(DropDown; "Code", Name)
+        fieldgroup(Brick; "Code", Name, "Phone No.", Contact)
         {
         }
     }

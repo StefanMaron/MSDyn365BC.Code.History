@@ -85,7 +85,7 @@ codeunit 137071 "SCM Supply Planning -II"
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", WorkDate, false);  // Boolean - FALSE, for single Forecast Entry.
 
         // Update Item inventory.
-        UpdateInventory(ItemJournalLine, Item."No.", WorkDate, LibraryRandom.RandDec(100, 2) + 100);  // Large Random Quantity Required.
+        UpdateInventory(ItemJournalLine, Item."No.", WorkDate, ProductionForecastEntry[1]."Forecast Quantity" + LibraryRandom.RandDec(10, 2));  // Large Random Quantity Required.
 
         // Create Sales Order. Update Quantity To Ship on Sales Line. Post Sales Order.
         CreateSalesOrder(SalesHeader, SalesLine, Item."No.", ItemJournalLine.Quantity + LibraryRandom.RandDec(10, 2));
@@ -395,7 +395,7 @@ codeunit 137071 "SCM Supply Planning -II"
         // Verify: Verify Planning Worksheet for Action Message, Quantity and Reference Order Type on Planning Worksheet.
         SelectProductionBOMLine(ProductionBOMLine, Item."Production BOM No.");
         VerifyRequisitionLineWithItem(Item, RequisitionLine."Action Message"::New, SalesLine.Quantity, 0, '', '');
-        VerifyRequisitionLineWithItem(ChildItem, RequisitionLine."Action Message"::New, ProductionBOMLine.Quantity, 0, '', '');
+        VerifyRequisitionLineWithItem(ChildItem, RequisitionLine."Action Message"::New, Round(SalesLine.Quantity, ChildItem."Rounding Precision", '>'), 0, '', '');
     end;
 
     [Test]
@@ -524,9 +524,7 @@ codeunit 137071 "SCM Supply Planning -II"
 
         // Verify: Verify Item is updated on Requisition Line. Verify Action Message, Quantity and Reference Order Type on Planning Worksheet.
         SelectProductionBOMLine(ProductionBOMLine, Item."Production BOM No.");
-        VerifyRequisitionLineWithDueDate(
-          ChildItem, RequisitionLine."Action Message"::Cancel, 0, ProductionOrder.Quantity, ProductionOrder."Due Date");
-        VerifyRequisitionLineWithItem(ChildItem, RequisitionLine."Action Message"::New, ProductionBOMLine.Quantity, 0, '', '');
+        VerifyRequisitionLineWithItem(ChildItem, RequisitionLine."Action Message"::Cancel, 0, ProductionOrder.Quantity, '', '');
         VerifyRequisitionLineWithItem(Item, RequisitionLine."Action Message"::Cancel, 0, ProductionOrder2.Quantity, '', '');
     end;
 
@@ -586,12 +584,12 @@ codeunit 137071 "SCM Supply Planning -II"
         // Calculate Regenerative Change Plan for Planning Worksheet for Parent Item and Child Item..
         CalcRegenPlanForPlanWkshWithLocation(Item."No.", ChildItem."No.", '', '');
 
-        // Create and Post Consumption Journal.
-        UpdateInventory(ItemJournalLine, ChildItem."No.", WorkDate, LibraryRandom.RandDec(100, 2));  // Larger Inventory Value required for Test.
+        // Create and Post Consumption Journal. Make sure inventory has ChildItem more than the required for production
+        UpdateInventory(ItemJournalLine, ChildItem."No.", WorkDate, ProductionOrder.Quantity + LibraryRandom.RandInt(10));  // Larger Inventory Value required for Test.
         CreateAndPostConsumptionJournal(ProductionOrder."No.");
 
         // Create Sales Order For Child Item.
-        CreateSalesOrder(SalesHeader, SalesLine, ChildItem."No.", ProductionOrder.Quantity + LibraryRandom.RandDec(10, 2));  // Quantity more than Production Order Quantity.
+        CreateSalesOrder(SalesHeader, SalesLine, ChildItem."No.", ItemJournalLine.Quantity + LibraryRandom.RandDec(10, 2));  // Quantity more than Production Order Quantity.
 
         // Exercise: Calculate Net Change Plan for Planning Worksheet for Parent and Child Item.
         CalcNetChangePlanForPlanWkshForMultipleItems(Item."No.", ChildItem."No.");
@@ -701,7 +699,7 @@ codeunit 137071 "SCM Supply Planning -II"
         LibraryCosting.AdjustCostItemEntries(StrSubstNo(ItemFilter, Item."No.", ChildItem."No."), '');
 
         // [GIVEN] Sales Order for Parent Item of Qty S.
-        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LibraryRandom.RandDec(10, 2));
+        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", ProductionOrder.Quantity + LibraryRandom.RandDec(10, 2));
 
         // [WHEN] Run Calculate Plan for Planning Worksheet with Parent and Child Item.
         CalcRegenPlanForPlanWkshWithLocation(Item."No.", ChildItem."No.", '', '');
@@ -712,7 +710,7 @@ codeunit 137071 "SCM Supply Planning -II"
           Item, RequisitionLine."Action Message"::"Change Qty.", SalesLine.Quantity, ProductionOrder.Quantity, '', '');
         // [THEN] Planning Worksheet for Child: Action Message: New, Qty = (Child expected Qty from Production Order) - X.
         VerifyRequisitionLineWithItem(
-          ChildItem, RequisitionLine."Action Message"::New, ProdOrderComponent."Expected Quantity" - ItemJournalLine.Quantity, 0, '', '');
+            ChildItem, RequisitionLine."Action Message"::New, Round(SalesLine.Quantity, ChildItem."Rounding Precision", '>') - ItemJournalLine.Quantity, 0, '', '');
     end;
 
     [Test]
@@ -746,7 +744,7 @@ codeunit 137071 "SCM Supply Planning -II"
           ProductionOrder, Item."No.", ProductionOrder.Status::Released, ItemJournalLine.Quantity + LibraryRandom.RandDec(10, 2));  // Quantity more than Inventory Quantity.
 
         // [GIVEN] Sales Order for Parent Item of Qty S.
-        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LibraryRandom.RandDec(10, 2));
+        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", ProductionOrder.Quantity + LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] Calculate Plan for Planning Worksheet with Parent and Child Item.
         CalcRegenPlanForPlanWkshWithLocation(Item."No.", ChildItem."No.", '', '');
@@ -764,7 +762,7 @@ codeunit 137071 "SCM Supply Planning -II"
           Item, RequisitionLine."Action Message"::"Change Qty.", SalesLine.Quantity, ProductionOrder.Quantity, '', '');
         // [THEN] Planning Worksheet for Child: Action Message: New, Qty = (Child expected Qty from Production Order) - X.
         VerifyRequisitionLineWithItem(
-          ChildItem, RequisitionLine."Action Message"::New, ProdOrderComponent."Expected Quantity" - ItemJournalLine.Quantity, 0, '', '');
+          ChildItem, RequisitionLine."Action Message"::New, Round(SalesLine.Quantity, ChildItem."Rounding Precision", '>') - ItemJournalLine.Quantity, 0, '', '');
     end;
 
     [Test]
@@ -782,23 +780,23 @@ codeunit 137071 "SCM Supply Planning -II"
         RequisitionLine: Record "Requisition Line";
         ProdOrderComponent: Record "Prod. Order Component";
         ShipmentDate: Date;
-        Quantity: Decimal;
+        Qty: Decimal;
     begin
         // Setup: Create Lot for Lot Item setup. Update Costing Method to Average on Parent and Child Item.
         Initialize;
         CreateLotForLotItemSetup(ChildItem, Item);
         UpdateCostingMethodToAverageOnItem(ChildItem);
         UpdateCostingMethodToAverageOnItem(Item);
-        Quantity := LibraryRandom.RandDec(10, 2);  // Random Quantity not important.
+        Qty := LibraryRandom.RandDecInDecimalRange(5, 10, 2);  // Random Quantity not important.
 
         // Update Inventory for Child Item.
-        UpdateInventory(ItemJournalLine, ChildItem."No.", WorkDate, Quantity);  // Inventory Value required for Test.
+        UpdateInventory(ItemJournalLine, ChildItem."No.", WorkDate, Qty);  // Inventory Value required for Test.
 
         // Create and Refresh Released Production for Parent Item.
-        CreateAndRefreshProductionOrder(ProductionOrder, Item."No.", ProductionOrder.Status::Released, Quantity);
+        CreateAndRefreshProductionOrder(ProductionOrder, Item."No.", ProductionOrder.Status::Released, Qty);
 
         // Create multiple Sales Order for Parent Item and Child Item.
-        CreateSalesOrder(SalesHeader, SalesLine, ChildItem."No.", Quantity);
+        CreateSalesOrder(SalesHeader, SalesLine, ChildItem."No.", Qty);
         ShipmentDate := GetRequiredDate(10, 0, WorkDate, 1);  // Shipment Date relative to Work Date.
         CreateSalesOrder(SalesHeader2, SalesLine2, Item."No.", SalesLine.Quantity + LibraryRandom.RandDec(10, 2));  // Quantity more than quantity of first Sales Order.
         UpdateShipmentDateOnSalesLine(SalesLine, ShipmentDate);
@@ -808,7 +806,8 @@ codeunit 137071 "SCM Supply Planning -II"
 
         // Delete Sales Order for Child item. Update Quantity on Sales Order for Parent item.
         SalesHeader.Delete(true);
-        UpdateQuantityOnSalesLine(SalesLine2, Quantity - LibraryRandom.RandInt(10));  // Quantity less than previous quantity.
+        Qty := LibraryRandom.RandDec(5, 2);
+        UpdateQuantityOnSalesLine(SalesLine2, Qty);  // Quantity less than previous quantity.
 
         // Exercise: Calculate Net Change Plan for Parent Item and Child Item.
         CalcNetChangePlanForPlanWkshForMultipleItems(Item."No.", ChildItem."No.");
@@ -816,8 +815,7 @@ codeunit 137071 "SCM Supply Planning -II"
         // Verify: Verify Planning Worksheet for Action Message, Quantity and Reference Order Type on Planning Worksheet.
         FindProdOrderComponent(ProdOrderComponent, ProductionOrder.Status::Released, ProductionOrder."No.", ChildItem."No.");
         VerifyRequisitionLineWithItem(
-          ChildItem, RequisitionLine."Action Message"::New, ProdOrderComponent."Expected Quantity" - ItemJournalLine.Quantity, 0, '', '');
-        VerifyRequisitionLineWithItem(Item, RequisitionLine."Action Message"::Cancel, 0, ProductionOrder.Quantity, '', '');
+          Item, RequisitionLine."Action Message"::"Change Qty.", SalesLine2.Quantity, ProductionOrder.Quantity, '', '');
     end;
 
     [Test]
@@ -978,18 +976,18 @@ codeunit 137071 "SCM Supply Planning -II"
         UpdateLotForLotSKUPlanningParameters(StockkeepingUnit, GetRequiredPeriod(2, 5), GetRequiredPeriod(0, 3), '<0D>');
         UpdateLotForLotSKUPlanningParameters(StockkeepingUnit2, GetRequiredPeriod(2, 5), GetRequiredPeriod(0, 3), '<0D>');
 
-        // Update Item inventory with Bin.
+        // Update Item inventory with Bin. Make sure item in inventory is < forecasted
         LibraryWarehouse.FindBin(Bin, LocationSilver.Code, '', 1);  // Find Bin of Index 1.
         UpdateInventoryWithLocationAndBin(
-          ItemJournalLine, Item."No.", LocationSilver.Code, Bin.Code, LibraryRandom.RandDec(10, 2) + 100);  // Large Random Quantity Required.
+          ItemJournalLine, Item."No.", LocationSilver.Code, Bin.Code, 100 - LibraryRandom.RandDec(10, 2));  // Large Random Quantity Required.
 
         // Create Production Forecast.
-        ForecastDate := GetRequiredDate(10, 0, WorkDate, 1);  // Forecast Date Relative to Workdate.
+        ForecastDate := LibraryRandom.RandDateFromInRange(WorkDate(), 6, 10); // Forecaset date is more than the transfer order date
         CreateProductionForecastSetupWithLocation(ProductionForecastEntry, Item."No.", LocationBlue.Code, ForecastDate, false);  // Boolean - FALSE, for single Forecast Entry.
 
-        // Create Transfer Order.
+        // Create Transfer Order where receipt date is between workdate and the forecast date.
         CreateTransferOrderWithReceiptDate(
-          TransferHeader, Item."No.", LocationSilver.Code, LocationBlue.Code, LibraryRandom.RandDec(10, 2));
+          TransferHeader, Item."No.", LocationSilver.Code, LocationBlue.Code, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDateFromInRange(WorkDate(), 1, 5));
 
         // Exercise: Calculate Plan for Planning Worksheet.
         CreateRequisitionWorksheetName(RequisitionWkshName);
@@ -998,8 +996,8 @@ codeunit 137071 "SCM Supply Planning -II"
         // Verify: Verify Planning Worksheet with Location, Action Message, Quantities and Reference Order Type.
         SelectTransferLine(TransferLine, TransferHeader."No.");
         VerifyRequisitionLineWithDueDate(
-          Item, RequisitionLine."Action Message"::New, ProductionForecastEntry[1]."Forecast Quantity", 0,
-          ProductionForecastEntry[1]."Forecast Date");
+         Item, RequisitionLine."Action Message"::New, ProductionForecastEntry[1]."Forecast Quantity", 0,
+         ProductionForecastEntry[1]."Forecast Date");
         VerifyRequisitionLineWithDueDateForTransfer(
           RequisitionLine."Action Message"::Cancel, 0, TransferLine.Quantity, TransferLine."Receipt Date", LocationBlue.Code);
     end;
@@ -1047,15 +1045,15 @@ codeunit 137071 "SCM Supply Planning -II"
 
         // Create and Refresh Released Production Order. Create Transfer Order.
         CreateAndRefreshFirmPlannedProductionOrderWithLocation(
-          ProductionOrder, Item."No.", LocationSilver.Code, LibraryRandom.RandInt(10));  // Random Quantity not important.
+          ProductionOrder, Item."No.", LocationSilver.Code, LibraryRandom.RandInt(10) + 10);  // Random Quantity not important.
         CreateTransferOrderWithReceiptDate(
-          TransferHeader, Item."No.", LocationSilver.Code, LocationBlue.Code, LibraryRandom.RandDec(10, 2));
+          TransferHeader, Item."No.", LocationSilver.Code, LocationBlue.Code, LibraryRandom.RandDec(ProductionOrder.Quantity, 2));
         SelectTransferLine(TransferLine, TransferHeader."No.");
         if PlanningFlexibilityNone then
             UpdateTransferLinePlanningFlexibilityNone(TransferLine);  // Update Planning Flexibilty on Transfer Line - None.
 
         // Exercise: Calculate Plan for Planning Worksheet.
-        StartDate := GetRequiredDate(20, 0, TransferLine."Receipt Date", -1);  // Start Date Relative to Receipt Date of Transfer Order.
+        StartDate := GetRequiredDate(20, 0, ProductionOrder."Due Date", -1);  // Start Date Relative to Receipt Date of Transfer Order.
         EndDate := GetRequiredDate(30, 0, TransferLine."Receipt Date", 1);  // End Date Relative to Receipt Date of Transfer Order.
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, StartDate, EndDate);
 
@@ -1100,13 +1098,13 @@ codeunit 137071 "SCM Supply Planning -II"
         UpdateProductionBOMNoOnItem(Item, ProductionBOMHeader."No.");
 
         // Update Rescheduling Period - 0D, Dampener Period - 0D. Lot Accumulation Period with random value on Stockkeeping Units of Parent Item.
-        UpdateLotForLotSKUPlanningParameters(StockkeepingUnit, '<0D>', '<0D>', GetRequiredPeriod(2, 5));
-        UpdateLotForLotSKUPlanningParameters(StockkeepingUnit2, '<0D>', '<0D>', GetRequiredPeriod(2, 5));
+        UpdateLotForLotSKUPlanningParameters(StockkeepingUnit, '<0D>', GetRequiredPeriod(2, 5), '<0D>');
+        UpdateLotForLotSKUPlanningParameters(StockkeepingUnit2, '<0D>', GetRequiredPeriod(2, 5), '<0D>');
 
         // Update Item inventory with Location and Bin.
         LibraryWarehouse.FindBin(Bin, LocationSilver.Code, '', 1);  // Find Bin of Index 1.
         UpdateInventoryWithLocationAndBin(
-          ItemJournalLine, Item."No.", LocationSilver.Code, Bin.Code, LibraryRandom.RandDec(10, 2) + 100);  // Large Random Quantity Required.
+         ItemJournalLine, Item."No.", LocationSilver.Code, Bin.Code, LibraryRandom.RandDec(10, 2) + 100);  // Large Random Quantity Required.
 
         // Create Production Forecast with multiple Entries.
         ForecastDate := GetRequiredDate(10, 0, WorkDate, 1);  // Forecast Date Relative to Workdate.
@@ -1602,13 +1600,13 @@ codeunit 137071 "SCM Supply Planning -II"
         UpdateTrackingAndLotNosOnItem(Item, ItemTrackingCode.Code);
 
         // Create Sales Order.
-        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LibraryRandom.RandDec(10, 2));
+        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LibraryRandom.RandDecInDecimalRange(10, 20, 2));
 
         // Calculate Plan for Planning Worksheet and Carry out Action Message.
         CalcRegenPlanAndCarryOutActionMessage(Item);
 
         // Update Quantity on Purchase Line created after Carry Out. Assign Lot Specific Tracking on Purchase Line. Post Purchase Order with Receive.
-        AssignTrackingAndPostPurchaseWithUpdatedQuantity(PurchaseLine, Item."No.");
+        AssignTrackingAndPostPurchaseWithReducedQuantity(PurchaseLine, Item."No.");
 
         // Exercise: Calculate Plan for Planning Worksheet.
         CalculateRegenPlanForPlanningWorksheet(Item);
@@ -1757,6 +1755,7 @@ codeunit 137071 "SCM Supply Planning -II"
         Item: Record Item;
         ProductionOrder: Record "Production Order";
         ProdOrderComponent: Record "Prod. Order Component";
+        ProdOrderComponent2: Record "Prod. Order Component";
         RequisitionWkshName: Record "Requisition Wksh. Name";
         RequisitionLine: Record "Requisition Line";
         StartDate: Date;
@@ -1777,9 +1776,13 @@ codeunit 137071 "SCM Supply Planning -II"
         CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item."No.", ChildItem."No.", StartDate, EndDate);
 
         // Verify: Verify Planning Worksheet with Action Message, Reference Order Type and Quantity.
+        ProdOrderComponent2.SetRange(Status, ProdOrderComponent.Status);
+        ProdOrderComponent2.SetRange("Prod. Order No.", ProdOrderComponent."Prod. Order No.");
+        ProdOrderComponent2.SetRange("Prod. Order Line No.", ProdOrderComponent."Prod. Order Line No.");
+        ProdOrderComponent2.CalcSums("Expected Quantity");
         VerifyRequisitionLineWithItem(ChildItem, RequisitionLine."Action Message"::New, ChildItem."Safety Stock Quantity", 0, '', '');
         VerifyRequisitionLineWithDueDate(
-          ChildItem, RequisitionLine."Action Message"::New, 2 * ProdOrderComponent."Expected Quantity", 0, ProdOrderComponent."Due Date");
+          ChildItem, RequisitionLine."Action Message"::New, ProdOrderComponent2."Expected Quantity", 0, ProdOrderComponent."Due Date");
     end;
 
     [Test]
@@ -2860,8 +2863,11 @@ codeunit 137071 "SCM Supply Planning -II"
         RequisitionLine.DeleteAll();
         ReservationEntry.DeleteAll();
         LibraryVariableStorage.Clear;
+        LibraryRandom.Init();
 
         LibraryApplicationArea.EnableEssentialSetup;
+        UpdateForecastOnLocationsOnManufacturingSetup(true);
+        UpdateManufacturingSetup(true);
 
         // Lazy Setup.
         if isInitialized then
@@ -3108,6 +3114,15 @@ codeunit 137071 "SCM Supply Planning -II"
         ManufacturingSetup.Modify(true);
     end;
 
+    local procedure UpdateForecastOnLocationsOnManufacturingSetup(UseForecastOnLocations: Boolean)
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Use Forecast on Locations", UseForecastOnLocations);
+        ManufacturingSetup.Modify(true);
+    end;
+
     local procedure UpdateManufacturingSetup(NewCombinedMPSMRPCalculation: Boolean) OldCombinedMPSMRPCalculation: Boolean
     var
         ManufacturingSetup: Record "Manufacturing Setup";
@@ -3142,6 +3157,7 @@ codeunit 137071 "SCM Supply Planning -II"
         CreateLotForLotItem(Item);
         UpdateReplenishmentSystemOnItem(Item);
         UpdateProductionBOMNoOnItem(Item, ProductionBOMHeader."No.");
+        ChildItem.Find(); // Refetch ChildItem as the 'Low-Level Code' has been updated
     end;
 
     local procedure CreateAndCertifyProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; ItemNo: Code[20])
@@ -3629,7 +3645,7 @@ codeunit 137071 "SCM Supply Planning -II"
             exit(RoutingLine."Operation No.");
     end;
 
-    local procedure FindWhseActivityHeader(var WhseActivityHeader: Record "Warehouse Activity Header"; WhseActivityHeaderType: Option; LocationCode: Code[10])
+    local procedure FindWhseActivityHeader(var WhseActivityHeader: Record "Warehouse Activity Header"; WhseActivityHeaderType: Enum "Warehouse Activity Type"; LocationCode: Code[10])
     begin
         WhseActivityHeader.SetRange(Type, WhseActivityHeaderType);
         WhseActivityHeader.SetRange("Location Code", LocationCode);
@@ -3771,22 +3787,28 @@ codeunit 137071 "SCM Supply Planning -II"
         if MultipleLine then begin
             CreateAndUpdateProductionForecastWithLocation(
               ProductionForecastEntry[2], ProductionForecastName.Name, GetRandomDateUsingWorkDate(1), ItemNo, LocationCode,
-              LibraryRandom.RandDec(10, 2) + 100);  // Large Random Quantity Required.
+              ProductionForecastEntry[1]."Forecast Quantity" + LibraryRandom.RandDec(10, 2));  // Large Random Quantity Required.
             CreateAndUpdateProductionForecastWithLocation(
               ProductionForecastEntry[3], ProductionForecastName.Name, GetRandomDateUsingWorkDate(2), ItemNo, LocationCode,
-              LibraryRandom.RandDec(10, 2) + 100);  // Large Random Quantity Required.
+              ProductionForecastEntry[2]."Forecast Quantity" + LibraryRandom.RandDec(10, 2));  // Large Random Quantity Required.
         end;
     end;
 
     local procedure CreateTransferOrderWithReceiptDate(var TransferHeader: Record "Transfer Header"; ItemNo: Code[20]; TransferFrom: Code[10]; TransferTo: Code[10]; Quantity: Decimal)
     var
-        TransferLine: Record "Transfer Line";
         ReceiptDate: Date;
+    begin
+        ReceiptDate := GetRequiredDate(10, 0, WorkDate, 1);
+        CreateTransferOrderWithReceiptDate(TransferHeader, ItemNo, TransferFrom, TransferTo, Quantity, ReceiptDate);
+    end;
+
+    local procedure CreateTransferOrderWithReceiptDate(var TransferHeader: Record "Transfer Header"; ItemNo: Code[20]; TransferFrom: Code[10]; TransferTo: Code[10]; Quantity: Decimal; ReceiptDate: Date)
+    var
+        TransferLine: Record "Transfer Line";
     begin
         SelectTransferRoute(TransferFrom, TransferTo);
         LibraryWarehouse.CreateTransferHeader(TransferHeader, TransferFrom, TransferTo, LocationInTransit.Code);
         LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, Quantity);
-        ReceiptDate := GetRequiredDate(10, 0, WorkDate, 1);
         TransferLine.Validate("Receipt Date", ReceiptDate);
         TransferLine.Modify(true);
     end;
@@ -3802,7 +3824,7 @@ codeunit 137071 "SCM Supply Planning -II"
         exit('<' + Format(LibraryRandom.RandInt(Days) + IncludeAdditionalPeriod) + 'D>');
     end;
 
-    local procedure UpdateSKUReplenishmentSystem(StockkeepingUnit: Record "Stockkeeping Unit"; ReplenishmentSystem: Enum "Replenishment System")
+    local procedure UpdateSKUReplenishmentSystem(var StockkeepingUnit: Record "Stockkeeping Unit"; ReplenishmentSystem: Enum "Replenishment System")
     begin
         StockkeepingUnit.Validate("Replenishment System", ReplenishmentSystem);
         StockkeepingUnit.Modify(true);
@@ -3895,6 +3917,15 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         SelectPurchaseLine(PurchaseLine, ItemNo);
         PurchaseLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure ReduceQuantityOnPurchaseLine(ItemNo: Code[20])
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        SelectPurchaseLine(PurchaseLine, ItemNo);
+        PurchaseLine.Validate(Quantity, LibraryRandom.RandDec(Round(PurchaseLine.Quantity, 1, '<'), 2));
         PurchaseLine.Modify(true);
     end;
 
@@ -4016,6 +4047,17 @@ codeunit 137071 "SCM Supply Planning -II"
         PurchaseHeader: Record "Purchase Header";
     begin
         UpdateQuantityOnPurchaseLine(ItemNo);
+        SelectPurchaseLine(PurchaseLine, ItemNo);
+        PurchaseLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingPageHandler.
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseLine."Document No.");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+    end;
+
+    local procedure AssignTrackingAndPostPurchaseWithReducedQuantity(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20])
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        ReduceQuantityOnPurchaseLine(ItemNo);
         SelectPurchaseLine(PurchaseLine, ItemNo);
         PurchaseLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingPageHandler.
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseLine."Document No.");

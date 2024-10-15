@@ -422,7 +422,6 @@ codeunit 132558 "AMC Banking Credential UT"
         InitializeDataExchDef(AMCBankingMgt.GetDataExchDef_CT());
         Initialize();
 
-
         // Setup.
         ClearAMCBankingSetup(TempAMCBankingSetup);
         CreateDataExchWithContentCT(TempDataExch, 'CredentialsUpdated');

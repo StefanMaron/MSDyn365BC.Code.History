@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135517 "Currency Entity E2E Test"
 {
     Subtype = Test;
@@ -203,4 +204,4 @@ codeunit 135517 "Currency Entity E2E Test"
         VerifyPropertyInJSON(CurrencyJSON, 'displayName', Currency.Description);
     end;
 }
-
+#endif

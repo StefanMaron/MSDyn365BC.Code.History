@@ -5,6 +5,7 @@ codeunit 1630 "Office Management"
         OfficeHostType: DotNet OfficeHostType;
         OfficeAddinTelemetryCategoryTxt: Label 'AL Office Add-in', Locked = true;
         UploadSuccessMsg: Label 'Sent %1 document(s) to the OCR service successfully.', Comment = '%1=number of documents';
+        UploadIncomingDocumentSuccessMsg: Label 'Sent %1 document(s) to the Incoming Documents successfully.', Comment = '%1=number of documents';
         AddinInitializedTelemetryTxt: Label 'Office add-in initialized%1  Host name: %2%1  Host Type: %3%1  Mode: %4%1  Command: %5', Locked = true;
         ClientExtensionTelemetryTxt: Label 'Invoking client-side extension: %1', Locked = true;
         HandlerCodeunitTelemetryTxt: Label 'Office add-in handler codeunit: %1', Locked = true;
@@ -174,6 +175,22 @@ codeunit 1630 "Office Management"
         Message(StrSubstNo(UploadSuccessMsg, UploadedDocumentCount));
     end;
 
+    procedure DisplayIncomingDocumentUploadSuccessMessage(UploadedDocumentCount: Integer)
+    begin
+        Message(StrSubstNo(UploadIncomingDocumentSuccessMsg, UploadedDocumentCount));
+    end;
+
+    procedure DisplaySuccessMessage(var ExchangeObject: Record "Exchange Object")
+    begin
+        case ExchangeObject.InitiatedAction of
+            ExchangeObject.InitiatedAction::InitiateSendToOCR:
+                DisplayOCRUploadSuccessMessage(ExchangeObject.Count);
+
+            ExchangeObject.InitiatedAction::InitiateSendToIncomingDocuments:
+                DisplayIncomingDocumentUploadSuccessMessage(ExchangeObject.Count);
+        end
+    end;
+
     procedure GetContact(var Contact: Record Contact; LinkToNo: Code[20]): Boolean
     var
         TempOfficeAddinContext: Record "Office Add-in Context" temporary;
@@ -324,15 +341,15 @@ codeunit 1630 "Office Management"
     procedure SelectAndChangeCompany() NewCompany: Text
     var
         SelectedCompany: Record Company;
-        AllowedCompanies: Page "Allowed Companies";
+        AccessibleCompanies: Page "Accessible Companies";
     begin
-        AllowedCompanies.Initialize();
+        AccessibleCompanies.Initialize();
         if SelectedCompany.Get(CompanyName()) then
-            AllowedCompanies.SetRecord(SelectedCompany);
+            AccessibleCompanies.SetRecord(SelectedCompany);
 
-        AllowedCompanies.LookupMode(true);
-        if AllowedCompanies.RunModal() in [Action::LookupOK, Action::OK] then begin
-            AllowedCompanies.GetRecord(SelectedCompany);
+        AccessibleCompanies.LookupMode(true);
+        if AccessibleCompanies.RunModal() in [Action::LookupOK, Action::OK] then begin
+            AccessibleCompanies.GetRecord(SelectedCompany);
             NewCompany := SelectedCompany.Name;
             ChangeCompany(NewCompany);
         end;
@@ -381,6 +398,7 @@ codeunit 1630 "Office Management"
                 Vendor.SetRange("No.", TempExchangeObject.VendorNo);
                 if Vendor.FindFirst() then begin
                     IncomingDocument.Validate("Vendor Name", Vendor.Name);
+                    IncomingDocument.Validate("Vendor No.", Vendor."No.");
                     IncomingDocument.Modify();
                     exit(true);
                 end;
@@ -399,12 +417,6 @@ codeunit 1630 "Office Management"
     procedure StoreValue(Name: Text; Value: Text)
     begin
         InvokeExtension('storeValue', Name, Value, '', '');
-    end;
-
-    [Obsolete('For internal use only, the function has been replaced by GetOfficeAddinTelemetryCategory.', '16.0')]
-    procedure TraceCategory(): Text
-    begin
-        exit(GetOfficeAddinTelemetryCategory());
     end;
 
     [Scope('OnPrem')]

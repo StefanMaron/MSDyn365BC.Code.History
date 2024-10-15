@@ -1,4 +1,4 @@
-﻿codeunit 1431 "Forward Link Mgt."
+codeunit 1431 "Forward Link Mgt."
 {
 
     trigger OnRun()
@@ -16,6 +16,8 @@
         WorkingWithDimensionsMsg: Label 'Working with dimensions.';
         SalesLineDropShipmentTok: Label 'DROP SHIPMENT', Locked = true;
         SalesLineDropShipmentMsg: Label 'Making drop shipments';
+        EmptySetupAccountTok: Label 'EMPTY SETUP ACCOUNT', Locked = true;
+        EmptySetupAccountMsg: Label 'Empty Setup Account';
         TroubleshootingDimensionsTok: Label 'TROUBLESHOOTING DIMENSIONS', Locked = true;
         TroubleshootingDimensionsMsg: Label 'Troubleshooting and correcting dimensions';
 
@@ -35,6 +37,11 @@
     procedure GetHelpCodeForAllowedPostingDate(): Code[30]
     begin
         exit(AllowedPostingDateTok);
+    end;
+
+    procedure GetHelpCodeForEmptyPostingSetupAccount(): Code[30]
+    begin
+        exit(EmptySetupAccountTok);
     end;
 
     procedure GetHelpCodeForBlockedCustomer(): Code[30]
@@ -75,6 +82,8 @@
           GetHelpCodeForWorkingWithDimensions, WorkingWithDimensionsMsg, 'https://go.microsoft.com/fwlink/?linkid=2079638');
         AddLink(
           GetHelpCodeForSalesLineDropShipmentErr, SalesLineDropShipmentMsg, 'https://go.microsoft.com/fwlink/?linkid=2104945');
+        AddLink(
+          GetHelpCodeForEmptyPostingSetupAccount(), EmptySetupAccountMsg, 'https://go.microsoft.com/fwlink/?linkid=2157418');
         AddLink(
             GetHelpCodeForTroubleshootingDimensions(), TroubleshootingDimensionsMsg, 'https://go.microsoft.com/fwlink/?linkid=2162522');
     end;

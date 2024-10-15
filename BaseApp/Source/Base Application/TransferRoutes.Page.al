@@ -75,7 +75,7 @@ page 5747 "Transfer Routes"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Previous);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Previous);
                 end;
             }
             action("Next Set")
@@ -91,7 +91,7 @@ page 5747 "Transfer Routes"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Next);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Next);
                 end;
             }
         }
@@ -100,7 +100,7 @@ page 5747 "Transfer Routes"
     trigger OnOpenPage()
     begin
         MATRIX_MatrixRecord.SetRange("Use As In-Transit", false);
-        MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::First);
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
     var
@@ -112,9 +112,8 @@ page 5747 "Transfer Routes"
         MATRIX_CurrentNoOfColumns: Integer;
         ShowTransferToName: Boolean;
         Show: Option "In-Transit Code","Shipping Agent Code","Shipping Agent Service Code";
-        MATRIX_SetWanted: Option First,Previous,Same,Next;
 
-    local procedure MATRIX_GenerateColumnCaptions(SetWanted: Option First,Previous,Same,Next)
+    local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
     var
         MatrixMgt: Codeunit "Matrix Management";
         RecRef: RecordRef;
@@ -133,8 +132,9 @@ page 5747 "Transfer Routes"
         else
             CaptionField := 1;
 
-        MatrixMgt.GenerateMatrixData(RecRef, SetWanted, ArrayLen(MatrixRecords), CaptionField, MATRIX_PKFirstRecInCurrSet, MATRIX_CaptionSet
-          , MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
+        MatrixMgt.GenerateMatrixData(
+            RecRef, StepType.AsInteger(), ArrayLen(MatrixRecords), CaptionField, MATRIX_PKFirstRecInCurrSet, MATRIX_CaptionSet,
+            MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
 
         if MATRIX_CurrentNoOfColumns > 0 then begin
             MATRIX_MatrixRecord.SetPosition(MATRIX_PKFirstRecInCurrSet);
@@ -150,7 +150,7 @@ page 5747 "Transfer Routes"
 
     local procedure ShowTransferToNameOnAfterValid()
     begin
-        MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Same);
+        GenerateColumnCaptions("Matrix Page Step Type"::Same);
     end;
 
     local procedure UpdateMatrixSubform()

@@ -35,6 +35,8 @@ codeunit 5332 "Lookup CRM Tables"
                 exit(LookupCRMOpportunity(SavedCRMId, CRMId, IntTableFilter));
             DATABASE::"CRM Quote":
                 exit(LookupCRMQuote(SavedCRMId, CRMId, IntTableFilter));
+            DATABASE::"CRM Uom":
+                exit(LookupCRMUom(SavedCRMId, CRMId, IntTableFilter));
         end;
         exit(false);
     end;
@@ -259,6 +261,31 @@ codeunit 5332 "Lookup CRM Tables"
         if CRMSalesQuoteList.RunModal = ACTION::LookupOK then begin
             CRMSalesQuoteList.GetRecord(CRMQuote);
             CRMId := CRMQuote.QuoteId;
+            exit(true);
+        end;
+        exit(false);
+    end;
+
+    local procedure LookupCRMUom(SavedCRMId: Guid; var CRMId: Guid; IntTableFilter: Text): Boolean
+    var
+        CRMUom: Record "CRM Uom";
+        OriginalCRMUom: Record "CRM Uom";
+        CRMUnitList: Page "CRM Unit List";
+    begin
+        if not IsNullGuid(CRMId) then begin
+            if CRMUom.Get(CRMId) then
+                CRMUnitList.SetRecord(CRMUom);
+            if not IsNullGuid(SavedCRMId) then
+                if OriginalCRMUom.Get(SavedCRMId) then
+                    CRMUnitList.SetCurrentlyCoupledCRMUnit(OriginalCRMUom);
+        end;
+        CRMUom.SetView(IntTableFilter);
+        CRMUnitList.SetTableView(CRMUom);
+        CRMUnitList.LookupMode(true);
+        Commit();
+        if CRMUnitList.RunModal() = ACTION::LookupOK then begin
+            CRMUnitList.GetRecord(CRMUom);
+            CRMId := CRMUom.UoMId;
             exit(true);
         end;
         exit(false);

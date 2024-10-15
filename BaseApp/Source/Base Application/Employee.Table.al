@@ -1,4 +1,4 @@
-﻿table 5200 Employee
+table 5200 Employee
 {
     Caption = 'Employee';
     DataCaptionFields = "No.", "First Name", "Middle Name", "Last Name";
@@ -437,11 +437,9 @@
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '15.0';
         }
-        field(10800; "Marital Status"; Option)
+        field(10800; "Marital Status"; Enum "Employee Marital Status")
         {
             Caption = 'Marital Status';
-            OptionCaption = ' ,Single,Married,Divorced,Widowed';
-            OptionMembers = " ",Single,Married,Divorced,Widowed;
         }
     }
 
