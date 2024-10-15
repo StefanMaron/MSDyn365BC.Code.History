@@ -820,10 +820,15 @@ report 204 "Sales - Quote"
         end;
 
         trigger OnOpenPage()
+        var
+            StdReportWithCaption: Record AllObjWithCaption;
+            ReportManagementCodeunit: Codeunit ReportManagement;
         begin
             InitLogInteraction;
 
             LogInteractionEnable := LogInteraction;
+            StdReportWithCaption.Get(StdReportWithCaption."Object Type"::Report, Report::"Standard Sales - Quote");
+            ReportManagementCodeunit.SalesQuoteReportReplacedNotify(Report::"Standard Sales - Quote", StdReportWithCaption."Object Caption", CurrReport."Sales Header");
         end;
     }
 

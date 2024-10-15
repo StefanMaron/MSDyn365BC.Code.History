@@ -527,13 +527,18 @@ codeunit 10 "Type Helper"
 
     procedure ReadAsTextWithSeparator(InStream: InStream; LineSeparator: Text) Content: Text
     var
+        Tb : TextBuilder;
         ContentLine: Text;
     begin
-        InStream.ReadText(Content);
+        InStream.ReadText(ContentLine);
+        Tb.Append(ContentLine);
         while not InStream.EOS do begin
             InStream.ReadText(ContentLine);
-            Content += LineSeparator + ContentLine;
+            Tb.Append(LineSeparator);
+            Tb.Append(ContentLine);
         end;
+
+        exit(Tb.ToText());
     end;
 
     [TryFunction]

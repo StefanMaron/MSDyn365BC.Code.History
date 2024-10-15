@@ -112,9 +112,7 @@ codeunit 131101 "Library - Workflow"
         TempAccount: Record "Email Account" temporary;
         ConnectorMock: Codeunit "Connector Mock";
         EmailScenarioMock: Codeunit "Email Scenario Mock";
-        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
     begin
-        LibraryLowerPermissions.AddPermissionSet('Email - Admin');
         ConnectorMock.Initialize();
         ConnectorMock.AddAccount(TempAccount);
         EmailScenarioMock.DeleteAllMappings();

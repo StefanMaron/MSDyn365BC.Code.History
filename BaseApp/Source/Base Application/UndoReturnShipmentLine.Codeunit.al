@@ -287,6 +287,7 @@ codeunit 5814 "Undo Return Shipment Line"
     begin
         with ReturnShptLine do begin
             PurchLine.Get(PurchLine."Document Type"::"Return Order", "Return Order No.", "Return Order Line No.");
+            OnUpdateOrderLineOnBeforeUpdatePurchLine(ReturnShptLine);
             UndoPostingMgt.UpdatePurchLine(PurchLine, Quantity, "Quantity (Base)", TempGlobalItemLedgEntry);
             OnAfterUpdatePurchLine(PurchLine, ReturnShptLine);
         end;
@@ -356,6 +357,11 @@ codeunit 5814 "Undo Return Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReturnShptLineModify(var ReturnShptLine: Record "Return Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateOrderLineOnBeforeUpdatePurchLine(var ReturnShptLine: Record "Return Shipment Line")
     begin
     end;
 }

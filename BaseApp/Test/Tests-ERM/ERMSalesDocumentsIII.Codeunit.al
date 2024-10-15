@@ -4908,9 +4908,31 @@ codeunit 134387 "ERM Sales Documents III"
         // [SCENARIO 360476] No duplicate Comment Lines inserted
         Commit();
 
-        SalesCommentLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesCommentLine.SetRange("No.", SalesHeader."No.");
-        Assert.RecordCount(SalesCommentLine, 1);
+        VerifyCountSalesCommentLine(SalesHeader."Document Type", SalesHeader."No.", 10000);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure RecreateSalesCommentLineForSalesOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesCommentLine: Record "Sales Comment Line";
+    begin
+        // [FEATURE] [Sales Comment Line] [UT]
+        // [SCENARIO 399071] The Sales Comment Lines must be copied after Sales Lines have been recreated if Sales Line No. < 10000
+        Initialize();
+        LibrarySales.CreateSalesHeader(SalesHeader, "Sales Document Type"::Order, LibrarySales.CreateCustomerNo());
+        CreateSalesLineSimple(SalesLine, SalesHeader, 5000);
+        LibrarySales.CreateSalesCommentLine(SalesCommentLine, "Sales Document Type"::Order, SalesHeader."No.", SalesLine."Line No.");
+        LibrarySales.CreateSalesCommentLine(SalesCommentLine, "Sales Document Type"::Order, SalesHeader."No.", 0);
+
+        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
+        Commit();
+
+        VerifyCountSalesCommentLine(SalesHeader."Document Type", SalesHeader."No.", 10000);
+        VerifyCountSalesCommentLine(SalesHeader."Document Type", SalesHeader."No.", 0);
     end;
 
     [Test]
@@ -5400,6 +5422,50 @@ codeunit 134387 "ERM Sales Documents III"
         Assert.AreEqual(InitialUnitPrice, SalesLine."Unit Price", SalesLine.FieldCaption("Unit Price"));
     end;
 
+    [Test]
+    procedure SalesCreditMemoPopulateShipmentMethodCodeFromCust()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Credit Memo] [Shipment Method]
+        // [SCENARIO 394955] Shipment Method Code from customer in sales credit memo.
+        Initialize();
+
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Shipment Method Code", CreateShipmentMethodCode());
+        Customer.Modify(true);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
+
+        SalesHeader.TestField("Shipment Method Code", Customer."Shipment Method Code");
+    end;
+
+    [Test]
+    procedure SalesCreditMemoPopulateShipmentMethodCodeFromShipToAddress()
+    var
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Credit Memo] [Shipment Method] [Ship-to Address]
+        // [SCENARIO 394955] Shipment Method Code from ship-to address in sales credit memo.
+        Initialize();
+
+        LibrarySales.CreateCustomer(Customer);
+
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        ShipToAddress.Validate("Shipment Method Code", CreateShipmentMethodCode());
+        ShipToAddress.Modify(true);
+
+        Customer.Validate("Ship-to Code", ShipToAddress.Code);
+        Customer.Modify(true);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
+
+        SalesHeader.TestField("Shipment Method Code", ShipToAddress."Shipment Method Code");
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -5666,6 +5732,16 @@ codeunit 134387 "ERM Sales Documents III"
         SalesHeader.CalcInvDiscForHeader;
     end;
 
+    local procedure CreateShipmentMethodCode(): Code[10]
+    var
+        ShipmentMethod: Record "Shipment Method";
+    begin
+        ShipmentMethod.Init();
+        ShipmentMethod.Code := LibraryUtility.GenerateGUID();
+        ShipmentMethod.Insert(true);
+        exit(ShipmentMethod.Code);
+    end;
+
     local procedure CreatePostSalesDocWithGL(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; Invoice: Boolean): Code[20]
     begin
         CreateSalesDocumentGL(SalesHeader, DocumentType, LibraryERM.CreateGLAccountWithSalesSetup);
@@ -5798,6 +5874,15 @@ codeunit 134387 "ERM Sales Documents III"
         VATPostingSetup.Insert(true);
     end;
 
+    local procedure CreateSalesLineSimple(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineNo: Integer)
+    begin
+        SalesLine.Init();
+        SalesLine.Validate("Document Type", SalesHeader."Document Type");
+        SalesLine.Validate("Document No.", SalesHeader."No.");
+        SalesLine.Validate("Line No.", LineNo);
+        SalesLine.Insert(true);
+    end;
+
     local procedure CreateSalesLineAndItem(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     var
         Item: Record Item;
@@ -5845,6 +5930,8 @@ codeunit 134387 "ERM Sales Documents III"
         LibrarySales.CreateSalesLine(
           SalesLineChargeItem, SalesHeaderOrder,
           SalesLineChargeItem.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), QtyToAssign);
+        SalesLineChargeItem.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
+        SalesLineChargeItem.Modify(true);
 
         LibraryVariableStorage.Enqueue(QtyToAssign);
         SalesLineChargeItem.ShowItemChargeAssgnt();
@@ -5863,6 +5950,9 @@ codeunit 134387 "ERM Sales Documents III"
         LibrarySales.CreateSalesLine(
           SalesLineChargeItem, SalesHeaderOrder,
           SalesLineChargeItem.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), QtyToAssign);
+        SalesLineChargeItem.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
+        SalesLineChargeItem.Modify(true);
+
         LibrarySales.CreateSalesLine(
           SalesLineItem, SalesHeaderOrder, SalesLineItem.Type::Item, LibraryInventory.CreateItemNo(), QtyToAssign + 1);
 
@@ -6552,6 +6642,16 @@ codeunit 134387 "ERM Sales Documents III"
                     SalesCreditMemo.SalesLines.Quantity.SetValue(100);
                 end;
         end;
+    end;
+
+    local procedure VerifyCountSalesCommentLine(DocumentType: Enum "Sales Comment Document Type"; No: Code[20]; DocumentLineNo: Integer)
+    var
+        SalesCommentLine: Record "Sales Comment Line";
+    begin
+        SalesCommentLine.SetRange("Document Type", DocumentType);
+        SalesCommentLine.SetRange("No.", No);
+        SalesCommentLine.SetRange("Document Line No.", DocumentLineNo);
+        Assert.RecordCount(SalesCommentLine, 1);
     end;
 
     local procedure MockSalesLineWithGLAccount(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup")

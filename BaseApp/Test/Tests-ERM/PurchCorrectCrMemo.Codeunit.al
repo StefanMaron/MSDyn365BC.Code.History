@@ -1,6 +1,6 @@
 codeunit 137028 "Purch. Correct Cr. Memo"
 {
-    Permissions = TableData "Detailed Cust. Ledg. Entry" = ri;
+    Permissions = tabledata "Detailed Vendor Ledg. Entry" = rim;
     Subtype = Test;
     TestPermissions = NonRestrictive;
 

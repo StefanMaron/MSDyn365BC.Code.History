@@ -536,6 +536,7 @@ table 5870 "BOM Buffer"
 
         OnTransferFromProdCompCopyFields(Rec, ProdBOMLine, ParentItem, ParentQtyPer);
         Insert(true);
+        OnAfterTransferFromProdComp(Rec, ProdBOMLine, ParentItem, EntryNo)
     end;
 
     procedure TransferFromProdOrderLine(var EntryNo: Integer; ProdOrderLine: Record "Prod. Order Line")
@@ -825,6 +826,8 @@ table 5870 "BOM Buffer"
             "Rolled-up Scrap Cost" := "Rolled-up Material Cost" * "Scrap Qty. per Top Item" / "Qty. per Top Item";
         OnGetItemCostsOnBeforeRoundCosts(Rec);
         RoundCosts(UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code") * "Qty. per Top Item");
+
+        OnAfterGetItemCosts(Rec, Item);
     end;
 
     procedure GetResCosts()
@@ -1149,14 +1152,16 @@ table 5870 "BOM Buffer"
         end;
     end;
 
-    procedure IsLineOk(LogWarning: Boolean; var BOMWarningLog: Record "BOM Warning Log"): Boolean
+    procedure IsLineOk(LogWarning: Boolean; var BOMWarningLog: Record "BOM Warning Log") Result: Boolean
     begin
-        exit(
+        Result :=
           IsLowLevelOk(LogWarning, BOMWarningLog) and
           IsQtyPerOk(LogWarning, BOMWarningLog) and
           IsProdBOMOk(LogWarning, BOMWarningLog) and
           IsRoutingOk(LogWarning, BOMWarningLog) and
-          IsReplenishmentOk(LogWarning, BOMWarningLog));
+          IsReplenishmentOk(LogWarning, BOMWarningLog);
+
+        OnAfterIsLineOk(Rec, LogWarning, BOMWarningLog, Result);
     end;
 
     procedure AreAllLinesOk(var BOMWarningLog: Record "BOM Warning Log") IsOk: Boolean
@@ -1193,6 +1198,11 @@ table 5870 "BOM Buffer"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetItemCosts(var BOMBuffer: Record "BOM Buffer"; Item: Record Item);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromItem(var BOMBuffer: Record "BOM Buffer"; Item: Record Item);
     begin
     end;
@@ -1213,7 +1223,17 @@ table 5870 "BOM Buffer"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterIsLineOk(var BOMBuffer: Record "BOM Buffer"; LogWarning: Boolean; var BOMWarningLog: Record "BOM Warning Log"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterRoundCosts(var BOMBuffer: Record "BOM Buffer"; ShareOfTotalCost: Decimal);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferFromProdComp(var BOMBuffer: Record "BOM Buffer"; ProductionBOMLine: Record "Production BOM Line"; ParentItem: Record Item; var EntryNo: Integer)
     begin
     end;
 

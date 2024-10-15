@@ -126,6 +126,8 @@ codeunit 181 "Copy Gen. Journal Mgt."
                 CheckCustomerEntries(GLRegister);
                 CheckVendorEntries(GLRegister);
             until PostedGenJournalLine.Next() = 0;
+
+        OnAfterCheckIfCanBeCopied(PostedGenJournalLine);
     end;
 
     local procedure CheckCustomerEntries(GLRegister: Record "G/L Register")
@@ -180,6 +182,11 @@ codeunit 181 "Copy Gen. Journal Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertGenJournalLine(var PostedGenJournalLine: Record "Posted Gen. Journal Line"; var CopyGenJournalParameters: Record "Copy Gen. Journal Parameters")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckIfCanBeCopied(PostedGenJournalLine: Record "Posted Gen. Journal Line")
     begin
     end;
 
