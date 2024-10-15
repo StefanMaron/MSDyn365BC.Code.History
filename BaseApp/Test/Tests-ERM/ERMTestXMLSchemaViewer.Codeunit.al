@@ -10,7 +10,9 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
 
     var
         Assert: Codeunit Assert;
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         XMLDateFormatTxt: Label 'YYYY-MM-DD', Locked = true;
         XMLDateTimeFormatTxt: Label 'YYYY-MM-DDThh:mm:ss', Locked = true;
         DefaultCultureTxt: Label 'en-US', Locked = true;
@@ -1167,17 +1169,22 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,XBRLExportInstanceSpec2RequestPageHandler')]
     procedure ImportXBRLSchemaFileWithInfoAboutXBRLTaxonomyLine()
     var
         XBRLSchema: Record "XBRL Schema";
         XBRLTaxonomy: Record "XBRL Taxonomy";
         XBRLTaxonomyLine: Record "XBRL Taxonomy Line";
         FileManagement: Codeunit "File Management";
+        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+        TempBlob: Codeunit "Temp Blob";
+        XMLDOMManagement: Codeunit "XML DOM Management";
+        XBRLExportInstanceSpec2: Report "XBRL Export Instance - Spec. 2";
         MainDefinitionFile: File;
         MainDefinitionOutStr: OutStream;
         OutStream: OutStream;
         InStream: InStream;
+        XmlDocumentDotNet: DotNet XmlDocument;
         LineName: Text;
         LineID: Text;
     begin
@@ -1196,6 +1203,8 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
 
         // [GIVEN] Created XBRL Taxonomy and XBRL Schema
         LibraryXBRL.CreateXBRLTaxonomy(XBRLTaxonomy);
+        XBRLTaxonomy.schemaLocation := LibraryRandom.RandText(20);
+        XBRLTaxonomy.Modify();
         XBRLSchema."XBRL Taxonomy Name" := XBRLTaxonomy.Name;
         XBRLSchema.XSD.CreateOutStream(OutStream);
         MainDefinitionFile.CreateInStream(InStream);
@@ -1210,6 +1219,27 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XBRLTaxonomyLine.FindFirst;
         XBRLTaxonomyLine.TestField("Element ID", LineID);
         XBRLTaxonomyLine.TestField(Name, LineName);
+
+        // Bug 422369
+        // [THEN] Stan can report "XBRLExportInstanceSpec2" with option "Create File" and get Xml output file.
+        Commit();
+        LibraryVariableStorage.Enqueue(XBRLTaxonomy.Name); // Taxonomy
+        LibraryVariableStorage.Enqueue('777777777'); // Schema Identifier
+        LibraryVariableStorage.Enqueue(WorkDate()); // Start Date
+        LibraryVariableStorage.Enqueue(true); // Create File
+
+        BindSubscription(LibraryFileMgtHandler);
+        LibraryFileMgtHandler.SetBeforeDownloadFromStreamHandlerActivated(true);
+
+        XBRLExportInstanceSpec2.RunModal();
+
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        Clear(InStream);
+        TempBlob.CreateInStream(InStream);
+        XMLDOMManagement.LoadXMLDocumentFromInStream(InStream, XmlDocumentDotNet);
+        Assert.AreEqual(6, XmlDocumentDotNet.DocumentElement.ChildNodes.Count, 'Invalid number of child nodes in Xml Document');
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -1220,6 +1250,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchemaRestriction: Record "XML Schema Restriction";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM - Test XML Schema Viewer");
+        LibraryVariableStorage.Clear();
         XMLSchema.DeleteAll();
         XMLSchemaElement.DeleteAll();
         ReferencedXMLSchema.DeleteAll();
@@ -1762,6 +1793,18 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         OutStr.WriteText('<xsd:import namespace="http://www.xbrl.org/2003/instance"' +
           ' schemaLocation="http://www.xbrl.org/2003/xbrl-instance-2003-12-31.xsd"/>');
         OutStr.WriteText('</xsd:schema>');
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure XBRLExportInstanceSpec2RequestPageHandler(var XBRLExportInstanceSpec2: TestRequestPage "XBRL Export Instance - Spec. 2")
+    begin
+        XBRLExportInstanceSpec2.XBRLTaxonomyName.SetValue(LibraryVariableStorage.DequeueText());
+        XBRLExportInstanceSpec2.SchemeIdentifier.SetValue(LibraryVariableStorage.DequeueText());
+        XBRLExportInstanceSpec2.StartDate.SetValue(LibraryVariableStorage.DequeueDate());
+        XBRLExportInstanceSpec2.CreateFile.SetValue(LibraryVariableStorage.DequeueBoolean());
+
+        XBRLExportInstanceSpec2.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]
