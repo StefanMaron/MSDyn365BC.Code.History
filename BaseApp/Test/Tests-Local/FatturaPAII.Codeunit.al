@@ -1807,6 +1807,54 @@
         VerifyDatiDDTCount(ServerFileName);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure AltriDatiGestionaliWhenVATExemptionExists()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+        VATExemption: Record "VAT Exemption";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        DocumentNo: Code[20];
+        CustomerNo: Code[20];
+        ClientFileName: Text[250];
+        ServerFileName: Text[250];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 422917] AltriDatiGestionali node generates when VAT Exemption No. created for the document
+
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with VAT Posting Setup with "VAT Exemption No." = "Y", "Consecutive VAT Exempt. No." = "001" and "VAT Exemption Date" = 01.01.2022
+        UpdatePurchasesPayablesSetupVATExemptionNos(LibraryERM.CreateNoSeriesCode());
+        CustomerNo := LibraryITLocalization.CreateCustomer();
+        CreateVATExemptionForCustomer(VATExemption, CustomerNo);
+        VATExemption.Validate("Consecutive VAT Exempt. No.", LibraryUtility.GenerateGUID());
+        VATExemption.Modify(true);
+        CreateSalesDocWithVATTransNatureAndZeroVATRate(SalesHeader, SalesLine, VATPostingSetup, CustomerNo);
+        SetVATIdentifierInSalesLine(SalesLine);
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesInvoiceHeader.SetRange("No.", DocumentNo);
+
+        // [WHEN] The document is exported to FatturaPA
+        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+          ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] AltriDatiGestionali node generates with the following subnodes:
+        // [THEN] TipoDato = 'INTENTO'
+        // [THEN] RiferimentoTesto = "Y-001"
+        // [THEN] RiferimentoData = 01.01.2022
+        VerifyAltriDatiGestionaliFromVATExemption(ServerFileName, VATExemption);
+
+        // Tear down
+        VATBusinessPostingGroup.Get(SalesHeader."VAT Bus. Posting Group");
+        VATBusinessPostingGroup.Validate("Check VAT Exemption", false);
+        VATBusinessPostingGroup.Modify(true);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -2981,6 +3029,19 @@
         XMLFieldLength := GetMaxRiferimentoTestoLength;
         NormalizeText(ExtendedText);
         AssertCurrentElementValue(TempXMLBuffer, CopyStr(ExtendedText, 1, XMLFieldLength));
+    end;
+
+    local procedure VerifyAltriDatiGestionaliFromVATExemption(ServerFileName: Text[250]; VATExemption: Record "VAT Exemption")
+    var
+        TempXMLBuffer: Record "XML Buffer" temporary;
+    begin
+        TempXMLBuffer.Load(ServerFileName);
+        Assert.IsTrue(
+          TempXMLBuffer.FindNodesByXPath(
+            TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/AltriDatiGestionali'), '');
+        VerifyAltriDatiGestionaliShortText(
+          TempXMLBuffer, 'INTENTO', VATExemption."VAT Exempt. No." + '-' + VATExemption."Consecutive VAT Exempt. No.");
+        AssertElementValue(TempXMLBuffer, 'RiferimentoData', FormatDate(VATExemption."VAT Exempt. Date"));
     end;
 
     local procedure VerifyNoAltriDatiGestionaliNode(ServerFileName: Text[250])

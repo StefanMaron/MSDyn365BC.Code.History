@@ -612,6 +612,7 @@ codeunit 12179 "Export FatturaPA Document"
         TempXMLBuffer.AddGroupElement('AltriDatiGestionali');
         TempXMLBuffer.AddNonEmptyElement('TipoDato', FatturaLine."Ext. Text Source No");
         TempXMLBuffer.AddNonEmptyElement('RiferimentoTesto', CopyStr(FatturaLine.Description, 1, ExtendedTextLength));
+        TempXMLBuffer.AddNonEmptyElement('RiferimentoData', FormatDate(FatturaLine."Posting Date"));
         TempXMLBuffer.GetParent();
         if StrLen(FatturaLine.Description) > ExtendedTextLength then begin
             CurrPosition := ExtendedTextLength;
@@ -621,6 +622,7 @@ codeunit 12179 "Export FatturaPA Document"
                 TempXMLBuffer.AddGroupElement('AltriDatiGestionali');
                 TempXMLBuffer.AddNonEmptyElement('TipoDato', FatturaLine."Ext. Text Source No");
                 TempXMLBuffer.AddNonEmptyElement('RiferimentoTesto', TextToCopy);
+                TempXMLBuffer.AddNonEmptyElement('RiferimentoData', FormatDate(FatturaLine."Posting Date"));
                 TempXMLBuffer.GetParent();
             until CurrPosition >= StrLen(FatturaLine.Description);
         end;
@@ -637,6 +639,9 @@ codeunit 12179 "Export FatturaPA Document"
             repeat
                 PopulateExtendedTextData(TempExtFatturaLine);
             until TempExtFatturaLine.Next() = 0;
+        TempExtFatturaLine.SetRange("Related Line No.", 0);
+        if TempExtFatturaLine.FindFirst() then
+            PopulateExtendedTextData(TempExtFatturaLine);
     end;
 
     local procedure PopulateDocumentAttachments(TempFatturaHeader: Record "Fattura Header" temporary)
