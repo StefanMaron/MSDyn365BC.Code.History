@@ -122,7 +122,13 @@ codeunit 350 IntraJnlManagement
     var
         IntraJnlTemplate: Record "Intrastat Jnl. Template";
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckTemplateName(CurrentJnlTemplateName, CurrentJnlBatchName, IsHandled);
+        if IsHandled then
+            exit;
+
         IntrastatJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);
         if not IntrastatJnlBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
             if not IntrastatJnlBatch.FindFirst then begin
@@ -266,10 +272,8 @@ codeunit 350 IntraJnlManagement
                          IntrastatJnlLine, AdvancedIntrastatChecklist."Field No.", ErrorMessage."Message Type"::Error) <> 0);
             until AdvancedIntrastatChecklist.Next() = 0;
 
-        if AnyError and ThrowError then begin
-            Commit();
-            Error(AdvChecklistErr);
-        end;
+        if AnyError and ThrowError then
+            ThrowJournalBatchError();
 
         exit(not AnyError);
     end;
@@ -326,6 +330,26 @@ codeunit 350 IntraJnlManagement
         AdvancedIntrastatChecklist.Validate("Field No.", FieldNo);
         AdvancedIntrastatChecklist.Validate("Filter Expression", FilterExpr);
         if AdvancedIntrastatChecklist.Insert() then;
+    end;
+
+    procedure CheckForJournalBatchError(IntrastatJnlLine: Record "Intrastat Jnl. Line"; ThrowError: Boolean)
+    var
+        ErrorMessage: Record "Error Message";
+    begin
+        ChecklistSetBatchContext(ErrorMessage, IntrastatJnlLine);
+        if ErrorMessage.HasErrors(false) and ThrowError then
+            ThrowJournalBatchError();
+    end;
+
+    local procedure ThrowJournalBatchError()
+    begin
+        Commit();
+        Error(AdvChecklistErr);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckTemplateName(CurrentJnlTemplateName: Code[10]; var CurrentJnlBatchName: Code[10]; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

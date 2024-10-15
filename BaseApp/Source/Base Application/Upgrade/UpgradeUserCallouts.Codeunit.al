@@ -4,7 +4,12 @@ codeunit 104041 "Upgrade User Callouts"
     Subtype = Upgrade;
 
     trigger OnUpgradePerDatabase()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade('') then
+            exit;
+
         UpgradeUserSettings();
     end;
 
@@ -25,7 +30,7 @@ codeunit 104041 "Upgrade User Callouts"
                 else
                     UserSettings.DisableTeachingTips(UserCallouts."User Security ID");
             until UserCallouts.Next() = 0;
-        
+
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetUserSettingsUpgradeTag());
     end;
 }

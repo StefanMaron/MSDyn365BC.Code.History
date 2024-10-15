@@ -22,6 +22,8 @@ codeunit 142061 "ERM Batch Reports DACH"
     procedure GLEntryVATEntryLinkForFASalesAccOnDispLoss()
     var
         GLEntry: Record "G/L Entry";
+        VATEntry: Record "VAT Entry";
+        GLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link";
         FANo: Code[20];
         DocumentNo: Code[20];
         GLAccountNo: Code[20];
@@ -42,6 +44,12 @@ codeunit 142061 "ERM Batch Reports DACH"
         // [THEN] There is a GLEntry "X" with "Document Type" = "Invoice", "Document No." = "SI", "Gen. Posting Type" = "Sale", "G/L Account No." = "DispLossGLAcc"
         GLAccountNo := GetFASalesAccOnDispLoss(FANo);
         FindGLEntry(GLEntry, GLEntry."Document Type"::Invoice, DocumentNo, GLEntry."Gen. Posting Type"::Sale, GLAccountNo);
+
+        // [THEN] There is a VATEntry "Y" with "Document Type" = "Invoice", "Document No." = "SI", Type = "Sale", "G/L Account No." = "DispLossGLAcc"
+        FindVATEntry(VATEntry, VATEntry."Document Type"::Invoice, DocumentNo, VATEntry.Type::Sale, GLAccountNo);
+
+        // [THEN] There is a "G/L Entry - VAT Entry Link" record with "G/L Entry No." = "X", "VAT Entry No." = "Y"
+        GLEntryVATEntryLink.GET(GLEntry."Entry No.", VATEntry."Entry No.");
     end;
 
     local procedure Initialize()
@@ -149,6 +157,15 @@ codeunit 142061 "ERM Batch Reports DACH"
             SetRange("G/L Account No.", GLAccountNo);
             FindFirst;
         end;
+    end;
+
+    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; VATEntryType: Enum "General Posting Type"; GLAccountNo: Code[20])
+    begin
+        VATEntry.SetRange("Document Type", DocumentType);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetRange(Type, VATEntryType);
+        VATEntry.SetRange("G/L Acc. No.", '');
+        VATEntry.FindFirst();
     end;
 }
 

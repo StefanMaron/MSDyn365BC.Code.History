@@ -1512,6 +1512,8 @@ codeunit 144001 VATSTAT
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         PdfFile: File;
     begin
+        GlobalLanguage(3079); // in decimals use '.' instead of ','
+
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::VATSTAT);
         LibraryVariableStorage.Clear;
 
