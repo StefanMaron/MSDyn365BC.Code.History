@@ -1805,6 +1805,34 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleOverview.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('RPHAccountScheduleVerifyCashFlowFilterData')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleReportVerifyCashFlowFilterRequestPage()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        ColumnLayoutName: Record "Column Layout Name";
+        CashFlowForecast: Record "Cash Flow Forecast";
+    begin
+        // [SCENARIO 437596] Verify request page has data after setfilter and open page
+        Initialize();
+
+        // [GIVEN] Create Account Schedule, Column Layout and Cash Flow Forecast
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
+        LibraryCashFlow.CreateCashFlowCard(CashFlowForecast);
+
+        LibraryVariableStorage.Enqueue(AccScheduleName.Name);
+        LibraryVariableStorage.Enqueue(ColumnLayoutName.Name);
+        LibraryVariableStorage.Enqueue(CashFlowForecast."No.");
+
+        // [WHEN] Run the 25th Report
+        RunAccountScheduleReportVerifyCashFlowFilter(AccScheduleName.Name, ColumnLayoutName.Name, CashFlowForecast."No.");
+
+        // [THEN] Verify is done in Request Page Handler RPHAccountScheduleVerifyCashFlowFilterData
+        // check that request page has correct data
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -1955,7 +1983,7 @@ codeunit 134994 "ERM Account Schedule II"
         Clear(AccountSchedule);
         AccountSchedule.SetAccSchedName(ScheduleName);
         AccountSchedule.SetColumnLayoutName(ColumnLayoutName);
-        AccountSchedule.SetFilters(Format(WorkDate), '', '', '', '', '', '', '');
+        AccountSchedule.SetFilters(Format(WorkDate), '', '', '', '', '', '', '', '');
         Commit();
         AccountSchedule.Run();
     end;
@@ -1968,7 +1996,7 @@ codeunit 134994 "ERM Account Schedule II"
         AccountSchedule.SetAccSchedName(ScheduleName);
         AccountSchedule.SetColumnLayoutName(ColumnLayoutName);
         AccountSchedule.SetFilters(
-          Format(WorkDate), '', '', '', DimensionValue[1].Code, DimensionValue[2].Code, DimensionValue[3].Code, DimensionValue[4].Code);
+          Format(WorkDate), '', '', '', DimensionValue[1].Code, DimensionValue[2].Code, DimensionValue[3].Code, DimensionValue[4].Code, '');
         Commit();
         AccountSchedule.Run();
     end;
@@ -1980,7 +2008,7 @@ codeunit 134994 "ERM Account Schedule II"
         Clear(AccountSchedule);
         AccountSchedule.SetAccSchedName(ScheduleName);
         AccountSchedule.SetColumnLayoutName(ColumnLayoutName);
-        AccountSchedule.SetFilters(Format(WorkDate), '', '', '', '', '', '', '');
+        AccountSchedule.SetFilters(Format(WorkDate), '', '', '', '', '', '', '', '');
         AccountSchedule.SaveAsExcel(LibraryReportValidation.GetFileName);
     end;
 
@@ -2008,6 +2036,18 @@ codeunit 134994 "ERM Account Schedule II"
         ExportAccSchedToExcel.Run();
     end;
 
+    local procedure RunAccountScheduleReportVerifyCashFlowFilter(ScheduleName: Code[10]; ColumnLayoutName: Code[10]; CashFlowForeCast: Code[20])
+    var
+        AccountSchedule: Report "Account Schedule";
+    begin
+        Clear(AccountSchedule);
+        AccountSchedule.SetAccSchedName(ScheduleName);
+        AccountSchedule.SetColumnLayoutName(ColumnLayoutName);
+        AccountSchedule.SetFilters(Format(WorkDate), '', '', '', '', '', '', '', CashFlowForeCast);
+        Commit();
+        AccountSchedule.Run();
+    end;
+
     [Scope('OnPrem')]
     procedure RunExportAccScheduleWithDimFilter(AccScheduleName: Record "Acc. Schedule Name"; DimFilterValue: array[4] of Code[20])
     var
@@ -2015,7 +2055,7 @@ codeunit 134994 "ERM Account Schedule II"
     begin
         Clear(AccountSchedule);
         AccountSchedule.SetAccSchedName(AccScheduleName.Name);
-        AccountSchedule.SetFilters(Format(WorkDate), '', '', '', DimFilterValue[1], DimFilterValue[2], DimFilterValue[3], DimFilterValue[4]);
+        AccountSchedule.SetFilters(Format(WorkDate), '', '', '', DimFilterValue[1], DimFilterValue[2], DimFilterValue[3], DimFilterValue[4], '');
         AccountSchedule.SaveAsExcel(LibraryReportValidation.GetFileName);
     end;
 
@@ -2232,6 +2272,24 @@ codeunit 134994 "ERM Account Schedule II"
     procedure CopyAccountScheduleMissingNewNameRequestPageHandler(var CopyAccountSchedule: TestRequestPage "Copy Account Schedule")
     begin
         CopyAccountSchedule.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RPHAccountScheduleVerifyCashFlowFilterData(var AccountSchedule: TestRequestPage "Account Schedule")
+    var
+        AccSchedNam: Variant;
+        ColumnLayoutNames: Variant;
+        CashFlowForecast: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(AccSchedNam);
+        LibraryVariableStorage.Dequeue(ColumnLayoutNames);
+        LibraryVariableStorage.Dequeue(CashFlowForecast);
+        AccountSchedule.AccSchedNam.AssertEquals(AccSchedNam);
+        AccountSchedule.ColumnLayoutNames.AssertEquals(ColumnLayoutNames);
+        AccountSchedule.CashFlowFilter.AssertEquals(CashFlowForecast);
+        AccountSchedule.StartDate.SetValue(WorkDate());
+        AccountSchedule.EndDate.SetValue(WorkDate());
     end;
 
     [PageHandler]

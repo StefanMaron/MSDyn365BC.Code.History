@@ -368,6 +368,7 @@ Codeunit 31085 "Feature Advance Payments CZZ" implements "Feature Data Update"
         VATEntry2: Record "VAT Entry";
         PurchAdvLetterManagementCZZ: Codeunit "PurchAdvLetterManagement CZZ";
         CurrFactor: Decimal;
+        LastClosedDate: Date;
     begin
         if PurchAdvLetterHeaderCZZ.Status.AsInteger() = PurchAdvLetterHeaderCZZ.Status::New.AsInteger() then
             exit;
@@ -382,6 +383,7 @@ Codeunit 31085 "Feature Advance Payments CZZ" implements "Feature Data Update"
             PurchAdvLetterHeaderCZZ."Currency Code", PurchAdvLetterHeaderCZZ."Currency Factor", PurchAdvLetterHeaderCZZ."No.", '',
             PurchAdvLetterHeaderCZZ."Shortcut Dimension 1 Code", PurchAdvLetterHeaderCZZ."Shortcut Dimension 2 Code", PurchAdvLetterHeaderCZZ."Dimension Set ID", false);
 
+        LastClosedDate := 0D;
         AdvanceLink.Reset();
         AdvanceLink.SetRange(Type, AdvanceLink.Type::Purchase);
         AdvanceLink.SetRange("Document No.", PurchAdvLetterHeaderCZZ."No.");
@@ -392,6 +394,8 @@ Codeunit 31085 "Feature Advance Payments CZZ" implements "Feature Data Update"
                 PurchAdvLetterManagementCZZ.AdvEntryInitVendLedgEntryNo(AdvanceLink."CV Ledger Entry No.");
                 if not VendorLedgerEntry.Get(AdvanceLink."CV Ledger Entry No.") then
                     VendorLedgerEntry.Init();
+                if LastClosedDate < VendorLedgerEntry."Closed at Date" then
+                    LastClosedDate := VendorLedgerEntry."Closed at Date";
                 PurchAdvLetterManagementCZZ.AdvEntryInsert("Advance Letter Entry Type CZZ"::Payment, PurchAdvLetterHeaderCZZ."No.", VendorLedgerEntry."Posting Date",
                     -AdvanceLink.Amount, -AdvanceLink."Amount (LCY)",
                     PurchAdvLetterHeaderCZZ."Currency Code", VendorLedgerEntry."Original Currency Factor", VendorLedgerEntry."Document No.", VendorLedgerEntry."External Document No.",
@@ -485,6 +489,19 @@ Codeunit 31085 "Feature Advance Payments CZZ" implements "Feature Data Update"
                 AdvanceLink."Amount (LCY)" := 0;
                 AdvanceLink.Modify(false);
             until AdvanceLink.Next() = 0;
+
+        if PurchAdvLetterHeaderCZZ.Status = PurchAdvLetterHeaderCZZ.Status::Closed then begin
+            PurchAdvLetterHeaderCZZ.CalcFields("To Use", "To Use (LCY)");
+            if (PurchAdvLetterHeaderCZZ."To Use" <> 0) or (PurchAdvLetterHeaderCZZ."To Use (LCY)" <> 0) then begin
+                if LastClosedDate = 0D then
+                    LastClosedDate := PurchAdvLetterHeaderCZZ."Posting Date";
+                PurchAdvLetterManagementCZZ.AdvEntryInit(false);
+                PurchAdvLetterManagementCZZ.AdvEntryInsert("Advance Letter Entry Type CZZ"::Close, PurchAdvLetterHeaderCZZ."No.", LastClosedDate,
+                    -PurchAdvLetterHeaderCZZ."To Use", -PurchAdvLetterHeaderCZZ."To Use (LCY)",
+                    PurchAdvLetterHeaderCZZ."Currency Code", PurchAdvLetterHeaderCZZ."Currency Factor", PurchAdvLetterHeaderCZZ."No.", '',
+                    PurchAdvLetterHeaderCZZ."Shortcut Dimension 1 Code", PurchAdvLetterHeaderCZZ."Shortcut Dimension 2 Code", PurchAdvLetterHeaderCZZ."Dimension Set ID", false);
+            end;
+        end;
     end;
 
     local procedure UpdatePurchAdvanceApplication(var PurchAdvLetterHeaderCZZ: Record "Purch. Adv. Letter Header CZZ")
@@ -647,8 +664,9 @@ Codeunit 31085 "Feature Advance Payments CZZ" implements "Feature Data Update"
         SalesAdvanceLetterEntry2: Record "Sales Advance Letter Entry";
         SalesAdvLetterEntryCZZ1: Record "Sales Adv. Letter Entry CZZ";
         SalesAdvLetterEntryCZZ2: Record "Sales Adv. Letter Entry CZZ";
-        SalesAdvLetterManagement: Codeunit "SalesAdvLetterManagement CZZ";
+        SalesAdvLetterManagementCZZ: Codeunit "SalesAdvLetterManagement CZZ";
         CurrFactor: Decimal;
+        LastClosedDate: Date;
     begin
         if SalesAdvLetterHeaderCZZ.Status.AsInteger() = SalesAdvLetterHeaderCZZ.Status::New.AsInteger() then
             exit;
@@ -657,23 +675,26 @@ Codeunit 31085 "Feature Advance Payments CZZ" implements "Feature Data Update"
         if SalesAdvLetterEntryCZZ1.FindLast() then;
 
         SalesAdvLetterHeaderCZZ.CalcFields("Amount Including VAT", "Amount Including VAT (LCY)");
-        SalesAdvLetterManagement.AdvEntryInit(false);
-        SalesAdvLetterManagement.AdvEntryInsert("Advance Letter Entry Type CZZ"::"Initial Entry", SalesAdvLetterHeaderCZZ."No.", SalesAdvLetterHeaderCZZ."Posting Date",
+        SalesAdvLetterManagementCZZ.AdvEntryInit(false);
+        SalesAdvLetterManagementCZZ.AdvEntryInsert("Advance Letter Entry Type CZZ"::"Initial Entry", SalesAdvLetterHeaderCZZ."No.", SalesAdvLetterHeaderCZZ."Posting Date",
             SalesAdvLetterHeaderCZZ."Amount Including VAT", SalesAdvLetterHeaderCZZ."Amount Including VAT (LCY)",
             SalesAdvLetterHeaderCZZ."Currency Code", SalesAdvLetterHeaderCZZ."Currency Factor", SalesAdvLetterHeaderCZZ."No.",
             SalesAdvLetterHeaderCZZ."Shortcut Dimension 1 Code", SalesAdvLetterHeaderCZZ."Shortcut Dimension 2 Code", SalesAdvLetterHeaderCZZ."Dimension Set ID", false);
 
+        LastClosedDate := 0D;
         AdvanceLink.Reset();
         AdvanceLink.SetRange(Type, AdvanceLink.Type::Sale);
         AdvanceLink.SetRange("Document No.", SalesAdvLetterHeaderCZZ."No.");
         AdvanceLink.SetRange("Entry Type", AdvanceLink."Entry Type"::"Link To Letter");
         if AdvanceLink.FindSet(true) then
             repeat
-                SalesAdvLetterManagement.AdvEntryInit(false);
-                SalesAdvLetterManagement.AdvEntryInitCustLedgEntryNo(AdvanceLink."CV Ledger Entry No.");
+                SalesAdvLetterManagementCZZ.AdvEntryInit(false);
+                SalesAdvLetterManagementCZZ.AdvEntryInitCustLedgEntryNo(AdvanceLink."CV Ledger Entry No.");
                 if not CustLedgerEntry.Get(AdvanceLink."CV Ledger Entry No.") then
                     CustLedgerEntry.Init();
-                SalesAdvLetterManagement.AdvEntryInsert("Advance Letter Entry Type CZZ"::Payment, SalesAdvLetterHeaderCZZ."No.", CustLedgerEntry."Posting Date",
+                if LastClosedDate < CustLedgerEntry."Closed at Date" then
+                    LastClosedDate := CustLedgerEntry."Closed at Date";
+                SalesAdvLetterManagementCZZ.AdvEntryInsert("Advance Letter Entry Type CZZ"::Payment, SalesAdvLetterHeaderCZZ."No.", CustLedgerEntry."Posting Date",
                     -AdvanceLink.Amount, -AdvanceLink."Amount (LCY)",
                     SalesAdvLetterHeaderCZZ."Currency Code", CustLedgerEntry."Original Currency Factor", CustLedgerEntry."Document No.",
                     CustLedgerEntry."Global Dimension 1 Code", CustLedgerEntry."Global Dimension 2 Code", CustLedgerEntry."Dimension Set ID", false);
@@ -687,14 +708,14 @@ Codeunit 31085 "Feature Advance Payments CZZ" implements "Feature Data Update"
                 SalesAdvanceLetterEntry1.SetRange("Entry Type", SalesAdvanceLetterEntry1."Entry Type"::VAT);
                 if SalesAdvanceLetterEntry1.FindSet() then
                     repeat
-                        SalesAdvLetterManagement.AdvEntryInit(false);
+                        SalesAdvLetterManagementCZZ.AdvEntryInit(false);
                         if SalesAdvanceLetterEntry1.Cancelled then
-                            SalesAdvLetterManagement.AdvEntryInitCancel();
-                        SalesAdvLetterManagement.AdvEntryInitRelatedEntry(SalesAdvLetterEntryCZZ1."Entry No.");
-                        SalesAdvLetterManagement.AdvEntryInitVAT(SalesAdvanceLetterEntry1."VAT Bus. Posting Group", SalesAdvanceLetterEntry1."VAT Prod. Posting Group", SalesAdvanceLetterEntry1."VAT Date",
+                            SalesAdvLetterManagementCZZ.AdvEntryInitCancel();
+                        SalesAdvLetterManagementCZZ.AdvEntryInitRelatedEntry(SalesAdvLetterEntryCZZ1."Entry No.");
+                        SalesAdvLetterManagementCZZ.AdvEntryInitVAT(SalesAdvanceLetterEntry1."VAT Bus. Posting Group", SalesAdvanceLetterEntry1."VAT Prod. Posting Group", SalesAdvanceLetterEntry1."VAT Date",
                             SalesAdvanceLetterEntry1."VAT Entry No.", SalesAdvanceLetterEntry1."VAT %", SalesAdvanceLetterEntry1."VAT Identifier", "TAX Calculation Type"::"Normal VAT",
                             SalesAdvanceLetterEntry1."VAT Amount", SalesAdvanceLetterEntry1."VAT Amount (LCY)", SalesAdvanceLetterEntry1."VAT Base Amount", SalesAdvanceLetterEntry1."VAT Base Amount (LCY)");
-                        SalesAdvLetterManagement.AdvEntryInsert("Advance Letter Entry Type CZZ"::"VAT Payment", SalesAdvLetterHeaderCZZ."No.", SalesAdvanceLetterEntry1."Posting Date",
+                        SalesAdvLetterManagementCZZ.AdvEntryInsert("Advance Letter Entry Type CZZ"::"VAT Payment", SalesAdvLetterHeaderCZZ."No.", SalesAdvanceLetterEntry1."Posting Date",
                             SalesAdvanceLetterEntry1."VAT Base Amount" + SalesAdvanceLetterEntry1."VAT Amount", SalesAdvanceLetterEntry1."VAT Base Amount (LCY)" + SalesAdvanceLetterEntry1."VAT Amount (LCY)",
                             SalesAdvLetterEntryCZZ1."Currency Code", SalesAdvLetterEntryCZZ1."Currency Factor", SalesAdvanceLetterEntry1."Document No.",
                             SalesAdvLetterEntryCZZ1."Global Dimension 1 Code", SalesAdvLetterEntryCZZ1."Global Dimension 2 Code", SalesAdvLetterEntryCZZ1."Dimension Set ID", false);
@@ -708,12 +729,12 @@ Codeunit 31085 "Feature Advance Payments CZZ" implements "Feature Data Update"
                         CurrFactor := CustLedgerEntry."Original Currency Factor";
                         if CurrFactor = 0 then
                             CurrFactor := 1;
-                        SalesAdvLetterManagement.AdvEntryInit(false);
+                        SalesAdvLetterManagementCZZ.AdvEntryInit(false);
                         if SalesAdvanceLetterEntry1.Cancelled then
-                            SalesAdvLetterManagement.AdvEntryInitCancel();
-                        SalesAdvLetterManagement.AdvEntryInitCustLedgEntryNo(SalesAdvanceLetterEntry1."Customer Entry No.");
-                        SalesAdvLetterManagement.AdvEntryInitRelatedEntry(SalesAdvLetterEntryCZZ1."Entry No.");
-                        SalesAdvLetterManagement.AdvEntryInsert("Advance Letter Entry Type CZZ"::Usage, SalesAdvLetterHeaderCZZ."No.", SalesAdvanceLetterEntry1."Posting Date",
+                            SalesAdvLetterManagementCZZ.AdvEntryInitCancel();
+                        SalesAdvLetterManagementCZZ.AdvEntryInitCustLedgEntryNo(SalesAdvanceLetterEntry1."Customer Entry No.");
+                        SalesAdvLetterManagementCZZ.AdvEntryInitRelatedEntry(SalesAdvLetterEntryCZZ1."Entry No.");
+                        SalesAdvLetterManagementCZZ.AdvEntryInsert("Advance Letter Entry Type CZZ"::Usage, SalesAdvLetterHeaderCZZ."No.", SalesAdvanceLetterEntry1."Posting Date",
                             SalesAdvanceLetterEntry1.Amount, Round(SalesAdvanceLetterEntry1.Amount / CurrFactor),
                             SalesAdvanceLetterEntry1."Currency Code", CustLedgerEntry."Original Currency Factor", SalesAdvanceLetterEntry1."Document No.",
                             CustLedgerEntry."Global Dimension 1 Code", CustLedgerEntry."Global Dimension 2 Code", CustLedgerEntry."Dimension Set ID", false);
@@ -731,14 +752,14 @@ Codeunit 31085 "Feature Advance Payments CZZ" implements "Feature Data Update"
                         SalesAdvanceLetterEntry2.SetRange("Customer Entry No.", SalesAdvanceLetterEntry1."Customer Entry No.");
                         if SalesAdvanceLetterEntry2.FindSet() then
                             repeat
-                                SalesAdvLetterManagement.AdvEntryInit(false);
+                                SalesAdvLetterManagementCZZ.AdvEntryInit(false);
                                 if SalesAdvanceLetterEntry2.Cancelled then
-                                    SalesAdvLetterManagement.AdvEntryInitCancel();
-                                SalesAdvLetterManagement.AdvEntryInitRelatedEntry(SalesAdvLetterEntryCZZ2."Entry No.");
-                                SalesAdvLetterManagement.AdvEntryInitVAT(SalesAdvanceLetterEntry2."VAT Bus. Posting Group", SalesAdvanceLetterEntry2."VAT Prod. Posting Group", SalesAdvanceLetterEntry2."VAT Date",
+                                    SalesAdvLetterManagementCZZ.AdvEntryInitCancel();
+                                SalesAdvLetterManagementCZZ.AdvEntryInitRelatedEntry(SalesAdvLetterEntryCZZ2."Entry No.");
+                                SalesAdvLetterManagementCZZ.AdvEntryInitVAT(SalesAdvanceLetterEntry2."VAT Bus. Posting Group", SalesAdvanceLetterEntry2."VAT Prod. Posting Group", SalesAdvanceLetterEntry2."VAT Date",
                                     SalesAdvanceLetterEntry2."VAT Entry No.", SalesAdvanceLetterEntry2."VAT %", SalesAdvanceLetterEntry2."VAT Identifier", "TAX Calculation Type"::"Normal VAT",
                                     SalesAdvanceLetterEntry2."VAT Amount", SalesAdvanceLetterEntry2."VAT Amount (LCY)", SalesAdvanceLetterEntry2."VAT Base Amount", SalesAdvanceLetterEntry2."VAT Base Amount (LCY)");
-                                SalesAdvLetterManagement.AdvEntryInsert("Advance Letter Entry Type CZZ"::"VAT Usage", SalesAdvLetterHeaderCZZ."No.", SalesAdvanceLetterEntry2."Posting Date",
+                                SalesAdvLetterManagementCZZ.AdvEntryInsert("Advance Letter Entry Type CZZ"::"VAT Usage", SalesAdvLetterHeaderCZZ."No.", SalesAdvanceLetterEntry2."Posting Date",
                                     SalesAdvanceLetterEntry2."VAT Base Amount" + SalesAdvanceLetterEntry2."VAT Amount", SalesAdvanceLetterEntry2."VAT Base Amount (LCY)" + SalesAdvanceLetterEntry2."VAT Amount (LCY)",
                                     SalesAdvanceLetterEntry2."Currency Code", CustLedgerEntry."Original Currency Factor", SalesAdvanceLetterEntry2."Document No.",
                                     CustLedgerEntry."Global Dimension 1 Code", CustLedgerEntry."Global Dimension 2 Code", CustLedgerEntry."Dimension Set ID", false);
@@ -747,14 +768,14 @@ Codeunit 31085 "Feature Advance Payments CZZ" implements "Feature Data Update"
                         SalesAdvanceLetterEntry2.SetRange("Entry Type", SalesAdvanceLetterEntry2."Entry Type"::"VAT Rate");
                         if SalesAdvanceLetterEntry2.FindSet() then
                             repeat
-                                SalesAdvLetterManagement.AdvEntryInit(false);
+                                SalesAdvLetterManagementCZZ.AdvEntryInit(false);
                                 if SalesAdvanceLetterEntry2.Cancelled then
-                                    SalesAdvLetterManagement.AdvEntryInitCancel();
-                                SalesAdvLetterManagement.AdvEntryInitRelatedEntry(SalesAdvLetterEntryCZZ2."Entry No.");
-                                SalesAdvLetterManagement.AdvEntryInitVAT(SalesAdvanceLetterEntry2."VAT Bus. Posting Group", SalesAdvanceLetterEntry2."VAT Prod. Posting Group", SalesAdvanceLetterEntry2."VAT Date",
+                                    SalesAdvLetterManagementCZZ.AdvEntryInitCancel();
+                                SalesAdvLetterManagementCZZ.AdvEntryInitRelatedEntry(SalesAdvLetterEntryCZZ2."Entry No.");
+                                SalesAdvLetterManagementCZZ.AdvEntryInitVAT(SalesAdvanceLetterEntry2."VAT Bus. Posting Group", SalesAdvanceLetterEntry2."VAT Prod. Posting Group", SalesAdvanceLetterEntry2."VAT Date",
                                     0, SalesAdvanceLetterEntry2."VAT %", SalesAdvanceLetterEntry2."VAT Identifier", "TAX Calculation Type"::"Normal VAT",
                                     0, SalesAdvanceLetterEntry2."VAT Amount (LCY)", 0, SalesAdvanceLetterEntry2."VAT Base Amount (LCY)");
-                                SalesAdvLetterManagement.AdvEntryInsert("Advance Letter Entry Type CZZ"::"VAT Rate", SalesAdvLetterHeaderCZZ."No.", SalesAdvanceLetterEntry2."Posting Date",
+                                SalesAdvLetterManagementCZZ.AdvEntryInsert("Advance Letter Entry Type CZZ"::"VAT Rate", SalesAdvLetterHeaderCZZ."No.", SalesAdvanceLetterEntry2."Posting Date",
                                     0, SalesAdvanceLetterEntry2."VAT Base Amount (LCY)" + SalesAdvanceLetterEntry2."VAT Amount (LCY)", '', 0, SalesAdvanceLetterEntry2."Document No.",
                                     CustLedgerEntry."Global Dimension 1 Code", CustLedgerEntry."Global Dimension 2 Code", CustLedgerEntry."Dimension Set ID", false);
                             until SalesAdvanceLetterEntry2.Next() = 0;
@@ -764,6 +785,19 @@ Codeunit 31085 "Feature Advance Payments CZZ" implements "Feature Data Update"
                 AdvanceLink."Amount (LCY)" := 0;
                 AdvanceLink.Modify(false);
             until AdvanceLink.Next() = 0;
+
+        if SalesAdvLetterHeaderCZZ.Status = SalesAdvLetterHeaderCZZ.Status::Closed then begin
+            SalesAdvLetterHeaderCZZ.CalcFields("To Use", "To Use (LCY)");
+            if (SalesAdvLetterHeaderCZZ."To Use" <> 0) or (SalesAdvLetterHeaderCZZ."To Use (LCY)" <> 0) then begin
+                if LastClosedDate = 0D then
+                    LastClosedDate := SalesAdvLetterHeaderCZZ."Posting Date";
+                SalesAdvLetterManagementCZZ.AdvEntryInit(false);
+                SalesAdvLetterManagementCZZ.AdvEntryInsert("Advance Letter Entry Type CZZ"::Close, SalesAdvLetterHeaderCZZ."No.", LastClosedDate,
+                    -SalesAdvLetterHeaderCZZ."To Use", -SalesAdvLetterHeaderCZZ."To Use (LCY)",
+                    SalesAdvLetterHeaderCZZ."Currency Code", SalesAdvLetterHeaderCZZ."Currency Factor", SalesAdvLetterHeaderCZZ."No.",
+                    SalesAdvLetterHeaderCZZ."Shortcut Dimension 1 Code", SalesAdvLetterHeaderCZZ."Shortcut Dimension 2 Code", SalesAdvLetterHeaderCZZ."Dimension Set ID", false);
+            end;
+        end;
     end;
 
     local procedure UpdateSalesAdvanceApplication(var SalesAdvLetterHeaderCZZ: Record "Sales Adv. Letter Header CZZ")
@@ -951,7 +985,7 @@ Codeunit 31085 "Feature Advance Payments CZZ" implements "Feature Data Update"
                     VendorLedgerEntry.Validate("Advance Letter No. CZZ", PurchAdvanceLetterEntry."Letter No.");
                     VendorLedgerEntry.Validate("Adv. Letter Template Code CZZ", 'N_' + PurchAdvanceLetterEntry."Template Name");
                 end else begin
-                    AdvanceLink.SetRange("CV Ledger Entry No.", CustLedgerEntry."Entry No.");
+                    AdvanceLink.SetRange("CV Ledger Entry No.", VendorLedgerEntry."Entry No.");
                     AdvanceLink.SetRange(Type, AdvanceLink.Type::Purchase);
                     AdvanceLink.SetRange("Entry Type", AdvanceLink."Entry Type"::"Link To Letter");
                     if AdvanceLink.FindFirst() and (AdvanceLink.Count() = 1) then begin
@@ -971,7 +1005,7 @@ Codeunit 31085 "Feature Advance Payments CZZ" implements "Feature Data Update"
                                 AppliedVendorLedgerEntry.Modify();
                             end;
                     AppliedVendorLedgerEntry.SetCurrentKey("Closed by Entry No.");
-                    AppliedVendorLedgerEntry.SetRange("Closed by Entry No.", CustLedgerEntry."Entry No.");
+                    AppliedVendorLedgerEntry.SetRange("Closed by Entry No.", VendorLedgerEntry."Entry No.");
                     if AppliedVendorLedgerEntry.FindSet(true) then
                         repeat
                             if AppliedVendorLedgerEntry."Advance Letter No. CZZ" = '' then begin
@@ -1053,7 +1087,7 @@ Codeunit 31085 "Feature Advance Payments CZZ" implements "Feature Data Update"
         PaymentOrderLine.SetFilter("Letter No.", '<>%1', '');
         if PaymentOrderLine.FindSet() then
             repeat
-                if PaymentOrderLineCZB.Get(PaymentOrderLine."No.", PaymentOrderLine."Line No.") then begin
+                if PaymentOrderLineCZB.Get(PaymentOrderLine."Payment Order No.", PaymentOrderLine."Line No.") then begin
                     PaymentOrderLineCZB."Purch. Advance Letter No. CZZ" := PaymentOrderLine."Letter No.";
                     PaymentOrderLineCZB.Modify(false);
                 end;
@@ -1071,7 +1105,7 @@ Codeunit 31085 "Feature Advance Payments CZZ" implements "Feature Data Update"
         IssuedPaymentOrderLine.SetFilter("Letter No.", '<>%1', '');
         if IssuedPaymentOrderLine.FindSet() then
             repeat
-                if IssPaymentOrderLineCZB.Get(IssuedPaymentOrderLine."No.", IssuedPaymentOrderLine."Line No.") then begin
+                if IssPaymentOrderLineCZB.Get(IssuedPaymentOrderLine."Payment Order No.", IssuedPaymentOrderLine."Line No.") then begin
                     IssPaymentOrderLineCZB."Purch. Advance Letter No. CZZ" := IssuedPaymentOrderLine."Letter No.";
                     IssPaymentOrderLineCZB.Modify(false);
                 end;
@@ -1181,22 +1215,71 @@ Codeunit 31085 "Feature Advance Payments CZZ" implements "Feature Data Update"
 
     local procedure UpdateIncomingDocument(FeatureDataUpdateStatus: Record "Feature Data Update Status")
     var
+        PrevIncomingDocument: Record "Incoming Document";
         StartDateTime: DateTime;
     begin
         StartDateTime := CurrentDateTime();
         IncomingDocument.Reset();
         IncomingDocument.SetRange("Document Type", IncomingDocument."Document Type"::"Sales Advance", IncomingDocument."Document Type"::"Purchase Advance");
-        if IncomingDocument.FindSet() then
+        if IncomingDocument.FindSet(true) then
             repeat
-                case IncomingDocument."Document Type" of
-                    IncomingDocument."Document Type"::"Sales Advance":
-                        IncomingDocument."Document Type" := IncomingDocument."Document Type"::"Sales Advance CZZ";
-                    IncomingDocument."Document Type"::"Purchase Advance":
-                        IncomingDocument."Document Type" := IncomingDocument."Document Type"::"Purchase Advance CZZ";
-                end;
-                IncomingDocument.Modify(false);
+                PrevIncomingDocument := IncomingDocument;
+                IncomingDocument."Related Record ID" := GetRelatedRecordId();
+                IncomingDocument."Document Type" := GetDocumentType();
+                if (IncomingDocument."Related Record ID" <> PrevIncomingDocument."Related Record ID") or
+                   (IncomingDocument."Document Type" <> PrevIncomingDocument."Document Type")
+                then
+                    IncomingDocument.Modify(false);
             until IncomingDocument.Next() = 0;
         FeatureDataUpdateMgt.LogTask(FeatureDataUpdateStatus, IncomingDocument.TableCaption(), StartDateTime);
+    end;
+
+    local procedure GetRelatedRecordId(): RecordId
+    var
+        PurchAdvanceLetterHeader2: Record "Purch. Advance Letter Header";
+        PurchAdvLetterHeaderCZZ: Record "Purch. Adv. Letter Header CZZ";
+        SalesAdvanceLetterHeader2: Record "Sales Advance Letter Header";
+        SalesAdvLetterHeaderCZZ: Record "Sales Adv. Letter Header CZZ";
+        DataTypeManagement: Codeunit "Data Type Management";
+        RelatedRecordRef, NewRelatedRecordRef : RecordRef;
+        RelatedRecordVariant: Variant;
+    begin
+        if not IncomingDocument.GetRecord(RelatedRecordVariant) then
+            exit(IncomingDocument."Related Record ID");
+
+        DataTypeManagement.GetRecordRef(RelatedRecordVariant, RelatedRecordRef);
+        case RelatedRecordRef.Number of
+            Database::"Purch. Advance Letter Header":
+                begin
+                    RelatedRecordRef.SetTable(PurchAdvanceLetterHeader2);
+                    if PurchAdvLetterHeaderCZZ.Get(PurchAdvanceLetterHeader2."No.") then begin
+                        NewRelatedRecordRef.GetTable(PurchAdvLetterHeaderCZZ);
+                        exit(NewRelatedRecordRef.RecordId);
+                    end;
+                end;
+            Database::"Sales Advance Letter Header":
+                begin
+                    RelatedRecordRef.SetTable(SalesAdvanceLetterHeader2);
+                    if SalesAdvLetterHeaderCZZ.Get(SalesAdvanceLetterHeader2."No.") then begin
+                        NewRelatedRecordRef.GetTable(SalesAdvLetterHeaderCZZ);
+                        exit(NewRelatedRecordRef.RecordId);
+                    end;
+                end;
+            else
+                exit(IncomingDocument."Related Record ID");
+        end;
+    end;
+
+    local procedure GetDocumentType(): Enum "Incoming Related Document Type"
+    begin
+        case IncomingDocument."Document Type" of
+            Enum::"Incoming Related Document Type".FromInteger(6):
+                exit(IncomingDocument."Document Type"::"Sales Advance CZZ");
+            Enum::"Incoming Related Document Type".FromInteger(7):
+                exit(IncomingDocument."Document Type"::"Purchase Advance CZZ");
+            else
+                exit(IncomingDocument."Document Type");
+        end;
     end;
 
     [IntegrationEvent(false, false)]

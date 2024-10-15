@@ -189,7 +189,7 @@
                         if Find('-') then
                             repeat
                                 TempFailedReqLine := ReqLine;
-                                if not TempFailedReqLine.Find then
+                                if not TempFailedReqLine.Find() then
                                     Delete(true);
                             until Next() = 0;
 
@@ -211,7 +211,7 @@
                 end;
         end;
 
-        OnAfterCode(ReqLine, OrderLineCounter, OrderCounter);
+        OnAfterCode(ReqLine, OrderLineCounter, OrderCounter, PrintPurchOrders);
     end;
 
     local procedure CheckRunPrintPurchOrders()
@@ -647,6 +647,7 @@
 
             UpdateJobLink(PurchOrderLine, ReqLine2);
 
+            OnInsertPurchOrderLineOnBeforeTransferReqLine(PurchOrderHeader, PurchOrderLine);
             ReqLineReserve.TransferReqLineToPurchLine(ReqLine2, PurchOrderLine, "Quantity (Base)", false);
 
             DimensionSetIDArr[1] := PurchOrderLine."Dimension Set ID";
@@ -676,8 +677,8 @@
                 if not PurchOrderLine."Special Order" then
                     TestField("Sell-to Customer No.", SalesOrderLine."Sell-to Customer No.");
                 TestField(Type, SalesOrderLine.Type);
-
-                CheckRequsitionLineQuantity(ReqLine2);
+                if PurchOrderLine."Drop Shipment" then
+                    CheckRequsitionLineQuantity(ReqLine2);
                 TestField("No.", SalesOrderLine."No.");
                 TestField("Location Code", SalesOrderLine."Location Code");
                 TestField("Variant Code", SalesOrderLine."Variant Code");
@@ -744,6 +745,7 @@
         SalesHeader: Record "Sales Header";
         Vendor: Record Vendor;
         SpecialOrder: Boolean;
+        ShouldValidateSellToCustNo: Boolean;
     begin
         OnBeforeInsertHeader(ReqLine2, PurchOrderHeader, OrderDateReq, PostingDateReq, ReceiveDateReq, ReferenceReq);
 
@@ -763,7 +765,7 @@
             // NAVCZ
             PurchOrderHeader."No. Series" := NoSeries;
             // NAVCZ
-            OnBeforePurchOrderHeaderInsert(PurchOrderHeader, ReqLine2);
+            OnBeforePurchOrderHeaderInsert(PurchOrderHeader, ReqLine2, ReceiveDateReq);
             PurchOrderHeader.Insert(true);
             PurchOrderHeader."Your Reference" := ReferenceReq;
             PurchOrderHeader."Order Date" := OrderDateReq;
@@ -772,7 +774,10 @@
             if "Order Address Code" <> '' then
                 PurchOrderHeader.Validate("Order Address Code", "Order Address Code");
 
-            if "Sell-to Customer No." <> '' then
+
+            ShouldValidateSellToCustNo := "Sell-to Customer No." <> '';
+            OnInsertHeaderOnBeforeValidateSellToCustNoFromReqLine(PurchOrderHeader, ReqLine2, ShouldValidateSellToCustNo);
+            if ShouldValidateSellToCustNo then
                 PurchOrderHeader.Validate("Sell-to Customer No.", "Sell-to Customer No.");
 
             PurchOrderHeader.Validate("Currency Code", "Currency Code");
@@ -869,17 +874,14 @@
                         if not HideProgressWindow then
                             Window.Update(5, OrderLineCounter);
                     if ReqLine2."Order Date" <> 0D then begin
-                        ReqLine2.Validate(
-                        "Order Date",
-                        CalcDate(ReqLine2."Recurring Frequency", ReqLine2."Order Date"));
+                        ReqLine2.Validate("Order Date", CalcDate(ReqLine2."Recurring Frequency", ReqLine2."Order Date"));
                         ReqLine2.Validate("Currency Code", PurchOrderHeader."Currency Code");
                     end;
-                    if (ReqLine2."Recurring Method" = ReqLine2."Recurring Method"::Variable) and
-                    (ReqLine2."No." <> '')
-                    then begin
+                    if (ReqLine2."Recurring Method" = ReqLine2."Recurring Method"::Variable) and (ReqLine2."No." <> '') then begin
                         ReqLine2.Quantity := 0;
                         ReqLine2."Line Discount %" := 0;
                     end;
+                    OnFinalizeOrderHeaderOnLoopLinesBeforeModifyForRecurrReqLines(ReqLine2);
                     ReqLine2.Modify();
                 until ReqLine2.Next() = 0;
             end;
@@ -907,7 +909,7 @@
                     repeat
                         if PurchaseOrderLineMatchReqLine(ReqLine2) then begin
                             TempFailedReqLine := ReqLine2;
-                            if not TempFailedReqLine.Find then begin
+                            if not TempFailedReqLine.Find() then begin
                                 ReqLine2.SetReservationFilters(ReservEntry);
                                 ReservEntry.DeleteAll(true);
                                 ReqLine2.Delete(true);
@@ -920,11 +922,14 @@
         if not SuppressCommit then
             Commit();
 
-        if PrintPurchOrders then
-            if PurchOrderHeader.Get(PurchOrderHeader."Document Type", PurchOrderHeader."No.") then begin
-                TempPurchaseOrderToPrint := PurchOrderHeader;
-                TempPurchaseOrderToPrint.Insert();
-            end;
+        IsHandled := false;
+        OnFinalizeOrderHeaderOnBeforePrint(PrintPurchOrders, PurchOrderHeader, IsHandled);
+        if not IsHandled then
+            if PrintPurchOrders then
+                if PurchOrderHeader.Get(PurchOrderHeader."Document Type", PurchOrderHeader."No.") then begin
+                    TempPurchaseOrderToPrint := PurchOrderHeader;
+                    TempPurchaseOrderToPrint.Insert();
+                end;
 
         OnAfterFinalizeOrderHeaderProcedure(PurchOrderHeader, ReqLine);
     end;
@@ -1438,7 +1443,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePurchOrderHeaderInsert(var PurchaseHeader: Record "Purchase Header"; RequisitionLine: Record "Requisition Line")
+    local procedure OnBeforePurchOrderHeaderInsert(var PurchaseHeader: Record "Purchase Header"; RequisitionLine: Record "Requisition Line"; var ReceiveDateReq: Date)
     begin
     end;
 
@@ -1468,7 +1473,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCode(var RequisitionLine: Record "Requisition Line"; OrderLineCounter: Integer; OrderCounter: Integer)
+    local procedure OnAfterCode(var RequisitionLine: Record "Requisition Line"; OrderLineCounter: Integer; OrderCounter: Integer; PrintPurchOrders: Boolean)
     begin
     end;
 
@@ -1699,6 +1704,26 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckRequisitionLineOnEmptyNewActionMessageOnBeforeOtherCheck(var ReqLine2: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertPurchOrderLineOnBeforeTransferReqLine(var PurchOrderHeader: Record "Purchase Header"; PurchOrderLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertHeaderOnBeforeValidateSellToCustNoFromReqLine(PurchOrderHeader: Record "Purchase Header"; ReqLine2: Record "Requisition Line"; var ShouldValidateSellToCustNo: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinalizeOrderHeaderOnBeforePrint(PrintPurchOrders: Boolean; PurchOrderHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinalizeOrderHeaderOnLoopLinesBeforeModifyForRecurrReqLines(var ReqLine2: Record "Requisition Line")
     begin
     end;
 }

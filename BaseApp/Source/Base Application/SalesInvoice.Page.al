@@ -1066,7 +1066,8 @@ page 43 "Sales Invoice"
                 ApplicationArea = All;
                 SubPageLink = "Table ID" = CONST(36),
                               "Document Type" = FIELD("Document Type"),
-                              "Document No." = FIELD("No.");
+                              "Document No." = FIELD("No."),
+                              Status = const(Open);
                 Visible = OpenApprovalEntriesExistForCurrUser;
             }
             part(Control1903720907; "Sales Hist. Sell-to FactBox")

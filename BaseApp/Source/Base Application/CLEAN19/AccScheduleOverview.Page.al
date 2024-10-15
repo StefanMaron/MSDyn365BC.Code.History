@@ -1,4 +1,4 @@
-﻿#if CLEAN19
+#if CLEAN19
 page 490 "Acc. Schedule Overview"
 {
     Caption = 'Acc. Schedule Overview';
@@ -198,8 +198,8 @@ page 490 "Acc. Schedule Overview"
                         Result: Boolean;
                     begin
                         Result := DimValue.LookUpDimFilter(AnalysisView."Dimension 3 Code", Text);
-                        SetDimFilters(3, Text);
-                        Dim1Filter := text;
+                        SetDimFilters(3, CopyStr(Text, 1, MaxStrLen(Dim3Filter)));
+                        Dim3Filter := CopyStr(Text, 1, MaxStrLen(Dim3Filter));
                         Exit(Result);
                     end;
 
@@ -224,8 +224,8 @@ page 490 "Acc. Schedule Overview"
                         Result: Boolean;
                     begin
                         Result := DimValue.LookUpDimFilter(AnalysisView."Dimension 4 Code", Text);
-                        SetDimFilters(4, Text);
-                        Dim1Filter := text;
+                        SetDimFilters(4, CopyStr(Text, 1, MaxStrLen(Dim4Filter)));
+                        Dim4Filter := CopyStr(Text, 1, MaxStrLen(Dim4Filter));
                         Exit(Result);
                     end;
 
@@ -680,7 +680,7 @@ page 490 "Acc. Schedule Overview"
                     GLBudgetFilter2 := GetFilter("G/L Budget Filter");
                     CostBudgetFilter2 := GetFilter("Cost Budget Filter");
                     BusUnitFilter := GetFilter("Business Unit Filter");
-                    AccSched.SetFilters(DateFilter2, GLBudgetFilter2, CostBudgetFilter2, BusUnitFilter, Dim1Filter, Dim2Filter, Dim3Filter, Dim4Filter);
+                    AccSched.SetFilters(DateFilter2, GLBudgetFilter2, CostBudgetFilter2, BusUnitFilter, Dim1Filter, Dim2Filter, Dim3Filter, Dim4Filter, CashFlowFilter);
                     AccSched.Run();
                 end;
             }
@@ -805,7 +805,72 @@ page 490 "Acc. Schedule Overview"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Recalculate_Promoted; Recalculate)
+                {
+                }
+                actionref(RestoreFinRepFilters_Promoted; RestoreFinRepFilters)
+                {
+                }
+                actionref("Create New Document_Promoted"; "Create New Document")
+                {
+                }
+                actionref("Update Existing Document_Promoted"; "Update Existing Document")
+                {
+                }
+                actionref(Print_Promoted; Print)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Column', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(PreviousColumn_Promoted; PreviousColumn)
+                {
+                }
+                actionref(NextColumn_Promoted; NextColumn)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Period', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(PreviousPeriod_Promoted; PreviousPeriod)
+                {
+                }
+                actionref(NextPeriod_Promoted; NextPeriod)
+                {
+                }
+            }
+        }
     }
+
+    trigger OnClosePage()
+    begin
+        // In View mode without a Financial report, the page closes without saving anything
+        if ViewOnlyMode and (TempFinancialReport.Name = '') then
+            exit;
+        // In Edit mode changes are saved to the corresponding FinancialReport and the filters for this user are removed
+        if not ViewOnlyMode then begin
+            SaveStateToFinancialReport();
+            RemoveUserFilters();
+            exit;
+        end;
+        // In View mode with a Financial Report, if the user made changes, we save the changes made by the user to user filters
+        if StateHasUserChanges() then
+            SaveStateToUserFilters();
+    end;
 
     trigger OnAfterGetRecord()
     var

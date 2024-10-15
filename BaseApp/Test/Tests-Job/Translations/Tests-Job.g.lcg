@@ -1535,6 +1535,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT C Copy Job - NamedType JobWithManualNoNotCreatedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3438364934 - NamedType 2545975569" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Blocked Customer error was expected]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT T Job - NamedType BlockedCustomerExpectedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3438364934 - NamedType 431846035" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot create this type of document when Customer %1 is blocked with type %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Customer No, %2 - Blocked Type]D;]A;(LookupHint=Codeunit UT T Job - NamedType CustomerBlockedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3438364934 - NamedType 651857920" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect Source ID.]]></Val>

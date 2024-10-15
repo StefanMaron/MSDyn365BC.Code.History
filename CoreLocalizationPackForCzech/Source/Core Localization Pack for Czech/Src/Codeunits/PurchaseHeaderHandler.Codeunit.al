@@ -63,20 +63,14 @@ codeunit 11744 "Purchase Header Handler CZL"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnValidatePurchaseHeaderPayToVendorNoOnBeforeCheckDocType', '', false, false)]
-    local procedure UpdateBankInfoAndRegNosOnValidatePurchaseHeaderPayToVendorNo(var PurchaseHeader: Record "Purchase Header"; Vendor: Record Vendor)
-    var
-        CompanyInformation: Record "Company Information";
-        ResponsibilityCenter: Record "Responsibility Center";
+    local procedure UpdateBankInfoAndRegNosOnValidatePurchaseHeaderPayToVendorNo(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; Vendor: Record Vendor)
     begin
-        if PurchaseHeader.IsCreditDocType() then begin
-            if PurchaseHeader."Responsibility Center" = '' then begin
-                CompanyInformation.Get();
-                PurchaseHeader.Validate("Bank Account Code CZL", CompanyInformation."Default Bank Account Code CZL");
-            end else begin
-                ResponsibilityCenter.Get(PurchaseHeader."Responsibility Center");
-                PurchaseHeader.Validate("Bank Account Code CZL", ResponsibilityCenter."Default Bank Account Code CZL");
-            end;
-        end else
+        if PurchaseHeader.IsCreditDocType() and
+           ((PurchaseHeader."Currency Code" = xPurchaseHeader."Currency Code") or
+            (PurchaseHeader."Responsibility Center" <> xPurchaseHeader."Responsibility Center"))
+        then
+            PurchaseHeader.Validate("Bank Account Code CZL", PurchaseHeader.GetDefaulBankAccountNoCZL())
+        else
             PurchaseHeader.Validate("Bank Account Code CZL", Vendor."Preferred Bank Account Code");
         PurchaseHeader."Registration No. CZL" := Vendor."Registration No. CZL";
         PurchaseHeader."Tax Registration No. CZL" := Vendor."Tax Registration No. CZL";

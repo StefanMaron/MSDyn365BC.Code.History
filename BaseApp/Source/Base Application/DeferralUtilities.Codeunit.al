@@ -210,7 +210,7 @@ codeunit 1720 "Deferral Utilities"
 
         if GenJnlBatch.Get(DeferralHeader."Gen. Jnl. Template Name", DeferralHeader."Gen. Jnl. Batch Name") then
             GenJnlCheckLine.SetGenJnlBatch(GenJnlBatch);
-        if GenJnlCheckLine.DateNotAllowed(DeferralLine."Posting Date") then
+        if GenJnlCheckLine.DeferralPostingDateNotAllowed(DeferralLine."Posting Date") then
             Error(InvalidPostingDateErr, DeferralLine."Posting Date");
     end;
 

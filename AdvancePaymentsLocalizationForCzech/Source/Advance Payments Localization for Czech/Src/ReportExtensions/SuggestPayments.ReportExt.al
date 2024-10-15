@@ -58,6 +58,8 @@ reportextension 31000 "Suggest Payments CZZ" extends "Suggest Payments CZB"
                         IsSkippedBlocked := true;
                         CurrReport.Skip();
                     end;
+                    if (CalcSuggestedAmountToApply() <> 0) and not BankAccountCZZ."Payment Partial Suggestion CZB" then
+                        CurrReport.Skip();
 
                     AddPurchaseAdvanceCZZ("Purch. Adv. Letter Header CZZ");
                     if StopPayments then
@@ -91,24 +93,26 @@ reportextension 31000 "Suggest Payments CZZ" extends "Suggest Payments CZB"
         }
     }
 
+    trigger OnPreReport()
+    begin
+        BankAccountCZZ.Get(PaymentOrderHeaderCZB."Bank Account No.");
+#if not CLEAN19
+        AdvancePaymentsEnabledCZZ := AdvancePaymentsMgtCZZ.IsEnabled();
+#endif
+    end;
+
     var
+        BankAccountCZZ: Record "Bank Account";
 #if not CLEAN19
         AdvancePaymentsMgtCZZ: Codeunit "Advance Payments Mgt. CZZ";
         AdvancePaymentsEnabledCZZ: Boolean;
 #endif
         VendorAdvancesCZZ: Boolean;
 
-#if not CLEAN19
-    trigger OnPreReport()
-    begin
-        AdvancePaymentsEnabledCZZ := AdvancePaymentsMgtCZZ.IsEnabled();
-    end;
-#endif
-
     procedure AddPurchaseAdvanceCZZ(PurchAdvLetterHeaderCZZ: Record "Purch. Adv. Letter Header CZZ")
     begin
         PaymentOrderLineCZB.Init();
-        PaymentOrderLineCZB.Validate(PaymentOrderLineCZB."Payment Order No.", PaymentOrderHeaderCZB."No.");
+        PaymentOrderLineCZB.Validate("Payment Order No.", PaymentOrderHeaderCZB."No.");
         PaymentOrderLineCZB."Line No." := LineNo;
         LineNo += 10000;
 
@@ -116,13 +120,13 @@ reportextension 31000 "Suggest Payments CZZ" extends "Suggest Payments CZB"
         case CurrencyType of
             CurrencyType::" ":
                 if PaymentOrderLineCZB."Payment Order Currency Code" <> PurchAdvLetterHeaderCZZ."Currency Code" then
-                    PaymentOrderLineCZB.Validate(PaymentOrderLineCZB."Payment Order Currency Code", PurchAdvLetterHeaderCZZ."Currency Code");
+                    PaymentOrderLineCZB.Validate("Payment Order Currency Code", PurchAdvLetterHeaderCZZ."Currency Code");
             CurrencyType::"Payment Order":
                 if PaymentOrderLineCZB."Payment Order Currency Code" <> PaymentOrderHeaderCZB."Payment Order Currency Code" then
-                    PaymentOrderLineCZB.Validate(PaymentOrderLineCZB."Payment Order Currency Code", PaymentOrderHeaderCZB."Payment Order Currency Code");
+                    PaymentOrderLineCZB.Validate("Payment Order Currency Code", PaymentOrderHeaderCZB."Payment Order Currency Code");
             CurrencyType::"Bank Account":
                 if PaymentOrderLineCZB."Payment Order Currency Code" <> PaymentOrderHeaderCZB."Currency Code" then
-                    PaymentOrderLineCZB.Validate(PaymentOrderLineCZB."Payment Order Currency Code", PaymentOrderHeaderCZB."Currency Code");
+                    PaymentOrderLineCZB.Validate("Payment Order Currency Code", PaymentOrderHeaderCZB."Currency Code");
         end;
         PaymentOrderLineCZB.Validate("Purch. Advance Letter No. CZZ", PurchAdvLetterHeaderCZZ."No.");
         AddPaymentLine();

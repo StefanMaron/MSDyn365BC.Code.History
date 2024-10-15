@@ -1,4 +1,4 @@
-#if not CLEAN18
+﻿#if not CLEAN18
 codeunit 5703 "Catalog Item Management"
 {
 
@@ -28,6 +28,8 @@ codeunit 5703 "Catalog Item Management"
         ProgWindow: Dialog;
 
     procedure NonstockAutoItem(NonStock2: Record "Nonstock Item")
+    var
+        IsHandled: Boolean;
     begin
         OnBeforeNonstockAutoItem(NonStock2);
         CheckItemAlreadyExists(NonStock2);
@@ -44,8 +46,11 @@ codeunit 5703 "Catalog Item Management"
         CheckItemAlreadyExists(NonStock2);
 
         CreateNewItem(NonStock2."Item No.", NonStock2);
-        OnNonstockAutoItemOnAfterCreateNewItem(NewItem);
-        ShowItemCreatedMessage(NonStock2);
+
+        IsHandled := false;
+        OnNonstockAutoItemOnAfterCreateNewItem(NewItem, IsHandled);
+        if not IsHandled then
+            ShowItemCreatedMessage(NonStock2);
 
         if CheckLicensePermission(DATABASE::"Item Vendor") then
             NonstockItemVend(NonStock2);
@@ -95,6 +100,7 @@ codeunit 5703 "Catalog Item Management"
     procedure NonstockItemVend(NonStock2: Record "Nonstock Item")
     begin
         OnBeforeNonstockItemVend(NonStock2);
+
         ItemVend.SetRange("Item No.", NonStock2."Item No.");
         ItemVend.SetRange("Vendor No.", NonStock2."Vendor No.");
         if ItemVend.FindFirst() then
@@ -105,6 +111,8 @@ codeunit 5703 "Catalog Item Management"
         ItemVend."Vendor Item No." := NonStock2."Vendor Item No.";
         OnNonstockItemVendOnBeforeItemVendInsert(ItemVend, NonStock2);
         ItemVend.Insert(true);
+
+        OnAfterNonstockItemVend(NonStock2, ItemVend);
     end;
 
     procedure NonstockItemReference(var NonStock2: Record "Nonstock Item")
@@ -366,8 +374,12 @@ codeunit 5703 "Catalog Item Management"
     local procedure DelNonStockItem(var Item: Record Item)
     var
         SalesLineArch: Record "Sales Line Archive";
+        IsHandled: Boolean;
     begin
-        OnBeforeDelNonStockItem(Item);
+        IsHandled := false;
+        OnBeforeDelNonStockItem(Item, IsHandled);
+        if IsHandled then
+            exit;
 
         ItemLedgEntry.SetCurrentKey("Item No.");
         ItemLedgEntry.SetRange("Item No.", Item."No.");
@@ -445,15 +457,20 @@ codeunit 5703 "Catalog Item Management"
     procedure InsertItemUnitOfMeasure(UnitOfMeasureCode: Code[10]; ItemNo: Code[20])
     var
         ItemUnitOfMeasure: Record "Item Unit of Measure";
+        IsHandled: Boolean;
     begin
         OnBeforeInsertItemUnitOfMeasure(UnitOfMeasureCode, ItemNo);
         InsertUnitOfMeasure(UnitOfMeasureCode, ItemNo);
-        if not ItemUnitOfMeasure.Get(ItemNo, UnitOfMeasureCode) then begin
-            ItemUnitOfMeasure."Item No." := ItemNo;
-            ItemUnitOfMeasure.Code := UnitOfMeasureCode;
-            ItemUnitOfMeasure."Qty. per Unit of Measure" := 1;
-            ItemUnitOfMeasure.Insert();
-        end;
+
+        IsHandled := false;
+        OnInsertItemUnitOfMeasuresOnBeforeItemUnitOfMeasureGet(UnitOfMeasureCode, IsHandled);
+        If not IsHandled then
+            if not ItemUnitOfMeasure.Get(ItemNo, UnitOfMeasureCode) then begin
+                ItemUnitOfMeasure."Item No." := ItemNo;
+                ItemUnitOfMeasure.Code := UnitOfMeasureCode;
+                ItemUnitOfMeasure."Qty. per Unit of Measure" := 1;
+                ItemUnitOfMeasure.Insert();
+            end;
     end;
 
     local procedure InsertUnitOfMeasure(UnitOfMeasureCode: Code[10]; ItemNo: Code[20])
@@ -560,33 +577,45 @@ codeunit 5703 "Catalog Item Management"
         Item.Insert();
         ItemTemplMgt.InsertDimensions(Item."No.", NonstockItem."Item Templ. Code", Database::Item, Database::"Item Templ.");
 
-        OnAfterCreateNewItem(Item, NonstockItem);
+        OnAfterCreateNewItem(Item, NonstockItem, NewItem);
     end;
 
     local procedure InitItemFromTemplate(var Item: Record Item; NonstockItem: Record "Nonstock Item")
     var
         ItemTempl: Record "Item Templ.";
+        IsHandled: Boolean;
     begin
-        ItemTempl.Get(NonstockItem."Item Templ. Code");
-        Item."Inventory Posting Group" := ItemTempl."Inventory Posting Group";
-        Item."Costing Method" := ItemTempl."Costing Method";
-        Item."Gen. Prod. Posting Group" := ItemTempl."Gen. Prod. Posting Group";
-        Item."Tax Group Code" := ItemTempl."Tax Group Code";
-        Item."VAT Prod. Posting Group" := ItemTempl."VAT Prod. Posting Group";
-        Item."Item Disc. Group" := ItemTempl."Item Disc. Group";
-        Item."Item Category Code" := ItemTempl."Item Category Code";
-        Item."Reordering Policy" := ItemTempl."Reordering Policy";
+        IsHandled := false;
+        OnBeforeInitItemFromTemplate(Item, NonstockItem, IsHandled);
+        if not IsHandled then begin
+            ItemTempl.Get(NonstockItem."Item Templ. Code");
+            Item."Inventory Posting Group" := ItemTempl."Inventory Posting Group";
+            Item."Costing Method" := ItemTempl."Costing Method";
+            Item."Gen. Prod. Posting Group" := ItemTempl."Gen. Prod. Posting Group";
+            Item."Tax Group Code" := ItemTempl."Tax Group Code";
+            Item."VAT Prod. Posting Group" := ItemTempl."VAT Prod. Posting Group";
+            Item."Item Disc. Group" := ItemTempl."Item Disc. Group";
+            Item."Item Category Code" := ItemTempl."Item Category Code";
+            Item."Reordering Policy" := ItemTempl."Reordering Policy";
 
-        OnAfterInitItemFromTemplate(Item, ItemTempl, NonstockItem);
+            OnAfterInitItemFromTemplate(Item, ItemTempl, NonstockItem);
+        end;
     end;
 
     local procedure CheckItemTemplateCode(NonstockItem: Record "Nonstock Item")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckItemTemplateCode(NonstockItem, IsHandled);
+        If IsHandled then
+            exit;
+
         NonstockItem.TestField("Item Templ. Code");
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateNewItem(var Item: Record Item; NonstockItem: Record "Nonstock Item")
+    local procedure OnAfterCreateNewItem(var Item: Record Item; NonstockItem: Record "Nonstock Item"; var NewItem: Record Item)
     begin
     end;
 
@@ -636,6 +665,11 @@ codeunit 5703 "Catalog Item Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterNonstockItemVend(NonStockItem: Record "Nonstock Item"; var ItemVendor: Record "Item Vendor")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeNonstockItemVend(NonStockItem: Record "Nonstock Item")
     begin
     end;
@@ -659,7 +693,7 @@ codeunit 5703 "Catalog Item Management"
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDelNonStockItem(var Item: Record Item)
+    local procedure OnBeforeDelNonStockItem(var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 
@@ -717,7 +751,7 @@ codeunit 5703 "Catalog Item Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnNonstockAutoItemOnAfterCreateNewItem(var NewItem: Record Item)
+    local procedure OnNonstockAutoItemOnAfterCreateNewItem(var NewItem: Record Item; var IsHandled: Boolean)
     begin
     end;
 
@@ -763,6 +797,21 @@ codeunit 5703 "Catalog Item Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateNewItemOnBeforeItemInsert(var Item: Record Item; NonstockItem: Record "Nonstock Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertItemUnitOfMeasuresOnBeforeItemUnitOfMeasureGet(UnitOfMeasureCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckItemTemplateCode(var NonstockItem: Record "Nonstock Item"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitItemFromTemplate(var Item: Record Item; NonstockItem: Record "Nonstock Item"; var IsHandled: Boolean)
     begin
     end;
 }

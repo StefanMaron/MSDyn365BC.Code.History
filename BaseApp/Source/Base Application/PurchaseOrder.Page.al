@@ -1009,7 +1009,8 @@ page 50 "Purchase Order"
                 ApplicationArea = Suite;
                 SubPageLink = "Table ID" = CONST(38),
                               "Document Type" = FIELD("Document Type"),
-                              "Document No." = FIELD("No.");
+                              "Document No." = FIELD("No."),
+                              Status = const(Open);
                 Visible = OpenApprovalEntriesExistForCurrUser;
             }
             part(Control1903326807; "Item Replenishment FactBox")

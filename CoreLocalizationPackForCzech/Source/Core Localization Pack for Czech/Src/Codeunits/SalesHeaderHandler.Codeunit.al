@@ -45,20 +45,14 @@ codeunit 11743 "Sales Header Handler CZL"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterSetFieldsBilltoCustomer', '', false, false)]
-    local procedure UpdateBankInfoAndRegNosOnAfterSetFieldsBilltoCustomer(var SalesHeader: Record "Sales Header"; Customer: Record Customer)
-    var
-        CompanyInformation: Record "Company Information";
-        ResponsibilityCenter: Record "Responsibility Center";
+    local procedure UpdateBankInfoAndRegNosOnAfterSetFieldsBilltoCustomer(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; Customer: Record Customer)
     begin
-        if not SalesHeader.IsCreditDocType() then begin
-            if SalesHeader."Responsibility Center" = '' then begin
-                CompanyInformation.Get();
-                SalesHeader.Validate("Bank Account Code CZL", CompanyInformation."Default Bank Account Code CZL");
-            end else begin
-                ResponsibilityCenter.Get(SalesHeader."Responsibility Center");
-                SalesHeader.Validate("Bank Account Code CZL", ResponsibilityCenter."Default Bank Account Code CZL");
-            end;
-        end else
+        if not SalesHeader.IsCreditDocType() and
+           ((SalesHeader."Currency Code" = xSalesHeader."Currency Code") or
+            (SalesHeader."Responsibility Center" <> xSalesHeader."Responsibility Center"))
+        then
+            SalesHeader.Validate("Bank Account Code CZL", SalesHeader.GetDefaulBankAccountNoCZL())
+        else
             SalesHeader.Validate("Bank Account Code CZL", Customer."Preferred Bank Account Code");
         SalesHeader."Registration No. CZL" := Customer."Registration No. CZL";
         SalesHeader."Tax Registration No. CZL" := Customer."Tax Registration No. CZL";
@@ -81,13 +75,6 @@ codeunit 11743 "Sales Header Handler CZL"
     local procedure UpdateOnAfterCopyShipToCustomerAddressFieldsFromCustomer(var SalesHeader: Record "Sales Header"; SellToCustomer: Record Customer)
     begin
         SalesHeader."VAT Country/Region Code" := SellToCustomer."Country/Region Code";
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterSetFieldsBilltoCustomer', '', false, false)]
-    local procedure UpdateRegNoOnAfterSetFieldsBilltoCustomer(var SalesHeader: Record "Sales Header"; Customer: Record Customer)
-    begin
-        SalesHeader."Registration No. CZL" := Customer."Registration No. CZL";
-        SalesHeader."Tax Registration No. CZL" := Customer."Tax Registration No. CZL";
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnBeforeValidateEvent', 'EU 3-Party Trade', false, false)]

@@ -388,7 +388,8 @@ report 25 "Account Schedule"
 
                             trigger OnValidate()
                             begin
-                                ValidateStartEndDate;
+                                UseHiddenFilters := false;
+                                ValidateStartEndDate();
                             end;
                         }
                         field(EndDate; EndDate)
@@ -401,7 +402,8 @@ report 25 "Account Schedule"
 
                             trigger OnValidate()
                             begin
-                                ValidateStartEndDate;
+                                UseHiddenFilters := false;
+                                ValidateStartEndDate();
                             end;
                         }
                         field(GLBudgetFilter; GLBudgetName)
@@ -415,6 +417,7 @@ report 25 "Account Schedule"
 
                             trigger OnValidate()
                             begin
+                                UseHiddenFilters := false;
                                 GLBudgetFilter := GLBudgetName;
                                 "Acc. Schedule Line".SetRange("G/L Budget Filter", GLBudgetFilter);
                                 GLBudgetFilter := "Acc. Schedule Line".GetFilter("G/L Budget Filter");
@@ -431,6 +434,7 @@ report 25 "Account Schedule"
 
                             trigger OnValidate()
                             begin
+                                UseHiddenFilters := false;
                                 "Acc. Schedule Line".SetFilter("Cost Budget Filter", CostBudgetFilter);
                                 CostBudgetFilter := "Acc. Schedule Line".GetFilter("Cost Budget Filter");
                             end;
@@ -447,6 +451,7 @@ report 25 "Account Schedule"
 
                             trigger OnValidate()
                             begin
+                                UseHiddenFilters := false;
                                 "Acc. Schedule Line".SetFilter("Business Unit Filter", BusinessUnitFilter);
                                 BusinessUnitFilter := "Acc. Schedule Line".GetFilter("Business Unit Filter");
                             end;
@@ -524,6 +529,11 @@ report 25 "Account Schedule"
                             begin
                                 exit(FormLookUpDimFilter(AnalysisView."Dimension 1 Code", Text));
                             end;
+
+                            trigger OnValidate()
+                            begin
+                                UseHiddenFilters := false;
+                            end;
                         }
                         field(Dim2Filter; Dim2Filter)
                         {
@@ -537,6 +547,11 @@ report 25 "Account Schedule"
                             trigger OnLookup(var Text: Text): Boolean
                             begin
                                 exit(FormLookUpDimFilter(AnalysisView."Dimension 2 Code", Text));
+                            end;
+
+                            trigger OnValidate()
+                            begin
+                                UseHiddenFilters := false;
                             end;
                         }
                         field(Dim3Filter; Dim3Filter)
@@ -552,6 +567,11 @@ report 25 "Account Schedule"
                             begin
                                 exit(FormLookUpDimFilter(AnalysisView."Dimension 3 Code", Text));
                             end;
+
+                            trigger OnValidate()
+                            begin
+                                UseHiddenFilters := false;
+                            end;
                         }
                         field(Dim4Filter; Dim4Filter)
                         {
@@ -565,6 +585,11 @@ report 25 "Account Schedule"
                             trigger OnLookup(var Text: Text): Boolean
                             begin
                                 exit(FormLookUpDimFilter(AnalysisView."Dimension 4 Code", Text));
+                            end;
+
+                            trigger OnValidate()
+                            begin
+                                UseHiddenFilters := false;
                             end;
                         }
                         field(CostCenterFilter; CostCenterFilter)
@@ -580,6 +605,11 @@ report 25 "Account Schedule"
                             begin
                                 exit(CostCenter.LookupCostCenterFilter(Text));
                             end;
+
+                            trigger OnValidate()
+                            begin
+                                UseHiddenFilters := false;
+                            end;
                         }
                         field(CostObjectFilter; CostObjectFilter)
                         {
@@ -594,6 +624,11 @@ report 25 "Account Schedule"
                             begin
                                 exit(CostObject.LookupCostObjectFilter(Text));
                             end;
+
+                            trigger OnValidate()
+                            begin
+                                UseHiddenFilters := false;
+                            end;
                         }
                         field(CashFlowFilter; CashFlowFilter)
                         {
@@ -607,6 +642,11 @@ report 25 "Account Schedule"
                                 CashFlowForecast: Record "Cash Flow Forecast";
                             begin
                                 exit(CashFlowForecast.LookupCashFlowFilter(Text));
+                            end;
+
+                            trigger OnValidate()
+                            begin
+                                UseHiddenFilters := false;
                             end;
                         }
                     }
@@ -633,6 +673,7 @@ report 25 "Account Schedule"
             TransferValues;
             UpdateFilters; // NAVCZ
             RequestPageOpen := true; // NAVCZ
+            ContextInitialized := true;
             if AccSchedName <> '' then
                 if (ColumnLayoutName = '') or not AccSchedNameEditable then
                     ValidateAccSchedName;
@@ -696,6 +737,7 @@ report 25 "Account Schedule"
         Dim4FilterHidden: Text;
         CostCenterFilter: Text;
         CostObjectFilter: Text;
+        CashFlowFilterHidden: Text;
         CashFlowFilter: Text;
         FiscalStartDate: Date;
         ColumnHeaderArrayText: array[5] of Text[30];
@@ -752,6 +794,7 @@ report 25 "Account Schedule"
         PadChar: Char;
         PadString: Text;
         RequestPageOpen: Boolean;
+        ContextInitialized: Boolean;
 
     local procedure CalcColumnValueAsText(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var ValueIsEmpty: Boolean): Text[30]
     var
@@ -923,6 +966,22 @@ report 25 "Account Schedule"
         Dim3FilterHidden := NewDim3Filter;
         Dim4FilterHidden := NewDim4Filter;
         UseHiddenFilters := true;
+        ContextInitialized := false;
+        OnAfterSetFilters(AccScheduleName, CostCenterFilter, CostObjectFilter, CashFlowFilter, CurrReport.UseRequestPage());
+    end;
+
+    procedure SetFilters(NewDateFilter: Text; NewBudgetFilter: Text; NewCostBudgetFilter: Text; NewBusUnitFilter: Text; NewDim1Filter: Text; NewDim2Filter: Text; NewDim3Filter: Text; NewDim4Filter: Text; CashFlowFilter: Text)
+    begin
+        DateFilterHidden := NewDateFilter;
+        GLBudgetFilterHidden := NewBudgetFilter;
+        CostBudgetFilterHidden := NewCostBudgetFilter;
+        BusinessUnitFilterHidden := NewBusUnitFilter;
+        Dim1FilterHidden := NewDim1Filter;
+        Dim2FilterHidden := NewDim2Filter;
+        Dim3FilterHidden := NewDim3Filter;
+        Dim4FilterHidden := NewDim4Filter;
+        CashFlowFilterHidden := CashFlowFilter;
+        UseHiddenFilters := true;
         OnAfterSetFilters(AccScheduleName, CostCenterFilter, CostObjectFilter, CashFlowFilter, CurrReport.UseRequestPage());
     end;
 
@@ -952,7 +1011,8 @@ report 25 "Account Schedule"
         DimValList.SetTableView(DimVal);
         if DimValList.RunModal = ACTION::LookupOK then begin
             DimValList.GetRecord(DimVal);
-            Text := DimValList.GetSelectionFilter;
+            Text := DimValList.GetSelectionFilter();
+            UseHiddenFilters := false;
             exit(true);
         end;
         exit(false)
@@ -1000,26 +1060,30 @@ report 25 "Account Schedule"
         BusinessUnitFilterVisible := not BusinessUnit.IsEmpty;
         if not UseAmtsInAddCurrVisible then
             UseAmtsInAddCurr := false;
-        if AccSchedNameHidden <> '' then
-            AccSchedName := AccSchedNameHidden;
-        if ColumnLayoutNameHidden <> '' then
-            ColumnLayoutName := ColumnLayoutNameHidden;
-        if DateFilterHidden <> '' then
-            DateFilter := DateFilterHidden;
-        if GLBudgetFilterHidden <> '' then
-            GLBudgetFilter := GLBudgetFilterHidden;
-        if CostBudgetFilterHidden <> '' then
-            CostBudgetFilter := CostBudgetFilterHidden;
-        if BusinessUnitFilterHidden <> '' then
-            BusinessUnitFilter := BusinessUnitFilterHidden;
-        if Dim1FilterHidden <> '' then
-            Dim1Filter := Dim1FilterHidden;
-        if Dim2FilterHidden <> '' then
-            Dim2Filter := Dim2FilterHidden;
-        if Dim3FilterHidden <> '' then
-            Dim3Filter := Dim3FilterHidden;
-        if Dim4FilterHidden <> '' then
-            Dim4Filter := Dim4FilterHidden;
+        if not ContextInitialized then begin
+            if AccSchedNameHidden <> '' then
+                AccSchedName := AccSchedNameHidden;
+            if ColumnLayoutNameHidden <> '' then
+                ColumnLayoutName := ColumnLayoutNameHidden;
+            if DateFilterHidden <> '' then
+                DateFilter := DateFilterHidden;
+            if GLBudgetFilterHidden <> '' then
+                GLBudgetFilter := GLBudgetFilterHidden;
+            if CostBudgetFilterHidden <> '' then
+                CostBudgetFilter := CostBudgetFilterHidden;
+            if BusinessUnitFilterHidden <> '' then
+                BusinessUnitFilter := BusinessUnitFilterHidden;
+            if Dim1FilterHidden <> '' then
+                Dim1Filter := Dim1FilterHidden;
+            if Dim2FilterHidden <> '' then
+                Dim2Filter := Dim2FilterHidden;
+            if Dim3FilterHidden <> '' then
+                Dim3Filter := Dim3FilterHidden;
+            if Dim4FilterHidden <> '' then
+                Dim4Filter := Dim4FilterHidden;
+            if CashFlowFilterHidden <> '' then
+                CashFlowFilter := CashFlowFilterHidden;                
+        end;
 
         if AccSchedName <> '' then
             if not AccScheduleName.Get(AccSchedName) then
@@ -1052,6 +1116,7 @@ report 25 "Account Schedule"
             Dim2Filter := Dim2FilterHidden;
             Dim3Filter := Dim3FilterHidden;
             Dim4Filter := Dim4FilterHidden;
+            CashFlowFilter := CashFlowFilterHidden;
         end else begin
             if EndDate = 0D then
                 EndDate := WorkDate;

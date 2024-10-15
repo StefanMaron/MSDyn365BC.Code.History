@@ -45,6 +45,7 @@ codeunit 134123 "Price List Line UT"
         SourceNoMustBeBlankErr: Label 'Assign-to No. must be equal to ''''';
         CannotDeleteActivePriceListLineErr: Label 'You cannot delete the active price list line %1 %2.', Comment = '%1 - the price list code, %2 - line no';
         SourceGroupJobErr: Label 'Source Group must be equal to ''Job''';
+        OutOfSyncNotificationMsg: Label 'We have detected that price list lines exists, which are out of sync. We have disabled the new lookups to prevent issues.';
         IsInitialized: Boolean;
 
     [Test]
@@ -3023,6 +3024,296 @@ codeunit 134123 "Price List Line UT"
     end;
 
     [Test]
+    procedure PriceListLineSyncShouldFixOutOfSyncPriceListLines()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        PriceListLineSync: Codeunit "Price List Line Sync";
+        i: Integer;
+    begin
+        Initialize(true);
+
+        // [GIVEN] An item with a variant.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+
+        // [GIVEN] A job with job task.
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] A price List for the job with lines for the item that are not in sync.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, PriceListHeader."Source Type"::"Job Task",
+            Job."No.", JobTask."Job Task No."
+        );
+
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[1], PriceListHeader.Code, "Price Type"::Sale, "Price Source Type"::"Job Task", Job."No.",
+            JobTask."Job Task No.", "Price Amount Type"::Price, "Price Asset Type"::Item, Item."No.");
+        PriceListLine[1].Validate("Variant Code", ItemVariant.Code);
+
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[2], PriceListHeader.Code, "Price Type"::Sale, "Price Source Type"::"Job Task", Job."No.",
+            JobTask."Job Task No.", "Price Amount Type"::Price, "Price Asset Type"::Item, Item."No.");
+        PriceListLine[2].Validate("Variant Code", ItemVariant.Code);
+
+        for i := 1 to 2 do begin
+            PriceListLine[i]."Assign-to No." := '';
+            PriceListLine[i]."Assign-to Parent No." := '';
+            PriceListLine[i]."Product No." := '';
+            PriceListLine[i]."Variant Code Lookup" := '';
+            PriceListLine[i]."Unit of Measure Code Lookup" := '';
+            PriceListLine[i].Modify();
+        end;
+
+        // [WHEN] Running "Price List Line Sync".
+        PriceListLineSync.Run();
+
+        // [THEN] Price lines are synced.
+        for i := 1 to 2 do begin
+            PriceListLine[i].Get(PriceListLine[i].RecordId());
+            PriceListLine[i].TestField("Assign-to No.", PriceListLine[i]."Source No.");
+            PriceListLine[i].TestField("Assign-to Parent No.", PriceListLine[i]."Parent Source No.");
+            PriceListLine[i].TestField("Product No.", PriceListLine[i]."Asset No.");
+            PriceListLine[i].TestField("Variant Code Lookup", PriceListLine[i]."Variant Code");
+            PriceListLine[i].TestField("Unit of Measure Code Lookup", PriceListLine[i]."Unit of Measure Code");
+        end;
+    end;
+
+    [Test]
+    procedure PriceListLineSyncCorrectsOutOfSyncLines()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        PriceListLineSync: Codeunit "Price List Line Sync";
+        i: Integer;
+    begin
+        Initialize(true);
+
+        // [GIVEN] An item with a variant.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+
+        // [GIVEN] A job with job task.
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] A price List for the job with lines for the item that are not in sync.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, PriceListHeader."Source Type"::"Job Task",
+            Job."No.", JobTask."Job Task No."
+        );
+
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[1], PriceListHeader.Code, "Price Type"::Sale, "Price Source Type"::"Job Task", Job."No.",
+            JobTask."Job Task No.", "Price Amount Type"::Price, "Price Asset Type"::Item, Item."No.");
+        PriceListLine[1].Validate("Variant Code", ItemVariant.Code);
+
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[2], PriceListHeader.Code, "Price Type"::Sale, "Price Source Type"::"Job Task", Job."No.",
+            JobTask."Job Task No.", "Price Amount Type"::Price, "Price Asset Type"::Item, Item."No.");
+        PriceListLine[2].Validate("Variant Code", ItemVariant.Code);
+
+        for i := 1 to 2 do begin
+            PriceListLine[i]."Assign-to No." := '';
+            PriceListLine[i]."Assign-to Parent No." := '';
+            PriceListLine[i]."Product No." := '';
+            PriceListLine[i]."Variant Code Lookup" := '';
+            PriceListLine[i]."Unit of Measure Code Lookup" := '';
+            PriceListLine[i].Modify();
+        end;
+
+        // [WHEN] Running "Price List Line Sync".
+        PriceListLineSync.Run();
+
+        // [THEN] Price lines are synced.
+        for i := 1 to 2 do begin
+            PriceListLine[i].Get(PriceListLine[i].RecordId());
+            PriceListLine[i].TestField("Assign-to No.", PriceListLine[i]."Source No.");
+            PriceListLine[i].TestField("Assign-to Parent No.", PriceListLine[i]."Parent Source No.");
+            PriceListLine[i].TestField("Product No.", PriceListLine[i]."Asset No.");
+            PriceListLine[i].TestField("Variant Code Lookup", PriceListLine[i]."Variant Code");
+            PriceListLine[i].TestField("Unit of Measure Code Lookup", PriceListLine[i]."Unit of Measure Code");
+        end;
+    end;
+
+    [Test]
+    [HandlerFunctions('SendNotificationHandler')]
+    procedure OutOfSyncNotificationShouldShowWhenOpeningPurchasePriceListAndPriceListLinesAreOutOfSync()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PurchasePriceLists: TestPage "Purchase Price List";
+    begin
+        Initialize(true);
+
+        // [GIVEN] A price List Line that are not in sync.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::"All Customers", '');
+
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Item,
+            LibraryInventory.CreateItemNo());
+        PriceListLine."Product No." := '';
+        PriceListLine.Modify();
+
+        // [WHEN] Opening "Purchase Price List".
+        PurchasePriceLists.OpenView();
+
+        // [THEN] A notification is shown informing about the issue.
+        Assert.AreEqual(OutOfSyncNotificationMsg, LibraryVariableStorage.DequeueText(), 'Text not matching');
+    end;
+
+    [Test]
+    [HandlerFunctions('SendNotificationHandler')]
+    procedure OutOfSyncNotificationShouldShowWhenOpeningPriceListLinesAndPriceListLinesAreOutOfSync()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListLines: TestPage "Price List Lines";
+    begin
+        Initialize(true);
+
+        // [GIVEN] A price List Line that are not in sync.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::"All Customers", '');
+
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Item,
+            LibraryInventory.CreateItemNo());
+        PriceListLine."Product No." := '';
+        PriceListLine.Modify();
+
+        // [WHEN] Opening "Price List Lines".
+        PriceListLines.OpenView();
+
+        // [THEN] A notification is shown informing about the issue.
+        Assert.AreEqual(OutOfSyncNotificationMsg, LibraryVariableStorage.DequeueText(), 'Text not matching');
+    end;
+
+    [Test]
+    [HandlerFunctions('SendNotificationHandler')]
+    procedure OutOfSyncNotificationShouldShowWhenOpeningPurchasePriceListLinesAndPriceListLinesAreOutOfSync()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PurchasePriceListLines: TestPage "Purchase Price List Lines";
+    begin
+        Initialize(true);
+
+        // [GIVEN] A price List Line that are not in sync.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::"All Customers", '');
+
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Item,
+            LibraryInventory.CreateItemNo());
+        PriceListLine."Product No." := '';
+        PriceListLine.Modify();
+
+        // [WHEN] Opening "Purchase Price List Lines".
+        PurchasePriceListLines.OpenView();
+
+        // [THEN] A notification is shown informing about the issue.
+        Assert.AreEqual(OutOfSyncNotificationMsg, LibraryVariableStorage.DequeueText(), 'Text not matching');
+    end;
+
+    [Test]
+    [HandlerFunctions('SendNotificationHandler')]
+    procedure OutOfSyncNotificationShouldShowWhenOpeningPricesOverviewAndPriceListLinesAreOutOfSync()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PricesOverview: TestPage "Prices Overview";
+    begin
+        Initialize(true);
+
+        // [GIVEN] A price List Line that are not in sync.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::"All Customers", '');
+
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Item,
+            LibraryInventory.CreateItemNo());
+        PriceListLine."Product No." := '';
+        PriceListLine.Modify();
+
+        // [WHEN] Opening "Prices Overview".
+        PricesOverview.OpenView();
+
+        // [THEN] A notification is shown informing about the issue.
+        Assert.AreEqual(OutOfSyncNotificationMsg, LibraryVariableStorage.DequeueText(), 'Text not matching');
+    end;
+
+    [Test]
+    [HandlerFunctions('SendNotificationHandler')]
+    procedure OutOfSyncNotificationShouldShowWhenOpeningPriceWorksheetAndPriceListLinesAreOutOfSync()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceWorksheet: TestPage "Price Worksheet";
+    begin
+        Initialize(true);
+
+        // [GIVEN] A price List Line that are not in sync.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::"All Customers", '');
+
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Item,
+            LibraryInventory.CreateItemNo());
+        PriceListLine."Product No." := '';
+        PriceListLine.Modify();
+
+        // [WHEN] Opening "Price Worksheet".
+        PriceWorksheet.OpenView();
+
+        // [THEN] A notification is shown informing about the issue.
+        Assert.AreEqual(OutOfSyncNotificationMsg, LibraryVariableStorage.DequeueText(), 'Text not matching');
+    end;
+
+    [Test]
+    [HandlerFunctions('SendNotificationHandler')]
+    procedure OutOfSyncNotificationShouldShowWhenOpeningPriceListFiltersAndPriceListLinesAreOutOfSync()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListFilters: TestPage "Price List Filters";
+    begin
+        Initialize(true);
+
+        // [GIVEN] A price List Line that are not in sync.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::"All Customers", '');
+
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Item,
+            LibraryInventory.CreateItemNo());
+        PriceListLine."Product No." := '';
+        PriceListLine.Modify();
+
+        // [WHEN] Opening "Price List Filters".
+        PriceListFilters.OpenView();
+
+        // [THEN] A notification is shown informing about the issue.
+        Assert.AreEqual(OutOfSyncNotificationMsg, LibraryVariableStorage.DequeueText(), 'Text not matching');
+    end;
+
+    [Test]
     procedure UseCustomizedLookupOverriddenIfPriceListLinesOutOfSync()
     var
         PriceListHeader: Record "Price List Header";
@@ -3337,5 +3628,11 @@ codeunit 134123 "Price List Line UT"
     begin
         JobTaskList.Filter.SetFilter("Job Task No.", LibraryVariableStorage.DequeueText());
         JobTaskList.OK().Invoke();
+    end;
+
+    [SendNotificationHandler]
+    procedure SendNotificationHandler(var Notification: Notification): Boolean
+    begin
+        LibraryVariableStorage.Enqueue(Notification.Message);
     end;
 }

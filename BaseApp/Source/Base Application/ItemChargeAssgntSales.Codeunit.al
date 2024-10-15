@@ -1,4 +1,4 @@
-#if not CLEAN18
+﻿#if not CLEAN18
 codeunit 5807 "Item Charge Assgnt. (Sales)"
 {
     Permissions = TableData "Sales Header" = r,
@@ -48,7 +48,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
         OnBeforeInsertItemChargeAssignmentWithValuesTo(FromItemChargeAssgntSales, ItemChargeAssgntSales, ApplToDocType, FromApplToDocNo, FromApplToDocLineNo, FromItemNo, FromDescription, NextLineNo, QtyToAssign, AmountToAssign, IsHandled);
         if IsHandled then
             exit;
-            
+
         NextLineNo := NextLineNo + 10000;
 
         ItemChargeAssgntSales."Document No." := FromItemChargeAssgntSales."Document No.";
@@ -155,7 +155,13 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
         ItemChargeAssgntSales2: Record "Item Charge Assignment (Sales)";
         Nextline: Integer;
         SalesShptHeader: Record "Sales Shipment Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateShptChargeAssgnt(FromSalesShptLine, ItemChargeAssgntSales);
+        if IsHandled then
+            exit;
+
         // NAVCZ
         SalesShptHeader.Get(FromSalesShptLine."Document No.");
         if SalesShptHeader."Shipment Method Code" <> '' then
@@ -298,11 +304,11 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                 AssignByVolumeMenuText:
                     AssignByVolume(ItemChargeAssgntSales, Currency, TotalQtyToAssign);
                 else begin
-                        OnAssignItemCharges(
-                          SelectionTxt, ItemChargeAssgntSales, Currency, SalesHeader, TotalQtyToAssign, TotalAmtToAssign, ItemChargesAssigned);
-                        if not ItemChargesAssigned then
-                            Error(ItemChargesNotAssignedErr);
-                    end;
+                    OnAssignItemCharges(
+                      SelectionTxt, ItemChargeAssgntSales, Currency, SalesHeader, TotalQtyToAssign, TotalAmtToAssign, ItemChargesAssigned);
+                    if not ItemChargesAssigned then
+                        Error(ItemChargesNotAssignedErr);
+                end;
             end;
         end;
     end;
@@ -389,10 +395,10 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                             IsHandled := false;
                             OnAssignByAmountOnBeforeGetSalesLine(SalesLine, ItemChargeAssignmentSales, IsHandled);
                             if not IsHandled then
-                            SalesLine.Get(
-                              ItemChargeAssignmentSales."Applies-to Doc. Type",
-                              ItemChargeAssignmentSales."Applies-to Doc. No.",
-                              ItemChargeAssignmentSales."Applies-to Doc. Line No.");
+                                SalesLine.Get(
+                                  ItemChargeAssignmentSales."Applies-to Doc. Type",
+                                  ItemChargeAssignmentSales."Applies-to Doc. No.",
+                                  ItemChargeAssignmentSales."Applies-to Doc. Line No.");
                             TempItemChargeAssgntSales."Applies-to Doc. Line Amount" :=
                               Abs(SalesLine."Line Amount");
                         end;
@@ -775,6 +781,11 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
 
     [IntegrationEvent(false, false)]
     local procedure OnAssignByAmountOnBeforeGetSalesLine(var SalesLine: Record "Sales Line"; ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateShptChargeAssgnt(var FromSalesShptLine: Record "Sales Shipment Line"; var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)")
     begin
     end;
 }

@@ -1262,11 +1262,12 @@ codeunit 1535 "Approvals Mgmt."
     procedure PrePostApprovalCheckSales(var SalesHeader: Record "Sales Header"): Boolean
     var
         IsHandled: Boolean;
+        Result: Boolean;
     begin
         IsHandled := false;
-        OnBeforePrePostApprovalCheckSales(SalesHeader, IsHandled);
+        OnBeforePrePostApprovalCheckSales(SalesHeader, IsHandled, Result);
         if IsHandled then
-            exit;
+            exit(Result);
 
         if IsSalesHeaderPendingApproval(SalesHeader) then
             Error(SalesPrePostCheckErr, SalesHeader."Document Type", SalesHeader."No.");
@@ -1374,7 +1375,15 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     procedure CheckSalesApprovalPossible(var SalesHeader: Record "Sales Header"): Boolean
+    var
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckSalesApprovalPossible(SalesHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not IsSalesApprovalsWorkflowEnabled(SalesHeader) then
             Error(NoWorkflowEnabledErr);
 
@@ -1614,11 +1623,11 @@ codeunit 1535 "Approvals Mgmt."
                     Variant := IncomingDocument;
                 end;
             else begin
-                    IsHandled := false;
-                    OnSetStatusToPendingApproval(RecRef, Variant, IsHandled);
-                    if not IsHandled then
-                        Error(UnsupportedRecordTypeErr, RecRef.Caption);
-                end;
+                IsHandled := false;
+                OnSetStatusToPendingApproval(RecRef, Variant, IsHandled);
+                if not IsHandled then
+                    Error(UnsupportedRecordTypeErr, RecRef.Caption);
+            end;
         end;
     end;
 
@@ -2249,7 +2258,7 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckPurchaseApprovalPossible(PurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCheckPurchaseApprovalPossible(var PurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -2309,7 +2318,7 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePrePostApprovalCheckSales(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforePrePostApprovalCheckSales(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 
@@ -2570,6 +2579,11 @@ codeunit 1535 "Approvals Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeApproveApprovalRequests(var ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSalesApprovalPossible(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

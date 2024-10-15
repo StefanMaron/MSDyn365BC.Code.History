@@ -55,7 +55,14 @@ table 5718 "Nonstock Item"
             Caption = 'Vendor Item No.';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateVendorItemNo(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 ValidateField(Rec.FieldNo("Vendor Item No."));
 
                 if "Vendor Item No." <> xRec."Vendor Item No." then
@@ -444,6 +451,11 @@ table 5718 "Nonstock Item"
 
     [IntegrationEvent(false, false)]
     local procedure OnModifyOnNoFormatElseCase(NonStockItemSetup: Record "Nonstock Item Setup"; NonstockItem: Record "Nonstock Item"; var ItemNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateVendorItemNo(var NonstockItem: Record "Nonstock Item"; xNonstockItem: Record "Nonstock Item"; var IsHandled: Boolean)
     begin
     end;
 }

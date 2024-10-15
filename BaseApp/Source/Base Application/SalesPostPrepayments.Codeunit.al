@@ -1,4 +1,4 @@
-﻿#if not CLEAN19
+#if not CLEAN19
 codeunit 442 "Sales-Post Prepayments"
 {
     Permissions = TableData "Sales Line" = imd,
@@ -470,7 +470,6 @@ codeunit 442 "Sales-Post Prepayments"
                         SalesReceivablesSetup.FieldNo("Posted Prepmt. Cr. Memo Nos."), SpecifyCrNoSerieTok,
                         SalesReceivablesSetup.RecordId, SalesReceivablesSetup.FieldNo("Posted Prepmt. Cr. Memo Nos."), '');
                 ErrorMessageMgt.Finish(SalesReceivablesSetup.RecordId);
-                SalesHeader."Prepayment No. Series" := SalesReceivablesSetup."Posted Credit Memo Nos.";
                 SalesReceivablesSetup.Testfield("Posted Prepmt. Cr. Memo Nos.");
                 SalesHeader."Prepmt. Cr. Memo No. Series" := SalesReceivablesSetup."Posted Prepmt. Cr. Memo Nos.";
                 ModifyHeader := true;

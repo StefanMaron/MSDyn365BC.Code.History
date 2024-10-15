@@ -1,4 +1,4 @@
-#if CLEAN18
+﻿#if CLEAN18
 codeunit 415 "Release Purchase Document"
 {
     TableNo = "Purchase Header";
@@ -64,7 +64,7 @@ codeunit 415 "Release Purchase Document"
 
             PurchLine.Reset();
 
-            OnBeforeCalcInvDiscount(PurchaseHeader, PreviewMode);
+            OnBeforeCalcInvDiscount(PurchaseHeader, PreviewMode, LinesWereModified);
 
             PurchSetup.Get();
             if PurchSetup."Calc. Inv. Discount" then begin
@@ -91,6 +91,7 @@ codeunit 415 "Release Purchase Document"
             end;
             Status := Status::Released;
 
+            OnCodeOnBeforeCalcAndUpdateVATOnLines(PurchaseHeader);
             LinesWereModified := LinesWereModified or CalcAndUpdateVATOnLines(PurchaseHeader, PurchLine);
 
             OnCodeOnBeforeModifyHeader(PurchaseHeader, PurchLine, PreviewMode, LinesWereModified);
@@ -114,25 +115,39 @@ codeunit 415 "Release Purchase Document"
         if IsHandled then
             exit;
 
-        with PurchaseHeader do begin
-            PurchLine.SetRange("Document Type", "Document Type");
-            PurchLine.SetRange("Document No.", "No.");
-            PurchLine.SetFilter(Type, '>0');
-            PurchLine.SetFilter(Quantity, '<>0');
-            OnCodeOnAfterPurchLineSetFilters(PurchaseHeader, PurchLine);
-            if not PurchLine.Find('-') then
-                Error(Text001, "Document Type", "No.");
-            InvtSetup.Get();
-            if InvtSetup."Location Mandatory" then begin
-                PurchLine.SetRange(Type, PurchLine.Type::Item);
-                if PurchLine.Find('-') then
-                    repeat
-                        if PurchLine.IsInventoriableItem then
-                            PurchLine.TestField("Location Code");
-                    until PurchLine.Next() = 0;
-                PurchLine.SetFilter(Type, '>0');
-            end;
-        end;
+        PurchLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchLine.SetFilter(Type, '>0');
+        PurchLine.SetFilter(Quantity, '<>0');
+        OnCodeOnAfterPurchLineSetFilters(PurchaseHeader, PurchLine);
+        if not PurchLine.Find('-') then
+            Error(Text001, PurchaseHeader."Document Type", PurchaseHeader."No.");
+
+        CheckMandatoryFields(PurchLine);
+    end;
+
+    local procedure CheckMandatoryFields(var PurchaseLine: Record "Purchase Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeMandatoryFields(PurchaseHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        InvtSetup.Get();
+        PurchaseLine.SetRange(Type, "Purchase Line Type"::Item);
+        if PurchaseLine.FindSet() then
+            repeat
+                if InvtSetup."Location Mandatory" then
+                    if PurchaseLine.IsInventoriableItem() then begin
+                        IsHandled := false;
+                        OnCodeOnCheckPurchLineLocationCode(PurchaseLine, IsHandled);
+                        if not IsHandled then
+                            PurchaseLine.TestField("Location Code");
+                    end;
+            until PurchaseLine.Next() = 0;
+        PurchaseLine.SetFilter(Type, '>0');
     end;
 
     procedure Reopen(var PurchHeader: Record "Purchase Header")
@@ -251,7 +266,7 @@ codeunit 415 "Release Purchase Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcInvDiscount(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean)
+    local procedure OnBeforeCalcInvDiscount(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; var LinesWereModified: Boolean)
     begin
     end;
 
@@ -347,6 +362,21 @@ codeunit 415 "Release Purchase Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterCheckPurchaseReleaseRestrictions(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeCalcAndUpdateVATOnLines(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnCheckPurchLineLocationCode(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMandatoryFields(PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }

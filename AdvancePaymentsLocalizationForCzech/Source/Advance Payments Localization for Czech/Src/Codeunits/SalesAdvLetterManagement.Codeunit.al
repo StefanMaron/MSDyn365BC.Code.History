@@ -228,17 +228,30 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
 
     procedure PostAdvancePayment(var CustLedgerEntry: Record "Cust. Ledger Entry"; AdvanceLetterNo: Code[20]; LinkAmount: Decimal; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line") InsertedEntryNo: Integer
     var
+        PostedGenJournalLine: Record "Gen. Journal Line";
+    begin
+        PostedGenJournalLine."Advance Letter No. CZZ" := AdvanceLetterNo;
+        PostAdvancePayment(CustLedgerEntry, PostedGenJournalLine, LinkAmount, GenJnlPostLine);
+    end;
+
+    procedure PostAdvancePayment(var CustLedgerEntry: Record "Cust. Ledger Entry"; PostedGenJournalLine: Record "Gen. Journal Line"; LinkAmount: Decimal; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line") InsertedEntryNo: Integer
+    var
         SalesAdvLetterHeaderCZZ: Record "Sales Adv. Letter Header CZZ";
         GenJournalLine: Record "Gen. Journal Line";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
         ApplId: Code[50];
         Amount: Decimal;
         AmountLCY: Decimal;
+        IsHandled: Boolean;
         RemainingAmountExceededErr: Label 'The amount cannot be higher than remaining amount on ledger entry.';
         ToPayAmountExceededErr: Label 'The amount cannot be higher than to pay on advance letter.';
     begin
+        OnBeforePostAdvancePayment(CustLedgerEntry, PostedGenJournalLine, LinkAmount, GenJnlPostLine, IsHandled);
+        if IsHandled then
+            exit;
+
         CustLedgerEntry.TestField("Advance Letter No. CZZ", '');
-        SalesAdvLetterHeaderCZZ.Get(AdvanceLetterNo);
+        SalesAdvLetterHeaderCZZ.Get(PostedGenJournalLine."Advance Letter No. CZZ");
         SalesAdvLetterHeaderCZZ.CheckSalesAdvanceLetterPostRestrictions();
         SalesAdvLetterHeaderCZZ.TestField("Currency Code", CustLedgerEntry."Currency Code");
         SalesAdvLetterHeaderCZZ.TestField("Bill-to Customer No.", CustLedgerEntry."Customer No.");
@@ -259,6 +272,7 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
             Error(ToPayAmountExceededErr);
 
         InitGenJnlLineFromCustLedgEntry(CustLedgerEntry, GenJournalLine, GenJournalLine."Document Type"::" ");
+        GenJournalLine."Adv. Letter Template Code CZZ" := SalesAdvLetterHeaderCZZ."Advance Letter Code";
         GenJournalLine.Correction := true;
         GenJournalLine.SetCurrencyFactor(CustLedgerEntry."Currency Code", CustLedgerEntry."Original Currency Factor");
         GenJournalLine.Amount := -Amount;
@@ -268,22 +282,24 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
         CustLedgerEntry.CalcFields("Remaining Amount");
         CustLedgerEntry."Amount to Apply" := CustLedgerEntry."Remaining Amount";
         CustLedgerEntry."Applies-to ID" := ApplId;
+        CustLedgerEntry."Adv. Letter Template Code CZZ" := SalesAdvLetterHeaderCZZ."Advance Letter Code";
         Codeunit.Run(Codeunit::"Cust. Entry-Edit", CustLedgerEntry);
 
         GenJournalLine."Applies-to ID" := ApplId;
-        OnBeforePostPaymentRepos(GenJournalLine, SalesAdvLetterHeaderCZZ);
+        OnBeforePostPaymentRepos(GenJournalLine, SalesAdvLetterHeaderCZZ, PostedGenJournalLine);
         GenJnlPostLine.RunWithCheck(GenJournalLine);
-        OnAfterPostPaymentRepos(GenJournalLine, SalesAdvLetterHeaderCZZ);
+        OnAfterPostPaymentRepos(GenJournalLine, SalesAdvLetterHeaderCZZ, PostedGenJournalLine);
 
         InitGenJnlLineFromCustLedgEntry(CustLedgerEntry, GenJournalLine, GenJournalLine."Document Type"::" ");
+        GenJournalLine."Adv. Letter Template Code CZZ" := SalesAdvLetterHeaderCZZ."Advance Letter Code";
         GenJournalLine."Adv. Letter No. (Entry) CZZ" := SalesAdvLetterHeaderCZZ."No.";
         GenJournalLine."Use Advance G/L Account CZZ" := true;
         GenJournalLine.SetCurrencyFactor(CustLedgerEntry."Currency Code", CustLedgerEntry."Original Currency Factor");
         GenJournalLine.Amount := Amount;
         GenJournalLine."Amount (LCY)" := AmountLCY;
-        OnBeforePostPayment(GenJournalLine, SalesAdvLetterHeaderCZZ);
+        OnBeforePostPayment(GenJournalLine, SalesAdvLetterHeaderCZZ, PostedGenJournalLine);
         GenJnlPostLine.RunWithCheck(GenJournalLine);
-        OnAfterPostPayment(GenJournalLine, SalesAdvLetterHeaderCZZ);
+        OnAfterPostPayment(GenJournalLine, SalesAdvLetterHeaderCZZ, PostedGenJournalLine);
 
         CustLedgerEntry2.FindLast();
         AdvEntryInit(false);
@@ -485,6 +501,7 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
         TempAdvanceLetterApplicationCZZ: Record "Advance Letter Application CZZ" temporary;
         AdvanceLetterApplicationCZZ: Record "Advance Letter Application CZZ";
         AdvanceLetterApplEditPageCZZ: Page "Advance Letter Appl. Edit CZZ";
+        ModifyRecord: Boolean;
     begin
         AdvanceLetterApplEditPageCZZ.InitializeSales(AdvLetterUsageDocTypeCZZ, DocumentNo, BillToCustomerNo, PostingDate, CurrencyCode);
         Commit();
@@ -499,8 +516,11 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
                         AdvanceLetterApplicationCZZ."Document Type", AdvanceLetterApplicationCZZ."Document No.") then begin
                         if TempAdvanceLetterApplicationCZZ.Amount <> AdvanceLetterApplicationCZZ.Amount then begin
                             AdvanceLetterApplicationCZZ.Amount := TempAdvanceLetterApplicationCZZ.Amount;
-                            AdvanceLetterApplicationCZZ.Modify();
+                            ModifyRecord := true;
                         end;
+                        OnLinkAdvanceLetterOnBeforeModifyAdvanceLetterApplication(AdvanceLetterApplicationCZZ, TempAdvanceLetterApplicationCZZ, ModifyRecord);
+                        if ModifyRecord then
+                            AdvanceLetterApplicationCZZ.Modify();
                         TempAdvanceLetterApplicationCZZ.Delete(false);
                     end else
                         AdvanceLetterApplicationCZZ.Delete(true);
@@ -515,6 +535,7 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
                     AdvanceLetterApplicationCZZ."Document Type" := AdvLetterUsageDocTypeCZZ;
                     AdvanceLetterApplicationCZZ."Document No." := DocumentNo;
                     AdvanceLetterApplicationCZZ.Amount := TempAdvanceLetterApplicationCZZ.Amount;
+                    OnLinkAdvanceLetterOnBeforeInsertAdvanceLetterApplication(AdvanceLetterApplicationCZZ, TempAdvanceLetterApplicationCZZ);
                     AdvanceLetterApplicationCZZ.Insert();
                 until TempAdvanceLetterApplicationCZZ.Next() = 0;
         end;
@@ -636,6 +657,7 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
         UnapplyCustLedgEntry(CustLedgerEntryPay, GenJnlPostLine);
 
         InitGenJnlLineFromCustLedgEntry(CustLedgerEntryAdv, GenJournalLine, GenJournalLine."Document Type"::" ");
+        GenJournalLine."Adv. Letter Template Code CZZ" := SalesAdvLetterHeaderCZZ."Advance Letter Code";
         GenJournalLine.Correction := true;
         GenJournalLine."Adv. Letter No. (Entry) CZZ" := SalesAdvLetterEntryCZZ."Sales Adv. Letter No.";
         GenJournalLine."Use Advance G/L Account CZZ" := true;
@@ -664,6 +686,7 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
             GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code", GenJournalLine."Dimension Set ID", false);
 
         InitGenJnlLineFromCustLedgEntry(CustLedgerEntryAdv, GenJournalLine, GenJournalLine."Document Type"::" ");
+        GenJournalLine."Adv. Letter Template Code CZZ" := SalesAdvLetterHeaderCZZ."Advance Letter Code";
         GenJournalLine.SetCurrencyFactor(SalesAdvLetterEntryCZZ."Currency Code", SalesAdvLetterEntryCZZ."Currency Factor");
         GenJournalLine.Amount := SalesAdvLetterEntryCZZ.Amount;
         GenJournalLine."Amount (LCY)" := SalesAdvLetterEntryCZZ."Amount (LCY)";
@@ -713,6 +736,7 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
             SalesAdvLetterEntryCZZ.SetRange("Sales Adv. Letter No.", AdvanceLetterApplicationCZZ."Advance Letter No.");
             SalesAdvLetterEntryCZZ.SetRange(Cancelled, false);
             SalesAdvLetterEntryCZZ.SetRange("Entry Type", SalesAdvLetterEntryCZZ."Entry Type"::Payment);
+            OnPostAdvancePaymentUsageOnBeforeLoopSalesAdvLetterEntry(AdvanceLetterApplicationCZZ, SalesAdvLetterEntryCZZ);
             if SalesAdvLetterEntryCZZ.FindSet() then
                 repeat
                     if not Preview then
@@ -888,6 +912,7 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
         SalesAdvLetterHeaderCZZ.Get(SalesAdvLetterEntryCZZ."Sales Adv. Letter No.");
 
         InitGenJnlLineFromCustLedgEntry(CustLedgerEntry, GenJournalLine, GenJournalLine."Document Type"::" ");
+        GenJournalLine."Adv. Letter Template Code CZZ" := SalesAdvLetterHeaderCZZ."Advance Letter Code";
         GenJournalLine.Correction := true;
         GenJournalLine.SetCurrencyFactor(SalesAdvLetterEntryCZZ."Currency Code", SalesAdvLetterEntryCZZ."Currency Factor");
         GenJournalLine.Amount := -ReverseAmount;
@@ -908,6 +933,7 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
         end;
 
         InitGenJnlLineFromCustLedgEntry(CustLedgerEntry, GenJournalLine, GenJournalLine."Document Type"::" ");
+        GenJournalLine."Adv. Letter Template Code CZZ" := SalesAdvLetterHeaderCZZ."Advance Letter Code";
         GenJournalLine."Adv. Letter No. (Entry) CZZ" := SalesAdvLetterEntryCZZ."Sales Adv. Letter No.";
         GenJournalLine."Use Advance G/L Account CZZ" := true;
         GenJournalLine.SetCurrencyFactor(SalesAdvLetterEntryCZZ."Currency Code", SalesAdvLetterEntryCZZ."Currency Factor");
@@ -1510,6 +1536,7 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
                         CustLedgerEntry1.Get(SalesAdvLetterEntryCZZ."Cust. Ledger Entry No.");
 
                         InitGenJnlLineFromCustLedgEntry(CustLedgerEntry1, GenJournalLine, GenJournalLine."Document Type"::" ");
+                        GenJournalLine."Adv. Letter Template Code CZZ" := SalesAdvLetterHeaderCZZ."Advance Letter Code";
                         GenJournalLine.Correction := true;
                         GenJournalLine."Document No." := VATDocumentNo;
                         GenJournalLine."Posting Date" := PostingDate;
@@ -1547,6 +1574,7 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
                         ReverseAdvancePaymentVAT(SalesAdvLetterEntryCZZ, CustLedgerEntry1."Source Code", SalesAdvLetterHeaderCZZ."Posting Description", RemAmount, CurrencyFactor, VATDocumentNo, PostingDate, SalesAdvLetterEntryCZZGlob."Entry No.", '', "Advance Letter Entry Type CZZ"::"VAT Close", GenJnlPostLine, false);
 
                         InitGenJnlLineFromCustLedgEntry(CustLedgerEntry1, GenJournalLine, GenJournalLine."Document Type"::Payment);
+                        GenJournalLine."Adv. Letter Template Code CZZ" := SalesAdvLetterHeaderCZZ."Advance Letter Code";
                         GenJournalLine.Correction := true;
                         GenJournalLine."Document No." := VATDocumentNo;
                         GenJournalLine."Posting Date" := PostingDate;
@@ -1871,6 +1899,7 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
                         UnapplyCustLedgEntry(CustLedgerEntry, GenJnlPostLine);
 
                         InitGenJnlLineFromCustLedgEntry(CustLedgerEntry, GenJournalLine, CustLedgerEntry."Document Type"::" ");
+                        GenJournalLine."Adv. Letter Template Code CZZ" := SalesAdvLetterHeaderCZZ."Advance Letter Code";
                         GenJournalLine.Correction := true;
                         GenJournalLine."Adv. Letter No. (Entry) CZZ" := SalesAdvLetterEntryCZZ."Sales Adv. Letter No.";
                         GenJournalLine."Use Advance G/L Account CZZ" := true;
@@ -1900,6 +1929,7 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
                             GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code", GenJournalLine."Dimension Set ID", false);
 
                         InitGenJnlLineFromCustLedgEntry(CustLedgerEntry, GenJournalLine, GenJournalLine."Document Type"::" ");
+                        GenJournalLine."Adv. Letter Template Code CZZ" := SalesAdvLetterHeaderCZZ."Advance Letter Code";
                         GenJournalLine.Correction := true;
                         GenJournalLine.SetCurrencyFactor(SalesAdvLetterEntryCZZ."Currency Code", SalesAdvLetterEntryCZZ."Currency Factor");
                         GenJournalLine.Correction := true;
@@ -2246,22 +2276,22 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostPaymentRepos(var GenJournalLine: Record "Gen. Journal Line"; var SalesAdvLetterHeaderCZZ: Record "Sales Adv. Letter Header CZZ")
+    local procedure OnBeforePostPaymentRepos(var GenJournalLine: Record "Gen. Journal Line"; var SalesAdvLetterHeaderCZZ: Record "Sales Adv. Letter Header CZZ"; PostedGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostPaymentRepos(var GenJournalLine: Record "Gen. Journal Line"; var SalesAdvLetterHeaderCZZ: Record "Sales Adv. Letter Header CZZ")
+    local procedure OnAfterPostPaymentRepos(var GenJournalLine: Record "Gen. Journal Line"; var SalesAdvLetterHeaderCZZ: Record "Sales Adv. Letter Header CZZ"; PostedGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostPayment(var GenJournalLine: Record "Gen. Journal Line"; var SalesAdvLetterHeaderCZZ: Record "Sales Adv. Letter Header CZZ")
+    local procedure OnBeforePostPayment(var GenJournalLine: Record "Gen. Journal Line"; var SalesAdvLetterHeaderCZZ: Record "Sales Adv. Letter Header CZZ"; PostedGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostPayment(var GenJournalLine: Record "Gen. Journal Line"; var SalesAdvLetterHeaderCZZ: Record "Sales Adv. Letter Header CZZ")
+    local procedure OnAfterPostPayment(var GenJournalLine: Record "Gen. Journal Line"; var SalesAdvLetterHeaderCZZ: Record "Sales Adv. Letter Header CZZ"; PostedGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -2337,6 +2367,26 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterInitGenJnlLineFromCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostAdvancePayment(CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; LinkAmount: Decimal; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLinkAdvanceLetterOnBeforeModifyAdvanceLetterApplication(var AdvanceLetterApplicationCZZ: Record "Advance Letter Application CZZ"; var TempAdvanceLetterApplicationCZZ: Record "Advance Letter Application CZZ" temporary; var ModifyRecord: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLinkAdvanceLetterOnBeforeInsertAdvanceLetterApplication(var AdvanceLetterApplicationCZZ: Record "Advance Letter Application CZZ"; var TempAdvanceLetterApplicationCZZ: Record "Advance Letter Application CZZ" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostAdvancePaymentUsageOnBeforeLoopSalesAdvLetterEntry(var AdvanceLetterApplicationCZZ: Record "Advance Letter Application CZZ"; var SalesAdvLetterEntryCZZ: Record "Sales Adv. Letter Entry CZZ")
     begin
     end;
 }

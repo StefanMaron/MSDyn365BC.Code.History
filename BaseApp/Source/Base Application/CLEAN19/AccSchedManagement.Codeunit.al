@@ -105,6 +105,8 @@ codeunit 8 AccSchedManagement
             end;
             CurrentSchedName := AccSchedName.Name;
         end;
+
+        OnAfterCheckTemplateName(CurrentSchedName);
     end;
 
     procedure CheckName(CurrentSchedName: Code[10])
@@ -192,7 +194,10 @@ codeunit 8 AccSchedManagement
             repeat
                 TempColumnLayout := ColumnLayout;
                 TempColumnLayout.Insert();
+                OnCopyColumnsToTempOnAfterColumnLayoutInsert(AccSchedName, NewColumnName, ColumnLayout, TempColumnLayout);
             until ColumnLayout.Next() = 0;
+
+        OnCopyColumnsToTempOnBeforeFind(AccSchedName, NewColumnName, TempColumnLayout);
         if TempColumnLayout.Find('-') then;
     end;
 
@@ -422,7 +427,7 @@ codeunit 8 AccSchedManagement
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCalcCellValue(AccSchedLine, ColumnLayout, CalcAddCurr, Result, IsHandled);
+        OnBeforeCalcCellValue(AccSchedLine, ColumnLayout, CalcAddCurr, Result, IsHandled, AccountScheduleLine, AccSchedCellValue);
         if not IsHandled then begin
             if AccSchedLine.Totaling = '' then
                 exit(Result);
@@ -2489,7 +2494,7 @@ codeunit 8 AccSchedManagement
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeCalcCellValue(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean; var Result: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeCalcCellValue(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean; var Result: Decimal; var IsHandled: Boolean; AccountScheduleLine: Record "Acc. Schedule Line"; var TempAccSchedCellValue: Record "Acc. Sched. Cell Value" temporary)
     begin
     end;
 
@@ -2632,6 +2637,20 @@ codeunit 8 AccSchedManagement
     local procedure OnSetGLAccAnalysisViewEntryFiltersOnBeforeAccSchedLineCopyFilter(var AccScheduleLine: Record "Acc. Schedule Line"; AnalysisViewEntry: Record "Analysis View Entry")
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyColumnsToTempOnAfterColumnLayoutInsert(AccSchedName: Record "Acc. Schedule Name"; NewColumnName: Code[10]; ColumnLayout: Record "Column Layout"; var TempColumnLayout: Record "Column Layout" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckTemplateName(CurrentSchedName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyColumnsToTempOnBeforeFind(AccSchedName: Record "Acc. Schedule Name"; NewColumnName: Code[10]; var TempColumnLayout: Record "Column Layout" temporary)
+    begin
+    end;
+}
 #endif

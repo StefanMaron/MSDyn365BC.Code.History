@@ -65,7 +65,7 @@ codeunit 415 "Release Purchase Document"
 
             PurchLine.Reset();
 
-            OnBeforeCalcInvDiscount(PurchaseHeader, PreviewMode);
+            OnBeforeCalcInvDiscount(PurchaseHeader, PreviewMode, LinesWereModified);
 
             PurchSetup.Get();
             if PurchSetup."Calc. Inv. Discount" then begin
@@ -92,6 +92,7 @@ codeunit 415 "Release Purchase Document"
             end;
             Status := Status::Released;
 
+            OnCodeOnBeforeCalcAndUpdateVATOnLines(PurchaseHeader);
             LinesWereModified := LinesWereModified or CalcAndUpdateVATOnLines(PurchaseHeader, PurchLine);
 
             OnCodeOnBeforeModifyHeader(PurchaseHeader, PurchLine, PreviewMode, LinesWereModified);
@@ -108,8 +109,6 @@ codeunit 415 "Release Purchase Document"
 
     local procedure CheckPurchLines(var PurchLine: Record "Purchase Line")
     var
-        GLSetup: Record "General Ledger Setup";
-        UserCheck: Codeunit "User Setup Adv. Management";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -117,37 +116,54 @@ codeunit 415 "Release Purchase Document"
         if IsHandled then
             exit;
 
-        with PurchaseHeader do begin
-            PurchLine.SetRange("Document Type", "Document Type");
-            PurchLine.SetRange("Document No.", "No.");
-            PurchLine.SetFilter(Type, '>0');
-            PurchLine.SetFilter(Quantity, '<>0');
-            OnCodeOnAfterPurchLineSetFilters(PurchaseHeader, PurchLine);
-            if not PurchLine.Find('-') then
-                Error(Text001, "Document Type", "No.");
-            GLSetup.Get(); // NAVCZ
-            if InvtSetup."Location Mandatory" then begin
-                PurchLine.SetRange(Type, PurchLine.Type::Item);
-                if PurchLine.Find('-') then
-                    repeat
-                        if PurchLine.IsInventoriableItem then
-                            PurchLine.TestField("Location Code");
-                        // NAVCZ
-                        if GLSetup."User Checks Allowed" then
-                            if PurchLine.Type = PurchLine.Type::Item then begin
-                                UserCheck.SetItem(PurchLine."No.");
-                                case true of
-                                    PurchLine.Quantity < 0:
-                                        UserCheck.CheckReleasLocQuantityDecrease(PurchLine."Location Code");
-                                    PurchLine.Quantity > 0:
-                                        UserCheck.CheckReleasLocQuantityIncrease(PurchLine."Location Code");
-                                end;
-                            end;
-                    // NAVCZ
-                    until PurchLine.Next() = 0;
-                PurchLine.SetFilter(Type, '>0');
-            end;
-        end;
+        PurchLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchLine.SetFilter(Type, '>0');
+        PurchLine.SetFilter(Quantity, '<>0');
+        OnCodeOnAfterPurchLineSetFilters(PurchaseHeader, PurchLine);
+        if not PurchLine.Find('-') then
+            Error(Text001, PurchaseHeader."Document Type", PurchaseHeader."No.");
+
+        CheckMandatoryFields(PurchLine);
+    end;
+
+    local procedure CheckMandatoryFields(var PurchaseLine: Record "Purchase Line")
+    var
+        GLSetup: Record "General Ledger Setup";
+        UserSetupAdvManagement: Codeunit "User Setup Adv. Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeMandatoryFields(PurchaseHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        GLSetup.Get(); // NAVCZ
+        InvtSetup.Get();
+        PurchaseLine.SetRange(Type, "Purchase Line Type"::Item);
+        if PurchaseLine.FindSet() then
+            repeat
+                if InvtSetup."Location Mandatory" then
+                    if PurchaseLine.IsInventoriableItem() then begin
+                        IsHandled := false;
+                        OnCodeOnCheckPurchLineLocationCode(PurchaseLine, IsHandled);
+                        if not IsHandled then
+                            PurchaseLine.TestField("Location Code");
+                    end;
+                // NAVCZ
+                if GLSetup."User Checks Allowed" then
+                    if PurchaseLine.Type = "Purchase Line Type"::Item then begin
+                        UserSetupAdvManagement.SetItem(PurchaseLine."No.");
+                        case true of
+                            PurchaseLine.Quantity < 0:
+                                UserSetupAdvManagement.CheckReleasLocQuantityDecrease(PurchaseLine."Location Code");
+                            PurchaseLine.Quantity > 0:
+                                UserSetupAdvManagement.CheckReleasLocQuantityIncrease(PurchaseLine."Location Code");
+                        end;
+                    end;
+                // NAVCZ
+            until PurchaseLine.Next() = 0;
+        PurchaseLine.SetFilter(Type, '>0');
     end;
 
     procedure Reopen(var PurchHeader: Record "Purchase Header")
@@ -266,7 +282,7 @@ codeunit 415 "Release Purchase Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcInvDiscount(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean)
+    local procedure OnBeforeCalcInvDiscount(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; var LinesWereModified: Boolean)
     begin
     end;
 
@@ -362,6 +378,21 @@ codeunit 415 "Release Purchase Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterCheckPurchaseReleaseRestrictions(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeCalcAndUpdateVATOnLines(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnCheckPurchLineLocationCode(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMandatoryFields(PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }

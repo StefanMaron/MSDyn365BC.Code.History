@@ -1,4 +1,4 @@
-#if not CLEAN18
+﻿#if not CLEAN18
 codeunit 900 "Assembly-Post"
 {
     Permissions = TableData "Posted Assembly Header" = im,
@@ -76,7 +76,7 @@ codeunit 900 "Assembly-Post"
         NoSeriesMgt: Codeunit NoSeriesManagement;
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
     begin
-        OnBeforeInitPost(AssemblyHeader, SuppressCommit);
+        OnBeforeInitPost(AssemblyHeader, SuppressCommit, GenJnlPostPreview, PostingDate, PostingDateExists, ReplacePostingDate);
 
         with AssemblyHeader do begin
             TestField("Document Type");
@@ -1602,7 +1602,7 @@ codeunit 900 "Assembly-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitPost(var AssemblyHeader: Record "Assembly Header"; SuppressCommit: Boolean)
+    local procedure OnBeforeInitPost(var AssemblyHeader: Record "Assembly Header"; SuppressCommit: Boolean; var GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview"; var PostingDate: Date; PostingDateExists: Boolean; ReplacePostingDate: Boolean)
     begin
     end;
 

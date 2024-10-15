@@ -1,4 +1,4 @@
-table 110 "Sales Shipment Header"
+﻿table 110 "Sales Shipment Header"
 {
     Caption = 'Sales Shipment Header';
     DataCaptionFields = "No.", "Sell-to Customer Name";
@@ -799,7 +799,13 @@ table 110 "Sales Shipment Header"
     procedure Navigate()
     var
         NavigatePage: Page Navigate;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeNavigate(Rec, IsHandled);
+        If IsHandled then
+            exit;
+
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
         NavigatePage.Run();
@@ -928,4 +934,10 @@ table 110 "Sales Shipment Header"
     local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var CustLedgEntry: Record "Cust. Ledger Entry"; SalesShipmentHeader: Record "Sales Shipment Header")
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNavigate(SalesShipmentHeader: Record "Sales Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
 }
+

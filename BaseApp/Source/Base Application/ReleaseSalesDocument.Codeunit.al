@@ -58,11 +58,11 @@ codeunit 414 "Release Sales Document"
             TestSellToCustomerNo(SalesHeader);
 
             IsHandled := false;
-            OnCodeOnAfterCheckCustomerCreated(SalesHeader, PreviewMode, IsHandled);
+            OnCodeOnAfterCheckCustomerCreated(SalesHeader, PreviewMode, IsHandled, LinesWereModified);
             if IsHandled then
                 exit;
 
-            CheckSalesLines(SalesLine);
+            CheckSalesLines(SalesLine, LinesWereModified);
 
             OnCodeOnAfterCheck(SalesHeader, SalesLine, LinesWereModified);
 
@@ -73,7 +73,7 @@ codeunit 414 "Release Sales Document"
 
             SalesLine.Reset();
 
-            OnBeforeCalcInvDiscount(SalesHeader, PreviewMode);
+            OnBeforeCalcInvDiscount(SalesHeader, PreviewMode, LinesWereModified);
 
             SalesSetup.Get();
             if SalesSetup."Calc. Inv. Discount" then begin
@@ -110,6 +110,7 @@ codeunit 414 "Release Sales Document"
             OnAfterReleaseATOs(SalesHeader, SalesLine, PreviewMode);
 
             Modify(true);
+            OnCodeOnAfterModifySalesDoc(SalesHeader, LinesWereModified);
 
             if NotOnlyDropShipment then
                 if "Document Type" in ["Document Type"::Order, "Document Type"::"Return Order"] then
@@ -119,7 +120,7 @@ codeunit 414 "Release Sales Document"
         end;
     end;
 
-    local procedure CheckSalesLines(var SalesLine: Record "Sales Line")
+    local procedure CheckSalesLines(var SalesLine: Record "Sales Line"; var LinesWereModified: Boolean)
     var
         IsHandled: Boolean;
     begin
@@ -128,26 +129,42 @@ codeunit 414 "Release Sales Document"
         if IsHandled then
             exit;
 
-        with SalesHeader do begin
-            SalesLine.SetRange("Document Type", "Document Type");
-            SalesLine.SetRange("Document No.", "No.");
-            SalesLine.SetFilter(Type, '>0');
-            SalesLine.SetFilter(Quantity, '<>0');
-            OnBeforeSalesLineFind(SalesLine, SalesHeader);
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetFilter(Type, '>0');
+        SalesLine.SetFilter(Quantity, '<>0');
+        IsHandled := false;
+        OnBeforeSalesLineFind(SalesLine, SalesHeader, LinesWereModified, IsHandled);
+        if not IsHandled then
             if not SalesLine.Find('-') then
-                Error(Text001, "Document Type", "No.");
-            InvtSetup.Get();
-            if InvtSetup."Location Mandatory" then begin
-                SalesLine.SetRange(Type, SalesLine.Type::Item);
-                if SalesLine.FindSet() then
-                    repeat
-                        if SalesLine.IsInventoriableItem then
+                Error(Text001, SalesHeader."Document Type", SalesHeader."No.");
+
+        CheckMandatoryFields(SalesLine);
+    end;
+
+    local procedure CheckMandatoryFields(var SalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckMandatoryFields(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        InvtSetup.Get();
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        if SalesLine.FindSet() then
+            repeat
+                if InvtSetup."Location Mandatory" then
+                    if SalesLine.IsInventoriableItem() then begin
+                        IsHandled := false;
+                        OnCodeOnBeforeSalesLineCheck(SalesLine, IsHandled);
+                        if not IsHandled then
                             SalesLine.TestField("Location Code");
-                        OnCodeOnAfterSalesLineCheck(SalesLine);
-                    until SalesLine.Next() = 0;
-                SalesLine.SetFilter(Type, '>0');
-            end;
-        end;
+                    end;
+                OnCodeOnAfterSalesLineCheck(SalesLine);
+            until SalesLine.Next() = 0;
+        SalesLine.SetFilter(Type, '>0');
     end;
 
     local procedure TestSellToCustomerNo(var SalesHeader: Record "Sales Header")
@@ -344,7 +361,7 @@ codeunit 414 "Release Sales Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcInvDiscount(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean)
+    local procedure OnBeforeCalcInvDiscount(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var LinesWereModified: Boolean)
     begin
     end;
 
@@ -409,7 +426,7 @@ codeunit 414 "Release Sales Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesLineFind(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header")
+    local procedure OnBeforeSalesLineFind(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; var LinesWereModified: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -445,6 +462,11 @@ codeunit 414 "Release Sales Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterSalesLineCheck(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeSalesLineCheck(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -489,7 +511,17 @@ codeunit 414 "Release Sales Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCodeOnAfterCheckCustomerCreated(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var IsHandled: Boolean)
+    local procedure OnCodeOnAfterCheckCustomerCreated(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var IsHandled: Boolean; var LinesWereModified: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterModifySalesDoc(var SalesHeader: Record "Sales Header"; var LinesWereModified: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckMandatoryFields(SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }
