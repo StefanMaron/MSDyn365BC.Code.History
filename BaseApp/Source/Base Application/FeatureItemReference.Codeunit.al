@@ -39,6 +39,7 @@ Codeunit 5721 "Feature - Item Reference" implements "Feature Data Update"
 
     procedure UpdateData(FeatureDataUpdateStatus: Record "Feature Data Update Status");
     var
+        DisableAggregateTableUpdate: Codeunit "Disable Aggregate Table Update";
         StartDateTime: DateTime;
     begin
 #if not CLEAN16
@@ -48,17 +49,21 @@ Codeunit 5721 "Feature - Item Reference" implements "Feature Data Update"
         if not ItemReference.IsEmpty() then
             exit;
 
+        DisableAggregateTableUpdate.SetDisableAllRecords(true);
+        BindSubscription(DisableAggregateTableUpdate);
+
         StartDateTime := CurrentDateTime;
         ItemCrossReference.FindSet();
         repeat
-            ItemReference.Init();
-            ItemReference.TransferFields(ItemCrossReference, true);
+            Clear(ItemReference);
+            ItemReference.TransferFields(ItemCrossReference, true, true);
             ItemReference.SystemId := ItemCrossReference.SystemId;
             if ItemReference.Insert(false, true) then;
         until ItemCrossReference.Next() = 0;
         FeatureDataUpdateMgt.LogTask(FeatureDataUpdateStatus, ItemReference.TableCaption(), StartDateTime);
 
         StartDateTime := CurrentDateTime;
+        ItemLedgerEntry.SetLoadFields("Cross-Reference No.", "Item Reference No.");
         ItemLedgerEntry.SetFilter("Cross-Reference No.", '<>%1', '');
         if ItemLedgerEntry.FindSet() then
             repeat
@@ -68,6 +73,7 @@ Codeunit 5721 "Feature - Item Reference" implements "Feature Data Update"
         FeatureDataUpdateMgt.LogTask(FeatureDataUpdateStatus, ItemLedgerEntry.TableCaption(), StartDateTime);
 
         StartDateTime := CurrentDateTime;
+        ItemJournalLine.SetLoadFields("Cross-Reference No.", "Item Reference No.");
         ItemJournalLine.SetFilter("Cross-Reference No.", '<>%1', '');
         if ItemJournalLine.FindSet() then
             repeat
@@ -131,56 +137,124 @@ Codeunit 5721 "Feature - Item Reference" implements "Feature Data Update"
         ItemJournalLine.SetFilter("Cross-Reference No.", '<>%1', '');
         InsertDocumentEntry(Database::"Item Journal Line", ItemJournalLine.TableCaption, ItemJournalLine.CountApprox);
 
+        PurchaseLine.SetLoadFields(
+            "Cross-Reference No.", "Cross-Reference Type", "Cross-Reference Type No.", "Unit of Measure (Cross Ref.)",
+            "IC Partner Ref. Type", "IC Partner Reference", "IC Item Reference No.",
+            "Item Reference No.", "Item Reference Type", "Item Reference Type No.", "Item Reference Unit of Measure");
         PurchaseLine.SetFilter("Cross-Reference No.", '<>%1', '');
         InsertDocumentEntry(Database::"Purchase Line", PurchaseLine.TableCaption, PurchaseLine.CountApprox);
+
+        PurchaseLineArchive.SetLoadFields(
+            "Cross-Reference No.", "Cross-Reference Type", "Cross-Reference Type No.", "Unit of Measure (Cross Ref.)",
+            "IC Partner Ref. Type", "IC Partner Reference", "IC Item Reference No.",
+            "Item Reference No.", "Item Reference Type", "Item Reference Type No.", "Item Reference Unit of Measure");
         PurchaseLineArchive.SetFilter("Cross-Reference No.", '<>%1', '');
         InsertDocumentEntry(Database::"Purchase Line Archive", PurchaseLineArchive.TableCaption, PurchaseLineArchive.CountApprox);
+
+        PurchRcptLine.SetLoadFields(
+            "Cross-Reference No.", "Cross-Reference Type", "Cross-Reference Type No.", "Unit of Measure (Cross Ref.)",
+            "IC Partner Ref. Type", "IC Partner Reference", "IC Item Reference No.",
+            "Item Reference No.", "Item Reference Type", "Item Reference Type No.", "Item Reference Unit of Measure");
         PurchRcptLine.SetFilter("Cross-Reference No.", '<>%1', '');
         InsertDocumentEntry(Database::"Purch. Rcpt. Line", PurchRcptLine.TableCaption, PurchRcptLine.CountApprox);
+
+        PurchInvLine.SetLoadFields(
+            "Cross-Reference No.", "Cross-Reference Type", "Cross-Reference Type No.", "Unit of Measure (Cross Ref.)",
+            "IC Partner Ref. Type", "IC Partner Reference", "IC Cross-Reference No.",
+            "Item Reference No.", "Item Reference Type", "Item Reference Type No.", "Item Reference Unit of Measure");
         PurchInvLine.SetFilter("Cross-Reference No.", '<>%1', '');
         InsertDocumentEntry(Database::"Purch. Inv. Line", PurchInvLine.TableCaption, PurchInvLine.CountApprox);
+
+        PurchCrMemoLine.SetLoadFields(
+            "Cross-Reference No.", "Cross-Reference Type", "Cross-Reference Type No.", "Unit of Measure (Cross Ref.)",
+            "IC Partner Ref. Type", "IC Partner Reference", "IC Item Reference No.",
+            "Item Reference No.", "Item Reference Type", "Item Reference Type No.", "Item Reference Unit of Measure");
         PurchCrMemoLine.SetFilter("Cross-Reference No.", '<>%1', '');
         InsertDocumentEntry(Database::"Purch. Cr. Memo Line", PurchCrMemoLine.TableCaption, PurchCrMemoLine.CountApprox);
+
+        ReturnShipmentLine.SetLoadFields(
+            "Cross-Reference No.", "Cross-Reference Type", "Cross-Reference Type No.", "Unit of Measure (Cross Ref.)",
+            "Item Reference No.", "Item Reference Type", "Item Reference Type No.", "Item Reference Unit of Measure");
         ReturnShipmentLine.SetFilter("Cross-Reference No.", '<>%1', '');
         InsertDocumentEntry(Database::"Return Shipment Line", ReturnShipmentLine.TableCaption, ReturnShipmentLine.CountApprox);
 
+        ICInboxPurchaseLine.SetLoadFields("IC Partner Reference", "IC Item Reference No.");
         ICInboxPurchaseLine.SetRange("IC Partner Ref. Type", "IC Partner Reference Type"::"Cross Reference");
         ICInboxPurchaseLine.SetFilter("IC Partner Reference", '<>%1', '');
         InsertDocumentEntry(Database::"IC Inbox Purchase Line", ICInboxPurchaseLine.TableCaption, ICInboxPurchaseLine.CountApprox);
+
+        ICOutboxPurchaseLine.SetLoadFields("IC Partner Reference", "IC Item Reference No.");
         ICOutboxPurchaseLine.SetRange("IC Partner Ref. Type", "IC Partner Reference Type"::"Cross Reference");
         ICOutboxPurchaseLine.SetFilter("IC Partner Reference", '<>%1', '');
         InsertDocumentEntry(Database::"IC Outbox Purchase Line", ICOutboxPurchaseLine.TableCaption, ICOutboxPurchaseLine.CountApprox);
 
+        HandledICInboxPurchLine.SetLoadFields("IC Partner Reference", "IC Item Reference No.");
         HandledICInboxPurchLine.SetRange("IC Partner Ref. Type", "IC Partner Reference Type"::"Cross Reference");
         HandledICInboxPurchLine.SetFilter("IC Partner Reference", '<>%1', '');
         InsertDocumentEntry(Database::"Handled IC Inbox Purch. Line", HandledICInboxPurchLine.TableCaption, HandledICInboxPurchLine.CountApprox);
+
+        HandledICOutboxPurchLine.SetLoadFields("IC Partner Reference", "IC Item Reference No.");
         HandledICOutboxPurchLine.SetRange("IC Partner Ref. Type", "IC Partner Reference Type"::"Cross Reference");
         HandledICOutboxPurchLine.SetFilter("IC Partner Reference", '<>%1', '');
         InsertDocumentEntry(Database::"Handled IC Outbox Purch. Line", HandledICOutboxPurchLine.TableCaption, handledICOutboxPurchLine.CountApprox);
 
+        SalesLine.SetLoadFields(
+            "Cross-Reference No.", "Cross-Reference Type", "Cross-Reference Type No.", "Unit of Measure (Cross Ref.)",
+            "IC Partner Ref. Type", "IC Partner Reference", "IC Item Reference No.",
+            "Item Reference No.", "Item Reference Type", "Item Reference Type No.", "Item Reference Unit of Measure");
         SalesLine.SetFilter("Cross-Reference No.", '<>%1', '');
         InsertDocumentEntry(Database::"Sales Line", SalesLine.TableCaption, SalesLine.CountApprox);
+
+        SalesLineArchive.SetLoadFields(
+            "Cross-Reference No.", "Cross-Reference Type", "Cross-Reference Type No.", "Unit of Measure (Cross Ref.)",
+            "IC Partner Ref. Type", "IC Partner Reference", "IC Item Reference No.",
+            "Item Reference No.", "Item Reference Type", "Item Reference Type No.", "Item Reference Unit of Measure");
         SalesLineArchive.SetFilter("Cross-Reference No.", '<>%1', '');
         InsertDocumentEntry(Database::"Sales Line Archive", SalesLineArchive.TableCaption, SalesLineArchive.CountApprox);
+
+        SalesShipmentLine.SetLoadFields(
+            "Cross-Reference No.", "Cross-Reference Type", "Cross-Reference Type No.", "Unit of Measure (Cross Ref.)",
+            "IC Partner Ref. Type", "IC Partner Reference", "IC Item Reference No.",
+            "Item Reference No.", "Item Reference Type", "Item Reference Type No.", "Item Reference Unit of Measure");
         SalesShipmentLine.SetFilter("Cross-Reference No.", '<>%1', '');
         InsertDocumentEntry(Database::"Sales Shipment Line", SalesShipmentLine.TableCaption, SalesShipmentLine.CountApprox);
+
+        SalesInvoiceLine.SetLoadFields(
+            "Cross-Reference No.", "Cross-Reference Type", "Cross-Reference Type No.", "Unit of Measure (Cross Ref.)",
+            "IC Partner Ref. Type", "IC Partner Reference", "IC Item Reference No.",
+            "Item Reference No.", "Item Reference Type", "Item Reference Type No.", "Item Reference Unit of Measure");
         SalesInvoiceLine.SetFilter("Cross-Reference No.", '<>%1', '');
         InsertDocumentEntry(Database::"Sales Invoice Line", SalesInvoiceLine.TableCaption, SalesInvoiceLine.CountApprox);
+
+        SalesCrMemoLine.SetLoadFields(
+            "Cross-Reference No.", "Cross-Reference Type", "Cross-Reference Type No.", "Unit of Measure (Cross Ref.)",
+            "IC Partner Ref. Type", "IC Partner Reference", "IC Item Reference No.",
+            "Item Reference No.", "Item Reference Type", "Item Reference Type No.", "Item Reference Unit of Measure");
         SalesCrMemoLine.SetFilter("Cross-Reference No.", '<>%1', '');
         InsertDocumentEntry(Database::"Sales Cr.Memo Line", SalesCrMemoLine.TableCaption, SalesCrMemoLine.CountApprox);
+
+        ReturnReceiptLine.SetLoadFields(
+            "Cross-Reference No.", "Cross-Reference Type", "Cross-Reference Type No.", "Unit of Measure (Cross Ref.)",
+            "Item Reference No.", "Item Reference Type", "Item Reference Type No.", "Item Reference Unit of Measure");
         ReturnReceiptLine.SetFilter("Cross-Reference No.", '<>%1', '');
         InsertDocumentEntry(Database::"Return Receipt Line", ReturnReceiptLine.TableCaption, ReturnReceiptLine.CountApprox);
 
+        ICInboxSalesLine.SetLoadFields("IC Partner Reference", "IC Item Reference No.");
         ICInboxSalesLine.SetRange("IC Partner Ref. Type", "IC Partner Reference Type"::"Cross Reference");
         ICInboxSalesLine.SetFilter("IC Partner Reference", '<>%1', '');
         InsertDocumentEntry(Database::"IC Inbox Sales Line", ICInboxSalesLine.TableCaption, ICInboxSalesLine.CountApprox);
+
+        ICOutboxSalesLine.SetLoadFields("IC Partner Reference", "IC Item Reference No.");
         ICOutboxSalesLine.SetRange("IC Partner Ref. Type", "IC Partner Reference Type"::"Cross Reference");
         ICOutboxSalesLine.SetFilter("IC Partner Reference", '<>%1', '');
         InsertDocumentEntry(Database::"IC Outbox Sales Line", ICOutboxSalesLine.TableCaption, ICOutboxSalesLine.CountApprox);
 
+        HandledICInboxSalesLine.SetLoadFields("IC Partner Reference", "IC Item Reference No.");
         HandledICInboxSalesLine.SetRange("IC Partner Ref. Type", "IC Partner Reference Type"::"Cross Reference");
         HandledICInboxSalesLine.SetFilter("IC Partner Reference", '<>%1', '');
         InsertDocumentEntry(Database::"Handled IC Inbox Sales Line", HandledICInboxSalesLine.TableCaption, HandledICInboxSalesLine.CountApprox);
+
+        HandledICOutboxSalesLine.SetLoadFields("IC Partner Reference", "IC Item Reference No.");
         HandledICOutboxSalesLine.SetRange("IC Partner Ref. Type", "IC Partner Reference Type"::"Cross Reference");
         HandledICOutboxSalesLine.SetFilter("IC Partner Reference", '<>%1', '');
         InsertDocumentEntry(Database::"Handled IC Outbox Sales Line", HandledICOutboxSalesLine.TableCaption, handledICOutboxSalesLine.CountApprox);

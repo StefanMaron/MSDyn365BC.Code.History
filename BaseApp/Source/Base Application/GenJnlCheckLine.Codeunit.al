@@ -259,7 +259,8 @@ codeunit 11 "Gen. Jnl.-Check Line"
             SourceCodeSetup.Get();
             if SourceCodeSetup."Close Income Statement" = "Source Code" then
                 CheckPostingPeriod(false);
-            VATTools.RunCheckNorwegianVAT(GenJnlLine, AllowPostingInClosedVATPeriod);
+            if SourceCodeSetup."Inventory Post Cost" <> "Source Code" then
+                VATTools.RunCheckNorwegianVAT(GenJnlLine, AllowPostingInClosedVATPeriod);
             CheckPostingPeriod(true);
 
             if "Document Date" <> 0D then

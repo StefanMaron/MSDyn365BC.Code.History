@@ -12,10 +12,10 @@
 
     trigger OnRun()
     begin
-        WhseActivLine.Copy(Rec);
-        WhseActivLine.SetAutoCalcFields;
-        Code;
-        Rec := WhseActivLine;
+        GlobalWhseActivLine.Copy(Rec);
+        GlobalWhseActivLine.SetAutoCalcFields();
+        Code();
+        Rec := GlobalWhseActivLine;
     end;
 
     var
@@ -24,8 +24,8 @@
         Text002: Label 'Registering lines     #3###### @4@@@@@@@@@@@@@';
         Location: Record Location;
         Item: Record Item;
-        WhseActivHeader: Record "Warehouse Activity Header";
-        WhseActivLine: Record "Warehouse Activity Line";
+        GlobalWhseActivHeader: Record "Warehouse Activity Header";
+        GlobalWhseActivLine: Record "Warehouse Activity Line";
         RegisteredWhseActivHeader: Record "Registered Whse. Activity Hdr.";
         RegisteredWhseActivLine: Record "Registered Whse. Activity Line";
         RegisteredInvtMovementHdr: Record "Registered Invt. Movement Hdr.";
@@ -67,48 +67,48 @@
         TempWhseActivityLineGrouped: Record "Warehouse Activity Line" temporary;
         SkipDelete: Boolean;
     begin
-        OnBeforeCode(WhseActivLine);
+        OnBeforeCode(GlobalWhseActivLine);
 
-        with WhseActivHeader do begin
-            WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type");
-            WhseActivLine.SetRange("No.", WhseActivLine."No.");
-            WhseActivLine.SetFilter("Qty. to Handle (Base)", '<>0');
+        with GlobalWhseActivHeader do begin
+            GlobalWhseActivLine.SetRange("Activity Type", GlobalWhseActivLine."Activity Type");
+            GlobalWhseActivLine.SetRange("No.", GlobalWhseActivLine."No.");
+            GlobalWhseActivLine.SetFilter("Qty. to Handle (Base)", '<>0');
 
-            CheckWhseActivLineIsEmpty(WhseActivLine);
+            CheckWhseActivLineIsEmpty(GlobalWhseActivLine);
 
-            MaintainZeroLines(WhseActivLine);
+            MaintainZeroLines(GlobalWhseActivLine);
 
-            CheckWhseItemTrkgLine(WhseActivLine);
+            CheckWhseItemTrkgLine(GlobalWhseActivLine);
 
-            Get(WhseActivLine."Activity Type", WhseActivLine."No.");
+            Get(GlobalWhseActivLine."Activity Type", GlobalWhseActivLine."No.");
             LocationGet("Location Code");
 
             UpdateWindow(1, "No.");
 
             // Check Lines
             CheckLines;
-            OnCodeOnAfterCheckLines(WhseActivHeader);
+            OnCodeOnAfterCheckLines(GlobalWhseActivHeader);
 
             // Register lines
             SourceCodeSetup.Get();
             LineCount := 0;
-            CreateRegActivHeader(WhseActivHeader);
+            CreateRegActivHeader(GlobalWhseActivHeader);
 
             TempWhseActivLineToReserve.DeleteAll();
             TempWhseActivityLineGrouped.DeleteAll();
 
-            WhseActivLine.LockTable();
+            GlobalWhseActivLine.LockTable();
             WhseJnlRegisterLine.LockTables();
 
             // breakbulk first to provide quantity for pick lines in smaller UoM
-            WhseActivLine.SetFilter("Breakbulk No.", '<>0');
-            RegisterWhseActivityLines(WhseActivLine, TempWhseActivLineToReserve, TempWhseActivityLineGrouped);
+            GlobalWhseActivLine.SetFilter("Breakbulk No.", '<>0');
+            RegisterWhseActivityLines(GlobalWhseActivLine, TempWhseActivLineToReserve, TempWhseActivityLineGrouped);
 
-            WhseActivLine.SetRange("Breakbulk No.", 0);
-            RegisterWhseActivityLines(WhseActivLine, TempWhseActivLineToReserve, TempWhseActivityLineGrouped);
-            WhseActivLine.SetRange("Breakbulk No.");
+            GlobalWhseActivLine.SetRange("Breakbulk No.", 0);
+            RegisterWhseActivityLines(GlobalWhseActivLine, TempWhseActivLineToReserve, TempWhseActivityLineGrouped);
+            GlobalWhseActivLine.SetRange("Breakbulk No.");
 
-            OnCodeOnBeforeTempWhseActivityLineGroupedLoop(WhseActivHeader, WhseActivLine, RegisteredWhseActivHeader);
+            OnCodeOnBeforeTempWhseActivityLineGroupedLoop(GlobalWhseActivHeader, GlobalWhseActivLine, RegisteredWhseActivHeader);
             TempWhseActivityLineGrouped.Reset();
             if TempWhseActivityLineGrouped.FindSet then
                 repeat
@@ -123,54 +123,54 @@
             if Location."Bin Mandatory" then begin
                 LineCount := 0;
                 Clear(OldWhseActivLine);
-                WhseActivLine.Reset();
-                WhseActivLine.SetCurrentKey(
+                GlobalWhseActivLine.Reset();
+                GlobalWhseActivLine.SetCurrentKey(
                   "Activity Type", "No.", "Whse. Document Type", "Whse. Document No.");
-                WhseActivLine.SetRange("Activity Type", Type);
-                WhseActivLine.SetRange("No.", "No.");
-                if WhseActivLine.Find('-') then
+                GlobalWhseActivLine.SetRange("Activity Type", Type);
+                GlobalWhseActivLine.SetRange("No.", "No.");
+                if GlobalWhseActivLine.Find('-') then
                     repeat
                         if ((LineCount = 1) and
-                            ((OldWhseActivLine."Whse. Document Type" <> WhseActivLine."Whse. Document Type") or
-                             (OldWhseActivLine."Whse. Document No." <> WhseActivLine."Whse. Document No.")))
+                            ((OldWhseActivLine."Whse. Document Type" <> GlobalWhseActivLine."Whse. Document Type") or
+                             (OldWhseActivLine."Whse. Document No." <> GlobalWhseActivLine."Whse. Document No.")))
                         then begin
                             LineCount := 0;
                             OldWhseActivLine.Delete();
                         end;
-                        OldWhseActivLine := WhseActivLine;
+                        OldWhseActivLine := GlobalWhseActivLine;
                         LineCount := LineCount + 1;
-                    until WhseActivLine.Next() = 0;
+                    until GlobalWhseActivLine.Next() = 0;
                 if LineCount = 1 then
                     OldWhseActivLine.Delete();
             end;
-            OnBeforeUpdWhseActivHeader(WhseActivHeader, WhseActivLine);
-            WhseActivLine.Reset();
-            WhseActivLine.SetRange("Activity Type", Type);
-            WhseActivLine.SetRange("No.", "No.");
-            WhseActivLine.SetFilter("Qty. Outstanding", '<>%1', 0);
-            if not WhseActivLine.Find('-') then begin
+            OnBeforeUpdWhseActivHeader(GlobalWhseActivHeader, GlobalWhseActivLine);
+            GlobalWhseActivLine.Reset();
+            GlobalWhseActivLine.SetRange("Activity Type", Type);
+            GlobalWhseActivLine.SetRange("No.", "No.");
+            GlobalWhseActivLine.SetFilter("Qty. Outstanding", '<>%1', 0);
+            if not GlobalWhseActivLine.Find('-') then begin
                 SkipDelete := false;
-                OnBeforeWhseActivHeaderDelete(WhseActivHeader, SkipDelete);
+                OnBeforeWhseActivHeaderDelete(GlobalWhseActivHeader, SkipDelete);
                 if not SkipDelete then
                     Delete(true);
             end else begin
                 "Last Registering No." := "Registering No.";
                 "Registering No." := '';
                 Modify();
-                AutofillQtyToHandle(WhseActivLine);
+                AutofillQtyToHandle(GlobalWhseActivLine);
             end;
             if not HideDialog then
                 Window.Close();
 
             OnCodeOnBeforeCommit(RegisteredWhseActivHeader, RegisteredWhseActivLine);
             if not SuppressCommit then begin
-                OnBeforeCommit(WhseActivHeader);
+                OnBeforeCommit(GlobalWhseActivHeader);
                 Commit();
             end;
             Clear(WhseJnlRegisterLine);
         end;
 
-        OnAfterRegisterWhseActivity(WhseActivHeader);
+        OnAfterRegisterWhseActivity(GlobalWhseActivHeader);
     end;
 
     local procedure RegisterWhseActivityLines(var WarehouseActivityLine: Record "Warehouse Activity Line"; var TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary; var TempWhseActivityLineGrouped: Record "Warehouse Activity Line" temporary)
@@ -428,17 +428,17 @@
         end;
     end;
 
-    procedure UpdateWhseSourceDocLine(WhseActivLine: Record "Warehouse Activity Line")
+    procedure UpdateWhseSourceDocLine(WhseActivLineGrouped: Record "Warehouse Activity Line")
     var
         WhseDocType2: Option;
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateWhseSourceDocLine(WhseActivLine, IsHandled);
+        OnBeforeUpdateWhseSourceDocLine(WhseActivLineGrouped, IsHandled);
         if IsHandled then
             exit;
 
-        with WhseActivLine do begin
+        with WhseActivLineGrouped do begin
             if "Original Breakbulk" then
                 exit;
 
@@ -449,31 +449,31 @@
             case WhseDocType2 of
                 "Whse. Document Type"::Shipment:
                     if ("Action Type" <> "Action Type"::Take) and ("Breakbulk No." = 0) then
-                        UpdateWhseShptLine(
-                          "Whse. Document No.", "Whse. Document Line No.",
+                        UpdateWhseShipmentLine(
+                          WhseActivLineGrouped, "Whse. Document No.", "Whse. Document Line No.",
                           "Qty. to Handle", "Qty. to Handle (Base)", "Qty. per Unit of Measure");
                 "Whse. Document Type"::"Internal Pick":
                     if ("Action Type" <> "Action Type"::Take) and ("Breakbulk No." = 0) then
-                        UpdateWhseIntPickLine(WhseActivLine);
+                        UpdateWhseIntPickLine(WhseActivLineGrouped);
                 "Whse. Document Type"::Production:
                     if ("Action Type" <> "Action Type"::Take) and ("Breakbulk No." = 0) then
-                        UpdateProdCompLine(WhseActivLine);
+                        UpdateProdCompLine(WhseActivLineGrouped);
                 "Whse. Document Type"::Assembly:
                     if ("Action Type" <> "Action Type"::Take) and ("Breakbulk No." = 0) then
-                        UpdateAssemblyLine(WhseActivLine);
+                        UpdateAssemblyLine(WhseActivLineGrouped);
                 "Whse. Document Type"::Receipt:
                     if "Action Type" <> "Action Type"::Place then
-                        UpdatePostedWhseRcptLine(WhseActivLine);
+                        UpdatePostedWhseRcptLine(WhseActivLineGrouped);
                 "Whse. Document Type"::"Internal Put-away":
                     if "Action Type" <> "Action Type"::Take then
-                        UpdateWhseIntPutAwayLine(WhseActivLine);
+                        UpdateWhseIntPutAwayLine(WhseActivLineGrouped);
             end;
 
             if "Activity Type" = "Activity Type"::"Invt. Movement" then
-                UpdateSourceDocForInvtMovement(WhseActivLine);
+                UpdateSourceDocForInvtMovement(WhseActivLineGrouped);
         end;
 
-        OnAfterUpdateWhseSourceDocLine(WhseActivLine, WhseDocType2);
+        OnAfterUpdateWhseSourceDocLine(WhseActivLineGrouped, WhseDocType2);
     end;
 
     procedure UpdateWhseDocHeader(WhseActivLine: Record "Warehouse Activity Line")
@@ -583,6 +583,11 @@
     end;
 
     procedure UpdateWhseShptLine(WhseDocNo: Code[20]; WhseDocLineNo: Integer; QtyToHandle: Decimal; QtyToHandleBase: Decimal; QtyPerUOM: Decimal)
+    begin
+        UpdateWhseShipmentLine(GlobalWhseActivLine, WhseDocNo, WhseDocLineNo, QtyToHandle, QtyToHandleBase, QtyPerUOM);
+    end;
+
+    procedure UpdateWhseShipmentLine(WhseActivityLineGrouped: Record "Warehouse Activity Line"; WhseDocNo: Code[20]; WhseDocLineNo: Integer; QtyToHandle: Decimal; QtyToHandleBase: Decimal; QtyPerUOM: Decimal)
     var
         WhseShptLine: Record "Warehouse Shipment Line";
     begin
@@ -608,7 +613,7 @@
         WhseShptLine.Validate("Qty. to Ship", WhseShptLine."Qty. Picked" - WhseShptLine."Qty. Shipped");
         WhseShptLine."Qty. to Ship (Base)" := WhseShptLine."Qty. Picked (Base)" - WhseShptLine."Qty. Shipped (Base)";
         WhseShptLine.Status := WhseShptLine.CalcStatusShptLine;
-        OnBeforeWhseShptLineModify(WhseShptLine, WhseActivLine);
+        OnBeforeWhseShptLineModify(WhseShptLine, GlobalWhseActivLine, WhseActivityLineGrouped);
         WhseShptLine.Modify();
         OnAfterWhseShptLineModify(WhseShptLine);
     end;
@@ -894,8 +899,8 @@
             BreakBulkWhseActivLine.SetRange("Variant Code", "Variant Code");
             BreakBulkWhseActivLine.SetRange("Unit of Measure Code", "Unit of Measure Code");
             BreakBulkWhseActivLine.SetFilter("Breakbulk No.", '<>0');
-            BreakBulkWhseActivLine.SetRange("Activity Type", WhseActivHeader.Type);
-            BreakBulkWhseActivLine.SetRange("No.", WhseActivHeader."No.");
+            BreakBulkWhseActivLine.SetRange("Activity Type", GlobalWhseActivHeader.Type);
+            BreakBulkWhseActivLine.SetRange("No.", GlobalWhseActivHeader."No.");
             BreakBulkWhseActivLine.SetTrackingFilterFromBinContentBuffer(TempBinContentBuffer);
             if BreakBulkWhseActivLine.Find('-') then
                 repeat
@@ -1107,7 +1112,7 @@
 
                 TempTrackingSpecification.Init();
                 TempTrackingSpecification."Entry No." := NextEntryNo;
-                if WhseActivLine."Source Type" = DATABASE::"Prod. Order Component" then
+                if WhseActivLine2."Source Type" = DATABASE::"Prod. Order Component" then
                     TempTrackingSpecification.SetSource(
                       WhseActivLine2."Source Type", WhseActivLine2."Source Subtype", WhseActivLine2."Source No.",
                       WhseActivLine2."Source Subline No.", '', WhseActivLine2."Source Line No.")
@@ -1603,7 +1608,7 @@
         with WhseActivLine2 do begin
             NextEntryNo := TempTrackingSpecification.GetLastEntryNo() + 1;
             TempTrackingSpecification.Init();
-            if WhseActivLine."Source Type" = DATABASE::"Prod. Order Component" then
+            if WhseActivLine2."Source Type" = DATABASE::"Prod. Order Component" then
                 TempTrackingSpecification.SetSource("Source Type", "Source Subtype", "Source No.", "Source Subline No.", '', "Source Line No.")
             else
                 TempTrackingSpecification.SetSource("Source Type", "Source Subtype", "Source No.", "Source Line No.", '', 0);
@@ -1672,36 +1677,36 @@
 
     local procedure CheckLines()
     begin
-        OnBeforeCheckLines(WhseActivHeader, WhseActivLine, TempBinContentBuffer);
+        OnBeforeCheckLines(GlobalWhseActivHeader, GlobalWhseActivLine, TempBinContentBuffer);
 
-        with WhseActivHeader do begin
+        with GlobalWhseActivHeader do begin
             TempBinContentBuffer.DeleteAll();
             LineCount := 0;
-            if WhseActivLine.Find('-') then
+            if GlobalWhseActivLine.Find('-') then
                 repeat
                     LineCount := LineCount + 1;
                     UpdateWindow(2, '');
-                    WhseActivLine.CheckBinInSourceDoc;
-                    WhseActivLine.TestField("Item No.");
-                    if (WhseActivLine."Activity Type" = WhseActivLine."Activity Type"::Pick) and
-                       (WhseActivLine."Destination Type" = WhseActivLine."Destination Type"::Customer)
+                    GlobalWhseActivLine.CheckBinInSourceDoc;
+                    GlobalWhseActivLine.TestField("Item No.");
+                    if (GlobalWhseActivLine."Activity Type" = GlobalWhseActivLine."Activity Type"::Pick) and
+                       (GlobalWhseActivLine."Destination Type" = GlobalWhseActivLine."Destination Type"::Customer)
                     then begin
-                        WhseActivLine.TestField("Destination No.");
-                        Cust.Get(WhseActivLine."Destination No.");
+                        GlobalWhseActivLine.TestField("Destination No.");
+                        Cust.Get(GlobalWhseActivLine."Destination No.");
                         Cust.CheckBlockedCustOnDocs(Cust, "Source Document", false, false);
                     end;
                     if Location."Bin Mandatory" then
-                        CheckBinRelatedFields();
+                        CheckBinRelatedFields(GlobalWhseActivLine);
 
-                    OnAfterCheckWhseActivLine(WhseActivLine);
+                    OnAfterCheckWhseActivLine(GlobalWhseActivLine);
 
-                    if ((WhseActivLine."Activity Type" = WhseActivLine."Activity Type"::Pick) or
-                        (WhseActivLine."Activity Type" = WhseActivLine."Activity Type"::"Invt. Pick") or
-                        (WhseActivLine."Activity Type" = WhseActivLine."Activity Type"::"Invt. Movement")) and
-                       (WhseActivLine."Action Type" = WhseActivLine."Action Type"::Take)
+                    if ((GlobalWhseActivLine."Activity Type" = GlobalWhseActivLine."Activity Type"::Pick) or
+                        (GlobalWhseActivLine."Activity Type" = GlobalWhseActivLine."Activity Type"::"Invt. Pick") or
+                        (GlobalWhseActivLine."Activity Type" = GlobalWhseActivLine."Activity Type"::"Invt. Movement")) and
+                       (GlobalWhseActivLine."Action Type" = GlobalWhseActivLine."Action Type"::Take)
                     then
-                        CheckItemTrackingInfoBlocked(WhseActivLine);
-                until WhseActivLine.Next() = 0;
+                        CheckItemTrackingInfoBlocked(GlobalWhseActivLine);
+                until GlobalWhseActivLine.Next() = 0;
             NoOfRecords := LineCount;
 
             if Location."Bin Mandatory" then begin
@@ -1718,10 +1723,10 @@
             end;
         end;
 
-        OnAfterCheckLines(WhseActivHeader, WhseActivLine);
+        OnAfterCheckLines(GlobalWhseActivHeader, GlobalWhseActivLine);
     end;
 
-    local procedure CheckBinRelatedFields()
+    local procedure CheckBinRelatedFields(WhseActivLine: Record "Warehouse Activity Line")
     var
         IsHandled: Boolean;
     begin
@@ -1732,7 +1737,8 @@
 
         WhseActivLine.TestField("Unit of Measure Code");
         WhseActivLine.TestField("Bin Code");
-        WhseActivLine.CheckWhseDocLine;
+        WhseActivLine.CheckWhseDocLine();
+
         UpdateTempBinContentBuffer(WhseActivLine);
     end;
 
@@ -1850,7 +1856,7 @@
         CheckAndRemoveOrderToOrderBinding(TempWhseActivLineToReserve);
 
         CollectReservEntries(TempReservEntryBeforeSync, TempWhseActivLineToReserve);
-        ItemTrackingMgt.SetPick(WhseActivLine."Activity Type" = WhseActivLine."Activity Type"::Pick);
+        ItemTrackingMgt.SetPick(GlobalWhseActivLine."Activity Type" = GlobalWhseActivLine."Activity Type"::Pick);
         ItemTrackingMgt.SynchronizeWhseItemTracking(TempTrackingSpecification, RegisteredWhseActivLine."No.", false);
         CollectReservEntries(TempReservEntryAfterSync, TempWhseActivLineToReserve);
 
@@ -2365,7 +2371,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeWhseShptLineModify(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
+    local procedure OnBeforeWhseShptLineModify(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; WarehouseActivityLine: Record "Warehouse Activity Line"; WhseActivityLineGrouped: Record "Warehouse Activity Line")
     begin
     end;
 

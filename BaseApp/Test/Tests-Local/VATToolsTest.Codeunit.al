@@ -20,6 +20,8 @@ codeunit 144001 "VAT Tools Test"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryJournals: Codeunit "Library - Journals";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryCosting: Codeunit "Library - Costing";
         NorwegianVATTools: Codeunit "Norwegian VAT Tools";
         SettledAndClosedVATPeriodErr: Label 'is in a settled and closed VAT period (%1 period %2)';
         IsInitialized: Boolean;
@@ -516,6 +518,53 @@ codeunit 144001 "VAT Tools Test"
         DeleteUserSetup;
     end;
 
+    [Test]
+    [HandlerFunctions('CalcAndPostVATSettlementHandler,ConfirmHandler')]
+    procedure DoNotCheckVATPeriodsForCostAdjustment()
+    var
+        SettledVATPeriod: Record "Settled VAT Period";
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ValueEntry: Record "Value Entry";
+        i: Integer;
+    begin
+        // [FEATURE] [Adjust Cost] [VAT Period]
+        // [SCENARIO 413851] Posting in closed VAT period is allowed for cost adjustment.
+        Initialize();
+        LibraryInventory.SetAutomaticCostPosting(true);
+
+        // [GIVEN] Closed settled VAT period = current month.
+        CreateOrUpdateSettledVATPeriod(SettledVATPeriod, WorkDate());
+
+        // [GIVEN] Item with FIFO costing method.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Costing Method", Item."Costing Method"::FIFO);
+        Item.Modify(true);
+
+        // [GIVEN] Post 3 pcs to inventory, amount = 10 (1 pc = 3.33333), posting date = WORKDATE.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 3);
+        ItemJournalLine.Validate(Amount, 10);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Post three negative inventory adjustments, each for 1 pc, amount = 3.33, posting date = WORKDATE + 1 month.
+        for i := 1 to 3 do begin
+            LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', -1);
+            ItemJournalLine.Validate("Posting Date", CalcDate('<1M>', WorkDate()));
+            ItemJournalLine.Modify(true);
+            LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        end;
+
+        // [WHEN] Run the cost adjustment.
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] No error is raised.
+        // [THEN] The cost adjustment completes successfully - the system posts a rounding value entry for the positive item entry in closed VAT period.
+        ValueEntry.SetRange("Item No.", Item."No.");
+        ValueEntry.CalcSums("Cost Amount (Actual)");
+        ValueEntry.TestField("Cost Amount (Actual)", 0);
+    end;
+
     local procedure Initialize()
     begin
         LibraryReportDataset.Reset();
@@ -529,6 +578,7 @@ codeunit 144001 "VAT Tools Test"
             exit;
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         IsInitialized := true;
         Commit();
     end;
