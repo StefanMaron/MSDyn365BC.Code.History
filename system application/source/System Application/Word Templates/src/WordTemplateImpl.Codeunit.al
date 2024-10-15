@@ -37,7 +37,7 @@ codeunit 9988 "Word Template Impl."
         Session.LogMessage('0000ECN', StrSubstNo(DownloadedTemplateTxt, WordTemplate.SystemId, WordTemplate."Table ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', WordTemplatesCategoryTxt);
     end;
 
-    internal procedure DownloadTemplate(WordTemplateRec: Record "Word Template")
+    procedure DownloadTemplate(WordTemplateRec: Record "Word Template")
     begin
         Load(WordTemplateRec.Code);
         DownloadTemplate();
@@ -53,6 +53,10 @@ codeunit 9988 "Word Template Impl."
 
         DataCompression.CreateZipArchive();
         TemplateTempBlob.CreateInStream(InStream, TextEncoding::UTF8);
+        if not TrySetDataSource(InStream) then begin
+            Session.LogMessage('0000K03', DataSourceNotSetTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', WordTemplatesCategoryTxt);
+            InStream.Position := 1; // Make sure we are ready to read from the InStream regardless of where we ended up.
+        end;
         DataCompression.AddEntry(InStream, GetTemplateName('docx'));
         GenerateSpreadsheetDataSource(DataCompression); // Add data source spreadsheet to zip
 
@@ -165,6 +169,10 @@ codeunit 9988 "Word Template Impl."
     local procedure SaveTemplate(TemplateToSave: InStream; var TemplateRecToUpdate: Record "Word Template")
     begin
         Load(TemplateToSave);
+        if not TrySetDataSource(TemplateToSave) then begin
+            Session.LogMessage('0000K04', DataSourceNotSetTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', WordTemplatesCategoryTxt);
+            TemplateToSave.Position := 1; // Make sure we are ready to read from the InStream regardless of where we ended up.
+        end;
 
         if not VerifyMailMergeFieldNameLengths() then
             Error(TableNotAllowedMergeFieldsTruncatedErr);
@@ -294,7 +302,88 @@ codeunit 9988 "Word Template Impl."
     end;
 
     [TryFunction]
-    local procedure TryMailMergeLoadDocument(var TemplateInstream: InStream)
+    local procedure TrySetDataSource(var WordDocumentInStream: InStream)
+    var
+        SettingsXmlFileContent: Text;
+    begin
+        // When a word document is saved, the path to the data source is stored as an absolute path.
+        // This means if you open the document again, it will refer to the data source in the old location.
+        // To avoid this, we replace the path to the data source with a relative path.
+
+        // First extract the settings.xml file from the document which contains the reference to the data source
+        SettingsXmlFileContent := GetFileFromZip(SettingsXmlRelsFilePathTxt, WordDocumentInStream);
+        if SettingsXmlFileContent = '' then begin
+            Session.LogMessage('0000K05', SettingsXmlFileContentDoesNotExistTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', WordTemplatesCategoryTxt);
+            exit;
+        end;
+
+        // Next update the data source path to be relative
+        SetWordDocumentDataSource(SettingsXmlFileContent);
+
+        // Finally replace the settings.xml file in the document and update the document stream
+        ReplaceFileInZip(SettingsXmlRelsFilePathTxt, SettingsXmlFileContent, WordDocumentInStream);
+    end;
+
+    local procedure GetFileFromZip(FileName: Text; ZipFile: InStream) FileContent: Text
+    var
+        DataCompression: Codeunit "Data Compression";
+        TempBlob: Codeunit "Temp Blob";
+        OutStream: OutStream;
+        InStream: InStream;
+        Entries: List of [Text];
+    begin
+        ZipFile.Position := 1;
+        DataCompression.OpenZipArchive(ZipFile, false);
+        DataCompression.GetEntryList(Entries);
+        TempBlob.CreateOutStream(OutStream, TextEncoding::UTF8);
+        DataCompression.ExtractEntry(FileName, OutStream);
+
+        TempBlob.CreateInStream(InStream, TextEncoding::UTF8);
+        InStream.Read(FileContent);
+    end;
+
+    local procedure SetWordDocumentDataSource(var SettingsXmlFileContent: Text)
+    var
+        XmlDocument: DotNet XmlDocument;
+        TargetXmlNodeList: DotNet XmlNodeList;
+        XmlAttribute: DotNet XmlAttribute;
+        XmlNamespaceManager: DotNet XmlNamespaceManager;
+    begin
+        XmlDocument := XmlDocument.XmlDocument();
+        XmlDocument.LoadXml(SettingsXmlFileContent);
+        XmlNamespaceManager := XmlNamespaceManager.XmlNamespaceManager(XmlDocument.NameTable());
+        XmlNamespaceManager.AddNamespace('rel', 'http://schemas.openxmlformats.org/package/2006/relationships');
+        TargetXmlNodeList := XmlDocument.SelectNodes('//rel:Relationship/@Target', XmlNamespaceManager);
+        foreach XmlAttribute in TargetXmlNodeList do
+            if XmlAttribute.Value.Contains(DataSourceFileTxt) then
+                XmlAttribute.Value := DataSourceFileTxt; // Make sure the data source path is updated to be relative
+        SettingsXmlFileContent := XmlDocument.OuterXml;
+    end;
+
+    local procedure ReplaceFileInZip(FileName: Text; FileContent: Text; var ZipFile: InStream)
+    var
+        DataCompression: Codeunit "Data Compression";
+        FileContentTempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        OutStream: OutStream;
+    begin
+        ZipFile.Position := 1;
+        DataCompression.OpenZipArchive(ZipFile, true);
+
+        // Replace the file
+        FileContentTempBlob.CreateOutStream(OutStream, TextEncoding::UTF8);
+        OutStream.WriteText(FileContent);
+        FileContentTempBlob.CreateInStream(InStream, TextEncoding::UTF8);
+        DataCompression.RemoveEntry(FileName);
+        DataCompression.AddEntry(InStream, FileName);
+
+        // Update the ZipFile stream to reflect the new zip file
+        DataCompression.SaveZipArchive(TemplateTempBlob);
+        TemplateTempBlob.CreateInStream(ZipFile, TextEncoding::UTF8);
+    end;
+
+    [TryFunction]
+    local procedure TryMailMergeLoadDocument(var TemplateInStream: InStream)
     begin
         MailMerge := MailMerge.MailMerge();
         MailMerge.LoadDocument(DataSourceFileTxt, TemplateInStream);
@@ -1235,7 +1324,7 @@ codeunit 9988 "Word Template Impl."
                                                        FieldRef.Type::Media,
                                                        FieldRef.Type::RecordId]) then
                 IncludeField := false;
-            if (not UseDefaultFields) and WordTemplateField.Get(WordTemplate.Code, RecordRef.Number, FieldRef.Name) and WordTemplateField.Exclude then
+            if (not UseDefaultFields) and WordTemplateField.Get(WordTemplate.Code, RecordRef.Number, CopyStr(FieldRef.Name, 1, 30)) and WordTemplateField.Exclude then
                 IncludeField := false;
 
             if IncludeField then
@@ -1547,4 +1636,7 @@ codeunit 9988 "Word Template Impl."
         OtherRecordRelatedTableTxt: Label 'OTHER', Locked = true;
         TempDocLbl: Label 'Temp doc.docx', Locked = true;
         CannotRemoveTableWithRelationsErr: Label 'You cannot remove a table while there are still tables related to it.';
+        SettingsXmlFileContentDoesNotExistTxt: Label 'Settings.xml file content does not exist in the Word Document.', Locked = true;
+        SettingsXmlRelsFilePathTxt: label 'word/_rels/settings.xml.rels', Locked = true;
+        DataSourceNotSetTxt: Label 'Data source not set.', Locked = true;
 }

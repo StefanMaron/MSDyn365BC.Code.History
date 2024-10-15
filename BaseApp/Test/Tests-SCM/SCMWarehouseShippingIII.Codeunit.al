@@ -1241,6 +1241,86 @@ codeunit 137162 "SCM Warehouse - Shipping III"
 
     [Test]
     [Scope('OnPrem')]
+    procedure DirectTransferOrderWithTransferToBinCode()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        InventorySetup: Record "Inventory Setup";
+        TransferHeader: Record "Transfer Header";
+        TransferOrderPostTransfer: Codeunit "TransferOrder-Post Transfer";
+    begin
+        // [FEATURE] [Direct Transfer] 
+        // [SCENARIO 467919] Posted Direct Transfer line has blank GǣTransfer-to Bin CodeGǥ when transfer to location has Bin Mandatory setup
+        Initialize();
+
+        // [GIVEN] when in Inventory Setup field "Direct Transfer Posting" is set as "Direct Transfer"
+        InventorySetup.Get();
+        InventorySetup."Direct Transfer Posting" := InventorySetup."Direct Transfer Posting"::"Direct Transfer";
+        InventorySetup.Modify();
+
+        // [GIVEN] Created new item and put on the inventory
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", LocationBlue.Code, '', 10);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Set default bin on the destination location 
+        CreatedDefaulBinContent(LocationSilver, Item, '');
+
+        // [GIVEN] Created new transfer order 
+        CreateAndReleaseDirectTransferOrder(TransferHeader, LocationBlue.Code, LocationSilver.Code, Item."No.", 1);
+
+        // [WHEN] transfer order posted as direct transfer
+        TransferOrderPostTransfer.SetHideValidationDialog(true);
+        TransferOrderPostTransfer.Run(TransferHeader);
+
+        // [THEN] posted direct transfer line contains info about transfer-to bin code
+        CheckPostedDirectTransfer(TransferHeader, Item);
+    end;
+
+    local procedure CheckPostedDirectTransfer(TransferHeader: Record "Transfer Header"; Item: Record Item)
+    var
+        DirectTransferHeader: Record "Direct Trans. Header";
+        DirectTransferLine: Record "Direct Trans. Line";
+    begin
+        DirectTransferHeader.SetRange("Transfer Order No.", TransferHeader."No.");
+        DirectTransferHeader.FindFirst();
+
+        DirectTransferLine.SetRange("Document No.", DirectTransferHeader."No.");
+        DirectTransferLine.SetRange("Item No.", Item."No.");
+        DirectTransferLine.FindFirst();
+        DirectTransferLine.TestField("Transfer-To Bin Code");
+    end;
+
+    local procedure CreatedDefaulBinContent(Location: Record Location; Item: Record Item; BinCode: Code[20])
+    var
+        BinContent: Record "Bin Content";
+        Bin: Record Bin;
+    begin
+        Location.TestField("Bin Mandatory");
+        BinContent.SetRange("Location Code", Location.Code);
+        BinContent.SetRange("Item No.", Item."No.");
+        BinContent.SetRange("Unit of Measure Code", Item."Base Unit of Measure");
+        if BinContent.FindFirst() then begin
+            if BinCode <> '' then
+                BinContent.TestField("Bin Code", BinCode);
+            exit;
+        end;
+
+        if BinCode = '' then begin
+            LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID, '', '');
+            BinCode := Bin.Code;
+        end;
+
+        BinContent.Init();
+        BinContent.Validate("Location Code", Location.Code);
+        BinContent.Validate("Bin Code", BinCode);
+        BinContent.Validate("Item No.", Item."No.");
+        BinContent.Default := true;
+        BinContent.Insert();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure WhseReceiptAfterReleasedSalesReturnOrderExternalDocNoChanged()
     var
         SalesHeader: Record "Sales Header";
@@ -1766,53 +1846,64 @@ codeunit 137162 "SCM Warehouse - Shipping III"
     end;
 
     [Test]
-    procedure VerifyWhseRequestIsRemovedOnDeleteSalesOrderLines()
+    procedure VerifyOpenWhseRequestLinesIsRemovedOnReleasedSalesOrderLines()
     var
         Item: Record Item;
-        Location: Record Location;
+        Location, Location2 : Record Location;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        // [SCENARIO 459402] Verify Warehouse Request line is removed on delete Sales Line
+        // [SCENARIO 459402] Verify Open Warehouse Request lines are removed on Release Sales Line, after Sales Lines are removed and recreated
         Initialize();
 
         // [GIVEN] Create Item
         LibraryInventory.CreateItem(Item);
 
-        // [GIVEN] Create Location with Require Pick
-        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+        // [GIVEN] Create Locations with Require Put Away and Pick
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, true, false, false);
+        LibraryWarehouse.CreateLocationWMS(Location2, false, true, true, false, false);
 
         // [GIVEN] Create and Release Sales Order
-        CreateAndReleaseSalesOrderWithMultipleSalesLines(SalesHeader, '', Item."No.", Item."No.", 1, 1, Location.Code);
+        CreateAndReleaseSalesOrderWithMultipleSalesLines(SalesHeader, '', Item."No.", Item."No.", 1, -1, Location.Code);
 
         // [GIVEN] Reopen the Sales Order
         LibrarySales.ReopenSalesDocument(SalesHeader);
 
         // [THEN] Verify Warehouse Request rec exist
-        VerifyWarehouseRequestRec(Database::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", 1);
+        VerifyWarehouseRequestRec(Database::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", 2);
 
-        // [WHEN] Remove Sales Lines
+        // [GIVEN] Remove Sales Lines
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.DeleteAll(true);
 
-        // [THEN] Verify Warehouse Request removed
+        // [WHEN] Update Location on Sales Order, create new Sales Line and Release Sales Order
+        SalesHeader.Validate("Location Code", Location2.Code);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [THEN] Verify Warehouse Request lines are removed
         VerifyWarehouseRequestRec(Database::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", 0);
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure VerifyWhseRequestIsRemovedOnDeletePurchaseOrderLines()
+    procedure VerifyOpenWhseRequestLineIsRemovedOnReleasedPurchaseOrderLines()
     var
         Item: Record Item;
+        Location: Record Location;
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        // [SCENARIO 459402] Verify Warehouse Request line is removed on delete Purchase Line
+        // [SCENARIO 459402] Verify Open Warehouse Request lines are removed on delete Purchase Line, after Purchase Lines are removed and recreated
         Initialize();
 
         // [GIVEN] Create Item
         LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Locations with Require Put Away and Pick
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, true, false, false);
 
         // [GIVEN] Create and Release Purchase Order
         CreateAndReleasePurchaseOrderWithMultiplePurchaseLines(PurchaseHeader, '', Item."No.", Item."No.", 1, 1, LocationGreen.Code);
@@ -1823,12 +1914,18 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         // [THEN] Verify Warehouse Request rec exist
         VerifyWarehouseRequestRec(Database::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", 1);
 
-        // [WHEN] Remove Purchase Lines
+        // [GIVEN] Remove Purchase Lines
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.DeleteAll(true);
 
-        // [THEN] Verify Warehouse Request removed
+        // [WHEN] Update Location on Purchase Order, create new Purchase Line and Release Purchase Order
+        PurchaseHeader.Validate("Location Code", Location.Code);
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [THEN] Verify Warehouse Request lines are removed
         VerifyWarehouseRequestRec(Database::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", 0);
     end;
 
@@ -2270,6 +2367,48 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         SalesLine.TestField("Return Qty. Received", SalesLine.Quantity);
         FindSalesLine(SalesLine, SalesHeader, ItemCharge[2]."No.");
         SalesLine.TestField("Return Qty. Received", SalesLine.Quantity);
+    end;
+
+    [Test]
+    procedure VerifyWhseRequestLineIsNotCreatedForNonInventoryItemOnReleasePurchaseOrder()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [SCENARIO 465042] Verify Whse Request Line is not created for Non Inventory Item on Release Purchase Order
+        Initialize();
+
+        // [GIVEN] Create Non Inventory Item
+        LibraryInventory.CreateNonInventoryTypeItem(Item);
+
+        // [WHEN] Create and Release Purchase Order
+        CreateAndReleasePurchaseOrderWithMultiplePurchaseLines(PurchaseHeader, '', Item."No.", '', 1, 0, LocationGreen.Code);
+
+        // [THEN] Verify Warehouse Request rec not exist
+        VerifyWarehouseRequestRec(Database::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", 0);
+    end;
+
+    [Test]
+    procedure VerifyWhseRequestLineIsNotCreatedForNonInventoryItemOnReleaseSalesOrder()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+    begin
+        // [SCENARIO 465042] Verify Whse Request Line is not created for Non Inventory Item on Release Sales Order
+        Initialize();
+
+        // [GIVEN] Create Non Inventory Item
+        LibraryInventory.CreateNonInventoryTypeItem(Item);
+
+        // [GIVEN] Create Locations with Require Put Away and Pick
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, true, false, false);
+
+        // [WHEN] Create and Release Sales Order
+        CreateAndReleaseSalesOrderWithMultipleSalesLines(SalesHeader, '', Item."No.", '', 1, 0, Location.Code);
+
+        // [THEN] Verify Warehouse Request rec not exist
+        VerifyWarehouseRequestRec(Database::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", 0);
     end;
 
     local procedure Initialize()
@@ -2947,7 +3086,8 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         SalesHeader.Validate("Location Code", LocationCode);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo2, Quantity2);
+        if ItemNo2 <> '' then
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo2, Quantity2);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
@@ -2957,7 +3097,8 @@ codeunit 137162 "SCM Warehouse - Shipping III"
     begin
         LibraryPurchase.CreatePurchaseOrderWithLocation(PurchaseHeader, VendorNo, LocationCode);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo2, Quantity2);
+        if ItemNo2 <> '' then
+            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo2, Quantity2);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
     end;
 

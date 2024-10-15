@@ -389,7 +389,7 @@ codeunit 1351 "Telemetry Subscribers"
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue Dispatcher", 'OnAfterSuccessHandleRequest', '', false, false)]
-    local procedure SendTraceOnJobQueueEntryRequestFinishedSuccessfully(var JobQueueEntry: Record "Job Queue Entry"; JobQueueExecutionTime: Integer)
+    local procedure SendTraceOnJobQueueEntryRequestFinishedSuccessfully(var JobQueueEntry: Record "Job Queue Entry"; JobQueueExecutionTime: Integer; PreviousTaskId: Guid)
     var
         TranslationHelper: Codeunit "Translation Helper";
         Dimensions: Dictionary of [Text, Text];
@@ -398,6 +398,8 @@ codeunit 1351 "Telemetry Subscribers"
 
         SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
         Dimensions.Add('JobQueueExecutionTimeInMs', Format(JobQueueExecutionTime));
+        Dimensions.Set('JobQueueScheduledTaskId', Format(PreviousTaskId, 0, 4));
+        Dimensions.Add('JobQueueNextScheduledTaskId', Format(JobQueueEntry."System Task ID", 0, 4));
         Telemetry.LogMessage('0000E26',
                                 StrSubstNo(JobQueueEntryFinishedAllTxt, Format(JobQueueEntry.ID, 0, 4)),
                                 Verbosity::Normal,
@@ -421,6 +423,21 @@ codeunit 1351 "Telemetry Subscribers"
         Dimensions.Add('JobQueueScheduledTaskId', Format(JobQueueEntry."System Task ID", 0, 4));
         Dimensions.Add('JobQueueMaxNumberOfAttemptsToRun', Format(JobQueueEntry."Maximum No. of Attempts to Run"));
         Dimensions.Add('JobQueueNumberOfAttemptsToRun', Format(JobQueueEntry."No. of Attempts to Run"));
+    end;
+
+    internal procedure SetJobQueueTelemetryDimensions(var JobQueueLogEntry: Record "Job Queue Log Entry"; var Dimensions: Dictionary of [Text, Text])
+    begin
+        JobQueueLogEntry.CalcFields("Object Caption to Run");
+        Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
+        Dimensions.Add('JobQueueId', Format(JobQueueLogEntry.ID, 0, 4));
+        Dimensions.Add('JobQueueObjectName', Format(JobQueueLogEntry."Object Caption to Run"));
+        Dimensions.Add('JobQueueObjectDescription', Format(JobQueueLogEntry.Description));
+        Dimensions.Add('JobQueueObjectType', Format(JobQueueLogEntry."Object Type to Run"));
+        Dimensions.Add('JobQueueObjectId', Format(JobQueueLogEntry."Object ID to Run"));
+        Dimensions.Add('JobQueueStatus', Format(JobQueueLogEntry.Status));
+        Dimensions.Add('JobQueueEarliestStartDateTime', Format(JobQueueLogEntry."Start Date/Time", 0, 9)); // UTC time
+        Dimensions.Add('JobQueueCompanyName', JobQueueLogEntry.CurrentCompany());
+        Dimensions.Add('JobQueueScheduledTaskId', Format(JobQueueLogEntry."System Task ID", 0, 4));
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Undo Sales Shipment Line", 'OnAfterCode', '', false, false)]
@@ -519,13 +536,6 @@ codeunit 1351 "Telemetry Subscribers"
         exit(EnvironmentInfo.IsSaaS());
     end;
 
-    local procedure IsSandbox(): Boolean
-    var
-        EnvironmentInfo: Codeunit "Environment Information";
-    begin
-        exit(EnvironmentInfo.IsSandbox());
-    end;
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Bank Acc. Reconciliation Post", 'OnAfterFinalizePost', '', true, true)]
     local procedure LogTelemetryOnBankAccRecPostOnAfterFinalizePost(BankAccReconciliation: Record "Bank Acc. Reconciliation")
     var
@@ -620,19 +630,6 @@ codeunit 1351 "Telemetry Subscribers"
             CustomDimensions.Add('Status', 'Disabled');
 
         exit(CustomDimensions);
-    end;
-
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnCompanyInitialize', '', true, true)]
-    local procedure LogOnboardingStartSignalOnCompanyInitialize()
-    begin
-        if not IsSaaS() then
-            exit;
-
-        if IsSandbox() then
-            exit;
-
-        Telemetry.LogMessage('0000EIW', 'Onboarding Started', Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Telemetry Management", 'OnSendDailyTelemetry', '', true, true)]
