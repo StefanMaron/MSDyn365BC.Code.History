@@ -35,6 +35,7 @@ report 7315 "Calculate Whse. Adjustment"
                                 SNLotNumbersByBin.SetFilter(Variant_Code, Item.GetFilter("Variant Filter"));
                                 SNLotNumbersByBin.SetFilter(Lot_No, Item.GetFilter("Lot No. Filter"));
                                 SNLotNumbersByBin.SetFilter(Serial_No, Item.GetFilter("Serial No. Filter"));
+                                SNLotNumbersByBin.SetFilter(Package_No, Item.GetFilter("Package No. Filter"));
                                 OnAfterGetRecordItemOnAfterSNLotNumbersByBinSetFilters(SNLotNumbersByBin, Item);
                                 SNLotNumbersByBin.Open;
 
@@ -48,6 +49,7 @@ report 7315 "Calculate Whse. Adjustment"
                                     "Base Unit of Measure" := Item."Base Unit of Measure";
                                     "Lot No." := SNLotNumbersByBin.Lot_No;
                                     "Serial No." := SNLotNumbersByBin.Serial_No;
+                                    "Package No." := SNLotNumbersByBin.Package_No;
                                     "Qty. to Handle (Base)" := SNLotNumbersByBin.Sum_Qty_Base;
                                     OnBeforeAdjmtBinQuantityBufferInsert(TempAdjmtBinContentBuffer, WhseEntry, SNLotNumbersByBin);
                                     Insert;

@@ -41,10 +41,18 @@ codeunit 5348 "CRM Quote to Sales Quote"
         MissingWriteInProductNoErr: Label '%1 %2 %3 contains a write-in product. You must choose the default write-in product in Sales & Receivables Setup window.', Comment = '%1 - Dataverse service name,%2 - document type (order or quote), %3 - document number';
         MisingWriteInProductTelemetryMsg: Label 'The user is missing a default write-in product when creating a sales quote from a %1 quote.', Locked = true;
         CrmTelemetryCategoryTok: Label 'AL CRM Integration', Locked = true;
-        SuccessfullyCoupledSalesQuoteTelemetryMsg: Label 'The user successfully coupled a sales quote to a %1 quote.', Locked = true;
+        SuccessfullyCoupledSalesQuoteTelemetryMsg: Label 'The user successfully coupled quote %2 to %1 quote %3 (quote number %4).', Locked = true;
+        SkippingProcessQuoteConnectionDisabledMsg: Label 'Skipping creation of quote header from %1 quote %2. The %1 integration is not enabled.', Locked = true;
 
     procedure ProcessInNAV(CRMQuote: Record "CRM Quote"; var SalesHeader: Record "Sales Header"): Boolean
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
     begin
+        if not CRMConnectionSetup.IsEnabled() then begin
+            Session.LogMessage('0000EU6', StrSubstNo(SkippingProcessQuoteConnectionDisabledMsg, CRMProductName.SHORT(), CRMQuote.QuoteId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+            exit;
+        end;
+
         if CRMQuote.StateCode = CRMQuote.StateCode::Active then
             exit(ProcessActiveQuote(CRMQuote, SalesHeader));
 
@@ -167,7 +175,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
         CreateOrUpdateSalesQuoteNotes(CRMQuote, SalesHeader);
         CRMIntegrationRecord.CoupleRecordIdToCRMID(SalesHeader.RecordId, CRMQuote.QuoteId);
         if OpType = OpType::Create then
-            Session.LogMessage('0000839', StrSubstNo(SuccessfullyCoupledSalesQuoteTelemetryMsg, CRMProductName.CDSServiceName()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+            Session.LogMessage('0000839', StrSubstNo(SuccessfullyCoupledSalesQuoteTelemetryMsg, CRMProductName.CDSServiceName(), SalesHeader.SystemId, CRMQuote.QuoteId, CRMQuote.QuoteNumber), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
         exit(true);
     end;
 

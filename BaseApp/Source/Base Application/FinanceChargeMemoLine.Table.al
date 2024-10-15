@@ -295,9 +295,15 @@ table 303 "Finance Charge Memo Line"
             TableRelation = "VAT Product Posting Group";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 GetFinChrgMemoHeader;
-                VATPostingSetup.Get(FinChrgMemoHeader."VAT Bus. Posting Group", "VAT Prod. Posting Group");
+
+                IsHandled := false;
+                OnValidateVATProdPostingGroupOnBeforeVATPostingSetupGet(Rec, xRec, IsHandled);
+                if not IsHandled then
+                    VATPostingSetup.Get(FinChrgMemoHeader."VAT Bus. Posting Group", "VAT Prod. Posting Group");
                 OnValidateVATProdPostingGroupOnAfterVATPostingSetupGet(VATPostingSetup, Rec);
                 "VAT %" := VATPostingSetup."VAT %";
                 "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
@@ -462,8 +468,14 @@ table 303 "Finance Charge Memo Line"
         UseInterestRate: Decimal;
         CumAmount: Decimal;
         InsertedLines: Boolean;
+        IsHandled: Boolean;
     begin
         OnBeforeCalcFinCharge(Rec, FinChrgMemoHeader);
+
+        IsHandled := false;
+        OnBeforeCalcFinChrgProcedure(Rec, FinChrgMemoHeader, IsHandled);
+        if IsHandled then
+            exit;
 
         GetFinChrgMemoHeader;
         Amount := 0;
@@ -906,12 +918,22 @@ table 303 "Finance Charge Memo Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcFinChrgProcedure(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateVATProdPostingGroupOnAfterVATPostingSetupGet(var VATPostingSetup: Record "VAT Posting Setup"; FinanceChargeMemoLine: Record "Finance Charge Memo Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetCustLedgEntryView(var CustLedgEntry: Record "Cust. Ledger Entry"; FinChrgTerms: Record "Finance Charge Terms"; FinChrgMemoHeader: Record "Finance Charge Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVATProdPostingGroupOnBeforeVATPostingSetupGet(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; xFinanceChargeMemoLine: Record "Finance Charge Memo Line"; var IsHandled: Boolean)
     begin
     end;
 }

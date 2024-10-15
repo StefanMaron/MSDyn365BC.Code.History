@@ -692,11 +692,9 @@ codeunit 7322 "Create Inventory Pick/Movement"
                         TotalITQtyToPickBase += ITQtyToPickBase;
                         if ITQtyToPickBase > 0 then begin
                             NewWhseActivLine.CopyTrackingFromSpec(TempHandlingSpecification);
-                            if NewWhseActivLine.TrackingExists then
+                            if NewWhseActivLine.TrackingExists() then
                                 NewWhseActivLine."Expiration Date" :=
-                                  ItemTrackingMgt.ExistingExpirationDate(NewWhseActivLine."Item No.",
-                                    NewWhseActivLine."Variant Code", NewWhseActivLine."Lot No.", NewWhseActivLine."Serial No.",
-                                    false, EntriesExist);
+                                    ItemTrackingMgt.ExistingExpirationDate(NewWhseActivLine, false, EntriesExist);
 
                             OnCreatePickOrMoveLineFromHandlingSpec(NewWhseActivLine, TempHandlingSpecification, EntriesExist);
 
@@ -873,6 +871,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
             QtyToPickBase := RemQtyToPickBase;
 
         MakeHeader();
+        OnInsertShelfWhseActivLineOnAfterMakeHeader(NewWhseActivLine);
 
         repeat
             MakeLine(NewWhseActivLine, '', QtyToPickBase, RemQtyToPickBase);
@@ -894,7 +893,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCalcInvtAvailability(WhseActivLine, Location, Result, IsHandled);
+        OnBeforeCalcInvtAvailability(WhseActivLine, Location, Result, IsHandled, WhseItemTrackingSetup);
         if IsHandled then
             exit(Result);
 
@@ -1179,7 +1178,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                         QtyToPickBase := 0;
 
                         OnAfterCalcTotalAvailQtyToPickBase(
-                          WhseActivLine."Item No.", WhseActivLine."Variant Code", EntrySummary."Lot No.", EntrySummary."Serial No.",
+                          WhseActivLine."Item No.", WhseActivLine."Variant Code", EntrySummary."Serial No.", EntrySummary."Lot No.",
                           Location.Code, '', WhseActivLine."Source Type", WhseActivLine."Source Subtype", WhseActivLine."Source No.",
                           WhseActivLine."Source Line No.", WhseActivLine."Source Subline No.", RemQtyToPickBase, TotalAvailQtyToPickBase);
 
@@ -1939,12 +1938,17 @@ codeunit 7322 "Create Inventory Pick/Movement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcInvtAvailability(WhseActivLine: Record "Warehouse Activity Line"; Location: Record Location; var Result: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeCalcInvtAvailability(WhseActivLine: Record "Warehouse Activity Line"; Location: Record Location; var Result: Decimal; var IsHandled: Boolean; WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcQtyAvailToPickOnBins(WhseActivLine: Record "Warehouse Activity Line"; LotNo: Code[50]; SerialNo: Code[50]; RemQtyToPickBase: Decimal; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertShelfWhseActivLineOnAfterMakeHeader(var NewWhseActivLine: Record "Warehouse Activity Line")
     begin
     end;
 }

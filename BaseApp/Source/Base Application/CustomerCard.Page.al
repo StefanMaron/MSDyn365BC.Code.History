@@ -130,6 +130,7 @@ page 21 "Customer Card"
                     Caption = 'Total Sales';
                     Style = Strong;
                     StyleExpr = TRUE;
+                    Editable = false;
                     ToolTip = 'Specifies your total sales turnover with the customer in the current fiscal year. It is calculated from amounts excluding VAT on all completed and open invoices and credit memos.';
                 }
                 field("CustSalesLCY - CustProfit - AdjmtCostLCY"; CustSalesLCY - CustProfit - AdjmtCostLCY)

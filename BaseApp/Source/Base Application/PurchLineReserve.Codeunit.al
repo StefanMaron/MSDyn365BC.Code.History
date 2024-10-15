@@ -477,6 +477,7 @@ codeunit 99000834 "Purch. Line-Reserve"
             TempInvoicingSpecification."Qty. to Invoice" :=
               Round(ReservEntry."Qty. to Invoice (Base)" / ReservEntry."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
             TempInvoicingSpecification."Buffer Status" := TempInvoicingSpecification."Buffer Status"::MODIFY;
+            OnRetrieveInvoiceSpecification2OnBeforeInsert(TempInvoicingSpecification, ReservEntry);
             TempInvoicingSpecification.Insert();
             ReservEntry.Delete();
         until ReservEntry.Next() = 0;
@@ -778,6 +779,11 @@ codeunit 99000834 "Purch. Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnCallItemTrackingOnBeforeItemTrackingFormRunModal(var PurchLine: Record "Purchase Line"; var ItemTrackingForm: Page "Item Tracking Lines")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRetrieveInvoiceSpecification2OnBeforeInsert(var TempInvoicingSpecification: Record "Tracking Specification" temporary; ReservEntry: Record "Reservation Entry")
     begin
     end;
 }

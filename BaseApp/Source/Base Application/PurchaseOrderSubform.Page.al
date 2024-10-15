@@ -1466,7 +1466,13 @@
     var
         SalesHeader: Record "Sales Header";
         SalesOrder: Page "Sales Order";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOpenSpecOrderSalesOrderForm(Rec, SalesHeader, SalesOrder, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField("Special Order Sales No.");
         SalesHeader.SetRange("No.", "Special Order Sales No.");
         SalesOrder.SetTableView(SalesHeader);
@@ -1647,6 +1653,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertExtendedText(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenSpecOrderSalesOrderForm(var PurchaseLine: Record "Purchase Line"; var SalesHeader: Record "Sales Header"; var SalesOrder: Page "Sales Order"; var IsHandled: Boolean)
     begin
     end;
 

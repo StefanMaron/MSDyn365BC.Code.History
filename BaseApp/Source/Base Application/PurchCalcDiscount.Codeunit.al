@@ -84,8 +84,7 @@ codeunit 70 "Purch.-Calc.Discount"
             else
                 CurrencyDate := PurchHeader."Posting Date";
 
-            VendInvDisc.GetRec(
-              PurchHeader."Invoice Disc. Code", PurchHeader."Currency Code", CurrencyDate, ChargeBase);
+            GetVendInvDisc(PurchHeader, ChargeBase);
 
             if VendInvDisc."Service Charge" <> 0 then begin
                 OnCalculateInvoiceDiscountOnBeforeCurrencyInitialize(VendPostingGr);
@@ -146,8 +145,7 @@ codeunit 70 "Purch.-Calc.Discount"
 
             if VendInvDiscRecExists(PurchHeader."Invoice Disc. Code") then begin
                 if InvDiscBase <> ChargeBase then
-                    VendInvDisc.GetRec(
-                      PurchHeader."Invoice Disc. Code", PurchHeader."Currency Code", CurrencyDate, InvDiscBase);
+                    GetVendInvDisc(PurchHeader, InvDiscBase);
 
                 DiscountNotificationMgt.NotifyAboutMissingSetup(
                   PurchSetup.RecordId, PurchHeader."Gen. Bus. Posting Group",
@@ -170,6 +168,18 @@ codeunit 70 "Purch.-Calc.Discount"
 
         PurchCalcDiscByType.ResetRecalculateInvoiceDisc(PurchHeader);
         OnAfterCalcPurchaseDiscount(PurchHeader);
+    end;
+
+    local procedure GetVendInvDisc(var PurchHeader: Record "Purchase Header"; BaseAmount: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetVendInvDisc(PurchHeader, CurrencyDate, ChargeBase, InvDiscBase, BaseAmount, IsHandled);
+        if IsHandled then
+            exit;
+
+        VendInvDisc.GetRec(PurchHeader."Invoice Disc. Code", PurchHeader."Currency Code", CurrencyDate, BaseAmount);
     end;
 
     local procedure VendInvDiscRecExists(InvDiscCode: Code[20]): Boolean
@@ -236,6 +246,11 @@ codeunit 70 "Purch.-Calc.Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcPurchaseDiscount(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetVendInvDisc(var PurchaseHeader: Record "Purchase Header"; CurrencyDate: Date; ChargeBase: Decimal; InvDiscBase: Decimal; BaseAmount: Decimal; var IsHandled: Boolean)
     begin
     end;
 

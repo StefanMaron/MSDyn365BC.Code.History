@@ -32,7 +32,13 @@
             trigger OnValidate()
             var
                 TempSalesLine: Record "Sales Line" temporary;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateType(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestJobPlanningLine();
                 TestStatusOpen();
                 GetSalesHeader();
@@ -132,6 +138,11 @@
                 TempSalesLine: Record "Sales Line" temporary;
                 IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateNo(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 GetSalesSetup();
 
                 "No." := FindOrCreateRecordByNo("No.");
@@ -2013,8 +2024,12 @@
             trigger OnValidate()
             var
                 SalesLineReserve: Codeunit "Sales Line-Reserve";
+                IsHandled: Boolean;
             begin
-                WhseValidateSourceLine.SalesLineVerifyChange(Rec, xRec);
+                IsHandled := false;
+                OnValidateQuantityOnBeforeSalesLineVerifyChange(Rec, StatusCheckSuspended, IsHandled);
+                if not IsHandled then
+                    WhseValidateSourceLine.SalesLineVerifyChange(Rec, xRec);
 
                 "Qty. to Asm. to Order (Base)" :=
                     UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Assemble to Order", "Qty. per Unit of Measure");
@@ -5044,7 +5059,7 @@
         SalesLine: Record "Sales Line";
         LastSalesLine: Record "Sales Line";
     begin
-        OnBeforeAddItems(Rec);
+        OnBeforeAddItems(Rec, SelectionFilter);
 
         InitNewLine(SalesLine);
         Item.SetFilter("No.", SelectionFilter);
@@ -5099,10 +5114,19 @@
     end;
 
     procedure ShowNonstock()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowNonStock(Rec, NonstockItem, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField(Type, Type::Item);
         if "No." <> '' then
             Error(SelectNonstockItemErr);
+
+        OnShowNonstockOnBeforeOpenCatalogItemList(Rec, NonstockItem);
         if PAGE.RunModal(PAGE::"Catalog Item List", NonstockItem) = ACTION::LookupOK then begin
             CheckNonstockItemTemplate(NonstockItem);
 
@@ -5419,7 +5443,7 @@
     begin
         GetSalesHeader();
         IsHandled := false;
-        OnBeforeTestStatusOpen(Rec, SalesHeader, IsHandled);
+        OnBeforeTestStatusOpen(Rec, SalesHeader, IsHandled, xRec, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -6092,7 +6116,9 @@
 
         if ("Location Code" <> '') and ("No." <> '') then begin
             GetLocation("Location Code");
-            if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then begin
+            if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" and
+               not IsShipmentBinOverridesDefaultBin(Location)
+            then begin
                 if ("Qty. to Assemble to Order" > 0) or IsAsmToOrderRequired then
                     if GetATOBin(Location, "Bin Code") then
                         exit;
@@ -6134,8 +6160,10 @@
     var
         WhseIntegrationMgt: Codeunit "Whse. Integration Management";
     begin
-        if not IsInbound and ("Quantity (Base)" <> 0) then
-            WhseIntegrationMgt.CheckIfBinDedicatedOnSrcDoc("Location Code", "Bin Code", IssueWarning);
+        if IsInbound() or ("Quantity (Base)" = 0) or ("Document Type" = "Document Type"::"Blanket Order") then
+            exit;
+
+        WhseIntegrationMgt.CheckIfBinDedicatedOnSrcDoc("Location Code", "Bin Code", IssueWarning);
     end;
 
     procedure CheckAssocPurchOrder(TheFieldCaption: Text[250])
@@ -6765,7 +6793,7 @@
             "Qty. to Asm. to Order (Base)" := "Quantity (Base)";
         end;
 
-        OnAfterInitQtyToAsm(Rec, CurrFieldNo)
+        OnAfterInitQtyToAsm(Rec, CurrFieldNo, xRec);
     end;
 
     procedure AsmToOrderExists(var AsmHeader: Record "Assembly Header"): Boolean
@@ -7998,6 +8026,15 @@
               SalesHeader.FieldCaption("Bill-to Customer Templ. Code"));
     end;
 
+    local procedure IsShipmentBinOverridesDefaultBin(Location: Record Location): Boolean
+    var
+        Bin: Record Bin;
+        ShipmentBinAvailable: Boolean;
+    begin
+        ShipmentBinAvailable := Bin.Get(Location.Code, Location."Shipment Bin Code");
+        exit(Location."Require Shipment" and ShipmentBinAvailable);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignFieldsForNo(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
@@ -8125,7 +8162,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitQtyToAsm(var SalesLine: Record "Sales Line"; CallingFieldNo: Integer)
+    local procedure OnAfterInitQtyToAsm(var SalesLine: Record "Sales Line"; CallingFieldNo: Integer; xSalesLine: Record "Sales Line")
     begin
     end;
 
@@ -8170,7 +8207,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAddItems(var SalesLine: Record "Sales Line")
+    local procedure OnBeforeAddItems(var SalesLine: Record "Sales Line"; SelectionFilter: Text)
     begin
     end;
 
@@ -8378,7 +8415,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTestStatusOpen(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeTestStatusOpen(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; xSalesLine: Record "Sales Line"; CallingFieldNo: Integer)
     begin
     end;
 
@@ -8454,6 +8491,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateBlanketOrderNo(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateType(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -9082,6 +9124,11 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateNo(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnBeforeValidateShipmentDate(var IsHandled: boolean)
     begin
@@ -9169,6 +9216,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateLineDiscountPercentOnAfterTestStatusOpen(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowNonStock(var SalesLine: Record "Sales Line"; var NonstockItem: Record "Nonstock Item"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowNonstockOnBeforeOpenCatalogItemList(var SalesLine: Record "Sales Line"; var NonstockItem: Record "Nonstock Item")
     begin
     end;
 }

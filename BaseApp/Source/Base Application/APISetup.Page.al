@@ -158,8 +158,23 @@ page 5469 "API Setup"
                 var
                     GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
                 begin
-                    Codeunit.Run(CODEUNIT::"API Fix Purchase Order");
                     GraphMgtGeneralTools.ScheduleUpdateAPIRecordsJob(Codeunit::"API Fix Purchase Order");
+                end;
+            }
+
+            action(FixSalesCrMemoReasonCode)
+            {
+                ApplicationArea = All;
+                Caption = 'Fix Sales Credit Memo API Records Reason Codes';
+                Image = Setup;
+                Promoted = false;
+                ToolTip = 'Updates reason codes of the records that are used by the salesCreditMemos API';
+
+                trigger OnAction()
+                var
+                    GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
+                begin
+                    GraphMgtGeneralTools.ScheduleUpdateAPIRecordsJob(Codeunit::"API Fix Sales Cr. Memo");
                 end;
             }
         }

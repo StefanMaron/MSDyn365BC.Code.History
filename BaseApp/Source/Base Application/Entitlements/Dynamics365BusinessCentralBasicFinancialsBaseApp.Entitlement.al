@@ -7,6 +7,7 @@ entitlement "Dynamics 365 Business Central Basic Financials BaseApp"
                          "D365 BASIC ISV",
                          "D365 DIM CORRECTION",
                          "D365 MONITOR FIELDS",
+                         "LOCAL",
                          "Reten. Pol. Setup - BaseApp",
                          "Security - Baseapp";
 }

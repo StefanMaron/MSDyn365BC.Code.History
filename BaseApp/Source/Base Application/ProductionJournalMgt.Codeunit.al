@@ -93,10 +93,13 @@ codeunit 5510 "Production Journal Mgt"
                 ProdOrderRtngLine.SetRange(Status, ProdOrderLine.Status);
                 ProdOrderRtngLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
                 if ProdOrderRtngLine.Find('-') then begin
-                    InsertComponents(ProdOrderLine, true, 0); // With no Routing Link or illegal Routing Link
+                    IsHandled := false;
+                    OnCreateJnlLinesOnBeforeInsertComponents(ProdOrderRtngLine, ProdOrder, ProdOrderLine, IsHandled);
+                    if not IsHandled then
+                        InsertComponents(ProdOrderLine, true, 0); // With no Routing Link or illegal Routing Link
                     repeat
                         IsHandled := false;
-                        OnCreateJnlLinesOnAfterFindProdOrderRtngLine(ProdOrderRtngLine, IsHandled);
+                        OnCreateJnlLinesOnAfterFindProdOrderRtngLine(ProdOrderRtngLine, IsHandled, ItemJnlLine, NextLineNo);
                         if not IsHandled then begin
                             InsertOutputItemJnlLine(ProdOrderRtngLine, ProdOrderLine);
                             if ProdOrderRtngLine."Routing Link Code" <> '' then begin
@@ -137,6 +140,7 @@ codeunit 5510 "Production Journal Mgt"
         ProdOrderComp.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
         ProdOrderComp.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
         ProdOrderComp.SetFilter("Item No.", '<>%1', '');
+        OnInsertComponentsOnAfterProdOrderCompSetFilters(ProdOrderComp);
         if ProdOrderComp.Find('-') then
             repeat
                 if not CheckRoutingLink then
@@ -171,6 +175,7 @@ codeunit 5510 "Production Journal Mgt"
         Location: Record Location;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         NeededQty: Decimal;
+        OriginalNeededQty: Decimal;
         IsHandled: Boolean;
     begin
         with ProdOrderComp do begin
@@ -187,8 +192,12 @@ codeunit 5510 "Production Journal Mgt"
 
             if "Flushing Method" <> "Flushing Method"::Manual then
                 NeededQty := 0
-            else begin
+            else
                 NeededQty := GetNeededQty(CalcBasedOn, true);
+
+            OriginalNeededQty := NeededQty;
+
+            if "Flushing Method" = "Flushing Method"::Manual then begin
                 if "Location Code" <> Location.Code then
                     if not Location.Get("Location Code") then
                         Clear(Location);
@@ -209,7 +218,7 @@ codeunit 5510 "Production Journal Mgt"
             ItemJnlLine.Validate("Item No.", "Item No.");
             ItemJnlLine.Validate("Unit of Measure Code", "Unit of Measure Code");
             ItemJnlLine.Description := Description;
-            ConsumptionItemJnlLineValidateQuantity(ProdOrderComp, NeededQty, Item);
+            ConsumptionItemJnlLineValidateQuantity(ProdOrderComp, NeededQty, Item, NeededQty < OriginalNeededQty);
 
             ItemJnlLine.Validate("Location Code", "Location Code");
             if "Bin Code" <> '' then
@@ -238,7 +247,7 @@ codeunit 5510 "Production Journal Mgt"
         OnAfterInsertConsumptionJnlLine(ItemJnlLine);
     end;
 
-    local procedure ConsumptionItemJnlLineValidateQuantity(ProdOrderComp: Record "Prod. Order Component"; NeededQty: Decimal; Item: Record Item)
+    local procedure ConsumptionItemJnlLineValidateQuantity(ProdOrderComp: Record "Prod. Order Component"; NeededQty: Decimal; Item: Record Item; IgnoreRoundingPrecision: Boolean)
     var
         IsHandled: Boolean;
     begin
@@ -248,7 +257,7 @@ codeunit 5510 "Production Journal Mgt"
             exit;
 
         if NeededQty <> 0 then
-            if Item."Rounding Precision" > 0 then
+            if (Item."Rounding Precision" > 0) and not IgnoreRoundingPrecision then
                 ItemJnlLine.Validate(Quantity, UOMMgt.RoundToItemRndPrecision(NeededQty, Item."Rounding Precision"))
             else
                 ItemJnlLine.Validate(Quantity, Round(NeededQty, UOMMgt.QtyRndPrecision));
@@ -320,6 +329,7 @@ codeunit 5510 "Production Journal Mgt"
                 QtyToPost := 0;
 
             ItemJnlLine.Init();
+            OnInsertOutputItemJnlLineOnAfterItemJnlLineInit(ItemJnlLine, ProdOrderLine);
             ItemJnlLine."Journal Template Name" := ToTemplateName;
             ItemJnlLine."Journal Batch Name" := ToBatchName;
             ItemJnlLine."Line No." := NextLineNo;
@@ -342,6 +352,7 @@ codeunit 5510 "Production Journal Mgt"
             ItemJnlLine.Validate("Run Time", 0);
             if ("Location Code" <> '') and IsLastOperation(ProdOrderRtngLine) then
                 ItemJnlLine.CheckWhse("Location Code", QtyToPost);
+            OnInsertOutputItemJnlLineOnBeforeSubcontractingWorkCenterUsed(ItemJnlLine, ProdOrderLine);
             if ItemJnlLine.SubcontractingWorkCenterUsed then
                 ItemJnlLine.Validate("Output Quantity", 0)
             else
@@ -593,7 +604,7 @@ codeunit 5510 "Production Journal Mgt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateJnlLinesOnAfterFindProdOrderRtngLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled: Boolean)
+    local procedure OnCreateJnlLinesOnAfterFindProdOrderRtngLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled: Boolean; var ItemJnlLine: Record "Item Journal Line"; var NextLineNo: Integer)
     begin
     end;
 
@@ -629,6 +640,26 @@ codeunit 5510 "Production Journal Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertConsumptionItemJnlLineOnBeforeValidateQuantity(var ItemJnlLine: Record "Item Journal Line"; ProdOrderComp: Record "Prod. Order Component"; NeededQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOutputItemJnlLineOnBeforeSubcontractingWorkCenterUsed(var ItemJnlLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOutputItemJnlLineOnAfterItemJnlLineInit(var ItemJnlLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateJnlLinesOnBeforeInsertComponents(var ProdOrderRtngLine: Record "Prod. Order Routing Line"; ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertComponentsOnAfterProdOrderCompSetFilters(var ProdOrderComp: Record "Prod. Order Component")
     begin
     end;
 }

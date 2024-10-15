@@ -7215,6 +7215,12 @@ End Function
         <Field Name="TotalRemAmt_IssuedReminderLineFormat">
           <DataField>TotalRemAmt_IssuedReminderLineFormat</DataField>
         </Field>
+        <Field Name="FinalTotalInclVAT">
+          <DataField>FinalTotalInclVAT</DataField>
+        </Field>
+        <Field Name="FinalTotalInclVATFormat">
+          <DataField>FinalTotalInclVATFormat</DataField>
+        </Field>
         <Field Name="TotalCaption1">
           <DataField>TotalCaption1</DataField>
         </Field>

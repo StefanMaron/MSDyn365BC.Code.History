@@ -79,6 +79,7 @@ permissionset 8322 "Service Documents - Post"
                   tabledata "Price List Header" = R,
                   tabledata "Price List Line" = R,
                   tabledata "Price Source" = R,
+                  tabledata "Price Worksheet Line" = R,
                   tabledata "Prod. Order Component" = R,
                   tabledata "Prod. Order Line" = R,
                   tabledata "Purchase Line" = R,

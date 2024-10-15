@@ -851,6 +851,8 @@ table 5612 "FA Depreciation Book"
             "Straight-Line %" := 0;
             "Fixed Depr. Amount" := 0;
         end;
+
+        OnAfterCalcDeprPeriod(Rec);
     end;
 
     local procedure CalcEndingDate(): Date
@@ -1030,6 +1032,11 @@ table 5612 "FA Depreciation Book"
         FALedgEntry.SetRange("Part of Book Value");
         if GetFilter("FA Posting Date Filter") <> '' then
             FALedgEntry.SetFilter("FA Posting Date", GetFilter("FA Posting Date Filter"));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcDeprPeriod(var FADepreciationBook: Record "FA Depreciation Book");
+    begin
     end;
 
     [IntegrationEvent(false, false)]
