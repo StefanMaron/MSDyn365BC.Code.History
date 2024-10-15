@@ -1,4 +1,4 @@
-#if not CLEAN19
+﻿#if not CLEAN19
 page 279 "Source Code Setup"
 {
     ApplicationArea = Basic, Suite;
@@ -129,6 +129,21 @@ page 279 "Source Code Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code linked to entries that are posted from Consolidation.';
+                }
+                field(GeneralDeferral; Rec."General Deferral")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code linked to entries that are posted from a general journal deferrals.';
+                }
+                field(SalesDeferral; Rec."Sales Deferral")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code linked to entries that are posted from a sales deferrals.';
+                }
+                field(PurchaseDeferral; Rec."Purchase Deferral")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code linked to entries that are posted from a purchase deferrals.';
                 }
             }
             group(Sales)

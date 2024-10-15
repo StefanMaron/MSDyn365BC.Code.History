@@ -606,7 +606,8 @@
             OldVATBusPostingGroup := "VAT Bus. Posting Group";
             // NAVCZ
             if MoveNegLines or IncludeHeader then
-                Validate("Location Code");
+                if not IsCreditDocType() then
+                    Validate("Location Code");
             CopyShiptoCodeFromInvToCrMemo(ToSalesHeader, FromSalesInvHeader, FromDocType);
             // NAVCZ
             if OldVATCountry <> '' then

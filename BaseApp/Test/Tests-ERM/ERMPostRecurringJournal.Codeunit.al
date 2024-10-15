@@ -30,6 +30,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         GenJnlDocType: Enum "Gen. Journal Document Type";
         GenJnlAccountType: Enum "Gen. Journal Account Type";
         GenJnlRecurringMethod: Enum "Gen. Journal Recurring Method";
+        IsInitialized: Boolean;
 
     [Test]
     [Scope('OnPrem')]
@@ -256,6 +257,15 @@ codeunit 134227 "ERM PostRecurringJournal"
         GenJournalBatch.SetRange("Journal Template Name", GenJournalTemplate.Name);
         GenJournalBatch.FindFirst;
 
+        // Remove existing lines
+        GenJournalLine.SetRange("Journal Template Name", GenJournalTemplate.Name);
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        if GenJournalLine.FindSet() then
+            repeat
+                GenJournalLine.Delete(true);
+            until GenJournalLine.Next() = 0;
+        GenJournalLine.Reset();
+
         // [GIVEN] The 1st Line of Batch having "Amount" = 100 and G/L Account
         Amount := LibraryRandom.RandDec(100, 2);
         CreateJournalLineWithDocumentNo(
@@ -317,6 +327,15 @@ codeunit 134227 "ERM PostRecurringJournal"
         LibraryERM.FindRecurringTemplateName(GenJournalTemplate);
         GenJournalBatch.SetRange("Journal Template Name", GenJournalTemplate.Name);
         GenJournalBatch.FindFirst;
+
+        // Remove existing lines
+        GenJournalLine.SetRange("Journal Template Name", GenJournalTemplate.Name);
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        if GenJournalLine.FindSet() then
+            repeat
+                GenJournalLine.Delete(true);
+            until GenJournalLine.Next() = 0;
+        GenJournalLine.Reset();
 
         // [GIVEN] The 1st Line of Batch having "Amount" = 100 and G/L Account
         Amount := LibraryRandom.RandDec(100, 2);
@@ -680,7 +699,7 @@ codeunit 134227 "ERM PostRecurringJournal"
     begin
         // [FEATURE] [Posting Date] [Allowed Posting Period]
         // [SCENARIO 221154] Lines with posting date outside GL Setup allowed posting period are not posted in Recurring Journal
-        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        Initialize();
 
         // [GIVEN] General Journal Batch
         CreateRecurringGenJournalBatch(GenJournalBatch);
@@ -1177,9 +1196,70 @@ codeunit 134227 "ERM PostRecurringJournal"
         VerifyVendorLedgerEntryDueDateForRVMethod(GenJournalLine."Account No.", GenJournalLine."Document Type", PostingDate);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure S462932_PostMultipleRecurringJournalLine_GLSetupNotAllowedPostingPeriod_OverExpirationDate()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        DocumentNo: array[3] of Code[20];
+        AllowedDate: Date;
+    begin
+        // [FEATURE] [Recurring General Journal] [Posting Date] [Allowed Posting Period] [Expiration Date]
+        // [SCENARIO 462932] Lines with posting date outside General Ledger Setup allowed posting period are not posted in Recurring Journal and Posting Date is not updated.
+        // [SCENARIO 462932] Expired lines are not posted in Recurring Journal and Posting Date is not updated.
+        Initialize();
+
+        // [GIVEN] Create Recurring General Journal Batch.
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+
+        // [GIVEN] Defined General Ledger Setup allowed posting period from 30 days before WorkDate up to 1 day before WorkDate.
+        CreateGLSetupWithAllowedPostingPeriod(WorkDate() - 30, WorkDate() - 1);
+
+        // [GIVEN] Create Recurring Journal with 3 lines:
+        // [GIVEN] Line 1: "Posting Date" is WorkDate (out of allowed period). "Expiration Date" is blank. "Recurring Frequency" is defined.
+        DocumentNo[1] := CreateRecurringJnlLine(GenJournalLine, GenJournalBatch, WorkDate(), 0D, LibraryRandom.RandInt(10));
+        // [GIVEN] Line 2: "Posting Date" is the day before WorkDate (in allowed period). "Expiration Date" is blank. "Recurring Frequency" is defined.
+        DocumentNo[2] := CreateRecurringJnlLine(GenJournalLine, GenJournalBatch, WorkDate() - 1, 0D, LibraryRandom.RandInt(10));
+        // [GIVEN] Line 3: "Posting Date" is the day before WorkDate (in allowed period). But, "Expiration Date" is before (Expired). "Recurring Frequency" is defined.
+        DocumentNo[3] := CreateRecurringJnlLine(GenJournalLine, GenJournalBatch, WorkDate() - 1, WorkDate() - 15, LibraryRandom.RandInt(10));
+
+        // [WHEN] Post Recurring Journal.
+        CreateAllocationLine(GenJournalLine);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Only G/L Entry for Line 2 is posted.
+        VerifyGLEntriesWithNotAllowedPostingDate(DocumentNo);
+
+        // [THEN] Verify that Posting Date only for Line 2 is updated.
+        FindGeneralJournalLine(GenJournalLine);
+        GenJournalLine.FindSet();
+        repeat
+            case GenJournalLine."Document No." of
+                DocumentNo[1]:
+                    GenJournalLine.TestField("Posting Date", WorkDate());
+                DocumentNo[2]:
+                    GenJournalLine.TestField("Posting Date", CalcDate(GenJournalLine."Recurring Frequency", WorkDate() - 1));
+                DocumentNo[3]:
+                    GenJournalLine.TestField("Posting Date", WorkDate() - 1);
+            end;
+        until GenJournalLine.Next() = 0;
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM PostRecurringJournal");
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
+
+        if IsInitialized then
+            exit;
+
+        IsInitialized := true;
+        Commit();
+
+        LibrarySetupStorage.Save(Database::"General Ledger Setup");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM PostRecurringJournal");
     end;
 
     local procedure CreateGLAccountWithBalanceAtDate(PostingDate: Date; Balance: Decimal): Code[20]
@@ -1253,6 +1333,21 @@ codeunit 134227 "ERM PostRecurringJournal"
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed",
           LibraryRandom.RandDec(100, 2), LibraryERM.CreateGLAccountNo);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Expiration Date", ExpirationDate);
+        GenJournalLine.Modify(true);
+        exit(GenJournalLine."Document No.");
+    end;
+
+    local procedure CreateRecurringJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; PostingDate: Date; ExpirationDate: Date; RecurringFrequencyMonths: Integer): Code[20]
+    var
+        RecurringFrequency: DateFormula;
+    begin
+        CreateGeneralJournalLine(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed",
+          LibraryRandom.RandDec(100, 2), LibraryERM.CreateGLAccountNo);
+        Evaluate(RecurringFrequency, '<' + Format(RecurringFrequencyMonths) + 'M >');
+        GenJournalLine.Validate("Recurring Frequency", RecurringFrequency);
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Validate("Expiration Date", ExpirationDate);
         GenJournalLine.Modify(true);
