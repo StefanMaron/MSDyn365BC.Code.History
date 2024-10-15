@@ -5594,6 +5594,7 @@
             Closed := false;
             CopyAmountsFromVATEntry(VATEntry, true);
             "Posting Date" := GenJnlLine."Posting Date";
+            "Document Date" := GenJnlLine."Document Date";
             "Document No." := GenJnlLine."Document No.";
             "User ID" := UserId;
             "Transaction No." := NextTransactionNo;
@@ -8092,6 +8093,7 @@
         WHTEntry.SetRange("Bill-to/Pay-to No.", CVNo);
         WHTEntry.SetRange("Transaction No.", TransactionNo);
         WHTEntry.SetFilter("Document Type", '<>%1', WHTEntry."Document Type"::"Credit Memo");
+        WHTEntry.SetFilter("Unrealized WHT Entry No.", '<>%1', 0);
         if WHTEntry.FindSet then
             repeat
                 NewWHTEntry := WHTEntry;
@@ -8111,44 +8113,42 @@
                 NewWHTEntry."Entry No." := NextWHTEntryNo;
                 NextWHTEntryNo := NextWHTEntryNo + 1;
                 NewWHTEntry.Insert();
-                if WHTEntry."Unrealized WHT Entry No." <> 0 then begin
-                    WHTPostingSetup.Get(WHTEntry."WHT Bus. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                    if not VoidCheck then begin
-                        GenJnlLine1.Copy(GenJnlLine);
-                        GenJnlLine1.Amount := -WHTEntry.Amount;
-                        GenJnlLine1."Amount (LCY)" := -WHTEntry."Amount (LCY)";
-                        case TransactionType of
-                            WHTEntry."Transaction Type"::Sale:
-                                Source := 0;
-                            WHTEntry."Transaction Type"::Purchase:
-                                Source := 1;
-                        end;
-                        InsertWHTPostingBufferPosted(WHTEntry, GenJnlLine1, false, Source);
-                    end else begin
-                        if GLSetup."Enable GST (Australia)" then
-                            if GenJnlLine."Bill-to/Pay-to No." = '' then begin
-                                Vend.Get(GenJnlLine."Account No.");
-                                if Vend.ABN <> '' then
-                                    exit;
-                            end else begin
-                                Vend.Get(GenJnlLine."Bill-to/Pay-to No.");
-                                if Vend.ABN <> '' then
-                                    exit;
-                            end;
-                        if WHTEntry."Amount (LCY)" <> 0 then
-                            WHTPostingSetup.Get(WHTEntry."WHT Bus. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                        CreateGLEntry(
-                          GenJnlLine, WHTPostingSetup."Payable WHT Account Code", WHTEntry."Amount (LCY)", 0, false);
+                WHTPostingSetup.Get(WHTEntry."WHT Bus. Posting Group", WHTEntry."WHT Prod. Posting Group");
+                if not VoidCheck then begin
+                    GenJnlLine1.Copy(GenJnlLine);
+                    GenJnlLine1.Amount := -WHTEntry.Amount;
+                    GenJnlLine1."Amount (LCY)" := -WHTEntry."Amount (LCY)";
+                    case TransactionType of
+                        WHTEntry."Transaction Type"::Sale:
+                            Source := 0;
+                        WHTEntry."Transaction Type"::Purchase:
+                            Source := 1;
                     end;
-
-                    UnrealizedWHTEntry.Get(WHTEntry."Unrealized WHT Entry No.");
-                    UnrealizedWHTEntry."Remaining Unrealized Amount" := UnrealizedWHTEntry."Remaining Unrealized Amount" + WHTEntry.Amount;
-                    UnrealizedWHTEntry."Remaining Unrealized Base" := UnrealizedWHTEntry."Remaining Unrealized Base" + WHTEntry.Base;
-                    UnrealizedWHTEntry."Rem Unrealized Amount (LCY)" := UnrealizedWHTEntry."Rem Unrealized Amount (LCY)" + WHTEntry."Amount (LCY)";
-                    UnrealizedWHTEntry."Rem Unrealized Base (LCY)" := UnrealizedWHTEntry."Rem Unrealized Base (LCY)" + WHTEntry."Base (LCY)";
-                    UnrealizedWHTEntry.Closed := false;
-                    UnrealizedWHTEntry.Modify();
+                    InsertWHTPostingBufferPosted(WHTEntry, GenJnlLine1, false, Source);
+                end else begin
+                    if GLSetup."Enable GST (Australia)" then
+                        if GenJnlLine."Bill-to/Pay-to No." = '' then begin
+                            Vend.Get(GenJnlLine."Account No.");
+                            if Vend.ABN <> '' then
+                                exit;
+                        end else begin
+                            Vend.Get(GenJnlLine."Bill-to/Pay-to No.");
+                            if Vend.ABN <> '' then
+                                exit;
+                        end;
+                    if WHTEntry."Amount (LCY)" <> 0 then
+                        WHTPostingSetup.Get(WHTEntry."WHT Bus. Posting Group", WHTEntry."WHT Prod. Posting Group");
+                    CreateGLEntry(
+                      GenJnlLine, WHTPostingSetup."Payable WHT Account Code", WHTEntry."Amount (LCY)", 0, false);
                 end;
+
+                UnrealizedWHTEntry.Get(WHTEntry."Unrealized WHT Entry No.");
+                UnrealizedWHTEntry."Remaining Unrealized Amount" := UnrealizedWHTEntry."Remaining Unrealized Amount" + WHTEntry.Amount;
+                UnrealizedWHTEntry."Remaining Unrealized Base" := UnrealizedWHTEntry."Remaining Unrealized Base" + WHTEntry.Base;
+                UnrealizedWHTEntry."Rem Unrealized Amount (LCY)" := UnrealizedWHTEntry."Rem Unrealized Amount (LCY)" + WHTEntry."Amount (LCY)";
+                UnrealizedWHTEntry."Rem Unrealized Base (LCY)" := UnrealizedWHTEntry."Rem Unrealized Base (LCY)" + WHTEntry."Base (LCY)";
+                UnrealizedWHTEntry.Closed := false;
+                UnrealizedWHTEntry.Modify();
                 WHTEntry."Original Document No." := NewWHTEntry."Document No.";
                 WHTEntry.Modify();
             until WHTEntry.Next = 0;

@@ -30,8 +30,20 @@ report 795 "Adjust Cost - Item Entries"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Item No. Filter';
                         Editable = FilterItemNoEditable;
-                        TableRelation = Item;
                         ToolTip = 'Specifies a filter to run the Adjust Cost - Item Entries batch job for only certain items. You can leave this field blank to run the batch job for all items.';
+
+                        trigger OnLookup(var Text: Text): Boolean
+                        var
+                            ItemList: Page "Item List";
+                        begin
+                            ItemList.LookupMode := true;
+                            if ItemList.RunModal() = ACTION::LookupOK then
+                                Text := ItemList.GetSelectionFilter()
+                            else
+                                exit(false);
+
+                            exit(true);
+                        end;
                     }
                     field(FilterItemCategory; ItemCategoryFilter)
                     {
