@@ -20,15 +20,18 @@
                 var
                     Item: Record Item;
                     Country: Record "Country/Region";
+                    CountryRegion: Record "Country/Region";
                     SpecialUnit: Decimal;
                     RoundedWeight: Integer;
                     ItemDirection: Integer;
                     IsCorrection: Boolean;
+                    CountryRegionOfOriginCode: Code[10];
                 begin
                     TestField("Item No.");
                     TestField("Tariff No.");
                     TestField("Country/Region Code");
-                    TestField("Transaction Type");
+                    if not CounterpartyInfo then
+                        TestField("Transaction Type");
                     TestField("Transport Method");
                     TestField("Net Weight");
                     TestField("Total Weight");
@@ -68,14 +71,26 @@
                     end;
                     IsCorrection := CheckCorrection("Source Entry No.", ItemDirection);
 
+                    if CounterpartyInfo then
+                        if ItemDirection = 7 then
+                            TestField("Transaction Specification")
+                        else
+                            TestField("Transaction Type");
+
                     Write(Format(Date, 0, '<Year4><Month,2>'));
                     Write(Format(ItemDirection));
                     Write(PADSTR2(CompanyInfo."VAT Registration No.", 12, '0', 'L'));
                     Write(PADSTR2(Format(LineNo, 0, '<Integer>'), 5, '0', '<'));
-                    if CounterpartyInfo then
-                        Write(PADSTR2("Country/Region of Origin Code", 3, ' ', '>'))
-                    else
-                        Write(PADSTR2('', 3, ' ', '>'));
+
+                    CountryRegionOfOriginCode := '';
+                    if CounterpartyInfo and (ItemDirection = 7) then begin
+                        CountryRegionOfOriginCode := "Country/Region of Origin Code";
+                        if CountryRegion.Get("Country/Region of Origin Code") then
+                            if CountryRegion."Intrastat Code" <> '' then
+                                CountryRegionOfOriginCode := CountryRegion."Intrastat Code";
+                    end;
+                    Write(PADSTR2(CountryRegionOfOriginCode, 3, ' ', '>'));
+
                     case ContainsAlpha(Country."Intrastat Code") of
                         true:
                             Write(PADSTR2(Country."Intrastat Code", 3, ' ', '>'));
@@ -87,7 +102,10 @@
                     Write('0');
                     Write(PADSTR2("Entry/Exit Point", 2, '0', '<'));
                     Write('00'); // Statistical system
-                    Write(PADSTR2("Transaction Type", 1, '', '>')); // Transaction code
+                    if CounterpartyInfo and (ItemDirection = 7) then
+                        Write(' ')
+                    else
+                        Write(PADSTR2("Transaction Type", 1, '', '>')); // Transaction code
                     Write(PADSTR2(DelChr("Tariff No."), 8, '0', '<'));
                     Write('00');
                     Write(Sign(RoundedWeight, IsCorrection));
@@ -110,10 +128,14 @@
                     Write('000');
                     Write(PADSTR2("Intrastat Jnl. Batch"."Currency Identifier", 1, ' ', '>'));
                     Write(PADSTR2('', 6, ' ', '>'));
-                    if CounterpartyInfo then begin
-                        Write(PADSTR2("Transaction Specification", 2, ' ', '<'));
-                        Write(PADSTR2(CopyStr("Partner VAT ID", 1, 17), 17, ' ', '<'));
-                    end;
+                    if CounterpartyInfo then
+                        if ItemDirection = 7 then begin
+                            Write(PADSTR2("Transaction Specification", 2, ' ', '<'));
+                            Write(PADSTR2(CopyStr("Partner VAT ID", 1, 17), 17, ' ', '<'));
+                        end else begin
+                            Write('  ');
+                            Write(PadStr('', 17, ' '));
+                        end;
 
                     Write(CrLf);
                 end;
@@ -419,12 +441,15 @@
         with ItemLedgerEntry do begin
             Get(SourceEntryNo);
             case "Document Type" of
-                "Document Type"::"Purchase Return Shipment":
+                "Document Type"::"Purchase Return Shipment",
+                "Document Type"::"Purchase Credit Memo":
                     begin
                         ItemDirection := 6;
                         exit(true);
                     end;
-                "Document Type"::"Sales Return Receipt":
+                "Document Type"::"Sales Return Receipt",
+                "Document Type"::"Sales Credit Memo",
+                "Document Type"::"Service Credit Memo":
                     begin
                         ItemDirection := 7;
                         exit(true);
