@@ -613,6 +613,15 @@
             Caption = 'Over-Receipt Code';
             TableRelation = "Over-Receipt Code";
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced with field 8512 due to wrong field length';
+            ObsoleteTag = '17.0';
+        }
+        field(8512; "Over-Receipt Code 2"; Code[20])
+        {
+            Caption = 'Over-Receipt Code';
+            TableRelation = "Over-Receipt Code";
+            Editable = false;
         }
         field(11302; "Pmt. Discount Amount"; Decimal)
         {
@@ -1026,6 +1035,7 @@
         Factor: Decimal;
     begin
         Init;
+        TransferOverReceiptCode(PurchLine);
         TransferFields(PurchLine);
         if ("No." = '') and HasTypeToFillMandatoryFields() then
             Type := Type::" ";
@@ -1099,6 +1109,18 @@
     procedure HasTypeToFillMandatoryFields(): Boolean
     begin
         exit(Type <> Type::" ");
+    end;
+
+    local procedure TransferOverReceiptCode(var PurchLine: Record "Purchase Line")
+    begin
+        "Over-Receipt Code 2" := PurchLine."Over-Receipt Code";
+        ClearPurchaseLineOverReceiptCode(PurchLine);
+    end;
+
+    [Obsolete('Required to avoid overflow error on transferfields, will be removed together with the "Over-Receipt Code" field.', '17.0')]
+    local procedure ClearPurchaseLineOverReceiptCode(var PurchLine: Record "Purchase Line")
+    begin
+        PurchLine."Over-Receipt Code" := '';
     end;
 
     [IntegrationEvent(false, false)]

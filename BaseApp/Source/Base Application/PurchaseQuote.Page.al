@@ -1344,6 +1344,8 @@ page 49 "Purchase Quote"
 
     local procedure ValidateShippingOption()
     begin
+        OnBeforeValidateShipToOptions(Rec, ShipToOptions);
+
         case ShipToOptions of
             ShipToOptions::"Default (Company Address)",
           ShipToOptions::"Custom Address":
@@ -1351,6 +1353,8 @@ page 49 "Purchase Quote"
             ShipToOptions::Location:
                 Validate("Location Code");
         end;
+
+        OnAfterValidateShipToOptions(Rec, ShipToOptions);
     end;
 
     local procedure CalculateCurrentShippingAndPayToOption()
@@ -1377,6 +1381,16 @@ page 49 "Purchase Quote"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateCurrentShippingAndPayToOption(var ShipToOptions: Option "Default (Company Address)",Location,"Custom Address"; var PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address"; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShipToOptions(var PurchaseHeader: Record "Purchase Header"; ShipToOptions: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateShipToOptions(var PurchaseHeader: Record "Purchase Header"; ShipToOptions: Option)
     begin
     end;
 }

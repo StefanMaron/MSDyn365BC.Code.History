@@ -1,4 +1,4 @@
-table 1226 "Payment Export Data"
+﻿table 1226 "Payment Export Data"
 {
     Caption = 'Payment Export Data';
 
@@ -599,6 +599,8 @@ table 1226 "Payment Export Data"
         "Recipient Bank Acc. No." := CopyStr(VendorBankAccount.GetBankAccountNo, 1, MaxStrLen("Recipient Bank Acc. No."));
         "Recipient Bank Clearing Std." := VendorBankAccount."Bank Clearing Standard";
         "Recipient Bank Clearing Code" := VendorBankAccount."Bank Clearing Code";
+
+        OnAfterSetVendorAsRecipient(Rec, Vendor, VendorBankAccount);
     end;
 
     procedure SetEmployeeAsRecipient(var Employee: Record Employee)
@@ -663,6 +665,11 @@ table 1226 "Payment Export Data"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetCustomerAsRecipient(var PaymentExportData: Record "Payment Export Data"; var Customer: Record Customer; var CustomerBankAccount: Record "Customer Bank Account");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetVendorAsRecipient(var PaymentExportData: Record "Payment Export Data"; var Vendor: Record Vendor; var VendorBankAccount: Record "Vendor Bank Account");
     begin
     end;
 }

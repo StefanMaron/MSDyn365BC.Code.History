@@ -536,7 +536,6 @@ page 20 "General Ledger Entries"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Show Change History';
-                Enabled = ShowChangeHistoryEnabled;
                 Image = History;
                 ToolTip = 'View the history of changes for this entry.';
 
@@ -556,8 +555,6 @@ page 20 "General Ledger Entries"
         IncomingDocument: Record "Incoming Document";
     begin
         HasIncomingDocument := IncomingDocument.PostedDocExists("Document No.", "Posting Date");
-        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
-        SetControlEnabled;
     end;
 
     trigger OnInit()
@@ -586,7 +583,6 @@ page 20 "General Ledger Entries"
         HasIncomingDocument: Boolean;
         AmountVisible: Boolean;
         DebitCreditVisible: Boolean;
-        ShowChangeHistoryEnabled: Boolean;
 
     local procedure GetCaption(): Text[250]
     begin
@@ -606,11 +602,6 @@ page 20 "General Ledger Entries"
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
     end;
 
-    local procedure SetControlEnabled()
-    begin
-        ShowChangeHistoryEnabled := HasChangeLogEntries;
-    end;
-
     local procedure CheckEntryPostedFromJournal()
     var
         ReversalEntry: Record "Reversal Entry";
@@ -627,14 +618,6 @@ page 20 "General Ledger Entries"
            ("Source Code" in [SourceCodeSetup."Sales Entry Application", SourceCodeSetup."Purchase Entry Application"])
         then
             ReversalEntry.TestFieldError;
-    end;
-
-    local procedure HasChangeLogEntries(): Boolean
-    var
-        ChangeLogEntry: Record "Change Log Entry";
-    begin
-        SetChangeLogEntriesFilter(ChangeLogEntry);
-        exit(not ChangeLogEntry.IsEmpty);
     end;
 
     local procedure SetChangeLogEntriesFilter(var ChangeLogEntry: Record "Change Log Entry")

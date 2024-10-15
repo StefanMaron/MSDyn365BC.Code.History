@@ -42,6 +42,7 @@ codeunit 1371 "Sales Batch Post Mgt."
         BatchProcessingMgt.AddParameter(BatchPostParameterTypes.PostingDate, PostingDate);
         BatchProcessingMgt.AddParameter(BatchPostParameterTypes.ReplacePostingDate, ReplacePostingDate);
         BatchProcessingMgt.AddParameter(BatchPostParameterTypes.ReplaceDocumentDate, ReplaceDocumentDate);
+        OnRunBatchOnAfterAddParameters(BatchProcessingMgt);
 
         SalesBatchPostMgt.SetBatchProcessor(BatchProcessingMgt);
         Commit();
@@ -216,6 +217,11 @@ codeunit 1371 "Sales Batch Post Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPrepareSalesHeader(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunBatchOnAfterAddParameters(var BatchProcessingMgt: Codeunit "Batch Processing Mgt.")
     begin
     end;
 }

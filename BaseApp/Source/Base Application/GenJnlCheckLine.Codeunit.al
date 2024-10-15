@@ -159,6 +159,11 @@ codeunit 11 "Gen. Jnl.-Check Line"
         end;
     end;
 
+    procedure DateNotAllowed(PostingDate: Date): Boolean
+    begin
+        exit(DateNotAllowed(PostingDate, ''));
+    end;
+
     procedure DateNotAllowed(PostingDate: Date; TemplateName: Code[20]): Boolean
     var
         SetupRecordID: RecordID;

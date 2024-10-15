@@ -2029,6 +2029,170 @@ codeunit 144000 "Non-Deductible VAT"
         Assert.AreEqual(NewPurchaseLine."Amount Including VAT" - NewPurchaseLine.Amount, VATAmt, '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure NonDeductibleVATIsConsideredInTotalVAT_NormalVAT_PriceExclVAT()
+    var
+        VATCalculationType: Enum "Tax Calculation Type";
+        PurchaseHeader: Record "Purchase Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: array[3] of Record "G/L Account";
+    begin
+        // [SCENARIO 359756] Total Exc. VAT and Total VAT are not update when use a non deductible VAT in belgium localization
+        Initialize();
+
+        // [GIVEN] Purchase Invoice with VAT setup: VAT Calculation Type is "Normal VAT" and Prices Excluding VAT
+        VATCalculationType := VATCalculationType::"Normal VAT";
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
+            CreateVendorNoWithVATPostingSetupAndPricesIncludingVATSetup(VATPostingSetup, VATCalculationType, false));
+
+        // [GIVEN] G/L Account lines with different VAT setup
+        // Line | Line Amnt | VAT% | N.D. VAT% | Amount  | VAT Amount
+        // ----------------------------------------------------------
+        // 01     117         7      23        |  118.88   6.31
+        // 02     117         10     17        |  118.99   9.71
+        // 03     117         17     7         |  118.39   18.50
+        CreatePurchaseLineWithGLAccountAndVATPostingSetup(PurchaseHeader, VATPostingSetup, GLAccount[1], VATCalculationType, 117, 7, 23);
+        VerifyTotalAmountAndTotalVAT(PurchaseHeader, 118.88, 6.31);
+
+        CreatePurchaseLineWithGLAccountAndVATPostingSetup(PurchaseHeader, VATPostingSetup, GLAccount[2], VATCalculationType, 117, 10, 17);
+        VerifyTotalAmountAndTotalVAT(PurchaseHeader, 237.87, 16.02);
+
+        CreatePurchaseLineWithGLAccountAndVATPostingSetup(PurchaseHeader, VATPostingSetup, GLAccount[3], VATCalculationType, 117, 17, 7);
+        VerifyTotalAmountAndTotalVAT(PurchaseHeader, 356.26, 34.52);
+
+        // [WHEN] Post Purchase Invoice
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [THEN] G/L Entries and VAT Entries created after posting should contain correct Amounts
+        VerifyAmountsWithCreatedEntries(PurchaseHeader, GLAccount[1], 118.88, 6.31);
+        VerifyAmountsWithCreatedEntries(PurchaseHeader, GLAccount[2], 118.99, 9.71);
+        VerifyAmountsWithCreatedEntries(PurchaseHeader, GLAccount[3], 118.39, 18.50);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NonDeductibleVATIsConsideredInTotalVAT_NormalVAT_PriceInclVAT()
+    var
+        VATCalculationType: Enum "Tax Calculation Type";
+        PurchaseHeader: Record "Purchase Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: array[3] of Record "G/L Account";
+    begin
+        // [SCENARIO 359756] Total Exc. VAT and Total VAT are not update when use a non deductible VAT in belgium localization
+        Initialize();
+
+        // [GIVEN] Purchase Invoice with VAT setup: VAT Calculation Type is "Normal VAT" and Prices Including VAT
+        VATCalculationType := VATCalculationType::"Normal VAT";
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
+            CreateVendorNoWithVATPostingSetupAndPricesIncludingVATSetup(VATPostingSetup, VATCalculationType, true));
+
+        // [GIVEN] G/L Account lines with different VAT setup
+        // Line | Line Amnt | VAT% | N.D. VAT% | Amount  | VAT Amount
+        // ----------------------------------------------------------
+        // 01     117         7      23        |  111.11   5.89
+        // 02     117         10     17        |  108.17   8.83
+        // 03     117         17     7         |  101.19   15.81
+        CreatePurchaseLineWithGLAccountAndVATPostingSetup(PurchaseHeader, VATPostingSetup, GLAccount[1], VATCalculationType, 117, 7, 23);
+        VerifyTotalAmountAndTotalVAT(PurchaseHeader, 111.11, 5.89);
+
+        CreatePurchaseLineWithGLAccountAndVATPostingSetup(PurchaseHeader, VATPostingSetup, GLAccount[2], VATCalculationType, 117, 10, 17);
+        VerifyTotalAmountAndTotalVAT(PurchaseHeader, 219.28, 14.72);
+
+        CreatePurchaseLineWithGLAccountAndVATPostingSetup(PurchaseHeader, VATPostingSetup, GLAccount[3], VATCalculationType, 117, 17, 7);
+        VerifyTotalAmountAndTotalVAT(PurchaseHeader, 320.47, 30.53);
+
+        // [WHEN] Post Purchase Invoice
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [THEN] G/L Entries and VAT Entries created after posting should contain correct Amounts
+        VerifyAmountsWithCreatedEntries(PurchaseHeader, GLAccount[1], 111.11, 5.89);
+        VerifyAmountsWithCreatedEntries(PurchaseHeader, GLAccount[2], 108.17, 8.83);
+        VerifyAmountsWithCreatedEntries(PurchaseHeader, GLAccount[3], 101.19, 15.81);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NonDeductibleVATIsConsideredInTotalVAT_ReverseChargeVAT_PriceExclVAT()
+    var
+        VATCalculationType: Enum "Tax Calculation Type";
+        PurchaseHeader: Record "Purchase Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: array[3] of Record "G/L Account";
+    begin
+        // [SCENARIO 359756] Total Exc. VAT and Total VAT are not update when use a non deductible VAT in belgium localization
+        Initialize();
+
+        // [GIVEN] Purchase Invoice with VAT setup: VAT Calculation Type is "Reverse Charge VAT" and Prices Excluding VAT
+        VATCalculationType := VATCalculationType::"Reverse Charge VAT";
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
+            CreateVendorNoWithVATPostingSetupAndPricesIncludingVATSetup(VATPostingSetup, VATCalculationType, false));
+
+        // [GIVEN] G/L Account lines with different VAT setup
+        // Line | Line Amnt | VAT% | N.D. VAT% | Amount  | VAT Amount
+        // ----------------------------------------------------------
+        // 01     117         7      23        |  117      0
+        // 02     117         10     17        |  117      0
+        // 03     117         17     7         |  117      0
+        CreatePurchaseLineWithGLAccountAndVATPostingSetup(PurchaseHeader, VATPostingSetup, GLAccount[1], VATCalculationType, 117, 7, 23);
+        VerifyTotalAmountAndTotalVAT(PurchaseHeader, 117, 0);
+
+        CreatePurchaseLineWithGLAccountAndVATPostingSetup(PurchaseHeader, VATPostingSetup, GLAccount[2], VATCalculationType, 117, 10, 17);
+        VerifyTotalAmountAndTotalVAT(PurchaseHeader, 234, 0);
+
+        CreatePurchaseLineWithGLAccountAndVATPostingSetup(PurchaseHeader, VATPostingSetup, GLAccount[3], VATCalculationType, 117, 17, 7);
+        VerifyTotalAmountAndTotalVAT(PurchaseHeader, 351, 0);
+
+        // [WHEN] Post Purchase Invoice
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [THEN] G/L Entries and VAT Entries created after posting should contain correct Amounts (same as with NormalVAT case)
+        VerifyAmountsWithCreatedEntries(PurchaseHeader, GLAccount[1], 118.88, 6.31);
+        VerifyAmountsWithCreatedEntries(PurchaseHeader, GLAccount[2], 118.99, 9.71);
+        VerifyAmountsWithCreatedEntries(PurchaseHeader, GLAccount[3], 118.39, 18.50);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NonDeductibleVATIsConsideredInTotalVAT_ReverseChargeVAT_PriceInclVAT()
+    var
+        VATCalculationType: Enum "Tax Calculation Type";
+        PurchaseHeader: Record "Purchase Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: array[3] of Record "G/L Account";
+    begin
+        // [SCENARIO 359756] Total Exc. VAT and Total VAT are not update when use a non deductible VAT in belgium localization
+        Initialize();
+
+        // [GIVEN] Purchase Invoice with VAT setup: VAT Calculation Type is "Reverse Charge VAT" and Prices Including VAT
+        VATCalculationType := VATCalculationType::"Reverse Charge VAT";
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
+            CreateVendorNoWithVATPostingSetupAndPricesIncludingVATSetup(VATPostingSetup, VATCalculationType, true));
+
+        // [GIVEN] G/L Account lines with different VAT setup
+        // Line | Line Amnt | VAT% | N.D. VAT% | Amount  | VAT Amount
+        // ----------------------------------------------------------
+        // 01     117         7      23        |  109.35   0
+        // 02     117         10     17        |  106.36   0
+        // 03     117         17     7         |  100.00   0
+        CreatePurchaseLineWithGLAccountAndVATPostingSetup(PurchaseHeader, VATPostingSetup, GLAccount[1], VATCalculationType, 117, 7, 23);
+        VerifyTotalAmountAndTotalVAT(PurchaseHeader, 109.35, 0);
+
+        CreatePurchaseLineWithGLAccountAndVATPostingSetup(PurchaseHeader, VATPostingSetup, GLAccount[2], VATCalculationType, 117, 10, 17);
+        VerifyTotalAmountAndTotalVAT(PurchaseHeader, 215.71, 0);
+
+        CreatePurchaseLineWithGLAccountAndVATPostingSetup(PurchaseHeader, VATPostingSetup, GLAccount[3], VATCalculationType, 117, 17, 7);
+        VerifyTotalAmountAndTotalVAT(PurchaseHeader, 315.71, 0);
+
+        /// [WHEN] Post Purchase Invoice
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [THEN] G/L Entries and VAT Entries created after posting should contain correct Amounts (same as with NormalVAT case)
+        VerifyAmountsWithCreatedEntries(PurchaseHeader, GLAccount[1], 111.11, 5.89);
+        VerifyAmountsWithCreatedEntries(PurchaseHeader, GLAccount[2], 108.17, 8.83);
+        VerifyAmountsWithCreatedEntries(PurchaseHeader, GLAccount[3], 101.19, 15.81);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2760,6 +2924,99 @@ codeunit 144000 "Non-Deductible VAT"
         Assert.RecordCount(GLEntry, CountOfPeriod);
         GLEntry.CalcSums(Amount);
         GLEntry.TestField(Amount, -DeferredAmount);
+    end;
+
+    local procedure CreateVendorNoWithVATPostingSetupAndPricesIncludingVATSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type"; PriceIncludingVAT: Boolean): Code[20]
+    var
+        Vendor: Record Vendor;
+    begin
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup, VATCalculationType, LibraryRandom.RandInt(30));
+
+        Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        Vendor.Validate("Prices Including VAT", PriceIncludingVAT);
+        Vendor.Modify();
+        exit(Vendor."No.");
+    end;
+
+    local procedure CreatePurchaseLineWithGLAccountAndVATPostingSetup(var PurchaseHeader: Record "Purchase Header"; var VATPostingSetup: Record "VAT Posting Setup"; var GLAccount: Record "G/L Account"; VATCalculationType: Enum "Tax Calculation Type"; Amount: Integer; VATPerc: Integer; NonDeductibVAT: Integer): Code[20]
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        CreateVATPostingSetupWithNewProdGroup(VATPostingSetup, VATPerc, VATCalculationType);
+        CreateGLAccount(GLAccount, VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase, NonDeductibVAT);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", Amount);
+        PurchaseLine.Modify();
+    end;
+
+    local procedure CreateVATPostingSetupWithNewProdGroup(var VATPostingSetup: Record "VAT Posting Setup"; VATPerc: Integer; VATCalculationType: Enum "Tax Calculation Type")
+    var
+        VATProdPostingGroup: Record "VAT Product Posting Group";
+    begin
+        LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Bus. Posting Group", VATProdPostingGroup.Code);
+        VATPostingSetup.Validate("VAT Calculation Type", VATCalculationType);
+        VATPostingSetup.Validate("VAT %", VATPerc);
+        VATPostingSetup.Validate("VAT Identifier",
+          LibraryUtility.GenerateRandomCode(VATPostingSetup.FieldNo("VAT Identifier"), DATABASE::"VAT Posting Setup"));
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify();
+    end;
+
+    local procedure VerifyTotalAmountAndTotalVAT(PurchaseHeader: Record "Purchase Header"; ExpectedAmount: Decimal; ExpectedVAT: Decimal)
+    var
+        DocumentTotals: Codeunit "Document Totals";
+        PurchaseLine: Record "Purchase Line";
+        ZeroPurchaseLine: Record "Purchase Line";
+        TotalPurchaseLine: Record "Purchase Line";
+        VATAmount: Decimal;
+        InvDiscAmt: Decimal;
+        InvDiscPcs: Decimal;
+    begin
+        PurchaseLine.SetFilter(Type, '%1', PurchaseLine.Type::"G/L Account");
+        PurchaseLine.SetFilter("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindSet();
+        repeat
+            DocumentTotals.PurchaseDeltaUpdateTotals(PurchaseLine, ZeroPurchaseLine, TotalPurchaseLine, VATAmount, InvDiscAmt, InvDiscPcs);
+        until PurchaseLine.Next() = 0;
+
+        Assert.AreEqual(ExpectedAmount, TotalPurchaseLine.Amount, 'Unexpected Total Amount');
+        Assert.AreEqual(ExpectedVAT, VATAmount, 'Unexpected Total VAT');
+    end;
+
+    local procedure VerifyAmountsWithCreatedEntries(PurchaseHeader: Record "Purchase Header"; GLAccount: Record "G/L Account"; ExpectedAmount: Decimal; ExpectedVAT: Decimal)
+    begin
+        VerifyAmountsWithCreatedVATEntries(PurchaseHeader."Last Posting No.", GLAccount, ExpectedAmount, ExpectedVAT);
+        VerifyAmountsWithCreatedGLEntries(PurchaseHeader."Last Posting No.", GLAccount, ExpectedAmount, ExpectedVAT);
+    end;
+
+    local procedure VerifyAmountsWithCreatedVATEntries(DocumentNo: Code[20]; GLAccount: Record "G/L Account"; ExpectedAmount: Decimal; ExpectedVAT: Decimal)
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetRange("VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
+        VATEntry.FindFirst();
+
+        VATEntry.TestField(Base, ExpectedAmount);
+        VATEntry.TestField(Amount, ExpectedVAT);
+    end;
+
+    local procedure VerifyAmountsWithCreatedGLEntries(DocumentNo: Code[20]; GLAccount: Record "G/L Account"; ExpectedAmount: Decimal; ExpectedVAT: Decimal)
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccount."No.");
+        GLEntry.FindFirst();
+
+        GLEntry.TestField(Amount, ExpectedAmount);
+        GLEntry.TestField("VAT Amount", ExpectedVAT);
     end;
 
     [ModalPageHandler]

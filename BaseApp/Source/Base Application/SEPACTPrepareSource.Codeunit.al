@@ -1,4 +1,4 @@
-codeunit 1222 "SEPA CT-Prepare Source"
+﻿codeunit 1222 "SEPA CT-Prepare Source"
 {
     TableNo = "Gen. Journal Line";
 
@@ -28,7 +28,13 @@ codeunit 1222 "SEPA CT-Prepare Source"
     local procedure CreateTempJnlLines(var FromGenJnlLine: Record "Gen. Journal Line"; var TempGenJnlLine: Record "Gen. Journal Line" temporary)
     var
         PmtJnlLineToExport: Record "Payment Journal Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateTempJnlLines(FromGenJnlLine, TempGenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with PmtJnlLineToExport do begin
             PmtJnlLineToExport.SetFilter("Journal Template Name", FromGenJnlLine.GetFilter("Journal Template Name"));
             PmtJnlLineToExport.SetFilter("Journal Batch Name", FromGenJnlLine.GetFilter("Journal Batch Name"));
@@ -64,6 +70,11 @@ codeunit 1222 "SEPA CT-Prepare Source"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateTempJnlLines(var FromGenJnlLine: Record "Gen. Journal Line"; var TempGenJnlLine: Record "Gen. Journal Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTempJnlLines(var FromGenJnlLine: Record "Gen. Journal Line"; var TempGenJnlLine: Record "Gen. Journal Line" temporary; var IsHandled: Boolean)
     begin
     end;
 }

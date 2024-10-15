@@ -108,7 +108,14 @@ codeunit 5642 "FA Reclass. Transfer Line"
     end;
 
     local procedure CalcAmounts(var FAReclassJnlLine: Record "FA Reclass. Journal Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcAmounts(FAReclassJnlLine, Amounts, IsHandled);
+        if IsHandled then
+            exit;
+
         with FADeprBook do begin
             CalcFields("Acquisition Cost");
             if TransferType[2] then
@@ -421,6 +428,11 @@ codeunit 5642 "FA Reclass. Transfer Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFAJnlLineInsert(var FAJournalLine: Record "FA Journal Line"; var FAReclassJournalLine: Record "FA Reclass. Journal Line"; Sign: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcAmounts(FAReclassJnlLine: Record "FA Reclass. Journal Line"; var Amounts: array[9] of Decimal; var IsHandled: Boolean)
     begin
     end;
 }

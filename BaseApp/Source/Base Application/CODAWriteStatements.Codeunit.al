@@ -1,4 +1,4 @@
-codeunit 2000041 "CODA Write Statements"
+﻿codeunit 2000041 "CODA Write Statements"
 {
     Permissions = TableData "Gen. Journal Line" = rimd;
 
@@ -278,6 +278,7 @@ codeunit 2000041 "CODA Write Statements"
             GenJnlLine.Validate("Account Type", "Account Type");
             GenJnlLine.Validate("Account No.", "Account No.");
             GenJnlLine.Validate(Amount, -"Statement Amount");
+            OnApplyOnBeforeGenJnlLineInsert(GenJnlLine, CodedBankStmtLine);
             if not GenJnlLine.Insert() then
                 GenJnlLine.Modify();
             Commit();
@@ -295,6 +296,11 @@ codeunit 2000041 "CODA Write Statements"
         end
     end;
 
+    procedure RunApply(var CodedBankStmtLine: Record "CODA Statement Line")
+    begin
+        Apply(CodedBankStmtLine);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCodBankStmtLineInsert(var CODAStatementSourceLine: Record "CODA Statement Source Line"; var CODAStatementLine: Record "CODA Statement Line")
     begin
@@ -302,6 +308,11 @@ codeunit 2000041 "CODA Write Statements"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateMovementOnAfterDetailCounterChange(var CODAStatementLine: Record "CODA Statement Line"; var DetailCounter: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyOnBeforeGenJnlLineInsert(var GenJnlLine: Record "Gen. Journal Line"; CodedBankStmtLine: Record "CODA Statement Line")
     begin
     end;
 }

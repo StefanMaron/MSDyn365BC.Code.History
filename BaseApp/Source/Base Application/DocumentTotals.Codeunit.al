@@ -575,8 +575,11 @@ codeunit 57 "Document Totals"
             TotalPurchaseLine."Amount Including VAT" -= xPurchaseLine.Amount
         else
             TotalPurchaseLine."Amount Including VAT" -= xPurchaseLine."Amount Including VAT";
-        TotalPurchaseLine.Amount += PurchaseLine.Amount - xPurchaseLine.Amount;
+        
+        TotalPurchaseLine.Amount +=
+            CalculateAmountWitnNonDeductibleVAT(PurchaseLine) - CalculateAmountWitnNonDeductibleVAT(xPurchaseLine);
         VATAmount := TotalPurchaseLine."Amount Including VAT" - TotalPurchaseLine.Amount;
+
         if PurchaseLine."Inv. Discount Amount" <> xPurchaseLine."Inv. Discount Amount" then begin
             if (InvoiceDiscountPct > -0.01) and (InvoiceDiscountPct < 0.01) then // To avoid decimal overflow later
                 InvDiscountBaseAmount := 0
@@ -922,6 +925,19 @@ codeunit 57 "Document Totals"
 
         TempTotalPurchaseLine."Amount Including VAT" := TempTotalPurchaseLine."Line Amount" -
           TempTotalPurchaseLine."Inv. Discount Amount" + TotalVATAmount;
+    end;
+
+    local procedure CalculateAmountWitnNonDeductibleVAT(PurchaseLine: Record "Purchase Line"): Decimal
+    var
+        NonDeductibleVAT: Decimal;
+        VATAmount: Decimal;
+    begin
+        if (PurchaseLine."Non Deductible VAT %" = 0) or (PurchaseLine."VAT Calculation Type" = PurchaseLine."VAT Calculation Type"::"Reverse Charge VAT") then
+            exit(PurchaseLine.Amount);
+
+        VATAmount := PurchaseLine."Amount Including VAT" - PurchaseLine.Amount;
+        NonDeDuctibleVAT := Round(VATAmount * PurchaseLine."Non Deductible VAT %" / 100);
+        exit(PurchaseLine.Amount + NonDeductibleVAT);
     end;
 
     [IntegrationEvent(false, false)]

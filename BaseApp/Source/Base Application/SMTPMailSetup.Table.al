@@ -64,7 +64,8 @@ table 409 "SMTP Mail Setup"
             var
                 MailManagement: Codeunit "Mail Management";
             begin
-                MailManagement.CheckValidEmailAddress("Send As");
+                if "Send As" <> '' then
+                    MailManagement.CheckValidEmailAddress("Send As");
             end;
         }
         field(10; "Allow Sender Substitution"; Boolean)
