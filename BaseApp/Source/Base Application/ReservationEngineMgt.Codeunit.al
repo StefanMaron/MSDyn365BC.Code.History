@@ -147,10 +147,11 @@ codeunit 99000831 "Reservation Engine Mgt."
         OriginalReservEntry2: Record "Reservation Entry";
         TotalQty: Decimal;
         AvailabilityDate: Date;
+        SkipDeleteReservEntry: Boolean;
     begin
-        OnBeforeCloseReservEntry(ReservEntry, ReTrack, DeleteAll);
-
-        ReservEntry.Delete();
+        OnBeforeCloseReservEntry(ReservEntry, ReTrack, DeleteAll, SkipDeleteReservEntry);
+        if not SkipDeleteReservEntry then
+            ReservEntry.Delete();
         if ReservEntry."Reservation Status" = ReservEntry."Reservation Status"::Prospect then
             exit;
 
@@ -1362,7 +1363,7 @@ codeunit 99000831 "Reservation Engine Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCloseReservEntry(var ReservEntry: Record "Reservation Entry"; var ReTrack: Boolean; DeleteAll: Boolean)
+    local procedure OnBeforeCloseReservEntry(var ReservEntry: Record "Reservation Entry"; var ReTrack: Boolean; DeleteAll: Boolean; var SkipDeleteReservEntry: Boolean)
     begin
     end;
 

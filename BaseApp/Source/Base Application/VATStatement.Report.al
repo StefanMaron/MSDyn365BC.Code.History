@@ -323,6 +323,7 @@
                     else
                         EndDate := EndDateReq;
                     GLAcc.SetRange("Date Filter", StartDate, EndDate);
+                    OnCalcLineTotalWithBaseOnAfterGLAccSetFilters(GLAcc, VATStmtLine2);
                     Amount := 0;
                     if GLAcc.Find('-') and (VATStmtLine2."Account Totaling" <> '') then
                         repeat
@@ -482,7 +483,7 @@
         PeriodSelection := NewPeriodSelection;
         PrintInIntegers := NewPrintInIntegers;
         UseAmtsInAddCurr := NewUseAmtsInAddCurr;
-        
+
         if NewVATStatementLine.GetFilter("Date Filter") <> '' then begin
             StartDate := NewVATStatementLine.GetRangeMin("Date Filter");
             EndDateReq := NewVATStatementLine.GetRangeMax("Date Filter");
@@ -527,6 +528,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcLineTotalWithBaseOnCaseElse(var VATStmtLine2: Record "VAT Statement Line"; var Amount: Decimal; var TotalAmount: Decimal; Level: Integer; PeriodSelection: Enum "VAT Statement Report Period Selection"; StartDate: Date; EndDate: Date; EndDateReq: Date; PrintInIntegers: Boolean; UseAmtsInAddCurr: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcLineTotalWithBaseOnAfterGLAccSetFilters(var GLAccount: Record "G/L Account"; VATStatementLine2: Record "VAT Statement Line")
     begin
     end;
 }

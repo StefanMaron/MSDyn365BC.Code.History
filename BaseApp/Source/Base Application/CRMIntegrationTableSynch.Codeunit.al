@@ -223,12 +223,20 @@ codeunit 5340 "CRM Integration Table Synch."
     end;
 
     local procedure IsModifiedByFilterNeeded(IntegrationTableMapping: Record "Integration Table Mapping"): Boolean
+    var
+        IsHandled: Boolean;
+        IsNeeded: Boolean;
     begin
+        OnIsModifiedByFilterNeeded(IntegrationTableMapping, IsHandled, IsNeeded);
+        if IsHandled then
+            exit(IsNeeded);
+
         if IntegrationTableMapping."Delete After Synchronization" then
             exit(false);
+
         if IntegrationTableMapping.Direction = IntegrationTableMapping.Direction::Bidirectional then
             exit(not HasUnidirectionalFieldMappingFromIntegrationTable(IntegrationTableMapping));
-        exit(true);
+        exit(false);
     end;
 
     local procedure FindModifiedCRMRecords(var TempCRMRecordRef: RecordRef; IntegrationTableMapping: Record "Integration Table Mapping"; var FailedNotSkippedIdDictionary: Dictionary of [Guid, Boolean])
@@ -757,7 +765,7 @@ codeunit 5340 "CRM Integration Table Synch."
         OnQueryPostFilterIgnoreRecord(SourceRecordRef, IgnoreRecord);
         if not IgnoreRecord then begin
             SystemIdFieldRef := SourceRecordRef.Field(SourceRecordRef.SystemIdNo);
-            if not TempCRMIntegrationRecord.IsIntegrationIdCoupled(SystemIdFieldRef.Value()) then
+            if not TempCRMIntegrationRecord.IsIntegrationIdCoupled(SystemIdFieldRef.Value(), SourceRecordRef.Number) then
                 IgnoreRecord := IntegrationTableMapping."Synch. Only Coupled Records";
             if not IgnoreRecord then
                 IntegrationTableSynch.Synchronize(SourceRecordRef, DestinationRecordRef, ForceModify, false);
@@ -1161,6 +1169,11 @@ codeunit 5340 "CRM Integration Table Synch."
 
     [IntegrationEvent(false, false)]
     local procedure OnLoadCRMOption(var TempCRMRecordRef: RecordRef; IntegrationTableMapping: Record "Integration Table Mapping")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsModifiedByFilterNeeded(var IntegrationTableMapping: Record "Integration Table Mapping"; var IsHandled: Boolean; var IsNeeded: Boolean);
     begin
     end;
 
