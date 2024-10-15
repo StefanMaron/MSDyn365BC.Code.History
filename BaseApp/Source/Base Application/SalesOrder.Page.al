@@ -387,6 +387,16 @@
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
                 }
+                field("Fattura Project Code"; "Fattura Project Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code for the Fattura project.';
+                }
+                field("Fattura Tender Code"; "Fattura Tender Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code for the Fattura tender.';
+                }
                 field("Fattura Document Type"; "Fattura Document Type")
                 {
                     ApplicationArea = Basic, Suite;

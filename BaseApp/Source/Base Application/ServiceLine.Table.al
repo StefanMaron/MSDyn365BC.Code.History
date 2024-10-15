@@ -1096,10 +1096,10 @@ table 5902 "Service Line"
                 end;
                 GetServHeader;
                 if ServHeader."Prices Including VAT" and (Type in [Type::Item, Type::Resource]) then
-                    "Unit Price" :=
+                    Validate("Unit Price",
                       Round(
                         "Unit Price" * (100 + "VAT %") / (100 + xRec."VAT %"),
-                        Currency."Unit-Amount Rounding Precision");
+                        Currency."Unit-Amount Rounding Precision"));
                 UpdateAmounts;
             end;
         }
