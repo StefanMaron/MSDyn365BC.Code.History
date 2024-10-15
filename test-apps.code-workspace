@@ -33,6 +33,9 @@
       "path": "./testframework/TestRunner/Test Runner"
     },
     {
+      "path": "./VATGroupManagement/Test/VAT Group Management Tests"
+    },
+    {
       "path": "./EssentialBusinessHeadlines/Test/Essential Business Headlines Test"
     },
     {

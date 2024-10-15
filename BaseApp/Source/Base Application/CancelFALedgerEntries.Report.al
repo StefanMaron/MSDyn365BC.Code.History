@@ -276,6 +276,7 @@ report 5688 "Cancel FA Ledger Entries"
                 Description := PostingDescription;
             GenJnlNextLineNo := GenJnlNextLineNo + 10000;
             "Line No." := GenJnlNextLineNo;
+            OnInsertGenJnlLineOnBeforeInsert(GenJnlLine, FALedgEntry, BalAccount);
             Insert(true);
             if BalAccount then begin
                 FAInsertGLAcc.GetBalAcc(GenJnlLine);
@@ -360,6 +361,11 @@ report 5688 "Cancel FA Ledger Entries"
         if NewPostingDate <> 0D then
             exit(NewPostingDate);
         exit(FAPostingDate);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertGenJnlLineOnBeforeInsert(var GenJnlLine: Record "Gen. Journal Line"; FALedgEntry: Record "FA Ledger Entry"; var BalAccount: Boolean)
+    begin
     end;
 }
 

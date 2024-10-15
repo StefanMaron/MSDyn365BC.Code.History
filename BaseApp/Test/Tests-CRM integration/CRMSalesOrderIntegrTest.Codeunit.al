@@ -18,6 +18,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryAssembly: Codeunit "Library - Assembly";
+        LibraryInventory: Codeunit "Library - Inventory";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
@@ -1595,6 +1596,117 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         SalesLine.FindFirst();
         Item.Get(SalesLine."No.");
         SalesLine.TestField(Description, Item.Description);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderWithItemPriceIncludesVAT()
+    var
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+        CRMProduct: Record "CRM Product";
+        CRMSalesOrder: Record "CRM Salesorder";
+        CRMSalesOrderDetail: Record "CRM Salesorderdetail";
+        Currency: Record Currency;
+        CRMTransactioncurrency: Record "CRM Transactioncurrency";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GLSetup: Record "General Ledger Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        Item: Record Item;
+        CRMSynchHelper: Codeunit "CRM Synch. Helper";
+    begin
+        // [SCENARIO 371774] Transfer CRM Sales Order to Sales Order with Prices Includes VAT = TRUE
+        Initialize();
+        ClearCRMData();
+
+        // [GIVEN] Customer "C" with "VAT Bus. Posting Group" = "VATBBus" coupled with Account "CA"
+        LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("VAT Bus. Posting Gr. (Price)", Customer."VAT Bus. Posting Group");
+        SalesReceivablesSetup.Modify();
+
+        // [GIVEN] Coupled Item "I" (Product "P") with Unit Price = X, "Prices Includes VAT" = true, 
+        // "VAT Bus. Posting Gr. (Price)" = Customer."VAT Bus. Posting Group"
+        LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
+        Item.Validate("VAT Bus. Posting Gr. (Price)", Customer."VAT Bus. Posting Group");
+        Item.Validate("Price Includes VAT", true);
+        Item.Validate("Unit Price", LibraryRandom.RandInt(100));
+        Item.Modify(true);
+
+        CRMSynchHelper.SetCRMProductStateToActive(CRMProduct);
+        CRMProduct.Modify();
+        GLSetup.GET();
+        LibraryCRMIntegration.CreateCRMTransactionCurrency(CRMTransactioncurrency, CopyStr(GLSetup."LCY Code", 1, 5));
+
+        // [GIVEN] CRM Sales Order for Account "CA", Product "P", Quantity = 1, "Price per Unit" = Item Unit Price
+        CreateCRMSalesorder(CRMSalesOrder, CRMTransactioncurrency.TransactionCurrencyId, CRMAccount.AccountId);
+        CRMSalesorderdetail.Init();
+        LibraryCRMIntegration.PrepareCRMSalesOrderLine(CRMSalesorder, CRMSalesorderdetail, CRMProduct.ProductId);
+        CRMSalesOrderDetail.Validate(Quantity, 1);
+        CRMSalesOrderDetail.Validate(PricePerUnit, Item."Unit Price");
+        CRMSalesOrderDetail.Modify();
+
+        // [WHEN] Create Sales Order from CRM Sales Order
+        CreateSalesOrderInNAV(CRMSalesOrder, SalesHeader);
+
+        // [THEN] Sales line Amount = Unit Price - VAT
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        SalesLine.TestField(Amount, Round(Item."Unit Price" / (1 + SalesLine."VAT %" / 100), LibraryERM.GetAmountRoundingPrecision()));
+        // [THEN] Sales Line Amount Including VAT = Unit Price 
+        SalesLine.TestField("Amount Including VAT", Round(SalesLine.Amount + (SalesLine.Amount * SalesLine."VAT %" / 100), LibraryERM.GetAmountRoundingPrecision()));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderWithItemPriceIncludesVATFalse()
+    var
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+        CRMProduct: Record "CRM Product";
+        CRMSalesOrder: Record "CRM Salesorder";
+        CRMSalesOrderDetail: Record "CRM Salesorderdetail";
+        CRMTransactioncurrency: Record "CRM Transactioncurrency";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GLSetup: Record "General Ledger Setup";
+        Item: Record Item;
+        CRMSynchHelper: Codeunit "CRM Synch. Helper";
+    begin
+        // [SCENARIO 371774] Transfer CRM Sales Order to Sales Order with Prices Includes VAT = FALSE
+        Initialize();
+        ClearCRMData();
+        // [GIVEN] Customer "C" with "VAT Bus. Posting Group" = "VATBBus" coupled with Account "CA"
+        LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
+
+        // [GIVEN] Coupled Item "I" (Product "P") with Unit Price = X, "Prices Includes VAT" = false, 
+        LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
+        Item.Validate("Price Includes VAT", false);
+        Item.Validate("Unit Price", LibraryRandom.RandInt(100));
+        Item.Modify(true);
+
+        CRMSynchHelper.SetCRMProductStateToActive(CRMProduct);
+        CRMProduct.Modify();
+        GLSetup.GET();
+        LibraryCRMIntegration.CreateCRMTransactionCurrency(CRMTransactioncurrency, CopyStr(GLSetup."LCY Code", 1, 5));
+
+        // [GIVEN] CRM Sales Order for Account "CA", Product "P", Quantity = 1, "Price per Unit" = Item Unit Price
+        CreateCRMSalesorder(CRMSalesOrder, CRMTransactioncurrency.TransactionCurrencyId, CRMAccount.AccountId);
+        CRMSalesorderdetail.Init();
+        LibraryCRMIntegration.PrepareCRMSalesOrderLine(CRMSalesorder, CRMSalesorderdetail, CRMProduct.ProductId);
+        CRMSalesOrderDetail.Validate(Quantity, 1);
+        CRMSalesOrderDetail.Validate(PricePerUnit, Item."Unit Price");
+        CRMSalesOrderDetail.Modify();
+
+        // [WHEN] Create Sales Order from CRM Sales Order
+        CreateSalesOrderInNAV(CRMSalesOrder, SalesHeader);
+
+        // [THEN] Sales line Amount = Unit Price
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        SalesLine.TestField(Amount, Item."Unit Price");
+
+        // [THEN] Sales Line Amount Including VAT = Unit Price + VAT
+        SalesLine.TestField("Amount Including VAT", ROUND(Item."Unit Price" * (1 + SalesLine."VAT %" / 100), LibraryERM.GetAmountRoundingPrecision));
     end;
 
     local procedure Initialize()
