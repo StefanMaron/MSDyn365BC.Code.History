@@ -367,6 +367,7 @@
                             CopyShipToCustomerAddressFieldsFromCust(Cust);
                         end;
 
+                GetShipmentMethodCode();
                 GetShippingTime(FieldNo("Ship-to Code"));
 
                 if (xRec."Sell-to Customer No." = "Sell-to Customer No.") and
@@ -4253,6 +4254,28 @@
             Validate("Sell-to Customer Template Code", SelectSalesHeaderCustomerTemplate);
     end;
 
+    local procedure GetShipmentMethodCode()
+    var
+        ShipToAddress: Record "Ship-to Address";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetShipmentMethodCode(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Ship-to Code" <> '' then begin
+            ShipToAddress.Get("Sell-to Customer No.", "Ship-to Code");
+            if ShipToAddress."Shipment Method Code" <> '' then
+                Validate("Shipment Method Code", ShipToAddress."Shipment Method Code");
+        end else
+            if "Sell-to Customer No." <> '' then begin
+                GetCust("Sell-to Customer No.");
+                if Cust."Shipment Method Code" <> '' then
+                    Validate("Shipment Method Code", Cust."Shipment Method Code");
+            end;
+    end;
+
     procedure GetShippingTime(CalledByFieldNo: Integer)
     var
         ShippingAgentServices: Record "Shipping Agent Services";
@@ -5646,8 +5669,6 @@
             Validate("Ship-to Country/Region Code", SellToCustomer."Country/Region Code");
         end;
         "Ship-to Contact" := Cust.Contact;
-        if Cust."Shipment Method Code" <> '' then
-            Validate("Shipment Method Code", Cust."Shipment Method Code");
         if not SellToCustTemplate.Get("Sell-to Customer Template Code") then begin
             "Tax Area Code" := Cust."Tax Area Code";
             "Tax Liable" := Cust."Tax Liable";
@@ -5690,8 +5711,6 @@
         "Ship-to County" := ShipToAddr.County;
         Validate("Ship-to Country/Region Code", ShipToAddr."Country/Region Code");
         "Ship-to Contact" := ShipToAddr.Contact;
-        if ShipToAddr."Shipment Method Code" <> '' then
-            Validate("Shipment Method Code", ShipToAddr."Shipment Method Code");
         if ShipToAddr."Location Code" <> '' then
             Validate("Location Code", ShipToAddr."Location Code");
         "Shipping Agent Code" := ShipToAddr."Shipping Agent Code";
@@ -6970,6 +6989,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetShippingTime(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var CalledByFieldNo: Integer; var IsHandled: Boolean; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetShipmentMethodCode(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
