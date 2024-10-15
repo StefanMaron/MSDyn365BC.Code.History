@@ -340,6 +340,11 @@ table 5330 "CRM Connection Setup"
         BCIntegrationAdministratorRoleIdTxt: Label '{8c8d4f51-a72b-e511-80d9-3863bb349780}', Locked = true;
         BCIntegrationUserRoleIdTxt: Label '{6f960e32-a72b-e511-80d9-3863bb349780}', Locked = true;
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
+        AppIdTok: Label 'AppId=', Locked = true;
+        RedirectUriTok: Label 'RedirectUri=', Locked = true;
+        MissingOAuthAppIdErr: Label 'You must register an application in Azure Active Directory and specify the application id in the Connection String field. Follow the instructions on this tutorial to register and set up the application: %2.', Comment = '%1 - a URL; %2 - help topic URL.';
+        OAuthAppHelpTopicTxt: Label 'https://docs.microsoft.com/en-us/powerapps/developer/common-data-service/walkthrough-register-app-azure-active-directory', Locked = true;
+        MissingOAuthRedirectUriErr: Label 'You must specify a Redirect Uri in the Connection String field. It should start with app:// and include the id of the application that you registered in Azure Active Directory.';
 
     procedure CountCRMJobQueueEntries(var ActiveJobs: Integer; var TotalJobs: Integer)
     var
@@ -565,6 +570,8 @@ table 5330 "CRM Connection Setup"
         if ("Server Address" = '') or ("User Name" = '') or not HasPassword then
             Error(DetailsMissingErr, CRMProductName.SHORT);
 
+        VerifyOAuthSetup();
+
         CRMIntegrationManagement.ClearState;
 
         if not TestConnection then
@@ -587,6 +594,52 @@ table 5330 "CRM Connection Setup"
         Success := TryReadSystemUsers;
 
         UnregisterConnectionWithName(TestConnectionName);
+    end;
+
+    local procedure VerifyOAuthSetup();
+    var
+        AppIdTxt: Text;
+        AppId: Guid;
+        RedirectUri: Text;
+    begin
+        if "Authentication Type" <> "Authentication Type"::OAuth then
+            exit;
+
+        if not GetOAuthAppId(AppIdTxt, AppId) then
+            Error(MissingOAuthAppIdErr, "Server Address", OAuthAppHelpTopicTxt);
+
+        GetOAuthRedirectUri(RedirectUri);
+        if StrPos(RedirectUri, AppIdTxt) = 0 then
+            Error(MissingOAuthRedirectUriErr);
+
+    end;
+
+    [TryFunction]
+    local procedure GetOAuthAppId(var AppIdTxt: Text; var AppId: Guid)
+    var
+        ConnectionString: Text;
+        TruncatedConnectionString: Text;
+    begin
+        if "Authentication Type" <> "Authentication Type"::OAuth then
+            exit;
+
+        ConnectionString := GetConnectionString();
+        TruncatedConnectionString := CopyStr(ConnectionString, StrPos(ConnectionString, AppIdTok) + StrLen(AppIdTok));
+        AppIdTxt := DelChr(CopyStr(TruncatedConnectionString, 1, StrPos(TruncatedConnectionString, ';') - 1), '=', ' ');
+        AppId := AppIdTxt;
+    end;
+
+    local procedure GetOAuthRedirectUri(var RedirectUri: Text)
+    var
+        ConnectionString: Text;
+        TruncatedConnectionString: Text;
+    begin
+        if "Authentication Type" <> "Authentication Type"::OAuth then
+            exit;
+
+        ConnectionString := GetConnectionString();
+        TruncatedConnectionString := CopyStr(ConnectionString, StrPos(ConnectionString, RedirectUriTok) + StrLen(RedirectUriTok));
+        RedirectUri := DelChr(CopyStr(TruncatedConnectionString, 1, StrPos(TruncatedConnectionString, ';') - 1), '=', ' ');
     end;
 
     procedure TestIntegrationUserRequirements()
@@ -912,7 +965,7 @@ table 5330 "CRM Connection Setup"
         CRMConnectionSetup."Is User Mapping Required" := false;
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure RefreshDataFromCRM()
     var
         TempCRMConnectionSetup: Record "CRM Connection Setup" temporary;
