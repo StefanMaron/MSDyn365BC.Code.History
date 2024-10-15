@@ -817,10 +817,13 @@ table 2000001 "Payment Journal Line"
         Validate(Amount);
         Validate("Pmt. Disc. Possible");
 
-        if VendLedgEntry."External Document No." <> '' then
-            "Payment Message" := VendLedgEntry."External Document No."
+        if VendLedgEntry."Payment Reference" <> '' then
+            "Payment Message" := VendLedgEntry."Payment Reference"
         else
-            "Payment Message" := VendLedgEntry.Description;
+            if VendLedgEntry."External Document No." <> '' then
+                "Payment Message" := VendLedgEntry."External Document No."
+            else
+                "Payment Message" := VendLedgEntry.Description;
         Validate("Payment Message");
 
         "External Document No." := VendLedgEntry."External Document No.";

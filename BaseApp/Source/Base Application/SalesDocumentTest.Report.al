@@ -842,7 +842,7 @@ report 202 "Sales Document - Test"
                                             Text017,
                                             VATPostingSetup.TableCaption, "VAT Bus. Posting Group", "VAT Prod. Posting Group"));
                                     if VATPostingSetup."VAT Calculation Type" = VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT" then
-                                        if Country.DetermineCountry(SalesHeader."Bill-to Country/Region Code") then begin
+                                        if Country.DetermineCountry("Sales Header"."Bill-to Country/Region Code") then begin
                                             if ("Sales Header"."Enterprise No." = '') and (not VATNoError) then begin
                                                 VATNoError := true;
                                                 AddError(

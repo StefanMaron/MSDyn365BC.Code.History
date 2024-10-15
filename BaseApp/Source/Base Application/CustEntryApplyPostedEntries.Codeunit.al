@@ -409,6 +409,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive);
         CustLedgEntry.SetRange("Customer No.", ApplyingCustLedgEntry."Customer No.");
         CustLedgEntry.SetRange(Open, true);
+        OnApplyApplyCustEntryFormEntryOnAfterCustLedgEntrySetFilters(CustLedgEntry, ApplyingCustLedgEntry);
         if CustLedgEntry.FindFirst then begin
             ApplyCustEntries.SetCustLedgEntry(ApplyingCustLedgEntry);
             ApplyCustEntries.SetRecord(CustLedgEntry);
@@ -551,6 +552,11 @@ codeunit 226 "CustEntry-Apply Posted Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostUnApplyCustomerCommitOnAfterSetFilters(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyApplyCustEntryFormEntryOnAfterCustLedgEntrySetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; var ApplyingCustLedgerEntry: Record "Cust. Ledger Entry" temporary);
     begin
     end;
 }

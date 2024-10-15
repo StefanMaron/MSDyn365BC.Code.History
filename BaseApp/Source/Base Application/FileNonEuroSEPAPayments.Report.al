@@ -212,6 +212,8 @@ report 2000006 "File Non Euro SEPA Payments"
         EBSetup.Get;
         CompanyInfo.Get;
 
+        OnBeforePreReport("Payment Journal Line", GenJnlLine, AutomaticPosting, IncludeDimText, ExecutionDate, FileName);
+
         if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Desktop, CLIENTTYPE::Windows] then begin
             if DelChr(FileName, '<>') = '' then
                 Error(Text003);
@@ -848,6 +850,11 @@ report 2000006 "File Non Euro SEPA Payments"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePreDataItemPaymentJournalLine(var PaymentJournalLine: Record "Payment Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePreReport(var PaymentJournalLine: Record "Payment Journal Line"; var GenJnlLine: Record "Gen. Journal Line"; var AutomaticPosting: Boolean; var IncludeDimText: Text[250]; var ExecutionDate: Date; var FileName: Text);
     begin
     end;
 

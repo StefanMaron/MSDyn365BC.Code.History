@@ -415,6 +415,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive);
         VendLedgEntry.SetRange("Vendor No.", ApplyingVendLedgEntry."Vendor No.");
         VendLedgEntry.SetRange(Open, true);
+        OnApplyVendEntryFormEntryOnAfterVendLedgEntrySetFilters(VendLedgEntry, ApplyingVendLedgEntry);
         if VendLedgEntry.FindFirst then begin
             ApplyVendEntries.SetVendLedgEntry(ApplyingVendLedgEntry);
             ApplyVendEntries.SetRecord(VendLedgEntry);
@@ -529,6 +530,11 @@ codeunit 227 "VendEntry-Apply Posted Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostUnapplyVendLedgEntry(GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry"; DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyVendEntryFormEntryOnAfterVendLedgEntrySetFilters(var VendorLedgEntry: Record "Vendor Ledger Entry"; var ApplyToVendLedgEntry: Record "Vendor Ledger Entry");
     begin
     end;
 

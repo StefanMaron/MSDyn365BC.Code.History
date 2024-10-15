@@ -510,7 +510,52 @@ codeunit 144003 "ERM Payment Journal"
         // [THEN] Payment journal lines are created for both "V1" and "V2.
         FilterEBPaymentJournalLine(PaymentJournalLine, VendorFilter, PaymentJournalLine.Status::Created);
         Assert.RecordCount(PaymentJournalLine, 2);
-    END;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyVendInvNoToPaymentMessage()
+    var
+        Vendor: Record Vendor;
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GenJnlLine: Record "Gen. Journal Line";
+        PaymentJnlLine: Record "Payment Journal Line";
+        InvoiceNo: Code[20];
+        TemplateName: Code[10];
+        BatchName: Code[10];
+        InvoiceAmount: Decimal;
+        BankAccountNo: Code[20];
+        ExportProtocolCode: Code[20];
+    begin
+        // [FEATURE] [UT] [Payment Reference]
+        // [SCENARIO 362612] A "Vendor Invoice No." copies to the "Payment Message" of the "Payment Journal Line"
+
+        Initialize;
+
+        CreateVendorWithBankAccount(Vendor, true);
+        InvoiceAmount := LibraryRandom.RandDec(1000, 2);
+        BankAccountNo := CreateBankAccountMod97Compliant;
+
+        // [GIVEN] Vendor invoice "X" with "Payment Reference" = "001"
+        CreateGenJnlLine(
+          GenJnlLine, GenJnlLine."Account Type"::Vendor, Vendor."No.",
+          GenJnlLine."Document Type"::Invoice, -InvoiceAmount, InvoiceNo, BankAccountNo);
+        GenJnlLine.Validate("Payment Reference", LibraryUtility.GenerateGUID);
+        GenJnlLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
+
+        // [GIVEN] Payment Journal Line
+        PrepareGenJnlBatch(GenJnlLine, GenJnlBatch);
+        PreparePaymentJnlBatch(TemplateName, BatchName, ExportProtocolCode, refExportProtocolType::Domestic);
+
+        // [WHEN] Set "Applies-To Doc. No." = "X" in the Payment Journal Line
+        CreatePaymentJnlLine(
+          TemplateName, BatchName, PaymentJnlLine, PaymentJnlLine."Account Type"::Vendor, Vendor."No.",
+          PaymentJnlLine."Applies-to Doc. Type"::Invoice, InvoiceNo, InvoiceAmount, ExportProtocolCode, BankAccountNo);
+
+        // [THEN] "Payment Message" has value "001" in the Payment Journal Line
+        PaymentJnlLine.TestField("Payment Message", GenJnlLine."Payment Reference");
+    end;
 
     local procedure Initialize()
     begin
@@ -780,6 +825,13 @@ codeunit 144003 "ERM Payment Journal"
     local procedure CreateAndPostGenJnlLine(AccountType: Integer; AccountNo: Code[20]; DocumentType: Integer; Amount: Decimal; var DocumentNo: Code[20]; BankAccountNo: Code[20])
     var
         GenJnlLine: Record "Gen. Journal Line";
+    begin
+        CreateGenJnlLine(GenJnlLine, AccountType, AccountNo, DocumentType, Amount, DocumentNo, BankAccountNo);
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
+    end;
+
+    local procedure CreateGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; AccountType: Integer; AccountNo: Code[20]; DocumentType: Integer; Amount: Decimal; var DocumentNo: Code[20]; BankAccountNo: Code[20])
+    var
         GenJnlBatch: Record "Gen. Journal Batch";
         TemplateName: Code[10];
         BatchName: Code[10];
@@ -795,8 +847,6 @@ codeunit 144003 "ERM Payment Journal"
         GenJnlLine.Modify();
 
         DocumentNo := GenJnlLine."Document No.";
-
-        LibraryERM.PostGeneralJnlLine(GenJnlLine);
     end;
 
     local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20])

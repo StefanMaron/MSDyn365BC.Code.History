@@ -1196,6 +1196,88 @@ codeunit 144025 "Test Enterprise No and Branch"
         LibraryReportDataset.AssertElementTagWithValueExists('CustomerVATRegNo', Customer."VAT Registration No.");
     end;
 
+    [Test]
+    [HandlerFunctions('SalesDocumentTestRequestPage')]
+    [Scope('OnPrem')]
+    procedure SalesDocumentTestReportRevChargeEnterpriseNo()
+    var
+        CountryRegion: Record "Country/Region";
+        GLAccount: Record "G/L Account";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // [FEATURE] [Report] [Reverse Charge VAT] [VAT Registration No.]
+        // [SCENARIO 363740] The "Sales Document Test" report runs without errors with "Reverse Charge VAT" and "Bill-to Country/Region Code" specified
+        Initialize();
+
+        // [GIVEN] Set up CountryRegion, GLAccount and VATPostingSetup
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+
+        // [GIVEN] Created Sales Invoice with "Bill-to Country/Region Code" and "Enterprise No." specified
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Bill-to Country/Region Code", CountryRegion.Code);
+        SalesHeader.Validate("Enterprise No.", LibraryUtility.GenerateRandomXMLText(50));
+        SalesHeader.Validate("VAT Registration No.", '');
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Created Sales Line with "Reverse Charge VAT"
+        UpdateVATPostSetupWithRevCharge(SalesHeader."VAT Bus. Posting Group", GLAccount."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(10, 2));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
+        SalesLine.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+        SalesLine.Modify(true);
+
+        // [WHEN] Run "Sales Document Test" report for posted Sales Invoice
+        LibrarySales.PostSalesDocument(SalesHeader, false, false);
+        RunSalesTestDocumentReport(SalesHeader);
+
+        // [THEN] The report has no error lines
+        VerifySalesDocumentTestReportHasNoErrors();
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesDocumentTestRequestPage')]
+    [Scope('OnPrem')]
+    procedure SalesDocumentTestReportRevChargeVATRegNo()
+    var
+        GLAccount: Record "G/L Account";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // [FEATURE] [Report] [Reverse Charge VAT] [VAT Registration No.]
+        // [SCENARIO 363740] The "Sales Document Test" report runs without errors with "Reverse Charge VAT" and no "Bill-to Country/Region Code" specified
+        Initialize();
+
+        // [GIVEN] Set up GLAccount and VATPostingSetup
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+
+        // [GIVEN] Created Sales Invoice with no "Bill-to Country/Region Code" and "VAT Registration No." specified
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Bill-to Country/Region Code", '');
+        SalesHeader.Validate("Enterprise No.", '');
+        SalesHeader.Validate("VAT Registration No.", LibraryBEHelper.CreateVatRegNo(GetCountryBE));
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Created Sales Line with "Reverse Charge VAT"
+        UpdateVATPostSetupWithRevCharge(SalesHeader."VAT Bus. Posting Group", GLAccount."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(10, 2));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
+        SalesLine.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+        SalesLine.Modify(true);
+
+        // [WHEN] Run "Sales Document Test" report for posted Sales Invoice
+        LibrarySales.PostSalesDocument(SalesHeader, false, false);
+        RunSalesTestDocumentReport(SalesHeader);
+
+        // [THEN] The report has no error lines
+        VerifySalesDocumentTestReportHasNoErrors();
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -1416,6 +1498,48 @@ codeunit 144025 "Test Enterprise No and Branch"
     procedure ProFormaInvoiceXML_RPH(var ProFormaInvoice: TestRequestPage "Standard Sales - Pro Forma Inv")
     begin
         ProFormaInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    local procedure RunSalesTestDocumentReport(SalesHeader: Record "Sales Header")
+    var
+        SalesDocumentTest: Report "Sales Document - Test";
+    begin
+        Clear(SalesDocumentTest);
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type");
+        SalesHeader.SetRange("No.", SalesHeader."No.");
+        SalesDocumentTest.SetTableView(SalesHeader);
+        Commit();
+        SalesDocumentTest.Run();
+    end;
+
+    local procedure UpdateVATPostSetupWithRevCharge(VATBusPostGrCode: Code[20]; GLAccNo: Code[20])
+    var
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        GLAccount.Get(GLAccNo);
+        VATPostingSetup.Get(VATBusPostGrCode, GLAccount."VAT Prod. Posting Group");
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+    end;
+
+    local procedure VerifySalesDocumentTestReportHasNoErrors()
+    var
+        i: Integer;
+    begin
+        LibraryReportDataset.LoadDataSetFile();
+        for i := 1 to LibraryReportDataset.RowCount do begin
+            LibraryReportDataset.MoveToRow(i);
+            Assert.IsFalse(LibraryReportDataset.CurrentRowHasElement('LineErrorCounter_Number'), 'Sales Document Test Report has errors.');
+        end;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesDocumentTestRequestPage(var SalesDocumentTest: TestRequestPage "Sales Document - Test")
+    begin
+        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 
