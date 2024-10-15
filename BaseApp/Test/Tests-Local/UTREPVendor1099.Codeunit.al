@@ -32,6 +32,7 @@ codeunit 142055 "UT REP Vendor 1099"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTextFileValidation: Codeunit "Library - Text File Validation";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryPurchase: Codeunit "Library - Purchase";
         Amounts: Label 'Amounts';
         GetAmtINT01: Label 'GetAmtINT01';
         GetAmtMISC02: Label 'GetAmtMISC02';
@@ -1590,6 +1591,122 @@ codeunit 142055 "UT REP Vendor 1099"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('Vendor1099Div2022RPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099DivReportShowAmountOnlyAdjustment()
+    var
+        IRS1099Adjustment: Record "IRS 1099 Adjustment";
+        Vendor: Record Vendor;
+    begin
+        // [SCENARIO 497306] A "Vendor 1099 Div 2022" report shows the amount only from adjustment when no vendor ledger entries exist for the vendor
+
+        Initialize();
+
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Adjustment amount equals 100 for vendor, IRS code "DIV-01", Year = 2022
+        LibraryLocalFunctionality.CreateIRS1099Adjustment(
+          IRS1099Adjustment, Vendor."No.", IRS1099CodeDiv, Date2DMY(WorkDate(), 3), LibraryRandom.RandDecInDecimalRange(1000, 2000, 2));
+
+        // [THEN] Run "Vendor 1099 Div 2022" report
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        REPORT.Run(REPORT::"Vendor 1099 Div 2022", true, false);
+
+        // [THEN] Report has amount 100
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtCombinedDivCodeAB, IRS1099Adjustment.Amount);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Misc2022RPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099MiscReportShowAmountOnlyAdjustment()
+    var
+        IRS1099Adjustment: Record "IRS 1099 Adjustment";
+        Vendor: Record Vendor;
+    begin
+        // [SCENARIO 497306] A "Vendor 1099 Misc 2022" report shows the amount only from adjustment when no vendor ledger entries exist for the vendor
+
+        Initialize();
+
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Adjustment amount equals 100 for vendor, IRS code "MISC-02", Year = 2022
+        LibraryLocalFunctionality.CreateIRS1099Adjustment(
+          IRS1099Adjustment, Vendor."No.", IRS1099CodeMisc, Date2DMY(WorkDate(), 3), LibraryRandom.RandDecInDecimalRange(1000, 2000, 2));
+
+        // [THEN] Run "Vendor 1099 Div 2022" report
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        REPORT.Run(REPORT::"Vendor 1099 Misc 2022", true, false);
+
+        // [THEN] Report has amount 100
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtMISC02, IRS1099Adjustment.Amount);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Nec2022RPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099NecReportShowAmountOnlyAdjustment()
+    var
+        IRS1099Adjustment: Record "IRS 1099 Adjustment";
+        Vendor: Record Vendor;
+    begin
+        // [SCENARIO 497306] A "Vendor 1099 Nec 2022" report shows the amount only from adjustment when no vendor ledger entries exist for the vendor
+
+        Initialize();
+
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Adjustment amount equals 100 for vendor, IRS code "Nec-01", Year = 2022
+        LibraryLocalFunctionality.CreateIRS1099Adjustment(
+          IRS1099Adjustment, Vendor."No.", IRS1099CodeNec01Tok, Date2DMY(WorkDate(), 3), LibraryRandom.RandDecInDecimalRange(1000, 2000, 2));
+
+        // [THEN] Run "Vendor 1099 Nec 2022" report
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        REPORT.Run(REPORT::"Vendor 1099 Nec 2022", true, false);
+
+        // [THEN] Report has amount 100
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtNEC01Tok, IRS1099Adjustment.Amount);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Int2022RPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099IntReportShowAmountOnlyAdjustment()
+    var
+        IRS1099Adjustment: Record "IRS 1099 Adjustment";
+        Vendor: Record Vendor;
+    begin
+        // [SCENARIO 497306] A "Vendor 1099 Int 2022" report shows the amount only from adjustment when no vendor ledger entries exist for the vendor
+
+        Initialize();
+
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Adjustment amount equals 100 for vendor, IRS code "Int-01", Year = 2022
+        LibraryLocalFunctionality.CreateIRS1099Adjustment(
+          IRS1099Adjustment, Vendor."No.", IRS1099CodeInt, Date2DMY(WorkDate(), 3), LibraryRandom.RandDecInDecimalRange(1000, 2000, 2));
+
+        // [THEN] Run "Vendor 1099 Int 2022" report
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        REPORT.Run(REPORT::"Vendor 1099 Int 2022", true, false);
+
+        // [THEN] Report has amount 100
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtINT01, IRS1099Adjustment.Amount);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -1953,5 +2070,6 @@ codeunit 142055 "UT REP Vendor 1099"
         Vendor1099Nec2022.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
         Vendor1099Nec2022.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
+    
 }
 
