@@ -45,6 +45,8 @@ codeunit 137060 "SCM Inventory 7.0"
         ItemVendorMustNotExistErr: Label 'Item Vendor must not exist.';
         DescriptionErr: Label 'Incorrect Description';
         TestFieldCodeErr: Label 'TestField';
+        ReorderingPolicyShouldNotBeVisibleErr: Label ' Reordering Policy should not be visible.';
+        SpecialEquipmentCodeShouldNotBeVisibleErr: Label ' Special Equipment Code should not be visible.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1055,6 +1057,44 @@ codeunit 137060 "SCM Inventory 7.0"
 
         // [THEN] The TestField Error was shown
         Assert.ExpectedErrorCode(TestFieldCodeErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PlanningAndWarehouseTabsNotVisibleForNonInvAndServiceItemsInSKUCard()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        StocKkeepingCard: TestPage "Stockkeeping Unit Card";
+    begin
+        // [SCENARIO 497598] Planning and Warehouse tabs are not visible in SKU card for items of Type = Non-Inventory or Service.
+        Initialize(true);
+
+        // [GIVEN] Create an Item and Validate Type as Non-Inventory.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Type, Item.Type::"Non-Inventory");
+        Item.Modify(true);
+
+        // [GIVEN] Create a Location.
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Create Stockkeeping Unit.
+        CreateStockkeepingUnit(StockkeepingUnit, Item."No.", '', Location.Code);
+
+        // [WHEN] Open Stockkeeping Unit Card page.
+        StocKkeepingCard.OpenEdit();
+        StocKkeepingCard.GoToRecord(StockkeepingUnit);
+
+        // [VERIFY] Planning tab is not visible.
+        Assert.IsFalse(
+            StocKkeepingCard."Reordering Policy".Visible(),
+            ReorderingPolicyShouldNotBeVisibleErr);
+
+        // [VERIFY] Warehouse tab is not visible.
+        Assert.IsFalse(
+            StocKkeepingCard."Special Equipment Code".Visible(),
+            SpecialEquipmentCodeShouldNotBeVisibleErr);
     end;
 
     local procedure Initialize(Enable: Boolean)

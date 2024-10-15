@@ -478,9 +478,13 @@ codeunit 311 "Item-Check Avail."
                (OldJobPlanningLine."Location Code" = JobPlanningLine."Location Code") and
                (OldJobPlanningLine."Bin Code" = JobPlanningLine."Bin Code")
             then begin
-                OldItemNetChange := -OldJobPlanningLine."Quantity (Base)";
-                OldJobPlanningLine.CalcFields("Reserved Qty. (Base)");
-                OldItemNetResChange := -OldJobPlanningLine."Reserved Qty. (Base)";
+                IsHandled := false;
+                OnJobPlanningLineShowWarningOnAfterFindingPrevJobPlanningLineQtyWithinPeriod(JobPlanningLine, OldJobPlanningLine, IsHandled);
+                if not IsHandled then begin
+                    OldItemNetChange := -OldJobPlanningLine."Quantity (Base)";
+                    OldJobPlanningLine.CalcFields("Reserved Qty. (Base)");
+                    OldItemNetResChange := -OldJobPlanningLine."Reserved Qty. (Base)";
+                end;
             end;
 
         UseOrderPromise := true;
@@ -691,6 +695,11 @@ codeunit 311 "Item-Check Avail."
         IsHandled: Boolean;
         ShowWarning: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowWarningForThisItemOnBeforeItemGet(ItemNo, ShowWarning, IsHandled);
+        if IsHandled then
+            exit(ShowWarning);
+
         if not Item.Get(ItemNo) then
             exit(false);
 
@@ -844,6 +853,11 @@ codeunit 311 "Item-Check Avail."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowWarningForThisItemOnBeforeItemGet(ItemNo: Code[20]; var ShowWarning: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferLineCheck(TransferLine: Record "Transfer Line"; var Rollback: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -926,6 +940,11 @@ codeunit 311 "Item-Check Avail."
 
     [IntegrationEvent(false, false)]
     local procedure OnAsmOrderCalculateOnAfterFindingPrevAsmOrderCalculateWithinPeriod(AssemblyHeader: Record "Assembly Header"; OldAssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnJobPlanningLineShowWarningOnAfterFindingPrevJobPlanningLineQtyWithinPeriod(JobPlanningLine: Record "Job Planning Line"; OldJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
     begin
     end;
 }

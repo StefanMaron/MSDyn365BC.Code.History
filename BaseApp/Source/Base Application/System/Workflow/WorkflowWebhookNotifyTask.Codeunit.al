@@ -33,7 +33,7 @@ codeunit 1546 "Workflow Webhook Notify Task"
 
         UserTable.SetRange("User Name", WorkflowWebhookEntryTable."Initiated By User ID");
         if UserTable.FindFirst() then
-            ContactEmail := UserTable."Contact Email";
+            ContactEmail := UserTable."Authentication Email";
 
         // Send notification
         OnFetchWorkflowWebhookNotificationInitParams(RetryCount, WaitTime, InitHandled);
@@ -56,4 +56,3 @@ codeunit 1546 "Workflow Webhook Notify Task"
     begin
     end;
 }
-

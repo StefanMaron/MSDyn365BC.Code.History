@@ -1678,6 +1678,69 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('CarryOutActionMsgPlanRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CombineTransferOrdersForItemsWithDifferentLowLevelCode()
+    var
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+        ToLocation2: Record Location;
+        TransferRoute: Record "Transfer Route";
+        Item: array[2] of Record Item;
+        PlannedItem: Record Item;
+        SKU: Record "Stockkeeping Unit";
+        RequisitionLine: Record "Requisition Line";
+        TransferHeader: Record "Transfer Header";
+        PlanningWorksheet: TestPage "Planning Worksheet";
+        i: Integer;
+    begin
+        // [FEATURE] [Planning Worksheet] [Combine Transfer Orders]
+        // [SCENARIO 498757] Transfer orders with the same from- and to- locations are combined regardless of the low-level code of the items.
+
+        // [GIVEN] 3 locations: L1, L2, L3.
+        // [GIVEN] Transfer routes L1 -> L2 and L1 -> L3.
+        CreateLocation(FromLocation, false, false, false, false);
+        CreateLocation(ToLocation, false, false, false, false);
+        CreateLocation(ToLocation2, false, false, false, false);
+        CreateAndModifyTransferRoute(TransferRoute, FromLocation.Code, ToLocation.Code);
+        CreateAndModifyTransferRoute(TransferRoute, FromLocation.Code, ToLocation2.Code);
+
+        // [GIVEN] Items I1, I2 with different low-level codes.
+        // [GIVEN] Stockkeeping units for both items on locations L2 and L3.
+        // [GIVEN] Set Replenishment System to Transfer from L1 for both items.
+        for i := 1 to ArrayLen(Item) do begin
+            LibraryInventory.CreateItem(Item[i]);
+            Item[i].Validate("Low-Level Code", i);
+            Item[i].Modify(true);
+            CreateAndUpdateStockKeepingUnit(SKU, Item[i], ToLocation.Code, FromLocation.Code);
+            UpdateSKUReorderingPolicy(SKU, SKU."Reordering Policy"::"Fixed Reorder Qty.", 20, 10);
+            CreateAndUpdateStockKeepingUnit(SKU, Item[i], ToLocation2.Code, FromLocation.Code);
+            UpdateSKUReorderingPolicy(SKU, SKU."Reordering Policy"::"Fixed Reorder Qty.", 20, 10);
+        end;
+
+        // [GIVEN] Calculate regenerative plan and accept action message.
+        PlannedItem.SetFilter("No.", '%1|%2', Item[1]."No.", Item[2]."No.");
+        PlannedItem.SetFilter("Location Filter", '%1|%2', ToLocation.Code, ToLocation2.Code);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(PlannedItem, WorkDate(), WorkDate());
+        RequisitionLine.SetFilter("No.", PlannedItem.GetFilter("No."));
+        RequisitionLine.FindSet();
+        RequisitionLine.ModifyAll("Accept Action Message", true);
+
+        // [WHEN] Carry out action message with "Combine Transfer Orders" = true.
+        Commit();
+        LibraryVariableStorage.Enqueue(true);
+        PlanningWorksheet.OpenEdit();
+        PlanningWorksheet.CurrentWkshBatchName.SetValue(RequisitionLine."Journal Batch Name");
+        PlanningWorksheet.CarryOutActionMessage.Invoke();
+
+        // [THEN] 2 transfer orders have been created.
+        TransferHeader.SetRange("Transfer-from Code", FromLocation.Code);
+        Assert.RecordCount(TransferHeader, 2);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -1174,7 +1174,7 @@ codeunit 80 "Sales-Post"
             // Balancing account
             if "Bal. Account No." <> '' then begin
                 IsHandled := false;
-                OnPostInvoiceOnBeforeBalAccountNoWindowUpdate(HideProgressWindow, IsHandled);
+                OnPostInvoiceOnBeforeBalAccountNoWindowUpdate(HideProgressWindow, IsHandled, SalesHeader);
                 if not IsHandled then
                     if GuiAllowed and not HideProgressWindow then
                         Window.Update(5, 1);
@@ -2750,6 +2750,7 @@ codeunit 80 "Sales-Post"
 
     local procedure CheckAndUpdateAssocOrderPostingDate(var PurchaseHeader: Record "Purchase Header"; PostingDate: Date)
     var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         ReleasePurchaseDocument: Codeunit "Release Purchase Document";
         OriginalDocumentDate: Date;
     begin
@@ -2760,7 +2761,13 @@ codeunit 80 "Sales-Post"
             OriginalDocumentDate := PurchaseHeader."Document Date";
             PurchaseHeader.SetHideValidationDialog(true);
             PurchaseHeader.Validate("Posting Date", PostingDate);
-            PurchaseHeader.Validate("Document Date", OriginalDocumentDate);
+
+            PurchasesPayablesSetup.SetLoadFields("Link Doc. Date To Posting Date");
+            PurchasesPayablesSetup.GetRecordOnce();
+            if PurchasesPayablesSetup."Link Doc. Date To Posting Date" then
+                PurchaseHeader.Validate("Document Date", PostingDate)
+            else
+                PurchaseHeader.Validate("Document Date", OriginalDocumentDate);
 
             ReleasePurchaseDocument.Run(PurchaseHeader);
         end;
@@ -3032,8 +3039,7 @@ codeunit 80 "Sales-Post"
                 end;
                 UpdateAfterPosting(SalesHeader);
                 UpdateEmailParameters(SalesHeader);
-                if not PreviewMode then
-                    UpdateWhseDocuments(SalesHeader, EverythingInvoiced);
+                UpdateWhseDocuments(SalesHeader, EverythingInvoiced);
                 if not OrderArchived then begin
                     ArchiveManagement.AutoArchiveSalesDocument(SalesHeader);
                     OrderArchived := true;
@@ -3215,7 +3221,7 @@ codeunit 80 "Sales-Post"
         OnAfterFillInvoicePostBuffer(InvoicePostBuffer, SalesLine, TempInvoicePostBuffer, SuppressCommit);
         UpdateInvoicePostBuffer(InvoicePostBuffer, false);
 
-        OnFillInvoicePostingBufferOnAfterUpdateInvoicePostBuffer(SalesHeader, SalesLine, InvoicePostBuffer, TempInvoicePostBuffer);
+        OnFillInvoicePostingBufferOnAfterUpdateInvoicePostBuffer(SalesHeader, SalesLine, InvoicePostBuffer, TempInvoicePostBuffer, GenJnlLineDocNo, GenJnlPostLine);
 
         if SalesLine."Deferral Code" <> '' then begin
             OnBeforeFillDeferralPostingBuffer(
@@ -10265,6 +10271,7 @@ codeunit 80 "Sales-Post"
             ModifyHeader := true;
         end;
 
+        OnValidatePostingAndDocumentDateOnBeforeSalesHeaderModify(SalesHeader, ModifyHeader);
         if ModifyHeader then
             SalesHeader.Modify();
 
@@ -11099,11 +11106,13 @@ codeunit 80 "Sales-Post"
     begin
     end;
 
+#pragma warning disable AS0072
     [Obsolete('Moved to Sales Invoice Posting implementation. Use the new event OnPrepareLineOnAfterUpdateInvoicePostingBuffer in codeunit 825 "Sales Post Invoice Events".', '19.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnFillInvoicePostingBufferOnAfterUpdateInvoicePostBuffer(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary)
+    local procedure OnFillInvoicePostingBufferOnAfterUpdateInvoicePostBuffer(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var GenJnlLineDocNo: Code[20]; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
+#pragma warning restore AS0072
 
     [Obsolete('Moved to Sales Invoice Posting implementation. Use the new event OnPrepareLineOnAfterSetInvoiceDiscountPosting in codeunit 825 "Sales Post Invoice Events".', '20.0')]
     [IntegrationEvent(false, false)]
@@ -12004,7 +12013,7 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostInvoiceOnBeforeBalAccountNoWindowUpdate(HideProgressWindow: Boolean; var IsHandled: Boolean)
+    local procedure OnPostInvoiceOnBeforeBalAccountNoWindowUpdate(HideProgressWindow: Boolean; var IsHandled: Boolean; var SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -12235,6 +12244,11 @@ codeunit 80 "Sales-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertReturnReceiptHeaderOnBeforeReturnReceiptHeaderTransferFields(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePostingAndDocumentDateOnBeforeSalesHeaderModify(var SalesHeader: Record "Sales Header"; var ModifyHeader: Boolean)
     begin
     end;
 }

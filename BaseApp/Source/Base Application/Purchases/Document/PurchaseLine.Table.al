@@ -7697,10 +7697,16 @@ table 39 "Purchase Line"
         exit(VendorPostingGroup."Service Charge Acc." = "No.");
     end;
 
-    procedure ConfirmReceivedShippedItemDimChange(): Boolean
+    procedure ConfirmReceivedShippedItemDimChange() Result: Boolean
     var
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeConfirmReceivedShippedItemDimChange(Rec, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text049, TableCaption), true) then
             Error(Text050);
 
@@ -8845,14 +8851,20 @@ table 39 "Purchase Line"
     end;
 
     procedure GetDateForCalculations() CalculationDate: Date;
+    var
+        FromPurchaseHeader: Record "Purchase Header";
     begin
-        if Rec."Document No." <> '' then begin
-            Rec.GetPurchHeader();
-            if PurchHeader."Document Type" in [PurchHeader."Document Type"::Invoice, PurchHeader."Document Type"::"Credit Memo"] then
-                CalculationDate := PurchHeader."Posting Date"
-            else
-                CalculationDate := PurchHeader."Order Date";
-        end;
+        if Rec."Document No." <> '' then
+            FromPurchaseHeader := Rec.GetPurchHeader();
+        CalculationDate := GetDateForCalculations(FromPurchaseHeader);
+    end;
+
+    procedure GetDateForCalculations(FromPurchaseHeader: Record "Purchase Header") CalculationDate: Date;
+    begin
+        if FromPurchaseHeader."Document Type" in [FromPurchaseHeader."Document Type"::Invoice, FromPurchaseHeader."Document Type"::"Credit Memo"] then
+            CalculationDate := FromPurchaseHeader."Posting Date"
+        else
+            CalculationDate := FromPurchaseHeader."Order Date";
         if CalculationDate = 0D then
             CalculationDate := WorkDate();
     end;
@@ -10771,6 +10783,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyFromItemOnAfterGetItemTranslation(var PurchaseLine: Record "Purchase Line"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmReceivedShippedItemDimChange(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 }
