@@ -33,6 +33,12 @@ query 7345 "Avail Qty. (Base) In QC Bins"
                     DataItemLink = Code = Warehouse_Entry."Bin Type Code";
                     SqlJoinType = InnerJoin;
                     DataItemTableFilter = Receive = CONST(false), Ship = CONST(false), Pick = CONST(false);
+                    dataitem(Bin_Content; "Bin Content")
+                    {
+                        DataItemLink = "Location Code" = Warehouse_Entry."Location Code", "Bin Code" = Warehouse_Entry."Bin Code", "Item No." = Warehouse_Entry."Item No.", "Variant Code" = Warehouse_Entry."Variant Code", "Unit of Measure Code" = Warehouse_Entry."Unit of Measure Code";
+                        SqlJoinType = InnerJoin;
+                        DataItemTableFilter = "Block Movement" = FILTER(' ' | Inbound);
+                    }
                 }
             }
         }
