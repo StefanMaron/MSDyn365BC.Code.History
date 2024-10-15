@@ -4643,9 +4643,12 @@
         Vendor: Record Vendor;
         PurchaseHeader: Record "Purchase Header";
     begin
-        // [FEATURE] [Vendor] [Location] [Purchase Order] [UT]
+        // [FEATURE] [Company Information] [Vendor] [Location] [Purchase Order]
         // [SCENARIO 461624] "Location Code" in Purchase Document must be copied from Vendor when Purchase Header is inserted before validating "Buy-from Vendor No.".
         Initialize();
+
+        // [GIVEN] 468125 - Set Location Code in Company Information.
+        SetLocationInCompanyInformation();
 
         // [GIVEN] Create Vendor "V10000" with Location "BLUE".
         CreateVendorWithDefaultLocation(Vendor);
@@ -4669,10 +4672,13 @@
         ShipToAddress: Record "Ship-to Address";
         PurchaseHeader: Record "Purchase Header";
     begin
-        // [FEATURE] [Vendor] [Order Address] [Location] [Purchase Order] [UT]
-        // [SCENARIO 461624] Vendor has "Order Address" defined with "Location Code" defined both on Vendor and "Order Address".
-        // [SCENARIO 461624] "Location Code" in Purchase Document must be copied from "Order Address" when Purchase Header is inserted after validating "Buy-from Vendor No.".
+        // [FEATURE] [Company Information] [Vendor] [Customer] [Ship-To Address] [Location] [Purchase Order]
+        // [SCENARIO 461624] Customer has "Ship-To Address" defined with "Location Code" defined both on Vendor and Customer.
+        // [SCENARIO 461624] "Location Code" in Purchase Document must be copied from Customer when Purchase Header is inserted before validating "Buy-from Vendor No.".
         Initialize();
+
+        // [GIVEN] 468125 - Set Location Code in Company Information.
+        SetLocationInCompanyInformation();
 
         // [GIVEN] Create Vendor "V10000" with Location "BLUE".
         CreateVendorWithDefaultLocation(Vendor);
@@ -4703,10 +4709,13 @@
         ShipToAddress: Record "Ship-to Address";
         PurchaseHeader: Record "Purchase Header";
     begin
-        // [FEATURE] [Vendor] [Order Address] [Location] [Purchase Order] [UT]
-        // [SCENARIO 461624] Vendor has "Order Address" defined with "Location Code" defined both on Vendor and "Order Address".
-        // [SCENARIO 461624] "Location Code" in Purchase Document must be copied from "Order Address" when Purchase Header is inserted after validating "Buy-from Vendor No.".
+        // [FEATURE] [Company Information] [Vendor] [Customer] [Ship-To Address] [Location] [Purchase Order]
+        // [SCENARIO 461624] Customer has "Ship-To Address" defined with "Location Code" defined on Vendor, Customer and "Ship-To Address".
+        // [SCENARIO 461624] "Location Code" in Purchase Document must be copied from "Ship-to Address" when Purchase Header is inserted before validating "Buy-from Vendor No.".
         Initialize();
+
+        // [GIVEN] 468125 - Set Location Code in Company Information.
+        SetLocationInCompanyInformation();
 
         // [GIVEN] Create Vendor "V10000" with Location "BLUE".
         CreateVendorWithDefaultLocation(Vendor);
@@ -4726,6 +4735,235 @@
 
         // [THEN] "Location Code" = "GREEN" in the Purchase Order.
         PurchaseHeader.TestField("Location Code", ShipToAddress."Location Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure S468125_DefaultLocationCodeOnPurchaseOrderFromVendor_ValidateVendorBeforeInsert()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Vendor] [Location] [Purchase Order] [UT]
+        // [SCENARIO 468125] "Location Code" in Purchase Document must be copied from Vendor when Purchase Header is inserted after validating "Buy-from Vendor No.".
+        Initialize();
+
+        // [GIVEN] Set Location Code in Company Information.
+        SetLocationInCompanyInformation();
+
+        // [GIVEN] Create Vendor "V10000" with Location "BLUE".
+        CreateVendorWithDefaultLocation(Vendor);
+
+        // [WHEN] Create "Purchase Header" for Purchase Order and then validate "Buy-from Vendor No." with "V10000" before inserting Purchase Order Header.
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.Insert(true);
+
+        // [THEN] "Location Code" = "BLUE" in the Purchase Order.
+        PurchaseHeader.TestField("Location Code", Vendor."Location Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure S468125_DefaultLocationCodeOnPurchaseOrderFromVendor_ValidateVendorBeforeInsert_ValidateCustomerBeforeInsert()
+    var
+        Vendor: Record Vendor;
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Company Information] [Vendor] [Customer] [Ship-To Address] [Location] [Purchase Order]
+        // [SCENARIO 468125] Customer has "Ship-To Address" defined with "Location Code" defined both on Vendor and Customer.
+        // [SCENARIO 468125] "Location Code" in Purchase Document must be copied from Vendor when Purchase Header is inserted after validating "Buy-from Vendor No.".
+        Initialize();
+
+        // [GIVEN] Set Location Code in Company Information.
+        SetLocationInCompanyInformation();
+
+        // [GIVEN] Create Vendor "V10000" with Location "BLUE".
+        CreateVendorWithDefaultLocation(Vendor);
+
+        // [GIVEN] Create Customer "C10000" with Location "RED".
+        // [GIVEN] Create Customer Ship-to Address "C10000_SA" without "Location Code".
+        CreateCustomerWithLocationAndShipToAddressWithoutLocation(Customer, ShipToAddress);
+
+        // [WHEN] Create "Purchase Header" for Purchase Order and then validate "Buy-from Vendor No." with "V10000" before inserting Purchase Order Header. 
+        // [WHEN] Then validate "Sell-to Customer No." with "C10000" and "Ship-to Code" with "C10000_SA".
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.Validate("Sell-to Customer No.", Customer."No.");
+        PurchaseHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        PurchaseHeader.Insert(true);
+
+        // [THEN] "Location Code" = "BLUE" in the Purchase Order because Validate("Sell-to Customer No.", '') is executed in InitRecord().
+        PurchaseHeader.TestField("Location Code", Vendor."Location Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure S468125_DefaultLocationCodeOnPurchaseOrderFromVendor_ValidateVendorBeforeInsert_ValidateShipToCodeBeforeInsert()
+    var
+        Vendor: Record Vendor;
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Company Information] [Vendor] [Customer] [Ship-To Address] [Location] [Purchase Order]
+        // [SCENARIO 468125] Customer has "Ship-To Address" defined with "Location Code" defined on Vendor, Customer and "Ship-To Address".
+        // [SCENARIO 468125] "Location Code" in Purchase Document must be copied from Vendor when Purchase Header is inserted after validating "Buy-from Vendor No.".
+        Initialize();
+
+        // [GIVEN] Set Location Code in Company Information.
+        SetLocationInCompanyInformation();
+
+        // [GIVEN] Create Vendor "V10000" with Location "BLUE".
+        CreateVendorWithDefaultLocation(Vendor);
+
+        // [GIVEN] Create Customer "C10000" with Location "RED".
+        // [GIVEN] Create Customer Ship-to Address "C10000_SA" with Location "GREEN".
+        CreateCustomerWithLocationAndShipToAddressWithDifferentLocation(Customer, ShipToAddress);
+
+        // [WHEN] Create "Purchase Header" for Purchase Order and then validate "Buy-from Vendor No." with "V10000" before inserting Purchase Order Header. 
+        // [WHEN] Then validate "Sell-to Customer No." with "C10000" and "Ship-to Code" with "C10000_SA".
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.Validate("Sell-to Customer No.", Customer."No.");
+        PurchaseHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        PurchaseHeader.Insert(true);
+
+        // [THEN] "Location Code" = "BLUE" in the Purchase Order because Validate("Sell-to Customer No.", '') is executed in InitRecord().
+        PurchaseHeader.TestField("Location Code", Vendor."Location Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure S468125_DefaultLocationCodeOnPurchaseOrderFromCustomer_ValidateVendorBeforeInsert_ValidateCustomerAfterInsert()
+    var
+        Vendor: Record Vendor;
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Company Information] [Vendor] [Customer] [Ship-To Address] [Location] [Purchase Order]
+        // [SCENARIO 468125] Customer has "Ship-To Address" defined with "Location Code" defined both on Vendor and Customer.
+        // [SCENARIO 468125] "Location Code" in Purchase Document must be copied from Customer when Purchase Header is inserted after validating "Buy-from Vendor No.".
+        Initialize();
+
+        // [GIVEN] Set Location Code in Company Information.
+        SetLocationInCompanyInformation();
+
+        // [GIVEN] Create Vendor "V10000" with Location "BLUE".
+        CreateVendorWithDefaultLocation(Vendor);
+
+        // [GIVEN] Create Customer "C10000" with Location "RED".
+        // [GIVEN] Create Customer Ship-to Address "C10000_SA" without "Location Code".
+        CreateCustomerWithLocationAndShipToAddressWithoutLocation(Customer, ShipToAddress);
+
+        // [WHEN] Create "Purchase Header" for Purchase Order and then validate "Buy-from Vendor No." with "V10000" before inserting Purchase Order Header. 
+        // [WHEN] Then validate "Sell-to Customer No." with "C10000" and "Ship-to Code" with "C10000_SA".
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.Insert(true);
+        PurchaseHeader.Validate("Sell-to Customer No.", Customer."No.");
+        PurchaseHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        PurchaseHeader.Modify(true);
+
+        // [THEN] "Location Code" = "RED" in the Purchase Order.
+        PurchaseHeader.TestField("Location Code", Customer."Location Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure S468125_DefaultLocationCodeOnPurchaseOrderFromShipToAddress_ValidateVendorBeforeInsert_ValidateCustomerAfterInsert()
+    var
+        Vendor: Record Vendor;
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Company Information] [Vendor] [Customer] [Ship-To Address] [Location] [Purchase Order]
+        // [SCENARIO 468125] Customer has "Ship-To Address" defined with "Location Code" defined on Vendor, Customer and "Ship-To Address".
+        // [SCENARIO 468125] "Location Code" in Purchase Document must be copied from "Ship-To Address" when Purchase Header is inserted after validating "Buy-from Vendor No.".
+        Initialize();
+
+        // [GIVEN] Set Location Code in Company Information.
+        SetLocationInCompanyInformation();
+
+        // [GIVEN] Create Vendor "V10000" with Location "BLUE".
+        CreateVendorWithDefaultLocation(Vendor);
+
+        // [GIVEN] Create Customer "C10000" with Location "RED".
+        // [GIVEN] Create Customer Ship-to Address "C10000_SA" with Location "GREEN".
+        CreateCustomerWithLocationAndShipToAddressWithDifferentLocation(Customer, ShipToAddress);
+
+        // [WHEN] Create "Purchase Header" for Purchase Order and then validate "Buy-from Vendor No." with "V10000" before inserting Purchase Order Header. 
+        // [WHEN] Then validate "Sell-to Customer No." with "C10000" and "Ship-to Code" with "C10000_SA".
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.Insert(true);
+        PurchaseHeader.Validate("Sell-to Customer No.", Customer."No.");
+        PurchaseHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        PurchaseHeader.Modify(true);
+
+        // [THEN] "Location Code" = "GREEN" in the Purchase Order.
+        PurchaseHeader.TestField("Location Code", ShipToAddress."Location Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure S468125_DefaultLocationCodeOnPurchaseOrderFromCompanyInformation_ValidateVendorBeforeInsert()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        CompanyInformation: Record "Company Information";
+    begin
+        // [FEATURE] [Company Information] [Vendor] [Location] [Purchase Order]
+        // [SCENARIO 468125] "Location Code" in Purchase Document must be copied from Company Information when Purchase Header is inserted before validating "Buy-from Vendor No.".
+        Initialize();
+
+        // [GIVEN] Set Location Code in Company Information.
+        SetLocationInCompanyInformation();
+
+        // [GIVEN] Create Vendor "V10000" without Location.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [WHEN] Create "Purchase Header" for Purchase Order and then validate "Buy-from Vendor No." with "V10000" before inserting Purchase Order Header.
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.Insert(true);
+
+        // [THEN] "Location Code" = "Company Information"."Location Code" in the Purchase Order.
+        CompanyInformation.Get();
+        PurchaseHeader.TestField("Location Code", CompanyInformation."Location Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure S468125_DefaultLocationCodeOnPurchaseOrderFromCompanyInformation_ValidateVendorAfterInsert()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        CompanyInformation: Record "Company Information";
+    begin
+        // [FEATURE] [Company Information] [Vendor] [Location] [Purchase Order]
+        // [SCENARIO 468125] "Location Code" in Purchase Document must be copied from Company Information when Purchase Header is inserted before validating "Buy-from Vendor No.".
+        Initialize();
+
+        // [GIVEN] Set Location Code in Company Information.
+        SetLocationInCompanyInformation();
+
+        // [GIVEN] Create Vendor "V10000" without Location.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [WHEN] Create "Purchase Header" for Purchase Order and then validate "Buy-from Vendor No." with "V10000" after inserting Purchase Order Header.
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.Insert(true);
+        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.Modify(true);
+
+        // [THEN] "Location Code" = "Company Information"."Location Code" in the Purchase Order.
+        CompanyInformation.Get();
+        PurchaseHeader.TestField("Location Code", CompanyInformation."Location Code");
     end;
 
     [Test]
@@ -7231,6 +7469,7 @@
         LibraryERMCountryData.UpdatePrepaymentAccounts();
         LibrarySetupStorage.SaveGeneralLedgerSetup();
         LibrarySetupStorage.SavePurchasesSetup();
+        LibrarySetupStorage.SaveCompanyInformation();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purchase Order");
@@ -8204,6 +8443,19 @@
           Item, LibraryRandom.RandIntInRange(10, 100), LibraryRandom.RandIntInRange(10, 100));
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
           Item."No.", LibraryRandom.RandIntInRange(10, 100));
+    end;
+
+    local procedure SetLocationInCompanyInformation()
+    var
+        CompanyInformation: Record "Company Information";
+        Location: Record Location;
+    begin
+        CompanyInformation.Get();
+        if CompanyInformation."Location Code" = '' then begin
+            LibraryWarehouse.CreateLocation(Location);
+            CompanyInformation.Validate("Location Code", Location.Code);
+            CompanyInformation.Modify(true);
+        end;
     end;
 
     local procedure CreateVendorWithDefaultLocation(var Vendor: Record Vendor)
