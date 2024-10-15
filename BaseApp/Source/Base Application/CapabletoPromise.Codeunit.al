@@ -203,7 +203,7 @@ codeunit 99000886 "Capable to Promise"
                              "Expected Quantity", "Unit of Measure Code", PeriodType, DueDateOfReqLine)
                         then
                             PlngComponentReserve.BindToRequisition(
-                              PlanningComponent, CompReqLine, "Expected Quantity", "Expected Quantity (Base)")
+                              PlanningComponent, CompReqLine, CompReqLine.Quantity, CompReqLine."Quantity (Base)")
                         else begin
                             OrderPromisingLineNo := OrderPromisingLineNo - 1;
                             exit(false);

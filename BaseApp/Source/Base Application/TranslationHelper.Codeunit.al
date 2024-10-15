@@ -44,6 +44,16 @@ codeunit 53 "Translation Helper"
     end;
 
     // <summary>
+    // Sets the global language to the default application language ID.
+    // </summary>
+    procedure SetGlobalLanguageToDefault()
+    var
+        Language: Codeunit Language;
+    begin
+        SetGlobalLanguageById(Language.GetDefaultApplicationLanguageId());
+    end;
+
+    // <summary>
     // Restores the previously set global language
     // </summary>
     // <seealso>SetGlobalLanguageByCode</seealso>

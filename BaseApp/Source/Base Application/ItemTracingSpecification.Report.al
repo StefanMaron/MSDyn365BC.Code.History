@@ -71,7 +71,6 @@ report 6520 "Item Tracing Specification"
             }
             column(TempTrackEntrySourceType; TempTrackEntry."Source Type")
             {
-                OptionMembers = " ",Customer,Vendor,Item;
             }
             column(TempTrackEntrySourceNo; TempTrackEntry."Source No.")
             {

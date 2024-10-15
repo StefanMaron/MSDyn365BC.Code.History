@@ -19,7 +19,7 @@ page 7016 "Sales Price List"
                     ApplicationArea = All;
                     Importance = Promoted;
                     ShowMandatory = true;
-                    ToolTip = 'Specifies the code of the price list.';
+                    ToolTip = 'Specifies the unique identifier of the price list.';
                     Editable = PriceListIsEditable;
 
                     trigger OnAssistEdit()
@@ -43,7 +43,7 @@ page 7016 "Sales Price List"
                     Caption = 'Applies-to Type';
                     Editable = PriceListIsEditable;
                     Visible = IsCustomerGroup;
-                    ToolTip = 'Specifies the customer source type of the price list.';
+                    ToolTip = 'Specifies the source of the price on the price list line. For example, the price can come from the customer or customer price group.';
 
                     trigger OnValidate()
                     begin
@@ -57,7 +57,7 @@ page 7016 "Sales Price List"
                     Caption = 'Applies-to Type';
                     Editable = PriceListIsEditable;
                     Visible = IsJobGroup;
-                    ToolTip = 'Specifies the job source type of the price list.';
+                    ToolTip = 'Specifies the source of the price on the price list line. For example, the price can come from the job or job task.';
 
                     trigger OnValidate()
                     begin
@@ -70,7 +70,7 @@ page 7016 "Sales Price List"
                     Importance = Promoted;
                     Enabled = SourceNoEnabled;
                     Editable = PriceListIsEditable;
-                    ToolTip = 'Specifies the number of the source for the price list.';
+                    ToolTip = 'Specifies the unique identifier of the source of the price on the price list line.';
 
                     trigger OnValidate()
                     begin
@@ -79,7 +79,7 @@ page 7016 "Sales Price List"
                 }
                 group(Tax)
                 {
-                    Caption = 'Tax';
+                    Caption = 'VAT';
                     field(VATBusPostingGrPrice; Rec."VAT Bus. Posting Gr. (Price)")
                     {
                         ApplicationArea = All;
@@ -114,7 +114,7 @@ page 7016 "Sales Price List"
                 {
                     ApplicationArea = All;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the status of the price list.';
+                    ToolTip = 'Specifies whether the price list is in Draft status and can be edited, Inactive and cannot be edited or used, or Active and used for price calculations.';
 
                     trigger OnValidate()
                     begin
@@ -133,31 +133,42 @@ page 7016 "Sales Price List"
                     ApplicationArea = All;
                     Importance = Promoted;
                     Editable = PriceListIsEditable;
-                    ToolTip = 'Specifies the starting date of the price list.';
+                    ToolTip = 'Specifies the date from which the price is valid.';
                 }
                 field(EndingDate; Rec."Ending Date")
                 {
                     ApplicationArea = All;
                     Importance = Promoted;
                     Editable = PriceListIsEditable;
-                    ToolTip = 'Specifies the ending date of the price list.';
+                    ToolTip = 'Specifies the last date that the price is valid.';
                 }
                 group(LineDefaults)
                 {
                     Caption = 'Line Defaults';
+                    field(AllowUpdatingDefaults; Rec."Allow Updating Defaults")
+                    {
+                        ApplicationArea = All;
+                        Importance = Additional;
+                        Editable = PriceListIsEditable;
+                        ToolTip = 'Specifies whether users can change the values in the fields on the price list line that contain default values from the header.';
+                        trigger OnValidate()
+                        begin
+                            CurrPage.Lines.Page.SetHeader(Rec);
+                        end;
+                    }
                     field(AllowInvoiceDisc; Rec."Allow Invoice Disc.")
                     {
                         ApplicationArea = All;
                         Importance = Additional;
                         Editable = PriceListIsEditable;
-                        ToolTip = 'Specifies the if the invoice discount allowed. This value can be changed in the lines.';
+                        ToolTip = 'Specifies whether invoice discount is allowed. You can change this value on the lines.';
                     }
                     field(AllowLineDisc; Rec."Allow Line Disc.")
                     {
                         ApplicationArea = All;
                         Importance = Additional;
                         Editable = PriceListIsEditable;
-                        ToolTip = 'Specifies the if the line discount allowed. This value can be changed in the lines.';
+                        ToolTip = 'Specifies whether line discounts are allowed. You can change this value on the lines.';
                     }
                 }
             }
@@ -216,6 +227,7 @@ page 7016 "Sales Price List"
             group(ActionGroupCRM)
             {
                 Caption = 'Dynamics 365 Sales';
+                Enabled = (StatusActiveFilterApplied and (Rec.Status = Rec.Status::Active)) or not StatusActiveFilterApplied;
                 Visible = CRMIntegrationEnabled;
                 action(CRMGoToPricelevel)
                 {
@@ -313,11 +325,16 @@ page 7016 "Sales Price List"
     end;
 
     trigger OnOpenPage()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         UpdateSourceType();
         PriceUXManagement.GetFirstSourceFromFilter(Rec, OriginalPriceSource, DefaultSourceType);
         SetSourceNoEnabled();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
+        if CRMIntegrationEnabled then
+            if IntegrationTableMapping.Get('PLHEADER-PRICE') then
+                StatusActiveFilterApplied := true;
     end;
 
     trigger OnAfterGetCurrRecord()
@@ -333,8 +350,7 @@ page 7016 "Sales Price List"
         else
             ViewGroupIsVisible := not PriceUXManagement.IsAmountTypeFiltered(Rec);
 
-        CurrPage.Lines.Page.SetPriceType(Rec."Price Type");
-        CurrPage.Lines.Page.SetSubFormLinkFilter(ViewAmountType);
+        CurrPage.Lines.Page.SetHeader(Rec);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -379,6 +395,7 @@ page 7016 "Sales Price List"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CRMIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
+        StatusActiveFilterApplied: Boolean;
         DefaultSourceType: Enum "Price Source Type";
         JobSourceType: Enum "Job Price Source Type";
         CustomerSourceType: Enum "Sales Price Source Type";

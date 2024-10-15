@@ -680,7 +680,13 @@
     var
         GLSetup: Record "General Ledger Setup";
         IsFullGST: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcVATAmountLines(Rec, SalesInvHeader, TempVATAmountLine, IsHandled);
+        if IsHandled then
+            exit;
+
         TempVATAmountLine.DeleteAll();
         GLSetup.Get();
         SetRange("Document No.", SalesInvHeader."No.");
@@ -1009,6 +1015,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetItemLedgEntries(var SalesInvLine: Record "Sales Invoice Line"; var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SetQuantity: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcVATAmountLines(SalesInvLine: Record "Sales Invoice Line"; SalesInvHeader: Record "Sales Invoice Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary; var IsHandled: Boolean)
     begin
     end;
 

@@ -1,4 +1,4 @@
-codeunit 1303 "Correct Posted Sales Invoice"
+﻿codeunit 1303 "Correct Posted Sales Invoice"
 {
     Permissions = TableData "Sales Invoice Header" = rm,
                   TableData "Sales Cr.Memo Header" = rm;
@@ -136,6 +136,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
 
         CopyDocMgt.CopySalesDocForInvoiceCancelling(SalesInvoiceHeader."No.", SalesHeader);
         SetCrMemoDefaultReasonCode(SalesHeader);
+        OnAfterCreateCopyDocument(SalesHeader, SalesInvoiceHeader);
     end;
 
     procedure CreateCreditMemoCopyDocument(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesHeader: Record "Sales Header"): Boolean
@@ -846,6 +847,11 @@ codeunit 1303 "Correct Posted Sales Invoice"
         SalesHeader.Modify();
 
         OnAfterSetDefaultCancelReasonCode(SalesHeader);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateCopyDocument(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

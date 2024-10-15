@@ -739,7 +739,13 @@
         Vendor: Record Vendor;
         IntermediateDataImport: Record "Intermediate Data Import";
         LineDescription: Text[250];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertLineForTotalDocumentAmount(EntryNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if not Vendor.Get(VendorNo) then
             exit;
 
@@ -1363,6 +1369,11 @@
                         exit(TextToAccountMapping."Debit Acc. No.");
                 end;
         end
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertLineForTotalDocumentAmount(EntryNo: Integer; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -220,7 +220,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=First(Fields!CurrReport_PAGENO.Value)</Value>
+                                  <Value>=Globals!PageNumber</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                   </Style>

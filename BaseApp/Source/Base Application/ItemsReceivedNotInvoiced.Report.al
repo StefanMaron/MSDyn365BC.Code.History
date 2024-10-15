@@ -92,10 +92,10 @@ report 17111 "Items Received & Not Invoiced"
                 column(Purchase_Line__Qty__Rcd__Not_Invoiced_; "Qty. Rcd. Not Invoiced")
                 {
                 }
-                column(Purchase_Line__Amt__Rcd__Not_Invoiced_; "Amt. Rcd. Not Invoiced")
+                column(Purchase_Line__Amt__Rcd__Not_Invoiced_; AmtRcdNotInvoiced)
                 {
                 }
-                column(Purchase_Line__Amt__Rcd__Not_Invoiced__Control33; "Amt. Rcd. Not Invoiced")
+                column(Purchase_Line__Amt__Rcd__Not_Invoiced__Control33; AmtRcdNotInvoiced)
                 {
                 }
                 column(Purchase_Line_Document_Type; "Document Type")
@@ -110,6 +110,21 @@ report 17111 "Items Received & Not Invoiced"
                 column(TotalCaption; TotalCaptionLbl)
                 {
                 }
+
+                trigger OnAfterGetRecord()
+                begin
+                    AmtRcdNotInvoiced := Round(Amount * "Qty. Rcd. Not Invoiced" / Quantity, Currency."Amount Rounding Precision");
+                end;
+
+                trigger OnPreDataItem()
+                begin
+                    if "Purchase Header"."Currency Code" = '' then
+                        Currency.InitRoundingPrecision()
+                    else begin
+                        Currency.Get("Purchase Header"."Currency Code");
+                        Currency.TestField("Amount Rounding Precision");
+                    end;
+                end;
             }
         }
     }
@@ -131,6 +146,8 @@ report 17111 "Items Received & Not Invoiced"
     }
 
     var
+        Currency: Record Currency;
+        AmtRcdNotInvoiced: Decimal;
         Items_Received_and_not_yet_InvoicedCaptionLbl: Label 'Items Received and not yet Invoiced';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         TotalCaptionLbl: Label 'Total';

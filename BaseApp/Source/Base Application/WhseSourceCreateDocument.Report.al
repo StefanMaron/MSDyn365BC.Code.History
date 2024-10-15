@@ -195,6 +195,11 @@ report 7305 "Whse.-Source - Create Document"
                 CopyFilters(WhseWkshLine);
                 SetFilter("Qty. to Handle (Base)", '>0');
             end;
+
+            trigger OnPostDataItem()
+            begin
+                OnAfterWhsePutAwayWorksheetLineOnPostDataItem("Whse. Put-away Worksheet Line")
+            end;
         }
         dataitem("Whse. Internal Pick Line"; "Whse. Internal Pick Line")
         {
@@ -1175,6 +1180,11 @@ report 7305 "Whse.-Source - Create Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetWhseWkshLine(WhseWorksheetLine: Record "Whse. Worksheet Line"; var SortActivity: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterWhsePutAwayWorksheetLineOnPostDataItem(var WhseWorksheetLine: Record "Whse. Worksheet Line")
     begin
     end;
 
