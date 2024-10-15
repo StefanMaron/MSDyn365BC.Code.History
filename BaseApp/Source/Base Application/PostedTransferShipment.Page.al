@@ -1,4 +1,4 @@
-page 5743 "Posted Transfer Shipment"
+﻿page 5743 "Posted Transfer Shipment"
 {
     Caption = 'Posted Transfer Shipment';
     InsertAllowed = false;
@@ -314,6 +314,102 @@ page 5743 "Posted Transfer Shipment"
                     ToolTip = 'Specifies the code of either the port of entry at which the items passed into your country/region, or the port of exit.';
                 }
             }
+            group(ElectronicDocument)
+            {
+                Caption = 'Electronic Document';
+                field("Transport Operators"; "Transport Operators")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the operator of the vehicle that transports the goods or merchandise.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update();
+                    end;
+                }
+                field("Transit-from Date/Time"; "Transit-from Date/Time")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the estimated date and time at which the goods or merchandise leave the start address.';
+                }
+                field("Transit Hours"; "Transit Hours")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the estimated time in hours that it will take to transit from the start address to the temporary or final destination.';
+                }
+                field("Transit Distance"; "Transit Distance")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the distance travelled in kilometers from the start address to the temporary or final destination as a combination of the distances that are travelled by the different means of transport that move the goods or merchandise.';
+                }
+                field("Vehicle Code"; "Vehicle Code")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the vehicle that transports the goods or merchandise.';
+                }
+                field("Trailer 1"; "Trailer 1")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the trailer or semi-trailer that is used with the vehicle for the transfer of goods or merchandise.';
+                }
+                field("Trailer 2"; "Trailer 2")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the second trailer or semi-trailer that is used with the vehicle for the transfer of goods or merchandise.';
+                }
+                field(Control1310010; "Foreign Trade")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies whether the goods or merchandise that are transported enter or leave the national territory.';
+                }
+                field("Insurer Name"; "Insurer Name")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the name of the insurer that covers the risks of the motor transport used for the transfer of goods or merchandise.';
+                }
+                field("Insurer Policy Number"; "Insurer Policy Number")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the policy number assigned by the insurer, which covers the risks of the motor transport used for the transfer of goods or merchandise.';
+                }
+                field("Electronic Document Status"; "Electronic Document Status")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the status of the document.';
+                }
+                field("Date/Time Stamped"; "Date/Time Stamped")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the date and time that the document received a digital stamp from the authorized service provider.';
+                }
+                field("Date/Time Canceled"; "Date/Time Canceled")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the date and time that the document was canceled.';
+                }
+                field("Error Code"; "Error Code")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the error code that the authorized service provider, PAC, has returned to Business Central.';
+                }
+                field("Error Description"; "Error Description")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the error message that the authorized service provider, PAC, has returned to Business Central.';
+                }
+                field("PAC Web Service Name"; "PAC Web Service Name")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the name of the authorized service provider, PAC, which has processed the electronic document.';
+                }
+                field("Fiscal Invoice Number PAC"; "Fiscal Invoice Number PAC")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the official invoice number for the electronic document.';
+                }
+            }
         }
         area(factboxes)
         {
@@ -414,6 +510,62 @@ page 5743 "Posted Transfer Shipment"
                 begin
                     Navigate;
                 end;
+            }
+            group("&Electronic Document")
+            {
+                Caption = '&Electronic Document';
+                action("S&end")
+                {
+                    ApplicationArea = BasicMX;
+                    Caption = 'S&end';
+                    Ellipsis = true;
+                    Image = SendTo;
+                    ToolTip = 'Send an email to the customer with the electronic invoice attached as an XML file.';
+
+                    trigger OnAction()
+                    begin
+                        RequestStampEDocument();
+                    end;
+                }
+                action("Export E-Document as &XML")
+                {
+                    ApplicationArea = BasicMX;
+                    Caption = 'Export E-Document as &XML';
+                    Image = ExportElectronicDocument;
+                    ToolTip = 'Export the posted sales invoice as an electronic invoice, and XML file, and save it to a specified location.';
+
+                    trigger OnAction()
+                    begin
+                        ExportEDocument();
+                    end;
+                }
+                action("&Cancel")
+                {
+                    ApplicationArea = BasicMX;
+                    Caption = '&Cancel';
+                    Image = Cancel;
+                    ToolTip = 'Cancel the sending of the electronic sales invoice.';
+
+                    trigger OnAction()
+                    begin
+                        CancelEDocument();
+                    end;
+                }
+                action("Print Carta Porte Document")
+                {
+                    ApplicationArea = BasicMX;
+                    Caption = 'Print Carta Porte Document';
+                    Image = PrintForm;
+                    ToolTip = 'Prepare to print the Carta Porte document so that it can be shown upon request from inspectors or other authorities.';
+
+                    trigger OnAction()
+                    var
+                        ElectronicCartaPorteMX: Report "Electronic Carta Porte MX";
+                    begin
+                        ElectronicCartaPorteMX.SetRecord(Rec);
+                        ElectronicCartaPorteMX.Run();
+                    end;
+                }
             }
         }
     }

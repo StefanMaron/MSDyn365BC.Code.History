@@ -3173,6 +3173,10 @@
             MaxValue = 100;
             MinValue = 0;
         }
+        field(10003; "Custom Transit Number"; Text[30])
+        {
+            Caption = 'Custom Transit Number';
+        }
     }
 
     keys

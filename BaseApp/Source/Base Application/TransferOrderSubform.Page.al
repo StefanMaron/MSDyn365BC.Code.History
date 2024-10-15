@@ -1,4 +1,4 @@
-page 5741 "Transfer Order Subform"
+﻿page 5741 "Transfer Order Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -274,6 +274,11 @@ page 5741 "Transfer Order Subform"
                     begin
                         ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
+                }
+                field("Custom Transit Number"; "Custom Transit Number")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies a unique transit number as five groups of digits separated by two spaces. The number identifies the transport, the year of transport, the customs office, and other required information.';
                 }
             }
         }

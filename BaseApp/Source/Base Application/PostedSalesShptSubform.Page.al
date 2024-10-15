@@ -1,4 +1,4 @@
-page 131 "Posted Sales Shpt. Subform"
+﻿page 131 "Posted Sales Shpt. Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -251,6 +251,18 @@ page 131 "Posted Sales Shpt. Subform"
                                                                   "Dimension Value Type" = CONST(Standard),
                                                                   Blocked = CONST(false));
                     Visible = DimVisible8;
+                }
+                field("Gross Weight"; "Gross Weight")
+                {
+                    Caption = 'Unit Gross Weight';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the gross weight of one unit of the item. In the sales statistics window, the gross weight on the line is included in the total gross weight of all the lines for the particular sales document.';
+                    Visible = false;
+                }
+                field("Custom Transit Number"; "Custom Transit Number")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies a unique transit number as five groups of digits separated by two spaces. The number identifies the transport, the year of transport, the customs office, and other required information.';
                 }
             }
         }

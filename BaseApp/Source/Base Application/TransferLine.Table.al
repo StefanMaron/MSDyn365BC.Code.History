@@ -871,6 +871,10 @@
                 end;
             end;
         }
+        field(10003; "Custom Transit Number"; Text[30])
+        {
+            Caption = 'Custom Transit Number';
+        }
         field(99000755; "Planning Flexibility"; Enum "Reservation Planning Flexibility")
         {
             Caption = 'Planning Flexibility';

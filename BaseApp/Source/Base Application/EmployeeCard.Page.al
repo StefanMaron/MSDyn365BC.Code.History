@@ -319,6 +319,20 @@ page 5200 "Employee Card"
                     ToolTip = 'Specifies the SWIFT code (international bank identifier code) of the bank where the employee has the account.';
                 }
             }
+            group("Electronic Document")
+            {
+                Caption = 'Electronic Document';
+                field("RFC No."; "RFC No.")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the federal registration number of the operator of the federal freight transport that the employee uses to transfer goods or merchandise.';
+                }
+                field("License No."; "License No.")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the folio number of the license or permit granted to the operator of the federal freight motor carrier in which the goods or merchandise are moved.';
+                }
+            }
         }
         area(factboxes)
         {

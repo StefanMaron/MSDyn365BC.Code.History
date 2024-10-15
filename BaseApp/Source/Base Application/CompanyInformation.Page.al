@@ -55,7 +55,7 @@ Page 1 "Company Information"
                 }
                 field("SAT Postal Code"; "SAT Postal Code")
                 {
-                    ApplicationArea = BasicCA, BasicUS;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code that is reported to the tax authorities.';
                 }
                 field("Country/Region Code"; "Country/Region Code")
@@ -317,6 +317,20 @@ Page 1 "Company Information"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how dates based on calendar and calendar-related documents are calculated.';
+                }
+                group(ElectronicDocument)
+                {
+                    Caption = 'Electronic Document';
+                    field("SCT Permission Type"; "SCT Permission Type")
+                    {
+                        ApplicationArea = BasicMX;
+                        ToolTip = 'Specifies the type of permission provided by Secretaría de Comunicaciones y Transportes which must correspond to the type of motor transport used for the transfer of goods or merchandise.';
+                    }
+                    field("SCT Permission Number"; "SCT Permission Number")
+                    {
+                        ApplicationArea = BasicMX;
+                        ToolTip = 'Specifies the permission number as defined by the Secretaría de Comunicaciones y Transportes that must correspond to the type of motor transport that is used for the transfer of goods or merchandise.';
+                    }
                 }
             }
             group(Tax)

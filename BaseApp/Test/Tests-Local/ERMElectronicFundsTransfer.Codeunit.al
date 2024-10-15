@@ -999,7 +999,7 @@
         DateFormatLength := 6;
 
         // [GIVEN] "Data Format" = <Day,2><Month,2><Year,2> for "File Created Date" in header and "Payment Date" in detail lines
-        UpdateDateFormatsOnCAEFTDataExchDef(DataExchDef, DateFormat, DateFormatLength);
+        UpdateDateFormatsOnCAEFTDataExchDef(DataExchDef, DateFormat, DateFormatLength, false);
 
         // [GIVEN] Bank Account set up for "CA" EFT export format.
         CreateBankAccount(BankAccount, VendorBankAccount."Transit No.", BankAccount."Export Format"::CA);
@@ -2009,6 +2009,91 @@
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ExportElectronicPaymentsRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure GeneratingEFTFileInCAFormatCustomDateFormatWithFieldMappingHeaderDetail()
+    var
+        Vendor: Record Vendor;
+        VendorBankAccount: Record "Vendor Bank Account";
+        BankAccount: Record "Bank Account";
+        EFTExport: Record "EFT Export";
+        TempEFTExportWorkset: Record "EFT Export Workset" temporary;
+        DataExchDef: Record "Data Exch. Def";
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+        TempACHRBHeader: Record "ACH RB Header" temporary;
+        TempACHRBDetail: Record "ACH RB Detail" temporary;
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        GenerateEFT: Codeunit "Generate EFT";
+        EFTValues: Codeunit "EFT Values";
+        FileManagement: Codeunit "File Management";
+        DateFormat: Text[100];
+        DateFormatLength: Integer;
+        ExpectedDateInt: Integer;
+        EFTFilePath: Text;
+    begin
+        // [FEATURE] [Generate EFT File] [Date Format] [Data Exchange Definition]
+        // [SCENARIO 338287] Stan can export payment with export type "CA" to EFT file with custom "Date Format" specified in "Data Exchange Definition"
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
+        CreateExportReportSelection(Layout::RDLC);
+
+        // [GIVEN] Vendor and Bank Accoutn with Country Code = "CA" and setup for EFT export "CA"
+        CreateVendorWithVendorBankAccount(Vendor, VendorBankAccount, 'CA');
+        DuplicateDataExchangeDefinition(DataExchDef, BankExportImportSetup, 'CA EFT DEFAULT');
+        DateFormat := '<Day,2><Month,2><Year,2>';
+        DateFormatLength := 6;
+
+        // [GIVEN] "Data Format" = <Day,2><Month,2><Year,2> for "File Created Date" in header and "Payment Date" in detail lines
+        UpdateDateFormatsOnCAEFTDataExchDef(DataExchDef, DateFormat, DateFormatLength, true);
+
+        // [GIVEN] Bank Account set up for "CA" EFT export format.
+        CreateBankAccount(BankAccount, VendorBankAccount."Transit No.", BankAccount."Export Format"::CA);
+        BankAccount.Validate("Payment Export Format", BankExportImportSetup.Code);
+        BankAccount.Validate("EFT Export Code", BankExportImportSetup.Code);
+        BankAccount.Validate("Client No.", LibraryUtility.GenerateGUID);
+        BankAccount.Validate("Client Name", LibraryUtility.GenerateGUID);
+        BankAccount.Modify(true);
+
+        // [GIVEN] Post an invoice for each vendor.
+        // [GIVEN] Generate payment journal line for each invoice, populate an appropriate Vendor Bank Account.
+        // [GIVEN] Export the payment journal.
+        // [GIVEN] Mark the exported lines as "Include" so they can be processed to EFT file.
+        // [GIVEN] TODAY = 23/03/2019, WORKDATE = 20/03/2019
+        CreateAndExportVendorPayment(TempEFTExportWorkset, VendorBankAccount, BankAccount."No.");
+
+        // [WHEN] Generate EFT file.
+        Commit();
+        EFTFilePath := FileManagement.GetDirectoryName(FileManagement.ServerTempFileName(''));
+        GenerateEFT.SetSavePath(EFTFilePath);
+        GenerateEFT.ProcessAndGenerateEFTFile(BankAccount."No.", WorkDate, TempEFTExportWorkset, EFTValues);
+
+        // [THEN] Exported lines are marked as Transmitted
+        EFTExport.SetRange("Journal Template Name", TempEFTExportWorkset."Journal Template Name");
+        EFTExport.SetRange("Journal Batch Name", TempEFTExportWorkset."Journal Batch Name");
+        EFTExport.SetRange(Transmitted, true);
+        Assert.RecordCount(EFTExport, 1);
+
+        // [THEN] ACHRBHeader."File Created Date" = 230319
+        ERMElectronicFundsTransfer.GetTempACHRBHeader(TempACHRBHeader);
+        ERMElectronicFundsTransfer.GetTempACHRBDetail(TempACHRBDetail);
+        Evaluate(ExpectedDateInt, Format(Today, DateFormatLength, DateFormat));
+        TempACHRBHeader.FindLast();
+        TempACHRBHeader.TestField("File Creation Date", ExpectedDateInt);
+
+        // [THEN] ACHRBDetail."Payment Date" = 200319
+        Evaluate(ExpectedDateInt, Format(WorkDate, DateFormatLength, DateFormat));
+        TempACHRBDetail.FindFirst();
+        TempACHRBDetail.TestField("Payment Date", ExpectedDateInt);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         EFTExport: Record "EFT Export";
@@ -2025,6 +2110,21 @@
     begin
         BankAccount.Get(BankAccountNo);
         BankAccount.Delete();
+    end;
+
+    local procedure CreateDataExchangeColumnDefFieldMappingForDateColumn(var DataExchColumnDef: Record "Data Exch. Column Def"; TableID: Integer; FieldNo: Integer)
+    var
+        DataExchFieldMapping: Record "Data Exch. Field Mapping";
+    begin
+        DataExchColumnDef.Name := StrSubstNo('%1 Date', LibraryUtility.GenerateGUID());
+        DataExchColumnDef.Modify();
+
+        DataExchFieldMapping."Data Exch. Def Code" := DataExchColumnDef."Data Exch. Def Code";
+        DataExchFieldMapping."Data Exch. Line Def Code" := DataExchColumnDef."Data Exch. Line Def Code";
+        DataExchFieldMapping."Column No." := DataExchColumnDef."Column No.";
+        DataExchFieldMapping."Table ID" := TableID;
+        DataExchFieldMapping."Field ID" := FieldNo;
+        if not DataExchFieldMapping.Insert() then;
     end;
 
     local procedure CreateAndExportPaymentJournal(DocumentType: Option; BalAccountType: Option; AccountNo: Code[20]; Amount: Decimal; TransactionCode: Code[3]; CompanyEntryDescription: Code[10]; ReportDirectRun: Boolean; CustomerBankAccountCode: Code[20])
@@ -2338,6 +2438,7 @@
         InvoiceNo: Code[20];
     begin
         CreateGeneralJournalBatch(GenJournalBatch, BankAccountNo);
+        UpdateForceDocBalanceOnGenJnlTemplate(GenJournalBatch."Journal Template Name", true);
 
         CreatePurchaseOrder(PurchaseHeader, VendorBankAccount."Vendor No.");
         PurchaseHeader.CalcFields(Amount);
@@ -3177,7 +3278,7 @@
         Commit();
     end;
 
-    local procedure UpdateDateFormatsOnCAEFTDataExchDef(DataExchDef: Record "Data Exch. Def"; DateFormat: Text[100]; DateFormatLength: Integer)
+    local procedure UpdateDateFormatsOnCAEFTDataExchDef(DataExchDef: Record "Data Exch. Def"; DateFormat: Text[100]; DateFormatLength: Integer; AddFieldMapping: Boolean)
     var
         DataExchLineDef: Record "Data Exch. Line Def";
         DataExchColumnDef: Record "Data Exch. Column Def";
@@ -3196,6 +3297,10 @@
         DataExchColumnDef.Length := DateFormatLength;
         DataExchColumnDef.Modify(true);
 
+        if AddFieldMapping then
+            CreateDataExchangeColumnDefFieldMappingForDateColumn(
+                DataExchColumnDef, DATABASE::"ACH RB Header", ACHRBHeader.FieldNo("File Creation Date"));
+
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Detail);
         DataExchLineDef.FindFirst();
@@ -3206,6 +3311,10 @@
         DataExchColumnDef."Data Format" := DateFormat;
         DataExchColumnDef.Length := DateFormatLength;
         DataExchColumnDef.Modify(true);
+
+        if AddFieldMapping then
+            CreateDataExchangeColumnDefFieldMappingForDateColumn(
+                DataExchColumnDef, DATABASE::"ACH RB Detail", ACHRBDetail.FieldNo("Payment Date"));
     end;
 
     local procedure InsertEntryDetailSequenceNo(DataExchDef: Record "Data Exch. Def")

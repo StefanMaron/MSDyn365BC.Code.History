@@ -2381,6 +2381,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Insert Std. Purch. Lines - NamedType ResourceErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2369040337 - NamedType 549624305" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[If you delete the code %1, the related records in the %2 table will also be deleted. Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Insert Std. Purch. Lines - NamedType StdCodeDeleteConfirmLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 253409855 - NamedType 3887901338" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must exist.]]></Val>
@@ -2406,6 +2415,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Insert Std. Sales Lines - NamedType FieldNotVisibleErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 253409855 - NamedType 549624305" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[If you delete the code %1, the related records in the %2 table will also be deleted. Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Insert Std. Sales Lines - NamedType StdCodeDeleteConfirmLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 258701155 - NamedType 2563760481" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
