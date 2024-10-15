@@ -255,8 +255,7 @@ codeunit 99000778 OrderTrackingManagement
           SourceBatchName, SourceProdOrderLine, SourceRefNo, 0);
 
         TempItemLedgEntry.SetFilter("Remaining Quantity", '<>%1', 0);
-        if not TempItemLedgEntry.Find('-') then
-            exit;
+        if TempItemLedgEntry.FindSet() then;
 
         ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, false);
         ReserveItemLedgEntry.FilterReservFor(ReservEntry, TempItemLedgEntry);

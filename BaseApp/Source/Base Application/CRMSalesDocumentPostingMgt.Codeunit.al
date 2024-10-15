@@ -116,6 +116,9 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
+        if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
+            exit;
+
         if SalesHeaderOrder.FindSet then
             repeat
                 if IsSalesOrderFullyInvoiced(SalesHeaderOrder) then

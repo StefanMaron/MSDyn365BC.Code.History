@@ -32,6 +32,76 @@ codeunit 144044 "Ledger Reports"
     [Test]
     [HandlerFunctions('SalesLedgerReportRequestPageHandler')]
     [Scope('OnPrem')]
+    procedure SalesLedgerReportDocNoSorting()
+    var
+        Customer: Record Customer;
+        GLEntry: Record "G/L Entry";
+        PostedSalesDocumentNo1: Code[20];
+        PostedSalesDocumentNo2: Code[20];
+    begin
+        // [SCENARIO 348748] In Sales Ledger report G/L Entries are sorted by the Document No. prior to Posting Date
+        Initialize();
+
+        // [GIVEN] Created and posted two invoices: "Inv1" with DocNo=1 and Posting Date=03.01.20, "Inv2" with DocNo=2 and Posting Date=02.01.20
+        LibrarySales.CreateCustomer(Customer);
+        CreateAndPostSalesInvoiceForCustomerWithDate(PostedSalesDocumentNo1, Customer."No.", WorkDate + 1);
+        CreateAndPostSalesInvoiceForCustomerWithDate(PostedSalesDocumentNo2, Customer."No.", WorkDate);
+
+        // [WHEN] Run Sales Ledger report for 2 days period
+        LibraryVariableStorage.Enqueue('<2D>');
+        LibraryVariableStorage.Enqueue(false);
+        REPORT.Run(REPORT::"Sales Ledger", true, false);
+
+        // [THEN] In report G/L entry for "Inv1" is ordered before "Inv2"
+        GLEntry.SetRange("Source No.", Customer."No.");
+        GLEntry.FindFirst();
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('GLAccNo_GLEntry', GLEntry."G/L Account No.");
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals('PrnDocno', PostedSalesDocumentNo1);
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals('PrnDocno', PostedSalesDocumentNo2);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchaseLedgerReportRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseLedgerReportDocNoSorting()
+    var
+        GLEntry: Record "G/L Entry";
+        Vendor: Record Vendor;
+        PostedSalesDocumentNo1: Code[20];
+        PostedSalesDocumentNo2: Code[20];
+    begin
+        // [SCENARIO 348748] In Purchase Ledger report G/L Entries are sorted by the Document No. prior to Posting Date
+        Initialize();
+
+        // [GIVEN] Created and posted two invoices: "Inv1" with DocNo=1 and Posting Date=03.01.20, "Inv2" with DocNo=2 and Posting Date=02.01.20
+        LibraryPurchase.CreateVendor(Vendor);
+        CreateAndPostPurchaseInvoiceForVendorWithDate(PostedSalesDocumentNo1, Vendor."No.", WorkDate + 1);
+        CreateAndPostPurchaseInvoiceForVendorWithDate(PostedSalesDocumentNo2, Vendor."No.", WorkDate);
+
+        // [WHEN] Run Purchase Ledger report for 2 days period
+        LibraryVariableStorage.Enqueue('<2D>');
+        LibraryVariableStorage.Enqueue(false);
+        REPORT.Run(REPORT::"Purchase Ledger", true, false);
+
+        // [THEN] In report G/L entry for "Inv1" is ordered before "Inv2"
+        GLEntry.SetRange("Source No.", Vendor."No.");
+        GLEntry.FindFirst();
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('GLAccountNo_GLEntry', GLEntry."G/L Account No.");
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals('PrnDocno', PostedSalesDocumentNo1);
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals('PrnDocno', PostedSalesDocumentNo2);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesLedgerReportRequestPageHandler')]
+    [Scope('OnPrem')]
     procedure SalesLedgerReportTest()
     begin
         Initialize;
@@ -188,7 +258,6 @@ codeunit 144044 "Ledger Reports"
         LibraryReportValidation.VerifyCellValueByRef('R', 78, 4, PageTwoTxt);
     end;
 
-    [Normal]
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Ledger Reports");
@@ -203,7 +272,30 @@ codeunit 144044 "Ledger Reports"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Ledger Reports");
     end;
 
-    [Normal]
+    local procedure CreateAndPostSalesInvoiceForCustomerWithDate(var DocumentNo: Code[20]; CustomerNo: Code[20]; PostingDate: Date)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
+    local procedure CreateAndPostPurchaseInvoiceForVendorWithDate(var DocumentNo: Code[20]; VendorNo: Code[20]; PostingDate: Date)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        PurchaseHeader.Validate("Posting Date", PostingDate);
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+    end;
+
     local procedure RunSalesLedgerReportTest(UseLocalCurrency: Boolean)
     var
         GLEntry: Record "G/L Entry";
@@ -225,6 +317,7 @@ codeunit 144044 "Ledger Reports"
         GenJournalTemplate.SetRecFilter;
         // Excersise report
         LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Enqueue('<1D>');
         LibraryVariableStorage.Enqueue(UseLocalCurrency); // Use local currency
         Commit;
         REPORT.Run(REPORT::"Sales Ledger", true, false, GenJournalTemplate);
@@ -274,7 +367,6 @@ codeunit 144044 "Ledger Reports"
         until VATEntry.Next = 0;
     end;
 
-    [Normal]
     local procedure RunPurchaseLedgerReportTest(UseLocalCurrency: Boolean)
     var
         GLEntry: Record "G/L Entry";
@@ -297,6 +389,7 @@ codeunit 144044 "Ledger Reports"
 
         // Excersise report
         LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Enqueue('<1D>');
         LibraryVariableStorage.Enqueue(UseLocalCurrency); // Use local currency
         Commit;
         REPORT.Run(REPORT::"Purchase Ledger", true, false);
@@ -337,7 +430,6 @@ codeunit 144044 "Ledger Reports"
         ValidateGLAccountDescription('GLEntry2GLAccountNo', 'GLEntry2Description');
     end;
 
-    [Normal]
     local procedure RunGenJournalLedgerReportTest(UseLocalCurrency: Boolean)
     var
         VATStatementLine: Record "VAT Statement Line";
@@ -418,7 +510,6 @@ codeunit 144044 "Ledger Reports"
         ValidateGLAccountDescription('GLAccNo_GLEntry2', 'Desc_GLEntry2');
     end;
 
-    [Normal]
     local procedure RunCentralizationLedgerReportTest(ShowGLDetails: Boolean)
     var
         GLEntry: Record "G/L Entry";
@@ -504,7 +595,6 @@ codeunit 144044 "Ledger Reports"
               'Expected the total message to be the Gen. Journal Template Name when not printing details.');
     end;
 
-    [Normal]
     local procedure RunFinancialLedgerReportTest(UseLcy: Boolean)
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -746,7 +836,6 @@ codeunit 144044 "Ledger Reports"
         exit(GLAccount."No.");
     end;
 
-    [Normal]
     local procedure CreateGenJnlTemplate(var GenJournalTemplate: Record "Gen. Journal Template"; Type: Option; BalAccountType: Option; BalAccountNo: Code[20])
     begin
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
@@ -825,7 +914,6 @@ codeunit 144044 "Ledger Reports"
         VendLedgerEntry.FindLast;
     end;
 
-    [Normal]
     local procedure CreateAndPostReceivalForInvoice(InvoiceNo: Code[20]) PaymentNo: Code[20]
     var
         VendLedgerEntry: Record "Vendor Ledger Entry";
@@ -837,7 +925,6 @@ codeunit 144044 "Ledger Reports"
         exit(PaymentNo);
     end;
 
-    [Normal]
     local procedure CreateAndPostGeneralJournalBatch(var GenJournalTemplate: Record "Gen. Journal Template"; BatchTemplateType: Option; BatchBalAccountType: Option; LineDocumentType: Option; LineBalAccountType: Option; LineAccountNo: Code[20]; LineAmount: Decimal; VATBusinessPostingGroupCode: Code[20]; VATProductPostingGroupCode: Code[20]; GenPostingType: Option)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -868,7 +955,6 @@ codeunit 144044 "Ledger Reports"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    [Normal]
     local procedure CreateMinimalGLEntry(PostingDate: Date; SourceCode: Code[10]; GenJournalTemplateName: Code[10]; GLAccountNo: Code[20]; CreditAmount: Decimal; DebitAmount: Decimal)
     var
         GLEntry: Record "G/L Entry";
@@ -888,7 +974,6 @@ codeunit 144044 "Ledger Reports"
         end;
     end;
 
-    [Normal]
     local procedure ValidateGLAccountDescription(NoElementName: Text; DescriptionElementName: Text)
     var
         GLAccount: Record "G/L Account";
@@ -949,6 +1034,7 @@ codeunit 144044 "Ledger Reports"
     var
         StartDate: Variant;
         UseLcy: Variant;
+        Period: Variant;
         PeriodLength: DateFormula;
     begin
         // Start Date
@@ -957,7 +1043,8 @@ codeunit 144044 "Ledger Reports"
         // No. of Periods
         SalesLedgerReport.NoOfPeriods.SetValue(1); // Causes default value initialization
         // Period Length
-        Evaluate(PeriodLength, '<1D>');
+        LibraryVariableStorage.Dequeue(Period);
+        Evaluate(PeriodLength, Period);
         SalesLedgerReport.PeriodLength.SetValue(PeriodLength);
         // Start Page Number
         SalesLedgerReport.Startpage.SetValue(1);
@@ -974,6 +1061,7 @@ codeunit 144044 "Ledger Reports"
     var
         StartDate: Variant;
         UseLcy: Variant;
+        Period: Variant;
         PeriodLength: DateFormula;
     begin
         // Start Date
@@ -982,7 +1070,8 @@ codeunit 144044 "Ledger Reports"
         // No. of Periods
         PurchaseLedgerReport.NoOfPeriods.SetValue(1); // Causes default value initialization
         // Period Length
-        Evaluate(PeriodLength, '<1D>');
+        LibraryVariableStorage.Dequeue(Period);
+        Evaluate(PeriodLength, Period);
         PurchaseLedgerReport.PeriodLength.SetValue(PeriodLength);
         // Start Page Number
         PurchaseLedgerReport.Startpage.SetValue(1);

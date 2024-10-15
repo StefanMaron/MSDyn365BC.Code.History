@@ -99,9 +99,6 @@ report 11309 "VAT Annual Listing - Disk"
                 if not CheckVatNo.MOD97Check("Enterprise No.") then
                     CurrReport.Skip;
 
-                if not CheckVatNo.CheckEnterpriseNoFormat("Enterprise No.") then
-                    CurrReport.Skip;
-
                 Clear(WBase);
                 Clear(WAmount);
                 IsCreditMemo := false;

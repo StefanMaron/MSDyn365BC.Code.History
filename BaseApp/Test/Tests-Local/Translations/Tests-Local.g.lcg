@@ -412,7 +412,7 @@
   </Item>
   <Item ItemId=";Codeunit 3467608275 - NamedType 3148363647" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[CompanyVATNumber]]></Val>
+      <Val><![CDATA[//CompanyVATNumber]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -421,7 +421,7 @@
   </Item>
   <Item ItemId=";Codeunit 3467608275 - NamedType 2189773451" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[TurnOver]]></Val>
+      <Val><![CDATA[//TurnOver]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -430,7 +430,7 @@
   </Item>
   <Item ItemId=";Codeunit 3467608275 - NamedType 3882360959" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[VATAmount]]></Val>
+      <Val><![CDATA[//VATAmount]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -457,7 +457,7 @@
   </Item>
   <Item ItemId=";Codeunit 3467608275 - NamedType 2738480885" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[ClientListing]]></Val>
+      <Val><![CDATA[//ClientListing]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

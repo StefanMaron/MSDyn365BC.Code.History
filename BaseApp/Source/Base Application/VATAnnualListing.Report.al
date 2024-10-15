@@ -201,9 +201,6 @@ report 11308 "VAT Annual Listing"
                     if not CheckVatNo.MOD97Check("Enterprise No.") then
                         CurrReport.Skip;
 
-                    if not CheckVatNo.CheckEnterpriseNoFormat("Enterprise No.") then
-                        CurrReport.Skip;
-
                     Clear(WBase);
                     Clear(WAmount);
                     Clear(VAT1);

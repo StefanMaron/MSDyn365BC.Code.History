@@ -27,11 +27,13 @@ codeunit 144005 "ERM Annual Listing"
 
     trigger OnRun()
     begin
+        // [FEATURE] [Annual Listing] [Export] [Enterprise No]
     end;
 
     var
         LibraryRandom: Codeunit "Library - Random";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibrarySales: Codeunit "Library - Sales";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryBEHelper: Codeunit "Library - BE Helper";
@@ -39,17 +41,17 @@ codeunit 144005 "ERM Annual Listing"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        LibraryXMLRead: Codeunit "Library - XML Read";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         isInitialized: Boolean;
         VatRegNoFormatNotFoundErr: Label 'VAT Registration Format not found.';
         FileExistenceErr: Label 'File existence error.';
-        CompanyVATNumberCapTxt: Label 'CompanyVATNumber';
-        TurnOverCapTxt: Label 'TurnOver';
-        VATAmountCapTxt: Label 'VATAmount';
+        CompanyVATNumberCapTxt: Label '//CompanyVATNumber';
+        TurnOverCapTxt: Label '//TurnOver';
+        VATAmountCapTxt: Label '//VATAmount';
         IncludeCountry: Option All,Specific;
         TurnOverSumCapTxt: Label 'TurnOverSum';
         VATAmountSumCapTxt: Label 'VATAmountSum';
-        ClientListingTxt: Label 'ClientListing';
+        ClientListingTxt: Label '//ClientListing';
 
     [Test]
     [HandlerFunctions('VatAnnualListingDiskRequestPageHandler')]
@@ -112,9 +114,9 @@ codeunit 144005 "ERM Annual Listing"
         if (InclCountry = IncludeCountry::Specific) and (not FileMustExist) then begin
             CompanyInformation.Get;
             CountryRegion.Get(CompanyInformation."Country/Region Code");
-            ExportAnnualListing(Date2DMY(StartDate, 3), RepresentativeId, InclCountry, CountryRegion.Code, 0, FilePath);
+            ExportAnnualListingDisk(Date2DMY(StartDate, 3), RepresentativeId, InclCountry, CountryRegion.Code, 0.01, FilePath);
         end else
-            ExportAnnualListing(Date2DMY(StartDate, 3), RepresentativeId, InclCountry, CountryCode, 0, FilePath);
+            ExportAnnualListingDisk(Date2DMY(StartDate, 3), RepresentativeId, InclCountry, CountryCode, 0.01, FilePath);
 
         // Verify.
         Assert.AreEqual(FileMustExist, Exists(FilePath), FileExistenceErr);
@@ -141,8 +143,8 @@ codeunit 144005 "ERM Annual Listing"
 
         // Exercise: Run report Annual Listing - Disk.
         FileName := FileMgt.ServerTempFileName('xml');
-        ExportAnnualListing(Date2DMY(CalcDate('<+CY+2Y>', WorkDate), 3), '',
-          IncludeCountry::Specific, Customer."Country/Region Code", 0, FileName);
+        ExportAnnualListingDisk(Date2DMY(CalcDate('<+CY+2Y>', WorkDate), 3), '',
+          IncludeCountry::Specific, Customer."Country/Region Code", 0.01, FileName);
 
         // Verify: Verify the Enterprise No. VAT Amount Base and VAT Amount in report.
         VerifyAnnualListingDiskReportData(FileName, Customer."No.", DelStr(Customer."Enterprise No.", 1, 3));
@@ -166,7 +168,7 @@ codeunit 144005 "ERM Annual Listing"
 
         // [WHEN] Report Annual Listing - Disk is being run with Minimum Amount = 2X
         FileName := FileMgt.ServerTempFileName('xml');
-        ExportAnnualListing(Date2DMY(CalcDate('<+CY+2Y>', WorkDate), 3), '',
+        ExportAnnualListingDisk(Date2DMY(CalcDate('<+CY+2Y>', WorkDate), 3), '',
           IncludeCountry::Specific, Customer."Country/Region Code", InvoiceAmount * 2, FileName);
 
         // [THEN] File is not created
@@ -194,7 +196,7 @@ codeunit 144005 "ERM Annual Listing"
 
         // [WHEN] Report Annual Listing - Disk is being run with Minimum Amount = 2X
         FileName := FileMgt.ServerTempFileName('xml');
-        ExportAnnualListing(Date2DMY(CalcDate('<+CY+2Y>', WorkDate), 3), '',
+        ExportAnnualListingDisk(Date2DMY(CalcDate('<+CY+2Y>', WorkDate), 3), '',
           IncludeCountry::Specific, Customer."Country/Region Code", CrMemoAmount * 2, FileName);
 
         // [THEN] Verify the Enterprise No. VAT Amount Base and VAT Amount in report.
@@ -227,7 +229,7 @@ codeunit 144005 "ERM Annual Listing"
 
         // [WHEN] Report Annual Listing - Disk is being run with Minimum Amount = 600
         FileName := FileMgt.ServerTempFileName('xml');
-        ExportAnnualListing(Date2DMY(CalcDate('<+CY+2Y>', WorkDate), 3), '',
+        ExportAnnualListingDisk(Date2DMY(CalcDate('<+CY+2Y>', WorkDate), 3), '',
           IncludeCountry::Specific, Customer."Country/Region Code", InvoiceAmount + CrMemoAmount, FileName);
 
         // [THEN] Entry for the customer exported with <TurnOver> = 400 and <VATAmount> = 40
@@ -254,11 +256,69 @@ codeunit 144005 "ERM Annual Listing"
 
         // [WHEN] Report Annual Listing - Disk is being run with Minimum Amount = 50
         FileName := FileMgt.ServerTempFileName('xml');
-        ExportAnnualListing(Date2DMY(CalcDate('<+CY+2Y>', WorkDate), 3), '',
+        ExportAnnualListingDisk(Date2DMY(CalcDate('<+CY+2Y>', WorkDate), 3), '',
           IncludeCountry::Specific, Customer."Country/Region Code", InvoiceAmount / 2, FileName);
 
         // [THEN] Entry for the customer exported with <TurnOver> = 100 and <VATAmount> = 10
         VerifyAnnualListingDiskReportData(FileName, Customer."No.", DelStr(Customer."Enterprise No.", 1, 3));
+    end;
+
+    [Test]
+    [HandlerFunctions('VATAnnualListingRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ExportAnnualListingForLocalCustomerEnterpriseNoWithoutPrefix()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        IncludeCountry: Option All,Specific;
+    begin
+        // [SCENARIO 346489] Report Annual Listing does export credit memos for local Customer with "Enterprise No." wihtout prefixes
+        Initialize();
+
+        // [GIVEN] Create a Customer with "Enterprise No." wihtout prefixes
+        LibraryBEHelper.CreateDomesticCustomer(Customer);
+        Customer.Validate("Enterprise No.", LibraryBEHelper.CreateMOD97CompliantCode());
+        Customer.Modify(true);
+
+        // [GIVEN] Create and post Credit Memo for Customer
+        CreateAndPostSalesDocumentInPeriod(Customer."No.", SalesHeader."Document Type"::"Credit Memo", CalcDate('<+CY+2Y>', WorkDate));
+
+        // [WHEN] Report Annual Listing is being run
+        ExportAnnualListing(
+          false, Date2DMY(CalcDate('<+CY+2Y>', WorkDate), 3), 0.01, IncludeCountry::Specific, Customer."Country/Region Code");
+
+        // [THEN] Verify VAT Amount Base and VAT Amount in report
+        VerifyAnnualListingReportData(Customer."No.", Customer."Country/Region Code" + ' ' + Customer."Enterprise No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('VatAnnualListingDiskRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ExportAnnualListingDiskForLocalCustomerEnterpriseNoWithoutPrefix()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        FileName: Text;
+        IncludeCountry: Option All,Specific;
+    begin
+        // [SCENARIO 346489] Report Annual Listing - Disk does export credit memos for local Customer with "Enterprise No." wihtout prefixes
+        Initialize();
+
+        // [GIVEN] Create a Customer with "Enterprise No." wihtout prefixes
+        LibraryBEHelper.CreateDomesticCustomer(Customer);
+        Customer.Validate("Enterprise No.", LibraryBEHelper.CreateMOD97CompliantCode());
+        Customer.Modify(true);
+
+        // [GIVEN] Create and post Credit Memo for Customer
+        CreateAndPostSalesDocumentInPeriod(Customer."No.", SalesHeader."Document Type"::"Credit Memo", CalcDate('<+CY+3Y>', WorkDate));
+
+        // [WHEN] Report Annual Listing - Disk is being run
+        FileName := FileMgt.ServerTempFileName('xml');
+        ExportAnnualListingDisk(Date2DMY(CalcDate('<+CY+3Y>', WorkDate), 3), '',
+          IncludeCountry::Specific, Customer."Country/Region Code", FindLastCrMemoAmount(Customer."No."), FileName);
+
+        // [THEN] Verify the Enterprise No., VAT Amount Base and VAT Amount in report.
+        VerifyAnnualListingDiskReportData(FileName, Customer."No.", Customer."Enterprise No.");
     end;
 
     local procedure Initialize()
@@ -419,7 +479,17 @@ codeunit 144005 "ERM Annual Listing"
         exit(Position)
     end;
 
-    local procedure ExportAnnualListing(Year: Integer; RepresentatveID: Code[20]; IncludeCountry: Option All,Specific; CountryCode: Code[10]; MinimumAmount: Decimal; FileName: Text)
+    local procedure ExportAnnualListing(WrongEnterpriseNo: Boolean; Year: Integer; MinimumAmount: Decimal; IncludeCountry: Option All,Specific; CountryCode: Code[10])
+    begin
+        LibraryVariableStorage.Enqueue(WrongEnterpriseNo);
+        LibraryVariableStorage.Enqueue(Year);
+        LibraryVariableStorage.Enqueue(MinimumAmount);
+        LibraryVariableStorage.Enqueue(IncludeCountry);
+        LibraryVariableStorage.Enqueue(CountryCode);
+        REPORT.Run(REPORT::"VAT Annual Listing", true);
+    end;
+
+    local procedure ExportAnnualListingDisk(Year: Integer; RepresentatveID: Code[20]; IncludeCountry: Option All,Specific; CountryCode: Code[10]; MinimumAmount: Decimal; FileName: Text)
     var
         VATAnnualListingDisk: Report "VAT Annual Listing - Disk";
     begin
@@ -432,26 +502,51 @@ codeunit 144005 "ERM Annual Listing"
         VATAnnualListingDisk.Run;
     end;
 
-    local procedure VerifyAnnualListingDiskReportData(FileName: Text; CustomerNo: Code[20]; EnterpriseNo: Code[20])
+    local procedure VerifyAnnualListingReportData(CustomerNo: Code[20]; VATRegistrationNo: Code[71])
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetFilter("Bill-to/Pay-to No.", CustomerNo);
+        VATEntry.FindFirst();
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('BufferVATRegistrationNo', VATRegistrationNo);
+        LibraryReportDataset.AssertElementWithValueExists('BufferAmount', -VATEntry.Amount);
+        LibraryReportDataset.AssertElementWithValueExists('BufferBase', -VATEntry.Base);
+    end;
+
+    local procedure VerifyAnnualListingDiskReportData(FileName: Text; CustomerNo: Code[20]; EnterpriseNo: Code[50])
     var
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetFilter("Bill-to/Pay-to No.", CustomerNo);
         VATEntry.CalcSums(Base, Amount);
-        with LibraryXMLRead do begin
-            Initialize(FileName);
-            VerifyNodeValue(CompanyVATNumberCapTxt, EnterpriseNo);
-            VerifyNodeValue(TurnOverCapTxt, -VATEntry.Base);
-            VerifyNodeValue(VATAmountCapTxt, -VATEntry.Amount);
-            VerifyAttributeValue(ClientListingTxt, TurnOverSumCapTxt, -VATEntry.Base);
-            VerifyAttributeValue(ClientListingTxt, VATAmountSumCapTxt, -VATEntry.Amount);
-        end;
+        LibraryXPathXMLReader.Initialize(FileName, 'http://www.minfin.fgov.be/ClientListingConsignment');
+        LibraryXPathXMLReader.VerifyNodeValue(CompanyVATNumberCapTxt, EnterpriseNo);
+        LibraryXPathXMLReader.VerifyNodeValue(TurnOverCapTxt, Format(-VATEntry.Base));
+        LibraryXPathXMLReader.VerifyNodeValue(VATAmountCapTxt, Format(-VATEntry.Amount));
+        LibraryXPathXMLReader.VerifyAttributeValue(ClientListingTxt, TurnOverSumCapTxt, Format(-VATEntry.Base));
+        LibraryXPathXMLReader.VerifyAttributeValue(ClientListingTxt, VATAmountSumCapTxt, Format(-VATEntry.Amount));
     end;
 
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [RequestPageHandler]
+    [Scope('Internal')]
+    procedure VATAnnualListingRequestPageHandler(var VATAnnualListing: TestRequestPage "VAT Annual Listing")
+    var
+        DequeuedVar: Variant;
+    begin
+        VATAnnualListing.WrongEntrNo.SetValue(LibraryVariableStorage.DequeueBoolean()); // WrongEntrNo
+        VATAnnualListing.Year.SetValue(LibraryVariableStorage.DequeueInteger()); // Year
+        VATAnnualListing.Minimum.SetValue(LibraryVariableStorage.DequeueDecimal()); // Minimum Amount
+        LibraryVariableStorage.Dequeue(DequeuedVar);
+        VATAnnualListing.IncludeCountry.SetValue(DequeuedVar); // Include Country
+        VATAnnualListing.Country.SetValue(LibraryVariableStorage.DequeueText()); // Country
+        VATAnnualListing.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

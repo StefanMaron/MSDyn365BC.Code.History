@@ -81,7 +81,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
         WhsShpmtHeaderExternalDocumentNoIsWrongErr: Label 'Warehouse Shipment Header."External Document No." is wrong.';
         WhsRcptHeaderVendorShpmntNoIsWrongErr: Label 'Warehouse Receipt Header."Vendor Shipment No." is wrong.';
         AvailWarningMsg: Label 'There are availability warnings on one or more lines.';
-        WrongQtyToHandleInTrackingSpecErr: Label 'Qty. to Handle (Base) in Tracking Specification for Item No. %1, Serial No.: %2, Lot No.: %3 is currently %4. It must be %5.', Comment = '%1: Field(Item No.), %2: Field(Serial No.), %3: Field(Lot No.), %4: Field(Qty. to Handle (Base)), %5: expected quantity';
+        WrongQtyToHandleInTrackingSpecErr: Label 'Qty. to Handle (Base) in the item tracking assigned to the document line for item %1 is currently %2. It must be %3.\\Check the assignment for serial number %4, lot number %5.', Comment = '%1: Field(Item No.), %2: Field(Qty. to Handle (Base)), %3: expected quantity, %4: Field(Serial No.), %5: Field(Lot No.)';
         PostedInvoicesQtyErr: Label 'There must be 2 Sales Invoices.';
         PostedShpmtsQtyErr: Label 'There must be 2 Sales Shipments.';
         ChangedBinCodeOnWhseShptTxt: Label 'You have changed Bin Code on the Warehouse Shipment Header';
@@ -3106,7 +3106,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
         Assert.ExpectedError(
           StrSubstNo(
             WrongQtyToHandleInTrackingSpecErr,
-            Item."No.", '', LotNo, Qty - ShipQty * 2, Qty - ShipQty));
+            Item."No.", Qty - ShipQty * 2, Qty - ShipQty, '', LotNo));
     end;
 
     [Test]
@@ -3464,6 +3464,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
 
         // [GIVEN] "X" pcs of each lot are in inventory in bin "B1" on location "L".
         LibraryVariableStorage.Enqueue(ItemTrackingMode::"Assign Multiple Lines");
+        LibraryVariableStorage.Enqueue(ArrayLen(LotNos));
         LibraryVariableStorage.Enqueue(LotQty);
         for i := 1 to ArrayLen(LotNos) do
             LibraryVariableStorage.Enqueue(LotNos[i]);
@@ -3541,7 +3542,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
         WarehouseRequest: Record "Warehouse Request";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
-        LotNos: array[2] of Code[10];
+        LotNos: array[3] of Code[10];
         LotQty: Decimal;
         i: Integer;
     begin
@@ -3558,26 +3559,33 @@ codeunit 137151 "SCM Warehouse - Shipping"
         CreateItemTrackingCode(ItemTrackingCode, false, true, false);
         LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
 
-        // [GIVEN] Lots "L1" and "L2".
+        // [GIVEN] Lots "L1", "L2", "L3".
         for i := 1 to ArrayLen(LotNos) do
             LotNos[i] := LibraryUtility.GenerateGUID();
         LotQty := LibraryRandom.RandIntInRange(10, 20);
 
         // [GIVEN] Post 10 pcs of each lot to the inventory.
         LibraryVariableStorage.Enqueue(ItemTrackingMode::"Assign Multiple Lines");
+        LibraryVariableStorage.Enqueue(ArrayLen(LotNos));
         LibraryVariableStorage.Enqueue(LotQty);
         for i := 1 to ArrayLen(LotNos) do
             LibraryVariableStorage.Enqueue(LotNos[i]);
         CreateAndPostItemJournalLine(Item."No.", LotQty * ArrayLen(LotNos), Location.Code, Bin.Code, true);
 
-        // [GIVEN] Create transfer order for 20 pcs. Set "Qty. to Ship" = 10 and assign lot "L1".
-        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Set Lot No.");
+        // [GIVEN] Create transfer order for 30 pcs. Assign three lots.
+        // [GIVEN] Set "Qty. to Ship" = 10 on the transfer line and zero out "Qty. to Handle" on every lot but "L1".
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Assign Multiple Lines");
+        LibraryVariableStorage.Enqueue(ArrayLen(LotNos));
         LibraryVariableStorage.Enqueue(LotQty);
-        LibraryVariableStorage.Enqueue(LotNos[1]);
+        for i := 1 to ArrayLen(LotNos) do
+            LibraryVariableStorage.Enqueue(LotNos[i]);
         CreateAndReleaseTransferOrder(TransferHeader, Location.Code, LocationRed.Code, Item."No.", LotQty * ArrayLen(LotNos), true);
         FindTransferLine(TransferLine, TransferHeader."No.", Item."No.");
         TransferLine.Validate("Qty. to Ship", LotQty);
         TransferLine.Modify(true);
+
+        UpdateQtyToHandleOnItemTrackingLineForTransfer(TransferHeader."No.", Item."No.", LotNos[2], 0);
+        UpdateQtyToHandleOnItemTrackingLineForTransfer(TransferHeader."No.", Item."No.", LotNos[3], 0);
 
         // [GIVEN] Create inventory pick.
         LibraryVariableStorage.Enqueue(InvPickMsg);
@@ -3597,8 +3605,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
 
         // [THEN] An error of item tracking mismatch is thrown.
         Assert.ExpectedErrorCode('Dialog');
-        Assert.ExpectedError(
-          StrSubstNo(WrongQtyToHandleInTrackingSpecErr, Item."No.", '', LotNos[1], LotQty * ArrayLen(LotNos), LotQty));
+        Assert.ExpectedError(StrSubstNo(WrongQtyToHandleInTrackingSpecErr, Item."No.", LotQty * 2, LotQty, '', LotNos[2]));
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -4139,6 +4146,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
           ItemNo, LotQty * ArrayLen(LotNos), LocationCode, WorkDate);
 
         LibraryVariableStorage.Enqueue(ItemTrackingMode::"Assign Multiple Lines");
+        LibraryVariableStorage.Enqueue(ArrayLen(LotNos));
         LibraryVariableStorage.Enqueue(LotQty);
         for i := 1 to ArrayLen(LotNos) do
             LibraryVariableStorage.Enqueue(LotNos[i]);
@@ -4896,6 +4904,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
         LotNo[1] := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(LotNo[1]));
         LotNo[2] := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(LotNo[2]));
         LibraryVariableStorage.Enqueue(ItemTrackingMode::"Assign Multiple Lines"); // Enqueue for ItemTrackingPageHandler
+        LibraryVariableStorage.Enqueue(ArrayLen(LotNo));
         LibraryVariableStorage.Enqueue(QuantityInItemTrackingLines); // Enqueue for ItemTrackingPageHandler
         LibraryVariableStorage.Enqueue(LotNo[1]); // Enqueue for ItemTrackingPageHandler
         LibraryVariableStorage.Enqueue(LotNo[2]); // Enqueue for ItemTrackingPageHandler
@@ -5532,6 +5541,16 @@ codeunit 137151 "SCM Warehouse - Shipping"
         WarehouseActivityLine.Modify(true);
     end;
 
+    local procedure UpdateQtyToHandleOnItemTrackingLineForTransfer(TransferHeaderNo: Code[20]; ItemNo: Code[20]; LotNo: Code[20]; QtyToHandle: Decimal)
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        FilterReservEntryForTransferLine(ReservationEntry, TransferHeaderNo, ItemNo, LotNo);
+        ReservationEntry.FindFirst();
+        ReservationEntry.Validate("Qty. to Handle (Base)", QtyToHandle);
+        ReservationEntry.Modify(true);
+    end;
+
     local procedure UpdateProductionOrderAndRefresh(var ProductionOrder: Record "Production Order"; SourceNo: Code[20])
     begin
         FindProductionOrder(ProductionOrder, ProductionOrder.Status::Released, SourceNo);
@@ -6088,6 +6107,8 @@ codeunit 137151 "SCM Warehouse - Shipping"
         LineCount: Integer;
         Quantity: Decimal;
         QtyInTrackingSpecification: Decimal;
+        NoOfLots: Integer;
+        i: Integer;
     begin
         LibraryVariableStorage.Dequeue(DequeueVariable);
         ItemTrackingMode := DequeueVariable;
@@ -6129,10 +6150,12 @@ codeunit 137151 "SCM Warehouse - Shipping"
                 SetLotNoAndQuantityInItemTrackingLine(ItemTrackingLines, LibraryVariableStorage.DequeueDecimal);
             ItemTrackingMode::"Assign Multiple Lines":
                 begin
-                    QtyInTrackingSpecification := LibraryVariableStorage.DequeueDecimal;
-                    SetLotNoAndQuantityInItemTrackingLine(ItemTrackingLines, QtyInTrackingSpecification);
-                    ItemTrackingLines.New;
-                    SetLotNoAndQuantityInItemTrackingLine(ItemTrackingLines, QtyInTrackingSpecification);
+                    NoOfLots := LibraryVariableStorage.DequeueInteger();
+                    QtyInTrackingSpecification := LibraryVariableStorage.DequeueDecimal();
+                    for i := 1 to NoOfLots do begin
+                        ItemTrackingLines.New();
+                        SetLotNoAndQuantityInItemTrackingLine(ItemTrackingLines, QtyInTrackingSpecification);
+                    end;
                 end;
         end;
         ItemTrackingLines.OK.Invoke;
