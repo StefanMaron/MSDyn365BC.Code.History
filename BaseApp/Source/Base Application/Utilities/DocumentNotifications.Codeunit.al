@@ -186,6 +186,7 @@ codeunit 1390 "Document Notifications"
                 Vendor.SetAddress(PurchaseHeader."Buy-from Address", PurchaseHeader."Buy-from Address 2",
                   PurchaseHeader."Buy-from Post Code", PurchaseHeader."Buy-from City", PurchaseHeader."Buy-from County",
                   PurchaseHeader."Buy-from Country/Region Code", PurchaseHeader."Buy-from Contact");
+                OnCopyBuyFromVendorAddressFieldsFromSalesDocumentOnBeforeModify(Vendor, PurchaseHeader);
                 Vendor.Modify(true);
             end;
         end;
@@ -214,6 +215,7 @@ codeunit 1390 "Document Notifications"
                 Vendor.SetAddress(PurchaseHeader."Pay-to Address", PurchaseHeader."Pay-to Address 2",
                   PurchaseHeader."Pay-to Post Code", PurchaseHeader."Pay-to City", PurchaseHeader."Pay-to County",
                   PurchaseHeader."Pay-to Country/Region Code", PurchaseHeader."Pay-to Contact");
+                OnCopyPayToVendorAddressFieldsFromSalesDocumentOnBeforeModify(Vendor, PurchaseHeader);
                 Vendor.Modify(true);
             end;
         end;
@@ -380,6 +382,16 @@ codeunit 1390 "Document Notifications"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopySellToCustomerAddressFieldsFromSalesDocumentOnBeforeModify(var Customer: Record Customer; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyBuyFromVendorAddressFieldsFromSalesDocumentOnBeforeModify(var Vendor: Record Vendor; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyPayToVendorAddressFieldsFromSalesDocumentOnBeforeModify(var Vendor: Record Vendor; PurchaseHeader: Record "Purchase Header")
     begin
     end;
 }

@@ -2134,7 +2134,7 @@ table 1003 "Job Planning Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeRecalculateAmounts(Rec, xRec, AmountLCY, IsHandled);
+        OnBeforeRecalculateAmounts(Rec, xRec, AmountLCY, IsHandled, Amount);
         if IsHandled then
             exit;
 
@@ -3140,7 +3140,7 @@ table 1003 "Job Planning Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRecalculateAmounts(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line"; var AmountLCY: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeRecalculateAmounts(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line"; var AmountLCY: Decimal; var IsHandled: Boolean; var Amount: Decimal)
     begin
     end;
 
@@ -3205,7 +3205,7 @@ table 1003 "Job Planning Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateUnitCost(JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean; xJobPlanningLine: Record "Job Planning Line")
+    local procedure OnBeforeUpdateUnitCost(var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean; xJobPlanningLine: Record "Job Planning Line")
     begin
     end;
 

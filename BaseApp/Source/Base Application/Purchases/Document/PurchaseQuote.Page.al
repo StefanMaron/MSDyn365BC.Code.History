@@ -1498,6 +1498,11 @@ page 49 "Purchase Quote"
         CalculateCurrentShippingAndPayToOption();
     end;
 
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        CurrPage.Update(false);
+    end;
+
     trigger OnOpenPage()
     var
         IsHandled: Boolean;

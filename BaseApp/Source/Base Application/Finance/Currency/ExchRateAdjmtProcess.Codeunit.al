@@ -663,7 +663,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         OnAfterSetDtldVendLedgEntryFilters(DtldVendLedgEntry2, VendLedgEntry2);
     end;
 
-    local procedure PostAdjmt(ExchRateAdjmtBuffer: Record "Exch. Rate Adjmt. Buffer"; TempDimSetEntry: Record "Dimension Set Entry" temporary; CVLedgEntryBuf: Record "CV Ledger Entry Buffer"; Gains: Boolean): Integer
+    local procedure PostAdjmt(ExchRateAdjmtBuffer: Record "Exch. Rate Adjmt. Buffer"; var TempDimSetEntry: Record "Dimension Set Entry" temporary; CVLedgEntryBuf: Record "CV Ledger Entry Buffer"; Gains: Boolean): Integer
     begin
         exit(
             PostAdjmt(

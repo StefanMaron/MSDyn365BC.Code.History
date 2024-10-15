@@ -157,7 +157,7 @@ codeunit 63 "Sales-Explode BOM"
 
             FromBOMComp.Reset();
             FromBOMComp.SetRange("Parent Item No.", "No.");
-            OnExplodeBOMCompLinesOnAfterFromBOMCompSetFilters(FromBOMComp, SalesLine, LineSpacing);
+            OnExplodeBOMCompLinesOnAfterFromBOMCompSetFilters(FromBOMComp, SalesLine, LineSpacing, NextLineNo);
             FromBOMComp.FindSet();
             repeat
                 ToSalesLine.Init();
@@ -294,7 +294,7 @@ codeunit 63 "Sales-Explode BOM"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnExplodeBOMCompLinesOnAfterFromBOMCompSetFilters(var BOMComponent: Record "BOM Component"; SalesLine: Record "Sales Line"; var LineSpacing: Integer)
+    local procedure OnExplodeBOMCompLinesOnAfterFromBOMCompSetFilters(var BOMComponent: Record "BOM Component"; SalesLine: Record "Sales Line"; var LineSpacing: Integer; var NextLineNo: Integer)
     begin
     end;
 

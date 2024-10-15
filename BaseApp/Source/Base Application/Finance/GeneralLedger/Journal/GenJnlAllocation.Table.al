@@ -502,14 +502,20 @@ table 221 "Gen. Jnl. Allocation"
     procedure UpdateVAT(var GenJnlLine: Record "Gen. Journal Line")
     var
         GenJnlLine2: Record "Gen. Journal Line";
+        IsHandled: Boolean;
     begin
-        GenJnlLine2.CopyFromGenJnlAllocation(Rec);
-        GenJnlLine2."Posting Date" := GenJnlLine."Posting Date";
-        GenJnlLine2.Validate("VAT Prod. Posting Group");
-        Amount := GenJnlLine2."Amount (LCY)";
-        "VAT Calculation Type" := GenJnlLine2."VAT Calculation Type";
-        "VAT Amount" := GenJnlLine2."VAT Amount";
-        "VAT %" := GenJnlLine2."VAT %";
+        IsHandled := false;
+        OnBeforeUpdateVAT(GenJnlLine, IsHandled, Rec);
+        if not IsHandled then begin
+            GenJnlLine2.CopyFromGenJnlAllocation(Rec);
+            GenJnlLine2."Posting Date" := GenJnlLine."Posting Date";
+            GenJnlLine2.Validate("VAT Prod. Posting Group");
+            Amount := GenJnlLine2."Amount (LCY)";
+            "VAT Calculation Type" := GenJnlLine2."VAT Calculation Type";
+            "VAT Amount" := GenJnlLine2."VAT Amount";
+            "VAT %" := GenJnlLine2."VAT %";
+        end;
+        OnAfterUpdateVAT(GenJnlLine, GenJnlLine2, Rec);
     end;
 
     procedure GetCurrencyCode(): Code[10]
@@ -653,6 +659,16 @@ table 221 "Gen. Jnl. Allocation"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckGLAccount(var GLAccount: Record "G/L Account"; GenJnlAllocation: Record "Gen. Jnl. Allocation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateVAT(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean; var GenJnlAllocation: Record "Gen. Jnl. Allocation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateVAT(var GenJournalLine: Record "Gen. Journal Line"; GenJournalLine2: Record "Gen. Journal Line"; var GenJnlAllocation: Record "Gen. Jnl. Allocation")
     begin
     end;
 }

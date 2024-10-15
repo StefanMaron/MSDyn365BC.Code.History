@@ -1230,10 +1230,16 @@ table 370 "Excel Buffer"
         OpenExcel();
     end;
 
-    local procedure UpdateProgressDialog(var ExcelBufferDialogManagement: Codeunit "Excel Buffer Dialog Management"; var LastUpdate: DateTime; CurrentCount: Integer; TotalCount: Integer): Boolean
+    local procedure UpdateProgressDialog(var ExcelBufferDialogManagement: Codeunit "Excel Buffer Dialog Management"; var LastUpdate: DateTime; CurrentCount: Integer; TotalCount: Integer) Result: Boolean
     var
         CurrentTime: DateTime;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateProgressDialog(ExcelBufferDialogManagement, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         // Refresh at 100%, and every second in between 0% to 100%
         // Duration is measured in miliseconds -> 1 sec = 1000 ms
         CurrentTime := CurrentDateTime;
@@ -1379,6 +1385,11 @@ table 370 "Excel Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnWriteCellValueOnBeforeSetCellValue(var ExcelBuffer: Record "Excel Buffer"; var CellTextValue: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateProgressDialog(var ExcelBufferDialogManagement: Codeunit "Excel Buffer Dialog Management"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

@@ -339,7 +339,7 @@ codeunit 22 "Item Jnl.-Post Line"
                 "Item Shpt. Entry No." := GlobalItemLedgEntry."Entry No.";
         end;
 
-        OnAfterPostItemJnlLine(ItemJnlLine, GlobalItemLedgEntry, ValueEntryNo, InventoryPostingToGL, CalledFromAdjustment, CalledFromInvtPutawayPick, ItemReg, ItemLedgEntryNo, ItemApplnEntryNo);
+        OnAfterPostItemJnlLine(ItemJnlLine, GlobalItemLedgEntry, ValueEntryNo, InventoryPostingToGL, CalledFromAdjustment, CalledFromInvtPutawayPick, ItemReg, ItemLedgEntryNo, ItemApplnEntryNo, WhseJnlRegisterLine);
     end;
 
     procedure PostSplitJnlLine(var ItemJnlLineToPost: Record "Item Journal Line"; TrackingSpecExists: Boolean): Boolean
@@ -552,6 +552,7 @@ codeunit 22 "Item Jnl.-Post Line"
 
             CalcDirAndIndirCostAmts(DirCostAmt, IndirCostAmt, ValuedQty, ItemJnlLine);
 
+            OnPostOutputOnBeforeInsertCostValueEntries(ItemJnlLine, CapLedgEntry, ValuedQty, DirCostAmt, IndirCostAmt);
             InsertCapValueEntry(CapLedgEntry, "Value Entry Type"::"Direct Cost", ValuedQty, ValuedQty, DirCostAmt);
             InsertCapValueEntry(CapLedgEntry, "Value Entry Type"::"Indirect Cost", ValuedQty, 0, IndirCostAmt);
 
@@ -1329,7 +1330,10 @@ codeunit 22 "Item Jnl.-Post Line"
                             ValuateAppliedAvgEntry(GlobalValueEntry, Item);
                 end;
 
-            InsertValueEntry(GlobalValueEntry, GlobalItemLedgEntry, false);
+            IsHandled := false;
+            OnItemValuePostingOnBeforeInsertValueEntry(ItemJnlLine, IsHandled);
+            if not IsHandled then
+                InsertValueEntry(GlobalValueEntry, GlobalItemLedgEntry, false);
 
             OnItemValuePostingOnAfterInsertValueEntry(GlobalValueEntry, GlobalItemLedgEntry, ValueEntryNo);
 
@@ -1647,7 +1651,7 @@ codeunit 22 "Item Jnl.-Post Line"
                     ItemCostMgt.UpdateUnitCost(Item, "Location Code", "Variant Code", LastDirectCost, 0, UpdateSKU, true, false, 0);
                 end;
             end;
-        OnAfterUpdateUnitCost(ValueEntry, LastDirectCost, ItemJnlLine);
+        OnAfterUpdateUnitCost(ValueEntry, LastDirectCost, ItemJnlLine, Item);
     end;
 
     procedure UnApply(ItemApplnEntry: Record "Item Application Entry")
@@ -2345,7 +2349,7 @@ codeunit 22 "Item Jnl.-Post Line"
 
             UpdateUnitCost(NewValueEntry);
 
-            OnAfterInsertTransferEntry(ItemJnlLine, NewItemLedgEntry, OldItemLedgEntry);
+            OnAfterInsertTransferEntry(ItemJnlLine, NewItemLedgEntry, OldItemLedgEntry, NewValueEntry, ValueEntryNo);
         end;
     end;
 
@@ -3407,6 +3411,7 @@ codeunit 22 "Item Jnl.-Post Line"
                 then begin
                     "Applied Entry to Adjust" := true;
                     ModifyEntry := true;
+                    OnUpdateItemLedgerEntryOnAfterSetAppliedEntryToAdjust(ItemLedgEntry);
                 end;
 
                 if (ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Direct Cost") and
@@ -3454,6 +3459,8 @@ codeunit 22 "Item Jnl.-Post Line"
 
         AvgCostEntryPointHandler.LockBuffer();
         AvgCostEntryPointHandler.UpdateValuationDate(ValueEntry);
+
+        OnAfterUpdateAvgCostAdjmtBuffer(OldItemLedgEntry, ValueEntry, ValuationDate);
     end;
 
     local procedure UpdateOutboundItemLedgEntry(OutboundItemEntryNo: Integer)
@@ -4903,6 +4910,8 @@ codeunit 22 "Item Jnl.-Post Line"
                 ItemVariant.Init();
         end else
             Item.Init();
+
+        OnAfterCheckItemAndVariant(ItemJnlLine, CalledFromAdjustment);
     end;
 
     procedure CheckItemTracking()
@@ -6623,7 +6632,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterPostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntryNo: Integer; var InventoryPostingToGL: Codeunit "Inventory Posting To G/L"; CalledFromAdjustment: Boolean; CalledFromInvtPutawayPick: Boolean; var ItemRegister: Record "Item Register"; var ItemLedgEntryNo: Integer; var ItemApplnEntryNo: Integer)
+    local procedure OnAfterPostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntryNo: Integer; var InventoryPostingToGL: Codeunit "Inventory Posting To G/L"; CalledFromAdjustment: Boolean; CalledFromInvtPutawayPick: Boolean; var ItemRegister: Record "Item Register"; var ItemLedgEntryNo: Integer; var ItemApplnEntryNo: Integer; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line")
     begin
     end;
 
@@ -6743,7 +6752,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateUnitCost(ValueEntry: Record "Value Entry"; LastDirectCost: Decimal; ItemJournalLine: Record "Item Journal Line")
+    local procedure OnAfterUpdateUnitCost(ValueEntry: Record "Value Entry"; LastDirectCost: Decimal; ItemJournalLine: Record "Item Journal Line"; var Item: Record Item)
     begin
     end;
 
@@ -6939,8 +6948,8 @@ codeunit 22 "Item Jnl.-Post Line"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertTransferEntry(var ItemJournalLine: Record "Item Journal Line"; NewItemLedgerEntry: Record "Item Ledger Entry"; OldItemLedgerEntry: Record "Item Ledger Entry")
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInsertTransferEntry(var ItemJournalLine: Record "Item Journal Line"; NewItemLedgerEntry: Record "Item Ledger Entry"; OldItemLedgerEntry: Record "Item Ledger Entry"; NewValueEntry: Record "Value Entry"; var ValueEntryNo: Integer)
     begin
     end;
 
@@ -8235,6 +8244,31 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckItemAndItemVariant(ItemNo: Code[20]; VariantCode: Code[10]; var Item: Record Item; var ItemVariant: Record "Item Variant"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemValuePostingOnBeforeInsertValueEntry(ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateItemLedgerEntryOnAfterSetAppliedEntryToAdjust(ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateAvgCostAdjmtBuffer(var OldItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; var ValuationDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckItemAndVariant(var ItemJournalLine: Record "Item Journal Line"; CalledFromAdjustment: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostOutputOnBeforeInsertCostValueEntries(var ItemJournalLine: Record "Item Journal Line"; var CapacityLedgerEntry: Record "Capacity Ledger Entry"; ValuedQty: Decimal; var DirCostAmt: Decimal; var IndirCostAmt: Decimal)
     begin
     end;
 }

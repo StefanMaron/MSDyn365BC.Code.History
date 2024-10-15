@@ -1023,6 +1023,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
         ValueEntry: Record "Value Entry";
         RndgCost: Decimal;
         RndgCostACY: Decimal;
+        IsHandled: Boolean;
     begin
         if IsRndgAllowed(InbndItemLedgEntry, AppliedQty) then
             with InbndItemLedgEntry do begin
@@ -1038,6 +1039,9 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
                     RndgCost := -(ValueEntry."Cost Amount (Actual)" + TempRndgResidualBuf."Adjusted Cost");
                     RndgCostACY := -(ValueEntry."Cost Amount (Actual) (ACY)" + TempRndgResidualBuf."Adjusted Cost (ACY)");
 
+                IsHandled := false;
+                OnEliminateRndgResidualOnBeforeCheckHasNewCost(InbndItemLedgEntry, ValueEntry, RndgCost, RndgCostACY, IsHandled);
+                if not IsHandled then
                     if HasNewCost(RndgCost, RndgCostACY) then begin
                         ValueEntry.Reset();
                         ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
@@ -1304,6 +1308,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
                 end else begin
                     "Actual Cost" := "Actual Cost" - TempOldCostElementBuf."Actual Cost";
                     "Actual Cost (ACY)" := "Actual Cost (ACY)" - TempOldCostElementBuf."Actual Cost (ACY)";
+                    OnAdjustOutbndAvgEntryOnNewCostElementBuf(OutbndValueEntry);
                 end;
                 if UpdateAdjmtBuf(
                      OutbndValueEntry, "Actual Cost", "Actual Cost (ACY)", OutbndItemLedgEntry."Posting Date", OutbndValueEntry."Entry Type")
@@ -1346,6 +1351,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
 
                 RoundingError := 0;
                 RoundingErrorACY := 0;
+                OnCalcAvgCostOnAfterAssignRoundingError(RoundingError, RoundingErrorACY, CostElementBuf);
 
                 ExcludeAvgCostOnValuationDate(CostElementBuf, OutbndValueEntry, ExcludedValueEntry);
                 AvgCostBuf.UpdateAvgCostBuffer(
@@ -1781,6 +1787,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
         UpdateValuationPeriodHasOutput(OrigValueEntry);
 
         TempInvtAdjmtBuf.AddActualCostBuf(OrigValueEntry, NewAdjustedCost, NewAdjustedCostACY, ItemLedgEntryPostingDate);
+        OnUpdateAdjmtBufOnAfterAddActualCostBuf(OrigValueEntry, NewAdjustedCost, NewAdjustedCostACY, ItemLedgEntryPostingDate, TempInvtAdjmtBuf);
 
         if EntryType = OrigValueEntry."Entry Type"::Variance then begin
             GetOrigValueEntry(SourceOrigValueEntry, OrigValueEntry, EntryType);
@@ -3188,6 +3195,26 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateWindowOnAfterOpenWindow(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAvgCostOnAfterAssignRoundingError(var RoundingError: Decimal; var RoundingErrorACY: Decimal; var CostElementBuffer: Record "Cost Element Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAdjustOutbndAvgEntryOnNewCostElementBuf(var OutbndValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAdjmtBufOnAfterAddActualCostBuf(OrigValueEntry: Record "Value Entry"; NewAdjustedCost: Decimal; NewAdjustedCostACY: Decimal; ItemLedgEntryPostingDate: Date; TempInventoryAdjustmentBuffer: Record "Inventory Adjustment Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnEliminateRndgResidualOnBeforeCheckHasNewCost(InbndItemLedgerEntry: Record "Item Ledger Entry"; ValueEntry: Record "Value Entry"; RndgCost: Decimal; RndgCostACY: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

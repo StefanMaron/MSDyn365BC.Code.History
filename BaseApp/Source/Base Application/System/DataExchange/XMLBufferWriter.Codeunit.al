@@ -194,6 +194,8 @@ codeunit 1235 "XML Buffer Writer"
                        XmlNodeType.Equals(XmlNodeType.Comment)
                     then
                         ;
+
+        OnAfterReadAndInsertXmlElement(XMLBuffer, ParentXMLBuffer, ElementNumber, InsertedXMLBufferElement, ProcessingInstructionNumber);
     end;
 
     local procedure ProcessXmlElement(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer"; ElementNumber: Integer; var InsertedXMLBufferElement: Record "XML Buffer")
@@ -461,6 +463,11 @@ codeunit 1235 "XML Buffer Writer"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertElementOnBeforeInsertXMLBuffer(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer"; ElementNumber: Integer; ElementDepth: Integer; var ElementNameAndNamespace: Text; var ElementValue: Text);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReadAndInsertXmlElement(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer"; var ElementNumber: Integer; var InsertedXMLBufferElement: Record "XML Buffer"; var ProcessingInstructionNumber: Integer);
     begin
     end;
 }

@@ -603,7 +603,14 @@ page 104 "Account Schedule"
     end;
 
     procedure SetupAccSchedLine(var AccSchedLine: Record "Acc. Schedule Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetupAccSchedLine(Rec, xRec, AccSchedLine, CurrentSchedName, IsHandled);
+        if IsHandled then
+            exit;
+
         AccSchedLine := Rec;
         if Rec."Line No." = 0 then begin
             AccSchedLine := xRec;
@@ -626,6 +633,11 @@ page 104 "Account Schedule"
     procedure GetAccSchedName(): Code[10]
     begin
         exit(CurrentSchedName);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetupAccSchedLine(var RecAccScheduleLine: Record "Acc. Schedule Line"; var xRecAccScheduleLine: Record "Acc. Schedule Line"; var AccScheduleLine: Record "Acc. Schedule Line"; CurrentSchedName: Code[20]; var IsHandled: Boolean)
+    begin
     end;
 }
 

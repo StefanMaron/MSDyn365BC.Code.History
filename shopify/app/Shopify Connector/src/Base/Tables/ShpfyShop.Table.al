@@ -808,7 +808,12 @@ table 30102 "Shpfy Shop"
         end;
     end;
 
-    internal procedure GetLastSyncTime(Type: Enum "Shpfy Synchronization Type"): DateTime
+    internal procedure GetEmptySyncTime(): DateTime
+    begin
+        exit(CreateDateTime(20040101D, 0T));
+    end;
+
+   internal procedure GetLastSyncTime(Type: Enum "Shpfy Synchronization Type"): DateTime
     var
         SynchronizationInfo: Record "Shpfy Synchronization Info";
     begin
@@ -818,11 +823,17 @@ table 30102 "Shpfy Shop"
                 Rec.Modify();
             end;
             if SynchronizationInfo.Get(Format(Rec."Shop Id"), Type) then
-                exit(SynchronizationInfo."Last Sync Time");
+                if SynchronizationInfo."Last Sync Time" = 0DT then
+                    exit(GetEmptySyncTime())
+                else
+                    exit(SynchronizationInfo."Last Sync Time");
         end;
         if SynchronizationInfo.Get(Rec.Code, Type) then
-            exit(SynchronizationInfo."Last Sync Time");
-        exit(0DT);
+            if SynchronizationInfo."Last Sync Time" = 0DT then
+                exit(GetEmptySyncTime())
+            else
+                exit(SynchronizationInfo."Last Sync Time");
+        exit(GetEmptySyncTime());
     end;
 
     internal procedure SetLastSyncTime(Type: Enum "Shpfy Synchronization Type")

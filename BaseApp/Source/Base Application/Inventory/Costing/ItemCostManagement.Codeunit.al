@@ -448,6 +448,7 @@ codeunit 5804 ItemCostManagement
         OpenInbndItemLedgEntry.SetRange(Positive, true);
         OpenInbndItemLedgEntry.SetRange("Location Code", Item.GetFilter("Location Filter"));
         OpenInbndItemLedgEntry.SetRange("Variant Code", Item.GetFilter("Variant Filter"));
+        OnCalculatePreciseCostAmountsOnAfterFilterOpenInboundItemLedgerEntry(OpenInbndItemLedgEntry, Item);
         if OpenInbndItemLedgEntry.FindSet() then
             repeat
                 TempItemLedgerEntry := OpenInbndItemLedgEntry;
@@ -743,6 +744,11 @@ codeunit 5804 ItemCostManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateAverageCostOnAfterCalculateAverage(var Item: Record Item; var AverageCost: Decimal; var AverageCostACY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculatePreciseCostAmountsOnAfterFilterOpenInboundItemLedgerEntry(OpenInbndItemLedgerEntry: Record "Item Ledger Entry"; var Item: Record Item)
     begin
     end;
 }

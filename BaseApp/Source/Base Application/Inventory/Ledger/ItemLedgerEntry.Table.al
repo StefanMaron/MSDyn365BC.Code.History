@@ -572,6 +572,7 @@ table 32 "Item Ledger Entry"
         }
         key(Key9; "Document No.", "Document Type", "Document Line No.")
         {
+            IncludedFields = "Entry Type";
         }
         key(Key12; "Order Type", "Order No.", "Order Line No.", "Entry Type", "Prod. Order Comp. Line No.")
         {
