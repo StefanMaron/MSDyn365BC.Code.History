@@ -14,10 +14,6 @@ codeunit 363 "PostSales-Delete"
     end;
 
     var
-        SalesShptLine: Record "Sales Shipment Line";
-        SalesInvLine: Record "Sales Invoice Line";
-        SalesCrMemoLine: Record "Sales Cr.Memo Line";
-        SalesRcptLine: Record "Return Receipt Line";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         MoveEntries: Codeunit MoveEntries;
         DocumentDeletionErr: Label 'You cannot delete posted sales documents that are posted after %1. \\The date is defined by the Allow Document Deletion Before field in the Sales & Receivables Setup window.', Comment = '%1 - Posting Date';
@@ -105,6 +101,9 @@ codeunit 363 "PostSales-Delete"
     end;
 
     procedure DeleteSalesShptLines(SalesShptHeader: Record "Sales Shipment Header")
+    var
+        SalesShptLine: Record "Sales Shipment Line";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
     begin
         SalesShptLine.SetRange("Document No.", SalesShptHeader."No.");
         if SalesShptLine.Find('-') then
@@ -113,6 +112,10 @@ codeunit 363 "PostSales-Delete"
                 SalesShptLine.TestField("Quantity Invoiced", SalesShptLine.Quantity);
                 SalesShptLine.Delete(true);
             until SalesShptLine.Next() = 0;
+
+        ItemChargeAssignmentSales.CheckAssignment(
+            "Sales Applies-to Document Type"::Shipment, SalesShptLine."Document No.", SalesShptLine."Line No.");
+
         ItemTrackingMgt.DeleteItemEntryRelation(
           DATABASE::"Sales Shipment Line", 0, SalesShptHeader."No.", '', 0, 0, true);
 
@@ -120,19 +123,23 @@ codeunit 363 "PostSales-Delete"
     end;
 
     procedure DeleteSalesInvLines(SalesInvHeader: Record "Sales Invoice Header")
+    var
+        SalesInvLine: Record "Sales Invoice Line";
     begin
         SalesInvLine.SetRange("Document No.", SalesInvHeader."No.");
         if SalesInvLine.Find('-') then
             repeat
                 OnDeleteSalesInvLinesOnBeforeSalesInvLineDelete(SalesInvLine);
                 SalesInvLine.Delete();
-                ItemTrackingMgt.DeleteValueEntryRelation(SalesInvLine.RowID1);
+                ItemTrackingMgt.DeleteValueEntryRelation(SalesInvLine.RowID1());
             until SalesInvLine.Next() = 0;
 
         MoveEntries.MoveDocRelatedEntries(DATABASE::"Sales Invoice Header", SalesInvHeader."No.");
     end;
 
     procedure DeleteSalesCrMemoLines(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    var
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
         SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
         if SalesCrMemoLine.Find('-') then
@@ -147,14 +154,21 @@ codeunit 363 "PostSales-Delete"
     end;
 
     procedure DeleteSalesRcptLines(ReturnRcptHeader: Record "Return Receipt Header")
+    var
+        ReturnRcptLine: Record "Return Receipt Line";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
     begin
-        SalesRcptLine.SetRange("Document No.", ReturnRcptHeader."No.");
-        if SalesRcptLine.Find('-') then
+        ReturnRcptLine.SetRange("Document No.", ReturnRcptHeader."No.");
+        if ReturnRcptLine.Find('-') then
             repeat
-                OnDeleteSalesRcptLinesOnBeforeSalesRcptLineDelete(SalesRcptLine);
-                SalesRcptLine.TestField("Quantity Invoiced", SalesRcptLine.Quantity);
-                SalesRcptLine.Delete();
-            until SalesRcptLine.Next() = 0;
+                OnDeleteSalesRcptLinesOnBeforeSalesRcptLineDelete(ReturnRcptLine);
+                ReturnRcptLine.TestField("Quantity Invoiced", ReturnRcptLine.Quantity);
+                ReturnRcptLine.Delete();
+            until ReturnRcptLine.Next() = 0;
+
+        ItemChargeAssignmentSales.CheckAssignment(
+            "Sales Applies-to Document Type"::"Return Receipt", ReturnRcptLine."Document No.", ReturnRcptLine."Line No.");
+
         ItemTrackingMgt.DeleteItemEntryRelation(
           DATABASE::"Return Receipt Line", 0, ReturnRcptHeader."No.", '', 0, 0, true);
 
