@@ -2,7 +2,7 @@
     "id":  "5b061701-dae6-48cc-bc16-8c4761a2baf5",
     "name":  "Tests-SINGLESERVER",
     "publisher":  "Microsoft",
-    "version":  "22.14.64410.0",
+    "version":  "22.14.64503.0",
     "platform":  "22.0.0.0",
     "dependencies":  [
                          {
