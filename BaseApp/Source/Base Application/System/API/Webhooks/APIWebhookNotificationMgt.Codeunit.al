@@ -677,7 +677,7 @@ codeunit 6153 "API Webhook Notification Mgt."
     begin
         if not (JobQueueEntry.WritePermission() and JobQueueEntry.ReadPermission()) then
             exit(false);
-        if not (JobQueueEntry.TryCheckRequiredPermissions()) then
+        if not (JobQueueEntry.HasRequiredPermissions()) then
             exit(false);
         OnCanCreateTask(Handled, CanCreateTask);
         if Handled then

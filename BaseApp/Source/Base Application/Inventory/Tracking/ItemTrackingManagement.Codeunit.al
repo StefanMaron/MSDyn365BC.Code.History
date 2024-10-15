@@ -881,15 +881,15 @@ codeunit 6500 "Item Tracking Management"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        ItemLedgerEntry.Reset();
-        ItemLedgerEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive);
+        ItemLedgerEntry.SetCurrentKey("Serial No.", "Item No.", Open, "Variant Code", Positive);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange(Open, true);
         ItemLedgerEntry.SetRange("Variant Code", VariantCode);
         ItemLedgerEntry.SetRange(Positive, true);
         if SerialNo <> '' then
             ItemLedgerEntry.SetRange("Serial No.", SerialNo);
-        exit(ItemLedgerEntry.FindFirst())
+
+        exit(not ItemLedgerEntry.IsEmpty());
     end;
 
     procedure SplitWhseJnlLine(TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var TempWhseJnlLine2: Record "Warehouse Journal Line" temporary; var TempWhseSplitTrackingSpec: Record "Tracking Specification" temporary; ToTransfer: Boolean)
@@ -2619,6 +2619,8 @@ codeunit 6500 "Item Tracking Management"
 
     procedure CopyItemLedgEntryTrkgToTransferLine(var ItemLedgEntryBuf: Record "Item Ledger Entry"; ToTransferLine: Record "Transfer Line")
     var
+        ReservEntry: Record "Reservation Entry";
+        ToReservEntry: Record "Reservation Entry";
         QtyBase: Decimal;
         SignFactor: Integer;
         EntriesExist: Boolean;
@@ -2628,12 +2630,16 @@ codeunit 6500 "Item Tracking Management"
 
         SignFactor := -1;
 
-        with ItemLedgEntryBuf do
-            if FindSet() then
-                repeat
-                    QtyBase := "Remaining Quantity" * SignFactor;
-                    InsertReservEntryForTransferLine(ItemLedgEntryBuf, ToTransferLine, QtyBase, EntriesExist);
-                until Next() = 0;
+        if ItemLedgEntryBuf.FindSet() then
+            repeat
+                QtyBase := ItemLedgEntryBuf."Remaining Quantity" * SignFactor;
+                InsertReservEntryToOutboundTransferLine(ReservEntry, ItemLedgEntryBuf, ToTransferLine, QtyBase, EntriesExist);
+            until ItemLedgEntryBuf.Next() = 0;
+
+        // push item tracking to the inbound transfer
+        ToReservEntry := ReservEntry;
+        ToReservEntry."Source Subtype" := 1;
+        SynchronizeItemTrackingByPtrs(ReservEntry, ToReservEntry);
     end;
 
     procedure SynchronizeWhseActivItemTrkg(WhseActivLine: Record "Warehouse Activity Line")
@@ -2851,7 +2857,10 @@ codeunit 6500 "Item Tracking Management"
                 QtyToHandleOnSourceDocLine := ReservMgt.GetSourceRecordValue(ReservEntry, false, 0);
 
                 IsHandled := false;
+                // Please use next event OnRegisterNewItemTrackingLinesOnBeforeCannotMatchItemTrackingError instead
                 OnRegisterNewItemTrackingLinesOnBeforeCannotMatchItemTrackingErr(
+                    TempTrackingSpec, QtyToHandleToNewRegister, QtyToHandleInItemTracking, QtyToHandleOnSourceDocLine, IsHandled);
+                OnRegisterNewItemTrackingLinesOnBeforeCannotMatchItemTrackingError(
                     TempTrackingSpec, QtyToHandleToNewRegister, QtyToHandleInItemTracking, QtyToHandleOnSourceDocLine, IsHandled);
                 if not IsHandled then
                     if QtyToHandleToNewRegister + QtyToHandleInItemTracking > QtyToHandleOnSourceDocLine then
@@ -3261,27 +3270,18 @@ codeunit 6500 "Item Tracking Management"
         end;
     end;
 
-    local procedure InsertReservEntryForTransferLine(ItemLedgEntryBuf: Record "Item Ledger Entry"; TransferLine: Record "Transfer Line"; QtyBase: Decimal; var EntriesExist: Boolean)
-    var
-        ReservEntry: Record "Reservation Entry";
-        ToReservEntry: Record "Reservation Entry";
+    local procedure InsertReservEntryToOutboundTransferLine(var ReservEntry: Record "Reservation Entry"; ItemLedgEntryBuf: Record "Item Ledger Entry"; TransferLine: Record "Transfer Line"; QtyBase: Decimal; var EntriesExist: Boolean)
     begin
         if not ItemLedgEntryBuf.TrackingExists() or (QtyBase = 0) then
             exit;
 
-        with ReservEntry do begin
-            InitReservEntry(ReservEntry, ItemLedgEntryBuf, QtyBase, TransferLine."Shipment Date", EntriesExist);
-            SetSource(Database::"Transfer Line", 0, TransferLine."Document No.", TransferLine."Line No.", '', 0);
-            "Reservation Status" := "Reservation Status"::Surplus;
-            Description := TransferLine.Description;
-            UpdateItemTracking();
-            Insert();
-        end;
-
-        // push item tracking to the inbound transfer
-        ToReservEntry := ReservEntry;
-        ToReservEntry."Source Subtype" := 1;
-        SynchronizeItemTrackingByPtrs(ReservEntry, ToReservEntry);
+        Clear(ReservEntry);
+        InitReservEntry(ReservEntry, ItemLedgEntryBuf, QtyBase, TransferLine."Shipment Date", EntriesExist);
+        ReservEntry.SetSource(Database::"Transfer Line", 0, TransferLine."Document No.", TransferLine."Line No.", '', 0);
+        ReservEntry."Reservation Status" := ReservEntry."Reservation Status"::Surplus;
+        ReservEntry.Description := TransferLine.Description;
+        ReservEntry.UpdateItemTracking();
+        ReservEntry.Insert();
     end;
 
     procedure InsertReservEntryFromTrackingSpec(TrackingSpecification: Record "Tracking Specification"; SourceSubtype: Option; SourceID: Code[20]; SourceRefNo: Integer; QtyBase: Decimal)
@@ -4162,8 +4162,14 @@ codeunit 6500 "Item Tracking Management"
     begin
     end;
 
+    // Event obsoleted in 24.0 and replaced by event OnRegisterNewItemTrackingLinesOnBeforeCannotMatchItemTrackingError
     [IntegrationEvent(false, false)]
     local procedure OnRegisterNewItemTrackingLinesOnBeforeCannotMatchItemTrackingErr(var empTrackingSpecification: Record "Tracking Specification" temporary; var tyToHandleToNewRegister: Decimal; var QtyToHandleInItemTrackin: Decimal; varQtyToHandleOnSourceDocLine: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRegisterNewItemTrackingLinesOnBeforeCannotMatchItemTrackingError(var TempTrackingSpecification: Record "Tracking Specification" temporary; var QtyToHandleToNewRegister: Decimal; var QtyToHandleInItemTracking: Decimal; var QtyToHandleOnSourceDocLine: Decimal; var IsHandled: Boolean)
     begin
     end;
 

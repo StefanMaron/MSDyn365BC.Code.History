@@ -1585,7 +1585,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                     end;
 
                     // Common balancing
-                    OnBeforeCommonBalancing(TempSKU, DemandInvtProfile, SupplyInvtProfile, PlanningStartDate, ToDate, NewSupplyHasTakenOver, NeedOfPublishSurplus);
+                    OnBeforeCommonBalancing(TempSKU, DemandInvtProfile, SupplyInvtProfile, PlanningStartDate, ToDate, NewSupplyHasTakenOver, NeedOfPublishSurplus, FutureSupplyWithinLeadtime, OverflowLevel);
                     DemandInvtProfile.SetRange("Due Date", PlanningStartDate, ToDate);
 
                     DemandExists := DemandInvtProfile.FindSet();
@@ -5444,7 +5444,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCommonBalancing(var TempSKU: Record "Stockkeeping Unit" temporary; var DemandInvtProfile: Record "Inventory Profile"; var SupplyInvtProfile: Record "Inventory Profile"; PlanningStartDate: Date; ToDate: Date; var NewSupplyHasTakenOver: Boolean; var NeedOfPublishSurplus: Boolean)
+    local procedure OnBeforeCommonBalancing(var TempSKU: Record "Stockkeeping Unit" temporary; var DemandInvtProfile: Record "Inventory Profile"; var SupplyInvtProfile: Record "Inventory Profile"; PlanningStartDate: Date; ToDate: Date; var NewSupplyHasTakenOver: Boolean; var NeedOfPublishSurplus: Boolean; var FutureSupplyWithinLeadtime: Decimal; var OverflowLevel: Decimal)
     begin
     end;
 

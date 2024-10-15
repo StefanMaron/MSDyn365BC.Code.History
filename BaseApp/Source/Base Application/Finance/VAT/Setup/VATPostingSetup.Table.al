@@ -301,7 +301,13 @@ table 325 "VAT Posting Setup"
     local procedure CheckSetupUsage()
     var
         GLEntry: Record "G/L Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckSetupUsage(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GLEntry.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
         GLEntry.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
         if not GLEntry.IsEmpty() then
@@ -485,6 +491,11 @@ table 325 "VAT Posting Setup"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetSalesAccount(var VATPostingSetup: Record "VAT Posting Setup"; Unrealized: Boolean; var SalesVATAccountNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSetupUsage(var VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean)
     begin
     end;
 }
