@@ -26,14 +26,13 @@ table 5199 Attendee
             begin
                 if "Attendance Type" = "Attendance Type"::"To-do Organizer" then
                     "Send Invitation" := true
-                else begin
+                else
                     if "Attendee Type" = "Attendee Type"::Contact then begin
                         if Cont.Get("Attendee No.") then
                             "Send Invitation" := Cont."E-Mail" <> '';
                     end else
                         if Salesperson.Get("Attendee No.") then
                             "Send Invitation" := Salesperson."E-Mail" <> '';
-                end
             end;
         }
         field(4; "Attendee Type"; Option)
@@ -161,7 +160,7 @@ table 5199 Attendee
 
     trigger OnModify()
     var
-        Task: Record "To-do";
+        Task2: Record "To-do";
     begin
         ValidateAttendee(Rec, Attendee);
         if xRec."Attendance Type" = "Attendance Type"::"To-do Organizer" then begin
@@ -171,9 +170,9 @@ table 5199 Attendee
                 Error(Text008);
         end else
             if "Attendee No." <> xRec."Attendee No." then begin
-                Task.DeleteAttendeeTask(xRec);
-                Task.Get("To-do No.");
-                Task.CreateSubTask(Rec, Task);
+                Task2.DeleteAttendeeTask(xRec);
+                Task2.Get("To-do No.");
+                Task2.CreateSubTask(Rec, Task2);
             end else
                 if (xRec."Invitation Response Type" <> "Invitation Response Type") or
                    (xRec."Invitation Sent" <> "Invitation Sent")
@@ -182,11 +181,12 @@ table 5199 Attendee
     end;
 
     var
+        Attendee: Record Attendee;
+        Task: Record "To-do";
+
         Text001: Label 'A task organizer must always be a salesperson.';
         Text002: Label 'You cannot have more than one task organizer.';
         Text003: Label 'This attendee already exists.';
-        Attendee: Record Attendee;
-        Task: Record "To-do";
         Text004: Label 'You cannot select the %1 for %2 because he/she does not have an email address.', Comment = '%1 = field caption for Send Invitation, %2 = Salesperson Name';
         Text005: Label 'You cannot delete a task organizer.';
         CannotChangeForTaskOrgErr: Label 'You cannot change an %1 for a task organizer.', Comment = '%1 = Attendance Type';
@@ -244,7 +244,7 @@ table 5199 Attendee
     local procedure ValidateOrganizer(AttendeeNo: Code[20]; AttendanceType: Integer; AttendeeType: Integer; TodoNo: Code[20])
     var
         SalesPurchPerson: Record "Salesperson/Purchaser";
-        Task: Record "To-do";
+        Task2: Record "To-do";
     begin
         if AttendanceType <> Attendee."Attendance Type"::"To-do Organizer" then
             exit;
@@ -253,9 +253,9 @@ table 5199 Attendee
             Error(Text001);
 
         SalesPurchPerson.Get(AttendeeNo);
-        Task.Init();
-        if Task.Get(TodoNo) then;
-        if (SalesPurchPerson."E-Mail" = '') and (Task.Type <> Task.Type::"Phone Call") then
+        Task2.Init();
+        if Task2.Get(TodoNo) then;
+        if (SalesPurchPerson."E-Mail" = '') and (Task2.Type <> Task2.Type::"Phone Call") then
             Error(Text011, SalesPurchPerson.Name);
     end;
 }

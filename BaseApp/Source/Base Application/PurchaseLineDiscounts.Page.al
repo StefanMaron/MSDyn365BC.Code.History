@@ -1,8 +1,8 @@
-#if not CLEAN19
+#if not CLEAN21
 page 7014 "Purchase Line Discounts"
 {
     Caption = 'Purchase Line Discounts';
-    DataCaptionExpression = GetCaption;
+    DataCaptionExpression = GetCaption();
     DelayedInsert = true;
     PageType = Worksheet;
     SourceTable = "Purchase Line Discount";
@@ -28,8 +28,8 @@ page 7014 "Purchase Line Discounts"
                         VendList: Page "Vendor List";
                     begin
                         VendList.LookupMode := true;
-                        if VendList.RunModal = ACTION::LookupOK then
-                            Text := VendList.GetSelectionFilter
+                        if VendList.RunModal() = ACTION::LookupOK then
+                            Text := VendList.GetSelectionFilter()
                         else
                             exit(false);
 
@@ -38,7 +38,7 @@ page 7014 "Purchase Line Discounts"
 
                     trigger OnValidate()
                     begin
-                        VendNoFilterOnAfterValidate;
+                        VendNoFilterOnAfterValidate();
                     end;
                 }
                 field(ItemNoFilterCtrl; ItemNoFilter)
@@ -52,8 +52,8 @@ page 7014 "Purchase Line Discounts"
                         ItemList: Page "Item List";
                     begin
                         ItemList.LookupMode := true;
-                        if ItemList.RunModal = ACTION::LookupOK then
-                            Text := ItemList.GetSelectionFilter
+                        if ItemList.RunModal() = ACTION::LookupOK then
+                            Text := ItemList.GetSelectionFilter()
                         else
                             exit(false);
 
@@ -62,7 +62,7 @@ page 7014 "Purchase Line Discounts"
 
                     trigger OnValidate()
                     begin
-                        ItemNoFilterOnAfterValidate;
+                        ItemNoFilterOnAfterValidate();
                     end;
                 }
                 field(StartingDateFilter; StartingDateFilter)
@@ -76,56 +76,56 @@ page 7014 "Purchase Line Discounts"
                         FilterTokens: Codeunit "Filter Tokens";
                     begin
                         FilterTokens.MakeDateFilter(StartingDateFilter);
-                        StartingDateFilterOnAfterValid;
+                        StartingDateFilterOnAfterValid();
                     end;
                 }
             }
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the vendor who offers the line discount on the item.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the currency code of the purchase line discount price.';
                     Visible = false;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item that the purchase line discount applies to.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Minimum Quantity"; "Minimum Quantity")
+                field("Minimum Quantity"; Rec."Minimum Quantity")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the minimum quantity of the item that you must buy from the vendor in order to receive the purchase line discount.';
                 }
-                field("Line Discount %"; "Line Discount %")
+                field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the discount percentage that is granted for the item on the line.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date from which the purchase line discount is valid.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date to which the purchase line discount is valid.';
@@ -199,7 +199,7 @@ page 7014 "Purchase Line Discounts"
         SourceTableName: Text[250];
         Description: Text[250];
     begin
-        GetRecFilters;
+        GetRecFilters();
 
         if ItemNoFilter <> '' then
             SourceTableName := ObjTransl.TranslateObject(ObjTransl."Object Type"::Table, DATABASE::Item)
@@ -219,20 +219,20 @@ page 7014 "Purchase Line Discounts"
 
     local procedure VendNoFilterOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
-        SetRecFilters;
+        CurrPage.SaveRecord();
+        SetRecFilters();
     end;
 
     local procedure StartingDateFilterOnAfterValid()
     begin
-        CurrPage.SaveRecord;
-        SetRecFilters;
+        CurrPage.SaveRecord();
+        SetRecFilters();
     end;
 
     local procedure ItemNoFilterOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
-        SetRecFilters;
+        CurrPage.SaveRecord();
+        SetRecFilters();
     end;
 }
 #endif

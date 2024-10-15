@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2330 "BC O365 Business Info Settings"
 {
     Caption = ' ';
@@ -5,6 +6,9 @@ page 2330 "BC O365 Business Info Settings"
     PageType = CardPart;
     RefreshOnActivate = true;
     SourceTable = "Company Information";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -16,14 +20,14 @@ page 2330 "BC O365 Business Info Settings"
                 ShowCaption = false;
                 field(Name; Name)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     NotBlank = true;
                     ToolTip = 'Specifies the name of your company.';
                     Visible = false;
                 }
                 field(Picture; Picture)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Add your logo';
                     ToolTip = 'Specifies your company''s logo.';
                     Visible = false;
@@ -35,19 +39,19 @@ page 2330 "BC O365 Business Info Settings"
                 }
                 field(Address; Address)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies your company''s address.';
                     Visible = false;
                 }
-                field("Address 2"; "Address 2")
+                field("Address 2"; Rec."Address 2")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies additional address information.';
                     Visible = false;
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Lookup = false;
                     ToolTip = 'Specifies your company''s postal code.';
                     Visible = false;
@@ -61,7 +65,7 @@ page 2330 "BC O365 Business Info Settings"
                 }
                 field(City; City)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Lookup = false;
                     ToolTip = 'Specifies your company''s city.';
                     Visible = false;
@@ -75,7 +79,7 @@ page 2330 "BC O365 Business Info Settings"
                 }
                 field(County; County)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies your company''s county.';
                     Visible = false;
 
@@ -86,9 +90,9 @@ page 2330 "BC O365 Business Info Settings"
                         PostCode.UpdateFromCompanyInformation(Rec, false);
                     end;
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies your company''s country/region.';
                     Visible = false;
@@ -103,9 +107,9 @@ page 2330 "BC O365 Business Info Settings"
                         "Country/Region Code" := O365CountryRegion.Code;
                     end;
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies your company''s email address.';
                     Visible = false;
@@ -118,23 +122,23 @@ page 2330 "BC O365 Business Info Settings"
                             MailManagement.CheckValidEmailAddress("E-Mail");
                     end;
                 }
-                field("Home Page"; "Home Page")
+                field("Home Page"; Rec."Home Page")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies your company''s web site.';
                     Visible = false;
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Phone Number';
                     ToolTip = 'Specifies your company''s phone number.';
                     Visible = false;
                 }
             }
-            field("VAT Registration No."; "VAT Registration No.")
+            field("VAT Registration No."; Rec."VAT Registration No.")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
             }
         }
     }
@@ -150,11 +154,11 @@ page 2330 "BC O365 Business Info Settings"
 
     local procedure Initialize()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
         end;
     end;
 }
-
+#endif

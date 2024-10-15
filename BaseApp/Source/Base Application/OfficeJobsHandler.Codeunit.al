@@ -16,7 +16,7 @@ codeunit 1638 "Office Jobs Handler"
         RegEx: DotNet Regex;
         Match: DotNet Match;
     begin
-        if OfficeAddinContext.IsAppointment and (OfficeAddinContext.Subject <> '') then begin
+        if OfficeAddinContext.IsAppointment() and (OfficeAddinContext.Subject <> '') then begin
             Match := RegEx.Match(OfficeAddinContext.Subject, JobsRegExTxt);
             IsJob := Match.Success;
         end;
@@ -48,7 +48,7 @@ codeunit 1638 "Office Jobs Handler"
         JobTransferLine.FromPlanningLineToJnlLine(
           JobPlanningLine, JobPlanningLine."Planning Date", JobJournalTemplateName, JobJournalBatchName, JobJournalLine);
 
-        JobPlanningLine.Find;
+        JobPlanningLine.Find();
         TempOfficeJobJournal.Initialize(JobPlanningLine);
         PAGE.Run(PAGE::"Office Job Journal", TempOfficeJobJournal);
     end;

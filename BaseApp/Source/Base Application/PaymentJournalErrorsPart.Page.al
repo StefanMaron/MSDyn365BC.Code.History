@@ -11,7 +11,7 @@ page 1228 "Payment Journal Errors Part"
         {
             repeater(Group)
             {
-                field("Error Text"; "Error Text")
+                field("Error Text"; Rec."Error Text")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = true;

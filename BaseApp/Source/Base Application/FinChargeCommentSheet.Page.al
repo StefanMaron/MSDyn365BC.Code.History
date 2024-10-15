@@ -42,7 +42,7 @@ page 454 "Fin. Charge Comment Sheet"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetUpNewLine;
+        SetUpNewLine();
     end;
 
     var

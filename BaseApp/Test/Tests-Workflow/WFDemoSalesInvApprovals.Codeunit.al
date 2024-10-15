@@ -47,7 +47,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         // Setup
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode());
 
         LibrarySales.CreateSalesInvoice(SalesHeader);
 
@@ -77,7 +77,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         // Setup
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode());
 
         LibrarySales.CreateSalesInvoice(SalesHeader);
 
@@ -106,7 +106,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         Initialize();
 
         // [GIVEN] Sales Invoice Approval Workflow that has Approver code as the approver and Direct Approver as the limit type.
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode());
         LibraryWorkflow.SetWorkflowDirectApprover(Workflow.Code);
         LibraryWorkflow.EnableWorkflow(Workflow);
 
@@ -167,7 +167,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
 
         // Setup
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -213,7 +213,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
 
         // Setup
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -258,7 +258,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -315,7 +315,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -376,7 +376,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode());
 
         // Setup - Create 3 usersetups
         LibraryDocumentApprovals.CreateOrFindUserSetup(CurrentUserSetup, UserId);
@@ -453,7 +453,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -520,10 +520,10 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        SalesInvoice.Close;
+        SalesInvoice.Close();
 
         // [GIVEN] SalesHeader approval enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode());
 
         // [WHEN] SalesHeader card is opened.
         SalesInvoice.OpenEdit;
@@ -535,7 +535,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         Assert.IsFalse(SalesInvoice.Approve.Visible, 'Approve should NOT be visible');
         Assert.IsFalse(SalesInvoice.Reject.Visible, 'Reject should NOT be visible');
         Assert.IsFalse(SalesInvoice.Delegate.Visible, 'Delegate should NOT be visible');
-        SalesInvoice.Close;
+        SalesInvoice.Close();
 
         // [GIVEN] Approval exist on SalesHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
@@ -552,7 +552,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         Assert.IsTrue(SalesInvoice.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Clenup
-        SalesInvoice.Close;
+        SalesInvoice.Close();
 
         // Setup the approval so it can be approve by current user
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(SalesHeader.RecordId);
@@ -599,10 +599,10 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        SalesInvoiceList.Close;
+        SalesInvoiceList.Close();
 
         // [GIVEN] SalesHeader approval enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode());
 
         // [WHEN] SalesHeader card is opened.
         SalesInvoiceList.OpenEdit;
@@ -611,7 +611,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         // [THEN] Only Send is enabled.
         Assert.IsTrue(SalesInvoiceList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
         Assert.IsFalse(SalesInvoiceList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        SalesInvoiceList.Close;
+        SalesInvoiceList.Close();
 
         // [GIVEN] Approval exist on SalesHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
@@ -647,7 +647,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -713,7 +713,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -777,7 +777,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         // [GIVEN] SalesHeader with no lines.
         Initialize();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode());
 
         Commit();
         SalesInvoice.OpenEdit;
@@ -790,7 +790,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     [Test]
@@ -815,7 +815,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         // [GIVEN] Sales Invoice is sent for approval.
         ApprovalsMgmt.CheckSalesApprovalPossible(SalesHeader);
         ApprovalsMgmt.OnSendSalesDocForApproval(SalesHeader);
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField(Status, SalesHeader.Status::"Pending Approval");
 
         // [WHEN] Post Sales Invoice before approval request is approved/cancelled/rejected.
@@ -858,7 +858,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         ApprovalEntry.TestField(Status, ApprovalEntry.Status::Approved);
 
         // [WHEN] Post Sales Invoice.
-        SalesHeader.Find;
+        SalesHeader.Find();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] Sales Invoice is posted.
@@ -915,7 +915,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         SalesInvoice.OpenView;
         SalesInvoice.GotoRecord(SalesHeader);
         SalesInvoice.Post.Invoke;
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     local procedure PrepareSalesInvoiceCreditLimitWorkflowWithUsers()
@@ -933,7 +933,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
 
     local procedure RegetSalesDocument(var SalesHeader: Record "Sales Header")
     begin
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         SalesHeader.FindFirst();
     end;
 
@@ -944,7 +944,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         SalesInvoice.OpenView;
         SalesInvoice.GotoRecord(SalesHeader);
         SalesInvoice.SendApprovalRequest.Invoke;
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     local procedure VerifySalesInvIsReleased(var SalesHeader: Record "Sales Header")
@@ -1002,7 +1002,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         SalesInvoice.OpenView;
         SalesInvoice.GotoRecord(SalesHeader);
         SalesInvoice.Approve.Invoke;
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     local procedure RejectSalesInvoice(var SalesHeader: Record "Sales Header")
@@ -1012,7 +1012,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         SalesInvoice.OpenView;
         SalesInvoice.GotoRecord(SalesHeader);
         SalesInvoice.Reject.Invoke;
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     local procedure DelegateSalesInvoice(var SalesHeader: Record "Sales Header")
@@ -1022,7 +1022,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         SalesInvoice.OpenView;
         SalesInvoice.GotoRecord(SalesHeader);
         SalesInvoice.Delegate.Invoke;
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     local procedure CancelSalesInvoice(var SalesHeader: Record "Sales Header")
@@ -1032,7 +1032,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         SalesInvoice.OpenView;
         SalesInvoice.GotoRecord(SalesHeader);
         SalesInvoice.CancelApprovalRequest.Invoke;
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     local procedure SetSalesDocSalespersonCode(SalesHeader: Record "Sales Header"; SalespersonCode: Code[20])
@@ -1059,15 +1059,15 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
             if ApprovalComments.First then
                 repeat
                     NumberOfComments += 1;
-                until ApprovalComments.Next;
+                until ApprovalComments.Next();
             Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
             ApprovalComments.Comment.SetValue('Test Comment' + Format(NumberOfExpectedComments));
-            ApprovalComments.Next;
-            ApprovalComments.Close;
+            ApprovalComments.Next();
+            ApprovalComments.Close();
         end;
 
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -1085,12 +1085,12 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        ApprovalEntries.Close;
+        ApprovalEntries.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnRequestsToApprovePage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -1108,12 +1108,12 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        RequeststoApprove.Close;
+        RequeststoApprove.Close();
     end;
 
     local procedure CheckUserCanCancelTheApprovalRequest(SalesHeader: Record "Sales Header"; CancelActionExpectedEnabled: Boolean)
@@ -1124,12 +1124,12 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         SalesInvoice.OpenView;
         SalesInvoice.GotoRecord(SalesHeader);
         Assert.AreEqual(CancelActionExpectedEnabled, SalesInvoice.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
-        SalesInvoice.Close;
+        SalesInvoice.Close();
 
         SalesInvoiceList.OpenView;
         SalesInvoiceList.GotoRecord(SalesHeader);
         Assert.AreEqual(CancelActionExpectedEnabled, SalesInvoiceList.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
-        SalesInvoiceList.Close;
+        SalesInvoiceList.Close();
     end;
 
     [MessageHandler]

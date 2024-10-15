@@ -55,7 +55,7 @@ codeunit 131343 "Library - VAT Report"
             "Validate Codeunit ID" := ValidateCodeunitID;
             "Submission Codeunit ID" := SubmissionCodeunitID;
             "Response Handler Codeunit ID" := ResponseHandlerCodeunitID;
-            Insert;
+            Insert();
         end;
     end;
 }

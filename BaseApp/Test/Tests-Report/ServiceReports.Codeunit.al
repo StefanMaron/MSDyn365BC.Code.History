@@ -2199,7 +2199,7 @@ codeunit 136900 "Service Reports"
         FindServiceLedgerEntry(ServiceLedgerEntry, ServiceOrderNo);
         repeat
             AmountLCY += ServiceLedgerEntry."Amount (LCY)";
-        until ServiceLedgerEntry.Next = 0;
+        until ServiceLedgerEntry.Next() = 0;
     end;
 
     local procedure CalculateCostAmount(ServiceOrderNo: Code[20]) CostAmount: Decimal
@@ -2209,7 +2209,7 @@ codeunit 136900 "Service Reports"
         FindServiceLedgerEntry(ServiceLedgerEntry, ServiceOrderNo);
         repeat
             CostAmount += ServiceLedgerEntry."Cost Amount";
-        until ServiceLedgerEntry.Next = 0;
+        until ServiceLedgerEntry.Next() = 0;
     end;
 
     local procedure CalculateDiscountAmount(ServiceOrderNo: Code[20]) DiscountAmount: Decimal
@@ -2219,7 +2219,7 @@ codeunit 136900 "Service Reports"
         FindServiceLedgerEntry(ServiceLedgerEntry, ServiceOrderNo);
         repeat
             DiscountAmount += ServiceLedgerEntry."Discount Amount";
-        until ServiceLedgerEntry.Next = 0;
+        until ServiceLedgerEntry.Next() = 0;
     end;
 
     local procedure CreateContractHeaderAccGroup(var ServiceContractHeader: Record "Service Contract Header"; ContractType: Option; CustomerNo: Code[20])
@@ -2500,7 +2500,7 @@ codeunit 136900 "Service Reports"
         ServContractManagement: Codeunit ServContractManagement;
     begin
         ServiceContractHeader.Get(ServiceContractHeader."Contract Type", ServiceContractHeader."Contract No.");
-        ServContractManagement.InitCodeUnit;
+        ServContractManagement.InitCodeUnit();
         ServContractManagement.CreateInvoice(ServiceContractHeader);
         PostServiceInvoice(ServiceContractHeader."Contract No.");
     end;

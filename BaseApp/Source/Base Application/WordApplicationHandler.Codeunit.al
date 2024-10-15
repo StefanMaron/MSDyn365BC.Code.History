@@ -26,7 +26,7 @@ codeunit 5068 WordApplicationHandler
 
     local procedure CloseApplication()
     begin
-        if IsAlive then
+        if IsAlive() then
             WordHelper.CallQuit(WordApplication, false);
         Clear(WordApplication);
         Active := false;

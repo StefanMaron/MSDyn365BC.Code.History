@@ -7,7 +7,7 @@ codeunit 132907 AzureADUserMgtTest
 {
     Permissions = TableData "User Property" = rimd;
     Subtype = Test;
-    TestPermissions = NonRestrictive;
+    TestPermissions = Disabled;
 
     trigger OnRun()
     begin
@@ -16,14 +16,17 @@ codeunit 132907 AzureADUserMgtTest
 
     var
         Assert: Codeunit Assert;
-        LibraryAzureADUserMgmt: Codeunit "Library - Azure AD User Mgmt.";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryPermissions: Codeunit "Library - Permissions";
-        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         AzureADUserManagement: Codeunit "Azure AD User Management";
-        AzureADGraphUser: Codeunit "Azure AD Graph User";
+        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
+        AzureADGraphTestLibrary: Codeunit "Azure AD Graph Test Library";
+        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
+        AzureADUserMgtTestLibrary: Codeunit "Azure AD User Mgt Test Library";
+        MockGraphQueryTestLibrary: Codeunit "MockGraphQuery Test Library";
         CompanyAdminRoleTemplateIdTok: Label '62e90394-69f5-4237-9190-012177145e10', Locked = true;
         DeviceUserCannotBeFirstUser: Label 'The device user cannot be the first user to log into the system.';
+        ExpectedUserGroupAssignedTxt: Label 'Expected the user to have the ''%1'' user group assigned.', Comment = '%1 - user group code';
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -33,7 +36,6 @@ codeunit 132907 AzureADUserMgtTest
         User: Record User;
         PlanIds: Codeunit "Plan Ids";
         UserAuthenticationId: Guid;
-        AzureADUserMgtTestLibrary: Codeunit "Azure AD User Mgt Test Library";
     begin
         // [SCENARIO] When device user signs in and its the first user on the system, an error is thrown
         Initialize();
@@ -43,26 +45,25 @@ codeunit 132907 AzureADUserMgtTest
         // [GIVEN] A user belonging to a device plan
         CODEUNIT.RUN(CODEUNIT::"Users - Create Super User");
         UserAuthenticationId := LibraryPermissions.CreateAzureActiveDirectoryUser(User, '');
-        LibraryAzureADUserMgmt.AddGraphUserWithInDevicesGroup(UserAuthenticationId, User."User Name", '', '');
+        MockGraphQueryTestLibrary.AddGraphUserWithInDevicesGroup(UserAuthenticationId, User."User Name", '', '');
 
         // [WHEN] The user logs in (at first userlogin)
-        AzureADUserManagement.SetTestInProgress(true);
         asserterror AzureADUserMgtTestLibrary.Run(User."User Security ID");
 
         // [THEN] Error suggesting device user cannot be the first user is thrown
         Assert.ExpectedError(DeviceUserCannotBeFirstUser);
-        TearDown;
+        TearDown();
     end;
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
+    [CommitBehavior(CommitBehavior::Ignore)]
     [Scope('OnPrem')]
     procedure TestDeviceUsersAreAssignedDevicesPlan()
     var
         User: Record User;
         PlanIds: Codeunit "Plan Ids";
         UserAuthenticationId: Guid;
-        AzureADUserMgtTestLibrary: Codeunit "Azure AD User Mgt Test Library";
     begin
         // [SCENARIO] When device user signs in, device plan is assigned to the user
         Initialize();
@@ -73,28 +74,27 @@ codeunit 132907 AzureADUserMgtTest
         CODEUNIT.RUN(CODEUNIT::"Users - Create Super User");
         LibraryPermissions.AddUserToPlan(UserSecurityId(), PlanIds.GetEssentialPlanId());
         UserAuthenticationId := LibraryPermissions.CreateAzureActiveDirectoryUser(User, '');
-        LibraryAzureADUserMgmt.AddGraphUserWithInDevicesGroup(UserAuthenticationId, User."User Name", '', '');
+        MockGraphQueryTestLibrary.AddGraphUserWithInDevicesGroup(UserAuthenticationId, User."User Name", '', '');
 
         // [WHEN] The user logs in (at first userlogin)
-        AzureADUserManagement.SetTestInProgress(true);
         AzureADUserMgtTestLibrary.Run(User."User Security ID");
 
         // [THEN] User is assigned devices plan
         LibraryLowerPermissions.SetO365BusFull();
         Assert.IsTrue(
         IsUserInPlan(User."User Security ID", PlanIds.GetDevicePlanId()), 'Device plan is not assigned');
-        TearDown;
+        TearDown();
     end;
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
+    [CommitBehavior(CommitBehavior::Ignore)]
     [Scope('OnPrem')]
     procedure TestDeviceUsersWithEssentialPlanIsAssignedEssentialPlan()
     var
         User: Record User;
         PlanIds: Codeunit "Plan Ids";
         UserAuthenticationId: Guid;
-        AzureADUserMgtTestLibrary: Codeunit "Azure AD User Mgt Test Library";
     begin
         // [SCENARIO] When device user who also happens to have a plan assigned signs in, device plan is not assigned to the user
         Initialize();
@@ -105,30 +105,29 @@ codeunit 132907 AzureADUserMgtTest
         CODEUNIT.Run(CODEUNIT::"Users - Create Super User");
         LibraryPermissions.AddUserToPlan(UserSecurityId(), PlanIds.GetEssentialPlanId());
         UserAuthenticationId := LibraryPermissions.CreateAzureActiveDirectoryUser(User, '');
-        LibraryAzureADUserMgmt.AddGraphUserWithoutPlan(UserAuthenticationId, User."Full Name", '', User."Authentication Email");
-        LibraryAzureADUserMgmt.AddUserPlan(UserAuthenticationId, PlanIds.GetEssentialPlanId(), '', 'Enabled');
-        LibraryAzureADUserMgmt.AddGraphUserWithInDevicesGroup(UserAuthenticationId, User."User Name", '', '');
+        MockGraphQueryTestLibrary.AddGraphUserWithoutPlan(UserAuthenticationId, User."Full Name", '', User."Authentication Email");
+        MockGraphQueryTestLibrary.AddUserPlan(UserAuthenticationId, PlanIds.GetEssentialPlanId(), '', 'Enabled');
+        MockGraphQueryTestLibrary.AddGraphUserWithInDevicesGroup(UserAuthenticationId, User."User Name", '', '');
 
         // [WHEN] The user logs in (at first userlogin)
-        AzureADUserManagement.SetTestInProgress(true);
         AzureADUserMgtTestLibrary.Run(User."User Security ID");
 
         // [THEN] User is assigned essential plan
         LibraryLowerPermissions.SetO365BusFull();
         Assert.IsFalse(IsUserInPlan(User."User Security ID", PlanIds.GetDevicePlanId()), 'Device plan is assigned');
         Assert.IsTrue(IsUserInPlan(User."User Security ID", PlanIds.GetEssentialPlanId()), 'Essential plan is not assigned');
-        TearDown;
+        TearDown();
     end;
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
+    [CommitBehavior(CommitBehavior::Ignore)]
     [Scope('OnPrem')]
     procedure TestDeviceUsersWhoHadAdminRoleIsAssignedAdminPlan()
     var
         User: Record User;
         PlanIds: Codeunit "Plan Ids";
         UserAuthenticationId: Guid;
-        AzureADUserMgtTestLibrary: Codeunit "Azure AD User Mgt Test Library";
     begin
         // [SCENARIO] When device user who also happens to have a plan assigned signs in, device plan is not assigned to the user
         Initialize();
@@ -139,27 +138,27 @@ codeunit 132907 AzureADUserMgtTest
         CODEUNIT.Run(CODEUNIT::"Users - Create Super User");
         LibraryPermissions.AddUserToPlan(UserSecurityId(), PlanIds.GetEssentialPlanId());
         UserAuthenticationId := LibraryPermissions.CreateAzureActiveDirectoryUser(User, '');
-        LibraryAzureADUserMgmt.AddGraphUserWithoutPlan(UserAuthenticationId, User."Full Name", '', User."Authentication Email");
-        LibraryAzureADUserMgmt.AddUserRole(UserAuthenticationId, PlanIds.GetInternalAdminPlanId(), 'Global administrator', 'Global administrator', true);
-        LibraryAzureADUserMgmt.AddGraphUserWithInDevicesGroup(UserAuthenticationId, User."User Name", '', '');
+        MockGraphQueryTestLibrary.AddGraphUserWithoutPlan(UserAuthenticationId, User."Full Name", '', User."Authentication Email");
+        MockGraphQueryTestLibrary.AddUserRole(UserAuthenticationId, PlanIds.GetInternalAdminPlanId(), 'Global administrator', 'Global administrator', true);
+        MockGraphQueryTestLibrary.AddGraphUserWithInDevicesGroup(UserAuthenticationId, User."User Name", '', '');
 
         // [WHEN] The user logs in (at first userlogin)
-        AzureADUserManagement.SetTestInProgress(true);
         AzureADUserMgtTestLibrary.Run(User."User Security ID");
 
         // [THEN] User is assigned admin plan
         LibraryLowerPermissions.SetO365BusFull();
         Assert.IsFalse(IsUserInPlan(User."User Security ID", PlanIds.GetDevicePlanId()), 'Device plan is assigned');
         Assert.IsTrue(IsUserInPlan(User."User Security ID", PlanIds.GetInternalAdminPlanId()), 'Internal Admin plan is not assigned');
-        TearDown;
+        TearDown();
     end;
 
+    [Test]
     [HandlerFunctions('MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
+    [CommitBehavior(CommitBehavior::Ignore)]
     [Scope('OnPrem')]
     procedure TestCreateNewUsersFromAzureADDoesNotRemoveValidUserGroups()
     var
-        User: Record User;
         AzureADPlan: Codeunit "Azure AD Plan";
         AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
         UserAuthenticationId: Guid;
@@ -168,11 +167,9 @@ codeunit 132907 AzureADUserMgtTest
     begin
         // [SCENARIO] Bug 195582: Get Users from Office 365 can wipe out the User Groups
         Initialize();
+        BindSubscription(AzureADUserMgtTestLibrary);
 
-        // [GIVEN] At least a NAV user group in a plan exists
-        LibraryLowerPermissions.SetOutsideO365Scope();
-        LibraryLowerPermissions.SetSecurity();
-
+        // [GIVEN] A user group in a plan exists
         RainyCloudPlanId := AzureADPlanTestLibrary.CreatePlan('Rainy Cloud');
         Assert.IsTrue(AzureADPlan.DoesPlanExist(RainyCloudPlanId), 'The plan does not exist');
 
@@ -180,12 +177,10 @@ codeunit 132907 AzureADUserMgtTest
         LibraryPermissions.CreateUserGroupInPlan(UserGroupCode, RainyCloudPlanId);
 
         // [GIVEN] A user associated with the plan. The user only exists in Azure AD
-        UserAuthenticationId := LibraryPermissions.CreateAzureActiveDirectoryUser(User, '');
-        LibraryAzureADUserMgmt.AddGraphUser(UserAuthenticationId, User."User Name", '', '', RainyCloudPlanId, 'Rainy Cloud', 'Enabled');
+        MockGraphQueryTestLibrary.AddGraphUser(UserAuthenticationId, 'Test', 'User', 'testuser@microsoft.com');
+        MockGraphQueryTestLibrary.AddUserPlan(UserAuthenticationId, RainyCloudPlanId, '', 'Enabled');
 
         // [GIVEN] CreateNewUsersFromAzureAD is invoked to create the user and assign the user group to it
-        LibraryLowerPermissions.SetO365BusFull();
-        LibraryLowerPermissions.SetSecurity();
         AzureADUserManagement.CreateNewUsersFromAzureAD(); // first call - creates the user
         AssertUserGroupHasOneMember(UserGroupCode, 'Prerequisite failed: Missing user group member.');
 
@@ -193,10 +188,168 @@ codeunit 132907 AzureADUserMgtTest
         AzureADUserManagement.CreateNewUsersFromAzureAD(); // second call - should not delete the user's groups
 
         // Rollback SaaS test
-        TearDown;
+        UnbindSubscription(AzureADUserMgtTestLibrary);
+        TearDown();
 
         // [THEN] The user group is still assigned to the user
         AssertUserGroupHasOneMember(UserGroupCode, 'Test failed: Missing user group member.');
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [CommitBehavior(CommitBehavior::Ignore)]
+    procedure TestUserGroupsAppendedOnUserSyncNoCustomPermissions()
+    var
+        TestUserPermissionsSubs: Codeunit "Test User Permissions Subs.";
+        FirstAzureADUserUpdateWizard: TestPage "Azure AD User Update Wizard";
+        SecondAzureADUserUpdateWizard: TestPage "Azure AD User Update Wizard";
+        GraphUser: DotNet UserInfo;
+        DummyGraphUser: DotNet UserInfo;
+        RainyCloudPlanId, ShinySunlightPlanId : Guid;
+        RainyCloudUserGroupCode: Label 'Rainy Cloud Group';
+        ShinySunlightUserGroupCode: Label 'Shiny Sunlight Group';
+    begin
+        Initialize();
+        BindSubscription(AzureADUserMgtTestLibrary);
+        BindSubscription(TestUserPermissionsSubs);
+        TestUserPermissionsSubs.SetCanManageUser(UserSecurityId());
+
+        // [GIVEN] A user group in a plan exists
+        RainyCloudPlanId := AzureADPlanTestLibrary.CreatePlan('Rainy Cloud');
+        LibraryPermissions.CreateUserGroupInPlan(RainyCloudUserGroupCode, RainyCloudPlanId);
+
+        // [GIVEN] A user in Azure AD with the test plan exists
+        MockGraphQueryTestLibrary.AddAndReturnGraphUser(GraphUser, CreateGuid(), 'John', 'Doe', 'john.doe@microsoft.com');
+        MockGraphQueryTestLibrary.AddUserPlan(GraphUser.ObjectId, RainyCloudPlanId, '', 'Enabled');
+
+        // [GIVEN] The user has been synced
+        FirstAzureADUserUpdateWizard.Trap();
+        Page.Run(Page::"Azure AD User Update Wizard");
+        FirstAzureADUserUpdateWizard.Next.Invoke();
+        FirstAzureADUserUpdateWizard.ApplyUpdates.Invoke();
+        FirstAzureADUserUpdateWizard.Close.Invoke();
+
+        // Verify that the user has the user group assigned
+        AssertUserGroupHasOneMember(RainyCloudUserGroupCode, StrSubstNo(ExpectedUserGroupAssignedTxt, RainyCloudUserGroupCode));
+
+        // [GIVEN] The user does not have custom permission sets assigned
+        // [WHEN] The user has a change in assigned plans
+        GraphUser.AssignedPlans := DummyGraphUser.UserInfo().AssignedPlans; // clear Azure AD plans
+        ShinySunlightPlanId := AzureADPlanTestLibrary.CreatePlan('Shiny Sunlight');
+        LibraryPermissions.CreateUserGroupInPlan(ShinySunlightUserGroupCode, ShinySunlightPlanId);
+        MockGraphQueryTestLibrary.AddUserPlan(GraphUser.ObjectId, ShinySunlightPlanId, '', 'Enabled');
+
+        // [WHEN] The sync wizard is run
+        SecondAzureADUserUpdateWizard.Trap();
+        Page.Run(Page::"Azure AD User Update Wizard");
+
+        // [THEN] The wizard can be completed normally
+        SecondAzureADUserUpdateWizard.Next.Invoke();
+        SecondAzureADUserUpdateWizard.ApplyUpdates.Invoke();
+        SecondAzureADUserUpdateWizard.Close.Invoke();
+
+        // [THEN] The user groups of the user are a union of user groups from both plans
+        AssertUserGroupHasOneMember(RainyCloudUserGroupCode, StrSubstNo(ExpectedUserGroupAssignedTxt, RainyCloudUserGroupCode));
+        AssertUserGroupHasOneMember(ShinySunlightUserGroupCode, StrSubstNo(ExpectedUserGroupAssignedTxt, ShinySunlightUserGroupCode));
+
+        UnbindSubscription(TestUserPermissionsSubs);
+        UnbindSubscription(AzureADUserMgtTestLibrary);
+        TearDown();
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [CommitBehavior(CommitBehavior::Ignore)]
+    procedure TestUserGroupsAppendedOnUserSyncWithCustomPermissions()
+    var
+        User: Record User;
+        AccessControl: Record "Access Control";
+        TestUserPermissionsSubs: Codeunit "Test User Permissions Subs.";
+        FirstAzureADUserUpdateWizard: TestPage "Azure AD User Update Wizard";
+        SecondAzureADUserUpdateWizard: TestPage "Azure AD User Update Wizard";
+        GraphUser: DotNet UserInfo;
+        DummyGraphUser: DotNet UserInfo;
+        RainyCloudPlanId, ShinySunlightPlanId : Guid;
+        RainyCloudUserGroupCode: Label 'Rainy Cloud Group';
+        ShinySunlightUserGroupCode: Label 'Shiny Sunlight Group';
+    begin
+        // Same scenario as in TestUserGroupsAppendedOnUserSyncNoCustomPermissions, but before
+        // the second round of syncing the user has been assigned a custom permission set.
+        Initialize();
+        BindSubscription(AzureADUserMgtTestLibrary);
+        BindSubscription(TestUserPermissionsSubs);
+        TestUserPermissionsSubs.SetCanManageUser(UserSecurityId());
+
+        // [GIVEN] A user group in a plan exists
+        RainyCloudPlanId := AzureADPlanTestLibrary.CreatePlan('Rainy Cloud');
+        LibraryPermissions.CreateUserGroupInPlan(RainyCloudUserGroupCode, RainyCloudPlanId);
+
+        // [GIVEN] A user in Azure AD with the test plan exists
+        MockGraphQueryTestLibrary.AddAndReturnGraphUser(GraphUser, CreateGuid(), 'John', 'Doe', 'john.doe@microsoft.com');
+        MockGraphQueryTestLibrary.AddUserPlan(GraphUser.ObjectId, RainyCloudPlanId, '', 'Enabled');
+
+        // [GIVEN] The user has been synced
+        FirstAzureADUserUpdateWizard.Trap();
+        Page.Run(Page::"Azure AD User Update Wizard");
+        FirstAzureADUserUpdateWizard.Next.Invoke();
+        FirstAzureADUserUpdateWizard.ApplyUpdates.Invoke();
+        FirstAzureADUserUpdateWizard.Close.Invoke();
+
+        // Verify that the user has the user group assigned
+        AssertUserGroupHasOneMember(RainyCloudUserGroupCode, StrSubstNo(ExpectedUserGroupAssignedTxt, RainyCloudUserGroupCode));
+
+        // [GIVEN] The user has a custom permission set assigned
+        User.SetRange("Authentication Email", 'john.doe@microsoft.com');
+        Assert.IsTrue(User.FindFirst(), 'Expected to find the user.');
+        AccessControl."User Security ID" := User."User Security ID";
+        AccessControl."Role ID" := 'CUSTOM';
+        AccessControl.Scope := AccessControl.Scope::Tenant;
+        AccessControl.Insert();
+
+        // [WHEN] The user has a change in assigned plans
+        GraphUser.AssignedPlans := DummyGraphUser.UserInfo().AssignedPlans; // clear Azure AD plans
+        ShinySunlightPlanId := AzureADPlanTestLibrary.CreatePlan('Shiny Sunlight');
+        LibraryPermissions.CreateUserGroupInPlan(ShinySunlightUserGroupCode, ShinySunlightPlanId);
+        MockGraphQueryTestLibrary.AddUserPlan(GraphUser.ObjectId, ShinySunlightPlanId, '', 'Enabled');
+
+        // [WHEN] The sync wizard is run
+        SecondAzureADUserUpdateWizard.Trap();
+        Page.Run(Page::"Azure AD User Update Wizard");
+
+        // [THEN] The wizard will prompt the user to select what should be done with the custom permissions
+        SecondAzureADUserUpdateWizard.Next.Invoke(); // Welcome banner
+        Assert.IsTrue(SecondAzureADUserUpdateWizard.ManagePermissionUpdates.Visible(), 'Expected the manage permissions button to be visible.'); // Note: for the user the button is called "Next"
+        SecondAzureADUserUpdateWizard.ManagePermissionUpdates.Invoke();
+
+        // [THEN] The list is shown with the records that need some decision to be taken (in this case, only one row)
+        // Verify the row:
+        SecondAzureADUserUpdateWizard.First();
+        Assert.AreEqual('JOHN DOE', SecondAzureADUserUpdateWizard.DisplayName.Value, 'Unexpected user display name.');
+        Assert.AreEqual('Rainy Cloud', SecondAzureADUserUpdateWizard.CurrentLicense.Value, 'Unexpected current value.');
+        Assert.AreEqual('Shiny Sunlight', SecondAzureADUserUpdateWizard.NewLicense.Value, 'Unexpected new value.');
+        Assert.AreEqual(Format(Enum::"Azure AD Permission Change Action"::Select), SecondAzureADUserUpdateWizard.PermissionAction.Value, 'Unexpected default permission change action.');
+
+        // [THEN] The 'Next' button is not enabled until all the rows with permission change action "Select" have been changed to either "Append" or "Keep current"
+        Assert.IsFalse(SecondAzureADUserUpdateWizard.DoneSelectingPermissions.Enabled(), 'Expected the Finish action to be invisible.');
+
+        // [WHEN] The permission change action is selected to be "Append"
+        SecondAzureADUserUpdateWizard.PermissionAction.SetValue(Enum::"Azure AD Permission Change Action"::Append);
+
+        // [THEN] The 'Next' button becomes visible
+        Assert.IsTrue(SecondAzureADUserUpdateWizard.DoneSelectingPermissions.Enabled(), 'Expected the Finish action to be visible.');
+
+        // [THEN] The user is able to successfully finish the wizard
+        SecondAzureADUserUpdateWizard.DoneSelectingPermissions.Invoke();
+        SecondAzureADUserUpdateWizard.ApplyUpdates.Invoke();
+        SecondAzureADUserUpdateWizard.Close.Invoke();
+
+        // [THEN] The user groups of the user are a union of user groups from both plans
+        AssertUserGroupHasOneMember(RainyCloudUserGroupCode, StrSubstNo(ExpectedUserGroupAssignedTxt, RainyCloudUserGroupCode));
+        AssertUserGroupHasOneMember(ShinySunlightUserGroupCode, StrSubstNo(ExpectedUserGroupAssignedTxt, ShinySunlightUserGroupCode));
+
+        UnbindSubscription(TestUserPermissionsSubs);
+        UnbindSubscription(AzureADUserMgtTestLibrary);
+        TearDown();
     end;
 
     [HandlerFunctions('MessageHandler')]
@@ -257,7 +410,7 @@ codeunit 132907 AzureADUserMgtTest
             ValidateUserGetsTheUserGroupsOfThePlan(Users[i], UserGroupPlan);
         end;
         // Rollback SaaS test
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -281,8 +434,8 @@ codeunit 132907 AzureADUserMgtTest
         Plan.Open();
         Plan.Read();
 
-        UserAuthenticationID := CreateGuid;
-        LibraryAzureADUserMgmt.AddGraphUser(
+        UserAuthenticationID := CreateGuid();
+        MockGraphQueryTestLibrary.AddGraphUser(
           UserAuthenticationID, 'Cloud-Only', 'Cloud-Only Test User',
           'bla@nothing.dk', Plan.Plan_ID, Plan.Plan_Name, 'Enabled');
 
@@ -292,10 +445,13 @@ codeunit 132907 AzureADUserMgtTest
         // [WHEN] CreateNewUsersFromAzureAD is invoked with no SUPER nor SECURITY permissions
         // [THEN] The user is not created - an error stating that there are not enough permissions is thrown
         asserterror AzureADUserManagement.CreateNewUsersFromAzureAD();
+
+        TearDown();
     end;
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
+    [CommitBehavior(CommitBehavior::Ignore)]
     [Scope('OnPrem')]
     procedure TestCreateNewUsersFromAzureADNoGraph()
     var
@@ -306,7 +462,7 @@ codeunit 132907 AzureADUserMgtTest
         // [SCENARIO] Attempting to create new users from the Graph when the graph is not initialized
         // It should result in an error, as the DotNet GraphQuery object cannot be initialized
         // in a non-SaaS environment
-        Initialize();
+        ClearGlobals();
         LibraryLowerPermissions.SetOutsideO365Scope();
         LibraryLowerPermissions.AddSecurity;
 
@@ -354,26 +510,37 @@ codeunit 132907 AzureADUserMgtTest
         Assert.AreEqual(9022, ConfPersonalizationMgt.DefaultRoleCenterID, 'Invalid Role Center Id');
 
         LibraryLowerPermissions.SetOutsideO365Scope();
-        TearDown;
+        TearDown();
     end;
 
     local procedure Initialize()
     begin
-        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService := true;
+        ClearGlobals();
+        BindSubscription(AzureADGraphTestLibrary);
+        BindSubscription(AzureADPlanTestLibrary);
 
-        Clear(AzureADUserManagement);
-        AzureADUserManagement.SetTestInProgress(true);
+        MockGraphQueryTestLibrary.SetupMockGraphQuery();
+        SetupAzureADMockPlans();
+        AzureADGraphTestLibrary.SetMockGraphQuery(MockGraphQueryTestLibrary);
 
-        Clear(LibraryAzureADUserMgmt);
-        LibraryAzureADUserMgmt.SetupMockGraphQuery();
-        BindSubscription(LibraryAzureADUserMgmt);
-        SetupAzureADMockPlans;
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
     end;
 
     local procedure TearDown()
     begin
-        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService := false;
-        UnbindSubscription(LibraryAzureADUserMgmt);
+        UnbindSubscription(AzureADGraphTestLibrary);
+        UnbindSubscription(AzureADPlanTestLibrary);
+
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
+    end;
+
+    local procedure ClearGlobals()
+    begin
+        Clear(AzureADGraphTestLibrary);
+        Clear(AzureADPlanTestLibrary);
+        Clear(AzureADUserMgtTestLibrary);
+        Clear(MockGraphQueryTestLibrary);
+        Clear(AzureADUserManagement);
     end;
 
     local procedure IsUserInPlan(UserAuthenticationId: Guid; PlanId: Guid): Boolean
@@ -392,7 +559,7 @@ codeunit 132907 AzureADUserMgtTest
     local procedure CreateUserWithSubscriptionPlan(var User: Record User; PlanID: Guid; PlanName: Text; PlanStatus: Text)
     begin
         LibraryPermissions.CreateAzureActiveDirectoryUser(User, '');
-        LibraryAzureADUserMgmt.AddGraphUser(GetUserAuthenticationId(User), User."User Name", '', '', PlanID, PlanName, PlanStatus);
+        MockGraphQueryTestLibrary.AddGraphUser(GetUserAuthenticationId(User), User."User Name", '', '', PlanID, PlanName, PlanStatus);
     end;
 
     local procedure GetUserAuthenticationId(User: Record User): Guid
@@ -409,7 +576,7 @@ codeunit 132907 AzureADUserMgtTest
     begin
         Plan.Open();
         while Plan.Read() do
-            LibraryAzureADUserMgmt.AddSubscribedSkuWithServicePlan(CreateGuid, Plan.Plan_ID, Plan.Plan_Name);
+            MockGraphQueryTestLibrary.AddSubscribedSkuWithServicePlan(CreateGuid, Plan.Plan_ID, Plan.Plan_Name);
     end;
 
     local procedure ValidateUserGetsTheUserGroupsOfThePlan(User: Record User; UserGroupPlan: Record "User Group Plan")
@@ -424,8 +591,8 @@ codeunit 132907 AzureADUserMgtTest
         Assert.RecordCount(UserGroupMember, UserGroupPlan.Count);
         repeat
             Assert.AreEqual(UserGroupPlan."User Group Code", UserGroupMember."User Group Code", 'Only the enabled plan should be returned');
-            UserGroupMember.Next;
-        until UserGroupPlan.Next = 0;
+            UserGroupMember.Next();
+        until UserGroupPlan.Next() = 0;
     end;
 
     local procedure CreateUserWithPlanAndUserGroups(var User: Record User; var UserGroupPlan: Record "User Group Plan"; UserName: Text)
@@ -439,7 +606,7 @@ codeunit 132907 AzureADUserMgtTest
         Plan.Open();
         Plan.Read();
 
-        LibraryAzureADUserMgmt.AddGraphUser(GetUserAuthenticationId(User), User."User Name", '', '', Plan.Plan_ID, Plan.Plan_Name, 'Enabled');
+        MockGraphQueryTestLibrary.AddGraphUser(GetUserAuthenticationId(User), User."User Name", '', '', Plan.Plan_ID, Plan.Plan_Name, 'Enabled');
     end;
 
     local procedure CreateUserWithPlan(var User: Record User; PlanID: Guid)
@@ -455,7 +622,7 @@ codeunit 132907 AzureADUserMgtTest
         Plan.Open();
         Plan.Read();
 
-        LibraryAzureADUserMgmt.AddGraphUser(GetUserAuthenticationId(User), User."User Name", '', '', Plan.Plan_ID, Plan.Plan_Name, 'Enabled');
+        MockGraphQueryTestLibrary.AddGraphUser(GetUserAuthenticationId(User), User."User Name", '', '', Plan.Plan_ID, Plan.Plan_Name, 'Enabled');
     end;
 
     local procedure AssertUserGroupHasOneMember(UserGroupCode: Code[20]; ErrorMessage: Text)
@@ -512,7 +679,7 @@ codeunit 132907 AzureADUserMgtTest
     begin
         // [GIVEN] A user corresponding to the current user exists in the Azure AD Graph, 
         // but the user does not have any roles
-        LibraryAzureADUserMgmt.AddGraphUser(UserSecurityId(), 'username', 'surname', 'email@microsoft.com',
+        MockGraphQueryTestLibrary.AddGraphUser(UserSecurityId(), 'username', 'surname', 'email@microsoft.com',
             CreateGuid(), 'Plan Service', 'Status');
 
         // [WHEN] Checking whether the user is a tenant admin
@@ -531,12 +698,12 @@ codeunit 132907 AzureADUserMgtTest
         IsUserTenantAdmin: Boolean;
     begin
         // [GIVEN] A user corresponding to the current user exists in the Azure AD Graph
-        LibraryAzureADUserMgmt.AddGraphUser(UserSecurityId(), 'username', 'surname', 'email@microsoft.com',
+        MockGraphQueryTestLibrary.AddGraphUser(UserSecurityId(), 'username', 'surname', 'email@microsoft.com',
             CreateGuid(), 'Plan Service', 'Status');
 
         // [GIVEN] The user has two roles, but none of them is the role corresponding to the tenant admin
-        LibraryAzureADUserMgmt.AddUserRole(UserSecurityId(), 'template 1', 'description', 'display name 1', true);
-        LibraryAzureADUserMgmt.AddUserRole(UserSecurityId(), 'template 2', 'description', 'display name 2', true);
+        MockGraphQueryTestLibrary.AddUserRole(UserSecurityId(), 'template 1', 'description', 'display name 1', true);
+        MockGraphQueryTestLibrary.AddUserRole(UserSecurityId(), 'template 2', 'description', 'display name 2', true);
 
         // [WHEN] Checking whether the user is a tenant admin
         IsUserTenantAdmin := AzureADUserManagement.IsUserTenantAdmin();
@@ -556,11 +723,11 @@ codeunit 132907 AzureADUserMgtTest
         Initialize();
 
         // [GIVEN] A user corresponding to the current user exists in the Azure AD Graph
-        LibraryAzureADUserMgmt.AddGraphUser(UserSecurityId(), 'username', 'surname', 'email@microsoft.com',
+        MockGraphQueryTestLibrary.AddGraphUser(UserSecurityId(), 'username', 'surname', 'email@microsoft.com',
             CreateGuid(), 'Plan Service', 'Status');
 
         // [GIVEN] The user has a single role, corresponding to the tenant admin
-        LibraryAzureADUserMgmt.AddUserRole(UserSecurityId(), CompanyAdminRoleTemplateIdTok,
+        MockGraphQueryTestLibrary.AddUserRole(UserSecurityId(), CompanyAdminRoleTemplateIdTok,
             'description', 'display name 1', true);
 
         InsertUserProperty(UserSecurityId());
@@ -585,14 +752,14 @@ codeunit 132907 AzureADUserMgtTest
         Initialize();
 
         // [GIVEN] A user corresponding to the current user exists in the Azure AD Graph
-        LibraryAzureADUserMgmt.AddGraphUser(UserSecurityId(), 'username', 'surname', 'email@microsoft.com',
+        MockGraphQueryTestLibrary.AddGraphUser(UserSecurityId(), 'username', 'surname', 'email@microsoft.com',
             CreateGuid(), 'Plan Service', 'Status');
 
         // [GIVEN] The user has a three roles, one of which is the tenant admin one
-        LibraryAzureADUserMgmt.AddUserRole(UserSecurityId(), 'template 1', 'description', 'display name 1', true);
-        LibraryAzureADUserMgmt.AddUserRole(UserSecurityId(), CompanyAdminRoleTemplateIdTok,
+        MockGraphQueryTestLibrary.AddUserRole(UserSecurityId(), 'template 1', 'description', 'display name 1', true);
+        MockGraphQueryTestLibrary.AddUserRole(UserSecurityId(), CompanyAdminRoleTemplateIdTok,
             'description', 'display name 2', true);
-        LibraryAzureADUserMgmt.AddUserRole(UserSecurityId(), 'template 2', 'description', 'display name 3', true);
+        MockGraphQueryTestLibrary.AddUserRole(UserSecurityId(), 'template 2', 'description', 'display name 3', true);
 
         InsertUserProperty(UserSecurityId());
 
@@ -619,7 +786,7 @@ codeunit 132907 AzureADUserMgtTest
         // [GIVEN] An Azure AD Graph User without a corresponding User record and that is not 
         // entitled from service plan
         UserId := CreateGuid();
-        LibraryAzureADUserMgmt.AddGraphUser(GraphUser, UserId, 'username', 'surname', 'email@microsoft.com',
+        MockGraphQueryTestLibrary.AddGraphUser(GraphUser, UserId, 'username', 'surname', 'email@microsoft.com',
             CreateGuid(), 'Plan Service', 'Status');
 
         // [WHEN] Trying to create a new user from the graph user

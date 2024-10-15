@@ -155,7 +155,7 @@ codeunit 132551 "Library - Setup Storage UT"
         UserSetup: Record "User Setup";
     begin
         User.Init();
-        User."User Security ID" := CreateGuid;
+        User."User Security ID" := CreateGuid();
         User."User Name" := LibraryUtility.GenerateGUID();
         User.Insert();
 

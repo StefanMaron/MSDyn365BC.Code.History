@@ -74,7 +74,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         // [SCENARIO 251784] Verify Export Electr. Accounting against XSD schema in case of "Export Type" = "Trial Balance", "Closing Balance Sheet" = FALSE
         Initialize();
 
-        ExportAccounts.ExportBalanceSheet(Date2DMY(WorkDate, 3), Month, 1, Today, false);
+        ExportAccounts.ExportBalanceSheet(Date2DMY(WorkDate(), 3), Month, 1, Today, false);
 
         VerifyXMLAgainstXSDSchema(ExportFileName, XSDSchemaFile_Balance);
     end;
@@ -87,7 +87,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         // [SCENARIO 251784] Verify Export Electr. Accounting against XSD schema in case of "Export Type" = "Trial Balance", "Closing Balance Sheet" = TRUE
         Initialize();
 
-        ExportAccounts.ExportBalanceSheet(Date2DMY(WorkDate, 3), Month, 1, Today, true);
+        ExportAccounts.ExportBalanceSheet(Date2DMY(WorkDate(), 3), Month, 1, Today, true);
 
         VerifyXMLAgainstXSDSchema(ExportFileName, XSDSchemaFile_Balance);
     end;
@@ -369,7 +369,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         // [SCENARIO 251784] Verify Export Electr. Accounting against XSD schema in case of "Export Type" = "Auxiliary Accounts", "Request Type" = "FC", "Order Number" = "ABC6912345/12"
         Initialize();
 
-        ExportAccounts.ExportAuxiliaryAccounts(Date2DMY(WorkDate, 3), Month, RequestType::FC, GetOrderNumber, '');
+        ExportAccounts.ExportAuxiliaryAccounts(Date2DMY(WorkDate(), 3), Month, RequestType::FC, GetOrderNumber, '');
 
         VerifyXMLAgainstXSDSchema(ExportFileName, XSDSchemaFile_AuxAccount);
     end;
@@ -382,7 +382,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         // [SCENARIO 251784] Verify Export Electr. Accounting against XSD schema in case of "Export Type" = "Auxiliary Accounts", "Request Type" = "DE", "Process Number" = "AB012345678901"
         Initialize();
 
-        ExportAccounts.ExportAuxiliaryAccounts(Date2DMY(WorkDate, 3), Month, RequestType::DE, '', GetProcessNumber);
+        ExportAccounts.ExportAuxiliaryAccounts(Date2DMY(WorkDate(), 3), Month, RequestType::DE, '', GetProcessNumber);
 
         VerifyXMLAgainstXSDSchema(ExportFileName, XSDSchemaFile_AuxAccount);
     end;
@@ -444,7 +444,7 @@ codeunit 142096 "Export Electr. Accounting Test"
 
         SetupCompanyInfo;
 
-        CurrentWorkDate := CalcDate('<1Y>', WorkDate);
+        CurrentWorkDate := CalcDate('<1Y>', WorkDate());
         Year := Date2DMY(CurrentWorkDate, 3);
         Month := Date2DMY(CurrentWorkDate, 2);
 
@@ -844,7 +844,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         SourceCodeSetup.Get();
 
         with GLEntry do begin
-            Init;
+            Init();
             "Entry No." := GLEntryLast."Entry No." + 1;
             "Transaction No." := GLEntryLast."Transaction No." + 1;
             "Document No." := Format(LibraryRandom.RandInt(10000));
@@ -879,7 +879,7 @@ codeunit 142096 "Export Electr. Accounting Test"
                         "Bal. Account No." := RecipientBankAccount."No.";
                     end;
             end;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -890,7 +890,7 @@ codeunit 142096 "Export Electr. Accounting Test"
             "Account Type" := "Account Type"::Posting;
             "Debit/Credit" := LibraryRandom.RandIntInRange(1, 2);
             "SAT Account Code" := '100';
-            Modify;
+            Modify();
         end;
     end;
 
@@ -916,7 +916,7 @@ codeunit 142096 "Export Electr. Accounting Test"
     local procedure CreateCheckLedgerEntry(var CheckLedgerEntry: Record "Check Ledger Entry"; BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; VendorNo: Code[20])
     begin
         with CheckLedgerEntry do begin
-            Init;
+            Init();
             "Bank Account No." := BankAccountLedgerEntry."Bank Account No.";
             "Entry No." := BankAccountLedgerEntry."Entry No.";
             "Bank Account Ledger Entry No." := BankAccountLedgerEntry."Entry No.";
@@ -925,7 +925,7 @@ codeunit 142096 "Export Electr. Accounting Test"
             Amount := BankAccountLedgerEntry."Credit Amount";
             "Bal. Account Type" := "Bal. Account Type"::Vendor;
             "Bal. Account No." := VendorNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -936,7 +936,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         CreateBankAccount(BankAccount, GLEntry."G/L Account No.");
 
         with BankAccountLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := GLEntry."Entry No.";
             "Transaction No." := GLEntry."Transaction No.";
             "Posting Date" := CurrentWorkDate;
@@ -946,7 +946,7 @@ codeunit 142096 "Export Electr. Accounting Test"
             "Bank Account No." := BankAccount."No.";
             "Document Date" := CurrentWorkDate;
             "Credit Amount" := -GLEntry.Amount;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -960,7 +960,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         with VendorLedgerEntry do begin
             FindLast();
             CreateDetailedVendorLedgerEntry("Entry No." + 1);
-            Init;
+            Init();
             "Entry No." += 1;
             "Vendor No." := Vendor."No.";
             "Posting Date" := CurrentWorkDate;
@@ -969,7 +969,7 @@ codeunit 142096 "Export Electr. Accounting Test"
             "Document No." := Format(LibraryRandom.RandInt(10000));
             "Transaction No." := GLEntry."Transaction No.";
             "Payment Method Code" := CreatePaymentMethod;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -983,7 +983,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         with CustLedgerEntry do begin
             FindLast();
             CreateDetailedCustLedgerEntry("Entry No." + 1);
-            Init;
+            Init();
             "Entry No." += 1;
             "Customer No." := Customer."No.";
             "Posting Date" := CurrentWorkDate;
@@ -991,7 +991,7 @@ codeunit 142096 "Export Electr. Accounting Test"
             "Recipient Bank Account" := CustomerBankAccount.Code;
             "Document No." := Format(LibraryRandom.RandInt(10000));
             "Transaction No." := GLEntry."Transaction No.";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1001,14 +1001,14 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         with DetailedCustLedgEntry do begin
             FindLast();
-            Init;
+            Init();
             "Entry No." += 1;
             "Cust. Ledger Entry No." := CustLedgerEntryNo;
             "Entry Type" := "Entry Type"::"Initial Entry";
             "Posting Date" := CurrentWorkDate;
             Amount := LibraryRandom.RandDec(1000, 2);
             "Ledger Entry Amount" := true;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1018,14 +1018,14 @@ codeunit 142096 "Export Electr. Accounting Test"
     begin
         with DetailedVendorLedgEntry do begin
             FindLast();
-            Init;
+            Init();
             "Entry No." += 1;
             "Vendor Ledger Entry No." := VendorLedgerEntryNo;
             "Entry Type" := "Entry Type"::"Initial Entry";
             "Posting Date" := CurrentWorkDate;
             Amount := LibraryRandom.RandDec(1000, 2);
             "Ledger Entry Amount" := true;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1097,10 +1097,10 @@ codeunit 142096 "Export Electr. Accounting Test"
         SourceCodeSetup: Record "Source Code Setup";
     begin
         with SalesInvoiceHeader do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Sales Invoice Header");
-            "Fiscal Invoice Number PAC" := DelChr(Format(CreateGuid), '=', '{}');
-            Insert;
+            "Fiscal Invoice Number PAC" := DelChr(Format(CreateGuid()), '=', '{}');
+            Insert();
         end;
 
         SourceCodeSetup.Get();
@@ -1108,7 +1108,7 @@ codeunit 142096 "Export Electr. Accounting Test"
             "Document Type" := "Document Type"::Invoice;
             "Document No." := SalesInvoiceHeader."No.";
             "Source Code" := SourceCodeSetup.Sales;
-            Modify;
+            Modify();
         end
     end;
 
@@ -1128,7 +1128,7 @@ codeunit 142096 "Export Electr. Accounting Test"
                     end;
 
                     "SAT Account Code" := '100';
-                    Modify;
+                    Modify();
                 until Next = 0;
         end;
     end;
@@ -1138,7 +1138,7 @@ codeunit 142096 "Export Electr. Accounting Test"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             "RFC No." := 'SWC920404DA3';  // Set number, otherwise will run into all kind of errors
             Modify(true);
         end;

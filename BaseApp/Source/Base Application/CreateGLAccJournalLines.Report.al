@@ -17,7 +17,7 @@ report 8610 "Create G/L Acc. Journal Lines"
                 StdGenJournalLine: Record "Standard General Journal Line";
             begin
                 GenJnlLine.Init();
-                if GetStandardJournalLine then begin
+                if GetStandardJournalLine() then begin
                     Initialize(StdGenJournal, GenJnlBatch.Name);
 
                     StdGenJournalLine.SetRange("Journal Template Name", StdGenJournal."Journal Template Name");
@@ -57,9 +57,9 @@ report 8610 "Create G/L Acc. Journal Lines"
 
             trigger OnPreDataItem()
             begin
-                CheckJournalTemplate;
-                CheckBatchName;
-                CheckPostingDate;
+                CheckJournalTemplate();
+                CheckBatchName();
+                CheckPostingDate();
 
                 GenJnlLine.SetRange("Journal Template Name", JournalTemplate);
                 GenJnlLine.SetRange("Journal Batch Name", BatchName);
@@ -106,7 +106,7 @@ report 8610 "Create G/L Acc. Journal Lines"
 
                         trigger OnValidate()
                         begin
-                            CheckPostingDate;
+                            CheckPostingDate();
                         end;
                     }
                     field(JournalTemplate; JournalTemplate)
@@ -127,7 +127,7 @@ report 8610 "Create G/L Acc. Journal Lines"
 
                             GenJnlTemplates.LookupMode := true;
                             GenJnlTemplates.Editable := false;
-                            if GenJnlTemplates.RunModal = ACTION::LookupOK then begin
+                            if GenJnlTemplates.RunModal() = ACTION::LookupOK then begin
                                 GenJnlTemplates.GetRecord(GenJnlTemplate);
                                 JournalTemplate := GenJnlTemplate.Name;
                             end;
@@ -135,7 +135,7 @@ report 8610 "Create G/L Acc. Journal Lines"
 
                         trigger OnValidate()
                         begin
-                            CheckJournalTemplate;
+                            CheckJournalTemplate();
                         end;
                     }
                     field(BatchName; BatchName)
@@ -156,7 +156,7 @@ report 8610 "Create G/L Acc. Journal Lines"
 
                             GenJnlBatches.LookupMode := true;
                             GenJnlBatches.Editable := false;
-                            if GenJnlBatches.RunModal = ACTION::LookupOK then begin
+                            if GenJnlBatches.RunModal() = ACTION::LookupOK then begin
                                 GenJnlBatches.GetRecord(GenJnlBatch);
                                 BatchName := GenJnlBatch.Name;
                             end;
@@ -164,7 +164,7 @@ report 8610 "Create G/L Acc. Journal Lines"
 
                         trigger OnValidate()
                         begin
-                            CheckBatchName;
+                            CheckBatchName();
                         end;
                     }
                     field(TemplateCode; TemplateCode)
@@ -186,7 +186,7 @@ report 8610 "Create G/L Acc. Journal Lines"
 
                             StdGenJnls.LookupMode := true;
                             StdGenJnls.Editable := false;
-                            if StdGenJnls.RunModal = ACTION::LookupOK then begin
+                            if StdGenJnls.RunModal() = ACTION::LookupOK then begin
                                 StdGenJnls.GetRecord(StdGenJournal1);
                                 TemplateCode := StdGenJournal1.Code;
                             end;
@@ -203,7 +203,7 @@ report 8610 "Create G/L Acc. Journal Lines"
         trigger OnOpenPage()
         begin
             if PostingDate = 0D then
-                PostingDate := WorkDate;
+                PostingDate := WorkDate();
         end;
     }
 
@@ -241,7 +241,7 @@ report 8610 "Create G/L Acc. Journal Lines"
             exit;
         StdGenJounalLine.SetRange("Journal Template Name", StdGenJournal."Journal Template Name");
         StdGenJounalLine.SetRange("Standard Journal Code", StdGenJournal.Code);
-        exit(StdGenJounalLine.FindFirst);
+        exit(not StdGenJounalLine.IsEmpty());
     end;
 
     procedure Initialize(var StdGenJnl: Record "Standard General Journal"; JnlBatchName: Code[10])
@@ -280,7 +280,7 @@ report 8610 "Create G/L Acc. Journal Lines"
             GenJnlLine."Line No." := 10000;
 
         GenJnlLine.TransferFields(StdGenJnlLine, false);
-        GenJnlLine.UpdateLineBalance;
+        GenJnlLine.UpdateLineBalance();
         GenJnlLine.Validate("Currency Code");
 
         if GenJnlLine."VAT Prod. Posting Group" <> '' then

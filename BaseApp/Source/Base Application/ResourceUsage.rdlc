@@ -8,78 +8,53 @@
         <ConnectString />
       </ConnectionProperties>
       <rd:SecurityType>None</rd:SecurityType>
-      <rd:DataSourceID>c2404f5b-e207-4369-a6a6-c2698ad5e14f</rd:DataSourceID>
+      <rd:DataSourceID>47b280b9-bba9-4dc3-bd6a-97086c13fd58</rd:DataSourceID>
     </DataSource>
   </DataSources>
   <ReportSections>
     <ReportSection>
       <Body>
         <ReportItems>
-          <Textbox Name="Resource_TABLECAPTION__________ResFilter">
-            <KeepTogether>true</KeepTogether>
-            <Paragraphs>
-              <Paragraph>
-                <TextRuns>
-                  <TextRun>
-                    <Value>=First(Fields!Resource_TABLECAPTION__________ResFilter.Value)</Value>
-                    <Style>
-                      <FontSize>7pt</FontSize>
-                    </Style>
-                  </TextRun>
-                </TextRuns>
-              </Paragraph>
-            </Paragraphs>
-            <Height>0.16654in</Height>
-            <ZIndex>1</ZIndex>
-            <Visibility>
-              <Hidden>=IIf(Fields!ResFilter.Value &lt;&gt;"",false,true)</Hidden>
-            </Visibility>
-            <DataElementOutput>NoOutput</DataElementOutput>
-            <Style>
-              <BackgroundColor>White</BackgroundColor>
-              <VerticalAlign>Middle</VerticalAlign>
-            </Style>
-          </Textbox>
-          <Tablix Name="Table1">
+          <Tablix Name="resourceUtilizationTable">
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>0.62008in</Width>
+                  <Width>1.03955in</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.5315in</Width>
+                  <Width>0.92144in</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>1.53543in</Width>
+                  <Width>2.27971in</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.5315in</Width>
+                  <Width>0.97352in</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.64961in</Width>
+                  <Width>0.92144in</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.64961in</Width>
-                </TablixColumn>
-                <TablixColumn>
-                  <Width>0.64961in</Width>
+                  <Width>1.01002in</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
                 <TablixRow>
-                  <Height>0.03125in</Height>
+                  <Height>0.13889in</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="CompanyInformation_Name">
+                        <Textbox Name="Textbox2">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!CompanyInformation_Name.Value</Value>
+                                  <Value>=First(Fields!ResTableCaptionResFilter.Value)</Value>
                                   <Style>
-                                    <Color>#ff0000</Color>
+                                    <FontStyle>Normal</FontStyle>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -88,579 +63,14 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <Visibility>
-                            <Hidden>true</Hidden>
-                          </Visibility>
+                          <rd:DefaultName>Textbox2</rd:DefaultName>
                           <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <VerticalAlign>Top</VerticalAlign>
                           </Style>
                         </Textbox>
+                        <ColSpan>6</ColSpan>
                       </CellContents>
                     </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource_UsageCaption">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Fields!Resource_UsageCaption.Value</Value>
-                                  <Style>
-                                    <Color>#ff0000</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Left</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Visibility>
-                            <Hidden>true</Hidden>
-                          </Visibility>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="CurrReport_PAGENOCaption">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Fields!CurrReport_PAGENOCaption.Value</Value>
-                                  <Style>
-                                    <Color>#ff0000</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Left</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Visibility>
-                            <Hidden>true</Hidden>
-                          </Visibility>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="textbox5">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Left</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <rd:DefaultName>textbox5</rd:DefaultName>
-                          <Style>
-                            <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                        <ColSpan>4</ColSpan>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell />
-                    <TablixCell />
-                    <TablixCell />
-                  </TablixCells>
-                </TablixRow>
-                <TablixRow>
-                  <Height>0.49961in</Height>
-                  <TablixCells>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource__No__Caption">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=First(Fields!Resource__No__Caption.Value)</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Left</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>8pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource_TypeCaption">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=First(Fields!Resource_TypeCaption.Value)</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Left</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>8pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource_NameCaption">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=First(Fields!Resource_NameCaption.Value)</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Left</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>8pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource__Base_Unit_of_Measure_Caption">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=First(Fields!Resource__Base_Unit_of_Measure_Caption.Value)</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Left</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>8pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource_CapacityCaption">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=First(Fields!Resource_CapacityCaption.Value)</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Right</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>8pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource__Usage__Qty___Caption">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=First(Fields!Resource__Usage__Qty___Caption.Value)</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Right</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>8pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Capacity____Usage__Qty___Caption">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=First(Fields!Capacity____Usage__Qty___Caption.Value)</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Right</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>8pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                  </TablixCells>
-                </TablixRow>
-                <TablixRow>
-                  <Height>0.16654in</Height>
-                  <TablixCells>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource__No__">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Fields!Resource__No__.Value</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Left</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource_Type">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Fields!Resource_Type.Value</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Left</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource_Name">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Fields!Resource_Name.Value</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Left</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource__Base_Unit_of_Measure_">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Fields!Resource__Base_Unit_of_Measure_.Value</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Left</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource_Capacity">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Code.BlankZero(Fields!Resource_Capacity.Value)</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <Format>=Fields!Resource_CapacityFormat.Value</Format>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Right</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Resource__Usage__Qty___">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Code.BlankZero(Fields!Resource__Usage__Qty___.Value)</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <Format>=Fields!Resource__Usage__Qty___Format.Value</Format>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Right</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Capacity____Usage__Qty___">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Code.BlankZero(Fields!Capacity____Usage__Qty___.Value)</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <Format>=Fields!Capacity____Usage__Qty___Format.Value</Format>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Right</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                  </TablixCells>
-                </TablixRow>
-                <TablixRow>
-                  <Height>0.16654in</Height>
-                  <TablixCells>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="textbox2">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style />
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Left</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <rd:DefaultName>textbox2</rd:DefaultName>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                        <ColSpan>7</ColSpan>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell />
                     <TablixCell />
                     <TablixCell />
                     <TablixCell />
@@ -669,18 +79,24 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.16654in</Height>
+                  <Height>0.13889in</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="TextBox1">
+                        <Textbox Name="ResourceNoCaption">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value />
-                                  <Style />
+                                  <Value>=Parameters!No_ResourceCaption.Value</Value>
+                                  <Style>
+                                    <FontStyle>Normal</FontStyle>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
                                 </TextRun>
                               </TextRuns>
                               <Style>
@@ -688,58 +104,279 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
+                          <ZIndex>19</ZIndex>
                           <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
-                        <ColSpan>2</ColSpan>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="ResourceTypeCaption">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Parameters!Type_ResourceCaption.Value</Value>
+                                  <Style>
+                                    <FontStyle>Normal</FontStyle>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <ZIndex>18</ZIndex>
+                          <Style>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="ResourceNameCaption">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Parameters!Name_ResourceCaption.Value</Value>
+                                  <Style>
+                                    <FontStyle>Normal</FontStyle>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <ZIndex>17</ZIndex>
+                          <Style>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="ResourceCapacityCaption">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Parameters!capacity_ResourceCaption.Value</Value>
+                                  <Style>
+                                    <FontStyle>Normal</FontStyle>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <ZIndex>16</ZIndex>
+                          <Style>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="ResourceUsageQtyCaption">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Parameters!UsageQty_ResourceCaption.Value</Value>
+                                  <Style>
+                                    <FontStyle>Normal</FontStyle>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <ZIndex>15</ZIndex>
+                          <Style>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="CapacityUsageQtyCaption">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=First(Fields!CapacityUsageQtyCaption.Value)</Value>
+                                  <Style>
+                                    <FontStyle>Normal</FontStyle>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <ZIndex>14</ZIndex>
+                          <Style>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.06944in</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox17">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontStyle>Normal</FontStyle>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox17</rd:DefaultName>
+                          <Style>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                        <ColSpan>6</ColSpan>
                       </CellContents>
                     </TablixCell>
                     <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.06944in</Height>
+                  <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Report_TotalCaption">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=First(Fields!Report_TotalCaption.Value)</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Left</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="TextBox12">
+                        <Textbox Name="Textbox7">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
                                   <Value />
-                                  <Style />
+                                  <Style>
+                                    <FontStyle>Normal</FontStyle>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox7</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <TopBorder>
+                              <Style>Solid</Style>
+                            </TopBorder>
+                            <BottomBorder>
+                              <Style>None</Style>
+                            </BottomBorder>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                        <ColSpan>6</ColSpan>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.13889in</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="ResourceNo">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!No_Resource.Value</Value>
+                                  <Style>
+                                    <FontStyle>Normal</FontStyle>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
                                 </TextRun>
                               </TextRuns>
                               <Style>
@@ -747,29 +384,92 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
+                          <ZIndex>9</ZIndex>
                           <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <BackgroundColor>=IIF(RowNumber(Nothing) Mod 2,"#EFEFEF","#FFFFF")</BackgroundColor>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Resource_Capacity_Control17">
+                        <Textbox Name="ResourceType">
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!Resource_Capacity.Value)</Value>
+                                  <Value>=Fields!Type_Resource.Value</Value>
                                   <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                    <Format>=First(Fields!Resource_Capacity_Control17Format.Value)</Format>
+                                    <FontStyle>Normal</FontStyle>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <ZIndex>8</ZIndex>
+                          <Style>
+                            <BackgroundColor>=IIF(RowNumber(Nothing) Mod 2,"#EFEFEF","#FFFFF")</BackgroundColor>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="ResourceName">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!Name_Resource.Value</Value>
+                                  <Style>
+                                    <FontStyle>Normal</FontStyle>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <ZIndex>7</ZIndex>
+                          <Style>
+                            <BackgroundColor>=IIF(RowNumber(Nothing) Mod 2,"#EFEFEF","#FFFFF")</BackgroundColor>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="ResourceCapacity">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!capacity_Resource.Value</Value>
+                                  <Style>
+                                    <FontStyle>Normal</FontStyle>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Format>=Fields!capacity_ResourceFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -778,29 +478,31 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
+                          <ZIndex>6</ZIndex>
                           <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <BackgroundColor>=IIF(RowNumber(Nothing) Mod 2,"#EFEFEF","#FFFFF")</BackgroundColor>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Resource__Usage__Qty____Control18">
+                        <Textbox Name="ResourceUsageQty">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!Resource__Usage__Qty___.Value)</Value>
+                                  <Value>=Fields!UsageQty_Resource.Value</Value>
                                   <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                    <Format>=First(Fields!Resource__Usage__Qty____Control18Format.Value)</Format>
+                                    <FontStyle>Normal</FontStyle>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Format>=Fields!UsageQty_ResourceFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -809,29 +511,31 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
+                          <ZIndex>5</ZIndex>
                           <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <BackgroundColor>=IIF(RowNumber(Nothing) Mod 2,"#EFEFEF","#FFFFF")</BackgroundColor>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Capacity____Usage__Qty____Control19">
+                        <Textbox Name="CapacityUsageQty">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!Capacity____Usage__Qty___.Value)</Value>
+                                  <Value>=Fields!CapacityUsageQty.Value</Value>
                                   <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                    <Format>=First(Fields!Capacity____Usage__Qty____Control19Format.Value)</Format>
+                                    <FontStyle>Normal</FontStyle>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Format>=Fields!CapacityUsageQtyFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -840,12 +544,11 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
+                          <ZIndex>4</ZIndex>
                           <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <BackgroundColor>=IIF(RowNumber(Nothing) Mod 2,"#EFEFEF","#FFFFF")</BackgroundColor>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
                           </Style>
                         </Textbox>
                       </CellContents>
@@ -862,11 +565,17 @@
                 <TablixMember />
                 <TablixMember />
                 <TablixMember />
-                <TablixMember />
               </TablixMembers>
             </TablixColumnHierarchy>
             <TablixRowHierarchy>
               <TablixMembers>
+                <TablixMember>
+                  <Visibility>
+                    <Hidden>=IIF(First(Fields!ResFilter.Value) = "",TRUE,FALSE)</Hidden>
+                  </Visibility>
+                  <KeepWithGroup>After</KeepWithGroup>
+                  <RepeatOnNewPage>true</RepeatOnNewPage>
+                </TablixMember>
                 <TablixMember>
                   <KeepWithGroup>After</KeepWithGroup>
                   <RepeatOnNewPage>true</RepeatOnNewPage>
@@ -875,7 +584,10 @@
                 <TablixMember>
                   <KeepWithGroup>After</KeepWithGroup>
                   <RepeatOnNewPage>true</RepeatOnNewPage>
-                  <KeepTogether>true</KeepTogether>
+                </TablixMember>
+                <TablixMember>
+                  <KeepWithGroup>After</KeepWithGroup>
+                  <RepeatOnNewPage>true</RepeatOnNewPage>
                 </TablixMember>
                 <TablixMember>
                   <Group Name="Table1_Details_Group">
@@ -888,40 +600,85 @@
                   <DataElementOutput>Output</DataElementOutput>
                   <KeepTogether>true</KeepTogether>
                 </TablixMember>
-                <TablixMember>
-                  <KeepWithGroup>Before</KeepWithGroup>
-                  <KeepTogether>true</KeepTogether>
-                </TablixMember>
-                <TablixMember>
-                  <KeepWithGroup>Before</KeepWithGroup>
-                  <KeepTogether>true</KeepTogether>
-                </TablixMember>
               </TablixMembers>
             </TablixRowHierarchy>
             <DataSetName>DataSet_Result</DataSetName>
-            <Top>0.23622in</Top>
-            <Height>1.03059in</Height>
-            <Width>5.16797in</Width>
+            <Top>0.01481cm</Top>
+            <Height>1.4111cm</Height>
+            <Width>7.14568in</Width>
+            <Style />
           </Tablix>
         </ReportItems>
-        <Height>1.26681in</Height>
+        <Height>1.45732cm</Height>
+        <Style />
       </Body>
-      <Width>7.14567in</Width>
+      <Width>18.15003cm</Width>
       <Page>
         <PageHeader>
-          <Height>0.63976in</Height>
+          <Height>1.88107cm</Height>
           <PrintOnFirstPage>true</PrintOnFirstPage>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
-            <Textbox Name="PageNumberTextBox">
+            <Textbox Name="ResourceUsageCaption1">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Globals!PageNumber</Value>
+                      <Value>=First(Fields!ResourceUsageCaption.Value, "DataSet_Result")</Value>
                       <Style>
-                        <FontSize>7pt</FontSize>
+                        <FontFamily>Segoe UI</FontFamily>
+                        <FontSize>14pt</FontSize>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style />
+                </Paragraph>
+              </Paragraphs>
+              <Height>20pt</Height>
+              <Width>11.23534cm</Width>
+              <Style>
+                <VerticalAlign>Middle</VerticalAlign>
+              </Style>
+            </Textbox>
+            <Textbox Name="COMPANYNAME1">
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=First(Fields!CompanyName.Value, "DataSet_Result")</Value>
+                      <Style>
+                        <FontFamily>Segoe UI</FontFamily>
+                        <FontSize>8pt</FontSize>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style />
+                </Paragraph>
+              </Paragraphs>
+              <Top>0.74471cm</Top>
+              <Height>11pt</Height>
+              <Width>11.23534cm</Width>
+              <ZIndex>1</ZIndex>
+              <Style>
+                <VerticalAlign>Middle</VerticalAlign>
+              </Style>
+            </Textbox>
+            <Textbox Name="Date_TodayCaption1">
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=First(Fields!TodayFormatted.Value, "DataSet_Result")</Value>
+                      <Style>
+                        <FontStyle>Normal</FontStyle>
+                        <FontFamily>Segoe UI</FontFamily>
+                        <FontSize>8pt</FontSize>
+                        <Format>D</Format>
                       </Style>
                     </TextRun>
                   </TextRuns>
@@ -930,11 +687,12 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.16654in</Top>
-              <Left>6.9685in</Left>
-              <Height>0.16654in</Height>
-              <ZIndex>5</ZIndex>
+              <Left>11.27062cm</Left>
+              <Height>11pt</Height>
+              <Width>6.87938cm</Width>
+              <ZIndex>2</ZIndex>
               <Style>
+                <Border />
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
             </Textbox>
@@ -947,101 +705,9 @@
                     <TextRun>
                       <Value>=User!UserID</Value>
                       <Style>
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <TextAlign>Right</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>0.33307in</Top>
-              <Left>5.11811in</Left>
-              <Height>0.16654in</Height>
-              <ZIndex>4</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="ExecutionTimeTextBox">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Globals!ExecutionTime</Value>
-                      <Style>
-                        <FontSize>7pt</FontSize>
-                        <Format>f</Format>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <TextAlign>Right</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Left>5.11811in</Left>
-              <Height>0.16654in</Height>
-              <ZIndex>3</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInformation_Name1">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=ReportItems!CompanyInformation_Name.Value</Value>
-                      <Style>
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                </Paragraph>
-              </Paragraphs>
-              <Top>0.16654in</Top>
-              <Height>0.16654in</Height>
-              <Width>2.95276in</Width>
-              <ZIndex>2</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="Resource_UsageCaption1">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=ReportItems!Resource_UsageCaption.Value</Value>
-                      <Style>
+                        <FontStyle>Normal</FontStyle>
+                        <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
-                        <FontWeight>Bold</FontWeight>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                </Paragraph>
-              </Paragraphs>
-              <Height>0.16654in</Height>
-              <Width>2.95276in</Width>
-              <ZIndex>1</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CurrReport_PAGENOCaption1">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=ReportItems!CurrReport_PAGENOCaption.Value</Value>
-                      <Style>
-                        <FontSize>7pt</FontSize>
                       </Style>
                     </TextRun>
                   </TextRuns>
@@ -1050,22 +716,147 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.16654in</Top>
-              <Left>6.67323in</Left>
-              <Height>0.16654in</Height>
-              <Width>0.29528in</Width>
+              <Top>0.75496cm</Top>
+              <Left>11.27062cm</Left>
+              <Height>11pt</Height>
+              <Width>6.87938cm</Width>
+              <ZIndex>3</ZIndex>
+              <Visibility>
+                <Hidden>=IIF(First(Fields!CurrReportPageNoCaption.Value, "DataSet_Result") = "",TRUE,FALSE)</Hidden>
+              </Visibility>
+              <DataElementOutput>NoOutput</DataElementOutput>
+              <Style>
+                <VerticalAlign>Middle</VerticalAlign>
+              </Style>
+            </Textbox>
+            <Textbox Name="PageNumberTextBox">
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=First(Fields!CurrReportPageNoCaption.Value, "DataSet_Result") &amp; " " &amp; Globals!PageNumber</Value>
+                      <Style>
+                        <FontStyle>Normal</FontStyle>
+                        <FontFamily>Segoe UI</FontFamily>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Right</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <Top>0.36267cm</Top>
+              <Left>11.27062cm</Left>
+              <Height>11pt</Height>
+              <Width>6.87938cm</Width>
+              <ZIndex>4</ZIndex>
+              <Visibility>
+                <Hidden>=IIF(First(Fields!CurrReportPageNoCaption.Value, "DataSet_Result") = "",TRUE,FALSE)</Hidden>
+              </Visibility>
+              <DataElementOutput>NoOutput</DataElementOutput>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
             </Textbox>
           </ReportItems>
+          <Style />
         </PageHeader>
-        <LeftMargin>0.49213in</LeftMargin>
-        <TopMargin>0.3937in</TopMargin>
-        <BottomMargin>0.49213in</BottomMargin>
+        <PageHeight>29.7cm</PageHeight>
+        <PageWidth>21cm</PageWidth>
+        <InteractiveHeight>11in</InteractiveHeight>
+        <InteractiveWidth>8.5in</InteractiveWidth>
+        <LeftMargin>1.76388cm</LeftMargin>
+        <RightMargin>1.05834cm</RightMargin>
+        <TopMargin>1.05834cm</TopMargin>
+        <BottomMargin>1.48166cm</BottomMargin>
+        <ColumnSpacing>1.27cm</ColumnSpacing>
+        <Style />
       </Page>
     </ReportSection>
   </ReportSections>
+  <ReportParameters>
+    <ReportParameter Name="No_ResourceCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>No_ResourceCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>No_ResourceCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Type_ResourceCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Type_ResourceCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Type_ResourceCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Name_ResourceCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Name_ResourceCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Name_ResourceCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="capacity_ResourceCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>capacity_ResourceCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>capacity_ResourceCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="UsageQty_ResourceCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>UsageQty_ResourceCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>UsageQty_ResourceCaption</Prompt>
+    </ReportParameter>
+  </ReportParameters>
+  <ReportParametersLayout>
+    <GridLayoutDefinition>
+      <NumberOfColumns>1</NumberOfColumns>
+      <NumberOfRows>5</NumberOfRows>
+      <CellDefinitions>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>0</RowIndex>
+          <ParameterName>No_ResourceCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>1</RowIndex>
+          <ParameterName>Type_ResourceCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>2</RowIndex>
+          <ParameterName>Name_ResourceCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>3</RowIndex>
+          <ParameterName>capacity_ResourceCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>4</RowIndex>
+          <ParameterName>UsageQty_ResourceCaption</ParameterName>
+        </CellDefinition>
+      </CellDefinitions>
+    </GridLayoutDefinition>
+  </ReportParametersLayout>
   <Code>Public Function BlankZero(ByVal Value As Decimal)
     if Value = 0 then
         Return ""
@@ -1103,106 +894,58 @@ End Function
 </Code>
   <Language>=User!Language</Language>
   <ConsumeContainerWhitespace>true</ConsumeContainerWhitespace>
-  <rd:ReportUnitType>Inch</rd:ReportUnitType>
-  <rd:ReportID>988bbea6-ef56-47ec-b53d-11d46859c12d</rd:ReportID>
+  <rd:ReportUnitType>Cm</rd:ReportUnitType>
+  <rd:ReportID>56a530d9-5cfc-4e77-834d-960a3f14e2f8</rd:ReportID>
   <DataSets>
     <DataSet Name="DataSet_Result">
       <Fields>
-        <Field Name="FORMAT_TODAY_0_4_">
-          <DataField>FORMAT_TODAY_0_4_</DataField>
+        <Field Name="TodayFormatted">
+          <DataField>TodayFormatted</DataField>
         </Field>
-        <Field Name="TIME">
-          <DataField>TIME</DataField>
+        <Field Name="CompanyName">
+          <DataField>CompanyName</DataField>
         </Field>
-        <Field Name="CompanyInformation_Name">
-          <DataField>CompanyInformation_Name</DataField>
-        </Field>
-        <Field Name="USERID">
-          <DataField>USERID</DataField>
+        <Field Name="ResTableCaptionResFilter">
+          <DataField>ResTableCaptionResFilter</DataField>
         </Field>
         <Field Name="ResFilter">
           <DataField>ResFilter</DataField>
         </Field>
-        <Field Name="Resource_TABLECAPTION__________ResFilter">
-          <DataField>Resource_TABLECAPTION__________ResFilter</DataField>
+        <Field Name="No_Resource">
+          <DataField>No_Resource</DataField>
         </Field>
-        <Field Name="Resource__No__">
-          <DataField>Resource__No__</DataField>
+        <Field Name="Type_Resource">
+          <DataField>Type_Resource</DataField>
         </Field>
-        <Field Name="Resource_Type">
-          <DataField>Resource_Type</DataField>
+        <Field Name="Name_Resource">
+          <DataField>Name_Resource</DataField>
         </Field>
-        <Field Name="Resource_Name">
-          <DataField>Resource_Name</DataField>
+        <Field Name="capacity_Resource">
+          <DataField>capacity_Resource</DataField>
         </Field>
-        <Field Name="Resource__Base_Unit_of_Measure_">
-          <DataField>Resource__Base_Unit_of_Measure_</DataField>
+        <Field Name="capacity_ResourceFormat">
+          <DataField>capacity_ResourceFormat</DataField>
         </Field>
-        <Field Name="Resource_Capacity">
-          <DataField>Resource_Capacity</DataField>
+        <Field Name="UsageQty_Resource">
+          <DataField>UsageQty_Resource</DataField>
         </Field>
-        <Field Name="Resource_CapacityFormat">
-          <DataField>Resource_CapacityFormat</DataField>
+        <Field Name="UsageQty_ResourceFormat">
+          <DataField>UsageQty_ResourceFormat</DataField>
         </Field>
-        <Field Name="Resource__Usage__Qty___">
-          <DataField>Resource__Usage__Qty___</DataField>
+        <Field Name="CapacityUsageQty">
+          <DataField>CapacityUsageQty</DataField>
         </Field>
-        <Field Name="Resource__Usage__Qty___Format">
-          <DataField>Resource__Usage__Qty___Format</DataField>
+        <Field Name="CapacityUsageQtyFormat">
+          <DataField>CapacityUsageQtyFormat</DataField>
         </Field>
-        <Field Name="Capacity____Usage__Qty___">
-          <DataField>Capacity____Usage__Qty___</DataField>
+        <Field Name="ResourceUsageCaption">
+          <DataField>ResourceUsageCaption</DataField>
         </Field>
-        <Field Name="Capacity____Usage__Qty___Format">
-          <DataField>Capacity____Usage__Qty___Format</DataField>
+        <Field Name="CurrReportPageNoCaption">
+          <DataField>CurrReportPageNoCaption</DataField>
         </Field>
-        <Field Name="Resource_Capacity_Control17">
-          <DataField>Resource_Capacity_Control17</DataField>
-        </Field>
-        <Field Name="Resource_Capacity_Control17Format">
-          <DataField>Resource_Capacity_Control17Format</DataField>
-        </Field>
-        <Field Name="Resource__Usage__Qty____Control18">
-          <DataField>Resource__Usage__Qty____Control18</DataField>
-        </Field>
-        <Field Name="Resource__Usage__Qty____Control18Format">
-          <DataField>Resource__Usage__Qty____Control18Format</DataField>
-        </Field>
-        <Field Name="Capacity____Usage__Qty____Control19">
-          <DataField>Capacity____Usage__Qty____Control19</DataField>
-        </Field>
-        <Field Name="Capacity____Usage__Qty____Control19Format">
-          <DataField>Capacity____Usage__Qty____Control19Format</DataField>
-        </Field>
-        <Field Name="Resource_UsageCaption">
-          <DataField>Resource_UsageCaption</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENOCaption">
-          <DataField>CurrReport_PAGENOCaption</DataField>
-        </Field>
-        <Field Name="Resource__No__Caption">
-          <DataField>Resource__No__Caption</DataField>
-        </Field>
-        <Field Name="Resource_TypeCaption">
-          <DataField>Resource_TypeCaption</DataField>
-        </Field>
-        <Field Name="Resource_NameCaption">
-          <DataField>Resource_NameCaption</DataField>
-        </Field>
-        <Field Name="Resource__Base_Unit_of_Measure_Caption">
-          <DataField>Resource__Base_Unit_of_Measure_Caption</DataField>
-        </Field>
-        <Field Name="Resource_CapacityCaption">
-          <DataField>Resource_CapacityCaption</DataField>
-        </Field>
-        <Field Name="Resource__Usage__Qty___Caption">
-          <DataField>Resource__Usage__Qty___Caption</DataField>
-        </Field>
-        <Field Name="Capacity____Usage__Qty___Caption">
-          <DataField>Capacity____Usage__Qty___Caption</DataField>
-        </Field>
-        <Field Name="Report_TotalCaption">
-          <DataField>Report_TotalCaption</DataField>
+        <Field Name="CapacityUsageQtyCaption">
+          <DataField>CapacityUsageQtyCaption</DataField>
         </Field>
       </Fields>
       <Query>

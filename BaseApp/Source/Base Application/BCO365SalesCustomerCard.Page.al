@@ -1,9 +1,13 @@
+#if not CLEAN21
 page 2318 "BC O365 Sales Customer Card"
 {
     Caption = 'Customer';
     DataCaptionExpression = Name;
     PageType = Card;
     SourceTable = Customer;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -14,18 +18,18 @@ page 2318 "BC O365 Sales Customer Card"
                 Caption = 'General';
                 field(Name; Name)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the customer''s name.';
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
-                field("Contact Type"; "Contact Type")
+                field("Contact Type"; Rec."Contact Type")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies if the contact is a company or a person.';
 
                     trigger OnValidate()
@@ -40,9 +44,9 @@ page 2318 "BC O365 Sales Customer Card"
                 group(ContactDetails)
                 {
                     Caption = 'Contact';
-                    field("E-Mail"; "E-Mail")
+                    field("E-Mail"; Rec."E-Mail")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Email Address';
                         ExtendedDatatype = EMail;
                         Importance = Promoted;
@@ -55,16 +59,16 @@ page 2318 "BC O365 Sales Customer Card"
                             MailManagement.ValidateEmailAddressField("E-Mail");
                         end;
                     }
-                    field("Phone No."; "Phone No.")
+                    field("Phone No."; Rec."Phone No.")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Phone Number';
                         Importance = Promoted;
                         ToolTip = 'Specifies the customer''s telephone number.';
                     }
                     field(FullAddress; FullAddress)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Address';
                         Editable = false;
                         Visible = IsDevice;
@@ -78,11 +82,11 @@ page 2318 "BC O365 Sales Customer Card"
                             if Name = '' then
                                 exit;
 
-                            CurrPage.SaveRecord;
+                            CurrPage.SaveRecord();
                             Commit();
                             TempStandardAddress.CopyFromCustomer(Rec);
                             if PAGE.RunModal(PAGE::"O365 Address", TempStandardAddress) = ACTION::LookupOK then begin
-                                Find;
+                                Find();
                                 CurrPage.Update(true);
                             end;
                         end;
@@ -94,30 +98,30 @@ page 2318 "BC O365 Sales Customer Card"
                     Visible = NOT IsDevice;
                     field(Address; Address)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                     }
-                    field("Address 2"; "Address 2")
+                    field("Address 2"; Rec."Address 2")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         ToolTip = 'Specifies additional address information.';
                     }
                     field(City; City)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Lookup = false;
                     }
-                    field("Post Code"; "Post Code")
+                    field("Post Code"; Rec."Post Code")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Lookup = false;
                     }
                     field(County; County)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                     }
                     field(CountryRegionCode; CountryRegionCode)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Country/Region Code';
                         Editable = CurrPageEditable;
                         Lookup = true;
@@ -143,9 +147,9 @@ page 2318 "BC O365 Sales Customer Card"
                 {
                     ShowCaption = false;
                     Visible = NOT TotalsHidden;
-                    field("Balance (LCY)"; "Balance (LCY)")
+                    field("Balance (LCY)"; Rec."Balance (LCY)")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = '1';
                         AutoFormatType = 10;
                         Caption = 'Outstanding';
@@ -156,7 +160,7 @@ page 2318 "BC O365 Sales Customer Card"
                     }
                     field(OverdueAmount; OverdueAmount)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = '1';
                         AutoFormatType = 10;
                         Caption = 'Overdue';
@@ -167,9 +171,9 @@ page 2318 "BC O365 Sales Customer Card"
                         StyleExpr = OverdueAmount > 0;
                         ToolTip = 'Specifies payments from the customer that are overdue per today''s date.';
                     }
-                    field("Sales (LCY)"; "Sales (LCY)")
+                    field("Sales (LCY)"; Rec."Sales (LCY)")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = '1';
                         AutoFormatType = 10;
                         Caption = 'Total Sales (Excl. VAT)';
@@ -182,9 +186,9 @@ page 2318 "BC O365 Sales Customer Card"
                 {
                     ShowCaption = false;
                     Visible = ("Contact Type" = "Contact Type"::Company) AND IsUsingVAT;
-                    field("VAT Registration No."; "VAT Registration No.")
+                    field("VAT Registration No."; Rec."VAT Registration No.")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                     }
                 }
             }
@@ -192,14 +196,14 @@ page 2318 "BC O365 Sales Customer Card"
             {
                 Caption = 'Tax';
                 Visible = NOT IsUsingVAT;
-                field("Tax Liable"; "Tax Liable")
+                field("Tax Liable"; Rec."Tax Liable")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies if the sales invoice contains sales tax.';
                 }
                 field(TaxAreaDescription; TaxAreaDescription)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Tax Rate';
                     Editable = false;
                     Enabled = CurrPageEditable;
@@ -236,7 +240,7 @@ page 2318 "BC O365 Sales Customer Card"
                 Visible = BlockedStatus;
                 field(BlockedStatus; BlockedStatus)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Blocked';
                     ToolTip = 'Specifies if you want to block the customer for any further business.';
 
@@ -259,14 +263,14 @@ page 2318 "BC O365 Sales Customer Card"
                 InstructionalText = 'Export customer privacy data in an Excel file and email it to yourself for review before sending it to the customer.';
                 field(ExportData; ExportDataLbl)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = false;
                     Importance = Promoted;
                     ShowCaption = false;
 
                     trigger OnDrillDown()
                     begin
-                        SetRecFilter;
+                        SetRecFilter();
                         PAGE.RunModal(PAGE::"O365 Export Customer Data", Rec);
                     end;
                 }
@@ -276,12 +280,12 @@ page 2318 "BC O365 Sales Customer Card"
         {
             part(Control50; "Customer Picture")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 SubPageLink = "No." = FIELD("No.");
             }
             part(SalesHistSelltoFactBox; "BC O365 Hist. Sell-to FactBox")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Sales History';
                 SubPageLink = "No." = FIELD("No."),
                               "Currency Filter" = FIELD("Currency Filter"),
@@ -301,21 +305,21 @@ page 2318 "BC O365 Sales Customer Card"
         TaxArea: Record "Tax Area";
         TempStandardAddress: Record "Standard Address" temporary;
     begin
-        CreateCustomerFromTemplate;
+        CreateCustomerFromTemplate();
 
-        OverdueAmount := CalcOverdueBalance;
+        OverdueAmount := CalcOverdueBalance();
 
         if TaxArea.Get("Tax Area Code") then
             TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguageFullLength();
 
-        BlockedStatus := IsBlocked;
+        BlockedStatus := IsBlocked();
 
         // Supergroup is visible only if one of the two subgroups is visible
         SalesAndPaymentsVisible := (not TotalsHidden) or
           (("Contact Type" = "Contact Type"::Company) and IsUsingVAT);
 
         TempStandardAddress.CopyFromCustomer(Rec);
-        FullAddress := TempStandardAddress.ToString;
+        FullAddress := TempStandardAddress.ToString();
         CountryRegionCode := "Country/Region Code";
         CurrPageEditable := CurrPage.Editable;
     end;
@@ -330,10 +334,10 @@ page 2318 "BC O365 Sales Customer Card"
     var
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
-        if O365SalesInitialSetup.Get then
-            IsUsingVAT := O365SalesInitialSetup.IsUsingVAT;
+        if O365SalesInitialSetup.Get() then
+            IsUsingVAT := O365SalesInitialSetup.IsUsingVAT();
 
-        IsDevice := ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone];
+        IsDevice := ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone];
     end;
 
     trigger OnModifyRecord(): Boolean
@@ -351,17 +355,17 @@ page 2318 "BC O365 Sales Customer Card"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        OnNewRec;
+        OnNewRec();
     end;
 
     trigger OnOpenPage()
     begin
-        SetRange("Date Filter", 0D, WorkDate);
+        SetRange("Date Filter", 0D, WorkDate());
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        exit(CanExitAfterProcessingCustomer);
+        exit(CanExitAfterProcessingCustomer());
     end;
 
     var
@@ -392,13 +396,13 @@ page 2318 "BC O365 Sales Customer Card"
             exit(true);
 
         if CustomerCardState = CustomerCardState::Delete then
-            exit(DeleteCustomerRelatedData);
+            exit(DeleteCustomerRelatedData());
 
-        if GuiAllowed and (CustomerCardState = CustomerCardState::Prompt) and not IsBlocked
+        if GuiAllowed and (CustomerCardState = CustomerCardState::Prompt) and not IsBlocked()
         then begin
             if Confirm(ClosePageQst, true) then
                 exit(true);
-            exit(DeleteCustomerRelatedData);
+            exit(DeleteCustomerRelatedData());
         end;
 
         exit(true);
@@ -417,7 +421,7 @@ page 2318 "BC O365 Sales Customer Card"
     var
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
     begin
-        if GuiAllowed and DocumentNoVisibility.CustomerNoSeriesIsDefault then
+        if GuiAllowed and DocumentNoVisibility.CustomerNoSeriesIsDefault() then
             NewMode := true;
     end;
 
@@ -440,3 +444,4 @@ page 2318 "BC O365 Sales Customer Card"
         end;
     end;
 }
+#endif

@@ -19,23 +19,21 @@ report 1393 "Cancel Issued Reminders"
                 CancelIssuedReminder.SetGenJnlBatch(GenJnlBatch);
                 if CancelIssuedReminder.Run("Issued Reminder Header") then begin
                     if CancelIssuedReminder.GetErrorMessages(TempErrorMessage) then
-                        AddIssuedReminderToErrorBuffer;
+                        AddIssuedReminderToErrorBuffer();
                     Commit();
-                end else begin
+                end else
                     if NoOfRecords > 1 then begin
-                        TempErrorMessage.LogLastError;
-                        AddIssuedReminderToErrorBuffer;
+                        TempErrorMessage.LogLastError();
+                        AddIssuedReminderToErrorBuffer();
                     end else
                         Error(GetLastErrorText);
-                end;
             end;
 
             trigger OnPostDataItem()
             begin
-                if NoOfRecords > 1 then begin
+                if NoOfRecords > 1 then
                     if not TempIssuedReminderHeader.IsEmpty() then
-                        AskShowNotCancelledIssuedReminders;
-                end;
+                        AskShowNotCancelledIssuedReminders();
             end;
 
             trigger OnPreDataItem()
@@ -73,7 +71,7 @@ report 1393 "Cancel Issued Reminders"
                     begin
                         if UseSamePostingDate then
                             NewPostingDate := 0D;
-                        SetEnabled;
+                        SetEnabled();
                     end;
                 }
                 field(NewPostingDate; NewPostingDate)

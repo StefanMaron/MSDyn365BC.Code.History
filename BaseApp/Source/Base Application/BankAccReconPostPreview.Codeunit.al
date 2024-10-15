@@ -8,8 +8,7 @@ codeunit 373 "Bank. Acc. Recon. Post Preview"
 
     var
         PostingPreviewEventHandler: Codeunit "Posting Preview Event Handler";
-        NothingToPostMsg: Label 'There is nothing to post.';
-        PreviewModeErr: Label 'Preview mode.';
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         PreviewExitStateErr: Label 'The posting preview has stopped because of a state that is not valid.';
         PreviewSubscriber: Variant;
         PreviewRecord: Variant;
@@ -40,6 +39,7 @@ codeunit 373 "Bank. Acc. Recon. Post Preview"
     [CommitBehavior(CommitBehavior::Ignore)]
     local procedure PreviewStart(var Subscriber: Codeunit "Bank Acc. Reconciliation Post"; var BankAccReconciliationSource: Record "Bank Acc. Reconciliation")
     var
+        DummyErrorMessage: Record "Error Message";
         ErrorContextElement: Codeunit "Error Context Element";
         ErrorMessageHandler: Codeunit "Error Message Handler";
         ErrorMessageMgt: Codeunit "Error Message Management";
@@ -47,7 +47,11 @@ codeunit 373 "Bank. Acc. Recon. Post Preview"
     begin
         BindSubscription(PostingPreviewEventHandler);
         ErrorMessageMgt.Activate(ErrorMessageHandler);
-        ErrorMessageMgt.PushContext(ErrorContextElement, BankAccReconciliationSource, 0, PreviewModeErr);
+        ErrorMessageMgt.PushContext(
+            ErrorContextElement,
+            BankAccReconciliationSource,
+            0,
+            CopyStr(DocumentErrorsMgt.GetNothingToPostErrorMsg(), 1, MaxStrLen(DummyErrorMessage."Additional Information")));
         OnAfterBindSubscription(PostingPreviewEventHandler);
 
         RunResult := RunPreview(Subscriber, BankAccReconciliationSource);
@@ -63,7 +67,7 @@ codeunit 373 "Bank. Acc. Recon. Post Preview"
             Error(PreviewExitStateErr);
 
         if NOT HideDialogs then begin
-            if GetLastErrorText <> PreviewModeErr then
+            if GetLastErrorText <> DocumentErrorsMgt.GetNothingToPostErrorMsg() then
                 if ErrorMessageHandler.ShowErrors() then
                     exit;
             ShowAllEntries();
@@ -75,7 +79,7 @@ codeunit 373 "Bank. Acc. Recon. Post Preview"
     [TryFunction]
     local procedure ThrowExpectedPreviewError()
     begin
-        Error(PreviewModeErr);
+        Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
     procedure GetPreviewHandler(var ResultPostingPreviewEventHandler: Codeunit "Posting Preview Event Handler")
@@ -97,7 +101,7 @@ codeunit 373 "Bank. Acc. Recon. Post Preview"
 
     procedure IsSuccess(): Boolean;
     begin
-        exit(LastErrorText = PreviewModeErr);
+        exit(LastErrorText = DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
     local procedure RunPreview(var Subscriber: Codeunit "Bank Acc. Reconciliation Post"; var BankAccReconciliationSource: Record "Bank Acc. Reconciliation"): Boolean
@@ -146,7 +150,7 @@ codeunit 373 "Bank. Acc. Recon. Post Preview"
             end;
         end else
             if GuiAllowed() and not HideDialogs then
-                Message(NothingToPostMsg);
+                Message(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
         OnAfterShowAllEntries();
     end;
@@ -163,7 +167,7 @@ codeunit 373 "Bank. Acc. Recon. Post Preview"
     procedure ThrowError()
     begin
         OnBeforeThrowError();
-        Error(PreviewModeErr);
+        Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
     [IntegrationEvent(false, false)]

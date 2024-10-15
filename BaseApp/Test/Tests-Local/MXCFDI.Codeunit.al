@@ -886,7 +886,7 @@ codeunit 144001 "MX CFDI"
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Verify
-        Assert.ExpectedError(StrSubstNo(PaymentMethodMissingErr, SalesHeader.TableCaption, SalesHeader."Document Type"::"Credit Memo"));
+        Assert.ExpectedError(StrSubstNo(PaymentMethodMissingErr, SalesHeader.TableCaption(), SalesHeader."Document Type"::"Credit Memo"));
     end;
 
     [Test]
@@ -905,7 +905,7 @@ codeunit 144001 "MX CFDI"
 
         // Verify
         Assert.ExpectedError(
-          StrSubstNo(PaymentMethodMissingErr, ServiceHeader.TableCaption, ServiceHeader."Document Type"::"Credit Memo"));
+          StrSubstNo(PaymentMethodMissingErr, ServiceHeader.TableCaption(), ServiceHeader."Document Type"::"Credit Memo"));
     end;
 
     [Test]
@@ -935,7 +935,7 @@ codeunit 144001 "MX CFDI"
           CreatePostPayment(
             SalesInvoiceHeader."Sell-to Customer No.", SalesInvoiceHeader."No.", -SalesInvoiceHeader."Amount Including VAT", '');
         SalesInvoiceHeader."Payment Terms Code" := CreatePaymentTermsForSAT;
-        SalesInvoiceHeader.Modify;
+        SalesInvoiceHeader.Modify();
         // [GIVEN] Customer has Payment Method with '99' SAT Code
         Customer.Get(SalesInvoiceHeader."Sell-to Customer No.");
         Customer.Validate("Payment Method Code", CreatePaymentMethodForSAT());
@@ -1082,7 +1082,7 @@ codeunit 144001 "MX CFDI"
           CreatePostPayment(
             ServiceInvoiceHeader."Customer No.", ServiceInvoiceHeader."No.", -ServiceInvoiceHeader."Amount Including VAT", '');
         ServiceInvoiceHeader."Payment Terms Code" := CreatePaymentTermsForSAT;
-        ServiceInvoiceHeader.Modify;
+        ServiceInvoiceHeader.Modify();
 
         // [WHEN] Request stamp for the payment
         RequestStamp(DATABASE::"Cust. Ledger Entry", PaymentNo, ResponseOption::Success, ActionOption::"Request Stamp");
@@ -1133,7 +1133,7 @@ codeunit 144001 "MX CFDI"
         // [GIVEN] Posted Sales Invoice with "Amount Including VAT" = 1000 in foreign currency "USD"
         Customer.Get(CreateCustomer);
         Customer.Validate("Currency Code",
-          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, LibraryRandom.RandIntInRange(10, 20), LibraryRandom.RandIntInRange(10, 20)));
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandIntInRange(10, 20), LibraryRandom.RandIntInRange(10, 20)));
         Customer.Modify(true);
         SalesHeader.Get(
           SalesHeader."Document Type"::Invoice,
@@ -1199,7 +1199,7 @@ codeunit 144001 "MX CFDI"
         // [GIVEN] Posted Sales Invoice with "Amount Including VAT" = 1000 in foreign currency "USD"
         Customer.Get(CreateCustomer);
         Customer.Validate("Currency Code",
-          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, LibraryRandom.RandIntInRange(10, 20), LibraryRandom.RandIntInRange(10, 20)));
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandIntInRange(10, 20), LibraryRandom.RandIntInRange(10, 20)));
         Customer.Modify(true);
         SalesHeader.Get(
           SalesHeader."Document Type"::Invoice,
@@ -1497,7 +1497,7 @@ codeunit 144001 "MX CFDI"
         // [GIVEN] Payment "Pmt1" with amount of -50 is applied to first invoice
         PaymentNo := CreatePostPayment(CustomerNo, '', -CustLedgerEntryInv[1].Amount / 2, '');
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, PaymentNo);
-        CustLedgerEntry."Date/Time Stamped" := Format(WorkDate);
+        CustLedgerEntry."Date/Time Stamped" := Format(WorkDate());
         CustLedgerEntry.Modify();
         LibraryERM.ApplyCustomerLedgerEntries(
           CustLedgerEntry."Document Type"::Payment, CustLedgerEntryInv[1]."Document Type"::Invoice,
@@ -1633,7 +1633,7 @@ codeunit 144001 "MX CFDI"
         // [WHEN] Request Stamp for the Sales Invoice
         RequestStamp(
           DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
-        SalesInvoiceHeader.Find;
+        SalesInvoiceHeader.Find();
         SalesInvoiceHeader.CalcFields("Original String", "Original Document XML", "Signed Document XML");
 
         // [THEN] XML Document has attribute 'TipoRelacion' = '04' under 'cfdi:CfdiRelacionados'
@@ -1691,7 +1691,7 @@ codeunit 144001 "MX CFDI"
           CreateAndPostSalesDoc(SalesHeader."Document Type"::Invoice, CreatePaymentMethodForSAT));
         RequestStamp(
           DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
-        SalesInvoiceHeader.Find;
+        SalesInvoiceHeader.Find();
 
         // [GIVEN] Posted Sales Credit Memo applied to the Sales Invoice
         SalesCrMemoHeader.Get(CreatePostApplySalesCrMemo(SalesInvoiceHeader."Bill-to Customer No.", SalesInvoiceHeader."No."));
@@ -1699,7 +1699,7 @@ codeunit 144001 "MX CFDI"
         // [WHEN] Request Stamp for the Credit Memo
         RequestStamp(
           DATABASE::"Sales Cr.Memo Header", SalesCrMemoHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
-        SalesCrMemoHeader.Find;
+        SalesCrMemoHeader.Find();
         SalesCrMemoHeader.CalcFields("Original String", "Original Document XML", "Signed Document XML");
 
         // [THEN] XML Document has attribute 'TipoRelacion' from CFDI Relation of Credit Memo under 'cfdi:CfdiRelacionados'
@@ -1751,7 +1751,7 @@ codeunit 144001 "MX CFDI"
           CreateAndPostSalesDoc(SalesHeader."Document Type"::Invoice, CreatePaymentMethodForSAT));
         RequestStamp(
           DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
-        SalesInvoiceHeader.Find;
+        SalesInvoiceHeader.Find();
 
         // [GIVEN] Posted Sales Credit Memo applied to the Sales Invoice
         SalesCrMemoHeader.Get(
@@ -1766,7 +1766,7 @@ codeunit 144001 "MX CFDI"
         // [WHEN] Request Stamp for the Credit Memo
         RequestStamp(
           DATABASE::"Sales Cr.Memo Header", SalesCrMemoHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
-        SalesCrMemoHeader.Find;
+        SalesCrMemoHeader.Find();
         SalesCrMemoHeader.CalcFields("Original String", "Original Document XML", "Signed Document XML");
 
         // [THEN] XML Document has node 'cfdi:CfdiRelacionados/cfdi:CfdiRelacionado' with 'UUID's of "UUID-Inv", "UUID1", "UUID2", "UUID3"
@@ -1879,7 +1879,7 @@ codeunit 144001 "MX CFDI"
           CreateAndPostSalesDoc(SalesHeader."Document Type"::Invoice, CreatePaymentMethodForSAT));
         RequestStamp(
           DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
-        SalesInvoiceHeader.Find;
+        SalesInvoiceHeader.Find();
 
         // [GIVEN] Posted Sales Credit Memo applied to the Sales Invoice
         SalesCrMemoHeader.Get(
@@ -1898,7 +1898,7 @@ codeunit 144001 "MX CFDI"
         // [WHEN] Request Stamp for the Credit Memo
         RequestStamp(
           DATABASE::"Sales Cr.Memo Header", SalesCrMemoHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
-        SalesCrMemoHeader.Find;
+        SalesCrMemoHeader.Find();
         SalesCrMemoHeader.CalcFields("Original String", "Original Document XML", "Signed Document XML");
 
         // [THEN] XML Document has node 'cfdi:CfdiRelacionados/cfdi:CfdiRelacionado' with 'UUID's of "UUID-Inv", "UUID1", "UUID2", "UUID3"
@@ -1948,7 +1948,7 @@ codeunit 144001 "MX CFDI"
           CreateAndPostServiceDoc(ServiceHeader."Document Type"::Invoice, CreatePaymentMethodForSAT));
         RequestStamp(
           DATABASE::"Service Invoice Header", ServiceInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
-        ServiceInvoiceHeader.Find;
+        ServiceInvoiceHeader.Find();
 
         // [GIVEN] Posted Service Credit Memo applied to the Service Invoice
         ServiceCrMemoHeader.Get(
@@ -1963,7 +1963,7 @@ codeunit 144001 "MX CFDI"
         // [WHEN] Request Stamp for the Credit Memo
         RequestStamp(
           DATABASE::"Service Cr.Memo Header", ServiceCrMemoHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
-        ServiceCrMemoHeader.Find;
+        ServiceCrMemoHeader.Find();
         ServiceCrMemoHeader.CalcFields("Original String", "Original Document XML", "Signed Document XML");
 
         // [THEN] XML Document has node 'cfdi:CfdiRelacionados/cfdi:CfdiRelacionado' with 'UUID's of "UUID-Inv", "UUID1", "UUID2", "UUID3"
@@ -2015,7 +2015,7 @@ codeunit 144001 "MX CFDI"
           CreateAndPostServiceDoc(ServiceHeader."Document Type"::Invoice, CreatePaymentMethodForSAT));
         RequestStamp(
           DATABASE::"Service Invoice Header", ServiceInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
-        ServiceInvoiceHeader.Find;
+        ServiceInvoiceHeader.Find();
 
         // [GIVEN] Posted Service Credit Memo applied to the Service Invoice
         ServiceCrMemoHeader.Get(
@@ -2034,7 +2034,7 @@ codeunit 144001 "MX CFDI"
         // [WHEN] Request Stamp for the Credit Memo
         RequestStamp(
           DATABASE::"Service Cr.Memo Header", ServiceCrMemoHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
-        ServiceCrMemoHeader.Find;
+        ServiceCrMemoHeader.Find();
         ServiceCrMemoHeader.CalcFields("Original String", "Original Document XML", "Signed Document XML");
 
         // [THEN] XML Document has node 'cfdi:CfdiRelacionados/cfdi:CfdiRelacionado' with 'UUID's of "UUID-Inv", "UUID1", "UUID2", "UUID3"
@@ -2478,10 +2478,10 @@ codeunit 144001 "MX CFDI"
         // [THEN] Error Messages page is opened with logged errors for "PAC Code", "PAC Environment", "SAT Certificate" fields
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, GeneralLedgerSetup.FieldCaption("SAT Certificate"), GeneralLedgerSetup.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, GeneralLedgerSetup.FieldCaption("PAC Code"), GeneralLedgerSetup.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, GeneralLedgerSetup.FieldCaption("PAC Environment"), GeneralLedgerSetup.RecordId));
     end;
@@ -2520,19 +2520,19 @@ codeunit 144001 "MX CFDI"
         // [THEN] Error Messages page is opened with logged errors for blank fields in Company Information
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, CompanyInformation.FieldCaption(Name), CompanyInformation.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, CompanyInformation.FieldCaption(Address), CompanyInformation.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, CompanyInformation.FieldCaption("E-Mail"), CompanyInformation.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, CompanyInformation.FieldCaption("RFC No."), CompanyInformation.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, CompanyInformation.FieldCaption("SAT Tax Regime Classification"), CompanyInformation.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, CompanyInformation.FieldCaption("SAT Postal Code"), CompanyInformation.RecordId));
     end;
@@ -2570,12 +2570,12 @@ codeunit 144001 "MX CFDI"
         // [THEN] Error Messages page is opened with logged errors for missed Web Services PAC Details
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(
-            PACDetailDoesNotExistErr, PACWebServiceDetail.TableCaption,
+            PACDetailDoesNotExistErr, PACWebServiceDetail.TableCaption(),
             PACWebService.Code, GeneralLedgerSetup."PAC Environment", PACWebServiceDetail.Type::"Request Stamp"));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(
-            PACDetailDoesNotExistErr, PACWebServiceDetail.TableCaption,
+            PACDetailDoesNotExistErr, PACWebServiceDetail.TableCaption(),
             PACWebService.Code, GeneralLedgerSetup."PAC Environment", PACWebServiceDetail.Type::Cancel));
     end;
 
@@ -2614,7 +2614,7 @@ codeunit 144001 "MX CFDI"
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, PACWebServiceDetail.FieldCaption(Address), PACWebServiceDetail.RecordId));
         PACWebServiceDetail.FindLast();
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, PACWebServiceDetail.FieldCaption(Address), PACWebServiceDetail.RecordId));
     end;
@@ -2647,7 +2647,7 @@ codeunit 144001 "MX CFDI"
 
         // [THEN] Error Messages page is opened with logged errors for blank fields in Customer Table
         ErrorMessages.Description.AssertEquals(StrSubstNo(IfEmptyErr, Customer.FieldCaption("RFC No."), Customer.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(StrSubstNo(IfEmptyErr, Customer.FieldCaption("Country/Region Code"), Customer.RecordId));
     end;
 
@@ -2684,19 +2684,19 @@ codeunit 144001 "MX CFDI"
         // [THEN] Error Messages page is opened with logged errors for blank fields in Customer Table
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, SalesInvoiceHeader.FieldCaption("Document Date"), SalesInvoiceHeader.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, SalesInvoiceHeader.FieldCaption("Payment Terms Code"), SalesInvoiceHeader.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, SalesInvoiceHeader.FieldCaption("Payment Method Code"), SalesInvoiceHeader.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, SalesInvoiceHeader.FieldCaption("Bill-to Address"), SalesInvoiceHeader.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, SalesInvoiceHeader.FieldCaption("Bill-to Post Code"), SalesInvoiceHeader.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, SalesInvoiceHeader.FieldCaption("CFDI Purpose"), SalesInvoiceHeader.RecordId));
         // [THEN] No error for CFDI Relation field
@@ -2737,7 +2737,7 @@ codeunit 144001 "MX CFDI"
         // [THEN] Error Messages page is opened with logged errors for blank fields in Payment Terms and Payment Method tables
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, PaymentTerms.FieldCaption("SAT Payment Term"), PaymentTerms.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, PaymentMethod.FieldCaption("SAT Method of Payment"), PaymentMethod.RecordId));
     end;
@@ -2774,13 +2774,13 @@ codeunit 144001 "MX CFDI"
         // [THEN] Error Messages page is opened with logged errors for blank fields in Sales Line table
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, SalesInvoiceLine.FieldCaption(Description), SalesInvoiceLine.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, SalesInvoiceLine.FieldCaption("Unit Price"), SalesInvoiceLine.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, SalesInvoiceLine.FieldCaption("Amount Including VAT"), SalesInvoiceLine.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, SalesInvoiceLine.FieldCaption("Unit of Measure Code"), SalesInvoiceLine.RecordId));
     end;
@@ -2829,14 +2829,14 @@ codeunit 144001 "MX CFDI"
         // [THEN] Item and Unit Of Measure are added with errors of blank fields
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, Item.FieldCaption("SAT Item Classification"), Item.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, UnitOfMeasure.FieldCaption("SAT UofM Classification"), UnitOfMeasure.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(
             WrongFieldValueErr,
-            SalesInvoiceLineGL.Type, SalesInvoiceLineGL.FieldCaption(Type), SalesInvoiceLineGL.TableCaption));
+            SalesInvoiceLineGL.Type, SalesInvoiceLineGL.FieldCaption(Type), SalesInvoiceLineGL.TableCaption()));
     end;
 
     [Test]
@@ -2885,11 +2885,11 @@ codeunit 144001 "MX CFDI"
         // [THEN] Error Messages page is opened with logged errors for blank fields in Sales Line table
         Assert.ExpectedMessage(
           StrSubstNo('''%1'' in ''%2: %3,%4'' must not be blank.',
-            SalesInvoiceLine.FieldCaption(Description), SalesInvoiceLine.TableCaption,
+            SalesInvoiceLine.FieldCaption(Description), SalesInvoiceLine.TableCaption(),
             SalesInvoiceLine."Document No.", SalesInvoiceLine."Line No."),
           ErrorMessages.Description.Value);
         // [THEN] Warning is registered for the line with negative Quantity and 'Retention Attached to Line No.' = 0
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         SalesInvoiceLine.Next();
         Assert.ExpectedMessage(
           StrSubstNo('''%1'' in ''Document Line: %2,%3'' must be greater than or equal to 0.',
@@ -2897,7 +2897,7 @@ codeunit 144001 "MX CFDI"
             SalesInvoiceLine."Document No.", SalesInvoiceLine."Line No."),
           ErrorMessages.Description.Value);
         // [THEN] Warning is registered for the line with line having 'Retention Attached to Line No.' and 'Retention VAT %' = 0
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         SalesInvoiceLine.Next();
         Assert.ExpectedMessage(
           StrSubstNo('''%1'' in ''Document Line: %2,%3'' must not be blank.',
@@ -2928,7 +2928,7 @@ codeunit 144001 "MX CFDI"
         // [WHEN] Request Stamp for the Sales Invoice
         RequestStamp(
           DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
-        SalesInvoiceHeader.Find;
+        SalesInvoiceHeader.Find();
         SalesInvoiceHeader.CalcFields("Original String", "Original Document XML", Amount, "Amount Including VAT");
 
         TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
@@ -2984,7 +2984,7 @@ codeunit 144001 "MX CFDI"
         // [WHEN] Request Stamp for the Sales Invoice
         RequestStamp(
           DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
-        SalesInvoiceHeader.Find;
+        SalesInvoiceHeader.Find();
         SalesInvoiceHeader.CalcFields("Original String", "Original Document XML", Amount);
 
         TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
@@ -3034,7 +3034,7 @@ codeunit 144001 "MX CFDI"
         // [WHEN] Request Stamp for the Sales Invoice
         RequestStamp(
           DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
-        SalesInvoiceHeader.Find;
+        SalesInvoiceHeader.Find();
         SalesInvoiceHeader.CalcFields("Original String", "Original Document XML", Amount);
 
         TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
@@ -3077,7 +3077,7 @@ codeunit 144001 "MX CFDI"
         // [WHEN] Request Stamp for the Sales Invoice
         RequestStamp(
           DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
-        SalesInvoiceHeader.Find;
+        SalesInvoiceHeader.Find();
         SalesInvoiceHeader.CalcFields("Original String", "Original Document XML", Amount);
 
         TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
@@ -3644,7 +3644,7 @@ codeunit 144001 "MX CFDI"
         SalesInvoiceHeader.Get(
           CreateAndPostSalesDoc(SalesHeader."Document Type"::Invoice, CreatePaymentMethodForSAT()));
 
-        NameValueBuffer.Init;
+        NameValueBuffer.Init();
         NameValueBuffer.ID := CODEUNIT::"MX CFDI";
         NameValueBuffer.Name := '20 16 1742 0001871'; // value for signed string is separated with 1 space
         NameValueBuffer.Value := '20  16  1742  0001871'; // formatted as 2/2/4/7 digits separated with 2 spaces
@@ -3656,7 +3656,7 @@ codeunit 144001 "MX CFDI"
           DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
         UnbindSubscription(MXCFDI);
 
-        SalesInvoiceHeader.Find;
+        SalesInvoiceHeader.Find();
         SalesInvoiceHeader.CalcFields("Original String", "Original Document XML", "Signed Document XML");
 
         // [THEN] XML Document has node 'cfdi:Conceptos/cfdi:Concepto/cfdi:InformacionAduanera' with attribute 'NumeroPedimento' in proper format
@@ -3751,7 +3751,7 @@ codeunit 144001 "MX CFDI"
 
         // [GIVEN] Customer with currency having "Amount Rounding Precision" = 0.00001, "Amount Decimal Places" = 5
         Customer.Get(CreateCustomer());
-        Customer.Validate("Currency Code", LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1, 1));
+        Customer.Validate("Currency Code", LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1));
         Customer.Modify(true);
         UpdateCurrencyWithRounding(Customer."Currency Code", 0.00001, ':5');
 
@@ -4042,10 +4042,10 @@ codeunit 144001 "MX CFDI"
         // [THEN] Error Messages page is opened with logged errors for "PAC Code", "PAC Environment", "SAT Certificate" fields
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, SalesShipmentHeader.FieldCaption("Transit-from Date/Time"), SalesShipmentHeader.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, SalesShipmentHeader.FieldCaption("Transit Hours"), SalesShipmentHeader.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, SalesShipmentHeader.FieldCaption("Transit Distance"), SalesShipmentHeader.RecordId));
     end;
@@ -4076,10 +4076,10 @@ codeunit 144001 "MX CFDI"
 
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, TransferShipmentHeader.FieldCaption("Transit-from Date/Time"), TransferShipmentHeader.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, TransferShipmentHeader.FieldCaption("Transit Hours"), TransferShipmentHeader.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, TransferShipmentHeader.FieldCaption("Transit Distance"), TransferShipmentHeader.RecordId));
     end;
@@ -4256,7 +4256,7 @@ codeunit 144001 "MX CFDI"
         NameValueBuffer.DeleteAll();
         PostCode.ModifyAll("Time Zone", '');
         SetupCompanyInformation;
-        ClearLastError;
+        ClearLastError();
 
         if isInitialized then
             exit;
@@ -4487,7 +4487,7 @@ codeunit 144001 "MX CFDI"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         SalesHeader.Get(DocumentType, CreateSalesDocWithPaymentMethodCode(DocumentType, PaymentMethodCode));
-        PostedDocumentNo := NoSeriesManagement.GetNextNo(SalesHeader."Posting No. Series", WorkDate, false);
+        PostedDocumentNo := NoSeriesManagement.GetNextNo(SalesHeader."Posting No. Series", WorkDate(), false);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
@@ -4563,7 +4563,7 @@ codeunit 144001 "MX CFDI"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         ServiceHeader.Get(DocumentType, CreateServiceDocWithPaymentMethodCode(DocumentType, PaymentMethodCode));
-        PostedDocumentNo := NoSeriesManagement.GetNextNo(ServiceHeader."Posting No. Series", WorkDate, false);
+        PostedDocumentNo := NoSeriesManagement.GetNextNo(ServiceHeader."Posting No. Series", WorkDate(), false);
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
     end;
 
@@ -4578,7 +4578,7 @@ codeunit 144001 "MX CFDI"
         ServiceHeader.Validate("Applies-to Doc. Type", ServiceHeader."Applies-to Doc. Type"::Invoice);
         ServiceHeader.Validate("Applies-to Doc. No.", InvoiceNo);
         ServiceHeader.Modify(true);
-        PostedDocumentNo := NoSeriesManagement.GetNextNo(ServiceHeader."Posting No. Series", WorkDate, false);
+        PostedDocumentNo := NoSeriesManagement.GetNextNo(ServiceHeader."Posting No. Series", WorkDate(), false);
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
     end;
 
@@ -4696,7 +4696,7 @@ codeunit 144001 "MX CFDI"
         DepreciationBook.Modify(true);
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code);
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroup.Code);
-        FADepreciationBook.Validate("Acquisition Date", WorkDate);
+        FADepreciationBook.Validate("Acquisition Date", WorkDate());
         FADepreciationBook.Modify(true);
     end;
 
@@ -4944,7 +4944,7 @@ codeunit 144001 "MX CFDI"
     var
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
-        PostedDocumentNo := NoSeriesManagement.GetNextNo(ServiceHeader."Posting No. Series", WorkDate, false);
+        PostedDocumentNo := NoSeriesManagement.GetNextNo(ServiceHeader."Posting No. Series", WorkDate(), false);
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
     end;
 
@@ -5157,10 +5157,10 @@ codeunit 144001 "MX CFDI"
         asserterror RequestStamp(TableNo, PostedDocumentNo, ResponseOption::Success, ActionOption::"Request Stamp");
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, CompanyInfo.FieldCaption(City), CompanyInfo.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, CompanyInfo.FieldCaption("Country/Region Code"), CompanyInfo.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, CompanyInfo.FieldCaption("Post Code"), CompanyInfo.RecordId));
     end;
@@ -5186,7 +5186,7 @@ codeunit 144001 "MX CFDI"
         asserterror RequestStamp(TableNo, PostedDocumentNo, ResponseOption::Success, ActionOption::"Request Stamp");
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, CompanyInfo.FieldCaption(City), CompanyInfo.RecordId));
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, CompanyInfo.FieldCaption("Country/Region Code"), CompanyInfo.RecordId));
     end;
@@ -5209,7 +5209,7 @@ codeunit 144001 "MX CFDI"
         ReportSelections: Record "Report Selections";
     begin
         with PACWebService do begin
-            Init;
+            Init();
             Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"PAC Web Service"));
             Validate(Name, Code);
             Certificate := CreateIsolatedCertificate;
@@ -5217,7 +5217,7 @@ codeunit 144001 "MX CFDI"
         end;
 
         with PACWebServiceDetail do begin
-            Init;
+            Init();
             Validate("PAC Code", PACWebService.Code);
             Validate(Environment, Environment::Test);
 
@@ -5232,7 +5232,7 @@ codeunit 144001 "MX CFDI"
         end;
 
         with GLSetup do begin
-            Get;
+            Get();
             Validate("PAC Code", PACWebService.Code);
             Validate("PAC Environment", PACWebServiceDetail.Environment);
             Validate("Sim. Signature", true);
@@ -6422,7 +6422,7 @@ codeunit 144001 "MX CFDI"
         ServiceHeader.Init();
         ServiceHeader.Validate("Document Type", DocumentType);
         ServiceHeader.Validate("Customer No.", CustomerNo);
-        ServiceHeader.Validate("Due Date", WorkDate);
+        ServiceHeader.Validate("Due Date", WorkDate());
         ServiceHeader.Insert(true);
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
         ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));

@@ -13,7 +13,7 @@ report 801 "Assembly BOMs"
         {
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Search Description";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ItemTableCaptionItemFilter; TableCaption + ': ' + ItemFilter)
@@ -91,7 +91,7 @@ report 801 "Assembly BOMs"
 
     trigger OnPreReport()
     begin
-        ItemFilter := Item.GetFilters;
+        ItemFilter := Item.GetFilters();
     end;
 
     var

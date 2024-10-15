@@ -53,7 +53,7 @@
             trigger OnValidate()
             begin
                 if "Search Name" = '' then
-                    "Search Name" := SetSearchNameToFullnameAndInitials;
+                    "Search Name" := SetSearchNameToFullnameAndInitials();
             end;
         }
         field(8; Address; Text[100])
@@ -80,8 +80,13 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(11; "Post Code"; Code[20])
@@ -100,8 +105,13 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(12; County; Text[30])
@@ -210,7 +220,7 @@
             begin
                 EmployeeQualification.SetRange("Employee No.", "No.");
                 EmployeeQualification.ModifyAll("Employee Status", Status);
-                Modify;
+                Modify();
             end;
         }
         field(32; "Inactive Date"; Date)
@@ -540,7 +550,7 @@
         DimMgt.UpdateDefaultDim(
           DATABASE::Employee, "No.",
           "Global Dimension 1 Code", "Global Dimension 2 Code");
-        UpdateSearchName;
+        UpdateSearchName();
     end;
 
     trigger OnModify()
@@ -565,7 +575,7 @@
         DimMgt.RenameDefaultDim(DATABASE::Employee, xRec."No.", "No.");
         "Last Modified Date Time" := CurrentDateTime;
         "Last Date Modified" := Today;
-        UpdateSearchName;
+        UpdateSearchName();
     end;
 
     var
@@ -629,7 +639,7 @@
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
         if not IsTemporary then begin
             DimMgt.SaveDefaultDim(DATABASE::Employee, "No.", FieldNumber, ShortcutDimCode);
-            Modify;
+            Modify();
         end;
 
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
@@ -642,7 +652,7 @@
     begin
         OnlineMapSetup.SetRange(Enabled, true);
         if OnlineMapSetup.FindFirst() then
-            OnlineMapManagement.MakeSelection(DATABASE::Employee, GetPosition)
+            OnlineMapManagement.MakeSelection(DATABASE::Employee, GetPosition())
         else
             Message(Text000);
     end;
@@ -651,16 +661,16 @@
     var
         PrevSearchName: Code[250];
     begin
-        PrevSearchName := xRec.FullName + ' ' + xRec.Initials;
+        PrevSearchName := xRec.FullName() + ' ' + xRec.Initials;
         if ((("First Name" <> xRec."First Name") or ("Middle Name" <> xRec."Middle Name") or ("Last Name" <> xRec."Last Name") or
              (Initials <> xRec.Initials)) and ("Search Name" = PrevSearchName))
         then
-            "Search Name" := SetSearchNameToFullnameAndInitials;
+            "Search Name" := SetSearchNameToFullnameAndInitials();
     end;
 
     local procedure SetSearchNameToFullnameAndInitials(): Code[250]
     begin
-        exit(FullName + ' ' + Initials);
+        exit(FullName() + ' ' + Initials);
     end;
 
     procedure GetBankAccountNo(): Text
@@ -725,6 +735,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBlockedEmployee(Employee: Record Employee; IsPosting: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var Employee: Record Employee; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var Employee: Record Employee; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
     begin
     end;
 

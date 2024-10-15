@@ -68,7 +68,7 @@ page 1604 "Office New Contact Dlg"
                     var
                         OfficeMgt: Codeunit "Office Management";
                     begin
-                        OfficeMgt.SelectAndChangeCompany;
+                        OfficeMgt.SelectAndChangeCompany();
                     end;
                 }
             }
@@ -131,7 +131,7 @@ page 1604 "Office New Contact Dlg"
                 Page.Run(Page::"Contact Card", Contact)
             else
                 Contact.ShowBusinessRelation("Contact Business Relation Link To Table"::" ", false);
-            CurrPage.Close;
+            CurrPage.Close();
         end;
     end;
 }

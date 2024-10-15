@@ -25,7 +25,7 @@ report 950 "Create Time Sheets"
                     if IsHandled then
                         CurrReport.Skip();
 
-                    if CheckExistingPeriods then begin
+                    if CheckExistingPeriods() then begin
                         TimeSheetHeader.Init();
                         TimeSheetHeader."No." := NoSeriesMgt.GetNextNo(ResourcesSetup."Time Sheet Nos.", Today, true);
                         TimeSheetHeader."Starting Date" := StartingDate;
@@ -85,7 +85,7 @@ report 950 "Create Time Sheets"
 
                         trigger OnValidate()
                         begin
-                            ValidateStartingDate;
+                            ValidateStartingDate();
                         end;
                     }
                     field(NoOfPeriods; NoOfPeriods)
@@ -119,7 +119,7 @@ report 950 "Create Time Sheets"
             if TimeSheetHeader.FindLast() then
                 StartingDate := TimeSheetHeader."Ending Date" + 1
             else
-                StartingDate := TimeSheetMgt.FindNearestTimeSheetStartDate(WorkDate);
+                StartingDate := TimeSheetMgt.FindNearestTimeSheetStartDate(WorkDate());
         end;
     }
 
@@ -204,7 +204,7 @@ report 950 "Create Time Sheets"
 
     procedure InitParameters(NewStartingDate: Date; NewNoOfPeriods: Integer; NewResourceFilter: Code[250]; NewCreateLinesFromJobPlanning: Boolean; NewHideDialog: Boolean)
     begin
-        ClearAll;
+        ClearAll();
         ResourcesSetup.Get();
         StartingDate := NewStartingDate;
         NoOfPeriods := NewNoOfPeriods;

@@ -1,4 +1,4 @@
-report 5912 "Service - Credit Memo"
+﻿report 5912 "Service - Credit Memo"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './ServiceCreditMemo.rdlc';
@@ -287,7 +287,7 @@ report 5912 "Service - Credit Memo"
                             AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
-                        column(VATAmtText_VATAmountLine; VATAmountLine.VATAmountText)
+                        column(VATAmtText_VATAmountLine; TempVATAmountLine.VATAmountText())
                         {
                         }
                         column(PaymentDisOnVAT; -("Line Amount" - "Inv. Discount Amount" - "Amount Including VAT"))
@@ -334,10 +334,10 @@ report 5912 "Service - Credit Memo"
                         dataitem("Service Shipment Buffer"; "Integer")
                         {
                             DataItemTableView = SORTING(Number);
-                            column(PostDate_ServShiptBuffer; Format(ServiceShipmentBuffer."Posting Date"))
+                            column(PostDate_ServShiptBuffer; Format(TempServiceShipmentBuffer."Posting Date"))
                             {
                             }
-                            column(Quantity_ServShiptBuffer; ServiceShipmentBuffer.Quantity)
+                            column(Quantity_ServShiptBuffer; TempServiceShipmentBuffer.Quantity)
                             {
                                 DecimalPlaces = 0 : 5;
                             }
@@ -348,14 +348,14 @@ report 5912 "Service - Credit Memo"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then
-                                    ServiceShipmentBuffer.Find('-')
+                                    TempServiceShipmentBuffer.Find('-')
                                 else
-                                    ServiceShipmentBuffer.Next;
+                                    TempServiceShipmentBuffer.Next();
                             end;
 
                             trigger OnPreDataItem()
                             begin
-                                SetRange(Number, 1, ServiceShipmentBuffer.Count);
+                                SetRange(Number, 1, TempServiceShipmentBuffer.Count);
                             end;
                         }
                         dataitem(DimensionLoop2; "Integer")
@@ -385,26 +385,26 @@ report 5912 "Service - Credit Memo"
 
                         trigger OnAfterGetRecord()
                         begin
-                            ServiceShipmentBuffer.DeleteAll();
+                            TempServiceShipmentBuffer.DeleteAll();
                             PostedReceiptDate := 0D;
                             if Quantity <> 0 then
-                                PostedReceiptDate := FindPostedShipmentDate;
+                                PostedReceiptDate := FindPostedShipmentDate();
 
                             if (Type = Type::"G/L Account") and not ShowInternalInfo then
                                 "No." := '';
 
-                            VATAmountLine.Init();
-                            VATAmountLine."VAT Identifier" := "VAT Identifier";
-                            VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
-                            VATAmountLine."Tax Group Code" := "Tax Group Code";
-                            VATAmountLine."VAT %" := "VAT %";
-                            VATAmountLine."VAT Base" := Amount;
-                            VATAmountLine."Amount Including VAT" := "Amount Including VAT";
-                            VATAmountLine."Line Amount" := "Line Amount";
+                            TempVATAmountLine.Init();
+                            TempVATAmountLine."VAT Identifier" := "VAT Identifier";
+                            TempVATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
+                            TempVATAmountLine."Tax Group Code" := "Tax Group Code";
+                            TempVATAmountLine."VAT %" := "VAT %";
+                            TempVATAmountLine."VAT Base" := Amount;
+                            TempVATAmountLine."Amount Including VAT" := "Amount Including VAT";
+                            TempVATAmountLine."Line Amount" := "Line Amount";
                             if "Allow Invoice Disc." then
-                                VATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
-                            VATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
-                            VATAmountLine.InsertLine;
+                                TempVATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
+                            TempVATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
+                            TempVATAmountLine.InsertLine();
 
                             TotalAmount += Amount;
                             TotalAmountInclVAT += "Amount Including VAT";
@@ -415,9 +415,9 @@ report 5912 "Service - Credit Memo"
 
                         trigger OnPreDataItem()
                         begin
-                            VATAmountLine.DeleteAll();
-                            ServiceShipmentBuffer.Reset();
-                            ServiceShipmentBuffer.DeleteAll();
+                            TempVATAmountLine.DeleteAll();
+                            TempServiceShipmentBuffer.Reset();
+                            TempServiceShipmentBuffer.DeleteAll();
                             FirstValueEntryNo := 0;
                             MoreLines := Find('+');
                             while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) and (Amount = 0) do
@@ -435,36 +435,36 @@ report 5912 "Service - Credit Memo"
                     dataitem(VATCounter; "Integer")
                     {
                         DataItemTableView = SORTING(Number);
-                        column(VATBase_VATAmountLine; VATAmountLine."VAT Base")
+                        column(VATBase_VATAmountLine; TempVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmount_VATAmountLine; VATAmountLine."VAT Amount")
+                        column(VATAmount_VATAmountLine; TempVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(LineAmount_VATAmountLine; VATAmountLine."Line Amount")
+                        column(LineAmount_VATAmountLine; TempVATAmountLine."Line Amount")
                         {
                             AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(InvDiscBaseAmt_VATAmtLine; VATAmountLine."Inv. Disc. Base Amount")
+                        column(InvDiscBaseAmt_VATAmtLine; TempVATAmountLine."Inv. Disc. Base Amount")
                         {
                             AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(InvoiceDisAmt_VATAmtLine; VATAmountLine."Invoice Discount Amount")
+                        column(InvoiceDisAmt_VATAmtLine; TempVATAmountLine."Invoice Discount Amount")
                         {
                             AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VAT_VATAmtLine; VATAmountLine."VAT %")
+                        column(VAT_VATAmtLine; TempVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(VATIdentifier_VATAmtLine; VATAmountLine."VAT Identifier")
+                        column(VATIdentifier_VATAmtLine; TempVATAmountLine."VAT Identifier")
                         {
                         }
                         column(VATAmountLineVATCaption; VATAmountLineVATCaptionLbl)
@@ -497,14 +497,14 @@ report 5912 "Service - Credit Memo"
 
                         trigger OnAfterGetRecord()
                         begin
-                            VATAmountLine.GetLine(Number);
+                            TempVATAmountLine.GetLine(Number);
                         end;
 
                         trigger OnPreDataItem()
                         begin
-                            if VATAmountLine.GetTotalVATAmount = 0 then
+                            if TempVATAmountLine.GetTotalVATAmount() = 0 then
                                 CurrReport.Break();
-                            SetRange(Number, 1, VATAmountLine.Count);
+                            SetRange(Number, 1, TempVATAmountLine.Count);
                         end;
                     }
                     dataitem(Total; "Integer")
@@ -566,7 +566,7 @@ report 5912 "Service - Credit Memo"
 
                 trigger OnPostDataItem()
                 begin
-                    if not IsReportInPreviewMode then
+                    if not IsReportInPreviewMode() then
                         CODEUNIT.Run(CODEUNIT::"Service Cr. Memo-Printed", "Service Cr.Memo Header");
                 end;
 
@@ -585,7 +585,7 @@ report 5912 "Service - Credit Memo"
 
                 FormatAddressFields("Service Cr.Memo Header");
                 FormatDocumentFields("Service Cr.Memo Header");
-		
+
                 if not CompanyBankAccount.Get("Service Cr.Memo Header"."Company Bank Account Code") then
                     CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
 
@@ -659,10 +659,6 @@ report 5912 "Service - Credit Memo"
     end;
 
     var
-        Text003: Label '(Applies to %1 %2)';
-        Text004: Label 'COPY';
-        Text005: Label 'Service - Credit Memo %1';
-        Text006: Label 'Page %1';
         GLSetup: Record "General Ledger Setup";
         SalesPurchPerson: Record "Salesperson/Purchaser";
         CompanyBankAccount: Record "Bank Account";
@@ -671,9 +667,9 @@ report 5912 "Service - Credit Memo"
         CompanyInfo2: Record "Company Information";
         CompanyInfo3: Record "Company Information";
         ServiceSetup: Record "Service Mgt. Setup";
-        VATAmountLine: Record "VAT Amount Line" temporary;
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
         DimSetEntry: Record "Dimension Set Entry";
-        ServiceShipmentBuffer: Record "Service Shipment Buffer" temporary;
+        TempServiceShipmentBuffer: Record "Service Shipment Buffer" temporary;
         RespCenter: Record "Responsibility Center";
         Cust: Record Customer;
         Language: Codeunit Language;
@@ -682,7 +678,7 @@ report 5912 "Service - Credit Memo"
         CustAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
-        SalesPersonText: Text[30];
+        SalesPersonText: Text[50];
         VATNoText: Text[80];
         ReferenceText: Text[80];
         AppliedToText: Text;
@@ -707,6 +703,11 @@ report 5912 "Service - Credit Memo"
         TotalLineAmount: Decimal;
         DimTxtArrLength: Integer;
         DimTxtArr: array[500] of Text[50];
+
+        Text003: Label '(Applies to %1 %2)';
+        Text004: Label 'COPY';
+        Text005: Label 'Service - Credit Memo %1';
+        Text006: Label 'Page %1';
         CompanyInfoPhoneNoCaptionLbl: Label 'Phone No.';
         CompanyInfoFaxNoCaptionLbl: Label 'Fax No.';
         CompanyInfoVATRegNoCaptionLbl: Label 'VAT Reg. No.';
@@ -739,7 +740,7 @@ report 5912 "Service - Credit Memo"
 
     procedure FindPostedShipmentDate(): Date
     var
-        ServiceShipmentBuffer2: Record "Service Shipment Buffer" temporary;
+        TempServiceShipmentBuffer2: Record "Service Shipment Buffer" temporary;
     begin
         NextEntryNo := 1;
 
@@ -750,21 +751,21 @@ report 5912 "Service - Credit Memo"
                 exit(0D);
         end;
 
-        ServiceShipmentBuffer.Reset();
-        ServiceShipmentBuffer.SetRange("Document No.", "Service Cr.Memo Line"."Document No.");
-        ServiceShipmentBuffer.SetRange("Line No.", "Service Cr.Memo Line"."Line No.");
+        TempServiceShipmentBuffer.Reset();
+        TempServiceShipmentBuffer.SetRange("Document No.", "Service Cr.Memo Line"."Document No.");
+        TempServiceShipmentBuffer.SetRange("Line No.", "Service Cr.Memo Line"."Line No.");
 
-        if ServiceShipmentBuffer.Find('-') then begin
-            ServiceShipmentBuffer2 := ServiceShipmentBuffer;
-            if ServiceShipmentBuffer.Next() = 0 then begin
-                ServiceShipmentBuffer.Get(ServiceShipmentBuffer2."Document No.", ServiceShipmentBuffer2."Line No.", ServiceShipmentBuffer2.
-                  "Entry No.");
-                ServiceShipmentBuffer.Delete();
-                exit(ServiceShipmentBuffer2."Posting Date");
+        if TempServiceShipmentBuffer.Find('-') then begin
+            TempServiceShipmentBuffer2 := TempServiceShipmentBuffer;
+            if TempServiceShipmentBuffer.Next() = 0 then begin
+                TempServiceShipmentBuffer.Get(
+                    TempServiceShipmentBuffer2."Document No.", TempServiceShipmentBuffer2."Line No.", TempServiceShipmentBuffer2."Entry No.");
+                TempServiceShipmentBuffer.Delete();
+                exit(TempServiceShipmentBuffer2."Posting Date");
             end;
-            ServiceShipmentBuffer.CalcSums(Quantity);
-            if ServiceShipmentBuffer.Quantity <> "Service Cr.Memo Line".Quantity then begin
-                ServiceShipmentBuffer.DeleteAll();
+            TempServiceShipmentBuffer.CalcSums(Quantity);
+            if TempServiceShipmentBuffer.Quantity <> "Service Cr.Memo Line".Quantity then begin
+                TempServiceShipmentBuffer.DeleteAll();
                 exit("Service Cr.Memo Header"."Posting Date");
             end;
         end else
@@ -803,17 +804,17 @@ report 5912 "Service - Credit Memo"
 
     procedure AddBufferEntry(ServiceCrMemoLine: Record "Service Cr.Memo Line"; QtyOnShipment: Decimal; PostingDate: Date)
     begin
-        ServiceShipmentBuffer.SetRange("Document No.", ServiceCrMemoLine."Document No.");
-        ServiceShipmentBuffer.SetRange("Line No.", ServiceCrMemoLine."Line No.");
-        ServiceShipmentBuffer.SetRange("Posting Date", PostingDate);
-        if ServiceShipmentBuffer.Find('-') then begin
-            ServiceShipmentBuffer.Quantity := ServiceShipmentBuffer.Quantity - QtyOnShipment;
-            ServiceShipmentBuffer.Modify();
+        TempServiceShipmentBuffer.SetRange("Document No.", ServiceCrMemoLine."Document No.");
+        TempServiceShipmentBuffer.SetRange("Line No.", ServiceCrMemoLine."Line No.");
+        TempServiceShipmentBuffer.SetRange("Posting Date", PostingDate);
+        if TempServiceShipmentBuffer.Find('-') then begin
+            TempServiceShipmentBuffer.Quantity := TempServiceShipmentBuffer.Quantity - QtyOnShipment;
+            TempServiceShipmentBuffer.Modify();
             exit;
         end;
 
-        with ServiceShipmentBuffer do begin
-            Init;
+        with TempServiceShipmentBuffer do begin
+            Init();
             "Document No." := ServiceCrMemoLine."Document No.";
             "Line No." := ServiceCrMemoLine."Line No.";
             "Entry No." := NextEntryNo;
@@ -821,7 +822,7 @@ report 5912 "Service - Credit Memo"
             "No." := ServiceCrMemoLine."No.";
             Quantity := -QtyOnShipment;
             "Posting Date" := PostingDate;
-            Insert;
+            Insert();
             NextEntryNo := NextEntryNo + 1
         end;
     end;
@@ -837,7 +838,7 @@ report 5912 "Service - Credit Memo"
         DimTxtArrLength := 0;
         for i := 1 to ArrayLen(DimTxtArr) do
             DimTxtArr[i] := '';
-        if not DimSetEntry.Find('-') then
+        if not DimSetEntry.FindSet() then
             exit;
         Separation := '; ';
         repeat
@@ -863,7 +864,7 @@ report 5912 "Service - Credit Memo"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure FormatAddressFields(var ServiceCrMemoHeader: Record "Service Cr.Memo Header")

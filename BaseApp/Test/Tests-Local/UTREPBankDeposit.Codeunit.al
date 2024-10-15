@@ -401,7 +401,7 @@ codeunit 141009 "UT REP Bank Deposit"
         CreateDepositHeader(DepositHeader);
         CreateEmployee(Employee);
         CreateGenJournalLine(GenJournalLine, DepositHeader, GenJournalLine."Account Type"::Employee, Employee."No.");
-        GenJournalLine.Validate(Description, CopyStr(Employee.FullName, 1, MaxStrLen(GenJournalLine.Description)));
+        GenJournalLine.Validate(Description, CopyStr(Employee.FullName(), 1, MaxStrLen(GenJournalLine.Description)));
         GenJournalLine.Modify(true);
         LibraryVariableStorage.Enqueue(DepositHeader."No.");  // Enqueue value for use in DepositTestReportRequestPageHandler.
 
@@ -411,8 +411,8 @@ codeunit 141009 "UT REP Bank Deposit"
         // [THEN] Employee "E" presents in the report with Name "N"
         // [THEN] Description "N" is not exported
         LibraryReportDataSet.LoadDataSetFile;
-        VerifyDepositTestReportEmployee(GenJournalLine, Employee."No." + ' - ' + Employee.FullName);
-        LibraryReportDataSet.AssertElementWithValueNotExist('Gen__Journal_Line_Description', Employee.FullName);
+        VerifyDepositTestReportEmployee(GenJournalLine, Employee."No." + ' - ' + Employee.FullName());
+        LibraryReportDataSet.AssertElementWithValueNotExist('Gen__Journal_Line_Description', Employee.FullName());
         LibraryReportDataSet.AssertElementWithValueNotExist('Gen__Journal_Line_Description', GenJournalLine.Description);
     end;
 
@@ -444,8 +444,8 @@ codeunit 141009 "UT REP Bank Deposit"
         // [THEN] Description "N" is not exported
         // [THEN] Description "D" is exported
         LibraryReportDataSet.LoadDataSetFile;
-        VerifyDepositTestReportEmployee(GenJournalLine, Employee."No." + ' - ' + Employee.FullName);
-        LibraryReportDataSet.AssertElementWithValueNotExist('Gen__Journal_Line_Description', Employee.FullName);
+        VerifyDepositTestReportEmployee(GenJournalLine, Employee."No." + ' - ' + Employee.FullName());
+        LibraryReportDataSet.AssertElementWithValueNotExist('Gen__Journal_Line_Description', Employee.FullName());
         LibraryReportDataSet.AssertElementWithValueExists('Gen__Journal_Line_Description', GenJournalLine.Description);
     end;
 
@@ -516,8 +516,8 @@ codeunit 141009 "UT REP Bank Deposit"
     local procedure CreateDepositHeader(var DepositHeader: Record "Deposit Header")
     begin
         DepositHeader."No." := LibraryUTUtility.GetNewCode;
-        DepositHeader."Posting Date" := WorkDate;
-        DepositHeader."Document Date" := WorkDate;
+        DepositHeader."Posting Date" := WorkDate();
+        DepositHeader."Document Date" := WorkDate();
         DepositHeader."Bank Account No." := CreateBankAccount;
         DepositHeader."Total Deposit Amount" := LibraryRandom.RandDec(10, 2);
         DepositHeader.Insert();
@@ -548,7 +548,7 @@ codeunit 141009 "UT REP Bank Deposit"
         GenJournalLine.Amount := -DepositHeader."Total Deposit Amount";
         GenJournalLine."Document No." := LibraryUTUtility.GetNewCode;
         GenJournalLine."Applies-to ID" := LibraryUTUtility.GetNewCode;
-        GenJournalLine."Document Date" := WorkDate;
+        GenJournalLine."Document Date" := WorkDate();
         GenJournalLine.Insert();
     end;
 

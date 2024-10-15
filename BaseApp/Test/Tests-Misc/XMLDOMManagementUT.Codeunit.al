@@ -359,7 +359,7 @@ codeunit 132563 "XML DOM Management UT"
         CreateXmlFile(FileName, XmlFileHeaderTok, XmlFileDoctypeTok, XmlFileRootNodeTok);
 
         // [GIVEN] Load the text to XmlDocument
-        XmlReaderSettings := XmlReaderSettings.XmlReaderSettings;
+        XmlReaderSettings := XmlReaderSettings.XmlReaderSettings();
         XmlReaderSettings.DtdProcessing := 2; // Value of DtdProcessing.Parse has been assigned as integer because DtdProcessing has method Parse.
         XMLDOMManagement.LoadXMLDocumentFromFileWithXmlReaderSettings(FileName, XmlDocument, XmlReaderSettings);
 
@@ -388,7 +388,7 @@ codeunit 132563 "XML DOM Management UT"
         CreateXmlFile(FileName, XmlFileHeaderTok, '', XmlFileRootNodeTok);
 
         // [GIVEN] Instance of XmlReaderSettings
-        XmlReaderSettings := XmlReaderSettings.XmlReaderSettings;
+        XmlReaderSettings := XmlReaderSettings.XmlReaderSettings();
 
         // [WHEN] Invoke "XML DOM Management".LoadXMLDocumentFromFileWithXmlReaderSettings
         XMLDOMManagement.LoadXMLDocumentFromFileWithXmlReaderSettings(FileName, XmlDocument, XmlReaderSettings);
@@ -421,7 +421,7 @@ codeunit 132563 "XML DOM Management UT"
         File.Write(XmlHeader);
         File.Write(XmlDoctype);
         File.Write(XmlRootNode);
-        File.Close;
+        File.Close();
     end;
 }
 

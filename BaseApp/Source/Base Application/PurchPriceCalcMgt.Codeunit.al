@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 codeunit 7010 "Purch. Price Calc. Mgt."
 {
     ObsoleteState = Pending;
@@ -131,7 +131,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
         with ReqLine do
             if Type = Type::Item then begin
                 if not Vend.Get("Vendor No.") then
-                    Vend.Init
+                    Vend.Init()
                 else
                     if Vend."Pay-to Vendor No." <> '' then
                         if not Vend.Get(Vend."Pay-to Vendor No.") then
@@ -240,7 +240,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
 
             FindPurchPrice(
               TempPurchPrice, '', "Item No.", "Variant Code",
-              "Unit of Measure Code", '', WorkDate, false);
+              "Unit of Measure Code", '', WorkDate(), false);
             CalcBestDirectUnitCost(TempPurchPrice);
 
             if FoundPurchPrice or
@@ -584,7 +584,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
         with PurchHeader do begin
             if "Posting Date" <> 0D then
                 exit("Posting Date");
-            exit(WorkDate);
+            exit(WorkDate());
         end;
     end;
 
@@ -776,25 +776,25 @@ codeunit 7010 "Purch. Price Calc. Mgt."
                       Text000,
                       FieldCaption(Quantity),
                       TempPurchPrice.FieldCaption("Minimum Quantity"),
-                      TempPurchPrice.TableCaption);
+                      TempPurchPrice.TableCaption());
                 if not (TempPurchPrice."Currency Code" in ["Currency Code", '']) then
                     Error(
                       Text001,
                       FieldCaption("Currency Code"),
                       TableCaption,
-                      TempPurchPrice.TableCaption);
+                      TempPurchPrice.TableCaption());
                 if not (TempPurchPrice."Unit of Measure Code" in ["Unit of Measure Code", '']) then
                     Error(
                       Text001,
                       FieldCaption("Unit of Measure Code"),
                       TableCaption,
-                      TempPurchPrice.TableCaption);
+                      TempPurchPrice.TableCaption());
                 if TempPurchPrice."Starting Date" > PurchHeaderStartDate(PurchHeader, DateCaption) then
                     Error(
                       Text000,
                       DateCaption,
                       TempPurchPrice.FieldCaption("Starting Date"),
-                      TempPurchPrice.TableCaption);
+                      TempPurchPrice.TableCaption());
 
                 ConvertPriceToVAT(
                   PurchHeader."Prices Including VAT", Item."VAT Prod. Posting Group",
@@ -829,25 +829,25 @@ codeunit 7010 "Purch. Price Calc. Mgt."
                     Error(
                       Text000, FieldCaption(Quantity),
                       TempPurchLineDisc.FieldCaption("Minimum Quantity"),
-                      TempPurchLineDisc.TableCaption);
+                      TempPurchLineDisc.TableCaption());
                 if not (TempPurchLineDisc."Currency Code" in ["Currency Code", '']) then
                     Error(
                       Text001,
                       FieldCaption("Currency Code"),
                       TableCaption,
-                      TempPurchLineDisc.TableCaption);
+                      TempPurchLineDisc.TableCaption());
                 if not (TempPurchLineDisc."Unit of Measure Code" in ["Unit of Measure Code", '']) then
                     Error(
                       Text001,
                       FieldCaption("Unit of Measure Code"),
                       TableCaption,
-                      TempPurchLineDisc.TableCaption);
+                      TempPurchLineDisc.TableCaption());
                 if TempPurchLineDisc."Starting Date" > PurchHeaderStartDate(PurchHeader, DateCaption) then
                     Error(
                       Text000,
                       DateCaption,
                       TempPurchLineDisc.FieldCaption("Starting Date"),
-                      TempPurchLineDisc.TableCaption);
+                      TempPurchLineDisc.TableCaption());
 
                 Validate("Line Discount %", TempPurchLineDisc."Line Discount %");
             end;

@@ -7,7 +7,7 @@
     trigger OnRun()
     begin
         PurchaseHeader.Copy(Rec);
-        Code;
+        Code();
         Rec := PurchaseHeader;
     end;
 
@@ -43,7 +43,7 @@
                 exit;
 
             if not (PreviewMode or SkipCheckReleaseRestrictions) then
-                CheckPurchaseReleaseRestrictions;
+                CheckPurchaseReleaseRestrictions();
 
             TestField("Buy-from Vendor No.");
 
@@ -127,6 +127,7 @@
 
     local procedure CheckMandatoryFields(var PurchaseLine: Record "Purchase Line")
     var
+        Item: Record "Item";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -145,6 +146,9 @@
                         if not IsHandled then
                             PurchaseLine.TestField("Location Code");
                     end;
+                if Item.Get(PurchaseLine."No.") then
+                    if Item.IsVariantMandatory() then
+                        PurchaseLine.TestField("Variant Code");
             until PurchaseLine.Next() = 0;
         PurchaseLine.SetFilter(Type, '>0');
     end;
@@ -196,9 +200,9 @@
 
         with PurchHeader do
             if ("Document Type" = "Document Type"::Order) and PrepaymentMgt.TestPurchasePayment(PurchHeader) then begin
-                if TestStatusIsNotPendingPrepayment then begin
+                if TestStatusIsNotPendingPrepayment() then begin
                     Status := Status::"Pending Prepayment";
-                    Modify;
+                    Modify();
                     Commit();
                 end;
                 Error(Text005, "Document Type", "No.");
@@ -242,7 +246,7 @@
     begin
         PreviewMode := Preview;
         PurchaseHeader.Copy(PurchHdr);
-        LinesWereModified := Code;
+        LinesWereModified := Code();
         PurchHdr := PurchaseHeader;
     end;
 

@@ -260,7 +260,7 @@ codeunit 137020 "SCM Planning"
 
         CreateSalesOrder(SalesHeader, SalesLine, Item, SalesQty, ShipmentDate);
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
     end;
 
     local procedure FinalAssert(var RequisitionLine: Record "Requisition Line"; Item: Record Item)
@@ -284,7 +284,7 @@ codeunit 137020 "SCM Planning"
                 RequisitionLine.Validate("Vendor No.", VendorNo);
                 RequisitionLine.Validate("Accept Action Message", true);
                 RequisitionLine.Modify(true);
-            until RequisitionLine.Next = 0;
+            until RequisitionLine.Next() = 0;
 
         LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
     end;
@@ -297,14 +297,14 @@ codeunit 137020 "SCM Planning"
     begin
         CreateSalesOrder(SalesHeader, SalesLine, Item, SalesQty, ShipmentDate);
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         PopulateWithVendorAndCarryOut(RequisitionLine, Item);
 
         SalesLine.Validate("Shipment Date", NewShipmentDate);
         SalesLine.Modify(true);
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
     end;
 
     local procedure SalePlanCarryOutCancelSalePlan(Item: Record Item; SalesQty: Integer; ShipmentDate: Date)
@@ -315,13 +315,13 @@ codeunit 137020 "SCM Planning"
     begin
         CreateSalesOrder(SalesHeader, SalesLine, Item, SalesQty, ShipmentDate);
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         PopulateWithVendorAndCarryOut(RequisitionLine, Item);
 
         SalesHeader.Delete(true);
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
     end;
 
     local procedure TestSetup()
@@ -396,11 +396,11 @@ codeunit 137020 "SCM Planning"
         Item.Modify(true);
 
         // Create demands
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 100, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 100, WorkDate());
         CreateSalesOrder(SalesHeader, SalesLine, Item, 100, WorkDate + 1);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate - 1, WorkDate + 1);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate() - 1, WorkDate + 1);
 
         // Carry out two lines
         RequisitionLine.SetFilter("No.", Item."No.");
@@ -425,7 +425,7 @@ codeunit 137020 "SCM Planning"
               'Wrong item no. on production order line after carrying out');
             Assert.AreEqual(100, ProdOrderLine.Quantity,
               'Wrong quantity on production order line after carrying out');
-        until ProdOrder.Next = 0;
+        until ProdOrder.Next() = 0;
     end;
 
     [Test]
@@ -443,13 +443,13 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<5D>', '', '', 0, 0, 0);
 
         // Exercise
-        PurchaseSalesPlan(Item, 10, CalcDate('<+11D>', WorkDate), 10, CalcDate('<+5D>', WorkDate));
+        PurchaseSalesPlan(Item, 10, CalcDate('<+11D>', WorkDate()), 10, CalcDate('<+5D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 2);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D, CalcDate('<+11D>', WorkDate), 10, 0,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D, CalcDate('<+11D>', WorkDate()), 10, 0,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate), 0, 10,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate()), 0, 10,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
     end;
 
@@ -468,11 +468,11 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<5D>', '', '', 0, 0, 0);
 
         // Exercise
-        PurchaseSalesPlan(Item, 10, CalcDate('<+10D>', WorkDate), 10, CalcDate('<+5D>', WorkDate));
+        PurchaseSalesPlan(Item, 10, CalcDate('<+10D>', WorkDate()), 10, CalcDate('<+5D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::Reschedule, CalcDate('<+10D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, 10,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::Reschedule, CalcDate('<+10D>', WorkDate()), CalcDate('<+5D>', WorkDate()), 0, 10,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -494,12 +494,12 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<5D>', '', '', 0, 0, 0);
 
         // Exercise
-        PurchaseSalesPlan(Item, 15, CalcDate('<+10D>', WorkDate), 10, CalcDate('<+5D>', WorkDate));
+        PurchaseSalesPlan(Item, 15, CalcDate('<+10D>', WorkDate()), 10, CalcDate('<+5D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Resched. & Chg. Qty.", CalcDate('<+10D>', WorkDate),
-          CalcDate('<+5D>', WorkDate), 15, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Resched. & Chg. Qty.", CalcDate('<+10D>', WorkDate()),
+          CalcDate('<+5D>', WorkDate()), 15, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
         FinalAssert(RequisitionLine, Item);
@@ -520,13 +520,13 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<5D>', '', '', 0, 0, 0);
 
         // Exercise
-        SalesPlanCarryOutChgSalesPlan(Item, 10, CalcDate('<+11D>', WorkDate), CalcDate('<+5D>', WorkDate));
+        SalesPlanCarryOutChgSalesPlan(Item, 10, CalcDate('<+11D>', WorkDate()), CalcDate('<+5D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 2);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D, CalcDate('<+11D>', WorkDate), 10, 0,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D, CalcDate('<+11D>', WorkDate()), 10, 0,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate), 0, 10,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate()), 0, 10,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -548,11 +548,11 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<5D>', '', '', 0, 0, 0);
 
         // Exercise
-        SalesPlanCarryOutChgSalesPlan(Item, 10, CalcDate('<+10D>', WorkDate), CalcDate('<+5D>', WorkDate));
+        SalesPlanCarryOutChgSalesPlan(Item, 10, CalcDate('<+10D>', WorkDate()), CalcDate('<+5D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::Reschedule, CalcDate('<+10D>', WorkDate), CalcDate('<+5D>', WorkDate), 0, 10,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::Reschedule, CalcDate('<+10D>', WorkDate()), CalcDate('<+5D>', WorkDate()), 0, 10,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -574,13 +574,13 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Exercise
-        PurchaseSalesPlan(Item, 10, CalcDate('<+6D>', WorkDate), 10, CalcDate('<+5D>', WorkDate));
+        PurchaseSalesPlan(Item, 10, CalcDate('<+6D>', WorkDate()), 10, CalcDate('<+5D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 2);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D, CalcDate('<+6D>', WorkDate), 10, 0,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D, CalcDate('<+6D>', WorkDate()), 10, 0,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate), 0, 10,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate()), 0, 10,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -602,13 +602,13 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<0D>', '', '', 0, 0, 0);
 
         // Exercise
-        PurchaseSalesPlan(Item, 10, CalcDate('<+6D>', WorkDate), 10, CalcDate('<+5D>', WorkDate));
+        PurchaseSalesPlan(Item, 10, CalcDate('<+6D>', WorkDate()), 10, CalcDate('<+5D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 2);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D, CalcDate('<+6D>', WorkDate), 10, 0,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D, CalcDate('<+6D>', WorkDate()), 10, 0,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate), 0, 10,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate()), 0, 10,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -629,7 +629,7 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<100D>', '<14D>', '<5D>', 0, 0, 0);
 
         // Exercise
-        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate), 10, CalcDate('<+10D>', WorkDate));
+        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate()), 10, CalcDate('<+10D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -650,13 +650,13 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<3D>', '<14D>', '<5D>', 0, 0, 0);
 
         // Exercise
-        PurchaseSalesPlan(Item, 10, CalcDate('<+11D>', WorkDate), 10, CalcDate('<+5D>', WorkDate));
+        PurchaseSalesPlan(Item, 10, CalcDate('<+11D>', WorkDate()), 10, CalcDate('<+5D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 2);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D, CalcDate('<+11D>', WorkDate), 10, 0,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D, CalcDate('<+11D>', WorkDate()), 10, 0,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate), 0, 10,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate()), 0, 10,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -678,12 +678,12 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<7D>', '<14D>', '<5D>', 0, 0, 0);
 
         // Exercise
-        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate), 10, CalcDate('<+11D>', WorkDate));
+        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate()), 10, CalcDate('<+11D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::Reschedule, CalcDate('<+5D>', WorkDate),
-          CalcDate('<+11D>', WorkDate), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::Reschedule, CalcDate('<+5D>', WorkDate()),
+          CalcDate('<+11D>', WorkDate()), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
         FinalAssert(RequisitionLine, Item);
@@ -704,12 +704,12 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<100D>', '<14D>', '<5D>', 0, 0, 0);
 
         // Exercise
-        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate), 15, CalcDate('<+10D>', WorkDate));
+        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate()), 15, CalcDate('<+10D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D,
-          CalcDate('<+5D>', WorkDate), 10, 15, RequisitionLine."Ref. Order Type"::Purchase, 1);
+          CalcDate('<+5D>', WorkDate()), 10, 15, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
         FinalAssert(RequisitionLine, Item);
@@ -730,14 +730,14 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<3D>', '<14D>', '<5D>', 0, 0, 0);
 
         // Exercise
-        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate), 5, CalcDate('<+11D>', WorkDate));
+        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate()), 5, CalcDate('<+11D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 2);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D,
-          CalcDate('<+5D>', WorkDate), 10, 0, RequisitionLine."Ref. Order Type"::Purchase, 1);
+          CalcDate('<+5D>', WorkDate()), 10, 0, RequisitionLine."Ref. Order Type"::Purchase, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate('<+11D>', WorkDate), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, 1);
+          CalcDate('<+11D>', WorkDate()), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
         FinalAssert(RequisitionLine, Item);
@@ -758,12 +758,12 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<7D>', '<14D>', '<5D>', 0, 0, 0);
 
         // Exercise
-        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate), 15, CalcDate('<+11D>', WorkDate));
+        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate()), 15, CalcDate('<+11D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Resched. & Chg. Qty.", CalcDate('<+5D>', WorkDate),
-          CalcDate('<+11D>', WorkDate), 10, 15, RequisitionLine."Ref. Order Type"::Purchase, 1);
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Resched. & Chg. Qty.", CalcDate('<+5D>', WorkDate()),
+          CalcDate('<+11D>', WorkDate()), 10, 15, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
         FinalAssert(RequisitionLine, Item);
@@ -784,7 +784,7 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<100D>', '<14D>', '', 0, 0, 0);
 
         // Exercise
-        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate), 10, CalcDate('<+10D>', WorkDate));
+        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate()), 10, CalcDate('<+10D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -806,14 +806,14 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<3D>', '<14D>', '', 0, 0, 0);
 
         // Exercise
-        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate), 10, CalcDate('<+11D>', WorkDate));
+        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate()), 10, CalcDate('<+11D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 2);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D,
-          CalcDate('<+5D>', WorkDate), 10, 0, RequisitionLine."Ref. Order Type"::Purchase, 1);
+          CalcDate('<+5D>', WorkDate()), 10, 0, RequisitionLine."Ref. Order Type"::Purchase, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate('<+11D>', WorkDate), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
+          CalcDate('<+11D>', WorkDate()), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
         FinalAssert(RequisitionLine, Item);
@@ -835,12 +835,12 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<7D>', '<14D>', '', 0, 0, 0);
 
         // Exercise
-        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate), 10, CalcDate('<+11D>', WorkDate));
+        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate()), 10, CalcDate('<+11D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::Reschedule, CalcDate('<+5D>', WorkDate),
-          CalcDate('<+11D>', WorkDate), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::Reschedule, CalcDate('<+5D>', WorkDate()),
+          CalcDate('<+11D>', WorkDate()), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
         FinalAssert(RequisitionLine, Item);
@@ -862,12 +862,12 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<100D>', '<14D>', '', 0, 0, 0);
 
         // Exercise
-        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate), 15, CalcDate('<+10D>', WorkDate));
+        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate()), 15, CalcDate('<+10D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D,
-          CalcDate('<+5D>', WorkDate), 10, 15, RequisitionLine."Ref. Order Type"::Purchase, 1);
+          CalcDate('<+5D>', WorkDate()), 10, 15, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
         FinalAssert(RequisitionLine, Item);
@@ -889,14 +889,14 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<3D>', '<14D>', '', 0, 0, 0);
 
         // Exercise
-        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate), 5, CalcDate('<+11D>', WorkDate));
+        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate()), 5, CalcDate('<+11D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 2);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D,
-          CalcDate('<+5D>', WorkDate), 10, 0, RequisitionLine."Ref. Order Type"::Purchase, 1);
+          CalcDate('<+5D>', WorkDate()), 10, 0, RequisitionLine."Ref. Order Type"::Purchase, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate('<+11D>', WorkDate), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, 1);
+          CalcDate('<+11D>', WorkDate()), 0, 5, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
         FinalAssert(RequisitionLine, Item);
@@ -918,12 +918,12 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<7D>', '<14D>', '', 0, 0, 0);
 
         // Exercise
-        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate), 15, CalcDate('<+11D>', WorkDate));
+        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate()), 15, CalcDate('<+11D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Resched. & Chg. Qty.", CalcDate('<+5D>', WorkDate),
-          CalcDate('<+11D>', WorkDate), 10, 15, RequisitionLine."Ref. Order Type"::Purchase, 1);
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Resched. & Chg. Qty.", CalcDate('<+5D>', WorkDate()),
+          CalcDate('<+11D>', WorkDate()), 10, 15, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
         FinalAssert(RequisitionLine, Item);
@@ -943,7 +943,7 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<100D>', '<14D>', '<5D>', 0, 0, 0);
 
         // Exercise
-        SalesPlanCarryOutChgSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate), CalcDate('<+10D>', WorkDate));
+        SalesPlanCarryOutChgSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate()), CalcDate('<+10D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -965,14 +965,14 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '', '<14D>', '', 0, 0, 0);
 
         // Exercise
-        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate), 10, CalcDate('<+6D>', WorkDate));
+        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate()), 10, CalcDate('<+6D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 2);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D,
-          CalcDate('<+5D>', WorkDate), 10, 0, RequisitionLine."Ref. Order Type"::Purchase, 1);
+          CalcDate('<+5D>', WorkDate()), 10, 0, RequisitionLine."Ref. Order Type"::Purchase, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate('<+6D>', WorkDate), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
+          CalcDate('<+6D>', WorkDate()), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
         FinalAssert(RequisitionLine, Item);
@@ -994,14 +994,14 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '', '<14D>', '<0D>', 0, 0, 0);
 
         // Exercise
-        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate), 10, CalcDate('<+6D>', WorkDate));
+        PurchaseSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate()), 10, CalcDate('<+6D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 2);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D,
-          CalcDate('<+5D>', WorkDate), 10, 0, RequisitionLine."Ref. Order Type"::Purchase, 1);
+          CalcDate('<+5D>', WorkDate()), 10, 0, RequisitionLine."Ref. Order Type"::Purchase, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate('<+6D>', WorkDate), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
+          CalcDate('<+6D>', WorkDate()), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
         FinalAssert(RequisitionLine, Item);
@@ -1021,7 +1021,7 @@ codeunit 137020 "SCM Planning"
         OrderItemSetup(Item, '<5D>');
 
         // Exercise
-        SalesPlanCarryOutChgSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate), CalcDate('<+10D>', WorkDate));
+        SalesPlanCarryOutChgSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate()), CalcDate('<+10D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -1042,12 +1042,12 @@ codeunit 137020 "SCM Planning"
         OrderItemSetup(Item, '<5D>');
 
         // Exercise
-        SalesPlanCarryOutChgSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate), CalcDate('<+11D>', WorkDate));
+        SalesPlanCarryOutChgSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate()), CalcDate('<+11D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::Reschedule, CalcDate('<+5D>', WorkDate),
-          CalcDate('<+11D>', WorkDate), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::Reschedule, CalcDate('<+5D>', WorkDate()),
+          CalcDate('<+11D>', WorkDate()), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
         FinalAssert(RequisitionLine, Item);
@@ -1068,7 +1068,7 @@ codeunit 137020 "SCM Planning"
         OrderItemSetup(Item, '');
 
         // Exercise
-        SalesPlanCarryOutChgSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate), CalcDate('<+10D>', WorkDate));
+        SalesPlanCarryOutChgSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate()), CalcDate('<+10D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -1090,12 +1090,12 @@ codeunit 137020 "SCM Planning"
         OrderItemSetup(Item, '<0D>');
 
         // Exercise
-        SalesPlanCarryOutChgSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate), CalcDate('<+6D>', WorkDate));
+        SalesPlanCarryOutChgSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate()), CalcDate('<+6D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::Reschedule, CalcDate('<+5D>', WorkDate),
-          CalcDate('<+6D>', WorkDate), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::Reschedule, CalcDate('<+5D>', WorkDate()),
+          CalcDate('<+6D>', WorkDate()), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
         FinalAssert(RequisitionLine, Item);
@@ -1117,12 +1117,12 @@ codeunit 137020 "SCM Planning"
         OrderItemSetup(Item, '');
 
         // Exercise
-        SalesPlanCarryOutChgSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate), CalcDate('<+11D>', WorkDate));
+        SalesPlanCarryOutChgSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate()), CalcDate('<+11D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::Reschedule, CalcDate('<+5D>', WorkDate),
-          CalcDate('<+11D>', WorkDate), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::Reschedule, CalcDate('<+5D>', WorkDate()),
+          CalcDate('<+11D>', WorkDate()), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
         FinalAssert(RequisitionLine, Item);
@@ -1144,12 +1144,12 @@ codeunit 137020 "SCM Planning"
         OrderItemSetup(Item, '');
 
         // Exercise
-        SalesPlanCarryOutChgSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate), CalcDate('<+6D>', WorkDate));
+        SalesPlanCarryOutChgSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate()), CalcDate('<+6D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::Reschedule, CalcDate('<+5D>', WorkDate),
-          CalcDate('<+6D>', WorkDate), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::Reschedule, CalcDate('<+5D>', WorkDate()),
+          CalcDate('<+6D>', WorkDate()), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
         FinalAssert(RequisitionLine, Item);
@@ -1171,12 +1171,12 @@ codeunit 137020 "SCM Planning"
         OrderItemSetup(Item, '');
 
         // Exercise
-        SalesPlanCarryOutChgSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate), CalcDate('<+6D>', WorkDate));
+        SalesPlanCarryOutChgSalesPlan(Item, 10, CalcDate('<+5D>', WorkDate()), CalcDate('<+6D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::Reschedule, CalcDate('<+5D>', WorkDate),
-          CalcDate('<+6D>', WorkDate), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::Reschedule, CalcDate('<+5D>', WorkDate()),
+          CalcDate('<+6D>', WorkDate()), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
         FinalAssert(RequisitionLine, Item);
@@ -1197,12 +1197,12 @@ codeunit 137020 "SCM Planning"
         OrderItemSetup(Item, '<100D>');
 
         // Exercise
-        SalePlanCarryOutCancelSalePlan(Item, 10, CalcDate('<+11D>', WorkDate));
+        SalePlanCarryOutCancelSalePlan(Item, 10, CalcDate('<+11D>', WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D,
-          CalcDate('<+11D>', WorkDate), 10, 0, RequisitionLine."Ref. Order Type"::Purchase, 1);
+          CalcDate('<+11D>', WorkDate()), 10, 0, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
         FinalAssert(RequisitionLine, Item);
@@ -1226,12 +1226,12 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '', '<5D>', '', 0, 0, 0);
 
         // Exercise
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate), 20, CalcDate('<+10D>', WorkDate));
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate()), 20, CalcDate('<+10D>', WorkDate()));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate), 0, 30,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate()), 0, 30,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -1258,13 +1258,13 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '', '<5D>', '', 0, 0, 0);
 
         // Exercise
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 10, CalcDate('<+5D>', WorkDate));
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate), 20, CalcDate('<+10D>', WorkDate));
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 10, CalcDate('<+5D>', WorkDate()));
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate()), 20, CalcDate('<+10D>', WorkDate()));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+5D>', WorkDate), 10, 30,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+5D>', WorkDate()), 10, 30,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -1291,13 +1291,13 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '', '<5D>', '', 0, 0, 0);
 
         // Exercise
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 50, CalcDate('<+5D>', WorkDate));
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate), 20, CalcDate('<+10D>', WorkDate));
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 50, CalcDate('<+5D>', WorkDate()));
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate()), 20, CalcDate('<+10D>', WorkDate()));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+5D>', WorkDate), 50, 30,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+5D>', WorkDate()), 50, 30,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -1322,18 +1322,18 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '', '<5D>', '', 0, 0, 0);
 
         // Exercise
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate), 20, CalcDate('<+11D>', WorkDate));
-        AddSalesOrderLine(SalesHeader, SalesLine, Item, 30, CalcDate('<+20D>', WorkDate));
-        AddSalesOrderLine(SalesHeader, SalesLine, Item, 20, CalcDate('<+14D>', WorkDate));
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate()), 20, CalcDate('<+11D>', WorkDate()));
+        AddSalesOrderLine(SalesHeader, SalesLine, Item, 30, CalcDate('<+20D>', WorkDate()));
+        AddSalesOrderLine(SalesHeader, SalesLine, Item, 20, CalcDate('<+14D>', WorkDate()));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 3);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate), 0, 10,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate()), 0, 10,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+11D>', WorkDate), 0, 40,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+11D>', WorkDate()), 0, 40,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+20D>', WorkDate), 0, 30,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+20D>', WorkDate()), 0, 30,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -1358,27 +1358,27 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '', '<5D>', '', 0, 0, 0);
 
         // Exercise
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate), 20, CalcDate('<+11D>', WorkDate));
-        AddSalesOrderLine(SalesHeader, SalesLine, Item, 30, CalcDate('<+20D>', WorkDate));
-        AddSalesOrderLine(SalesHeader, SalesLine, Item, 20, CalcDate('<+14D>', WorkDate));
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate()), 20, CalcDate('<+11D>', WorkDate()));
+        AddSalesOrderLine(SalesHeader, SalesLine, Item, 30, CalcDate('<+20D>', WorkDate()));
+        AddSalesOrderLine(SalesHeader, SalesLine, Item, 20, CalcDate('<+14D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Carry out
         PopulateWithVendorAndCarryOut(RequisitionLine, Item);
 
         // Change last sales line
-        SalesLine.Validate("Shipment Date", CalcDate('<+6D>', WorkDate));
+        SalesLine.Validate("Shipment Date", CalcDate('<+6D>', WorkDate()));
         SalesLine.Modify(true);
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 2);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+5D>', WorkDate), 10, 30,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+5D>', WorkDate()), 10, 30,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+11D>', WorkDate), 40, 20,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+11D>', WorkDate()), 40, 20,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -1403,20 +1403,20 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Exercise
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate), 20, CalcDate('<+5D>', WorkDate));
-        AddSalesOrderLine(SalesHeader, SalesLine, Item, 30, CalcDate('<+6D>', WorkDate));
-        AddSalesOrderLine(SalesHeader, SalesLine, Item, 40, CalcDate('<+10D>', WorkDate));
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate()), 20, CalcDate('<+5D>', WorkDate()));
+        AddSalesOrderLine(SalesHeader, SalesLine, Item, 30, CalcDate('<+6D>', WorkDate()));
+        AddSalesOrderLine(SalesHeader, SalesLine, Item, 40, CalcDate('<+10D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 3);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate), 0, 30,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate()), 0, 30,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+6D>', WorkDate), 0, 30,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+6D>', WorkDate()), 0, 30,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+10D>', WorkDate), 0, 40,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+10D>', WorkDate()), 0, 40,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -1441,20 +1441,20 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '', '<0D>', '', 0, 0, 0);
 
         // Exercise
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate), 20, CalcDate('<+5D>', WorkDate));
-        AddSalesOrderLine(SalesHeader, SalesLine, Item, 30, CalcDate('<+6D>', WorkDate));
-        AddSalesOrderLine(SalesHeader, SalesLine, Item, 40, CalcDate('<+10D>', WorkDate));
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate()), 20, CalcDate('<+5D>', WorkDate()));
+        AddSalesOrderLine(SalesHeader, SalesLine, Item, 30, CalcDate('<+6D>', WorkDate()));
+        AddSalesOrderLine(SalesHeader, SalesLine, Item, 40, CalcDate('<+10D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 3);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate), 0, 30,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate()), 0, 30,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+6D>', WorkDate), 0, 30,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+6D>', WorkDate()), 0, 30,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+10D>', WorkDate), 0, 40,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+10D>', WorkDate()), 0, 40,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -1479,30 +1479,30 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<3D>', '<5D>', '', 0, 0, 0);
 
         // Exercise
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 10, CalcDate('<+6D>', WorkDate), 30, CalcDate('<+11D>', WorkDate));
-        AddSalesOrderLine(SalesHeader, SalesLine, Item, 20, CalcDate('<+7D>', WorkDate));
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 10, CalcDate('<+6D>', WorkDate()), 30, CalcDate('<+11D>', WorkDate()));
+        AddSalesOrderLine(SalesHeader, SalesLine, Item, 20, CalcDate('<+7D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+6D>', WorkDate), 0, 60,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+6D>', WorkDate()), 0, 60,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
         PopulateWithVendorAndCarryOut(RequisitionLine, Item);
 
         // Change last sales line
-        SalesLine.Validate("Shipment Date", CalcDate('<+5D>', WorkDate));
+        SalesLine.Validate("Shipment Date", CalcDate('<+5D>', WorkDate()));
         SalesLine.Modify(true);
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 2);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Resched. & Chg. Qty.", CalcDate('<+6D>', WorkDate),
-          CalcDate('<+5D>', WorkDate), 60, 30, RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+11D>', WorkDate), 0, 30,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Resched. & Chg. Qty.", CalcDate('<+6D>', WorkDate()),
+          CalcDate('<+5D>', WorkDate()), 60, 30, RequisitionLine."Ref. Order Type"::Purchase, 1);
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+11D>', WorkDate()), 0, 30,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -1527,32 +1527,32 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<2D>', '<5D>', '', 0, 0, 0);
 
         // Exercise
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 10, CalcDate('<+8D>', WorkDate), 30, CalcDate('<+11D>', WorkDate));
-        AddSalesOrderLine(SalesHeader, SalesLine, Item, 20, CalcDate('<+9D>', WorkDate));
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 10, CalcDate('<+8D>', WorkDate()), 30, CalcDate('<+11D>', WorkDate()));
+        AddSalesOrderLine(SalesHeader, SalesLine, Item, 20, CalcDate('<+9D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 60,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 60,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
         PopulateWithVendorAndCarryOut(RequisitionLine, Item);
 
         // Change last sales line
-        SalesLine.Validate("Shipment Date", CalcDate('<+5D>', WorkDate));
+        SalesLine.Validate("Shipment Date", CalcDate('<+5D>', WorkDate()));
         SalesLine.Modify(true);
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 3);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D, CalcDate('<+8D>', WorkDate)
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D, CalcDate('<+8D>', WorkDate())
           , 60, 0, RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate), 0, 30,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate()), 0, 30,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+11D>', WorkDate), 0, 30,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+11D>', WorkDate()), 0, 30,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -1577,24 +1577,24 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<100D>', '<5D>', '<3D>', 0, 0, 0);
 
         // Exercise
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 30, CalcDate('<+11D>', WorkDate), 20, CalcDate('<+8D>', WorkDate));
-        AddSalesOrderLine(SalesHeader, SalesLine, Item, 10, CalcDate('<+6D>', WorkDate));
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 30, CalcDate('<+11D>', WorkDate()), 20, CalcDate('<+8D>', WorkDate()));
+        AddSalesOrderLine(SalesHeader, SalesLine, Item, 10, CalcDate('<+6D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+6D>', WorkDate), 0, 60,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+6D>', WorkDate()), 0, 60,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
         PopulateWithVendorAndCarryOut(RequisitionLine, Item);
 
         // Change last sales line
-        SalesLine.Validate("Shipment Date", CalcDate('<+8D>', WorkDate));
+        SalesLine.Validate("Shipment Date", CalcDate('<+8D>', WorkDate()));
         SalesLine.Modify(true);
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -1618,29 +1618,29 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<7D>', '<5D>', '<3D>', 0, 0, 0);
 
         // Exercise
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 30, CalcDate('<+10D>', WorkDate), 20, CalcDate('<+9D>', WorkDate));
-        AddSalesOrderLine(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 30, CalcDate('<+10D>', WorkDate()), 20, CalcDate('<+9D>', WorkDate()));
+        AddSalesOrderLine(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate), 0, 60,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate()), 0, 60,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
         PopulateWithVendorAndCarryOut(RequisitionLine, Item);
 
         // Change last sales line
-        SalesLine.Validate("Shipment Date", CalcDate('<+9D>', WorkDate));
+        SalesLine.Validate("Shipment Date", CalcDate('<+9D>', WorkDate()));
         SalesLine.Modify(true);
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::Reschedule, CalcDate('<+5D>', WorkDate),
-          CalcDate('<+9D>', WorkDate), 0, 60, RequisitionLine."Ref. Order Type"::Purchase, 1);
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::Reschedule, CalcDate('<+5D>', WorkDate()),
+          CalcDate('<+9D>', WorkDate()), 0, 60, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
         FinalAssert(RequisitionLine, Item);
@@ -1664,31 +1664,31 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<3D>', '<5D>', '<3D>', 0, 0, 0);
 
         // Exercise
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 30, CalcDate('<+10D>', WorkDate), 20, CalcDate('<+9D>', WorkDate));
-        AddSalesOrderLine(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 30, CalcDate('<+10D>', WorkDate()), 20, CalcDate('<+9D>', WorkDate()));
+        AddSalesOrderLine(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate), 0, 60,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate()), 0, 60,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
         PopulateWithVendorAndCarryOut(RequisitionLine, Item);
 
         // Change last sales line
-        SalesLine.Validate("Shipment Date", CalcDate('<+9D>', WorkDate));
+        SalesLine.Validate("Shipment Date", CalcDate('<+9D>', WorkDate()));
         SalesLine.Modify(true);
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 2);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D, CalcDate('<+5D>', WorkDate),
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D, CalcDate('<+5D>', WorkDate()),
           60, 0, RequisitionLine."Ref. Order Type"::Purchase, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate('<+9D>', WorkDate), 0, 60, RequisitionLine."Ref. Order Type"::Purchase, 1);
+          CalcDate('<+9D>', WorkDate()), 0, 60, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
         FinalAssert(RequisitionLine, Item);
@@ -1712,30 +1712,30 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<7D>', '<5D>', '<3D>', 0, 0, 0);
 
         // Exercise
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 30, CalcDate('<+10D>', WorkDate), 20, CalcDate('<+9D>', WorkDate));
-        AddSalesOrderLine(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 30, CalcDate('<+10D>', WorkDate()), 20, CalcDate('<+9D>', WorkDate()));
+        AddSalesOrderLine(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate), 0, 60,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate()), 0, 60,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
         PopulateWithVendorAndCarryOut(RequisitionLine, Item);
 
         // Change last sales line
-        SalesLine.Validate("Shipment Date", CalcDate('<+9D>', WorkDate));
+        SalesLine.Validate("Shipment Date", CalcDate('<+9D>', WorkDate()));
         SalesLine.Validate(Quantity, 5);
         SalesLine.Modify(true);
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Resched. & Chg. Qty.", CalcDate('<+5D>', WorkDate),
-          CalcDate('<+9D>', WorkDate), 60, 55, RequisitionLine."Ref. Order Type"::Purchase, 1);
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Resched. & Chg. Qty.", CalcDate('<+5D>', WorkDate()),
+          CalcDate('<+9D>', WorkDate()), 60, 55, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
         FinalAssert(RequisitionLine, Item);
@@ -1759,23 +1759,23 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<100D>', '<5D>', '<30D>', 0, 0, 0);
 
         // Exercise
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate), 0, 10,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate()), 0, 10,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
         PopulateWithVendorAndCarryOut(RequisitionLine, Item);
 
         // Change last sales line
-        SalesLine.Validate("Shipment Date", CalcDate('<+9D>', WorkDate));
+        SalesLine.Validate("Shipment Date", CalcDate('<+9D>', WorkDate()));
         SalesLine.Modify(true);
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -1799,28 +1799,28 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<10D>', '<5D>', '<30D>', 0, 0, 0);
 
         // Exercise
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate), 0, 10,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate()), 0, 10,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
         PopulateWithVendorAndCarryOut(RequisitionLine, Item);
 
         // Change last sales line
-        SalesLine.Validate("Shipment Date", CalcDate('<+11D>', WorkDate));
+        SalesLine.Validate("Shipment Date", CalcDate('<+11D>', WorkDate()));
         SalesLine.Modify(true);
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::Reschedule, CalcDate('<+5D>', WorkDate),
-          CalcDate('<+11D>', WorkDate), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::Reschedule, CalcDate('<+5D>', WorkDate()),
+          CalcDate('<+11D>', WorkDate()), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
         FinalAssert(RequisitionLine, Item);
@@ -1844,29 +1844,29 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<5D>', '<5D>', '<30D>', 0, 0, 0);
 
         // Exercise
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate), 0, 10,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate()), 0, 10,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
         PopulateWithVendorAndCarryOut(RequisitionLine, Item);
 
         // Change last sales line
-        SalesLine.Validate("Shipment Date", CalcDate('<+11D>', WorkDate));
+        SalesLine.Validate("Shipment Date", CalcDate('<+11D>', WorkDate()));
         SalesLine.Modify(true);
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 2);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D, CalcDate('<+5D>', WorkDate),
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D, CalcDate('<+5D>', WorkDate()),
           10, 0, RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+11D>', WorkDate),
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+11D>', WorkDate()),
           0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -1891,23 +1891,23 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<100D>', '<5D>', '', 0, 0, 0);
 
         // Exercise
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate), 0, 10,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate()), 0, 10,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
         PopulateWithVendorAndCarryOut(RequisitionLine, Item);
 
         // Change last sales line
-        SalesLine.Validate("Shipment Date", CalcDate('<+9D>', WorkDate));
+        SalesLine.Validate("Shipment Date", CalcDate('<+9D>', WorkDate()));
         SalesLine.Modify(true);
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -1931,28 +1931,28 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<10D>', '<5D>', '', 0, 0, 0);
 
         // Exercise
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate), 0, 10,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate()), 0, 10,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
         PopulateWithVendorAndCarryOut(RequisitionLine, Item);
 
         // Change last sales line
-        SalesLine.Validate("Shipment Date", CalcDate('<+11D>', WorkDate));
+        SalesLine.Validate("Shipment Date", CalcDate('<+11D>', WorkDate()));
         SalesLine.Modify(true);
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::Reschedule, CalcDate('<+5D>', WorkDate),
-          CalcDate('<+11D>', WorkDate), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::Reschedule, CalcDate('<+5D>', WorkDate()),
+          CalcDate('<+11D>', WorkDate()), 0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
         FinalAssert(RequisitionLine, Item);
@@ -1976,29 +1976,29 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<5D>', '<5D>', '', 0, 0, 0);
 
         // Exercise
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate), 0, 10,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate()), 0, 10,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
         PopulateWithVendorAndCarryOut(RequisitionLine, Item);
 
         // Change last sales line
-        SalesLine.Validate("Shipment Date", CalcDate('<+11D>', WorkDate));
+        SalesLine.Validate("Shipment Date", CalcDate('<+11D>', WorkDate()));
         SalesLine.Modify(true);
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 2);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D, CalcDate('<+5D>', WorkDate),
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D, CalcDate('<+5D>', WorkDate()),
           10, 0, RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+11D>', WorkDate),
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+11D>', WorkDate()),
           0, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -2023,23 +2023,23 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<5D>', '<5D>', '<30D>', 0, 0, 0);
 
         // Exercise
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 20, CalcDate('<+9D>', WorkDate), 10, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 20, CalcDate('<+9D>', WorkDate()), 10, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate), 0, 30,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate()), 0, 30,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
         PopulateWithVendorAndCarryOut(RequisitionLine, Item);
 
         // Change last sales line
-        SalesLine.Validate("Shipment Date", CalcDate('<+10D>', WorkDate));
+        SalesLine.Validate("Shipment Date", CalcDate('<+10D>', WorkDate()));
         SalesLine.Modify(true);
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -2063,29 +2063,29 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<5D>', '<5D>', '<30D>', 0, 0, 0);
 
         // Exercise
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate), 20, CalcDate('<+9D>', WorkDate));
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate()), 20, CalcDate('<+9D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate), 0, 30,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate()), 0, 30,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
         PopulateWithVendorAndCarryOut(RequisitionLine, Item);
 
         // Change last sales line
-        SalesLine.Validate("Shipment Date", CalcDate('<+14D>', WorkDate));
+        SalesLine.Validate("Shipment Date", CalcDate('<+14D>', WorkDate()));
         SalesLine.Modify(true);
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 2);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+5D>', WorkDate),
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+5D>', WorkDate()),
           30, 10, RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+14D>', WorkDate),
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+14D>', WorkDate()),
           0, 20, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -2110,13 +2110,13 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '<5D>', '<5D>', '<30D>', 0, 0, 0);
 
         // Exercise
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate), 20, CalcDate('<+9D>', WorkDate));
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 10, CalcDate('<+5D>', WorkDate()), 20, CalcDate('<+9D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate), 0, 30,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+5D>', WorkDate()), 0, 30,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -2125,11 +2125,11 @@ codeunit 137020 "SCM Planning"
         // Delete the sales order
         SalesHeader.Delete(true);
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D, CalcDate('<+5D>', WorkDate),
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D, CalcDate('<+5D>', WorkDate()),
           30, 0, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -2157,13 +2157,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 21);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 1, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 1, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+9D>', WorkDate), 0, 80,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+9D>', WorkDate()), 0, 80,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -2191,13 +2191,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 21);
 
         // Create demand
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 1, CalcDate('<+5D>', WorkDate), 10, CalcDate('<+10D>', WorkDate));
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 1, CalcDate('<+5D>', WorkDate()), 10, CalcDate('<+10D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+9D>', WorkDate), 0, 80,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+9D>', WorkDate()), 0, 80,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -2225,13 +2225,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 21);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 1, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 1, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+9D>', WorkDate), 0, 80,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+9D>', WorkDate()), 0, 80,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -2240,11 +2240,11 @@ codeunit 137020 "SCM Planning"
         // Delete the sales order
         SalesHeader.Delete(true);
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+9D>', WorkDate),
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+9D>', WorkDate()),
           80, 79, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -2272,16 +2272,16 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 21);
 
         // Create demand
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 1, CalcDate('<+5D>', WorkDate), 10, CalcDate('<+10D>', WorkDate));
-        AddSalesOrderLine(SalesHeader, SalesLine, Item, 81, CalcDate('<+11D>', WorkDate));
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 1, CalcDate('<+5D>', WorkDate()), 10, CalcDate('<+10D>', WorkDate()));
+        AddSalesOrderLine(SalesHeader, SalesLine, Item, 81, CalcDate('<+11D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 2);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+9D>', WorkDate), 0, 80,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+9D>', WorkDate()), 0, 80,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+14D>', WorkDate), 0, 91,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+14D>', WorkDate()), 0, 91,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -2309,26 +2309,26 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 21);
 
         // Create demand
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 1, CalcDate('<+5D>', WorkDate), 10, CalcDate('<+10D>', WorkDate));
-        AddSalesOrderLine(SalesHeader, SalesLine, Item, 81, CalcDate('<+11D>', WorkDate));
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 1, CalcDate('<+5D>', WorkDate()), 10, CalcDate('<+10D>', WorkDate()));
+        AddSalesOrderLine(SalesHeader, SalesLine, Item, 81, CalcDate('<+11D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 2);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+9D>', WorkDate), 0, 80,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+9D>', WorkDate()), 0, 80,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+14D>', WorkDate), 0, 91,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+14D>', WorkDate()), 0, 91,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
         PopulateWithVendorAndCarryOut(RequisitionLine, Item);
 
         // Change the last sales line
-        SalesLine.Validate("Shipment Date", CalcDate('<+9D>', WorkDate));
+        SalesLine.Validate("Shipment Date", CalcDate('<+9D>', WorkDate()));
         SalesLine.Modify(true);
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -2355,13 +2355,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 21);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 1, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 1, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+9D>', WorkDate), 0, 100,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+9D>', WorkDate()), 0, 100,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -2389,13 +2389,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 21);
 
         // Create demand
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 1, CalcDate('<+5D>', WorkDate), 10, CalcDate('<+10D>', WorkDate));
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 1, CalcDate('<+5D>', WorkDate()), 10, CalcDate('<+10D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+9D>', WorkDate), 0, 100,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+9D>', WorkDate()), 0, 100,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -2423,13 +2423,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 21);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 1, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 1, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+9D>', WorkDate), 0, 100,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+9D>', WorkDate()), 0, 100,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -2438,11 +2438,11 @@ codeunit 137020 "SCM Planning"
         // Delete the sales order
         SalesHeader.Delete(true);
 
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+9D>', WorkDate),
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+9D>', WorkDate()),
           100, 99, RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -2470,17 +2470,17 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 21);
 
         // Create demand
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 1, CalcDate('<+5D>', WorkDate), 10, CalcDate('<+10D>', WorkDate));
-        AddSalesOrderLine(SalesHeader, SalesLine, Item, 91, CalcDate('<+11D>', WorkDate));
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 1, CalcDate('<+5D>', WorkDate()), 10, CalcDate('<+10D>', WorkDate()));
+        AddSalesOrderLine(SalesHeader, SalesLine, Item, 91, CalcDate('<+11D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Validate
         AssertNumberOfLinesForItem(Item, 2);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+9D>', WorkDate), 0, 100,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+9D>', WorkDate()), 0, 100,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+14D>', WorkDate), 0, 100,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+14D>', WorkDate()), 0, 100,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -2508,28 +2508,28 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 21);
 
         // Create demand
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 1, CalcDate('<+5D>', WorkDate), 10, CalcDate('<+10D>', WorkDate));
-        AddSalesOrderLine(SalesHeader, SalesLine, Item, 91, CalcDate('<+11D>', WorkDate));
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 1, CalcDate('<+5D>', WorkDate()), 10, CalcDate('<+10D>', WorkDate()));
+        AddSalesOrderLine(SalesHeader, SalesLine, Item, 91, CalcDate('<+11D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Intermediate validate
         AssertNumberOfLinesForItem(Item, 2);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+9D>', WorkDate), 0, 100,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+9D>', WorkDate()), 0, 100,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+14D>', WorkDate), 0, 100,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+14D>', WorkDate()), 0, 100,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
         PopulateWithVendorAndCarryOut(RequisitionLine, Item);
 
         // Change the last sales line
-        SalesLine.Validate("Shipment Date", CalcDate('<+9D>', WorkDate));
+        SalesLine.Validate("Shipment Date", CalcDate('<+9D>', WorkDate()));
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -2557,13 +2557,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 21);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 5, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 5, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 84,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 84,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -2574,7 +2574,7 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -2602,13 +2602,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 21);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 6, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 6, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 85,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 85,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -2619,11 +2619,11 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate), 85, 80,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate()), 85, 80,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -2652,13 +2652,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 21);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 5, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 5, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 84,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 84,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -2669,7 +2669,7 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -2697,13 +2697,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 21);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 6, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 6, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 85,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 85,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -2714,11 +2714,11 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate), 85, 80,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate()), 85, 80,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -2747,13 +2747,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 21);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 2, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 2, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 81,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 81,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -2764,11 +2764,11 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate), 81, 80,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate()), 81, 80,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -2797,13 +2797,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 24, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 24, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 100,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 100,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -2814,7 +2814,7 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -2842,13 +2842,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 24, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 24, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 100,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 100,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -2859,11 +2859,11 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate), 100, 95,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate()), 100, 95,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -2892,13 +2892,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 24, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 24, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 100,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 100,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -2909,7 +2909,7 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -2937,13 +2937,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 24, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 24, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 100,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 100,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -2954,11 +2954,11 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate), 100, 95,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate()), 100, 95,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -2987,13 +2987,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 24, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 24, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 100,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 100,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -3004,11 +3004,11 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate), 100, 99,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate()), 100, 99,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -3033,13 +3033,13 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '', '<10D>', '', 4, 0, 40);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 10, CalcDate('<+10D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 10, CalcDate('<+10D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+10D>', WorkDate), 0, 10,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+10D>', WorkDate()), 0, 10,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -3050,7 +3050,7 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -3074,13 +3074,13 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '', '<10D>', '', 4, 0, 40);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 10, CalcDate('<+10D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 10, CalcDate('<+10D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+10D>', WorkDate), 0, 10,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+10D>', WorkDate()), 0, 10,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -3091,11 +3091,11 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+10D>', WorkDate), 10, 5,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+10D>', WorkDate()), 10, 5,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -3120,13 +3120,13 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '', '<10D>', '', 0, 0, 40);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 10, CalcDate('<+10D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 10, CalcDate('<+10D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+10D>', WorkDate), 0, 10,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+10D>', WorkDate()), 0, 10,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -3137,7 +3137,7 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -3161,13 +3161,13 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '', '<10D>', '', 0, 0, 40);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 10, CalcDate('<+10D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 10, CalcDate('<+10D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+10D>', WorkDate), 0, 10,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+10D>', WorkDate()), 0, 10,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -3178,11 +3178,11 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+10D>', WorkDate), 10, 5,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+10D>', WorkDate()), 10, 5,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -3207,13 +3207,13 @@ codeunit 137020 "SCM Planning"
         LFLItemSetup(Item, true, '', '<10D>', '', 0, 0, 0);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 10, CalcDate('<+10D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 10, CalcDate('<+10D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+10D>', WorkDate), 0, 10,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+10D>', WorkDate()), 0, 10,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -3224,11 +3224,11 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+10D>', WorkDate), 10, 9,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+10D>', WorkDate()), 10, 9,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -3258,13 +3258,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 90,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 90,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -3275,11 +3275,11 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate), 90, 73,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate()), 90, 73,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -3309,13 +3309,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 90,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 90,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -3326,7 +3326,7 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -3357,13 +3357,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 90,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 90,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -3374,7 +3374,7 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -3405,13 +3405,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 90,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 90,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -3422,11 +3422,11 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate), 90, 72,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate()), 90, 72,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -3458,13 +3458,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 90,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 90,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -3475,7 +3475,7 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -3506,13 +3506,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 90,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 90,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -3523,7 +3523,7 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -3554,13 +3554,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 90,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 90,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -3571,11 +3571,11 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate), 90, 84,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate()), 90, 84,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -3605,13 +3605,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 80,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 80,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -3622,11 +3622,11 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate), 80, 73,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate()), 80, 73,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -3656,13 +3656,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 80,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 80,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -3673,7 +3673,7 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -3704,13 +3704,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 80,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 80,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -3721,7 +3721,7 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -3752,13 +3752,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 80,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 80,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -3769,11 +3769,11 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate), 80, 72,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate()), 80, 72,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -3805,13 +3805,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 80,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 80,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -3822,7 +3822,7 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -3853,13 +3853,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 80,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 80,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -3870,7 +3870,7 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -3901,13 +3901,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 80,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 80,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -3918,11 +3918,11 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate), 80, 74,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate()), 80, 74,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -3954,13 +3954,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 90,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 90,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -3971,11 +3971,11 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate), 90, 89,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate()), 90, 89,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -4007,13 +4007,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 90,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 90,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -4024,11 +4024,11 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate), 90, 89,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate()), 90, 89,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -4060,13 +4060,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 80,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 80,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -4077,11 +4077,11 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate), 80, 79,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate()), 80, 79,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -4113,13 +4113,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 80,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 80,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -4130,7 +4130,7 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -4161,13 +4161,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 80,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 80,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -4178,11 +4178,11 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate), 80, 79,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate('<+8D>', WorkDate()), 80, 79,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Final verification
@@ -4214,13 +4214,13 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 30);
 
         // Create demand
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 20, CalcDate('<+5D>', WorkDate()));
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 80,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 80,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         // Carry out
@@ -4231,7 +4231,7 @@ codeunit 137020 "SCM Planning"
         SalesLine.Modify(true);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify planning worksheet lines
         AssertNoLinesForItem(Item);
@@ -4278,7 +4278,7 @@ codeunit 137020 "SCM Planning"
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 22, WorkDate + 20);
 
         // [WHEN] Calculate regenerative plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate + 30);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate + 30);
 
         // [THEN] The second purchase is suggested to be canceled.
         // [THEN] Without the minimum order requirement the planning engine would have suggested decreasing the purchase from 22 to 1 pc.
@@ -4302,7 +4302,7 @@ codeunit 137020 "SCM Planning"
         MaxQtyItemSetup(Item, 0, 10, 0, '<0D>', 0, 4, '<0D>', 0);
 
         // Exercise
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
         AssertNumberOfLinesForItem(Item, 2);
 
         // Verify
@@ -4324,13 +4324,13 @@ codeunit 137020 "SCM Planning"
 
         // Exercise
         MakeItemInventory(Item."No.", 50);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify
         AssertNumberOfLinesForItem(Item, 2);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate(PlanningStartDate, WorkDate), 0, 950,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate(PlanningStartDate, WorkDate()), 0, 950,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate(PlanningStartDate, WorkDate), 0, 4000,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate(PlanningStartDate, WorkDate()), 0, 4000,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         FinalAssert(RequisitionLine, Item);
@@ -4353,11 +4353,11 @@ codeunit 137020 "SCM Planning"
 
         // Exercise
         MakeItemInventory(Item."No.", 50);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify
         AssertNumberOfLinesForItem(Item, 4);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate(PlanningStartDate, WorkDate), 0, 10000,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate(PlanningStartDate, WorkDate()), 0, 10000,
           RequisitionLine."Ref. Order Type"::Purchase, 4);
 
         FinalAssert(RequisitionLine, Item);
@@ -4379,24 +4379,24 @@ codeunit 137020 "SCM Planning"
         MaxQtyItemSetup(Item, 0, 250, 0, '<1M>', 0, 0, '<0D>', 0);
 
         // Exercise
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 100, CalcDate('<+2D>', WorkDate), 150, CalcDate('<+4D>', WorkDate));
-        AddSalesOrderLine(SalesHeader, SalesLine, Item, 100, CalcDate('<+6D>', WorkDate));
-        AddSalesOrderLine(SalesHeader, SalesLine, Item, 50, CalcDate('<+8D>', WorkDate));
-        AddSalesOrderLine(SalesHeader, SalesLine, Item, 100, CalcDate('<+10D>', WorkDate));
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 100, CalcDate('<+2D>', WorkDate()), 150, CalcDate('<+4D>', WorkDate()));
+        AddSalesOrderLine(SalesHeader, SalesLine, Item, 100, CalcDate('<+6D>', WorkDate()));
+        AddSalesOrderLine(SalesHeader, SalesLine, Item, 50, CalcDate('<+8D>', WorkDate()));
+        AddSalesOrderLine(SalesHeader, SalesLine, Item, 100, CalcDate('<+10D>', WorkDate()));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify
         AssertNumberOfLinesForItem(Item, 5);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate(PlanningStartDate, WorkDate), 0, 250,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate(PlanningStartDate, WorkDate()), 0, 250,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+6D>', WorkDate), 0, 100,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+6D>', WorkDate()), 0, 100,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate), 0, 50,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+8D>', WorkDate()), 0, 50,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+10D>', WorkDate), 0, 100,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+10D>', WorkDate()), 0, 100,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(DaysInMonthFormula, CalcDate('<-1D>', CalcDate(PlanningStartDate, WorkDate))), 0, 250,
+          CalcDate(DaysInMonthFormula, CalcDate('<-1D>', CalcDate(PlanningStartDate, WorkDate()))), 0, 250,
           RequisitionLine."Ref. Order Type"::Purchase, 1);// 1M-1D+Planningstartdate
 
         FinalAssert(RequisitionLine, Item);
@@ -4418,19 +4418,19 @@ codeunit 137020 "SCM Planning"
         MaxQtyItemSetup(Item, 10, 100, 0, '<1M>', 0, 0, '<0D>', 0);
 
         // Exercise
-        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 120, CalcDate('<+1W>', WorkDate), 80, CalcDate('<+2W>', WorkDate));
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        CreateSalesOrderWith2Lines(SalesHeader, SalesLine, Item, 120, CalcDate('<+1W>', WorkDate()), 80, CalcDate('<+2W>', WorkDate()));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify
         AssertNumberOfLinesForItem(Item, 4);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate(PlanningStartDate, WorkDate), 0, 100,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate(PlanningStartDate, WorkDate()), 0, 100,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+1W>', WorkDate), 0, 20,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+1W>', WorkDate()), 0, 20,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+2W>', WorkDate), 0, 80,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<+2W>', WorkDate()), 0, 80,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
         AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D,
-          CalcDate(DaysInMonthFormula, CalcDate('<-1D>', CalcDate(PlanningStartDate, WorkDate))), 0, 100,
+          CalcDate(DaysInMonthFormula, CalcDate('<-1D>', CalcDate(PlanningStartDate, WorkDate()))), 0, 100,
           RequisitionLine."Ref. Order Type"::Purchase, 1);// 1M-1D+Planningstartdate
 
         FinalAssert(RequisitionLine, Item);
@@ -4450,13 +4450,13 @@ codeunit 137020 "SCM Planning"
         MaxQtyItemSetup(Item, 17, 25, 0, '<0D>', 0, 4, '<5D>', 0);
 
         // Exercise
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify
         AssertNumberOfLinesForItem(Item, 2);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate(PlanningStartDate, WorkDate), 0, 4,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate(PlanningStartDate, WorkDate()), 0, 4,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<5D>', CalcDate(PlanningStartDate, WorkDate)), 0, 21,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<5D>', CalcDate(PlanningStartDate, WorkDate())), 0, 21,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         FinalAssert(RequisitionLine, Item);
@@ -4480,13 +4480,13 @@ codeunit 137020 "SCM Planning"
         Item.Modify(true);
 
         // Exercise
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify
         AssertNumberOfLinesForItem(Item, 2);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate(PlanningStartDate, WorkDate), 0, 20,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate(PlanningStartDate, WorkDate()), 0, 20,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate(PlanningStartDate, WorkDate), 0, 80,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate(PlanningStartDate, WorkDate()), 0, 80,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
         AssertTrackedQty(Item."No.", 100);
 
@@ -4516,30 +4516,30 @@ codeunit 137020 "SCM Planning"
         LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", LocationBlue.Code, '', 10);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 30, CalcDate('<+5D>', CalcDate(PlanningStartDate, WorkDate)));
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 30, CalcDate('<+5D>', CalcDate(PlanningStartDate, WorkDate())));
         SalesLine.Validate("Location Code", LocationBlue.Code);
         SalesLine.Modify(true);
 
         // Exercise
         Item.SetRange("Location Filter", LocationBlue.Code);
         Item.SetRange("No.", Item."No.");
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
         AssertNumberOfLinesForItem(Item, 2);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<1D>', WorkDate), 0, 20,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<1D>', WorkDate()), 0, 20,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<5D>', WorkDate), 0, 50,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<5D>', WorkDate()), 0, 50,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         PopulateWithVendorAndCarryOut(RequisitionLine, Item);
 
-        AddSalesOrderLine(SalesHeader, SalesLine, Item, 20, WorkDate);
+        AddSalesOrderLine(SalesHeader, SalesLine, Item, 20, WorkDate());
         SalesLine.Validate("Location Code", LocationBlue.Code);
         SalesLine.Modify(true);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify
         AssertNumberOfLinesForItem(Item, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<1D>', WorkDate), 0, 20,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate('<1D>', WorkDate()), 0, 20,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         FinalAssert(RequisitionLine, Item);
@@ -4560,20 +4560,20 @@ codeunit 137020 "SCM Planning"
         TestSetup;
         MaxQtyItemSetup(Item, 2, 3, 0, '<0D>', 0, 0, '<0D>', 0);
 
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 100, CalcDate(PlanningStartDate, WorkDate));
-        AddPurchaseOrderLine(PurchaseHeader, PurchaseLine, Item, 100, CalcDate('<+1D>', CalcDate(PlanningStartDate, WorkDate)));
-        AddPurchaseOrderLine(PurchaseHeader, PurchaseLine, Item, 100, CalcDate('<+2D>', CalcDate(PlanningStartDate, WorkDate)));
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 100, CalcDate(PlanningStartDate, WorkDate()));
+        AddPurchaseOrderLine(PurchaseHeader, PurchaseLine, Item, 100, CalcDate('<+1D>', CalcDate(PlanningStartDate, WorkDate())));
+        AddPurchaseOrderLine(PurchaseHeader, PurchaseLine, Item, 100, CalcDate('<+2D>', CalcDate(PlanningStartDate, WorkDate())));
 
         // Exercise
         Item.SetFilter("No.", Item."No.");
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         AssertNumberOfLinesForItem(Item, 3);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate(PlanningStartDate, WorkDate), 100, 3,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::"Change Qty.", 0D, CalcDate(PlanningStartDate, WorkDate()), 100, 3,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D, CalcDate('<1D>', CalcDate(PlanningStartDate, WorkDate)), 100, 0,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D, CalcDate('<1D>', CalcDate(PlanningStartDate, WorkDate())), 100, 0,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D, CalcDate('<2D>', CalcDate(PlanningStartDate, WorkDate)), 100, 0,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::Cancel, 0D, CalcDate('<2D>', CalcDate(PlanningStartDate, WorkDate())), 100, 0,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
     end;
 
@@ -4591,13 +4591,13 @@ codeunit 137020 "SCM Planning"
         MaxQtyItemSetup(Item, 9, 10, 0, '<0D>', 0, 8, '<0D>', 0);
 
         // Exercise
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate), CalcDate(PlanningEndDate, WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate(PlanningStartDate, WorkDate()), CalcDate(PlanningEndDate, WorkDate()));
 
         // Verify
         AssertNumberOfLinesForItem(Item, 2);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate(PlanningStartDate, WorkDate), 0, 8,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate(PlanningStartDate, WorkDate()), 0, 8,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
-        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate(PlanningStartDate, WorkDate), 0, 2,
+        AssertPlanningLine(Item, RequisitionLine."Action Message"::New, 0D, CalcDate(PlanningStartDate, WorkDate()), 0, 2,
           RequisitionLine."Ref. Order Type"::Purchase, 1);
 
         FinalAssert(RequisitionLine, Item);
@@ -4749,10 +4749,10 @@ codeunit 137020 "SCM Planning"
         // [SCENARIO 314353] Then no additional planning suggestions are generated after 1st one is carried out
         Initialize();
         Evaluate(LeadTimeCalculation, '<20D>');
-        ShipDate1 := WorkDate;
-        ShipDate2 := CalcDate('<7D>', WorkDate);
-        StartDate := CalcDate('<-CY>', WorkDate);
-        EndDate := CalcDate('<CY>', WorkDate);
+        ShipDate1 := WorkDate();
+        ShipDate2 := CalcDate('<7D>', WorkDate());
+        StartDate := CalcDate('<-CY>', WorkDate());
+        EndDate := CalcDate('<CY>', WorkDate());
         MaxInventory := 43;
         ReorderPoint := 35;
         Qty1 := 15;
@@ -4815,7 +4815,7 @@ codeunit 137020 "SCM Planning"
         Commit();
 
         // [WHEN] Calculate Regenerative Plan for this year with Stop and Show First Error enabled
-        asserterror CalcRegenPlanWithStopAndShowFirstError(Item, CalcDate('<-CY>', WorkDate), CalcDate('<CY>', WorkDate));
+        asserterror CalcRegenPlanWithStopAndShowFirstError(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
 
         // [THEN] Error 'Reorder Quantity must have a value in Item: No.=1000. It cannot be zero or empty.'
         Assert.ExpectedError(StrSubstNo(ReorderQtyMustHaveValueInItemErr, Item."No."));
@@ -4865,7 +4865,7 @@ codeunit 137020 "SCM Planning"
         LibrarySales.CreateSalesLineWithShipmentDate(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", WorkDate + 10, SalesQty);
 
         // [WHEN] Calculate regenerative plan starting from WORKDATE.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, CalcDate('<CY>', WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate('<CY>', WorkDate()));
 
         // [THEN] Three planning lines are created.
         // [THEN] The resulting inventory with the consideration of the planning lines is 50 qty. (= Max. Inventory of the item).

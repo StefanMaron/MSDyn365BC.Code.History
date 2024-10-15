@@ -29,6 +29,7 @@ codeunit 141050 "Bank Recon. with Matching"
         WrongFilterErr: Label 'The filter on %1 is wrong.', Comment = '%1=FieldCaption';
         WrongValueErr: Label '%1 has a wrong value.', Comment = '%1=FieldCaption';
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        OpenBankStatementPageQst: Label 'Do you want to open the bank account statement?';
 
     [Test]
     [HandlerFunctions('BankAccountListPageHandler,ConfirmHandlerYes,NewBankAccReconciliationPageHandler')]
@@ -51,7 +52,7 @@ codeunit 141050 "Bank Recon. with Matching"
 
         // Pre-Setup
         BankAccReconciliation.DeleteAll(true);
-        Assert.IsTrue(BankAccReconciliation.IsEmpty, StrSubstNo(RecordNotDeletedErr, BankAccReconciliation.TableCaption));
+        Assert.IsTrue(BankAccReconciliation.IsEmpty, StrSubstNo(RecordNotDeletedErr, BankAccReconciliation.TableCaption()));
 
         // Setup
         LibraryERM.CreateBankAccount(BankAccount);
@@ -68,7 +69,7 @@ codeunit 141050 "Bank Recon. with Matching"
         BankAccReconciliationList.NewRecProcess.Invoke;
 
         // Verify
-        Assert.IsFalse(BankAccReconciliation.IsEmpty, StrSubstNo(RecordNotCreatedErr, BankAccReconciliation.TableCaption));
+        Assert.IsFalse(BankAccReconciliation.IsEmpty, StrSubstNo(RecordNotCreatedErr, BankAccReconciliation.TableCaption()));
 
         // Tear Down
         LibraryVariableStorage.AssertEmpty;
@@ -98,7 +99,10 @@ codeunit 141050 "Bank Recon. with Matching"
     [Scope('OnPrem')]
     procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
     begin
-        Reply := true;
+        if (Question.Contains(OpenBankStatementPageQst)) then
+            Reply := false
+        else
+            Reply := true;
     end;
 
     [PageHandler]
@@ -114,7 +118,7 @@ codeunit 141050 "Bank Recon. with Matching"
         BankAccReconciliation.BankAccountNo.AssertEquals(BankAccountNo);
         BankAccReconciliation.StatementNo.AssertEquals(StatementNo);
 
-        BankAccReconciliation.StatementDate.SetValue(WorkDate);
+        BankAccReconciliation.StatementDate.SetValue(WorkDate());
         BankAccReconciliation.OK.Invoke;
     end;
 
@@ -139,7 +143,7 @@ codeunit 141050 "Bank Recon. with Matching"
 
         // Pre-Setup
         BankRecHeader.DeleteAll(true);
-        Assert.IsTrue(BankRecHeader.IsEmpty, StrSubstNo(RecordNotDeletedErr, BankRecHeader.TableCaption));
+        Assert.IsTrue(BankRecHeader.IsEmpty, StrSubstNo(RecordNotDeletedErr, BankRecHeader.TableCaption()));
 
         // Setup
         LibraryERM.CreateBankAccount(BankAccount);
@@ -195,7 +199,7 @@ codeunit 141050 "Bank Recon. with Matching"
 
         // Pre-Setup
         BankAccReconciliation.DeleteAll(true);
-        Assert.IsTrue(BankAccReconciliation.IsEmpty, StrSubstNo(RecordNotDeletedErr, BankAccReconciliation.TableCaption));
+        Assert.IsTrue(BankAccReconciliation.IsEmpty, StrSubstNo(RecordNotDeletedErr, BankAccReconciliation.TableCaption()));
 
         // Setup
         LibraryERM.CreateBankAccount(BankAccount);
@@ -214,7 +218,7 @@ codeunit 141050 "Bank Recon. with Matching"
         BankAccReconciliationList.NewRecProcess.Invoke;
 
         // Verify
-        Assert.IsFalse(BankAccReconciliation.IsEmpty, StrSubstNo(RecordNotCreatedErr, BankAccReconciliation.TableCaption));
+        Assert.IsFalse(BankAccReconciliation.IsEmpty, StrSubstNo(RecordNotCreatedErr, BankAccReconciliation.TableCaption()));
 
         // Tear Down
         LibraryVariableStorage.AssertEmpty;
@@ -241,7 +245,7 @@ codeunit 141050 "Bank Recon. with Matching"
 
         // Pre-Setup
         BankRecHeader.DeleteAll(true);
-        Assert.IsTrue(BankRecHeader.IsEmpty, StrSubstNo(RecordNotDeletedErr, BankRecHeader.TableCaption));
+        Assert.IsTrue(BankRecHeader.IsEmpty, StrSubstNo(RecordNotDeletedErr, BankRecHeader.TableCaption()));
 
         // Setup
         LibraryERM.CreateBankAccount(BankAccount);
@@ -286,7 +290,7 @@ codeunit 141050 "Bank Recon. with Matching"
 
         // Pre-Setup
         BankAccReconciliation.DeleteAll(true);
-        Assert.IsTrue(BankAccReconciliation.IsEmpty, StrSubstNo(RecordNotDeletedErr, BankAccReconciliation.TableCaption));
+        Assert.IsTrue(BankAccReconciliation.IsEmpty, StrSubstNo(RecordNotDeletedErr, BankAccReconciliation.TableCaption()));
 
         // Setup
         LibraryERM.CreateBankAccount(BankAccount);
@@ -304,7 +308,7 @@ codeunit 141050 "Bank Recon. with Matching"
         OpenBankReconciliationList(BankAccountCard."No.".Value);
 
         // Verify
-        Assert.IsFalse(BankAccReconciliation.IsEmpty, StrSubstNo(RecordNotCreatedErr, BankAccReconciliation.TableCaption));
+        Assert.IsFalse(BankAccReconciliation.IsEmpty, StrSubstNo(RecordNotCreatedErr, BankAccReconciliation.TableCaption()));
 
         // Tear Down
         LibraryVariableStorage.AssertEmpty;
@@ -346,7 +350,7 @@ codeunit 141050 "Bank Recon. with Matching"
 
         // Pre-Setup
         BankRecHeader.DeleteAll(true);
-        Assert.IsTrue(BankRecHeader.IsEmpty, StrSubstNo(RecordNotDeletedErr, BankRecHeader.TableCaption));
+        Assert.IsTrue(BankRecHeader.IsEmpty, StrSubstNo(RecordNotDeletedErr, BankRecHeader.TableCaption()));
 
         // Setup
         LibraryERM.CreateBankAccount(BankAccount);
@@ -582,7 +586,7 @@ codeunit 141050 "Bank Recon. with Matching"
     begin
         LibraryERM.CreateBankAccReconciliation(BankAccReconciliation,
           BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
-        BankAccReconciliation.Validate("Statement Date", WorkDate);
+        BankAccReconciliation.Validate("Statement Date", WorkDate());
         BankAccReconciliation.Modify(true);
 
         Commit();
@@ -601,8 +605,8 @@ codeunit 141050 "Bank Recon. with Matching"
     [Scope('OnPrem')]
     procedure SuggestBankAccReconLinesReqPageHandler(var SuggestBankAccReconLines: TestRequestPage "Suggest Bank Acc. Recon. Lines")
     begin
-        SuggestBankAccReconLines.StartingDate.SetValue(WorkDate);
-        SuggestBankAccReconLines.EndingDate.SetValue(WorkDate);
+        SuggestBankAccReconLines.StartingDate.SetValue(WorkDate());
+        SuggestBankAccReconLines.EndingDate.SetValue(WorkDate());
         SuggestBankAccReconLines.OK.Invoke;
     end;
 
@@ -990,7 +994,7 @@ codeunit 141050 "Bank Recon. with Matching"
         ReportSelections.SetRange(Usage, Usage);
         ReportSelections.SetRange(Sequence, '1');
         ReportSelections.SetRange("Report ID", ReportID);
-        Assert.IsFalse(ReportSelections.IsEmpty, StrSubstNo(RecordNotCreatedErr, ReportSelections.TableCaption));
+        Assert.IsFalse(ReportSelections.IsEmpty, StrSubstNo(RecordNotCreatedErr, ReportSelections.TableCaption()));
     end;
 
     local procedure GetSelectedReport(Usage: Enum "Report Selection Usage"; ReportID: Integer; var ReportSelections: Record "Report Selections"): Boolean
@@ -1150,10 +1154,10 @@ codeunit 141050 "Bank Recon. with Matching"
         GeneralLedgerSetup.Validate("Bank Recon. with Auto. Match", true);
         // Verify
         ReportSelections.SetRange(Usage, ReportSelections.Usage::"B.Stmt");
-        Assert.AreEqual(2, ReportSelections.Count, StrSubstNo(RecordNotCreatedErr, ReportSelections.TableCaption));
+        Assert.AreEqual(2, ReportSelections.Count, StrSubstNo(RecordNotCreatedErr, ReportSelections.TableCaption()));
 
         ReportSelections.SetRange(Usage, ReportSelections.Usage::"B.Recon.Test");
-        Assert.AreEqual(2, ReportSelections.Count, StrSubstNo(RecordNotCreatedErr, ReportSelections.TableCaption));
+        Assert.AreEqual(2, ReportSelections.Count, StrSubstNo(RecordNotCreatedErr, ReportSelections.TableCaption()));
 
         // Tear Down
         RestoreReconciliationReports;
@@ -1193,10 +1197,10 @@ codeunit 141050 "Bank Recon. with Matching"
 
         // Verify
         ReportSelections.SetRange(Usage, ReportSelections.Usage::"B.Stmt");
-        Assert.AreEqual(2, ReportSelections.Count, StrSubstNo(RecordNotCreatedErr, ReportSelections.TableCaption));
+        Assert.AreEqual(2, ReportSelections.Count, StrSubstNo(RecordNotCreatedErr, ReportSelections.TableCaption()));
 
         ReportSelections.SetRange(Usage, ReportSelections.Usage::"B.Recon.Test");
-        Assert.AreEqual(2, ReportSelections.Count, StrSubstNo(RecordNotCreatedErr, ReportSelections.TableCaption));
+        Assert.AreEqual(2, ReportSelections.Count, StrSubstNo(RecordNotCreatedErr, ReportSelections.TableCaption()));
 
         // Tear Down
         RestoreReconciliationReports;
@@ -1243,11 +1247,11 @@ codeunit 141050 "Bank Recon. with Matching"
 
         // Verify
         Assert.IsTrue(BankAccReconciliationList.GotoRecord(BankAccReconciliation1),
-          StrSubstNo(RecordNotFoundErr, BankAccReconciliation1.TableCaption));
+          StrSubstNo(RecordNotFoundErr, BankAccReconciliation1.TableCaption()));
         Assert.IsFalse(BankAccReconciliationList.GotoRecord(BankAccReconciliation2),
           StrSubstNo(PageNotRefreshedErr, BankAccReconciliationList.Caption));
         Assert.IsTrue(BankAccReconciliationList.GotoRecord(BankAccReconciliation3),
-          StrSubstNo(RecordNotFoundErr, BankAccReconciliation3.TableCaption));
+          StrSubstNo(RecordNotFoundErr, BankAccReconciliation3.TableCaption()));
     end;
 
     [Test]
@@ -1296,11 +1300,11 @@ codeunit 141050 "Bank Recon. with Matching"
 
         // Verify
         Assert.IsTrue(BankAccReconciliationList.GotoRecord(BankAccReconciliation1),
-          StrSubstNo(RecordNotFoundErr, BankAccReconciliation1.TableCaption));
+          StrSubstNo(RecordNotFoundErr, BankAccReconciliation1.TableCaption()));
         Assert.IsFalse(BankAccReconciliationList.GotoRecord(BankAccReconciliation2),
           StrSubstNo(PageNotRefreshedErr, BankAccReconciliationList.Caption));
         Assert.IsTrue(BankAccReconciliationList.GotoRecord(BankAccReconciliation3),
-          StrSubstNo(RecordNotFoundErr, BankAccReconciliation3.TableCaption));
+          StrSubstNo(RecordNotFoundErr, BankAccReconciliation3.TableCaption()));
     end;
 
     local procedure CreateBankRecHeader(var BankRecHeader: Record "Bank Rec. Header"; var BankAccount: Record "Bank Account")
@@ -1340,7 +1344,7 @@ codeunit 141050 "Bank Recon. with Matching"
 
         // Post-Setup
         Assert.IsTrue(BankAccReconciliationList.GotoRecord(BankAccReconciliation1),
-          StrSubstNo(RecordNotFoundErr, BankAccReconciliation1.TableCaption));
+          StrSubstNo(RecordNotFoundErr, BankAccReconciliation1.TableCaption()));
         Assert.IsFalse(BankAccReconciliationList.GotoRecord(BankAccReconciliation2),
           StrSubstNo(PageNotRefreshedErr, BankAccReconciliationList.Caption));
 
@@ -1354,7 +1358,7 @@ codeunit 141050 "Bank Recon. with Matching"
 
         // Verify
         Assert.IsTrue(BankAccReconciliationList.GotoRecord(BankAccReconciliation1),
-          StrSubstNo(RecordNotFoundErr, BankAccReconciliation1.TableCaption));
+          StrSubstNo(RecordNotFoundErr, BankAccReconciliation1.TableCaption()));
         Assert.IsTrue(BankAccReconciliationList.GotoRecord(BankAccReconciliation2),
           StrSubstNo(PageNotRefreshedErr, BankAccReconciliationList.Caption));
     end;
@@ -1389,7 +1393,7 @@ codeunit 141050 "Bank Recon. with Matching"
 
         // Post-Setup
         Assert.IsTrue(BankAccReconciliationList.GotoRecord(BankAccReconciliation1),
-          StrSubstNo(RecordNotFoundErr, BankAccReconciliation1.TableCaption));
+          StrSubstNo(RecordNotFoundErr, BankAccReconciliation1.TableCaption()));
         Assert.IsFalse(BankAccReconciliationList.GotoRecord(BankAccReconciliation2),
           StrSubstNo(PageNotRefreshedErr, BankAccReconciliationList.Caption));
 
@@ -1403,7 +1407,7 @@ codeunit 141050 "Bank Recon. with Matching"
 
         // Verify
         Assert.IsTrue(BankAccReconciliationList.GotoRecord(BankAccReconciliation1),
-          StrSubstNo(RecordNotFoundErr, BankAccReconciliation1.TableCaption));
+          StrSubstNo(RecordNotFoundErr, BankAccReconciliation1.TableCaption()));
         Assert.IsFalse(BankAccReconciliationList.GotoRecord(BankAccReconciliation2),
           StrSubstNo(PageNotRefreshedErr, BankAccReconciliationList.Caption));
     end;
@@ -1440,7 +1444,7 @@ codeunit 141050 "Bank Recon. with Matching"
 
         // Post-Setup
         Assert.IsTrue(BankAccReconciliationList.GotoRecord(BankAccReconciliation1),
-          StrSubstNo(RecordNotFoundErr, BankAccReconciliation1.TableCaption));
+          StrSubstNo(RecordNotFoundErr, BankAccReconciliation1.TableCaption()));
         Assert.IsFalse(BankAccReconciliationList.GotoRecord(BankAccReconciliation2),
           StrSubstNo(PageNotRefreshedErr, BankAccReconciliationList.Caption));
 
@@ -1455,7 +1459,7 @@ codeunit 141050 "Bank Recon. with Matching"
 
         // Verify
         Assert.IsTrue(BankAccReconciliationList.GotoRecord(BankAccReconciliation1),
-          StrSubstNo(RecordNotFoundErr, BankAccReconciliation1.TableCaption));
+          StrSubstNo(RecordNotFoundErr, BankAccReconciliation1.TableCaption()));
         Assert.IsTrue(BankAccReconciliationList.GotoRecord(BankAccReconciliation2),
           StrSubstNo(PageNotRefreshedErr, BankAccReconciliationList.Caption));
     end;
@@ -1608,7 +1612,7 @@ codeunit 141050 "Bank Recon. with Matching"
         BankAccReconciliationList.EditRec.Invoke;
 
         // Verify
-        BankAccReconciliationList.StatementDate.AssertEquals(WorkDate);
+        BankAccReconciliationList.StatementDate.AssertEquals(WorkDate());
         BankAccReconciliationList.BalanceLastStatement.AssertEquals(0);
         BankAccReconciliationList.StatementEndingBalance.AssertEquals(StatementEndingBalance);
 
@@ -1624,7 +1628,7 @@ codeunit 141050 "Bank Recon. with Matching"
     begin
         LibraryVariableStorage.Dequeue(StatementEndingBalance);
 
-        BankAccReconciliation.StatementDate.SetValue(WorkDate);
+        BankAccReconciliation.StatementDate.SetValue(WorkDate());
         BankAccReconciliation.StatementEndingBalance.SetValue(StatementEndingBalance);
         BankAccReconciliation.OK.Invoke;
     end;
@@ -1666,7 +1670,7 @@ codeunit 141050 "Bank Recon. with Matching"
         BankAccReconciliationList.OpenEdit;
         BankAccReconciliationList.GotoRecord(BankAccReconciliation);
 
-        BankAccReconciliationList.StatementDate.AssertEquals(WorkDate);
+        BankAccReconciliationList.StatementDate.AssertEquals(WorkDate());
         BankAccReconciliationList.BalanceLastStatement.AssertEquals(0);
         BankAccReconciliationList.StatementEndingBalance.AssertEquals(0);
 
@@ -1675,7 +1679,7 @@ codeunit 141050 "Bank Recon. with Matching"
         BankAccReconciliationList.EditRec.Invoke;
 
         // Verify
-        BankAccReconciliationList.StatementDate.AssertEquals(WorkDate);
+        BankAccReconciliationList.StatementDate.AssertEquals(WorkDate());
         BankAccReconciliationList.BalanceLastStatement.AssertEquals(BankRecHeader.CalculateEndingBalance);
         BankAccReconciliationList.StatementEndingBalance.AssertEquals(BankRecHeader.CalculateEndingBalance);
     end;

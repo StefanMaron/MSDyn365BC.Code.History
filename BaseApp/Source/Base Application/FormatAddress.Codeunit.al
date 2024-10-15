@@ -444,6 +444,29 @@
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
     end;
 
+    procedure PurchHeaderRemitTo(var AddrArray: array[8] of Text[100]; var PurchHeader: Record "Purchase Header"): Boolean
+    var
+        RemitAddress: Record "Remit Address";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePurchHeaderRemitTo(AddrArray, PurchHeader, IsHandled);
+        if IsHandled then
+            exit(false);
+
+        if PurchHeader."Remit-to Code" <> '' then begin
+            RemitAddress.Reset();
+            RemitAddress.SetRange("Vendor No.", PurchHeader."Pay-to Vendor No.");
+            RemitAddress.SetRange(Code, PurchHeader."Remit-to Code");
+            if RemitAddress.IsEmpty() then
+                exit(false);
+
+            RemitAddress.FindFirst();
+            VendorRemitToAddress(AddrArray, RemitAddress);
+        end;
+        exit(true);
+    end;
+
     procedure SalesShptSellTo(var AddrArray: array[8] of Text[100]; var SalesShptHeader: Record "Sales Shipment Header")
     var
         IsHandled: Boolean;
@@ -739,6 +762,29 @@
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
     end;
 
+    procedure PurchInvRemitTo(var AddrArray: array[8] of Text[100]; var PurchInvHeader: Record "Purch. Inv. Header"): Boolean
+    var
+        RemitAddress: Record "Remit Address";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePurchInvRemitTo(AddrArray, PurchInvHeader, IsHandled);
+        if IsHandled then
+            exit(false);
+
+        if PurchInvHeader."Remit-to Code" <> '' then begin
+            RemitAddress.Reset();
+            RemitAddress.SetRange("Vendor No.", PurchInvHeader."Pay-to Vendor No.");
+            RemitAddress.SetRange(Code, PurchInvHeader."Remit-to Code");
+            if RemitAddress.IsEmpty() then
+                exit(false);
+
+            RemitAddress.FindFirst();
+            VendorRemitToAddress(AddrArray, RemitAddress);
+        end;
+        exit(true);
+    end;
+
     procedure PurchCrMemoBuyFrom(var AddrArray: array[8] of Text[100]; var PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.")
     var
         IsHandled: Boolean;
@@ -840,7 +886,7 @@
 
         with AlternativeAddr do
             FormatAddr(
-              AddrArray, CopyStr(Employee.FullName, 1, 50), '', '', Address,
+              AddrArray, CopyStr(Employee.FullName(), 1, 50), '', '', Address,
               "Address 2", City, "Post Code", County, "Country/Region Code");
     end;
 
@@ -855,7 +901,7 @@
 
         with Employee do
             FormatAddr(
-              AddrArray, CopyStr(FullName, 1, 50), '', '', Address, "Address 2",
+              AddrArray, CopyStr(FullName(), 1, 50), '', '', Address, "Address 2",
               City, "Post Code", County, "Country/Region Code");
     end;
 
@@ -866,7 +912,7 @@
         AlternativeAddr.Get(Employee."No.", Employee."Alt. Address Code");
         with AlternativeAddr do
             FormatAddr(
-              AddrArray, CopyStr(Employee.FullName, 1, 50), '', '', Address,
+              AddrArray, CopyStr(Employee.FullName(), 1, 50), '', '', Address,
               "Address 2", City, "Post Code", County, "Country/Region Code");
     end;
 
@@ -1010,7 +1056,7 @@
 
     procedure ContactAddr(var AddrArray: array[8] of Text[100]; var Cont: Record Contact)
     begin
-        ContactAddrAlt(AddrArray, Cont, Cont.ActiveAltAddress(WorkDate), WorkDate)
+        ContactAddrAlt(AddrArray, Cont, Cont.ActiveAltAddress(WorkDate()), WorkDate())
     end;
 
     procedure ContactAddrAlt(var AddrArray: array[8] of Text[100]; var Cont: Record Contact; AltAddressCode: Code[10]; ActiveDate: Date)
@@ -1476,6 +1522,13 @@
               AddrArray, Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
     end;
 
+    procedure VendorRemitToAddress(var AddrArray: array[8] of Text[100]; var RemitAddress: Record "Remit Address")
+    begin
+        if RemitAddress.Code <> '' then
+            with RemitAddress do
+                FormatAddr(AddrArray, Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+    end;
+
     procedure UseCounty(CountryCode: Code[10]): Boolean
     var
         CountryRegion: Record "Country/Region";
@@ -1717,6 +1770,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchInvRemitTo(var AddrArray: array[8] of Text[100]; var PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePurchCrMemoBuyFrom(var AddrArray: array[8] of Text[100]; var PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; var IsHandled: Boolean)
     begin
     end;
@@ -1843,6 +1901,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchHeaderShipTo(var AddrArray: array[8] of Text[100]; var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchHeaderRemitTo(var AddrArray: array[8] of Text[100]; var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 

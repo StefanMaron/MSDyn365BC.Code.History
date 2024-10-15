@@ -37,10 +37,10 @@ report 7315 "Calculate Whse. Adjustment"
                                 SNLotNumbersByBin.SetFilter(Serial_No, Item.GetFilter("Serial No. Filter"));
                                 SNLotNumbersByBin.SetFilter(Package_No, Item.GetFilter("Package No. Filter"));
                                 OnAfterGetRecordItemOnAfterSNLotNumbersByBinSetFilters(SNLotNumbersByBin, Item);
-                                SNLotNumbersByBin.Open;
+                                SNLotNumbersByBin.Open();
 
-                                while SNLotNumbersByBin.Read do begin
-                                    Init;
+                                while SNLotNumbersByBin.Read() do begin
+                                    Init();
                                     "Item No." := SNLotNumbersByBin.Item_No;
                                     "Variant Code" := SNLotNumbersByBin.Variant_Code;
                                     "Location Code" := SNLotNumbersByBin.Location_Code;
@@ -52,16 +52,16 @@ report 7315 "Calculate Whse. Adjustment"
                                     "Package No." := SNLotNumbersByBin.Package_No;
                                     "Qty. to Handle (Base)" := SNLotNumbersByBin.Sum_Qty_Base;
                                     OnBeforeAdjmtBinQuantityBufferInsert(TempAdjmtBinContentBuffer, WhseEntry, SNLotNumbersByBin);
-                                    Insert;
+                                    Insert();
                                 end;
                             until Location.Next() = 0;
 
-                        Reset;
+                        Reset();
                         ReservationEntry.Reset();
                         ReservationEntry.SetCurrentKey("Source ID");
                         ItemJnlLine.Reset();
                         ItemJnlLine.SetCurrentKey("Item No.");
-                        if FindSet() then begin
+                        if FindSet() then
                             repeat
                                 ItemJnlLine.Reset();
                                 ItemJnlLine.SetCurrentKey("Item No.");
@@ -85,12 +85,11 @@ report 7315 "Calculate Whse. Adjustment"
                                         if ReservationEntry."Qty. to Handle (Base)" <> 0 then begin
                                             "Qty. to Handle (Base)" += ReservationEntry."Qty. to Handle (Base)";
                                             OnBeforeAdjmtBinQuantityBufferModify(TempAdjmtBinContentBuffer, ReservationEntry);
-                                            Modify;
+                                            Modify();
                                             OnAfterGetRecordItemOnAfterAdjmtBinContentBufferModify(TempAdjmtBinContentBuffer, ItemJnlLine, ReservationEntry);
                                         end;
                                     until ItemJnlLine.Next() = 0;
                             until Next() = 0;
-                        end;
                     end;
                 end;
 
@@ -99,7 +98,7 @@ report 7315 "Calculate Whse. Adjustment"
                     QtyInUOM: Decimal;
                 begin
                     with TempAdjmtBinContentBuffer do begin
-                        Reset;
+                        Reset();
                         if FindSet() then
                             repeat
                                 SetRange("Location Code", "Location Code");
@@ -140,7 +139,7 @@ report 7315 "Calculate Whse. Adjustment"
                                 SetRange("Unit of Measure Code");
                                 OnPostDataItemOnAfterAdjmtBinContentBufferClearFilters(TempAdjmtBinContentBuffer);
                             until Next() = 0;
-                        Reset;
+                        Reset();
                         DeleteAll();
                     end;
                 end;
@@ -167,13 +166,13 @@ report 7315 "Calculate Whse. Adjustment"
             trigger OnAfterGetRecord()
             begin
                 if not HideValidationDialog then
-                    Window.Update;
+                    Window.Update();
             end;
 
             trigger OnPostDataItem()
             begin
                 if not HideValidationDialog then
-                    Window.Close;
+                    Window.Close();
             end;
 
             trigger OnPreDataItem()
@@ -226,7 +225,7 @@ report 7315 "Calculate Whse. Adjustment"
 
                         trigger OnValidate()
                         begin
-                            ValidatePostingDate;
+                            ValidatePostingDate();
                         end;
                     }
                     field(NextDocNo; NextDocNo)
@@ -246,8 +245,8 @@ report 7315 "Calculate Whse. Adjustment"
         trigger OnOpenPage()
         begin
             if PostingDate = 0D then
-                PostingDate := WorkDate;
-            ValidatePostingDate;
+                PostingDate := WorkDate();
+            ValidatePostingDate();
         end;
     }
 
@@ -256,9 +255,6 @@ report 7315 "Calculate Whse. Adjustment"
     }
 
     var
-        Text000: Label 'Enter the posting date.';
-        Text001: Label 'Enter the document no.';
-        Text002: Label 'Processing items    #1##########';
         ItemJnlBatch: Record "Item Journal Batch";
         ItemJnlLine: Record "Item Journal Line";
         WhseEntry: Record "Warehouse Entry";
@@ -272,6 +268,10 @@ report 7315 "Calculate Whse. Adjustment"
         PostingDate: Date;
         NextDocNo: Code[20];
         NextLineNo: Integer;
+
+        Text000: Label 'Enter the posting date.';
+        Text001: Label 'Enter the document no.';
+        Text002: Label 'Processing items    #1##########';
 
     protected var
         HideValidationDialog: Boolean;
@@ -303,7 +303,7 @@ report 7315 "Calculate Whse. Adjustment"
         with ItemJnlLine do begin
             if NextLineNo = 0 then begin
                 LockTable();
-                Reset;
+                Reset();
                 SetRange("Journal Template Name", "Journal Template Name");
                 SetRange("Journal Batch Name", "Journal Batch Name");
                 if Find('+') then
@@ -314,7 +314,7 @@ report 7315 "Calculate Whse. Adjustment"
             NextLineNo := NextLineNo + 10000;
 
             if QuantityBase2 <> 0 then begin
-                Init;
+                Init();
                 "Line No." := NextLineNo;
                 Validate("Posting Date", PostingDate);
                 if QuantityBase2 > 0 then

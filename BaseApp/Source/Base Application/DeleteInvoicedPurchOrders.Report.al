@@ -86,7 +86,7 @@ report 499 "Delete Invoiced Purch. Orders"
                             ItemChargeAssgntPurch.DeleteAll();
                         end;
                         if PurchLine.HasLinks then
-                            PurchLine.DeleteLinks;
+                            PurchLine.DeleteLinks();
 
                         OnBeforePurchLineDelete(PurchLine);
                         PurchLine.Delete();
@@ -112,10 +112,10 @@ report 499 "Delete Invoiced Purch. Orders"
                 ApprovalsMgmt.DeleteApprovalEntries(RecordId);
 
                 if HasLinks then
-                    DeleteLinks;
+                    DeleteLinks();
 
                 OnBeforeDeletePurchaseHeader("Purchase Header");
-                Delete;
+                Delete();
                 OnAfterDeletePurchaseHeader("Purchase Header");
 
                 Commit();
@@ -146,7 +146,6 @@ report 499 "Delete Invoiced Purch. Orders"
     }
 
     var
-        Text000Txt: Label 'Processing purch. orders #1##########';
         PurchLine: Record "Purchase Line";
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -158,6 +157,10 @@ report 499 "Delete Invoiced Purch. Orders"
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
         WhseRequest: Record "Warehouse Request";
         ArchiveManagement: Codeunit ArchiveManagement;
+
+        Text000Txt: Label 'Processing purch. orders #1##########';
+
+    protected var
         Window: Dialog;
 
     local procedure IsPostedUnassignedItemChargeWithZeroAmount(PurchaseLine: Record "Purchase Line"): Boolean

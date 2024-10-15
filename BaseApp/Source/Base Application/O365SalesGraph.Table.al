@@ -3,6 +3,14 @@ table 2190 "O365 Sales Graph"
     Caption = 'O365 Sales Graph';
     ReplicateData = false;
     TableType = MicrosoftGraph;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+#if CLEAN21
+    ObsoleteState = Removed;
+    ObsoleteTag = '24.0';
+#else
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {
@@ -80,6 +88,7 @@ table 2190 "O365 Sales Graph"
     fieldgroups
     {
     }
+#if not CLEAN21
 
     var
         InvalidComponentErr: Label 'Component should be Invoice.';
@@ -92,13 +101,14 @@ table 2190 "O365 Sales Graph"
 
     procedure Initialize()
     begin
-        Init;
+        Init();
         Component := ComponentTxt;
         Schema := SupportedSchemaTxt;
         ActivityDate := Format(CurrentDateTime, 0, 9);
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure SetEmployeeIdToCurrentUser()
     var
         AzureADGraphUser: Codeunit "Azure AD Graph User";
@@ -106,6 +116,7 @@ table 2190 "O365 Sales Graph"
         EmployeeId := AzureADGraphUser.GetObjectId(UserSecurityId());
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure ParseRefresh()
     var
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
@@ -119,10 +130,11 @@ table 2190 "O365 Sales Graph"
         if UpperCase(Type) <> UpperCase(RefreshTypeTxt) then
             Error(InvalidTypeErr);
 
-        if (not O365SalesInitialSetup.Get) or (not O365SalesInitialSetup."Is initialized") then
+        if (not O365SalesInitialSetup.Get()) or (not O365SalesInitialSetup."Is initialized") then
             Error(NotInvoicingErr);
 
         TASKSCHEDULER.CreateTask(CODEUNIT::"O365 Sales Web Service", 0, true, CompanyName, CurrentDateTime + 10000); // Add 10s
     end;
+#endif
 }
 

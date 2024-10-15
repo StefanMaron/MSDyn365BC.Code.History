@@ -48,10 +48,10 @@ page 6301 "Azure AD App Setup Part"
         AzureADMgt: Codeunit "Azure AD Mgt.";
     begin
         if not FindFirst() then
-            Init;
+            Init();
 
         HomePageUrl := GetUrl(CLIENTTYPE::Web);
-        RedirectUrl := AzureADMgt.GetRedirectUrl;
+        RedirectUrl := AzureADMgt.GetRedirectUrl();
         AppId := "App ID";
         SecretKey := GetSecretKeyFromIsolatedStorage();
     end;
@@ -90,7 +90,7 @@ page 6301 "Azure AD App Setup Part"
     var
         AzureADMgt: Codeunit "Azure AD Mgt.";
     begin
-        RedirectUrl := AzureADMgt.GetDefaultRedirectUrl;
+        RedirectUrl := AzureADMgt.GetDefaultRedirectUrl();
     end;
 
     [NonDebuggable]

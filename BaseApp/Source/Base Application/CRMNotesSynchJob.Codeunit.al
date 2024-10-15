@@ -4,13 +4,14 @@ codeunit 5355 "CRM Notes Synch Job"
 
     trigger OnRun()
     begin
-        UpdateOrders(GetLastLogEntryNo);
+        UpdateOrders(GetLastLogEntryNo());
     end;
 
     var
+        CRMProductName: Codeunit "CRM Product Name";
+
         ConnectionNotEnabledErr: Label 'The %1 connection is not enabled.', Comment = '%1 = CRM product name';
         OrderNotesUpdatedMsg: Label 'The notes on coupled sales orders have been synchronized.';
-        CRMProductName: Codeunit "CRM Product Name";
 
     local procedure UpdateOrders(JobLogEntryNo: Integer)
     var
@@ -19,9 +20,9 @@ codeunit 5355 "CRM Notes Synch Job"
     begin
         CRMConnectionSetup.Get();
         if not CRMConnectionSetup."Is Enabled" then
-            Error(ConnectionNotEnabledErr, CRMProductName.FULL);
+            Error(ConnectionNotEnabledErr, CRMProductName.FULL());
 
-        ConnectionName := Format(CreateGuid);
+        ConnectionName := Format(CreateGuid());
         CRMConnectionSetup.RegisterConnectionWithName(ConnectionName);
         SetDefaultTableConnection(
           TABLECONNECTIONTYPE::CRM, CRMConnectionSetup.GetDefaultCRMConnection(ConnectionName));
@@ -55,13 +56,13 @@ codeunit 5355 "CRM Notes Synch Job"
         if CRMAnnotationCoupling.FindLast() then
             ModifiedAfterDateTime := CRMAnnotationCoupling."CRM Modified On";
 
-        InsertCounter := CreateAnnotationsForCreatedNotes;
+        InsertCounter := CreateAnnotationsForCreatedNotes();
         InsertCounter += CreateNotesForCreatedAnnotations(CreatedAfterDateTime);
         ModifyCounter += ModifyNotesForModifiedAnnotations(ModifiedAfterDateTime);
 
         IntegrationTableSynch.UpdateSynchJobCounters(SynchActionType::Insert, InsertCounter);
         IntegrationTableSynch.UpdateSynchJobCounters(SynchActionType::Modify, ModifyCounter);
-        IntegrationTableSynch.EndIntegrationSynchJobWithMsg(GetOrderNotesUpdateFinalMessage);
+        IntegrationTableSynch.EndIntegrationSynchJobWithMsg(GetOrderNotesUpdateFinalMessage());
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnFindingIfJobNeedsToBeRun', '', false, false)]
@@ -79,7 +80,7 @@ codeunit 5355 "CRM Notes Synch Job"
         if Sender."Object ID to Run" <> CODEUNIT::"CRM Notes Synch Job" then
             exit;
 
-        if not CRMConnectionSetup.Get then
+        if not CRMConnectionSetup.Get() then
             exit;
 
         if not CRMConnectionSetup."Is Enabled" then
@@ -103,7 +104,7 @@ codeunit 5355 "CRM Notes Synch Job"
         RecordLink.CalcFields(Note);
         AnnotationText := RecordLinkManagement.ReadNote(RecordLink);
 
-        CRMAnnotation.AnnotationId := CreateGuid;
+        CRMAnnotation.AnnotationId := CreateGuid();
         CRMAnnotation.ObjectTypeCode := CRMAnnotation.ObjectTypeCode::salesorder;
         CRMAnnotation.ObjectId := CRMSalesorder.SalesOrderId;
         CRMAnnotation.IsDocument := false;
@@ -127,13 +128,13 @@ codeunit 5355 "CRM Notes Synch Job"
         CRMIntegrationRecord: Record "CRM Integration Record";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        if not CRMIntegrationManagement.IsCRMIntegrationEnabled then
+        if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
             exit(false);
 
         if not CRMIntegrationRecord.FindIDFromRecordID(SalesHeader.RecordId, CRMSalesorder.SalesOrderId) then
             exit(false);
 
-        if not CRMSalesorder.Find then
+        if not CRMSalesorder.Find() then
             exit(false);
 
         exit(true);
@@ -220,8 +221,8 @@ codeunit 5355 "CRM Notes Synch Job"
         CRMAnnotationCoupling: Record "CRM Annotation Coupling";
         CRMIntegrationRecord: Record "CRM Integration Record";
         RecordLinkManagement: Codeunit "Record Link Management";
-        InStream: InStream;
         SalesHeaderRecordID: RecordID;
+        InStream: InStream;
         AnnotationText: Text;
     begin
         if not CRMIntegrationRecord.FindRecordIDFromID(CRMAnnotation.ObjectId, DATABASE::"Sales Header", SalesHeaderRecordID) then
@@ -314,7 +315,7 @@ codeunit 5355 "CRM Notes Synch Job"
         if not (SalesHeader."Document Type" = SalesHeader."Document Type"::Order) then
             exit;
 
-        if not CRMConnectionSetup.Get then
+        if not CRMConnectionSetup.Get() then
             exit;
 
         if not CRMConnectionSetup."Is Enabled" then

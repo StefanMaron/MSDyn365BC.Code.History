@@ -1289,7 +1289,7 @@ codeunit 134202 "Document Approval - Users"
         ShowDocumentFromApprovalEntry(DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.");
 
         // Verify
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesInvoice."No.".AssertEquals(SalesHeader."No.");
         SalesHeader.TestField(Status, SalesHeader.Status::"Pending Approval");
 
@@ -1532,7 +1532,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalsMgmt.ApproveRecordApprovalRequest(SalesHeader.RecordId);
 
         // [GIVEN] Sales Order reopened
-        SalesHeader.Find;
+        SalesHeader.Find();
         LibrarySales.ReopenSalesDocument(SalesHeader);
 
         // [GIVEN] Approval Limit of current user updated for one step approving
@@ -1542,7 +1542,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalsMgmt.OnSendSalesDocForApproval(SalesHeader);
 
         // [THEN] Sales Order Status = "Released"
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField(Status, SalesHeader.Status::Released);
 
         // Teardown
@@ -1583,7 +1583,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalsMgmt.ApproveRecordApprovalRequest(PurchaseHeader.RecordId);
 
         // [GIVEN] Purchase Order reopened
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
 
         // [GIVEN] Approval Limit of current user updated for one step approving
@@ -1593,7 +1593,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalsMgmt.OnSendPurchaseDocForApproval(PurchaseHeader);
 
         // [THEN] Purhase Order Status = "Released"
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.TestField(Status, PurchaseHeader.Status::Released);
 
         // Teardown
@@ -1634,9 +1634,9 @@ codeunit 134202 "Document Approval - Users"
         ApprovalsMgmt.OnSendSalesDocForApproval(SalesHeader);
 
         // [THEN] Check that status changed to Released.
-        SalesHeader.Find;
+        SalesHeader.Find();
         Assert.AreEqual(
-          SalesHeader.Status::Released, SalesHeader.Status, StrSubstNo(WrongOrderStatusErr, SalesHeader.TableCaption));
+          SalesHeader.Status::Released, SalesHeader.Status, StrSubstNo(WrongOrderStatusErr, SalesHeader.TableCaption()));
         UserSetup.Delete(true);
 
         // Teardown
@@ -1675,8 +1675,8 @@ codeunit 134202 "Document Approval - Users"
         ApprovalsMgmt.OnSendPurchaseDocForApproval(PurchHeader);
 
         // [THEN] Check that status changed to Released.
-        PurchHeader.Find;
-        Assert.AreEqual(PurchHeader.Status::Released, PurchHeader.Status, StrSubstNo(WrongOrderStatusErr, PurchHeader.TableCaption));
+        PurchHeader.Find();
+        Assert.AreEqual(PurchHeader.Status::Released, PurchHeader.Status, StrSubstNo(WrongOrderStatusErr, PurchHeader.TableCaption()));
         UserSetup.Delete(true);
 
         // Teardown
@@ -1856,7 +1856,7 @@ codeunit 134202 "Document Approval - Users"
 
         Assert.ExpectedError(StrSubstNo(UserNameErr, UpperCase(TestUserNameTxt)));
         Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(UserNameErr, UpperCase(TestUserNameTxt))) > 0, 'Wrong user name');
-        ApprovalUserSetup.Close;
+        ApprovalUserSetup.Close();
 
         // Teardown
         TestCleanup;
@@ -2352,7 +2352,7 @@ codeunit 134202 "Document Approval - Users"
         // [THEN] Approval Entry[1] and Approval Entry[3] are available
         ApprovalEntry.FindSet();
         ApprovalEntry.TestField("Approver ID", UserId);
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         ApprovalEntry.TestField("Sender ID", UserId);
 
         Assert.RecordCount(ApprovalEntry, 2);
@@ -2432,7 +2432,7 @@ codeunit 134202 "Document Approval - Users"
 
         // [WHEN] Notification Email body generated and saved as XML
         BodyTextXML := FileManagement.ServerTempFileName('xml');
-        NotificationEntry.SetRecFilter;
+        NotificationEntry.SetRecFilter();
         REPORT.SaveAsXml(REPORT::"Notification Email", BodyTextXML, NotificationEntry);
 
         // [THEN] Verify URL generated for "SI" contains Web Client port number for "SI" and Notification Setup Settings
@@ -2461,7 +2461,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalEntry: Record "Approval Entry";
     begin
         GetOpenApprovalEntries(ApprovalEntry, TableID, DocumentType, DocumentNo);
-        ApprovalEntry.SetRecFilter;
+        ApprovalEntry.SetRecFilter();
         ApprovalsMgmt.ApproveApprovalRequests(ApprovalEntry);
     end;
 
@@ -2653,15 +2653,15 @@ codeunit 134202 "Document Approval - Users"
               Status::Open, "Limit Type"::"Approval Limits", SalesHeader.RecordId,
               "Approval Type"::Approver, 0D, 0);
             "Approver ID" := RecipientUser;
-            Modify;
+            Modify();
         end;
 
         with NotificationEntry do begin
-            Init;
+            Init();
             Type := Type::Approval;
             "Recipient User ID" := RecipientUser;
             "Triggered By Record" := ApprovalEntry.RecordId;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2802,14 +2802,14 @@ codeunit 134202 "Document Approval - Users"
             LastEntryNo := 0;
             if FindLast() then
                 LastEntryNo := "Entry No.";
-            Init;
+            Init();
             "Entry No." := LastEntryNo + 1;
             "Table ID" := SourceRecordID.TableNo;
             "Document Type" := DocumentType.AsInteger();
             "Document No." := DocumentNo;
             "Record ID to Approve" := SourceRecordID;
             Comment := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Comment)), 1, MaxStrLen(Comment));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2848,7 +2848,7 @@ codeunit 134202 "Document Approval - Users"
               CopyStr(LibraryUtility.GenerateRandomCode(User.FieldNo("User Name"), DATABASE::User),
                 1, LibraryUtility.GetFieldLength(DATABASE::User, User.FieldNo("User Name")));
             User.SetRange("User Name", UserName);
-        until User.IsEmpty;
+        until User.IsEmpty();
     end;
 
     local procedure DelegateApprovalRequest(var ApprovalsMgmt: Codeunit "Approvals Mgmt."; TableID: Integer; DocumentType: Enum "Approval Document Type"; DocumentNo: Code[20])
@@ -2856,7 +2856,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalEntry: Record "Approval Entry";
     begin
         GetOpenApprovalEntries(ApprovalEntry, TableID, DocumentType, DocumentNo);
-        ApprovalEntry.SetRecFilter;
+        ApprovalEntry.SetRecFilter();
         ApprovalsMgmt.DelegateApprovalRequests(ApprovalEntry);
     end;
 
@@ -2941,7 +2941,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalsMgmt.OnSendPurchaseDocForApproval(PurchHeader);
 
         // Verify
-        PurchHeader.Find;
+        PurchHeader.Find();
         PurchHeader.TestField(Status, PurchHeader.Status::"Pending Approval");
 
         // Teardown
@@ -2968,7 +2968,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalsMgmt.OnSendSalesDocForApproval(SalesHeader);
 
         // Verify
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField(Status, SalesHeader.Status::"Pending Approval");
 
         // Teardown
@@ -3059,7 +3059,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalEntry: Record "Approval Entry";
     begin
         GetOpenApprovalEntries(ApprovalEntry, TableID, DocumentType, DocumentNo);
-        ApprovalEntry.SetRecFilter;
+        ApprovalEntry.SetRecFilter();
         ApprovalsMgmt.RejectApprovalRequests(ApprovalEntry);
     end;
 
@@ -3402,7 +3402,7 @@ codeunit 134202 "Document Approval - Users"
     begin
         GetApprovalEntries(ApprovalEntry, TableID, DocumentType, DocumentNo);
         ValidateApprovalEntry(ApprovalEntry, 1, SenderID, SalespersPurchCode, RequestorID, RequestorStatus);
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         ValidateApprovalEntry(ApprovalEntry, 2, SenderID, SalespersPurchCode, ApproverID, ApproverStatus);
     end;
 
@@ -3506,7 +3506,7 @@ codeunit 134202 "Document Approval - Users"
         WorkflowSetup: Codeunit "Workflow Setup";
     begin
         LibraryWorkflow.DisableAllWorkflows;
-        WorkflowSetup.InitWorkflow;
+        WorkflowSetup.InitWorkflow();
 
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseOrderApprovalWorkflowCode);
 
@@ -3524,7 +3524,7 @@ codeunit 134202 "Document Approval - Users"
         WorkflowSetup: Codeunit "Workflow Setup";
     begin
         LibraryWorkflow.DisableAllWorkflows;
-        WorkflowSetup.InitWorkflow;
+        WorkflowSetup.InitWorkflow();
 
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.SalesOrderApprovalWorkflowCode);
 

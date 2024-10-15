@@ -52,7 +52,7 @@ codeunit 142078 "UI IRS 1099"
         IRS1099AdjustmentsPage."Vendor No.".AssertEquals(IRS1099Adjustment."Vendor No.");
 
         // Tear down
-        IRS1099AdjustmentsPage.Close;
+        IRS1099AdjustmentsPage.Close();
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
@@ -93,7 +93,7 @@ codeunit 142078 "UI IRS 1099"
         IRS1099AdjustmentsPage."Vendor No.".AssertEquals(IRS1099Adjustment."Vendor No.");
 
         // Tear down
-        IRS1099AdjustmentsPage.Close;
+        IRS1099AdjustmentsPage.Close();
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 

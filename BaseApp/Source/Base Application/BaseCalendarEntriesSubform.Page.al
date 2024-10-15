@@ -55,7 +55,7 @@ page 7604 "Base Calendar Entries Subform"
 
                     trigger OnValidate()
                     begin
-                        UpdateBaseCalendarChanges;
+                        UpdateBaseCalendarChanges();
                     end;
                 }
                 field(Description; Description)
@@ -66,7 +66,7 @@ page 7604 "Base Calendar Entries Subform"
 
                     trigger OnValidate()
                     begin
-                        UpdateBaseCalendarChanges;
+                        UpdateBaseCalendarChanges();
                     end;
                 }
             }
@@ -116,17 +116,17 @@ page 7604 "Base Calendar Entries Subform"
     end;
 
     var
+        DateRec: Record Date;
         CurrCalendarChange: Record "Customized Calendar Change";
         PeriodPageMgt: Codeunit PeriodPageManagement;
         CalendarMgmt: Codeunit "Calendar Management";
-        DateRec: Record Date;
 
     local procedure FindLine(TargetDate: Date) FoundLine: Boolean;
     begin
-        Reset;
+        Reset();
         SetRange(Date, TargetDate);
         FoundLine := FindFirst();
-        Reset;
+        Reset();
     end;
 
     local procedure InsertLine(): Boolean;

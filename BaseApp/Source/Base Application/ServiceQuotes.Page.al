@@ -17,7 +17,7 @@ page 9317 "Service Quotes"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -27,22 +27,22 @@ page 9317 "Service Quotes"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service order status, which reflects the repair or maintenance status of all service items on the service order.';
                 }
-                field("Order Date"; "Order Date")
+                field("Order Date"; Rec."Order Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the order was created.';
                 }
-                field("Order Time"; "Order Time")
+                field("Order Time"; Rec."Order Time")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the time when the service order was created.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer who owns the items in the service document.';
                 }
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
@@ -52,7 +52,7 @@ page 9317 "Service Quotes"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the customer to whom the items on the document will be shipped.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location (for example, warehouse or distribution center) of the items specified on the service item lines.';
@@ -62,96 +62,96 @@ page 9317 "Service Quotes"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the priority of the service order.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
-                field("Notify Customer"; "Notify Customer")
+                field("Notify Customer"; Rec."Notify Customer")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies how the customer wants to receive notifications about service completion.';
                     Visible = false;
                 }
-                field("Service Order Type"; "Service Order Type")
+                field("Service Order Type"; Rec."Service Order Type")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the type of this service order.';
                     Visible = false;
                 }
-                field("Contract No."; "Contract No.")
+                field("Contract No."; Rec."Contract No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the contract associated with the order.';
                     Visible = false;
                 }
-                field("Response Date"; "Response Date")
+                field("Response Date"; Rec."Response Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the estimated date when work on the order should start, that is, when the service order status changes from Pending, to In Process.';
                     Visible = false;
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-                field("Payment Terms Code"; "Payment Terms Code")
+                field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                     Visible = false;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies when the invoice is due.';
                     Visible = false;
                 }
-                field("Payment Discount %"; "Payment Discount %")
+                field("Payment Discount %"; Rec."Payment Discount %")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the percentage of payment discount given, if the customer pays by the date entered in the Pmt. Discount Date field.';
                     Visible = false;
                 }
-                field("Payment Method Code"; "Payment Method Code")
+                field("Payment Method Code"; Rec."Payment Method Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
                     Visible = false;
                 }
-                field("Warning Status"; "Warning Status")
+                field("Warning Status"; Rec."Warning Status")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the response time warning status for the order.';
                     Visible = false;
                 }
-                field("Allocated Hours"; "Allocated Hours")
+                field("Allocated Hours"; Rec."Allocated Hours")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of hours allocated to the items in this service order.';
                     Visible = false;
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the starting date of the service, that is, the date when the order status changes from Pending, to In Process for the first time.';
                     Visible = false;
                 }
-                field("Finishing Date"; "Finishing Date")
+                field("Finishing Date"; Rec."Finishing Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the finishing date of the service, that is, the date when the Status field changes to Finished.';
@@ -207,7 +207,7 @@ page 9317 "Service Quotes"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim;
+                        ShowDocDim();
                     end;
                 }
                 action("Co&mments")
@@ -227,8 +227,6 @@ page 9317 "Service Quotes"
                     ApplicationArea = Service;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
 
@@ -271,8 +269,6 @@ page 9317 "Service Quotes"
                 ApplicationArea = Service;
                 Caption = 'Make &Order';
                 Image = MakeOrder;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Convert the service quote to a service order. The service order will contain the service quote number.';
 
                 trigger OnAction()
@@ -288,8 +284,6 @@ page 9317 "Service Quotes"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -301,13 +295,30 @@ page 9317 "Service Quotes"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Make &Order_Promoted"; "Make &Order")
+                {
+                }
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
     begin
-        SetSecurityFilterOnRespCenter;
+        SetSecurityFilterOnRespCenter();
 
-        CopyCustomerFilter;
+        CopyCustomerFilter();
     end;
 
     [IntegrationEvent(false, false)]

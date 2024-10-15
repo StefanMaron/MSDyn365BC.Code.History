@@ -586,7 +586,6 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="Date1">
-                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -619,7 +618,6 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="Date2">
-                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -652,7 +650,6 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="Amounts1">
-                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -685,7 +682,6 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="Amounts2">
-                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -718,7 +714,6 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="Amounts3">
-                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>

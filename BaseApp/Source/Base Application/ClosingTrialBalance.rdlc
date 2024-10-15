@@ -8,254 +8,42 @@
         <ConnectString />
       </ConnectionProperties>
       <rd:SecurityType>None</rd:SecurityType>
-      <rd:DataSourceID>08a06553-b03c-42b3-9c08-bc821fa743d4</rd:DataSourceID>
+      <rd:DataSourceID>84b666dd-c345-46d3-9aef-aee05c0851dc</rd:DataSourceID>
     </DataSource>
   </DataSources>
   <ReportSections>
     <ReportSection>
       <Body>
         <ReportItems>
-          <Textbox Name="G_L_Account__TABLECAPTION__________GLFilter">
-            <KeepTogether>true</KeepTogether>
-            <Paragraphs>
-              <Paragraph>
-                <TextRuns>
-                  <TextRun>
-                    <Value>=First(Fields!G_L_Account__TABLECAPTION__________GLFilter.Value)</Value>
-                    <Style>
-                      <FontSize>7pt</FontSize>
-                    </Style>
-                  </TextRun>
-                </TextRuns>
-              </Paragraph>
-            </Paragraphs>
-            <Height>0.16654in</Height>
-            <ZIndex>1</ZIndex>
-            <Visibility>
-              <Hidden>=IIF(First(Fields!GLFilter.Value)&lt;&gt;"",False,True)</Hidden>
-            </Visibility>
-            <DataElementOutput>NoOutput</DataElementOutput>
-            <Style>
-              <VerticalAlign>Middle</VerticalAlign>
-            </Style>
-          </Textbox>
           <Tablix Name="Table1">
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>0.62008in</Width>
+                  <Width>0.85935in</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>2.42126in</Width>
+                  <Width>1.92351in</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.74991in</Width>
+                  <Width>1.04307in</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.70866in</Width>
+                  <Width>1.04307in</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.05906in</Width>
+                  <Width>0.16998in</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.05906in</Width>
+                  <Width>1.04307in</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.70866in</Width>
-                </TablixColumn>
-                <TablixColumn>
-                  <Width>0.74991in</Width>
+                  <Width>1.04307in</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
                 <TablixRow>
-                  <Height>0.03125in</Height>
+                  <Height>0.13889in</Height>
                   <TablixCells>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="CompanyInformation_Name">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Fields!CompanyInformation_Name.Value</Value>
-                                  <Style>
-                                    <Color>#ff0000</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                            </Paragraph>
-                          </Paragraphs>
-                          <ZIndex>4</ZIndex>
-                          <Visibility>
-                            <Hidden>true</Hidden>
-                          </Visibility>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="SubTitle">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Fields!SubTitle.Value</Value>
-                                  <Style>
-                                    <Color>#ff0000</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                            </Paragraph>
-                          </Paragraphs>
-                          <ZIndex>3</ZIndex>
-                          <Visibility>
-                            <Hidden>true</Hidden>
-                          </Visibility>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="Closing_Trial_BalanceCaption">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Fields!Closing_Trial_BalanceCaption.Value</Value>
-                                  <Style>
-                                    <Color>#ff0000</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                            </Paragraph>
-                          </Paragraphs>
-                          <ZIndex>2</ZIndex>
-                          <Visibility>
-                            <Hidden>true</Hidden>
-                          </Visibility>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="CurrReport_PAGENOCaption">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Fields!CurrReport_PAGENOCaption.Value</Value>
-                                  <Style>
-                                    <Color>#ff0000</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                            </Paragraph>
-                          </Paragraphs>
-                          <ZIndex>1</ZIndex>
-                          <Visibility>
-                            <Hidden>true</Hidden>
-                          </Visibility>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="textbox85">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Center</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <rd:DefaultName>textbox85</rd:DefaultName>
-                          <Style>
-                            <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                        <ColSpan>4</ColSpan>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell />
-                    <TablixCell />
-                    <TablixCell />
-                  </TablixCells>
-                </TablixRow>
-                <TablixRow>
-                  <Height>0.16654in</Height>
-                  <TablixCells>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="textbox2">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style />
-                                </TextRun>
-                              </TextRuns>
-                            </Paragraph>
-                          </Paragraphs>
-                          <rd:DefaultName>textbox2</rd:DefaultName>
-                          <ZIndex>98</ZIndex>
-                          <Style>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="TextBox1">
@@ -268,30 +56,34 @@
                                   <Style />
                                 </TextRun>
                               </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <ZIndex>97</ZIndex>
+                          <ZIndex>71</ZIndex>
                           <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
+                        <ColSpan>2</ColSpan>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell />
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Current_YearCaption">
+                        <Textbox Name="ThisYearCaption">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=First(Fields!Current_YearCaption.Value)</Value>
+                                  <Value>=First(Parameters!ThisYearCaption.Value)</Value>
                                   <Style>
-                                    <FontSize>7pt</FontSize>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
                                 </TextRun>
@@ -301,20 +93,17 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <ZIndex>96</ZIndex>
-                          <Visibility>
-                            <Hidden>=IIF(First(Fields!Current_YearCaption.Value)&lt;&gt;"",False,True)</Hidden>
-                          </Visibility>
-                          <DataElementOutput>NoOutput</DataElementOutput>
+                          <ZIndex>69</ZIndex>
                           <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
                             <BottomBorder>
                               <Style>Dotted</Style>
                             </BottomBorder>
                             <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
                         <ColSpan>2</ColSpan>
@@ -323,7 +112,8 @@
                     <TablixCell />
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="textbox15">
+                        <Textbox Name="Textbox4">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -331,7 +121,8 @@
                                 <TextRun>
                                   <Value />
                                   <Style>
-                                    <FontSize>7pt</FontSize>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
                                 </TextRun>
@@ -341,31 +132,28 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>textbox15</rd:DefaultName>
-                          <ZIndex>95</ZIndex>
+                          <rd:DefaultName>Textbox4</rd:DefaultName>
                           <Style>
                             <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
-                        <ColSpan>2</ColSpan>
                       </CellContents>
                     </TablixCell>
-                    <TablixCell />
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Prior_YearCaption">
+                        <Textbox Name="LastYearCaption">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=First(Fields!Prior_YearCaption.Value)</Value>
+                                  <Value>=First(Parameters!LastYearCaption.Value)</Value>
                                   <Style>
-                                    <FontSize>7pt</FontSize>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
                                 </TextRun>
@@ -375,20 +163,17 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <ZIndex>93</ZIndex>
-                          <Visibility>
-                            <Hidden>=IIF(First(Fields!Prior_YearCaption.Value)&lt;&gt;"",False,True)</Hidden>
-                          </Visibility>
-                          <DataElementOutput>NoOutput</DataElementOutput>
+                          <ZIndex>67</ZIndex>
                           <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
                             <BottomBorder>
                               <Style>Dotted</Style>
                             </BottomBorder>
                             <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
                         <ColSpan>2</ColSpan>
@@ -398,60 +183,187 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.33307in</Height>
+                  <Height>0.13889in</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="G_L_Account___No__Caption">
+                        <Textbox Name="Textbox3">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=First(Fields!G_L_Account___No__Caption.Value)</Value>
+                                  <Value />
                                   <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
+                                    <FontWeight>=IIF(Fields!AccountTypePosting.Value,"Normal","Bold")</FontWeight>
+                                    <Color>#ff0000</Color>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
+                              <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <ZIndex>87</ZIndex>
+                          <rd:DefaultName>Textbox3</rd:DefaultName>
                           <Style>
-                            <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>8pt</PaddingBottom>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingRight>5pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                        <ColSpan>3</ColSpan>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox15">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontWeight>=IIF(Fields!AccountTypePosting.Value,"Normal","Bold")</FontWeight>
+                                    <Color>#ff0000</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox15</rd:DefaultName>
+                          <Style>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="PADSTR_____G_L_Account__Indentation___2___G_L_Account__NameCaption">
+                        <Textbox Name="Textbox7">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=First(Fields!PADSTR_____G_L_Account__Indentation___2___G_L_Account__NameCaption.Value)</Value>
+                                  <Value />
+                                  <Style>
+                                    <FontWeight>=IIF(Fields!AccountTypePosting.Value,"Normal","Bold")</FontWeight>
+                                    <Color>#ff0000</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox7</rd:DefaultName>
+                          <Style>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox6">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
                                   <Style>
                                     <FontSize>7pt</FontSize>
+                                    <FontWeight>=IIF(Fields!AccountTypePosting.Value,"Normal","Bold")</FontWeight>
+                                    <Color>Red</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox6</rd:DefaultName>
+                          <Style>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                        <ColSpan>2</ColSpan>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell />
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.13889in</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="No_GLAccountCaption">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Parameters!No_GLAccountCaption.Value</Value>
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <ZIndex>86</ZIndex>
+                          <ZIndex>53</ZIndex>
                           <Style>
                             <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>8pt</PaddingBottom>
+                            <PaddingRight>5pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="PADSTRGLAccountIndentation2GLAccountNameCaption">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Parameters!NameCaption.Value</Value>
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <ZIndex>52</ZIndex>
+                          <Style>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
                       </CellContents>
@@ -459,14 +371,16 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="FiscalYearBalanceCaption">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=First(Fields!FiscalYearBalanceCaption.Value)</Value>
+                                  <Value>=Parameters!DebitCaption.Value</Value>
                                   <Style>
-                                    <FontSize>7pt</FontSize>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
                                 </TextRun>
@@ -476,28 +390,28 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <ZIndex>85</ZIndex>
+                          <ZIndex>51</ZIndex>
                           <Style>
                             <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>8pt</PaddingBottom>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="FiscalYearBalance_Control22Caption">
+                        <Textbox Name="FiscalYearBalanceControl22Caption">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=First(Fields!FiscalYearBalance_Control22Caption.Value)</Value>
+                                  <Value>=Parameters!CreditCaption.Value</Value>
                                   <Style>
-                                    <FontSize>7pt</FontSize>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
                                 </TextRun>
@@ -507,30 +421,59 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <ZIndex>84</ZIndex>
+                          <ZIndex>50</ZIndex>
                           <Style>
                             <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>8pt</PaddingBottom>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
-                        <ColSpan>2</ColSpan>
                       </CellContents>
                     </TablixCell>
-                    <TablixCell />
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox8">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox8</rd:DefaultName>
+                          <Style>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="LastYearBalanceCaption">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=First(Fields!LastYearBalanceCaption.Value)</Value>
+                                  <Value>=Parameters!DebitCaption.Value</Value>
                                   <Style>
-                                    <FontSize>7pt</FontSize>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
                                 </TextRun>
@@ -540,30 +483,28 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <ZIndex>83</ZIndex>
+                          <ZIndex>49</ZIndex>
                           <Style>
                             <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>8pt</PaddingBottom>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
-                        <ColSpan>2</ColSpan>
                       </CellContents>
                     </TablixCell>
-                    <TablixCell />
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="LastYearBalance_Control24Caption">
+                        <Textbox Name="NegLastYearBalanceCaption">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=First(Fields!LastYearBalance_Control24Caption.Value)</Value>
+                                  <Value>=Parameters!CreditCaption.Value</Value>
                                   <Style>
-                                    <FontSize>7pt</FontSize>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
                                 </TextRun>
@@ -573,13 +514,10 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <ZIndex>82</ZIndex>
+                          <ZIndex>48</ZIndex>
                           <Style>
                             <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>8pt</PaddingBottom>
+                            <PaddingLeft>5pt</PaddingLeft>
                           </Style>
                         </Textbox>
                       </CellContents>
@@ -587,11 +525,12 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.16654in</Height>
+                  <Height>0.06944in</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="textbox16">
+                        <Textbox Name="Textbox5">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -599,8 +538,9 @@
                                 <TextRun>
                                   <Value />
                                   <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>=IIF(First(Fields!Account_Type__Posting.Value, "Table1_Group1"),"Normal","Bold")</FontWeight>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -609,20 +549,20 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>textbox16</rd:DefaultName>
-                          <ZIndex>65</ZIndex>
+                          <rd:DefaultName>Textbox5</rd:DefaultName>
                           <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <BottomBorder>
+                              <Style>Solid</Style>
+                            </BottomBorder>
+                            <VerticalAlign>Bottom</VerticalAlign>
                           </Style>
                         </Textbox>
-                        <ColSpan>8</ColSpan>
+                        <ColSpan>7</ColSpan>
                       </CellContents>
                     </TablixCell>
-                    <TablixCell />
                     <TablixCell />
                     <TablixCell />
                     <TablixCell />
@@ -632,11 +572,88 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.16654in</Height>
+                  <Height>0.06944in</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="textbox27">
+                        <Textbox Name="textbox10">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>textbox10</rd:DefaultName>
+                          <ZIndex>47</ZIndex>
+                          <Style>
+                            <VerticalAlign>Top</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                        <ColSpan>7</ColSpan>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.13889in</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="textbox74">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>textbox74</rd:DefaultName>
+                          <ZIndex>41</ZIndex>
+                          <Style>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <PaddingRight>5pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                        <ColSpan>7</ColSpan>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.13889in</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="textbox155">
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -645,29 +662,25 @@
                                   <Value />
                                   <Style>
                                     <FontSize>7pt</FontSize>
-                                    <FontWeight>=IIF(First(Fields!Account_Type__Posting.Value, "Table1_Group1"),"Normal","Bold")</FontWeight>
+                                    <FontWeight>=IIF(Fields!AccountTypePosting.Value,"Normal","Bold")</FontWeight>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
                               <Style>
-                                <TextAlign>Left</TextAlign>
+                                <TextAlign>Center</TextAlign>
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>textbox27</rd:DefaultName>
-                          <ZIndex>54</ZIndex>
+                          <rd:DefaultName>textbox155</rd:DefaultName>
+                          <ZIndex>35</ZIndex>
                           <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
-                        <ColSpan>8</ColSpan>
+                        <ColSpan>7</ColSpan>
                       </CellContents>
                     </TablixCell>
-                    <TablixCell />
                     <TablixCell />
                     <TablixCell />
                     <TablixCell />
@@ -677,11 +690,11 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.16654in</Height>
+                  <Height>0.13889in</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="textbox38">
+                        <Textbox Name="textbox138">
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -690,29 +703,25 @@
                                   <Value />
                                   <Style>
                                     <FontSize>7pt</FontSize>
-                                    <FontWeight>=IIF(First(Fields!Account_Type__Posting.Value, "Table1_Group1"),"Normal","Bold")</FontWeight>
+                                    <FontWeight>=IIF(Fields!AccountTypePosting.Value,"Normal","Bold")</FontWeight>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
                               <Style>
-                                <TextAlign>Left</TextAlign>
+                                <TextAlign>Center</TextAlign>
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>textbox38</rd:DefaultName>
-                          <ZIndex>43</ZIndex>
+                          <rd:DefaultName>textbox138</rd:DefaultName>
+                          <ZIndex>29</ZIndex>
                           <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
-                        <ColSpan>8</ColSpan>
+                        <ColSpan>7</ColSpan>
                       </CellContents>
                     </TablixCell>
-                    <TablixCell />
                     <TablixCell />
                     <TablixCell />
                     <TablixCell />
@@ -722,7 +731,89 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.16654in</Height>
+                  <Height>0.13889in</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="textbox108">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontSize>7pt</FontSize>
+                                    <FontWeight>=IIF(Fields!AccountTypePosting.Value,"Normal","Bold")</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>textbox108</rd:DefaultName>
+                          <ZIndex>23</ZIndex>
+                          <Style>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <PaddingRight>5pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                        <ColSpan>7</ColSpan>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.13889in</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="textbox91">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontSize>7pt</FontSize>
+                                    <FontWeight>=IIF(Fields!AccountTypePosting.Value,"Normal","Bold")</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>textbox91</rd:DefaultName>
+                          <ZIndex>17</ZIndex>
+                          <Style>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <PaddingRight>5pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                        <ColSpan>7</ColSpan>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.13889in</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -735,29 +826,25 @@
                                   <Value />
                                   <Style>
                                     <FontSize>7pt</FontSize>
-                                    <FontWeight>=IIF(First(Fields!Account_Type__Posting.Value, "Table1_Group1"),"Normal","Bold")</FontWeight>
+                                    <FontWeight>=IIF(Fields!AccountTypePosting.Value,"Normal","Bold")</FontWeight>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
                               <Style>
-                                <TextAlign>Left</TextAlign>
+                                <TextAlign>Center</TextAlign>
                               </Style>
                             </Paragraph>
                           </Paragraphs>
                           <rd:DefaultName>textbox49</rd:DefaultName>
-                          <ZIndex>32</ZIndex>
+                          <ZIndex>11</ZIndex>
                           <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
-                        <ColSpan>8</ColSpan>
+                        <ColSpan>7</ColSpan>
                       </CellContents>
                     </TablixCell>
-                    <TablixCell />
                     <TablixCell />
                     <TablixCell />
                     <TablixCell />
@@ -767,20 +854,22 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.16654in</Height>
+                  <Height>0.13889in</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="textbox60">
+                        <Textbox Name="No_GLAccount">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value />
+                                  <Value>=Fields!No_GLAccount.Value</Value>
                                   <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>=IIF(First(Fields!Account_Type__Posting.Value, "Table1_Group1"),"Normal","Bold")</FontWeight>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>=IIF(Fields!AccountTypePosting.Value,"Normal","Bold")</FontWeight>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -789,43 +878,29 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>textbox60</rd:DefaultName>
-                          <ZIndex>21</ZIndex>
+                          <ZIndex>5</ZIndex>
                           <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <BackgroundColor>=IIF(Fields!AccountTypePosting.Value,"#EFEFEF","Transparent")</BackgroundColor>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
-                        <ColSpan>8</ColSpan>
                       </CellContents>
                     </TablixCell>
-                    <TablixCell />
-                    <TablixCell />
-                    <TablixCell />
-                    <TablixCell />
-                    <TablixCell />
-                    <TablixCell />
-                    <TablixCell />
-                  </TablixCells>
-                </TablixRow>
-                <TablixRow>
-                  <Height>0.16654in</Height>
-                  <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="G_L_Account___No__">
+                        <Textbox Name="PADSTRGLAccountIndentation2GLAccountName">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!G_L_Account___No__.Value</Value>
+                                  <Value>=Fields!GLAccName.Value</Value>
                                   <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>=IIF(Fields!Account_Type__Posting.Value,"Normal","Bold")</FontWeight>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>=IIF(Fields!AccountTypePosting.Value,"Normal","Bold")</FontWeight>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -834,41 +909,12 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <ZIndex>10</ZIndex>
+                          <ZIndex>4</ZIndex>
                           <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="PADSTR_____G_L_Account__Indentation___2___G_L_Account__Name">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Fields!PADSTR_____G_L_Account__Indentation___2___G_L_Account__Name.Value</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>=IIF(Fields!Account_Type__Posting.Value,"Normal","Bold")</FontWeight>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                            </Paragraph>
-                          </Paragraphs>
-                          <ZIndex>9</ZIndex>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <BackgroundColor>=IIF(Fields!AccountTypePosting.Value,"#EFEFEF","Transparent")</BackgroundColor>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
                       </CellContents>
@@ -876,6 +922,7 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="FiscalYearBalance">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -883,59 +930,97 @@
                                 <TextRun>
                                   <Value>=Code.BlankNegAndZero(Fields!FiscalYearBalance.Value)</Value>
                                   <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>=IIF(Fields!Account_Type__Posting.Value,"Normal","Bold")</FontWeight>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>=IIF(Fields!AccountTypePosting.Value,"Normal","Bold")</FontWeight>
                                     <Format>=Fields!FiscalYearBalanceFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <ZIndex>8</ZIndex>
+                          <ZIndex>3</ZIndex>
                           <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <BackgroundColor>=IIF(Fields!AccountTypePosting.Value,"#EFEFEF","Transparent")</BackgroundColor>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="FiscalYearBalance_Control22">
+                        <Textbox Name="FiscalYearBalanceControl22">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankNegAndZero(Fields!FiscalYearBalance_Control22.Value)</Value>
+                                  <Value>=Code.BlankNegAndZero(Fields!NegFiscalYearBalance.Value)</Value>
                                   <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>=IIF(Fields!Account_Type__Posting.Value,"Normal","Bold")</FontWeight>
-                                    <Format>=Fields!FiscalYearBalance_Control22Format.Value</Format>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>=IIF(Fields!AccountTypePosting.Value,"Normal","Bold")</FontWeight>
+                                    <Format>=Fields!NegFiscalYearBalanceFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <ZIndex>7</ZIndex>
+                          <ZIndex>2</ZIndex>
                           <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <BackgroundColor>=IIF(Fields!AccountTypePosting.Value,"#EFEFEF","Transparent")</BackgroundColor>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
-                        <ColSpan>2</ColSpan>
                       </CellContents>
                     </TablixCell>
-                    <TablixCell />
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox9">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>=IIF(Fields!AccountTypePosting.Value,"Normal","Bold")</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox9</rd:DefaultName>
+                          <Style>
+                            <BackgroundColor>=IIF(Fields!AccountTypePosting.Value,"#EFEFEF","Transparent")</BackgroundColor>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="LastYearBalance">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -943,52 +1028,55 @@
                                 <TextRun>
                                   <Value>=Code.BlankNegAndZero(Fields!LastYearBalance.Value)</Value>
                                   <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>=IIF(Fields!Account_Type__Posting.Value,"Normal","Bold")</FontWeight>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>=IIF(Fields!AccountTypePosting.Value,"Normal","Bold")</FontWeight>
                                     <Format>=Fields!LastYearBalanceFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <ZIndex>6</ZIndex>
+                          <ZIndex>1</ZIndex>
                           <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>0.02953in</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <BackgroundColor>=IIF(Fields!AccountTypePosting.Value,"#EFEFEF","Transparent")</BackgroundColor>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <PaddingRight>5pt</PaddingRight>
                           </Style>
                         </Textbox>
-                        <ColSpan>2</ColSpan>
                       </CellContents>
                     </TablixCell>
-                    <TablixCell />
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="LastYearBalance_Control24">
+                        <Textbox Name="NegLastYearBalance">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankNegAndZero(Fields!LastYearBalance_Control24.Value)</Value>
+                                  <Value>=Code.BlankNegAndZero(Fields!NegLastYearBalance.Value)</Value>
                                   <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>=IIF(Fields!Account_Type__Posting.Value,"Normal","Bold")</FontWeight>
-                                    <Format>=Fields!LastYearBalance_Control24Format.Value</Format>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>=IIF(Fields!AccountTypePosting.Value,"Normal","Bold")</FontWeight>
+                                    <Format>=Fields!NegLastYearBalanceFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <ZIndex>5</ZIndex>
                           <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>0.02953in</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
+                            <BackgroundColor>=IIF(Fields!AccountTypePosting.Value,"#EFEFEF","Transparent")</BackgroundColor>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
                           </Style>
                         </Textbox>
                       </CellContents>
@@ -999,7 +1087,6 @@
             </TablixBody>
             <TablixColumnHierarchy>
               <TablixMembers>
-                <TablixMember />
                 <TablixMember />
                 <TablixMember />
                 <TablixMember />
@@ -1027,6 +1114,15 @@
                   <KeepTogether>true</KeepTogether>
                 </TablixMember>
                 <TablixMember>
+                  <KeepWithGroup>After</KeepWithGroup>
+                  <RepeatOnNewPage>true</RepeatOnNewPage>
+                </TablixMember>
+                <TablixMember>
+                  <KeepWithGroup>After</KeepWithGroup>
+                  <RepeatOnNewPage>true</RepeatOnNewPage>
+                  <KeepTogether>true</KeepTogether>
+                </TablixMember>
+                <TablixMember>
                   <Group Name="Table1_Group1">
                     <GroupExpressions>
                       <GroupExpression>=Fields!PageGroupNo.Value</GroupExpression>
@@ -1037,33 +1133,40 @@
                   </Group>
                   <TablixMembers>
                     <TablixMember>
+                      <Visibility>
+                        <Hidden>=IIF(Fields!PageGroupNo.Value="1",TRUE,FALSE)</Hidden>
+                      </Visibility>
+                      <KeepWithGroup>After</KeepWithGroup>
+                      <KeepTogether>true</KeepTogether>
+                    </TablixMember>
+                    <TablixMember>
                       <Group Name="Table1_Details_Group">
                         <DataElementName>Detail</DataElementName>
                       </Group>
                       <TablixMembers>
                         <TablixMember>
                           <Visibility>
-                            <Hidden>=IIF(Fields!No__of_Blank_Lines_.Value&gt;0,False,True)</Hidden>
+                            <Hidden>=IIF(Fields!NoBlankLines_GLAccount.Value="1",False,True)</Hidden>
                           </Visibility>
                         </TablixMember>
                         <TablixMember>
                           <Visibility>
-                            <Hidden>=IIF(Fields!No__of_Blank_Lines_.Value&gt;1,False,True)</Hidden>
+                            <Hidden>=IIF(Fields!NoBlankLines_GLAccount.Value&gt;="2",False,True)</Hidden>
                           </Visibility>
                         </TablixMember>
                         <TablixMember>
                           <Visibility>
-                            <Hidden>=IIF(Fields!No__of_Blank_Lines_.Value&gt;2,False,True)</Hidden>
+                            <Hidden>=IIF(Fields!NoBlankLines_GLAccount.Value&gt;="3",False,True)</Hidden>
                           </Visibility>
                         </TablixMember>
                         <TablixMember>
                           <Visibility>
-                            <Hidden>=IIF(Fields!No__of_Blank_Lines_.Value&gt;3,False,True)</Hidden>
+                            <Hidden>=IIF(Fields!NoBlankLines_GLAccount.Value&gt;="4",False,True)</Hidden>
                           </Visibility>
                         </TablixMember>
                         <TablixMember>
                           <Visibility>
-                            <Hidden>=IIF(Fields!No__of_Blank_Lines_.Value&gt;4,False,True)</Hidden>
+                            <Hidden>=IIF(Fields!NoBlankLines_GLAccount.Value&gt;="5",False,True)</Hidden>
                           </Visibility>
                         </TablixMember>
                         <TablixMember />
@@ -1080,28 +1183,155 @@
             <PageBreak>
               <BreakLocation>End</BreakLocation>
             </PageBreak>
-            <Top>0.33307in</Top>
-            <Width>6.07658in</Width>
+            <Filters>
+              <Filter>
+                <FilterExpression>=CStr(Fields!No_GLAccount.Value)</FilterExpression>
+                <Operator>GreaterThan</Operator>
+                <FilterValues>
+                  <FilterValue />
+                </FilterValues>
+              </Filter>
+            </Filters>
+            <Top>0.38806cm</Top>
+            <Height>3.88056cm</Height>
+            <Width>18.09774cm</Width>
+            <Style />
           </Tablix>
+          <Textbox Name="GLAccountTABLECAPTIONGLFilter">
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>=Fields!GLAccGLFilter.Value</Value>
+                    <Style>
+                      <FontFamily>Segoe UI</FontFamily>
+                      <FontSize>8pt</FontSize>
+                    </Style>
+                  </TextRun>
+                </TextRuns>
+                <Style>
+                  <TextAlign>Left</TextAlign>
+                </Style>
+              </Paragraph>
+            </Paragraphs>
+            <Height>11pt</Height>
+            <Width>18.09774cm</Width>
+            <ZIndex>1</ZIndex>
+            <Visibility>
+              <Hidden>=IIF(Fields!GLFilter.Value="",TRUE,FALSE)</Hidden>
+            </Visibility>
+            <DataElementOutput>NoOutput</DataElementOutput>
+            <Style>
+              <VerticalAlign>Top</VerticalAlign>
+            </Style>
+          </Textbox>
         </ReportItems>
-        <Height>1.86314in</Height>
+        <Height>4.26865cm</Height>
+        <Style />
       </Body>
-      <Width>7.14567in</Width>
+      <Width>18.09774cm</Width>
       <Page>
         <PageHeader>
-          <Height>0.66614in</Height>
+          <Height>2.95486cm</Height>
           <PrintOnFirstPage>true</PrintOnFirstPage>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
-            <Textbox Name="PageNumberTextBox">
+            <Textbox Name="ClosingTrialBalanceCaption1">
+              <CanGrow>true</CanGrow>
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Globals!PageNumber</Value>
+                      <Value>=Parameters!ClosingTrialBalanceCaption.Value</Value>
                       <Style>
-                        <FontSize>7pt</FontSize>
+                        <FontFamily>Segoe UI</FontFamily>
+                        <FontSize>14pt</FontSize>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Left</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <Top>0.00075cm</Top>
+              <Height>20pt</Height>
+              <Width>12.02424cm</Width>
+              <Style>
+                <VerticalAlign>Top</VerticalAlign>
+              </Style>
+            </Textbox>
+            <Textbox Name="COMPANYNAME1">
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=Fields!CompanyName.Value</Value>
+                      <Style>
+                        <FontFamily>Segoe UI</FontFamily>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Left</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <Top>0.70631cm</Top>
+              <Height>11pt</Height>
+              <Width>12.02424cm</Width>
+              <ZIndex>1</ZIndex>
+              <Style>
+                <VerticalAlign>Top</VerticalAlign>
+              </Style>
+            </Textbox>
+            <Textbox Name="STRSUBSTNOText001PeriodText1">
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=Fields!PeriodText.Value</Value>
+                      <Style>
+                        <FontFamily>Segoe UI</FontFamily>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Left</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <Top>1.05909cm</Top>
+              <Left>0.04234cm</Left>
+              <Height>11pt</Height>
+              <Width>18.0554cm</Width>
+              <ZIndex>2</ZIndex>
+              <Style>
+                <VerticalAlign>Top</VerticalAlign>
+              </Style>
+            </Textbox>
+            <Textbox Name="ExecutionTimeTextBox">
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=Globals!ExecutionTime</Value>
+                      <Style>
+                        <FontFamily>Segoe UI</FontFamily>
+                        <FontSize>8pt</FontSize>
+                        <Format>D</Format>
                       </Style>
                     </TextRun>
                   </TextRuns>
@@ -1110,16 +1340,13 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.16654in</Top>
-              <Left>6.9685in</Left>
-              <Height>0.16654in</Height>
-              <ZIndex>6</ZIndex>
-              <Visibility>
-                <Hidden>=IIF(ReportItems!Closing_Trial_BalanceCaption.Value&lt;&gt;"",False,True)</Hidden>
-              </Visibility>
-              <DataElementOutput>NoOutput</DataElementOutput>
+              <Left>12.02424cm</Left>
+              <Height>11pt</Height>
+              <Width>6.0735cm</Width>
+              <ZIndex>3</ZIndex>
               <Style>
-                <VerticalAlign>Middle</VerticalAlign>
+                <Border />
+                <VerticalAlign>Top</VerticalAlign>
               </Style>
             </Textbox>
             <Textbox Name="UserIdTextBox">
@@ -1131,131 +1358,8 @@
                     <TextRun>
                       <Value>=User!UserID</Value>
                       <Style>
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <TextAlign>Right</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>0.33307in</Top>
-              <Left>5.11811in</Left>
-              <Height>0.16654in</Height>
-              <ZIndex>5</ZIndex>
-              <Visibility>
-                <Hidden>=IIF(ReportItems!Closing_Trial_BalanceCaption.Value&lt;&gt;"",False,True)</Hidden>
-              </Visibility>
-              <DataElementOutput>NoOutput</DataElementOutput>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="ExecutionTimeTextBox">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Globals!ExecutionTime</Value>
-                      <Style>
-                        <FontSize>7pt</FontSize>
-                        <Format>f</Format>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <TextAlign>Right</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Left>5.11811in</Left>
-              <Height>0.16654in</Height>
-              <ZIndex>4</ZIndex>
-              <Visibility>
-                <Hidden>=IIF(ReportItems!Closing_Trial_BalanceCaption.Value&lt;&gt;"",False,True)</Hidden>
-              </Visibility>
-              <DataElementOutput>NoOutput</DataElementOutput>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInformation_Name1">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=ReportItems!CompanyInformation_Name.Value</Value>
-                      <Style>
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                </Paragraph>
-              </Paragraphs>
-              <Top>0.33307in</Top>
-              <Height>0.16654in</Height>
-              <Width>2.95276in</Width>
-              <ZIndex>3</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="SubTitle1">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=ReportItems!SubTitle.Value</Value>
-                      <Style>
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                </Paragraph>
-              </Paragraphs>
-              <Top>0.16654in</Top>
-              <Height>0.16654in</Height>
-              <Width>2.95276in</Width>
-              <ZIndex>2</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="Closing_Trial_BalanceCaption1">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=ReportItems!Closing_Trial_BalanceCaption.Value</Value>
-                      <Style>
+                        <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
-                        <FontWeight>Bold</FontWeight>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                </Paragraph>
-              </Paragraphs>
-              <Height>0.16654in</Height>
-              <Width>2.95276in</Width>
-              <ZIndex>1</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CurrReport_PAGENOCaption1">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=ReportItems!CurrReport_PAGENOCaption.Value</Value>
-                      <Style>
-                        <FontSize>7pt</FontSize>
                       </Style>
                     </TextRun>
                   </TextRuns>
@@ -1264,22 +1368,209 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.16654in</Top>
-              <Left>6.67323in</Left>
-              <Height>0.16654in</Height>
-              <Width>0.29528in</Width>
+              <Top>0.70631cm</Top>
+              <Left>12.02424cm</Left>
+              <Height>11pt</Height>
+              <Width>6.0735cm</Width>
+              <ZIndex>4</ZIndex>
               <Style>
-                <VerticalAlign>Middle</VerticalAlign>
+                <VerticalAlign>Top</VerticalAlign>
+              </Style>
+            </Textbox>
+            <Textbox Name="PageNumberTextBox">
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=Parameters!PageNoCaption.Value &amp; " " &amp; Globals!PageNumber</Value>
+                      <Style>
+                        <FontFamily>Segoe UI</FontFamily>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Right</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <Top>0.35353cm</Top>
+              <Left>12.02424cm</Left>
+              <Height>11pt</Height>
+              <Width>6.0735cm</Width>
+              <ZIndex>5</ZIndex>
+              <Style>
+                <VerticalAlign>Top</VerticalAlign>
+              </Style>
+            </Textbox>
+            <Textbox Name="textbox2">
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=IIF(Fields!UseAmtsInAddCurr.Value="TRUE",Fields!AllAmountsIn.Value+" "+Fields!AddreportingCurrency.Value,Fields!AllAmountsIn.Value+" "+Fields!LCYcode.Value)</Value>
+                      <Style>
+                        <FontFamily>Segoe UI</FontFamily>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Left</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <Top>1.76465cm</Top>
+              <Left>0.00001cm</Left>
+              <Height>11pt</Height>
+              <Width>18.09773cm</Width>
+              <ZIndex>6</ZIndex>
+              <Style>
+                <VerticalAlign>Top</VerticalAlign>
               </Style>
             </Textbox>
           </ReportItems>
+          <Style />
         </PageHeader>
-        <LeftMargin>0.49213in</LeftMargin>
-        <TopMargin>0.3937in</TopMargin>
-        <BottomMargin>0.49213in</BottomMargin>
+        <PageHeight>29.7cm</PageHeight>
+        <PageWidth>21cm</PageWidth>
+        <InteractiveHeight>11in</InteractiveHeight>
+        <InteractiveWidth>8.5in</InteractiveWidth>
+        <LeftMargin>1.76388cm</LeftMargin>
+        <RightMargin>1.05834cm</RightMargin>
+        <TopMargin>1.05834cm</TopMargin>
+        <BottomMargin>1.48166cm</BottomMargin>
+        <ColumnSpacing>1.27cm</ColumnSpacing>
+        <Style />
       </Page>
     </ReportSection>
   </ReportSections>
+  <ReportParameters>
+    <ReportParameter Name="ClosingTrialBalanceCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ClosingTrialBalanceCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ClosingTrialBalanceCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="PageNoCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>PageNoCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>PageNoCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ThisYearCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ThisYearCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ThisYearCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="LastYearCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>LastYearCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>LastYearCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="NameCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>NameCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>NameCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DebitCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DebitCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DebitCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CreditCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CreditCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CreditCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="No_GLAccountCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>No_GLAccountCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>No_GLAccountCaption</Prompt>
+    </ReportParameter>
+  </ReportParameters>
+  <ReportParametersLayout>
+    <GridLayoutDefinition>
+      <NumberOfColumns>1</NumberOfColumns>
+      <NumberOfRows>8</NumberOfRows>
+      <CellDefinitions>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>0</RowIndex>
+          <ParameterName>ClosingTrialBalanceCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>1</RowIndex>
+          <ParameterName>PageNoCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>2</RowIndex>
+          <ParameterName>ThisYearCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>3</RowIndex>
+          <ParameterName>LastYearCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>4</RowIndex>
+          <ParameterName>NameCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>5</RowIndex>
+          <ParameterName>DebitCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>6</RowIndex>
+          <ParameterName>CreditCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>7</RowIndex>
+          <ParameterName>No_GLAccountCaption</ParameterName>
+        </CellDefinition>
+      </CellDefinitions>
+    </GridLayoutDefinition>
+  </ReportParametersLayout>
   <Code>Public Function BlankZero(ByVal Value As Decimal)
     if Value = 0 then
         Return ""
@@ -1317,73 +1608,40 @@ End Function
 </Code>
   <Language>=User!Language</Language>
   <ConsumeContainerWhitespace>true</ConsumeContainerWhitespace>
-  <rd:ReportUnitType>Inch</rd:ReportUnitType>
-  <rd:ReportID>ea858804-d772-4480-a42a-1029721929c1</rd:ReportID>
+  <rd:ReportUnitType>Cm</rd:ReportUnitType>
+  <rd:ReportID>6b6e9323-c34b-44af-a283-5e2d9b9bc642</rd:ReportID>
   <DataSets>
     <DataSet Name="DataSet_Result">
       <Fields>
-        <Field Name="FORMAT_TODAY_0_4_">
-          <DataField>FORMAT_TODAY_0_4_</DataField>
+        <Field Name="PeriodText">
+          <DataField>PeriodText</DataField>
         </Field>
-        <Field Name="TIME">
-          <DataField>TIME</DataField>
+        <Field Name="CompanyName">
+          <DataField>CompanyName</DataField>
         </Field>
-        <Field Name="CompanyInformation_Name">
-          <DataField>CompanyInformation_Name</DataField>
-        </Field>
-        <Field Name="USERID">
-          <DataField>USERID</DataField>
-        </Field>
-        <Field Name="SubTitle">
-          <DataField>SubTitle</DataField>
-        </Field>
-        <Field Name="G_L_Account__TABLECAPTION__________GLFilter">
-          <DataField>G_L_Account__TABLECAPTION__________GLFilter</DataField>
+        <Field Name="GLAccGLFilter">
+          <DataField>GLAccGLFilter</DataField>
         </Field>
         <Field Name="GLFilter">
           <DataField>GLFilter</DataField>
         </Field>
-        <Field Name="PageGroupNo">
-          <DataField>PageGroupNo</DataField>
+        <Field Name="UseAmtsInAddCurr">
+          <DataField>UseAmtsInAddCurr</DataField>
         </Field>
-        <Field Name="G_L_Account_No_">
-          <DataField>G_L_Account_No_</DataField>
+        <Field Name="AllAmountsIn">
+          <DataField>AllAmountsIn</DataField>
         </Field>
-        <Field Name="Closing_Trial_BalanceCaption">
-          <DataField>Closing_Trial_BalanceCaption</DataField>
+        <Field Name="LCYcode">
+          <DataField>LCYcode</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENOCaption">
-          <DataField>CurrReport_PAGENOCaption</DataField>
+        <Field Name="AddreportingCurrency">
+          <DataField>AddreportingCurrency</DataField>
         </Field>
-        <Field Name="Current_YearCaption">
-          <DataField>Current_YearCaption</DataField>
+        <Field Name="No_GLAccount">
+          <DataField>No_GLAccount</DataField>
         </Field>
-        <Field Name="Prior_YearCaption">
-          <DataField>Prior_YearCaption</DataField>
-        </Field>
-        <Field Name="G_L_Account___No__Caption">
-          <DataField>G_L_Account___No__Caption</DataField>
-        </Field>
-        <Field Name="PADSTR_____G_L_Account__Indentation___2___G_L_Account__NameCaption">
-          <DataField>PADSTR_____G_L_Account__Indentation___2___G_L_Account__NameCaption</DataField>
-        </Field>
-        <Field Name="FiscalYearBalanceCaption">
-          <DataField>FiscalYearBalanceCaption</DataField>
-        </Field>
-        <Field Name="FiscalYearBalance_Control22Caption">
-          <DataField>FiscalYearBalance_Control22Caption</DataField>
-        </Field>
-        <Field Name="LastYearBalanceCaption">
-          <DataField>LastYearBalanceCaption</DataField>
-        </Field>
-        <Field Name="LastYearBalance_Control24Caption">
-          <DataField>LastYearBalance_Control24Caption</DataField>
-        </Field>
-        <Field Name="G_L_Account___No__">
-          <DataField>G_L_Account___No__</DataField>
-        </Field>
-        <Field Name="PADSTR_____G_L_Account__Indentation___2___G_L_Account__Name">
-          <DataField>PADSTR_____G_L_Account__Indentation___2___G_L_Account__Name</DataField>
+        <Field Name="GLAccName">
+          <DataField>GLAccName</DataField>
         </Field>
         <Field Name="FiscalYearBalance">
           <DataField>FiscalYearBalance</DataField>
@@ -1391,11 +1649,11 @@ End Function
         <Field Name="FiscalYearBalanceFormat">
           <DataField>FiscalYearBalanceFormat</DataField>
         </Field>
-        <Field Name="FiscalYearBalance_Control22">
-          <DataField>FiscalYearBalance_Control22</DataField>
+        <Field Name="NegFiscalYearBalance">
+          <DataField>NegFiscalYearBalance</DataField>
         </Field>
-        <Field Name="FiscalYearBalance_Control22Format">
-          <DataField>FiscalYearBalance_Control22Format</DataField>
+        <Field Name="NegFiscalYearBalanceFormat">
+          <DataField>NegFiscalYearBalanceFormat</DataField>
         </Field>
         <Field Name="LastYearBalance">
           <DataField>LastYearBalance</DataField>
@@ -1403,56 +1661,23 @@ End Function
         <Field Name="LastYearBalanceFormat">
           <DataField>LastYearBalanceFormat</DataField>
         </Field>
-        <Field Name="LastYearBalance_Control24">
-          <DataField>LastYearBalance_Control24</DataField>
+        <Field Name="NegLastYearBalance">
+          <DataField>NegLastYearBalance</DataField>
         </Field>
-        <Field Name="LastYearBalance_Control24Format">
-          <DataField>LastYearBalance_Control24Format</DataField>
+        <Field Name="NegLastYearBalanceFormat">
+          <DataField>NegLastYearBalanceFormat</DataField>
         </Field>
-        <Field Name="Account_Type__Posting">
-          <DataField>Account_Type__Posting</DataField>
+        <Field Name="NoBlankLines_GLAccount">
+          <DataField>NoBlankLines_GLAccount</DataField>
         </Field>
-        <Field Name="No__of_Blank_Lines_">
-          <DataField>No__of_Blank_Lines_</DataField>
+        <Field Name="AccountType_GLAccount">
+          <DataField>AccountType_GLAccount</DataField>
         </Field>
-        <Field Name="G_L_Account___No___Control25">
-          <DataField>G_L_Account___No___Control25</DataField>
+        <Field Name="AccountTypePosting">
+          <DataField>AccountTypePosting</DataField>
         </Field>
-        <Field Name="PADSTR_____G_L_Account__Indentation___2___G_L_Account__Name_Control26">
-          <DataField>PADSTR_____G_L_Account__Indentation___2___G_L_Account__Name_Control26</DataField>
-        </Field>
-        <Field Name="FiscalYearBalance_Control27">
-          <DataField>FiscalYearBalance_Control27</DataField>
-        </Field>
-        <Field Name="FiscalYearBalance_Control27Format">
-          <DataField>FiscalYearBalance_Control27Format</DataField>
-        </Field>
-        <Field Name="FiscalYearBalance_Control28">
-          <DataField>FiscalYearBalance_Control28</DataField>
-        </Field>
-        <Field Name="FiscalYearBalance_Control28Format">
-          <DataField>FiscalYearBalance_Control28Format</DataField>
-        </Field>
-        <Field Name="LastYearBalance_Control29">
-          <DataField>LastYearBalance_Control29</DataField>
-        </Field>
-        <Field Name="LastYearBalance_Control29Format">
-          <DataField>LastYearBalance_Control29Format</DataField>
-        </Field>
-        <Field Name="LastYearBalance_Control30">
-          <DataField>LastYearBalance_Control30</DataField>
-        </Field>
-        <Field Name="LastYearBalance_Control30Format">
-          <DataField>LastYearBalance_Control30Format</DataField>
-        </Field>
-        <Field Name="Account_Type__Posting_Control1400004">
-          <DataField>Account_Type__Posting_Control1400004</DataField>
-        </Field>
-        <Field Name="No__of_Blank_Lines__Control1400006">
-          <DataField>No__of_Blank_Lines__Control1400006</DataField>
-        </Field>
-        <Field Name="Integer_Number">
-          <DataField>Integer_Number</DataField>
+        <Field Name="PageGroupNo">
+          <DataField>PageGroupNo</DataField>
         </Field>
       </Fields>
       <Query>

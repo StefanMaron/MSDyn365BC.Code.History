@@ -16,13 +16,13 @@ page 9620 "Page Fields"
         {
             repeater(Group)
             {
-                field("Page ID"; "Page ID")
+                field("Page ID"; Rec."Page ID")
                 {
                     ApplicationArea = All;
                     Caption = 'Page ID';
                     ToolTip = 'Specifies the number of the page that is used to show the journal or worksheet that uses the template.';
                 }
-                field("Field ID"; "Field ID")
+                field("Field ID"; Rec."Field ID")
                 {
                     ApplicationArea = All;
                     Caption = 'Field ID';
@@ -78,6 +78,18 @@ page 9620 "Page Fields"
                     // This action is here to override the default behavior of opening the card page with this record
                     // which is not desired in this case.
                 end;
+            }
+        }
+
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(View_Promoted; View)
+                {
+                }
             }
         }
     }

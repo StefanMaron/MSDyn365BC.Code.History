@@ -145,7 +145,7 @@ table 5895 "Inventory Adjustment Buffer"
         CostAmtExpected: Decimal;
         CostAmtExpectedACY: Decimal;
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item Ledger Entry No.");
         SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
         if Find('-') then
@@ -190,7 +190,7 @@ table 5895 "Inventory Adjustment Buffer"
                 FromDate := 0D;
 
             QtyFactor := 1;
-            Reset;
+            Reset();
             SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code");
             SetRange("Item No.", ValueEntry."Item No.");
             SetRange("Valuation Date", FromDate, ToDate);
@@ -211,7 +211,7 @@ table 5895 "Inventory Adjustment Buffer"
               "Cost Amount (Expected)", "Cost Amount (Expected) (ACY)");
 
             "Item Ledger Entry Quantity" :=
-              Round("Item Ledger Entry Quantity" * QtyFactor, UOMMgt.QtyRndPrecision) + PrevInvtAdjmtBufSum."Item Ledger Entry Quantity";
+              Round("Item Ledger Entry Quantity" * QtyFactor, UOMMgt.QtyRndPrecision()) + PrevInvtAdjmtBufSum."Item Ledger Entry Quantity";
             "Cost Amount (Actual)" :=
               "Cost Amount (Actual)" * QtyFactor + PrevInvtAdjmtBufSum."Cost Amount (Actual)";
             "Cost Amount (Expected)" :=
@@ -229,9 +229,9 @@ table 5895 "Inventory Adjustment Buffer"
 
     procedure AddActualCostBuf(ValueEntry: Record "Value Entry"; NewAdjustedCost: Decimal; NewAdjustedCostACY: Decimal; ItemLedgEntryPostingDate: Date)
     begin
-        Reset;
+        Reset();
         "Entry No." := ValueEntry."Entry No.";
-        if Find then begin
+        if Find() then begin
             if ValueEntry."Expected Cost" then begin
                 "Cost Amount (Expected)" := "Cost Amount (Expected)" + NewAdjustedCost;
                 "Cost Amount (Expected) (ACY)" := "Cost Amount (Expected) (ACY)" + NewAdjustedCostACY;
@@ -239,9 +239,9 @@ table 5895 "Inventory Adjustment Buffer"
                 "Cost Amount (Actual)" := "Cost Amount (Actual)" + NewAdjustedCost;
                 "Cost Amount (Actual) (ACY)" := "Cost Amount (Actual) (ACY)" + NewAdjustedCostACY;
             end;
-            Modify;
+            Modify();
         end else begin
-            Init;
+            Init();
             "Item No." := ValueEntry."Item No.";
             "Document No." := ValueEntry."Document No.";
             "Location Code" := ValueEntry."Location Code";
@@ -262,7 +262,7 @@ table 5895 "Inventory Adjustment Buffer"
             end;
             "Valued By Average Cost" := ValueEntry."Valued By Average Cost";
             "Valuation Date" := ValueEntry."Valuation Date";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -273,12 +273,12 @@ table 5895 "Inventory Adjustment Buffer"
         then
             exit;
 
-        Reset;
+        Reset();
         "Entry No." := ValueEntry."Entry No.";
-        Find;
+        Find();
         "Cost Amount (Expected)" := NewAdjustedCost;
         "Cost Amount (Expected) (ACY)" := NewAdjustedCostACY;
-        Modify;
+        Modify();
     end;
 
     procedure AddOrderCost(ItemLedgEntryNo: Integer; EntryType: Option; VarianceType: Option; CostAmt: Decimal; CostAmtLCY: Decimal)
@@ -305,7 +305,7 @@ table 5895 "Inventory Adjustment Buffer"
             "Item Ledger Entry No." := ItemLedgEntryNo;
             "Entry Type" := EntryType;
             "Variance Type" := VarianceType;
-            "Entry No." := GetLastNo + 1;
+            "Entry No." := GetLastNo() + 1;
             "Cost Amount (Actual)" := CostAmt;
             "Cost Amount (Actual) (ACY)" := CostAmtLCY;
             Insert();
@@ -318,7 +318,7 @@ table 5895 "Inventory Adjustment Buffer"
         CopyOfInvtAdjmtBuf: Record "Inventory Adjustment Buffer";
     begin
         CopyOfInvtAdjmtBuf.Copy(Rec);
-        Reset;
+        Reset();
         if FindLast() then
             LastNo := "Entry No.";
         Copy(CopyOfInvtAdjmtBuf);

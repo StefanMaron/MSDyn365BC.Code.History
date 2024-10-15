@@ -45,7 +45,6 @@ codeunit 5520 "Get Unplanned Demand"
     var
         SalesLine: Record "Sales Line";
         ProdOrderComp: Record "Prod. Order Component";
-        ProgressMsg: Label 'Determining Unplanned Orders @1@@@@@@@';
         ServLine: Record "Service Line";
         JobPlanningLine: Record "Job Planning Line";
         AsmLine: Record "Assembly Line";
@@ -56,6 +55,8 @@ codeunit 5520 "Get Unplanned Demand"
         DemandQtyBase: Decimal;
         IncludeMetDemandForSpecificSalesOrderNo: Code[20];
         RecordCounter: Integer;
+
+        ProgressMsg: Label 'Determining Unplanned Orders @1@@@@@@@';
         FilterStringBuilderLbl: Label '%1|', Locked = true;
         SendTraceCategoryLbl: Label 'Planning', Locked = true;
         FilterTooLongMsg: Label 'Item filter is too long.', Locked = true;
@@ -128,7 +129,7 @@ codeunit 5520 "Get Unplanned Demand"
         with UnplannedDemand do
             if SalesLine.FindSet() then
                 repeat
-                    UpdateWindow;
+                    UpdateWindow();
                     DemandQtyBase := GetSalesLineNeededQty(SalesLine);
                     OnGetUnplannedSalesLineOnBeforeCheckDemandQtyBase(SalesLine, IsHandled);
                     if not IsHandled then
@@ -155,7 +156,7 @@ codeunit 5520 "Get Unplanned Demand"
         with UnplannedDemand do
             if ProdOrderComp.FindSet() then
                 repeat
-                    UpdateWindow;
+                    UpdateWindow();
                     DemandQtyBase := GetProdOrderCompNeededQty(ProdOrderComp);
                     if DemandQtyBase > 0 then begin
                         NeedInsertUnplannedDemand :=
@@ -183,7 +184,7 @@ codeunit 5520 "Get Unplanned Demand"
         with UnplannedDemand do
             if AsmLine.FindSet() then
                 repeat
-                    UpdateWindow;
+                    UpdateWindow();
                     DemandQtyBase := GetAsmLineNeededQty(AsmLine);
                     if DemandQtyBase > 0 then begin
                         if not ((AsmLine."Document Type".AsInteger() = "Demand SubType") and
@@ -208,7 +209,7 @@ codeunit 5520 "Get Unplanned Demand"
         with UnplannedDemand do
             if ServLine.FindSet() then
                 repeat
-                    UpdateWindow;
+                    UpdateWindow();
                     DemandQtyBase := GetServLineNeededQty(ServLine);
                     if DemandQtyBase > 0 then begin
                         if not ((ServLine."Document Type".AsInteger() = "Demand SubType") and
@@ -233,7 +234,7 @@ codeunit 5520 "Get Unplanned Demand"
         with UnplannedDemand do
             if JobPlanningLine.FindSet() then
                 repeat
-                    UpdateWindow;
+                    UpdateWindow();
                     DemandQtyBase := GetJobPlanningLineNeededQty(JobPlanningLine);
                     if DemandQtyBase > 0 then begin
                         if not ((JobPlanningLine.Status.AsInteger() = "Demand SubType") and
@@ -312,7 +313,7 @@ codeunit 5520 "Get Unplanned Demand"
     local procedure GetJobPlanningLineNeededQty(JobPlanningLine: Record "Job Planning Line"): Decimal
     begin
         with JobPlanningLine do begin
-            if Planned or ("No." = '') or (Type <> Type::Item) or IsNonInventoriableItem then
+            if Planned or ("No." = '') or (Type <> Type::Item) or IsNonInventoriableItem() then
                 exit(0);
 
             CalcFields("Reserved Qty. (Base)");
@@ -335,7 +336,7 @@ codeunit 5520 "Get Unplanned Demand"
             "Special Order" := SalesLine."Special Order";
             "Purchasing Code" := SalesLine."Purchasing Code";
             OnInsertSalesLineOnBeforeInsert(UnplannedDemand, SalesLine);
-            Insert;
+            Insert();
             Copy(UnplannedDemand2);
         end;
     end;
@@ -357,7 +358,7 @@ codeunit 5520 "Get Unplanned Demand"
               not (("Demand Type" = "Demand Type"::Production) and
                    ("Demand SubType" = ProdOrderComp.Status::Planned.AsInteger()));
             OnInsertProdOrderCompLineOnBeforeInsert(UnplannedDemand, ProdOrderComp);
-            Insert;
+            Insert();
             Copy(UnplannedDemand2);
         end;
     end;
@@ -374,7 +375,7 @@ codeunit 5520 "Get Unplanned Demand"
               DemandQtyBase, AsmLine."Due Date");
             Reserve := AsmLine.Reserve = AsmLine.Reserve::Always;
             OnInsertAsmLineOnBeforeInsert(UnplannedDemand, AsmLine);
-            Insert;
+            Insert();
             Copy(UnplannedDemand2);
         end;
     end;
@@ -391,7 +392,7 @@ codeunit 5520 "Get Unplanned Demand"
               DemandQtyBase, ServLine."Needed by Date");
             Reserve := ServLine.Reserve = ServLine.Reserve::Always;
             OnInsertServLineOnBeforeInsert(UnplannedDemand, ServLine);
-            Insert;
+            Insert();
             Copy(UnplannedDemand2);
         end;
     end;
@@ -408,7 +409,7 @@ codeunit 5520 "Get Unplanned Demand"
               JobPlanningLine."Qty. per Unit of Measure", DemandQtyBase, JobPlanningLine."Planning Date");
             Reserve := JobPlanningLine.Reserve = JobPlanningLine.Reserve::Always;
             OnInsertJobPlanningLineOnBeforeInsert(UnplannedDemand, JobPlanningLine);
-            Insert;
+            Insert();
             Copy(UnplannedDemand2);
         end;
     end;
@@ -423,13 +424,13 @@ codeunit 5520 "Get Unplanned Demand"
             exit;
 
         with UnplannedDemand do begin
-            Init;
+            Init();
             "Demand Type" := DemandType;
             "Demand SubType" := DemandSubtype;
             Validate("Demand Order No.", DemandOrderNo);
             Status := DemandStatus;
             Level := 0;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -449,7 +450,7 @@ codeunit 5520 "Get Unplanned Demand"
             while Find('-') do begin
                 HeaderExists := false;
                 repeat
-                    UpdateWindow;
+                    UpdateWindow();
                     UnplannedDemand := TempUnplannedDemand;
                     if UnplannedDemand."Special Order" then
                         UnplannedDemand."Needed Qty. (Base)" := "Quantity (Base)"
@@ -477,7 +478,7 @@ codeunit 5520 "Get Unplanned Demand"
                             SetRange("Demand Order No.", "Demand Order No.");
                         end;
                     end;
-                    Delete;
+                    Delete();
                 until Next() = 0;
                 SetRange("Demand Type");
                 SetRange("Demand SubType");
@@ -492,7 +493,7 @@ codeunit 5520 "Get Unplanned Demand"
     begin
         with UnplannedDemand do begin
             UnplannedDemand2.Copy(UnplannedDemand);
-            Reset;
+            Reset();
             SetCurrentKey("Item No.", "Variant Code", "Location Code", "Demand Date");
             SetRange("Item No.", "Item No.");
             SetRange("Variant Code", "Variant Code");
@@ -519,7 +520,7 @@ codeunit 5520 "Get Unplanned Demand"
                 repeat
                     ToUnplannedDemand := FromUnplannedDemand;
                     ToUnplannedDemand.Insert();
-                    Delete;
+                    Delete();
                 until Next() = 0;
         end;
     end;
@@ -531,7 +532,7 @@ codeunit 5520 "Get Unplanned Demand"
         UnplannedDemand2.Copy(FromUnplannedDemand);
 
         with FromUnplannedDemand do begin
-            Reset;
+            Reset();
             SetRange("Demand Type", "Demand Type");
             SetRange("Demand SubType", "Demand SubType");
             SetRange("Demand Order No.", "Demand Order No.");

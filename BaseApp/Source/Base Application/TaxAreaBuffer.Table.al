@@ -74,7 +74,7 @@ table 5504 "Tax Area Buffer"
         if not IsTemporary then
             Error(RecordMustBeTemporaryErr);
 
-        if GeneralLedgerSetup.UseVat then begin
+        if GeneralLedgerSetup.UseVat() then begin
             if InsertRec then begin
                 VATBusinessPostingGroup.TransferFields(Rec, true);
                 VATBusinessPostingGroup.Insert(true)
@@ -113,7 +113,7 @@ table 5504 "Tax Area Buffer"
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         TaxArea: Record "Tax Area";
     begin
-        if GeneralLedgerSetup.UseVat then begin
+        if GeneralLedgerSetup.UseVat() then begin
             VATBusinessPostingGroup.Get(Code);
             VATBusinessPostingGroup.Delete(true);
         end else begin
@@ -129,12 +129,12 @@ table 5504 "Tax Area Buffer"
         if not IsTemporary then
             Error(RecordMustBeTemporaryErr);
 
-        if GeneralLedgerSetup.UseVat then
-            LoadFromVATBusinessPostingGroup
+        if GeneralLedgerSetup.UseVat() then
+            LoadFromVATBusinessPostingGroup()
         else
-            LoadFromTaxArea;
+            LoadFromTaxArea();
 
-        exit(FindFirst);
+        exit(FindFirst());
     end;
 
     local procedure LoadFromTaxArea()
@@ -146,7 +146,7 @@ table 5504 "Tax Area Buffer"
 
         repeat
             UpdateFromTaxArea(TaxArea);
-            Insert;
+            Insert();
         until TaxArea.Next() = 0;
     end;
 
@@ -159,7 +159,7 @@ table 5504 "Tax Area Buffer"
 
         repeat
             UpdateFromVATBusinessPostingGroup(VATBusinessPostingGroup);
-            Insert;
+            Insert();
         until VATBusinessPostingGroup.Next() = 0;
     end;
 
@@ -187,7 +187,7 @@ table 5504 "Tax Area Buffer"
         if IsNullGuid(TaxAreaId) then
             exit('');
 
-        if GeneralLedgerSetup.UseVat then begin
+        if GeneralLedgerSetup.UseVat() then begin
             if VATBusinessPostingGroup.GetBySystemId(TaxAreaId) then
                 exit(VATBusinessPostingGroup.Description);
         end else
@@ -197,3 +197,4 @@ table 5504 "Tax Area Buffer"
         exit('');
     end;
 }
+

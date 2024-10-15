@@ -77,7 +77,7 @@ codeunit 141008 "UT PAG Bank Deposit"
         PostedDepositList.OpenEdit;
         PostedDepositList.GotoRecord(PostedDepositHeader);
         PostedDepositList.Dimensions.Invoke;  // Invokes DimensionSetEntriesPageHandler.
-        PostedDepositList.Close;
+        PostedDepositList.Close();
     end;
 
     [Test]
@@ -129,7 +129,7 @@ codeunit 141008 "UT PAG Bank Deposit"
         // Verify: Verify Customer No and Amount on the Customer Ledger Entries.
         CustomerLedgerEntries."Customer No.".AssertEquals(PostedDepositLine."Account No.");
         CustomerLedgerEntries.Amount.AssertEquals(PostedDepositLine.Amount);
-        CustomerLedgerEntries.Close;
+        CustomerLedgerEntries.Close();
     end;
 
     [Test]
@@ -155,7 +155,7 @@ codeunit 141008 "UT PAG Bank Deposit"
 
         // Verify: Verify Customer No on Customer Card.
         CustomerCard."No.".AssertEquals(PostedDepositLine."Account No.");
-        CustomerCard.Close;
+        CustomerCard.Close();
     end;
 
     [Test]
@@ -181,7 +181,7 @@ codeunit 141008 "UT PAG Bank Deposit"
         // Exercise & Verify: Verify the Account Ledger Entries on Posted Deposits Subform page through DepositRequestPageHandler.
         OpenPostedDepositPage(PostedDeposit, PostedDepositHeader);
         PostedDeposit.Print.Invoke;  // Invokes DepositRequestPageHandler.
-        PostedDeposit.Close;
+        PostedDeposit.Close();
     end;
 
     [Test]
@@ -203,7 +203,7 @@ codeunit 141008 "UT PAG Bank Deposit"
         // Exercise & Verify: Verify the Dimension on Posted Deposit page through DimensionSetEntriesPageHandler.
         OpenPostedDepositPage(PostedDeposit, PostedDepositHeader);
         PostedDeposit.Dimensions.Invoke;  // Invokes DimensionSetEntriesPageHandler.
-        PostedDeposit.Close;
+        PostedDeposit.Close();
     end;
 
     [Test]
@@ -225,7 +225,7 @@ codeunit 141008 "UT PAG Bank Deposit"
         // Exercise: Update the Dimension on Deposit Subform page through EditDimensionSetEntriesPageHandler.
         OpenDepositSubForm(Deposit, DepositHeader, GenJournalLine);
         Deposit.Subform.Dimensions.Invoke;  // Invokes EditDimensionSetEntriesPageHandler.
-        Deposit.Close;
+        Deposit.Close();
 
         // Verify: Verify Dimension Set ID on Gen. Journal Line.
         GenJournalLine.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
@@ -256,8 +256,8 @@ codeunit 141008 "UT PAG Bank Deposit"
 
         // Verify: Verify Customer Number on Customer Card.
         CustomerCard."No.".AssertEquals(GenJournalLine."Account No.");
-        CustomerCard.Close;
-        Deposit.Close;
+        CustomerCard.Close();
+        Deposit.Close();
     end;
 
     [Test]
@@ -289,7 +289,7 @@ codeunit 141008 "UT PAG Bank Deposit"
         CustomerLedgerEntries."Customer No.".AssertEquals(CustLedgerEntry."Customer No.");
         CustomerLedgerEntries.Amount.AssertEquals(CustLedgerEntry.Amount);
         CustomerLedgerEntries.OK.Invoke;
-        Deposit.Close;
+        Deposit.Close();
     end;
 
     [Test]
@@ -319,7 +319,7 @@ codeunit 141008 "UT PAG Bank Deposit"
         // Exercise & Verify: Verify the Apply Customer Entries on Deposit Subform page through ApplyCustomerEntriesPageHandler.
         OpenDepositSubForm(Deposit, DepositHeader, GenJournalLine);
         Deposit.Subform.ApplyEntries.Invoke;  // Invokes ApplyCustomerEntriesPageHandler.
-        Deposit.Close;
+        Deposit.Close();
     end;
 
     [Test]
@@ -364,7 +364,7 @@ codeunit 141008 "UT PAG Bank Deposit"
         // Exercise & verify: Verify the Deposit Test Report run from Deposit page through DepositTestReportRequestPageHandler.
         OpenDepositPage(Deposit, DepositHeader);
         Deposit."Test Report".Invoke;  // Invokes DepositTestReportRequestPageHandler.
-        Deposit.Close;
+        Deposit.Close();
     end;
 
     [Test]
@@ -408,7 +408,7 @@ codeunit 141008 "UT PAG Bank Deposit"
         // Exercise: Update the Dimension on Deposit page through EditDimensionSetEntriesPageHandler.
         OpenDepositPage(Deposit, DepositHeader);
         Deposit.Dimensions.Invoke;  // Invokes EditDimensionSetEntriesPageHandler.
-        Deposit.Close;
+        Deposit.Close();
 
         // Verify: Verify Dimension Set ID on Deposit Header.
         DepositHeader.Get(DepositHeader."No.");
@@ -694,8 +694,8 @@ codeunit 141008 "UT PAG Bank Deposit"
         DepositHeader."No." := LibraryUtility.GenerateGUID();
         DepositHeader."Journal Template Name" := GenJournalBatch."Journal Template Name";
         DepositHeader."Journal Batch Name" := GenJournalBatch.Name;
-        DepositHeader."Posting Date" := WorkDate;
-        DepositHeader."Document Date" := WorkDate;
+        DepositHeader."Posting Date" := WorkDate();
+        DepositHeader."Document Date" := WorkDate();
         DepositHeader.Validate("Bank Account No.", CreateBankAccount(CurrencyCode));
         DepositHeader."Total Deposit Amount" := LibraryRandom.RandDec(10, 2);
         DepositHeader.Insert();
@@ -733,7 +733,7 @@ codeunit 141008 "UT PAG Bank Deposit"
         GenJournalLine."Journal Template Name" := DepositHeader."Journal Template Name";
         GenJournalLine."Journal Batch Name" := DepositHeader."Journal Batch Name";
         GenJournalLine."Line No." := LibraryRandom.RandInt(10);
-        GenJournalLine."Posting Date" := WorkDate;
+        GenJournalLine."Posting Date" := WorkDate();
         GenJournalLine."Document Type" := GenJournalLine."Document Type"::Payment;
         GenJournalLine."Account Type" := AccountType;
         GenJournalLine."Account No." := AccountNo;

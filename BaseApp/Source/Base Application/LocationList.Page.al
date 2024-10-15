@@ -5,7 +5,6 @@ page 15 "Location List"
     CardPageID = "Location Card";
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Functions';
     SourceTable = Location;
     UsageCategory = Administration;
 
@@ -56,8 +55,6 @@ page 15 "Location List"
                     ApplicationArea = Location;
                     Caption = '&Resource Locations';
                     Image = Resource;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Resource Locations";
                     RunPageLink = "Location Code" = FIELD(Code);
                     ToolTip = 'View or edit information about where resources are located. In this window, you can assign resources to locations.';
@@ -67,8 +64,6 @@ page 15 "Location List"
                     ApplicationArea = Warehouse;
                     Caption = '&Zones';
                     Image = Zones;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page Zones;
                     RunPageLink = "Location Code" = FIELD(Code);
                     ToolTip = 'View or edit information about zones that you use in your warehouse to structure your bins under zones.';
@@ -78,8 +73,6 @@ page 15 "Location List"
                     ApplicationArea = Warehouse;
                     Caption = '&Bins';
                     Image = Bins;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page Bins;
                     RunPageLink = "Location Code" = FIELD(Code);
                     ToolTip = 'View or edit information about zones that you use in your warehouse to hold items.';
@@ -127,8 +120,6 @@ page 15 "Location List"
                 ApplicationArea = Location;
                 Caption = 'Transfer Order';
                 Image = Document;
-                Promoted = true;
-                PromotedCategory = New;
                 RunObject = Page "Transfer Order";
                 RunPageMode = Create;
                 ToolTip = 'Prepare to transfer items to another location.';
@@ -141,8 +132,6 @@ page 15 "Location List"
                 ApplicationArea = Warehouse;
                 Caption = 'Create Warehouse location';
                 Image = NewWarehouse;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Report "Create Warehouse Location";
                 ToolTip = 'Enable the inventory location to use zones and bins to operate as a warehouse location. The batch job creates initial warehouse entries for the warehouse adjustment bin for all items that have inventory in the location. It is necessary to perform a physical inventory after this batch job is finished so that these initial entries can be balanced by posting warehouse physical inventory entries.';
             }
@@ -151,10 +140,6 @@ page 15 "Location List"
                 ApplicationArea = SalesTax;
                 Caption = 'Assign Tax Area';
                 Image = RefreshText;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 RunObject = Report "Assign Tax Area to Location";
                 ToolTip = 'Assign a tax area to the location.';
             }
@@ -166,8 +151,6 @@ page 15 "Location List"
                 ApplicationArea = Location;
                 Caption = 'Inventory - Inbound Transfer';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Inventory - Inbound Transfer";
                 ToolTip = 'View the list of inbound transfers to the location.';
             }
@@ -176,8 +159,6 @@ page 15 "Location List"
                 ApplicationArea = Location;
                 Caption = 'Transfer Order';
                 Image = Document;
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Transfer Order";
                 ToolTip = 'Prepare to transfer items to another location.';
             }
@@ -186,7 +167,6 @@ page 15 "Location List"
                 ApplicationArea = Location;
                 Caption = 'Transfer Shipment';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Transfer Shipment";
@@ -197,7 +177,6 @@ page 15 "Location List"
                 ApplicationArea = Location;
                 Caption = 'Transfer Receipt';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Transfer Receipt";
@@ -208,9 +187,6 @@ page 15 "Location List"
                 ApplicationArea = Location;
                 Caption = 'Items with Negative Inventory';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
-                PromotedOnly = true;
 
                 ToolTip = 'View a list of items with negative inventory.';
 
@@ -221,6 +197,56 @@ page 15 "Location List"
                     ItemsWithNegativeInventory.InitializeRequest(Code);
                     ItemsWithNegativeInventory.Run();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New', Comment = 'Generated from the PromotedActionCategories property index 0.';
+
+                actionref("Transfer Order_Promoted"; "Transfer Order")
+                {
+                }
+            }
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Create Warehouse location_Promoted"; "Create Warehouse location")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref("Inventory - Inbound Transfer_Promoted"; "Inventory - Inbound Transfer")
+                {
+                }
+                actionref(Action1907283206_Promoted; Action1907283206)
+                {
+                }
+                actionref("Items with Negative Inventory_Promoted"; "Items with Negative Inventory")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Functions', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(AssignTaxArea_Promoted; AssignTaxArea)
+                {
+                }
+                actionref("&Resource Locations_Promoted"; "&Resource Locations")
+                {
+                }
+                actionref("&Zones_Promoted"; "&Zones")
+                {
+                }
+                actionref("&Bins_Promoted"; "&Bins")
+                {
+                }
             }
         }
     }

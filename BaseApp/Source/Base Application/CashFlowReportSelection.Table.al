@@ -46,7 +46,7 @@ table 856 "Cash Flow Report Selection"
 
     procedure NewRecord()
     begin
-        if CashFlowReportSelection.FindLast and (CashFlowReportSelection.Sequence <> '') then
+        if CashFlowReportSelection.FindLast() and (CashFlowReportSelection.Sequence <> '') then
             Sequence := IncStr(CashFlowReportSelection.Sequence)
         else
             Sequence := '1';

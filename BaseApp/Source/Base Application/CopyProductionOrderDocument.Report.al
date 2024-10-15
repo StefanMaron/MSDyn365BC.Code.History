@@ -36,7 +36,7 @@ report 99003802 "Copy Production Order Document"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            LookupDocNo;
+                            LookupDocNo();
                         end;
                     }
                     field(IncludeHeader; IncludeHeader)
@@ -86,17 +86,18 @@ report 99003802 "Copy Production Order Document"
             Error(Text000);
 
         if (ToProdOrder.Status = StatusType) and (ToProdOrder."No." = DocNo) then
-            Error(Text002, FromProdOrder.TableCaption);
+            Error(Text002, FromProdOrder.TableCaption());
 
         if IncludeHeader then
-            CopyProdOrder;
+            CopyProdOrder();
 
-        CopyProdLines;
+        CopyProdLines();
     end;
 
     var
-        Text000: Label 'You must enter a document number. ';
         FromProdOrder: Record "Production Order";
+
+        Text000: Label 'You must enter a document number. ';
         Text002: Label 'The %1 cannot be copied onto itself.';
 
     protected var

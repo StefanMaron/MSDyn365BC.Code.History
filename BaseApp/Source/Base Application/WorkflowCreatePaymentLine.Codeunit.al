@@ -52,7 +52,7 @@ codeunit 1512 "Workflow Create Payment Line"
         end;
 
         RecRef.SetTable(PurchInvHeader);
-        PurchInvHeader.Find;
+        PurchInvHeader.Find();
         VendorLedgerEntry.Get(PurchInvHeader."Vendor Ledger Entry No.");
         Vendor.Get(VendorLedgerEntry."Vendor No.");
 
@@ -92,7 +92,7 @@ codeunit 1512 "Workflow Create Payment Line"
         GenJournalLine."Payment Reference" := VendorLedgerEntry."Payment Reference";
         GenJournalLine."Applies-to Ext. Doc. No." := VendorLedgerEntry."External Document No.";
         Evaluate(EmptyDateFormula, '<0D>');
-        GenJournalLine.SetPostingDateAsDueDate(GenJournalLine.GetAppliesToDocDueDate, EmptyDateFormula);
+        GenJournalLine.SetPostingDateAsDueDate(GenJournalLine.GetAppliesToDocDueDate(), EmptyDateFormula);
         GenJournalLine."Document No." := GetDocumentNo(GenJournalLine, LastDocNo);
         GenJournalLine.Insert();
     end;

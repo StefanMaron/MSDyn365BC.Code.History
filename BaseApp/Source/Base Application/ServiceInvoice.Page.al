@@ -1,8 +1,7 @@
-﻿page 5933 "Service Invoice"
+page 5933 "Service Invoice"
 {
     Caption = 'Service Invoice';
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Posting,Invoice';
     RefreshOnActivate = true;
     SourceTable = "Service Header";
     SourceTableView = WHERE("Document Type" = FILTER(Invoice));
@@ -14,7 +13,7 @@
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -25,7 +24,7 @@
                             CurrPage.Update();
                     end;
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer who owns the items in the service document.';
@@ -35,7 +34,7 @@
                         CustomerNoOnAfterValidate();
                     end;
                 }
-                field("Contact No."; "Contact No.")
+                field("Contact No."; Rec."Contact No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the contact to whom you will deliver the service.';
@@ -61,7 +60,7 @@
                         QuickEntry = false;
                         ToolTip = 'Specifies the address of the customer to whom the service will be shipped.';
                     }
-                    field("Address 2"; "Address 2")
+                    field("Address 2"; Rec."Address 2")
                     {
                         ApplicationArea = Service;
                         QuickEntry = false;
@@ -78,7 +77,7 @@
                             ToolTip = 'Specifies the county in the customer''s address.';
                         }
                     }
-                    field("Post Code"; "Post Code")
+                    field("Post Code"; Rec."Post Code")
                     {
                         ApplicationArea = Service;
                         ToolTip = 'Specifies the postal code.';
@@ -89,7 +88,7 @@
                         QuickEntry = false;
                         ToolTip = 'Specifies the city of the address.';
                     }
-                    field("Country/Region Code"; "Country/Region Code")
+                    field("Country/Region Code"; Rec."Country/Region Code")
                     {
                         ApplicationArea = Service;
                         QuickEntry = false;
@@ -100,7 +99,7 @@
                             IsSellToCountyVisible := FormatAddress.UseCounty("Country/Region Code");
                         end;
                     }
-                    field("Contact Name"; "Contact Name")
+                    field("Contact Name"; Rec."Contact Name")
                     {
                         ApplicationArea = Service;
                         ToolTip = 'Specifies the name of the contact who will receive the service.';
@@ -133,54 +132,60 @@
                         ToolTip = 'Specifies the email address of the contact person who will receive the service.';
                     }
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the service document should be posted.';
                 }
-                field("Document Date"; "Document Date")
+                field("VAT Reporting Date"; Rec."VAT Reporting Date")
+                {
+                    ApplicationArea = VAT;
+                    Editable = true;
+                    ToolTip = 'Specifies the date used to include entries on VAT reports in a VAT period. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
+                }
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the salesperson assigned to this service document.';
 
                     trigger OnValidate()
                     begin
-                        SalespersonCodeOnAfterValidate;
+                        SalespersonCodeOnAfterValidate();
                     end;
                 }
-                field("Responsibility Center"; "Responsibility Center")
+                field("Responsibility Center"; Rec."Responsibility Center")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code of the responsibility center, such as a distribution hub, that is associated with the involved user, company, customer, or vendor.';
 
                     trigger OnValidate()
                     begin
-                        ResponsibilityCenterOnAfterVal;
+                        ResponsibilityCenterOnAfterVal();
                     end;
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
-                field("CFDI Purpose"; "CFDI Purpose")
+                field("CFDI Purpose"; Rec."CFDI Purpose")
                 {
                     ApplicationArea = BasicMX;
                     QuickEntry = false;
                     ToolTip = 'Specifies the CFDI purpose required for reporting to the Mexican tax authorities (SAT).';
                 }
-                field("CFDI Relation"; "CFDI Relation")
+                field("CFDI Relation"; Rec."CFDI Relation")
                 {
                     ApplicationArea = BasicMX;
                     QuickEntry = false;
                     ToolTip = 'Specifies the relation of the CFDI document. ';
                 }
-                field("CFDI Export Code"; "CFDI Export Code")
+                field("CFDI Export Code"; Rec."CFDI Export Code")
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies a code to indicate if the document is used for exports to other countries.';
@@ -189,22 +194,24 @@
             part(ServLines; "Service Invoice Subform")
             {
                 ApplicationArea = Service;
+                Enabled = IsServiceLinesEditable;
+                Editable = IsServiceLinesEditable;
                 SubPageLink = "Document No." = FIELD("No.");
             }
             group(Invoicing)
             {
                 Caption = 'Invoicing';
-                field("Bill-to Customer No."; "Bill-to Customer No.")
+                field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
 
                     trigger OnValidate()
                     begin
-                        BilltoCustomerNoOnAfterValidat;
+                        BilltoCustomerNoOnAfterValidat();
                     end;
                 }
-                field("Bill-to Contact No."; "Bill-to Contact No.")
+                field("Bill-to Contact No."; Rec."Bill-to Contact No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the contact person at the customer''s billing address.';
@@ -212,20 +219,20 @@
                 group("Bill-to")
                 {
                     Caption = 'Bill-to';
-                    field("Bill-to Name"; "Bill-to Name")
+                    field("Bill-to Name"; Rec."Bill-to Name")
                     {
                         ApplicationArea = Service;
                         Caption = 'Name';
                         ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
                     }
-                    field("Bill-to Address"; "Bill-to Address")
+                    field("Bill-to Address"; Rec."Bill-to Address")
                     {
                         ApplicationArea = Service;
                         Caption = 'Address';
                         QuickEntry = false;
                         ToolTip = 'Specifies the address of the customer to whom you will send the invoice.';
                     }
-                    field("Bill-to Address 2"; "Bill-to Address 2")
+                    field("Bill-to Address 2"; Rec."Bill-to Address 2")
                     {
                         ApplicationArea = Service;
                         Caption = 'Address 2';
@@ -236,7 +243,7 @@
                     {
                         ShowCaption = false;
                         Visible = IsBillToCountyVisible;
-                        field("Bill-to County"; "Bill-to County")
+                        field("Bill-to County"; Rec."Bill-to County")
                         {
                             ApplicationArea = Service;
                             Caption = 'County';
@@ -244,21 +251,21 @@
                             ToolTip = 'Specifies the county in the customer''s address.';
                         }
                     }
-                    field("Bill-to Post Code"; "Bill-to Post Code")
+                    field("Bill-to Post Code"; Rec."Bill-to Post Code")
                     {
                         ApplicationArea = Service;
                         Caption = 'Post Code';
                         QuickEntry = false;
                         ToolTip = 'Specifies the postal code of the customer''s billing address.';
                     }
-                    field("Bill-to City"; "Bill-to City")
+                    field("Bill-to City"; Rec."Bill-to City")
                     {
                         ApplicationArea = Service;
                         Caption = 'City';
                         QuickEntry = false;
                         ToolTip = 'Specifies the city of the address.';
                     }
-                    field("Bill-to Country/Region Code"; "Bill-to Country/Region Code")
+                    field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
                     {
                         ApplicationArea = Service;
                         Caption = 'Country/Region';
@@ -270,7 +277,7 @@
                             IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
                         end;
                     }
-                    field("Bill-to Contact"; "Bill-to Contact")
+                    field("Bill-to Contact"; Rec."Bill-to Contact")
                     {
                         ApplicationArea = Service;
                         Caption = 'Contact';
@@ -304,24 +311,24 @@
                         ToolTip = 'Specifies the email address of the contact person at the customer''s billing address.';
                     }
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
 
                     trigger OnValidate()
                     begin
-                        ShortcutDimension1CodeOnAfterV;
+                        ShortcutDimension1CodeOnAfterV();
                     end;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
 
                     trigger OnValidate()
                     begin
-                        ShortcutDimension2CodeOnAfterV;
+                        ShortcutDimension2CodeOnAfterV();
                     end;
                 }
                 field("Customer Posting Group"; Rec."Customer Posting Group")
@@ -331,42 +338,42 @@
                     Importance = Additional;
                     ToolTip = 'Specifies the customer''s market type to link business transactions to.';
                 }
-                field("Payment Terms Code"; "Payment Terms Code")
+                field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                 }
-                field("EU 3-Party Trade"; "EU 3-Party Trade")
+                field("EU 3-Party Trade"; Rec."EU 3-Party Trade")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies when the related invoice must be paid.';
                 }
-                field("Payment Discount %"; "Payment Discount %")
+                field("Payment Discount %"; Rec."Payment Discount %")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the percentage of payment discount given, if the customer pays by the date entered in the Pmt. Discount Date field.';
                 }
-                field("Pmt. Discount Date"; "Pmt. Discount Date")
+                field("Pmt. Discount Date"; Rec."Pmt. Discount Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
                 }
-                field("Payment Method Code"; "Payment Method Code")
+                field("Payment Method Code"; Rec."Payment Method Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
                 }
-                field("Direct Debit Mandate ID"; "Direct Debit Mandate ID")
+                field("Direct Debit Mandate ID"; Rec."Direct Debit Mandate ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the direct-debit mandate that the customer has signed to allow direct debit collection of payments.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Service;
                     Importance = Promoted;
@@ -376,35 +383,35 @@
                     begin
                         Clear(ChangeExchangeRate);
                         ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date");
-                        if ChangeExchangeRate.RunModal = ACTION::OK then begin
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter);
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then begin
+                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
                             CurrPage.Update();
                         end;
                         Clear(ChangeExchangeRate);
                     end;
                 }
-                field("Company Bank Account Code"; "Company Bank Account Code")
+                field("Company Bank Account Code"; Rec."Company Bank Account Code")
                 {
                     ApplicationArea = Service;
                     Importance = Promoted;
                     ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
                 }
-                field("Prices Including VAT"; "Prices Including VAT")
+                field("Prices Including VAT"; Rec."Prices Including VAT")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies if the Unit Price and Line Amount fields on document lines should be shown with or without VAT.';
 
                     trigger OnValidate()
                     begin
-                        PricesIncludingVATOnAfterValid;
+                        PricesIncludingVATOnAfterValid();
                     end;
                 }
-                field("Tax Liable"; "Tax Liable")
+                field("Tax Liable"; Rec."Tax Liable")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies if the customer or vendor is liable for sales tax.';
                 }
-                field("Tax Area Code"; "Tax Area Code")
+                field("Tax Area Code"; Rec."Tax Area Code")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
@@ -413,33 +420,33 @@
             group(Shipping)
             {
                 Caption = 'Shipping';
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
 
                     trigger OnValidate()
                     begin
-                        ShiptoCodeOnAfterValidate;
+                        ShiptoCodeOnAfterValidate();
                     end;
                 }
                 group("Ship-to")
                 {
                     Caption = 'Ship-to';
-                    field("Ship-to Name"; "Ship-to Name")
+                    field("Ship-to Name"; Rec."Ship-to Name")
                     {
                         ApplicationArea = Service;
                         Caption = 'Name';
                         ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     }
-                    field("Ship-to Address"; "Ship-to Address")
+                    field("Ship-to Address"; Rec."Ship-to Address")
                     {
                         ApplicationArea = Service;
                         Caption = 'Address';
                         QuickEntry = false;
                         ToolTip = 'Specifies the address that the items are shipped to.';
                     }
-                    field("Ship-to Address 2"; "Ship-to Address 2")
+                    field("Ship-to Address 2"; Rec."Ship-to Address 2")
                     {
                         ApplicationArea = Service;
                         Caption = 'Address 2';
@@ -450,7 +457,7 @@
                     {
                         ShowCaption = false;
                         Visible = IsShipToCountyVisible;
-                        field("Ship-to County"; "Ship-to County")
+                        field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = Service;
                             Caption = 'County';
@@ -458,21 +465,21 @@
                             ToolTip = 'Specifies the county in the customer''s address.';
                         }
                     }
-                    field("Ship-to Post Code"; "Ship-to Post Code")
+                    field("Ship-to Post Code"; Rec."Ship-to Post Code")
                     {
                         ApplicationArea = Service;
                         Caption = 'Post Code';
                         QuickEntry = false;
                         ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
                     }
-                    field("Ship-to City"; "Ship-to City")
+                    field("Ship-to City"; Rec."Ship-to City")
                     {
                         ApplicationArea = Service;
                         Caption = 'City';
                         QuickEntry = false;
                         ToolTip = 'Specifies the city of the address that the items are shipped to.';
                     }
-                    field("Ship-to Country/Region Code"; "Ship-to Country/Region Code")
+                    field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                     {
                         ApplicationArea = Service;
                         Caption = 'Country/Region Code';
@@ -484,14 +491,14 @@
                             IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
                         end;
                     }
-                    field("Ship-to Contact"; "Ship-to Contact")
+                    field("Ship-to Contact"; Rec."Ship-to Contact")
                     {
                         ApplicationArea = Service;
                         Caption = 'Contact';
                         ToolTip = 'Specifies the name of the contact person at the address that the items are shipped to.';
                     }
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location (for example, warehouse or distribution center) of the items specified on the service item lines.';
@@ -500,22 +507,22 @@
             group("Foreign Trade")
             {
                 Caption = 'Foreign Trade';
-                field("Transaction Type"; "Transaction Type")
+                field("Transaction Type"; Rec."Transaction Type")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the type of transaction that the document represents, for the purpose of reporting to INTRASTAT.';
                 }
-                field("Transaction Specification"; "Transaction Specification")
+                field("Transaction Specification"; Rec."Transaction Specification")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies a specification of the document''s transaction, for the purpose of reporting to INTRASTAT.';
                 }
-                field("Transport Method"; "Transport Method")
+                field("Transport Method"; Rec."Transport Method")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
                 }
-                field("Exit Point"; "Exit Point")
+                field("Exit Point"; Rec."Exit Point")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the point of exit through which you ship the items out of your country/region, for reporting to Intrastat.';
@@ -600,9 +607,6 @@
                     ApplicationArea = Service;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
 
@@ -617,8 +621,6 @@
                     ApplicationArea = Service;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Customer Card";
                     RunPageLink = "No." = FIELD("Customer No.");
                     ShortCutKey = 'Shift+F7';
@@ -629,8 +631,6 @@
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Service Comment Sheet";
                     RunPageLink = "Table Name" = CONST("Service Header"),
                                   "Table Subtype" = FIELD("Document Type"),
@@ -645,16 +645,13 @@
                     Caption = '&Dimensions';
                     Enabled = "No." <> '';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to journal lines to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
-                        ShowDocDim;
-                        CurrPage.SaveRecord;
+                        ShowDocDim();
+                        CurrPage.SaveRecord();
                     end;
                 }
                 action("Service Document Lo&g")
@@ -662,8 +659,6 @@
                     ApplicationArea = Service;
                     Caption = 'Service Document Lo&g';
                     Image = Log;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'View a list of the service document changes that have been logged. The program creates entries in the window when, for example, the response time or service order status changed, a resource was allocated, a service order was shipped or invoiced, and so on. Each line in this window identifies the event that occurred to the service document. The line contains the information about the field that was changed, its old and new value, the date and time when the change took place, and the ID of the user who actually made the changes.';
 
                     trigger OnAction()
@@ -710,7 +705,7 @@
 
                     trigger OnAction()
                     begin
-                        ApproveCalcInvDisc;
+                        ApproveCalcInvDisc();
                     end;
                 }
                 action("Get St&d. Service Codes")
@@ -719,8 +714,6 @@
                     Caption = 'Get St&d. Service Codes';
                     Ellipsis = true;
                     Image = ServiceCode;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Insert service order lines that you have set up for recurring services. ';
 
                     trigger OnAction()
@@ -753,9 +746,6 @@
                     ApplicationArea = Service;
                     Caption = 'P&ost';
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
@@ -767,7 +757,7 @@
                         PreAssignedNo := "No.";
                         DocumentIsPosted := SendToPost(Codeunit::"Service-Post (Yes/No)");
 
-                        if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode) then
+                        if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode()) then
                             ShowPostedConfirmationMessage(PreAssignedNo);
                     end;
                 }
@@ -776,8 +766,6 @@
                     ApplicationArea = Service;
                     Caption = 'Preview Posting';
                     Image = ViewPostedOrder;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
@@ -794,9 +782,6 @@
                     Caption = 'Post and &Send';
                     Ellipsis = true;
                     Image = PostSendTo;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Finalize and prepare to send the document according to the customer''s sending profile, such as attached to an email. The Send document to window opens first so you can confirm or select a sending profile.';
 
                     trigger OnAction()
@@ -809,9 +794,6 @@
                     ApplicationArea = Service;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
@@ -836,46 +818,121 @@
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                group(Category_Category4)
+                {
+                    Caption = 'Posting', Comment = 'Generated from the PromotedActionCategories property index 3.';
+                    ShowAs = SplitButton;
+
+                    actionref(Post_Promoted; Post)
+                    {
+                    }
+                    actionref(PostAndSend_Promoted; PostAndSend)
+                    {
+                    }
+                    actionref(Preview_Promoted; Preview)
+                    {
+                    }
+                    actionref("Post and &Print_Promoted"; "Post and &Print")
+                    {
+                    }
+                    actionref("Post &Batch_Promoted"; "Post &Batch")
+                    {
+                    }
+                }
+            }
+            group(Category_Prepare)
+            {
+                Caption = 'Prepare';
+
+                actionref("Get St&d. Service Codes_Promoted"; "Get St&d. Service Codes")
+                {
+                }
+                actionref("Calculate Invoice Discount_Promoted"; "Calculate Invoice Discount")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Invoice', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("&Dimensions_Promoted"; "&Dimensions")
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("Service Document Lo&g_Promoted"; "Service Document Lo&g")
+                {
+                }
+#if not CLEAN21
+                actionref(Card_Promoted; Card)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+        }
     }
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        SetControlAppearance();
+    end;
 
     trigger OnDeleteRecord(): Boolean
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         Clear(ServLogMgt);
         ServLogMgt.ServHeaderManualDelete(Rec);
-        exit(ConfirmDeletion);
+        exit(Rec.ConfirmDeletion());
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        if Find(Which) then
+        if Rec.Find(Which) then
             exit(true);
 
-        SetRange("No.");
-        exit(Find(Which));
+        Rec.SetRange("No.");
+        exit(Rec.Find(Which));
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "Responsibility Center" := UserMgt.GetServiceFilter;
-        if "No." = '' then
-            SetCustomerFromFilter;
+        Rec."Responsibility Center" := UserMgt.GetServiceFilter();
+        if Rec."No." = '' then
+            Rec.SetCustomerFromFilter();
     end;
 
     trigger OnOpenPage()
     begin
-        SetSecurityFilterOnRespCenter;
-        if ("No." <> '') and ("Customer No." = '') then
-            DocumentIsPosted := (not Get("Document Type", "No."));
+        Rec.SetSecurityFilterOnRespCenter();
+        if (Rec."No." <> '') and (Rec."Customer No." = '') then
+            DocumentIsPosted := (not Rec.Get(Rec."Document Type", Rec."No."));
 
-        ActivateFields;
+        ActivateFields();
         CheckShowBackgrValidationNotification();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        SellToContact.GetOrClear("Contact No.");
-        BillToContact.GetOrClear("Bill-to Contact No.");
+        SellToContact.GetOrClear(Rec."Contact No.");
+        BillToContact.GetOrClear(Rec."Bill-to Contact No.");
 
         OnAfterOnAfterGetRecord(Rec);
     end;
@@ -883,7 +940,7 @@
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if not DocumentIsPosted then
-            exit(ConfirmCloseUnposted);
+            exit(Rec.ConfirmCloseUnposted());
     end;
 
     var
@@ -903,6 +960,8 @@
         IsShipToCountyVisible: Boolean;
         IsPostingGroupEditable: Boolean;
         ServiceDocCheckFactboxVisible: Boolean;
+        [InDataSet]
+        IsServiceLinesEditable: Boolean;
 
     local procedure ActivateFields()
     begin
@@ -910,8 +969,13 @@
         IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
         ServiceDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
-
+        IsServiceLinesEditable := Rec.ServiceLinesEditable();
         SetPostingGroupEditable();
+    end;
+
+    local procedure SetControlAppearance()
+    begin
+        IsServiceLinesEditable := Rec.ServiceLinesEditable();
     end;
 
     procedure RunBackgroundCheck()
@@ -933,14 +997,15 @@
 
     local procedure ApproveCalcInvDisc()
     begin
-        CurrPage.ServLines.PAGE.ApproveCalcInvDisc;
+        CurrPage.ServLines.PAGE.ApproveCalcInvDisc();
     end;
 
     local procedure CustomerNoOnAfterValidate()
     begin
-        if GetFilter("Customer No.") = xRec."Customer No." then
-            if "Customer No." <> xRec."Customer No." then
-                SetRange("Customer No.");
+        if Rec.GetFilter("Customer No.") = xRec."Customer No." then
+            if Rec."Customer No." <> xRec."Customer No." then
+                Rec.SetRange("Customer No.");
+        IsServiceLinesEditable := Rec.ServiceLinesEditable();
         CurrPage.Update();
     end;
 
@@ -988,7 +1053,7 @@
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
         if ServiceInvoiceHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedServiceInvQst, ServiceInvoiceHeader."No."),
-                 InstructionMgt.ShowPostedConfirmationMessageCode)
+                 InstructionMgt.ShowPostedConfirmationMessageCode())
             then
                 InstructionMgt.ShowPostedDocument(ServiceInvoiceHeader, Page::"Service Invoice");
     end;

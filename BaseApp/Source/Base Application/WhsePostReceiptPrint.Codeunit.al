@@ -5,15 +5,16 @@ codeunit 5762 "Whse.-Post Receipt + Print"
     trigger OnRun()
     begin
         WhseReceiptLine.Copy(Rec);
-        Code;
+        Code();
         Rec := WhseReceiptLine;
     end;
 
     var
-        Text001: Label 'Number of put-away activities printed: %1.';
         WhseActivHeader: Record "Warehouse Activity Header";
         WhseReceiptLine: Record "Warehouse Receipt Line";
         PrintedDocuments: Integer;
+
+        Text001: Label 'Number of put-away activities printed: %1.';
 
     local procedure "Code"()
     var

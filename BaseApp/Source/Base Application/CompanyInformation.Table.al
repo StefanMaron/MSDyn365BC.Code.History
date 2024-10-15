@@ -40,8 +40,13 @@ table 79 "Company Information"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(7; "Phone No."; Text[30])
@@ -109,7 +114,7 @@ table 79 "Company Information"
                     exit;
                 if "Country/Region Code" = '' then
                     exit;
-                if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
+                if VATRegNoSrvConfig.VATRegNoSrvIsEnabled() then begin
                     VATRegistrationLogMgt.ValidateVATRegNoWithVIES(
                         ResultRecordRef, Rec, "Primary Key",
                         VATRegistrationLog."Account Type"::"Company Information".AsInteger(), "Country/Region Code");
@@ -198,16 +203,12 @@ table 79 "Company Information"
 
             trigger OnValidate()
             var
-                O365SalesInitialSetup: Record "O365 Sales Initial Setup";
-                CountryRegionCode: Code[10];
+                IsHandled: Boolean;
             begin
-                if O365SalesInitialSetup.Get and O365SalesInitialSetup."Is initialized" then begin
-                    CountryRegionCode := "Country/Region Code";
-                    PostCode.ValidatePostCode(City, "Post Code", County, CountryRegionCode, (CurrFieldNo <> 0) and GuiAllowed);
-                    exit;
-                end;
-
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(31; County; Text[30])
@@ -231,9 +232,14 @@ table 79 "Company Information"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnbeforeValidateShipToPostCode(Rec, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(
+                        "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(33; "Ship-to County"; Text[30])
@@ -461,7 +467,7 @@ table 79 "Company Information"
 
             trigger OnValidate()
             begin
-                SetBrandColorValue;
+                SetBrandColorValue();
             end;
         }
         field(5700; "Responsibility Center"; Code[10])
@@ -738,8 +744,8 @@ table 79 "Company Information"
         OnlineMapManagement: Codeunit "Online Map Management";
     begin
         OnlineMapSetup.SetRange(Enabled, true);
-        if OnlineMapSetup.FindFirst() then
-            OnlineMapManagement.MakeSelection(DATABASE::"Company Information", GetPosition)
+        if not OnlineMapSetup.IsEmpty() then
+            OnlineMapManagement.MakeSelection(DATABASE::"Company Information", GetPosition())
         else
             Message(Text002);
     end;
@@ -774,7 +780,7 @@ table 79 "Company Information"
         IsHandled: Boolean;
     begin
         if Name = '' then // Is the record loaded?
-            Get;
+            Get();
 
         IsHandled := false;
         OnBeforeGetVATRegistrationNumberLbl(Result, IsHandled);
@@ -811,17 +817,17 @@ table 79 "Company Information"
         ConfirmManagement: Codeunit "Confirm Management";
         CompanyInformationPage: Page "Company Information";
     begin
-        Get;
-        if IsPaymentInfoAvailble then
+        Get();
+        if IsPaymentInfoAvailble() then
             exit;
         if GuiAllowed then begin
             if ConfirmManagement.GetResponseOrDefault(StrSubstNo(NoPaymentInfoQst, TableCaption), true) then begin
                 CompanyInformationPage.SetRecord(Rec);
                 CompanyInformationPage.Editable(true);
-                if CompanyInformationPage.RunModal = ACTION::OK then
+                if CompanyInformationPage.RunModal() = ACTION::OK then
                     CompanyInformationPage.GetRecord(Rec);
             end;
-            if not IsPaymentInfoAvailble then
+            if not IsPaymentInfoAvailble() then
                 Message(NoPaymentInfoMsg, TableCaption);
         end else
             Error(NoPaymentInfoMsg, TableCaption);
@@ -872,12 +878,12 @@ table 79 "Company Information"
     [Scope('OnPrem')]
     procedure IsCanada(): Boolean
     begin
-        if Get then
+        if Get() then
             if "Country/Region Code" <> '' then
                 exit("Country/Region Code" = 'CA');
 
         // Missing data from company setup, fallback to lcy code
-        exit(InferIsCanadaFromCurrency);
+        exit(InferIsCanadaFromCurrency());
     end;
 
     [Scope('OnPrem')]
@@ -885,9 +891,9 @@ table 79 "Company Information"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        if GeneralLedgerSetup.Get and (GeneralLedgerSetup."LCY Code" = 'CAD') then begin
+        if GeneralLedgerSetup.Get() and (GeneralLedgerSetup."LCY Code" = 'CAD') then begin
             if WritePermission then
-                if Get and ("Country/Region Code" = '') then begin
+                if Get() and ("Country/Region Code" = '') then begin
                     Validate("Country/Region Code", 'CA');
                     Modify(true);
                 end;
@@ -972,7 +978,7 @@ table 79 "Company Information"
     [Scope('OnPrem')]
     procedure CheckIfMissingMXEInvRequiredFields(): Boolean
     begin
-        Get;
+        Get();
         exit(("CURP No." = '') and ("State Inscription" = '') and
           ("Tax Scheme" = '') and ("Post Code" = '') and ("RFC No." = ''));
     end;
@@ -999,6 +1005,26 @@ table 79 "Company Information"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckIBAN(IBANCode: Code[100])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var CompanyInformation: Record "Company Information"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var CompanyInformation: Record "Company Information"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShipToCity(var CompanyInformation: Record "Company Information"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShipToPostCode(var CompanyInformation: Record "Company Information"; var IsHandled: Boolean)
     begin
     end;
 }

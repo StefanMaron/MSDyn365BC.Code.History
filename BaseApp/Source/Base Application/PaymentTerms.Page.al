@@ -19,22 +19,22 @@ page 4 "Payment Terms"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to identify this set of payment terms.';
                 }
-                field("Due Date Calculation"; "Due Date Calculation")
+                field("Due Date Calculation"; Rec."Due Date Calculation")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a formula that determines how to calculate the due date, for example, when you create an invoice.';
                 }
-                field("Discount Date Calculation"; "Discount Date Calculation")
+                field("Discount Date Calculation"; Rec."Discount Date Calculation")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date formula if the payment terms include a possible payment discount.';
                 }
-                field("Discount %"; "Discount %")
+                field("Discount %"; Rec."Discount %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the percentage of the invoice amount (amount including VAT is the default setting) that will constitute a possible payment discount.';
                 }
-                field("Calc. Pmt. Disc. on Cr. Memos"; "Calc. Pmt. Disc. on Cr. Memos")
+                field("Calc. Pmt. Disc. on Cr. Memos"; Rec."Calc. Pmt. Disc. on Cr. Memos")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that a payment discount, cash discount, cash discount date, and due date are calculated on credit memos with these payment terms.';
@@ -44,13 +44,13 @@ page 4 "Payment Terms"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an explanation of the payment terms.';
                 }
-                field("SAT Payment Term"; "SAT Payment Term")
+                field("SAT Payment Term"; Rec."SAT Payment Term")
                 {
                     ApplicationArea = BasicMX;
                     Caption = 'SAT Payment Form';
                     ToolTip = 'Specifies the number of the SAT payment form. ';
                 }
-                field("Coupled to CRM"; "Coupled to CRM")
+                field("Coupled to CRM"; Rec."Coupled to CRM")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies that the payment term is coupled to a payment term in Dataverse.';
@@ -82,8 +82,6 @@ page 4 "Payment Terms"
                 ApplicationArea = Basic, Suite;
                 Caption = 'T&ranslation';
                 Image = Translation;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Payment Term Translations";
                 RunPageLink = "Payment Term" = FIELD(Code);
                 ToolTip = 'View or edit descriptions for each payment method in different languages.';
@@ -185,6 +183,49 @@ page 4 "Payment Terms"
                     begin
                         CRMIntegrationManagement.ShowOptionLog(Rec.RecordId);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+            }
+            group(Category_Payment_Terms)
+            {
+                Caption = 'Payment Terms';
+
+                actionref("T&ranslation_Promoted"; "T&ranslation")
+                {
+                }
+            }
+            group(Category_Synchronize)
+            {
+                Caption = 'Synchronize';
+                Visible = CDSIntegrationEnabled;
+
+                group(Category_Coupling)
+                {
+                    Caption = 'Coupling';
+                    ShowAs = SplitButton;
+
+                    actionref(ManageCRMCoupling_Promoted; ManageCRMCoupling)
+                    {
+                    }
+                    actionref(DeleteCRMCoupling_Promoted; DeleteCRMCoupling)
+                    {
+                    }
+                    actionref(MatchBasedCoupling_Promoted; MatchBasedCoupling)
+                    {
+                    }
+                }
+                actionref(CRMSynchronizeNow_Promoted; CRMSynchronizeNow)
+                {
+                }
+                actionref(ShowLog_Promoted; ShowLog)
+                {
                 }
             }
         }

@@ -50,7 +50,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
         repeat
             WhseActivityLine.Validate("Qty. to Handle", WhseActivityLine.Quantity - QtyToHandleDelta);
             WhseActivityLine.Modify(true);
-        until WhseActivityLine.Next = 0;
+        until WhseActivityLine.Next() = 0;
 
         // Register put-away.
         if Register then
@@ -110,7 +110,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
             WhseActivityLine.Validate("Bin Code", GetBin(Location.Code));
             WhseActivityLine.Validate("Qty. to Handle", WhseActivityLine.Quantity - QtyToHandleDelta);
             WhseActivityLine.Modify(true);
-        until WhseActivityLine.Next = 0;
+        until WhseActivityLine.Next() = 0;
 
         // Post inventory put-away.
         if Post then
@@ -163,7 +163,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
         FindWarehouseActivityLines(WhseActivityLine, PurchaseHeader."No.", WhseActivityLine."Activity Type"::"Put-away");
         repeat
             WhseActivityLine.Validate("Qty. to Handle", WhseActivityLine.Quantity);
-        until WhseActivityLine.Next = 0;
+        until WhseActivityLine.Next() = 0;
         WhseActivityLine.Modify(true);
 
         // Register put-away.
@@ -185,7 +185,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
             WhseActivityLine.Validate("Qty. to Handle", WhseActivityLine.Quantity - QtyToHandleDelta);
             SelectLotNoOnWhsePick(WhseActivityLine);
             WhseActivityLine.Modify(true);
-        until WhseActivityLine.Next = 0;
+        until WhseActivityLine.Next() = 0;
 
         // Register pick.
         if Register then
@@ -246,7 +246,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
             WhseActivityLine.Validate("Bin Code", GetBin(Location.Code));
             WhseActivityLine.Validate("Qty. to Handle", WhseActivityLine.Quantity);
             WhseActivityLine.Modify(true);
-        until WhseActivityLine.Next = 0;
+        until WhseActivityLine.Next() = 0;
 
         // Post inventory put-away.
         LibraryWarehouse.PostInventoryActivity(WhseActivityHeader, false);
@@ -263,7 +263,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
             WhseActivityLine.Validate("Qty. to Handle", WhseActivityLine.Quantity - QtyToHandleDelta);
             SelectLotNoOnWhsePick(WhseActivityLine);
             WhseActivityLine.Modify(true);
-        until WhseActivityLine.Next = 0;
+        until WhseActivityLine.Next() = 0;
 
         // Post inventory put-away.
         if Post then
@@ -477,7 +477,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
                 LotNosByBin.SetRange(Lot_No, WhseActivityLine."Lot No.");
                 LotNosByBin.Open;
 
-                while LotNosByBin.Read do begin
+                while LotNosByBin.Read() do begin
                     Assert.AreEqual(
                       WhseEntry."Qty. (Base)", LotNosByBin.Sum_Qty_Base, WhseActivityLine."Bin Code" + '-' + WhseActivityLine."Lot No.");
                     Count += 1;
@@ -485,7 +485,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
 
                 Assert.AreEqual(
                   ExpCount, Count, 'Query returned wrong no. of rows for ' + WhseActivityLine."Bin Code" + '-' + WhseActivityLine."Lot No.");
-            until WhseActivityLine.Next = 0;
+            until WhseActivityLine.Next() = 0;
 
         // Check Query - Whse Activity Line consistency.
         WhseActivityLine.FindFirst();
@@ -494,7 +494,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
         LotNosByBin.SetRange(Location_Code, WhseActivityLine."Location Code");
         LotNosByBin.Open;
 
-        while LotNosByBin.Read do begin
+        while LotNosByBin.Read() do begin
             GetLotQtyFromWhseEntries(WhseEntry, LotNosByBin.Item_No, LotNosByBin.Location_Code, LotNosByBin.Bin_Code, LotNosByBin.Lot_No);
             Assert.AreEqual(WhseEntry."Qty. (Base)", LotNosByBin.Sum_Qty_Base, LotNosByBin.Bin_Code + '-' + LotNosByBin.Lot_No);
         end;

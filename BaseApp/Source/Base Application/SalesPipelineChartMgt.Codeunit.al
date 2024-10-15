@@ -68,7 +68,7 @@ codeunit 781 "Sales Pipeline Chart Mgt."
         NextSalesCycle := CurrentSalesCycle;
         OnTryNextSalesCycleOnBeforeNextSalesCycleFind(NextSalesCycle);
         NextSalesCycle.Find('=><');
-        exit(NextSalesCycle.Next <> 0);
+        exit(NextSalesCycle.Next() <> 0);
     end;
 
     local procedure TryPrevSalesCycle(CurrentSalesCycle: Record "Sales Cycle"): Boolean
@@ -89,15 +89,14 @@ codeunit 781 "Sales Pipeline Chart Mgt."
         with BusinessChartBuffer do begin
             Initialize();
             AddIntegerMeasure(TempSalesCycleStage.FieldCaption("No. of Opportunities"), 1, "Chart Type"::Funnel);
-            SetXAxis(TempSalesCycleStage.TableCaption, "Data Type"::String);
+            SetXAxis(TempSalesCycleStage.TableCaption(), "Data Type"::String);
             InsertTempSalesCycleStage(TempSalesCycleStage, SalesCycle);
-            if TempSalesCycleStage.FindSet() then begin
+            if TempSalesCycleStage.FindSet() then
                 repeat
                     I += 1;
                     AddColumn(TempSalesCycleStage.Description);
                     SetValueByIndex(0, I - 1, GetOppEntryCount(TempSalesCycleStage."Sales Cycle Code", TempSalesCycleStage.Stage));
                 until TempSalesCycleStage.Next() = 0;
-            end;
         end;
     end;
 

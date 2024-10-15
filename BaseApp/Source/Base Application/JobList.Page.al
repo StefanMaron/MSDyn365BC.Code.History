@@ -6,7 +6,6 @@ page 89 "Job List"
     CardPageID = "Job Card";
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Navigate,Job,Prices & Discounts';
     SourceTable = Job;
     UsageCategory = Lists;
 
@@ -17,7 +16,7 @@ page 89 "Job List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -27,7 +26,7 @@ page 89 "Job List"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a short description of the job.';
                 }
-                field("Bill-to Customer No."; "Bill-to Customer No.")
+                field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the customer who pays for the job.';
@@ -37,30 +36,30 @@ page 89 "Job List"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a status for the current job. You can change the status for the job as it progresses. Final calculations can be made on completed jobs.';
                 }
-                field("Person Responsible"; "Person Responsible")
+                field("Person Responsible"; Rec."Person Responsible")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the name of the person responsible for the job. You can select a name from the list of resources available in the Resource List window. The name is copied from the No. field in the Resource table. You can choose the field to see a list of resources.';
                     Visible = false;
                 }
-                field("Next Invoice Date"; "Next Invoice Date")
+                field("Next Invoice Date"; Rec."Next Invoice Date")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the next invoice date for the job.';
                     Visible = false;
                 }
-                field("Job Posting Group"; "Job Posting Group")
+                field("Job Posting Group"; Rec."Job Posting Group")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a job posting group code for a job. To see the available codes, choose the field.';
                     Visible = false;
                 }
-                field("Search Description"; "Search Description")
+                field("Search Description"; Rec."Search Description")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the additional name for the job. The field is used for searching purposes.';
                 }
-                field("% of Overdue Planning Lines"; PercentOverdue)
+                field("% of Overdue Planning Lines"; PercentOverdue())
                 {
                     ApplicationArea = Jobs;
                     Caption = '% of Overdue Planning Lines';
@@ -68,7 +67,7 @@ page 89 "Job List"
                     ToolTip = 'Specifies the percent of planning lines that are overdue for this job.';
                     Visible = false;
                 }
-                field("% Completed"; PercentCompleted)
+                field("% Completed"; PercentCompleted())
                 {
                     ApplicationArea = Jobs;
                     Caption = '% Completed';
@@ -76,7 +75,7 @@ page 89 "Job List"
                     ToolTip = 'Specifies the completion percentage for this job.';
                     Visible = false;
                 }
-                field("% Invoiced"; PercentInvoiced)
+                field("% Invoiced"; PercentInvoiced())
                 {
                     ApplicationArea = Jobs;
                     Caption = '% Invoiced';
@@ -84,7 +83,7 @@ page 89 "Job List"
                     ToolTip = 'Specifies the invoiced percentage for this job.';
                     Visible = false;
                 }
-                field("Project Manager"; "Project Manager")
+                field("Project Manager"; Rec."Project Manager")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the person assigned as the manager for this job.';
@@ -143,9 +142,6 @@ page 89 "Job List"
                     ApplicationArea = Jobs;
                     Caption = 'Job Task &Lines';
                     Image = TaskList;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Job Task Lines";
                     RunPageLink = "Job No." = FIELD("No.");
                     ToolTip = 'Plan how you want to set up your planning information. In this window you can specify the tasks involved in a job. To start planning a job or to post usage for a job, you must set up at least one job task.';
@@ -159,8 +155,6 @@ page 89 "Job List"
                         ApplicationArea = Dimensions;
                         Caption = 'Dimensions-&Single';
                         Image = Dimensions;
-                        Promoted = true;
-                        PromotedCategory = Category5;
                         RunObject = Page "Default Dimensions";
                         RunPageLink = "Table ID" = CONST(167),
                                       "No." = FIELD("No.");
@@ -173,8 +167,6 @@ page 89 "Job List"
                         ApplicationArea = Dimensions;
                         Caption = 'Dimensions-&Multiple';
                         Image = DimensionSets;
-                        Promoted = true;
-                        PromotedCategory = Category5;
                         ToolTip = 'View or edit dimensions for a group of records. You can assign dimension codes to transactions to distribute costs and analyze historical information.';
 
                         trigger OnAction()
@@ -193,9 +185,6 @@ page 89 "Job List"
                     ApplicationArea = Jobs;
                     Caption = '&Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page "Job Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -206,8 +195,6 @@ page 89 "Job List"
                     ApplicationArea = Jobs;
                     Caption = 'Sales &Invoices/Credit Memos';
                     Image = GetSourceDoc;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'View sales invoices or sales credit memos that are related to the selected job.';
 
                     trigger OnAction()
@@ -223,8 +210,6 @@ page 89 "Job List"
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Comment Sheet";
                     RunPageLink = "Table Name" = CONST(Job),
                                   "No." = FIELD("No.");
@@ -258,7 +243,7 @@ page 89 "Job List"
                     ToolTip = 'View the job''s WIP G/L entries.';
                 }
             }
-#if not CLEAN19
+#if not CLEAN21
             group("&Prices")
             {
                 Caption = '&Prices';
@@ -272,8 +257,6 @@ page 89 "Job List"
                     ApplicationArea = Jobs;
                     Caption = '&Resource';
                     Image = Resource;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Job Resource Prices";
                     RunPageLink = "Job No." = FIELD("No.");
@@ -287,8 +270,6 @@ page 89 "Job List"
                     ApplicationArea = Jobs;
                     Caption = '&Item';
                     Image = Item;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Job Item Prices";
                     RunPageLink = "Job No." = FIELD("No.");
@@ -302,8 +283,6 @@ page 89 "Job List"
                     ApplicationArea = Jobs;
                     Caption = '&G/L Account';
                     Image = JobPrice;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Job G/L Account Prices";
                     RunPageLink = "Job No." = FIELD("No.");
@@ -324,8 +303,6 @@ page 89 "Job List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Price Lists';
                     Image = Price;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or set up sales price lists for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
 
@@ -343,8 +320,6 @@ page 89 "Job List"
                     Caption = 'Sales Prices';
                     Image = Price;
                     Scope = Repeater;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or set up sales price lines for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
 
@@ -364,8 +339,6 @@ page 89 "Job List"
                     Caption = 'Sales Discounts';
                     Image = LineDiscount;
                     Scope = Repeater;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
 
@@ -378,14 +351,12 @@ page 89 "Job List"
                         PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN18
+#if not CLEAN21
                 action(SalesPriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Price Lists (Discounts)';
                     Image = LineDiscount;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     Visible = false;
                     ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
                     ObsoleteState = Pending;
@@ -407,8 +378,6 @@ page 89 "Job List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Purchase Price Lists';
                     Image = ResourceCosts;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or set up purchase price lists for products that you buy from the vendor. An product price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
 
@@ -426,8 +395,6 @@ page 89 "Job List"
                     Caption = 'Purchase Prices';
                     Image = Price;
                     Scope = Repeater;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or set up purchase price lines for products that you buy from the vendor. A product price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
 
@@ -447,8 +414,6 @@ page 89 "Job List"
                     Caption = 'Purchase Discounts';
                     Image = LineDiscount;
                     Scope = Repeater;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or set up different discounts for products that you buy from the vendor. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
 
@@ -461,14 +426,12 @@ page 89 "Job List"
                         PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN18
+#if not CLEAN21
                 action(PurchasePriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Purchase Price Lists (Discounts)';
                     Image = LineDiscount;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     Visible = false;
                     ToolTip = 'View or set up different discounts for products that you buy from the vendor. An product discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
                     ObsoleteState = Pending;
@@ -516,9 +479,6 @@ page 89 "Job List"
                     ApplicationArea = Jobs;
                     Caption = 'Ledger E&ntries';
                     Image = CustomerLedger;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page "Job Ledger Entries";
                     RunPageLink = "Job No." = FIELD("No.");
                     RunPageView = SORTING("Job No.", "Job Task No.", "Entry Type", "Posting Date")
@@ -540,9 +500,6 @@ page 89 "Job List"
                     Caption = '&Copy Job';
                     Ellipsis = true;
                     Image = CopyFromTask;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Copy a job and its job tasks, planning lines, and prices.';
 
                     trigger OnAction()
@@ -558,8 +515,6 @@ page 89 "Job List"
                     ApplicationArea = Jobs;
                     Caption = 'Create Job &Sales Invoice';
                     Image = JobSalesInvoice;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Report "Job Create Sales Invoice";
                     ToolTip = 'Use a batch job to help you create job sales invoices for the involved job planning lines.';
                 }
@@ -617,8 +572,6 @@ page 89 "Job List"
                 ApplicationArea = Jobs;
                 Caption = 'Job Actual to Budget (Cost)';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Job Actual to Budget (Cost)";
                 ToolTip = 'Compare budgeted and usage amounts for selected jobs. All lines of the selected job show quantity, total cost, and line amount.';
             }
@@ -627,8 +580,6 @@ page 89 "Job List"
                 ApplicationArea = Jobs;
                 Caption = 'Job Actual to Budget (Price)';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Job Actual to Budget (Price)";
                 ToolTip = 'Compare the actual price of your jobs to the price that was budgeted. The report shows budget and actual amounts for each phase, task, and steps.';
             }
@@ -637,8 +588,6 @@ page 89 "Job List"
                 ApplicationArea = Jobs;
                 Caption = 'Job Analysis';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Job Analysis";
                 ToolTip = 'Analyze the job, such as the budgeted prices, usage prices, and contract prices, and then compares the three sets of prices.';
             }
@@ -647,8 +596,6 @@ page 89 "Job List"
                 ApplicationArea = Jobs;
                 Caption = 'Job - Planning Lines';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Job - Planning Lines";
                 ToolTip = 'View all planning lines for the job. You use this window to plan what items, resources, and general ledger expenses that you expect to use on a job (budget) or you can specify what you actually agreed with your customer that he should pay for the job (billable).';
             }
@@ -657,8 +604,6 @@ page 89 "Job List"
                 ApplicationArea = Jobs;
                 Caption = 'Job Cost Suggested Billing';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Job Cost Suggested Billing";
                 ToolTip = 'View a list of all jobs, grouped by customer, how much the customer has already been invoiced, and how much remains to be invoiced, that is, the suggested billing.';
             }
@@ -667,7 +612,6 @@ page 89 "Job List"
                 ApplicationArea = Jobs;
                 Caption = 'Customer Jobs (Cost)';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Customer Jobs (Cost)";
@@ -678,7 +622,6 @@ page 89 "Job List"
                 ApplicationArea = Jobs;
                 Caption = 'Customer Jobs (Price)';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Customer Jobs (Price)";
@@ -689,7 +632,6 @@ page 89 "Job List"
                 ApplicationArea = Jobs;
                 Caption = 'Items per Job';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Items per Job";
@@ -700,7 +642,6 @@ page 89 "Job List"
                 ApplicationArea = Jobs;
                 Caption = 'Jobs per Item';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Jobs per Item";
@@ -747,7 +688,6 @@ page 89 "Job List"
                     ApplicationArea = Jobs;
                     Caption = 'Job WIP to G/L';
                     Image = "Report";
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     RunObject = Report "Job WIP To G/L";
@@ -763,7 +703,6 @@ page 89 "Job List"
                     ApplicationArea = Jobs;
                     Caption = 'Job Cost Transaction Detail';
                     Image = "Report";
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     RunObject = Report "Job Cost Transaction Detail";
@@ -774,12 +713,141 @@ page 89 "Job List"
                     ApplicationArea = Jobs;
                     Caption = 'Job Register';
                     Image = "Report";
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     RunObject = Report "Job Register";
                     ToolTip = 'View one or more selected job registers. By using a filter, you can select only those register entries that you want to see. If you do not set a filter, the report can be impractical because it can contain a large amount of information. On the job journal template, you can indicate that you want the report to print when you post.';
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(CopyJob_Promoted; CopyJob)
+                {
+                }
+                actionref("Create Job &Sales Invoice_Promoted"; "Create Job &Sales Invoice")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref("Job Actual to Budget (Cost)_Promoted"; "Job Actual to Budget (Cost)")
+                {
+                }
+                actionref("Job Actual to Budget (Price)_Promoted"; "Job Actual to Budget (Price)")
+                {
+                }
+                actionref("Job Analysis_Promoted"; "Job Analysis")
+                {
+                }
+                actionref("Job - Planning Lines_Promoted"; "Job - Planning Lines")
+                {
+                }
+                actionref("Job Cost Suggested Billing_Promoted"; "Job Cost Suggested Billing")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Job Task &Lines_Promoted"; "Job Task &Lines")
+                {
+                }
+                actionref(SalesInvoicesCreditMemos_Promoted; SalesInvoicesCreditMemos)
+                {
+                }
+                actionref(SalesPriceLists_Promoted; SalesPriceLists)
+                {
+                }
+                actionref(SalesPriceLines_Promoted; SalesPriceLines)
+                {
+                }
+                actionref(SalesDiscountLines_Promoted; SalesDiscountLines)
+                {
+                }
+#if not CLEAN21
+                actionref(SalesPriceListsDiscounts_Promoted; SalesPriceListsDiscounts)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action SalesPriceLists shows all sales price lists with prices and discounts';
+                    ObsoleteTag = '18.0';
+                }
+#endif
+                actionref(PurchasePriceLists_Promoted; PurchasePriceLists)
+                {
+                }
+                actionref(PurchPriceLines_Promoted; PurchPriceLines)
+                {
+                }
+                actionref(PurchDiscountLines_Promoted; PurchDiscountLines)
+                {
+                }
+#if not CLEAN21
+                actionref(PurchasePriceListsDiscounts_Promoted; PurchasePriceListsDiscounts)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action PurchasePriceLists shows all purchase price lists with prices and discounts';
+                    ObsoleteTag = '18.0';
+                }
+#endif
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Job', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("&Statistics_Promoted"; "&Statistics")
+                {
+                }
+                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
+                {
+                }
+                group(Category_Dimensions)
+                {
+                    Caption = 'Dimensions';
+                    ShowAs = SplitButton;
+
+                    actionref("Dimensions-&Multiple_Promoted"; "Dimensions-&Multiple")
+                    {
+                    }
+                    actionref("Dimensions-&Single_Promoted"; "Dimensions-&Single")
+                    {
+                    }
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Prices & Discounts', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+#if not CLEAN21
+                actionref("&Resource_Promoted"; "&Resource")
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+                actionref("&Item_Promoted"; "&Item")
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+                actionref("&G/L Account_Promoted"; "&G/L Account")
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+#endif
             }
         }
     }

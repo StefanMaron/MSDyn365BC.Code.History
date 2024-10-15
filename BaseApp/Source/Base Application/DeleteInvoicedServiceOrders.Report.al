@@ -79,7 +79,7 @@ report 5914 "Delete Invoiced Service Orders"
 
                                 OnBeforeDeleteServiceHeader("Service Header");
 
-                                Delete;
+                                Delete();
                                 Commit();
                             end;
                         end;
@@ -112,7 +112,6 @@ report 5914 "Delete Invoiced Service Orders"
     }
 
     var
-        Text000Txt: Label 'Processing Service orders #1##########';
         ServiceOrderItemLine: Record "Service Item Line";
         ServiceOrderLine: Record "Service Line";
         ServiceShptHeader: Record "Service Shipment Header";
@@ -125,6 +124,8 @@ report 5914 "Delete Invoiced Service Orders"
         ServiceLineReserve: Codeunit "Service Line-Reserve";
         ServAllocMgt: Codeunit ServAllocationManagement;
         Window: Dialog;
+
+        Text000Txt: Label 'Processing Service orders #1##########';
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteServiceHeader(var ServiceHeader: Record "Service Header")

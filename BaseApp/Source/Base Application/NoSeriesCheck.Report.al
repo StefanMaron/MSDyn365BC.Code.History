@@ -20,7 +20,7 @@ report 22 "No. Series Check"
         {
             DataItemTableView = SORTING("Starting No.");
             RequestFilterFields = "Starting Date";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(No__Series__TABLECAPTION__________NoSeriesFilter; "No. Series".TableCaption + ': ' + NoSeriesFilter)
@@ -96,7 +96,7 @@ report 22 "No. Series Check"
             trigger OnAfterGetRecord()
             begin
                 NoSeries2.Code := "Series Code";
-                if not NoSeries2.Find then
+                if not NoSeries2.Find() then
                     CurrReport.Skip();
             end;
 
@@ -125,8 +125,8 @@ report 22 "No. Series Check"
 
     trigger OnPreReport()
     begin
-        NoSeriesFilter := "No. Series".GetFilters;
-        NoSeriesLineFilter := "No. Series Line".GetFilters;
+        NoSeriesFilter := "No. Series".GetFilters();
+        NoSeriesLineFilter := "No. Series Line".GetFilters();
         NoSeries2.Copy("No. Series");
     end;
 

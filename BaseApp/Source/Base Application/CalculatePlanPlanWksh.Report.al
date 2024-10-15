@@ -15,7 +15,8 @@ report 99001017 "Calculate Plan - Plan. Wksh."
                 ErrorText: Text[1000];
                 IsHandled: Boolean;
             begin
-                UpdateWindow;
+                if GuiAllowed then
+                    UpdateWindow();
 
                 IsHandled := false;
                 OnItemOnAfterGetRecordOnBeforeCheckSetAtStartPosition(Item, CounterOK, IsHandled);
@@ -32,8 +33,8 @@ report 99001017 "Calculate Plan - Plan. Wksh."
                     CalcItemPlan.Run(Item);
                     CounterOK := CounterOK + 1;
                 end else begin
-                    CalcItemPlan.ClearInvtProfileOffsetting;
-                    CalcItemPlan.SetResiliencyOn;
+                    CalcItemPlan.ClearInvtProfileOffsetting();
+                    CalcItemPlan.SetResiliencyOn();
                     if CalcItemPlan.Run(Item) then
                         CounterOK := CounterOK + 1
                     else
@@ -42,11 +43,11 @@ report 99001017 "Calculate Plan - Plan. Wksh."
                             if ErrorText = '' then
                                 ErrorText := Text011
                             else
-                                ClearLastError;
+                                ClearLastError();
                             PlanningErrorLog.SetJnlBatch(CurrTemplateName, CurrWorksheetName, "No.");
                             OnItemOnAfterGetRecordOnBeforePlanningErrorLogSetError(Item, PlanningErrorLog);
                             PlanningErrorLog.SetError(
-                              CopyStr(StrSubstNo(ErrorText, TableCaption, "No."), 1, 250), 0, GetPosition);
+                              CopyStr(StrSubstNo(ErrorText, TableCaption(), "No."), 1, 250), 0, GetPosition());
                         end;
                 end;
 
@@ -55,8 +56,9 @@ report 99001017 "Calculate Plan - Plan. Wksh."
 
             trigger OnPostDataItem()
             begin
-                CalcItemPlan.Finalize;
-                CloseWindow;
+                CalcItemPlan.Finalize();
+                if GuiAllowed then
+                    CloseWindow();
 
                 OnAfterItemOnPostDataItem(CurrTemplateName, CurrWorksheetName);
             end;
@@ -67,7 +69,9 @@ report 99001017 "Calculate Plan - Plan. Wksh."
             begin
                 OnBeforeItemOnPreDataItem(Item);
 
-                OpenWindow;
+                if GuiAllowed then
+                    OpenWindow();
+
                 Clear(CalcItemPlan);
                 CalcItemPlan.SetTemplAndWorksheet(CurrTemplateName, CurrWorksheetName, NetChange);
                 CalcItemPlan.SetParm(UseForecast, ExcludeForecastBefore, Item);
@@ -79,13 +83,13 @@ report 99001017 "Calculate Plan - Plan. Wksh."
                 ReqLine.SetRange("Journal Batch Name", CurrWorksheetName);
                 PlanningErrorLog.SetRange("Worksheet Template Name", CurrTemplateName);
                 PlanningErrorLog.SetRange("Journal Batch Name", CurrWorksheetName);
-                ShouldSetAtStartPosition := PlanningErrorLog.FindFirst and ReqLine.FindFirst();
+                ShouldSetAtStartPosition := PlanningErrorLog.FindFirst() and ReqLine.FindFirst();
                 OnOnPreDataItemOnAfterCalcShouldSetAtStartPosition(Item, PlanningErrorLog, ReqLine, SetAtStartPosition, ShouldSetAtStartPosition);
                 if ShouldSetAtStartPosition then
                     SetAtStartPosition := not Confirm(Text009);
 
                 ClearPlanningErrorLog();
-                ClearLastError;
+                ClearLastError();
 
                 OnAfterItemOnPreDataItem(Item);
                 Commit();
@@ -247,6 +251,18 @@ report 99001017 "Calculate Plan - Plan. Wksh."
         UseForecast := MfgSetup."Current Production Forecast";
     end;
 
+    procedure InitializeRequest(NewFromDate: Date; NewToDate: Date; NewRespectPlanningParm: Boolean; NewMPS: Boolean; NewMRP: Boolean; NewUseForecast: Code[10]; NewExcludeForecastBefore: Date; NewNoPlanningResiliency: Boolean)
+    begin
+        FromDate := NewFromDate;
+        ToDate := NewToDate;
+        RespectPlanningParm := NewRespectPlanningParm;
+        MPS := NewMPS;
+        MRP := NewMRP;
+        UseForecast := NewUseForecast;
+        ExcludeForecastBefore := NewExcludeForecastBefore;
+        NoPlanningResiliency := NewNoPlanningResiliency;
+    end;
+
     procedure OpenWindow()
     var
         Indentation: Integer;
@@ -289,7 +305,7 @@ report 99001017 "Calculate Plan - Plan. Wksh."
 
     procedure CloseWindow()
     begin
-        Window.Close;
+        Window.Close();
 
         if Counter = 0 then
             Message(Text008);

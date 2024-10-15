@@ -68,7 +68,7 @@ codeunit 9610 "XSD Parser"
 
         XMLDOMManagement.LoadXMLDocumentFromInStream(InStr, Schema);
 
-        NamespaceMgr := NamespaceMgr.XmlNamespaceManager(Schema.XmlDocument.NameTable);
+        NamespaceMgr := NamespaceMgr.XmlNamespaceManager(Schema.XmlDocument().NameTable);
         PopulateNamespaceManager(NamespaceMgr, Schema.DocumentElement, XMLSchema."Target Namespace", SchemaPrefix);
         UpdateTargetNamespaceAliases(XMLSchema, NamespaceMgr);
     end;
@@ -278,8 +278,8 @@ codeunit 9610 "XSD Parser"
         ListOfElements: DotNet GenericList1;
     begin
         if CurrentXMLNode.HasChildNodes then begin
-            ListOfElements := ListOfElements.List;
-            foreach XMLNode in CurrentXMLNode.ChildNodes do
+            ListOfElements := ListOfElements.List();
+            foreach XMLNode in CurrentXMLNode.ChildNodes() do
                 if XMLNode.Name = StrSubstNo('%1:attribute', SchemaPrefix) then
                     ParseXMLNode(XMLNode, SchemaPrefix, ParentXMLSchemaElement, XMLSchema, NamespaceMgr, NestingLevel, CurrentID)
                 else
@@ -945,10 +945,10 @@ codeunit 9610 "XSD Parser"
         XMLSchemaElement.FindSet();
         File.TextMode := true;
 
-        File.CreateTempFile;
+        File.CreateTempFile();
         FileName := File.Name;
         // CLOSE + CREATE to avoid the file from being deleted before download.
-        File.Close;
+        File.Close();
         File.Create(FileName);
 
         File.Write(StrSubstNo('OBJECT XMLport %1 %2', NewObjectNo, NewName));
@@ -991,9 +991,9 @@ codeunit 9610 "XSD Parser"
                 TempXMLSchemaElement.Reset();
                 TempXMLSchemaElement.SetRange("Node Name", "Node Name");
                 if TempXMLSchemaElement.Count = 0 then
-                    File.Write(StrSubstNo('    { [%1];%2;%3;%4;Text     }', CreateGuid, IndentationText, NodeNameText, ElementTypeText))
+                    File.Write(StrSubstNo('    { [%1];%2;%3;%4;Text     }', CreateGuid(), IndentationText, NodeNameText, ElementTypeText))
                 else begin
-                    File.Write(StrSubstNo('    { [%1];%2;%3;%4;Text    ;', CreateGuid, IndentationText, NodeNameText, ElementTypeText));
+                    File.Write(StrSubstNo('    { [%1];%2;%3;%4;Text    ;', CreateGuid(), IndentationText, NodeNameText, ElementTypeText));
                     File.Write(StrSubstNo('                                                  VariableName=<%1%2> }',
                         "Node Name", TempXMLSchemaElement.Count));
                 end;
@@ -1021,13 +1021,13 @@ codeunit 9610 "XSD Parser"
         File.Write('    END.');
         File.Write('  }');
         File.Write('}');
-        File.Close;
+        File.Close();
 
         FileManagement.BLOBImportFromServerFile(TempBlob, FileName);
         Erase(FileName);
 
         XMLSchemaElement := xXMLSchemaElement;
-        if XMLSchemaElement.Find then;
+        if XMLSchemaElement.Find() then;
 
         NewFileName := StrSubstNo('XML%1.TXT', NewObjectNo);
         exit(FileManagement.BLOBExport(TempBlob, NewFileName, ShowFileDialog));
@@ -1083,19 +1083,20 @@ codeunit 9610 "XSD Parser"
         DataExchColumnDef.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
         DataExchColumnDef.DeleteAll(true);
 
-        SchemaContext := XMLSchema.GetSchemaContext;
+        SchemaContext := XMLSchema.GetSchemaContext();
         with XMLSchemaElement do
             repeat
-                if IsLeaf then begin
+                if IsLeaf() then begin
                     ColumnNo += 1;
-                    FullPath := GetFullPath;
+                    FullPath := GetFullPath();
                     ElementName := FullPath;
                     if StrPos(FullPath, SchemaContext) > 0 then
                         ElementName := DelStr(FullPath, StrPos(FullPath, SchemaContext), StrLen(SchemaContext));
-                    DataExchColumnDef.InsertRecForImport(DataExchDef.Code, DataExchLineDef.Code,
-                      ColumnNo, CopyStr(ElementName, 1, MaxStrLen(DataExchColumnDef.Name)),
-                      CopyStr("Node Name", 1, MaxStrLen(DataExchColumnDef.Description)), true,
-                      DataExchColumnDef."Data Type"::Text, '', '');
+                    DataExchColumnDef.InsertRecordForImport(
+						DataExchDef.Code, DataExchLineDef.Code,
+						ColumnNo, CopyStr(ElementName, 1, MaxStrLen(DataExchColumnDef.Name)),
+						CopyStr("Node Name", 1, MaxStrLen(DataExchColumnDef.Description)), true,
+						DataExchColumnDef."Data Type"::Text, '', '');
                     DataExchColumnDef.SetXMLDataFormattingValues("Simple Data Type");
                     DataExchColumnDef.Path := CopyStr(FullPath, 1, MaxStrLen(DataExchColumnDef.Path));
                     DataExchColumnDef.Modify();
@@ -1138,7 +1139,7 @@ codeunit 9610 "XSD Parser"
         TempStackXMLSchemaElement.SetRange("Node Name", TempCurrentDefinitionXMLSchemaElement."Node Name");
         TempStackXMLSchemaElement.SetRange("Node Type", TempCurrentDefinitionXMLSchemaElement."Node Type");
         TempStackXMLSchemaElement.SetRange("Data Type", TempCurrentDefinitionXMLSchemaElement."Data Type");
-        exit(TempStackXMLSchemaElement.FindFirst);
+        exit(TempStackXMLSchemaElement.FindFirst());
     end;
 
     local procedure InitializeTempBuffers(XMLSchema: Record "XML Schema")

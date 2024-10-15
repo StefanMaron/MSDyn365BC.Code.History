@@ -143,7 +143,7 @@ codeunit 8400 "Record Set Management"
         RecordSetTree.SetRange("Table No.", ValueRecordRef.Number);
         RecordSetTree.SetRange("Parent Node ID", ParentNodeID);
         RecordSetTree.SetRange(Value, ValueRecordRef.RecordId);
-        exit(RecordSetTree.FindFirst);
+        exit(RecordSetTree.FindFirst());
     end;
 
     local procedure InsertNewNode(var RecordSetTree: Record "Record Set Tree"; ValueRecordRef: RecordRef; ParentNodeID: Integer)

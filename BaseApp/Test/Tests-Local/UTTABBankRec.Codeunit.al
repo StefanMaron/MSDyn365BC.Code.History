@@ -108,7 +108,7 @@ codeunit 142077 "UT TAB Bank Rec"
         CreatePostedBankRecHeader(PostedBankRecHeader);
 
         // Exercise.
-        PostedBankRecHeader.ShowDocDim;
+        PostedBankRecHeader.ShowDocDim();
 
         // Verify: Purpose for exercise is to execute the ShowDim Blocks Sucessfully.
     end;
@@ -279,7 +279,7 @@ codeunit 142077 "UT TAB Bank Rec"
     begin
         BankRecHeader."Bank Account No." := LibraryUTUtility.GetNewCode;
         BankRecHeader."Statement No." := LibraryUTUtility.GetNewCode;
-        BankRecHeader."Statement Date" := WorkDate;
+        BankRecHeader."Statement Date" := WorkDate();
         BankRecHeader."Currency Code" := CurrencyCode;
         BankRecHeader.Insert();
         BankRecSubline."Bank Account No." := BankRecHeader."Bank Account No.";
@@ -297,7 +297,7 @@ codeunit 142077 "UT TAB Bank Rec"
         Currency.Code := LibraryUTUtility.GetNewCode10;
         Currency.Insert();
         CurrencyExchangeRate."Currency Code" := Currency.Code;
-        CurrencyExchangeRate."Starting Date" := WorkDate;
+        CurrencyExchangeRate."Starting Date" := WorkDate();
         CurrencyExchangeRate."Exchange Rate Amount" := LibraryRandom.RandDec(10, 2);
         CurrencyExchangeRate."Relational Exch. Rate Amount" := CurrencyExchangeRate."Exchange Rate Amount";
         CurrencyExchangeRate.Insert();
@@ -367,8 +367,8 @@ codeunit 142077 "UT TAB Bank Rec"
         PostedBankRecWorksheet.OpenEdit;
         PostedBankRecWorksheet.FILTER.SetFilter("Bank Account No.", BankAccountNo);
         PostedBankRecWorksheet.Navigate.Invoke;
-        PostedBankRecWorksheet.Close;
-        Navigate.Close;
+        PostedBankRecWorksheet.Close();
+        Navigate.Close();
     end;
 
     [ReportHandler]

@@ -9,7 +9,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
     begin
         // [FEATURE] [Assembly] [Warehouse] [SCM]
         MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
+        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
     end;
 
     var
@@ -207,7 +207,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         MockLocation(Location, false, false, false, false);
         asserterror Location.Validate("To-Assembly Bin Code", Bin1);
         Assert.IsTrue(StrPos(GetLastErrorText, ErrBinMandatory1) > 0, 'Expected: ' + ErrBinMandatory1 + ' Actual: ' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
 
         MockLocation(Location, false, false, false, false);
         LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate2, Item."No.", '', 1, '');
@@ -215,12 +215,12 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         AsmHeader.Validate("Location Code", Location.Code);
         asserterror AsmHeader.Validate("Bin Code", Bin1);
         Assert.IsTrue(StrPos(GetLastErrorText, ErrBinMandatory2) > 0, 'Expected: ' + ErrBinMandatory2 + ' Actual: ' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
         LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, Item."No.", '', 1, 1, '');
         AsmLine.Validate("Location Code", Location.Code);
         asserterror AsmLine.Validate("Bin Code", Bin1);
         Assert.IsTrue(StrPos(GetLastErrorText, ErrBinMandatory2) > 0, 'Expected: ' + ErrBinMandatory2 + ' Actual: ' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
 
         // ** positive test
         MockLocation(Location, true, false, false, false);
@@ -241,7 +241,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         Assert.IsTrue(
           StrPos(GetLastErrorText, StrSubstNo(ErrWrongBinType, BinType.FieldCaption(Pick))) > 0,
           'Expected: ' + StrSubstNo(ErrWrongBinType, BinType.FieldCaption(Pick)) + ' Actual: ' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
 
         MockLocation(Location, false, false, false, true);
         LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate2, Item."No.", '', 1, '');
@@ -251,7 +251,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         Assert.IsTrue(
           StrPos(GetLastErrorText, StrSubstNo(ErrWrongBinType, BinType.FieldCaption(Pick))) > 0,
           'Expected: ' + StrSubstNo(ErrWrongBinType, BinType.FieldCaption(Pick)) + ' Actual: ' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
 
         // ** positive test
         MockLocation(Location, false, false, false, true);
@@ -270,7 +270,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         Assert.IsTrue(
           StrPos(GetLastErrorText, StrSubstNo(ErrWrongBinTypeRecShip)) > 0,
           StrSubstNo(MessageExpectedActual, StrSubstNo(ErrWrongBinTypeRecShip), GetLastErrorText));
-        ClearLastError;
+        ClearLastError();
 
         MockLocation(Location, false, false, false, true);
         LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate2, Item."No.", '', 1, '');
@@ -279,7 +279,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         Assert.IsTrue(
           StrPos(GetLastErrorText, StrSubstNo(ErrWrongBinTypeRecShip)) > 0,
           StrSubstNo(MessageExpectedActual, StrSubstNo(ErrWrongBinTypeRecShip), GetLastErrorText));
-        ClearLastError;
+        ClearLastError();
 
         // ** positive test
         MockLocation(Location, false, false, false, true);
@@ -376,7 +376,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         // ** negative test with bin
         asserterror AsmHeader.Validate("Bin Code", Bin1);
         Assert.IsTrue(StrPos(GetLastErrorText, ErrWhseClass) > 0, 'Expected: ' + ErrWhseClass + ' Actual: ' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
 
         // ** positive test with bin
         Bin.Get(Location.Code, Bin1);
@@ -389,7 +389,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         Commit(); // committing as subsequent errors might roll back bin content creation
         asserterror AsmHeader.Validate("Bin Code", Bin1);
         Assert.IsTrue(StrPos(GetLastErrorText, ErrWhseClass) > 0, 'Expected: ' + ErrWhseClass + ' Actual: ' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
 
         // ** positive test with bin content
         BinContent.Validate("Warehouse Class Code", WarehouseClass.Code);
@@ -409,7 +409,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         MockLocation(Location, true, false, false, false);
         MockItem(Item, ItemVariant);
         LibraryInventory.CreateItem(ParentItem);
-        LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate, ParentItem."No.", Location.Code, 1, '');
+        LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate(), ParentItem."No.", Location.Code, 1, '');
         LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, Item."No.", '', 1, 1, '');
         AsmLine.Validate("Location Code", Location.Code);
         AsmLine.Validate("Bin Code", Bin1);
@@ -423,7 +423,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         AsmLine."Location Code" := Location.Code;
         asserterror AsmLine.Validate("Bin Code", Bin1);
         Assert.IsTrue(StrPos(GetLastErrorText, ErrTypeToBeItem) > 0, 'Expected: ' + ErrTypeToBeItem + ' Actual: ' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
 
         // BIN CODE IS DEFAULTED TO WHEN CHANGES ARE MADE TO ITEM, VARIANT OR LOCATION
         MockItem(Item, ItemVariant);
@@ -433,7 +433,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         BinContent.Validate(Default, true);
         BinContent.Modify(true);
         LibraryInventory.CreateItem(ParentItem);
-        LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate, ParentItem."No.", Location.Code, 1, '');
+        LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate(), ParentItem."No.", Location.Code, 1, '');
         LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, Item."No.", '', 1, 1, '');
         // as no location has been chosen Bin Code on Asm line should be blank
         Assert.AreEqual('', AsmLine."Bin Code", 'as no location has been chosen Bin Code on Asm line should be blank');
@@ -455,7 +455,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         BinContent.Validate(Default, true);
         BinContent.Modify(true);
         LibraryInventory.CreateItem(ParentItem);
-        LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate, ParentItem."No.", Location.Code, 1, '');
+        LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate(), ParentItem."No.", Location.Code, 1, '');
         LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, Item."No.", '', 1, 1, '');
         AsmLine.Validate("Location Code", Location.Code);
         // location has been chosen bin code shud be pulled from From-Assembly Bin Code
@@ -487,14 +487,14 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         Item.Validate("Warehouse Class Code", WarehouseClass.Code);
         Item.Modify(true);
         LibraryInventory.CreateItem(ParentItem);
-        LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate, ParentItem."No.", Location.Code, 1, '');
+        LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate(), ParentItem."No.", Location.Code, 1, '');
         LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, Item."No.", '', 1, 1, '');
         AsmLine.Validate("Location Code", Location.Code);
         Commit(); // committing as subsequent errors might roll back data creation
         // ** negative test with bin
         asserterror AsmLine.Validate("Bin Code", Bin3);
         Assert.IsTrue(StrPos(GetLastErrorText, ErrWhseClass) > 0, 'Expected: ' + ErrWhseClass + ' Actual: ' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
 
         // ** positive test with bin
         Bin.Get(Location.Code, Bin3);
@@ -538,7 +538,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         asserterror LibraryAssembly.ReleaseAO(AsmHeader);
         Assert.IsTrue(
           StrPos(GetLastErrorText, ErrNothingToRelease) > 0, 'Expected: ' + ErrNothingToRelease + ' Actual: ' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
 
         // check for no lines
         AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000);
@@ -546,7 +546,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         asserterror LibraryAssembly.ReleaseAO(AsmHeader);
         Assert.IsTrue(
           StrPos(GetLastErrorText, ErrNothingToRelease) > 0, 'Expected: ' + ErrNothingToRelease + ' Actual: ' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
 
         // IN CASE INVENTORY SETUP HAS Location Mandatory, RELEASING ORDER WITH A LINE FOR ITEM WITH BLANK LOCATION RAISES ERROR
         InventorySetup.Get();
@@ -555,7 +555,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         asserterror LibraryAssembly.ReleaseAO(AsmHeader);
         Assert.IsTrue(StrPos(GetLastErrorText, ErrLocationMustBeFilled) > 0,
           'Expected: ' + ErrLocationMustBeFilled + ' Actual: ' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
 
         // RELEASE SETS STATUS TO Released
         LibraryAssembly.ReleaseAO(AsmHeader);
@@ -586,7 +586,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         asserterror AsmHeader.Validate("Item No.", AsmItem2."No.");
         Assert.IsTrue(StrPos(GetLastErrorText, ErrStatusMustBeOpen) > 0,
           'Expected: ' + ErrStatusMustBeOpen + ' Actual: ' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
 
         // ** positive test
         MockAsmOrderWithComp(AsmHeader, AsmItem, CompItem, 1);
@@ -599,7 +599,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
             Commit();
             AsmHeader.Validate("Item No.", AsmItem2."No."); // first time answer is "no" to confirm question
         end;
-        ClearLastError;
+        ClearLastError();
 
         Assert.AreEqual(AsmItem."No.", AsmHeader."Item No.", '');
 
@@ -625,7 +625,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         asserterror LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, CompItem."No.", '', 3, 1, '');
         Assert.IsTrue(StrPos(GetLastErrorText, ErrStatusMustBeOpen) > 0,
           'Expected: ' + ErrStatusMustBeOpen + ' Actual: ' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
 
         // FIELDS ON ASSEMBLY LINE CANNOT BE CHANGED IF STATUS NOT EQUAL Open
         MockAsmOrderWithComp(AsmHeader, AsmItem, CompItem, 1);
@@ -634,7 +634,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         asserterror AsmLine.Validate("Quantity per", 10);
         Assert.IsTrue(StrPos(GetLastErrorText, ErrStatusMustBeOpen) > 0,
           'Expected: ' + ErrStatusMustBeOpen + ' Actual: ' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
 
         // ASSEMBLY LINE CANNOT BE DELETED IF STATUS NOT EQUAL Open
         MockAsmOrderWithComp(AsmHeader, AsmItem, CompItem, 1);
@@ -643,7 +643,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         asserterror AsmLine.Delete(true);
         Assert.IsTrue(StrPos(GetLastErrorText, ErrStatusMustBeOpen) > 0,
           'Expected: ' + ErrStatusMustBeOpen + ' Actual: ' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -1103,7 +1103,6 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         AsmHeader: Record "Assembly Header";
         AsmLine: Record "Assembly Line";
         CarryOutAction: Codeunit "Carry Out Action";
-        TrySourceType: Option ,,,Assembly;
     begin
         // See VSTF 329733 for details
         Initialize();
@@ -1120,7 +1119,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         DefaultBinCodeToBeFilledSetupPlanningLine(ParentItem, BomComp, ToAsmBin, FromAsmBin, ReqLine);
 
         // EXERCISE : call carry out action message on the above req line
-        CarryOutAction.SetTryParameters(TrySourceType::Assembly, 0, '', '');
+        CarryOutAction.SetParameters("Planning Create Source Type"::Assembly, 0, '', '');
         CarryOutAction.Run(ReqLine);
 
         // VERIFY : in the asm header and lines created, the bin codes are the ones from location card.
@@ -1166,7 +1165,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         DefaultBinCodeToBeFilledSetupLocation(ToAsmBin, FromAsmBin);
 
         AsmHeader."Document Type" := AsmHeader."Document Type"::Order;
-        AsmHeader."Starting Date" := WorkDate;
+        AsmHeader."Starting Date" := WorkDate();
         AsmHeader."Location Code" := ToAsmBin."Location Code";
         AsmHeader."Quantity (Base)" := 1;
         AsmHeader.Insert();
@@ -1205,7 +1204,6 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         AsmHeader: Record "Assembly Header";
         AsmLine: Record "Assembly Line";
         CarryOutAction: Codeunit "Carry Out Action";
-        TrySourceType: Option ,,,Assembly;
     begin
         Initialize();
 
@@ -1221,7 +1219,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         DefaultBinCodeToBeFilledSetupPlanningLine(ParentItem, BomComp, ToAsmBin, FromAsmBin, ReqLine);
 
         // EXERCISE : call carry out action message on the above req line
-        CarryOutAction.SetTryParameters(TrySourceType::Assembly, 0, '', '');
+        CarryOutAction.SetParameters("Planning Create Source Type"::Assembly, 0, '', '');
         CarryOutAction.Run(ReqLine);
 
         // VERIFY : in the asm header created, the bin code is the one from location card.
@@ -1256,7 +1254,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         DefaultBinCodeToBeFilledSetupLocation(ToAsmBin, FromAsmBin);
 
         ReqLine."Action Message" := ReqLine."Action Message"::New;
-        ReqLine."Starting Date" := WorkDate;
+        ReqLine."Starting Date" := WorkDate();
         ReqLine.Type := ReqLine.Type::Item;
         ReqLine."No." := ParentItem."No.";
         ReqLine."Location Code" := ToAsmBin."Location Code";

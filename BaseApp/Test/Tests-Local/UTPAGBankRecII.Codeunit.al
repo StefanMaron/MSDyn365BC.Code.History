@@ -231,7 +231,7 @@ codeunit 142080 "UT PAG Bank Rec II"
 
         // Verify: Verify Bank Rec. Line is deleted.
         Assert.IsFalse(BankRecLine.Get(BankRecLine."Bank Account No.", BankRecLine."Statement No.", BankRecLine."Record Type", BankRecLine."Line No."), 'Bank Reconciliation Line must not exist.');
-        BankRecWorksheetDyn.Close;
+        BankRecWorksheetDyn.Close();
     end;
 
     [Test]
@@ -255,7 +255,7 @@ codeunit 142080 "UT PAG Bank Rec II"
 
         // Exercise.
         BankRecWorksheetDyn.RecordAdjustments.Invoke;  // Opens BankRecWorksheetDynRequestPageHandler.
-        BankRecWorksheetDyn.Close;
+        BankRecWorksheetDyn.Close();
 
         // Verify: Verify Amount in new created Bank Rec Line for Record Type - Adjustment.
         VerifyAdjustmentBankReconciliation(BankRecLine);
@@ -431,12 +431,12 @@ codeunit 142080 "UT PAG Bank Rec II"
         CreateBankAccount(BankAccount);
         BankRecHeader."Bank Account No." := BankAccount."No.";
         BankRecHeader."Statement No." := LibraryUTUtility.GetNewCode;
-        BankRecHeader."Statement Date" := WorkDate;
+        BankRecHeader."Statement Date" := WorkDate();
         BankRecHeader.Insert();
 
         // Create Bank Rec. Line.
         BankRecLine.Cleared := true;
-        BankRecLine."Posting Date" := WorkDate;
+        BankRecLine."Posting Date" := WorkDate();
         BankRecLine."Document No." := LibraryUTUtility.GetNewCode;
         BankRecLine."Cleared Amount" := LibraryRandom.RandDec(10, 2);
         BankRecLine."Statement No." := BankRecHeader."Statement No.";
@@ -492,11 +492,11 @@ codeunit 142080 "UT PAG Bank Rec II"
         CreateBankAccount(BankAccount);
         PostedBankRecHeader."Bank Account No." := BankAccount."No.";
         PostedBankRecHeader."Statement No." := LibraryUTUtility.GetNewCode;
-        PostedBankRecHeader."Statement Date" := WorkDate;
+        PostedBankRecHeader."Statement Date" := WorkDate();
         PostedBankRecHeader.Comment := true;
         PostedBankRecHeader.Insert();
 
-        PostedBankRecLine."Posting Date" := WorkDate;
+        PostedBankRecLine."Posting Date" := WorkDate();
         PostedBankRecLine."Document No." := LibraryUTUtility.GetNewCode;
         PostedBankRecLine."Cleared Amount" := LibraryRandom.RandDec(10, 2);
         PostedBankRecLine."Bank Account No." := PostedBankRecHeader."Bank Account No.";
@@ -545,8 +545,8 @@ codeunit 142080 "UT PAG Bank Rec II"
         BankCommentSheet.OpenNew();
         BankCommentSheet.FILTER.SetFilter("Bank Account No.", BankAccountNo);
         BankCommentSheet.Comment.SetValue(LibraryUTUtility.GetNewCode);
-        BankCommentSheet.Date.SetValue(WorkDate);
-        BankCommentSheet.Close;
+        BankCommentSheet.Date.SetValue(WorkDate());
+        BankCommentSheet.Close();
     end;
 
     local procedure OpenPagePostedBankRecWorksheetToNavigate(BankAccountNo: Code[20])
@@ -557,15 +557,15 @@ codeunit 142080 "UT PAG Bank Rec II"
         Navigate.Trap;
         OpenPagePostedBankRecWorksheet(PostedBankRecWorksheet, BankAccountNo);
         PostedBankRecWorksheet.Navigate.Invoke;
-        PostedBankRecWorksheet.Close;
-        Navigate.Close;
+        PostedBankRecWorksheet.Close();
+        Navigate.Close();
     end;
 
     local procedure OpenPagePostedBankRecWorksheetToPrint(var PostedBankRecWorksheet: TestPage "Posted Bank Rec. Worksheet"; BankAccountNo: Code[20])
     begin
         OpenPagePostedBankRecWorksheet(PostedBankRecWorksheet, BankAccountNo);
         PostedBankRecWorksheet.Print.Invoke;
-        PostedBankRecWorksheet.Close;
+        PostedBankRecWorksheet.Close();
     end;
 
     local procedure OpenPagePostedBankRecWorksheet(var PostedBankRecWorksheet: TestPage "Posted Bank Rec. Worksheet"; BankAccountNo: Code[20])
@@ -599,7 +599,7 @@ codeunit 142080 "UT PAG Bank Rec II"
         PostedBankRecWorksheet.OpenEdit;
         PostedBankRecWorksheet.FILTER.SetFilter("Bank Account No.", BankAccountNo);
         PostedBankRecWorksheet."Statement No.".AssertEquals(StatementNo);
-        PostedBankRecWorksheet.Close;
+        PostedBankRecWorksheet.Close();
     end;
 
     [RequestPageHandler]

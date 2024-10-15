@@ -78,7 +78,7 @@ table 1521 "Workflow Response"
     var
         WFEventResponseCombination: Record "WF Event/Response Combination";
     begin
-        if not HasPredecessors then
+        if not HasPredecessors() then
             exit;
 
         WFEventResponseCombination.MakeEventResponseIndependent(WFEventResponseCombination.Type::Response, "Function Name");

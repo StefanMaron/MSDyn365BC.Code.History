@@ -16,10 +16,10 @@ report 1406 "Bank Account - Check Details"
             column(BankAccDateFilter; StrSubstNo(Text000, BankAccDateFilter))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
-            column(BankAccountCaption; StrSubstNo('%1: %2', "Bank Account".TableCaption, BankAccFilter))
+            column(BankAccountCaption; StrSubstNo('%1: %2', "Bank Account".TableCaption(), BankAccFilter))
             {
             }
             column(BankFilter; BankAccFilter)
@@ -66,7 +66,7 @@ report 1406 "Bank Account - Check Details"
                 DataItemTableView = SORTING("Bank Account No.", "Check Date");
                 column(AmountPrinted; AmountPrinted)
                 {
-                    AutoFormatExpression = "Check Ledger Entry".GetCurrencyCodeFromBank;
+                    AutoFormatExpression = "Check Ledger Entry".GetCurrencyCodeFromBank();
                     AutoFormatType = 1;
                 }
                 column(Amount_CheckLedgerEntry; Amount)
@@ -75,7 +75,7 @@ report 1406 "Bank Account - Check Details"
                 }
                 column(AmountVoided; AmountVoided)
                 {
-                    AutoFormatExpression = "Check Ledger Entry".GetCurrencyCodeFromBank;
+                    AutoFormatExpression = "Check Ledger Entry".GetCurrencyCodeFromBank();
                     AutoFormatType = 1;
                 }
                 column(RecordCounter; RecordCounter)
@@ -122,7 +122,7 @@ report 1406 "Bank Account - Check Details"
                 trigger OnAfterGetRecord()
                 begin
                     CheckLedgEntryExists := true;
-                    ClearAmounts;
+                    ClearAmounts();
                     if ("Entry Status" = "Entry Status"::Printed) or
                        (("Entry Status" = "Entry Status"::Posted) and ("Bank Payment Type" = "Bank Payment Type"::"Computer Check"))
                     then
@@ -138,7 +138,7 @@ report 1406 "Bank Account - Check Details"
                     RecordCounter := RecordCounter + 1;
 
                     CheckLedgEntryExists := false;
-                    ClearAmounts;
+                    ClearAmounts();
                 end;
             }
 
@@ -150,7 +150,7 @@ report 1406 "Bank Account - Check Details"
             trigger OnPreDataItem()
             begin
                 RecordCounter := 0;
-                ClearAmounts;
+                ClearAmounts();
             end;
         }
     }
@@ -187,7 +187,7 @@ report 1406 "Bank Account - Check Details"
 
     trigger OnPreReport()
     begin
-        BankAccFilter := "Bank Account".GetFilters;
+        BankAccFilter := "Bank Account".GetFilters();
         BankAccDateFilter := "Bank Account".GetFilter("Date Filter");
     end;
 

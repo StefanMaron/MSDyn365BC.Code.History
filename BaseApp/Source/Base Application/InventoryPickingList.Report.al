@@ -13,7 +13,7 @@ report 813 "Inventory Picking List"
         {
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Search Description", "Assembly BOM", "Inventory Posting Group", "Shelf No.";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(GetItemCurrentKey; GetItemCurrentKey)
@@ -160,12 +160,11 @@ report 813 "Inventory Picking List"
     begin
         GetItemCurrentKey := Item.CurrentKey;
         GetSalesLineCurrentKey := "Sales Line".CurrentKey;
-        ItemFilter := Item.GetFilters;
-        SalesLineFilter := "Sales Line".GetFilters;
+        ItemFilter := Item.GetFilters();
+        SalesLineFilter := "Sales Line".GetFilters();
     end;
 
     var
-        Text000: Label 'Sales Order Line: %1';
         Cust: Record Customer;
         ItemVariant: Record "Item Variant";
         ItemFilter: Text;
@@ -173,6 +172,8 @@ report 813 "Inventory Picking List"
         GroupTotal: Boolean;
         GetSalesLineCurrentKey: Text[250];
         GetItemCurrentKey: Text[250];
+
+        Text000: Label 'Sales Order Line: %1';
         InventoryPickingListCaptionLbl: Label 'Inventory Picking List';
         PageCaptionLbl: Label 'Page';
         CustomerCaptionLbl: Label 'Customer';

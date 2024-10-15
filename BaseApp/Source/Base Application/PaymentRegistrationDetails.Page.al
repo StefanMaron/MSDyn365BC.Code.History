@@ -5,7 +5,6 @@ page 983 "Payment Registration Details"
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = ListPlus;
-    PromotedActionCategories = 'New,Process,Report,Navigate';
     SourceTable = "Payment Registration Buffer";
 
     layout
@@ -34,7 +33,7 @@ page 983 "Payment Registration Details"
             group("Document Details")
             {
                 Caption = 'Document Details';
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -42,10 +41,10 @@ page 983 "Payment Registration Details"
 
                     trigger OnDrillDown()
                     begin
-                        Navigate;
+                        Navigate();
                     end;
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -57,7 +56,7 @@ page 983 "Payment Registration Details"
                     Editable = false;
                     ToolTip = 'Specifies the invoice transaction that the payment relates to.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -68,7 +67,7 @@ page 983 "Payment Registration Details"
             group("Payment Discount")
             {
                 Caption = 'Payment Discount';
-                field("Pmt. Discount Date"; "Pmt. Discount Date")
+                field("Pmt. Discount Date"; Rec."Pmt. Discount Date")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = PmtDiscStyle;
@@ -76,17 +75,17 @@ page 983 "Payment Registration Details"
 
                     trigger OnValidate()
                     begin
-                        SetUserInteractions;
+                        SetUserInteractions();
                     end;
                 }
-                field("Remaining Amount"; "Remaining Amount")
+                field("Remaining Amount"; Rec."Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     StyleExpr = PmtDiscStyle;
                     ToolTip = 'Specifies the amount that remains to be paid on the document.';
                 }
-                field("Rem. Amt. after Discount"; "Rem. Amt. after Discount")
+                field("Rem. Amt. after Discount"; Rec."Rem. Amt. after Discount")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -129,9 +128,6 @@ page 983 "Payment Registration Details"
                     ApplicationArea = Suite;
                     Caption = 'Finance Charge Memo';
                     Image = FinChargeMemo;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Page "Finance Charge Memo";
                     RunPageLink = "Customer No." = FIELD("Source No.");
                     RunPageMode = Create;
@@ -146,16 +142,36 @@ page 983 "Payment Registration Details"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Find entries...';
                     Image = Navigate;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                     trigger OnAction()
                     begin
-                        Navigate;
+                        Navigate();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(FinanceChargeMemo_Promoted; FinanceChargeMemo)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Navigate_Promoted; Navigate)
+                {
                 }
             }
         }
@@ -163,7 +179,7 @@ page 983 "Payment Registration Details"
 
     trigger OnAfterGetRecord()
     begin
-        SetUserInteractions;
+        SetUserInteractions();
     end;
 
     trigger OnOpenPage()
@@ -179,9 +195,9 @@ page 983 "Payment Registration Details"
 
     local procedure SetUserInteractions()
     begin
-        PmtDiscStyle := GetPmtDiscStyle;
-        DueDateStyle := GetDueDateStyle;
-        Warning := GetWarning;
+        PmtDiscStyle := GetPmtDiscStyle();
+        DueDateStyle := GetDueDateStyle();
+        Warning := GetWarning();
     end;
 }
 

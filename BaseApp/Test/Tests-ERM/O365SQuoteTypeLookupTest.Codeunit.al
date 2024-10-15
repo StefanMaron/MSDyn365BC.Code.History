@@ -80,7 +80,7 @@ codeunit 134648 "O365 S. Quote Type Lookup Test"
 
             // [THEN] The Subtype is set to service
             SalesQuote.SalesLines.FilteredTypeField.AssertEquals(TempOptionLookupBuffer."Option Caption");
-        until TempOptionLookupBuffer.Next = 0;
+        until TempOptionLookupBuffer.Next() = 0;
     end;
 
     [Test]
@@ -107,9 +107,9 @@ codeunit 134648 "O365 S. Quote Type Lookup Test"
         SalesQuote.SalesLines.FilteredTypeField.AssertEquals(Format(SalesLine.Type::Item));
 
         // [WHEN] Setting the Subtype on the Sales Line to co
-        SalesQuote.SalesLines.FilteredTypeField.SetValue(CopyStr(Format(SalesLine.FormatType), 1, 2));
+        SalesQuote.SalesLines.FilteredTypeField.SetValue(CopyStr(Format(SalesLine.FormatType()), 1, 2));
         // [THEN] The Subtype is set to Comment
-        SalesQuote.SalesLines.FilteredTypeField.AssertEquals(SalesLine.FormatType);
+        SalesQuote.SalesLines.FilteredTypeField.AssertEquals(SalesLine.FormatType());
     end;
 
     [Test]
@@ -128,12 +128,12 @@ codeunit 134648 "O365 S. Quote Type Lookup Test"
         // [WHEN] Setting the Subtype on the Sales Line to ' '
         SalesQuote.SalesLines.FilteredTypeField.SetValue(' ');
         // [THEN] The Subtype is set to Blank
-        SalesQuote.SalesLines.FilteredTypeField.AssertEquals(Format(SalesLine.FormatType));
+        SalesQuote.SalesLines.FilteredTypeField.AssertEquals(Format(SalesLine.FormatType()));
 
         // [WHEN] Setting the Subtype on the Sales Line to ''
         SalesQuote.SalesLines.FilteredTypeField.SetValue('');
         // [THEN] The Subtype is set to Blank
-        SalesQuote.SalesLines.FilteredTypeField.AssertEquals(Format(SalesLine.FormatType));
+        SalesQuote.SalesLines.FilteredTypeField.AssertEquals(Format(SalesLine.FormatType()));
     end;
 
     [Test]
@@ -216,7 +216,7 @@ codeunit 134648 "O365 S. Quote Type Lookup Test"
         TempOptionLookupBuffer.FindSet();
         repeat
             OptionLookupList.GotoKey(TempOptionLookupBuffer."Option Caption");
-        until TempOptionLookupBuffer.Next = 0;
+        until TempOptionLookupBuffer.Next() = 0;
 
         OptionLookupList.GotoKey(LibraryVariableStorage.DequeueText);
         OptionLookupList.OK.Invoke;

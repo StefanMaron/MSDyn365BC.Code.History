@@ -98,7 +98,7 @@ codeunit 137931 "SCM - Movement"
         Delta := 1;
         for Index := 1 to ArrayLen(LotNo) do begin
             LotNo[Index] := LibraryUtility.GenerateGUID();
-            ExpirationDate[Index] := CalcDate(StrSubstNo('<%1M>', Index), WorkDate);
+            ExpirationDate[Index] := CalcDate(StrSubstNo('<%1M>', Index), WorkDate());
         end;
 
         // [GIVEN] Item had Item Tracking Code with Lot Tracking and Man. Expir. Date Entry Reqd.
@@ -156,11 +156,11 @@ codeunit 137931 "SCM - Movement"
         // [GIVEN] Changed Qty. to Handle in the Lines, so that 16 PCS are handled
         WhseWorksheetLine.SetRange("Location Code", LocationCode);
         WhseWorksheetLine.FindSet();
-        WhseWorksheetLine.Next;
+        WhseWorksheetLine.Next();
         repeat
             WhseWorksheetLine.Validate("Qty. to Handle", WhseWorksheetLine."Qty. to Handle" - Delta);
             WhseWorksheetLine.Modify();
-        until WhseWorksheetLine.Next = 0;
+        until WhseWorksheetLine.Next() = 0;
 
         // [GIVEN] Created Movement (3 Take Lines: Lot "L2", Bin "B1" with 2 PCS, Lot "L3", Bin "B2" with 10 PCS, Lot "L4", Bin "B3" with 4 PCS)
         // [GIVEN] Registered Movement
@@ -221,7 +221,7 @@ codeunit 137931 "SCM - Movement"
         end;
         LibraryWarehouse.UpdateWarehouseStockOnBin(Bin, ItemNo, QtyLot[1] + QtyLot[2], true);
         Item.Get(ItemNo);
-        LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate, '');
+        LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate(), '');
 
         // [GIVEN] Warehouse Movement Worksheet Line with 1 PCS of the Item with From-Bin = "B" and Lot "L1"
         LibraryWarehouse.CreateMovementWorksheetLine(WhseWorksheetLine, Bin, ToBin, ItemNo, '', 1);
@@ -292,7 +292,7 @@ codeunit 137931 "SCM - Movement"
         end;
         LibraryWarehouse.UpdateWarehouseStockOnBin(Bin, ItemNo, QtyLot[1] + QtyLot[2], true);
         Item.Get(ItemNo);
-        LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate, '');
+        LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate(), '');
 
         // [GIVEN] Warehouse Movement Worksheet Line with 1 PCS of the Item with From-Bin = "B" and Lot "L1"
         LibraryWarehouse.CreateMovementWorksheetLine(WhseWorksheetLine, Bin, ToBin, ItemNo, '', 1);
@@ -374,7 +374,7 @@ codeunit 137931 "SCM - Movement"
         end;
         LibraryWarehouse.UpdateWarehouseStockOnBin(Bin, ItemNo, QtyPackage[1] + QtyPackage[2], true);
         Item.Get(ItemNo);
-        LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate, '');
+        LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate(), '');
 
         // [GIVEN] Warehouse Movement Worksheet Line with 1 PCS of the Item with From-Bin = "B" and Lot "L1"
         LibraryWarehouse.CreateMovementWorksheetLine(WhseWorksheetLine, Bin, ToBin, ItemNo, '', 1);
@@ -504,7 +504,7 @@ codeunit 137931 "SCM - Movement"
             LibraryVariableStorage.Enqueue(QtyLot);
             LibraryWarehouse.UpdateWarehouseStockOnBin(FromBin[i], Item."No.", QtyLot, true);
         end;
-        LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate, '');
+        LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate(), '');
 
         // [GIVEN] Open movement worksheet and create two lines, one per bin, assign "Lot-1" and "Lot-2" respectively.
         for i := 1 to ArrayLen(LotNo) do begin
@@ -570,7 +570,7 @@ codeunit 137931 "SCM - Movement"
             LibraryVariableStorage.Enqueue(QtyPackage);
             LibraryWarehouse.UpdateWarehouseStockOnBin(FromBin[i], Item."No.", QtyPackage, true);
         end;
-        LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate, '');
+        LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate(), '');
 
         // [GIVEN] Open movement worksheet and create two lines, one per bin, assign "Package-1" and "Package-2" respectively.
         for i := 1 to ArrayLen(PackageNo) do begin
@@ -649,7 +649,8 @@ codeunit 137931 "SCM - Movement"
         BinContent.SetRange("Location Code", LocationCode);
         BinContent.SetRange("Bin Code", Bin.Code);
 
-        LibraryWarehouse.WhseGetBinContent(BinContent, WhseWorksheetLine, WhseInternalPutawayHeader, 0);
+        LibraryWarehouse.WhseGetBinContent(
+		    BinContent, WhseWorksheetLine, WhseInternalPutawayHeader, "Warehouse Destination Type 2"::MovementWorksheet);
 
         // [WhEN] Verify item tracking in warehouse worksheet line
         WhseWorksheetLine.SetRange("Item No.", Item."No.");
@@ -1047,7 +1048,8 @@ codeunit 137931 "SCM - Movement"
         UpdateExpirationDateOnWhseItemTrackingLine(ItemNo, LotNo, ExpirationDate);
 
         // [WHEN] Create warehouse movement from the movement worksheet.
-        LibraryWarehouse.CreateWhseMovement(WhseWorksheetLine.Name, LocationCode, 0, false, false);
+        LibraryWarehouse.CreateWhseMovement(
+            WhseWorksheetLine.Name, LocationCode, "Whse. Activity Sorting Method"::None, false, false);
 
         // [THEN] A new warehouse movement is created.
         // [THEN] Lot no. = "L" and expiration date = "31/12/YY" on the movement line.
@@ -1390,7 +1392,7 @@ codeunit 137931 "SCM - Movement"
         for Index := 1 to LibraryVariableStorage.DequeueInteger do begin
             ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
             ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
-            ItemTrackingLines.Next;
+            ItemTrackingLines.Next();
         end;
         ItemTrackingLines.OK.Invoke;
     end;

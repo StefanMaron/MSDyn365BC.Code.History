@@ -1,8 +1,7 @@
-﻿page 5200 "Employee Card"
+page 5200 "Employee Card"
 {
     Caption = 'Employee Card';
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Employee,Navigate';
     SourceTable = Employee;
 
     layout
@@ -12,7 +11,7 @@
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     Importance = Standard;
@@ -21,28 +20,28 @@
 
                     trigger OnAssistEdit()
                     begin
-                        AssistEdit;
+                        AssistEdit();
                     end;
                 }
-                field("First Name"; "First Name")
+                field("First Name"; Rec."First Name")
                 {
                     ApplicationArea = BasicHR;
                     Importance = Promoted;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the employee''s first name.';
                 }
-                field("Middle Name"; "Middle Name")
+                field("Middle Name"; Rec."Middle Name")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the employee''s middle name.';
                 }
-                field("Last Name"; "Last Name")
+                field("Last Name"; Rec."Last Name")
                 {
                     ApplicationArea = BasicHR;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the employee''s last name.';
                 }
-                field("Job Title"; "Job Title")
+                field("Job Title"; Rec."Job Title")
                 {
                     ApplicationArea = BasicHR;
                     Importance = Promoted;
@@ -53,7 +52,7 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the employee''s initials.';
                 }
-                field("Search Name"; "Search Name")
+                field("Search Name"; Rec."Search Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an alternate name that you can use to search for the record in question when you cannot remember the value in the Name field.';
@@ -63,25 +62,25 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the employee''s gender.';
                 }
-                field("Phone No.2"; "Phone No.")
+                field("Phone No.2"; Rec."Phone No.")
                 {
                     ApplicationArea = BasicHR;
                     Caption = 'Company Phone No.';
                     ToolTip = 'Specifies the employee''s telephone number.';
                 }
-                field("Company E-Mail"; "Company E-Mail")
+                field("Company E-Mail"; Rec."Company E-Mail")
                 {
                     ApplicationArea = BasicHR;
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies the employee''s email address at the company.';
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = BasicHR;
                     Importance = Additional;
                     ToolTip = 'Specifies when this record was last modified.';
                 }
-                field("Privacy Blocked"; "Privacy Blocked")
+                field("Privacy Blocked"; Rec."Privacy Blocked")
                 {
                     ApplicationArea = BasicHR;
                     Importance = Additional;
@@ -99,7 +98,7 @@
                         ApplicationArea = BasicHR;
                         ToolTip = 'Specifies the employee''s address.';
                     }
-                    field("Address 2"; "Address 2")
+                    field("Address 2"; Rec."Address 2")
                     {
                         ApplicationArea = BasicHR;
                         ToolTip = 'Specifies additional address information.';
@@ -119,12 +118,12 @@
                             ToolTip = 'Specifies the county of the employee.';
                         }
                     }
-                    field("Post Code"; "Post Code")
+                    field("Post Code"; Rec."Post Code")
                     {
                         ApplicationArea = BasicHR;
                         ToolTip = 'Specifies the postal code.';
                     }
-                    field("Country/Region Code"; "Country/Region Code")
+                    field("Country/Region Code"; Rec."Country/Region Code")
                     {
                         ApplicationArea = BasicHR;
                         ToolTip = 'Specifies the country/region of the address.';
@@ -146,14 +145,14 @@
                         trigger OnDrillDown()
                         begin
                             CurrPage.Update(true);
-                            DisplayMap;
+                            DisplayMap();
                         end;
                     }
                 }
                 group(Control7)
                 {
                     ShowCaption = false;
-                    field("Mobile Phone No."; "Mobile Phone No.")
+                    field("Mobile Phone No."; Rec."Mobile Phone No.")
                     {
                         ApplicationArea = BasicHR;
                         Caption = 'Private Phone No.';
@@ -171,31 +170,31 @@
                         Importance = Promoted;
                         ToolTip = 'Specifies the employee''s telephone extension.';
                     }
-                    field("Phone No."; "Phone No.")
+                    field("Phone No."; Rec."Phone No.")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Direct Phone No.';
                         Importance = Promoted;
                         ToolTip = 'Specifies the employee''s telephone number.';
                     }
-                    field("E-Mail"; "E-Mail")
+                    field("E-Mail"; Rec."E-Mail")
                     {
                         ApplicationArea = BasicHR;
                         Caption = 'Private Email';
                         Importance = Promoted;
                         ToolTip = 'Specifies the employee''s private email address.';
                     }
-                    field("Alt. Address Code"; "Alt. Address Code")
+                    field("Alt. Address Code"; Rec."Alt. Address Code")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies a code for an alternate address.';
                     }
-                    field("Alt. Address Start Date"; "Alt. Address Start Date")
+                    field("Alt. Address Start Date"; Rec."Alt. Address Start Date")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the starting date when the alternate address is valid.';
                     }
-                    field("Alt. Address End Date"; "Alt. Address End Date")
+                    field("Alt. Address End Date"; Rec."Alt. Address End Date")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the last day when the alternate address is valid.';
@@ -205,7 +204,7 @@
             group(Administration)
             {
                 Caption = 'Administration';
-                field("Employment Date"; "Employment Date")
+                field("Employment Date"; Rec."Employment Date")
                 {
                     ApplicationArea = BasicHR;
                     Importance = Promoted;
@@ -217,42 +216,42 @@
                     Importance = Promoted;
                     ToolTip = 'Specifies the employment status of the employee.';
                 }
-                field("Inactive Date"; "Inactive Date")
+                field("Inactive Date"; Rec."Inactive Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the employee became inactive, due to disability or maternity leave, for example.';
                 }
-                field("Cause of Inactivity Code"; "Cause of Inactivity Code")
+                field("Cause of Inactivity Code"; Rec."Cause of Inactivity Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the cause of inactivity by the employee.';
                 }
-                field("Termination Date"; "Termination Date")
+                field("Termination Date"; Rec."Termination Date")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the date when the employee was terminated, due to retirement or dismissal, for example.';
                 }
-                field("Grounds for Term. Code"; "Grounds for Term. Code")
+                field("Grounds for Term. Code"; Rec."Grounds for Term. Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a termination code for the employee who has been terminated.';
                 }
-                field("Emplymt. Contract Code"; "Emplymt. Contract Code")
+                field("Emplymt. Contract Code"; Rec."Emplymt. Contract Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the employment contract code for the employee.';
                 }
-                field("Statistics Group Code"; "Statistics Group Code")
+                field("Statistics Group Code"; Rec."Statistics Group Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a statistics group code to assign to the employee for statistical purposes.';
                 }
-                field("Resource No."; "Resource No.")
+                field("Resource No."; Rec."Resource No.")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies a resource number for the employee.';
                 }
-                field("Salespers./Purch. Code"; "Salespers./Purch. Code")
+                field("Salespers./Purch. Code"; Rec."Salespers./Purch. Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a salesperson or purchaser code for the employee.';
@@ -261,24 +260,24 @@
             group(Personal)
             {
                 Caption = 'Personal';
-                field("Birth Date"; "Birth Date")
+                field("Birth Date"; Rec."Birth Date")
                 {
                     ApplicationArea = BasicHR;
                     Importance = Promoted;
                     ToolTip = 'Specifies the employee''s date of birth.';
                 }
-                field("Social Security No."; "Social Security No.")
+                field("Social Security No."; Rec."Social Security No.")
                 {
                     ApplicationArea = BasicHR;
                     Importance = Promoted;
                     ToolTip = 'Specifies the social security number of the employee.';
                 }
-                field("Union Code"; "Union Code")
+                field("Union Code"; Rec."Union Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the employee''s labor union membership code.';
                 }
-                field("Union Membership No."; "Union Membership No.")
+                field("Union Membership No."; Rec."Union Membership No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the employee''s labor union membership number.';
@@ -287,23 +286,23 @@
             group(Payments)
             {
                 Caption = 'Payments';
-                field("Employee Posting Group"; "Employee Posting Group")
+                field("Employee Posting Group"; Rec."Employee Posting Group")
                 {
                     ApplicationArea = BasicHR;
                     LookupPageID = "Employee Posting Groups";
                     ToolTip = 'Specifies the employee''s type to link business transactions made for the employee with the appropriate account in the general ledger.';
                 }
-                field("Application Method"; "Application Method")
+                field("Application Method"; Rec."Application Method")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies how to apply payments to entries for this employee.';
                 }
-                field("Bank Branch No."; "Bank Branch No.")
+                field("Bank Branch No."; Rec."Bank Branch No.")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies a number of the bank branch.';
                 }
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
@@ -313,7 +312,7 @@
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                 }
-                field("SWIFT Code"; "SWIFT Code")
+                field("SWIFT Code"; Rec."SWIFT Code")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the SWIFT code (international bank identifier code) of the bank where the employee has the account.';
@@ -322,12 +321,12 @@
             group("Electronic Document")
             {
                 Caption = 'Electronic Document';
-                field("RFC No."; "RFC No.")
+                field("RFC No."; Rec."RFC No.")
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the federal registration number of the operator of the federal freight transport that the employee uses to transfer goods or merchandise.';
                 }
-                field("License No."; "License No.")
+                field("License No."; Rec."License No.")
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the folio number of the license or permit granted to the operator of the federal freight motor carrier in which the goods or merchandise are moved.';
@@ -374,8 +373,6 @@
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Human Resource Comment Sheet";
                     RunPageLink = "Table Name" = CONST(Employee),
                                   "No." = FIELD("No.");
@@ -386,9 +383,6 @@
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Default Dimensions";
                     RunPageLink = "Table ID" = CONST(5200),
                                   "No." = FIELD("No.");
@@ -400,8 +394,6 @@
                     ApplicationArea = BasicHR;
                     Caption = '&Picture';
                     Image = Picture;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Employee Picture";
                     RunPageLink = "No." = FIELD("No.");
                     ToolTip = 'View or add a picture of the employee or, for example, the company''s logo.';
@@ -438,9 +430,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = '&Confidential Information';
                     Image = Lock;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page "Confidential Information";
                     RunPageLink = "Employee No." = FIELD("No.");
                     ToolTip = 'Open the list of any confidential information that is registered for the employee.';
@@ -450,8 +439,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Q&ualifications';
                     Image = Certificate;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Employee Qualifications";
                     RunPageLink = "Employee No." = FIELD("No.");
                     ToolTip = 'Open the list of qualifications that are registered for the employee.';
@@ -461,9 +448,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'A&bsences';
                     Image = Absence;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page "Employee Absences";
                     RunPageLink = "Employee No." = FIELD("No.");
                     ToolTip = 'View absence information for the employee.';
@@ -505,9 +489,6 @@
                     ApplicationArea = BasicHR;
                     Caption = 'Ledger E&ntries';
                     Image = VendorLedger;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Employee Ledger Entries";
                     RunPageLink = "Employee No." = FIELD("No.");
                     RunPageView = SORTING("Employee No.")
@@ -520,8 +501,6 @@
                     ApplicationArea = All;
                     Caption = 'Attachments';
                     Image = Attach;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
 
                     trigger OnAction()
@@ -531,7 +510,7 @@
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
                 action(PayEmployee)
@@ -539,9 +518,6 @@
                     ApplicationArea = BasicHR;
                     Caption = 'Pay Employee';
                     Image = SuggestVendorPayments;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Page "Employee Ledger Entries";
                     RunPageLink = "Employee No." = FIELD("No."),
                                   "Remaining Amount" = FILTER(< 0),
@@ -553,9 +529,6 @@
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Contact';
                     Image = ContactPerson;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ToolTip = 'View or edit detailed information about the contact person at the employee.';
 
                     trigger OnAction()
@@ -633,8 +606,6 @@
                 Caption = 'Send Email';
                 Image = Email;
                 ToolTip = 'Send an email to this employee.';
-                Promoted = true;
-                PromotedCategory = Process;
 
                 trigger OnAction()
                 var
@@ -648,6 +619,61 @@
                         TempEmailitem."Send to" := Rec."E-Mail";
                     TempEmailItem.Send(false, EmailScenario::Default);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(PayEmployee_Promoted; PayEmployee)
+                {
+                }
+                actionref(Email_Promoted; Email)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Employee', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref(Attachments_Promoted; Attachments)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("&Confidential Information_Promoted"; "&Confidential Information")
+                {
+                }
+                actionref("A&bsences_Promoted"; "A&bsences")
+                {
+                }
+                actionref(Contact_Promoted; Contact)
+                {
+                }
+                actionref("&Picture_Promoted"; "&Picture")
+                {
+                }
+                actionref("Q&ualifications_Promoted"; "Q&ualifications")
+                {
+                }
             }
         }
     }
@@ -686,11 +712,12 @@
     end;
 
     var
-        ShowMapLbl: Label 'Show on Map';
         FormatAddress: Codeunit "Format Address";
         NoFieldVisible: Boolean;
         IsCountyVisible: Boolean;
         NewMode: Boolean;
+
+        ShowMapLbl: Label 'Show on Map';
 
     local procedure SetNoFieldVisible()
     var

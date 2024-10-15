@@ -16,55 +16,55 @@ page 36720 "Bank Rec. Worksheet Dyn"
             group(General)
             {
                 Caption = 'General';
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the bank account the reconciliation applies to.';
                 }
-                field("Statement No."; "Statement No.")
+                field("Statement No."; Rec."Statement No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the statement number to be reconciled.';
                 }
-                field("Statement Date"; "Statement Date")
+                field("Statement Date"; Rec."Statement Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the as-of date of the statement. All G/L balances will be calculated based upon this date.';
                 }
-                field("G/L Balance (LCY)"; "G/L Balance (LCY)")
+                field("G/L Balance (LCY)"; Rec."G/L Balance (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the general ledger balance for the assigned account number.';
                 }
-                field("G/L Balance"; "G/L Balance")
+                field("G/L Balance"; Rec."G/L Balance")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the general ledger balance for the assigned account number.';
                 }
-                field("""Positive Adjustments"" - ""Negative Bal. Adjustments"""; "Positive Adjustments" - "Negative Bal. Adjustments")
+                field("""Positive Adjustments"" - ""Negative Bal. Adjustments"""; Rec."Positive Adjustments" - "Negative Bal. Adjustments")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = '+ Positive Adjustments';
                     Editable = false;
                     ToolTip = 'Specifies the total amount of positive adjustments for the bank statement.';
                 }
-                field("""G/L Balance"" + (""Positive Adjustments"" - ""Negative Bal. Adjustments"")"; "G/L Balance" + ("Positive Adjustments" - "Negative Bal. Adjustments"))
+                field("""G/L Balance"" + (""Positive Adjustments"" - ""Negative Bal. Adjustments"")"; Rec."G/L Balance" + ("Positive Adjustments" - "Negative Bal. Adjustments"))
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Subtotal';
                     Editable = false;
                     ToolTip = 'Specifies a subtotal amount for the posted worksheet. The subtotal is calculated by using the general ledger balance and any positive or negative adjustments.';
                 }
-                field("""Negative Adjustments"" - ""Positive Bal. Adjustments"""; "Negative Adjustments" - "Positive Bal. Adjustments")
+                field("""Negative Adjustments"" - ""Positive Bal. Adjustments"""; Rec."Negative Adjustments" - "Positive Bal. Adjustments")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = '- Negative Adjustments';
                     Editable = false;
                     ToolTip = 'Specifies the total of the negative adjustment lines for the bank statement.';
                 }
-                field("Ending G/L Balance"; "G/L Balance" + ("Positive Adjustments" - "Negative Bal. Adjustments") + ("Negative Adjustments" - "Positive Bal. Adjustments"))
+                field("Ending G/L Balance"; Rec."G/L Balance" + ("Positive Adjustments" - "Negative Bal. Adjustments") + ("Negative Adjustments" - "Positive Bal. Adjustments"))
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ending G/L Balance';
@@ -78,37 +78,37 @@ page 36720 "Bank Rec. Worksheet Dyn"
                     Editable = false;
                     ToolTip = 'Specifies the difference between the Amount field and the Cleared Amount field.';
                 }
-                field("Cleared With./Chks. Per Stmnt."; "Cleared With./Chks. Per Stmnt.")
+                field("Cleared With./Chks. Per Stmnt."; Rec."Cleared With./Chks. Per Stmnt.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of withdrawals or checks that cleared the bank for this statement.';
                 }
-                field("Cleared Inc./Dpsts. Per Stmnt."; "Cleared Inc./Dpsts. Per Stmnt.")
+                field("Cleared Inc./Dpsts. Per Stmnt."; Rec."Cleared Inc./Dpsts. Per Stmnt.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of increases or deposits that cleared the bank for this statement.';
                 }
-                field("Statement Balance"; "Statement Balance")
+                field("Statement Balance"; Rec."Statement Balance")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Balance on Statement';
                     ToolTip = 'Specifies the amount entered by the operator from the balance found on the bank statement.';
                 }
-                field("Outstanding Deposits"; "Outstanding Deposits")
+                field("Outstanding Deposits"; Rec."Outstanding Deposits")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = '+ Outstanding Deposits';
                     Editable = false;
                     ToolTip = 'Specifies the total of outstanding deposits of type Increase for the bank statement.';
                 }
-                field("""Statement Balance"" + ""Outstanding Deposits"""; "Statement Balance" + "Outstanding Deposits")
+                field("""Statement Balance"" + ""Outstanding Deposits"""; Rec."Statement Balance" + "Outstanding Deposits")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Subtotal';
                     Editable = false;
                     ToolTip = 'Specifies a subtotal amount for the posted worksheet. The subtotal is calculated by using the general ledger balance and any positive or negative adjustments.';
                 }
-                field("Outstanding Checks"; "Outstanding Checks")
+                field("Outstanding Checks"; Rec."Outstanding Checks")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = '- Outstanding Checks';
@@ -122,7 +122,7 @@ page 36720 "Bank Rec. Worksheet Dyn"
                     Editable = false;
                     ToolTip = 'Specifies the sum of values in the Balance on Statement field, plus the Outstanding Deposits field, minus the Outstanding Checks field.';
                 }
-                field("Currency Factor"; "Currency Factor")
+                field("Currency Factor"; Rec."Currency Factor")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies currency conversions when posting adjustments for bank accounts with a foreign currency code assigned.';
@@ -259,7 +259,7 @@ page 36720 "Bank Rec. Worksheet Dyn"
 
                     trigger OnAction()
                     begin
-                        RecalcGLBalance;
+                        RecalcGLBalance();
                     end;
                 }
                 separator(Action1480000)
@@ -288,9 +288,6 @@ page 36720 "Bank Rec. Worksheet Dyn"
                     ApplicationArea = Basic, Suite;
                     Caption = 'P&ost';
                     Image = Post;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
@@ -305,9 +302,6 @@ page 36720 "Bank Rec. Worksheet Dyn"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
@@ -319,16 +313,30 @@ page 36720 "Bank Rec. Worksheet Dyn"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("P&ost_Promoted"; "P&ost")
+                {
+                }
+                actionref("Post and &Print_Promoted"; "Post and &Print")
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
-        AfterGetCurrentRecord;
+        AfterGetCurrentRecord();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        AfterGetCurrentRecord;
+        AfterGetCurrentRecord();
     end;
 
     var
@@ -360,25 +368,25 @@ page 36720 "Bank Rec. Worksheet Dyn"
         end;
         ProcessLines.SetTableView(Rec);
         ProcessLines.RunModal();
-        DoRecalc;
+        DoRecalc();
     end;
 
     procedure RecalcGLBalance()
     begin
         if Confirm(Text001, true) then
-            DoRecalc;
+            DoRecalc();
     end;
 
     procedure DoRecalc()
     begin
-        CalculateBalance;
+        CalculateBalance();
         CurrPage.Update();
     end;
 
     local procedure AfterGetCurrentRecord()
     begin
         xRec := Rec;
-        SetupRecord;
+        SetupRecord();
     end;
 }
 

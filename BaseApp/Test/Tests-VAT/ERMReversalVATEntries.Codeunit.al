@@ -224,7 +224,7 @@ codeunit 134126 "ERM Reversal VAT Entries"
         VATEntry.FindSet();
         repeat
             Amount += VATEntry.Amount;
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure UpdateRevChrgVATPostingSetup(ReverseChrgVATAcc: Code[20]; AdjustforPaymentDiscount: Boolean)
@@ -247,7 +247,7 @@ codeunit 134126 "ERM Reversal VAT Entries"
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY, StrSubstNo(AmountError, GLEntry.FieldCaption(Amount),
-            Amount, GLEntry.TableCaption, GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
+            Amount, GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
     end;
 
     local procedure VerifyCustomerAndGLEntry(DoumentNo: Code[20]; BalAccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
@@ -257,7 +257,7 @@ codeunit 134126 "ERM Reversal VAT Entries"
         AdditionalCurrencyAmount: Decimal;
     begin
         AdditionalCurrencyAmount :=
-          Round(LibraryERM.ConvertCurrency(Amount, '', LibraryERM.GetAddReportingCurrency, WorkDate));
+          Round(LibraryERM.ConvertCurrency(Amount, '', LibraryERM.GetAddReportingCurrency, WorkDate()));
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DoumentNo);
         CustLedgerEntry.CalcFields("Remaining Amount");
         CustLedgerEntry.TestField("Remaining Amount", 0);
@@ -269,7 +269,7 @@ codeunit 134126 "ERM Reversal VAT Entries"
         Assert.AreNearlyEqual(
           AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountError, GLEntry.FieldCaption("Additional-Currency Amount"), AdditionalCurrencyAmount,
-            GLEntry.TableCaption, GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
+            GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
     end;
 
     [ConfirmHandler]

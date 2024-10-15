@@ -165,7 +165,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         Assert.IsFalse(
           CommentLine.FindFirst,
           StrSubstNo(
-            CommentLineExistError, CommentLine.TableCaption, CommentLine.FieldCaption("No."), CommentLine."No.",
+            CommentLineExistError, CommentLine.TableCaption(), CommentLine.FieldCaption("No."), CommentLine."No.",
             CommentLine.FieldCaption("Line No."), CommentLine."Line No."));
     end;
 
@@ -230,7 +230,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         Insurance.Delete(true);
 
         // 3. Verify: Verify Insurance successfully deleted.
-        Assert.IsFalse(Insurance.Get(Insurance."No."), StrSubstNo(RecordExistError, Insurance.TableCaption, Insurance."No."));
+        Assert.IsFalse(Insurance.Get(Insurance."No."), StrSubstNo(RecordExistError, Insurance.TableCaption(), Insurance."No."));
     end;
 
     [Test]
@@ -311,7 +311,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         Assert.AreEqual(
           0, GetNumberCoverageLedgerEntries(InsuranceRegister."From Entry No.", InsuranceRegister."To Entry No."),
           StrSubstNo(
-            CommentLineExistError, InsCoverageLedgerEntry.TableCaption, InsuranceRegister.FieldCaption("From Entry No."),
+            CommentLineExistError, InsCoverageLedgerEntry.TableCaption(), InsuranceRegister.FieldCaption("From Entry No."),
             InsuranceRegister."From Entry No.",
             InsuranceRegister.FieldCaption("To Entry No."), InsuranceRegister."To Entry No."));
     end;
@@ -449,9 +449,9 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         // Take Random Values for Different fields.
         SelectFAJournalBatch(FAJournalBatch);
         LibraryFixedAsset.CreateFAJournalLine(FAJournalLine, FAJournalBatch."Journal Template Name", FAJournalBatch.Name);
-        FAJournalLine.Validate("Document No.", NoSeriesManagement.GetNextNo(FAJournalBatch."No. Series", WorkDate, false));
+        FAJournalLine.Validate("Document No.", NoSeriesManagement.GetNextNo(FAJournalBatch."No. Series", WorkDate(), false));
         FAJournalLine.Validate("Depreciation Book Code", DepreciationBookCode);
-        FAJournalLine.Validate("FA Posting Date", WorkDate);
+        FAJournalLine.Validate("FA Posting Date", WorkDate());
         FAJournalLine.Validate("FA No.", FixedAssetNo);
         FAJournalLine.Validate(Amount, GenLineAmount);
         FAJournalLine.Validate("FA Posting Type", FAJournalLine."FA Posting Type"::"Acquisition Cost");
@@ -520,10 +520,10 @@ codeunit 134452 "ERM Fixed Assets Insurance"
     begin
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FANo, DepreciationBookCode);
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroupCode);
-        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate);
+        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate());
 
         // Depreciation Ending Date greater than Depreciation Starting Date, Using the Random Number for the Year.
-        FADepreciationBook.Validate("Depreciation Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));
+        FADepreciationBook.Validate("Depreciation Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate()));
         FADepreciationBook.Modify(true);
     end;
 
@@ -561,7 +561,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
     var
         InsuranceJournalLine: Record "Insurance Journal Line";
     begin
-        CreateInsuranceJournalLine(InsuranceJournalLine, InsuranceJournalBatch, FixedAssetNo, InsuranceNo, WorkDate);
+        CreateInsuranceJournalLine(InsuranceJournalLine, InsuranceJournalBatch, FixedAssetNo, InsuranceNo, WorkDate());
         Amount := InsuranceJournalLine.Amount;
         LibraryFixedAsset.PostInsuranceJournal(InsuranceJournalLine);
         LibraryUtility.GenerateGUID();  // Hack to fix problem with Generate GUID.
@@ -647,7 +647,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
 
         // Using the Random Number Generator for New Index Figure.
         IndexFigure := LibraryRandom.RandInt(10);
-        IndexInsurance.InitializeRequest(No, No, WorkDate, IndexFigure);
+        IndexInsurance.InitializeRequest(No, No, WorkDate(), IndexFigure);
         IndexInsurance.UseRequestPage(false);
         IndexInsurance.Run();
     end;
@@ -713,7 +713,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
             InsCoverageLedgerEntry.TestField("Document Type", InsCoverageLedgerEntry."Document Type"::Invoice);
             InsCoverageLedgerEntry.TestField(Amount, Amount[Count]);
             Count += 1;
-        until InsCoverageLedgerEntry.Next = 0;
+        until InsCoverageLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyDefaultDimension(DimensionValue: Record "Dimension Value"; InsuranceNo: Code[20])
@@ -775,7 +775,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         DimensionSelectionMultiple.First;
         repeat
             DimensionSelectionMultiple.Selected.SetValue(true);
-        until not DimensionSelectionMultiple.Next;
+        until not DimensionSelectionMultiple.Next();
         DimensionSelectionMultiple.OK.Invoke;
     end;
 

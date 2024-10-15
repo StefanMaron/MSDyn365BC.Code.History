@@ -40,7 +40,7 @@ table 9802 "Permission Set Link"
 
     procedure SourceHashHasChanged(): Boolean
     begin
-        MarkWithChangedSource;
+        MarkWithChangedSource();
         exit(not IsEmpty);
     end;
 
@@ -53,9 +53,9 @@ table 9802 "Permission Set Link"
             repeat
                 if PermissionSet.Get("Permission Set ID") then begin
                     "Source Hash" := PermissionManager.GenerateHashForPermissionSet(PermissionSet."Role ID");
-                    Modify;
+                    Modify();
                 end else
-                    Delete;
+                    Delete();
             until Next() = 0;
     end;
 

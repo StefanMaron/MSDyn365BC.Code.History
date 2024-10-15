@@ -52,11 +52,11 @@ codeunit 5323 "Exchange Add-in Setup"
     begin
         Session.LogMessage('0000BX8', TryInitializeWithEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
 
-        AccessToken := AzureADMgt.GetAccessToken(AzureADMgt.GetO365Resource, AzureADMgt.GetO365ResourceName, false);
+        AccessToken := AzureADMgt.GetAccessToken(AzureADMgt.GetO365Resource(), AzureADMgt.GetO365ResourceName(), false);
 
         if AccessToken <> '' then begin
-            ExchangeWebServicesServer.InitializeWithOAuthToken(AccessToken, ExchangeWebServicesServer.GetEndpoint);
-            if ValidateCredentials then begin
+            ExchangeWebServicesServer.InitializeWithOAuthToken(AccessToken, ExchangeWebServicesServer.GetEndpoint());
+            if ValidateCredentials() then begin
                 Session.LogMessage('0000BX9', InitializedWithOAuthTokenTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
                 exit;
             end;
@@ -89,18 +89,18 @@ codeunit 5323 "Exchange Add-in Setup"
         ProgressWindow.Update(1, AutodiscoverMsg);
 
         // Production O365 endpoint
-        Initialized := ExchangeWebServicesServer.Initialize(Email, ExchangeWebServicesServer.GetEndpoint, WebCredentials, false) and
-          ValidateCredentials;
+        Initialized := ExchangeWebServicesServer.Initialize(Email, ExchangeWebServicesServer.GetEndpoint(), WebCredentials, false) and
+          ValidateCredentials();
         ErrorText := GetLastErrorText;
 
         // Autodiscover endpoint (can be slow)
         if not Initialized then begin
             Session.LogMessage('0000BXB', TryAutodiscoverEndpointTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
-            Initialized := ExchangeWebServicesServer.Initialize(Email, '', WebCredentials, true) and ValidateCredentials;
+            Initialized := ExchangeWebServicesServer.Initialize(Email, '', WebCredentials, true) and ValidateCredentials();
             ErrorText := GetLastErrorText;
         end;
 
-        ProgressWindow.Close;
+        ProgressWindow.Close();
 
         if not Initialized then begin
             Session.LogMessage('0000BXC', NotInitializedWithCredentialsTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
@@ -138,13 +138,13 @@ codeunit 5323 "Exchange Add-in Setup"
 
         if CredentialsRequired(TempOfficeAdminCredentials.Email) or (TempOfficeAdminCredentials.Email = '') then begin
             Session.LogMessage('0000BXG', CredentialsRequiredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
-            ClearLastError;
+            ClearLastError();
             repeat
                 if PAGE.RunModal(PAGE::"Office 365 Credentials", TempOfficeAdminCredentials) <> ACTION::LookupOK then begin
                     Session.LogMessage('0000BXH', CredentialsPromptCancelledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
                     exit(false);
                 end;
-            until InitializeServiceWithCredentials(TempOfficeAdminCredentials.Email, TempOfficeAdminCredentials.GetPassword);
+            until InitializeServiceWithCredentials(TempOfficeAdminCredentials.Email, TempOfficeAdminCredentials.GetPassword());
         end;
 
         exit(true);
@@ -167,7 +167,7 @@ codeunit 5323 "Exchange Add-in Setup"
         CompanyInformationMgt: Codeunit "Company Information Mgt.";
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        exit(CompanyInformationMgt.IsDemoCompany and EnvironmentInfo.IsSaaS);
+        exit(CompanyInformationMgt.IsDemoCompany() and EnvironmentInfo.IsSaaS());
     end;
 
     [Scope('OnPrem')]
@@ -182,11 +182,11 @@ codeunit 5323 "Exchange Add-in Setup"
         Session.LogMessage('0000BXJ', DeployAddInTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
 
         AddinManifestManagement.GenerateManifest(OfficeAddin, ManifestText);
-        Encoding := Encoding.UTF8Encoding;
+        Encoding := Encoding.UTF8Encoding();
         Stream := Stream.MemoryStream(Encoding.GetBytes(ManifestText));
         ExchangeWebServicesServer.InstallApp(Stream);
 
-        UserPreference.SetRange("Instruction Code", InstructionMgt.OfficeUpdateNotificationCode);
+        UserPreference.SetRange("Instruction Code", InstructionMgt.OfficeUpdateNotificationCode());
         UserPreference.SetRange("User ID", UserId);
         UserPreference.DeleteAll();
     end;
@@ -238,9 +238,9 @@ codeunit 5323 "Exchange Add-in Setup"
             Session.LogMessage('0000BYS', FromSalesEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
         end;
 
-        HTMlBody := OfficeAddinSampleEmails.GetHTMLSampleMsg;
-        ExchangeWebServicesServer.SaveHTMLEmailToInbox(StrSubstNo(WelcomeSubjectTxt, PRODUCTNAME.Marketing), HTMlBody,
-          FromEmail, StrSubstNo(WelcomeEmailFromNameTxt, PRODUCTNAME.Full), RecipientEmail);
+        HTMlBody := OfficeAddinSampleEmails.GetHTMLSampleMsg();
+        ExchangeWebServicesServer.SaveHTMLEmailToInbox(StrSubstNo(WelcomeSubjectTxt, PRODUCTNAME.Marketing()), HTMlBody,
+          FromEmail, StrSubstNo(WelcomeEmailFromNameTxt, PRODUCTNAME.Full()), RecipientEmail);
 
         Session.LogMessage('0000BXO', SampleEmailsDeployedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
     end;
@@ -248,7 +248,7 @@ codeunit 5323 "Exchange Add-in Setup"
     [TryFunction]
     local procedure ValidateCredentials()
     begin
-        if not ExchangeWebServicesServer.ValidCredentials then begin
+        if not ExchangeWebServicesServer.ValidCredentials() then begin
             if StrPos(GetLastErrorText, '401') > 0 then begin
                 Session.LogMessage('0000BXP', InvalidCredentialsTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
                 Error(InvalidCredentialsErr);
@@ -271,10 +271,9 @@ codeunit 5323 "Exchange Add-in Setup"
                 if Contact.Get(ContactBusinessRelation."Contact No.") then begin
                     if (FirstContactEmail = '') and (Contact."E-Mail" <> '') then
                         FirstContactEmail := Contact."E-Mail";
-                    if Contact."E-Mail" = DemoCompanyEmailTxt then begin
+                    if Contact."E-Mail" = DemoCompanyEmailTxt then
                         exit(Contact."E-Mail");
-                    end;
-                end
+                end;
             until ContactBusinessRelation.Next() = 0;
 
         if FirstContactEmail <> '' then

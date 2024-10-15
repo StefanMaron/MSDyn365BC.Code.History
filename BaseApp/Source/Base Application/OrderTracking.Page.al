@@ -1,7 +1,7 @@
 page 99000822 "Order Tracking"
 {
     Caption = 'Order Tracking';
-    DataCaptionExpression = OrderTrackingMgt.GetCaption;
+    DataCaptionExpression = OrderTrackingMgt.GetCaption();
     PageType = Worksheet;
     SourceTable = "Order Tracking Entry";
 
@@ -54,7 +54,7 @@ page 99000822 "Order Tracking"
                         if not IsPlanning then
                             Message(Text001)
                         else
-                            PlanningTransparency.DrillDownUntrackedQty(OrderTrackingMgt.GetCaption);
+                            PlanningTransparency.DrillDownUntrackedQty(OrderTrackingMgt.GetCaption());
                     end;
                 }
             }
@@ -64,7 +64,7 @@ page 99000822 "Order Tracking"
                 IndentationColumn = SuppliedByIndent;
                 IndentationControls = Name;
                 ShowCaption = false;
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
@@ -80,7 +80,7 @@ page 99000822 "Order Tracking"
                         LookupName();
                     end;
                 }
-                field("Demanded by"; "Demanded by")
+                field("Demanded by"; Rec."Demanded by")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the source of the demand that the supply is tracked from.';
@@ -91,7 +91,7 @@ page 99000822 "Order Tracking"
                         LookupLine();
                     end;
                 }
-                field("Supplied by"; "Supplied by")
+                field("Supplied by"; Rec."Supplied by")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the source of the supply that fills the demand you track from, such as, a production order line.';
@@ -108,12 +108,12 @@ page 99000822 "Order Tracking"
                     ToolTip = 'Specifies there is a date conflict in the order tracking entries for this line.';
                     Visible = false;
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the starting date of the line that the items are tracked from.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the ending date of the line that the items are tracked from.';
@@ -123,19 +123,19 @@ page 99000822 "Order Tracking"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the quantity, in the base unit of measure, of the item that has been tracked in this entry.';
                 }
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                     Visible = false;
                 }
-                field("Expected Receipt Date"; "Expected Receipt Date")
+                field("Expected Receipt Date"; Rec."Expected Receipt Date")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the date when the tracked items are expected to enter the inventory.';
                     Visible = false;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of the item that has been tracked in this entry.';
@@ -167,13 +167,11 @@ page 99000822 "Order Tracking"
                 Caption = '&Untracked Qty.';
                 Enabled = UntrackedButtonEnable;
                 Image = UntrackedQuantity;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'View the part of the tracked quantity that is not directly related to a demand or supply. ';
 
                 trigger OnAction()
                 begin
-                    PlanningTransparency.DrillDownUntrackedQty(OrderTrackingMgt.GetCaption);
+                    PlanningTransparency.DrillDownUntrackedQty(OrderTrackingMgt.GetCaption());
                 end;
             }
             action(Show)
@@ -181,14 +179,26 @@ page 99000822 "Order Tracking"
                 ApplicationArea = Planning;
                 Caption = '&Show';
                 Image = View;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'View the order tracking details.';
 
                 trigger OnAction()
                 begin
                     LookupName();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Show_Promoted; Show)
+                {
+                }
+                actionref(UntrackedButton_Promoted; UntrackedButton)
+                {
+                }
             }
         }
     }

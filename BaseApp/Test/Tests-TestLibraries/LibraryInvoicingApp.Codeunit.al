@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 132220 "Library - Invoicing App"
 {
 
@@ -34,7 +35,7 @@ codeunit 132220 "Library - Invoicing App"
         SalesHeader.SetRange("Sell-to Customer Name", BCO365SalesInvoice."Sell-to Customer Name".Value);
         SalesHeader.FindFirst();
 
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
         exit(SalesHeader."No.");
     end;
 
@@ -46,7 +47,7 @@ codeunit 132220 "Library - Invoicing App"
         BCO365SalesCustomerCard.OpenNew();
         CustomerName := LibraryUtility.GenerateGUID();
         BCO365SalesCustomerCard.Name.Value(CustomerName);
-        BCO365SalesCustomerCard.Close;
+        BCO365SalesCustomerCard.Close();
     end;
 
     [Scope('OnPrem')]
@@ -58,7 +59,7 @@ codeunit 132220 "Library - Invoicing App"
         CustomerName := LibraryUtility.GenerateGUID();
         BCO365SalesCustomerCard.Name.Value(CustomerName);
         BCO365SalesCustomerCard."E-Mail".Value('invoicing@microsoft.com');
-        BCO365SalesCustomerCard.Close;
+        BCO365SalesCustomerCard.Close();
     end;
 
     [Scope('OnPrem')]
@@ -70,7 +71,7 @@ codeunit 132220 "Library - Invoicing App"
         BCO365SalesCustomerCard.OpenNew();
         CustomerName := LibraryUtility.GenerateGUID();
         BCO365SalesCustomerCard.Name.Value(CustomerName);
-        BCO365SalesCustomerCard.Close;
+        BCO365SalesCustomerCard.Close();
         Customer.SetRange(Name, CustomerName);
         Customer.FindFirst();
         Customer.Validate(Blocked, Customer.Blocked::All);
@@ -91,7 +92,7 @@ codeunit 132220 "Library - Invoicing App"
         BCO365SalesCustomerCard."Post Code".Value(LibraryUtility.GenerateRandomText(20));
         BCO365SalesCustomerCard.County.Value(LibraryUtility.GenerateRandomText(30));
         BCO365SalesCustomerCard.CountryRegionCode.Value('DK');
-        BCO365SalesCustomerCard.Close;
+        BCO365SalesCustomerCard.Close();
     end;
 
     [Scope('OnPrem')]
@@ -105,7 +106,7 @@ codeunit 132220 "Library - Invoicing App"
         BCO365SalesQuote.GotoKey(SalesHeader."Document Type"::Quote, EstimateNo);
         BCO365SalesInvoice.Trap;
         BCO365SalesQuote.MakeToInvoice.Invoke;
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
 
         SalesHeader.SetRange("Quote No.", EstimateNo);
         SalesHeader.FindFirst();
@@ -120,7 +121,7 @@ codeunit 132220 "Library - Invoicing App"
         O365ItemCard.OpenNew();
         ItemDescription := LibraryUtility.GenerateGUID();
         O365ItemCard.Description.Value(ItemDescription);
-        O365ItemCard.Close;
+        O365ItemCard.Close();
     end;
 
     [Scope('OnPrem')]
@@ -131,7 +132,7 @@ codeunit 132220 "Library - Invoicing App"
         BCO365ItemCard.OpenNew();
         ItemDescription := LibraryUtility.GenerateGUID();
         BCO365ItemCard.Description.Value(ItemDescription);
-        BCO365ItemCard.Close;
+        BCO365ItemCard.Close();
     end;
 
     [Scope('OnPrem')]
@@ -143,7 +144,7 @@ codeunit 132220 "Library - Invoicing App"
         BCO365ItemCard."Unit Price".Value(Format(LibraryRandom.RandDecInRange(100, 200, 2)));
         ItemDescription := LibraryUtility.GenerateGUID();
         BCO365ItemCard.Description.Value(ItemDescription);
-        BCO365ItemCard.Close;
+        BCO365ItemCard.Close();
     end;
 
     [Scope('OnPrem')]
@@ -161,7 +162,7 @@ codeunit 132220 "Library - Invoicing App"
         SalesHeader.SetRange("Sell-to Customer Name", BCO365SalesQuote."Sell-to Customer Name".Value);
         SalesHeader.FindFirst();
 
-        BCO365SalesQuote.Close;
+        BCO365SalesQuote.Close();
         EstimateNo := SalesHeader."No.";
     end;
 
@@ -175,7 +176,7 @@ codeunit 132220 "Library - Invoicing App"
         BCO365SalesQuote.OpenEdit;
         BCO365SalesQuote.GotoKey(SalesHeader."Document Type"::Quote, AcceptedEstimate);
         BCO365SalesQuote."Quote Accepted".SetValue(true);
-        BCO365SalesQuote.Close;
+        BCO365SalesQuote.Close();
     end;
 
     [Scope('OnPrem')]
@@ -187,8 +188,8 @@ codeunit 132220 "Library - Invoicing App"
         ExpiredEstimate := CreateEstimate;
         BCO365SalesQuote.OpenEdit;
         BCO365SalesQuote.GotoKey(SalesHeader."Document Type"::Quote, ExpiredEstimate);
-        BCO365SalesQuote."Quote Valid Until Date".SetValue(WorkDate - 10);
-        BCO365SalesQuote.Close;
+        BCO365SalesQuote."Quote Valid Until Date".SetValue(WorkDate() - 10);
+        BCO365SalesQuote.Close();
     end;
 
     [Scope('OnPrem')]
@@ -207,7 +208,7 @@ codeunit 132220 "Library - Invoicing App"
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
         SalesHeader.FindLast();
 
-        BCO365SalesQuote.Close;
+        BCO365SalesQuote.Close();
         EstimateNo := SalesHeader."No.";
     end;
 
@@ -227,7 +228,7 @@ codeunit 132220 "Library - Invoicing App"
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.FindLast();
 
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
         exit(SalesHeader."No.");
     end;
 
@@ -296,9 +297,9 @@ codeunit 132220 "Library - Invoicing App"
             BCO365SalesQuote.GotoRecord(SalesHeader);
             BCO365SalesQuote.NoOfAttachmentsValueTxt.DrillDown;
         end;
-        O365SalesDocAttachments.Close;
+        O365SalesDocAttachments.Close();
 
-        SalesHeader.Find;
+        SalesHeader.Find();
 
         FileName := FindOrCreateFileToAttach(MinSizeKb);
 
@@ -325,9 +326,9 @@ codeunit 132220 "Library - Invoicing App"
         BCO365PostedSalesInvoice.OpenEdit;
         BCO365PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
         BCO365PostedSalesInvoice.NoOfAttachments.DrillDown;
-        O365PostedSalesInvAtt.Close;
+        O365PostedSalesInvAtt.Close();
 
-        SalesInvoiceHeader.Find;
+        SalesInvoiceHeader.Find();
 
         FileName := FindOrCreateFileToAttach(MinSizeKb);
 
@@ -368,7 +369,7 @@ codeunit 132220 "Library - Invoicing App"
                     if (FileSize div 1024) > MinSizeKb then
                         FileName := FileManagement.CombinePath(DirectoryPath, NameValueBuffer.Name);
                 end;
-            until NameValueBuffer.Next = 0;
+            until NameValueBuffer.Next() = 0;
 
         if FileName = '' then
             Error('');
@@ -407,7 +408,7 @@ codeunit 132220 "Library - Invoicing App"
         BCO365SalesInvoice.Lines.New;
         BCO365SalesInvoice.Lines.Description.Value := ItemDescription;
         BCO365SalesInvoice.Lines.LineQuantity.Value := Format(LibraryRandom.RandIntInRange(1, 100));
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
 
         exit(InvoiceNo);
     end;
@@ -417,7 +418,7 @@ codeunit 132220 "Library - Invoicing App"
     var
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";
     begin
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
@@ -475,4 +476,4 @@ codeunit 132220 "Library - Invoicing App"
             exit(SalesInvoiceHeader."No.");
     end;
 }
-
+#endif

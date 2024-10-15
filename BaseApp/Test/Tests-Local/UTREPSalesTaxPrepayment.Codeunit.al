@@ -256,7 +256,7 @@ codeunit 142069 "UT REP Sales Tax Prepayment"
         PurchaseHeader."Buy-from Vendor No." := LibraryUTUtility.GetNewCode;
         PurchaseHeader."Tax Area Code" := TaxAreaCode;
         PurchaseHeader."Prepayment %" := LibraryRandom.RandInt(10);
-        PurchaseHeader."Posting Date" := WorkDate;
+        PurchaseHeader."Posting Date" := WorkDate();
         PurchaseHeader."Prepmt. Include Tax" := PrepmtIncludeTax;
         PurchaseHeader.Area := CreateDimensionCode;
         PurchaseHeader.Insert();
@@ -299,9 +299,9 @@ codeunit 142069 "UT REP Sales Tax Prepayment"
         SalesHeader."Sell-to Customer No." := LibraryUTUtility.GetNewCode;
         SalesHeader."Tax Area Code" := TaxAreaCode;
         SalesHeader."Prepayment %" := LibraryRandom.RandInt(10);
-        SalesHeader."Posting Date" := WorkDate;
-        SalesHeader."Document Date" := WorkDate;
-        SalesHeader."Prepayment Due Date" := WorkDate;
+        SalesHeader."Posting Date" := WorkDate();
+        SalesHeader."Document Date" := WorkDate();
+        SalesHeader."Prepayment Due Date" := WorkDate();
         SalesHeader."Prepmt. Include Tax" := PrepmtIncludeTax;
         SalesHeader.Area := CreateDimensionCode;
         SalesHeader.Insert();

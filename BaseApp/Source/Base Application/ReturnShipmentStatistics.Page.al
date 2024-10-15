@@ -58,7 +58,7 @@ page 6655 "Return Shipment Statistics"
 
     trigger OnAfterGetRecord()
     begin
-        ClearAll;
+        ClearAll();
 
         CalculateTotals();
     end;

@@ -112,7 +112,7 @@ codeunit 137801 "SCM - Planning UT"
         // [WHEN] Calc. Regenerative plan
         ManufacturingSetup.Init();
         InventoryProfileOffsetting.CalculatePlanFromWorksheet(
-          Item, ManufacturingSetup, ReqWkshTemplate.Name, '', WorkDate, WorkDate, true, false);
+          Item, ManufacturingSetup, ReqWkshTemplate.Name, '', WorkDate(), WorkDate, true, false);
 
         // [THEN] There is no generated planning lines
         RequisitionLine.SetRange("Worksheet Template Name", ReqWkshTemplate.Name);
@@ -430,7 +430,7 @@ codeunit 137801 "SCM - Planning UT"
         // [GIVEN] Sales order reserved from the inventory.
         // [GIVEN] "Shipment Date" = WORKDATE on the sales line.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
         LibrarySales.AutoReserveSalesLine(SalesLine);
 
         // [WHEN] Open Sales Order Planning page, invoke "Update Shipment Dates" and close the page.
@@ -444,8 +444,8 @@ codeunit 137801 "SCM - Planning UT"
           'Wrong expected delivery date on Sales Order Planning line.');
 
         // [THEN] "Shipment Date" on the sales line is WORKDATE.
-        SalesLine.Find;
-        SalesLine.TestField("Shipment Date", WorkDate);
+        SalesLine.Find();
+        SalesLine.TestField("Shipment Date", WorkDate());
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -510,7 +510,7 @@ codeunit 137801 "SCM - Planning UT"
         ManufacturingSetup."Planned Order Nos.".SetValue(LibraryUtility.GetGlobalNoSeriesCode);
         ManufacturingSetup."Components at Location".SetValue(Location.Code);
         ManufacturingSetup."Default Safety Lead Time".SetValue(SafetyLeadTime);
-        ManufacturingSetup.Close;
+        ManufacturingSetup.Close();
     end;
 
     [Test]
@@ -702,7 +702,7 @@ codeunit 137801 "SCM - Planning UT"
         SalesLine."Document No." := LibraryUtility.GenerateRandomCode(SalesLine.FieldNo("Document No."), DATABASE::"Sales Line");
         SalesLine.Type := SalesLine.Type::Item;
         SalesLine."No." := Item."No.";
-        SalesLine."Shipment Date" := WorkDate;
+        SalesLine."Shipment Date" := WorkDate();
         SalesLine."Outstanding Qty. (Base)" := Item."Maximum Inventory";
         SalesLine.Insert();
     end;
@@ -710,19 +710,19 @@ codeunit 137801 "SCM - Planning UT"
     local procedure MockPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     begin
         with PurchaseHeader do begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::Order;
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Purchase Header");
-            Insert;
+            Insert();
         end;
 
         with PurchaseLine do begin
-            Init;
+            Init();
             "Document Type" := PurchaseHeader."Document Type";
             "Document No." := PurchaseHeader."No.";
             Type := Type::Item;
             "No." := LibraryInventory.CreateItemNo();
-            Insert;
+            Insert();
         end;
     end;
 
@@ -733,9 +733,9 @@ codeunit 137801 "SCM - Planning UT"
             "Document No." := LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Purchase Line");
             Type := Type::Item;
             "No." := ItemNo;
-            "Expected Receipt Date" := WorkDate;
+            "Expected Receipt Date" := WorkDate();
             "Outstanding Qty. (Base)" := -LibraryRandom.RandDec(100, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -745,7 +745,7 @@ codeunit 137801 "SCM - Planning UT"
             Name := LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::"Req. Wksh. Template");
             Type := Type::Planning;
             "Page ID" := PageID;
-            Insert;
+            Insert();
         end;
     end;
 

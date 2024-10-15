@@ -23,7 +23,7 @@ page 5060 "Business Relations"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description of the business relation.';
                 }
-                field("No. of Contacts"; "No. of Contacts")
+                field("No. of Contacts"; Rec."No. of Contacts")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDownPageID = "Business Relation Contacts";

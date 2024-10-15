@@ -6,10 +6,10 @@ codeunit 320 "PurchCrMemo-Printed"
     trigger OnRun()
     begin
         OnBeforeOnRun(Rec, SuppressCommit);
-        Find;
+        Find();
         "No. Printed" := "No. Printed" + 1;
         OnBeforeModify(Rec);
-        Modify;
+        Modify();
         if not SuppressCommit then
             Commit();
     end;

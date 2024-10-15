@@ -30,16 +30,16 @@ report 10406 "Bank Rec. Process Lines"
                 trigger OnAfterGetRecord()
                 begin
                     if DoSuggestLines then
-                        SuggestLines;
+                        SuggestLines();
 
                     if DoMarkLines then
-                        MarkLines;
+                        MarkLines();
 
                     if DoAdjLines then
-                        RecordAdjustmentLines;
+                        RecordAdjustmentLines();
 
                     if DoClearLines then
-                        ClearLines;
+                        ClearLines();
                 end;
             }
 
@@ -242,11 +242,11 @@ report 10406 "Bank Rec. Process Lines"
                     end;
                 until Next() = 0;
         end;
-        Window.Close;
+        Window.Close();
         if RecordTypeToProcess in [RecordTypeToProcess::Both, RecordTypeToProcess::Deposits] then begin
             Window.Open(Text008);
             with BankRecLine do begin
-                Reset;
+                Reset();
                 SetCurrentKey("Bank Account No.", "Statement No.", "Record Type");
                 SetRange("Bank Account No.", "Bank Rec. Header"."Bank Account No.");
                 SetRange("Statement No.", "Bank Rec. Header"."Statement No.");
@@ -257,9 +257,9 @@ report 10406 "Bank Rec. Process Lines"
                         BankRecLine2 := BankRecLine;
                         CollapseLines(BankRecLine2);
                     until Next() = 0;
-                Reset;
+                Reset();
             end;
-            Window.Close;
+            Window.Close();
         end;
     end;
 
@@ -286,7 +286,7 @@ report 10406 "Bank Rec. Process Lines"
                 Window.Update(3, BankRecLine."Line No.");
             until BankRecLine.Next() = 0;
 
-        Window.Close;
+        Window.Close();
     end;
 
     procedure RecordAdjustmentLines()
@@ -301,7 +301,7 @@ report 10406 "Bank Rec. Process Lines"
         GLSetup.Get();
 
         with BankRecLine do begin
-            Reset;
+            Reset();
             SetCurrentKey("Bank Account No.",
               "Statement No.",
               "Record Type",
@@ -330,11 +330,11 @@ report 10406 "Bank Rec. Process Lines"
                           "External Document No.",
                           "Record Type",
                           "Dimension Set ID");
-                        Modify;
+                        Modify();
                     end;
                 until Next() = 0;
         end;
-        Window.Close;
+        Window.Close();
     end;
 
     procedure ClearLines()
@@ -359,7 +359,7 @@ report 10406 "Bank Rec. Process Lines"
                 Window.Update(3, BankRecLine."Line No.");
             until BankRecLine.Next() = 0;
 
-        Window.Close;
+        Window.Close();
     end;
 
     local procedure WriteLine(BankRecHdr2: Record "Bank Rec. Header"; var BankRecLine2: Record "Bank Rec. Line"; UseReplaceExisting: Boolean; UseRecordType: Option Check,Deposit,Adjustment; UseDocumentType: Enum "Gen. Journal Document Type"; UseDocumentNo: Code[20]; UseDescription: Text[100]; UseAmount: Decimal; UseExtDocNo: Code[35]; UseBankLedgerEntryNo: Integer; UseCheckLedgerEntryNo: Integer; UsePostingDate: Date; UseDimCode1: Code[20]; UseDimCode2: Code[20]; UseDimSetID: Integer)

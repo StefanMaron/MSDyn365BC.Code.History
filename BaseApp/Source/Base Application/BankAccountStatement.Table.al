@@ -34,6 +34,11 @@ table 275 "Bank Account Statement"
             Caption = 'Balance Last Statement';
             Editable = false;
         }
+        field(50; "Bank Account Name"; Text[100])
+        {
+            FieldClass = FlowField;
+            CalcFormula = lookup("Bank Account".Name where("No." = field("Bank Account No.")));
+        }
         field(100; "G/L Balance at Posting Date"; Decimal)
         {
             AutoFormatExpression = GetCurrencyCode();

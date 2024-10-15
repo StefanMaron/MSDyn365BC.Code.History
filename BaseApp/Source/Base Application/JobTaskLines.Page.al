@@ -15,7 +15,7 @@ page 1002 "Job Task Lines"
                 IndentationColumn = DescriptionIndent;
                 IndentationControls = Description;
                 ShowCaption = false;
-                field("Job No."; "Job No.")
+                field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
                     Style = Strong;
@@ -23,7 +23,7 @@ page 1002 "Job Task Lines"
                     ToolTip = 'Specifies the number of the related job.';
                     Visible = false;
                 }
-                field("Job Task No."; "Job Task No.")
+                field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
                     Style = Strong;
@@ -37,7 +37,7 @@ page 1002 "Job Task Lines"
                     StyleExpr = StyleIsStrong;
                     ToolTip = 'Specifies a description of the job task. You can enter anything that is meaningful in describing the task. The description is copied and used in descriptions on the job planning line.';
                 }
-                field("Job Task Type"; "Job Task Type")
+                field("Job Task Type"; Rec."Job Task Type")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the purpose of the account. Newly created accounts are automatically assigned the Posting account type, but you can change this. Choose the field to select one of the following five options:';
@@ -47,106 +47,106 @@ page 1002 "Job Task Lines"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies an interval or a list of job task numbers.';
                 }
-                field("Job Posting Group"; "Job Posting Group")
+                field("Job Posting Group"; Rec."Job Posting Group")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the job posting group of the task.';
                 }
-                field("WIP-Total"; "WIP-Total")
+                field("WIP-Total"; Rec."WIP-Total")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the job tasks you want to group together when calculating Work In Process (WIP) and Recognition.';
                 }
-                field("WIP Method"; "WIP Method")
+                field("WIP Method"; Rec."WIP Method")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the name of the Work in Process calculation method that is associated with a job. The value in this field comes from the WIP method specified on the job card.';
                 }
-                field("Start Date"; "Start Date")
+                field("Start Date"; Rec."Start Date")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the start date for the job task. The date is based on the date on the related job planning line.';
                 }
-                field("End Date"; "End Date")
+                field("End Date"; Rec."End Date")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the end date for the job task. The date is based on the date on the related job planning line.';
                 }
-                field("Schedule (Total Cost)"; "Schedule (Total Cost)")
+                field("Schedule (Total Cost)"; Rec."Schedule (Total Cost)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies, in the local currency, the total budgeted cost for the job task during the time period in the Planning Date Filter field.';
                 }
-                field("Schedule (Total Price)"; "Schedule (Total Price)")
+                field("Schedule (Total Price)"; Rec."Schedule (Total Price)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies, in local currency, the total budgeted price for the job task during the time period in the Planning Date Filter field.';
                 }
-                field("Usage (Total Cost)"; "Usage (Total Cost)")
+                field("Usage (Total Cost)"; Rec."Usage (Total Cost)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies, in local currency, the total cost of the usage of items, resources and general ledger expenses posted on the job task during the time period in the Posting Date Filter field.';
                 }
-                field("Usage (Total Price)"; "Usage (Total Price)")
+                field("Usage (Total Price)"; Rec."Usage (Total Price)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies, in the local currency, the total price of the usage of items, resources and general ledger expenses posted on the job task during the time period in the Posting Date Filter field.';
                 }
-                field("Contract (Total Cost)"; "Contract (Total Cost)")
+                field("Contract (Total Cost)"; Rec."Contract (Total Cost)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies, in local currency, the total billable cost for the job task during the time period in the Planning Date Filter field.';
                 }
-                field("Contract (Total Price)"; "Contract (Total Price)")
+                field("Contract (Total Price)"; Rec."Contract (Total Price)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies, in the local currency, the total billable price for the job task during the time period in the Planning Date Filter field.';
                 }
-                field("Contract (Invoiced Cost)"; "Contract (Invoiced Cost)")
+                field("Contract (Invoiced Cost)"; Rec."Contract (Invoiced Cost)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies, in the local currency, the total billable cost for the job task that has been invoiced during the time period in the Posting Date Filter field.';
                 }
-                field("Contract (Invoiced Price)"; "Contract (Invoiced Price)")
+                field("Contract (Invoiced Price)"; Rec."Contract (Invoiced Price)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies, in the local currency, the total billable price for the job task that has been invoiced during the time period in the Posting Date Filter field.';
                 }
-                field("Remaining (Total Cost)"; "Remaining (Total Cost)")
+                field("Remaining (Total Cost)"; Rec."Remaining (Total Cost)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the remaining total cost (LCY) as the sum of costs from job planning lines associated with the job task. The calculation occurs when you have specified that there is a usage link between the job ledger and the job planning lines.';
                 }
-                field("Remaining (Total Price)"; "Remaining (Total Price)")
+                field("Remaining (Total Price)"; Rec."Remaining (Total Price)")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the remaining total price (LCY) as the sum of prices from job planning lines associated with the job task. The calculation occurs when you have specified that there is a usage link between the job ledger and the job planning lines.';
                 }
-                field("EAC (Total Cost)"; CalcEACTotalCost)
+                field("EAC (Total Cost)"; CalcEACTotalCost())
                 {
                     ApplicationArea = Jobs;
                     Caption = 'EAC (Total Cost)';
                     ToolTip = 'Specifies the estimate at completion (EAC) total cost for a job task line. If the Apply Usage Link check box on the job is selected, then the EAC (Total Cost) field is calculated as follows:  Usage (Total Cost) + Remaining (Total Cost).';
                 }
-                field("EAC (Total Price)"; CalcEACTotalPrice)
+                field("EAC (Total Price)"; CalcEACTotalPrice())
                 {
                     ApplicationArea = Jobs;
                     Caption = 'EAC (Total Price)';
                     ToolTip = 'Specifies the estimate at completion (EAC) total price for a job task line. If the Apply Usage Link check box on the job is selected, then the EAC (Total Price) field is calculated as follows: Usage (Total Price) + Remaining (Total Price).';
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = false;
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = false;
                 }
-                field("Outstanding Orders"; "Outstanding Orders")
+                field("Outstanding Orders"; Rec."Outstanding Orders")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
@@ -162,7 +162,7 @@ page 1002 "Job Task Lines"
                         PAGE.RunModal(PAGE::"Purchase Lines", PurchLine);
                     end;
                 }
-                field("Amt. Rcd. Not Invoiced"; "Amt. Rcd. Not Invoiced")
+                field("Amt. Rcd. Not Invoiced"; Rec."Amt. Rcd. Not Invoiced")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
@@ -208,9 +208,6 @@ page 1002 "Job Task Lines"
                     ApplicationArea = Jobs;
                     Caption = 'Job &Planning Lines';
                     Image = JobLines;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'View all planning lines for the job. You use this window to plan what items, resources, and general ledger expenses that you expect to use on a job (budget) or you can specify what you actually agreed with your customer that they should pay for the job (billable).';
 
                     trigger OnAction()
@@ -300,8 +297,6 @@ page 1002 "Job Task Lines"
                     ApplicationArea = Jobs;
                     Caption = 'Sales &Invoices/Credit Memos';
                     Image = GetSourceDoc;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'View sales invoices or sales credit memos that are related to the selected job task.';
 
                     trigger OnAction()
@@ -378,7 +373,7 @@ page 1002 "Job Task Lines"
                         TestField("Job No.");
                         Job.Get("Job No.");
                         if Job.Blocked = Job.Blocked::All then
-                            Job.TestBlocked;
+                            Job.TestBlocked();
 
                         JobTask.SetRange("Job No.", Job."No.");
                         if "Job Task No." <> '' then
@@ -398,8 +393,6 @@ page 1002 "Job Task Lines"
                     Caption = 'Split &Planning Lines';
                     Ellipsis = true;
                     Image = Splitlines;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Split planning lines of type Budget and Billable into two separate planning lines: Budget and Billable.';
 
                     trigger OnAction()
@@ -410,7 +403,7 @@ page 1002 "Job Task Lines"
                         TestField("Job No.");
                         Job.Get("Job No.");
                         if Job.Blocked = Job.Blocked::All then
-                            Job.TestBlocked;
+                            Job.TestBlocked();
 
                         TestField("Job Task No.");
                         JobTask.SetRange("Job No.", Job."No.");
@@ -435,7 +428,7 @@ page 1002 "Job Task Lines"
                         TestField("Job No.");
                         Job.Get("Job No.");
                         if Job.Blocked = Job.Blocked::All then
-                            Job.TestBlocked;
+                            Job.TestBlocked();
 
                         JobTask.SetRange("Job No.", Job."No.");
                         if "Job Task No." <> '' then
@@ -462,8 +455,6 @@ page 1002 "Job Task Lines"
                         Caption = 'Copy Job Planning Lines &from...';
                         Ellipsis = true;
                         Image = CopyToTask;
-                        Promoted = true;
-                        PromotedCategory = Process;
                         ToolTip = 'Use a batch job to help you copy planning lines from one job task to another. You can copy from a job task within the job you are working with or from a job task linked to a different job.';
 
                         trigger OnAction()
@@ -481,8 +472,6 @@ page 1002 "Job Task Lines"
                         Caption = 'Copy Job Planning Lines &to...';
                         Ellipsis = true;
                         Image = CopyFromTask;
-                        Promoted = true;
-                        PromotedCategory = Process;
                         ToolTip = 'Use a batch job to help you copy planning lines from one job task to another. You can copy from a job task within the job you are working with or from a job task linked to a different job.';
 
                         trigger OnAction()
@@ -546,8 +535,6 @@ page 1002 "Job Task Lines"
                 ApplicationArea = Jobs;
                 Caption = 'Job Actual to Budget (Cost)';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Job Actual to Budget (Cost)";
                 ToolTip = 'Compare budgeted and usage amounts for selected jobs. All lines of the selected job show quantity, total cost, and line amount.';
             }
@@ -556,8 +543,6 @@ page 1002 "Job Task Lines"
                 ApplicationArea = Jobs;
                 Caption = 'Job Actual to Budget (Price)';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Job Actual to Budget (Price)";
                 ToolTip = 'Compare the actual price of your jobs to the price that was budgeted. The report shows budget and actual amounts for each phase, task, and steps.';
             }
@@ -566,8 +551,6 @@ page 1002 "Job Task Lines"
                 ApplicationArea = Jobs;
                 Caption = 'Job Analysis';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Job Analysis";
                 ToolTip = 'Analyze the job, such as the budgeted prices, usage prices, and billable prices, and then compares the three sets of prices.';
             }
@@ -576,8 +559,6 @@ page 1002 "Job Task Lines"
                 ApplicationArea = Jobs;
                 Caption = 'Job - Planning Lines';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Job - Planning Lines";
                 ToolTip = 'View all planning lines for the job. You use this window to plan what items, resources, and general ledger expenses that you expect to use on a job (budget) or you can specify what you actually agreed with your customer that he should pay for the job (billable).';
             }
@@ -586,8 +567,6 @@ page 1002 "Job Task Lines"
                 ApplicationArea = Jobs;
                 Caption = 'Job - Suggested Billing';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Job Cost Suggested Billing";
                 ToolTip = 'View a list of all jobs, grouped by customer, how much the customer has already been invoiced, and how much remains to be invoiced, that is, the suggested billing.';
             }
@@ -596,11 +575,53 @@ page 1002 "Job Task Lines"
                 ApplicationArea = Jobs;
                 Caption = 'Jobs - Transaction Detail';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Job Cost Transaction Detail";
                 ToolTip = 'View all postings with entries for a selected job for a selected period, which have been charged to a certain job. At the end of each job list, the amounts are totaled separately for the Sales and Usage entry types.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(JobPlanningLines_Promoted; JobPlanningLines)
+                {
+                }
+                actionref("Split &Planning Lines_Promoted"; "Split &Planning Lines")
+                {
+                }
+                actionref("Copy Job Planning Lines &from..._Promoted"; "Copy Job Planning Lines &from...")
+                {
+                }
+                actionref("Copy Job Planning Lines &to..._Promoted"; "Copy Job Planning Lines &to...")
+                {
+                }
+                actionref("Sales &Invoices/Credit Memos_Promoted"; "Sales &Invoices/Credit Memos")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref("Job Actual to Budget (Cost)_Promoted"; "Job Actual to Budget (Cost)")
+                {
+                }
+                actionref("Job Actual to Budget (Price)_Promoted"; "Job Actual to Budget (Price)")
+                {
+                }
+                actionref("Job Analysis_Promoted"; "Job Analysis")
+                {
+                }
+                actionref("Job - Planning Lines_Promoted"; "Job - Planning Lines")
+                {
+                }
+                actionref("Job - Suggested Billing_Promoted"; "Job - Suggested Billing")
+                {
+                }
             }
         }
     }
@@ -613,7 +634,7 @@ page 1002 "Job Task Lines"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        ClearTempDim;
+        ClearTempDim();
     end;
 
     var

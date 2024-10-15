@@ -42,7 +42,7 @@ page 5750 "Inventory Comment Sheet"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetUpNewLine;
+        SetUpNewLine();
     end;
 }
 

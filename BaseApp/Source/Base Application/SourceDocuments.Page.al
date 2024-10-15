@@ -14,66 +14,66 @@ page 5793 "Source Documents"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location code to which the request line is linked.';
                     Visible = false;
                 }
-                field("Expected Receipt Date"; "Expected Receipt Date")
+                field("Expected Receipt Date"; Rec."Expected Receipt Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date when receipt of the items is expected.';
                     Visible = ExpectedReceiptDateVisible;
                 }
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                     Visible = ShipmentDateVisible;
                 }
-                field("Put-away / Pick No."; "Put-away / Pick No.")
+                field("Put-away / Pick No."; Rec."Put-away / Pick No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the inventory put-away or pick that was created from this warehouse request.';
                 }
-                field("Source Document"; "Source Document")
+                field("Source Document"; Rec."Source Document")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the type of document that the line relates to.';
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the source document that the entry originates from.';
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
-                field("Destination Type"; "Destination Type")
+                field("Destination Type"; Rec."Destination Type")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies whether the type of destination associated with the warehouse request is a customer or a vendor.';
                 }
-                field("Destination No."; "Destination No.")
+                field("Destination No."; Rec."Destination No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number or code of the customer or vendor related to the warehouse request.';
                 }
-                field("Shipment Method Code"; "Shipment Method Code")
+                field("Shipment Method Code"; Rec."Shipment Method Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
                     Visible = false;
                 }
-                field("Shipping Agent Code"; "Shipping Agent Code")
+                field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
                 }
-                field("Shipping Advice"; "Shipping Advice")
+                field("Shipping Advice"; Rec."Shipping Advice")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the shipping advice, which informs whether partial deliveries are acceptable.';
@@ -108,9 +108,6 @@ page 5793 "Source Documents"
                     ApplicationArea = Warehouse;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or change detailed information about the record on the document or journal line.';
 
@@ -118,6 +115,17 @@ page 5793 "Source Documents"
                     begin
                         ShowSourceDocumentCard();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Card_Promoted; Card)
+                {
                 }
             }
         }

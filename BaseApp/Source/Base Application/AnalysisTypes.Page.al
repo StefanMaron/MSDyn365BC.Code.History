@@ -24,17 +24,17 @@ page 7110 "Analysis Types"
                     ApplicationArea = SalesAnalysis, PurchaseAnalysis;
                     ToolTip = 'Specifies a description of the analysis type.';
                 }
-                field("Value Type"; "Value Type")
+                field("Value Type"; Rec."Value Type")
                 {
                     ApplicationArea = SalesAnalysis, PurchaseAnalysis;
                     ToolTip = 'Specifies the value type that the analysis type is based on.';
                 }
-                field("Item Ledger Entry Type Filter"; "Item Ledger Entry Type Filter")
+                field("Item Ledger Entry Type Filter"; Rec."Item Ledger Entry Type Filter")
                 {
                     ApplicationArea = SalesAnalysis, PurchaseAnalysis;
                     ToolTip = 'Specifies a filter on the type of item ledger entry.';
                 }
-                field("Value Entry Type Filter"; "Value Entry Type Filter")
+                field("Value Entry Type Filter"; Rec."Value Entry Type Filter")
                 {
                     ApplicationArea = SalesAnalysis, PurchaseAnalysis;
                     ToolTip = 'Specifies a filter on the type of item value entry.';
@@ -65,14 +65,23 @@ page 7110 "Analysis Types"
                 ApplicationArea = SalesAnalysis, PurchaseAnalysis;
                 Caption = '&Reset Default Analysis Types';
                 Image = ResetStatus;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Revert to use the default analysis types that exist in the system.';
 
                 trigger OnAction()
                 begin
                     ResetDefaultAnalysisTypes(true);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Reset Default Analysis Types_Promoted"; "&Reset Default Analysis Types")
+                {
+                }
             }
         }
     }

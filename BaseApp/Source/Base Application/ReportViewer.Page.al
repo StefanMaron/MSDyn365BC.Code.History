@@ -1,6 +1,10 @@
+#if not CLEAN21
 page 2115 "Report Viewer"
 {
     Caption = 'Report Viewer';
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -8,7 +12,7 @@ page 2115 "Report Viewer"
         {
             usercontrol(PdfViewer; "Microsoft.Dynamics.Nav.Client.WebPageViewer")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
 
                 trigger ControlAddInReady(callbackUrl: Text)
                 begin
@@ -52,4 +56,4 @@ page 2115 "Report Viewer"
             DocumentContent, "Report Selection Usage".FromInteger(ReportType), RecordVariant, CustNo);
     end;
 }
-
+#endif

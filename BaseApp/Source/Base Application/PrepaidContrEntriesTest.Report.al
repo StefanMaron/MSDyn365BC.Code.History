@@ -13,7 +13,7 @@ report 5986 "Prepaid Contr. Entries - Test"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Service_Ledger_Entry__User_ID_; "User ID")
@@ -163,12 +163,12 @@ report 5986 "Prepaid Contr. Entries - Test"
     trigger OnInitReport()
     begin
         if PostingDate = 0D then
-            PostingDate := WorkDate;
+            PostingDate := WorkDate();
     end;
 
     trigger OnPreReport()
     begin
-        ServLedgerFilters := "Service Ledger Entry".GetFilters;
+        ServLedgerFilters := "Service Ledger Entry".GetFilters();
     end;
 
     var

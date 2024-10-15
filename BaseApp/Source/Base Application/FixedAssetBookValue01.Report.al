@@ -15,7 +15,7 @@ report 5605 "Fixed Asset - Book Value 01"
             column(MainHeadLineText_FA; MainHeadLineText)
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -186,7 +186,7 @@ report 5605 "Fixed Asset - Book Value 01"
             begin
                 if not FADeprBook.Get("No.", DeprBookCode) then
                     CurrReport.Skip();
-                if SkipRecord then
+                if SkipRecord() then
                     CurrReport.Skip();
 
                 if GroupTotals = GroupTotals::"FA Posting Group" then
@@ -225,7 +225,7 @@ report 5605 "Fixed Asset - Book Value 01"
                       FAGenReport.CalcFAPostedAmount(
                         "No.", PostingType, Period2, StartingDate, EndingDate,
                         DeprBookCode, BeforeAmount, EndingAmount, false, true);
-                    if GetPeriodDisposal then
+                    if GetPeriodDisposal() then
                         DisposalAmounts[i] := -(StartAmounts[i] + NetChangeAmounts[i])
                     else
                         DisposalAmounts[i] := 0;
@@ -241,14 +241,14 @@ report 5605 "Fixed Asset - Book Value 01"
                     BookValueAtStartingDate := BookValueAtStartingDate + StartAmounts[j];
                 end;
 
-                MakeGroupHeadLine;
-                UpdateTotals;
-                CreateGroupTotals;
+                MakeGroupHeadLine();
+                UpdateTotals();
+                CreateGroupTotals();
             end;
 
             trigger OnPostDataItem()
             begin
-                CreateTotals;
+                CreateTotals();
             end;
 
             trigger OnPreDataItem()
@@ -332,7 +332,7 @@ report 5605 "Fixed Asset - Book Value 01"
 
         trigger OnOpenPage()
         begin
-            GetDepreciationBookCode;
+            GetDepreciationBookCode();
         end;
     }
 
@@ -347,15 +347,15 @@ report 5605 "Fixed Asset - Book Value 01"
         if GroupTotals = GroupTotals::"FA Posting Group" then
             FAGenReport.SetFAPostingGroup("Fixed Asset", DeprBook.Code);
         FAGenReport.AppendFAPostingFilter("Fixed Asset", StartingDate, EndingDate);
-        FAFilter := "Fixed Asset".GetFilters;
+        FAFilter := "Fixed Asset".GetFilters();
         MainHeadLineText := Text000;
         if BudgetReport then
             MainHeadLineText := StrSubstNo('%1 %2', MainHeadLineText, Text001);
-        DeprBookText := StrSubstNo('%1%2 %3', DeprBook.TableCaption, ':', DeprBookCode);
-        MakeGroupTotalText;
+        DeprBookText := StrSubstNo('%1%2 %3', DeprBook.TableCaption(), ':', DeprBookCode);
+        MakeGroupTotalText();
         FAGenReport.ValidateDates(StartingDate, EndingDate);
-        MakeDateText;
-        MakeHeadLine;
+        MakeDateText();
+        MakeHeadLine();
         if PrintDetails then begin
             FANo := "Fixed Asset".FieldCaption("No.");
             FADescription := "Fixed Asset".FieldCaption(Description);
@@ -365,22 +365,12 @@ report 5605 "Fixed Asset - Book Value 01"
     end;
 
     var
-        Text000: Label 'Fixed Asset - Book Value 01';
-        Text001: Label '(Budget Report)';
-        Text002: Label 'Group Total';
-        Text003: Label 'Group Totals';
-        Text004: Label 'in Period';
-        Text005: Label 'Disposal';
-        Text006: Label 'Addition';
-        Text007: Label '%1 has been modified in fixed asset %2.';
         FASetup: Record "FA Setup";
         DeprBook: Record "Depreciation Book";
-        FADeprBook: Record "FA Depreciation Book";
         FA: Record "Fixed Asset";
         FAPostingTypeSetup: Record "FA Posting Type Setup";
         FAGenReport: Codeunit "FA General Report";
         BudgetDepreciation: Codeunit "Budget Depreciation";
-        DeprBookCode: Code[10];
         FAFilter: Text;
         MainHeadLineText: Text[100];
         DeprBookText: Text[50];
@@ -410,7 +400,6 @@ report 5605 "Fixed Asset - Book Value 01"
         Period2: Option "Before Starting Date","Net Change","at Ending Date";
         StartingDate: Date;
         EndingDate: Date;
-        PrintDetails: Boolean;
         BudgetReport: Boolean;
         BeforeAmount: Decimal;
         EndingAmount: Decimal;
@@ -418,9 +407,23 @@ report 5605 "Fixed Asset - Book Value 01"
         DisposalDate: Date;
         StartText: Text[30];
         EndText: Text[30];
+
+        Text000: Label 'Fixed Asset - Book Value 01';
+        Text001: Label '(Budget Report)';
+        Text002: Label 'Group Total';
+        Text003: Label 'Group Totals';
+        Text004: Label 'in Period';
+        Text005: Label 'Disposal';
+        Text006: Label 'Addition';
+        Text007: Label '%1 has been modified in fixed asset %2.';
         PageCaptionLbl: Label 'Page';
         TotalCaptionLbl: Label 'Total';
         GroupTotalsTxt: Label ' ,FA Class,FA Subclass,FA Location,Main Asset,Global Dimension 1,Global Dimension 2,FA Posting Group';
+
+    protected var
+        FADeprBook: Record "FA Depreciation Book";
+        DeprBookCode: Code[10];
+        PrintDetails: Boolean;
 
     local procedure AddPostingType(PostingType: Option "Write-Down",Appreciation,"Custom 1","Custom 2")
     var

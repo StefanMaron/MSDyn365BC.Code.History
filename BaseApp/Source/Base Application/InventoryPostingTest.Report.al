@@ -21,7 +21,7 @@ report 702 "Inventory Posting - Test"
                 DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
                 DataItemTableView = SORTING("Journal Template Name", "Journal Batch Name", "Line No.");
                 RequestFilterFields = "Posting Date";
-                column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+                column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(Item_Journal_Line__Journal_Template_Name_; "Journal Template Name")
@@ -415,22 +415,21 @@ report 702 "Inventory Posting - Test"
 
                     MakeRecurringTexts("Item Journal Line");
 
-                    if EmptyLine then begin
-                        if not IsValueEntryForDeletedItem then
+                    if EmptyLine() then begin
+                        if not IsValueEntryForDeletedItem() then
                             AddError(StrSubstNo(Text001, FieldCaption("Item No.")))
                     end else
                         if not Item.Get("Item No.") then
                             AddError(
                               StrSubstNo(
                                 Text002,
-                                Item.TableCaption, "Item No."))
-                        else begin
+                                Item.TableCaption(), "Item No."))
+                        else
                             if Item.Blocked then
                                 AddError(
                                   StrSubstNo(
                                     Text003,
-                                    Item.FieldCaption(Blocked), false, Item.TableCaption, "Item No."));
-                        end;
+                                    Item.FieldCaption(Blocked), false, Item.TableCaption(), "Item No."));
 
                     CheckRecurringLine("Item Journal Line");
 
@@ -465,7 +464,7 @@ report 702 "Inventory Posting - Test"
                         if not GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group") then
                             AddError(
                               StrSubstNo(
-                                Text008, GenPostingSetup.TableCaption,
+                                Text008, GenPostingSetup.TableCaption(),
                                 "Gen. Bus. Posting Group", "Gen. Prod. Posting Group"));
 
                     if InvtSetup."Location Mandatory" then begin
@@ -557,7 +556,7 @@ report 702 "Inventory Posting - Test"
                     end;
 
                     if ("Entry Type" in ["Entry Type"::Output, "Entry Type"::Consumption]) and ("Order Type" = "Order Type"::Production) and
-                       not OnlyStopTime
+                       not OnlyStopTime()
                     then begin
                         if "Order No." = '' then
                             AddError(StrSubstNo(Text001, FieldCaption("Order No.")));
@@ -614,7 +613,7 @@ report 702 "Inventory Posting - Test"
 
                     DimSetEntry.SetRange("Dimension Set ID", "Dimension Set ID");
                     if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                        AddError(DimMgt.GetDimCombErr);
+                        AddError(DimMgt.GetDimCombErr());
 
                     OnAfterCheckDimension("Item Journal Line", ItemJnlTemplate, QtyError);
 
@@ -623,7 +622,7 @@ report 702 "Inventory Posting - Test"
                     TableID[2] := DATABASE::"Salesperson/Purchaser";
                     No[2] := "Salespers./Purch. Code";
                     if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                        AddError(DimMgt.GetDimValuePostingErr);
+                        AddError(DimMgt.GetDimValuePostingErr());
 
                     if (ItemJnlTemplate.Type in
                         [ItemJnlTemplate.Type::Consumption, ItemJnlTemplate.Type::Transfer]) or
@@ -654,15 +653,15 @@ report 702 "Inventory Posting - Test"
                                     AddError(
                                       StrSubstNo(
                                         Text020,
-                                        Item.TableCaption,
+                                        Item.TableCaption(),
                                         Item."No.",
-                                        Location.TableCaption,
+                                        Location.TableCaption(),
                                         "Location Code"))
                                 else
                                     AddError(
                                       StrSubstNo(
                                         Text021,
-                                        Item.TableCaption,
+                                        Item.TableCaption(),
                                         Item."No."));
                         end;
                     end;
@@ -726,13 +725,13 @@ report 702 "Inventory Posting - Test"
                     if ItemJnlTemplate.Recurring then begin
                         if GetFilter("Posting Date") <> '' then
                             AddError(StrSubstNo(Text000, FieldCaption("Posting Date")));
-                        SetRange("Posting Date", 0D, WorkDate);
+                        SetRange("Posting Date", 0D, WorkDate());
                         if GetFilter("Expiration Date") <> '' then
                             AddError(
                               StrSubstNo(
                                 Text000,
                                 FieldCaption("Expiration Date")));
-                        SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate);
+                        SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate());
                     end;
                     Clear(NoOfEntries);
                     Clear(TotalCostAmounts);
@@ -790,28 +789,12 @@ report 702 "Inventory Posting - Test"
 
     trigger OnPreReport()
     begin
-        ItemJnlLineFilter := "Item Journal Line".GetFilters;
+        ItemJnlLineFilter := "Item Journal Line".GetFilters();
         GLSetup.Get();
         InvtSetup.Get();
     end;
 
     var
-        Text000: Label '%1 cannot be filtered when you post recurring journals.';
-        Text001: Label '%1 must be specified.';
-        Text002: Label '%1 %2 does not exist.';
-        Text003: Label '%1 must be %2 for %3 %4.';
-        Text005: Label '%1 must not be a closing date.';
-        Text006: Label 'The lines are not listed according to Posting Date because they were not entered in that order.';
-        Text007: Label '%1 is not within your allowed range of posting dates.';
-        Text008: Label '%1 %2 %3 does not exist.';
-        Text009: Label '%1 must be 0.';
-        Text011: Label '%1 must be 0 when %2 is %3.';
-        Text012: Label '%1 must not be negative when %2 is %3.';
-        Text013: Label '%1 must have the same value as %2 when %3 is %4.';
-        Text014: Label '%1 must be %2 or %3 when %4 is %5.';
-        Text015: Label '%1 must equal %2 - %3 when %4 is %5 and %6 is %7.';
-        Text016: Label '%1 cannot be specified.';
-        Text017: Label 'There is a gap in the number series.';
         InvtSetup: Record "Inventory Setup";
         GLSetup: Record "General Ledger Setup";
         AccountingPeriod: Record "Accounting Period";
@@ -844,6 +827,23 @@ report 702 "Inventory Posting - Test"
         OldDimText: Text[75];
         ShowDim: Boolean;
         Continue: Boolean;
+
+        Text000: Label '%1 cannot be filtered when you post recurring journals.';
+        Text001: Label '%1 must be specified.';
+        Text002: Label '%1 %2 does not exist.';
+        Text003: Label '%1 must be %2 for %3 %4.';
+        Text005: Label '%1 must not be a closing date.';
+        Text006: Label 'The lines are not listed according to Posting Date because they were not entered in that order.';
+        Text007: Label '%1 is not within your allowed range of posting dates.';
+        Text008: Label '%1 %2 %3 does not exist.';
+        Text009: Label '%1 must be 0.';
+        Text011: Label '%1 must be 0 when %2 is %3.';
+        Text012: Label '%1 must not be negative when %2 is %3.';
+        Text013: Label '%1 must have the same value as %2 when %3 is %4.';
+        Text014: Label '%1 must be %2 or %3 when %4 is %5.';
+        Text015: Label '%1 must equal %2 - %3 when %4 is %5 and %6 is %7.';
+        Text016: Label '%1 cannot be specified.';
+        Text017: Label 'There is a gap in the number series.';
         Text019: Label '%1,%2,%3 or %4 must be specified.';
         Text020: Label '%1 %2 is not on inventory for %3 %4.';
         Text021: Label '%1 %2 is not on inventory.';

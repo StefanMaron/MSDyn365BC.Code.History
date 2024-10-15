@@ -27,7 +27,7 @@ page 177 "Standard Purchase Codes"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a description of the standard purchase code.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the currency code of the amounts on the standard purchase lines.';

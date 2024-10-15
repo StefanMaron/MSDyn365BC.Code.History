@@ -48,14 +48,14 @@ table 9170 "Profile Resource Import/Export"
 
     procedure InsertRec(ProfileID: Code[30]; PageID: Integer; PersonalizationID: Code[40]; ControlGUID: Code[40]; Language: Code[3]; Translation: Text[250])
     begin
-        Init;
+        Init();
         "Profile ID" := ProfileID;
         "Page ID" := PageID;
         "Personalization ID" := PersonalizationID;
         "Control GUID" := ControlGUID;
         "Abbreviated Language Name" := Language;
         Value := Translation;
-        Insert;
+        Insert();
     end;
 }
 

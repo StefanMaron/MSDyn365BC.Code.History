@@ -4,7 +4,7 @@ codeunit 132461 "Outlook Synch Data Generator"
 
     trigger OnRun()
     begin
-        PopulateTaskMeetings(10000, 'AH', '', 0, 20, WorkDate, WorkDate + 5, 100000T, 235959T, 0, 120, 'Massive Test Tasks');
+        PopulateTaskMeetings(10000, 'AH', '', 0, 20, WorkDate(), WorkDate + 5, 100000T, 235959T, 0, 120, 'Massive Test Tasks');
     end;
 
     var
@@ -42,7 +42,7 @@ codeunit 132461 "Outlook Synch Data Generator"
             i := i + 1;
 
             if i mod 50 = 0 then
-                ProgressWindow.Update;
+                ProgressWindow.Update();
         end;
 
         Message(CompleteMsg);
@@ -136,7 +136,7 @@ codeunit 132461 "Outlook Synch Data Generator"
         Rnd := LibraryRandom.RandInt(Salesperson.Count);
         repeat
             Rnd := Rnd - 1;
-        until (Salesperson.Next = 0) or (Rnd = 0);
+        until (Salesperson.Next() = 0) or (Rnd = 0);
     end;
 
     local procedure SelectRandomContact(var Contact: Record Contact)
@@ -147,7 +147,7 @@ codeunit 132461 "Outlook Synch Data Generator"
         Rnd := LibraryRandom.RandInt(Contact.Count);
         repeat
             Rnd := Rnd - 1;
-        until (Contact.Next = 0) or (Rnd = 0);
+        until (Contact.Next() = 0) or (Rnd = 0);
     end;
 
     local procedure SelectRandomDate(StartDate: Date; EndDate: Date): Date

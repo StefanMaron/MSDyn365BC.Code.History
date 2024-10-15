@@ -30,6 +30,7 @@ codeunit 1215 "Data Exch. Type Selector"
         BestDataExchCode: Code[20];
         BestDataExchValue: Integer;
     begin
+        BestDataExchValue := 0;
         if DataExchangeType.FindSet() then
             repeat
                 if DataExchDefUsesIntermediate(DataExchangeType."Data Exch. Def. Code") then begin
@@ -104,10 +105,10 @@ codeunit 1215 "Data Exch. Type Selector"
         // Is the data already loaded or is it in the db?
         LiveIncomingDocumentAttachment := IncomingDocumentAttachment;
         LiveIncomingDocumentAttachment.CalcFields(Content);
-        if LiveIncomingDocumentAttachment.Content.HasValue then
+        if LiveIncomingDocumentAttachment.Content.HasValue() then
             IncomingDocumentAttachment.CalcFields(Content);
 
-        if not IncomingDocumentAttachment.Content.HasValue then
+        if not IncomingDocumentAttachment.Content.HasValue() then
             Error(AttachmentEmptyErr);
     end;
 
@@ -118,7 +119,7 @@ codeunit 1215 "Data Exch. Type Selector"
         // Ensure that the data exch def uses the intermediate table so we don't just start inserting data into the db.
         DataExchMapping.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchMapping.SetRange("Use as Intermediate Table", false);
-        exit(not DataExchMapping.FindFirst);
+        exit(not DataExchMapping.FindFirst());
     end;
 }
 

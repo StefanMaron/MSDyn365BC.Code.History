@@ -286,7 +286,7 @@ table 379 "Detailed Cust. Ledg. Entry"
 
     trigger OnInsert()
     begin
-        SetLedgerEntryAmount;
+        SetLedgerEntryAmount();
     end;
 
     procedure GetLastEntryNo(): Integer;

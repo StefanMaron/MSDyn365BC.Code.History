@@ -625,7 +625,7 @@ codeunit 138932 "O365 NA Tax E2E"
 
     local procedure Initialize()
     begin
-        EventSubscriberInvoicingApp.Clear;
+        EventSubscriberInvoicingApp.Clear();
         LibraryVariableStorage.Clear();
         ClearTaxRates;
 
@@ -646,7 +646,7 @@ codeunit 138932 "O365 NA Tax E2E"
         O365TaxSettingsCard.StateRate.SetValue(StateRate);
         O365TaxSettingsCard.City.Value(CityCode);
         O365TaxSettingsCard.CityRate.SetValue(CityRate);
-        O365TaxSettingsCard.Close;
+        O365TaxSettingsCard.Close();
     end;
 
     local procedure CreateAndSetupDefaultTaxRateWithStateAndCity(StateCode: Code[10]; StateRate: Decimal; CityCode: Code[10]; CityRate: Decimal)
@@ -659,7 +659,7 @@ codeunit 138932 "O365 NA Tax E2E"
         O365TaxSettingsCard.City.Value(CityCode);
         O365TaxSettingsCard.CityRate.SetValue(CityRate);
         O365TaxSettingsCard.Default.DrillDown;
-        O365TaxSettingsCard.Close;
+        O365TaxSettingsCard.Close();
     end;
 
     local procedure CreateAndSetupTaxRateWithState(StateCode: Code[10]; StateRate: Decimal)
@@ -669,7 +669,7 @@ codeunit 138932 "O365 NA Tax E2E"
         O365TaxSettingsCard.OpenNew();
         O365TaxSettingsCard.State.Value(StateCode);
         O365TaxSettingsCard.StateRate.SetValue(StateRate);
-        O365TaxSettingsCard.Close;
+        O365TaxSettingsCard.Close();
     end;
 
     local procedure CreateAndSetupTaxRateWithCity(CityCode: Code[10]; CityRate: Decimal)
@@ -679,7 +679,7 @@ codeunit 138932 "O365 NA Tax E2E"
         O365TaxSettingsCard.OpenNew();
         O365TaxSettingsCard.City.Value(CityCode);
         O365TaxSettingsCard.CityRate.SetValue(CityRate);
-        O365TaxSettingsCard.Close;
+        O365TaxSettingsCard.Close();
     end;
 
     local procedure ClearTaxRates()

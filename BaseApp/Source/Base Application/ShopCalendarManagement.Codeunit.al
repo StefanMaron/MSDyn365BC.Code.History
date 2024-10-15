@@ -103,9 +103,9 @@ codeunit 99000755 "Shop Calendar Management"
                              CalendarEntry.Date,
                              ShopCalendar."Starting Time",
                              ShopCalendar."Ending Time")
-                        then begin
-                            InsertCalendarEntry(CalendarEntry, ShopCalendar."Starting Time", ShopCalendar."Ending Time");
-                        end else
+                        then
+                            InsertCalendarEntry(CalendarEntry, ShopCalendar."Starting Time", ShopCalendar."Ending Time")
+                        else
                             if ShopCalendarHoliday."Starting Time" <= ShopCalendar."Starting Time" then begin
                                 if ShopCalendarHoliday."Ending Time" < ShopCalendar."Ending Time" then
                                     InsertCalendarEntry(CalendarEntry, ShopCalendarHoliday."Ending Time", ShopCalendar."Ending Time");
@@ -121,10 +121,10 @@ codeunit 99000755 "Shop Calendar Management"
 
             CalAbsentEntry.SetRange(Updated, false);
             if PeriodDate = StartingDate then
-                CalAbsEntryExists := not CalAbsentEntry.IsEmpty;
+                CalAbsEntryExists := not CalAbsentEntry.IsEmpty();
             CalAbsentEntry.SetRange(Date, PeriodDate);
             if CalAbsEntryExists then
-                while CalAbsentEntry.FindFirst do
+                while CalAbsentEntry.FindFirst() do
                     CalAbsenceMgt.UpdateAbsence(CalAbsentEntry);
             CalAbsentEntry.SetRange(Updated);
             PeriodDate := PeriodDate + 1;

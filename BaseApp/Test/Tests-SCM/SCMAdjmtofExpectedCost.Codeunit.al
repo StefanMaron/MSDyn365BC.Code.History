@@ -40,10 +40,10 @@ codeunit 137018 "SCM Adjmt. of Expected Cost"
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::FIFO, 0);
 
         // purchase
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', Qty, WorkDate, 10, true, false);
+        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', Qty, WorkDate(), 10, true, false);
 
         // Sales order - shipment only
-        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', Qty, WorkDate, 0, true, false);
+        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', Qty, WorkDate(), 0, true, false);
 
         // Now invoice of sales order
         PartialInvoiceOfSales(SalesHeader, Qty / 4);
@@ -103,7 +103,7 @@ codeunit 137018 "SCM Adjmt. of Expected Cost"
                 SavedInventorySetup."Average Cost Period" := "Average Cost Period";
                 InventorySetup := SavedInventorySetup;
             end;
-            Modify;
+            Modify();
         end;
         CODEUNIT.Run(CODEUNIT::"Change Average Cost Setting", InventorySetup);
     end;
@@ -118,7 +118,7 @@ codeunit 137018 "SCM Adjmt. of Expected Cost"
             SetRange(Type, Type::Item);
             FindFirst();
             Validate("Qty. to Invoice", QuantityToInv);
-            Modify;
+            Modify();
 
             SalesHeader.Find('=');
             LibrarySales.PostSalesDocument(SalesHeader, false, true);

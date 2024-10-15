@@ -25,7 +25,7 @@ page 7500 "Item Attributes"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the item attribute.';
                 }
-                field(Values; GetValues)
+                field(Values; GetValues())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Values';
@@ -33,7 +33,7 @@ page 7500 "Item Attributes"
 
                     trigger OnDrillDown()
                     begin
-                        OpenItemAttributeValues;
+                        OpenItemAttributeValues();
                     end;
                 }
                 field(Blocked; Blocked)
@@ -58,10 +58,6 @@ page 7500 "Item Attributes"
                     Caption = 'Item Attribute &Values';
                     Enabled = (Type = Type::Option);
                     Image = CalculateInventory;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     RunObject = Page "Item Attribute Values";
                     RunPageLink = "Attribute ID" = FIELD(ID);
                     ToolTip = 'Opens a window in which you can define the values for the selected item attribute.';
@@ -71,13 +67,23 @@ page 7500 "Item Attributes"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Translations';
                     Image = Translations;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     RunObject = Page "Item Attribute Translations";
                     RunPageLink = "Attribute ID" = FIELD(ID);
                     ToolTip = 'Opens a window in which you can define the translations for the selected item attribute.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ItemAttributeValues_Promoted; ItemAttributeValues)
+                {
+                }
+                actionref(ItemAttributeTranslations_Promoted; ItemAttributeTranslations)
+                {
                 }
             }
         }

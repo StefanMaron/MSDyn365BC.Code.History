@@ -72,7 +72,7 @@ codeunit 66 "Purch - Calc Disc. By Type"
 
             ResetRecalculateInvoiceDisc(PurchHeader);
 
-            Modify;
+            Modify();
         end;
     end;
 
@@ -156,7 +156,7 @@ codeunit 66 "Purch - Calc Disc. By Type"
             exit(false);
 
         PurchPayablesSetup.Get();
-        if (not ApplicationAreaMgmtFacade.IsFoundationEnabled and
+        if (not ApplicationAreaMgmtFacade.IsFoundationEnabled() and
             (not PurchPayablesSetup."Calc. Inv. Discount" and
              (PurchHeader."Invoice Discount Calculation" = PurchHeader."Invoice Discount Calculation"::None)))
         then

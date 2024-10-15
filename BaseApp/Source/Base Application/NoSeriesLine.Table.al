@@ -27,7 +27,7 @@ table 309 "No. Series Line"
             trigger OnValidate()
             begin
                 UpdateLine("Starting No.", FieldCaption("Starting No."));
-                UpdateStartingSequenceNo;
+                UpdateStartingSequenceNo();
             end;
         }
         field(5; "Ending No."; Code[20])
@@ -57,9 +57,15 @@ table 309 "No. Series Line"
             Caption = 'Increment-by No.';
             InitValue = 1;
             MinValue = 1;
+
             trigger OnValidate()
             begin
-                TestField("Allow Gaps in Nos.", false);
+                Validate(Open);
+                if "Allow Gaps in Nos." then begin
+                    RecreateSequence();
+                    if "Line No." <> 0 then
+                        if Modify() then;
+                end;
             end;
         }
         field(8; "Last No. Used"; Code[20])
@@ -71,10 +77,7 @@ table 309 "No. Series Line"
                 UpdateLine("Last No. Used", FieldCaption("Last No. Used"));
                 Validate(Open);
                 if "Allow Gaps in Nos." then begin
-                    UpdateStartingSequenceNo();
-                    "Sequence Name" := '';
-                    CreateNewSequence();
-                    "Last No. Used" := '';
+                    RecreateSequence();
                     if "Line No." <> 0 then
                         if Modify() then;
                 end;
@@ -100,28 +103,19 @@ table 309 "No. Series Line"
             Caption = 'Allow Gaps in Nos.';
 
             trigger OnValidate()
-            var
-                NoSeries: Record "No. Series";
             begin
                 if "Allow Gaps in Nos." = xRec."Allow Gaps in Nos." then
                     exit;
-                if "Allow Gaps in Nos." then begin
-                    NoSeries.Get("Series Code");
-                    if NoSeries."Date Order" then
-                        Error(NoSeriesDateOrderErr, "Series Code");
-                    UpdateStartingSequenceNo;
-                    "Sequence Name" := '';
-                    CreateNewSequence;
-                    "Last Date Used" := 0D;
-                    "Last No. Used" := '';
-                end else begin
-                    "Last No. Used" := xRec.GetLastNoUsed;
-                    DeleteSequence;
+                if "Allow Gaps in Nos." then
+                    RecreateSequence()
+                else begin
+                    "Last No. Used" := xRec.GetLastNoUsed();
+                    DeleteSequence();
                     "Starting Sequence No." := 0;
                     "Sequence Name" := '';
                 end;
                 if "Line No." <> 0 then
-                    Modify;
+                    Modify();
             end;
         }
         field(12; "Sequence Name"; Code[40])
@@ -182,7 +176,6 @@ table 309 "No. Series Line"
     var
         NoSeriesMgt: Codeunit NoSeriesManagement;
         NoOverFlowErr: Label 'Number series can only use up to 18 digit numbers. %1 has %2 digits.', Comment = '%1 is a string that also contains digits. %2 is a number.';
-        NoSeriesDateOrderErr: Label 'The Allow Gaps in Nos. setting is not possible for number series %1 because the Date Order check box is selected.', Comment = '%1=name/code10.';
         Text10000: Label 'Should be a valid year.';
 
     local procedure UpdateLine(NewNo: Code[20]; NewFieldName: Text[100])
@@ -192,11 +185,7 @@ table 309 "No. Series Line"
 
     procedure GetLastDateUsed(): Date
     begin
-        if not "Allow Gaps in Nos." or ("Sequence Name" = '') then
-            exit("Last Date Used");
-        if not NumberSequence.Exists("Sequence Name") then
-            exit("Last Date Used");
-        exit(0D);
+        exit("Last Date Used");
     end;
 
     procedure GetLastNoUsed(): Code[20]
@@ -205,12 +194,21 @@ table 309 "No. Series Line"
     begin
         if not "Allow Gaps in Nos." or ("Sequence Name" = '') then
             exit("Last No. Used");
-        if not NumberSequence.Exists("Sequence Name") then
-            exit("Last No. Used");
-        LastSeqNoUsed := NumberSequence.Current("Sequence Name");
-        if LastSeqNoUsed > "Starting Sequence No." then
+
+        if not TryGetCurrentSequenceNo(LastSeqNoUsed) then begin
+            if not NumberSequence.Exists("Sequence Name") then
+                CreateNewSequence();
+            TryGetCurrentSequenceNo(LastSeqNoUsed);
+        end;
+        if LastSeqNoUsed >= "Starting Sequence No." then
             exit(GetFormattedNo(LastSeqNoUsed));
         exit('');
+    end;
+
+    [TryFunction]
+    local procedure TryGetCurrentSequenceNo(var LastSeqNoUsed: BigInteger)
+    begin
+        LastSeqNoUsed := NumberSequence.Current("Sequence Name");
     end;
 
     procedure GetNextSequenceNo(ModifySeries: Boolean): Code[20]
@@ -230,12 +228,13 @@ table 309 "No. Series Line"
     [TryFunction]
     local procedure TryGetNextSequenceNo(ModifySeries: Boolean; var NewNo: BigInteger)
     begin
-        if ModifySeries then
-            NewNo := NumberSequence.Next("Sequence Name")
-        else begin
+        if ModifySeries then begin
+            NewNo := NumberSequence.Next("Sequence Name");
+            if NewNo < "Starting Sequence No." then  // first no. ?
+                NewNo := NumberSequence.Next("Sequence Name");
+        end else begin
             NewNo := NumberSequence.Current("Sequence Name");
-            if NewNo > "Starting Sequence No." then
-                NewNo += "Increment-by No.";
+            NewNo += "Increment-by No.";
         end;
     end;
 
@@ -246,23 +245,35 @@ table 309 "No. Series Line"
         if "Last No. Used" = '' then
             "Starting Sequence No." := ExtractNoFromCode("Starting No.")
         else
-            "Starting Sequence No." := ExtractNoFromCode("Last No. Used") - "Increment-by No.";
+            "Starting Sequence No." := ExtractNoFromCode("Last No. Used");
     end;
 
-    local procedure CreateNewSequence()
+    internal procedure CreateNewSequence()
     var
         DummySeq: BigInteger;
     begin
         if "Sequence Name" = '' then begin
-            "Sequence Name" := Format(CreateGuid);
+            "Sequence Name" := Format(CreateGuid());
             "Sequence Name" := CopyStr("Sequence Name", 2, StrLen("Sequence Name") - 2);
         end;
-        NumberSequence.Insert("Sequence Name", "Starting Sequence No.", "Increment-by No.");
-        if "Last No. Used" <> '' then begin
+        if "Last No. Used" = '' then
+            NumberSequence.Insert("Sequence Name", "Starting Sequence No." - "Increment-by No.", "Increment-by No.")
+        else
+            NumberSequence.Insert("Sequence Name", "Starting Sequence No.", "Increment-by No.");
+
+        if "Last No. Used" <> '' then
             // Simulate that a number was used
             DummySeq := NumberSequence.next("Sequence Name");
-            DummySeq := NumberSequence.next("Sequence Name");
-        end;
+    end;
+
+    local procedure RecreateSequence()
+    begin
+        if Rec."Last No. Used" = '' then
+            Rec."Last No. Used" := GetLastNoUsed();
+        DeleteSequence();
+        UpdateStartingSequenceNo();
+        CreateNewSequence();
+        Rec."Last No. Used" := '';
     end;
 
     local procedure DeleteSequence()

@@ -383,11 +383,11 @@ codeunit 132908 TestCompanyChangePages
         // [FEATURE] [Import Config. Package Files] [UT]
         // [GIVEN] AssistedCompanySetupStatus, where "Task ID" = 'x'
         AssistedCompanySetupStatus.DeleteAll();
-        TaskID := CreateGuid;
+        TaskID := CreateGuid();
         AssistedCompanySetupStatus."Company Name" := CompanyName;
         AssistedCompanySetupStatus."Task ID" := TaskID;
         AssistedCompanySetupStatus.Insert();
-        if not GeneralLedgerSetup.Get then
+        if not GeneralLedgerSetup.Get() then
             GeneralLedgerSetup.Insert(); // to avoid RUN(CODEUNIT::"Company-Initialize")
         // [GIVEN] There are no ConfigurationPackageFile records
         ConfigurationPackageFile.DeleteAll();
@@ -399,7 +399,7 @@ codeunit 132908 TestCompanyChangePages
         MessageText := LibraryVariableStorage.DequeueText; // from MessageHandler
         Assert.ExpectedMessage(NoConfigPackDefinedMsg, MessageText);
         // [THEN] "Company Setup Session ID" is 0, "Server Instance ID" = 0, "Task ID" = 'x'
-        AssistedCompanySetupStatus.Find;
+        AssistedCompanySetupStatus.Find();
         AssistedCompanySetupStatus.TestField("Company Setup Session ID", 0);
         AssistedCompanySetupStatus.TestField("Server Instance ID", 0);
         AssistedCompanySetupStatus.TestField("Task ID", TaskID);
@@ -838,7 +838,7 @@ codeunit 132908 TestCompanyChangePages
         with AssistedCompanySetupStatus do begin
             Get(Name);
             MockTaskScheduling(TestCompanyChangePages, "Task ID", "Company Setup Session ID", SessionDelta);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -849,11 +849,11 @@ codeunit 132908 TestCompanyChangePages
         with AssistedCompanySetupStatus do begin
             SetRange("Company Name", Name);
             DeleteAll();
-            Init;
+            Init();
             "Company Name" := CopyStr(Name, 1, MaxStrLen("Company Name"));
             "Company Setup Session ID" := SessionID;
             "Server Instance ID" := SrvInstanceID;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -862,7 +862,7 @@ codeunit 132908 TestCompanyChangePages
         // creates three entries, two of which belong to the TaskID, where one is 'Success', and second is 'In Process'
         JobQueueLogEntry.DeleteAll();
         JobQueueLogEntry."Entry No." := 0;
-        JobQueueLogEntry.ID := CreateGuid;
+        JobQueueLogEntry.ID := CreateGuid();
         JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
         JobQueueLogEntry."Object Type to Run" := JobQueueLogEntry."Object Type to Run"::Codeunit;
         JobQueueLogEntry."Object ID to Run" := Codeunit::"Import Config. Package Files";
@@ -883,7 +883,7 @@ codeunit 132908 TestCompanyChangePages
 
     local procedure MockTaskScheduling(var TestCompanyChangePages: Codeunit TestCompanyChangePages; var ExpectedTaskID: Guid; var ExpectedSessionID: Integer; Delta: Integer)
     begin
-        ExpectedTaskID := CreateGuid;
+        ExpectedTaskID := CreateGuid();
         ExpectedSessionID := SessionId() + Delta;
         TestCompanyChangePages.SetTaskID(ExpectedTaskID);
         TestCompanyChangePages.SetSessionID(ExpectedSessionID);
@@ -944,7 +944,7 @@ codeunit 132908 TestCompanyChangePages
     begin
         JobQueueLogEntries.First;
         LibraryVariableStorage.Enqueue(JobQueueLogEntries.Status.AsInteger);
-        JobQueueLogEntries.Next;
+        JobQueueLogEntries.Next();
         LibraryVariableStorage.Enqueue(JobQueueLogEntries.Status.AsInteger);
     end;
 

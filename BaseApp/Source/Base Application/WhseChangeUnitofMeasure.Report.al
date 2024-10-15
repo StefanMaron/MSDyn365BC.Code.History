@@ -69,7 +69,7 @@ report 7314 "Whse. Change Unit of Measure"
                                 ItemUOM.Get("Item No.", UOMCode);
                                 WarehouseActivityLine."Qty. per Unit of Measure" := ItemUOM."Qty. per Unit of Measure";
                                 WarehouseActivityLine."Unit of Measure Code" := ItemUOM.Code;
-                                CheckUOM;
+                                CheckUOM();
                                 UOMCode := ItemUOM.Code;
                             end;
                         }
@@ -101,7 +101,7 @@ report 7314 "Whse. Change Unit of Measure"
         begin
             Copy(WarehouseActivityLine);
             Get("Activity Type", "No.", "Line No.");
-            SetRecFilter;
+            SetRecFilter();
             TestField("Bin Code");
         end;
 
@@ -142,7 +142,7 @@ report 7314 "Whse. Change Unit of Measure"
         BinContent."Qty. per Unit of Measure" := WarehouseActivityLine."Qty. per Unit of Measure";
 
         QtyChangeBase := "Qty. to Handle (Base)";
-        if "Action Type" = "Action Type"::Take then begin
+        if "Action Type" = "Action Type"::Take then
             if BinContent.Get(
                  "Location Code", "Bin Code", "Item No.",
                  "Variant Code", WarehouseActivityLine."Unit of Measure Code")
@@ -153,10 +153,9 @@ report 7314 "Whse. Change Unit of Measure"
                 else
                     QtyAvailBase := BinContent.CalcQtyAvailToTake(0);
                 if QtyAvailBase < QtyChangeBase then
-                    Error(Text001, FieldCaption("Qty. (Base)"), QtyChangeBase, BinContent.TableCaption, FieldCaption("Bin Code"))
+                    Error(Text001, FieldCaption("Qty. (Base)"), QtyChangeBase, BinContent.TableCaption(), FieldCaption("Bin Code"))
             end else
-                Error(Text001, FieldCaption("Qty. (Base)"), QtyChangeBase, BinContent.TableCaption, FieldCaption("Bin Code"));
-        end;
+                Error(Text001, FieldCaption("Qty. (Base)"), QtyChangeBase, BinContent.TableCaption(), FieldCaption("Bin Code"));
 
         if BinContent."Qty. per Unit of Measure" = WarehouseActivityLine."Qty. per Unit of Measure" then begin
             WarehouseActivityLine.Validate(Quantity, "Qty. to Handle (Base)" / WarehouseActivityLine."Qty. per Unit of Measure");

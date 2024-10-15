@@ -19,7 +19,7 @@ codeunit 883 "OCR Master Data Mgt."
         VendorRecordRef: RecordRef;
         NullGuid: Guid;
     begin
-        if not IntegrationManagement.IsIntegrationActivated then
+        if not IntegrationManagement.IsIntegrationActivated() then
             exit;
 
         if OnlyRecordsWithoutID then

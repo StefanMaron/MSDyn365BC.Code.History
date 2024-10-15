@@ -717,7 +717,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         BlanketSalesOrder.OpenEdit;
         BlanketSalesOrder.FILTER.SetFilter("No.", No);
         BlanketSalesOrder.Statistics.Invoke;  // Opens Handler - SalesInvoiceStatisticsPageHandler or SalesOrderStatsPageHandler.
-        BlanketSalesOrder.Close;
+        BlanketSalesOrder.Close();
     end;
 
     local procedure OpenStatisticsPageForSalesOrder(No: Code[20])
@@ -727,7 +727,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         SalesOrder.OpenEdit;
         SalesOrder.FILTER.SetFilter("No.", No);
         SalesOrder.Statistics.Invoke;  // Opens Handler - SalesOrderStatisticsPageHandler and SalesOrderStatsPageHandler.
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     local procedure OpenStatisticsPageForSalesQuote(No: Code[20])
@@ -737,7 +737,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         SalesQuote.OpenEdit;
         SalesQuote.FILTER.SetFilter("No.", No);
         SalesQuote.Statistics.Invoke;  // Opens Handler - SalesStatisticsQuotePageHandler or SalesStatsQuotePageHandler.
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     local procedure OpenStatisticsPageForSalesReturnOrder(No: Code[20])
@@ -747,7 +747,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         SalesReturnOrder.OpenEdit;
         SalesReturnOrder.FILTER.SetFilter("No.", No);
         SalesReturnOrder.Statistics.Invoke;  // Opens Handler - SalesOrderStatsPageHandler and SalesOrderStatisticsPageHandler.
-        SalesReturnOrder.Close;
+        SalesReturnOrder.Close();
     end;
 
     local procedure OpenStatisticsPageForPostedSalesCrMemo(No: Code[20])
@@ -757,7 +757,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         PostedSalesCreditMemo.OpenEdit;
         PostedSalesCreditMemo.FILTER.SetFilter("No.", No);
         PostedSalesCreditMemo.Statistics.Invoke;  // SalesCreditMemoStatisticsPageHandler or SalesCreditMemoStatsPageHandler.
-        PostedSalesCreditMemo.Close;
+        PostedSalesCreditMemo.Close();
     end;
 
     local procedure OpenStatisticsPageForPostedSalesCrMemoList(No: Code[20])
@@ -767,7 +767,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         PostedSalesCreditMemos.OpenEdit;
         PostedSalesCreditMemos.FILTER.SetFilter("No.", No);
         PostedSalesCreditMemos.Statistics.Invoke;  // SalesCreditMemoStatisticsPageHandler or SalesCreditMemoStatsPageHandler.
-        PostedSalesCreditMemos.Close;
+        PostedSalesCreditMemos.Close();
     end;
 
     local procedure OpenStatisticsPageForPostedSalesInvoice(No: Code[20])
@@ -777,7 +777,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         PostedSalesInvoice.OpenEdit;
         PostedSalesInvoice.FILTER.SetFilter("No.", No);
         PostedSalesInvoice.Statistics.Invoke;  // Opens Handler - SalesInvoiceStatisticsPageHandler or SalesOrderStatsPageHandler.
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
     end;
 
     local procedure OpenStatisticsPageForPostedSalesInvoiceList(No: Code[20])
@@ -787,7 +787,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         PostedSalesInvoices.OpenEdit;
         PostedSalesInvoices.FILTER.SetFilter("No.", No);
         PostedSalesInvoices.Statistics.Invoke;  // Opens Handler - SalesInvoiceStatisticsPageHandler or SalesOrderStatsPageHandler.
-        PostedSalesInvoices.Close;
+        PostedSalesInvoices.Close();
     end;
 
     local procedure OpenStatisticsPageForPurchaseOrder(No: Code[20])
@@ -797,7 +797,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         PurchaseOrder.OpenEdit;
         PurchaseOrder.FILTER.SetFilter("No.", No);
         PurchaseOrder.Statistics.Invoke;  // Opens Handler - PurchaseOrderStatsPageHandler and PurchaseOrderStatisticsPageHandler.
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     local procedure OpenStatisticsPageForPurchaseReturnOrder(No: Code[20])
@@ -807,7 +807,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         PurchaseReturnOrder.OpenEdit;
         PurchaseReturnOrder.FILTER.SetFilter("No.", No);
         PurchaseReturnOrder.Statistics.Invoke;  // Opens Handler - PurchaseOrderStatsPageHandler and PurchaseOrderStatisticsPageHandler.
-        PurchaseReturnOrder.Close;
+        PurchaseReturnOrder.Close();
     end;
 
     local procedure OpenStatisticsPageForServiceOrder(No: Code[20])
@@ -817,7 +817,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         ServiceOrder.OpenEdit;
         ServiceOrder.FILTER.SetFilter("No.", No);
         ServiceOrder.Statistics.Invoke;  // Opens Handler - ServiceOrderStatsPageHandler and ServiceOrderStatisticsPageHandlerPageHandler.
-        ServiceOrder.Close;
+        ServiceOrder.Close();
     end;
 
     local procedure VerifyTaxOnStatisticsPage(TaxAmount: Decimal; AmountIncTax: Decimal)

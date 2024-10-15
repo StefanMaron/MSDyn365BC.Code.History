@@ -372,7 +372,7 @@ codeunit 131305 "Library - ERM Country Data"
                     UpdateVATProdPostingGroup(GenProdPostingGroup.Code, DefVATProdPostingGroup);
                     GenProdPostingGroup.Modify(true);
                 end;
-            until GenProdPostingGroup.Next = 0;
+            until GenProdPostingGroup.Next() = 0;
     end;
 }
 

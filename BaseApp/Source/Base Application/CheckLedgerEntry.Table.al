@@ -38,7 +38,7 @@ table 272 "Check Ledger Entry"
         }
         field(8; Amount; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCodeFromBank;
+            AutoFormatExpression = GetCurrencyCodeFromBank();
             AutoFormatType = 1;
             Caption = 'Amount';
         }
@@ -251,7 +251,7 @@ table 272 "Check Ledger Entry"
                 CheckAmountText :=
                   Format(
                     Round(Amount, 1, '<')) +
-                    GetDecimalSeparator +
+                    GetDecimalSeparator() +
                     PadStr('', StrLen(Format(Round(Currency."Amount Rounding Precision", Currency."Amount Rounding Precision"))) - 2, '0')
             else
                 CheckAmountText := Format(Round(Amount, Currency."Amount Rounding Precision")) +
@@ -264,10 +264,10 @@ table 272 "Check Ledger Entry"
 
     local procedure GetFractionPartLength(DecimalValue: Decimal): Integer
     begin
-        if StrPos(Format(DecimalValue), GetDecimalSeparator) = 0 then
+        if StrPos(Format(DecimalValue), GetDecimalSeparator()) = 0 then
             exit(0);
 
-        exit(StrLen(Format(DecimalValue)) - StrPos(Format(DecimalValue), GetDecimalSeparator));
+        exit(StrLen(Format(DecimalValue)) - StrPos(Format(DecimalValue), GetDecimalSeparator()));
     end;
 
     local procedure GetDecimalSeparator(): Code[1]
@@ -285,8 +285,8 @@ table 272 "Check Ledger Entry"
         if not BankAcc.Get("Bank Account No.") then
             Error(NothingToExportErr);
 
-        if BankAcc.GetPosPayExportCodeunitID > 0 then
-            CODEUNIT.Run(BankAcc.GetPosPayExportCodeunitID, Rec)
+        if BankAcc.GetPosPayExportCodeunitID() > 0 then
+            CODEUNIT.Run(BankAcc.GetPosPayExportCodeunitID(), Rec)
         else
             CODEUNIT.Run(CODEUNIT::"Exp. Launcher Pos. Pay", Rec);
     end;
@@ -325,7 +325,7 @@ table 272 "Check Ledger Entry"
             "Bal. Account Type"::Employee:
                 if "Bal. Account No." <> '' then begin
                     Employee.Get("Bal. Account No.");
-                    Payee := Employee.FullName;
+                    Payee := Employee.FullName();
                 end;
         end;
 
@@ -334,7 +334,7 @@ table 272 "Check Ledger Entry"
 
     procedure SetFilterBankAccNoOpen(BankAccNo: Code[20])
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Bank Account No.", Open);
         SetRange("Bank Account No.", BankAccNo);
         SetRange(Open, true);

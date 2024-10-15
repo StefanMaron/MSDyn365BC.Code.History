@@ -58,7 +58,7 @@ codeunit 144018 "SCM Inventory Reports"
         Quantity1 := LibraryRandom.RandDec(10, 2); // Use Random value for Sales Order 1 Quantity.
         Quantity2 := LibraryRandom.RandDec(10, 2); // Use Random value for Sales Order 2 Quantity.
         CreateAndPostItemJournalLine(
-          ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Quantity1 + Quantity2, WorkDate);
+          ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Quantity1 + Quantity2, WorkDate());
 
         SalesAmount1 := CreateAndPostSalesOrder(SalesLine, CreateCustomer, Item."No.", Quantity1);
         SalesAmount2 := CreateAndPostSalesOrder(SalesLine, CreateCustomer, Item."No.", Quantity2);
@@ -118,10 +118,10 @@ codeunit 144018 "SCM Inventory Reports"
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Item "I", purchased 100 pcs on 21.01
-        CreateAndPostItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", PositiveQty, WorkDate);
+        CreateAndPostItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", PositiveQty, WorkDate());
 
         // [GIVEN] Sold 90 pcs on 21.01
-        CreateAndPostItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Negative Adjmt.", Item."No.", NegativeQty, WorkDate);
+        CreateAndPostItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Negative Adjmt.", Item."No.", NegativeQty, WorkDate());
 
         // [WHEN] Run "Inventory Valuation" report on 22.01
         RunInventoryValuationReport(Item."No.", WorkDate + 1);
@@ -155,7 +155,7 @@ codeunit 144018 "SCM Inventory Reports"
         Qty := LibraryRandom.RandDec(Round(Qty, 1, '<'), 2);
 
         // [GIVEN] Sold 90 pcs on 21.01
-        CreateAndPostItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Negative Adjmt.", Item."No.", Qty, WorkDate);
+        CreateAndPostItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Negative Adjmt.", Item."No.", Qty, WorkDate());
 
         // [WHEN] Run "Inventory Valuation" report on 22.01
         RunInventoryValuationReport(Item."No.", WorkDate + 1);
@@ -189,7 +189,7 @@ codeunit 144018 "SCM Inventory Reports"
         Qty += LibraryRandom.RandDec(50, 2);
 
         // [GIVEN] Purchase 100 pcs on 21.01
-        CreateAndPostItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Qty, WorkDate);
+        CreateAndPostItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Qty, WorkDate());
 
         // [WHEN] Run "Inventory Valuation" report on 22.01
         RunInventoryValuationReport(Item."No.", WorkDate + 1);
@@ -219,7 +219,7 @@ codeunit 144018 "SCM Inventory Reports"
         Qty := LibraryRandom.RandDecInRange(100, 200, 2);
 
         // [GIVEN] Item "I", sold 90 pcs on 21.01
-        CreateAndPostItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Negative Adjmt.", Item."No.", Qty, WorkDate);
+        CreateAndPostItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Negative Adjmt.", Item."No.", Qty, WorkDate());
 
         // [GIVEN] Purchased 100 pcs on 23.01
         CreateAndPostItemJournalLine(
@@ -249,7 +249,7 @@ codeunit 144018 "SCM Inventory Reports"
 
         // [WHEN] Inventory Valuation report is being run
         Commit();
-        RunInventoryValuationReport('', WorkDate);
+        RunInventoryValuationReport('', WorkDate());
 
         // [THEN] All 4 elements of requies page should be visible (verification inside InventoryValuationVerifyAARequestPageHandler)
         LibraryApplicationArea.DisableApplicationAreaSetup;
@@ -352,7 +352,7 @@ codeunit 144018 "SCM Inventory Reports"
         // [GIVEN] Posted sales order with "I-A"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         LibraryVariableStorage.Enqueue(
-          StrSubstNo(AssemblyWarningTxt, SalesHeader.FieldCaption("Due Date"), SalesHeader."Due Date" - 1, WorkDate));
+          StrSubstNo(AssemblyWarningTxt, SalesHeader.FieldCaption("Due Date"), SalesHeader."Due Date" - 1, WorkDate()));
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemAssembly."No.", 1);
         UpdateAccountsOnGeneralPostingSetup(SalesLine."Gen. Prod. Posting Group");
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -472,7 +472,7 @@ codeunit 144018 "SCM Inventory Reports"
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Revaluation);
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
-        ItemJournalBatch.SetupNewBatch;
+        ItemJournalBatch.SetupNewBatch();
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 

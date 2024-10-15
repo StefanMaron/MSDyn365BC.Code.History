@@ -30,7 +30,7 @@ codeunit 138944 "BC O365 Tax Tests"
         BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
     begin
         // [GIVEN] A clean Invoicing App with no tax setup
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] User creates a simple invoice for the first time and adds a customer
@@ -59,7 +59,7 @@ codeunit 138944 "BC O365 Tax Tests"
         BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
     begin
         // [GIVEN] A clean Invoicing App with no tax setup
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] User creates a simple invoice for the first time and adds a customer (handler)
@@ -93,7 +93,7 @@ codeunit 138944 "BC O365 Tax Tests"
         BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
     begin
         // [GIVEN] A clean Invoicing App with no tax setup
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] User creates a simple invoice for the first time and adds a customer
@@ -117,7 +117,7 @@ codeunit 138944 "BC O365 Tax Tests"
         BCO365SalesQuote: TestPage "BC O365 Sales Quote";
     begin
         // [GIVEN] A clean Invoicing App with no tax setup
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] User creates a simple estimate for the first time and adds a customer
@@ -141,7 +141,7 @@ codeunit 138944 "BC O365 Tax Tests"
         BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
     begin
         // [GIVEN] A clean Invoicing App with no tax setup
-        Init;
+        Init();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] User creates a simple invoice for the first time and adds a customer
@@ -186,7 +186,7 @@ codeunit 138944 "BC O365 Tax Tests"
         BCO365SalesInvoice.Lines.Description.Value(LibraryInvoicingApp.CreateItem);
         Assert.IsTrue(BCO365SalesInvoice.NextInvoiceNo.Visible, 'Draft No. should be visible in test invoice');
         Assert.AreNotEqual(BCO365SalesInvoice.NextInvoiceNo.Value, '', 'Draft No. should be visible in test invoice');
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
     end;
 
     local procedure Init()
@@ -195,14 +195,14 @@ codeunit 138944 "BC O365 Tax Tests"
     begin
         LibraryVariableStorage.AssertEmpty;
         Clear(ItemPrice);
-        EventSubscriberInvoicingApp.Clear;
+        EventSubscriberInvoicingApp.Clear();
         ApplicationArea('#Invoicing');
         O365SalesInitialSetup.Get();
 
         if IsInitialized then
             exit;
 
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);

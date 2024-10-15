@@ -549,10 +549,11 @@ table 6661 "Return Receipt Line"
     var
         Currency: Record Currency;
         ReturnRcptHeader: Record "Return Receipt Header";
-        Text000: Label 'Return Receipt No. %1:';
-        Text001: Label 'The program cannot find this purchase line.';
         TranslationHelper: Codeunit "Translation Helper";
         CurrencyRead: Boolean;
+
+        Text000: Label 'Return Receipt No. %1:';
+        Text001: Label 'The program cannot find this purchase line.';
 
     procedure GetCurrencyCode(): Code[10]
     begin
@@ -567,7 +568,7 @@ table 6661 "Return Receipt Line"
     var
         DimMgt: Codeunit DimensionManagement;
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption, "Document No.", "Line No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption(), "Document No.", "Line No."));
     end;
 
     procedure ShowItemTrackingLines()
@@ -615,7 +616,7 @@ table 6661 "Return Receipt Line"
             SalesLine."Document No." := TempSalesLine."Document No.";
             TranslationHelper.SetGlobalLanguageByCode(SalesHeader."Language Code");
             SalesLine.Description := StrSubstNo(Text000, "Document No.");
-            TranslationHelper.RestoreGlobalLanguage;
+            TranslationHelper.RestoreGlobalLanguage();
             IsHandled := false;
             OnBeforeInsertInvLineFromRetRcptLineBeforeInsertTextLine(Rec, SalesLine, NextLineNo, IsHandled);
             if not IsHandled then begin
@@ -625,7 +626,7 @@ table 6661 "Return Receipt Line"
             end;
         end;
 
-        TransferOldExtLines.ClearLineNumbers;
+        TransferOldExtLines.ClearLineNumbers();
         SalesSetup.Get();
         repeat
             ExtTextLine := (TransferOldExtLines.GetNewLineNumber("Attached to Line No.") <> 0);
@@ -654,13 +655,12 @@ table 6661 "Return Receipt Line"
                           Round(
                             SalesOrderLine."Unit Price" * (1 + SalesOrderLine."VAT %" / 100),
                             Currency."Unit-Amount Rounding Precision");
-                end else begin
+                end else
                     if SalesHeader2."Prices Including VAT" then
                         SalesOrderLine."Unit Price" :=
                           Round(
                             SalesOrderLine."Unit Price" / (1 + SalesOrderLine."VAT %" / 100),
                             Currency."Unit-Amount Rounding Precision");
-                end;
             end;
             SalesLine := SalesOrderLine;
             SalesLine."Line No." := NextLineNo;
@@ -806,7 +806,7 @@ table 6661 "Return Receipt Line"
         if CurrencyCode <> '' then
             Currency.Get(CurrencyCode)
         else
-            Currency.InitRoundingPrecision;
+            Currency.InitRoundingPrecision();
         CurrencyRead := true;
     end;
 
@@ -820,7 +820,7 @@ table 6661 "Return Receipt Line"
 
     procedure InitFromSalesLine(ReturnRcptHeader: Record "Return Receipt Header"; SalesLine: Record "Sales Line")
     begin
-        Init;
+        Init();
         TransferFields(SalesLine);
         if ("No." = '') and HasTypeToFillMandatoryFields() then
             Type := Type::" ";

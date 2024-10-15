@@ -111,8 +111,10 @@ codeunit 1514 "Bank Deposit Feature Mgt."
     begin
         if FeatureKey.ID <> GetFeatureKeyId() then
             exit;
+
         if BankRecHeader.IsEmpty() and DepositHeader.IsEmpty() then
             exit;
+
         Error(EnableFeatureErr);
     end;
 

@@ -1,4 +1,4 @@
-report 35 "Document Entries"
+﻿report 35 "Document Entries"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './DocumentEntries.rdlc';
@@ -13,7 +13,7 @@ report 35 "Document Entries"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(DocNoFilter; Text001 + Format(DocNoFilter))
@@ -22,10 +22,10 @@ report 35 "Document Entries"
             column(PostingDateFilter; Text002 + PostingDateFilter)
             {
             }
-            column(DocEntryNoofRecords; DocEntry."No. of Records")
+            column(DocEntryNoofRecords; TempDocumentEntry."No. of Records")
             {
             }
-            column(DocEntryTableName; DocEntry."Table Name")
+            column(DocEntryTableName; TempDocumentEntry."Table Name")
             {
             }
             column(PrintAmtsInLCY; PrintAmountsInLCY)
@@ -94,7 +94,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Service Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Service Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -142,7 +142,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Warranty Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Warranty Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -177,7 +177,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Service Shipment Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Service Shipment Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -228,7 +228,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Sales Shipment Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Sales Shipment Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -304,7 +304,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Sales Invoice Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Sales Invoice Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -355,7 +355,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Return Receipt Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Return Receipt Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -431,7 +431,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Sales Cr.Memo Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Sales Cr.Memo Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -513,7 +513,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Issued Reminder Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Issued Reminder Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -594,7 +594,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Issued Fin. Charge Memo Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Issued Fin. Charge Memo Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -658,7 +658,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Posted Deposit Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Posted Deposit Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -709,7 +709,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Purch. Rcpt. Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Purch. Rcpt. Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -785,7 +785,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Purch. Inv. Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Purch. Inv. Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -836,7 +836,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Return Shipment Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Return Shipment Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -912,7 +912,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Purch. Cr. Memo Hdr." then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Purch. Cr. Memo Hdr." then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -974,7 +974,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Production Order" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Production Order" then
                         CurrReport.Break();
 
                     SetCurrentKey(Status, "No.");
@@ -1029,7 +1029,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Transfer Shipment Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Transfer Shipment Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -1084,7 +1084,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Transfer Receipt Header" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Transfer Receipt Header" then
                         CurrReport.Break();
 
                     SetCurrentKey("No.");
@@ -1152,7 +1152,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Posted Whse. Shipment Line" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Posted Whse. Shipment Line" then
                         CurrReport.Break();
 
                     SetCurrentKey("Posted Source No.", "Posting Date");
@@ -1214,7 +1214,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Posted Whse. Receipt Line" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Posted Whse. Receipt Line" then
                         CurrReport.Break();
 
                     SetCurrentKey("Posted Source No.", "Posting Date");
@@ -1301,7 +1301,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Posted Deposit Line" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Posted Deposit Line" then
                         CurrReport.Break();
 
                     if NavigateDeposit then begin
@@ -1374,7 +1374,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"G/L Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"G/L Entry" then
                         CurrReport.Break();
 
                     if NavigateDeposit then begin
@@ -1417,7 +1417,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"VAT Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"VAT Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -1482,7 +1482,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Cust. Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Cust. Ledger Entry" then
                         CurrReport.Break();
 
                     if NavigateDeposit then begin
@@ -1546,7 +1546,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Detailed Cust. Ledg. Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Detailed Cust. Ledg. Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.");
@@ -1596,7 +1596,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Reminder/Fin. Charge Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Reminder/Fin. Charge Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -1655,7 +1655,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Vendor Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Vendor Ledger Entry" then
                         CurrReport.Break();
 
                     if NavigateDeposit then begin
@@ -1719,7 +1719,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Detailed Vendor Ledg. Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Detailed Vendor Ledg. Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.");
@@ -1775,7 +1775,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Item Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Item Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.");
@@ -1825,7 +1825,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Value Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Value Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.");
@@ -1887,7 +1887,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Phys. Inventory Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Phys. Inventory Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -1943,7 +1943,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Res. Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Res. Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -1999,7 +1999,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Job Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Job Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -2058,7 +2058,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Bank Account Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Bank Account Ledger Entry" then
                         CurrReport.Break();
 
                     if NavigateDeposit then begin
@@ -2131,7 +2131,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Check Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Check Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -2178,7 +2178,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"FA Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"FA Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -2225,7 +2225,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Maintenance Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Maintenance Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -2275,7 +2275,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Ins. Coverage Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Ins. Coverage Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -2319,7 +2319,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Capacity Ledger Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Capacity Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -2375,7 +2375,7 @@ report 35 "Document Entries"
 
                 trigger OnPreDataItem()
                 begin
-                    if DocEntry."Table ID" <> DATABASE::"Warehouse Entry" then
+                    if TempDocumentEntry."Table ID" <> DATABASE::"Warehouse Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Reference No.", "Registering Date");
@@ -2387,10 +2387,10 @@ report 35 "Document Entries"
             trigger OnAfterGetRecord()
             begin
                 if Number = 1 then begin
-                    if not DocEntry.Find('-') then
+                    if not TempDocumentEntry.Find('-') then
                         CurrReport.Break();
                 end else
-                    if DocEntry.Next() = 0 then
+                    if TempDocumentEntry.Next() = 0 then
                         CurrReport.Break();
                 CurrencyCaptionRBC := Text003;
             end;
@@ -2436,11 +2436,8 @@ report 35 "Document Entries"
     }
 
     var
-        DocEntry: Record "Document Entry" temporary;
         CurrExchRate: Record "Currency Exchange Rate";
         PostedDepositHeader: Record "Posted Deposit Header";
-        DocNoFilter: Text;
-        PostingDateFilter: Text;
         Text001: Label 'Document No. : ';
         Text002: Label 'Posting Date : ';
         PrintAmountsInLCY: Boolean;
@@ -2493,18 +2490,23 @@ report 35 "Document Entries"
         Text046: Label 'Posting Date';
         Text047: Label 'Registering Date';
 
-    procedure TransferDocEntries(var NewDocEntry: Record "Document Entry")
+    protected var
+        TempDocumentEntry: Record "Document Entry" temporary;
+        DocNoFilter: Text;
+        PostingDateFilter: Text;
+
+    procedure TransferDocEntries(var NewDocumentEntry: Record "Document Entry")
     var
-        TempDocumentEntry: Record "Document Entry";
+        TempDocumentEntry2: Record "Document Entry";
     begin
-        TempDocumentEntry := NewDocEntry;
-        NewDocEntry.Reset();
-        if NewDocEntry.Find('-') then
+        TempDocumentEntry2 := NewDocumentEntry;
+        NewDocumentEntry.Reset();
+        if NewDocumentEntry.Find('-') then
             repeat
-                DocEntry := NewDocEntry;
-                DocEntry.Insert();
-            until NewDocEntry.Next() = 0;
-        NewDocEntry := TempDocumentEntry;
+                TempDocumentEntry := NewDocumentEntry;
+                TempDocumentEntry.Insert();
+            until NewDocumentEntry.Next() = 0;
+        NewDocumentEntry := TempDocumentEntry2;
     end;
 
     procedure TransferFilters(NewDocNoFilter: Text; NewPostingDateFilter: Text)

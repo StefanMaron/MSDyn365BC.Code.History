@@ -111,7 +111,7 @@ codeunit 141040 "UT COD Electronic Payment"
     begin
         // Purpose of the test is to validate StartExportBatch function of Codeunit ID - 10093 Export Payments (IAT).
         // Exercise.
-        asserterror ExportPaymentsIAT.StartExportBatch(GenJournalLine, LibraryUTUtility.GetNewCode10, WorkDate);
+        asserterror ExportPaymentsIAT.StartExportBatch(GenJournalLine, LibraryUTUtility.GetNewCode10, WorkDate());
 
         // Verify: Verify Error Code, Actual error - Cannot start export batch until an export file is started.
         Assert.ExpectedErrorCode(DialogErr);
@@ -211,7 +211,7 @@ codeunit 141040 "UT COD Electronic Payment"
         ExportPaymentsIAT.StartExportFile(BankAccountNo, LibraryUTUtility.GetNewCode10);
 
         // Exercise.
-        asserterror ExportPaymentsIAT.StartExportBatch(GenJournalLine, LibraryUTUtility.GetNewCode10, WorkDate);
+        asserterror ExportPaymentsIAT.StartExportBatch(GenJournalLine, LibraryUTUtility.GetNewCode10, WorkDate());
 
         // Verify: Verify Error Code, Actual error -Transit No. is not valid in Customer Bank Account.
         Assert.ExpectedErrorCode('NCLCSRTS:TableErrorStr');
@@ -242,7 +242,7 @@ codeunit 141040 "UT COD Electronic Payment"
         ExportPaymentsIAT.StartExportFile(BankAccountNo, LibraryUTUtility.GetNewCode10);
 
         // Exercise.
-        asserterror ExportPaymentsIAT.StartExportBatch(GenJournalLine, LibraryUTUtility.GetNewCode10, WorkDate);
+        asserterror ExportPaymentsIAT.StartExportBatch(GenJournalLine, LibraryUTUtility.GetNewCode10, WorkDate());
 
         // Verify: Verify Error Code, Actual error -Transit No. is not valid in Customer Bank Account.
         Assert.ExpectedErrorCode('NCLCSRTS:TableErrorStr');
@@ -271,7 +271,7 @@ codeunit 141040 "UT COD Electronic Payment"
         ExportPaymentsIAT.StartExportFile(BankAccountNo, LibraryUTUtility.GetNewCode10);
 
         // Exercise.
-        asserterror ExportPaymentsIAT.StartExportBatch(GenJournalLine, LibraryUTUtility.GetNewCode10, WorkDate);
+        asserterror ExportPaymentsIAT.StartExportBatch(GenJournalLine, LibraryUTUtility.GetNewCode10, WorkDate());
 
         // Verify: Verify Error Code, Actual error -Transit No. is not valid in Vendor Bank Account.
         Assert.ExpectedError(StrSubstNo(VendorTransitNumNotValidErr, '', VendorNo));
@@ -301,7 +301,7 @@ codeunit 141040 "UT COD Electronic Payment"
         ExportPaymentsIAT.StartExportFile(BankAccountNo, LibraryUTUtility.GetNewCode10);
 
         // Exercise.
-        asserterror ExportPaymentsIAT.StartExportBatch(GenJournalLine, LibraryUTUtility.GetNewCode10, WorkDate);
+        asserterror ExportPaymentsIAT.StartExportBatch(GenJournalLine, LibraryUTUtility.GetNewCode10, WorkDate());
 
         // Verify: Verify Error Code, Actual error -Transit No. is not valid in Vendor Bank Account.
         Assert.ExpectedError(StrSubstNo(VendorTransitNumNotValidErr, '', VendorNo));
@@ -326,7 +326,7 @@ codeunit 141040 "UT COD Electronic Payment"
         ExportPaymentsIAT.StartExportFile(BankAccountNo, LibraryUTUtility.GetNewCode10);
 
         // Exercise.
-        asserterror ExportPaymentsIAT.StartExportBatch(GenJournalLine, LibraryUTUtility.GetNewCode10, WorkDate);
+        asserterror ExportPaymentsIAT.StartExportBatch(GenJournalLine, LibraryUTUtility.GetNewCode10, WorkDate());
 
         // Verify: Verify Error Code, Actual error - Either Account Type or Bal. Account Type must refer to either a Vendor or a Customer for an electronic payment.
         Assert.ExpectedErrorCode(DialogErr);
@@ -348,7 +348,7 @@ codeunit 141040 "UT COD Electronic Payment"
         // Exercise.
         asserterror ExportPaymentsRB.StartExportFile(GenJournalLine."Account No.", GenJournalLine);
 
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, GenJournalLine.FieldCaption("Transaction Code"), GenJournalLine.TableCaption));
+        Assert.ExpectedError(StrSubstNo(TestFieldErr, GenJournalLine.FieldCaption("Transaction Code"), GenJournalLine.TableCaption()));
     end;
 
     [Test]
@@ -370,7 +370,7 @@ codeunit 141040 "UT COD Electronic Payment"
         asserterror ExportPaymentsRB.StartExportFile(GenJournalLine."Account No.", GenJournalLine);
 
         Assert.ExpectedError(
-          StrSubstNo(TestFieldErr, GenJournalLine.FieldCaption("Company Entry Description"), GenJournalLine.TableCaption));
+          StrSubstNo(TestFieldErr, GenJournalLine.FieldCaption("Company Entry Description"), GenJournalLine.TableCaption()));
     end;
 
     [Test]
@@ -567,7 +567,7 @@ codeunit 141040 "UT COD Electronic Payment"
         CreateGeneralJournalBatch(GenJournalBatch);
         GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
-        GenJournalLine."Posting Date" := WorkDate;
+        GenJournalLine."Posting Date" := WorkDate();
         GenJournalLine."Document No." := LibraryUTUtility.GetNewCode;
         GenJournalLine."Account Type" := AccountType;
         GenJournalLine."Account No." := AccountNo;

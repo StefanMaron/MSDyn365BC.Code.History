@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2311 "BC O365 Sales Inv. Line Subp."
 {
     AutoSplitKey = true;
@@ -10,6 +11,9 @@ page 2311 "BC O365 Sales Inv. Line Subp."
     RefreshOnActivate = true;
     SaveValues = true;
     SourceTable = "Sales Line";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -17,20 +21,20 @@ page 2311 "BC O365 Sales Inv. Line Subp."
         {
             repeater(grpGeneral)
             {
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the number of the record.';
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        RedistributeTotalsOnAfterValidate;
+                        RedistributeTotalsOnAfterValidate();
                     end;
                 }
                 field(Description; Rec.Description)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     LookupPageID = "BC O365 Item List";
                     ToolTip = 'Specifies a description of the item or service on the line.';
 
@@ -49,7 +53,7 @@ page 2311 "BC O365 Sales Inv. Line Subp."
                 }
                 field(LineQuantity; LineQuantity)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Quantity';
                     DecimalPlaces = 0 : 5;
                     Enabled = DescriptionSelected;
@@ -59,13 +63,13 @@ page 2311 "BC O365 Sales Inv. Line Subp."
                     trigger OnValidate()
                     begin
                         Validate(Quantity, LineQuantity);
-                        RedistributeTotalsOnAfterValidate;
-                        ShowInvoiceDiscountNotification;
+                        RedistributeTotalsOnAfterValidate();
+                        ShowInvoiceDiscountNotification();
                     end;
                 }
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Price';
                     Enabled = DescriptionSelected;
                     ToolTip = 'Specifies the price for one unit on the sales line.';
@@ -74,12 +78,12 @@ page 2311 "BC O365 Sales Inv. Line Subp."
                     trigger OnValidate()
                     begin
                         O365SalesInvoiceMgmt.ValidateItemPrice(Rec);
-                        RedistributeTotalsOnAfterValidate;
+                        RedistributeTotalsOnAfterValidate();
                     end;
                 }
                 field(UnitOfMeasure; UnitOfMeasure)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Price per';
                     Enabled = DescriptionSelected;
                     LookupPageID = "O365 Units of Measure List";
@@ -100,22 +104,22 @@ page 2311 "BC O365 Sales Inv. Line Subp."
                         UnitOfMeasure := CopyStr("Unit of Measure", 1, MaxStrLen(UnitOfMeasure));
                     end;
                 }
-                field("Line Discount %"; "Line Discount %")
+                field("Line Discount %"; Rec."Line Discount %")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Enabled = DescriptionSelected;
                     Width = 5;
 
                     trigger OnValidate()
                     begin
-                        RedistributeTotalsOnAfterValidate;
+                        RedistributeTotalsOnAfterValidate();
                         if HasShownInvoiceDiscountNotification then
-                            InvoiceDiscountNotification.Recall;
+                            InvoiceDiscountNotification.Recall();
                     end;
                 }
                 field(Taxable; Taxable)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Add sales tax';
                     Enabled = DescriptionSelected;
                     ToolTip = 'Specifies if you want to add sales tax.';
@@ -127,7 +131,7 @@ page 2311 "BC O365 Sales Inv. Line Subp."
                         TaxGroup: Record "Tax Group";
                         Item: Record Item;
                     begin
-                        if TaxSetup.Get and (TaxSetup."Non-Taxable Tax Group Code" <> '') then begin
+                        if TaxSetup.Get() and (TaxSetup."Non-Taxable Tax Group Code" <> '') then begin
                             if Taxable then
                                 TaxGroup.SetFilter(Code, '<>%1', TaxSetup."Non-Taxable Tax Group Code")
                             else
@@ -142,12 +146,12 @@ page 2311 "BC O365 Sales Inv. Line Subp."
                                 Item.Modify(true);
                             end;
 
-                        RedistributeTotalsOnAfterValidate;
+                        RedistributeTotalsOnAfterValidate();
                     end;
                 }
                 field(VATProductPostingGroupDescription; VATProductPostingGroupDescription)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'VAT';
                     Enabled = DescriptionSelected;
                     NotBlank = true;
@@ -164,28 +168,28 @@ page 2311 "BC O365 Sales Inv. Line Subp."
                             Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
                             VATProductPostingGroupDescription := VATProductPostingGroup.Description;
                             O365SalesInvoiceMgmt.ValidateVATRate(Rec);
-                            RedistributeTotalsOnAfterValidate;
+                            RedistributeTotalsOnAfterValidate();
                         end;
                     end;
 
                     trigger OnValidate()
                     begin
-                        RedistributeTotalsOnAfterValidate;
+                        RedistributeTotalsOnAfterValidate();
                     end;
                 }
-                field("Line Amount"; "Line Amount")
+                field("Line Amount"; Rec."Line Amount")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Enabled = DescriptionSelected;
 
                     trigger OnValidate()
                     begin
-                        RedistributeTotalsOnAfterValidate;
+                        RedistributeTotalsOnAfterValidate();
                     end;
                 }
-                field("Price description"; "Price description")
+                field("Price description"; Rec."Price description")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Visible = ShowOnlyOnBrick AND IsDevice;
                 }
             }
@@ -198,7 +202,7 @@ page 2311 "BC O365 Sales Inv. Line Subp."
         {
             action(OpenPrice)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'View Price';
                 Image = View;
                 Promoted = true;
@@ -220,7 +224,7 @@ page 2311 "BC O365 Sales Inv. Line Subp."
             }
             action(DeleteLine)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Delete Line';
                 Image = DeleteRow;
                 Promoted = true;
@@ -250,14 +254,14 @@ page 2311 "BC O365 Sales Inv. Line Subp."
 
     trigger OnAfterGetRecord()
     begin
-        UpdatePriceDescription;
+        UpdatePriceDescription();
         UnitOfMeasure := CopyStr("Unit of Measure", 1, MaxStrLen(UnitOfMeasure));
         O365SalesInvoiceMgmt.ConstructCurrencyFormatString(Rec, CurrencyFormat);
-        if TaxSetup.Get then
+        if TaxSetup.Get() then
             Taxable := "Tax Group Code" <> TaxSetup."Non-Taxable Tax Group Code";
         CalcFields("Posting Date");
         LineQuantity := Quantity;
-        UpdateVATPostingGroupDescription;
+        UpdateVATPostingGroupDescription();
         ShowOnlyOnBrick := false;
     end;
 
@@ -266,20 +270,20 @@ page 2311 "BC O365 Sales Inv. Line Subp."
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
         SalesSetup.Get();
-        if TaxSetup.Get then;
-        Currency.InitRoundingPrecision;
+        if TaxSetup.Get() then;
+        Currency.InitRoundingPrecision();
         O365SalesInvoiceMgmt.ConstructCurrencyFormatString(Rec, CurrencyFormat);
-        IsUsingVAT := O365SalesInitialSetup.IsUsingVAT;
+        IsUsingVAT := O365SalesInitialSetup.IsUsingVAT();
         Taxable := false;
-        IsDevice := ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone];
+        IsDevice := ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone];
         ShowOnlyOnBrick := true;
     end;
 
     trigger OnModifyRecord(): Boolean
     begin
-        UpdatePriceDescription;
+        UpdatePriceDescription();
         Modify(true);
-        CalculateTotals;
+        CalculateTotals();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -320,7 +324,7 @@ page 2311 "BC O365 Sales Inv. Line Subp."
 
     local procedure CalculateTotals()
     begin
-        GetTotalSalesHeader;
+        GetTotalSalesHeader();
         if SalesSetup."Calc. Inv. Discount" and ("Document No." <> '') and (TotalSalesHeader."Customer Posting Group" <> '') then
             CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", Rec);
 
@@ -329,7 +333,7 @@ page 2311 "BC O365 Sales Inv. Line Subp."
 
     local procedure RedistributeTotalsOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
 
         TotalSalesHeader.Get("Document Type", "Document No.");
         DocumentTotals.SalesRedistributeInvoiceDiscountAmounts(Rec, VATAmount, TotalSalesLine);
@@ -342,7 +346,7 @@ page 2311 "BC O365 Sales Inv. Line Subp."
             Clear(TotalSalesHeader);
         if Currency.Code <> TotalSalesHeader."Currency Code" then
             if not Currency.Get(TotalSalesHeader."Currency Code") then
-                Currency.InitRoundingPrecision;
+                Currency.InitRoundingPrecision();
     end;
 
     local procedure ShowInvoiceDiscountNotification()
@@ -365,4 +369,4 @@ page 2311 "BC O365 Sales Inv. Line Subp."
             Clear(VATProductPostingGroup);
     end;
 }
-
+#endif

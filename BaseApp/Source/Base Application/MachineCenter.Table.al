@@ -12,7 +12,8 @@ table 99000758 "Machine Center"
         {
             Caption = 'No.';
         }
-        field(3; Name; Text[50])
+#pragma warning disable AS0086
+        field(3; Name; Text[100])
         {
             Caption = 'Name';
 
@@ -21,10 +22,11 @@ table 99000758 "Machine Center"
                 "Search Name" := Name;
             end;
         }
-        field(4; "Search Name"; Code[50])
+        field(4; "Search Name"; Code[100])
         {
             Caption = 'Search Name';
         }
+#pragma warning restore AS0086
         field(5; "Name 2"; Text[50])
         {
             Caption = 'Name 2';
@@ -53,8 +55,13 @@ table 99000758 "Machine Center"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(9; "Post Code"; Code[20])
@@ -73,8 +80,13 @@ table 99000758 "Machine Center"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(14; "Work Center No."; Code[20])
@@ -162,7 +174,7 @@ table 99000758 "Machine Center"
                     until ProdOrderCapNeed.Next() = 0;
 
                 OnValidateWorkCenterNoBeforeModify(Rec, xRec, CurrFieldNo);
-                Modify;
+                Modify();
 
                 RtngLine.SetCurrentKey(Type, "No.");
                 RtngLine.SetRange(Type, RtngLine.Type::"Machine Center");
@@ -191,7 +203,7 @@ table 99000758 "Machine Center"
                         ProdOrderRtngLine.Modify();
                     until ProdOrderRtngLine.Next() = 0;
 
-                Window.Close;
+                Window.Close();
             end;
         }
         field(19; "Direct Unit Cost"; Decimal)
@@ -489,26 +501,23 @@ table 99000758 "Machine Center"
             begin
                 if "Location Code" <> xRec."Location Code" then begin
                     if ("Work Center No." = '') and ("Location Code" <> '') then
-                        Error(Text008, FieldCaption("Location Code"), TableCaption, WorkCenter.TableCaption);
+                        Error(Text008, FieldCaption("Location Code"), TableCaption(), WorkCenter.TableCaption());
 
-                    if "Open Shop Floor Bin Code" <> '' then begin
+                    if "Open Shop Floor Bin Code" <> '' then
                         if ConfirmAutoRemovalOfBinCode(AutoUpdate) then
                             Validate("Open Shop Floor Bin Code", '')
                         else
                             TestField("Open Shop Floor Bin Code", '');
-                    end;
-                    if "To-Production Bin Code" <> '' then begin
+                    if "To-Production Bin Code" <> '' then
                         if ConfirmAutoRemovalOfBinCode(AutoUpdate) then
                             Validate("To-Production Bin Code", '')
                         else
                             TestField("To-Production Bin Code", '');
-                    end;
-                    if "From-Production Bin Code" <> '' then begin
+                    if "From-Production Bin Code" <> '' then
                         if ConfirmAutoRemovalOfBinCode(AutoUpdate) then
                             Validate("From-Production Bin Code", '')
                         else
                             TestField("From-Production Bin Code", '');
-                    end;
                 end;
             end;
         }
@@ -575,6 +584,9 @@ table 99000758 "Machine Center"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "No.", Name)
+        {
+        }
     }
 
     trigger OnDelete()
@@ -586,7 +598,7 @@ table 99000758 "Machine Center"
         CapLedgEntry.SetRange(Type, CapLedgEntry.Type::"Machine Center");
         CapLedgEntry.SetRange("No.", "No.");
         if not CapLedgEntry.IsEmpty() then
-            Error(Text007, TableCaption, "No.", CapLedgEntry.TableCaption);
+            Error(Text007, TableCaption(), "No.", CapLedgEntry.TableCaption());
 
         CheckRoutingWithMachineCenterExists();
 
@@ -594,7 +606,7 @@ table 99000758 "Machine Center"
         StdCostWksh.SetRange(Type, StdCostWksh.Type::"Machine Center");
         StdCostWksh.SetRange("No.", "No.");
         if not StdCostWksh.IsEmpty() then
-            Error(Text007, TableCaption, "No.", StdCostWksh.TableCaption);
+            Error(Text007, TableCaption(), "No.", StdCostWksh.TableCaption());
 
         CalendarEntry.SetRange("Capacity Type", CalendarEntry."Capacity Type"::"Machine Center");
         CalendarEntry.SetRange("No.", "No.");
@@ -696,7 +708,15 @@ table 99000758 "Machine Center"
         exit(AutoUpdate);
     end;
 
+#if not CLEAN21
+    [Obsolete('Replaced by procedure GetBinCodeForFlushingMethod()', '21.0')]
     procedure GetBinCode(UseFlushingMethod: Boolean; FlushingMethod: Option Manual,Forward,Backward,"Pick + Forward","Pick + Backward"): Code[20]
+    begin
+        exit(GetBinCodeForFlushingMethod(UseFlushingMethod, FlushingMethod));
+    end;
+#endif
+
+    procedure GetBinCodeForFlushingMethod(UseFlushingMethod: Boolean; FlushingMethod: Enum "Flushing Method"): Code[20]
     begin
         if not UseFlushingMethod then
             exit("From-Production Bin Code");
@@ -719,7 +739,7 @@ table 99000758 "Machine Center"
         RoutingLine.SetRange(Type, RoutingLine.Type::"Machine Center");
         RoutingLine.SetRange("No.", "No.");
         if not RoutingLine.IsEmpty() then
-            Error(Text007, TableCaption, "No.", RoutingLine.TableCaption);
+            Error(Text007, TableCaption(), "No.", RoutingLine.TableCaption());
     end;
 
     [IntegrationEvent(false, false)]
@@ -734,6 +754,16 @@ table 99000758 "Machine Center"
 
     [IntegrationEvent(false, false)]
     local procedure OnWorkCenterNoOnValidateOnAfterCopyFromWorkCenter(var MachineCenter: Record "Machine Center"; WorkCenter: Record "Work Center")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var MachineCenter: Record "Machine Center"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var MachineCenter: Record "Machine Center"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
     begin
     end;
 }

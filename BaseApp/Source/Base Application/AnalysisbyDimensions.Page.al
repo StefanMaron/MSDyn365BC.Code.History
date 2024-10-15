@@ -31,22 +31,22 @@ page 554 "Analysis by Dimensions"
                         AnalysisView.SetRange("Account Source", AnalysisView."Account Source");
                         AnalysisViewList.SetTableView(AnalysisView);
                         AnalysisViewList.SetRecord(AnalysisView);
-                        if AnalysisViewList.RunModal = ACTION::LookupOK then begin
+                        if AnalysisViewList.RunModal() = ACTION::LookupOK then begin
                             AnalysisViewList.GetRecord(AnalysisView);
                             "Analysis View Code" := AnalysisView.Code;
                             Text := AnalysisView.Code;
-                            ValidateAnalysisViewCode;
-                            ValidateColumnDimCode;
-                            ValidateLineDimCode;
+                            ValidateAnalysisViewCode();
+                            ValidateColumnDimCode();
+                            ValidateLineDimCode();
                             exit(true);
                         end;
                     end;
 
                     trigger OnValidate()
                     begin
-                        ValidateAnalysisViewCode;
-                        ValidateColumnDimCode;
-                        ValidateLineDimCode;
+                        ValidateAnalysisViewCode();
+                        ValidateColumnDimCode();
+                        ValidateLineDimCode();
                     end;
                 }
                 field(LineDimCode; LineDimCode)
@@ -65,7 +65,7 @@ page 554 "Analysis by Dimensions"
 
                         Text := NewCode;
                         LineDimCode := NewCode;
-                        ValidateLineDimCode;
+                        ValidateLineDimCode();
                         exit(true);
                     end;
 
@@ -73,9 +73,9 @@ page 554 "Analysis by Dimensions"
                     begin
                         if (UpperCase(LineDimCode) = UpperCase(ColumnDimCode)) and (LineDimCode <> '') then begin
                             ColumnDimCode := '';
-                            ValidateColumnDimCode;
+                            ValidateColumnDimCode();
                         end;
-                        ValidateLineDimCode;
+                        ValidateLineDimCode();
                         if "Line Dim Option" = "Line Dim Option"::Period then
                             TempDimensionCodeBuffer.SetCurrentKey("Period Start")
                         else
@@ -98,7 +98,7 @@ page 554 "Analysis by Dimensions"
 
                         Text := NewCode;
                         ColumnDimCode := NewCode;
-                        ValidateColumnDimCode;
+                        ValidateColumnDimCode();
                         CreateCaptionSet(TempDimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                         exit(true);
                     end;
@@ -107,9 +107,9 @@ page 554 "Analysis by Dimensions"
                     begin
                         if (UpperCase(LineDimCode) = UpperCase(ColumnDimCode)) and (LineDimCode <> '') then begin
                             LineDimCode := '';
-                            ValidateLineDimCode;
+                            ValidateLineDimCode();
                         end;
-                        ValidateColumnDimCode;
+                        ValidateColumnDimCode();
 
                         CreateCaptionSet(TempDimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                     end;
@@ -150,16 +150,16 @@ page 554 "Analysis by Dimensions"
                     begin
                         if GLAccountSource then begin
                             GLAccList.LookupMode(true);
-                            if not (GLAccList.RunModal = ACTION::LookupOK) then
+                            if not (GLAccList.RunModal() = ACTION::LookupOK) then
                                 exit(false);
 
-                            Text := GLAccList.GetSelectionFilter;
+                            Text := GLAccList.GetSelectionFilter();
                         end else begin
                             CFAccList.LookupMode(true);
-                            if not (CFAccList.RunModal = ACTION::LookupOK) then
+                            if not (CFAccList.RunModal() = ACTION::LookupOK) then
                                 exit(false);
 
-                            Text := CFAccList.GetSelectionFilter;
+                            Text := CFAccList.GetSelectionFilter();
                         end;
                         exit(true);
                     end;
@@ -181,9 +181,9 @@ page 554 "Analysis by Dimensions"
                         BusUnitList: Page "Business Unit List";
                     begin
                         BusUnitList.LookupMode(true);
-                        if not (BusUnitList.RunModal = ACTION::LookupOK) then
+                        if not (BusUnitList.RunModal() = ACTION::LookupOK) then
                             exit(false);
-                        Text := BusUnitList.GetSelectionFilter;
+                        Text := BusUnitList.GetSelectionFilter();
                         exit(true);
                     end;
                 }
@@ -388,8 +388,6 @@ page 554 "Analysis by Dimensions"
                     ApplicationArea = Dimensions;
                     Caption = 'Reverse Lines and Columns';
                     Image = Undo;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Change the display of the matrix by inverting the values in the Show as Lines and Show as Columns fields.';
 
                     trigger OnAction()
@@ -399,8 +397,8 @@ page 554 "Analysis by Dimensions"
                         TempDimCode := ColumnDimCode;
                         ColumnDimCode := LineDimCode;
                         LineDimCode := TempDimCode;
-                        ValidateLineDimCode;
-                        ValidateColumnDimCode;
+                        ValidateLineDimCode();
+                        ValidateColumnDimCode();
                         CreateCaptionSet(TempDimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                     end;
                 }
@@ -413,9 +411,6 @@ page 554 "Analysis by Dimensions"
                 ApplicationArea = Dimensions;
                 Caption = '&Show Matrix';
                 Image = ShowMatrix;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'View the data overview according to the selected filters and options.';
 
                 trigger OnAction()
@@ -436,10 +431,6 @@ page 554 "Analysis by Dimensions"
                 ApplicationArea = Dimensions;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
@@ -452,15 +443,32 @@ page 554 "Analysis by Dimensions"
                 ApplicationArea = Dimensions;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
                 begin
                     CreateCaptionSet(TempDimensionCodeBuffer, Step::Next, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Previous Set_Promoted"; "Previous Set")
+                {
+                }
+                actionref(ShowMatrix_Promoted; ShowMatrix)
+                {
+                }
+                actionref("Next Set_Promoted"; "Next Set")
+                {
+                }
+                actionref("Reverse Lines and Columns_Promoted"; "Reverse Lines and Columns")
+                {
+                }
             }
         }
     }
@@ -493,7 +501,7 @@ page 554 "Analysis by Dimensions"
         if (NewAnalysisViewCode <> '') and (NewAnalysisViewCode <> "Analysis View Code") then
             "Analysis View Code" := NewAnalysisViewCode;
         AnalysisByDimUserParam.Load(Rec, Page::"Analysis by Dimensions");
-        ValidateAnalysisViewCode;
+        ValidateAnalysisViewCode();
 
         GLSetup.Get();
         if GLSetup."Additional Reporting Currency" = '' then
@@ -504,7 +512,7 @@ page 554 "Analysis by Dimensions"
         if GLAccountSource then
             LineDimCode := GLAcc.TableCaption
         else
-            LineDimCode := CashFlowAccount.TableCaption;
+            LineDimCode := CashFlowAccount.TableCaption();
         ColumnDimCode := Text000;
 
         "Line Dim Option" := DimCodeToDimOption(LineDimCode);
@@ -860,7 +868,7 @@ page 554 "Analysis by Dimensions"
     local procedure CopyGLAccToBuf(var TheGLAcc: Record "G/L Account"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := TheGLAcc."No.";
             Name := TheGLAcc.Name;
             Totaling := TheGLAcc.Totaling;
@@ -872,7 +880,7 @@ page 554 "Analysis by Dimensions"
     local procedure CopyCFAccToBuf(var TheCFAcc: Record "Cash Flow Account"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := TheCFAcc."No.";
             Name := TheCFAcc.Name;
             Totaling := TheCFAcc.Totaling;
@@ -886,7 +894,7 @@ page 554 "Analysis by Dimensions"
         Period2: Record Date;
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := Format(ThePeriod."Period Start");
             "Period Start" := ThePeriod."Period Start";
             if "Closing Entries" = "Closing Entries"::Include then
@@ -905,7 +913,7 @@ page 554 "Analysis by Dimensions"
     local procedure CopyBusUnitToBuf(var TheBusUnit: Record "Business Unit"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := TheBusUnit.Code;
             Name := TheBusUnit.Name;
         end;
@@ -914,7 +922,7 @@ page 554 "Analysis by Dimensions"
     local procedure CopyCashFlowToBuf(var TheCashFlowForecast: Record "Cash Flow Forecast"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := TheCashFlowForecast."No.";
             Name := TheCashFlowForecast.Description;
         end;
@@ -923,7 +931,7 @@ page 554 "Analysis by Dimensions"
     local procedure CopyDimValueToBuf(var TheDimVal: Record "Dimension Value"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := TheDimVal.Code;
             Name := TheDimVal.Name;
             Totaling := TheDimVal.Totaling;
@@ -984,8 +992,8 @@ page 554 "Analysis by Dimensions"
 
         OnGetDimSelectionOnBeforeDimSelectionLookup(AnalysisView, DimSelection);
         DimSelection.LookupMode := true;
-        if DimSelection.RunModal = ACTION::LookupOK then
-            exit(DimSelection.GetDimSelCode);
+        if DimSelection.RunModal() = ACTION::LookupOK then
+            exit(DimSelection.GetDimSelCode());
 
         exit(OldDimSelCode);
     end;
@@ -1000,9 +1008,9 @@ page 554 "Analysis by Dimensions"
         DimValList.LookupMode(true);
         DimVal.SetRange("Dimension Code", Dim);
         DimValList.SetTableView(DimVal);
-        if DimValList.RunModal = ACTION::LookupOK then begin
+        if DimValList.RunModal() = ACTION::LookupOK then begin
             DimValList.GetRecord(DimVal);
-            Text := DimValList.GetSelectionFilter;
+            Text := DimValList.GetSelectionFilter();
             exit(true);
         end;
         exit(false)
@@ -1220,7 +1228,7 @@ page 554 "Analysis by Dimensions"
                 end;
         end;
 
-        PrimaryKeyFirstCaptionInCurrSe := RecRef.GetPosition;
+        PrimaryKeyFirstCaptionInCurrSe := RecRef.GetPosition();
 
         repeat
             CurrentCaptionOrdinal := CurrentCaptionOrdinal + 1;
@@ -1251,11 +1259,11 @@ page 554 "Analysis by Dimensions"
         CashFlowForecast: Record "Cash Flow Forecast";
     begin
         if GLAccountSource then begin
-            AccountCaption := GLAcc.TableCaption;
-            UnitCaption := BusUnit.TableCaption;
+            AccountCaption := GLAcc.TableCaption();
+            UnitCaption := BusUnit.TableCaption();
         end else begin
-            AccountCaption := CFAccount.TableCaption;
-            UnitCaption := CashFlowForecast.TableCaption;
+            AccountCaption := CFAccount.TableCaption();
+            UnitCaption := CashFlowForecast.TableCaption();
         end;
     end;
 

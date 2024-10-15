@@ -38,7 +38,7 @@ codeunit 6515 "Package Info. Management"
         BinContent.CopyFilter("Package No. Filter", PackageNoInfo."Package No.");
         PackageNoInfo.SetRange(Blocked, true);
 
-        if SerialNoInfo.IsEmpty and LotNoInfo.IsEmpty and PackageNoInfo.IsEmpty() then
+        if SerialNoInfo.IsEmpty() and LotNoInfo.IsEmpty() and PackageNoInfo.IsEmpty() then
             exit;
 
         SNGiven := not (BinContent.GetFilter("Serial No. Filter") = '');
@@ -232,7 +232,7 @@ codeunit 6515 "Package Info. Management"
         if NewPackageNoInfo.Get(PackageNoInfo."Item No.", PackageNoInfo."Variant Code", NewPackageNo) then begin
             if not ConfirmManagement.GetResponseOrDefault(
                  StrSubstNo(
-                   TrackingNoInfoAlreadyExistsErr, PackageNoInfo.TableCaption, PackageNoInfo.FieldCaption("Package No."), NewPackageNo), true)
+                   TrackingNoInfoAlreadyExistsErr, PackageNoInfo.TableCaption(), PackageNoInfo.FieldCaption("Package No."), NewPackageNo), true)
             then
                 Error('');
             NewPackageNoInfo.TransferFields(PackageNoInfo, false);

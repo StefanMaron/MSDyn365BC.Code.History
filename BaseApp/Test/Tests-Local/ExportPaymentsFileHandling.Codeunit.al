@@ -114,7 +114,7 @@ codeunit 142500 "Export Payments File Handling"
 
         // Exercise: Export Payment.
         ExportPaymentsRB.StartExportFile(BankAccount."No.", GenJournalLine);
-        ExportPaymentsRB.ExportElectronicPayment(GenJournalLine, GenJournalLine.Amount, WorkDate);
+        ExportPaymentsRB.ExportElectronicPayment(GenJournalLine, GenJournalLine.Amount, WorkDate());
 
         // Verify: File export successfully without Input Qualifier.
         ExportPaymentsRB.EndExportFile;
@@ -146,7 +146,7 @@ codeunit 142500 "Export Payments File Handling"
 
         // Exercise: Export Payment.
         ExportPaymentsRB.StartExportFile(BankAccount."No.", GenJournalLine);
-        ExportPaymentsRB.ExportElectronicPayment(GenJournalLine, GenJournalLine.Amount, WorkDate);
+        ExportPaymentsRB.ExportElectronicPayment(GenJournalLine, GenJournalLine.Amount, WorkDate());
 
         // Verify: Verify exported file
         ExportPaymentsRB.EndExportFile;
@@ -309,7 +309,7 @@ codeunit 142500 "Export Payments File Handling"
         ExportPaymentsACH.StartExportFile(GenJournalLine."Bal. Account No.", CopyStr(LibraryUtility.GenerateRandomText(10), 1, 10));
         ExportPaymentsACH.StartExportBatch(
           ServiceClassCode, CopyStr(LibraryUtility.GenerateRandomText(10), 1, 10),
-          CopyStr(LibraryUtility.GenerateRandomText(10), 1, 10), WorkDate);
+          CopyStr(LibraryUtility.GenerateRandomText(10), 1, 10), WorkDate());
         ExportPaymentsACH.ExportElectronicPayment(GenJournalLine, GenJournalLine.Amount);
         ExportPaymentsACH.EndExportBatch(ServiceClassCode);
         ExportPaymentsACH.EndExportFile;
@@ -321,8 +321,8 @@ codeunit 142500 "Export Payments File Handling"
     begin
         ExportPaymentsCecoban.StartExportFile(
           GenJournalLine."Bal. Account No.", CopyStr(LibraryUtility.GenerateRandomText(10), 1, 10));
-        ExportPaymentsCecoban.StartExportBatch(0, CopyStr(LibraryUtility.GenerateRandomText(10), 1, 10), WorkDate);
-        ExportPaymentsCecoban.ExportElectronicPayment(GenJournalLine, GenJournalLine.Amount, WorkDate);
+        ExportPaymentsCecoban.StartExportBatch(0, CopyStr(LibraryUtility.GenerateRandomText(10), 1, 10), WorkDate());
+        ExportPaymentsCecoban.ExportElectronicPayment(GenJournalLine, GenJournalLine.Amount, WorkDate());
         ExportPaymentsCecoban.EndExportBatch;
         ExportPaymentsCecoban.EndExportFile;
     end;
@@ -337,7 +337,7 @@ codeunit 142500 "Export Payments File Handling"
             "Last E-Pay Export File Name" := 'ExportPayments000.txt';
             "Export Format" := ExportFormat;
             "Transit No." := GetTransitNo(ExportFormat);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -403,7 +403,7 @@ codeunit 142500 "Export Payments File Handling"
         LibraryPurchase.CreateVendor(Vendor);
         with Vendor do begin
             Validate(Name, LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Name), 0));
-            Modify;
+            Modify();
             exit("No.");
         end;
     end;
@@ -415,14 +415,14 @@ codeunit 142500 "Export Payments File Handling"
         LibrarySales.CreateCustomer(Customer);
         with Customer do begin
             Validate(Name, LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Name), 0));
-            Modify;
+            Modify();
             exit("No.");
         end;
     end;
 
     local procedure GetTempPath(): Text
     begin
-        exit(TemporaryPath + Format(CreateGuid) + '\');
+        exit(TemporaryPath + Format(CreateGuid()) + '\');
     end;
 
     local procedure GetTransitNo(ExportFormat: Option ,US,CA,MX): Text[20]
@@ -496,9 +496,9 @@ codeunit 142500 "Export Payments File Handling"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             Validate("Federal ID No.", LibraryUtility.GenerateGUID());
-            Modify;
+            Modify();
         end;
     end;
 

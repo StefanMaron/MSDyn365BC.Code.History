@@ -475,6 +475,11 @@
             Caption = 'Company Bank Account Code';
             TableRelation = "Bank Account" where("Currency Code" = FIELD("Currency Code"));
         }
+        field(131; "VAT Reporting Date"; Date)
+        {
+            Caption = 'VAT Date';
+            Editable = false;
+        }
         field(180; "Payment Reference"; Code[50])
         {
             Caption = 'Payment Reference';
@@ -1015,7 +1020,7 @@
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure SetSecurityFilterOnRespCenter()
@@ -1040,7 +1045,7 @@
         RBMgt: Codeunit "File Management";
     begin
         CalcFields("Signed Document XML");
-        if "Signed Document XML".HasValue then begin
+        if "Signed Document XML".HasValue() then begin
             TempBlob.FromRecord(Rec, FieldNo("Signed Document XML"));
             RBMgt.BLOBExport(TempBlob, "No." + '.xml', true);
         end else

@@ -38,7 +38,7 @@ codeunit 137812 PageTestChangeViewMode
         Assert.IsFalse(SalesOrderStatistics."TotalAmount1[1]".Editable, 'Field should not be editable in View');
         Assert.IsFalse(SalesOrderStatistics.InvDiscountAmount_Invoicing.Editable, 'Field should not be editable in View');
         Assert.IsFalse(SalesOrderStatistics.TotalInclVAT_Invoicing.Editable, 'Field should not be editable in View');
-        Assert.IsFalse(SalesOrderStatistics.PrepmtTotalAmount.Editable, 'Field should not be editable in View');
+        // NAVCZ Assert.IsFalse(SalesOrderStatistics.PrepmtTotalAmount.Editable, 'Field should not be editable in View');
 
         // switch to edit
         SalesOrderStatistics.Edit.Invoke;
@@ -46,7 +46,7 @@ codeunit 137812 PageTestChangeViewMode
         Assert.IsTrue(SalesOrderStatistics."TotalAmount1[1]".Editable, 'Field should be editable in Edit');
         Assert.IsTrue(SalesOrderStatistics.InvDiscountAmount_Invoicing.Editable, 'Field should be editable in Edit');
         Assert.IsTrue(SalesOrderStatistics.TotalInclVAT_Invoicing.Editable, 'Field should be editable in Edit');
-        Assert.IsTrue(SalesOrderStatistics.PrepmtTotalAmount.Editable, 'Field should be editable in Edit');
+        // NAVCZ Assert.IsTrue(SalesOrderStatistics.PrepmtTotalAmount.Editable, 'Field should be editable in Edit');
 
         // switch to view
         SalesOrderStatistics.View.Invoke;
@@ -54,7 +54,7 @@ codeunit 137812 PageTestChangeViewMode
         Assert.IsFalse(SalesOrderStatistics."TotalAmount1[1]".Editable, 'Field should not be editable in View');
         Assert.IsFalse(SalesOrderStatistics.InvDiscountAmount_Invoicing.Editable, 'Field should not be editable in View');
         Assert.IsFalse(SalesOrderStatistics.TotalInclVAT_Invoicing.Editable, 'Field should not be editable in View');
-        Assert.IsFalse(SalesOrderStatistics.PrepmtTotalAmount.Editable, 'Field should not be editable in View');
+        // NAVCZ Assert.IsFalse(SalesOrderStatistics.PrepmtTotalAmount.Editable, 'Field should not be editable in View');
     end;
 
     [Test]

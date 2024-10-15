@@ -1,4 +1,4 @@
-﻿page 233 "Apply Vendor Entries"
+page 233 "Apply Vendor Entries"
 {
     Caption = 'Apply Vendor Entries';
     DataCaptionFields = "Vendor No.";
@@ -6,7 +6,6 @@
     InsertAllowed = false;
     LinksAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Line,Entry';
     SourceTable = "Vendor Ledger Entry";
 
     layout
@@ -216,13 +215,13 @@
                     Caption = 'Appln. Amount to Apply';
                     ToolTip = 'Specifies the amount to apply.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the due date on the entry.';
                 }
-                field("Pmt. Discount Date"; "Pmt. Discount Date")
+                field("Pmt. Discount Date"; Rec."Pmt. Discount Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
@@ -232,23 +231,23 @@
                         RecalcApplnAmount();
                     end;
                 }
-                field("Pmt. Disc. Tolerance Date"; "Pmt. Disc. Tolerance Date")
+                field("Pmt. Disc. Tolerance Date"; Rec."Pmt. Disc. Tolerance Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the latest date the amount in the entry must be paid in order for payment discount tolerance to be granted.';
                 }
-                field("Payment Reference"; "Payment Reference")
+                field("Payment Reference"; Rec."Payment Reference")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the payment of the purchase invoice.';
                 }
-                field("Original Pmt. Disc. Possible"; "Original Pmt. Disc. Possible")
+                field("Original Pmt. Disc. Possible"; Rec."Original Pmt. Disc. Possible")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the discount that you can obtain if the entry is applied to before the payment discount date.';
                     Visible = false;
                 }
-                field("Remaining Pmt. Disc. Possible"; "Remaining Pmt. Disc. Possible")
+                field("Remaining Pmt. Disc. Possible"; Rec."Remaining Pmt. Disc. Possible")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the remaining payment discount which can be received if the payment is made before the payment discount date.';
@@ -283,12 +282,12 @@
                     Editable = false;
                     ToolTip = 'Specifies if the entry to be applied is positive.';
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
@@ -408,8 +407,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Applied E&ntries';
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Applied Vendor Entries";
                     RunPageOnRec = true;
                     ToolTip = 'View the ledger entries that have been applied to this record.';
@@ -420,8 +417,6 @@
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
@@ -435,8 +430,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Detailed &Ledger Entries';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Detailed Vendor Ledg. Entries";
                     RunPageLink = "Vendor Ledger Entry No." = FIELD("Entry No.");
                     RunPageView = SORTING("Vendor Ledger Entry No.", "Posting Date");
@@ -448,8 +441,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Find entries...';
                     Image = Navigate;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                     Visible = NOT IsOfficeAddin;
@@ -473,8 +464,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Set Applies-to ID';
                     Image = SelectLineToApply;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'Shift+F11';
                     ToolTip = 'Set the Applies-to ID field on the posted entry to automatically be filled in with the document number of the entry in the journal.';
 
@@ -492,8 +481,6 @@
                     Caption = 'Post Application';
                     Ellipsis = true;
                     Image = PostApplication;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'F9';
                     ToolTip = 'Define the document number of the ledger entry to use to perform the application. In addition, you specify the Posting Date for the application.';
 
@@ -507,8 +494,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Preview Posting';
                     Image = ViewPostedOrder;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
@@ -526,8 +511,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show Only Selected Entries to Be Applied';
                     Image = ShowSelected;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'View the selected ledger entries that will be applied to the specified record.';
 
                     trigger OnAction()
@@ -552,9 +535,6 @@
                 ApplicationArea = Basic, Suite;
                 Caption = 'Show Posted Document';
                 Image = Document;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Show details for the posted payment, invoice, or credit memo.';
 
                 trigger OnAction()
@@ -568,15 +548,65 @@
                 Caption = 'Show Document Attachment';
                 Enabled = HasDocumentAttachment;
                 Image = Attach;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'View documents or images that are attached to the posted invoice or credit memo.';
 
                 trigger OnAction()
                 begin
                     Rec.ShowPostedDocAttachment();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(ActionSetAppliesToID_Promoted; ActionSetAppliesToID)
+                {
+                }
+                actionref(ActionPostApplication_Promoted; ActionPostApplication)
+                {
+                }
+                group(Category_Category4)
+                {
+                    Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 3.';
+                    ShowAs = SplitButton;
+
+                    actionref(ShowPostedDocument_Promoted; ShowPostedDocument)
+                    {
+                    }
+                    actionref(ShowDocumentAttachment_Promoted; ShowDocumentAttachment)
+                    {
+                    }
+                }
+                actionref(Preview_Promoted; Preview)
+                {
+                }
+                actionref("Show Only Selected Entries to Be Applied_Promoted"; "Show Only Selected Entries to Be Applied")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Entry', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(Navigate_Promoted; Navigate)
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref("Applied E&ntries_Promoted"; "Applied E&ntries")
+                {
+                }
+                actionref("Detailed &Ledger Entries_Promoted"; "Detailed &Ledger Entries")
+                {
+                }
             }
         }
     }
@@ -679,7 +709,7 @@
             end;
         end;
 
-        if CheckActionPerformed then begin
+        if CheckActionPerformed() then begin
             Rec := TempApplyingVendLedgEntry;
             Rec."Applying Entry" := false;
             if AppliesToID = '' then begin
@@ -791,7 +821,7 @@
 
         SalesTaxAmountLine.DeleteAll();
         if PurchHeader."Tax Area Code" <> '' then begin
-            SalesTaxCalculate.StartSalesTaxCalculation;
+            SalesTaxCalculate.StartSalesTaxCalculation();
             with PurchLine do begin
                 SetRange("Document Type", PurchHeader."Document Type");
                 SetRange("Document No.", PurchHeader."No.");
@@ -803,7 +833,7 @@
             end;
             SalesTaxCalculate.EndSalesTaxCalculation(PurchHeader."Posting Date");
             SalesTaxCalculate.GetSalesTaxAmountLineTable(SalesTaxAmountLine);
-            TotalPurchLine."Amount Including VAT" := TotalPurchLine."Amount Including VAT" + SalesTaxAmountLine.GetTotalTaxAmount;
+            TotalPurchLine."Amount Including VAT" := TotalPurchLine."Amount Including VAT" + SalesTaxAmountLine.GetTotalTaxAmount();
         end;
 
         case PurchHeader."Document Type" of
@@ -1086,7 +1116,7 @@
         OnAfterCalcApplnAmount(Rec, AppliedAmount, ApplyingAmount, CalcType, AppliedVendLedgEntry, GenJnlLine);
     end;
 
-    local procedure CalcApplnRemainingAmount(Amount: Decimal): Decimal
+    protected procedure CalcApplnRemainingAmount(Amount: Decimal): Decimal
     var
         ApplnRemainingAmount: Decimal;
     begin
@@ -1123,7 +1153,7 @@
         exit(ApplnAmountToApply);
     end;
 
-    local procedure FindAmountRounding()
+    protected procedure FindAmountRounding()
     begin
         if ApplnCurrencyCode = '' then begin
             Currency.Init();
@@ -1197,7 +1227,7 @@
         end;
     end;
 
-    local procedure HandleChosenEntries(Type: Enum "Vendor Apply Calculation Type"; CurrentAmount: Decimal; CurrencyCode: Code[10]; PostingDate: Date)
+    protected procedure HandleChosenEntries(Type: Enum "Vendor Apply Calculation Type"; CurrentAmount: Decimal; CurrencyCode: Code[10]; PostingDate: Date)
     var
         TempAppliedVendLedgEntry: Record "Vendor Ledger Entry" temporary;
         PossiblePmtDisc: Decimal;
@@ -1406,14 +1436,6 @@
         AppliesToID := AppliesToID2;
     end;
 
-#if not CLEAN18
-    [Obsolete('Replaced by ExchangeLedgerEntryAmounts()', '18.0')]
-    procedure ExchangeAmountsOnLedgerEntry(Type: Option Direct,GenJnlLine,PurchHeader; CurrencyCode: Code[10]; var CalcVendLedgEntry: Record "Vendor Ledger Entry"; PostingDate: Date)
-    begin
-        ExchangeLedgerEntryAmounts("Vendor Apply Calculation Type".FromInteger(Type), CurrencyCode, CalcVendLedgEntry, PostingDate);
-    end;
-#endif
-
     protected procedure ExchangeLedgerEntryAmounts(Type: Enum "Vendor Apply Calculation Type"; CurrencyCode: Code[10]; var CalcVendLedgEntry: Record "Vendor Ledger Entry"; PostingDate: Date)
     var
         CalculateCurrency: Boolean;
@@ -1438,9 +1460,6 @@
         end;
 
         OnAfterExchangeLedgerEntryAmounts(CalcVendLedgEntry, VendLedgEntry, CurrencyCode);
-#if not CLEAN18
-        OnAfterExchangeAmountsOnLedgerEntry(CalcVendLedgEntry, VendLedgEntry, CurrencyCode);
-#endif
     end;
 
     procedure CalcOppositeEntriesAmount(var TempAppliedVendorLedgerEntry: Record "Vendor Ledger Entry" temporary) Result: Decimal
@@ -1493,14 +1512,6 @@
     local procedure OnAfterCalcApplnRemainingAmount(VendorLedgerEntry: Record "Vendor Ledger Entry"; var ApplnRemainingAmount: Decimal)
     begin
     end;
-
-#if not CLEAN18
-    [Obsolete('Replaced by event OnAfterExchangeLedgerEntryAmounts().', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterExchangeAmountsOnLedgerEntry(var CalcVendorLedgerEntry: Record "Vendor Ledger Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry"; CurrencyCode: Code[10])
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterExchangeLedgerEntryAmounts(var CalcVendorLedgerEntry: Record "Vendor Ledger Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry"; CurrencyCode: Code[10])

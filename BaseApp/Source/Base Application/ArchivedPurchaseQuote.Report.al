@@ -310,10 +310,10 @@ report 415 "Archived Purchase Quote"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then
-                                PurchLineArchive.Find('-')
+                                TempPurchaseLineArchive.Find('-')
                             else
-                                PurchLineArchive.Next;
-                            "Purchase Line Archive" := PurchLineArchive;
+                                TempPurchaseLineArchive.Next();
+                            "Purchase Line Archive" := TempPurchaseLineArchive;
 
                             DimSetEntry2.SetRange("Dimension Set ID", "Purchase Line Archive"."Dimension Set ID");
 
@@ -322,21 +322,21 @@ report 415 "Archived Purchase Quote"
 
                         trigger OnPostDataItem()
                         begin
-                            PurchLineArchive.DeleteAll();
+                            TempPurchaseLineArchive.DeleteAll();
                         end;
 
                         trigger OnPreDataItem()
                         begin
-                            MoreLines := PurchLineArchive.Find('+');
-                            while MoreLines and (PurchLineArchive.Description = '') and (PurchLineArchive."Description 2" = '') and
-                                  (PurchLineArchive."No." = '') and (PurchLineArchive.Quantity = 0) and
-                                  (PurchLineArchive.Amount = 0)
+                            MoreLines := TempPurchaseLineArchive.Find('+');
+                            while MoreLines and (TempPurchaseLineArchive.Description = '') and (TempPurchaseLineArchive."Description 2" = '') and
+                                  (TempPurchaseLineArchive."No." = '') and (TempPurchaseLineArchive.Quantity = 0) and
+                                  (TempPurchaseLineArchive.Amount = 0)
                             do
-                                MoreLines := PurchLineArchive.Next(-1) <> 0;
+                                MoreLines := TempPurchaseLineArchive.Next(-1) <> 0;
                             if not MoreLines then
                                 CurrReport.Break();
-                            PurchLineArchive.SetRange("Line No.", 0, PurchLineArchive."Line No.");
-                            SetRange(Number, 1, PurchLineArchive.Count);
+                            TempPurchaseLineArchive.SetRange("Line No.", 0, TempPurchaseLineArchive."Line No.");
+                            SetRange(Number, 1, TempPurchaseLineArchive.Count);
                         end;
                     }
                     dataitem(Total; "Integer")
@@ -408,26 +408,26 @@ report 415 "Archived Purchase Quote"
                 var
                     PurchLineArchive2: Record "Purchase Line Archive";
                 begin
-                    Clear(PurchLineArchive);
-                    PurchLineArchive.DeleteAll();
+                    Clear(TempPurchaseLineArchive);
+                    TempPurchaseLineArchive.DeleteAll();
                     PurchLineArchive2.SetRange("Document Type", "Purchase Header Archive"."Document Type");
                     PurchLineArchive2.SetRange("Document No.", "Purchase Header Archive"."No.");
                     PurchLineArchive2.SetRange("Version No.", "Purchase Header Archive"."Version No.");
                     if PurchLineArchive2.FindSet() then
                         repeat
-                            PurchLineArchive := PurchLineArchive2;
-                            PurchLineArchive.Insert();
+                            TempPurchaseLineArchive := PurchLineArchive2;
+                            TempPurchaseLineArchive.Insert();
                         until PurchLineArchive2.Next() = 0;
 
                     if Number > 1 then begin
-                        CopyText := FormatDocument.GetCOPYText;
+                        CopyText := FormatDocument.GetCOPYText();
                         OutputNo += 1;
                     end;
                 end;
 
                 trigger OnPostDataItem()
                 begin
-                    if not IsReportInPreviewMode then
+                    if not IsReportInPreviewMode() then
                         CODEUNIT.Run(CODEUNIT::"Purch.HeaderArch-Printed", "Purchase Header Archive");
                 end;
 
@@ -496,11 +496,10 @@ report 415 "Archived Purchase Quote"
     end;
 
     var
-        Text002: Label 'Purchase - Quote Archived %1', Comment = '%1 = Document No.';
         ShipmentMethod: Record "Shipment Method";
         SalesPurchPerson: Record "Salesperson/Purchaser";
         CompanyInfo: Record "Company Information";
-        PurchLineArchive: Record "Purchase Line Archive" temporary;
+        TempPurchaseLineArchive: Record "Purchase Line Archive" temporary;
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
         RespCenter: Record "Responsibility Center";
@@ -510,7 +509,7 @@ report 415 "Archived Purchase Quote"
         VendAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
-        PurchaserText: Text[30];
+        PurchaserText: Text[50];
         VATNoText: Text[80];
         ReferenceText: Text[80];
         MoreLines: Boolean;
@@ -522,8 +521,10 @@ report 415 "Archived Purchase Quote"
         ShowInternalInfo: Boolean;
         Continue: Boolean;
         OutputNo: Integer;
-        Text004: Label 'Version %1 of %2 ';
         PurchaseLineArchiveType: Integer;
+
+        Text002: Label 'Purchase - Quote Archived %1', Comment = '%1 = Document No.';
+        Text004: Label 'Version %1 of %2 ';
         CompanyInfo__Phone_No__CaptionLbl: Label 'Phone No.';
         CompanyInfo__Fax_No__CaptionLbl: Label 'Fax No.';
         CompanyInfo__VAT_Registration_No__CaptionLbl: Label 'VAT Reg. No.';
@@ -544,7 +545,7 @@ report 415 "Archived Purchase Quote"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     local procedure FormatAddressFields(var PurchaseHeaderArchive: Record "Purchase Header Archive")

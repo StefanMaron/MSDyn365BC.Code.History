@@ -52,13 +52,15 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = Type <> Type::" ";
                     ToolTip = 'Specifies the number of a general ledger account, item, resource, additional cost, or fixed asset, depending on the contents of the Type field.';
 
                     trigger OnValidate()
+                    var
+                        Item: Record "Item";
                     begin
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
@@ -67,13 +69,17 @@
                         QuantityOnAfterValidate();
                         UpdateTypeText();
                         DeltaUpdateTotals();
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
                     end;
                 }
-                field("Item Reference No."; "Item Reference No.")
+                field("Item Reference No."; Rec."Item Reference No.")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
+                    QuickEntry = false;
                     ToolTip = 'Specifies the referenced item number.';
+                    Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -96,27 +102,32 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("IC Partner Ref. Type"; "IC Partner Ref. Type")
+                field("IC Partner Ref. Type"; Rec."IC Partner Ref. Type")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the item or account in your IC partner''s company that corresponds to the item or account on the line.';
                     Visible = false;
                 }
-                field("IC Partner Reference"; "IC Partner Reference")
+                field("IC Partner Reference"; Rec."IC Partner Reference")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the IC partner. If the line is being sent to one of your intercompany partners, this field is used together with the IC Partner Ref. Type field to indicate the item or account in your partner''s company that corresponds to the line.';
                     Visible = false;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
+                    ShowMandatory = VariantCodeMandatory;
 
                     trigger OnValidate()
+                    var
+                        Item: Record "Item";
                     begin
                         DeltaUpdateTotals();
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
                     end;
                 }
                 field(Nonstock; Nonstock)
@@ -125,7 +136,7 @@
                     ToolTip = 'Specifies that this item is a catalog item.';
                     Visible = false;
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT product posting group. Links business transactions made for the item, resource, or G/L account with the general ledger, to account for VAT amounts resulting from trade with that record.';
@@ -163,19 +174,19 @@
                         Rec.SaveLookupSelection(Selected);
                     end;
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies information in addition to the description.';
                     Visible = false;
                 }
-                field("Return Reason Code"; "Return Reason Code")
+                field("Return Reason Code"; Rec."Return Reason Code")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the code explaining why the item was returned.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Editable = NOT IsBlankNumber;
@@ -191,7 +202,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
@@ -225,7 +236,7 @@
                             CurrPage.Update(false);
                     end;
                 }
-                field("Reserved Quantity"; ReverseReservedQtySign)
+                field("Reserved Quantity"; ReverseReservedQtySign())
                 {
                     ApplicationArea = Reservation;
                     BlankZero = true;
@@ -236,13 +247,13 @@
 
                     trigger OnDrillDown()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         Commit();
                         ShowReservationEntries(true);
                         UpdateForm(true);
                     end;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = UnitofMeasureCodeIsChangeable;
@@ -256,19 +267,19 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Unit of Measure"; "Unit of Measure")
+                field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the unit of measure for the item or resource on the sales line.';
                     Visible = false;
                 }
-                field("Unit Cost (LCY)"; "Unit Cost (LCY)")
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the unit cost of the item on the line.';
                     Visible = false;
                 }
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -282,14 +293,14 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Tax Liable"; "Tax Liable")
+                field("Tax Liable"; Rec."Tax Liable")
                 {
                     ApplicationArea = SalesTax;
                     Editable = false;
                     ToolTip = 'Specifies if the customer or vendor is liable for sales tax.';
                     Visible = false;
                 }
-                field("Tax Area Code"; "Tax Area Code")
+                field("Tax Area Code"; Rec."Tax Area Code")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the tax area code for the customer.';
@@ -299,7 +310,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Tax Group Code"; "Tax Group Code")
+                field("Tax Group Code"; Rec."Tax Group Code")
                 {
                     ApplicationArea = SalesTax;
                     ShowMandatory = true;
@@ -310,7 +321,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Line Discount %"; "Line Discount %")
+                field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -323,7 +334,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Line Amount"; "Line Amount")
+                field("Line Amount"; Rec."Line Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -337,11 +348,11 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Amount Including VAT"; "Amount Including VAT")
+                field("Amount Including VAT"; Rec."Amount Including VAT")
                 {
                     ToolTip = 'Specifies the sum of the amounts in the Amount Including VAT fields on the associated sales lines.';
                 }
-                field("Line Discount Amount"; "Line Discount Amount")
+                field("Line Discount Amount"; Rec."Line Discount Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the discount amount that is granted for the item on the line.';
@@ -352,7 +363,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Allow Invoice Disc."; "Allow Invoice Disc.")
+                field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies if the invoice line is included when the invoice discount is calculated.';
@@ -360,14 +371,14 @@
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         AmountWithDiscountAllowed := DocumentTotals.CalcTotalSalesAmountOnlyDiscountAllowed(Rec);
                         InvoiceDiscountAmount := Round(AmountWithDiscountAllowed * InvoiceDiscountPct / 100, Currency."Amount Rounding Precision");
                         ValidateInvoiceDiscountAmount();
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Inv. Discount Amount"; "Inv. Discount Amount")
+                field("Inv. Discount Amount"; Rec."Inv. Discount Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the invoice discount amount for the line.';
@@ -378,7 +389,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Return Qty. to Receive"; "Return Qty. to Receive")
+                field("Return Qty. to Receive"; Rec."Return Qty. to Receive")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -386,31 +397,31 @@
                     AboutTitle = 'The quantity that is returned';
                     AboutText = 'If the customer is not returning the full quantity, adjust the ‘Qty. to Receive’ value. Similarly, choose the quantity to credit the customer in the ‘Qty to Invoice’ field.';
                 }
-                field("Return Qty. Received"; "Return Qty. Received")
+                field("Return Qty. Received"; Rec."Return Qty. Received")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies how many units of the item on the line have been posted as shipped.';
                 }
-                field("Qty. to Invoice"; "Qty. to Invoice")
+                field("Qty. to Invoice"; Rec."Qty. to Invoice")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the quantity that remains to be invoiced. It is calculated as Quantity - Qty. Invoiced.';
                 }
-                field("Quantity Invoiced"; "Quantity Invoiced")
+                field("Quantity Invoiced"; Rec."Quantity Invoiced")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies how many units of the item on the line have been posted as invoiced.';
                 }
-                field("Allow Item Charge Assignment"; "Allow Item Charge Assignment")
+                field("Allow Item Charge Assignment"; Rec."Allow Item Charge Assignment")
                 {
                     ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies that you can assign item charges to this line.';
                     Visible = false;
                 }
-                field("Qty. to Assign"; "Qty. to Assign")
+                field("Qty. to Assign"; Rec."Qty. to Assign")
                 {
                     ApplicationArea = ItemCharges;
                     QuickEntry = false;
@@ -419,12 +430,12 @@
 
                     trigger OnDrillDown()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         ShowItemChargeAssgnt();
                         UpdateForm(false);
                     end;
                 }
-                field("Qty. Assigned"; "Qty. Assigned")
+                field("Qty. Assigned"; Rec."Qty. Assigned")
                 {
                     ApplicationArea = ItemCharges;
                     BlankZero = true;
@@ -433,12 +444,12 @@
 
                     trigger OnDrillDown()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         ShowItemChargeAssgnt();
                         UpdateForm(false);
                     end;
                 }
-                field("Requested Delivery Date"; "Requested Delivery Date")
+                field("Requested Delivery Date"; Rec."Requested Delivery Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date that the customer has asked for the order to be delivered.';
@@ -449,7 +460,7 @@
                         UpdateForm(true);
                     end;
                 }
-                field("Promised Delivery Date"; "Promised Delivery Date")
+                field("Promised Delivery Date"; Rec."Promised Delivery Date")
                 {
                     ApplicationArea = OrderPromising;
                     ToolTip = 'Specifies the date that you have promised to deliver the order, as a result of the Order Promising function.';
@@ -460,7 +471,7 @@
                         UpdateForm(true);
                     end;
                 }
-                field("Planned Delivery Date"; "Planned Delivery Date")
+                field("Planned Delivery Date"; Rec."Planned Delivery Date")
                 {
                     ApplicationArea = SalesReturnOrder;
                     QuickEntry = false;
@@ -472,7 +483,7 @@
                         UpdateForm(true);
                     end;
                 }
-                field("Planned Shipment Date"; "Planned Shipment Date")
+                field("Planned Shipment Date"; Rec."Planned Shipment Date")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the date that the shipment should ship from the warehouse. If the customer requests a delivery date, the program calculates the planned shipment date by subtracting the shipping time from the requested delivery date. If the customer does not request a delivery date or the requested delivery date cannot be met, the program calculates the content of this field by adding the shipment time to the shipping date.';
@@ -483,7 +494,7 @@
                         UpdateForm(true);
                     end;
                 }
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Basic, Suite;
                     QuickEntry = false;
@@ -492,52 +503,52 @@
 
                     trigger OnValidate()
                     begin
-                        ShipmentDateOnAfterValidate;
+                        ShipmentDateOnAfterValidate();
                     end;
                 }
-                field("Shipping Agent Code"; "Shipping Agent Code")
+                field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
                     Visible = false;
                 }
-                field("Shipping Agent Service Code"; "Shipping Agent Service Code")
+                field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
                     Visible = false;
                 }
-                field("Shipping Time"; "Shipping Time")
+                field("Shipping Time"; Rec."Shipping Time")
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies how long it takes from when the items are shipped from the warehouse to when they are delivered.';
                     Visible = false;
                 }
-                field("Blanket Order No."; "Blanket Order No.")
+                field("Blanket Order No."; Rec."Blanket Order No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the blanket order that the record originates from.';
                     Visible = false;
                 }
-                field("Blanket Order Line No."; "Blanket Order Line No.")
+                field("Blanket Order Line No."; Rec."Blanket Order Line No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the blanket order line that the record originates from.';
                     Visible = false;
                 }
-                field("Appl.-from Item Entry"; "Appl.-from Item Entry")
+                field("Appl.-from Item Entry"; Rec."Appl.-from Item Entry")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied from.';
                     Visible = false;
                 }
-                field("Appl.-to Item Entry"; "Appl.-to Item Entry")
+                field("Appl.-to Item Entry"; Rec."Appl.-to Item Entry")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied -to.';
                     Visible = false;
                 }
-                field("Deferral Code"; "Deferral Code")
+                field("Deferral Code"; Rec."Deferral Code")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Enabled = (Type <> Type::"Fixed Asset") AND (Type <> Type::" ");
@@ -551,20 +562,20 @@
                         ShowDeferralSchedule();
                     end;
                 }
-                field("Returns Deferral Start Date"; "Returns Deferral Start Date")
+                field("Returns Deferral Start Date"; Rec."Returns Deferral Start Date")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Enabled = (Type <> Type::"Fixed Asset") AND (Type <> Type::" ");
                     ToolTip = 'Specifies the starting date of the returns deferral period.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -672,27 +683,27 @@
                         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 8);
                     end;
                 }
-                field("Gross Weight"; "Gross Weight")
+                field("Gross Weight"; Rec."Gross Weight")
                 {
                     Caption = 'Unit Gross Weight';
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the gross weight of one unit of the item. In the sales statistics window, the gross weight on the line is included in the total gross weight of all the lines for the particular sales document.';
                     Visible = false;
                 }
-                field("Net Weight"; "Net Weight")
+                field("Net Weight"; Rec."Net Weight")
                 {
                     Caption = 'Unit Net Weight';
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the net weight of one unit of the item. In the sales statistics window, the net weight on the line is included in the total net weight of all the lines for the particular sales document.';
                     Visible = false;
                 }
-                field("Unit Volume"; "Unit Volume")
+                field("Unit Volume"; Rec."Unit Volume")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the volume of one unit of the item. In the sales statistics window, the volume of one unit of the item on the line is included in the total volume of all the lines for the particular sales document.';
                     Visible = false;
                 }
-                field("Units per Parcel"; "Units per Parcel")
+                field("Units per Parcel"; Rec."Units per Parcel")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of units per parcel of the item. In the sales statistics window, the number of units per parcel on the line helps to determine the total number of units for all the lines for the particular sales document.';
@@ -806,7 +817,7 @@
 
                     trigger OnAction()
                     begin
-                        ExplodeBOM;
+                        ExplodeBOM();
                     end;
                 }
                 action("Insert &Ext. Texts")
@@ -867,7 +878,7 @@
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByEvent)
+                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByEvent())
                         end;
                     }
                     action(Period)
@@ -879,7 +890,7 @@
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByPeriod)
+                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByPeriod())
                         end;
                     }
                     action(Variant)
@@ -891,7 +902,7 @@
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByVariant)
+                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByVariant())
                         end;
                     }
                     action(Location)
@@ -904,7 +915,7 @@
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByLocation)
+                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByLocation())
                         end;
                     }
                     action(Lot)
@@ -927,7 +938,7 @@
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByBOM)
+                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByBOM())
                         end;
                     }
                 }
@@ -1015,7 +1026,7 @@
                                 DeferralUtilities.GetDeferralStartDate(
                                     "Deferral Document Type"::Sales.AsInteger(), "Document Type".AsInteger(),
                                     "Document No.", "Line No.", "Deferral Code", "Posting Date");
-                            CurrPage.SaveRecord;
+                            CurrPage.SaveRecord();
                         end;
                     end;
                 }
@@ -1077,20 +1088,24 @@
 
     trigger OnAfterGetCurrRecord()
     begin
-        GetTotalSalesHeader;
-        CalculateTotals;
+        GetTotalSalesHeader();
+        CalculateTotals();
         SetLocationCodeMandatory();
         UpdateEditableOnRow();
         UpdateTypeText();
         SetItemChargeFieldsStyle();
-        UpdateCurrency;
+        UpdateCurrency();
     end;
 
     trigger OnAfterGetRecord()
+    var
+        Item: Record Item;
     begin
         ShowShortcutDimCode(ShortcutDimCode);
         UpdateTypeText();
         SetItemChargeFieldsStyle();
+        if "Variant Code" = '' then
+            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1129,7 +1144,7 @@
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        InitType;
+        InitType();
         SetDefaultType();
 
         Clear(ShortcutDimCode);
@@ -1142,13 +1157,11 @@
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
     begin
         if Location.ReadPermission then
-            LocationCodeVisible := not Location.IsEmpty;
+            LocationCodeVisible := not Location.IsEmpty();
 
         SetDimensionsVisibility();
         BackgroundErrorCheck := DocumentErrorsMgt.BackgroundValidationEnabled();
-#if not CLEAN19
         SetItemReferenceVisibility();
-#endif
     end;
 
     var
@@ -1163,6 +1176,7 @@
         LocationCodeMandatory: Boolean;
         TypeAsText: Text[30];
         ItemChargeStyleExpression: Text;
+        VariantCodeMandatory: Boolean;
         IsFoundation: Boolean;
         LocationCodeVisible: Boolean;
         CurrPageIsEditable: Boolean;
@@ -1187,10 +1201,8 @@
         ShowAllLinesEnabled: Boolean;
         [InDataSet]
         IsCommentLine: Boolean;
-#if not CLEAN19
         [InDataSet]
         ItemReferenceVisible: Boolean;
-#endif
         UnitofMeasureCodeIsChangeable: Boolean;
         VATAmount: Decimal;
 
@@ -1250,17 +1262,17 @@
             exit;
 
         if TransferExtendedText.SalesCheckIfAnyExtText(Rec, Unconditionally) then begin
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
             Commit();
             TransferExtendedText.InsertSalesExtText(Rec);
         end;
-        if TransferExtendedText.MakeUpdate then
+        if TransferExtendedText.MakeUpdate() then
             UpdateForm(true);
     end;
 
     local procedure PageShowReservation()
     begin
-        Find;
+        Find();
         ShowReservation();
     end;
 
@@ -1297,7 +1309,7 @@
         if (Type = Type::"Charge (Item)") and ("No." <> xRec."No.") and
            (xRec."No." <> '')
         then
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
 
         OnAfterNoOnAfterValidate(Rec, xRec);
     end;
@@ -1308,7 +1320,7 @@
            ("Outstanding Qty. (Base)" <> 0) and
            ("Location Code" <> xRec."Location Code")
         then begin
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
             AutoReserve();
             CurrPage.Update(false);
         end;
@@ -1318,7 +1330,7 @@
     protected procedure ReserveOnAfterValidate()
     begin
         if (Reserve = Reserve::Always) and ("Outstanding Qty. (Base)" <> 0) then begin
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
             AutoReserve();
             CurrPage.Update(false);
         end;
@@ -1327,7 +1339,7 @@
     protected procedure QuantityOnAfterValidate()
     begin
         if Reserve = Reserve::Always then begin
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
             AutoReserve();
             CurrPage.Update(false);
         end;
@@ -1341,7 +1353,7 @@
            ("Outstanding Qty. (Base)" <> 0) and
            ("Shipment Date" <> xRec."Shipment Date")
         then begin
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
             AutoReserve();
             CurrPage.Update(false);
         end else
@@ -1351,7 +1363,7 @@
     protected procedure UnitofMeasureCodeOnAfterValidate()
     begin
         if Reserve = Reserve::Always then begin
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
             AutoReserve();
         end;
     end;
@@ -1366,7 +1378,7 @@
 
     procedure RedistributeTotalsOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
 
         DocumentTotals.SalesRedistributeInvoiceDiscountAmounts(Rec, VATAmount, TotalSalesLine);
         CurrPage.Update(false);
@@ -1409,7 +1421,7 @@
 
     procedure UpdateEditableOnRow()
     begin
-        IsCommentLine := not HasTypeToFillMandatoryFields;
+        IsCommentLine := not HasTypeToFillMandatoryFields();
         IsBlankNumber := IsCommentLine;
         UnitofMeasureCodeIsChangeable := not IsCommentLine;
 
@@ -1437,7 +1449,7 @@
     local procedure SetItemChargeFieldsStyle()
     begin
         ItemChargeStyleExpression := '';
-        if AssignedItemCharge then
+        if AssignedItemCharge() then
             ItemChargeStyleExpression := 'Unfavorable';
     end;
 
@@ -1460,19 +1472,19 @@
         Clear(DimMgt);
     end;
 
-#if not CLEAN19
     local procedure SetItemReferenceVisibility()
+    var
+        ItemReference: Record "Item Reference";
     begin
-        ItemReferenceVisible := true;
+        ItemReferenceVisible := not ItemReference.IsEmpty();
     end;
-#endif
 
     local procedure UpdateCurrency()
     begin
         if Currency.Code <> TotalSalesHeader."Currency Code" then
             if not Currency.Get(TotalSalesHeader."Currency Code") then begin
                 Clear(Currency);
-                Currency.InitRoundingPrecision;
+                Currency.InitRoundingPrecision();
             end
     end;
 

@@ -2,7 +2,6 @@ page 434 Reminder
 {
     Caption = 'Reminder';
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Reminder,Navigate';
     SourceTable = "Reminder Header";
 
     layout
@@ -12,7 +11,7 @@ page 434 Reminder
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
@@ -25,7 +24,7 @@ page 434 Reminder
                             CurrPage.Update();
                     end;
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
@@ -49,7 +48,7 @@ page 434 Reminder
                     QuickEntry = false;
                     ToolTip = 'Specifies the address of the customer the reminder is for.';
                 }
-                field("Address 2"; "Address 2")
+                field("Address 2"; Rec."Address 2")
                 {
                     ApplicationArea = Basic, Suite;
                     QuickEntry = false;
@@ -66,7 +65,7 @@ page 434 Reminder
                     Caption = 'State / ZIP Code';
                     ToolTip = 'Specifies the customer''s state and postal code on the reminder.';
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     QuickEntry = false;
@@ -104,29 +103,35 @@ page 434 Reminder
                     Importance = Additional;
                     ToolTip = 'Specifies the email address of the customer contact person the reminder is for.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the reminder should be issued.';
                 }
-                field("Document Date"; "Document Date")
+                field("VAT Reporting Date"; Rec."VAT Reporting Date")
+                {
+                    ApplicationArea = VAT;
+                    Editable = true;
+                    ToolTip = 'Specifies the date used to include entries on VAT reports in a VAT period. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
+                }
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
-                field("Reminder Level"; "Reminder Level")
+                field("Reminder Level"; Rec."Reminder Level")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the reminder''s level.';
                 }
-                field("Use Header Level"; "Use Header Level")
+                field("Use Header Level"; Rec."Use Header Level")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the condition of the level for the Reminder Level field is applied to all suggested reminder lines.';
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
@@ -140,26 +145,26 @@ page 434 Reminder
             group(Posting)
             {
                 Caption = 'Posting';
-                field("Reminder Terms Code"; "Reminder Terms Code")
+                field("Reminder Terms Code"; Rec."Reminder Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ShowMandatory = true;
                     ToolTip = 'Specifies how reminders about late payments are handled for this customer.';
                 }
-                field("Fin. Charge Terms Code"; "Fin. Charge Terms Code")
+                field("Fin. Charge Terms Code"; Rec."Fin. Charge Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the code for the involved finance charges in case of late payment.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies when payment of the amount on the reminder is due.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
@@ -173,22 +178,22 @@ page 434 Reminder
                           CurrExchRate.ExchangeRate("Posting Date", "Currency Code"),
                           "Posting Date");
                         ChangeExchangeRate.Editable(false);
-                        if ChangeExchangeRate.RunModal = ACTION::OK then;
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then;
                         Clear(ChangeExchangeRate);
                     end;
                 }
-                field("Company Bank Account Code"; "Company Bank Account Code")
+                field("Company Bank Account Code"; Rec."Company Bank Account Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -243,8 +248,6 @@ page 434 Reminder
                     ApplicationArea = Basic, Suite;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Reminder Comment Sheet";
                     RunPageLink = Type = CONST(Reminder),
                                   "No." = FIELD("No.");
@@ -255,8 +258,6 @@ page 434 Reminder
                     ApplicationArea = Basic, Suite;
                     Caption = 'C&ustomer';
                     Image = Customer;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Customer List";
                     RunPageLink = "No." = FIELD("Customer No.");
                     ToolTip = 'Open the card of the customer that the reminder or finance charge applies to. ';
@@ -268,16 +269,13 @@ page 434 Reminder
                     Caption = 'Dimensions';
                     Enabled = "No." <> '';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
-                        ShowDocDim;
-                        CurrPage.SaveRecord;
+                        ShowDocDim();
+                        CurrPage.SaveRecord();
                     end;
                 }
                 separator(Action32)
@@ -288,9 +286,6 @@ page 434 Reminder
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Reminder Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -310,8 +305,6 @@ page 434 Reminder
                     Caption = 'Create Reminders';
                     Ellipsis = true;
                     Image = CreateReminders;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteTag = '18.0';
@@ -329,8 +322,6 @@ page 434 Reminder
                     Caption = 'Suggest Reminder Lines';
                     Ellipsis = true;
                     Image = SuggestReminderLines;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Create reminder lines in existing reminders for any overdue payments based on information in the Reminder window.';
 
                     trigger OnAction()
@@ -370,7 +361,7 @@ page 434 Reminder
                     trigger OnAction()
                     begin
                         CurrPage.SetSelectionFilter(ReminderHeader);
-                        ReminderHeader.PrintRecords;
+                        ReminderHeader.PrintRecords();
                     end;
                 }
                 action(Issue)
@@ -379,8 +370,6 @@ page 434 Reminder
                     Caption = 'Issue';
                     Ellipsis = true;
                     Image = ReleaseDoc;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'F9';
                     ToolTip = 'Post the specified reminder entries according to your specifications in the Reminder Terms window. This specification determines whether interest and/or additional fees are posted to the customer''s account and the general ledger.';
 
@@ -403,7 +392,6 @@ page 434 Reminder
                     ApplicationArea = Basic, Suite;
                     Caption = 'Customer - Order Summary';
                     Image = "Report";
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     RunObject = Report "Customer - Order Summary";
@@ -413,8 +401,6 @@ page 434 Reminder
                 {
                     Caption = 'Customer Account Detail';
                     Image = "Report";
-                    Promoted = true;
-                    PromotedCategory = "Report";
                     RunObject = Report "Customer Account Detail";
                     ToolTip = 'View the detailed account activity for each customer for any period of time. The report lists all activity with running account balances, or only open items or only closed items with totals of either. The report can also show the application of payments to invoices.';
                 }
@@ -423,8 +409,6 @@ page 434 Reminder
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statement';
                     Image = "Report";
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Report "Customer Statement";
                     ToolTip = 'View a list of a customer''s transactions for a selected period, for example, to send to the customer at the close of an accounting period. You can choose to have all overdue balances displayed regardless of the period specified, or you can choose to include an aging band.';
                 }
@@ -433,7 +417,6 @@ page 434 Reminder
                     ApplicationArea = Basic, Suite;
                     Caption = 'Aged Accounts Receivable';
                     Image = "Report";
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     RunObject = Report "Aged Accounts Receivable NA";
@@ -444,7 +427,6 @@ page 434 Reminder
                     ApplicationArea = Basic, Suite;
                     Caption = 'Customer - Payment Receipt';
                     Image = "Report";
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     RunObject = Report "Customer - Payment Receipt";
@@ -454,7 +436,6 @@ page 434 Reminder
                 {
                     Caption = 'Open Customer Entries';
                     Image = "Report";
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     RunObject = Report "Open Customer Entries";
@@ -462,18 +443,75 @@ page 434 Reminder
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Issue_Promoted; Issue)
+                {
+                }
+                actionref(SuggestReminderLines_Promoted; SuggestReminderLines)
+                {
+                }
+                actionref(UpdateReminderText_Promoted; UpdateReminderText)
+                {
+                }
+#if not CLEAN19
+                actionref(CreateReminders_Promoted; CreateReminders)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This action should not be on the Reminder card';
+                    ObsoleteTag = '18.0';
+                }
+#endif
+                actionref("C&ustomer_Promoted"; "C&ustomer")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Reminder', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 4.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref("Report Statement_Promoted"; "Report Statement")
+                {
+                }
+                actionref("Customer Account Detail_Promoted"; "Customer Account Detail")
+                {
+                }
+            }
+        }
     }
 
     trigger OnDeleteRecord(): Boolean
     begin
-        CurrPage.SaveRecord;
-        exit(ConfirmDeletion);
+        CurrPage.SaveRecord();
+        exit(ConfirmDeletion());
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         if (not DocNoVisible) and ("No." = '') then begin
-            SetCustomerFromFilter;
+            SetCustomerFromFilter();
             if "Customer No." <> '' then
                 SetReminderNo();
         end;
@@ -483,8 +521,8 @@ page 434 Reminder
     var
         OfficeMgt: Codeunit "Office Management";
     begin
-        SetDocNoVisible;
-        IsOfficeAddin := OfficeMgt.IsAvailable;
+        SetDocNoVisible();
+        IsOfficeAddin := OfficeMgt.IsAvailable();
     end;
 
     trigger OnAfterGetRecord()

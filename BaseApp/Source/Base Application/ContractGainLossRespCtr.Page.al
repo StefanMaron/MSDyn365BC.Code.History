@@ -47,7 +47,7 @@ page 6069 "Contract Gain/Loss (Resp.Ctr)"
                     trigger OnValidate()
                     begin
                         GenerateColumnCaptions("Matrix Page Step Type"::Initial);
-                        RespCrFilterOnAfterValidate;
+                        RespCrFilterOnAfterValidate();
                     end;
                 }
             }
@@ -86,9 +86,6 @@ page 6069 "Contract Gain/Loss (Resp.Ctr)"
                 ApplicationArea = Service;
                 Caption = '&Show Matrix';
                 Image = ShowMatrix;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'View the data overview according to the selected filters and options.';
 
                 trigger OnAction()
@@ -96,7 +93,7 @@ page 6069 "Contract Gain/Loss (Resp.Ctr)"
                     MatrixForm: Page "Contr. G/Loss (Res.Ctr) Matrix";
                 begin
                     if PeriodStart = 0D then
-                        PeriodStart := WorkDate;
+                        PeriodStart := WorkDate();
                     Clear(MatrixForm);
 
                     MatrixForm.LoadMatrix(
@@ -110,9 +107,6 @@ page 6069 "Contract Gain/Loss (Resp.Ctr)"
                 ApplicationArea = Service;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
@@ -125,15 +119,29 @@ page 6069 "Contract Gain/Loss (Resp.Ctr)"
                 ApplicationArea = Service;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
                 begin
                     GenerateColumnCaptions("Matrix Page Step Type"::Next);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ShowMatrix_Promoted; ShowMatrix)
+                {
+                }
+                actionref("Previous Set_Promoted"; "Previous Set")
+                {
+                }
+                actionref("Next Set_Promoted"; "Next Set")
+                {
+                }
             }
         }
     }
@@ -146,7 +154,7 @@ page 6069 "Contract Gain/Loss (Resp.Ctr)"
     trigger OnOpenPage()
     begin
         if PeriodStart = 0D then
-            PeriodStart := WorkDate;
+            PeriodStart := WorkDate();
         GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
@@ -185,11 +193,11 @@ page 6069 "Contract Gain/Loss (Resp.Ctr)"
             MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
         if MATRIX_CurrentNoOfColumns > 0 then begin
             MatrixRecord.SetPosition(PKFirstRecInCurrSet);
-            MatrixRecord.Find;
+            MatrixRecord.Find();
             repeat
                 MatrixRecords[CurrentMatrixRecordOrdinal].Copy(MatrixRecord);
                 CurrentMatrixRecordOrdinal := CurrentMatrixRecordOrdinal + 1;
-            until (CurrentMatrixRecordOrdinal > MATRIX_CurrentNoOfColumns) or (MatrixRecord.Next <> 1);
+            until (CurrentMatrixRecordOrdinal > MATRIX_CurrentNoOfColumns) or (MatrixRecord.Next() <> 1);
         end;
     end;
 

@@ -48,8 +48,6 @@ page 5345 "CRM TransactionCurrency List"
                 ApplicationArea = Suite;
                 Caption = 'Hide Coupled Currencies';
                 Image = FilterLines;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Do not show coupled currencies.';
 
                 trigger OnAction()
@@ -62,14 +60,26 @@ page 5345 "CRM TransactionCurrency List"
                 ApplicationArea = Suite;
                 Caption = 'Show Coupled Currencies';
                 Image = ClearFilter;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Show coupled currencies.';
 
                 trigger OnAction()
                 begin
                     MarkedOnly(false);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ShowOnlyUncoupled_Promoted; ShowOnlyUncoupled)
+                {
+                }
+                actionref(ShowAll_Promoted; ShowAll)
+                {
+                }
             }
         }
     }

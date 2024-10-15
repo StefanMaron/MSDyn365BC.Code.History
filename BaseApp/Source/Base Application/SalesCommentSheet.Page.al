@@ -32,49 +32,49 @@ page 67 "Sales Comment Sheet"
                     ToolTip = 'Specifies a code for the comment.';
                     Visible = false;
                 }
-                field("Print On Quote"; "Print On Quote")
+                field("Print On Quote"; Rec."Print On Quote")
                 {
                     ApplicationArea = Comments;
                     ToolTip = 'Specifies that this comment line to print on the sales quote document.';
                     Visible = false;
                 }
-                field("Print On Pick Ticket"; "Print On Pick Ticket")
+                field("Print On Pick Ticket"; Rec."Print On Pick Ticket")
                 {
                     ApplicationArea = Comments;
                     ToolTip = 'Specifies that this comment line is printed on the pick ticket document.';
                     Visible = false;
                 }
-                field("Print On Order Confirmation"; "Print On Order Confirmation")
+                field("Print On Order Confirmation"; Rec."Print On Order Confirmation")
                 {
                     ApplicationArea = Comments;
                     ToolTip = 'Specifies that this comment line is printed on the sales order document.';
                     Visible = false;
                 }
-                field("Print On Shipment"; "Print On Shipment")
+                field("Print On Shipment"; Rec."Print On Shipment")
                 {
                     ApplicationArea = Comments;
                     ToolTip = 'Specifies that this comment is printed on the sales shipment document.';
                     Visible = false;
                 }
-                field("Print On Invoice"; "Print On Invoice")
+                field("Print On Invoice"; Rec."Print On Invoice")
                 {
                     ApplicationArea = Comments;
                     ToolTip = 'Specifies that this comment is printed on the sales invoice document.';
                     Visible = false;
                 }
-                field("Print On Credit Memo"; "Print On Credit Memo")
+                field("Print On Credit Memo"; Rec."Print On Credit Memo")
                 {
                     ApplicationArea = Comments;
                     ToolTip = 'Specifies that this comment is printed on the sales credit memo document.';
                     Visible = false;
                 }
-                field("Print On Return Authorization"; "Print On Return Authorization")
+                field("Print On Return Authorization"; Rec."Print On Return Authorization")
                 {
                     ApplicationArea = Comments;
                     ToolTip = 'Specifies that this comment line is printed on return authorizations.';
                     Visible = false;
                 }
-                field("Print On Return Receipt"; "Print On Return Receipt")
+                field("Print On Return Receipt"; Rec."Print On Return Receipt")
                 {
                     ApplicationArea = Comments;
                     ToolTip = 'Specifies that this comment line is printed on return receipts.';
@@ -90,7 +90,7 @@ page 67 "Sales Comment Sheet"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetUpNewLine;
+        SetUpNewLine();
     end;
 }
 

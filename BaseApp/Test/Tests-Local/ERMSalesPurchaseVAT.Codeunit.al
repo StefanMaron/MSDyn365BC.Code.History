@@ -485,7 +485,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
 
         // Verify: Verify General Ledger Entries Amount for Sales VAT Unreal. Account.
         Assert.AreEqual(TotalVATAmount, TotalVATAmount2,
-          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), TotalVATAmount2, GLEntry.TableCaption));
+          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), TotalVATAmount2, GLEntry.TableCaption()));
     end;
 
     [Test]
@@ -537,7 +537,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
 
         // Verify: Verify General Ledger Entries Amount for Purch. VAT Unreal. Account.
         Assert.AreEqual(TotalVATAmount, TotalVATAmount2,
-          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), TotalVATAmount2, GLEntry.TableCaption));
+          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), TotalVATAmount2, GLEntry.TableCaption()));
     end;
 
     [Test]
@@ -810,7 +810,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         Assert.AreNearlyEqual(
           AdditionalCurrencyAmount, VATEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(
-            AmountError, VATEntry.FieldCaption("Additional-Currency Amount"), VATEntry."Additional-Currency Amount", VATEntry.TableCaption));
+            AmountError, VATEntry.FieldCaption("Additional-Currency Amount"), VATEntry."Additional-Currency Amount", VATEntry.TableCaption()));
     end;
 
     local procedure VerifyGLEntries(DocumentType: Option; DocumentNo: Code[20]; GLAccountNo: Code[20]; AdditionalCurrencyAmount: Decimal)
@@ -824,7 +824,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         Assert.AreNearlyEqual(
           AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(
-            AmountError, GLEntry.FieldCaption("Additional-Currency Amount"), GLEntry."Additional-Currency Amount", GLEntry.TableCaption));
+            AmountError, GLEntry.FieldCaption("Additional-Currency Amount"), GLEntry."Additional-Currency Amount", GLEntry.TableCaption()));
     end;
 
     local procedure VerifyGLEntryVATUnrealizedAmount(DocumentNo: Code[20]; VATUnrealAccount: Code[20]; TotalVATAmount: Decimal)
@@ -834,7 +834,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
     begin
         SalesVATUnrealAmount := GetGLEntryAmount(DocumentNo, VATUnrealAccount);
         Assert.AreEqual(SalesVATUnrealAmount, TotalVATAmount,
-          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), TotalVATAmount, GLEntry.TableCaption));
+          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), TotalVATAmount, GLEntry.TableCaption()));
     end;
 
     [ModalPageHandler]

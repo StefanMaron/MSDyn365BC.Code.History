@@ -13,7 +13,7 @@ report 707 "Inventory - Availability Plan"
         {
             DataItemTableView = WHERE(Type = CONST(Inventory));
             RequestFilterFields = "No.", "Location Filter", "Variant Filter", "Search Description", "Assembly BOM", "Inventory Posting Group", "Vendor No.";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TblCptItemFilter; TableCaption + ': ' + ItemFilter)
@@ -376,12 +376,11 @@ report 707 "Inventory - Availability Plan"
                         if not TransferRoute.Get("Transfer-from Code", "Location Code") then begin
                             if not Location.Get("Transfer-from Code") then
                                 Location.Init();
-                        end else begin
+                        end else
                             if ShippingAgentServices.Get(
                                  TransferRoute."Shipping Agent Code", TransferRoute."Shipping Agent Service Code")
                             then
                                 ShippingTime := ShippingAgentServices."Shipping Time";
-                        end;
 
                     for i := 1 to 8 do
                         CalcNeed(Item, "Location Code", "Variant Code");
@@ -458,7 +457,7 @@ report 707 "Inventory - Availability Plan"
             if Format(PeriodLength) = '' then
                 Evaluate(PeriodLength, '<1M>');
             if PeriodStartDate[2] = 0D then
-                PeriodStartDate[2] := WorkDate;
+                PeriodStartDate[2] := WorkDate();
         end;
     }
 
@@ -468,7 +467,7 @@ report 707 "Inventory - Availability Plan"
 
     trigger OnPreReport()
     begin
-        ItemFilter := Item.GetFilters;
+        ItemFilter := Item.GetFilters();
         for i := 2 to 7 do
             PeriodStartDate[i + 1] := CalcDate(PeriodLength, PeriodStartDate[i]);
         PeriodStartDate[9] := DMY2Date(31, 12, 9999);
@@ -480,6 +479,8 @@ report 707 "Inventory - Availability Plan"
         TransferRoute: Record "Transfer Route";
         ShippingAgentServices: Record "Shipping Agent Services";
         AvailToPromise: Codeunit "Available to Promise";
+        PeriodLength: DateFormula;
+        ShippingTime: DateFormula;
         ItemFilter: Text;
         SchedReceipt: array[8] of Decimal;
         PlanReceipt: array[8] of Decimal;
@@ -487,7 +488,6 @@ report 707 "Inventory - Availability Plan"
         PeriodStartDate: array[9] of Date;
         ProjAvBalance: array[8] of Decimal;
         GrossReq: array[8] of Decimal;
-        PeriodLength: DateFormula;
         Print: Boolean;
         i: Integer;
         GrossRequirement: Decimal;
@@ -496,7 +496,7 @@ report 707 "Inventory - Availability Plan"
         PlannedRelease: Decimal;
         UseStockkeepingUnit: Boolean;
         SKUPrintLoop: Integer;
-        ShippingTime: DateFormula;
+
         InventoryAvailabilityPlanCaptionLbl: Label 'Inventory - Availability Plan';
         CurrReportPageNoCaptionLbl: Label 'Page';
         GrossReq1CaptionLbl: Label '...Before';
@@ -542,11 +542,10 @@ report 707 "Inventory - Availability Plan"
               "Planning Release (Qty.)" +
               "Planned Order Release (Qty.)";
 
-            if i = 1 then begin
+            if i = 1 then
                 ProjAvBalance[1] :=
-                  Inventory -
-                  GrossReq[1] + SchedReceipt[1] + PlanReceipt[1]
-            end else
+                  Inventory - GrossReq[1] + SchedReceipt[1] + PlanReceipt[1]
+            else
                 ProjAvBalance[i] :=
                   ProjAvBalance[i - 1] -
                   GrossReq[i] + SchedReceipt[i] + PlanReceipt[i];

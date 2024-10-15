@@ -27,7 +27,7 @@ report 7302 "Whse. Invt.-Registering - Test"
                 column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
                 {
                 }
-                column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+                column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(Warehouse_Journal_Line__Journal_Template_Name_; "Journal Template Name")
@@ -175,14 +175,13 @@ report 7302 "Whse. Invt.-Registering - Test"
                             AddError(
                               StrSubstNo(
                                 Text002,
-                                Item.TableCaption, "Item No."))
-                        else begin
+                                Item.TableCaption(), "Item No."))
+                        else
                             if Item.Blocked then
                                 AddError(
                                   StrSubstNo(
                                     Text003,
-                                    Item.FieldCaption(Blocked), false, Item.TableCaption, "Item No."));
-                        end;
+                                    Item.FieldCaption(Blocked), false, Item.TableCaption(), "Item No."));
 
                     if "Registering Date" = 0D then
                         AddError(StrSubstNo(Text001, FieldCaption("Registering Date")))
@@ -284,22 +283,12 @@ report 7302 "Whse. Invt.-Registering - Test"
 
     trigger OnPreReport()
     begin
-        WhseJnlLineFilter := "Warehouse Journal Line".GetFilters;
+        WhseJnlLineFilter := "Warehouse Journal Line".GetFilters();
         GLSetup.Get();
         InvtSetup.Get();
     end;
 
     var
-        Text001: Label '%1 must be specified.';
-        Text002: Label '%1 %2 does not exist.';
-        Text003: Label '%1 must be %2 for %3 %4.';
-        Text005: Label '%1 must not be a closing date.';
-        Text006: Label 'The lines are not listed according to Registering Date because they were not entered in that order.';
-        Text007: Label '%1 is not within your allowed range of registering dates.';
-        Text011: Label '%1 must be 0 when %2 is %3.';
-        Text014: Label '%1 must be %2 or %3 when %4 is %5.';
-        Text015: Label '%1 must equal %2 - %3 when %4 is %5 and %6 is %7.';
-        Text017: Label 'There is a gap in the number series.';
         InvtSetup: Record "Inventory Setup";
         GLSetup: Record "General Ledger Setup";
         Item: Record Item;
@@ -311,6 +300,7 @@ report 7302 "Whse. Invt.-Registering - Test"
         ErrorText: array[30] of Text[250];
         LastPostingDate: Date;
         LastDocNo: Code[20];
+
         Inventory_Registering___TestCaptionLbl: Label 'Inventory Registering - Test';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Warehouse_Journal_Line__Registering_Date_CaptionLbl: Label 'Registering Date';
@@ -318,6 +308,17 @@ report 7302 "Whse. Invt.-Registering - Test"
         CubageCaptionLbl: Label 'Cubage';
         WeightCaptionLbl: Label 'Weight';
         ErrorText_Number_CaptionLbl: Label 'Warning!';
+
+        Text001: Label '%1 must be specified.';
+        Text002: Label '%1 %2 does not exist.';
+        Text003: Label '%1 must be %2 for %3 %4.';
+        Text005: Label '%1 must not be a closing date.';
+        Text006: Label 'The lines are not listed according to Registering Date because they were not entered in that order.';
+        Text007: Label '%1 is not within your allowed range of registering dates.';
+        Text011: Label '%1 must be 0 when %2 is %3.';
+        Text014: Label '%1 must be %2 or %3 when %4 is %5.';
+        Text015: Label '%1 must equal %2 - %3 when %4 is %5 and %6 is %7.';
+        Text017: Label 'There is a gap in the number series.';
 
     local procedure AddError(Text: Text[250])
     begin

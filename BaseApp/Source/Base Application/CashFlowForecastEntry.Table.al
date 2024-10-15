@@ -251,7 +251,7 @@ table 847 "Cash Flow Forecast Entry"
     var
         DimMgt: Codeunit DimensionManagement;
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Entry No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Entry No."));
     end;
 
     procedure DrillDownOnEntries(var CashFlowForecast: Record "Cash Flow Forecast")

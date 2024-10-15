@@ -1,4 +1,4 @@
-codeunit 134681 "RC Page Dispatcher Test"
+﻿codeunit 134681 "RC Page Dispatcher Test"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
@@ -14,7 +14,7 @@ codeunit 134681 "RC Page Dispatcher Test"
         Assert: Codeunit Assert;
         isInitialized: Boolean;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     procedure T001_PurchasePricesAsPurchasePriceLists()
     var

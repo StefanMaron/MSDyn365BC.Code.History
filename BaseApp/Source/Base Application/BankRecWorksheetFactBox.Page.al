@@ -12,48 +12,48 @@ page 36728 "Bank Rec Worksheet FactBox"
     {
         area(content)
         {
-            field("Bank Account No."; "Bank Account No.")
+            field("Bank Account No."; Rec."Bank Account No.")
             {
                 ApplicationArea = Basic, Suite;
                 Editable = false;
                 Lookup = false;
                 ToolTip = 'Specifies the code for the bank account the reconciliation applies to.';
             }
-            field("Statement No."; "Statement No.")
+            field("Statement No."; Rec."Statement No.")
             {
                 ApplicationArea = Basic, Suite;
                 Editable = false;
                 ToolTip = 'Specifies the statement number to be reconciled.';
             }
-            field("Statement Date"; "Statement Date")
+            field("Statement Date"; Rec."Statement Date")
             {
                 ApplicationArea = Basic, Suite;
                 Editable = false;
                 ToolTip = 'Specifies the as-of date of the statement. All G/L balances will be calculated based upon this date.';
             }
-            field("Currency Code"; "Currency Code")
+            field("Currency Code"; Rec."Currency Code")
             {
                 ApplicationArea = Suite;
                 ToolTip = 'Specifies the currency code assigned to the bank account.';
             }
-            field("Currency Factor"; "Currency Factor")
+            field("Currency Factor"; Rec."Currency Factor")
             {
                 ApplicationArea = Suite;
                 ToolTip = 'Specifies currency conversions when posting adjustments for bank accounts with a foreign currency code assigned.';
             }
-            field("Date Created"; "Date Created")
+            field("Date Created"; Rec."Date Created")
             {
                 ApplicationArea = Basic, Suite;
                 Editable = false;
                 ToolTip = 'Specifies a date automatically populated when the record is created.';
             }
-            field("Time Created"; "Time Created")
+            field("Time Created"; Rec."Time Created")
             {
                 ApplicationArea = Basic, Suite;
                 Editable = false;
                 ToolTip = 'Specifies the  time created, which is automatically populated when the record is created.';
             }
-            field("Created By"; "Created By")
+            field("Created By"; Rec."Created By")
             {
                 ApplicationArea = Basic, Suite;
                 AssistEdit = false;
@@ -62,22 +62,22 @@ page 36728 "Bank Rec Worksheet FactBox"
                 Lookup = false;
                 ToolTip = 'Specifies the User ID of the person who created the record.';
             }
-            field("Cleared With./Chks. Per Stmnt."; "Cleared With./Chks. Per Stmnt.")
+            field("Cleared With./Chks. Per Stmnt."; Rec."Cleared With./Chks. Per Stmnt.")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the total of withdrawals or checks that cleared the bank for this statement.';
             }
-            field("Total Cleared Checks"; "Total Cleared Checks")
+            field("Total Cleared Checks"; Rec."Total Cleared Checks")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the total amount of the cleared checks for the statement being reconciled.';
             }
-            field("Cleared Inc./Dpsts. Per Stmnt."; "Cleared Inc./Dpsts. Per Stmnt.")
+            field("Cleared Inc./Dpsts. Per Stmnt."; Rec."Cleared Inc./Dpsts. Per Stmnt.")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the total of increases or deposits that cleared the bank for this statement.';
             }
-            field("Total Cleared Deposits"; "Total Cleared Deposits")
+            field("Total Cleared Deposits"; Rec."Total Cleared Deposits")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the total amount of the cleared deposits for the statement being reconciled.';
@@ -97,7 +97,7 @@ page 36728 "Bank Rec Worksheet FactBox"
 
     trigger OnAfterGetRecord()
     begin
-        CalcLineInfo;
+        CalcLineInfo();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -107,7 +107,7 @@ page 36728 "Bank Rec Worksheet FactBox"
 
     trigger OnOpenPage()
     begin
-        CalcLineInfo;
+        CalcLineInfo();
     end;
 
     var
@@ -118,8 +118,8 @@ page 36728 "Bank Rec Worksheet FactBox"
         SetRange("Bank Account No.");
         SetRange("Statement No.");
 
-        if CurrentDate <> WorkDate then
-            CurrentDate := WorkDate;
+        if CurrentDate <> WorkDate() then
+            CurrentDate := WorkDate();
 
         SetRange("Date Filter", 0D, CurrentDate);
 

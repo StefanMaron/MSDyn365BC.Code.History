@@ -49,7 +49,7 @@ codeunit 144000 "MX CFDI Unit Test"
         asserterror PACWebService.Delete(true);
 
         // Verify : Error comes when PAC code on GL Setup is deleted.
-        if StrPos(GetLastErrorText, StrSubstNo(PACCodeDeleteError, PACWebService.Code, GeneralLedgerSetup.TableCaption)) = 0 then
+        if StrPos(GetLastErrorText, StrSubstNo(PACCodeDeleteError, PACWebService.Code, GeneralLedgerSetup.TableCaption())) = 0 then
             Error(ExpectedError);
     end;
 
@@ -649,7 +649,7 @@ codeunit 144000 "MX CFDI Unit Test"
         PostedSalesInvoice.FILTER.SetFilter("No.", SalesInvoiceHeader."No.");
         PostedSalesInvoice."CFDI Cancellation Reason Code".SetValue(FindCancellationReasonCode);
         PostedSalesInvoice."Substitution Document No.".SetValue(SalesInvoiceHeader."No.");
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
         SalesInvoiceHeader.Get(SalesInvoiceHeader."No.");
         SalesInvoiceHeader.TestField("CFDI Cancellation Reason Code");
         SalesInvoiceHeader.TestField("Substitution Document No.", SalesInvoiceHeader."No.");
@@ -670,7 +670,7 @@ codeunit 144000 "MX CFDI Unit Test"
         PostedSalesCreditMemo.FILTER.SetFilter("No.", SalesCrMemoHeader."No.");
         PostedSalesCreditMemo."CFDI Cancellation Reason Code".SetValue(FindCancellationReasonCode);
         PostedSalesCreditMemo."Substitution Document No.".SetValue(SalesCrMemoHeader."No.");
-        PostedSalesCreditMemo.Close;
+        PostedSalesCreditMemo.Close();
         SalesCrMemoHeader.Get(SalesCrMemoHeader."No.");
         SalesCrMemoHeader.TestField("CFDI Cancellation Reason Code");
         SalesCrMemoHeader.TestField("Substitution Document No.", SalesCrMemoHeader."No.");
@@ -691,7 +691,7 @@ codeunit 144000 "MX CFDI Unit Test"
         PostedSalesShipment.FILTER.SetFilter("No.", SalesShipmentHeader."No.");
         PostedSalesShipment."CFDI Cancellation Reason Code".SetValue(FindCancellationReasonCode);
         PostedSalesShipment."Substitution Document No.".SetValue(SalesShipmentHeader."No.");
-        PostedSalesShipment.Close;
+        PostedSalesShipment.Close();
         SalesShipmentHeader.Get(SalesShipmentHeader."No.");
         SalesShipmentHeader.TestField("CFDI Cancellation Reason Code");
         SalesShipmentHeader.TestField("Substitution Document No.", SalesShipmentHeader."No.");
@@ -712,7 +712,7 @@ codeunit 144000 "MX CFDI Unit Test"
         PostedTransferShipment.FILTER.SetFilter("No.", TransferShipmentHeader."No.");
         PostedTransferShipment."CFDI Cancellation Reason Code".SetValue(FindCancellationReasonCode);
         PostedTransferShipment."Substitution Document No.".SetValue(TransferShipmentHeader."No.");
-        PostedTransferShipment.Close;
+        PostedTransferShipment.Close();
         TransferShipmentHeader.Get(TransferShipmentHeader."No.");
         TransferShipmentHeader.TestField("CFDI Cancellation Reason Code");
         TransferShipmentHeader.TestField("Substitution Document No.", TransferShipmentHeader."No.");
@@ -736,7 +736,7 @@ codeunit 144000 "MX CFDI Unit Test"
         CustomerLedgerEntries.FILTER.SetFilter("Entry No.", Format(CustLedgerEntry."Entry No."));
         CustomerLedgerEntries."CFDI Cancellation Reason Code".SetValue(FindCancellationReasonCode);
         CustomerLedgerEntries."Substitution Entry No.".SetValue(CustLedgerEntry."Entry No.");
-        CustomerLedgerEntries.Close;
+        CustomerLedgerEntries.Close();
         CustLedgerEntry.Get(CustLedgerEntry."Entry No.");
         CustLedgerEntry.TestField("CFDI Cancellation Reason Code");
         CustLedgerEntry.TestField("Substitution Entry No.", CustLedgerEntry."Entry No.");
@@ -834,17 +834,17 @@ codeunit 144000 "MX CFDI Unit Test"
         SalesOrder.OpenNew();
         Assert.IsTrue(SalesOrder."CFDI Purpose".Enabled, '');
         Assert.IsTrue(SalesOrder."CFDI Relation".Enabled, '');
-        SalesOrder.Close;
+        SalesOrder.Close();
 
         SalesInvoice.OpenNew();
         Assert.IsTrue(SalesInvoice."CFDI Purpose".Enabled, '');
         Assert.IsTrue(SalesInvoice."CFDI Relation".Enabled, '');
-        SalesInvoice.Close;
+        SalesInvoice.Close();
 
         SalesCreditMemo.OpenNew();
         Assert.IsTrue(SalesCreditMemo."CFDI Purpose".Enabled, '');
         Assert.IsTrue(SalesCreditMemo."CFDI Relation".Enabled, '');
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
 
         PostedSalesInvoice.OpenView;
         Assert.IsTrue(PostedSalesInvoice."CFDI Purpose".Enabled, '');
@@ -861,7 +861,7 @@ codeunit 144000 "MX CFDI Unit Test"
         SalesReturnOrder.OpenNew();
         Assert.IsTrue(SalesReturnOrder."CFDI Purpose".Enabled, '');
         Assert.IsTrue(SalesReturnOrder."CFDI Relation".Enabled, '');
-        SalesReturnOrder.Close;
+        SalesReturnOrder.Close();
     end;
 
     [Test]
@@ -879,17 +879,17 @@ codeunit 144000 "MX CFDI Unit Test"
         ServiceOrder.OpenNew();
         Assert.IsTrue(ServiceOrder."CFDI Purpose".Enabled, '');
         Assert.IsTrue(ServiceOrder."CFDI Relation".Enabled, '');
-        ServiceOrder.Close;
+        ServiceOrder.Close();
 
         ServiceInvoice.OpenNew();
         Assert.IsTrue(ServiceInvoice."CFDI Purpose".Enabled, '');
         Assert.IsTrue(ServiceInvoice."CFDI Relation".Enabled, '');
-        ServiceInvoice.Close;
+        ServiceInvoice.Close();
 
         ServiceCreditMemo.OpenNew();
         Assert.IsTrue(ServiceCreditMemo."CFDI Purpose".Enabled, '');
         Assert.IsTrue(ServiceCreditMemo."CFDI Relation".Enabled, '');
-        ServiceCreditMemo.Close;
+        ServiceCreditMemo.Close();
     end;
 
     [Test]
@@ -1212,7 +1212,7 @@ codeunit 144000 "MX CFDI Unit Test"
 
         // [WHEN] Invoice Insert Related Credit Memos action
         CFDIRelationDocuments.InsertRelatedCreditMemos.Invoke;
-        CFDIRelationDocuments.Close;
+        CFDIRelationDocuments.Close();
 
         // [THEN] Three CFDI Related Document lines are shown on CFDI Relation Documents page
         // [THEN] Invoice is shown with "UUID-Inv", credit memos - with "UUID-1" and "UUID-2" respectively
@@ -1323,7 +1323,7 @@ codeunit 144000 "MX CFDI Unit Test"
 
         // [WHEN] Invoice Insert Related Credit Memos action
         CFDIRelationDocuments.InsertRelatedCreditMemos.Invoke;
-        CFDIRelationDocuments.Close;
+        CFDIRelationDocuments.Close();
 
         // [THEN] Three CFDI Related Document lines are shown on CFDI Relation Documents page
         // [THEN] Invoice is shown with "UUID-Inv", credit memos - with "UUID-1" and "UUID-2" respectively
@@ -1573,7 +1573,7 @@ codeunit 144000 "MX CFDI Unit Test"
         CreateCustomerWithCFDIFields(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
         SalesHeader."Payment Method Code" := CreatePaymentMethod;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
         MockSalesInvHeader(SalesInvoiceHeaderRel, Customer."No.");
         MockSalesCrMemoHeader(SalesCrMemoHeaderRel, Customer."No.", SalesInvoiceHeaderRel."No.");
@@ -1610,7 +1610,7 @@ codeunit 144000 "MX CFDI Unit Test"
         CreateCustomerWithCFDIFields(Customer);
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", Customer."No.");
         ServiceHeader."Payment Method Code" := CreatePaymentMethod;
-        ServiceHeader.Modify;
+        ServiceHeader.Modify();
         MockServiceInvHeader(ServiceInvoiceHeaderRel, Customer."No.");
         MockServiceCrMemoHeader(ServiceCrMemoHeaderRel, Customer."No.", ServiceInvoiceHeaderRel."No.");
         CreateCFDIRelationDocument(
@@ -1783,12 +1783,12 @@ codeunit 144000 "MX CFDI Unit Test"
         VATPostingSetup.OpenEdit;
         Assert.IsTrue(VATPostingSetup."CFDI VAT Exemption".Enabled, '');
         Assert.IsTrue(VATPostingSetup."CFDI Non-Taxable".Enabled, '');
-        VATPostingSetup.Close;
+        VATPostingSetup.Close();
 
         VATPostingSetupCard.OpenEdit;
         Assert.IsTrue(VATPostingSetupCard."CFDI VAT Exemption".Enabled, '');
         Assert.IsTrue(VATPostingSetupCard."CFDI Non-Taxable".Enabled, '');
-        VATPostingSetupCard.Close;
+        VATPostingSetupCard.Close();
 
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
@@ -2084,6 +2084,8 @@ codeunit 144000 "MX CFDI Unit Test"
         ItemCharges.Close();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
     procedure CustomerCardCFDIFields()
     var
         CustomerCard: TestPage "Customer Card";
@@ -2229,7 +2231,7 @@ codeunit 144000 "MX CFDI Unit Test"
         CFDIRelationDocuments.New;
         CFDIRelationDocuments."Related Doc. Type".SetValue(GetCFDIRelatedDocTypeCreditMemo);
         CFDIRelationDocuments."Related Doc. No.".SetValue(CrMemoNo);
-        CFDIRelationDocuments.Close;
+        CFDIRelationDocuments.Close();
     end;
 
     local procedure CreateSalesInvoiceWithRetentionLines(var SalesHeader: Record "Sales Header"; var SalesLineRetention1: Record "Sales Line"; var SalesLineRetention2: Record "Sales Line")
@@ -2402,7 +2404,7 @@ codeunit 144000 "MX CFDI Unit Test"
 
     local procedure MockSalesShipmentHeader(var SalesShipmentHeader: Record "Sales Shipment Header"; CustomerNo: Code[20])
     begin
-        SalesShipmentHeader.Init;
+        SalesShipmentHeader.Init();
         SalesShipmentHeader."No." := LibraryUtility.GenerateGUID;
         SalesShipmentHeader."Bill-to Customer No." := CustomerNo;
         SalesShipmentHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
@@ -2412,7 +2414,7 @@ codeunit 144000 "MX CFDI Unit Test"
 
     local procedure MockTransferShipmentHeader(var TransferShipmentHeader: Record "Transfer Shipment Header")
     begin
-        TransferShipmentHeader.Init;
+        TransferShipmentHeader.Init();
         TransferShipmentHeader."No." := LibraryUtility.GenerateGUID;
         TransferShipmentHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
         TransferShipmentHeader."Electronic Document Status" := TransferShipmentHeader."Electronic Document Status"::"Stamp Received";
@@ -2439,7 +2441,7 @@ codeunit 144000 "MX CFDI Unit Test"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             Name := LibraryUtility.GenerateGUID();
             "RFC No." := LibraryUtility.GenerateGUID();
             Address := LibraryUtility.GenerateGUID();
@@ -2447,7 +2449,7 @@ codeunit 144000 "MX CFDI Unit Test"
             "Post Code" := LibraryUtility.GenerateGUID();
             "E-Mail" := LibraryUtility.GenerateGUID();
             "Tax Scheme" := LibraryUtility.GenerateGUID();
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2501,7 +2503,7 @@ codeunit 144000 "MX CFDI Unit Test"
         repeat
             CustDocFieldRef := CustDocRecRef.Field(Field."No.");
             CustDocFieldRef.Value := LibraryUtility.GenerateRandomText(CustDocFieldRef.Length);
-        until Field.Next = 0;
+        until Field.Next() = 0;
         CustDocRecRef.Modify();
     end;
 
@@ -2520,7 +2522,7 @@ codeunit 144000 "MX CFDI Unit Test"
         repeat
             CustDocLineFieldRef := CustDocLineRecRef.Field(Field."No.");
             CustDocLineFieldRef.Value := LibraryUtility.GenerateRandomText(CustDocLineFieldRef.Length);
-        until Field.Next = 0;
+        until Field.Next() = 0;
         CustDocLineRecRef.Modify();
     end;
 
@@ -2574,7 +2576,7 @@ codeunit 144000 "MX CFDI Unit Test"
             CustDocFieldValue := CustDocFieldRef.Value;
             Assert.AreEqual(CustDocFieldValue, DocHeaderFieldRef.Value, '');
             Assert.IsTrue(DocHeaderFieldRef.Length >= CustDocFieldRef.Length, '');
-        until Field.Next = 0;
+        until Field.Next() = 0;
     end;
 
     local procedure VerifyDocumentLineFieldsValues(CustomerDocumentLineVariant: Variant; TempDocumentLine: Record "Document Line" temporary)
@@ -2599,7 +2601,7 @@ codeunit 144000 "MX CFDI Unit Test"
             CustDocLineFieldValue := CustDocLineFieldRef.Value;
             Assert.AreEqual(CustDocLineFieldValue, DocLineFieldRef.Value, '');
             Assert.IsTrue(DocLineFieldRef.Length >= CustDocLineFieldRef.Length, '');
-        until Field.Next = 0;
+        until Field.Next() = 0;
     end;
 
     local procedure VerifyCopyOfRetentionLines(SalesHeader: Record "Sales Header"; RetentionVATPct1: Decimal; RetentionVATPct2: Decimal)

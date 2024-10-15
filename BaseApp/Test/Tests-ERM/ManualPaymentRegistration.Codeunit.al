@@ -10,6 +10,7 @@ codeunit 134710 "Manual Payment Registration"
 
     var
         Assert: Codeunit Assert;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryJournals: Codeunit "Library - Journals";
         LibraryERM: Codeunit "Library - ERM";
@@ -24,7 +25,6 @@ codeunit 134710 "Manual Payment Registration"
         isInitialized: Boolean;
         OpenCustomerDocErr: Label 'Document with No = %1 for Customer No = %2 should not be open.';
         CreatedPaymentErr: Label 'Payment journal line was created.';
-        NothingToPostErr: Label 'There is nothing to post.';
         FilterNotPreservedErr: Label 'Filter was not preserved after posting';
         RecordChangedErr: Label 'None of the fields from %1 should have changed.';
         OpenCustomerCardErr: Label 'Open customer card did not succeed';
@@ -55,7 +55,7 @@ codeunit 134710 "Manual Payment Registration"
 
         // HandlerFunctions has a verification.
         PaymentRegistrationPage.OpenEdit;
-        PaymentRegistrationPage.Close;
+        PaymentRegistrationPage.Close();
 
         PaymentRegistrationSetup.Get(UserId);
 
@@ -78,7 +78,7 @@ codeunit 134710 "Manual Payment Registration"
         PaymentRegistrationSetupDefault.Get();
         // HandlerFunctions has a verification.
         PaymentRegistrationPage.OpenEdit;
-        PaymentRegistrationPage.Close;
+        PaymentRegistrationPage.Close();
         PaymentRegistrationSetupMyUser.Get(UserId);
 
         ValidateExpectedAndActualSetupTables(PaymentRegistrationSetupDefault, PaymentRegistrationSetupMyUser);
@@ -270,8 +270,8 @@ codeunit 134710 "Manual Payment Registration"
                 else
                     Error(UnexpectedPreviewErr);
             end;
-        until not GLPostingPreview.Next;
-        GLPostingPreview.Close;
+        until not GLPostingPreview.Next();
+        GLPostingPreview.Close();
     end;
 
     [Test]
@@ -310,9 +310,9 @@ codeunit 134710 "Manual Payment Registration"
                 else
                     Error(UnexpectedPreviewErr);
             end;
-        until not GLPostingPreview.Next;
+        until not GLPostingPreview.Next();
 
-        GLPostingPreview.Close;
+        GLPostingPreview.Close();
     end;
 
     [Test]
@@ -748,7 +748,7 @@ codeunit 134710 "Manual Payment Registration"
 
         // Verify:
         asserterror PostPayments(TempPaymentRegistrationBuffer);
-        Assert.ExpectedError(NothingToPostErr);
+        Assert.ExpectedError(DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
     [Test]
@@ -941,7 +941,7 @@ codeunit 134710 "Manual Payment Registration"
         CustomerCard.Trap;
         PaymentRegistration.Name.DrillDown;
         CustCardName := CustomerCard.Name.Value;
-        CustomerCard.Close;
+        CustomerCard.Close();
 
         // Verify:
         Assert.AreEqual(Name, CustCardName, OpenCustomerCardErr);
@@ -967,7 +967,7 @@ codeunit 134710 "Manual Payment Registration"
         Navigate.Trap;
         PaymentRegistration.Navigate.Invoke;
         SourceName := Navigate.SourceName.Value;
-        Navigate.Close;
+        Navigate.Close();
 
         // Verify:
         Assert.AreEqual(Name, SourceName, NavigateErr);
@@ -992,7 +992,7 @@ codeunit 134710 "Manual Payment Registration"
         FinanceChargeMemo.Trap;
         PaymentRegistration.FinanceChargeMemo.Invoke;
         CustomerNo := FinanceChargeMemo.FILTER.GetFilter("Customer No.");
-        FinanceChargeMemo.Close;
+        FinanceChargeMemo.Close();
         Customer.Get(CustomerNo);
 
         // Verify:
@@ -1292,7 +1292,7 @@ codeunit 134710 "Manual Payment Registration"
         repeat
             TempPaymentRegistrationSetup.Copy(PaymentRegistrationSetup);
             TempPaymentRegistrationSetup.Insert();
-        until PaymentRegistrationSetup.Next = 0;
+        until PaymentRegistrationSetup.Next() = 0;
 
         LibraryERM.CreateBankAccount(BankAccount);
 
@@ -1326,7 +1326,7 @@ codeunit 134710 "Manual Payment Registration"
           PaymentRegistrationSetupPage."Bal. Account No.".Value,
           StrSubstNo(WrongBalAccountErr, UserId));
 
-        PaymentRegistrationSetupPage.Close;
+        PaymentRegistrationSetupPage.Close();
     end;
 
     [Test]
@@ -1710,7 +1710,7 @@ codeunit 134710 "Manual Payment Registration"
         TempPaymentRegistrationBuffer.SetRange("Payment Made", true);
         asserterror PaymentRegistrationMgt.Preview(TempPaymentRegistrationBuffer, true);
         Assert.AreEqual('', GetLastErrorText, 'Expected empty error from Preview function');
-        GLPostingPreview.Close;
+        GLPostingPreview.Close();
 
         // [WHEN] Post As Lump Payment invoked
         PostLumpPayments(TempPaymentRegistrationBuffer);
@@ -1972,7 +1972,7 @@ codeunit 134710 "Manual Payment Registration"
         FindCustLedgerEntry(CustLedgerEntry, CustomerNo, DocNo);
         TempPaymentRegistrationBuffer.Get(CustLedgerEntry."Entry No.");
         TempPaymentRegistrationBuffer.Validate("Payment Made", true);
-        TempPaymentRegistrationBuffer.Validate("Date Received", WorkDate);
+        TempPaymentRegistrationBuffer.Validate("Date Received", WorkDate());
         TempPaymentRegistrationBuffer.Modify(true);
     end;
 
@@ -1981,11 +1981,11 @@ codeunit 134710 "Manual Payment Registration"
         PaymentRegistrationSetupDummy: Record "Payment Registration Setup";
     begin
         with PaymentRegistrationSetupDummy do begin
-            Get;
+            Get();
             "User ID" := DummyUserNameTxt;
-            Insert;
-            Get;
-            Delete;
+            Insert();
+            Get();
+            Delete();
         end;
     end;
 
@@ -2154,7 +2154,7 @@ codeunit 134710 "Manual Payment Registration"
             DeleteAll();
             SetRange("User ID");
 
-            Get;
+            Get();
             "User ID" := SetUserID;
             Validate("Bal. Account Type", AccountType);
             Validate("Bal. Account No.", AccountNo);
@@ -2175,7 +2175,7 @@ codeunit 134710 "Manual Payment Registration"
             SetRange("User ID", UserId);
             DeleteAll();
 
-            Init;
+            Init();
             "User ID" := UserId;
             Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
             Validate("Journal Batch Name", GenJournalBatch.Name);
@@ -2353,7 +2353,7 @@ codeunit 134710 "Manual Payment Registration"
 
         TempPaymentRegistrationBuffer.SetRange("Source No.", CustomerNo);
         TempPaymentRegistrationBuffer.SetRange("Document No.", DocNo);
-        Assert.IsTrue(TempPaymentRegistrationBuffer.IsEmpty = ShouldBeEmpty, StrSubstNo(OpenCustomerDocErr, DocNo, CustomerNo));
+        Assert.IsTrue(TempPaymentRegistrationBuffer.IsEmpty() = ShouldBeEmpty, StrSubstNo(OpenCustomerDocErr, DocNo, CustomerNo));
     end;
 
     local procedure VerifyFullPaymentRegistration(CustomerNo: Code[20]; DocNo: Code[20]; PaymentDocNo: Code[20])

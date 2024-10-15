@@ -1331,7 +1331,7 @@ codeunit 142066 "UT REP Sales Tax"
 
         TaxGroupCode := CreateTaxGroup;
         LibraryERM.CreateTaxDetail(
-          TaxDetail, TaxJurisdiction.Code, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate);
+          TaxDetail, TaxJurisdiction.Code, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", 7.0);
         TaxDetail.Modify(true);
 
@@ -1987,7 +1987,7 @@ codeunit 142066 "UT REP Sales Tax"
     var
         TaxDetail: Record "Tax Detail";
     begin
-        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, TaxType, WorkDate);
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, TaxType, WorkDate());
         with TaxDetail do begin
             Validate("Tax Below Maximum", LibraryRandom.RandDec(100, 2) * 0.1);
             Modify(true);
@@ -2000,9 +2000,9 @@ codeunit 142066 "UT REP Sales Tax"
         TaxArea: Record "Tax Area";
     begin
         with TaxArea do begin
-            Init;
+            Init();
             Code := LibraryUTUtility.GetNewCode;
-            Insert;
+            Insert();
             LibraryVariableStorage.Enqueue(Code);  // Enqueue value to use in SalesTaxAreaListRequestPageHandler.
             exit(Code);
         end;
@@ -2013,9 +2013,9 @@ codeunit 142066 "UT REP Sales Tax"
         TaxGroup: Record "Tax Group";
     begin
         with TaxGroup do begin
-            Init;
+            Init();
             Code := LibraryUTUtility.GetNewCode10;
-            Insert;
+            Insert();
             LibraryVariableStorage.Enqueue(Code);  // Enqueue required for SalesTaxGroupListRequestPageHandler.
             exit(Code);
         end;
@@ -2026,10 +2026,10 @@ codeunit 142066 "UT REP Sales Tax"
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
         with TaxJurisdiction do begin
-            Init;
+            Init();
             Code := LibraryUTUtility.GetNewCode10;
             "Report-to Jurisdiction" := Code;
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -2079,7 +2079,7 @@ codeunit 142066 "UT REP Sales Tax"
             SetRange("VAT Prod. Posting Group", '');
             SetRange("VAT Calculation Type", "VAT Calculation Type"::"Sales Tax");
             if IsEmpty() then begin
-                Init;
+                Init();
                 "VAT Calculation Type" := "VAT Calculation Type"::"Sales Tax";
                 "VAT %" := LibraryRandom.RandIntInRange(1, 25);
                 LibraryERM.CreateGLAccount(GLAccount);
@@ -2165,9 +2165,9 @@ codeunit 142066 "UT REP Sales Tax"
         SalesInvoiceLine.SetRange(Type, LineType);
         SalesInvoiceLine.FindFirst();
 
-        Assert.AreEqual(Qty, SalesInvoiceLine.Quantity, StrSubstNo(QtyErr, SalesInvoiceLine.TableCaption));
+        Assert.AreEqual(Qty, SalesInvoiceLine.Quantity, StrSubstNo(QtyErr, SalesInvoiceLine.TableCaption()));
         Assert.AreEqual(
-          AmtIncludingVAT, SalesInvoiceLine."Amount Including VAT", StrSubstNo(AmountIncludingVATErr, SalesInvoiceLine.TableCaption));
+          AmtIncludingVAT, SalesInvoiceLine."Amount Including VAT", StrSubstNo(AmountIncludingVATErr, SalesInvoiceLine.TableCaption()));
     end;
 
     local procedure VerifyDocumentTestReportSalesTaxAmountLinePct(TaxGroupCode: Code[20])

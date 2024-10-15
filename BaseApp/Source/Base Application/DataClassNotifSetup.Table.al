@@ -4,6 +4,7 @@ table 1751 "Data Class. Notif. Setup"
     ObsoleteReason = 'Functionality moved on My Notifications.';
     ObsoleteState = Removed;
     ObsoleteTag = '18.0';
+    ReplicateData = false;
 
     fields
     {

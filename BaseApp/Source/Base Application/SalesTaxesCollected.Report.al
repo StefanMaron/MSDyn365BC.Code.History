@@ -1,4 +1,4 @@
-report 24 "Sales Taxes Collected"
+﻿report 24 "Sales Taxes Collected"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './SalesTaxesCollected.rdlc';
@@ -210,7 +210,7 @@ report 24 "Sales Taxes Collected"
 
                     trigger OnAfterGetRecord()
                     begin
-                        ClearTaxAmounts;
+                        ClearTaxAmounts();
                         if ((Type = Type::Purchase) and (IncludePurchases or IncludeUseTax)) or
                            ((Type = Type::Sale) and IncludeSales)
                         then begin
@@ -245,7 +245,7 @@ report 24 "Sales Taxes Collected"
 
                 trigger OnAfterGetRecord()
                 begin
-                    ClearTaxAmounts;
+                    ClearTaxAmounts();
                 end;
 
                 trigger OnPreDataItem()
@@ -259,7 +259,7 @@ report 24 "Sales Taxes Collected"
                 if Number = 1 then
                     TempTaxJurisdiction.Find('-')
                 else
-                    TempTaxJurisdiction.Next;
+                    TempTaxJurisdiction.Next();
                 SubTitle := TempTaxJurisdiction.FieldCaption("Report-to Jurisdiction") +
                   ': ' +
                   TempTaxJurisdiction.Code +
@@ -358,7 +358,7 @@ report 24 "Sales Taxes Collected"
         CompanyInfo.Get();
         ReportToFilter := "Tax Jurisdiction".GetFilter("Report-to Jurisdiction");
         "Tax Jurisdiction".SetRange("Report-to Jurisdiction");
-        JurisFilters := "Tax Jurisdiction".GetFilters;
+        JurisFilters := "Tax Jurisdiction".GetFilters();
 
         case ReportType of
             ReportType::Summary:
@@ -371,12 +371,6 @@ report 24 "Sales Taxes Collected"
     end;
 
     var
-        Text000: Label 'Sales Taxes Collected, Summary';
-        Text001: Label 'Sales Taxes Collected';
-        Text002: Label 'Sales Taxes Collected, Detail';
-        Text003: Label 'Unknown Jurisdiction';
-        Text004: Label 'Total Sales Taxes Collected for %1: %2';
-        Text005: Label 'Total for %1: %2';
         CompanyInfo: Record "Company Information";
         TempTaxJurisdiction: Record "Tax Jurisdiction" temporary;
         LookupTaxJurisdiction: Record "Tax Jurisdiction";
@@ -396,14 +390,13 @@ report 24 "Sales Taxes Collected"
         UseTaxtxt: Text[30];
         IncludeSales: Boolean;
         IncludePurchases: Boolean;
-        USText006: Label 'You must check at least one of the check boxes labeled Include...';
-        USText007: Label 'Includes Taxes Collected From Sales Only';
-        USText008: Label 'Includes Recoverable Taxes Paid On Purchases Only';
-        USText009: Label 'Includes Use Taxes Only';
-        USText010: Label 'Includes Taxes Collected and Recoverable Taxes Paid';
-        USText011: Label 'Includes Taxes Collected From Sales and Use Taxes';
-        USText012: Label 'Includes Recoverable Taxes Paid On Purchases and Use Taxes';
-        USText013: Label 'Includes Taxes Collected, Recoverable Taxes Paid, and Use Taxes';
+
+        Text000: Label 'Sales Taxes Collected, Summary';
+        Text001: Label 'Sales Taxes Collected';
+        Text002: Label 'Sales Taxes Collected, Detail';
+        Text003: Label 'Unknown Jurisdiction';
+        Text004: Label 'Total Sales Taxes Collected for %1: %2';
+        Text005: Label 'Total for %1: %2';
         PageCaptionLbl: Label 'Page';
         SalesTaxAmountCaptionLbl: Label 'Sales Tax Amount';
         TaxableSalesAmountCaptionLbl: Label 'Taxable Sales Amount';
@@ -412,6 +405,14 @@ report 24 "Sales Taxes Collected"
         DescriptionCaptionLbl: Label 'Description';
         TaxGroupCodeCaptionLbl: Label 'Tax Group Code';
         RecoverablePurchaseCaptionLbl: Label 'Recoverable Purchase';
+        USText006: Label 'You must check at least one of the check boxes labeled Include...';
+        USText007: Label 'Includes Taxes Collected From Sales Only';
+        USText008: Label 'Includes Recoverable Taxes Paid On Purchases Only';
+        USText009: Label 'Includes Use Taxes Only';
+        USText010: Label 'Includes Taxes Collected and Recoverable Taxes Paid';
+        USText011: Label 'Includes Taxes Collected From Sales and Use Taxes';
+        USText012: Label 'Includes Recoverable Taxes Paid On Purchases and Use Taxes';
+        USText013: Label 'Includes Taxes Collected, Recoverable Taxes Paid, and Use Taxes';
 
     local procedure ClearTaxAmounts()
     begin

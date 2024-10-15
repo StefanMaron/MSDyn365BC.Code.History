@@ -6,10 +6,11 @@ codeunit 6080 "Service Price Management"
     end;
 
     var
-        Text001: Label 'There are no Service Lines to adjust.';
         ServHeader: Record "Service Header";
         Currency: Record Currency;
         TotalAmount: Decimal;
+
+        Text001: Label 'There are no Service Lines to adjust.';
         Text002: Label 'Perform price adjustment?';
         Text003: Label 'This will remove all discounts on the Service Lines. Continue?';
         Text004: Label 'No Service Lines were found for %1 no. %2.';
@@ -33,7 +34,7 @@ codeunit 6080 "Service Price Management"
         GetServHeader(ServLinePriceAdjmt);
         GetServPriceGrSetup(ServPriceGrSetup, ServHeader, ServItemLine);
         with ServLinePriceAdjmt do begin
-            Reset;
+            Reset();
             SetRange("Document Type", ServItemLine."Document Type");
             SetRange("Document No.", ServItemLine."Document No.");
             SetRange("Service Item Line No.", ServItemLine."Line No.");
@@ -45,7 +46,7 @@ codeunit 6080 "Service Price Management"
             ServLine.SetRange("Document No.", ServItemLine."Document No.");
             ServLine.SetRange("Service Item Line No.", ServItemLine."Line No.");
             if not ServLine.Find('-') then
-                Error(Text004, ServItemLine.TableCaption, ServItemLine."Line No.");
+                Error(Text004, ServItemLine.TableCaption(), ServItemLine."Line No.");
 
             if not ServPriceGrSetup."Include Discounts" then
                 if not ConfirmManagement.GetResponseOrDefault(Text003, true) then
@@ -87,7 +88,7 @@ codeunit 6080 "Service Price Management"
                         Currency."Amount Rounding Precision");
                     "Adjustment Type" := ServPriceGrSetup."Adjustment Type";
                     "Service Price Group Code" := ServItemLine."Service Price Group Code";
-                    Insert;
+                    Insert();
                 end;
             until ServLine.Next() = 0;
             CalculateWeight(ServLinePriceAdjmt, ServPriceGrSetup);
@@ -98,11 +99,11 @@ codeunit 6080 "Service Price Management"
             Clear(ServPriceAdjmtForm);
             ServPriceAdjmtForm.SetVars(ServPriceGrSetup.Amount, ServPriceGrSetup."Include VAT");
             ServPriceAdjmtForm.SetTableView(ServLinePriceAdjmt);
-            if ServPriceAdjmtForm.RunModal = ACTION::OK then
+            if ServPriceAdjmtForm.RunModal() = ACTION::OK then
                 if ConfirmManagement.GetResponseOrDefault(Text002, true) then
                     PerformAdjustment(ServLinePriceAdjmt, ServPriceGrSetup."Include VAT");
             with ServLinePriceAdjmt do begin
-                Reset;
+                Reset();
                 SetRange("Document Type", ServItemLine."Document Type");
                 SetRange("Document No.", ServItemLine."Document No.");
                 SetRange("Service Item Line No.", ServItemLine."Line No.");
@@ -124,7 +125,7 @@ codeunit 6080 "Service Price Management"
             if ServPriceGrSetup."Adjustment Type" = ServPriceGrSetup."Adjustment Type"::Fixed then
                 AdjustFixed(ServLinePriceAdjmt, ServPriceGrSetup.Amount, ServPriceGrSetup."Include VAT")
             else begin
-                Reset;
+                Reset();
                 SetRange("Document Type", "Document Type");
                 SetRange("Document No.", "Document No.");
                 SetRange("Service Item Line No.", "Service Item Line No.");
@@ -135,10 +136,9 @@ codeunit 6080 "Service Price Management"
                 if ServPriceGrSetup."Adjustment Type" = ServPriceGrSetup."Adjustment Type"::Maximum then begin
                     if TotalAmount > ServPriceGrSetup.Amount then
                         AdjustFixed(ServLinePriceAdjmt, ServPriceGrSetup.Amount, ServPriceGrSetup."Include VAT");
-                end else begin
+                end else
                     if TotalAmount < ServPriceGrSetup.Amount then
                         AdjustFixed(ServLinePriceAdjmt, ServPriceGrSetup.Amount, ServPriceGrSetup."Include VAT");
-                end;
             end;
     end;
 
@@ -146,7 +146,7 @@ codeunit 6080 "Service Price Management"
     begin
         GetServHeader(ServLinePriceAdjmt);
         with ServLinePriceAdjmt do begin
-            Reset;
+            Reset();
             SetRange("Document Type", "Document Type");
             SetRange("Document No.", "Document No.");
             if Find('-') then
@@ -157,7 +157,7 @@ codeunit 6080 "Service Price Management"
                         Validate("New Amount incl. VAT", Round(FixedPrice * Weight / 100, Currency."Amount Rounding Precision"))
                     else
                         Validate("New Amount", Round(FixedPrice * Weight / 100, Currency."Amount Rounding Precision"));
-                    Modify;
+                    Modify();
                 until Next() = 0;
         end;
     end;
@@ -165,7 +165,7 @@ codeunit 6080 "Service Price Management"
     local procedure CalculateWeight(ServLinePriceAdjmt: Record "Service Line Price Adjmt."; ServPriceGrSetup: Record "Serv. Price Group Setup")
     begin
         with ServLinePriceAdjmt do begin
-            Reset;
+            Reset();
             SetRange("Document Type", "Document Type");
             SetRange("Document No.", "Document No.");
             SetRange("Service Item Line No.", "Service Item Line No.");
@@ -180,11 +180,10 @@ codeunit 6080 "Service Price Management"
                 if ServPriceGrSetup."Include VAT" then begin
                     if TotalAmount <> 0 then
                         Weight := Round("Amount incl. VAT" * 100 / TotalAmount, 0.00001);
-                end else begin
+                end else
                     if TotalAmount <> 0 then
                         Weight := Round(Amount * 100 / TotalAmount, 0.00001);
-                end;
-                Modify;
+                Modify();
             until Next() = 0;
         end;
     end;
@@ -192,7 +191,7 @@ codeunit 6080 "Service Price Management"
     procedure GetServPriceGrSetup(var ServPriceGrSetup: Record "Serv. Price Group Setup"; ServHeader: Record "Service Header"; ServItemLine: Record "Service Item Line")
     begin
         with ServPriceGrSetup do begin
-            Reset;
+            Reset();
             SetRange("Service Price Group Code", ServItemLine."Service Price Group Code");
             SetFilter("Fault Area Code", '%1|%2', ServItemLine."Fault Area Code", '');
             SetFilter("Cust. Price Group Code", '%1|%2', ServHeader."Customer Price Group", '');
@@ -214,7 +213,7 @@ codeunit 6080 "Service Price Management"
             exit(false);
 
         with ServPriceAdjmtDetail do begin
-            Reset;
+            Reset();
             SetRange("Serv. Price Adjmt. Gr. Code", ServPriceAdjmtGrCode);
             if IsEmpty() then
                 exit(true);
@@ -252,7 +251,7 @@ codeunit 6080 "Service Price Management"
     begin
         with ServLinePriceAdjmt do begin
             ServHeader.Get("Document Type", "Document No.");
-            Reset;
+            Reset();
             SetRange("Document Type", "Document Type");
             SetRange("Document No.", "Document No.");
             SetRange("Service Item Line No.", "Service Item Line No.");
@@ -289,7 +288,7 @@ codeunit 6080 "Service Price Management"
     procedure ResetAdjustedLines(ServLine: Record "Service Line")
     begin
         with ServLine do begin
-            Reset;
+            Reset();
             SetRange("Document Type", "Document Type");
             SetRange("Document No.", "Document No.");
             SetRange("Service Item Line No.", "Service Item Line No.");
@@ -299,7 +298,7 @@ codeunit 6080 "Service Price Management"
                     SetHideReplacementDialog(true);
                     UpdateUnitPrice(FieldNo("Unit Price"));
                     "Price Adjmt. Status" := "Price Adjmt. Status"::" ";
-                    Modify;
+                    Modify();
                 until Next() = 0;
         end;
     end;
@@ -321,7 +320,7 @@ codeunit 6080 "Service Price Management"
     begin
         ServHeader.Get(ServLinePriceAdjmt."Document Type", ServLinePriceAdjmt."Document No.");
         if ServHeader."Currency Code" = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else begin
             ServHeader.TestField("Currency Factor");
             Currency.Get(ServHeader."Currency Code");

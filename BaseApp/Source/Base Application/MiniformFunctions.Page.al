@@ -11,14 +11,14 @@ page 7705 "Miniform Functions"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Miniform Code"; "Miniform Code")
+                field("Miniform Code"; Rec."Miniform Code")
                 {
                     ApplicationArea = ADCS;
                     Editable = false;
                     ToolTip = 'Specifies the miniform that has a function assigned to it.';
                     Visible = false;
                 }
-                field("Function Code"; "Function Code")
+                field("Function Code"; Rec."Function Code")
                 {
                     ApplicationArea = ADCS;
                     ToolTip = 'Specifies the code of the function that is assigned to the miniform.';

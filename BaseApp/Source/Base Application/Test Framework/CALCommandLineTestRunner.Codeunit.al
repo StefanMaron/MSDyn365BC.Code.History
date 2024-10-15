@@ -10,16 +10,16 @@ codeunit 130402 "CAL Command Line Test Runner"
         CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
         CALTestMgt: Codeunit "CAL Test Management";
     begin
-        SelectLatestVersion;
-        TestRunNo := CALTestResult.LastTestRunNo + 1;
-        CompanyWorkDate := WorkDate;
+        SelectLatestVersion();
+        TestRunNo := CALTestResult.LastTestRunNo() + 1;
+        CompanyWorkDate := WorkDate();
 
         if CALTestEnabledCodeunit.FindSet() then
             repeat
                 if CALTestMgt.DoesTestCodeunitExist(CALTestEnabledCodeunit."Test Codeunit ID") then begin
                     CodeCoverageMgt.Start(true);
                     CODEUNIT.Run(CALTestEnabledCodeunit."Test Codeunit ID");
-                    CodeCoverageMgt.Stop;
+                    CodeCoverageMgt.Stop();
                     CALTestMgt.ExtendTestCoverage(CALTestEnabledCodeunit."Test Codeunit ID");
                 end;
             until CALTestEnabledCodeunit.Next() = 0
@@ -42,7 +42,7 @@ codeunit 130402 "CAL Command Line Test Runner"
 
         WorkDate := CompanyWorkDate;
 
-        ClearLastError;
+        ClearLastError();
         CALTestResult.Initialize(TestRunNo, CodeunitID, FunctionName, CurrentDateTime);
         exit(true)
     end;

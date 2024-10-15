@@ -37,8 +37,8 @@ codeunit 141019 "UT TAB Sales Tax"
         TaxArea.Delete(true);
 
         // Verify: Verify Tax Area and Tax Area Line is deleted.
-        Assert.IsFalse(TaxArea.Get(TaxArea.Code), StrSubstNo(ValueMustNotExistMsg, TaxArea.TableCaption));
-        Assert.IsFalse(TaxAreaLine.Get(TaxAreaLine."Tax Area", TaxAreaLine."Tax Jurisdiction Code"), StrSubstNo(ValueMustNotExistMsg, TaxAreaLine.TableCaption));
+        Assert.IsFalse(TaxArea.Get(TaxArea.Code), StrSubstNo(ValueMustNotExistMsg, TaxArea.TableCaption()));
+        Assert.IsFalse(TaxAreaLine.Get(TaxAreaLine."Tax Area", TaxAreaLine."Tax Jurisdiction Code"), StrSubstNo(ValueMustNotExistMsg, TaxAreaLine.TableCaption()));
     end;
 
     [Test]

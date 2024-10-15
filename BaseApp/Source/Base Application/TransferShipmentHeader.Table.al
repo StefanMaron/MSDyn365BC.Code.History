@@ -428,7 +428,7 @@
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure PrintRecords(ShowRequestForm: Boolean)
@@ -450,7 +450,7 @@
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure CopyFromTransferHeader(TransHeader: Record "Transfer Header")
@@ -519,7 +519,7 @@
         FileManagement: Codeunit "File Management";
     begin
         CalcFields("Signed Document XML");
-        if "Signed Document XML".HasValue then begin
+        if "Signed Document XML".HasValue() then begin
             TempBlob.FromRecord(Rec, FieldNo("Signed Document XML"));
             FileManagement.BLOBExport(TempBlob, "No." + '.xml', true);
         end else

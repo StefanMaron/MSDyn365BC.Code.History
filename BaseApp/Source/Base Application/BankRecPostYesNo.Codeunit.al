@@ -9,7 +9,7 @@ codeunit 10121 "Bank Rec.-Post (Yes/No)"
     trigger OnRun()
     begin
         BankRecHeader.Copy(Rec);
-        Code;
+        Code();
         Rec := BankRecHeader;
     end;
 

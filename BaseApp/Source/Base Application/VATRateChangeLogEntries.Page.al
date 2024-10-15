@@ -12,18 +12,18 @@ page 553 "VAT Rate Change Log Entries"
         {
             repeater(Group)
             {
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
                 }
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the table. This field is intended only for internal use.';
                     Visible = false;
                 }
-                field("Table Caption"; "Table Caption")
+                field("Table Caption"; Rec."Table Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the table. This field is intended only for internal use.';
@@ -35,22 +35,22 @@ page 553 "VAT Rate Change Log Entries"
                     Caption = 'Record Identifier';
                     ToolTip = 'Specifies the location of this line in the printed or exported VAT report.';
                 }
-                field("Old Gen. Prod. Posting Group"; "Old Gen. Prod. Posting Group")
+                field("Old Gen. Prod. Posting Group"; Rec."Old Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general product posting group before the VAT rate change conversion.';
                 }
-                field("New Gen. Prod. Posting Group"; "New Gen. Prod. Posting Group")
+                field("New Gen. Prod. Posting Group"; Rec."New Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the new general product posting group after the VAT rate change conversion.';
                 }
-                field("Old VAT Prod. Posting Group"; "Old VAT Prod. Posting Group")
+                field("Old VAT Prod. Posting Group"; Rec."Old VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT product posting group before the VAT rate change conversion.';
                 }
-                field("New VAT Prod. Posting Group"; "New VAT Prod. Posting Group")
+                field("New VAT Prod. Posting Group"; Rec."New VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the new VAT product posting group after the VAT rate change conversion.';
@@ -65,7 +65,7 @@ page 553 "VAT Rate Change Log Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the VAT rate change conversion.';
                 }
-                field("Converted Date"; "Converted Date")
+                field("Converted Date"; Rec."Converted Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the VAT rate change log entry was created.';
@@ -88,8 +88,6 @@ page 553 "VAT Rate Change Log Entries"
                     Caption = '&Show';
                     Ellipsis = true;
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'View the log details.';
 
                     trigger OnAction()
@@ -145,6 +143,17 @@ page 553 "VAT Rate Change Log Entries"
                                 end;
                         end;
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Show_Promoted; Show)
+                {
                 }
             }
         }

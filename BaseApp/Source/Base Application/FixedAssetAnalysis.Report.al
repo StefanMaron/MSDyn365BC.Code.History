@@ -14,7 +14,7 @@ report 5600 "Fixed Asset - Analysis"
             column(MainHeadLineText; MainHeadLineText)
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -124,7 +124,7 @@ report 5600 "Fixed Asset - Analysis"
             begin
                 if not FADeprBook.Get("No.", DeprBookCode) then
                     CurrReport.Skip();
-                if SkipRecord then
+                if SkipRecord() then
                     CurrReport.Skip();
 
                 if GroupTotals = GroupTotals::"FA Posting Group" then
@@ -170,7 +170,7 @@ report 5600 "Fixed Asset - Analysis"
 
                 for i := 1 to 3 do
                     GroupAmounts[i] := 0;
-                MakeGroupHeadLine;
+                MakeGroupHeadLine();
             end;
 
             trigger OnPreDataItem()
@@ -191,16 +191,16 @@ report 5600 "Fixed Asset - Analysis"
                     GroupTotals::"FA Posting Group":
                         SetCurrentKey("FA Posting Group");
                 end;
-                FAPostingType.CreateTypes;
-                FADateType.CreateTypes;
+                FAPostingType.CreateTypes();
+                FADateType.CreateTypes();
                 CheckDateType(DateType1, DateTypeNo1);
                 CheckDateType(DateType2, DateTypeNo2);
                 CheckPostingType(PostingType1, PostingTypeNo1);
                 CheckPostingType(PostingType2, PostingTypeNo2);
                 CheckPostingType(PostingType3, PostingTypeNo3);
-                MakeGroupTotalText;
+                MakeGroupTotalText();
                 FAGenReport.ValidateDates(StartingDate, EndingDate);
-                MakeDateHeadLine;
+                MakeDateHeadLine();
                 MakeAmountHeadLine(3, PostingType1, PostingTypeNo1, Period1);
                 MakeAmountHeadLine(4, PostingType2, PostingTypeNo2, Period2);
                 MakeAmountHeadLine(5, PostingType3, PostingTypeNo3, Period3);
@@ -330,7 +330,7 @@ report 5600 "Fixed Asset - Analysis"
 
         trigger OnOpenPage()
         begin
-            GetFASetup;
+            GetFASetup();
         end;
     }
 
@@ -344,13 +344,13 @@ report 5600 "Fixed Asset - Analysis"
         if GroupTotals = GroupTotals::"FA Posting Group" then
             FAGenReport.SetFAPostingGroup("Fixed Asset", DeprBook.Code);
         FAGenReport.AppendFAPostingFilter("Fixed Asset", StartingDate, EndingDate);
-        FAFilter := "Fixed Asset".GetFilters;
+        FAFilter := "Fixed Asset".GetFilters();
         MainHeadLineText := Text000;
         if SalesReport then
             MainHeadLineText := StrSubstNo('%1 %2', MainHeadLineText, OnlySoldAssetsLbl);
         if BudgetReport then
             MainHeadLineText := StrSubstNo('%1 %2', MainHeadLineText, Text001);
-        DeprBookText := StrSubstNo('%1%2 %3', DeprBook.TableCaption, ':', DeprBookCode);
+        DeprBookText := StrSubstNo('%1%2 %3', DeprBook.TableCaption(), ':', DeprBookCode);
         if PrintDetails then begin
             FANo := "Fixed Asset".FieldCaption("No.");
             FADescription := "Fixed Asset".FieldCaption(Description);
@@ -358,16 +358,6 @@ report 5600 "Fixed Asset - Analysis"
     end;
 
     var
-        Text000: Label 'Fixed Asset - Analysis';
-        Text001: Label '(Budget Report)';
-        Text002: Label 'Group Total';
-        Text003: Label 'Sold';
-        Text004: Label 'Group Totals: %1';
-        Text005: Label '%1 or %2 must be specified only together with the option %3.';
-        Text006: Label 'The Starting Date must be specified when you use the option %1.';
-        Text007: Label 'The date type %1 is not a valid option.';
-        Text008: Label 'The posting type %1 is not a valid option.';
-        Text009: Label '%1 has been modified in fixed asset %2.';
         FASetup: Record "FA Setup";
         DeprBook: Record "Depreciation Book";
         FADeprBook: Record "FA Depreciation Book";
@@ -413,6 +403,17 @@ report 5600 "Fixed Asset - Analysis"
         DisposalDate: Date;
         SalesReport: Boolean;
         TypeExist: Boolean;
+
+        Text000: Label 'Fixed Asset - Analysis';
+        Text001: Label '(Budget Report)';
+        Text002: Label 'Group Total';
+        Text003: Label 'Sold';
+        Text004: Label 'Group Totals: %1';
+        Text005: Label '%1 or %2 must be specified only together with the option %3.';
+        Text006: Label 'The Starting Date must be specified when you use the option %1.';
+        Text007: Label 'The date type %1 is not a valid option.';
+        Text008: Label 'The posting type %1 is not a valid option.';
+        Text009: Label '%1 has been modified in fixed asset %2.';
         Text010: Label 'before Starting Date,Net Change,at Ending Date';
         Text011: Label ' ,FA Class,FA Subclass,FA Location,Main Asset,Global Dimension 1,Global Dimension 2,FA Posting Group';
         CurrReportPAGENOCaptionLbl: Label 'Page';
@@ -538,7 +539,7 @@ report 5600 "Fixed Asset - Analysis"
           FADeprBook.FieldNo("Gain/Loss"):
                 exit(false);
         end;
-        if not SalesReport and (Period = Period::"at Ending Date") and (SetSalesMark <> '') then
+        if not SalesReport and (Period = Period::"at Ending Date") and (SetSalesMark() <> '') then
             exit(true);
         exit(false);
     end;
@@ -629,8 +630,8 @@ report 5600 "Fixed Asset - Analysis"
             FASetup.Get();
             DeprBookCode := FASetup."Default Depr. Book";
         end;
-        FAPostingType.CreateTypes;
-        FADateType.CreateTypes;
+        FAPostingType.CreateTypes();
+        FADateType.CreateTypes();
     end;
 }
 

@@ -71,7 +71,7 @@ table 915 "ATO Sales Buffer"
 
     procedure UpdateBufferWithComp(CompATOSalesBuffer: Record "ATO Sales Buffer"; ProfitPct: Decimal; IsTotal: Boolean)
     begin
-        Init;
+        Init();
         if IsTotal then
             Type := Type::"Total Assembly"
         else
@@ -82,13 +82,13 @@ table 915 "ATO Sales Buffer"
             "Parent Item No." := CompATOSalesBuffer."Parent Item No."
         else
             "Parent Item No." := '';
-        if Find then begin
+        if Find() then begin
             Quantity += CompATOSalesBuffer.Quantity;
             "Sales Cost" += CompATOSalesBuffer."Sales Cost";
             "Sales Amount" += CalcSalesAmt(CompATOSalesBuffer."Sales Cost", ProfitPct);
             "Profit %" := CalcSalesProfitPct("Sales Cost", "Sales Amount");
             OnUpdateBufferWithCompOnBeforeModify(Rec, CompATOSalesBuffer);
-            Modify;
+            Modify();
             exit;
         end;
 
@@ -97,14 +97,14 @@ table 915 "ATO Sales Buffer"
         "Sales Amount" := CalcSalesAmt(CompATOSalesBuffer."Sales Cost", ProfitPct);
         "Profit %" := ProfitPct;
         OnUpdateBufferWithCompOnBeforeInsert(Rec, CompATOSalesBuffer);
-        Insert;
+        Insert();
     end;
 
     procedure UpdateBufferWithItemLedgEntry(ItemLedgEntry: Record "Item Ledger Entry"; IsTotal: Boolean)
     begin
         ItemLedgEntry.CalcFields("Cost Amount (Expected)", "Cost Amount (Actual)", "Sales Amount (Actual)", "Sales Amount (Expected)");
 
-        Init;
+        Init();
         "Item No." := ItemLedgEntry."Item No.";
         "Order No." := '';
         "Parent Item No." := '';
@@ -125,13 +125,13 @@ table 915 "ATO Sales Buffer"
                     "Parent Item No." := ItemLedgEntry."Source No.";
                 end;
         end;
-        if Find then begin
+        if Find() then begin
             Quantity += -ItemLedgEntry.Quantity;
             "Sales Cost" += -(ItemLedgEntry."Cost Amount (Expected)" + ItemLedgEntry."Cost Amount (Actual)");
             "Sales Amount" += ItemLedgEntry."Sales Amount (Actual)" + ItemLedgEntry."Sales Amount (Expected)";
             "Profit %" := CalcSalesProfitPct("Sales Cost", "Sales Amount");
             OnUpdateBufferWithItemLedgEntryOnBeforeModify(Rec, ItemLedgEntry);
-            Modify;
+            Modify();
             exit;
         end;
 
@@ -140,7 +140,7 @@ table 915 "ATO Sales Buffer"
         "Sales Amount" := ItemLedgEntry."Sales Amount (Actual)" + ItemLedgEntry."Sales Amount (Expected)";
         "Profit %" := CalcSalesProfitPct("Sales Cost", "Sales Amount");
         OnUpdateBufferWithItemLedgEntryOnBeforeInsert(Rec, ItemLedgEntry);
-        Insert;
+        Insert();
     end;
 
     local procedure FindATO(ItemLedgEntry: Record "Item Ledger Entry"): Code[20]

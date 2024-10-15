@@ -33,7 +33,7 @@ report 154 "Income Statement"
         GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
     begin
         GLAccountCategoryMgt.GetGLSetup(GeneralLedgerSetup);
-        GLAccountCategoryMgt.RunAccountScheduleReport(GeneralLedgerSetup."Acc. Sched. for Income Stmt.");
+        GLAccountCategoryMgt.RunAccountScheduleReport(GeneralLedgerSetup."Fin. Rep. for Income Stmt.");
     end;
 }
 

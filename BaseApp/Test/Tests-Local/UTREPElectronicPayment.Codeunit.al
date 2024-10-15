@@ -39,7 +39,7 @@ codeunit 141038 "UT REP Electronic Payment"
 
         // Setup: Create General Journal Line Account Type - IC Partner.
         Initialize();
-        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::"IC Partner", CreateICPartner, WorkDate);  // Posting Date - WORKDATE.
+        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::"IC Partner", CreateICPartner, WorkDate());  // Posting Date - WORKDATE.
 
         // Exercise: Execute function - CheckICPartner of Report - Payment Journal - Test.
         PaymentJournalTest.CheckICPartner(GenJournalLine, AccountName);
@@ -60,7 +60,7 @@ codeunit 141038 "UT REP Electronic Payment"
 
         // Setup.
         Initialize();
-        OnAfterGetRecordAccountTypePaymentJournalTest(GenJournalLine."Account Type"::"G/L Account", CreateGLAccount, WorkDate);  // Posting Date - WORKDATE.
+        OnAfterGetRecordAccountTypePaymentJournalTest(GenJournalLine."Account Type"::"G/L Account", CreateGLAccount, WorkDate());  // Posting Date - WORKDATE.
     end;
 
     [Test]
@@ -75,7 +75,7 @@ codeunit 141038 "UT REP Electronic Payment"
 
         // Setup.
         Initialize();
-        OnAfterGetRecordAccountTypePaymentJournalTest(GenJournalLine."Account Type"::Customer, CreateCustomer, WorkDate);  // Posting Date - WORKDATE.
+        OnAfterGetRecordAccountTypePaymentJournalTest(GenJournalLine."Account Type"::Customer, CreateCustomer, WorkDate());  // Posting Date - WORKDATE.
     end;
 
     [Test]
@@ -90,7 +90,7 @@ codeunit 141038 "UT REP Electronic Payment"
 
         // Setup.
         Initialize();
-        OnAfterGetRecordAccountTypePaymentJournalTest(GenJournalLine."Account Type"::Vendor, CreateVendor, WorkDate);  // Posting Date - WORKDATE.
+        OnAfterGetRecordAccountTypePaymentJournalTest(GenJournalLine."Account Type"::Vendor, CreateVendor, WorkDate());  // Posting Date - WORKDATE.
     end;
 
     [Test]
@@ -105,7 +105,7 @@ codeunit 141038 "UT REP Electronic Payment"
 
         // Setup.
         Initialize();
-        OnAfterGetRecordAccountTypePaymentJournalTest(GenJournalLine."Account Type"::"Bank Account", CreateBankAccount, WorkDate);  // Posting Date - WORKDATE.
+        OnAfterGetRecordAccountTypePaymentJournalTest(GenJournalLine."Account Type"::"Bank Account", CreateBankAccount, WorkDate());  // Posting Date - WORKDATE.
     end;
 
     [Test]
@@ -160,7 +160,7 @@ codeunit 141038 "UT REP Electronic Payment"
 
         // Setup.
         Initialize();
-        OnPreReportInternetFileTransfer(WorkDate, 0D);  // Start Date - WorkDate and End Date - 0D.
+        OnPreReportInternetFileTransfer(WorkDate(), 0D);  // Start Date - WorkDate and End Date - 0D.
     end;
 
     [Test]
@@ -173,7 +173,7 @@ codeunit 141038 "UT REP Electronic Payment"
 
         // Setup.
         Initialize();
-        OnPreReportInternetFileTransfer(CalcDate('<1D>', WorkDate), WorkDate);  // Start Date greater than End Date.
+        OnPreReportInternetFileTransfer(CalcDate('<1D>', WorkDate()), WorkDate());  // Start Date greater than End Date.
     end;
 
     local procedure OnPreReportInternetFileTransfer(StartDate: Date; EndDate: Date)
@@ -204,8 +204,8 @@ codeunit 141038 "UT REP Electronic Payment"
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         // Enqueue value for Request Page handler - GSTHSTInternetFileTransferRequestPageHandler.
-        LibraryVariableStorage.Enqueue(WorkDate);
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(WorkDate());
 
         // Exercise.
         asserterror REPORT.RunModal(REPORT::"GST/HST Internet File Transfer");  // Opens Request Page handler - GSTHSTInternetFileTransferRequestPageHandler.
@@ -313,10 +313,10 @@ codeunit 141038 "UT REP Electronic Payment"
 
         // Setup.
         Initialize();
-        ExpectedDateString := Format(WorkDate, 0, '<Closing><Year4><Month,2><Day,2>');  // Format String based on function - FormatDates of Report - GST/HST Internet File Transfer.
+        ExpectedDateString := Format(WorkDate(), 0, '<Closing><Year4><Month,2><Day,2>');  // Format String based on function - FormatDates of Report - GST/HST Internet File Transfer.
 
         // Exercise & Verify: Execute function - FormatDates with WORKDATE. Verify function returned string with expected date string.
-        Assert.AreEqual(ExpectedDateString, GSTHSTInternetFileTransfer.FormatDates(WorkDate), ValueMustEqualMsg);
+        Assert.AreEqual(ExpectedDateString, GSTHSTInternetFileTransfer.FormatDates(WorkDate()), ValueMustEqualMsg);
     end;
 
     [Test]
@@ -484,7 +484,7 @@ codeunit 141038 "UT REP Electronic Payment"
         Initialize();
 
         // [GIVEN] Gen. Journal Line.
-        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, CreateGLAccount, WorkDate);
+        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, CreateGLAccount, WorkDate());
 
         // [WHEN] Run "Payment Journal - Test" report (opens handler - PaymentJournalTestRequestPageHandler).
         REPORT.Run(REPORT::"Payment Journal - Test");

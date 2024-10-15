@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 report 1191 "Suggest Res. Price Chg. (Res.)"
 {
     Caption = 'Suggest Res. Price Chg. (Res.)';
@@ -23,10 +23,10 @@ report 1191 "Suggest Res. Price Chg. (Res.)"
                     "New Unit Price" :=
                       Round(
                         CurrExchRate.ExchangeAmtLCYToFCY(
-                          WorkDate, ToCurrency.Code,
+                          WorkDate(), ToCurrency.Code,
                           Resource."Unit Price",
                           CurrExchRate.ExchangeRate(
-                            WorkDate, ToCurrency.Code)),
+                            WorkDate(), ToCurrency.Code)),
                         ToCurrency."Unit-Amount Rounding Precision");
 
                     if "New Unit Price" > PriceLowerLimit then
@@ -60,9 +60,9 @@ report 1191 "Suggest Res. Price Chg. (Res.)"
                     if PriceAlreadyExists or CreateNewPrices then begin
                         ResPriceChg2 := ResPriceChg;
                         if ResPriceChg2.Find('=') then
-                            Modify
+                            Modify()
                         else
-                            Insert;
+                            Insert();
                     end;
                 end;
             end;
@@ -154,10 +154,10 @@ report 1191 "Suggest Res. Price Chg. (Res.)"
     begin
         RoundingMethod.SetRange(Code, RoundingMethod.Code);
 
-        if ToCurrency.Code = '' then begin
-            ToCurrency.InitRoundingPrecision;
-        end else begin
-            ToCurrency.Find;
+        if ToCurrency.Code = '' then
+            ToCurrency.InitRoundingPrecision()
+        else begin
+            ToCurrency.Find();
             ToCurrency.TestField("Unit-Amount Rounding Precision");
         end;
 
@@ -168,7 +168,6 @@ report 1191 "Suggest Res. Price Chg. (Res.)"
     end;
 
     var
-        Text000: Label 'Processing items  #1##########';
         RoundingMethod: Record "Rounding Method";
         ToCurrency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
@@ -181,6 +180,8 @@ report 1191 "Suggest Res. Price Chg. (Res.)"
         CreateNewPrices: Boolean;
         UnitPriceFactor: Decimal;
         PriceLowerLimit: Decimal;
+
+        Text000: Label 'Processing items  #1##########';
 
     procedure InitializeCopyToResPrice(CurrencyCode: Code[10]; WorkTypeCode: Code[10])
     begin

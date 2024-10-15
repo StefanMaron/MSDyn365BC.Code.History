@@ -6,9 +6,6 @@ codeunit 9002 "Permission Manager"
 
     var
         OfficePortalUserAdministrationUrlTxt: Label 'https://portal.office.com/admin/default.aspx#ActiveUsersPage', Locked = true;
-#if not CLEAN18
-        IncorrectCalculatedHashErr: Label 'Hash calculated for permission set %1 is ''%2''.', Comment = '%1 = permission set id, %2 = value of calculated hash';
-#endif
         IntelligentCloudTok: Label 'INTELLIGENT CLOUD', Locked = true;
         LocalTok: Label 'LOCAL', Locked = true;
         EnvironmentInfo: Codeunit "Environment Information";
@@ -42,7 +39,7 @@ codeunit 9002 "Permission Manager"
         UsersInPlans: Query "Users in Plans";
     begin
         // If intelligent cloud is enabled, then assign the intelligent cloud user group
-        if IsIntelligentCloud then begin
+        if IsIntelligentCloud() then begin
             AddUserToUserGroup(UserSecurityID, IntelligentCloudTok, Company);
             PermissionsAdded := true;
             exit;
@@ -132,7 +129,7 @@ codeunit 9002 "Permission Manager"
         Plan: Query Plan;
         UsersInPlans: Query "Users in Plans";
     begin
-        if not EnvironmentInfo.IsSaaS then
+        if not EnvironmentInfo.IsSaaS() then
             exit(false);
 
         if IsNullGuid(UserSID) then
@@ -169,7 +166,7 @@ codeunit 9002 "Permission Manager"
         UserGroupPermissionSet: Record "User Group Permission Set";
         UserGroup: Record "User Group";
     begin
-        if not EnvironmentInfo.IsSaaS then
+        if not EnvironmentInfo.IsSaaS() then
             if not UserGroup.Get(UserGroupCode) then
                 exit;
 
@@ -178,7 +175,7 @@ codeunit 9002 "Permission Manager"
         UserGroupPermissionSet."Role ID" := RoleID;
         UserGroupPermissionSet."App ID" := AppGuid;
         UserGroupPermissionSet.Scope := UserGroupPermissionSet.Scope::Tenant;
-        if not UserGroupPermissionSet.Find then
+        if not UserGroupPermissionSet.Find() then
             UserGroupPermissionSet.Insert(true);
     end;
 
@@ -271,7 +268,7 @@ codeunit 9002 "Permission Manager"
             exit;
 
         AllProfile.Reset();
-        AllProfile.SetRange("Role Center ID", ConfPersonalizationMgt.DefaultRoleCenterID);
+        AllProfile.SetRange("Role Center ID", ConfPersonalizationMgt.DefaultRoleCenterID());
         if AllProfile.FindFirst() then
             exit;
 
@@ -320,20 +317,6 @@ codeunit 9002 "Permission Manager"
         exit(CopyStr(CryptographyManagement.GenerateHash(InputText, 2), 1, 250)); // 2 corresponds to SHA256
     end;
 
-#if not CLEAN18
-    [Obsolete('The Permission Set table will be read only in the new permission system. The hash is no longer stored but recalculates every time.', '18.0')]
-    procedure UpdateHashForPermissionSet(PermissionSetId: Code[20])
-    var
-        PermissionSet: Record "Permission Set";
-    begin
-        PermissionSet.Get(PermissionSetId);
-        PermissionSet.Hash := GenerateHashForPermissionSet(PermissionSetId);
-        if PermissionSet.Hash = '' then
-            Error(IncorrectCalculatedHashErr, PermissionSetId, PermissionSet.Hash);
-        PermissionSet.Modify();
-    end;
-#endif
-
     local procedure FilterProfileToBusinessManagerEvaluationForCronus(var AllProfile: Record "All Profile"; var IsFiltered: Boolean)
     var
         Company: Record Company;
@@ -372,10 +355,10 @@ codeunit 9002 "Permission Manager"
         IntelligentCloud: Record "Intelligent Cloud";
         UserPermissions: Codeunit "User Permissions";
     begin
-        if not EnvironmentInfo.IsSaaS then
+        if not EnvironmentInfo.IsSaaS() then
             exit;
 
-        if not IntelligentCloud.Get then
+        if not IntelligentCloud.Get() then
             exit;
 
         if IntelligentCloud.Enabled then begin
@@ -404,7 +387,7 @@ codeunit 9002 "Permission Manager"
         if TestabilityIntelligentCloud then
             exit(true);
 
-        if IntelligentCloud.Get then
+        if IntelligentCloud.Get() then
             exit(IntelligentCloud.Enabled);
     end;
 

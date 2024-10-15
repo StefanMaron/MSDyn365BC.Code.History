@@ -16,6 +16,7 @@ permissionset 5600 "Vendor - View"
                   tabledata Location = R,
                   tabledata "My Vendor" = Rimd,
                   tabledata "Order Address" = R,
+                  tabledata "Remit Address" = R,
                   tabledata "Responsibility Center" = R,
                   tabledata Vendor = R,
                   tabledata "Vendor Bank Account" = R,

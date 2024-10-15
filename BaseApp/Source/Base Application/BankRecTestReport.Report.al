@@ -551,9 +551,9 @@ report 10407 "Bank Rec. Test Report"
 
             trigger OnAfterGetRecord()
             begin
-                SetupRecord;
+                SetupRecord();
 
-                CalculateBalance;
+                CalculateBalance();
                 Difference :=
                   Round(("G/L Balance" +
                    ("Positive Adjustments" - "Negative Bal. Adjustments") +
@@ -604,7 +604,7 @@ report 10407 "Bank Rec. Test Report"
                                 PrintOutstandingChecks := true;
                                 PrintOutstandingDeposits := true;
                             end;
-                            PrintDetailsOnAfterValidate;
+                            PrintDetailsOnAfterValidate();
                         end;
                     }
                     field(PrintChecks; PrintChecks)
@@ -661,7 +661,7 @@ report 10407 "Bank Rec. Test Report"
 
         trigger OnOpenPage()
         begin
-            SetupRequestForm;
+            SetupRequestForm();
         end;
     }
 
@@ -749,7 +749,7 @@ report 10407 "Bank Rec. Test Report"
 
     procedure SetupRequestForm()
     begin
-        PageSetupRequestForm;
+        PageSetupRequestForm();
     end;
 
     local procedure AddError(Text: Text[250])
@@ -760,7 +760,7 @@ report 10407 "Bank Rec. Test Report"
 
     local procedure PrintDetailsOnAfterValidate()
     begin
-        SetupRequestForm;
+        SetupRequestForm();
     end;
 
     local procedure PageSetupRequestForm()

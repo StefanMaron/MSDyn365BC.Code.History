@@ -16,13 +16,13 @@ page 433 "Reminder Text"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Reminder Terms Code"; "Reminder Terms Code")
+                field("Reminder Terms Code"; Rec."Reminder Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reminder terms code this text applies to.';
                     Visible = false;
                 }
-                field("Reminder Level"; "Reminder Level")
+                field("Reminder Level"; Rec."Reminder Level")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reminder level this text applies to.';

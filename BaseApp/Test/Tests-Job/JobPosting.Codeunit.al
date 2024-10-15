@@ -495,7 +495,7 @@ codeunit 136309 "Job Posting"
         repeat
             JobLedgerEntry.TestField("Serial No.", SerialNo[Count]);
             Count := Count + 1;
-        until JobLedgerEntry.Next = 0;
+        until JobLedgerEntry.Next() = 0;
     end;
 
     [Test]
@@ -873,8 +873,8 @@ codeunit 136309 "Job Posting"
         Assert.AreNotEqual(
           QtyPerUnitOfMeasure, PurchaseLine."Qty. per Unit of Measure",
           StrSubstNo(
-            ValueMatchError, ItemUnitOfMeasure.FieldCaption("Qty. per Unit of Measure"), ItemUnitOfMeasure.TableCaption,
-            PurchaseLine.TableCaption));
+            ValueMatchError, ItemUnitOfMeasure.FieldCaption("Qty. per Unit of Measure"), ItemUnitOfMeasure.TableCaption(),
+            PurchaseLine.TableCaption()));
     end;
 
     [Test]
@@ -902,11 +902,11 @@ codeunit 136309 "Job Posting"
         Assert.AreNotEqual(
           QtyPerUnitOfMeasure, JobLedgerEntry."Qty. per Unit of Measure",
           StrSubstNo(
-            ValueMatchError, ItemUnitOfMeasure.FieldCaption("Qty. per Unit of Measure"), ItemUnitOfMeasure.TableCaption,
-            JobLedgerEntry.TableCaption));
+            ValueMatchError, ItemUnitOfMeasure.FieldCaption("Qty. per Unit of Measure"), ItemUnitOfMeasure.TableCaption(),
+            JobLedgerEntry.TableCaption()));
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure JobPlanningLineUnitPriceWithItemSalesPrice()
@@ -926,7 +926,7 @@ codeunit 136309 "Job Posting"
         Job.Get(JobTask."Job No.");
         Item.Get(CreateItem);
         LibrarySales.CreateSalesPrice(
-          SalesPrice, Item."No.", SalesPrice."Sales Type"::Customer, Job."Bill-to Customer No.", WorkDate, '', '',
+          SalesPrice, Item."No.", SalesPrice."Sales Type"::Customer, Job."Bill-to Customer No.", WorkDate(), '', '',
           Item."Base Unit of Measure", 1 + LibraryRandom.RandInt(10), Item."Unit Price" - LibraryRandom.RandInt(10));
         CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
 
@@ -1227,7 +1227,7 @@ codeunit 136309 "Job Posting"
         asserterror CopyJobPlanningLinesPage.TargetJobTaskNo.SetValue(JobTask."Job Task No.");
 
         // Verify: Verify that system throws error while setting the value in TargetJobTaskNo if TargetJobNo is not filled.
-        Assert.ExpectedError(StrSubstNo(JobNotExistErr, JobTask.TableCaption, JobTask."Job Task No."));
+        Assert.ExpectedError(StrSubstNo(JobNotExistErr, JobTask.TableCaption(), JobTask."Job Task No."));
     end;
 
     [Test]
@@ -1539,7 +1539,7 @@ codeunit 136309 "Job Posting"
         JobCard.OK.Invoke;
 
         // [THEN] Job."Currency Code" is empty
-        Job.Find;
+        Job.Find();
         Job.TestField("Currency Code", '');
     end;
 
@@ -1577,7 +1577,7 @@ codeunit 136309 "Job Posting"
         JobLedgEntry.TestField("Serial No.");
 
         // [THEN] The value of "Serial No." in Job Planning Line is equal value in Job Ledger Entry
-        JobPlanningLine.Find;
+        JobPlanningLine.Find();
         JobPlanningLine.TestField("Serial No.", JobLedgEntry."Serial No.");
     end;
 
@@ -1621,7 +1621,7 @@ codeunit 136309 "Job Posting"
         JobLedgEntry.TestField("Lot No.");
 
         // [THEN] The value of "Lot No." in Job Planning Line is equal value in Job Ledger Entry
-        JobPlanningLine.Find;
+        JobPlanningLine.Find();
         JobPlanningLine.TestField("Lot No.", JobLedgEntry."Lot No.");
     end;
 
@@ -1796,7 +1796,7 @@ codeunit 136309 "Job Posting"
         // [GIVEN] Cost is adjusted in order not to include the positive adjustment entry to the next run of Post Cost to G/L job.
         LibraryInventory.CreateItem(Item);
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", LibraryRandom.RandIntInRange(20, 40), LibraryRandom.RandDec(10, 2));
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [GIVEN] Job "J" and a job planning line with the item.
         // [GIVEN] Posted job journal line with the item.
@@ -1807,7 +1807,7 @@ codeunit 136309 "Job Posting"
 
         // [WHEN] Run "Post Inventory Cost to G/L" batch job with "Per Posting Group" option.
         DocumentNo := LibraryUtility.GenerateGUID();
-        LibraryCosting.PostInvtCostToGL(true, WorkDate, DocumentNo);
+        LibraryCosting.PostInvtCostToGL(true, WorkDate(), DocumentNo);
 
         // [THEN] Two G/L entries are created.
         GLRegister.FindLast();
@@ -1844,7 +1844,7 @@ codeunit 136309 "Job Posting"
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
 
         // [WHEN] Run "Post Inventory Cost to G/L" batch job with "Per Entry" option.
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Two G/L entries are created.
         GLEntry.SetRange("Document No.", JobJournalLine."Document No.");
@@ -1880,8 +1880,8 @@ codeunit 136309 "Job Posting"
         // [GIVEN] Currency "C" with exchange rates: 100 at date Jan 1st, and 200 and Jan 2nd.
         RemainingQty := LibraryRandom.RandIntInRange(5, 10);
 
-        PlanningDate := WorkDate - 1;
-        PostingDate := WorkDate;
+        PlanningDate := WorkDate() - 1;
+        PostingDate := WorkDate();
 
         LibraryInventory.CreateItem(Item);
         ExchangeRate[1] := 1 / LibraryRandom.RandDecInRange(10, 20, 2);
@@ -1927,7 +1927,7 @@ codeunit 136309 "Job Posting"
         JobLedgEntry.TestField("Total Cost (LCY)", Round(PurchaseLine."Direct Unit Cost" / ExchangeRate[2] * PurchaseLine.Quantity));
 
         // [THEN] "Posted Total Cost (LCY)" = 300 * 200 = 60000 in job planning line of job "J"
-        JobPlanningLine.Find;
+        JobPlanningLine.Find();
         JobPlanningLine.TestField("Posted Total Cost (LCY)", JobLedgEntry."Total Cost (LCY)");
         // Bug 307929: Posted Total CostL CY of Job Planning Line is wrong
         JobPlanningLine.TestField("Remaining Total Cost (LCY)", JobLedgEntry."Total Cost (LCY)" * 2);
@@ -2228,7 +2228,7 @@ codeunit 136309 "Job Posting"
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         NoSeries.Get(LibraryJob.GetJobTestNoSeries);
         NoSeries."Manual Nos." := true;
@@ -3008,7 +3008,7 @@ codeunit 136309 "Job Posting"
         repeat
             TempItemJournalLine := ItemJournalLine;
             TempItemJournalLine.Insert();
-        until ItemJournalLine.Next = 0;
+        until ItemJournalLine.Next() = 0;
     end;
 
     local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJnlTemplateType: Enum "Item Journal Template Type")
@@ -3173,7 +3173,7 @@ codeunit 136309 "Job Posting"
         repeat
             VerifyItemLedgerEntry(
               TempItemJournalLine."Document No.", ItemLedgerEntry."Entry Type"::"Positive Adjmt.", 1, 1, TempItemJournalLine."Unit Amount");  // Remaining and Invoiced Quantity must be 1.
-        until TempItemJournalLine.Next = 0;
+        until TempItemJournalLine.Next() = 0;
     end;
 
     local procedure VerifyItemLedgerEntry(DocumentNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"; RemainingQuantity: Decimal; InvoicedQuantity: Decimal; CostAmount: Decimal)
@@ -3375,7 +3375,7 @@ codeunit 136309 "Job Posting"
             repeat
                 ItemTrackingLines."Serial No.".AssertEquals(SerialNo[Count]);
                 Count := Count + 1;
-            until not ItemTrackingLines.Next;
+            until not ItemTrackingLines.Next();
         end else begin
             ItemTrackingLines.CreateCustomizedSN.Invoke;
             Count2 := 1;
@@ -3383,7 +3383,7 @@ codeunit 136309 "Job Posting"
             repeat
                 SerialNo[Count2] := ItemTrackingLines."Serial No.".Value;
                 Count2 := Count2 + 1;
-            until not ItemTrackingLines.Next;
+            until not ItemTrackingLines.Next();
         end;
         ItemTrackingLines.OK.Invoke;
     end;
@@ -3665,9 +3665,9 @@ codeunit 136309 "Job Posting"
     begin
         // Verify Job Task Statistics Price, Cost and Profit for Schedule and Usage with Planning and Posting Date Filters.
         JobTaskStatistics.FILTER.SetFilter(
-          "Posting Date Filter", Format(CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate)));  // Using date greater than WORKDATE.
+          "Posting Date Filter", Format(CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate())));  // Using date greater than WORKDATE.
         JobTaskStatistics.FILTER.SetFilter(
-          "Planning Date Filter", Format(CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate)));
+          "Planning Date Filter", Format(CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate())));
         JobTaskStatistics.SchedulePriceLCY.AssertEquals(0);
         JobTaskStatistics.UsagePriceLCY.AssertEquals(0);
         JobTaskStatistics.ScheduleCostLCY.AssertEquals(0);
@@ -3688,9 +3688,9 @@ codeunit 136309 "Job Posting"
     begin
         // Verify Job Statistics Price, Cost and Profit for Schedule and Usage with Planning and Posting Date Filters.
         JobStatistics.FILTER.SetFilter(
-          "Posting Date Filter", Format(CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate)));  // Using date greater than WORKDATE.
+          "Posting Date Filter", Format(CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate())));  // Using date greater than WORKDATE.
         JobStatistics.FILTER.SetFilter(
-          "Planning Date Filter", Format(CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate)));
+          "Planning Date Filter", Format(CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate())));
         JobStatistics.SchedulePriceLCY.AssertEquals(0);
         JobStatistics.UsagePriceLCY.AssertEquals(0);
         JobStatistics.ScheduleCostLCY.AssertEquals(0);

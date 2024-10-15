@@ -109,7 +109,7 @@ table 1877 "VAT Setup Posting Groups"
             OnInitWithStandardValues(Handled, Rec);
 
             if not Handled then
-                InitWithStandardValues;
+                InitWithStandardValues();
 
             FindSet();
         end;
@@ -126,10 +126,10 @@ table 1877 "VAT Setup Posting Groups"
         GLAccount: Record "G/L Account";
     begin
         if not Get(ProdGrpCode, IsDefault) then begin
-            Init;
+            Init();
             "VAT Prod. Posting Group" := ProdGrpCode;
             Default := IsDefault;
-            Insert;
+            Insert();
         end;
 
         "VAT Prod. Posting Grp Desc." := GrpDesc;
@@ -143,7 +143,7 @@ table 1877 "VAT Setup Posting Groups"
         if IsService then
             "Application Type" := "Application Type"::Services;
         Selected := true;
-        exit(Modify);
+        exit(Modify());
     end;
 
     procedure CheckExistingItemAndServiceWithVAT(VATProdPostingGroupCode: Code[20]; IsService: Boolean): Boolean
@@ -164,7 +164,7 @@ table 1877 "VAT Setup Posting Groups"
         VATSetupPostingGroups: Record "VAT Setup Posting Groups";
         GLAccount: Record "G/L Account";
     begin
-        if ValidateVATRates = false then
+        if ValidateVATRates() = false then
             exit(false);
         VATSetupPostingGroups.SetRange(Selected, true);
         if not VATSetupPostingGroups.FindSet() then

@@ -5,15 +5,16 @@ codeunit 7306 "Whse.-Act.-Register (Yes/No)"
     trigger OnRun()
     begin
         WhseActivLine.Copy(Rec);
-        Code;
+        Code();
         Copy(WhseActivLine);
     end;
 
     var
-        Text001: Label 'Do you want to register the %1 Document?';
         WhseActivLine: Record "Warehouse Activity Line";
         WhseActivityRegister: Codeunit "Whse.-Activity-Register";
         WMSMgt: Codeunit "WMS Management";
+
+        Text001: Label 'Do you want to register the %1 Document?';
         Text002: Label 'The document %1 is not supported.';
 
     local procedure "Code"()

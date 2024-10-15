@@ -36,14 +36,14 @@ page 583 "XBRL Taxonomy Lines"
                             exit(false);
 
                         CurrentTaxonomy := XBRLTaxonomy.Name;
-                        CurrentTaxonomyOnAfterValidate;
+                        CurrentTaxonomyOnAfterValidate();
                         Text := XBRLTaxonomy.Name;
                         exit(true);
                     end;
 
                     trigger OnValidate()
                     begin
-                        CurrentTaxonomyOnAfterValidate;
+                        CurrentTaxonomyOnAfterValidate();
                     end;
                 }
                 field(OnlyShowPresentation; OnlyShowPresentation)
@@ -54,7 +54,7 @@ page 583 "XBRL Taxonomy Lines"
 
                     trigger OnValidate()
                     begin
-                        SetFilters;
+                        SetFilters();
                     end;
                 }
                 field(CurrentLang; CurrentLang)
@@ -75,7 +75,7 @@ page 583 "XBRL Taxonomy Lines"
                           "XBRL Taxonomy Line No.", XBRLTaxonomyLabel."XBRL Taxonomy Line No.");
                         XBRLTaxonomyLabels.SetTableView(XBRLTaxonomyLabel);
                         XBRLTaxonomyLabels.LookupMode := true;
-                        if XBRLTaxonomyLabels.RunModal = ACTION::LookupOK then begin
+                        if XBRLTaxonomyLabels.RunModal() = ACTION::LookupOK then begin
                             XBRLTaxonomyLabels.GetRecord(XBRLTaxonomyLabel);
                             Text := XBRLTaxonomyLabel."XML Language Identifier";
                             exit(true);
@@ -92,7 +92,7 @@ page 583 "XBRL Taxonomy Lines"
                         if CurrentLang <> '' then
                             if XBRLTaxonomyLabel.IsEmpty() then
                                 Error(Text001, CurrentLang);
-                        SetFilters;
+                        SetFilters();
                     end;
                 }
             }
@@ -110,12 +110,12 @@ page 583 "XBRL Taxonomy Lines"
                     StyleExpr = LabelEmphasize;
                     ToolTip = 'Specifies the label that was assigned to this line. The label is a user-readable element of the taxonomy.';
                 }
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = XBRL;
                     ToolTip = 'Specifies the source of the information for this line that you want to export. You can only export one type of information for each line. The Tuple option means that the line represents a number of related lines. The related lines are listed below this line and are indented.';
                 }
-                field("Constant Amount"; "Constant Amount")
+                field("Constant Amount"; Rec."Constant Amount")
                 {
                     ApplicationArea = XBRL;
                     ToolTip = 'Specifies the amount that will be exported if the source type is Constant.';
@@ -127,7 +127,7 @@ page 583 "XBRL Taxonomy Lines"
 
                     trigger OnDrillDown()
                     begin
-                        OpenInformation;
+                        OpenInformation();
                     end;
                 }
                 field(Control32; Reference)
@@ -137,7 +137,7 @@ page 583 "XBRL Taxonomy Lines"
 
                     trigger OnDrillDown()
                     begin
-                        OpenReference;
+                        OpenReference();
                     end;
                 }
                 field(Control12; Notes)
@@ -148,17 +148,17 @@ page 583 "XBRL Taxonomy Lines"
 
                     trigger OnDrillDown()
                     begin
-                        OpenNotes;
+                        OpenNotes();
                     end;
                 }
-                field("G/L Map Lines"; "G/L Map Lines")
+                field("G/L Map Lines"; Rec."G/L Map Lines")
                 {
                     ApplicationArea = XBRL;
                     ToolTip = 'Specifies which general ledger accounts will be used to calculate the amount that will be exported for this line.';
 
                     trigger OnDrillDown()
                     begin
-                        OpenGLMapLines;
+                        OpenGLMapLines();
                     end;
                 }
                 field(Rollup; Rollup)
@@ -250,7 +250,7 @@ page 583 "XBRL Taxonomy Lines"
 
                     trigger OnAction()
                     begin
-                        OpenInformation;
+                        OpenInformation();
                     end;
                 }
                 action(Reference)
@@ -262,7 +262,7 @@ page 583 "XBRL Taxonomy Lines"
 
                     trigger OnAction()
                     begin
-                        OpenReference;
+                        OpenReference();
                     end;
                 }
                 action(Rollups)
@@ -290,14 +290,11 @@ page 583 "XBRL Taxonomy Lines"
                     ApplicationArea = XBRL;
                     Caption = 'Notes';
                     Image = Notes;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'View any notes entered in the Comment table about this line element.';
 
                     trigger OnAction()
                     begin
-                        OpenNotes;
+                        OpenNotes();
                     end;
                 }
                 action(GLMapLines)
@@ -305,14 +302,11 @@ page 583 "XBRL Taxonomy Lines"
                     ApplicationArea = XBRL;
                     Caption = 'G/L Map Lines';
                     Image = CompareCOA;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'View which general ledger accounts will be used to calculate the amount that will be exported for this line.';
 
                     trigger OnAction()
                     begin
-                        OpenGLMapLines;
+                        OpenGLMapLines();
                     end;
                 }
                 action(Constants)
@@ -320,9 +314,6 @@ page 583 "XBRL Taxonomy Lines"
                     ApplicationArea = XBRL;
                     Caption = 'C&onstants';
                     Image = AmountByPeriod;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'View or create date-specific constant amounts to be exported.';
 
                     trigger OnAction()
@@ -364,19 +355,36 @@ page 583 "XBRL Taxonomy Lines"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Notes_Promoted; Notes)
+                {
+                }
+                actionref(GLMapLines_Promoted; GLMapLines)
+                {
+                }
+                actionref(Constants_Promoted; Constants)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
         if Label = '' then
             Label := Name;
-        LabelOnFormat;
+        LabelOnFormat();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
         if not FiltersApplied then
-            SetFilters;
+            SetFilters();
         FiltersApplied := true;
         exit(Find(Which));
     end;
@@ -421,7 +429,7 @@ page 583 "XBRL Taxonomy Lines"
     procedure SetCurrentSchema(NewCurrentTaxonomy: Code[20])
     begin
         CurrentTaxonomy := NewCurrentTaxonomy;
-        ResetFilter;
+        ResetFilter();
     end;
 
     local procedure SetFilters()
@@ -436,15 +444,15 @@ page 583 "XBRL Taxonomy Lines"
 
     local procedure ResetFilter()
     begin
-        Reset;
+        Reset();
         SetRange("XBRL Taxonomy Name", CurrentTaxonomy);
         FilterGroup(0);
-        SetFilters;
+        SetFilters();
     end;
 
     local procedure CurrentTaxonomyOnAfterValidate()
     begin
-        ResetFilter;
+        ResetFilter();
     end;
 
     local procedure LabelOnFormat()

@@ -16,22 +16,22 @@ page 5701 "Stockkeeping Unit List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the item number to which the SKU applies.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the location code (for example, the warehouse or distribution center) to which the SKU applies.';
                 }
-                field("Replenishment System"; "Replenishment System")
+                field("Replenishment System"; Rec."Replenishment System")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the type of supply order that is created by the planning system when the SKU needs to be replenished.';
@@ -46,25 +46,25 @@ page 5701 "Stockkeeping Unit List"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
                 }
-                field("Reorder Point"; "Reorder Point")
+                field("Reorder Point"; Rec."Reorder Point")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
                     Visible = false;
                 }
-                field("Reorder Quantity"; "Reorder Quantity")
+                field("Reorder Quantity"; Rec."Reorder Quantity")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
                     Visible = false;
                 }
-                field("Maximum Inventory"; "Maximum Inventory")
+                field("Maximum Inventory"; Rec."Maximum Inventory")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies for the SKU, the same as the field does on the item card.';
                     Visible = false;
                 }
-                field("Assembly Policy"; "Assembly Policy")
+                field("Assembly Policy"; Rec."Assembly Policy")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies which default order flow is used to supply this SKU by assembly.';
@@ -237,7 +237,7 @@ page 5701 "Stockkeeping Unit List"
                             CopyFilter("Global Dimension 1 Filter", Item."Global Dimension 1 Filter");
                             CopyFilter("Global Dimension 2 Filter", Item."Global Dimension 2 Filter");
                             CopyFilter("Drop Shipment Filter", Item."Drop Shipment Filter");
-                            ItemAvailFormsMgt.ShowItemAvailFromItem(Item, ItemAvailFormsMgt.ByEvent);
+                            ItemAvailFormsMgt.ShowItemAvailFromItem(Item, ItemAvailFormsMgt.ByEvent());
                         end;
                     }
                     action(Period)
@@ -279,9 +279,10 @@ page 5701 "Stockkeeping Unit List"
                             Item.Get("Item No.");
                             Item.SetRange("Location Filter", "Location Code");
                             Item.SetRange("Variant Filter", "Variant Code");
-                            ItemAvailFormsMgt.ShowItemAvailFromItem(Item, ItemAvailFormsMgt.ByBOM);
+                            ItemAvailFormsMgt.ShowItemAvailFromItem(Item, ItemAvailFormsMgt.ByBOM());
                         end;
                     }
+#if not CLEAN21
                     action(Timeline)
                     {
                         ApplicationArea = Planning;
@@ -289,12 +290,16 @@ page 5701 "Stockkeeping Unit List"
                         Image = Timeline;
                         ToolTip = 'Get a graphical view of an item''s projected inventory based on future supply and demand events, with or without planning suggestions. The result is a graphical representation of the inventory profile.';
                         Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'TimelineVisualizer control has been deprecated.';
+                        ObsoleteTag = '21.0';
 
                         trigger OnAction()
                         begin
                             ShowTimeline(Rec);
                         end;
                     }
+#endif                
                 }
                 action(Action1102601046)
                 {
@@ -405,15 +410,37 @@ page 5701 "Stockkeeping Unit List"
         }
         area(reporting)
         {
+            action("Inventory - List")
+            {
+                ApplicationArea = Planning;
+                Caption = 'Inventory - List';
+                Image = "Report";
+                RunObject = Report "Inventory - List";
+                ToolTip = 'View various information about the item, such as name, unit of measure, posting group, shelf number, vendor''s item number, lead time calculation, minimum inventory, and alternate item number. You can also see if the item is blocked.';
+            }
+            action("Inventory Availability")
+            {
+                ApplicationArea = Planning;
+                Caption = 'Inventory Availability';
+                Image = "Report";
+                RunObject = Report "Inventory Availability";
+                ToolTip = 'View, print, or save a summary of historical inventory transactions with selected items, for example, to decide when to purchase the items. The report specifies quantity on sales order, quantity on purchase order, back orders from vendors, minimum inventory, and whether there are reorders.';
+            }
             action("Inventory - Availability Plan")
             {
                 ApplicationArea = Planning;
                 Caption = 'Inventory - Availability Plan';
                 Image = ItemAvailability;
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Inventory - Availability Plan";
                 ToolTip = 'View a list of the quantity of each item in customer, purchase, and transfer orders and the quantity available in inventory. The list is divided into columns that cover six periods with starting and ending dates as well as the periods before and after those periods. The list is useful when you are planning your inventory purchases.';
+            }
+            action("Item/Vendor Catalog")
+            {
+                ApplicationArea = Planning;
+                Caption = 'Item/Vendor Catalog';
+                Image = "Report";
+                RunObject = Report "Item/Vendor Catalog";
+                ToolTip = 'View a list of the vendors for the selected items. For each combination of item and vendor, it shows direct unit cost, lead time calculation and the vendor''s item number.';
             }
         }
         area(processing)
@@ -427,8 +454,6 @@ page 5701 "Stockkeeping Unit List"
                     ApplicationArea = Planning;
                     Caption = 'New Item';
                     Image = NewItem;
-                    Promoted = true;
-                    PromotedCategory = New;
                     RunObject = Page "Item Card";
                     RunPageMode = Create;
                     ToolTip = 'Create an item card based on the stockkeeping unit.';
@@ -453,6 +478,34 @@ page 5701 "Stockkeeping Unit List"
                         CurrPage.SetSelectionFilter(SKU);
                         PhysInvtCountMgt.UpdateSKUPhysInvtCount(SKU);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New';
+
+                actionref("New Item_Promoted"; "New Item")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref("Inventory - List_Promoted"; "Inventory - List")
+                {
+                }
+                actionref("Inventory Availability_Promoted"; "Inventory Availability")
+                {
+                }
+                actionref("Inventory - Availability Plan_Promoted"; "Inventory - Availability Plan")
+                {
+                }
+                actionref("Item/Vendor Catalog_Promoted"; "Item/Vendor Catalog")
+                {
                 }
             }
         }

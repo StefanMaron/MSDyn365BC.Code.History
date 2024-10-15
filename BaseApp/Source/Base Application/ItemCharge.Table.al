@@ -137,7 +137,7 @@ table 5800 "Item Charge"
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
         if not IsTemporary then begin
             DimMgt.SaveDefaultDim(DATABASE::"Item Charge", "No.", FieldNumber, ShortcutDimCode);
-            Modify;
+            Modify();
         end;
 
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);

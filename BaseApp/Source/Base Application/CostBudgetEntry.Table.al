@@ -126,21 +126,21 @@ table 1109 "Cost Budget Entry"
     begin
         if "Entry No." = 0 then
             "Entry No." := GetLastEntryNo() + 1;
-        CheckEntries;
-        "Last Modified By User" := UserId;
+        CheckEntries();
+        "Last Modified By User" := UserId();
 
-        HandleCostBudgetRegister;
+        HandleCostBudgetRegister();
     end;
 
     trigger OnModify()
     var
         CostBudgetEntry: Record "Cost Budget Entry";
     begin
-        CheckEntries;
+        CheckEntries();
         CostBudgetEntry.Get("Entry No.");
         if Amount <> CostBudgetEntry.Amount then
             CostAccMgt.UpdateCostBudgetRegister(CurrRegNo, "Entry No.", Amount - CostBudgetEntry.Amount);
-        Modified;
+        Modified();
     end;
 
     var
@@ -203,7 +203,7 @@ table 1109 "Cost Budget Entry"
                     // Write total
                     if QtyPerGrp > 1 then begin
                         if CostBudgetEntryTarget.Amount = 0 then
-                            CostBudgetEntryTarget.Delete
+                            CostBudgetEntryTarget.Delete()
                         else
                             CostBudgetEntryTarget.Modify();
                         QtyPerGrp := 0;
@@ -225,7 +225,7 @@ table 1109 "Cost Budget Entry"
         if CostBudgetEntryTarget.Amount <> 0 then
             CostBudgetEntryTarget.Modify();
 
-        Window.Close;
+        Window.Close();
         Message(Text003, NoProcessed, BudName, NoCompressed);
     end;
 
@@ -300,7 +300,7 @@ table 1109 "Cost Budget Entry"
         end;
         FilterGroup := 0;
         if DateFilter = '' then
-            exit(WorkDate);
+            exit(WorkDate());
 
         Period.SetRange("Period Type", Period."Period Type"::Date);
         Period.SetFilter("Period Start", DateFilter);
