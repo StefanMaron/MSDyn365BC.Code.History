@@ -2,7 +2,7 @@
     "id":  "db643212-b7fb-4dd4-b5a8-cb44ac714461",
     "name":  "India GST",
     "publisher":  "Microsoft",
-    "version":  "22.0.54157.54635",
+    "version":  "22.0.54157.55195",
     "brief":  "Contains features for deducting Goods and Services Tax on purchase, transfer, and sales transactions.",
     "description":  "The GST feature contains setups that are required for calculating Goods and Services Tax (GST). This lets you deduct GST on vendor and customer invoices through purchase orders, invoices, and journal vouchers, vendor and customer payments, and on service or stock transfers. It also allows adjustments, reconciliation, and settlement of GST amounts and deposit GST that has been deducted.",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",

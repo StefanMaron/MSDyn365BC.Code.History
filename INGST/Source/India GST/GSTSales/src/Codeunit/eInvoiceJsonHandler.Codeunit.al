@@ -932,9 +932,7 @@ codeunit 18147 "e-Invoice Json Handler"
         CompanyName: Text[100];
         Address: Text[100];
         Address2: Text[100];
-        Floor: Text[60];
-        AddressLocation: Text[60];
-        City: Text[60];
+        City: Text[100];
         PostCode: Text[6];
         StateCode: Text[10];
         PhoneNumber: Text[10];
@@ -963,12 +961,11 @@ codeunit 18147 "e-Invoice Json Handler"
             GSTRegistrationNumber := ShiptoAddress."GST Registration No."
         else
             GSTRegistrationNumber := SalesInvoiceHeader."Location GST Reg. No.";
-        Floor := '';
-        AddressLocation := '';
-        StateCode := StateBuff."State Code for eTDS/TCS";
+
+        StateCode := StateBuff."State Code (GST Reg. No.)";
         PhoneNumber := CopyStr(ShiptoAddress."Phone No.", 1, 10);
         EmailID := CopyStr(ShiptoAddress."E-Mail", 1, 50);
-        WriteShippingDetails(GSTRegistrationNumber, CompanyName, Address, Address2, AddressLocation, PostCode, StateCode);
+        WriteShippingDetails(GSTRegistrationNumber, CompanyName, Address, Address2, City, PostCode, StateCode);
     end;
 
     local procedure WriteShippingDetails(
@@ -976,7 +973,7 @@ codeunit 18147 "e-Invoice Json Handler"
         CompanyName: Text[100];
         Address: Text[100];
         Address2: Text[100];
-        AddressLocation: Text[60];
+        AddressLocation: Text[100];
         PostCode: Text[6];
         StateCode: Text[10])
     var
