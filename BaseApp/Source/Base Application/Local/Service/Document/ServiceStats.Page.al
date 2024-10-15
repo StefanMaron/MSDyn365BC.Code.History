@@ -366,7 +366,7 @@ page 10053 "Service Stats."
                     Editable = false;
                     ToolTip = 'Specifies the cost adjustment amount, in local currency.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnDrillDown()
                     begin
                         Rec.LookupAdjmtValueEntries(1);
                     end;

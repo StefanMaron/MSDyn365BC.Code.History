@@ -154,7 +154,7 @@ page 10056 "Service Invoice Stats."
                     Caption = 'Cost Adjmt. Amount (LCY)';
                     ToolTip = 'Specifies the cost adjustment amount, in local currency.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnDrillDown()
                     begin
                         Rec.LookupAdjmtValueEntries();
                     end;
