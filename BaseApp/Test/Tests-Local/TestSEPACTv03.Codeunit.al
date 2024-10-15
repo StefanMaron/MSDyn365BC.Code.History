@@ -1292,6 +1292,81 @@ codeunit 144101 "Test SEPA CT v03"
         VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, USDCurrencyCode);
     end;
 
+    [Test]
+    [HandlerFunctions('ProposalLineConfirmHandler,ProposalProcessedMsgHandler,SEPAExportReqPageHandler')]
+    [Scope('Internal')]
+    procedure ChargeBearerIsDebtWhenDomesticAndForeignCostIsPrincipal()
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+        DummyGLSetup: Record "General Ledger Setup";
+        TransactionMode: Record "Transaction Mode";
+        BankAccountNo: Code[20];
+        ExportProtocolCode: Code[20];
+        TotalAmount: Decimal;
+        FileName: Text;
+        CurrencyCode: Code[10];
+    begin
+        // [FEATURE] [XML]
+        // [SCENARIO 351652] Generic payment SEPA export has "ChrgBr" = "DEBT" when "Transfer Cost Domestic" and "Transfer Cost Foreign" is "Principal"
+
+        Initialize();
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+
+        // [GIVEN] Generic payment SEPA export protocol setup
+        // [GIVEN] GLSetup."Local Curency" = "Euro", "Currency Euro" = "", "LCY Code" = "EUR"
+        // [GIVEN] Vendor bank account with currency code = "USD", "Account Holder Address" = "X"
+        // [GIVEN] Posted purchase invoice with a default currency code = "", total amount including vat = 1000 EUR (2000 USD)
+        PrepareGenericSEPAScenarioWithCustomTransactionCost(
+          VendorBankAccount, BankAccountNo, ExportProtocolCode, TotalAmount,
+          DummyGLSetup."Local Currency"::Euro, '', LibraryUtility.GenerateGUID(), CurrencyCode, '',
+          TransactionMode."Transfer Cost Domestic"::Principal, TransactionMode."Transfer Cost Foreign"::Principal);
+
+        // [WHEN] Export payment for the generated proposal for the given vendor
+        FileName := GetEntriesAndExportSEPAReport(BankAccountNo, ExportProtocolCode);
+
+        // [THEN] XML has "ChrgBr" = "DEBT"
+        XMLReadHelper.Initialize(FileName, GetSEPACTNameSpace);
+        VerifyChargeBearerValue('DEBT');
+    end;
+
+    [Test]
+    [HandlerFunctions('ProposalLineConfirmHandler,ProposalProcessedMsgHandler,SEPAExportReqPageHandler')]
+    [Scope('Internal')]
+    procedure ChargeBearerIsCredWhenDomesticAndForeignCostIsBalancingAccountHolder()
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+        DummyGLSetup: Record "General Ledger Setup";
+        TransactionMode: Record "Transaction Mode";
+        BankAccountNo: Code[20];
+        ExportProtocolCode: Code[20];
+        TotalAmount: Decimal;
+        FileName: Text;
+        CurrencyCode: Code[10];
+    begin
+        // [FEATURE] [XML]
+        // [SCENARIO 351652] Generic payment SEPA export has "ChrgBr" = "CRED" when "Transfer Cost Domestic" and "Transfer Cost Foreign" is "Balancing Account Holder"
+
+        Initialize();
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+
+        // [GIVEN] Generic payment SEPA export protocol setup
+        // [GIVEN] GLSetup."Local Curency" = "Euro", "Currency Euro" = "", "LCY Code" = "EUR"
+        // [GIVEN] Vendor bank account with currency code = "USD", "Account Holder Address" = "X"
+        // [GIVEN] Posted purchase invoice with a default currency code = "", total amount including vat = 1000 EUR (2000 USD)
+        PrepareGenericSEPAScenarioWithCustomTransactionCost(
+          VendorBankAccount, BankAccountNo, ExportProtocolCode, TotalAmount,
+          DummyGLSetup."Local Currency"::Euro, '', LibraryUtility.GenerateGUID(), CurrencyCode, '',
+          TransactionMode."Transfer Cost Domestic"::"Balancing Account Holder",
+          TransactionMode."Transfer Cost Foreign"::"Balancing Account Holder");
+
+        // [WHEN] Export payment for the generated proposal for the given vendor
+        FileName := GetEntriesAndExportSEPAReport(BankAccountNo, ExportProtocolCode);
+
+        // [THEN] XML has "ChrgBr" = "CRED"
+        XMLReadHelper.Initialize(FileName, GetSEPACTNameSpace);
+        VerifyChargeBearerValue('CRED');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test SEPA CT v03");
@@ -1309,12 +1384,30 @@ codeunit 144101 "Test SEPA CT v03"
 
     local procedure PrepareGenericSEPAScenario(var VendorBankAccount: Record "Vendor Bank Account"; var BankAccountNo: Code[20]; var ExportProtocolCode: Code[20]; var TotalAmount: Decimal; LocalCurrency: Option; CurrencyEuro: Code[10]; LCYCode: Code[10]; BankCurrencyCode: Code[10]; VendorCurrencyCode: Code[10])
     var
+        TransactionMode: Record "Transaction Mode";
+    begin
+        PrepareGenericSEPAScenarioCustom(
+          VendorBankAccount, BankAccountNo, ExportProtocolCode, TotalAmount, LocalCurrency,
+          CurrencyEuro, LCYCode, BankCurrencyCode, VendorCurrencyCode,
+          TransactionMode."Transfer Cost Domestic"::Principal, TransactionMode."Transfer Cost Foreign"::"Balancing Account Holder");
+    end;
+
+    local procedure PrepareGenericSEPAScenarioWithCustomTransactionCost(var VendorBankAccount: Record "Vendor Bank Account"; var BankAccountNo: Code[20]; var ExportProtocolCode: Code[20]; var TotalAmount: Decimal; LocalCurrency: Option; CurrencyEuro: Code[10]; LCYCode: Code[10]; BankCurrencyCode: Code[10]; VendorCurrencyCode: Code[10]; TransactionCostDomestic: Option; TransactionCostForeign: Option)
+    begin
+        PrepareGenericSEPAScenarioCustom(
+          VendorBankAccount, BankAccountNo, ExportProtocolCode, TotalAmount, LocalCurrency,
+          CurrencyEuro, LCYCode, BankCurrencyCode, VendorCurrencyCode, TransactionCostDomestic, TransactionCostForeign);
+    end;
+
+    local procedure PrepareGenericSEPAScenarioCustom(var VendorBankAccount: Record "Vendor Bank Account"; var BankAccountNo: Code[20]; var ExportProtocolCode: Code[20]; var TotalAmount: Decimal; LocalCurrency: Option; CurrencyEuro: Code[10]; LCYCode: Code[10]; BankCurrencyCode: Code[10]; VendorCurrencyCode: Code[10]; TransactionCostDomestic: Option; TransactionCostForeign: Option)
+    var
         Vendor: Record Vendor;
         BankAccount: Record "Bank Account";
     begin
         ExportProtocolCode := FindGenericPaymentSEPAExportProtocol;
         UpdateGLSetupCurrency(LocalCurrency, CurrencyEuro, LCYCode);
-        SetUpTransactionMode(CreateSEPABankAccount(BankAccount, BankCurrencyCode), ExportProtocolCode);
+        SetUpTransactionModeDomesticForeign(
+          CreateSEPABankAccount(BankAccount, BankCurrencyCode), ExportProtocolCode, TransactionCostDomestic, TransactionCostForeign);
         BankAccountNo := BankAccount."No.";
         CreateVendorWithBankAccount(Vendor, BankAccount, VendorCurrencyCode);
         VendorBankAccount.Get(Vendor."No.", Vendor."Preferred Bank Account Code");
@@ -1857,6 +1950,29 @@ codeunit 144101 "Test SEPA CT v03"
         SourceCode.Next(LibraryRandom.RandInt(SourceCode.Count));
         TransactionMode.Validate("Source Code", SourceCode.Code);
         TransactionMode.Validate("Posting No. Series", LibraryERM.CreateNoSeriesCode);
+        TransactionMode.Insert(true);
+    end;
+
+    local procedure SetUpTransactionModeDomesticForeign(BankAccountCode: Code[20]; ExportProtocolCode: Code[20]; TransactionCostDomestic: Option; TransactionCostForeign: Option)
+    var
+        TransactionMode: Record "Transaction Mode";
+        GLAccount: Record "G/L Account";
+        SourceCode: Record "Source Code";
+    begin
+        TransactionMode.Init();
+        TransactionMode.Validate(Code, BankAccountCode);
+        TransactionMode.Validate("Account Type", TransactionMode."Account Type"::Vendor);
+        TransactionMode.Validate("Export Protocol", ExportProtocolCode);
+        TransactionMode.Validate("Our Bank", BankAccountCode);
+        TransactionMode.Validate("Run No. Series", LibraryERM.CreateNoSeriesCode());
+        TransactionMode.Validate("Identification No. Series", LibraryERM.CreateNoSeriesCode());
+        LibraryERM.FindGLAccount(GLAccount);
+        TransactionMode.Validate("Acc. No. Pmt./Rcpt. in Process", GLAccount."No.");
+        SourceCode.Next(LibraryRandom.RandInt(SourceCode.Count()));
+        TransactionMode.Validate("Source Code", SourceCode.Code);
+        TransactionMode.Validate("Posting No. Series", LibraryERM.CreateNoSeriesCode());
+        TransactionMode.Validate("Transfer Cost Domestic", TransactionCostDomestic);
+        TransactionMode.Validate("Transfer Cost Foreign", TransactionCostForeign);
         TransactionMode.Insert(true);
     end;
 

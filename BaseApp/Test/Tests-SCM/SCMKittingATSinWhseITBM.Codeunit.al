@@ -24,7 +24,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
         LibraryRandom: Codeunit "Library - Random";
         IsInitialized: Boolean;
         MSG_NOT_ON_INVT: Label 'Item ';
-        MSG_QTY_BASE_NOT: Label 'Qty. to Handle (Base) in Tracking Specification';
+        MSG_QTY_BASE_NOT: Label 'Qty. to Handle (Base) in the item tracking';
         LocationTakeBinCode: Code[20];
         LocationAdditionalBinCode: Code[20];
         LocationToBinCode: Code[20];
@@ -2012,7 +2012,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
 
         CreateItems(Tracking::Serial);
 
-        NotEnoughItemPostingIT(LocationBM, 100, 100, true, WhseActivityType::None, MSG_NOT_ON_INVT, '', true, false, false);
+        NotEnoughItemPostingIT(LocationBM, 100, 100, true, WhseActivityType::None, MSG_QTY_BASE_NOT, '', true, false, false);
     end;
 
     [Test]
@@ -2027,7 +2027,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
 
         CreateItems(Tracking::Serial);
 
-        NotEnoughItemPostingIT(LocationBM, 100, 100, false, WhseActivityType::None, MSG_NOT_ON_INVT, '', true, false, false);
+        NotEnoughItemPostingIT(LocationBM, 100, 100, false, WhseActivityType::None, MSG_QTY_BASE_NOT, '', true, false, false);
     end;
 
     [Test]
@@ -2122,7 +2122,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
 
         CreateItems(Tracking::Lot);
 
-        NotEnoughItemPostingIT(LocationBM, 100, 100, true, WhseActivityType::None, MSG_NOT_ON_INVT, '', true, false, false);
+        NotEnoughItemPostingIT(LocationBM, 100, 100, true, WhseActivityType::None, MSG_QTY_BASE_NOT, '', true, false, false);
     end;
 
     [Test]
@@ -2137,7 +2137,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
 
         CreateItems(Tracking::Lot);
 
-        NotEnoughItemPostingIT(LocationBM, 100, 100, false, WhseActivityType::None, MSG_NOT_ON_INVT, '', true, false, false);
+        NotEnoughItemPostingIT(LocationBM, 100, 100, false, WhseActivityType::None, MSG_QTY_BASE_NOT, '', true, false, false);
     end;
 
     [Test]
@@ -2219,7 +2219,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
 
         CreateItems(Tracking::LotSerial);
 
-        NotEnoughItemPostingIT(LocationBM, 100, 100, true, WhseActivityType::None, MSG_NOT_ON_INVT, '', true, false, false);
+        NotEnoughItemPostingIT(LocationBM, 100, 100, true, WhseActivityType::None, MSG_QTY_BASE_NOT, '', true, false, false);
     end;
 
     [Test]
@@ -2234,7 +2234,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
 
         CreateItems(Tracking::LotSerial);
 
-        NotEnoughItemPostingIT(LocationBM, 100, 100, false, WhseActivityType::None, MSG_NOT_ON_INVT, '', true, false, false);
+        NotEnoughItemPostingIT(LocationBM, 100, 100, false, WhseActivityType::None, MSG_QTY_BASE_NOT, '', true, false, false);
     end;
 
     [Test]

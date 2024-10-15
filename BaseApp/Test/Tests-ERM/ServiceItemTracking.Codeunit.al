@@ -39,7 +39,7 @@ codeunit 136146 "Service Item Tracking"
         GlobalCheckExpirationDate: Boolean;
         GlobalExpirationDate: Date;
         ExpirationDate: Date;
-        PartialConsumeError: Label '%1 in %2 for %3 %4, %5: %6, %7:  is currently %8. It must be %9.', Comment = '%1:Value1';
+        PartialConsumeError: Label '%1 in the item tracking assigned to the document line for item %2 is currently %3. It must be %4.\\Check the assignment for serial number %5, lot number %6.', Comment = '%1:Value1';
         NumberOfLineEqualError: Label 'Number of Lines must be same.';
         ValidationError: Label 'Caption does not match.';
         SkilledResourceCaption: Label 'View - Skilled Resource List - %1 %2', Comment = '%1:Value1,%2:Value2';
@@ -617,9 +617,8 @@ codeunit 136146 "Service Item Tracking"
         with ItemLedgerEntry do
             Assert.ExpectedError(
               StrSubstNo(
-                PartialConsumeError, TrackingSpecification.FieldCaption("Qty. to Handle (Base)"), TrackingSpecification.TableCaption,
-                FieldCaption("Item No."), "Item No.", FieldCaption("Serial No."), "Serial No.", FieldCaption("Lot No."), ServiceLine.Quantity,
-                ServiceLine."Qty. to Consume"));
+                PartialConsumeError, TrackingSpecification.FieldCaption("Qty. to Handle (Base)"), "Item No.",
+                ServiceLine.Quantity, ServiceLine."Qty. to Consume", "Serial No.", "Lot No."));
     end;
 
     [Test]

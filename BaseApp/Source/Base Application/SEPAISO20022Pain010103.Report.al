@@ -171,6 +171,7 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
 
     local procedure AddPaymentInformation(XMLNodeCurr: DotNet XmlNode; PaymentHistoryLine: Record "Payment History Line"; var BankAcc: Record "Bank Account")
     var
+        TransactionMode: Record "Transaction Mode";
         LocalFunctionalityMgt: Codeunit "Local Functionality Mgt.";
         XMLNewChild: DotNet XmlNode;
         XMLParent: DotNet XmlNode;
@@ -195,7 +196,17 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
 
         if Worldpayment then begin
             ServiceLevelCode := 'SDVA';
-            ChargeBearer := 'SHAR';
+            TransactionMode.Get(PaymentHistoryLine."Account Type", PaymentHistoryLine."Transaction Mode");
+            case true of
+                (TransactionMode."Transfer Cost Domestic" = TransactionMode."Transfer Cost Domestic"::Principal) and
+                (TransactionMode."Transfer Cost Foreign" = TransactionMode."Transfer Cost Foreign"::Principal):
+                    ChargeBearer := 'DEBT';
+                (TransactionMode."Transfer Cost Domestic" = TransactionMode."Transfer Cost Domestic"::"Balancing Account Holder") and
+                (TransactionMode."Transfer Cost Foreign" = TransactionMode."Transfer Cost Foreign"::"Balancing Account Holder"):
+                    ChargeBearer := 'CRED';
+                else
+                    ChargeBearer := 'SHAR';
+            end;
         end else begin
             ServiceLevelCode := 'SEPA';
             ChargeBearer := 'SLEV';

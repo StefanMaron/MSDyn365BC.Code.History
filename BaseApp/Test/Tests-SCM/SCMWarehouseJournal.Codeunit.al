@@ -37,7 +37,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         RegisterJournalLines: Label 'Do you want to register the journal lines?';
         HandlingError: Label 'There is nothing to register.';
         LotNoEmptyError: Label 'Lot No. must have a value in Whse. Item Tracking Line';
-        PhysicalInventoryError: Label 'Qty. to Handle (Base) in Tracking Specification for Item No. %1, Serial No.: , Lot No.: %2 is currently %3. It must be %4.', Comment = '%1 = Item No., %2 = Lot No., %3 = Lot Specific Quantity. %4 = Total Quantity';
+        PhysicalInventoryError: Label 'Qty. to Handle (Base) in the item tracking assigned to the document line for item %1 is currently %2. It must be %3.\\Check the assignment for serial number %4, lot number %5.', Comment = '%1 = Item No., %2 = Lot Specific Quantity, %3 = Total Quantity, %4 = Serial No., %5 = Lot No.';
         BinError: Label 'You cannot delete the Bin with Location Code = %1, Code = %2, because the Bin contains items.', Comment = '%1 = Location Code, %2 = Bin Code';
         BinContentError: Label 'You cannot delete this Bin Content, because the Bin Content contains items.';
         WarehouseLineMustNotExist: Label 'Warehouse Adjustment Lines must not exist.';
@@ -314,7 +314,10 @@ codeunit 137153 "SCM Warehouse - Journal"
 
         // Verify: Error Message for Total Quantity more than Lot Specific Quantity.
         LibraryVariableStorage.Dequeue(LotNo);  // Dequeue LotNo Used in ItemTrackingLinesPageHandler.
-        Assert.ExpectedError(StrSubstNo(PhysicalInventoryError, Item."No.", LotNo, ItemJournalLine.Quantity, ItemJournalLine.Quantity * 2));  // Total Physical Quantity is Twice the Lot Specific Quantity.
+        Assert.ExpectedError(
+          StrSubstNo(
+            PhysicalInventoryError,
+            Item."No.", ItemJournalLine.Quantity, ItemJournalLine.Quantity * 2, '', LotNo));  // Total Physical Quantity is Twice the Lot Specific Quantity.
     end;
 
     [Test]
