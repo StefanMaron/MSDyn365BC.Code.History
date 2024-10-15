@@ -1588,6 +1588,23 @@
                     InitVATDate();
             end;
         }
+        field(165; "Incoming Document Entry No."; Integer)
+        {
+            Caption = 'Incoming Document Entry No.';
+            TableRelation = "Incoming Document";
+
+            trigger OnValidate()
+            var
+                IncomingDocument: Record "Incoming Document";
+            begin
+                if "Incoming Document Entry No." = xRec."Incoming Document Entry No." then
+                    exit;
+                if "Incoming Document Entry No." = 0 then
+                    IncomingDocument.RemoveReferenceToWorkingDocument(xRec."Incoming Document Entry No.")
+                else
+                    IncomingDocument.SetServiceDoc(Rec);
+            end;
+        }
         field(178; "Journal Templ. Name"; Code[10])
         {
             Caption = 'Journal Template Name';
@@ -2518,6 +2535,9 @@
         {
             MaintainSQLIndex = false;
         }
+        key(Key9; "Incoming Document Entry No.")
+        {
+        }
     }
 
     fieldgroups
@@ -2557,6 +2577,7 @@
         if not IsHandled then
             ServPost.DeleteHeader(Rec, ServShptHeader, ServInvHeader, ServCrMemoHeader);
         Validate("Applies-to ID", '');
+        Rec.Validate("Incoming Document Entry No.", 0);
 
         ServLine.Reset();
         ServLine.LockTable();
