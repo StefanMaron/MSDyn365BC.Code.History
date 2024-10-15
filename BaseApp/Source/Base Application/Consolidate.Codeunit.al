@@ -634,6 +634,7 @@ codeunit 432 Consolidate
             SetRange("Posting Date", StartingDate, EndingDate);
             if FindSet(true, false) then
                 repeat
+                    OnClearPreviousConsolidationOnBeforeUpdateAmountArray(ConsolidGLEntry, DeletedAmounts, DeletedDates, DeletedIndex);
                     UpdateAmountArray("Posting Date", Amount);
                     Description := '';
                     Amount := 0;
@@ -650,6 +651,7 @@ codeunit 432 Consolidate
                     end;
                 until Next = 0;
         end;
+        OnClearPreviousConsolidationOnBeforeCheckAmountArray(DeletedAmounts, DeletedDates);
         CheckAmountArray;
 
         if AnalysisView.FindSet then
@@ -1356,6 +1358,16 @@ codeunit 432 Consolidate
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertGLEntry(var SubsidGLEntry: Record "G/L Entry"; GLEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnClearPreviousConsolidationOnBeforeCheckAmountArray(var DeletedAmountsArray: array[500] of Decimal; var DeletedDatesArray: array[500] of Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnClearPreviousConsolidationOnBeforeUpdateAmountArray(var ConsolidatedGLEntry: Record "G/L Entry"; var DeletedAmountsArray: array[500] of Decimal; var DeletedDatesArray: array[500] of Date; var DeletedIdx: Integer)
     begin
     end;
 

@@ -200,6 +200,7 @@ codeunit 134590 "Mandatory Fields Tests"
         Assert.IsTrue(CompanyInformation."Post Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CompanyInformation.City.ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CompanyInformation."Country/Region Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
+        Assert.IsFalse(CompanyInformation.County.ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CompanyInformation."Bank Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CompanyInformation."Bank Branch No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CompanyInformation."Bank Account No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);

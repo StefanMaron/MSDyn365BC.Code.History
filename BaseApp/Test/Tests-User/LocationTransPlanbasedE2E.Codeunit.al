@@ -316,25 +316,11 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        InitializeAvailabilityCheckSettingsOnCompanyInformation;
 
         IsInitialized := true;
         Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Location Trans. Plan-based E2E");
-    end;
-
-    local procedure InitializeAvailabilityCheckSettingsOnCompanyInformation()
-    var
-        CompanyInformation: Record "Company Information";
-        BlankDateFormula: DateFormula;
-    begin
-        with CompanyInformation do begin
-            Get;
-            Validate("Check-Avail. Period Calc.", BlankDateFormula);
-            Validate("Check-Avail. Time Bucket", "Check-Avail. Time Bucket"::Day);
-            Modify(true);
-        end;
     end;
 
     local procedure InitializePreExistingMasterDataForTeamMember(var Item: Record Item; var Vendor: Record Vendor; var Customer: Record Customer)
@@ -561,7 +547,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     [Scope('OnPrem')]
     procedure ConfigTemplatesModalPageHandler(var ConfigTemplates: TestPage "Config Templates")
     begin
-        ConfigTemplates.Last;
+        ConfigTemplates.First;
         ConfigTemplates.OK.Invoke;
     end;
 

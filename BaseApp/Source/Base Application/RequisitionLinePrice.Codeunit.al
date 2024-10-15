@@ -177,7 +177,7 @@ codeunit 7025 "Requisition Line - Price" implements "Line With Price"
 
     procedure Update(AmountType: enum "Price Amount Type")
     begin
-        if not IsDiscountAllowed() then
+        if not DiscountIsAllowed then
             RequisitionLine."Line Discount %" := 0;
     end;
 }

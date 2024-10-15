@@ -1810,6 +1810,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
           DummySalesInvoiceLineAggregate.FieldNo("Quantity Shipped"), DATABASE::"Sales Invoice Line Aggregate", TempField);
         AddFieldToBuffer(
           DummySalesInvoiceLineAggregate.FieldNo("Line Discount Calculation"), DATABASE::"Sales Invoice Line Aggregate", TempField);
+        AddFieldToBuffer(DummySalesInvoiceLineAggregate.FieldNo("Variant Code"), DATABASE::"Sales Invoice Line Aggregate", TempField);
     end;
 
     local procedure GetCrMemoAggregateSpecificFields(var TempField: Record "Field" temporary)
@@ -1863,6 +1864,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         AddFieldToBuffer(
           DummySalesInvoiceLineAggregate.FieldNo("Line Discount Value"), DATABASE::"Sales Invoice Line Aggregate", TempField);
         AddFieldToBuffer(DummySalesInvoiceLineAggregate.FieldNo(Id), DATABASE::"Sales Invoice Line Aggregate", TempField);
+        AddFieldToBuffer(DummySalesInvoiceLineAggregate.FieldNo("Variant Id"), DATABASE::"Sales Invoice Line Aggregate", TempField);
     end;
 
     local procedure AddFieldToBuffer(FieldNo: Integer; TableID: Integer; var TempField: Record "Field" temporary)

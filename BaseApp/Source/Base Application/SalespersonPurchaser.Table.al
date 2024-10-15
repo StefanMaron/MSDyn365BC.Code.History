@@ -67,9 +67,8 @@ table 13 "Salesperson/Purchaser"
             var
                 MailManagement: Codeunit "Mail Management";
             begin
-                if ("Search E-Mail" = UpperCase(xRec."E-Mail")) or ("Search E-Mail" = '') then
-                    "Search E-Mail" := "E-Mail";
                 MailManagement.ValidateEmailAddressField("E-Mail");
+                SetSearchEmail();
             end;
         }
         field(5053; "Phone No."; Text[30])
@@ -404,6 +403,7 @@ table 13 "Salesperson/Purchaser"
     trigger OnInsert()
     begin
         Validate(Code);
+        SetSearchEmail();
         DimMgt.UpdateDefaultDim(
           DATABASE::"Salesperson/Purchaser", Code,
           "Global Dimension 1 Code", "Global Dimension 2 Code");
@@ -412,6 +412,7 @@ table 13 "Salesperson/Purchaser"
     trigger OnModify()
     begin
         Validate(Code);
+        SetSearchEmail();
     end;
 
     trigger OnRename()
@@ -446,7 +447,7 @@ table 13 "Salesperson/Purchaser"
             DimMgt.SaveDefaultDim(DATABASE::"Salesperson/Purchaser", Code, FieldNumber, ShortcutDimCode);
             Modify;
         end;
-	
+
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
@@ -482,6 +483,12 @@ table 13 "Salesperson/Purchaser"
         if SalespersonPurchaser2."Privacy Blocked" then
             exit(true);
         exit(false);
+    end;
+
+    local procedure SetSearchEmail()
+    begin
+        if "Search E-Mail" <> "E-Mail".ToUpper() then
+            "Search E-Mail" := "E-Mail";
     end;
 
     [IntegrationEvent(false, false)]

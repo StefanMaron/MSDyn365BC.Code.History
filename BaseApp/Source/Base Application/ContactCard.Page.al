@@ -254,6 +254,16 @@ page 5050 "Contact Card"
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies additional address information.';
                     }
+                    field("Country/Region Code"; "Country/Region Code")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the country/region of the address.';
+
+                        trigger OnValidate()
+                        begin
+                            HandleAddressLookupVisibility;
+                        end;
+                    }
                     field("Post Code"; "Post Code")
                     {
                         ApplicationArea = Basic, Suite;
@@ -277,16 +287,6 @@ page 5050 "Contact Card"
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the county for the contact.';
-                    }
-                    field("Country/Region Code"; "Country/Region Code")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the country/region of the address.';
-
-                        trigger OnValidate()
-                        begin
-                            HandleAddressLookupVisibility;
-                        end;
                     }
                     field(ShowMap; ShowMapLbl)
                     {

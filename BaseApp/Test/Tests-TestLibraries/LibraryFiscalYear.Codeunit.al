@@ -87,7 +87,7 @@ codeunit 131302 "Library - Fiscal Year"
 
     procedure GetStatisticsPeriod(): Text
     begin
-        exit('<Year><Month,2>');
+        exit('<Month,2><Year>');
     end;
 
     procedure GetAccountingPeriodDate(PostingDate: Date): Date

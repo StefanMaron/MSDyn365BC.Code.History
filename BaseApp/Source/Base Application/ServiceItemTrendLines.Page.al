@@ -136,12 +136,14 @@ page 5984 "Service Item Trend Lines"
     end;
 
     var
-        ServItem: Record "Service Item";
         ServLedgEntry: Record "Service Ledger Entry";
         DateRec: Record Date;
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         AmountType: Option "Net Change","Balance at Date";
+
+    protected var
+        ServItem: Record "Service Item";
 
     procedure Set(var ServItem1: Record "Service Item"; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin

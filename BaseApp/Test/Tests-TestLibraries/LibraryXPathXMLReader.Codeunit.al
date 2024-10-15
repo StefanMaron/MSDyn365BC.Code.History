@@ -206,6 +206,15 @@ codeunit 131337 "Library - XPath XML Reader"
     end;
 
     [Scope('OnPrem')]
+    procedure GetRootAttributeValue(AttributeName: Text): Text
+    var
+        Attribute: DotNet XmlAttribute;
+    begin
+        Attribute := XMLDocOut.DocumentElement.Attributes.GetNamedItem(AttributeName);
+        exit(Attribute.Value);
+    end;
+
+    [Scope('OnPrem')]
     procedure GetNodeByXPath(xPath: Text; var Node: DotNet XmlNode)
     var
         NodeList: DotNet XmlNodeList;
@@ -373,6 +382,15 @@ codeunit 131337 "Library - XPath XML Reader"
         Actual: Text;
     begin
         Actual := GetAttributeValueFromNode(Node, AttributeName);
+        Assert.AreEqual(AttributeExpectedValue, Actual, StrSubstNo(UnexpectedAttributeValueErr, AttributeName));
+    end;
+
+    [Scope('OnPrem')]
+    procedure VerityAttributeFromRootNode(AttributeName: Text; AttributeExpectedValue: Text)
+    var
+        Actual: Text;
+    begin
+        Actual := GetRootAttributeValue(AttributeName);
         Assert.AreEqual(AttributeExpectedValue, Actual, StrSubstNo(UnexpectedAttributeValueErr, AttributeName));
     end;
 

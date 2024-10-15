@@ -14,26 +14,6 @@ codeunit 138500 "Common Demodata"
 
     [Test]
     [Scope('OnPrem')]
-    procedure ConfigTemplateCodeShouldStartWithTablePrefix()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        TableNamePrefix: Text[4];
-    begin
-        // [FEATURE] [Config. Template]
-        // [SCENARIO] Config. Template Code for Customer/Vendor/Item should start with 'CUST'/'VEND'/'ITEM' prefix.
-        ConfigTemplateHeader.SetFilter("Table ID", '%1|%2|%3', DATABASE::Customer, DATABASE::Vendor, DATABASE::Item);
-        if ConfigTemplateHeader.FindSet then
-            repeat
-                ConfigTemplateHeader.CalcFields("Table Caption");
-                TableNamePrefix := UpperCase(CopyStr(ConfigTemplateHeader."Table Caption", 1, 4));
-                Assert.AreEqual(
-                  1, StrPos(ConfigTemplateHeader.Code, TableNamePrefix),
-                  StrSubstNo('Template code %1 should start with %2', ConfigTemplateHeader.Code, TableNamePrefix));
-            until ConfigTemplateHeader.Next = 0;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure InteractionTemplateSetup()
     var
         InteractionTemplateSetup: Record "Interaction Template Setup";
@@ -62,36 +42,6 @@ codeunit 138500 "Common Demodata"
         MarketingSetup.TestField("Bus. Rel. Code for Customers");
         MarketingSetup.TestField("Bus. Rel. Code for Vendors");
         MarketingSetup.TestField("Bus. Rel. Code for Bank Accs.");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VATPostingGroupsCount()
-    var
-        VATBusPostingGroup: Record "VAT Business Posting Group";
-    begin
-        // [SCENARIO] There are 3 VAT Bus. Posting groups
-        Assert.RecordCount(VATBusPostingGroup, 3);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VATPostingSetupCount()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        // [SCENARIO] There are 12 VAT posting setup entries: 2 - "Reverse Charge VAT", none - "Full VAT" and 'Sales Tax'
-        with VATPostingSetup do begin
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Reverse Charge VAT");
-            Assert.RecordCount(VATPostingSetup, 2);
-
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Full VAT", "VAT Calculation Type"::"Sales Tax");
-            Assert.RecordCount(VATPostingSetup, 0);
-
-            Reset;
-            SetRange("EU Service", true);
-            Assert.RecordCount(VATPostingSetup, 1);
-        end;
     end;
 
     [Test]

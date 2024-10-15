@@ -28,6 +28,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         LibraryJobQueue: Codeunit "Library - Job Queue";
         MockOnFindTaskSchedulerAllowed: Codeunit MockOnFindTaskSchedulerAllowed;
         WebhookHelper: Codeunit "Webhook Helper";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         DynamicRequestPageParametersOpenPurchaseOrderTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Purchase Header">SORTING(Field1,Field3) WHERE(Field1=1(1),Field120=1(0))</DataItem><DataItem name="Purchase Line">SORTING(Field1,Field3,Field4)</DataItem></DataItems></ReportParameters>', Locked = true;
         UnexpectedNoOfApprovalEntriesErr: Label 'Unexpected number of approval entries found.', Locked = true;
@@ -38,6 +39,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         WorkflowWebhookEntry: Record "Workflow Webhook Entry";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WFWH Purch. Document Approval");
         LibraryVariableStorage.Clear;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -48,9 +50,11 @@ codeunit 134215 "WFWH Purch. Document Approval"
         RemoveBogusUser;
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"WFWH Purch. Document Approval");
         IsInitialized := true;
         BindSubscription(LibraryJobQueue);
         BindSubscription(MockOnFindTaskSchedulerAllowed);
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"WFWH Purch. Document Approval");
     end;
 
     [Test]

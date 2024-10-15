@@ -64,87 +64,87 @@ codeunit 139453 "O365 Customer Permission Test"
     end;
 
     [Test]
-    [HandlerFunctions('PostedSalesShipmentUpdateOKModalPageHandler')]
+    [HandlerFunctions('PostedSalesShipmentEditOKModalPageHandler')]
     [Scope('OnPrem')]
-    procedure RunPostedSalesShipmentUpdateFromCard()
+    procedure RunPostedSalesShipmentEditFromCard()
     var
         PostedSalesShipment: TestPage "Posted Sales Shipment";
     begin
         // [FEATURE] [Sales Shipment]
-        // [SCENARIO 308913] Open "Posted Sales Shipment - Update" from "Posted Sales Shipment" card with "D365 Sales Doc, Edit".
+        // [SCENARIO 308913] Open "Posted Sales Shipment - Edit" from "Posted Sales Shipment" card with "D365 Sales Doc, Edit".
         Initialize;
 
         // [GIVEN] A user with "D365 Sales Doc, Edit" permission set.
         LibraryLowerPermissions.SetSalesDocsCreate;
 
-        // [WHEN] Open "Posted Sales Shipment - Update" page from "Posted Sales Shipment" card.
+        // [WHEN] Open "Posted Sales Shipment - Edit" page from "Posted Sales Shipment" card.
         PostedSalesShipment.OpenView;
         PostedSalesShipment."Update Document".Invoke;
 
-        // [THEN] "Posted Sales Shipment - Update" opens.
+        // [THEN] "Posted Sales Shipment - Edit" opens.
     end;
 
     [Test]
-    [HandlerFunctions('PostedSalesShipmentUpdateOKModalPageHandler')]
+    [HandlerFunctions('PostedSalesShipmentEditOKModalPageHandler')]
     [Scope('OnPrem')]
-    procedure RunPostedSalesShipmentUpdateFromList()
+    procedure RunPostedSalesShipmentEditFromList()
     var
         PostedSalesShipments: TestPage "Posted Sales Shipments";
     begin
         // [FEATURE] [Sales Shipment]
-        // [SCENARIO 308913] Open "Posted Sales Shipment - Update" from "Posted Sales Shipments" list with "D365 Sales Doc, Edit".
+        // [SCENARIO 308913] Open "Posted Sales Shipment - Edit" from "Posted Sales Shipments" list with "D365 Sales Doc, Edit".
         Initialize;
 
         // [GIVEN] A user with "D365 Sales Doc, Edit" permission set.
         LibraryLowerPermissions.SetSalesDocsCreate;
 
-        // [WHEN] Open "Posted Sales Shipment - Update" page from "Posted Sales Shipments" list.
+        // [WHEN] Open "Posted Sales Shipment - Edit" page from "Posted Sales Shipments" list.
         PostedSalesShipments.OpenView;
         PostedSalesShipments."Update Document".Invoke;
 
-        // [THEN] "Posted Sales Shipment - Update" opens.
+        // [THEN] "Posted Sales Shipment - Edit" opens.
     end;
 
     [Test]
-    [HandlerFunctions('PostedReturnReceiptUpdateOKModalPageHandler')]
+    [HandlerFunctions('PostedReturnReceiptEditOKModalPageHandler')]
     [Scope('OnPrem')]
-    procedure RunPostedReturnReceiptUpdateFromCard()
+    procedure RunPostedReturnReceiptEditFromCard()
     var
         PostedReturnReceipt: TestPage "Posted Return Receipt";
     begin
         // [FEATURE] [Return Receipt]
-        // [SCENARIO 308913] Open "Posted Return Receipt - Update" from "Posted Return Receipt" card with "D365 Sales Doc, Edit".
+        // [SCENARIO 308913] Open "Posted Return Receipt - Edit" from "Posted Return Receipt" card with "D365 Sales Doc, Edit".
         Initialize;
 
         // [GIVEN] A user with "D365 Sales Doc, Edit" permission set.
         LibraryLowerPermissions.SetSalesDocsCreate;
 
-        // [WHEN] Open "Posted Return Receipt - Update" page from "Posted Return Receipt" card.
+        // [WHEN] Open "Posted Return Receipt - Edit" page from "Posted Return Receipt" card.
         PostedReturnReceipt.OpenView;
         PostedReturnReceipt."Update Document".Invoke;
 
-        // [THEN] "Posted Return Receipt - Update" opens.
+        // [THEN] "Posted Return Receipt - Edit" opens.
     end;
 
     [Test]
-    [HandlerFunctions('PostedReturnReceiptUpdateOKModalPageHandler')]
+    [HandlerFunctions('PostedReturnReceiptEditOKModalPageHandler')]
     [Scope('OnPrem')]
-    procedure RunPostedReturnReceiptUpdateFromList()
+    procedure RunPostedReturnReceiptEditFromList()
     var
         PostedReturnReceipts: TestPage "Posted Return Receipts";
     begin
         // [FEATURE] [Return Receipt]
-        // [SCENARIO 308913] Open "Posted Return Receipt - Update" from "Posted Return Receipts" list with "D365 Sales Doc, Edit".
+        // [SCENARIO 308913] Open "Posted Return Receipt - Edit" from "Posted Return Receipts" list with "D365 Sales Doc, Edit".
         Initialize;
 
         // [GIVEN] A user with "D365 Sales Doc, Edit" permission set.
         LibraryLowerPermissions.SetSalesDocsCreate;
 
-        // [WHEN] Open "Posted Return Receipt - Update" page from "Posted Return Receipts" list.
+        // [WHEN] Open "Posted Return Receipt - Edit" page from "Posted Return Receipts" list.
         PostedReturnReceipts.OpenView;
         PostedReturnReceipts."Update Document".Invoke;
 
-        // [THEN] "Posted Return Receipt - Update" opens.
+        // [THEN] "Posted Return Receipt - Edit" opens.
     end;
 
     local procedure Initialize()
@@ -172,6 +172,7 @@ codeunit 139453 "O365 Customer Permission Test"
     begin
         // list of tables important for Customer view scenario, but tables are not in O365 permissionsets
         ExcludedTables.Add(DATABASE::"IC Partner");
+        ExcludedTables.Add(DATABASE::"Type of Supply");
     end;
 
     [Scope('OnPrem')]
@@ -179,20 +180,21 @@ codeunit 139453 "O365 Customer Permission Test"
     begin
         // list of tables important for Customer creation, but tables are not in O365 permissionsets
         ExcludedTables.Add(DATABASE::"IC Partner");
+        ExcludedTables.Add(DATABASE::"Type of Supply");
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure PostedSalesShipmentUpdateOKModalPageHandler(var PostedSalesShipmentUpdate: TestPage "Posted Sales Shipment - Update")
+    procedure PostedSalesShipmentEditOKModalPageHandler(var PostedSalesShipmentEdit: TestPage "Posted Sales Shipment - Update")
     begin
-        PostedSalesShipmentUpdate.OK.Invoke;
+        PostedSalesShipmentEdit.OK.Invoke;
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure PostedReturnReceiptUpdateOKModalPageHandler(var PostedReturnReceiptUpdate: TestPage "Posted Return Receipt - Update")
+    procedure PostedReturnReceiptEditOKModalPageHandler(var PostedReturnReceiptEdit: TestPage "Posted Return Receipt - Update")
     begin
-        PostedReturnReceiptUpdate.OK.Invoke;
+        PostedReturnReceiptEdit.OK.Invoke;
     end;
 }
 

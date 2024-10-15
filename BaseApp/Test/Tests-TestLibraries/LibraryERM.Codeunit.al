@@ -87,11 +87,11 @@ codeunit 131300 "Library - ERM"
 
     procedure CheckPreview(PaymentJournal: TestPage "Payment Journal"): Text
     var
-        CheckPreview: TestPage "Check Preview";
+        CheckPreview: TestPage "Check Preview GB";
     begin
         CheckPreview.Trap;
         PaymentJournal.PreviewCheck.Invoke;
-        exit(CheckPreview.AmountText.Value);
+        exit(CheckPreview.AmountInText.Value);
     end;
 
     procedure ClearIntrastatJnlLines(IntrastatJnlBatch: Record "Intrastat Jnl. Batch")

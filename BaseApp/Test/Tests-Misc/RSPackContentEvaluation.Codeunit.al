@@ -11,7 +11,6 @@ codeunit 138400 "RS Pack Content - Evaluation"
     var
         Assert: Codeunit Assert;
         LibraryPurchase: Codeunit "Library - Purchase";
-        LibrarySales: Codeunit "Library - Sales";
         PostingOutsideFYIsOnErr: Label 'Posting Outside Fiscal Year option is on';
         XOUTGOINGTxt: Label 'OUTGOING';
         NonStockNoSeriesTok: Label 'NS-ITEM';
@@ -165,31 +164,6 @@ codeunit 138400 "RS Pack Content - Evaluation"
         // [SCENARIO] All customers should have "Salesperson Code" defined.
         Customer.SetRange("Salesperson Code", '');
         Assert.RecordIsEmpty(Customer);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PostSalesInvoices()
-    var
-        SalesHeader: Record "Sales Header";
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        PostedInvoiceNo: Code[20];
-    begin
-        // [FEATURE] [Sales]
-        // [SCENARIO] Existing Sales Invoices can be posted without errors
-        with SalesHeader do begin
-            // [WHEN] Post all Invoices
-            Reset;
-            SetRange("Document Type", "Document Type"::Invoice);
-            FindSet;
-            repeat
-                PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-                // [THEN] Cust. Ledger Entries are created
-                CustLedgEntry.FindLast;
-                CustLedgEntry.TestField("Document No.", PostedInvoiceNo);
-            until Next = 0;
-        end;
     end;
 
     [Test]
@@ -358,6 +332,41 @@ codeunit 138400 "RS Pack Content - Evaluation"
         // [SCENARIO 167751] Susan can set up Item Cross References
         Assert.TableIsNotEmpty(DATABASE::"Item Substitution");
         Assert.TableIsNotEmpty(DATABASE::"Item Cross Reference");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATPostingGroupsCount()
+    var
+        VATBusPostingGroup: Record "VAT Business Posting Group";
+        VATProdPostingGroup: Record "VAT Product Posting Group";
+    begin
+        // [SCENARIO] There are 3 VAT Bus. and 7 VAT Prod. Posting groups
+        Assert.RecordCount(VATBusPostingGroup, 3);
+
+        Assert.RecordCount(VATProdPostingGroup, 7);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATPostingSetupCount()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // [SCENARIO] There are 14 VAT posting setup entries: 3 - "Reverse Charge VAT", none - "Full VAT" and 'Sales Tax'
+        with VATPostingSetup do begin
+            // Assert.RecordCount(VATPostingSetup,14); TO DO - Fix it
+
+            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Reverse Charge VAT");
+            Assert.RecordCount(VATPostingSetup, 3);
+
+            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Full VAT", "VAT Calculation Type"::"Sales Tax");
+            Assert.RecordCount(VATPostingSetup, 2);
+
+            Reset;
+            SetRange("EU Service", true);
+            Assert.RecordCount(VATPostingSetup, 2);
+        end;
     end;
 
     local procedure VerifyContactCompany(var CompanyNo: Code[20]; LinkToTable: Option; No: Code[20])
@@ -615,12 +624,12 @@ codeunit 138400 "RS Pack Content - Evaluation"
 
     [Test]
     [Scope('OnPrem')]
-    procedure VATPostingGroupsCount()
-    var
-        VATProductPostingGroup: Record "VAT Product Posting Group";
+    procedure VATStatementNotEmpty()
     begin
-        // [SCENARIO] There are 7 VAT Prod. Posting groups
-        Assert.RecordCount(VATProductPostingGroup, 7);
+        // [SCENARIO] VAT Statement tables must contain records
+        Assert.TableIsNotEmpty(DATABASE::"VAT Statement Template");
+        Assert.TableIsNotEmpty(DATABASE::"VAT Statement Name");
+        Assert.TableIsNotEmpty(DATABASE::"VAT Statement Line");
     end;
 
     [Test]

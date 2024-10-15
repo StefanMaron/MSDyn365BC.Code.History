@@ -821,7 +821,7 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
     begin
         // [FEATURE] [UT]
-        // [SCENARIO 255730] TAB 262 "Intrastat Jnl. Batch".GetStatisticsStartDate() returns statistics period ("YYMM") start date ("01MMYY")
+        // [SCENARIO 255730] TAB 262 "Intrastat Jnl. Batch".GetStatisticsStartDate() returns statistics period ("MMYY") start date ("01MMYY")
         Initialize;
 
         // TESTFIELD("Statistics Period")
@@ -831,19 +831,19 @@ codeunit 134150 "ERM Intrastat Journal"
         Assert.ExpectedError(IntrastatJnlBatch.FieldName("Statistics Period"));
 
         // 01-01-00
-        IntrastatJnlBatch."Statistics Period" := '0001';
+        IntrastatJnlBatch."Statistics Period" := '0100';
         Assert.AreEqual(DMY2Date(1, 1, 2000), IntrastatJnlBatch.GetStatisticsStartDate, '');
 
         // 01-01-18
-        IntrastatJnlBatch."Statistics Period" := '1801';
+        IntrastatJnlBatch."Statistics Period" := '0118';
         Assert.AreEqual(DMY2Date(1, 1, 2018), IntrastatJnlBatch.GetStatisticsStartDate, '');
 
         // 01-12-18
-        IntrastatJnlBatch."Statistics Period" := '1812';
+        IntrastatJnlBatch."Statistics Period" := '1218';
         Assert.AreEqual(DMY2Date(1, 12, 2018), IntrastatJnlBatch.GetStatisticsStartDate, '');
 
         // 01-12-99
-        IntrastatJnlBatch."Statistics Period" := '9912';
+        IntrastatJnlBatch."Statistics Period" := '1299';
         Assert.AreEqual(DMY2Date(1, 12, 2099), IntrastatJnlBatch.GetStatisticsStartDate, '');
     end;
 
@@ -1110,7 +1110,7 @@ codeunit 134150 "ERM Intrastat Journal"
         // [WHEN] Running Checklist
         IntrastatJournalPage.ChecklistReport.Invoke;
 
-        // [THEN] You got a error
+        // [THEN] You got one more error
         IntrastatJournalPage.ErrorMessagesPart."Field Name".AssertEquals(IntrastatJnlLine.FieldName("Transaction Type"));
 
         // [WHEN] Fixing the error
@@ -1120,10 +1120,16 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatJournalPage.ChecklistReport.Invoke;
 
         // [THEN] You got one more error
-        IntrastatJournalPage.ErrorMessagesPart."Field Name".AssertEquals(IntrastatJnlLine.FieldName("Total Weight"));
+        IntrastatJournalPage.ErrorMessagesPart."Field Name".AssertEquals(IntrastatJnlLine.FieldName("Net Weight"));
 
         // [WHEN] Fixing the error
-        IntrastatJournalPage."Total Weight".Value('1');
+        IntrastatJournalPage."Net Weight".Value('1');
+        // [WHEN] Running Checklist
+        IntrastatJournalPage.ChecklistReport.Invoke;
+
+        // [THEN] You got one more error
+        IntrastatJournalPage.ErrorMessagesPart."Field Name".AssertEquals(IntrastatJnlLine.FieldName("Shpt. Method Code"));
+
         // [WHEN] Fixing the error
         ShipmentMethod.FindFirst;
         IntrastatJournalPage."Shpt. Method Code".Value(ShipmentMethod.Code);
@@ -1150,7 +1156,6 @@ codeunit 134150 "ERM Intrastat Journal"
         PurchaseLine: Record "Purchase Line";
         ShipmentMethod: Record "Shipment Method";
         TransactionType: Record "Transaction Type";
-        TransportMethod: Record "Transport Method";
         IntrastatJournalPage: TestPage "Intrastat Journal";
         InvoiceDate: Date;
     begin
@@ -1175,9 +1180,8 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatJournalPage."Transaction Type".Value(TransactionType.Code);
         ShipmentMethod.FindFirst;
         IntrastatJournalPage."Shpt. Method Code".Value(ShipmentMethod.Code);
-        TransportMethod.FindFirst;
-        IntrastatJournalPage."Transport Method".Value(TransportMethod.Code);
         IntrastatJournalPage."Total Weight".Value('1');
+        IntrastatJournalPage."Net Weight".Value('1');
 
         // [WHEN] Running Create File
         // [THEN] You do not get any errors

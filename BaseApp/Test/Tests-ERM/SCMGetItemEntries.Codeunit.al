@@ -19,6 +19,7 @@ codeunit 137209 "SCM Get Item Entries"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LineType: Option Shipment,Receipt;
         IsInitialized: Boolean;
 
@@ -90,11 +91,94 @@ codeunit 137209 "SCM Get Item Entries"
         ItemEntries(LineType::Receipt, CalcDate('<+1D>', WorkDate));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure IncludeItemChargeInIntrastat()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        ItemCharge: Record "Item Charge";
+        Item: Record Item;
+        PostedSalesDocNo: Code[20];
+        PostedPurchDocNo: Code[20];
+    begin
+        // [SCENARIO 378851] If Item Charge has "Freight/Insurance" = TRUE then entries having this Item Charge should be included in "Statistical Value" in Intrastat.
+
+        Initialize;
+
+        // [GIVEN] Item Charge having "Freight/Insurance" = TRUE
+        CreateItemCharge(ItemCharge, true);
+
+        // [GIVEN] Item with foreign "Country/Region of Origin Code"
+        CreateForeignItem(Item);
+
+        // [GIVEN] Posted Purchase Order with two line for foreign Vendor
+        // [GIVEN] Purchase Line with Item with Price 100
+        // [GIVEN] Purchase Line with Item (Charge) with Price 100
+        PostedPurchDocNo := CreatePurchOrderWithItemCharge(Item, ItemCharge, 100);
+
+        // [GIVEN] Posted Sales Order with two lines for foreign Customer
+        // [GIVEN] Sales Line with Item with Price 200
+        // [GIVEN] Sales Line with Item (Charge) with Price 200
+        PostedSalesDocNo := CreateSalesOrderWithItemCharge(Item, ItemCharge, 200);
+
+        // [WHEN] Getting Intrastat Lines
+        CreateIntrastatJnlLineWithTemplateAndBatch(IntrastatJnlLine);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate + 1);
+
+        // [THEN] "Statistical Value" of Intrastat Line for Purchase Document is 200 (includes Item Charge)
+        VerifyStatisticalValueInIntrastatLine(PostedPurchDocNo, 200);
+
+        // [THEN] "Statistical Value" of Intrastat Line for Sales Document is 400 (includes Item Charge)
+        VerifyStatisticalValueInIntrastatLine(PostedSalesDocNo, 400);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExcludeItemChargeFromIntrastat()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        ItemCharge: Record "Item Charge";
+        Item: Record Item;
+        PostedSalesDocNo: Code[20];
+        PostedPurchDocNo: Code[20];
+    begin
+        // [SCENARIO 378851] If Item Charge has "Freight/Insurance" = FALSE then entries having this Item Charge should not be included in "Statistical Value" in Intrastat.
+
+        Initialize;
+
+        // [GIVEN] Item Charge having "Freight/Insurance" = FALSE
+        CreateItemCharge(ItemCharge, false);
+
+        // [GIVEN] Item with foreign "Country/Region of Origin Code"
+        CreateForeignItem(Item);
+
+        // [GIVEN] Posted Purchase Order with two line for foreign Vendor
+        // [GIVEN] Purchase Line with Item with Price 100
+        // [GIVEN] Purchase Line with Item (Charge) with Price 100
+        PostedPurchDocNo := CreatePurchOrderWithItemCharge(Item, ItemCharge, 100);
+
+        // [GIVEN] Posted Sales Order with two lines for foreign Customer
+        // [GIVEN] Sales Line with Item with Price 200
+        // [GIVEN] Sales Line with Item (Charge) with Price 200
+        PostedSalesDocNo := CreateSalesOrderWithItemCharge(Item, ItemCharge, 200);
+
+        // [WHEN] Getting Intrastat Lines
+        CreateIntrastatJnlLineWithTemplateAndBatch(IntrastatJnlLine);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate + 1);
+
+        // [THEN] "Statistical Value" of Intrastat Line for Purchase Document is 100 (not includes Item Charge)
+        VerifyStatisticalValueInIntrastatLine(PostedPurchDocNo, 100);
+
+        // [THEN] "Statistical Value" of Intrastat Line for Sales Document is 200 (not includes Item Charge)
+        VerifyStatisticalValueInIntrastatLine(PostedSalesDocNo, 200);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Get Item Entries");
+        LibrarySetupStorage.Restore;
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Get Item Entries");
@@ -102,6 +186,8 @@ codeunit 137209 "SCM Get Item Entries"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
         Commit();
+
+        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Get Item Entries");
     end;
 
@@ -153,6 +239,29 @@ codeunit 137209 "SCM Get Item Entries"
             until Item.Next = 0;
     end;
 
+    [Scope('OnPrem')]
+    procedure CreateForeignItem(var Item: Record Item)
+    var
+        CompanyInformation: Record "Company Information";
+        CountryRegion: Record "Country/Region";
+    begin
+        Item.Get(CreateItem);
+        CompanyInformation.FindFirst;
+        CountryRegion.SetFilter(Code, '<>%1', CompanyInformation."Country/Region Code");
+        CountryRegion.FindFirst;
+        Item."Country/Region of Origin Code" := CountryRegion.Code;
+        Item.GTIN := LibraryUtility.GenerateRandomCode(Item.FieldNo(GTIN), DATABASE::Item);
+        Item.Modify(true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateItemCharge(var ItemCharge: Record "Item Charge"; FreightInsurance: Boolean)
+    begin
+        LibraryInventory.CreateItemCharge(ItemCharge);
+        ItemCharge.Validate("Freight/Insurance", FreightInsurance);
+        ItemCharge.Modify(true);
+    end;
+
     local procedure UpdateAddnlReportingCurrency(): Code[10]
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -184,7 +293,7 @@ codeunit 137209 "SCM Get Item Entries"
             DATABASE::"Intrastat Jnl. Batch"));
         IntrastatJnlBatch.Validate(Description, LibraryUtility.GenerateRandomCode(IntrastatJnlBatch.FieldNo(Description),
             DATABASE::"Intrastat Jnl. Batch"));
-        IntrastatJnlBatch.Validate("Statistics Period", Format(Today, 0, '<Year><Month,2>'));
+        IntrastatJnlBatch.Validate("Statistics Period", Format(Today, 0, '<Month,2><Year>'));
         IntrastatJnlBatch.Validate("Amounts in Add. Currency", AmountInAddCurr);
         IntrastatJnlBatch.Validate("Currency Identifier", CurrencyID);
         IntrastatJnlBatch.Insert(true);
@@ -198,6 +307,17 @@ codeunit 137209 "SCM Get Item Entries"
         IntrastatJnlLine.Insert(true);
     end;
 
+    [Scope('OnPrem')]
+    procedure CreateIntrastatJnlLineWithTemplateAndBatch(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    var
+        IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+    begin
+        LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
+        LibraryERM.CreateIntrastatJnlBatch(IntrastatJnlBatch, IntrastatJnlTemplate.Name);
+        CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch);
+    end;
+
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20])
     var
         SalesLine: Record "Sales Line";
@@ -206,6 +326,40 @@ codeunit 137209 "SCM Get Item Entries"
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         for Counter := 1 to 2 do
             LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateSalesOrderWithItemCharge(Item: Record Item; ItemCharge: Record "Item Charge"; Amount: Decimal): Code[20]
+    var
+        CompanyInformation: Record "Company Information";
+        CountryRegion: Record "Country/Region";
+        Customer: Record Customer;
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        CompanyInformation.FindFirst;
+        CountryRegion.SetFilter(Code, '<>%1&<>%2', CompanyInformation."Country/Region Code", Item."Country/Region of Origin Code");
+        CountryRegion.FindFirst;
+        Customer.Validate("Country/Region Code", CountryRegion.Code);
+        Customer.Modify(true);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        SalesLine.Validate("Unit Price", Amount);
+        SalesLine.Modify(true);
+
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", ItemCharge."No.", 1);
+        SalesLine.Validate("Unit Price", Amount);
+        SalesLine.Modify(true);
+        LibrarySales.CreateItemChargeAssignment(
+          ItemChargeAssignmentSales, SalesLine, ItemCharge, SalesHeader."Document Type"::Order, SalesHeader."No.", 10000, Item."No.", 1, Amount);
+        ItemChargeAssignmentSales.Insert();
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        exit(SalesHeader."Last Shipping No.");
     end;
 
     local procedure CreatePurchOrder(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20])
@@ -217,6 +371,41 @@ codeunit 137209 "SCM Get Item Entries"
         for Counter := 1 to 2 do
             LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem,
               LibraryRandom.RandInt(10));
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreatePurchOrderWithItemCharge(Item: Record Item; ItemCharge: Record "Item Charge"; Amount: Decimal): Code[20]
+    var
+        CompanyInformation: Record "Company Information";
+        CountryRegion: Record "Country/Region";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        CompanyInformation.FindFirst;
+        CountryRegion.SetFilter(Code, '<>%1&<>%2', CompanyInformation."Country/Region Code", Item."Country/Region of Origin Code");
+        CountryRegion.FindFirst;
+        Vendor.Validate("Country/Region Code", 'FR');
+        Vendor.Modify(true);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", Amount);
+        PurchaseLine.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", ItemCharge."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", Amount);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.CreateItemChargeAssignment(
+          ItemChargeAssignmentPurch, PurchaseLine, ItemCharge, PurchaseHeader."Document Type"::Order, PurchaseHeader."No.",
+          10000, Item."No.", 1, Amount);
+        ItemChargeAssignmentPurch.Insert();
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        exit(PurchaseHeader."Last Receiving No.");
     end;
 
     local procedure CreateAndPostDocument(var DocumentType: Option; var DocumentNo: Code[20]; Type: Option)
@@ -350,6 +539,16 @@ codeunit 137209 "SCM Get Item Entries"
                 end;
             end;
         until ItemLedgerEntry.Next = 0;
+    end;
+
+    [Scope('OnPrem')]
+    procedure VerifyStatisticalValueInIntrastatLine(DocNo: Code[20]; Amount: Decimal)
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        IntrastatJnlLine.SetFilter("Document No.", DocNo);
+        IntrastatJnlLine.FindFirst;
+        IntrastatJnlLine.TestField("Statistical Value", Amount);
     end;
 }
 

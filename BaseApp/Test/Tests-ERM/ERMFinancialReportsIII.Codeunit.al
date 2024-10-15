@@ -49,7 +49,7 @@ codeunit 134987 "ERM Financial Reports III"
         AmountToApplyDiscTolSalesTxt: Label 'Amount_to_Apply____AmountDiscounted___AmountPmtDiscTolerance___AmountPmtTolerance_';
         AmountToApplyDiscTolPurchTxt: Label 'Amount_to_Apply____AmountDiscounted___AmountPmtDiscTolerance___AmountPmtTolerance__Control3036';
         AmountTotalDiscTolAppliedTxt: Label 'Amount___TotalAmountDiscounted___TotalAmountPmtDiscTolerance___TotalAmountPmtTolerance___AmountApplied';
-        FormatTok: Label '<Precision,%1:%2><Standard Format,1>', Locked = true;
+        FormatTok: Label '**<Sign><Integer>-<Decimals,3>**', Locked = true;
 
     [Test]
     [HandlerFunctions('BalanceCompPrevYearReqPageHandler')]
@@ -362,7 +362,7 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryReportDataset.AssertCurrentRowValueEquals('Amt_BankAccStmtLineStmt', BankAccountStatementLine."Statement Amount");
     end;
 
-    // [Test]
+    [Test]
     [Scope('OnPrem')]
     procedure AmountTextOnCheckPreview()
     var
@@ -471,7 +471,7 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryReportDataset.GetNextRow;
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler')]
     [Scope('OnPrem')]
     procedure AmountTextOnCheckPreviewWithCurrency()
@@ -1001,6 +1001,7 @@ codeunit 134987 "ERM Financial Reports III"
               Customer."No.", PaymentAmount, "Bank Payment Type"::"Computer Check");
             Validate("Applies-to ID", UserId);
             Modify(true);
+
             // [GIVEN] MaxEntries number of Purchases Gen. Jnl Lines posted
             CreateAndPostGenJournalLines(
               GenJournalTemplate.Type::Purchases, PAGE::"Purchase Journal",
@@ -1745,19 +1746,15 @@ codeunit 134987 "ERM Financial Reports III"
 
     local procedure VerifyCheckTotalAmount(InvoiceAmount: Decimal; CrMemoAmount: Decimal)
     var
-        DotNetMath: DotNet Math;
-        FormatString: Text;
+        ExpectedResult: Text;
     begin
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('TotalText', 'Total');
         Assert.IsTrue(LibraryReportDataset.GetNextRow, StrSubstNo(RowNotFoundErr, 'TotalText', 'Total'));
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalLineAmount', InvoiceAmount - CrMemoAmount);
-        FormatString :=
-          StrSubstNo(
-            FormatTok,
-            DotNetMath.Log10(1 / LibraryERM.GetAmountRoundingPrecision),
-            DotNetMath.Log10(1 / LibraryERM.GetAmountRoundingPrecision));
-        LibraryReportDataset.AssertCurrentRowValueEquals('CheckAmountText', Format(InvoiceAmount - CrMemoAmount, 0, FormatString));
+        ExpectedResult := Format(InvoiceAmount - CrMemoAmount, 0, FormatTok);
+        ExpectedResult := DelChr(ExpectedResult, '=', '.');
+        LibraryReportDataset.AssertCurrentRowValueEquals('CheckAmountText', ExpectedResult);
     end;
 
     local procedure VerifyInvAndPmtDiscInPreCheckReport(AmountToApplyDiscTolCap: Text; InvAmount: Decimal; PmtDiscAmount: Decimal)

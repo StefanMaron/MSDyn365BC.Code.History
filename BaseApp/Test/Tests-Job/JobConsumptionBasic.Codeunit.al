@@ -643,7 +643,16 @@ codeunit 136300 "Job Consumption Basic"
     end;
 
     local procedure CreateSingleLinePurchDocWithVendorAndItem(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; PurchaseDocumentType: Option; VendorNo: Code[20]; ItemNo: Code[20]; Qty: Decimal)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
     begin
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Reverse Charge VAT Posting Gr.", VATBusinessPostingGroup.Code);
+        PurchasesPayablesSetup.Modify();
+
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseDocumentType, VendorNo);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Qty);
     end;

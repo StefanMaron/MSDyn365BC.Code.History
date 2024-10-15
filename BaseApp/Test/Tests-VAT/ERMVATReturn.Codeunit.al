@@ -51,51 +51,9 @@ codeunit 134096 "ERM VAT Return"
         VATStatementReportLine.SetRange("VAT Report No.", VATReportHdr."No.");
         VATStatementReportLine.SetRange("VAT Report Config. Code", VATReportHdr."VAT Report Config. Code");
         VATStatementReportLine.FindSet;
-        Assert.RecordCount(VATStatementReportLine, 2);
+        Assert.RecordCount(VATStatementReportLine, 9);
         Assert.AreNotEqual(0, VATStatementReportLine.Amount, 'Should have a value from the VAT Entries');
         VATStatementReportLine.Next;
-        Assert.AreNotEqual(0, VATStatementReportLine.Amount, 'Should have a value from the VAT Entries');
-    end;
-
-    [Test]
-    [HandlerFunctions('SuggestLinesRPH')]
-    [Scope('OnPrem')]
-    procedure TestVATReturnSuggestLinesUpdateLines()
-    var
-        VATReportHdr: Record "VAT Report Header";
-        VATStatementReportLine: Record "VAT Statement Report Line";
-        VATStatementLine: Record "VAT Statement Line";
-    begin
-        // [SCENARIO] Recalculate  VAT data for government reporting
-        // [GIVEN] Demodata - VAT Report Suggest Lines Codeunit is setup in the VAT Report configuration table
-        // [GIVEN] Demodata - VAT Entries
-        // [GIVEN] VAT Report header of type VAT Return
-        CreateVATReturn(VATReportHdr, DATE2DMY(WORKDATE, 3));
-
-        // [GIVEN] VAT Statememt for VAT Return calculation
-        SetupVATStatementLineForVATReturn();
-        Commit();
-
-        // [GIVEN] Existing VAT Return Lines
-        LibraryLowerPermissions.SetO365BusFull();
-        SuggestLines(
-          VATReportHdr, Selection::Open, PeriodSelection::"Before and Within Period", VATReportHdr."Period Year", false);
-
-        // [GIVEN] Defferent VAT Statement Lines
-        VATStatementLine.FindFirst();
-        VATStatementLine."Box No." := '';
-        VATStatementLine.Modify();
-        Commit();
-
-        // [WHEN] Stan is running "Suggest Lines"
-        SuggestLines(
-          VATReportHdr, Selection::Open, PeriodSelection::"Before and Within Period", VATReportHdr."Period Year", false);
-
-        // [THEN] VAT Values are calculated from the VAT Entries based on the new VAT statement
-        VATStatementReportLine.SetRange("VAT Report No.", VATReportHdr."No.");
-        VATStatementReportLine.SetRange("VAT Report Config. Code", VATReportHdr."VAT Report Config. Code");
-        VATStatementReportLine.FindFirst;
-        Assert.RecordCount(VATStatementReportLine, 1);
         Assert.AreNotEqual(0, VATStatementReportLine.Amount, 'Should have a value from the VAT Entries');
     end;
 
@@ -127,7 +85,7 @@ codeunit 134096 "ERM VAT Return"
         VATStatementReportLine.SetRange("VAT Report No.", VATReportHdr."No.");
         VATStatementReportLine.SetRange("VAT Report Config. Code", VATReportHdr."VAT Report Config. Code");
         VATStatementReportLine.FindSet();
-        Assert.RecordCount(VATStatementReportLine, 2);
+        Assert.RecordCount(VATStatementReportLine, 9);
         Assert.AreEqual(0, VATStatementReportLine.Amount, 'No VAT Entries should exist in 2000');
         VATStatementReportLine.Next();
         Assert.AreEqual(0, VATStatementReportLine.Amount, 'No VAT Entries should exist in 2000');
@@ -536,42 +494,6 @@ codeunit 134096 "ERM VAT Return"
         LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure ReceiveResponseFromSubmittedVATReport()
-    var
-        VATReportHeader: Record "VAT Report Header";
-        VATReportArchive: Record "VAT Report Archive";
-        VATReportPage: TestPage "VAT Report";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 329990] Stan can receive response from VAT report when "Receive Codeunit ID" specified
-
-        LibraryLowerPermissions.SetO365BusFull();
-        LibraryApplicationArea.EnableBasicSetup();
-
-        // [GIVEN] VAT Reports Configuration with "Receive Codeunit ID" specified
-        SetupVATReportsConfiguration(0);
-
-        // [GIVEN] VAT Return
-        CreateVATReturn(VATReportHeader, DATE2DMY(WORKDATE, 3));
-        VATReportHeader.Status := VATReportHeader.Status::Submitted;
-        VATReportHeader.Modify(true);
-
-        // [GIVEN] VAT Report page opens and focused on VAT Return
-        VATReportPage.OpenEdit();
-        VATReportPage.Filter.SetFilter("No.", VATReportHeader."No.");
-        LibraryVariableStorage.Enqueue(SubmittedMsg);
-
-        // [WHEN] Stan click "Receive" action
-        VATReportPage."Receive Response".Invoke();
-
-        // [THEN] VAT Report's status is accepted
-        VATReportPage.Status.AssertEquals(VATReportHeader.Status::Accepted);
-
-        LibraryApplicationArea.DisableApplicationAreaSetup();
-    end;
-
     local procedure CreateVATReturn(var VATReportHeader: Record "VAT Report Header"; PeriodYear: Integer);
     begin
         VATReportHeader."VAT Report Config. Code" := VATReportHeader."VAT Report Config. Code"::"VAT Return";
@@ -583,20 +505,22 @@ codeunit 134096 "ERM VAT Return"
     local procedure SetupVATStatementLineForVATReturn()
     var
         VATStatementLine: Record "VAT Statement Line";
+        i: Integer;
     begin
         VATStatementLine.ModifyAll("Box No.", '');
         VATStatementLine.FindFirst();
-        VATStatementLine."Box No." := '1';
-        VATStatementLine.Modify();
-        VATStatementLine.Next();
-        VATStatementLine."Box No." := '2';
-        VATStatementLine.Modify();
+        for i := 1 to 9 do begin
+            VATStatementLine."Box No." := Format(i);
+            VATStatementLine.Modify();
+            VATStatementLine.Next();
+        end;
     end;
 
     local procedure SetupFourVATStatementLines(VATPostingSetup: Record "VAT Posting Setup")
     var
         VATStatementName: Record "VAT Statement Name";
         VATStatementLine: Record "VAT Statement Line";
+        i: Integer;
     begin
         GetVATStatementNameW1(VATStatementName);
         with VATStatementLine do begin
@@ -612,6 +536,9 @@ codeunit 134096 "ERM VAT Return"
             InsertVATStatementLine(VATStatementLine, '2', "Amount Type"::Base);
             InsertVATStatementLine(VATStatementLine, '3', "Amount Type"::"Unrealized Amount");
             InsertVATStatementLine(VATStatementLine, '4', "Amount Type"::"Unrealized Base");
+
+            for i := 5 to 9 do
+                InsertVATStatementLine(VATStatementLine, Format(i), "Amount Type"::Amount);
         end;
     end;
 

@@ -143,6 +143,11 @@ table 5476 "Sales Invoice Line Aggregate"
                 UpdateLineDiscounts;
             end;
         }
+        field(5402; "Variant Code"; Code[10])
+        {
+            Caption = 'Variant Code';
+            TableRelation = IF (Type = CONST(Item)) "Item Variant".Code WHERE("Item No." = FIELD("No."));
+        }
         field(5407; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
@@ -161,6 +166,16 @@ table 5476 "Sales Invoice Line Aggregate"
         field(8001; Id; Text[50])
         {
             Caption = 'Id';
+        }
+        field(8002; "Variant Id"; Guid)
+        {
+            Caption = 'Variant Id';
+            TableRelation = IF (Type = CONST(Item)) "Item Variant".SystemId WHERE("Item No." = FIELD("No."));
+
+            trigger OnValidate()
+            begin
+                UpdateVariantCode();
+            end;
         }
         field(9020; "Tax Code"; Code[50])
         {
@@ -399,6 +414,19 @@ table 5476 "Sales Invoice Line Aggregate"
         UnitOfMeasure.SetRange(Id, "Unit of Measure Id");
         UnitOfMeasure.FindFirst;
         "Unit of Measure Code" := UnitOfMeasure.Code;
+    end;
+
+    local procedure UpdateVariantCode()
+    var
+        ItemVariant: Record "Item Variant";
+    begin
+        if IsNullGuid("Variant Id") then begin
+            Validate("Variant Code", '');
+            exit;
+        end;
+
+        if ItemVariant.GetBySystemId("Variant Id") then
+            "Variant Code" := ItemVariant.Code;
     end;
 
     procedure UpdateLineDiscounts()

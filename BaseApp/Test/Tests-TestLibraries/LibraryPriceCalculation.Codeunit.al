@@ -9,6 +9,7 @@ codeunit 130510 "Library - Price Calculation"
 
     var
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
+        LibraryRandom: Codeunit "Library - Random";
         LastHandlerId: Integer;
 
     procedure AddSetup(var PriceCalculationSetup: Record "Price Calculation Setup"; NewMethod: Enum "Price Calculation Method"; PriceType: Enum "Price Type"; AssetType: Enum "Price Asset Type"; NewImplementation: Integer; NewDefault: Boolean): Code[100];
@@ -123,6 +124,30 @@ codeunit 130510 "Library - Price Calculation"
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Price Calculation Method" := PurchasesPayablesSetup."Price Calculation Method"::"Lowest Price";
         PurchasesPayablesSetup.Modify();
+    end;
+
+    procedure CreatePriceLine(var PriceListLine: Record "Price List Line"; SourceType: Enum "Price Source Type"; SourceNo: code[20]; AssetType: enum "Price Asset Type"; AssetNo: Code[20])
+    begin
+        PriceListLine.Init();
+        PriceListLine.Validate("Source Type", SourceType);
+        PriceListLine.Validate("Source No.", SourceNo);
+        PriceListLine.Validate("Asset Type", AssetType);
+        PriceListLine.Validate("Asset No.", AssetNo);
+        PriceListLine.Validate("Amount Type", PriceListLine."Amount Type"::Price);
+        PriceListLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
+        PriceListLine.Insert();
+    end;
+
+    procedure CreateDiscountLine(var PriceListLine: Record "Price List Line"; SourceType: Enum "Price Source Type"; SourceNo: code[20]; AssetType: enum "Price Asset Type"; AssetNo: Code[20])
+    begin
+        PriceListLine.Init();
+        PriceListLine.Validate("Source Type", SourceType);
+        PriceListLine.Validate("Source No.", SourceNo);
+        PriceListLine.Validate("Asset Type", AssetType);
+        PriceListLine.Validate("Asset No.", AssetNo);
+        PriceListLine.Validate("Amount Type", PriceListLine."Amount Type"::Discount);
+        PriceListLine.Validate("Line Discount %", LibraryRandom.RandDec(100, 2));
+        PriceListLine.Insert();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Price Calculation Mgt.", 'OnIsExtendedPriceCalculationEnabled', '', false, false)]

@@ -491,42 +491,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Resource Reports - NamedType ValidationErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3866071794 - NamedType 1901726728" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The TestPage is already open.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheet - NamedType PageVerify)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3866071794 - NamedType 1874150315" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 Comments.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheet - NamedType TimeSheetComment)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3866071794 - NamedType 4247618665" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Time Sheet Line has not be deleted]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheet - NamedType TimeSheetLineExist)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3866071794 - NamedType 3693305505" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Blocked must be equal to 'No'  in Resource:]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheet - NamedType ResourceBlockedErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4122090376 - NamedType 2316870939" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Rolling back changes...]]></Val>

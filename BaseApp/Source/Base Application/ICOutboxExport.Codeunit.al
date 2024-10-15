@@ -5,9 +5,14 @@ codeunit 431 "IC Outbox Export"
     trigger OnRun()
     var
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnRunOnBeforeConfirmGetResponseOrDefault(IsHandled);
+        If not IsHandled then
         if not ConfirmManagement.GetResponseOrDefault(Text003, true) then
             exit;
+
         RunOutboxTransactions(Rec);
     end;
 
@@ -305,6 +310,11 @@ codeunit 431 "IC Outbox Export"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOutboxTransactionsOnBeforeSend(var ICOutboxTransaction: Record "IC Outbox Transaction")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeConfirmGetResponseOrDefault(var IsHandled: Boolean)
     begin
     end;
 

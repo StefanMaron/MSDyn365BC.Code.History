@@ -275,6 +275,7 @@ page 6512 "Item Tracking Code Card"
                 field("Man. Warranty Date Entry Reqd."; "Man. Warranty Date Entry Reqd.")
                 {
                     ApplicationArea = ItemTracking;
+                    Caption = 'Require Warranty Date Entry';
                     ToolTip = 'Specifies that a warranty date must be entered manually.';
                 }
                 field("Use Expiration Dates"; "Use Expiration Dates")
@@ -291,9 +292,9 @@ page 6512 "Item Tracking Code Card"
                 field("Man. Expir. Date Entry Reqd."; "Man. Expir. Date Entry Reqd.")
                 {
                     ApplicationArea = ItemTracking;
-                    Caption = 'Require Expiration Dates';
+                    Caption = 'Require Expiration Date Entry';
                     Editable = ManExpirDateEntryReqdEditable;
-                    ToolTip = 'Specifies that items that use this item tracking code must have expiration dates.';
+                    ToolTip = 'Specifies that items that use this item tracking code must have an expiration date, and that you must enter the expiration date manually. The date formula specified in the Expiration Calculation field on the item card will be ignored.';
                 }
                 field("Strict Expiration Posting"; "Strict Expiration Posting")
                 {

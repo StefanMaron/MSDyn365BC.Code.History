@@ -116,7 +116,7 @@ report 188 "Create Reminders"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Only Entries with Overdue Amounts';
                         MultiLine = true;
-                        ToolTip = 'Specifies if the batch job will only insert open entries that are overdue, meaning they have a due date earlier than the document date on the reminder header.';
+                        ToolTip = 'Specifies that the batch job will only insert open entries that are overdue for payments and invoices. Overdue open entries have a due date that is before the document date on the reminder.';
                     }
                     field(IncludeEntriesOnHold; IncludeEntriesOnHold)
                     {

@@ -1100,7 +1100,7 @@ codeunit 134480 "ERM Dimension General Part 2"
     end;
 
     [Test]
-    [HandlerFunctions('SalesAnalysisbyDimMatrixPeriodFiltersPageHandler')]
+    [HandlerFunctions('SalesAnalysisbyDimMatrixPeriodFiltersPageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure SalesAnalysisByDimMatrixPeriodFilters()
     var
@@ -1233,7 +1233,7 @@ codeunit 134480 "ERM Dimension General Part 2"
     end;
 
     [Test]
-    [HandlerFunctions('PurchAnalysisbyDimMatrixPeriodFiltersPageHandler')]
+    [HandlerFunctions('PurchAnalysisbyDimMatrixPeriodFiltersPageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure PurchaseAnalysisByDimMatrixPeriodFilters()
     var
