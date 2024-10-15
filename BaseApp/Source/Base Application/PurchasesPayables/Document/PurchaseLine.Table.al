@@ -5564,13 +5564,39 @@
 
     local procedure FindDefaultFADeprBook() Result: Boolean
     var
+        FASetup: Record "FA Setup";
         FADeprBook: Record "FA Depreciation Book";
         FixedAsset: Record "Fixed Asset";
+        DefaultFADeprBook: Record "FA Depreciation Book";
+        SetFADeprBook: Record "FA Depreciation Book";
     begin
         FixedAsset.Get("No.");
         "Depreciation Book Code" := FixedAsset.GetDefDeprBook;
         if not FADeprBook.Get("No.", "Depreciation Book Code") then
-            "Depreciation Book Code" := '';
+            "Depreciation Book Code" := '';        
+        if "Depreciation Book Code" = '' then begin
+            FASetup.Get();
+
+            DefaultFADeprBook.SetRange("FA No.", "No.");
+            DefaultFADeprBook.SetRange("Default FA Depreciation Book", true);
+
+            SetFADeprBook.SetRange("FA No.", "No.");
+
+            case true of
+                SetFADeprBook.Count = 1:
+                    begin
+                        SetFADeprBook.FindFirst();
+                        "Depreciation Book Code" := SetFADeprBook."Depreciation Book Code";
+                    end;
+                DefaultFADeprBook.FindFirst():
+                    "Depreciation Book Code" := DefaultFADeprBook."Depreciation Book Code";
+                FADeprBook.Get("No.", FASetup."Default Depr. Book"):
+                    "Depreciation Book Code" := FASetup."Default Depr. Book"
+                else
+                    "Depreciation Book Code" := '';
+            end;
+        end;
+
         Result := "Depreciation Book Code" <> '';
 
         OnAfterFindDefaultFADeprBook(Rec, Result);

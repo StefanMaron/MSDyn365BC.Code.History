@@ -433,6 +433,7 @@
                 case FieldRef of
                     FieldNo("Location Code"):
                         begin
+                            InvtDocLine.SuppressRecalculateDimensions(true);
                             InvtDocLine.Validate("Location Code", "Location Code");
                             InvtDocLine.Validate("Posting Date", "Posting Date");
                             InvtDocLine.Validate("Document Date", "Document Date");

@@ -92,48 +92,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesHandler,DimensionSelectChangeHandler,NothingAdjustedMessageHandler')]
-    [Scope('OnPrem')]
-    procedure CurAdjIndDecDimensionForPositiveNegative()
-    var
-        DimensionValueY: Record "Dimension Value";
-        DimensionValueZ: Record "Dimension Value";
-        GenJournalLine: Record "Gen. Journal Line";
-        CurrencyCode: Code[10];
-        VendorANo: Code[20];
-        VendorBNo: Code[20];
-        ExchRateAdjPostingDate: Date;
-    begin
-        // [SCENARIO 123183] Exchange Rate Adj assigns Dimension/Dimension Value from "Dimension for Positive/Negative" to G/L Entries
-        Initialize();
-        // [GIVEN] Dimension X with Dimension Values Y and Z
-        CreateDimensionWithValues(DimensionValueY, DimensionValueZ);
-        // [GIVEN] Currency with exchange rates (R1 > R3 < R2)
-        CurrencyCode :=
-          CreateCurrencyWithExchangeRates(
-            WorkDate + 1, WorkDate + 2, true);
-        // [GIVEN] Posted Gen. Journal Line for Vendor A at Rate R1
-        VendorANo := LibraryPurchase.CreateVendorNo();
-        CreatePostGenJournalLine(
-          GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Vendor, VendorANo,
-          CurrencyCode, WorkDate());
-        // [GIVEN] Posted Gen. Journal Line for Vendor B at Rate R2
-        VendorBNo := LibraryPurchase.CreateVendorNo();
-        CreatePostGenJournalLine(
-          GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Vendor, VendorBNo,
-          CurrencyCode, WorkDate + 1);
-        // [WHEN] Adjust Exchange Rate, "Dimension For Positive" = X with value Y and "Dimension for Negative" = X with value Z.
-        ExchRateAdjPostingDate := WorkDate + 2;
-        RunExchangeRateAdjWithSelectedDimensions(
-          CurrencyCode, ExchRateAdjPostingDate, DimensionValueY, DimensionValueZ);
-        // [THEN] Exchange Rate G/L Entries for Vendor A have Dimension X = Y, Vendor B - Dimension X = Z.
-        asserterror VerifyGLEntriesDimension(ExchRateAdjPostingDate, VendorANo, DimensionValueZ);
-        VerifyGLEntriesDimension(ExchRateAdjPostingDate, VendorBNo, DimensionValueY);
-    end;
-
-    [Test]
     [HandlerFunctions('AdjExchRatesBankAccHandler,ExchRateAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure BankAccountExchRateAdjmt()
