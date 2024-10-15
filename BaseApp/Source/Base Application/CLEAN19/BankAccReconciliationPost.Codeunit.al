@@ -1,4 +1,4 @@
-﻿#if CLEAN19
+#if CLEAN19
 codeunit 370 "Bank Acc. Reconciliation Post"
 {
     Permissions = TableData "Bank Account Ledger Entry" = rm,
@@ -561,6 +561,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
                 BankAccountLedgerEntry.SetRange("Document Type", GenJnlLine."Document Type");
                 BankAccountLedgerEntry.SetRange("Document No.", PostedStamentNo);
                 BankAccountLedgerEntry.SetRange("Posting Date", GenJnlLine."Posting Date");
+                OnPostPaymentApplicationsOnAfterBankAccountLedgerEntrySetFilters(BankAccountLedgerEntry, GenJnlLine);
                 if BankAccountLedgerEntry.FindLast() then begin
                     BankAccountLedgerEntry."Statement No." := PostedStamentNo;
                     BankAccountLedgerEntry."Statement Line No." := BankAccReconLine."Statement Line No.";
@@ -921,6 +922,11 @@ codeunit 370 "Bank Acc. Reconciliation Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostPaymentApplicationsOnAfterPostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostPaymentApplicationsOnAfterBankAccountLedgerEntrySetFilters(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 

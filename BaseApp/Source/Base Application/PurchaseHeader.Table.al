@@ -17,6 +17,7 @@
 
             trigger OnValidate()
             begin
+                OnBeforeValidateBuyFromVendorNo(Rec, xRec, CurrFieldNo, SkipBuyFromContact);
                 if "No." = '' then
                     InitRecord();
                 TestStatusOpen();
@@ -75,9 +76,12 @@
                 // NAVCZ
                 "Order Address Code" := Vend."Default Order Address Code";
 #if not CLEAN18
-                Validate("Transaction Type", Vend."Transaction Type");
-                Validate("Transaction Specification", Vend."Transaction Specification");
-                Validate("Transport Method", Vend."Transport Method");
+                if (Vend."Transaction Type" <> '') and (Vend."Transaction Type" <> "Transaction Type") then
+                    Validate("Transaction Type", Vend."Transaction Type");
+                if Vend."Transaction Specification" <> "Transaction Specification" then
+                    Validate("Transaction Specification", Vend."Transaction Specification");
+                if Vend."Transport Method" <> "Transport Method" then
+                    Validate("Transport Method", Vend."Transport Method");
 #endif
                 // NAVCZ
 #endif
@@ -121,7 +125,7 @@
                 if not SkipBuyFromContact then
                     UpdateBuyFromCont("Buy-from Vendor No.");
 
-                OnValidateBuyFromVendorNoOnAfterUpdateBuyFromCont(Rec, xRec);
+                OnValidateBuyFromVendorNoOnAfterUpdateBuyFromCont(Rec, xRec, CurrFieldNo, SkipBuyFromContact);
 
                 if (xRec."Buy-from Vendor No." <> '') and (xRec."Buy-from Vendor No." <> "Buy-from Vendor No.") then
                     RecallModifyAddressNotification(GetModifyVendorAddressNotificationId);
@@ -459,6 +463,7 @@
                 then
                     PriceMessageIfPurchLinesExist(FieldCaption("Posting Date"));
 
+                OnValidatePostingDateOnBeforeResetInvoiceDiscountValue(Rec, xRec);
                 ResetInvoiceDiscountValue();
 
                 if "Currency Code" <> '' then begin
@@ -1100,8 +1105,10 @@
                 if (xRec."Buy-from Vendor No." = "Buy-from Vendor No.") and
                    (xRec."Gen. Bus. Posting Group" <> "Gen. Bus. Posting Group")
                 then begin
-                    if GenBusPostingGrp.ValidateVatBusPostingGroup(GenBusPostingGrp, "Gen. Bus. Posting Group") then
+                    if GenBusPostingGrp.ValidateVatBusPostingGroup(GenBusPostingGrp, "Gen. Bus. Posting Group") then begin
                         "VAT Bus. Posting Group" := GenBusPostingGrp."Def. VAT Bus. Posting Group";
+                        OnValidateGenBusPostingGroupOnAfterSetVATBusPostingGroup(Rec, xRec, GenBusPostingGrp);
+                    end;
                     RecreatePurchLines(FieldCaption("Gen. Bus. Posting Group"));
                 end;
             end;
@@ -2114,8 +2121,8 @@
                         if ContBusinessRelation."Contact No." <> Cont."Company No." then
                             Error(Text038, Cont."No.", Cont.Name, "Buy-from Vendor No.");
                 end;
-
-                UpdateBuyFromVend("Buy-from Contact No.");
+                if ("Buy-from Contact No." <> xRec."Buy-from Contact No.") then
+                    UpdateBuyFromVend("Buy-from Contact No.");
             end;
         }
         field(5053; "Pay-to Contact No."; Code[20])
@@ -2240,7 +2247,14 @@
             Caption = 'Requested Receipt Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateRequestedReceiptDate(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Promised Receipt Date" <> 0D then
                     Error(
                       Text034,
@@ -3863,6 +3877,7 @@
         PurchLineReserve: Codeunit "Purch. Line-Reserve";
         Question: Text[250];
         IsHandled: Boolean;
+        ShouldConfirmReservationDateConflict: Boolean;
     begin
         IsHandled := false;
         OnBeforeUpdatePurchLinesByFieldNo(Rec, ChangedFieldNo, AskQuestion, IsHandled);
@@ -3878,15 +3893,16 @@
         if AskQuestion then begin
             Question := StrSubstNo(Text032, Field."Field Caption");
             if GuiAllowed then
-                if DIALOG.Confirm(Question, true) then
-                    case ChangedFieldNo of
-                        FieldNo("Expected Receipt Date"),
+                if DIALOG.Confirm(Question, true) then begin
+                    ShouldConfirmReservationDateConflict := ChangedFieldNo in [FieldNo("Expected Receipt Date"),
                         FieldNo("Requested Receipt Date"),
                         FieldNo("Promised Receipt Date"),
                         FieldNo("Lead Time Calculation"),
-                        FieldNo("Inbound Whse. Handling Time"):
-                            ConfirmReservationDateConflict(ChangedFieldNo);
-                    end
+                        FieldNo("Inbound Whse. Handling Time")];
+                    OnUpdatePurchLinesByFieldNoOnAfterCalcShouldConfirmReservationDateConflict(Rec, ChangedFieldNo, ShouldConfirmReservationDateConflict);
+                    if ShouldConfirmReservationDateConflict then
+                        ConfirmReservationDateConflict(ChangedFieldNo);
+                end
                 else
                     exit;
         end;
@@ -4461,7 +4477,7 @@
         OldDimSetID := "Dimension Set ID";
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            "Dimension Set ID", StrSubstNo('%1 %2', "Document Type", "No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2', "Document Type", "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         OnShowDocDimOnAfterSetDimensionSetID(Rec, xRec);
 
@@ -4847,7 +4863,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeAddSpecialOrderToAddress(Rec, SalesHeader, IsHandled);
+        OnBeforeAddSpecialOrderToAddress(Rec, SalesHeader, IsHandled, ShowError);
         if IsHandled then
             exit;
 
@@ -4871,6 +4887,8 @@
                     Error(Text052, FieldCaption("Ship-to Contact"), "No.", SalesHeader."No.");
             end else
                 SetShipToForSpecOrder();
+
+        OnAfterAddSpecialOrderToAddress(Rec, SalesHeader, ShowError);
     end;
 
 #if not CLEAN19
@@ -5758,7 +5776,13 @@
         DocumentSendingProfile: Record "Document Sending Profile";
         ReportSelections: Record "Report Selections";
         DocTxt: Text[150];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSendRecords(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         CheckMixedDropShipment;
         OnSendRecordsOnAfterCheckMixedDropShipment(Rec);
 
@@ -5809,19 +5833,23 @@
     local procedure HasMixedDropShipment(): Boolean
     var
         PurchaseLine: Record "Purchase Line";
-        HasDropShipmentLines: Boolean;
     begin
         PurchaseLine.SetRange("Document Type", "Document Type");
         PurchaseLine.SetRange("Document No.", "No.");
         PurchaseLine.SetFilter("No.", '<>%1', '');
         PurchaseLine.SetFilter(Type, '%1|%2', PurchaseLine.Type::Item, PurchaseLine.Type::"Fixed Asset");
         PurchaseLine.SetRange("Drop Shipment", true);
-
-        HasDropShipmentLines := not PurchaseLine.IsEmpty;
+        if PurchaseLine.IsEmpty() then
+            exit(false);
 
         PurchaseLine.SetRange("Drop Shipment", false);
+        if PurchaseLine.FindSet() then
+            repeat
+                if PurchaseLine.IsInventoriableItem() or (PurchaseLine.Type = PurchaseLine.Type::"Fixed Asset") then
+                    exit(true);
+            until PurchaseLine.Next() = 0;
 
-        exit(HasDropShipmentLines and not PurchaseLine.IsEmpty);
+        exit(false);
     end;
 
     local procedure SetDefaultPurchaser()
@@ -6115,26 +6143,28 @@
             end;
     end;
 
-    local procedure HasDifferentBuyFromAddress(Vendor: Record Vendor): Boolean
+    local procedure HasDifferentBuyFromAddress(Vendor: Record Vendor) Result: Boolean
     begin
-        exit(("Buy-from Address" <> Vendor.Address) or
+        Result := ("Buy-from Address" <> Vendor.Address) or
           ("Buy-from Address 2" <> Vendor."Address 2") or
           ("Buy-from City" <> Vendor.City) or
           ("Buy-from Country/Region Code" <> Vendor."Country/Region Code") or
           ("Buy-from County" <> Vendor.County) or
           ("Buy-from Post Code" <> Vendor."Post Code") or
-          ("Buy-from Contact" <> Vendor.Contact));
+          ("Buy-from Contact" <> Vendor.Contact);
+        OnAfterHasDifferentBuyFromAddress(Rec, Vendor, Result);
     end;
 
-    local procedure HasDifferentPayToAddress(Vendor: Record Vendor): Boolean
+    local procedure HasDifferentPayToAddress(Vendor: Record Vendor) Result: Boolean
     begin
-        exit(("Pay-to Address" <> Vendor.Address) or
+        Result := ("Pay-to Address" <> Vendor.Address) or
           ("Pay-to Address 2" <> Vendor."Address 2") or
           ("Pay-to City" <> Vendor.City) or
           ("Pay-to Country/Region Code" <> Vendor."Country/Region Code") or
           ("Pay-to County" <> Vendor.County) or
           ("Pay-to Post Code" <> Vendor."Post Code") or
-          ("Pay-to Contact" <> Vendor.Contact));
+          ("Pay-to Contact" <> Vendor.Contact);
+        OnAfterHasDifferentPayToAddress(Rec, Vendor, Result);
     end;
 
     procedure SetWarnZeroQuantityPurchasePosting()
@@ -6797,6 +6827,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterHasDifferentBuyFromAddress(var PurchaseHeader: Record "Purchase Header"; Vendor: Record Vendor; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHasDifferentPayToAddress(var PurchaseHeader: Record "Purchase Header"; Vendor: Record Vendor; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetFullDocTypeTxt(var PurchaseHeader: Record "Purchase Header"; var FullDocTypeTxt: Text; var IsHandled: Boolean)
     begin
     end;
@@ -6818,6 +6858,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAddShipToAddress(var PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header"; ShowError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddSpecialOrderToAddress(var PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header"; ShowError: Boolean)
     begin
     end;
 
@@ -6992,6 +7037,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdatePurchLinesByFieldNoOnAfterCalcShouldConfirmReservationDateConflict(var PurchaseHeader: Record "Purchase Header"; ChangedFieldNo: Integer; var ShouldConfirmReservationDateConflict: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdatePurchLinesByChangedFieldName(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; ChangedFieldName: Text[100]; ChangedFieldNo: Integer)
     begin
     end;
@@ -7027,7 +7077,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAddSpecialOrderToAddress(var PurchaseHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnValidatePostingDateOnBeforeResetInvoiceDiscountValue(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddSpecialOrderToAddress(var PurchaseHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; ShowError: Boolean)
     begin
     end;
 
@@ -7237,6 +7292,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSendRecords(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSetDefaultPurchaser(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
@@ -7278,6 +7338,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateShipToAddress(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateBuyFromVendorNo(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CallingFieldNo: Integer; var SkipBuyFromContact: Boolean)
     begin
     end;
 
@@ -7400,7 +7465,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateBuyFromVendorNoOnAfterUpdateBuyFromCont(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header")
+    local procedure OnValidateBuyFromVendorNoOnAfterUpdateBuyFromCont(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CallingFieldNo: Integer; var SkipBuyFromContact: Boolean)
     begin
     end;
 
@@ -7660,6 +7725,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateRequestedReceiptDate(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBlockedVendOnDocs(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var Vend: Record Vendor; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -7716,6 +7786,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidatePrepmtPaymentTermsCodeOnCaseIfOnBeforeValidatePrepaymentDueDate(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateGenBusPostingGroupOnAfterSetVATBusPostingGroup(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; GenBusPostingGrp: Record "Gen. Business Posting Group")
     begin
     end;
 

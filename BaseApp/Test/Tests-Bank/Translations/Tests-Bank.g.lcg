@@ -59,6 +59,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Bank Account - NamedType IBANConfirmationMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4098524687 - NamedType 1532047641" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[OnNextRecord returned incorrect Steps parameter.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Bank Account - NamedType OnNextRecordStepsErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4098524687 - NamedType 294898590" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong number in the field IBAN.]]></Val>

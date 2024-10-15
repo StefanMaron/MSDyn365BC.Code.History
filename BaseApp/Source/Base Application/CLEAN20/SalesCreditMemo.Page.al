@@ -1533,6 +1533,8 @@ page 44 "Sales Credit Memo"
         IsCustomerOrContactNotEmpty := ("Sell-to Customer No." <> '') or ("Sell-to Contact No." <> '');
 
         WorkflowWebhookMgt.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
+
+        OnAfterSetControlAppearance(Rec);
     end;
 
     local procedure CheckSalesCheckAllLinesHaveQuantityAssigned()
@@ -1559,6 +1561,25 @@ page 44 "Sales Credit Memo"
         IsPostingGroupEditable := SalesSetup."Allow Multiple Posting Groups";
     end;
 
+<<<<<<< App/Layers/CZ/BaseApp/CLEAN20/SalesCreditMemo.Page.al
+||||||| Base: App/Layers/W1/BaseApp/SalesCreditMemo.Page.al
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnAfterGetRecord(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+=======
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnAfterGetRecord(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetControlAppearance(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+>>>>>>> App/Layers/W1/BaseApp/SalesCreditMemo.Page.al
     [IntegrationEvent(false, false)]
     local procedure OnBeforeStatisticsAction(var SalesHeader: Record "Sales Header"; var Handled: Boolean)
     begin

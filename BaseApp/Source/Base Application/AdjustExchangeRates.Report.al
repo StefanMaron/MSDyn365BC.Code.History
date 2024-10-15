@@ -1,10 +1,10 @@
-#if not CLEAN18
+﻿#if not CLEAN18
 report 595 "Adjust Exchange Rates"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './AdjustExchangeRates.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Adjust Exchange Rates (Obsolete)';
+    Caption = 'Adjust Exchange Rates';
     Permissions = TableData "Cust. Ledger Entry" = rimd,
                   TableData "Vendor Ledger Entry" = rimd,
                   TableData "Exch. Rate Adjmt. Reg." = rimd,
@@ -12,9 +12,6 @@ report 595 "Adjust Exchange Rates"
                   TableData "Detailed Cust. Ledg. Entry" = rimd,
                   TableData "Detailed Vendor Ledg. Entry" = rimd;
     UsageCategory = Tasks;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-    ObsoleteTag = '18.0';
 
     dataset
     {
@@ -1972,6 +1969,8 @@ report 595 "Adjust Exchange Rates"
                 GenJnlLine."Shortcut Dimension 1 Code", GenJnlLine."Shortcut Dimension 2 Code",
                 GenJnlLine."Dimension Set ID", 0);
         DimMgt.GetDimensionSet(DimSetEntry, DimSetID);
+
+        OnAfterGetJnlLineDefDim(GenJnlLine, DimSetEntry);
     end;
 
     local procedure CopyDimSetEntryToDimBuf(var DimSetEntry: Record "Dimension Set Entry"; var DimBuf: Record "Dimension Buffer")
@@ -2849,6 +2848,11 @@ report 595 "Adjust Exchange Rates"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetJnlLineDefDim(var GenJnlLine: Record "Gen. Journal Line"; var DimSetEntry: Record "Dimension Set Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitDtldCustLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
     begin
     end;
@@ -2915,7 +2919,7 @@ report 595 "Adjust Exchange Rates"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforePostGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; var DimSetEntry: Record "Dimension Set Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var Result: Integer; var IsHandled: Boolean)
     begin
     end;

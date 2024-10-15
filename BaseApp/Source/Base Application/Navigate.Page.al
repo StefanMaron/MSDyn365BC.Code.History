@@ -1,4 +1,4 @@
-#if not CLEAN19
+﻿#if not CLEAN19
 page 344 Navigate
 {
     AdditionalSearchTerms = 'find,search,analyze,navigate';
@@ -1007,6 +1007,7 @@ page 344 Navigate
             VATEntry.SetCurrentKey("Document No.", "Posting Date");
             VATEntry.SetFilter("Document No.", DocNoFilter);
             VATEntry.SetFilter("Posting Date", PostingDateFilter);
+            OnFindVATEntriesOnAfterVATEntrySetFilters(VATEntry, DocNoFilter, PostingDateFilter);
             InsertIntoDocEntry(Rec, DATABASE::"VAT Entry", VATEntry.TableCaption, VATEntry.Count);
         end;
     end;
@@ -1553,7 +1554,7 @@ page 344 Navigate
 
     local procedure UpdateFormAfterFindRecords()
     begin
-        OnBeforeUpdateFormAfterFindRecords();
+        OnBeforeUpdateFormAfterFindRecords(PostingDateFilter);
 
         DocExists := Rec.FindFirst();
         ShowEnable := DocExists;
@@ -2570,12 +2571,17 @@ page 344 Navigate
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeUpdateFormAfterFindRecords()
+    local procedure OnBeforeUpdateFormAfterFindRecords(var PostingDateFilter: Text)
     begin
     end;
 
     [IntegrationEvent(true, false)]
     local procedure OnFindExtRecordsOnAfterSetSalesCrMemoFilter(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindVATEntriesOnAfterVATEntrySetFilters(var VATEntry: Record "VAT Entry"; DocNoFilter: Text; PostingDateFilter: Text)
     begin
     end;
 

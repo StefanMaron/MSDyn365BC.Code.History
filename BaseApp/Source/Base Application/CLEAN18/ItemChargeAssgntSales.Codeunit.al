@@ -1,4 +1,4 @@
-﻿#if CLEAN18
+#if CLEAN18
 codeunit 5807 "Item Charge Assgnt. (Sales)"
 {
     Permissions = TableData "Sales Header" = r,
@@ -228,7 +228,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeAssignItemCharges(SalesLine, TotalQtyToAssign, TotalAmtToAssign, IsHandled);
+        OnBeforeAssignItemCharges(SalesLine, TotalQtyToAssign, TotalAmtToAssign, IsHandled, SelectionTxt);
         if IsHandled then
             exit;
 
@@ -667,7 +667,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAssignItemCharges(var SalesLine: Record "Sales Line"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeAssignItemCharges(var SalesLine: Record "Sales Line"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; var IsHandled: Boolean; SelectionTxt: Text)
     begin
     end;
 

@@ -279,7 +279,7 @@
 #if not CLEAN20       
                     Visible = BackgroundValidationEnabled;
 #endif
-                    ToolTip = 'Specifies whether Business Central will validate the data you enter in documents and journals while you work. Messages will be shown in the Journal Check FactBox.';
+                    ToolTip = 'Specifies whether Business Central validates the data you enter in documents and journals while you type. For documents, you can turn on the check and messages will be shown in the Document Check FactBox. For journals, messages are always shown in the Journal Check FactBox.';
                 }
             }
             group(Control1900309501)

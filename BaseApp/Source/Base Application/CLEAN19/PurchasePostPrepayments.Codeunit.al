@@ -995,7 +995,7 @@ codeunit 444 "Purchase-Post Prepayments"
             "Orig. Pmt. Disc. Possible" := PurchLine."Prepmt. Pmt. Discount Amount";
         end;
 
-        OnAfterFillInvLineBuffer(PrepmtInvLineBuf, PurchLine, SuppressCommit);
+        OnAfterFillInvLineBuffer(PrepmtInvLineBuf, PurchLine, SuppressCommit, PurchHeader);
     end;
 
     local procedure InsertInvoiceRounding(PurchHeader: Record "Purchase Header"; var PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; TotalPrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; PrevLineNo: Integer): Boolean
@@ -1720,7 +1720,7 @@ codeunit 444 "Purchase-Post Prepayments"
     end;
 #endif
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFillInvLineBuffer(var PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; PurchLine: Record "Purchase Line"; CommitIsSuppressed: Boolean)
+    local procedure OnAfterFillInvLineBuffer(var PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; PurchLine: Record "Purchase Line"; CommitIsSuppressed: Boolean; PurchaseHeader: Record "Purchase Header")
     begin
     end;
 

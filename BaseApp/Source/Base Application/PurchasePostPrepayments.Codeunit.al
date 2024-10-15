@@ -1022,7 +1022,7 @@ codeunit 444 "Purchase-Post Prepayments"
                 "VAT Identifier" := '';
         end;
 
-        OnAfterFillInvLineBuffer(PrepmtInvLineBuf, PurchLine, SuppressCommit);
+        OnAfterFillInvLineBuffer(PrepmtInvLineBuf, PurchLine, SuppressCommit, PurchHeader);
     end;
 
     local procedure InitInvoiceRoundingLine(PurchHeader: Record "Purchase Header"; TotalAmount: Decimal; var PurchLine: Record "Purchase Line"): Boolean
@@ -1970,16 +1970,14 @@ codeunit 444 "Purchase-Post Prepayments"
     begin
     end;
 #endif
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateLinesOnBeforeGLPosting(var PurchaseHeader: Record "Purchase Header"; PurchInvHeader: Record "Purch. Inv. Header"; PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; var TempPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary; DocumentType: Option; var LastLineNo: Integer)
     begin
     end;
 
-#if not CLEAN20
-    [Obsolete('Temporary event for compatibility', '20.0')]
     [IntegrationEvent(false, false)]
-#endif
-    local procedure OnAfterFillInvLineBuffer(var PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; PurchLine: Record "Purchase Line"; CommitIsSuppressed: Boolean)
+    local procedure OnAfterFillInvLineBuffer(var PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; PurchLine: Record "Purchase Line"; CommitIsSuppressed: Boolean; PurchaseHeader: Record "Purchase Header")
     begin
     end;
 

@@ -367,12 +367,6 @@ report 31045 "FA Phys. Inventory List"
         actions
         {
         }
-
-        trigger OnOpenPage()
-        begin
-            FASetup.Get();
-            DeprBookCode := FASetup."Default Depr. Book";
-        end;
     }
 
     labels
@@ -393,7 +387,6 @@ report 31045 "FA Phys. Inventory List"
     end;
 
     var
-        FASetup: Record "FA Setup";
         FADeprBook: Record "FA Depreciation Book";
         PrintFAValues: Boolean;
         DocumentNo: Code[10];

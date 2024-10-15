@@ -1,4 +1,4 @@
-#if not CLEAN18
+﻿#if not CLEAN18
 page 46 "Sales Order Subform"
 {
     AutoSplitKey = true;
@@ -86,6 +86,7 @@ page 46 "Sales Order Subform"
                         ItemReferenceMgt.SalesReferenceNoLookup(Rec, SalesHeader);
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
+                        DeltaUpdateTotals();
 #if not CLEAN20
                         OnCrossReferenceNoOnLookup(Rec);
 #endif                        
@@ -306,6 +307,8 @@ page 46 "Sales Order Subform"
                     begin
                         QuantityOnAfterValidate();
                         DeltaUpdateTotals();
+                        if SalesSetup."Calc. Inv. Discount" and (Quantity = 0) then
+                            CurrPage.Update(false);
                     end;
                 }
                 field("Qty. to Assemble to Order"; "Qty. to Assemble to Order")
@@ -1267,7 +1270,7 @@ page 46 "Sales Order Subform"
                         ApplicationArea = ItemTracking;
                         Caption = 'Item &Tracking Lines';
                         Image = ItemTrackingLines;
-                        ShortCutKey = 'Ctrl+Alt+I'; 
+                        ShortCutKey = 'Ctrl+Alt+I';
                         Enabled = Type = Type::Item;
                         ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
 
@@ -1393,6 +1396,7 @@ page 46 "Sales Order Subform"
                             trigger OnAction()
                             begin
                                 RollupAsmPrice();
+                                CalculateTotals();
                             end;
                         }
                         action("Roll Up &Cost")
@@ -1406,6 +1410,7 @@ page 46 "Sales Order Subform"
                             trigger OnAction()
                             begin
                                 RollUpAsmCost();
+                                CalculateTotals();
                             end;
                         }
                     }
@@ -1869,6 +1874,8 @@ page 46 "Sales Order Subform"
 
     procedure NoOnAfterValidate()
     begin
+        OnBeforeNoOnAfterValidate(Rec, xRec);
+
         InsertExtendedText(false);
         if (Type = Type::"Charge (Item)") and ("No." <> xRec."No.") and
            (xRec."No." <> '')
@@ -1909,6 +1916,8 @@ page 46 "Sales Order Subform"
             AutoReserve();
             CurrPage.Update(false);
         end;
+
+        OnAfterLocationCodeOnAfterValidate(Rec, xRec);
     end;
 
     protected procedure ReserveOnAfterValidate()
@@ -2136,13 +2145,18 @@ page 46 "Sales Order Subform"
         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, DimIndex);
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterQuantityOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterLocationCodeOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
 
@@ -2161,13 +2175,18 @@ page 46 "Sales Order Subform"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeDeleteReservationEntries(var SalesLine: Record "Sales Line");
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertExtendedText(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
 

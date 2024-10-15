@@ -116,7 +116,13 @@ codeunit 7320 "Whse. Undo Quantity"
     procedure FindPostedWhseRcptLine(var PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; UndoType: Integer; UndoID: Code[20]; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer) Ok: Boolean
     var
         WhseManagement: Codeunit "Whse. Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindPostedWhseRcptLine(PostedWhseRcptLine, UndoType, UndoID, SourceType, SourceSubtype, SourceID, SourceRefNo, Ok, IsHandled);
+        if IsHandled then
+            exit(Ok);
+
         if not PostedWhseRcptLine.ReadPermission then
             exit;
         with PostedWhseRcptLine do begin
@@ -144,7 +150,13 @@ codeunit 7320 "Whse. Undo Quantity"
     var
         PostedWhseShptLine2: Record "Posted Whse. Shipment Line";
         WhseManagement: Codeunit "Whse. Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindPostedWhseShptLine(PostedWhseShptLine, UndoType, UndoID, SourceType, SourceSubtype, SourceID, SourceRefNo, Ok, IsHandled);
+        if IsHandled then
+            exit(Ok);
+
         if not PostedWhseShptLine.ReadPermission then
             exit;
         with PostedWhseShptLine do begin
@@ -517,6 +529,16 @@ codeunit 7320 "Whse. Undo Quantity"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetWhseRcptLineSpacing(OldPostedWhseRcptLine: Record "Posted Whse. Receipt Line"; var NewPostedWhseRcptLine: Record "Posted Whse. Receipt Line"; var LineSpacing: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindPostedWhseRcptLine(var PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; UndoType: Integer; UndoID: Code[20]; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer; var Ok: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindPostedWhseShptLine(var PostedWhseShptLine: Record "Posted Whse. Shipment Line"; UndoType: Integer; UndoID: Code[20]; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer; var Ok: Boolean; var IsHandled: Boolean)
     begin
     end;
 

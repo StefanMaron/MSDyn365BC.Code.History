@@ -518,34 +518,36 @@ page 43 "Sales Invoice"
                             var
                                 ShipToAddress: Record "Ship-to Address";
                                 ShipToAddressList: Page "Ship-to Address List";
+                                IsHandled: Boolean;
                             begin
-                                OnBeforeValidateShipToOptions(Rec, ShipToOptions);
+                                IsHandled := false;
+                                OnBeforeValidateShipToOptions(Rec, ShipToOptions, IsHandled);
+                                if not IsHandled then
+                                    case ShipToOptions of
+                                        ShipToOptions::"Default (Sell-to Address)":
+                                            begin
+                                                Validate("Ship-to Code", '');
+                                                CopySellToAddressToShipToAddress;
+                                            end;
+                                        ShipToOptions::"Alternate Shipping Address":
+                                            begin
+                                                ShipToAddress.SetRange("Customer No.", "Sell-to Customer No.");
+                                                ShipToAddressList.LookupMode := true;
+                                                ShipToAddressList.SetTableView(ShipToAddress);
 
-                                case ShipToOptions of
-                                    ShipToOptions::"Default (Sell-to Address)":
-                                        begin
-                                            Validate("Ship-to Code", '');
-                                            CopySellToAddressToShipToAddress;
-                                        end;
-                                    ShipToOptions::"Alternate Shipping Address":
-                                        begin
-                                            ShipToAddress.SetRange("Customer No.", "Sell-to Customer No.");
-                                            ShipToAddressList.LookupMode := true;
-                                            ShipToAddressList.SetTableView(ShipToAddress);
-
-                                            if ShipToAddressList.RunModal = ACTION::LookupOK then begin
-                                                ShipToAddressList.GetRecord(ShipToAddress);
-                                                Validate("Ship-to Code", ShipToAddress.Code);
-                                                IsShipToCountyVisible := FormatAddress.UseCounty(ShipToAddress."Country/Region Code");
-                                            end else
-                                                ShipToOptions := ShipToOptions::"Custom Address";
-                                        end;
-                                    ShipToOptions::"Custom Address":
-                                        begin
-                                            Validate("Ship-to Code", '');
-                                            IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
-                                        end;
-                                end;
+                                                if ShipToAddressList.RunModal() = ACTION::LookupOK then begin
+                                                    ShipToAddressList.GetRecord(ShipToAddress);
+                                                    Validate("Ship-to Code", ShipToAddress.Code);
+                                                    IsShipToCountyVisible := FormatAddress.UseCounty(ShipToAddress."Country/Region Code");
+                                                end else
+                                                    ShipToOptions := ShipToOptions::"Custom Address";
+                                            end;
+                                        ShipToOptions::"Custom Address":
+                                            begin
+                                                Validate("Ship-to Code", '');
+                                                IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+                                            end;
+                                    end;
 
                                 OnAfterValidateShipToOptions(Rec, ShipToOptions);
                             end;
@@ -1046,7 +1048,7 @@ page 43 "Sales Invoice"
             part(SalesDocCheckFactbox; "Sales Doc. Check Factbox")
             {
                 ApplicationArea = All;
-                Caption = 'Check Document';
+                Caption = 'Document Check';
                 Visible = SalesDocCheckFactboxVisible;
                 SubPageLink = "No." = FIELD("No."),
                               "Document Type" = FIELD("Document Type");
@@ -2298,7 +2300,7 @@ page 43 "Sales Invoice"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateShipToOptions(var SalesHeader: Record "Sales Header"; ShipToOptions: Option)
+    local procedure OnBeforeValidateShipToOptions(var SalesHeader: Record "Sales Header"; ShipToOptions: Option; var IsHandled: Boolean)
     begin
     end;
 

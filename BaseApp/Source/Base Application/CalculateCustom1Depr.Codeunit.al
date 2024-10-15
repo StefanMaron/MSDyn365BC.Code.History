@@ -422,6 +422,7 @@ codeunit 5612 "Calculate Custom 1 Depr."
                   FAName, FieldCaption("Depr. Ending Date (Custom 1)"),
                   FieldCaption("Depreciation Method"), "Depreciation Method");
         end;
+        OnAfterTransferValues(FA, DeprBook, FADeprBook, DeprMethod, UntilDate, SalvageValue);
     end;
 
     local procedure FAName(): Text[200]
@@ -429,6 +430,11 @@ codeunit 5612 "Calculate Custom 1 Depr."
         DepreciationCalc: Codeunit "Depreciation Calculation";
     begin
         exit(DepreciationCalc.FAName(FA, DeprBookCode));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferValues(FixedAsset: Record "Fixed Asset"; DepreciationBook: Record "Depreciation Book"; FADepreciationBook: Record "FA Depreciation Book"; DeprMethod: Enum "FA Depr. Method Internal"; UntilDate: Date; var SalvageValue: Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

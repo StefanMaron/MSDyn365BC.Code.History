@@ -55,6 +55,9 @@
       "path": "./EssentialBusinessHeadlines/Test/Essential Business Headlines Test"
     },
     {
+      "path": "./ReportLayouts/test/Report Layouts Tests"
+    },
+    {
       "path": "./AdvancePaymentsLocalizationForCzech/Test/Advance Payments Localization for Czech Tests"
     },
     {

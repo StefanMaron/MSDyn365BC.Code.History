@@ -1,4 +1,4 @@
-#if CLEAN20
+﻿#if CLEAN20
 page 54 "Purchase Order Subform"
 {
     AutoSplitKey = true;
@@ -83,6 +83,7 @@ page 54 "Purchase Order Subform"
                         ItemReferenceMgt.PurchaseReferenceNoLookUp(Rec, PurchaseHeader);
                         InsertExtendedText(false);
                         NoOnAfterValidate();
+                        DeltaUpdateTotals();
 #if not CLEAN20                        
                         OnCrossReferenceNoOnLookup(Rec);
 #endif                        
@@ -243,6 +244,8 @@ page 54 "Purchase Order Subform"
                     trigger OnValidate()
                     begin
                         DeltaUpdateTotals();
+                        if PurchasesPayablesSetup."Calc. Inv. Discount" and (Quantity = 0) then
+                            CurrPage.Update(false);
                     end;
                 }
                 field("Reserved Quantity"; "Reserved Quantity")
@@ -617,7 +620,7 @@ page 54 "Purchase Order Subform"
                 }
                 field("Planning Flexibility"; "Planning Flexibility")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = Planning;
                     ToolTip = 'Specifies whether the supply represented by this line is considered by the planning system when calculating action messages.';
                     Visible = false;
                 }
@@ -1588,7 +1591,14 @@ page 54 "Purchase Order Subform"
     end;
 
     procedure CalculateTotals()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculateTotals(Rec, SuppressTotals, DocumentTotals, IsHandled);
+        if IsHandled then
+            exit;
+
         if SuppressTotals then
             exit;
 
@@ -1711,6 +1721,11 @@ page 54 "Purchase Order Subform"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var PurchaseLine: Record "Purchase Line"; var ShortcutDimCode: array[8] of Code[20]; DimIndex: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateTotals(var PurchLine: Record "Purchase Line"; SuppressTotals: Boolean; var DocumentTotals: Codeunit "Document Totals"; var IsHandled: Boolean)
     begin
     end;
 

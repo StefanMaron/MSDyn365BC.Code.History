@@ -966,6 +966,7 @@ page 402 "Sales Order Statistics"
 
         // 1 to 3, so that it does calculations for all 3 tabs, General,Invoicing,Shipping
         for i := 1 to 3 do begin
+            OnRefreshOnAfterGetRecordOnBeforeTempSalesLineDeleteAll(Rec, TempSalesLine);
             TempSalesLine.DeleteAll();
             Clear(TempSalesLine);
             Clear(SalesPost);
@@ -1002,7 +1003,7 @@ page 402 "Sales Order Statistics"
             end;
         end;
 
-        OnAfterCalculateTotalAmounts(TempSalesLine);
+        OnAfterCalculateTotalAmounts(TempSalesLine, TempVATAmountLine1);
 
         TempSalesLine.DeleteAll();
         Clear(TempSalesLine);
@@ -1497,7 +1498,7 @@ page 402 "Sales Order Statistics"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterCalculateTotalAmounts(var TempSalesLine: Record "Sales Line" temporary)
+    local procedure OnAfterCalculateTotalAmounts(var TempSalesLine: Record "Sales Line" temporary; var TempVATAmountLine1: Record "VAT Amount Line" temporary)
     begin
     end;
 
@@ -1518,6 +1519,11 @@ page 402 "Sales Order Statistics"
 
     [IntegrationEvent(false, false)]
     local procedure OnRefreshOnAfterGetRecordOnAfterGetSalesLines(SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRefreshOnAfterGetRecordOnBeforeTempSalesLineDeleteAll(SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary)
     begin
     end;
 

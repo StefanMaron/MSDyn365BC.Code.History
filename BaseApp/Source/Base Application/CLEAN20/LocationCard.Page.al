@@ -346,6 +346,16 @@ page 5703 "Location Card"
                         ToolTip = 'Specifies the bin where finished assembly items are posted to when they are assembled to a linked sales order.';
                     }
                 }
+                group(Job)
+                {
+                    Caption = 'Job';
+                    field("To-Job Bin Code"; Rec."To-Job Bin Code")
+                    {
+                        ApplicationArea = Jobs, Warehouse;
+                        Enabled = ToJobBinCodeEnable;
+                        ToolTip = 'Specifies the bin where an item will be put away or picked in warehouse and inventory processes at this location. For example, when you choose this location on a job planning line, this bin will be suggested.';
+                    }
+                }
             }
             group("Bin Policies")
             {
@@ -542,6 +552,7 @@ page 5703 "Location Card"
         ToProductionBinCodeEnable := true;
         OpenShopFloorBinCodeEnable := true;
         ToAssemblyBinCodeEnable := true;
+        ToJobBinCodeEnable := true;
         FromAssemblyBinCodeEnable := true;
         AssemblyShipmentBinCodeEnable := true;
         CrossDockDueDateCalcEnable := true;
@@ -589,6 +600,8 @@ page 5703 "Location Card"
         AdjustmentBinCodeEnable: Boolean;
         [InDataSet]
         ToAssemblyBinCodeEnable: Boolean;
+        [InDataSet]
+        ToJobBinCodeEnable: Boolean;
         [InDataSet]
         FromAssemblyBinCodeEnable: Boolean;
         AssemblyShipmentBinCodeEnable: Boolean;
@@ -659,11 +672,14 @@ page 5703 "Location Card"
         AdjustmentBinCodeEnable := Rec."Directed Put-away and Pick";
         CrossDockBinCodeEnable := Rec."Bin Mandatory" and Rec."Use Cross-Docking";
         ToAssemblyBinCodeEnable := Rec."Bin Mandatory";
+        ToJobBinCodeEnable := Rec."Bin Mandatory" and not Rec."Directed Put-away and Pick";
         FromAssemblyBinCodeEnable := Rec."Bin Mandatory";
         AssemblyShipmentBinCodeEnable := Rec."Bin Mandatory" and not ShipmentBinCodeEnable;
         DefaultBinSelectionEnable := Rec."Bin Mandatory" and not Rec."Directed Put-away and Pick";
         UseADCSEnable := not Rec."Use As In-Transit" and Rec."Directed Put-away and Pick";
         PickAccordingToFEFOEnable := Rec."Require Pick" and Rec."Bin Mandatory";
+
+        OnAfterUpdateEnabled(Rec);
     end;
 
     local procedure TransitValidation()
@@ -672,6 +688,11 @@ page 5703 "Location Card"
     begin
         TransferHeader.SetRange("In-Transit Code", Code);
         EditInTransit := TransferHeader.IsEmpty;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterUpdateEnabled(Location: Record Location)
+    begin
     end;
 }
 #endif

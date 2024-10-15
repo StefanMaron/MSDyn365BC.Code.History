@@ -387,6 +387,12 @@ page 5628 "Fixed Asset G/L Journal"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies if the entry was generated from a fixed asset reclassification journal.';
                 }
+                field(Correction; Rec.Correction)
+                {
+                    ApplicationArea = FixedAssets;
+                    ToolTip = 'Specifies the entry as a corrective entry. You can use the field if you need to post a corrective entry to an account.';
+                    Visible = false;
+                }
                 field("FA Error Entry No."; "FA Error Entry No.")
                 {
                     ApplicationArea = FixedAssets;

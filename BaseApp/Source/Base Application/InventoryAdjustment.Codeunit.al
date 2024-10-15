@@ -172,6 +172,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
             if IsOnlineAdjmt then
                 SetRange("Allow Online Adjustment", true);
 
+            OnInvtToAdjustExistOnBeforeCopyItemToItem(Item);
             CopyItemToItem(Item, ToItem);
 
             if ItemLedgEntry.AppliedEntryToAdjustExists('') then
@@ -1218,6 +1219,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
             if FindNextRange then
                 if AvgCostAdjmtEntryPoint."Valuation Date" < PeriodPageMgt.EndOfPeriod() then begin
                     AvgCostAdjmtEntryPoint."Valuation Date" := GetNextDate(AvgCostAdjmtEntryPoint."Valuation Date");
+                    OnAvgValueEntriesToAdjustExistOnFindNextRangeOnBeforeAvgValueEntriesToAdjustExist(OutbndValueEntry, ExcludedValueEntry, AvgCostAdjmtEntryPoint);
                     AvgValueEntriesToAdjustExist(OutbndValueEntry, ExcludedValueEntry, AvgCostAdjmtEntryPoint);
                 end;
             exit(not OutbndValueEntry.IsEmpty and not IsEmpty);
@@ -1301,12 +1303,6 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
 
                 RoundingError := 0;
                 RoundingErrorACY := 0;
-                if CostElementBuf."Remaining Quantity" = 0 then begin
-                    if CostElementBuf."Actual Cost" = -GLSetup."Amount Rounding Precision" then
-                        RoundingError := -CostElementBuf."Actual Cost";
-                    if CostElementBuf."Actual Cost (ACY)" = -Currency."Amount Rounding Precision" then
-                        RoundingErrorACY := -CostElementBuf."Actual Cost (ACY)";
-                end;
 
                 ExcludeAvgCostOnValuationDate(CostElementBuf, OutbndValueEntry, ExcludedValueEntry);
                 AvgCostBuf.UpdateAvgCostBuffer(
@@ -1933,6 +1929,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
 
             OnPostItemJnlLineCopyFromValueEntry(ItemJnlLine, OrigValueEntry);
             ItemJnlPostLine.RunWithCheck(ItemJnlLine);
+            OnPostItemJnlLineOnAfterItemJnlPostLineRunWithCheck(ItemJnlLine, OrigValueEntry);
         end;
     end;
 
@@ -2034,7 +2031,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateItemUnitCost(TempAvgCostAdjmtEntryPoint, IsHandled);
+        OnBeforeUpdateItemUnitCost(TempAvgCostAdjmtEntryPoint, IsHandled, Item, TempItemLedgerEntryBuf);
         if IsHandled then
             exit;
 
@@ -2862,6 +2859,11 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAvgValueEntriesToAdjustExistOnFindNextRangeOnBeforeAvgValueEntriesToAdjustExist(var OutbndValueEntry: Record "Value Entry"; var ExcludedValueEntry: Record "Value Entry"; var AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetValuationPeriod(var CalendarPeriod: Record Date; Item: record Item)
     begin
     end;
@@ -2922,7 +2924,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateItemUnitCost(var TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateItemUnitCost(var TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary; var IsHandled: Boolean; var Item: Record Item; var TempItemLedgerEntry: Record "Item Ledger Entry" temporary)
     begin
     end;
 
@@ -2982,6 +2984,11 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineOnAfterItemJnlPostLineRunWithCheck(var ItemJournalLine: Record "Item Journal Line"; ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostItemJnlLineOnAfterSetPostingDate(var ItemJournalLine: Record "Item Journal Line"; ValueEntry: Record "Value Entry")
     begin
     end;
@@ -2993,6 +3000,11 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
 
     [IntegrationEvent(false, false)]
     local procedure OnMakeSingleLevelAdjmtOnAfterUpdateItemUnitCost(var TheItem: Record Item; var TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary; var LevelExceeded: Boolean; IsOnlineAdjmt: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInvtToAdjustExistOnBeforeCopyItemToItem(var Item: Record Item)
     begin
     end;
 

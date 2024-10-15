@@ -171,12 +171,9 @@ codeunit 5601 "FA Insert G/L Account"
 
     procedure InsertBufferBalAcc(FAPostingType: Enum "FA Posting Group Account Type"; AllocAmount: Decimal; DeprBookCode: Code[10]; PostingGrCode: Code[20]; GlobalDim1Code: Code[20]; GlobalDim2Code: Code[20]; DimSetID: Integer; AutomaticEntry: Boolean; Correction: Boolean)
     var
-        SourceCodeSetup: Record "Source Code Setup";
-        DimMgt: Codeunit DimensionManagement;
         GLAccNo: Code[20];
         DimensionSetIDArr: array[10] of Integer;
         IsHandled: Boolean;
-        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
 #if not CLEAN18
         ExtSetupExist: Boolean;
 #endif
@@ -229,10 +226,7 @@ codeunit 5601 "FA Insert G/L Account"
                     Clear(FAGLPostBuf);
                     FAGLPostBuf."Account No." := "Account No.";
 
-                    DimensionSetIDArr[2] := "Dimension Set ID";
-                    FAGLPostBuf."Dimension Set ID" :=
-                        DimMgt.GetCombinedDimensionSetID(
-                            DimensionSetIDArr, FAGLPostBuf."Global Dimension 1 Code", FAGLPostBuf."Global Dimension 2 Code");
+                    SetCombinedDimensionSetID(DimensionSetIDArr);
 
                     FAGLPostBuf.Amount := NewAmount;
                     FAGLPostBuf."Automatic Entry" := AutomaticEntry;
@@ -254,12 +248,7 @@ codeunit 5601 "FA Insert G/L Account"
                 FAGLPostBuf.Amount := NewAmount;
                 FAGLPostBuf."Global Dimension 1 Code" := GlobalDim1Code;
                 FAGLPostBuf."Global Dimension 2 Code" := GlobalDim2Code;
-                SourceCodeSetup.Get();
-                DimMgt.AddDimSource(DefaultDimSource, Database::"G/L Account", GLAccNo);
-                FAGLPostBuf."Dimension Set ID" :=
-                  DimMgt.GetDefaultDimID(
-                      DefaultDimSource, SourceCodeSetup."Fixed Asset G/L Journal", FAGLPostBuf."Global Dimension 1 Code",
-                      FAGLPostBuf."Global Dimension 2 Code", DimSetID, DATABASE::"Fixed Asset");
+                SetDefaultDimID(GLAccNo, DimSetID);
                 FAGLPostBuf."Automatic Entry" := AutomaticEntry;
                 FAGLPostBuf.Correction := Correction;
                 OnInsertBufferBalAccOnAfterAssignFromFAPostingGrAcc(FAAlloc, FAGLPostBuf);
@@ -267,6 +256,34 @@ codeunit 5601 "FA Insert G/L Account"
                     InsertBufferEntry();
             end;
         end;
+    end;
+
+    local procedure SetCombinedDimensionSetID(var DimensionSetIDArr: array[10] of Integer)
+    var
+        DimMgt: Codeunit DimensionManagement;
+    begin
+        DimensionSetIDArr[2] := FAAlloc."Dimension Set ID";
+        FAGLPostBuf."Dimension Set ID" :=
+            DimMgt.GetCombinedDimensionSetID(
+                DimensionSetIDArr, FAGLPostBuf."Global Dimension 1 Code", FAGLPostBuf."Global Dimension 2 Code");
+
+        OnAfterSetCombinedDimensionSetID(FAGLPostBuf, FAAlloc, DimensionSetIDArr);
+    end;
+
+    local procedure SetDefaultDimID(GLAccNo: Code[20]; DimSetID: Integer)
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+        DimMgt: Codeunit DimensionManagement;
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        SourceCodeSetup.Get();
+        DimMgt.AddDimSource(DefaultDimSource, Database::"G/L Account", GLAccNo);
+        FAGLPostBuf."Dimension Set ID" :=
+            DimMgt.GetDefaultDimID(
+                DefaultDimSource, SourceCodeSetup."Fixed Asset G/L Journal", FAGLPostBuf."Global Dimension 1 Code",
+                FAGLPostBuf."Global Dimension 2 Code", DimSetID, Database::"Fixed Asset");
+
+        OnAfterSetDefaultDimID(FAGLPostBuf, GLAccNo, DimSetID);
     end;
 
     procedure InsertBalAcc(var FALedgEntry: Record "FA Ledger Entry")
@@ -871,6 +888,16 @@ codeunit 5601 "FA Insert G/L Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRun(var FALedgerEntry: Record "FA Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCombinedDimensionSetID(var FAGLPostBuf: Record "FA G/L Posting Buffer"; FAAlloc: Record "FA Allocation"; DimensionSetIDArr: array[10] of Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDefaultDimID(var FAGLPostBuf: Record "FA G/L Posting Buffer"; GLAccNo: Code[20]; DimSetID: Integer)
     begin
     end;
 

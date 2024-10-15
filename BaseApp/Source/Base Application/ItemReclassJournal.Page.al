@@ -488,7 +488,7 @@ page 393 "Item Reclass. Journal"
                     Image = ItemTrackingLines;
                     Promoted = true;
                     PromotedCategory = Category5;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -653,6 +653,7 @@ page 393 "Item Reclass. Journal"
                         GetBinContent: Report "Whse. Get Bin Content";
                     begin
                         BinContent.SetRange("Location Code", "Location Code");
+                        OnActionGetBinContentOnAfterSetFilters(Rec, BinContent);
                         GetBinContent.SetTableView(BinContent);
                         GetBinContent.InitializeItemJournalLine(Rec);
                         GetBinContent.RunModal();
@@ -986,6 +987,11 @@ page 393 "Item Reclass. Journal"
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnActionGetBinContentOnAfterSetFilters(var ItemJournalLine: Record "Item Journal Line"; var BinContent: Record "Bin Content")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

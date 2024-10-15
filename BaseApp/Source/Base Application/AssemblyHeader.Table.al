@@ -974,6 +974,8 @@
             DimMgt.UpdateGlobalDimFromDimSetID(
               "Dimension Set ID",
               "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterCreateDim(Rec, DefaultDimSource);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -1116,7 +1118,7 @@
         OldDimSetId := "Dimension Set ID";
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            "Dimension Set ID", StrSubstNo('%1 %2', "Document Type", "No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2', "Document Type", "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         if OldDimSetId <> "Dimension Set ID" then begin
             SetCurrentFieldNum(FieldNo("Dimension Set ID"));
@@ -1646,7 +1648,13 @@
     procedure OpenItemTrackingLines()
     var
         AssemblyHeaderReserve: Codeunit "Assembly Header-Reserve";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOpenItemTrackingLines(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField("No.");
         TestField("Quantity (Base)");
         AssemblyHeaderReserve.CallItemTracking(Rec);
@@ -1934,6 +1942,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var AssemblyHeader: Record "Assembly Header"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterFilterLinesForReservation(var AssemblyHeader: Record "Assembly Header"; ReservEntry: Record "Reservation Entry"; DocumentType: Option; AvailabilityFilter: Text; Positive: Boolean)
     begin
     end;
@@ -1970,6 +1983,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDoValidateDates(var AssemblyHeader: Record "Assembly Header"; var xAssemblyHeader: Record "Assembly Header"; FieldNumToCalculateFrom: Integer; NewDueDate: Date; NewEndDate: Date; NewStartDate: Date; var ValidateConfirmed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenItemTrackingLines(var AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
     begin
     end;
 

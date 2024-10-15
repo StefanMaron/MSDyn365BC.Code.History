@@ -273,7 +273,7 @@ codeunit 442 "Sales-Post Prepayments"
 
         SalesHeader2 := SalesHeader;
 
-        OnAfterPostPrepayments(SalesHeader2, DocumentType, SuppressCommit, SalesInvHeader, SalesCrMemoHeader);
+        OnAfterPostPrepayments(SalesHeader2, DocumentType, SuppressCommit, SalesInvHeader, SalesCrMemoHeader, CustLedgEntry);
     end;
 
     local procedure CreateLinesFromBuffer(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary; var SalesInvHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var PrevLineNo: Integer; var LineCount: Integer; var PostedDocTabNo: Integer; var LineNo: Integer; DocumentType: Option Invoice,"Credit Memo"; var Window: Dialog; GenJnlLineDocNo: Code[20])
@@ -799,7 +799,7 @@ codeunit 442 "Sales-Post Prepayments"
                 "VAT Identifier" := '';
         end;
 
-        OnAfterFillInvLineBuffer(PrepmtInvLineBuf, SalesLine);
+        OnAfterFillInvLineBuffer(PrepmtInvLineBuf, SalesLine, SuppressCommit, SalesHeader);
     end;
 
     local procedure InitInvoiceRoundingLine(SalesHeader: Record "Sales Header"; TotalAmount: Decimal; var SalesLine: Record "Sales Line"): Boolean
@@ -2016,12 +2016,12 @@ codeunit 442 "Sales-Post Prepayments"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFillInvLineBuffer(var PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; SalesLine: Record "Sales Line")
+    local procedure OnAfterFillInvLineBuffer(var PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; SalesLine: Record "Sales Line"; CommitIsSuppressed: Boolean; SalesHeader: Record "Sales Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostPrepayments(var SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo"; CommitIsSuppressed: Boolean; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    local procedure OnAfterPostPrepayments(var SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo"; CommitIsSuppressed: Boolean; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 

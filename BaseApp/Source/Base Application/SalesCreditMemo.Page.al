@@ -1,4 +1,4 @@
-﻿#if not CLEAN20
+#if not CLEAN20
 page 44 "Sales Credit Memo"
 {
     Caption = 'Sales Credit Memo';
@@ -770,7 +770,7 @@ page 44 "Sales Credit Memo"
             part(SalesDocCheckFactbox; "Sales Doc. Check Factbox")
             {
                 ApplicationArea = All;
-                Caption = 'Check Document';
+                Caption = 'Document Check';
                 Visible = SalesDocCheckFactboxVisible;
                 SubPageLink = "No." = FIELD("No."),
                               "Document Type" = FIELD("Document Type");
@@ -1714,6 +1714,8 @@ page 44 "Sales Credit Memo"
 
         SalesDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
         WorkflowWebhookMgt.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
+
+        OnAfterSetControlAppearance(Rec);
     end;
 
     procedure RunBackgroundCheck()
@@ -1755,6 +1757,11 @@ page 44 "Sales Credit Memo"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterOnAfterGetRecord(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetControlAppearance(var SalesHeader: Record "Sales Header")
     begin
     end;
 

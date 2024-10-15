@@ -620,7 +620,7 @@ codeunit 134251 "Match General Jnl Lines Test"
 
         // Verify
         VerifyGenJnlLine(GenJnlLine, GenJnlLine."Document Type"::Payment,
-          GenJnlLine."Document No.", GenJnlLine."Account Type"::Customer, '', false);
+          '', GenJnlLine."Account Type"::Customer, '', false);
     end;
 
     [Test]

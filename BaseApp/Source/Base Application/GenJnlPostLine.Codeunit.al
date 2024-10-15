@@ -1059,7 +1059,7 @@
                 Cust.TestField("Customer Posting Group");
                 "Posting Group" := Cust."Customer Posting Group";
             end;
-            CustPostingGr.Get("Posting Group");
+            GetCustomerPostingGroup(GenJnlLine, CustPostingGr);
 #if CLEAN18
             ReceivablesAccount := GetCustomerReceivablesAccount(GenJnlLine, CustPostingGr);
 #else
@@ -2101,6 +2101,7 @@
     var
         GLEntry: Record "G/L Entry";
     begin
+        OnBeforeCreateGLEntryBalAcc(GenJnlLine, AccNo, Amount, AmountAddCurr, BalAccType, BalAccNo);
         InitGLEntry(GenJnlLine, GLEntry, AccNo, Amount, AmountAddCurr, true, true);
         GLEntry."Bal. Account Type" := BalAccType;
         GLEntry."Bal. Account No." := BalAccNo;
@@ -2732,13 +2733,13 @@
             DtldCVLedgEntryBuf."Entry Type"::"Payment Discount (VAT Excl.)":
                 DtldCVLedgEntryBuf."Entry Type" :=
                   DtldCVLedgEntryBuf."Entry Type"::"Payment Discount (VAT Adjustment)";
-            DtldCVLedgEntryBuf."Entry Type"::"Payment Discount Tolerance (VAT Excl.)":
+        DtldCVLedgEntryBuf."Entry Type"::"Payment Discount Tolerance (VAT Excl.)":
                 DtldCVLedgEntryBuf."Entry Type" :=
                   DtldCVLedgEntryBuf."Entry Type"::"Payment Discount Tolerance (VAT Adjustment)";
-            DtldCVLedgEntryBuf."Entry Type"::"Payment Tolerance (VAT Excl.)":
+        DtldCVLedgEntryBuf."Entry Type"::"Payment Tolerance (VAT Excl.)":
                 DtldCVLedgEntryBuf."Entry Type" :=
                   DtldCVLedgEntryBuf."Entry Type"::"Payment Tolerance (VAT Adjustment)";
-        end;
+    end;
         DtldCVLedgEntryBuf."Posting Date" := GenJnlLine."Posting Date";
         DtldCVLedgEntryBuf."Document Type" := GenJnlLine."Document Type";
         DtldCVLedgEntryBuf."Document No." := GenJnlLine."Document No.";
@@ -7794,6 +7795,12 @@
         OnAfterGetVendorPostingGroup(GenJournalLine, VendorPostingGroup);
     end;
 
+    local procedure GetCustomerPostingGroup(GenJournalLine: Record "Gen. Journal Line"; var CustomerPostingGroup: Record "Customer Posting Group")
+    begin
+        CustomerPostingGroup.Get(GenJournalLine."Posting Group");
+        OnAfterGetCustomerPostingGroup(GenJournalLine, CustomerPostingGroup);
+    end;
+
 #if CLEAN18
     local procedure GetCustomerReceivablesAccount(GenJournalLine: Record "Gen. Journal Line"; CustomerPostingGroup: Record "Customer Posting Group") ReceivablesAccount: Code[20]
     begin
@@ -7871,6 +7878,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeStartPosting(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateGLEntryBalAcc(var GenJnlLine: Record "Gen. Journal Line"; var AccNo: Code[20]; Amount: Decimal; AmountAddCurr: Decimal; var BalAccType: Enum "Gen. Journal Account Type"; var BalAccNo: Code[20])
     begin
     end;
 
@@ -9337,6 +9349,11 @@
 
 #endif
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetCustomerPostingGroup(GenJournalLine: Record "Gen. Journal Line"; var CustomerPostingGroup: Record "Customer Posting Group")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetVendorPostingGroup(GenJournalLine: Record "Gen. Journal Line"; var VendorPostingGroup: Record "Vendor Posting Group")
     begin
     end;
@@ -9404,7 +9421,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeDeferralPosting(DeferralCode: Code[10]; SourceCode: Code[10]; AccountNo: Code[20]; var GenJournalLine: Record "Gen. Journal Line"; Balancing: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeDeferralPosting(DeferralCode: Code[10]; SourceCode: Code[10]; var AccountNo: Code[20]; var GenJournalLine: Record "Gen. Journal Line"; Balancing: Boolean; var IsHandled: Boolean)
     begin
     end;
 

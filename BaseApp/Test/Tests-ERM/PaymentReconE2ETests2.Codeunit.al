@@ -1197,7 +1197,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,PostAndReconcilePageHandler')]
+    [HandlerFunctions('MsgHandler,PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure SingleVendorAutoMatchAndPostTwoPaymentsTwoInvoicesInViceVersaOrder()
     var
@@ -1272,7 +1272,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure VATEntryCreatedWhenCopyVATSetupToJnlLineEnabledInBankAccReconciliation()
     var
@@ -1304,7 +1304,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [HandlerFunctions('PostAndReconcilePageHandler,PostAndReconcilePageStatementDateHandler')]
     [Scope('OnPrem')]
     procedure NoVATEntryCreatedWhenCopyVATSetupToJnlLineDisabledInBankAccReconciliation()
     var
@@ -2881,6 +2881,13 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
     begin
         PostPmtsAndRecBankAcc.OK.Invoke();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure PostAndReconcilePageStatementDateHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 
     [SendNotificationHandler]

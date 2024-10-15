@@ -2063,6 +2063,8 @@ report 202 "Sales Document - Test"
               DimMgt.GetDefaultDimID(DefaultDimSource, SourceCodeSetup.Sales, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
                 "Dimension Set ID", DATABASE::Customer);
         end;
+
+        OnAfterAddDimToTempLine(SalesLine);
     end;
 
     procedure InitializeRequest(NewShipReceiveOnNextPostReq: Boolean; NewInvOnNextPostReq: Boolean; NewShowDim: Boolean; NewShowCostAssignment: Boolean)
@@ -2320,6 +2322,11 @@ report 202 "Sales Document - Test"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckSalesDoc(SalesHeader: Record "Sales Header"; var ErrorText: array[99] of Text[250]; var ErrorCounter: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddDimToTempLine(var SalesLine: Record "Sales Line")
     begin
     end;
 

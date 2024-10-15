@@ -1,4 +1,4 @@
-table 273 "Bank Acc. Reconciliation"
+﻿table 273 "Bank Acc. Reconciliation"
 {
     Caption = 'Bank Acc. Reconciliation';
     DataCaptionFields = "Bank Account No.", "Statement No.";
@@ -510,6 +510,8 @@ table 273 "Bank Acc. Reconciliation"
             Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup."Payment Reconciliation Journal",
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
 
+        OnCreateDimOnAfterSetDimensionSetID(Rec, OldDimSetID, DefaultDimSource);
+
         if (OldDimSetID <> "Dimension Set ID") and LinesExist() then begin
             Modify();
             UpdateAllLineDim("Dimension Set ID", OldDimSetID);
@@ -578,7 +580,7 @@ table 273 "Bank Acc. Reconciliation"
         OldDimSetID := "Dimension Set ID";
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            "Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Statement No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Statement No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
         if OldDimSetID <> "Dimension Set ID" then begin
@@ -610,6 +612,7 @@ table 273 "Bank Acc. Reconciliation"
                       BankAccReconciliationLine."Dimension Set ID",
                       BankAccReconciliationLine."Shortcut Dimension 1 Code",
                       BankAccReconciliationLine."Shortcut Dimension 2 Code");
+                    OnUpdateAllLineDimOnAfterUpdateGlobalDimFromDimSetID(BankAccReconciliationLine);
                     BankAccReconciliationLine.Modify();
                 end;
             until BankAccReconciliationLine.Next() = 0;
@@ -1023,6 +1026,16 @@ table 273 "Bank Acc. Reconciliation"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var xBankAccReconciliation: Record "Bank Acc. Reconciliation"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateDimOnAfterSetDimensionSetID(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; OldDimSetID: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAllLineDimOnAfterUpdateGlobalDimFromDimSetID(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
     begin
     end;
 }

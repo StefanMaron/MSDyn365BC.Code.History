@@ -509,6 +509,7 @@ codeunit 7110 "Analysis Report Management"
                 end;
                 AnalysisLine.CopyFilter("Location Filter", "Location Filter");
             end;
+            OnCalcItemStatisticsOnAfterSetFilters(ItemStatisticsBuf, AnalysisLine);
 
             case AnalysisColumn."Ledger Entry Type" of
                 AnalysisColumn."Ledger Entry Type"::"Item Entries":
@@ -1795,6 +1796,11 @@ codeunit 7110 "Analysis Report Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetItemRowFilters(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var AnalysisLine: Record "Analysis Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcItemStatisticsOnAfterSetFilters(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var AnalysisLine: Record "Analysis Line")
     begin
     end;
 }

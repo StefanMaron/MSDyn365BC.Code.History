@@ -266,8 +266,8 @@ page 49 "Purchase Quote"
             part(PurchLines; "Purchase Quote Subform")
             {
                 ApplicationArea = Suite;
-                Editable = "Buy-from Vendor No." <> '';
-                Enabled = "Buy-from Vendor No." <> '';
+                Editable = PurchaseLinesAvailable;
+                Enabled = PurchaseLinesAvailable;
                 SubPageLink = "Document No." = FIELD("No.");
                 UpdatePropagation = Both;
             }
@@ -1365,6 +1365,7 @@ page 49 "Purchase Quote"
         IsBuyFromCountyVisible: Boolean;
         IsPayToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        PurchaseLinesAvailable: Boolean;
         [InDataSet]
         IsJournalTemplateNameVisible: Boolean;
         [InDataSet]
@@ -1384,6 +1385,13 @@ page 49 "Purchase Quote"
         IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
 
         OnAfterActivateFields();
+    end;
+
+    local procedure SetPurchaseLinesAvailability()
+    begin
+        PurchaseLinesAvailable := "Buy-from Vendor No." <> '';
+
+        OnAfterSetPurchaseLinesAvailability(Rec, PurchaseLinesAvailable);
     end;
 
     local procedure ApproveCalcInvDisc()
@@ -1437,6 +1445,7 @@ page 49 "Purchase Quote"
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
         HasIncomingDocument := "Incoming Document Entry No." <> 0;
+        SetPurchaseLinesAvailability();
     end;
 
     local procedure ValidateShippingOption()
@@ -1483,6 +1492,11 @@ page 49 "Purchase Quote"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateCurrentShippingAndPayToOption(var ShipToOptions: Option "Default (Company Address)",Location,"Custom Address"; var PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address"; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetPurchaseLinesAvailability(var PurchaseHeader: Record "Purchase Header"; var PurchaseLinesAvailable: Boolean)
     begin
     end;
 

@@ -8,6 +8,7 @@
     end;
 
     var
+        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         Text001: Label 'You cannot undo line %1 because there is not sufficient content in the receiving bins.';
         Text002: Label 'You cannot undo line %1 because warehouse put-away lines have already been created.';
         Text003: Label 'You cannot undo line %1 because warehouse activity lines have already been posted.';
@@ -24,7 +25,6 @@
         Text014: Label 'You cannot undo line %1, because a revaluation has already been posted.';
         Text015: Label 'You cannot undo posting of item %1 with variant ''%2'' and unit of measure %3 because it is not available at location %4, bin code %5. The required quantity is %6. The available quantity is %7.';
         SerialNoOnInventoryErr: Label 'Serial No. %1 is already on inventory.';
-        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
 
     procedure TestSalesShptLine(SalesShptLine: Record "Sales Shipment Line")
     var
@@ -717,12 +717,8 @@
 
             ItemJnlPostLine.xSetExtLotSN(true);
             ItemJnlPostLine.RunWithCheck(ItemJnlLine);
+            ItemJnlPostLine.CollectItemEntryRelation(TempItemEntryRelation);
 
-            TempItemEntryRelation."Item Entry No." := ItemJnlLine."Item Shpt. Entry No." + 1;
-            TempItemEntryRelation."Serial No." := ItemJnlLine."Serial No.";
-            TempItemEntryRelation."Lot No." := ItemJnlLine."Lot No.";
-            TempItemEntryRelation.Undo := true;
-            TempItemEntryRelation.Insert();
             TempItemLedgEntry := TempApplyToItemLedgEntry;
             TempItemLedgEntry.Insert();
         until TempApplyToItemLedgEntry.Next() = 0;
@@ -789,7 +785,13 @@
     var
         xPurchLine: Record "Purchase Line";
         PurchSetup: Record "Purchases & Payables Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdatePurchLine(PurchLine, UndoQty, UndoQtyBase, TempUndoneItemLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         PurchSetup.Get();
         with PurchLine do begin
             xPurchLine := PurchLine;
@@ -934,31 +936,36 @@
     procedure UpdateServLine(ServLine: Record "Service Line"; UndoQty: Decimal; UndoQtyBase: Decimal; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary)
     var
         xServLine: Record "Service Line";
+        IsHandled: Boolean;
     begin
-        with ServLine do begin
-            xServLine := ServLine;
-            case "Document Type" of
-                "Document Type"::Order:
-                    begin
-                        "Quantity Shipped" := "Quantity Shipped" - UndoQty;
-                        "Qty. Shipped (Base)" := "Qty. Shipped (Base)" - UndoQtyBase;
-                        "Qty. to Consume" := 0;
-                        "Qty. to Consume (Base)" := 0;
-                        InitOutstanding;
-                        InitQtyToShip;
-                    end;
-                else
-                    FieldError("Document Type");
-            end;
-            Modify;
-            RevertPostedItemTrackingFromServiceLine(ServLine, TempUndoneItemLedgEntry);
-            xServLine."Quantity (Base)" := 0;
-            ServiceLineReserveVerifyQuantity(ServLine, xServLine);
+        IsHandled := false;
+        OnBeforeUpdateServLine(ServLine, UndoQty, UndoQtyBase, TempUndoneItemLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
 
-            UpdateWarehouseRequest(DATABASE::"Service Line", "Document Type".AsInteger(), "Document No.", "Location Code");
-
-            OnAfterUpdateServLine(ServLine);
+        xServLine := ServLine;
+        case ServLine."Document Type" of
+            ServLine."Document Type"::Order:
+                begin
+                    ServLine."Quantity Shipped" := ServLine."Quantity Shipped" - UndoQty;
+                    ServLine."Qty. Shipped (Base)" := ServLine."Qty. Shipped (Base)" - UndoQtyBase;
+                    ServLine."Qty. to Consume" := 0;
+                    ServLine."Qty. to Consume (Base)" := 0;
+                    ServLine.InitOutstanding();
+                    ServLine.InitQtyToShip();
+                end;
+            else
+                ServLine.FieldError("Document Type");
         end;
+        ServLine.Modify();
+        RevertPostedItemTrackingFromServiceLine(ServLine, TempUndoneItemLedgEntry);
+        xServLine."Quantity (Base)" := 0;
+        ServiceLineReserveVerifyQuantity(ServLine, xServLine);
+
+        UpdateWarehouseRequest(
+            DATABASE::"Service Line", ServLine."Document Type".AsInteger(), ServLine."Document No.", ServLine."Location Code");
+
+        OnAfterUpdateServLine(ServLine);
     end;
 
     local procedure RevertPostedItemTrackingFromServiceLine(ServiceLine: Record "Service Line"; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary)
@@ -1045,17 +1052,22 @@
         ReservEntry: Record "Reservation Entry";
         TempReservEntry: Record "Reservation Entry" temporary;
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
+        QtyToRevert: Decimal;
     begin
         with TempItemLedgEntry do
             if Find('-') then begin
                 repeat
                     TrackingSpecification.Get("Entry No.");
+                    QtyToRevert := TrackingSpecification."Quantity Invoiced (Base)";
+
                     if not TrackingIsATO(TrackingSpecification) then begin
                         ReservEntry.Init();
                         ReservEntry.TransferFields(TrackingSpecification);
+                        if RevertInvoiced then begin
+                            ReservEntry."Quantity (Base)" := QtyToRevert;
+                            ReservEntry."Quantity Invoiced (Base)" -= QtyToRevert;
+                        end;
                         ReservEntry.Validate("Quantity (Base)");
-                        if RevertInvoiced then
-                            ReservEntry."Quantity Invoiced (Base)" -= TrackingSpecification."Quantity Invoiced (Base)";
                         ReservEntry."Reservation Status" := ReservEntry."Reservation Status"::Surplus;
                         if ReservEntry.Positive then
                             ReservEntry."Expected Receipt Date" := AvailabilityDate
@@ -1069,7 +1081,15 @@
                         TempReservEntry := ReservEntry;
                         TempReservEntry.Insert();
                     end;
-                    TrackingSpecification.Delete();
+
+                    if RevertInvoiced and (TrackingSpecification."Quantity (Base)" <> QtyToRevert) then begin
+                        TrackingSpecification."Quantity (Base)" -= QtyToRevert;
+                        TrackingSpecification."Quantity Handled (Base)" -= QtyToRevert;
+                        TrackingSpecification."Quantity Invoiced (Base)" := 0;
+                        TrackingSpecification."Buffer Value1" -= QtyToRevert;
+                        TrackingSpecification.Modify();
+                    end else
+                        TrackingSpecification.Delete();
                 until Next() = 0;
                 ReservEngineMgt.UpdateOrderTracking(TempReservEntry);
             end;
@@ -1543,6 +1563,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSalesLineOnBeforeSalesLineModify(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateServLine(var ServiceLine: Record "Service Line"; var UndoQty: Decimal; var UndoQtyBase: Decimal; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdatePurchLine(PurchaseLine: Record "Purchase Line"; var UndoQty: Decimal; var UndoQtyBase: Decimal; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
     begin
     end;
 }

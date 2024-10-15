@@ -1004,6 +1004,8 @@ table 5405 "Production Order"
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, DefaultDimSource, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+        OnAfterCreateDim(Rec, DefaultDimSource);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -1294,7 +1296,7 @@ table 5405 "Production Order"
         TestField("No.");
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            "Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         if OldDimSetID <> "Dimension Set ID" then begin
             if Status = Status::Finished then
@@ -1458,6 +1460,11 @@ table 5405 "Production Order"
 #endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnDelete(var ProductionOrder: Record "Production Order"; var RefreshOrder: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var ProductionOrder: Record "Production Order"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 

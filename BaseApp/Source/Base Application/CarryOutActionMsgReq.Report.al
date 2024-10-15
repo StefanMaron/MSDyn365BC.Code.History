@@ -125,16 +125,21 @@ report 493 "Carry Out Action Msg. - Req."
     end;
 
     local procedure UseOneJnl(var ReqLine: Record "Requisition Line")
+    var
+        IsHandled: Boolean;
     begin
         with ReqLine do begin
             ReqWkshTmpl.Get("Worksheet Template Name");
             if ReqWkshTmpl.Recurring and (GetFilter("Order Date") <> '') then
                 FieldError("Order Date", Text000);
             TempJnlBatchName := "Journal Batch Name";
-            OnUseOneJnlOnBeforeSetReqWkshMakeOrdersParameters(ReqLine, ReqWkshMakeOrders, PurchOrderHeader, EndOrderDate, PrintOrders);
-            ReqWkshMakeOrders.Set(PurchOrderHeader, EndOrderDate, PrintOrders);
-            ReqWkshMakeOrders.SetSuppressCommit(SuppressCommit);
-            ReqWkshMakeOrders.CarryOutBatchAction(ReqLine);
+            IsHandled := false;
+            OnUseOneJnlOnBeforeSetReqWkshMakeOrdersParameters(ReqLine, ReqWkshMakeOrders, PurchOrderHeader, EndOrderDate, PrintOrders, SuppressCommit, IsHandled);
+            if not IsHandled then begin
+                ReqWkshMakeOrders.Set(PurchOrderHeader, EndOrderDate, PrintOrders);
+                ReqWkshMakeOrders.SetSuppressCommit(SuppressCommit);
+                ReqWkshMakeOrders.CarryOutBatchAction(ReqLine);
+            end;
 
             if "Line No." = 0 then
                 Message(Text001)
@@ -191,7 +196,7 @@ report 493 "Carry Out Action Msg. - Req."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUseOneJnlOnBeforeSetReqWkshMakeOrdersParameters(var ReqLine: Record "Requisition Line"; var ReqWkshMakeOrders: Codeunit "Req. Wksh.-Make Order"; PurchOrderHeader: Record "Purchase Header"; EndOrderDate: Date; PrintOrders: Boolean)
+    local procedure OnUseOneJnlOnBeforeSetReqWkshMakeOrdersParameters(var ReqLine: Record "Requisition Line"; var ReqWkshMakeOrders: Codeunit "Req. Wksh.-Make Order"; PurchOrderHeader: Record "Purchase Header"; EndOrderDate: Date; PrintOrders: Boolean; var SuppressCommit: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

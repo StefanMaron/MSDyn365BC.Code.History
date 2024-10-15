@@ -639,7 +639,13 @@ codeunit 1720 "Deferral Utilities"
         DeferralHeader: Record "Deferral Header";
         DeferralLine: Record "Deferral Line";
         DeferralTemplate: Record "Deferral Template";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeferralCodeOnValidate(DeferralCode, DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo, Amount, PostingDate, Description, CurrencyCode, IsHandled);
+        if IsHandled then
+            exit;
+
         DeferralHeader.Init();
         DeferralLine.Init();
         if DeferralCode = '' then
@@ -992,6 +998,11 @@ codeunit 1720 "Deferral Utilities"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDeferralSchedule(DeferralCode: Code[10]; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; AmountToDefer: Decimal; CalcMethod: Enum "Deferral Calculation Method"; StartDate: Date; NoOfPeriods: Integer; ApplyDeferralPercentage: Boolean; DeferralDescription: Text[100]; AdjustStartDate: Boolean; CurrencyCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeferralCodeOnValidate(DeferralCode: Code[10]; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; Amount: Decimal; PostingDate: Date; Description: Text[100]; CurrencyCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 

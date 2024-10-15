@@ -155,6 +155,7 @@ codeunit 7600 "Calendar Management"
     procedure CheckDateStatus(var TargetCustomizedCalendarChange: Record "Customized Calendar Change")
     begin
         CombineChanges(TargetCustomizedCalendarChange, TempCustChange);
+        OnCheckDateStatusOnAfterCombineChanges(TargetCustomizedCalendarChange, TempCustChange);
 
         TargetCustomizedCalendarChange.Description := '';
         TargetCustomizedCalendarChange.Nonworking := false;
@@ -168,6 +169,7 @@ codeunit 7600 "Calendar Management"
                 if TempCustChange.IsDateCustomized(TargetCustomizedCalendarChange.Date) then begin
                     TargetCustomizedCalendarChange.Description := TempCustChange.Description;
                     TargetCustomizedCalendarChange.Nonworking := TempCustChange.Nonworking;
+                    OnCheckDateStatusAfterDateCustomized(TargetCustomizedCalendarChange, TempCustChange);
                     exit;
                 end;
             until TempCustChange.Next() = 0;
@@ -670,6 +672,16 @@ codeunit 7600 "Calendar Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcDateBOCOnAfterSetNonworking(var CustomCalendarChange: Array[2] of Record "Customized Calendar Change")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckDateStatusAfterDateCustomized(var TargetCustomizedCalendarChange: Record "Customized Calendar Change"; TempCustChange: Record "Customized Calendar Change")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckDateStatusOnAfterCombineChanges(var TargetCustomizedCalendarChange: Record "Customized Calendar Change"; TempCustChange: Record "Customized Calendar Change")
     begin
     end;
 }

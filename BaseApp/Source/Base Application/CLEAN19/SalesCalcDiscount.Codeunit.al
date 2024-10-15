@@ -127,6 +127,7 @@ codeunit 60 "Sales-Calc. Discount"
                     else
                         SalesLine2.Validate("Qty. to Ship", SalesLine2.Quantity);
                     SetSalesLineServiceCharge(SalesHeader, SalesLine2);
+                    OnCalculateInvoiceDiscountOnBeforeSalesLineInsert(SalesLine2, SalesHeader);
                     SalesLine2.Insert();
                 end;
                 SalesLine2.CalcVATAmountLines(0, SalesHeader, SalesLine2, TempVATAmountLine);
@@ -289,7 +290,7 @@ codeunit 60 "Sales-Calc. Discount"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCustInvDiscRecExists(var SalesHeader: Record "Sales Header"; CustInvDisc: Record "Cust. Invoice Disc."; InvDiscBase: Decimal; ChargeBase: Decimal; var ShouldGetCustInvDisc: Boolean)
+    local procedure OnAfterCustInvDiscRecExists(var SalesHeader: Record "Sales Header"; var CustInvDisc: Record "Cust. Invoice Disc."; InvDiscBase: Decimal; ChargeBase: Decimal; var ShouldGetCustInvDisc: Boolean)
     begin
     end;
 
@@ -330,6 +331,11 @@ codeunit 60 "Sales-Calc. Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateInvoiceDiscountOnBeforeSalesLine2FindFirst(var SalesLine2: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateInvoiceDiscountOnBeforeSalesLineInsert(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
     end;
 }

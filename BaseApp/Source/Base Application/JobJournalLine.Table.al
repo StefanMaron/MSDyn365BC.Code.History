@@ -1,4 +1,4 @@
-table 210 "Job Journal Line"
+﻿table 210 "Job Journal Line"
 {
     Caption = 'Job Journal Line';
 
@@ -196,6 +196,7 @@ table 210 "Job Journal Line"
                 else begin
                     InitRoundingPrecisions;
                     "Unit Cost" := ConvertAmountToFCY("Unit Cost (LCY)", UnitAmountRoundingPrecisionFCY);
+                    OnValidateUnitCostLCYOnAfterConvertAmountToFCY(Rec);
                     UpdateAllAmounts;
                 end;
             end;
@@ -250,6 +251,11 @@ table 210 "Job Journal Line"
                 Resource: Record Resource;
                 IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateUnitofMeasureCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 GetGLSetup();
                 case Type of
                     Type::Item:
@@ -924,6 +930,11 @@ table 210 "Job Journal Line"
             var
                 IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateVariantCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
 #if not CLEAN18
                 xSetGPPGfromSKU; // NAVCZ
 #endif
@@ -955,14 +966,10 @@ table 210 "Job Journal Line"
             Caption = 'Bin Code';
 
             trigger OnLookup()
-            var
-                BinCode: Code[20];
             begin
                 TestField("Location Code");
                 TestField(Type, Type::Item);
-                BinCode := WMSManagement.BinContentLookUp("Location Code", "No.", "Variant Code", '', "Bin Code");
-                if BinCode <> '' then
-                    Validate("Bin Code", BinCode);
+                BinContentLookUp();
             end;
 
             trigger OnValidate()
@@ -976,7 +983,7 @@ table 210 "Job Journal Line"
                 GetItem();
                 Item.TestField(Type, Item.Type::Inventory);
                 CheckItemAvailable;
-                WMSManagement.FindBinContent("Location Code", "Bin Code", "No.", "Variant Code", '')
+                FindBinContent();
             end;
         }
         field(5404; "Qty. per Unit of Measure"; Decimal)
@@ -1835,7 +1842,7 @@ table 210 "Job Journal Line"
                           Text000,
                           FieldCaption("Unit Cost"), Item.FieldCaption("Costing Method"), Item."Costing Method");
                 end;
-                if RetrieveCostPrice then begin
+                if RetrieveCostPrice(CurrFieldNo) then begin
                     if GetSKU then
                         "Unit Cost (LCY)" := Round(SKU."Unit Cost" * "Qty. per Unit of Measure", UnitAmountRoundingPrecision)
                     else
@@ -1848,7 +1855,7 @@ table 210 "Job Journal Line"
                         "Unit Cost" := ConvertAmountToFCY("Unit Cost (LCY)", UnitAmountRoundingPrecisionFCY);
                 end;
             end else begin
-                if RetrieveCostPrice then begin
+                if RetrieveCostPrice(CurrFieldNo) then begin
                     if GetSKU then
                         RetrievedCost := SKU."Unit Cost" * "Qty. per Unit of Measure"
                     else
@@ -1892,14 +1899,32 @@ table 210 "Job Journal Line"
         TestField("Unit of Measure Code", WorkType."Unit of Measure Code");
     end;
 
-    local procedure RetrieveCostPrice() Result: Boolean
+    local procedure RetrieveCostPrice(CalledByFieldNo: Integer) Result: Boolean
     var
         ShouldRetrieveCostPrice: Boolean;
     begin
         Result := true;
-        OnBeforeRetrieveCostPrice(Rec, xRec, ShouldRetrieveCostPrice, Result);
+        OnBeforeRetrieveCostPrice(Rec, xRec, ShouldRetrieveCostPrice, Result, CalledByFieldNo);
         if ShouldRetrieveCostPrice then
             exit(Result);
+
+        if CalledByFieldNo <> 0 then
+            case Type of
+                Type::Item:
+                    if not (CalledByFieldNo in
+                            [FieldNo("No."), FieldNo(Quantity), FieldNo("Location Code"),
+                            FieldNo("Variant Code"), FieldNo("Unit of Measure Code")])
+                    then
+                        exit(false);
+                Type::Resource:
+                    if not (CalledByFieldNo in
+                         [FieldNo("No."), FieldNo(Quantity), FieldNo("Work Type Code"), FieldNo("Unit of Measure Code")])
+                    then
+                        exit(false);
+                Type::"G/L Account":
+                    if not (CalledByFieldNo in [FieldNo("No."), FieldNo(Quantity)]) then
+                        exit(false);
+            end;
 
         case Type of
             Type::Item:
@@ -1981,7 +2006,7 @@ table 210 "Job Journal Line"
         if IsHandled then
             exit;
 
-        if RetrieveCostPrice and ("No." <> '') then begin
+        if RetrieveCostPrice(CalledByFieldNo) and ("No." <> '') then begin
             ApplyPrice(PriceType::Sale, CalledByFieldNo);
             ApplyPrice(PriceType::Purchase, CalledByFieldNo);
             if Type = Type::Resource then
@@ -2019,6 +2044,33 @@ table 210 "Job Journal Line"
     begin
         LineWithPrice := JobJournalLinePrice;
         OnAfterGetLineWithPrice(LineWithPrice);
+    end;
+
+    local procedure FindBinContent()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFindBinContent(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        WMSManagement.FindBinContent("Location Code", "Bin Code", "No.", "Variant Code", '')
+    end;
+
+    local procedure BinContentLookUp()
+    var
+        BinCode: Code[20];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeBinContentLookUp(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        BinCode := WMSManagement.BinContentLookUp("Location Code", "No.", "Variant Code", '', "Bin Code");
+        if BinCode <> '' then
+            Validate("Bin Code", BinCode);
     end;
 
     local procedure HandleCostFactor()
@@ -2129,18 +2181,23 @@ table 210 "Job Journal Line"
     procedure UpdateDimensions()
     var
         DimensionSetIDArr: array[10] of Integer;
+        IsHandled: Boolean;
     begin
-        CreateDimFromDefaultDim(0);
-        if "Job Task No." <> '' then begin
-            DimensionSetIDArr[1] := "Dimension Set ID";
-            DimensionSetIDArr[2] :=
-              DimMgt.CreateDimSetFromJobTaskDim("Job No.",
-                "Job Task No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-            DimMgt.CreateDimForJobJournalLineWithHigherPriorities(
-              Rec, CurrFieldNo, DimensionSetIDArr[3], "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", "Source Code", DATABASE::Job);
-            "Dimension Set ID" :=
-              DimMgt.GetCombinedDimensionSetID(
-                DimensionSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+        IsHandled := false;
+        OnBeforeUpdateDimensions(Rec, CurrFieldNo, IsHandled);
+        if not IsHandled then begin
+            CreateDimFromDefaultDim(0);
+            if "Job Task No." <> '' then begin
+                DimensionSetIDArr[1] := "Dimension Set ID";
+                DimensionSetIDArr[2] :=
+                DimMgt.CreateDimSetFromJobTaskDim("Job No.",
+                    "Job Task No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+                DimMgt.CreateDimForJobJournalLineWithHigherPriorities(
+                Rec, CurrFieldNo, DimensionSetIDArr[3], "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", "Source Code", DATABASE::Job);
+                "Dimension Set ID" :=
+                DimMgt.GetCombinedDimensionSetID(
+                    DimensionSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+            end;
         end;
 
         OnAfterUpdateDimensions(Rec, DimensionSetIDArr);
@@ -2476,7 +2533,7 @@ table 210 "Job Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRetrieveCostPrice(JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line"; var ShouldRetrieveCostPrice: Boolean; var Result: Boolean)
+    local procedure OnBeforeRetrieveCostPrice(JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line"; var ShouldRetrieveCostPrice: Boolean; var Result: Boolean; CalledByFieldNo: Integer)
     begin
     end;
 
@@ -2487,6 +2544,16 @@ table 210 "Job Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateWorkTypeCodeQty(var JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line"; Resource: Record Resource; WorkType: Record "Work Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateVariantCode(var JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateUnitofMeasureCode(var JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2537,6 +2604,16 @@ table 210 "Job Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDim(var JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindBinContent(var JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBinContentLookUp(var JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2637,6 +2714,16 @@ table 210 "Job Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateNoOnBeforeValidateQuantity(var JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateDimensions(var JobJournalLine: Record "Job Journal Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateUnitCostLCYOnAfterConvertAmountToFCY(var JobJournalLine: Record "Job Journal Line")
     begin
     end;
 }

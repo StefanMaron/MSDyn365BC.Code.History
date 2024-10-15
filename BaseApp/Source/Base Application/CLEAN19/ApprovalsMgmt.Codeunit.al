@@ -1,4 +1,4 @@
-#if CLEAN19
+﻿#if CLEAN19
 codeunit 1535 "Approvals Mgmt."
 {
     Permissions = TableData "Approval Entry" = imd,
@@ -709,28 +709,31 @@ codeunit 1535 "Approvals Mgmt."
         SequenceNo: Integer;
         IsHandled: Boolean;
     begin
-        if not UserSetup.Get(UserId) then
-            Error(UserIdNotInSetupErr, UserId);
-        SequenceNo := GetLastSequenceNo(ApprovalEntryArgument);
+        IsHandled := false;
+        OnBeforeCreateApprReqForApprTypeWorkflowUserGroup(WorkflowUserGroupMember, WorkflowStepArgument, ApprovalEntryArgument, SequenceNo, IsHandled);
+        if not IsHandled then begin
+            if not UserSetup.Get(UserId) then
+                Error(UserIdNotInSetupErr, UserId);
+            SequenceNo := GetLastSequenceNo(ApprovalEntryArgument);
 
-        with WorkflowUserGroupMember do begin
-            SetCurrentKey("Workflow User Group Code", "Sequence No.");
-            SetRange("Workflow User Group Code", WorkflowStepArgument."Workflow User Group Code");
+            with WorkflowUserGroupMember do begin
+                SetCurrentKey("Workflow User Group Code", "Sequence No.");
+                SetRange("Workflow User Group Code", WorkflowStepArgument."Workflow User Group Code");
 
-            if not FindSet() then
-                Error(NoWFUserGroupMembersErr);
+                if not FindSet() then
+                    Error(NoWFUserGroupMembersErr);
 
-            repeat
-                ApproverId := "User Name";
-                if not UserSetup.Get(ApproverId) then
-                    Error(WFUserGroupNotInSetupErr, ApproverId);
-                IsHandled := false;
-                OnCreateApprReqForApprTypeWorkflowUserGroupOnBeforeMakeApprovalEntry(WorkflowUserGroupMember, ApprovalEntryArgument, WorkflowStepArgument, ApproverId, IsHandled);
-                if not IsHandled then
-                    MakeApprovalEntry(ApprovalEntryArgument, SequenceNo + "Sequence No.", ApproverId, WorkflowStepArgument);
-            until Next() = 0;
+                repeat
+                    ApproverId := "User Name";
+                    if not UserSetup.Get(ApproverId) then
+                        Error(WFUserGroupNotInSetupErr, ApproverId);
+                    IsHandled := false;
+                    OnCreateApprReqForApprTypeWorkflowUserGroupOnBeforeMakeApprovalEntry(WorkflowUserGroupMember, ApprovalEntryArgument, WorkflowStepArgument, ApproverId, IsHandled);
+                    if not IsHandled then
+                        MakeApprovalEntry(ApprovalEntryArgument, SequenceNo + "Sequence No.", ApproverId, WorkflowStepArgument);
+                until Next() = 0;
+            end;
         end;
-
         OnAfterCreateApprReqForApprTypeWorkflowUserGroup(WorkflowStepArgument, ApprovalEntryArgument);
     end;
 
@@ -1000,6 +1003,7 @@ codeunit 1535 "Approvals Mgmt."
         PurchaseHeader: Record "Purchase Header";
         SalesHeader: Record "Sales Header";
         IncomingDocument: Record "Incoming Document";
+        Vendor: Record Vendor;
         EnumAssignmentMgt: Codeunit "Enum Assignment Management";
         ApprovalAmount: Decimal;
         ApprovalAmountLCY: Decimal;
@@ -1069,6 +1073,11 @@ codeunit 1535 "Approvals Mgmt."
                     RecRef.SetTable(IncomingDocument);
                     ApprovalEntryArgument."Document No." := Format(IncomingDocument."Entry No.");
                 end;
+            DATABASE::Vendor:
+                begin
+                    RecRef.SetTable(Vendor);
+                    ApprovalEntryArgument."Salespers./Purch. Code" := Vendor."Purchaser Code";
+                end;
             else
                 OnPopulateApprovalEntryArgument(RecRef, ApprovalEntryArgument, WorkflowStepInstance);
         end;
@@ -1099,11 +1108,11 @@ codeunit 1535 "Approvals Mgmt."
         if IsNotificationRequiredForCurrentUser and (ApprovalEntry.Status <> ApprovalEntry.Status::Rejected) then
             NotificationEntry.CreateNotificationEntry(
                 NotificationEntry.Type::Approval, ApprovalEntry."Approver ID",
-                ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", UserId);
+                ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", CopyStr(UserId(), 1, 50));
         if WorkflowStepArgument."Notify Sender" and IsNotifySenderRequired then
             NotificationEntry.CreateNotificationEntry(
                 NotificationEntry.Type::Approval, ApprovalEntry."Sender ID",
-                ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", '');
+                ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", CopyStr(UserId(), 1, 50));
     end;
 
     local procedure SetApproverType(WorkflowStepArgument: Record "Workflow Step Argument"; var ApprovalEntry: Record "Approval Entry")
@@ -1224,6 +1233,7 @@ codeunit 1535 "Approvals Mgmt."
         IsSufficient: Boolean;
         IsHandled: Boolean;
     begin
+        OnBeforeIsSufficientApprover(UserSetup, ApprovalEntryArgument);
         IsSufficient := true;
         case ApprovalEntryArgument."Table ID" of
             DATABASE::"Purchase Header":
@@ -1375,14 +1385,15 @@ codeunit 1535 "Approvals Mgmt."
         exit(true);
     end;
 
-    procedure CheckCustomerApprovalsWorkflowEnabled(var Customer: Record Customer): Boolean
+    procedure CheckCustomerApprovalsWorkflowEnabled(var Customer: Record Customer) Result: Boolean
     begin
         if not WorkflowManagement.CanExecuteWorkflow(Customer, WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode) then begin
             if WorkflowManagement.EnabledWorkflowExist(DATABASE::Customer, WorkflowEventHandling.RunWorkflowOnCustomerChangedCode) then
                 exit(false);
             Error(NoWorkflowEnabledErr);
         end;
-        exit(true);
+        Result := true;
+        OnAfterCheckCustomerApprovalsWorkflowEnabled(Customer, Result);
     end;
 
     procedure CheckVendorApprovalsWorkflowEnabled(var Vendor: Record Vendor): Boolean
@@ -2094,8 +2105,9 @@ codeunit 1535 "Approvals Mgmt."
                 Error(
                   PurchaserUserNotFoundErr, UserSetup."User ID", UserSetup.FieldCaption("Salespers./Purch. Code"),
                   UserSetup."Salespers./Purch. Code");
-            exit;
         end;
+
+        OnAfterFindUserSetupBySalesPurchCode(UserSetup, ApprovalEntryArgument);
     end;
 
     local procedure CheckUserAsApprovalAdministrator(ApprovalEntry: Record "Approval Entry")
@@ -2170,6 +2182,11 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckCustomerApprovalsWorkflowEnabled(var Customer: Record Customer; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCheckSalesApprovalPossible(var SalesHeader: Record "Sales Header")
     begin
     end;
@@ -2201,6 +2218,11 @@ codeunit 1535 "Approvals Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDelegateApprovalRequest(var ApprovalEntry: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFindUserSetupBySalesPurchCode(var UserSetup: Record "User Setup"; ApprovalEntry: Record "Approval Entry")
     begin
     end;
 
@@ -2241,6 +2263,11 @@ codeunit 1535 "Approvals Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateApprovalEntryNotification(ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCreateApprReqForApprTypeWorkflowUserGroup(var WorkflowUserGroupMember: Record "Workflow User Group Member"; WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntry: Record "Approval Entry"; SequenceNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -2296,6 +2323,11 @@ codeunit 1535 "Approvals Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsPurchaseApprovalsWorkflowEnabled(var PurchaseHeader: Record "Purchase Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsSufficientApprover(var UserSetup: Record "User Setup"; ApprovalEntry: Record "Approval Entry")
     begin
     end;
 

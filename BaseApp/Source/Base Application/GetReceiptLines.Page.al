@@ -159,6 +159,13 @@ page 5709 "Get Receipt Lines"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the referenced item number.';
                 }
+                field("Pay-to Vendor No."; "Pay-to Vendor No.")
+                {
+                    Caption = 'Pay-to Vendor No.';
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the number of the vendor that you received the invoice from.';
+                    Visible = false;
+                }
             }
         }
         area(factboxes)
@@ -246,8 +253,15 @@ page 5709 "Get Receipt Lines"
         GetDataFromRcptHeader();
     end;
 
-    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    trigger OnQueryClosePage(CloseAction: Action) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnQueryClosePage(CloseAction, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if CloseAction in [ACTION::OK, ACTION::LookupOK] then
             CreateLines;
     end;
@@ -265,7 +279,14 @@ page 5709 "Get Receipt Lines"
         ItemReferenceNo: Code[50];
 
     procedure SetPurchHeader(var PurchHeader2: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetPurchHeader(PurchHeader2, IsHandled);
+        if IsHandled then
+            exit;
+
         PurchHeader.Get(PurchHeader2."Document Type", PurchHeader2."No.");
         PurchHeader.TestField("Document Type", PurchHeader."Document Type"::Invoice);
     end;
@@ -313,6 +334,16 @@ page 5709 "Get Receipt Lines"
         OrderNo := SrcPurchRcptHeader."Order No.";
 
         ItemReferenceNo := "Item Reference No.";
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetPurchHeader(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnQueryClosePage(CloseAction: Action; var Result: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

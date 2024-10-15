@@ -3109,6 +3109,8 @@
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
             end;
         end;
+
+        OnAfterCreateDim(Rec, DefaultDimSource);
     end;
 
     procedure UpdateAllLineDim(NewParentDimSetID: Integer; OldParentDimSetID: Integer)
@@ -3273,7 +3275,7 @@
                         until ServDocReg.Next() = 0;
                 end;
                 StoreServiceCommentLineToTemp(TempServiceCommentLine);
-                ServiceCommentLine.DeleteComments(ServiceCommentLine."Table Name"::"Service Header".AsInteger(), "Document Type".AsInteger(), "No.");
+                ServiceCommentLine.DeleteServiceInvoiceLinesRelatedComments(Rec);
                 IsHandled := false;
                 OnRecreateServLinesOnBeforeServLineDeleteAll(Rec, ServLine, CurrFieldNo, IsHandled);
                 if not IsHandled then
@@ -3303,6 +3305,7 @@
         ServiceCommentLine.SetRange("Table Name", ServiceCommentLine."Table Name"::"Service Header");
         ServiceCommentLine.SetRange("Table Subtype", "Document Type");
         ServiceCommentLine.SetRange("No.", "No.");
+        ServiceCommentLine.SetRange(Type, "Service Comment Line Type"::General);
         if ServiceCommentLine.FindSet() then
             repeat
                 TempServiceCommentLine := ServiceCommentLine;
@@ -4004,50 +4007,10 @@
     end;
 
     procedure InitRecord()
-    var
-        PostingNoSeries: Code[20];
     begin
         ServiceMgtSetup.Get();
         GLSetup.GetRecordOnce();
-        if GLSetup."Journal templ. Name Mandatory" then begin
-            if "Journal Templ. Name" = '' then begin
-                if not IsCreditDocType() then
-                    GenJournalTemplate.Get(ServiceMgtSetup."Serv. Inv. Template Name")
-                else
-                    GenJournalTemplate.Get(ServiceMgtSetup."Serv. Cr. Memo Templ. Name");
-                "Journal Templ. Name" := GenJournalTemplate.Name;
-            end else
-                GenJournalTemplate.Get("Journal Templ. Name");
-            PostingNoSeries := GenJournalTemplate."Posting No. Series";
-        end else
-            if IsCreditDocType() then
-                PostingNoSeries := ServiceMgtSetup."Posted Serv. Credit Memo Nos."
-            else
-                PostingNoSeries := ServiceMgtSetup."Posted Service Invoice Nos.";
-
-        case "Document Type" of
-            "Document Type"::Quote, "Document Type"::Order:
-                begin
-                    NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
-                    NoSeriesMgt.SetDefaultSeries("Shipping No. Series", ServiceMgtSetup."Posted Service Shipment Nos.");
-                end;
-            "Document Type"::Invoice:
-                begin
-                    if ("No. Series" <> '') and (ServiceMgtSetup."Service Invoice Nos." = PostingNoSeries) then
-                        "Posting No. Series" := "No. Series"
-                    else
-                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
-                    if ServiceMgtSetup."Shipment on Invoice" then
-                        NoSeriesMgt.SetDefaultSeries("Shipping No. Series", ServiceMgtSetup."Posted Service Shipment Nos.");
-                end;
-            "Document Type"::"Credit Memo":
-                begin
-                    if ("No. Series" <> '') and (ServiceMgtSetup."Service Credit Memo Nos." = PostingNoSeries) then
-                        "Posting No. Series" := "No. Series"
-                    else
-                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
-                end;
-        end;
+        SetDefaultNoSeries();
 
         if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::Quote] then begin
             "Order Date" := WorkDate;
@@ -4090,6 +4053,57 @@
 #endif
 
         OnAfterInitRecord(Rec);
+    end;
+
+    local procedure SetDefaultNoSeries()
+    var
+        PostingNoSeries: Code[20];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetDefaultNoSeries(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if GLSetup."Journal templ. Name Mandatory" then begin
+            if "Journal Templ. Name" = '' then begin
+                if not IsCreditDocType() then
+                    GenJournalTemplate.Get(ServiceMgtSetup."Serv. Inv. Template Name")
+                else
+                    GenJournalTemplate.Get(ServiceMgtSetup."Serv. Cr. Memo Templ. Name");
+                "Journal Templ. Name" := GenJournalTemplate.Name;
+            end else
+                GenJournalTemplate.Get("Journal Templ. Name");
+            PostingNoSeries := GenJournalTemplate."Posting No. Series";
+        end else
+            if IsCreditDocType() then
+                PostingNoSeries := ServiceMgtSetup."Posted Serv. Credit Memo Nos."
+            else
+                PostingNoSeries := ServiceMgtSetup."Posted Service Invoice Nos.";
+
+        case "Document Type" of
+            "Document Type"::Quote, "Document Type"::Order:
+                begin
+                    NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
+                    NoSeriesMgt.SetDefaultSeries("Shipping No. Series", ServiceMgtSetup."Posted Service Shipment Nos.");
+                end;
+            "Document Type"::Invoice:
+                begin
+                    if ("No. Series" <> '') and (ServiceMgtSetup."Service Invoice Nos." = PostingNoSeries) then
+                        "Posting No. Series" := "No. Series"
+                    else
+                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
+                    if ServiceMgtSetup."Shipment on Invoice" then
+                        NoSeriesMgt.SetDefaultSeries("Shipping No. Series", ServiceMgtSetup."Posted Service Shipment Nos.");
+                end;
+            "Document Type"::"Credit Memo":
+                begin
+                    if ("No. Series" <> '') and (ServiceMgtSetup."Service Credit Memo Nos." = PostingNoSeries) then
+                        "Posting No. Series" := "No. Series"
+                    else
+                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
+                end;
+        end;
     end;
 
     local procedure InitRecordFromContact()
@@ -4256,7 +4270,7 @@
         OldDimSetID := "Dimension Set ID";
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            "Dimension Set ID", StrSubstNo('%1 %2', "Document Type", "No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2', "Document Type", "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         OnShowDocDimOnBeforeUpdateAllLineDim(Rec, OldDimSetID, CurrFieldNo);
         if OldDimSetID <> "Dimension Set ID" then begin
@@ -5160,6 +5174,11 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var ServiceHeader: Record "Service Header"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
 #if not CLEAN20
     [Obsolete('Temporary event for compatibility', '20.0')]
     [IntegrationEvent(false, false)]
@@ -5362,6 +5381,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmRecreateServLines(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; ChangedFieldName: Text[100]; var HideValidationDialog: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultNoSeries(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 

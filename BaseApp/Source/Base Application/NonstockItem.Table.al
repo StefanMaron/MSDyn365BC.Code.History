@@ -346,6 +346,8 @@ table 5718 "Nonstock Item"
                     if VenLength + MfrLength < 20 then
                         ItemNo := InsStr(TempItemNo, "Manufacturer Code", 11);
                 end;
+            else
+                OnModifyOnNoFormatElseCase(NonStockItemSetup, Rec, ItemNo);
         end;
 
         OnModifyOnBeforeError(Rec, IsHandled);
@@ -410,6 +412,11 @@ table 5718 "Nonstock Item"
 
     [IntegrationEvent(false, false)]
     local procedure OnModifyOnBeforeError(var NonstockItem: Record "Nonstock Item"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnModifyOnNoFormatElseCase(NonStockItemSetup: Record "Nonstock Item Setup"; NonstockItem: Record "Nonstock Item"; var ItemNo: Code[20])
     begin
     end;
 }

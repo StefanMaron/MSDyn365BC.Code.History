@@ -68,7 +68,11 @@ page 1290 "Payment Reconciliation Journal"
                     trigger OnValidate()
                     begin
                         CurrPage.SaveRecord;
-                        CurrPage.Update(false)
+                        CurrPage.Update(false);
+                        if not BankAccReconciliation.IsEmpty() then begin
+                            BankAccReconciliation.Validate("Statement Ending Balance", 0.0);
+                            BankAccReconciliation.Modify();
+                        end;
                     end;
                 }
 #if not CLEAN19
@@ -1355,6 +1359,22 @@ page 1290 "Payment Reconciliation Journal"
 
         PreviousUXExperienceActive := not GetNewExperienceActive();
         StatementEndingBalance := '-';
+    end;
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        if not BankAccReconciliation.IsEmpty() then begin
+            BankAccReconciliation.Validate("Statement Ending Balance", 0.0);
+            BankAccReconciliation.Modify();
+        end;
+    end;
+
+    trigger OnDeleteRecord(): Boolean
+    begin
+        if not BankAccReconciliation.IsEmpty() then begin
+            BankAccReconciliation.Validate("Statement Ending Balance", 0.0);
+            BankAccReconciliation.Modify();
+        end;
     end;
 
     local procedure GetReviewStatusStyle(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"): Text

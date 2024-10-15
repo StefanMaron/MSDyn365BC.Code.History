@@ -866,6 +866,14 @@ table 254 "VAT Entry"
 
     procedure SetGLAccountNo(WithUI: Boolean)
     var
+        Response: Boolean;
+    begin
+        Response := false;
+        SetGLAccountNoWithResponse(WithUI, WithUI, Response);
+    end;
+
+    procedure SetGLAccountNoWithResponse(WithUI: Boolean; ShowConfirm: Boolean; var Response: Boolean)
+    var
         ConfirmManagement: Codeunit "Confirm Management";
         Window: Dialog;
         NoOfRecords: Integer;
@@ -873,13 +881,15 @@ table 254 "VAT Entry"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetGLAccountNo(Rec, IsHandled);
+        OnBeforeSetGLAccountNo(Rec, IsHandled, Response);
         if IsHandled then
             exit;
 
         SetRange("G/L Acc. No.", '');
         if WithUI then begin
-            if not ConfirmManagement.GetResponseOrDefault(ConfirmAdjustQst, false) then
+            if ShowConfirm then
+                Response := ConfirmManagement.GetResponseOrDefault(ConfirmAdjustQst, false);
+            if not Response then
                 exit;
 
             if GuiAllowed() then begin
@@ -903,8 +913,17 @@ table 254 "VAT Entry"
         if IsHandled then
             exit;
 
-        if not IsEmpty() then
-            Error(NoGLAccNoOnVATEntriesErr, GetFilters());
+        CheckGLAccountNoFilled();
+    end;
+
+    procedure CheckGLAccountNoFilled()
+    var
+        VATEntryLocal: Record "VAT Entry";
+    begin
+        VATEntryLocal.Copy(Rec);
+        VATEntryLocal.SetRange("G/L Acc. No.", '');
+        if not VATEntryLocal.IsEmpty() then
+            Error(NoGLAccNoOnVATEntriesErr, VATEntryLocal.GetFilters());
     end;
 
     local procedure AdjustGLAccountNoOnRec(var VATEntry: Record "VAT Entry")
@@ -1007,7 +1026,7 @@ table 254 "VAT Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetGLAccountNo(var VATEntry: Record "VAT Entry"; var IsHandled: Boolean)
+    local procedure OnBeforeSetGLAccountNo(var VATEntry: Record "VAT Entry"; var IsHandled: Boolean; var Response: Boolean)
     begin
     end;
 

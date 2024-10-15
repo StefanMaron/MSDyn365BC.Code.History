@@ -16,6 +16,7 @@ codeunit 362 PeriodPageManagement
     procedure FindDate(SearchString: Text[3]; var Calendar: Record Date; PeriodType: Enum "Analysis Period Type"): Boolean
     var
         Found: Boolean;
+        UseAccountingPeriod: Boolean;
     begin
         Calendar.SetRange("Period Type", PeriodType);
         Calendar."Period Type" := PeriodType.AsInteger();
@@ -23,7 +24,9 @@ codeunit 362 PeriodPageManagement
             Calendar."Period Start" := WorkDate();
         if SearchString in ['', '=><'] then
             SearchString := '=<>';
-        if PeriodType = PeriodType::"Accounting Period" then begin
+        UseAccountingPeriod := PeriodType = PeriodType::"Accounting Period";
+        OnFindDateOnAfterCalcUseAccountingPeriod(Calendar, PeriodType, AccountingPeriod, UseAccountingPeriod);
+        if UseAccountingPeriod then begin
             AccountingPeriod.SetRange("Starting Date");
             if AccountingPeriod.IsEmpty() then begin
                 AccountingPeriodMgt.InitDefaultAccountingPeriod(AccountingPeriod, GetCalendarPeriodMinDate(Calendar));
@@ -43,10 +46,14 @@ codeunit 362 PeriodPageManagement
     end;
 
     procedure NextDate(NextStep: Integer; var Calendar: Record Date; PeriodType: Enum "Analysis Period Type"): Integer
+    var
+        UseAccountingPeriod: Boolean;
     begin
         Calendar.SetRange("Period Type", PeriodType);
         Calendar."Period Type" := PeriodType.AsInteger();
-        if PeriodType = PeriodType::"Accounting Period" then begin
+        UseAccountingPeriod := PeriodType = PeriodType::"Accounting Period";
+        OnNextDateOnAfterCalcUseAccountingPeriod(Calendar, PeriodType, AccountingPeriod, UseAccountingPeriod);
+        if UseAccountingPeriod then begin
             if AccountingPeriod.IsEmpty() then
                 AccountingPeriodMgt.InitDefaultAccountingPeriod(AccountingPeriod, CalcDate('<+1M>', GetCalendarPeriodMinDate(Calendar)))
             else begin
@@ -168,12 +175,18 @@ codeunit 362 PeriodPageManagement
         exit(DMY2Date(31, 12, 9999));
     end;
 
-    procedure GetFullPeriodDateFilter(PeriodType: Enum "Analysis Period Type"; DateFilter: Text): Text
+    procedure GetFullPeriodDateFilter(PeriodType: Enum "Analysis Period Type"; DateFilter: Text) Result: Text
     var
         Period: Record Date;
         StartDate: Date;
         EndDate: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetFullPeriodDateFilter(PeriodType, DateFilter, AccountingPeriod, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if DateFilter = '' then
             exit(DateFilter);
 
@@ -252,6 +265,21 @@ codeunit 362 PeriodPageManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreatePeriodFormat(PeriodType: Enum "Analysis Period Type"; Date: Date; var PeriodFormat: Text[10]; var AccountingPeriod: Record "Accounting Period")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetFullPeriodDateFilter(PeriodType: Enum "Analysis Period Type"; DateFilter: Text; var AccountingPeriod: Record "Accounting Period"; var Result: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindDateOnAfterCalcUseAccountingPeriod(var Calendar: Record Date; PeriodType: Enum "Analysis Period Type"; var AccountingPeriod: Record "Accounting Period"; var UseAccountingPeriod: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNextDateOnAfterCalcUseAccountingPeriod(var Calendar: Record Date; PeriodType: Enum "Analysis Period Type"; var AccountingPeriod: Record "Accounting Period"; var UseAccountingPeriod: Boolean)
     begin
     end;
 }

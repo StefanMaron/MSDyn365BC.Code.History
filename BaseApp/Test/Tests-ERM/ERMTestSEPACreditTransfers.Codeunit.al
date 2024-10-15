@@ -1654,6 +1654,46 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('VoidElecPmtRequestPageHandler,ConfirmHandler')]
+    procedure VoidSummarizedVendorPayment()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        CreditTransferRegister: Record "Credit Transfer Register";
+        CreditTransferEntry: Record "Credit Transfer Entry";
+        TempPaymentExportData: Record "Payment Export Data" temporary;
+        SEPACTFillExportBuffer: Codeunit "SEPA CT-Fill Export Buffer";
+        ExpUserFeedbackGenJnl: Codeunit "Exp. User Feedback Gen. Jnl.";
+    begin
+        // [FEATURE] [UT] [Vendor]
+        // [SCENARIO 429116] "Gen. Journal Line".VoidPaymentFile() method clears all credit transfer register entries
+        Init();
+        LibraryERM.SetAllowNonEuroExport(true);
+        // [GIVEN] Journal line with 2 applied vendor invoices
+        CreateVendorPmtJournalLineWithAppliedEntries(GenJournalLine, VendorLedgerEntry);
+
+        // [GIVEN] Invoke Export
+        if CreditTransferRegister.FindLast() then;
+        SEPACTFillExportBuffer.FillExportBuffer(GenJournalLine, TempPaymentExportData);
+        ExpUserFeedbackGenJnl.SetGivenExportFlagOnGenJnlLine(GenJournalLine, true);
+        // [GIVEN] 2 credit transfer register entries created
+        CreditTransferEntry.SetRange("Credit Transfer Register No.", CreditTransferRegister."No." + 1);
+        Assert.RecordCount(CreditTransferEntry, 2);
+        CreditTransferRegister.FindLast();
+        CreditTransferRegister.SetStatus(CreditTransferRegister.Status::"File Created");
+
+        // [WHEN] Run "Gen. Journal Line".VoidPaymentFile()
+        Commit();
+        LibraryVariableStorage.Enqueue(true); // confirm "void"
+        GenJournalLine.VoidPaymentFile();
+
+        // [THEN] All credit transfer register entries are deleted
+        Assert.RecordCount(CreditTransferEntry, 0);
+
+    end;
+
     local procedure Init()
     var
         NoSeries: Record "No. Series";
@@ -1854,6 +1894,30 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
             GenJournalLine, GenJournalLine."Document Type"::Payment,
             GenJournalLine."Account Type"::Vendor, VendorNo, 1);
         MockAppliedVendorLedgerEntry(GenJournalLine, VendorLedgerEntry);
+    end;
+
+    local procedure CreateVendorPmtJournalLineWithAppliedEntries(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    var
+        i: Integer;
+    begin
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor, Vendor."No.", 100);
+
+        for i := 1 to 2 do begin
+            MockVendorLedgerEntry(
+                VendorLedgerEntry, GenJournalLine."Account No.", GenJournalLine."Document Type"::" ", '', '');
+            VendorLedgerEntry."Applies-to ID" := GenJournalLine."Document No.";
+            VendorLedgerEntry.Modify();
+        end;
+
+        GenJournalLine."Bank Payment Type" := GenJournalLine."Bank Payment Type"::"Electronic Payment";
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bal. Account No.", BankAccount."No.");
+        GenJournalLine.Validate("Recipient Bank Account", VendorBankAccount.Code);
+        GenJournalLine."Applies-to ID" := GenJournalLine."Document No.";
+        GenJournalLine.Modify();
+        GenJournalLine.SetRecFilter();
     end;
 
     local procedure CreateVendorPmtJournalLineWithAppliedToIdEntry(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry")

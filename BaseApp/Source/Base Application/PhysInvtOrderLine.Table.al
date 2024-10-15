@@ -1,4 +1,4 @@
-table 5876 "Phys. Invt. Order Line"
+﻿table 5876 "Phys. Invt. Order Line"
 {
     Caption = 'Phys. Invt. Order Line';
     DrillDownPageID = "Physical Inventory Order Lines";
@@ -758,7 +758,7 @@ table 5876 "Phys. Invt. Order Line"
             exit;
         "Dimension Set ID" :=
           DimManagement.EditDimensionSet(
-            "Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption, "Document No.", "Line No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption, "Document No.", "Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
 
@@ -803,6 +803,8 @@ table 5876 "Phys. Invt. Order Line"
           DimManagement.GetDefaultDimID(DefaultDimSource, SourceCodeSetup."Phys. Invt. Orders", "Shortcut Dimension 1 Code",
             "Shortcut Dimension 2 Code", PhysInvtOrderHeader."Dimension Set ID", 0);
         DimManagement.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterCreateDim(Rec, DefaultDimSource);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -1023,6 +1025,11 @@ table 5876 "Phys. Invt. Order Line"
 #endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetFieldsFromSKU(var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 

@@ -200,9 +200,6 @@ page 1020 "Job G/L Journal"
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the entry as a corrective entry. You can use the field if you need to post a corrective entry to an account.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
                 }
                 field("VAT Difference"; "VAT Difference")
                 {

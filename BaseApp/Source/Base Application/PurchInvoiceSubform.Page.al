@@ -1,4 +1,4 @@
-#if not CLEAN20
+﻿#if not CLEAN20
 page 55 "Purch. Invoice Subform"
 {
     AutoSplitKey = true;
@@ -78,6 +78,7 @@ page 55 "Purch. Invoice Subform"
                     begin
                         ItemReferenceMgt.PurchaseReferenceNoLookUp(Rec);
                         NoOnAfterValidate();
+                        DeltaUpdateTotals();
 #if not CLEAN20
                         OnCrossReferenceNoOnLookup(Rec);
 #endif                        
@@ -250,6 +251,8 @@ page 55 "Purch. Invoice Subform"
                     trigger OnValidate()
                     begin
                         DeltaUpdateTotals();
+                        if PurchasesPayablesSetup."Calc. Inv. Discount" and (Quantity = 0) then
+                            CurrPage.Update(false);
                     end;
                 }
                 field("Unit of Measure Code"; "Unit of Measure Code")
@@ -1106,7 +1109,7 @@ page 55 "Purch. Invoice Subform"
                         ApplicationArea = ItemTracking;
                         Caption = 'Item &Tracking Lines';
                         Image = ItemTrackingLines;
-                        ShortCutKey = 'Ctrl+Alt+I'; 
+                        ShortCutKey = 'Ctrl+Alt+I';
                         Enabled = Type = Type::Item;
                         ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
 

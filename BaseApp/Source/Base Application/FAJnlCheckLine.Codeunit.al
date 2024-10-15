@@ -480,7 +480,7 @@ codeunit 5631 "FA Jnl.-Check Line"
                         Quantity <> 0:
                             begin
                                 IsHandled := false;
-                                OnCheckConsistencyOnBeforeCheckQuantity(GenJnlLine, IsHandled);
+                                OnCheckConsistencyOnBeforeCheckQuantity(GenJnlLine, IsHandled, FAJnlLine);
                                 if not IsHandled then
                                     if "FA Posting Type" <> "FA Posting Type"::Maintenance then
                                         FieldError(Quantity, FieldErrorText);
@@ -556,7 +556,7 @@ codeunit 5631 "FA Jnl.-Check Line"
                         Quantity <> 0:
                             begin
                                 IsHandled := false;
-                                OnCheckConsistencyOnBeforeCheckQuantity(GenJnlLine, IsHandled);
+                                OnCheckConsistencyOnBeforeCheckQuantity(GenJnlLine, IsHandled, FAJnlLine);
                                 if not IsHandled then
                                     if "FA Posting Type" <> "FA Posting Type"::Maintenance then
                                         FieldError(Quantity, FieldErrorText);
@@ -800,7 +800,7 @@ codeunit 5631 "FA Jnl.-Check Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckConsistencyOnBeforeCheckQuantity(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    local procedure OnCheckConsistencyOnBeforeCheckQuantity(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean; var FAJournalLine: Record "FA Journal Line")
     begin
     end;
 }

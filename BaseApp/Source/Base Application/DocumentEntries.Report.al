@@ -3,6 +3,7 @@ report 35 "Document Entries"
     DefaultLayout = RDLC;
     RDLCLayout = './DocumentEntries.rdlc';
     Caption = 'Document Entries';
+    AllowScheduling = false;
 
     dataset
     {

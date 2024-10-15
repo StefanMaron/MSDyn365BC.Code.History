@@ -122,8 +122,7 @@ table 246 "Requisition Line"
 
                 if Type = Type::Item then begin
                     GetDirectCost(FieldNo(Quantity));
-                    "Remaining Quantity" := Quantity - "Finished Quantity";
-                    "Remaining Qty. (Base)" := "Remaining Quantity" * "Qty. per Unit of Measure";
+                    SetRemaningQuantity();
 
                     if (CurrFieldNo = FieldNo(Quantity)) or (CurrentFieldNo = FieldNo(Quantity)) then
                         SetActionMessage;
@@ -1789,7 +1788,13 @@ table 246 "Requisition Line"
     procedure ShowReservation()
     var
         ReservationPage: Page Reservation;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowReservation(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField(Type, Type::Item);
         TestField("No.");
         Clear(ReservationPage);
@@ -2066,6 +2071,8 @@ table 246 "Requisition Line"
         DimSetIDArr[1] := "Dimension Set ID";
         DimSetIDArr[1] := DimManagement.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         Validate("Dimension Set ID", DimSetIDArr[1]);
+
+        OnAfterUpdateDim(Rec, DefaultDimSource);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -2356,8 +2363,15 @@ table 246 "Requisition Line"
         RemainingQtyBase := "Net Quantity (Base)" - Abs("Reserved Qty. (Base)");
     end;
 
-    procedure GetReservationQty(var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal): Decimal
+    procedure GetReservationQty(var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal) Result: Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetReservationQty(Rec, QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
         QtyReserved := "Reserved Quantity";
         QtyReservedBase := "Reserved Qty. (Base)";
@@ -3241,6 +3255,8 @@ table 246 "Requisition Line"
             SetFilter("Quantity (Base)", '>0')
         else
             SetFilter("Quantity (Base)", '<0');
+
+        OnAfterFilterLinesForReservation(Rec, ReservationEntry);
     end;
 
     procedure FindCurrForecastName(var ForecastName: Code[10]): Boolean
@@ -3265,7 +3281,7 @@ table 246 "Requisition Line"
     begin
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            "Dimension Set ID", StrSubstNo('%1 %2 %3', "Worksheet Template Name", "Journal Batch Name", "Line No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2 %3', "Worksheet Template Name", "Journal Batch Name", "Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
 
@@ -3414,6 +3430,14 @@ table 246 "Requisition Line"
         exit(false);
     end;
 
+    local procedure SetRemaningQuantity()
+    begin
+        "Remaining Quantity" := Quantity - "Finished Quantity";
+        "Remaining Qty. (Base)" := "Remaining Quantity" * "Qty. per Unit of Measure";
+
+        OnAfterSetRemaningQuantity(Rec, xRec, CurrFieldNo, CurrentFieldNo);
+    end;
+
     local procedure SetReplenishmentSystemFromPurchase(StockkeepingUnit: Record "Stockkeeping Unit")
     begin
         "Ref. Order Type" := "Ref. Order Type"::Purchase;
@@ -3462,10 +3486,7 @@ table 246 "Requisition Line"
     begin
         OnBeforeSetReplenishmentSystemFromProdOrder(Rec);
 
-        if ReqWkshTmpl.Get("Worksheet Template Name") and
-           (ReqWkshTmpl.Type = ReqWkshTmpl.Type::"Req.") and (ReqWkshTmpl.Name <> '') and not "Drop Shipment"
-        then
-            Error(ReplenishmentErr);
+        CheckReqWkshTmpl();
 
         if PlanningResiliency and (Item."Base Unit of Measure" = '') then
             TempPlanningErrorLog.SetError(
@@ -3532,6 +3553,21 @@ table 246 "Requisition Line"
         OnAfterSetReplenishmentSystemFromProdOrder(Rec, Item);
     end;
 
+    local procedure CheckReqWkshTmpl()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckReqWkshTmpl(Rec, Item, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ReqWkshTmpl.Get("Worksheet Template Name") and
+           (ReqWkshTmpl.Type = ReqWkshTmpl.Type::"Req.") and (ReqWkshTmpl.Name <> '') and not "Drop Shipment"
+        then
+            Error(ReplenishmentErr);
+    end;
+
     local procedure UpdateUnitOfMeasureCodeFromItemBaseUnitOfMeasure()
     var
         IsHandled: Boolean;
@@ -3563,6 +3599,7 @@ table 246 "Requisition Line"
         Validate("Production BOM No.", '');
         Validate("Routing No.", '');
         Validate("Transfer-from Code", '');
+        UpdateUnitOfMeasureCodeFromItemBaseUnitOfMeasure();
 
         if ("Planning Line Origin" = "Planning Line Origin"::"Order Planning") and ValidateFields then
             PlanningLineMgt.Calculate(Rec, 1, true, true, 0);
@@ -3580,6 +3617,7 @@ table 246 "Requisition Line"
         Validate("Production BOM No.", '');
         Validate("Routing No.", '');
         Validate("Transfer-from Code", StockkeepingUnit."Transfer-from Code");
+        UpdateUnitOfMeasureCodeFromItemBaseUnitOfMeasure();
 
         OnAfterSetReplenishmentSystemFromTransfer(Rec, Item, StockkeepingUnit, CurrFieldNo);
     end;
@@ -3735,6 +3773,11 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterLinesForReservation(var RequisitionLine: Record "Requisition Line"; var ReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetDirectCost(var RequisitionLine: Record "Requisition Line"; CalledByFieldNo: Integer)
     begin
     end;
@@ -3746,6 +3789,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetDueDate(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetRemaningQuantity(var RequisitionLine: Record "Requisition Line"; xRequisitionLine: Record "Requisition Line"; CallingFieldNo: Integer; GlobalCurrentFieldNo: Integer)
     begin
     end;
 
@@ -3866,6 +3914,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDirectCost(var ReqLine: Record "Requisition Line"; xReqLine: Record "Requisition Line"; CalledByFieldNo: Integer; FieldNo: Integer; Subcontracting: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetReservationQty(var RequisitionLine: Record "Requisition Line"; var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -4025,6 +4078,11 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowReservation(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateStartingTime(var RequisitionLine: Record "Requisition Line"; var ShouldSetDueDate: Boolean; var IsHandled: Boolean; CallingFieldNo: Integer; CurrentFieldNo: Integer; xRequisitionLine: Record "Requisition Line")
     begin
     end;
@@ -4060,6 +4118,11 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateDim(var RequisitionLine: Record "Requisition Line"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnTransferFromUnplannedDemandOnBeforeSetStatus(var RequisitionLine: Record "Requisition Line"; var UnplannedDemand: Record "Unplanned Demand")
     begin
     end;
@@ -4081,6 +4144,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetReplenishmentSystemFromProdOrderOnBeforeAssignProdFields(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckReqWkshTmpl(var RequisitionLine: Record "Requisition Line"; Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 

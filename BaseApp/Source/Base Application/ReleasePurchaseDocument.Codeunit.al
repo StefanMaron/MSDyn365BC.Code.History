@@ -1,4 +1,4 @@
-#if not CLEAN18
+﻿#if not CLEAN18
 codeunit 415 "Release Purchase Document"
 {
     TableNo = "Purchase Header";
@@ -28,8 +28,6 @@ codeunit 415 "Release Purchase Document"
     local procedure "Code"() LinesWereModified: Boolean
     var
         PurchLine: Record "Purchase Line";
-        GLSetup: Record "General Ledger Setup";
-        UserCheck: Codeunit "User Setup Adv. Management";
         PrepaymentMgt: Codeunit "Prepayment Mgt.";
         NotOnlyDropShipment: Boolean;
         PostingDate: Date;
@@ -51,36 +49,8 @@ codeunit 415 "Release Purchase Document"
             if IsHandled then
                 exit;
 
-            PurchLine.SetRange("Document Type", "Document Type");
-            PurchLine.SetRange("Document No.", "No.");
-            PurchLine.SetFilter(Type, '>0');
-            PurchLine.SetFilter(Quantity, '<>0');
-            OnCodeOnAfterPurchLineSetFilters(PurchaseHeader, PurchLine);
-            if not PurchLine.Find('-') then
-                Error(Text001, "Document Type", "No.");
             InvtSetup.Get();
-            GLSetup.Get(); // NAVCZ
-            if InvtSetup."Location Mandatory" then begin
-                PurchLine.SetRange(Type, PurchLine.Type::Item);
-                if PurchLine.Find('-') then
-                    repeat
-                        if PurchLine.IsInventoriableItem then
-                            PurchLine.TestField("Location Code");
-                        // NAVCZ
-                        if GLSetup."User Checks Allowed" then
-                            if PurchLine.Type = PurchLine.Type::Item then begin
-                                UserCheck.SetItem(PurchLine."No.");
-                                case true of
-                                    PurchLine.Quantity < 0:
-                                        UserCheck.CheckReleasLocQuantityDecrease(PurchLine."Location Code");
-                                    PurchLine.Quantity > 0:
-                                        UserCheck.CheckReleasLocQuantityIncrease(PurchLine."Location Code");
-                                end;
-                            end;
-                    // NAVCZ
-                    until PurchLine.Next() = 0;
-                PurchLine.SetFilter(Type, '>0');
-            end;
+            CheckPurchLines(PurchLine);
 
             OnCodeOnAfterCheck(PurchaseHeader, PurchLine, LinesWereModified);
 
@@ -129,6 +99,50 @@ codeunit 415 "Release Purchase Document"
                     WhsePurchRelease.Release(PurchaseHeader);
 
             OnAfterReleasePurchaseDoc(PurchaseHeader, PreviewMode, LinesWereModified);
+        end;
+    end;
+
+    local procedure CheckPurchLines(var PurchLine: Record "Purchase Line")
+    var
+        GLSetup: Record "General Ledger Setup";
+        UserCheck: Codeunit "User Setup Adv. Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckPurchLines(PurchaseHeader, PurchLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        with PurchaseHeader do begin
+            PurchLine.SetRange("Document Type", "Document Type");
+            PurchLine.SetRange("Document No.", "No.");
+            PurchLine.SetFilter(Type, '>0');
+            PurchLine.SetFilter(Quantity, '<>0');
+            OnCodeOnAfterPurchLineSetFilters(PurchaseHeader, PurchLine);
+            if not PurchLine.Find('-') then
+                Error(Text001, "Document Type", "No.");
+            GLSetup.Get(); // NAVCZ
+            if InvtSetup."Location Mandatory" then begin
+                PurchLine.SetRange(Type, PurchLine.Type::Item);
+                if PurchLine.Find('-') then
+                    repeat
+                        if PurchLine.IsInventoriableItem then
+                            PurchLine.TestField("Location Code");
+                        // NAVCZ
+                        if GLSetup."User Checks Allowed" then
+                            if PurchLine.Type = PurchLine.Type::Item then begin
+                                UserCheck.SetItem(PurchLine."No.");
+                                case true of
+                                    PurchLine.Quantity < 0:
+                                        UserCheck.CheckReleasLocQuantityDecrease(PurchLine."Location Code");
+                                    PurchLine.Quantity > 0:
+                                        UserCheck.CheckReleasLocQuantityIncrease(PurchLine."Location Code");
+                                end;
+                            end;
+                    // NAVCZ
+                    until PurchLine.Next() = 0;
+                PurchLine.SetFilter(Type, '>0');
+            end;
         end;
     end;
 
@@ -299,6 +313,11 @@ codeunit 415 "Release Purchase Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePerformManualRelease(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPurchLines(var PurchaseHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

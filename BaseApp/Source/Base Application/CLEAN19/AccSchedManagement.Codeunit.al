@@ -2200,7 +2200,7 @@ codeunit 8 AccSchedManagement
                 SetGLAccColumnFilters(GLAcc, AccScheduleLine, TempColumnLayout);
                 AccSchedName.Get("Schedule Name");
                 if AccSchedName."Analysis View Name" = '' then begin
-                    OnDrillDownOnGLAccountOnBeforeCopyFiltersEmptyAnalysisViewName(AccScheduleLine, TempColumnLayout);
+                    OnDrillDownOnGLAccountOnBeforeCopyFiltersEmptyAnalysisViewName(AccScheduleLine, TempColumnLayout, GLAcc);
                     CopyFilter("Dimension 1 Filter", GLAcc."Global Dimension 1 Filter");
                     CopyFilter("Dimension 2 Filter", GLAcc."Global Dimension 2 Filter");
                     CopyFilter("Business Unit Filter", GLAcc."Business Unit Filter");
@@ -2218,6 +2218,7 @@ codeunit 8 AccSchedManagement
                     GLAcc.FilterGroup(0);
                     PAGE.Run(PAGE::"Chart of Accounts (G/L)", GLAcc)
                 end else begin
+                    OnDrillDownOnGLAccountOnBeforeCopyFiltersWithAnalysisView(AccScheduleLine, TempColumnLayout, GLAcc);
                     GLAcc.CopyFilter("Date Filter", GLAccAnalysisView."Date Filter");
                     GLAcc.CopyFilter("Budget Filter", GLAccAnalysisView."Budget Filter");
                     GLAcc.CopyFilter("Business Unit Filter", GLAccAnalysisView."Business Unit Filter");
@@ -2552,7 +2553,12 @@ codeunit 8 AccSchedManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnDrillDownOnGLAccountOnBeforeCopyFiltersEmptyAnalysisViewName(var AccScheduleLine: Record "Acc. Schedule Line"; var TempColumnLayout: Record "Column Layout")
+    local procedure OnDrillDownOnGLAccountOnBeforeCopyFiltersEmptyAnalysisViewName(var AccScheduleLine: Record "Acc. Schedule Line"; var TempColumnLayout: Record "Column Layout"; var GLAcc: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDrillDownOnGLAccountOnBeforeCopyFiltersWithAnalysisView(var AccScheduleLine: Record "Acc. Schedule Line"; var TempColumnLayout: Record "Column Layout"; var GLAcc: Record "G/L Account")
     begin
     end;
 

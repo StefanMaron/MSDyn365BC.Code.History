@@ -49,23 +49,7 @@ codeunit 415 "Release Purchase Document"
             if IsHandled then
                 exit;
 
-            PurchLine.SetRange("Document Type", "Document Type");
-            PurchLine.SetRange("Document No.", "No.");
-            PurchLine.SetFilter(Type, '>0');
-            PurchLine.SetFilter(Quantity, '<>0');
-            OnCodeOnAfterPurchLineSetFilters(PurchaseHeader, PurchLine);
-            if not PurchLine.Find('-') then
-                Error(Text001, "Document Type", "No.");
-            InvtSetup.Get();
-            if InvtSetup."Location Mandatory" then begin
-                PurchLine.SetRange(Type, PurchLine.Type::Item);
-                if PurchLine.Find('-') then
-                    repeat
-                        if PurchLine.IsInventoriableItem then
-                            PurchLine.TestField("Location Code");
-                    until PurchLine.Next() = 0;
-                PurchLine.SetFilter(Type, '>0');
-            end;
+            CheckPurchLines(PurchLine);
 
             OnCodeOnAfterCheck(PurchaseHeader, PurchLine, LinesWereModified);
 
@@ -114,6 +98,36 @@ codeunit 415 "Release Purchase Document"
                     WhsePurchRelease.Release(PurchaseHeader);
 
             OnAfterReleasePurchaseDoc(PurchaseHeader, PreviewMode, LinesWereModified);
+        end;
+    end;
+
+    local procedure CheckPurchLines(var PurchLine: Record "Purchase Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckPurchLines(PurchaseHeader, PurchLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        with PurchaseHeader do begin
+            PurchLine.SetRange("Document Type", "Document Type");
+            PurchLine.SetRange("Document No.", "No.");
+            PurchLine.SetFilter(Type, '>0');
+            PurchLine.SetFilter(Quantity, '<>0');
+            OnCodeOnAfterPurchLineSetFilters(PurchaseHeader, PurchLine);
+            if not PurchLine.Find('-') then
+                Error(Text001, "Document Type", "No.");
+            InvtSetup.Get();
+            if InvtSetup."Location Mandatory" then begin
+                PurchLine.SetRange(Type, PurchLine.Type::Item);
+                if PurchLine.Find('-') then
+                    repeat
+                        if PurchLine.IsInventoriableItem then
+                            PurchLine.TestField("Location Code");
+                    until PurchLine.Next() = 0;
+                PurchLine.SetFilter(Type, '>0');
+            end;
         end;
     end;
 
@@ -284,6 +298,11 @@ codeunit 415 "Release Purchase Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePerformManualRelease(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPurchLines(var PurchaseHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

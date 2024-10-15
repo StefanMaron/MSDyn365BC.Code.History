@@ -369,6 +369,13 @@ page 29 "Vendor Ledger Entries"
                     ToolTip = 'Specifies the code for Shortcut Dimension 8, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim8Visible;
                 }
+                field("Closed at Date"; "Closed at Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the date at which the vendor ledger entry was closed.';
+                    Visible = false;
+                }
             }
         }
         area(factboxes)

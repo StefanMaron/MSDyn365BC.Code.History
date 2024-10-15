@@ -83,6 +83,7 @@ page 6631 "Sales Return Order Subform"
                         ItemReferenceMgt.SalesReferenceNoLookup(Rec);
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
+                        DeltaUpdateTotals();
 #if not CLEAN20
                         OnCrossReferenceNoOnLookup(Rec);
 #endif
@@ -251,6 +252,8 @@ page 6631 "Sales Return Order Subform"
                     begin
                         QuantityOnAfterValidate();
                         DeltaUpdateTotals();
+                        if SalesSetup."Calc. Inv. Discount" and (Quantity = 0) then
+                            CurrPage.Update(false);
                     end;
                 }
                 field("Reserved Quantity"; ReverseReservedQtySign)
@@ -1019,7 +1022,7 @@ page 6631 "Sales Return Order Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     Enabled = Type = Type::Item;
                     ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
 
@@ -1354,6 +1357,7 @@ page 6631 "Sales Return Order Subform"
             AutoReserve();
             CurrPage.Update(false);
         end;
+        OnAfterLocationCodeOnAfterValidate(Rec, xRec);
     end;
 
     protected procedure ReserveOnAfterValidate()
@@ -1517,13 +1521,18 @@ page 6631 "Sales Return Order Subform"
             end
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterQuantityOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterLocationCodeOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
 

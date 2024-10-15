@@ -1070,9 +1070,10 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         CreateJournalLineWithAppliesToDocNo(GenJournalLineForPayment, GenJournalTemplate.Type::"Cash Receipts",
           DocumentTypeForCashReceiptJournal, GenJournalLine."Document Type", GenJournalLine."Bal. Account Type"::Customer,
           GenJournalLine."Document No.");
+        GenJournalLineForPayment.Validate("Bal. Account No.", Customer."No.");
 
-        // Exercise: Validate Customer No. on Payment Journal Line.
-        asserterror GenJournalLineForPayment.Validate("Bal. Account No.", Customer."No.");
+        // Exercise: Validate "Applies-to Doc. No." on Payment Journal Line.
+        asserterror GenJournalLineForPayment.Validate("Applies-to Doc. No.", GenJournalLine."Document No.");
 
         // Verify: Verify Error raised on General Journal Line Validation.
         Assert.ExpectedError(JournalLineErr);
@@ -1183,9 +1184,10 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         CreateJournalLineWithAppliesToDocNo(GenJournalLineForPayment, GenJournalTemplate.Type::Payments,
           DocumentTypeForPaymentJournal, GenJournalLine."Document Type", GenJournalLine."Bal. Account Type"::Vendor,
           GenJournalLine."Document No.");
+        GenJournalLineForPayment.Validate("Bal. Account No.", Vendor."No.");
 
-        // Exercise: Validate Vendor No. on Payment Journal Line.
-        asserterror GenJournalLineForPayment.Validate("Bal. Account No.", Vendor."No.");
+        // Exercise: Validate "Applies-to Doc. No." on Payment Journal Line.
+        asserterror GenJournalLineForPayment.Validate("Applies-to Doc. No.", GenJournalLine."Document No.");
 
         // Verify: Verify Error raised on General Journal Line Validation.
         Assert.ExpectedError(JournalLineErr);

@@ -420,6 +420,13 @@ page 5601 "Fixed Asset List"
         }
     }
 
+    trigger OnOpenPage()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+    begin
+        FeatureTelemetry.LogUptake('0000H4D', 'Fixed Asset', Enum::"Feature Uptake Status"::Discovered);
+    end;
+
     procedure GetSelectionFilter(): Text
     var
         FixedAsset: Record "Fixed Asset";

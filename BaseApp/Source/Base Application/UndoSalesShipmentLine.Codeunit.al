@@ -350,7 +350,13 @@ codeunit 5815 "Undo Sales Shipment Line"
     var
         BlanketOrderSalesLine: Record "Sales Line";
         xBlanketOrderSalesLine: Record "Sales Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateBlanketOrder(SalesShptLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with SalesShptLine do
             if BlanketOrderSalesLine.Get(
                  BlanketOrderSalesLine."Document Type"::"Blanket Order", "Blanket Order No.", "Blanket Order Line No.")
@@ -653,6 +659,11 @@ codeunit 5815 "Undo Sales Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesShptLineModify(var SalesShptLine: Record "Sales Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateBlanketOrder(var SalesShptLine: Record "Sales Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 

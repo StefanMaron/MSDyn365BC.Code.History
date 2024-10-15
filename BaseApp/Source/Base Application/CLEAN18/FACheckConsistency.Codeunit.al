@@ -140,11 +140,13 @@ codeunit 5606 "FA Check Consistency"
             SetRange("Depreciation Book Code", DeprBookCode);
             SetRange("Part of Book Value", true);
             SetFilter("FA Posting Date", '%1..', FAPostingDate + 1);
+            OnCheckSalesPostingOnBeforeFirstFind(FALedgEntry, FANo, DeprBookCode);
             if Find('-') then
                 CreateDisposalError;
             SetRange("Part of Book Value");
             SetCurrentKey("FA No.", "Depreciation Book Code", "Part of Depreciable Basis", "FA Posting Date");
             SetRange("Part of Depreciable Basis", true);
+            OnCheckSalesPostingOnAfterSetFALedgerEntryFilters(FALedgEntry, FANo, DeprBookCode);
             if Find('-') then
                 CreateDisposalError;
             SetRange("Part of Depreciable Basis");
@@ -390,6 +392,16 @@ codeunit 5606 "FA Check Consistency"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckNormalPostingOnAfterSetFALedgerEntryFilters(var FALedgerEntry: Record "FA Ledger Entry"; FANo: Code[20]; DepreciationBookCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckSalesPostingOnAfterSetFALedgerEntryFilters(var FALedgerEntry: Record "FA Ledger Entry"; FANo: Code[20]; DepreciationBookCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckSalesPostingOnBeforeFirstFind(var FALedgerEntry: Record "FA Ledger Entry"; FANo: Code[20]; DepreciationBookCode: Code[10])
     begin
     end;
 

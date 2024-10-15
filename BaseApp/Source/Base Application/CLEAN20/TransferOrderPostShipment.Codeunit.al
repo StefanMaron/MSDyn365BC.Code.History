@@ -157,7 +157,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
         Rec := TransHeader;
 
-        OnAfterTransferOrderPostShipment(Rec, SuppressCommit, TransShptHeader);
+        OnAfterTransferOrderPostShipment(Rec, SuppressCommit, TransShptHeader, InvtPickPutaway);
     end;
 
     var
@@ -787,7 +787,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferOrderPostShipment(var TransferHeader: Record "Transfer Header"; CommitIsSuppressed: Boolean; var TransferShipmentHeader: Record "Transfer Shipment Header")
+    local procedure OnAfterTransferOrderPostShipment(var TransferHeader: Record "Transfer Header"; CommitIsSuppressed: Boolean; var TransferShipmentHeader: Record "Transfer Shipment Header"; InvtPickPutaway: Boolean)
     begin
     end;
 

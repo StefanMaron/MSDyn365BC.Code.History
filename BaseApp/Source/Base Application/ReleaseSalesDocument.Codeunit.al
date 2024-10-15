@@ -1,4 +1,4 @@
-#if not CLEAN18
+﻿#if not CLEAN18
 codeunit 414 "Release Sales Document"
 {
     TableNo = "Sales Header";
@@ -28,8 +28,6 @@ codeunit 414 "Release Sales Document"
     local procedure "Code"() LinesWereModified: Boolean
     var
         SalesLine: Record "Sales Line";
-        GLSetup: Record "General Ledger Setup";
-        UserCheck: Codeunit "User Setup Adv. Management";
         PrepaymentMgt: Codeunit "Prepayment Mgt.";
         NotOnlyDropShipment: Boolean;
         PostingDate: Date;
@@ -64,40 +62,7 @@ codeunit 414 "Release Sales Document"
             if IsHandled then
                 exit;
 
-            SalesLine.SetRange("Document Type", "Document Type");
-            SalesLine.SetRange("Document No.", "No.");
-            SalesLine.SetFilter(Type, '>0');
-            SalesLine.SetFilter(Quantity, '<>0');
-            OnBeforeSalesLineFind(SalesLine, SalesHeader);
-            if not SalesLine.Find('-') then
-                Error(Text001, "Document Type", "No.");
-            InvtSetup.Get();
-            GLSetup.Get(); // NAVCZ
-
-            if InvtSetup."Location Mandatory" then begin
-                SalesLine.SetRange(Type, SalesLine.Type::Item);
-                if SalesLine.FindSet() then
-                    repeat
-                        if SalesLine.IsInventoriableItem then
-                            SalesLine.TestField("Location Code");
-                        // NAVCZ
-                        if GLSetup."User Checks Allowed" then
-                            if SalesLine.Type = SalesLine.Type::Item then begin
-                                UserCheck.SetItem(SalesLine."No.");
-                                case true of
-                                    SalesLine.Quantity > 0:
-                                        if not UserCheck.CheckReleasLocQuantityDecrease(SalesLine."Location Code") then
-                                            SalesLine.FieldError("Location Code");
-                                    SalesLine.Quantity < 0:
-                                        if not UserCheck.CheckReleasLocQuantityIncrease(SalesLine."Location Code") then
-                                            SalesLine.FieldError("Location Code");
-                                end;
-                            end;
-                        // NAVCZ
-                        OnCodeOnAfterSalesLineCheck(SalesLine);
-                    until SalesLine.Next() = 0;
-                SalesLine.SetFilter(Type, '>0');
-            end;
+            CheckSalesLines(SalesLine);
 
             OnCodeOnAfterCheck(SalesHeader, SalesLine, LinesWereModified);
 
@@ -151,6 +116,37 @@ codeunit 414 "Release Sales Document"
                     WhseSalesRelease.Release(SalesHeader);
 
             OnAfterReleaseSalesDoc(SalesHeader, PreviewMode, LinesWereModified);
+        end;
+    end;
+
+    local procedure CheckSalesLines(var SalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSalesLines(SalesHeader, SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        with SalesHeader do begin
+            SalesLine.SetRange("Document Type", "Document Type");
+            SalesLine.SetRange("Document No.", "No.");
+            SalesLine.SetFilter(Type, '>0');
+            SalesLine.SetFilter(Quantity, '<>0');
+            OnBeforeSalesLineFind(SalesLine, SalesHeader);
+            if not SalesLine.Find('-') then
+                Error(Text001, "Document Type", "No.");
+            InvtSetup.Get();
+            if InvtSetup."Location Mandatory" then begin
+                SalesLine.SetRange(Type, SalesLine.Type::Item);
+                if SalesLine.FindSet() then
+                    repeat
+                        if SalesLine.IsInventoriableItem then
+                            SalesLine.TestField("Location Code");
+                        OnCodeOnAfterSalesLineCheck(SalesLine);
+                    until SalesLine.Next() = 0;
+                SalesLine.SetFilter(Type, '>0');
+            end;
         end;
     end;
 
@@ -379,6 +375,11 @@ codeunit 414 "Release Sales Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckSalesHeaderPendingApproval(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSalesLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 

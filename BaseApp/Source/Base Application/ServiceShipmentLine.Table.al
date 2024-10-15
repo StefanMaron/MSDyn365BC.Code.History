@@ -705,9 +705,9 @@ table 5991 "Service Shipment Line"
             ServiceLine."Dimension Set ID" := ServiceOrderLine."Dimension Set ID";
             ServiceLine.Validate("Posting Date", ServiceInvHeader."Posting Date");
 
-            OnBeforeServiceInvLineInsert(ServiceLine, ServiceOrderLine);
+            OnBeforeServiceInvLineInsert(ServiceLine, ServiceOrderLine, Rec);
             ServiceLine.Insert();
-            OnAfterServiceInvLineInsert(ServiceLine, ServiceOrderLine);
+            OnAfterServiceInvLineInsert(ServiceLine, ServiceOrderLine, Rec);
 
             if (ServiceLine."Contract No." <> '') and (ServiceLine.Type <> ServiceLine.Type::" ") then
                 case ServiceLine."Document Type" of
@@ -835,7 +835,7 @@ table 5991 "Service Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterServiceInvLineInsert(var ToServiceLine: Record "Service Line"; FromServiceLine: Record "Service Line")
+    local procedure OnAfterServiceInvLineInsert(var ToServiceLine: Record "Service Line"; FromServiceLine: Record "Service Line"; ServiceShipmentLine: Record "Service Shipment Line")
     begin
     end;
 
@@ -845,7 +845,7 @@ table 5991 "Service Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceInvLineInsert(var ToServiceLine: Record "Service Line"; FromServiceLine: Record "Service Line")
+    local procedure OnBeforeServiceInvLineInsert(var ToServiceLine: Record "Service Line"; FromServiceLine: Record "Service Line"; ServiceShipmentLine: Record "Service Shipment Line")
     begin
     end;
 

@@ -22,11 +22,7 @@ codeunit 134163 "Company Init Unit Test"
         InvPCostCodeTxt: Label 'INVTPCOST', Comment = 'Post Inventory to G/L';
         InvPCostValueTxt: Label 'Post Inventory Cost to G/L';
         AdjExchRatesCodeTxt: Label 'EXCHRATADJ', Comment = 'Adjust Exchange Rates';
-#if not CLEAN18
-        AdjExchRatesValueTxt: Label 'Adjust Exchange Rates (Obsolete)';
-#else
         AdjExchRatesValueTxt: Label 'Adjust Exchange Rates';
-#endif
         ClsIncStmtCodeTxt: Label 'CLSINCOME', Comment = 'Close Income Statement';
         ClsIncStmtValueTxt: Label 'Close Income Statement';
         ConsolidationCodeTxt: Label 'CONSOLID', Comment = 'Consolidation';

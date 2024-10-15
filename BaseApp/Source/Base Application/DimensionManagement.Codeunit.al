@@ -1,4 +1,4 @@
-#if not CLEAN19
+﻿#if not CLEAN19
 codeunit 408 DimensionManagement
 {
     Permissions = TableData "Gen. Journal Template" = imd,
@@ -27,7 +27,7 @@ codeunit 408 DimensionManagement
         Text015: Label '%1 %2 can''t be found.';
         DimValueBlockedErr: Label '%1 %2 - %3 is blocked.', Comment = '%1 = Dimension Value table caption, %2 = Dim Code, %3 = Dim Value';
         DimValueMustNotBeErr: Label 'Dimension Value Type for %1 %2 - %3 must not be %4.', Comment = '%1 = Dimension Value table caption, %2 = Dim Code, %3 = Dim Value, %4 = Dimension Value Type value';
-        DimValueMissingErr: Label '%1 for %2 is missing.', Comment = '%1 = Dimension Value table caption, %2 = Dim Code';
+        DimValueMissingErr: Label '%1 %2 - %3 is missing.', Comment = '%1 = Dimension Value table caption, %2 = Dim Code, %3 = Dim Value';
         Text019: Label 'You have changed a dimension.\\Do you want to update the lines?';
         DimValueNotAllowedForAccountErr: Label 'Dimension value %1, %2 is not allowed for %3, %4.', Comment = '%1 = Dim Code, %2 = Dim Value, %3 - table caption, %4 - account number.';
         DimValueNotAllowedForAccountTypeErr: Label 'Dimension value %1 %2 is not allowed for account type %3.', Comment = '%1 = Dim Code, %2 = Dim Value, %3 - table caption.';
@@ -168,13 +168,20 @@ codeunit 408 DimensionManagement
 
     procedure EditDimensionSet(DimSetID: Integer; NewCaption: Text[250]; var GlobalDimVal1: Code[20]; var GlobalDimVal2: Code[20]): Integer
     var
+        RecVariant: Variant;
+    begin
+        exit(EditDimensionSet(RecVariant, DimSetID, NewCaption, GlobalDimVal1, GlobalDimVal2));
+    end;
+
+    procedure EditDimensionSet(RecVariant: Variant; DimSetID: Integer; NewCaption: Text[250]; var GlobalDimVal1: Code[20]; var GlobalDimVal2: Code[20]): Integer
+    var
         DimSetEntry: Record "Dimension Set Entry";
         EditDimSetEntries: Page "Edit Dimension Set Entries";
         NewDimSetID: Integer;
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeEditDimensionSet2(DimSetID, NewCaption, GlobalDimVal1, GlobalDimVal2, NewDimSetID, IsHandled);
+        OnBeforeEditDimensionSet2(DimSetID, NewCaption, GlobalDimVal1, GlobalDimVal2, NewDimSetID, IsHandled, RecVariant);
         if IsHandled then
             exit(NewDimSetID);
 
@@ -1575,7 +1582,7 @@ codeunit 408 DimensionManagement
             end else begin
                 LogError(
                   DATABASE::"Dimension Value", 0,
-                  StrSubstNo(DimValueMissingErr, DimVal.TableCaption, DimCode), '');
+                  StrSubstNo(DimValueMissingErr, DimVal.TableCaption(), DimCode, DimValCode), '');
                 exit(false);
             end;
         exit(true);
@@ -1906,7 +1913,7 @@ codeunit 408 DimensionManagement
             end else begin
                 LogError(
                   DATABASE::"IC Dimension Value", 0,
-                  StrSubstNo(DimValueMissingErr, ICDimVal.TableCaption, ICDimCode), '');
+                  StrSubstNo(DimValueMissingErr, ICDimVal.TableCaption(), ICDimCode, ICDimValCode), '');
                 exit(false);
             end;
         exit(true);
@@ -3287,7 +3294,7 @@ codeunit 408 DimensionManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeEditDimensionSet2(DimSetID: Integer; NewCaption: Text[250]; var GlobalDimVal1: Code[20]; var GlobalDimVal2: Code[20]; var NewDimSetID: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeEditDimensionSet2(DimSetID: Integer; NewCaption: Text[250]; var GlobalDimVal1: Code[20]; var GlobalDimVal2: Code[20]; var NewDimSetID: Integer; var IsHandled: Boolean; RecVariant: Variant)
     begin
     end;
 
