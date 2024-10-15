@@ -1211,4 +1211,22 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT Contact Table - NamedType DateFilterErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3612168113 - NamedType 49602008" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must not contain letters in Contact No.='%2']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Field Caption, like Phone No.; %2 - Contact No.]D;]A;(LookupHint=Codeunit UT Contact Table - NamedType PhoneNoCannotContainLettersErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3612168113 - NamedType 556310985" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Validation error for Field: %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Field Caption, like Phone No.]D;]A;(LookupHint=Codeunit UT Contact Table - NamedType PhoneNoContactCardValidationErr)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>

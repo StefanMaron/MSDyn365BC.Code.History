@@ -3701,6 +3701,197 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure AccountNameOnBankGiroJournalSubformWhenGLAccountType()
+    var
+        CBGStatementLine: Record "CBG Statement Line";
+        GLAccount: array[2] of Record "G/L Account";
+        BankGiroJournal: TestPage "Bank/Giro Journal";
+    begin
+        // [SCENARIO 422506] Account Name field value on page Bank/Giro Journal Subform when Account Type is "G/L Account".
+        Initialize();
+
+        // [GIVEN] Two G/L Accounts "G1" and "G2" with Name "N1" / "N2".
+        LibraryERM.CreateGLAccount(GLAccount[1]);
+        LibraryERM.CreateGLAccount(GLAccount[2]);
+        UpdateNameOnGLAccount(GLAccount[1], LibraryUtility.GenerateGUID());
+        UpdateNameOnGLAccount(GLAccount[2], LibraryUtility.GenerateGUID());
+
+        // [GIVEN] Bank/Giro Journal page is opened.
+        OpenBankGiroJournalListPage(CreateBankAccount);
+        BankGiroJournal.OpenEdit();
+
+        // [WHEN] Set Account Type = "G/L Account" and Account No. = "G1" on first line of page Bank/Giro Journal Subform.
+        BankGiroJournal.Subform."Account Type".SetValue(CBGStatementLine."Account Type"::"G/L Account");
+        BankGiroJournal.Subform."Account No.".SetValue(GLAccount[1]."No.");
+        // [THEN] Page field "Account Name" = "N1".
+        Assert.AreEqual(GLAccount[1].Name, BankGiroJournal.Subform.AccountName.Value, '');
+
+        // [WHEN] Set Account No. = "G2".
+        BankGiroJournal.Subform."Account No.".SetValue(GLAccount[2]."No.");
+        // [THEN] Account Name = "N2".
+        Assert.AreEqual(GLAccount[2].Name, BankGiroJournal.Subform.AccountName.Value, '');
+
+        // [WHEN] Set Account No. = "".
+        BankGiroJournal.Subform."Account No.".SetValue('');
+        // [THEN] Account Name = "".
+        Assert.AreEqual('', BankGiroJournal.Subform.AccountName.Value, '');
+    end;
+
+    [Test]
+    procedure AccountNameOnBankGiroJournalSubformWhenCustomerType()
+    var
+        CBGStatementLine: Record "CBG Statement Line";
+        Customer: array[2] of Record Customer;
+        BankGiroJournal: TestPage "Bank/Giro Journal";
+    begin
+        // [SCENARIO 422506] Account Name field value on page Bank/Giro Journal Subform when Account Type is "Customer".
+        Initialize();
+
+        // [GIVEN] Two Customers "C1" and "C2" with Name "N1" / "N2".
+        LibrarySales.CreateCustomer(Customer[1]);
+        LibrarySales.CreateCustomer(Customer[2]);
+        UpdateNameOnCustomer(Customer[1], LibraryUtility.GenerateGUID());
+        UpdateNameOnCustomer(Customer[2], LibraryUtility.GenerateGUID());
+
+        // [GIVEN] Bank/Giro Journal page is opened.
+        OpenBankGiroJournalListPage(CreateBankAccount);
+        BankGiroJournal.OpenEdit();
+
+        // [WHEN] Set Account Type = "Customer" and Account No. = "C1" on first line of page Bank/Giro Journal Subform.
+        BankGiroJournal.Subform."Account Type".SetValue(CBGStatementLine."Account Type"::Customer);
+        BankGiroJournal.Subform."Account No.".SetValue(Customer[1]."No.");
+        // [THEN] Page field "Account Name" = "N1".
+        Assert.AreEqual(Customer[1].Name, BankGiroJournal.Subform.AccountName.Value, '');
+
+        // [WHEN] Set Account No. = "C2".
+        BankGiroJournal.Subform."Account No.".SetValue(Customer[2]."No.");
+        // [THEN] Account Name = "N2".
+        Assert.AreEqual(Customer[2].Name, BankGiroJournal.Subform.AccountName.Value, '');
+
+        // [WHEN] Set Account No. = "".
+        BankGiroJournal.Subform."Account No.".SetValue('');
+        // [THEN] Account Name = "".
+        Assert.AreEqual('', BankGiroJournal.Subform.AccountName.Value, '');
+
+        // [WHEN] Set Account Type = "Customer", Account No. = "C1" and then set Account Type = "Vendor".
+        BankGiroJournal.Subform."Account Type".SetValue(CBGStatementLine."Account Type"::Customer);
+        BankGiroJournal.Subform."Account No.".SetValue(Customer[1]."No.");
+        BankGiroJournal.Subform."Account Type".SetValue(CBGStatementLine."Account Type"::Vendor);
+        // [THEN] Account Name = "".
+        Assert.AreEqual('', BankGiroJournal.Subform.AccountName.Value, '');
+
+        // [WHEN] Set Account Type = "Customer", Account No. = "C1" and then select new line.
+        BankGiroJournal.Subform."Account Type".SetValue(CBGStatementLine."Account Type"::Customer);
+        BankGiroJournal.Subform."Account No.".SetValue(Customer[1]."No.");
+        BankGiroJournal.Subform.New();
+        // [THEN] Account Type = "Customer", Account No. = "", Account Name = "".
+        Assert.AreEqual(Format(CBGStatementLine."Account Type"::Customer), BankGiroJournal.Subform."Account Type".Value, '');
+        Assert.AreEqual('', BankGiroJournal.Subform."Account No.".Value, '');
+        Assert.AreEqual('', BankGiroJournal.Subform.AccountName.Value, '');
+    end;
+
+    [Test]
+    procedure AccountNameOnBankGiroJournalSubformWhenVendorType()
+    var
+        CBGStatementLine: Record "CBG Statement Line";
+        Vendor: array[2] of Record Vendor;
+        BankGiroJournal: TestPage "Bank/Giro Journal";
+    begin
+        // [SCENARIO 422506] Account Name field value on page Bank/Giro Journal Subform when Account Type is "Vendor".
+        Initialize();
+
+        // [GIVEN] Two Vendors "V1" and "V2" with Name "N1" / "N2".
+        LibraryPurchase.CreateVendor(Vendor[1]);
+        LibraryPurchase.CreateVendor(Vendor[2]);
+        UpdateNameOnVendor(Vendor[1], LibraryUtility.GenerateGUID());
+        UpdateNameOnVendor(Vendor[2], LibraryUtility.GenerateGUID());
+
+        // [GIVEN] Bank/Giro Journal page is opened.
+        OpenBankGiroJournalListPage(CreateBankAccount);
+        BankGiroJournal.OpenEdit();
+
+        // [WHEN] Set Account Type = "Vendor" and Account No. = "V1" on first line of page Bank/Giro Journal Subform.
+        BankGiroJournal.Subform."Account Type".SetValue(CBGStatementLine."Account Type"::Vendor);
+        BankGiroJournal.Subform."Account No.".SetValue(Vendor[1]."No.");
+        // [THEN] Page field "Account Name" = "N1".
+        Assert.AreEqual(Vendor[1].Name, BankGiroJournal.Subform.AccountName.Value, '');
+
+        // [WHEN] Set Account No. = "V2".
+        BankGiroJournal.Subform."Account No.".SetValue(Vendor[2]."No.");
+        // [THEN] Account Name = "N2".
+        Assert.AreEqual(Vendor[2].Name, BankGiroJournal.Subform.AccountName.Value, '');
+
+        // [WHEN] Set Account No. = "".
+        BankGiroJournal.Subform."Account No.".SetValue('');
+        // [THEN] Account Name = "".
+        Assert.AreEqual('', BankGiroJournal.Subform.AccountName.Value, '');
+    end;
+
+    [Test]
+    procedure AccountNameOnBankGiroJournalSubformWhenBankAccountType()
+    var
+        CBGStatementLine: Record "CBG Statement Line";
+        BankAccount: array[2] of Record "Bank Account";
+        BankGiroJournal: TestPage "Bank/Giro Journal";
+    begin
+        // [SCENARIO 422506] Account Name field value on page Bank/Giro Journal Subform when Account Type is "Bank Account".
+        Initialize();
+
+        // [GIVEN] Two Bank Accounts "B1" and "B2" with Name "N1" / "N2".
+        LibraryERM.CreateBankAccount(BankAccount[1]);
+        LibraryERM.CreateBankAccount(BankAccount[2]);
+        UpdateNameOnBankAccount(BankAccount[1], LibraryUtility.GenerateGUID());
+        UpdateNameOnBankAccount(BankAccount[2], LibraryUtility.GenerateGUID());
+
+        // [GIVEN] Bank/Giro Journal page is opened.
+        OpenBankGiroJournalListPage(CreateBankAccount);
+        BankGiroJournal.OpenEdit();
+
+        // [WHEN] Set Account Type = "Bank Account" and Account No. = "B1" on first line of page Bank/Giro Journal Subform.
+        BankGiroJournal.Subform."Account Type".SetValue(CBGStatementLine."Account Type"::"Bank Account");
+        BankGiroJournal.Subform."Account No.".SetValue(BankAccount[1]."No.");
+        // [THEN] Page field "Account Name" = "N1".
+        Assert.AreEqual(BankAccount[1].Name, BankGiroJournal.Subform.AccountName.Value, '');
+
+        // [WHEN] Set Account No. = "B2".
+        BankGiroJournal.Subform."Account No.".SetValue(BankAccount[2]."No.");
+        // [THEN] Account Name = "N2".
+        Assert.AreEqual(BankAccount[2].Name, BankGiroJournal.Subform.AccountName.Value, '');
+    end;
+
+    [Test]
+    procedure AccountNameOnBankGiroJournalSubformWhenEmployeeType()
+    var
+        CBGStatementLine: Record "CBG Statement Line";
+        Employee: array[2] of Record Employee;
+        BankGiroJournal: TestPage "Bank/Giro Journal";
+    begin
+        // [SCENARIO 422506] Account Name field value on page Bank/Giro Journal Subform when Account Type is Employee.
+        Initialize();
+
+        // [GIVEN] Two Employees "E1" and "E2" with First Name "F1" / "F2", Middle Name "M1" / "M2", Last Name "L1" / "L2".
+        LibraryHumanResource.CreateEmployee(Employee[1]);
+        LibraryHumanResource.CreateEmployee(Employee[2]);
+        UpdateFullNameOnEmployee(Employee[1], LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID());
+        UpdateFullNameOnEmployee(Employee[2], LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID());
+
+        // [GIVEN] Bank/Giro Journal page is opened.
+        OpenBankGiroJournalListPage(CreateBankAccount);
+        BankGiroJournal.OpenEdit();
+
+        // [WHEN] Set Account Type = "Employee" and Account No. = "E1" on first line of page Bank/Giro Journal Subform.
+        BankGiroJournal.Subform."Account Type".SetValue(CBGStatementLine."Account Type"::Employee);
+        BankGiroJournal.Subform."Account No.".SetValue(Employee[1]."No.");
+        // [THEN] Page field "Account Name" = "F1 M1 L1".
+        Assert.AreEqual(Employee[1].FullName(), BankGiroJournal.Subform.AccountName.Value, '');
+
+        // [WHEN] Set Account No. = "E2".
+        BankGiroJournal.Subform."Account No.".SetValue(Employee[2]."No.");
+        // [THEN] Account Name = "F2 M2 L2".
+        Assert.AreEqual(Employee[2].FullName(), BankGiroJournal.Subform.AccountName.Value, '');
+    end;
+
     local procedure Initialize()
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -5361,6 +5552,38 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         TransactionMode.Validate("Posting No. Series", LibraryERM.CreateNoSeriesCode);
         TransactionMode.Validate("Source Code", SourceCode.Code);
         TransactionMode.Modify(true);
+    end;
+
+    local procedure UpdateNameOnGLAccount(var GLAccount: Record "G/L Account"; NewName: Text[100])
+    begin
+        GLAccount.Validate(Name, NewName);
+        GLAccount.Modify(true);
+    end;
+
+    local procedure UpdateNameOnCustomer(var Customer: Record Customer; NewName: Text[100])
+    begin
+        Customer.Validate(Name, NewName);
+        Customer.Modify(true);
+    end;
+
+    local procedure UpdateNameOnVendor(var Vendor: Record Vendor; NewName: Text[100])
+    begin
+        Vendor.Validate(Name, NewName);
+        Vendor.Modify(true);
+    end;
+
+    local procedure UpdateNameOnBankAccount(var BankAccount: Record "Bank Account"; NewName: Text[100])
+    begin
+        BankAccount.Validate(Name, NewName);
+        BankAccount.Modify(true);
+    end;
+
+    local procedure UpdateFullNameOnEmployee(var Employee: Record Employee; FirstName: Text[30]; MiddleName: Text[30]; LastName: Text[30])
+    begin
+        Employee.Validate("First Name", FirstName);
+        Employee.Validate("Middle Name", MiddleName);
+        Employee.Validate("Last Name", LastName);
+        Employee.Modify(true);
     end;
 
     local procedure VerifyBankAccountLedgerEntryAmount(AccountNo: Code[20]; ExpectedAmount: Decimal)

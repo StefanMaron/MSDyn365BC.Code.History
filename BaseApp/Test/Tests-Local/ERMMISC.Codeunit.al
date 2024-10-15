@@ -641,56 +641,6 @@
 
     [Test]
     [HandlerFunctions('IntrastatChecklistRPH')]
-    procedure ChecklistReportChecksForTransactionTypeForReceipts()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        ErrorMessage: Record "Error Message";
-    begin
-        // [FEATURE] [Intrastat] [Intrastat - Checklist] [Receipt]
-        // [SCENARIO 394971] Report 502 "Intrastat - Checklist" checks for "Transaction Type" for receipts
-        Initialize();
-        EnableAdvancedChecklist();
-
-        // [GIVEN] Prepare receipt intrastat journal line with blanked "Transaction Type"
-        PrepareIntrastatJnlLineWithBlankedTransactionType(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
-
-        // [WHEN] Run "Intrastat - Checklist" report
-        RunIntrastatChecklistReport(IntrastatJnlLine);
-
-        // [THEN] Error log contains 1 error: "Transaction Type must have a value"
-        VerifyBatchError(IntrastatJnlLine, IntrastatJnlLine.FieldName("Transaction Type"));
-    end;
-
-    [Test]
-    [HandlerFunctions('IntrastatChecklistRPH')]
-    procedure ChecklistReportDoesntCheckForTransactionTypeForShipments()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-    begin
-        // [FEATURE] [Intrastat] [Intrastat - Checklist] [Shipment]
-        // [SCENARIO 394971] Report 502 "Intrastat - Checklist" doesn't check for "Transaction Type" for shipments
-        // [SCENARIO 395404] Quantity has been printed with positive sign
-        Initialize();
-        EnableAdvancedChecklist();
-
-        // [GIVEN] Prepare shipment intrastat journal line with blanked "Transaction Type"
-        PrepareIntrastatJnlLineWithBlankedTransactionType(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
-
-        // [WHEN] Run "Intrastat - Checklist" report
-        RunIntrastatChecklistReport(IntrastatJnlLine);
-
-        // [THEN] Error log contains no error
-        VerifyNoBatchError(IntrastatJnlLine);
-
-        // [THEN] "Shipment" line type has been printed
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists('IntrastatJnlLineType', 'Shipment');
-        LibraryReportDataset.AssertElementWithValueExists('IntrastatJnlLineQty', IntrastatJnlLine.Quantity); // TFS 395404
-    end;
-
-    [Test]
-    [HandlerFunctions('IntrastatChecklistRPH')]
     procedure ChecklistReportChecksForTransactionSpecificationForShipments()
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
@@ -712,12 +662,12 @@
 
     [Test]
     [HandlerFunctions('IntrastatChecklistRPH')]
-    procedure ChecklistReportDoesntCheckForTransactionSpecificationForReceipts()
+    procedure ChecklistReportChecksForTransactionSpecificationForReceipts()
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
         // [FEATURE] [Intrastat] [Intrastat - Checklist] [Receipt]
-        // [SCENARIO 396535] Report 502 "Intrastat - Checklist" doesn't check for "Transaction Specification" for receipts
+        // [SCENARIO 396535] Report 502 "Intrastat - Checklist" checks for "Transaction Specification" for receipts
         Initialize();
         EnableAdvancedChecklist();
 
@@ -727,8 +677,8 @@
         // [WHEN] Run "Intrastat - Checklist" report
         RunIntrastatChecklistReport(IntrastatJnlLine);
 
-        // [THEN] Error log contains no error
-        VerifyNoBatchError(IntrastatJnlLine);
+        // [THEN] Error log contains 1 error: "Transaction Specification must have a value"
+        VerifyBatchError(IntrastatJnlLine, IntrastatJnlLine.FieldName("Transaction Specification"));
     end;
 
     [Test]
@@ -807,52 +757,6 @@
 
     [Test]
     [HandlerFunctions('IntrastatFormRPH')]
-    procedure IntrastatFormChecksForTransactionTypeForReceipts()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-    begin
-        // [FEATURE] [Intrastat] [Intrastat - Form] [Receipt]
-        // [SCENARIO 394971] Report 501 "Intrastat - Form" checks for "Transaction Type" for receipts
-        Initialize();
-        EnableAdvancedChecklist();
-
-        // [GIVEN] Prepare receipt intrastat journal line with blanked "Transaction Type"
-        PrepareIntrastatJnlLineWithBlankedTransactionType(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
-
-        // [WHEN] Run "Intrastat - Form" report
-        asserterror RunIntrastatFormReport(IntrastatJnlLine, Format(IntrastatJnlLine.Type::Receipt));
-
-        // [THEN] Testfield error occurs: "Transaction Type" must have a value"
-        VerifyAdvanvedChecklistError(IntrastatJnlLine, IntrastatJnlLine.FieldName("Transaction Type"));
-    end;
-
-    [Test]
-    [HandlerFunctions('IntrastatFormRPH')]
-    procedure IntrastatFormDoesntCheckForTransactionTypeForShipments()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-    begin
-        // [FEATURE] [Intrastat] [Intrastat - Form] [Shipments]
-        // [SCENARIO 394971] Report 501 "Intrastat - Form" doesn't check for "Transaction Type" for shipments
-        // [SCENARIO 395404] Quantity has been printed with positive sign
-        Initialize();
-        EnableAdvancedChecklist();
-
-        // [GIVEN] Prepare shipment intrastat journal line with blanked "Transaction Type"
-        PrepareIntrastatJnlLineWithBlankedTransactionType(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
-
-        // [WHEN] Run "Intrastat - Form" report
-        RunIntrastatFormReport(IntrastatJnlLine, Format(IntrastatJnlLine.Type::Shipment));
-
-        // [THEN] There is no error occurs
-        // [THEN] "Shipment" line type has been printed
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists('Type_IntraJnlLine', 'Shipment');
-        LibraryReportDataset.AssertElementWithValueExists('Quantity_IntraJnlLine', IntrastatJnlLine.Quantity); // TFS 395404
-    end;
-
-    [Test]
-    [HandlerFunctions('IntrastatFormRPH')]
     procedure IntrastatFormChecksForTransactionSpecificationForShipments()
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
@@ -874,12 +778,12 @@
 
     [Test]
     [HandlerFunctions('IntrastatFormRPH')]
-    procedure IntrastatFormDoesntCheckForTransactionSpecificationForReceipts()
+    procedure IntrastatFormChecksForTransactionSpecificationForReceipts()
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
         // [FEATURE] [Intrastat] [Intrastat - Form] [Receipt]
-        // [SCENARIO 396535] Report 501 "Intrastat - Form" doesn't check for "Transaction Specification" for receipts
+        // [SCENARIO 396535] Report 501 "Intrastat - Form" checks for "Transaction Specification" for receipts
         Initialize();
         EnableAdvancedChecklist();
 
@@ -887,11 +791,10 @@
         PrepareIntrastatJnlLineWithBlankedTransactionSpecification(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
 
         // [WHEN] Run "Intrastat - Form" report
-        RunIntrastatFormReport(IntrastatJnlLine, Format(IntrastatJnlLine.Type::Receipt));
+        asserterror RunIntrastatFormReport(IntrastatJnlLine, Format(IntrastatJnlLine.Type::Receipt));
 
-        // [THEN] There is no error occurs
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists('Type_IntraJnlLine', 'Receipt');
+        // [THEN] Testfield error occurs: "Transaction Specification must have a value"
+        VerifyAdvanvedChecklistError(IntrastatJnlLine, IntrastatJnlLine.FieldName("Transaction Specification"));
     end;
 
     [Test]
@@ -930,6 +833,8 @@
         LibraryReportDataset.AssertElementWithValueExists('TotalWeight_IntraJnlLine', ROUND(IntrastatJnlLine."Total Weight", 1)); // TFS 396681
         LibraryReportDataset.AssertElementWithValueExists('SubTotalWeight', ROUND(IntrastatJnlLine."Total Weight", 1)); // TFS 396681
         LibraryReportDataset.AssertElementWithValueExists('StatisValue_IntraJnlLine', IntrastatJnlLine."Statistical Value"); // TFS 396681
+        LibraryReportDataset.AssertElementWithValueExists(
+            'IntraJnlLine_TransactionSpecification', IntrastatJnlLine."Transaction Specification"); // TFS 421239
     end;
 
     [Test]
@@ -970,6 +875,8 @@
         LibraryReportDataset.AssertElementWithValueExists('TotalWeight_IntraJnlLine', ROUND(IntrastatJnlLine."Total Weight", 1)); // TFS 396681
         LibraryReportDataset.AssertElementWithValueExists('SubTotalWeight', ROUND(IntrastatJnlLine."Total Weight", 1)); // TFS 396681
         LibraryReportDataset.AssertElementWithValueExists('StatisValue_IntraJnlLine', IntrastatJnlLine."Statistical Value"); // TFS 396681
+        LibraryReportDataset.AssertElementWithValueExists(
+            'IntraJnlLine_TransactionSpecification', IntrastatJnlLine."Transaction Specification"); // TFS 421239
     end;
 
     [Test]
@@ -1010,140 +917,6 @@
 
     [Test]
     [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
-    procedure CreateDeclReportChecksForTransactionTypeForReceipts()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        FileTempBlob: Codeunit "Temp Blob";
-    begin
-        // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Receipt]
-        // [SCENARIO 394971] Report 11413 "Create Intrastat Decl. Disk" checks for "Transaction Type" for receipts (counterparty = false)
-        Initialize();
-        EnableAdvancedChecklist();
-
-        // [GIVEN] Prepare receipt intrastat journal line with blanked "Transaction Type"
-        PrepareIntrastatJnlLineWithBlankedTransactionType(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
-
-        // [WHEN] Run "Create Intrastat Decl. Disk" report (counterparty = false)
-        asserterror RunIntrastatMakeDiskTaxAuth(FileTempBlob, false);
-
-        // [THEN] Error log contains 1 error: "Transaction Type must have a value"
-        VerifyBatchError(IntrastatJnlLine, IntrastatJnlLine.FIELDNAME("Transaction Type"));
-    end;
-
-    [Test]
-    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
-    procedure CreateDeclReportChecksForTransactionTypeForShipments()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        FileTempBlob: Codeunit "Temp Blob";
-    begin
-        // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Shipment]
-        // [SCENARIO 394971] Report 11413 "Create Intrastat Decl. Disk" checks for "Transaction Type" for shipments (counterparty = false)
-        // [SCENARIO 395404] Quantity has been printed with positive sign
-        Initialize();
-        EnableAdvancedChecklist();
-
-        // [GIVEN] Prepare shipment intrastat journal line with blanked "Transaction Type"
-        PrepareIntrastatJnlLineWithBlankedTransactionType(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
-
-        // [WHEN] Run "Create Intrastat Decl. Disk" report (counterparty = false)
-        asserterror RunIntrastatMakeDiskTaxAuth(FileTempBlob, false);
-
-        // [THEN] Error log contains 1 error: "Transaction Type must have a value"
-        VerifyBatchError(IntrastatJnlLine, IntrastatJnlLine.FIELDNAME("Transaction Type"));
-    end;
-
-    [Test]
-    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
-    procedure CreateDeclReportDoesntCheckForTransactionSpecificationForShipments()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        FileTempBlob: Codeunit "Temp Blob";
-    begin
-        // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Shipment]
-        // [SCENARIO 396535] Report 11413 "Create Intrastat Decl. Disk" doesn't check for "Transaction Specification" for shipments (counterparty = false)
-        Initialize();
-        EnableAdvancedChecklist();
-
-        // [GIVEN] Prepare shipment intrastat journal line with blanked "Transaction Specification"
-        PrepareIntrastatJnlLineWithBlankedTransactionSpecification(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
-
-        // [WHEN] Run "Create Intrastat Decl. Disk" report (counterparty = false)
-        RunIntrastatMakeDiskTaxAuth(FileTempBlob, false);
-
-        // [THEN] Error log contains no error
-        VerifyNoBatchError(IntrastatJnlLine);
-    end;
-
-    [Test]
-    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
-    procedure CreateDeclReportDoesntCheckForTransactionSpecificationForReceipts()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        FileTempBlob: Codeunit "Temp Blob";
-    begin
-        // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Receipt]
-        // [SCENARIO 396535] Report 11413 "Create Intrastat Decl. Disk" doesn't check for "Transaction Specification" for receipts (counterparty = false)
-        Initialize();
-        EnableAdvancedChecklist();
-
-        // [GIVEN] Prepare receipt intrastat journal line with blanked "Transaction Specification"
-        PrepareIntrastatJnlLineWithBlankedTransactionSpecification(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
-
-        // [WHEN] Run "Create Intrastat Decl. Disk" report (counterparty = false)
-        RunIntrastatMakeDiskTaxAuth(FileTempBlob, false);
-
-        // [THEN] Error log contains no error
-        VerifyNoBatchError(IntrastatJnlLine);
-    end;
-
-    [Test]
-    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
-    procedure CreateDeclReportChecksForTransactionTypeForReceiptsCounterparty()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        FileTempBlob: Codeunit "Temp Blob";
-    begin
-        // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Receipt] [Counterparty]
-        // [SCENARIO 394971] Report 11413 "Create Intrastat Decl. Disk" checks for "Transaction Type" for receipts (counterparty = true)
-        Initialize();
-        EnableAdvancedChecklist();
-
-        // [GIVEN] Prepare receipt intrastat journal line with blanked "Transaction Type"
-        PrepareIntrastatJnlLineWithBlankedTransactionType(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
-
-        // [WHEN] Run "Create Intrastat Decl. Disk" report (counterparty = true)
-        asserterror RunIntrastatMakeDiskTaxAuth(FileTempBlob, true);
-
-        // [THEN] Error log contains 1 error: "Transaction Type must have a value"
-        VerifyBatchError(IntrastatJnlLine, IntrastatJnlLine.FIELDNAME("Transaction Type"));
-    end;
-
-    [Test]
-    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
-    procedure CreateDeclReportDoesntCheckForTransactionTypeForShipmentsCounterparty()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        FileTempBlob: Codeunit "Temp Blob";
-    begin
-        // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Shipment] [Counterparty]
-        // [SCENARIO 394971] Report 11413 "Create Intrastat Decl. Disk" doesn't check for "Transaction Type" for shipments (counterparty = true)
-        // [SCENARIO 395404] Quantity has been printed with positive sign
-        Initialize();
-        EnableAdvancedChecklist();
-
-        // [GIVEN] Prepare shipment intrastat journal line with blanked "Transaction Type"
-        PrepareIntrastatJnlLineWithBlankedTransactionType(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
-
-        // [WHEN] Run "Create Intrastat Decl. Disk" report (counterparty = true)
-        RunIntrastatMakeDiskTaxAuth(FileTempBlob, true);
-
-        // [THEN] Error log contains no error
-        VerifyNoBatchError(IntrastatJnlLine);
-    end;
-
-    [Test]
-    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
     procedure CreateDeclReportChecksForTransactionSpecificationForShipmentsCounterparty()
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
@@ -1166,13 +939,13 @@
 
     [Test]
     [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
-    procedure CreateDeclReportDoesntCheckForTransactionSpecificationForReceiptsCounterparty()
+    procedure CreateDeclReportChecksForTransactionSpecificationForReceiptsCounterparty()
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         FileTempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Receipt] [Counterparty]
-        // [SCENARIO 396535] Report 11413 "Create Intrastat Decl. Disk" doesn't check for "Transaction Specification" for receipts (counterparty = true)
+        // [SCENARIO 396535] Report 11413 "Create Intrastat Decl. Disk" checks for "Transaction Specification" for receipts (counterparty = true)
         Initialize();
         EnableAdvancedChecklist();
 
@@ -1180,10 +953,10 @@
         PrepareIntrastatJnlLineWithBlankedTransactionSpecification(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
 
         // [WHEN] Run "Create Intrastat Decl. Disk" report (counterparty = true)
-        RunIntrastatMakeDiskTaxAuth(FileTempBlob, true);
+        asserterror RunIntrastatMakeDiskTaxAuth(FileTempBlob, true);
 
-        // [THEN] Error log contains no error
-        VerifyNoBatchError(IntrastatJnlLine);
+        // [THEN] Error log contains 1 error: "Transaction Specification must have a value"
+        VerifyBatchError(IntrastatJnlLine, IntrastatJnlLine.FIELDNAME("Transaction Specification"));
     end;
 
     [Test]
@@ -1916,17 +1689,6 @@
         Assert.AreEqual(1, ErrorMessage.ErrorMessageCount(ErrorMessage."Message Type"::Error), '');
         ErrorMessage.FindFirst();
         Assert.ExpectedMessage(FieldName, ErrorMessage.Description);
-    end;
-
-    local procedure VerifyNoBatchError(IntrastatJnlLine: Record "Intrastat Jnl. Line")
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        ErrorMessage: Record "Error Message";
-    begin
-        IntrastatJnlBatch."Journal Template Name" := IntrastatJnlLine."Journal Template Name";
-        IntrastatJnlBatch.Name := IntrastatJnlLine."Journal Batch Name";
-        ErrorMessage.SetContext(IntrastatJnlBatch);
-        Assert.AreEqual(0, ErrorMessage.ErrorMessageCount(ErrorMessage."Message Type"::Error), '');
     end;
 
     [ModalPageHandler]

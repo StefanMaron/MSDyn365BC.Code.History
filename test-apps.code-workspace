@@ -1,19 +1,19 @@
 {
   "folders": [
     {
-      "path": "./System Application/Test/System Application Test"
-    },
-    {
-      "path": "./System Application/Test/System Application Test Library"
-    },
-    {
-      "path": "./System Application/Test/System Application Test/Extension Management/testArtifacts"
-    },
-    {
-      "path": "./System Application/Source/System Application/Email/src/Test Email"
-    },
-    {
       "path": "./AMCBanking365Fundamentals/Test/AMC Banking 365 Fundamentals Test Automations"
+    },
+    {
+      "path": "./system application/test/System Application Test"
+    },
+    {
+      "path": "./system application/test/System Application Test Library"
+    },
+    {
+      "path": "./system application/test/System Application Test/Extension Management/testArtifacts"
+    },
+    {
+      "path": "./system application/source/System Application/Email/src/Test Email"
     },
     {
       "path": "./testframework/TestLibraries"
@@ -28,13 +28,10 @@
       "path": "./testframework/performancetoolkit/Performance Toolkit Tests/src/Mock Tests"
     },
     {
-      "path": "./VATGroupManagement/Test/VAT Group Management Tests"
+      "path": "./vatgroupmanagement/test/VAT Group Management Tests"
     },
     {
       "path": "./EssentialBusinessHeadlines/Test/Essential Business Headlines Test"
-    },
-    {
-      "path": "./PayPalPaymentsStandard/Test/PayPal Payments Standard Tests"
     },
     {
       "path": "./Email - Outlook REST API/Test"
@@ -145,22 +142,25 @@
       "path": "./BaseApp/Source/Base Application/Test Framework"
     },
     {
+      "path": "./onprem permissions/test/OnPrem Permissions Tests"
+    },
+    {
+      "path": "./salesandinventoryforecast/test/Sales and Inventory Forecast Tests"
+    },
+    {
       "path": "./CompanyHub/Test/Company Hub Tests"
     },
     {
       "path": "./NLDigitalTaxDeclaration/Test/Digital Tax Declaration for the Netherlands Tests"
     },
     {
+      "path": "./paypalpaymentsstandard/test/PayPal Payments Standard Tests"
+    },
+    {
       "path": "./WorldPayPaymentsStandard/Test/WorldPay Payments Standard Tests"
     },
     {
-      "path": "./Onprem Permissions/Test/OnPrem Permissions Tests"
-    },
-    {
       "path": "./Email - SMTP Connector/Test/Email - SMTP Connector Tests"
-    },
-    {
-      "path": "./SalesAndInventoryForecast/Test/Sales and Inventory Forecast Tests"
     },
     {
       "path": "./APIV1/Test/_Exclude_APIV1_ Tests"

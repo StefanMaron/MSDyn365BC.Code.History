@@ -66,7 +66,6 @@ page 370 "Bank Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a minimum balance for the bank account.';
-                    Visible = false;
                 }
                 field("Our Contact Code"; "Our Contact Code")
                 {
