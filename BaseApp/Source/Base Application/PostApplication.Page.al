@@ -41,7 +41,14 @@ page 579 "Post Application"
         ExternalNo: Code[35];
 
     procedure SetValues(NewDocNo: Code[20]; NewPostingDate: Date; NewExternalDocNo: Code[35])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetValues(NewDocNo, NewPostingDate, IsHandled);
+        if IsHandled then
+            exit;
+
         DocNo := NewDocNo;
         PostingDate := NewPostingDate;
         ExternalNo := NewExternalDocNo;
@@ -49,9 +56,21 @@ page 579 "Post Application"
 
     procedure GetValues(var NewDocNo: Code[20]; var NewPostingDate: Date; var NewExternalDocNo: Code[35])
     begin
+        OnBeforeGetValues(NewDocNo, NewPostingDate);
+
         NewDocNo := DocNo;
         NewPostingDate := PostingDate;
         NewExternalDocNo := ExternalNo;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetValues(var NewDocNo: Code[20]; var NewPostingDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeGetValues(var NewDocNo: Code[20]; var NewPostingDate: Date)
+    begin
     end;
 }
 

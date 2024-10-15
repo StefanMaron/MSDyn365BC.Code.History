@@ -137,7 +137,7 @@ codeunit 14939 "Torg-16 Document Helper"
     end;
 
     [Scope('OnPrem')]
-    procedure FillItemLedgerLine(ItemNo: Code[10]; UnitOfMeasureCode: Code[10]; ItemDocLine: Record "Item Document Line")
+    procedure FillItemLedgerLine(ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; ItemDocLine: Record "Item Document Line")
     var
         Amount: Decimal;
         ItemDescription: Text;
@@ -169,7 +169,7 @@ codeunit 14939 "Torg-16 Document Helper"
     end;
 
     [Scope('OnPrem')]
-    procedure FillItemShptLine(ItemNo: Code[10]; UnitOfMeasureCode: Code[10]; ItemShptLine: Record "Item Shipment Line")
+    procedure FillItemShptLine(ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; ItemShptLine: Record "Item Shipment Line")
     var
         Amount: Decimal;
         ItemDescription: Text;
@@ -215,7 +215,7 @@ codeunit 14939 "Torg-16 Document Helper"
     end;
 
     [Scope('OnPrem')]
-    procedure GetItemDescription(ItemNo: Code[10]): Text
+    procedure GetItemDescription(ItemNo: Code[20]): Text
     var
         Item: Record Item;
     begin

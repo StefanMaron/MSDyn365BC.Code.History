@@ -61,6 +61,7 @@ codeunit 1210 "Payment Export Mgt"
         DataExchColumnDef: Record "Data Exch. Column Def";
         DataExchField: Record "Data Exch. Field";
         DataExchFieldMapping: Record "Data Exch. Field Mapping";
+        StringConversionManagement: Codeunit StringConversionManagement;
         ValueAsDestType: Variant;
         FieldRef: FieldRef;
         ValueAsString: Text[250];
@@ -85,6 +86,13 @@ codeunit 1210 "Payment Export Mgt"
                 CheckOptional(DataExchFieldMapping.Optional, FieldRef);
                 CastToDestinationType(ValueAsDestType, FieldRef.Value, DataExchColumnDef, DataExchFieldMapping.Multiplier);
                 ValueAsString := FormatToText(ValueAsDestType, DataExchDef, DataExchColumnDef);
+                if DataExchColumnDef."Text Padding Required" and (DataExchColumnDef."Pad Character" <> '') then
+                    ValueAsString :=
+                        StringConversionManagement.GetPaddedString(
+                            ValueAsString,
+                            DataExchColumnDef.Length,
+                            DataExchColumnDef."Pad Character",
+                            DataExchColumnDef.Justification);
             end;
 
             CheckLength(ValueAsString, RecRef.Field(DataExchFieldMapping."Field ID"), DataExchDef, DataExchColumnDef);

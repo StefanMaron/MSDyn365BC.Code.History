@@ -177,6 +177,7 @@ page 593 "Change Log Setup (Table) List"
         xChangeLogSetupTable: Record "Change Log Setup (Table)";
         Text002: Label 'You have changed the %1 field to no longer be %2. Do you want to remove the field selections?';
         PageIsEditable: Boolean;
+        ChangeLogSettingsUpdated: Boolean;
 
     local procedure AssistEdit()
     var
@@ -213,6 +214,8 @@ page 593 "Change Log Setup (Table) List"
             end else
                 if not Modify then
                     Insert;
+
+        ChangeLogSettingsUpdated := true;
     end;
 
     local procedure GetRec()
@@ -238,6 +241,11 @@ page 593 "Change Log Setup (Table) List"
                 Rec := AllObjWithCaption;
                 Insert;
             until AllObjWithCaption.Next = 0;
+    end;
+
+    procedure IsChangeLogSettingsUpdated(): Boolean
+    begin
+        exit(ChangeLogSettingsUpdated);
     end;
 
     local procedure ChangeLogSetupTableLogInsertio()

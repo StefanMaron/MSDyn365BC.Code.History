@@ -97,6 +97,10 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'VAT Statements';
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Not used in RU. (Obsolete::Removed in release 19.0)';
+                        ObsoleteTag = '17.0';
                         RunObject = page "VAT Statement";
                         Tooltip = 'Open the VAT Statements page.';
                     }
@@ -104,6 +108,10 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'VAT Returns';
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Not used in RU. (Obsolete::Removed in release 19.0)';
+                        ObsoleteTag = '17.0';
                         RunObject = page "VAT Report List";
                         Tooltip = 'Open the VAT Returns page.';
                     }
@@ -1504,7 +1512,7 @@ page 8901 "Finance Manager Role Center"
                 }
                 group("Group30")
                 {
-                    Caption = 'Collection';
+                    Caption = 'Reminder/Fin. Charge Memos';
                     action("Reminders")
                     {
                         ApplicationArea = Suite;
@@ -2706,7 +2714,7 @@ page 8901 "Finance Manager Role Center"
                 action("Phys. Invt. Counting Periods")
                 {
                     ApplicationArea = Warehouse, Basic, Suite;
-                    Caption = 'Physical Invtory Counting Periods';
+                    Caption = 'Physical Inventory Counting Periods';
                     RunObject = page "Phys. Invt. Counting Periods";
                     Tooltip = 'Open the Physical Invtory Counting Periods page.';
                 }
@@ -3010,9 +3018,9 @@ page 8901 "Finance Manager Role Center"
                     action("Departments")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Departments';
+                        Caption = 'Organizational Units';
                         RunObject = page "Organizational Units";
-                        Tooltip = 'Open the Departments page.';
+                        Tooltip = 'Open the Organizational Units page.';
                     }
                     action("Positions")
                     {

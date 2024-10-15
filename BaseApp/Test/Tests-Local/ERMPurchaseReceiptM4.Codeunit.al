@@ -15,6 +15,7 @@ codeunit 144703 "ERM Purchase Receipt M-4"
         LibraryReportValidation: Codeunit "Library - Report Validation";
         LibraryRUReports: Codeunit "Library RU Reports";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryInventory: Codeunit "Library - Inventory";
         isInitialized: Boolean;
 
     [Test]
@@ -198,6 +199,40 @@ codeunit 144703 "ERM Purchase Receipt M-4"
 
         // [THEN] M-4 Report is printed and contains "No." of posted Purchase Receipt
         LibraryReportValidation.VerifyCellValue(5, 7, DocumentNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PrintM4PurchaseInvoiceWith32PurchaseLines()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemNo: Code[20];
+        Index: Integer;
+        PurchaseReceiptM4: Report "Purchase Receipt M-4";
+    begin
+        // [SCENARIO 360186] M-4 report lost a line on print form
+        Initialize();
+
+        // [GIVEN] Purchase Invoice with 32 lines; Quantity of i-th line equals to i 
+        ItemNo := LibraryInventory.CreateItemNo();
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        for Index := 1 to 32 do
+            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Index);
+
+        // [WHEN] Print M-4 Report for Purchase Invoice
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
+        Commit();
+        PurchaseHeader.SetRange("No.", PurchaseHeader."No.");
+        PurchaseReceiptM4.SetTableView(PurchaseHeader);
+        PurchaseReceiptM4.SetFileNameSilent(LibraryReportValidation.GetFileName());
+        PurchaseReceiptM4.UseRequestPage(false);
+        PurchaseReceiptM4.Run();
+
+        // [THEN] Line with quantity = 30 should exists on the report
+        LibraryReportValidation.VerifyCellValue(
+            LibraryReportValidation.FindRowNoFromColumnNoAndValue(6, '30'), 1, ItemNo);
     end;
 
     local procedure Initialize()

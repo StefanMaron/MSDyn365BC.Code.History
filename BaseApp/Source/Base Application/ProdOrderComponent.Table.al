@@ -242,7 +242,7 @@ table 5407 "Prod. Order Component"
         field(27; "Act. Consumption (Qty)"; Decimal)
         {
             AccessByPermission = TableData "Production Order" = R;
-            CalcFormula = - Sum ("Item Ledger Entry".Quantity WHERE("Entry Type" = CONST(Consumption),
+            CalcFormula = - Sum("Item Ledger Entry".Quantity WHERE("Entry Type" = CONST(Consumption),
                                                                    "Order Type" = CONST(Production),
                                                                    "Order No." = FIELD("Prod. Order No."),
                                                                    "Order Line No." = FIELD("Prod. Order Line No."),
@@ -560,7 +560,7 @@ table 5407 "Prod. Order Component"
         }
         field(63; "Reserved Qty. (Base)"; Decimal)
         {
-            CalcFormula = - Sum ("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Prod. Order No."),
+            CalcFormula = - Sum("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Prod. Order No."),
                                                                             "Source Ref. No." = FIELD("Line No."),
                                                                             "Source Type" = CONST(5407),
                                                                             "Source Subtype" = FIELD(Status),
@@ -574,7 +574,7 @@ table 5407 "Prod. Order Component"
         }
         field(71; "Reserved Quantity"; Decimal)
         {
-            CalcFormula = - Sum ("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Prod. Order No."),
+            CalcFormula = - Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Prod. Order No."),
                                                                    "Source Ref. No." = FIELD("Line No."),
                                                                    "Source Type" = CONST(5407),
                                                                    "Source Subtype" = FIELD(Status),
@@ -638,7 +638,7 @@ table 5407 "Prod. Order Component"
         }
         field(5702; "Substitution Available"; Boolean)
         {
-            CalcFormula = Exist ("Item Substitution" WHERE(Type = CONST(Item),
+            CalcFormula = Exist("Item Substitution" WHERE(Type = CONST(Item),
                                                            "Substitute Type" = CONST(Item),
                                                            "No." = FIELD("Item No."),
                                                            "Variant Code" = FIELD("Variant Code")));
@@ -660,7 +660,7 @@ table 5407 "Prod. Order Component"
         }
         field(5750; "Pick Qty."; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Activity Line"."Qty. Outstanding" WHERE("Activity Type" = FILTER(<> "Put-away"),
+            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding" WHERE("Activity Type" = FILTER(<> "Put-away"),
                                                                                   "Source Type" = CONST(5407),
                                                                                   "Source Subtype" = FIELD(Status),
                                                                                   "Source No." = FIELD("Prod. Order No."),
@@ -702,7 +702,7 @@ table 5407 "Prod. Order Component"
         }
         field(7303; "Pick Qty. (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Activity Type" = FILTER(<> "Put-away"),
+            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Activity Type" = FILTER(<> "Put-away"),
                                                                                          "Source Type" = CONST(5407),
                                                                                          "Source Subtype" = FIELD(Status),
                                                                                          "Source No." = FIELD("Prod. Order No."),
@@ -1515,6 +1515,7 @@ table 5407 "Prod. Order Component"
         SetFilter("Shortcut Dimension 2 Code", Item.GetFilter("Global Dimension 2 Filter"));
         SetFilter("Remaining Qty. (Base)", '<>0');
         SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
+        OnAfterFilterLinesWithItemToPlan(Rec, Item, IncludeFirmPlanned);
     end;
 
     procedure FindLinesWithItemToPlan(var Item: Record Item; IncludeFirmPlanned: Boolean): Boolean
@@ -1616,6 +1617,11 @@ table 5407 "Prod. Order Component"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var ProdOrderComponent: Record "Prod. Order Component"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterLinesWithItemToPlan(var ProdOrderComponent: Record "Prod. Order Component"; var Item: Record Item; IncludeFirmPlanned: Boolean)
     begin
     end;
 

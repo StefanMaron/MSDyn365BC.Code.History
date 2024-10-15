@@ -48,6 +48,8 @@ codeunit 1432 "Satisfaction Survey Impl."
         ParameterNotFoundTxt: Label 'Parameter %1 is not found.', Locked = true;
         CouldNotInsertSetupRecordTxt: Label 'Inserting of the setup record has failed.', Locked = true;
         CouldNotModifySetupRecordTxt: Label 'Modification of the setup record has failed.', Locked = true;
+        CannotGetEarliestActivateTimeTxt: Label 'Cannot get earliest activate time. Last request time: %1, min delay time: %2.', Locked = true;
+        CannotGetNextExpireTimeTxt: Label 'Cannot get next cache expiration time. Previous cache expiration time: %1, cache life time: %2.', Locked = true;
         TooEarlyTxt: Label 'Too short time since last activation try.', Locked = true;
 
     procedure TryShowSurvey(): Boolean
@@ -150,7 +152,11 @@ codeunit 1432 "Satisfaction Survey Impl."
             end;
         end;
 
-        EarliestActivateTime := NetPromoterScore."Last Request Time" + MinDelayTime() * MillisecondsInMinute();
+        if not TryGetNextDateTime(NetPromoterScore."Last Request Time", MinDelayTime(), EarliestActivateTime) then begin
+            SendTraceTag('0000D4M', NpsCategoryTxt, VERBOSITY::Warning, StrSubstNo(CannotGetEarliestActivateTimeTxt, NetPromoterScore."Last Request Time", MinDelayTime()), DATACLASSIFICATION::SystemMetadata);
+            exit(false);
+        end;
+
         if CurrentDateTime() < EarliestActivateTime then begin
             SendTraceTag('0000AW8', NpsCategoryTxt, VERBOSITY::Normal, TooEarlyTxt, DATACLASSIFICATION::SystemMetadata);
             exit(false);
@@ -212,6 +218,12 @@ codeunit 1432 "Satisfaction Survey Impl."
         end;
         SendTraceTag('00009G3', NpsCategoryTxt, VERBOSITY::Normal, InvalidCheckUrlTxt, DATACLASSIFICATION::SystemMetadata);
         exit(false);
+    end;
+
+    [TryFunction]
+    local procedure TryGetNextDateTime(PrevDateTime: DateTime; MinutesToAdd: Integer; var NextDateTime: DateTime)
+    begin
+        NextDateTime := PrevDateTime + MinutesToAdd * MillisecondsInMinute();
     end;
 
     local procedure IsEnabled(): Boolean
@@ -515,6 +527,7 @@ codeunit 1432 "Satisfaction Survey Impl."
     var
         OutStream: OutStream;
         ApiUrl: Text;
+        ExpireTime: DateTime;
         CacheLifeTime: Integer;
         RequestTimeout: Integer;
         Exists: Boolean;
@@ -534,7 +547,10 @@ codeunit 1432 "Satisfaction Survey Impl."
             OutStream.Write(ApiUrl);
         end;
         NetPromoterScoreSetup."Request Timeout" := RequestTimeout;
-        NetPromoterScoreSetup."Expire Time" := CurrentDateTime() + CacheLifeTime * MillisecondsInMinute();
+        if not TryGetNextDateTime(CurrentDateTime(), CacheLifeTime, ExpireTime) then
+            SendTraceTag('0000D64', NpsCategoryTxt, VERBOSITY::Warning, StrSubstNo(CannotGetNextExpireTimeTxt, NetPromoterScoreSetup."Expire Time", CacheLifeTime), DATACLASSIFICATION::SystemMetadata)
+        else
+            NetPromoterScoreSetup."Expire Time" := ExpireTime;
         if Exists then begin
             if NetPromoterScoreSetup.Modify() then;
         end else

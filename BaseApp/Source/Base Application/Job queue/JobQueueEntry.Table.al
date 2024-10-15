@@ -728,11 +728,16 @@ table 472 "Job Queue Entry"
     var
         DummyJobQueueLogEntry: Record "Job Queue Log Entry";
         DummyErrorMessageRegister: Record "Error Message Register";
+        DummyErrorMessage: Record "Error Message";
     begin
         if not DummyJobQueueLogEntry.WritePermission() then
             Error(NoPermissionsErr, DummyJobQueueLogEntry.TableName());
+
         if not DummyErrorMessageRegister.WritePermission() then
             Error(NoPermissionsErr, DummyErrorMessageRegister.TableName());
+
+        if not DummyErrorMessage.WritePermission() then
+            Error(NoPermissionsErr, DummyErrorMessage.TableName());
     end;
 
     procedure CancelTask()

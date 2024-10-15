@@ -298,7 +298,7 @@
                 "Item Shpt. Entry No." := GlobalItemLedgEntry."Entry No.";
         end;
 
-        OnAfterPostItemJnlLine(ItemJnlLine, GlobalItemLedgEntry, ValueEntryNo, InventoryPostingToGL);
+        OnAfterPostItemJnlLine(ItemJnlLine, GlobalItemLedgEntry, ValueEntryNo, InventoryPostingToGL, CalledFromAdjustment, CalledFromInvtPutawayPick);
     end;
 
     local procedure PostSplitJnlLine(var ItemJnlLineToPost: Record "Item Journal Line"; TrackingSpecExists: Boolean): Boolean
@@ -314,6 +314,7 @@
         while SplitItemJnlLine(ItemJnlLine, PostItemJnlLine) do
             if PostItemJnlLine then
                 Code;
+        OnPostSplitJnlLineOnAfterCode(ItemJnlLine, ItemJnlLineToPost, PostItemJnlLine, TempTrackingSpecification);
         Clear(PrevAppliedItemLedgEntry);
         ItemJnlLineToPost := ItemJnlLine;
         CorrectOutputValuationDate(GlobalItemLedgEntry);
@@ -4345,7 +4346,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckItemTracking(ItemJnlLine, ItemTrackingSetup, IsHandled);
+        OnBeforeCheckItemTracking(ItemJnlLine, ItemTrackingSetup, IsHandled, TempTrackingSpecification);
         if IsHandled then
             exit;
 
@@ -5767,7 +5768,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckItemTracking(ItemJournalLine: Record "Item Journal Line"; ItemTrackingSetup: Record "Item Tracking Setup"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckItemTracking(ItemJournalLine: Record "Item Journal Line"; ItemTrackingSetup: Record "Item Tracking Setup"; var IsHandled: Boolean; var TempTrackingSpecification: Record "Tracking Specification" temporary)
     begin
     end;
 
@@ -5944,7 +5945,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntryNo: Integer; var InventoryPostingToGL: Codeunit "Inventory Posting To G/L")
+    local procedure OnAfterPostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntryNo: Integer; var InventoryPostingToGL: Codeunit "Inventory Posting To G/L"; CalledFromAdjustment: Boolean; CalledFromInvtPutawayPick: Boolean)
     begin
     end;
 
@@ -6423,6 +6424,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostInventoryToGL(var ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostSplitJnlLineOnAfterCode(var ItemJournalLine: Record "Item Journal Line"; var ItemJournalLineToPost: Record "Item Journal Line"; var PostItemJournalLine: Boolean; var TempTrackingSpecification: Record "Tracking Specification" temporary)
     begin
     end;
 

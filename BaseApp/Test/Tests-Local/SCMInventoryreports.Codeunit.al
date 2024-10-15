@@ -323,6 +323,30 @@ codeunit 144102 "SCM Inventory reports"
         end;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure Torg16LargeItemNo()
+    var
+        ItemDocumentHeader: Record "Item Document Header";
+        ItemDocumentLine: Record "Item Document Line";
+    begin
+        // [SCENARIO 359737] Torg-16 Write Off Act report should be processed with 20-symbols-length Item No.
+        Initialize();
+
+        // [GIVEN] Item shipment document and Item Document Line with 20-symbols-length Item No.
+        MockItemDocHeader(ItemDocumentHeader, ItemDocumentHeader."Document Type"::Shipment);
+        MockItemDocLine(ItemDocumentLine, ItemDocumentHeader);
+        ItemDocumentLine."Item No." :=
+            LibraryUtility.GenerateRandomCode20(ItemDocumentLine.FieldNo("Item No."), DATABASE::"Item Document Line");
+        ItemDocumentLine.Modify();
+
+        // [WHEN] Run 'Item Write-off act TORG-16' report 
+        RunUnpostedTorg16Report(ItemDocumentHeader."No.", '', '', WorkDate(), '');
+
+        // [THEN] Report is created without errors and contains 20-symbols-length Item No.
+        LibraryReportValidation.CheckIfValueExistsOnSpecifiedWorksheet(2, ItemDocumentLine."Item No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

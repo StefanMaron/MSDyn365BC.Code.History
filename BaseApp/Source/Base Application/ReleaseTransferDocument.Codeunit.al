@@ -25,6 +25,7 @@ codeunit 5708 "Release Transfer Document"
 
         CheckTransLines(TransLine, Rec);
 
+        OnRunOnBeforeSetStatusReleased(Rec);
         Validate(Status, Status::Released);
         Modify;
 
@@ -97,6 +98,11 @@ codeunit 5708 "Release Transfer Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckTransferCode(var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeSetStatusReleased(var TransferHeader: Record "Transfer Header")
     begin
     end;
 }

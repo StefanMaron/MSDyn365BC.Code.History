@@ -118,17 +118,32 @@ table 5373 "CRM Full Synch. Review Line"
         "Field": Record "Field";
         CDSConnectionSetup: Record "CDS Connection Setup";
         CRMSynchHelper: Codeunit "CRM Synch. Helper";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         OwnershipModel: Option;
         handled: Boolean;
+        IntegrationTableMappingFilter: Text;
     begin
+        CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
         CRMSynchHelper.OnGetCDSOwnershipModel(OwnershipModel, handled);
         IntegrationTableMapping.SetRange("Synch. Codeunit ID", CODEUNIT::"CRM Integration Table Synch.");
         IntegrationTableMapping.SetRange("Int. Table UID Field Type", Field.Type::GUID);
         IntegrationTableMapping.SetRange("Delete After Synchronization", false);
-        if handled and (OwnershipModel = CDSConnectionSetup."Ownership Model"::Team) then
-            IntegrationTableMapping.SetFilter(Name, '<>SALESPEOPLE&<>SALESORDER-ORDER')
+        // if integration to Dynamics 365 Sales is disabled, do not suggest to do a full sync on Dynamics 365 Sales - specific integration table mappings
+        // in this case, include only mappings for the synchronization to CDS base entities
+        if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
+            if handled and (OwnershipModel = CDSConnectionSetup."Ownership Model"::Team) then
+                IntegrationTableMappingFilter := 'CUSTOMER|VENDOR|CONTACT|CURRENCY|PAYMENT TERMS|SHIPPING AGENT|SHIPMENT METHOD'
+            else
+                IntegrationTableMappingFilter := 'CUSTOMER|VENDOR|CONTACT|CURRENCY|PAYMENT TERMS|SHIPPING AGENT|SHIPMENT METHOD|SALESPEOPLE'
         else
-            IntegrationTableMapping.SetFilter(Name, '<>SALESORDER-ORDER');
+            if handled and (OwnershipModel = CDSConnectionSetup."Ownership Model"::Team) then
+                IntegrationTableMappingFilter := '<>SALESPEOPLE&<>SALESORDER-ORDER'
+            else
+                IntegrationTableMappingFilter := '<>SALESORDER-ORDER';
+
+        if IntegrationTableMappingFilter <> '' then
+            IntegrationTableMapping.SetFilter(Name, IntegrationTableMappingFilter);
+
         if IntegrationTableMapping.FindSet() then
             repeat
                 InsertOrModifyCRMFullSynchReviewLines(IntegrationTableMapping, SkipNotFullSyncReady)
@@ -189,8 +204,6 @@ table 5373 "CRM Full Synch. Review Line"
 
         BCRecRef.Open(IntegrationTableMapping."Table ID");
         CDSRecRef.Open(IntegrationTableMapping."Integration Table ID");
-
-        CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
 
         case IntegrationTableMapping.Name of
             'SALESPEOPLE':
@@ -265,7 +278,6 @@ table 5373 "CRM Full Synch. Review Line"
         CRMTransactionCurrency: Record "CRM Transactioncurrency";
         LookupCRMTables: Codeunit "Lookup CRM Tables";
     begin
-        CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
         CRMTransactionCurrency.Reset();
         CRMTransactionCurrency.SetView(LookupCRMTables.GetIntegrationTableMappingView(DATABASE::"CRM Transactioncurrency"));
         if CRMTransactionCurrency.Count() = 1 then

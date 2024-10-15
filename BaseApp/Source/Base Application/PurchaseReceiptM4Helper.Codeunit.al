@@ -77,6 +77,7 @@ codeunit 14938 "Purchase Receipt M-4 Helper"
         if not ExcelReportBuilderMgr.TryAddSectionWithPlaceForFooter('BODY', 'REPORTFOOTER') then begin
             ExcelReportBuilderMgr.AddPagebreak;
             ExcelReportBuilderMgr.AddSection('PAGEHEADER');
+            ExcelReportBuilderMgr.AddSection('BODY');
         end;
 
         ExcelReportBuilderMgr.AddDataToSection('ItemName', PageHeaderArr[1]);

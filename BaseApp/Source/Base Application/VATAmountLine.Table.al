@@ -213,6 +213,7 @@
             Modify;
         end else begin
             "VAT Amount" := "Amount Including VAT" - "VAT Base";
+            OnInsertLineOnBeforeInsert(Rec, VATAmountLine);
             Insert;
         end;
 
@@ -844,6 +845,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterVATAmountText(VATPercentage: Decimal; FullCount: Integer; var Result: Text[30])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertLineOnBeforeInsert(var VATAmountLine: Record "VAT Amount Line"; var FromVATAmountLine: Record "VAT Amount Line")
     begin
     end;
 

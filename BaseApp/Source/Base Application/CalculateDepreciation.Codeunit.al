@@ -15,7 +15,14 @@ codeunit 5610 "Calculate Depreciation"
         DeprBonus: Boolean;
 
     procedure Calculate(var DeprAmount: Decimal; var Custom1Amount: Decimal; var NumberOfDays: Integer; var Custom1NumberOfDays: Integer; FANo: Code[20]; DeprBookCode: Code[10]; UntilDate: Date; EntryAmounts: array[4] of Decimal; DateFromProjection: Date; DaysInPeriod: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculate(DeprAmount, Custom1Amount, NumberOfDays, Custom1NumberOfDays, FANo, DeprBookCode, UntilDate, EntryAmounts, DateFromProjection, DaysInPeriod, IsHandled);
+        if IsHandled then
+            exit;
+
         DeprAmount := 0;
         Custom1Amount := 0;
         NumberOfDays := 0;
@@ -82,6 +89,11 @@ codeunit 5610 "Calculate Depreciation"
     procedure DepreciationBonus(DeprBonus2: Boolean)
     begin
         DeprBonus := DeprBonus2;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculate(var DeprAmount: Decimal; var Custom1Amount: Decimal; var NumberOfDays: Integer; var Custom1NumberOfDays: Integer; FANo: Code[20]; DeprBookCode: Code[10]; UntilDate: Date; EntryAmounts: array[4] of Decimal; DateFromProjection: Date; DaysInPeriod: Integer; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

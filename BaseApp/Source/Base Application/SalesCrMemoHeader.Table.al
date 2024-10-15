@@ -738,9 +738,6 @@ table 114 "Sales Cr.Memo Header"
         }
     }
 
-    var
-        DocTxt: Label 'Credit Memo';
-
     trigger OnDelete()
     var
         PostedDeferralHeader: Record "Posted Deferral Header";
@@ -777,6 +774,7 @@ table 114 "Sales Cr.Memo Header"
         ReportSelectionTmp: Record "Report Selections" temporary;
         TempSalesHeader: Record "Sales Header" temporary;
         CorrDocMgt: Codeunit "Corrective Document Mgt.";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -797,7 +795,8 @@ table 114 "Sales Cr.Memo Header"
             end else begin
                 if SendAsEmail then
                     ReportSelection.SendEmailToCust(
-                      ReportSelection.Usage::"S.Cr.Memo", SalesCrMemoHeader, "No.", DocTxt, ShowRequestForm, "Bill-to Customer No.")
+                      ReportSelection.Usage::"S.Cr.Memo", SalesCrMemoHeader, "No.",
+                      ReportDistributionMgt.GetFullDocumentTypeText(SalesCrMemoHeader), ShowRequestForm, "Bill-to Customer No.")
                 else
                     ReportSelection.PrintWithGUIYesNo(
                       ReportSelection.Usage::"S.Cr.Memo", SalesCrMemoHeader, ShowRequestForm, FieldNo("Bill-to Customer No."));

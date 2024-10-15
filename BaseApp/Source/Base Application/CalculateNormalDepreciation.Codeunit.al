@@ -75,7 +75,13 @@ codeunit 5611 "Calculate Normal Depreciation"
     var
         i: Integer;
         OK: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculate(DeprAmount, NumberOfDays4, FANo, DeprBookCode2, UntilDate2, EntryAmounts2, DateFromProjection2, DaysInPeriod2, IsHandled);
+        if IsHandled then
+            exit;
+
         if DeprBonus then begin
             ClearAll;
             DeprBonus := true;
@@ -590,7 +596,7 @@ codeunit 5611 "Calculate Normal Depreciation"
             end;
         end;
 
-        OnAfterTransferValues(FA, FADeprBook, Year365Days, DeprYears);
+        OnAfterTransferValues(FA, FADeprBook, Year365Days, DeprYears, DeprMethod);
     end;
 
     local procedure FAName(): Text[200]
@@ -783,6 +789,11 @@ codeunit 5611 "Calculate Normal Depreciation"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculate(var DeprAmount: Decimal; var NumberOfDays4: Integer; FANo: Code[20]; DeprBookCode2: Code[10]; UntilDate2: Date; EntryAmounts2: array[4] of Decimal; DateFromProjection2: Date; DaysInPeriod2: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateDeprAmount(FixedAsset: Record "Fixed Asset"; SkipOnZero: Boolean; DeprBookCode: Code[20]; var Amount: Decimal; BookValue: Decimal; SalvageValue: Decimal; EndingBookValue: Decimal; FinalRoundingAmount: Decimal)
     begin
     end;
@@ -793,7 +804,7 @@ codeunit 5611 "Calculate Normal Depreciation"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferValues(FixedAsset: Record "Fixed Asset"; FADepreciationBook: Record "FA Depreciation Book"; Year365Days: Boolean; var DeprYears: Decimal)
+    local procedure OnAfterTransferValues(FixedAsset: Record "Fixed Asset"; FADepreciationBook: Record "FA Depreciation Book"; Year365Days: Boolean; var DeprYears: Decimal; var DeprMethod: Option)
     begin
     end;
 

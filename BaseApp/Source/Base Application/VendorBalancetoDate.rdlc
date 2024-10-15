@@ -4724,6 +4724,7 @@
                               <Visibility>
                                 <Hidden>=iif(Fields!DocNo_VendLedgEntry3.Value="",true,false) or
  iif(Fields!DocNo_DtldVendLedgEntry.Value&lt;&gt;"",true,false) or
+ iif(Fields!DocType_DtldVendLedEnt.Value&lt;&gt;"",true,false) or
  iif(Fields!No_Vendor.Value="",true,false)</Hidden>
                               </Visibility>
                             </TablixMember>
@@ -4735,7 +4736,7 @@
                             </TablixMember>
                             <TablixMember>
                               <Visibility>
-                                <Hidden>=iif(Fields!DocNo_DtldVendLedgEntry.Value="",true,false) or
+                                <Hidden>=(iif(Fields!DocNo_DtldVendLedgEntry.Value="",true,false) and iif(Fields!DocType_DtldVendLedEnt.Value="",true,false)) or
  iif(Fields!No_Vendor.Value="",true,false)</Hidden>
                               </Visibility>
                             </TablixMember>

@@ -680,6 +680,7 @@
         "Sender Bank BIC" := BankAccount."SWIFT Code";
         "Sender Bank Clearing Std." := BankAccount."Bank Clearing Standard";
         "Sender Bank Clearing Code" := BankAccount."Bank Clearing Code";
+        OnAfterSetBankAsSenderBank(BankAccount);
     end;
 
     procedure SetCreditorIdentifier(BankAccount: Record "Bank Account")
@@ -711,6 +712,11 @@
                 BlankValue := '0';
         end;
         exit(Format(FieldRef.Value) = BlankValue);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetBankAsSenderBank(BankAccount: Record "Bank Account")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

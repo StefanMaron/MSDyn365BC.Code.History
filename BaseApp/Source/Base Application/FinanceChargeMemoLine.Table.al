@@ -562,7 +562,7 @@ table 303 "Finance Charge Memo Line"
                 end;
         end;
 
-        OnAfterSetCustLedgEntryView(CustLedgEntry, FinChrgTerms);
+        OnAfterSetCustLedgEntryView(CustLedgEntry, FinChrgTerms, FinChrgMemoHeader);
     end;
 
     local procedure LookupCustLedgEntry()
@@ -893,7 +893,7 @@ table 303 "Finance Charge Memo Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetCustLedgEntryView(var CustLedgEntry: Record "Cust. Ledger Entry"; FinChrgTerms: Record "Finance Charge Terms")
+    local procedure OnAfterSetCustLedgEntryView(var CustLedgEntry: Record "Cust. Ledger Entry"; FinChrgTerms: Record "Finance Charge Terms"; FinChrgMemoHeader: Record "Finance Charge Memo Header")
     begin
     end;
 }

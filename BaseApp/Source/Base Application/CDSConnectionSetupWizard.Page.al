@@ -87,12 +87,8 @@ page 7201 "CDS Connection Setup Wizard"
                     trigger OnAssistEdit()
                     var
                         CDSEnvironment: Codeunit "CDS Environment";
-                        AuthenticationType: Option Office365,AD,IFD,OAuth;
                     begin
-                        AuthenticationType := "Authentication Type";
-
                         CDSEnvironment.SelectTenantEnvironment(Rec, CDSEnvironment.GetGlobalDiscoverabilityToken(), false);
-                        "Authentication Type" := AuthenticationType;
 
                         if "Server Address" <> xRec."Server Address" then begin
                             HasAdminSignedIn := false;
@@ -554,15 +550,19 @@ page 7201 "CDS Connection Setup Wizard"
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
     begin
+        CDSConnectionSetup.EnsureCRMConnectionSetupIsDisabled();
         Init();
         if CDSConnectionSetup.Get() then begin
             TempCDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model";
+            "Authentication Type" := CDSConnectionSetup."Authentication Type";
             "Server Address" := CDSConnectionSetup."Server Address";
             "User Name" := CDSConnectionSetup."User Name";
             UserPassword := CDSConnectionSetup.GetPassword();
             SetPassword(UserPassword);
-        end else
+        end else begin
             TempCDSConnectionSetup."Ownership Model" := TempCDSConnectionSetup."Ownership Model"::Team;
+            InitializeDefaultAuthenticationType();
+        end;
         IsPersonOwnershipModelSelected := TempCDSConnectionSetup."Ownership Model" = TempCDSConnectionSetup."Ownership Model"::Person;
         InitializeDefaultProxyVersion();
         Insert();
@@ -792,6 +792,11 @@ page 7201 "CDS Connection Setup Wizard"
         OwnershipModelStepVisible := false;
         CoupleSalespersonsStepVisible := false;
         FullSynchReviewStepVisible := true;
+    end;
+
+    local procedure InitializeDefaultAuthenticationType()
+    begin
+        Validate("Authentication Type", "Authentication Type"::Office365);
     end;
 
     local procedure InitializeDefaultProxyVersion()
