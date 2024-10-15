@@ -5112,7 +5112,8 @@ table 37 "Sales Line"
                             if Type = Type::"Charge (Item)" then
                                 UpdateItemChargeAssgnt();
                             if SalesSetup."Apply Inv. Round. Amt. To VAT" then begin
-                                Amount := Amount + TempVATDiff;
+                                if ("Amount Including VAT" - Amount) <> VATAmountLine."VAT Amount" then
+                                    Amount := Amount + TempVATDiff;
                                 TempVATDiff := 0;
                             end;
                             Modify;

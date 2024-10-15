@@ -37,6 +37,7 @@ codeunit 22 "Item Jnl.-Post Line"
         Text022: Label 'You cannot apply %1 to %2 on the same item %3 on Production Order %4.';
         Text100: Label 'Fatal error when retrieving Tracking Specification.';
         Text99000000: Label 'must not be filled out when reservations exist';
+        CannotUnapplyItemLedgEntryErr: Label 'You cannot proceed with the posting as it will result in negative inventory for item %1. \Item ledger entry %2 cannot be left unapplied.', Comment = '%1 - Item no., %2 - Item ledger entry no.';
         GLSetup: Record "General Ledger Setup";
         Currency: Record Currency;
         InvtSetup: Record "Inventory Setup";
@@ -5259,7 +5260,8 @@ codeunit 22 "Item Jnl.-Post Line"
             FindSet;
             repeat
                 ItemLedgEntryApplied.Get("Entry No.");
-                ItemLedgEntryApplied.VerifyOnInventory;
+                ItemLedgEntryApplied.VerifyOnInventory(
+                    StrSubstNo(CannotUnapplyItemLedgEntryErr, ItemLedgEntryApplied."Item No.", ItemLedgEntryApplied."Entry No."));
             until Next = 0;
         end;
     end;

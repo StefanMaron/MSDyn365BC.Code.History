@@ -2691,6 +2691,11 @@
                 UpdatePaymentMethodCode;
             end;
         }
+        field(11510; "Swiss QRBill"; Boolean)
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11514 Swiss QR-Bill Gen Journal Line';
+        }
         field(11580; "Payment Fee Code"; Option)
         {
             Caption = 'Payment Fee Code';

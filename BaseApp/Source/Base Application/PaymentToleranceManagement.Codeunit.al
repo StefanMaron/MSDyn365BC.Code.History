@@ -2009,7 +2009,6 @@ codeunit 426 "Payment Tolerance Management"
                     then begin
                         if RemainingAmountTest then begin
                             "Accepted Pmt. Disc. Tolerance" := false;
-                            "Amount to Apply" := "Remaining Amount";
                             Modify;
                             if not SuppressCommit then
                                 Commit;
@@ -2058,7 +2057,6 @@ codeunit 426 "Payment Tolerance Management"
                     then begin
                         if RemainingAmountTest then begin
                             "Accepted Pmt. Disc. Tolerance" := false;
-                            "Amount to Apply" := "Remaining Amount";
                             Modify;
                             if not SuppressCommit then
                                 Commit;

@@ -2181,6 +2181,158 @@ codeunit 144352 "Swiss SEPA CT Export"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    procedure XMLExport_PaymentType21_QRReference()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorBankAccount: Record "Vendor Bank Account";
+        FileName: Text;
+        MessageID: Text;
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [XML] [Export] [Payment Reference]
+        // [SCENARIO 357682] Swiss SEPA CT export for "Payment Type" = "2.1" in case of QR Payment Reference
+        Initialize();
+
+        // [GIVEN] Vendor payment journal line for Payment Type = "2.1" and filled-in QR Payment Reference
+        VendorNo := CreateVendorWithBankAccount_GiroPost;
+        UpdateVendorBankAccPaymentFee(VendorNo, VendorBankAccount."Payment Fee Code"::" ");
+        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', GetQRReferenceNo);
+
+        // [WHEN] Export payment to file
+        MessageID := GetMessageID(GenJournalLine."Bal. Account No.");
+        FileName := GenJournalLine_XMLExport(GenJournalLine);
+
+        // [THEN] XML File has been exported with correct Swiss SEPA CT scheme for "Payment Type" = "2.1"
+        VerifyXMLFile(GenJournalLine, FileName, MessageID, PaymentTypeGbl::"2.1");
+    end;
+
+    [Test]
+    procedure XMLExport_PaymentType22_QRReference()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorBankAccount: Record "Vendor Bank Account";
+        FileName: Text;
+        MessageID: Text;
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [XML] [Export] [Payment Reference]
+        // [SCENARIO 357682] Swiss SEPA CT export for "Payment Type" = "2.2" in case of QR Payment Reference
+        Initialize();
+
+        // [GIVEN] Vendor payment journal line for Payment Type = "2.2" and filled-in QR Payment Reference
+        VendorNo := CreateVendorWithBankAccount_Clearing;
+        UpdateVendorBankAccPaymentFee(VendorNo, VendorBankAccount."Payment Fee Code"::Own);
+        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', GetQRReferenceNo);
+
+        // [WHEN] Export payment to file
+        MessageID := GetMessageID(GenJournalLine."Bal. Account No.");
+        FileName := GenJournalLine_XMLExport(GenJournalLine);
+
+        // [THEN] XML File has been exported with correct Swiss SEPA CT scheme for "Payment Type" = "2.2"
+        VerifyXMLFile(GenJournalLine, FileName, MessageID, PaymentTypeGbl::"2.2");
+    end;
+
+    [Test]
+    procedure XMLExport_PaymentType3_QRReference()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorBankAccount: Record "Vendor Bank Account";
+        FileName: Text;
+        MessageID: Text;
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [XML] [Export] [Payment Reference]
+        // [SCENARIO 357682] Swiss SEPA CT export for "Payment Type" = "3" in case of QR Payment Reference
+        Initialize();
+
+        // [GIVEN] Vendor payment journal line for Payment Type = "3" and filled-in QR Payment Reference
+        VendorNo := CreateVendorWithBankAccount_DomesticSWIFT;
+        UpdateVendorBankAccPaymentFee(VendorNo, VendorBankAccount."Payment Fee Code"::Beneficiary);
+        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', GetQRReferenceNo);
+
+        // [WHEN] Export payment to file
+        MessageID := GetMessageID(GenJournalLine."Bal. Account No.");
+        FileName := GenJournalLine_XMLExport(GenJournalLine);
+
+        // [THEN] XML File has been exported with correct Swiss SEPA CT scheme for "Payment Type" = "3"
+        VerifyXMLFile(GenJournalLine, FileName, MessageID, PaymentTypeGbl::"3");
+    end;
+
+    [Test]
+    procedure XMLExport_PaymentType3_CRReference()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorBankAccount: Record "Vendor Bank Account";
+        FileName: Text;
+        MessageID: Text;
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [XML] [Export] [Payment Reference]
+        // [SCENARIO 357682] Swiss SEPA CT export for "Payment Type" = "3" in case of CR Payment Reference
+        Initialize();
+
+        // [GIVEN] Vendor payment journal line for Payment Type = "3" and filled-in CR Payment Reference
+        VendorNo := CreateVendorWithBankAccount_DomesticSWIFT;
+        UpdateVendorBankAccPaymentFee(VendorNo, VendorBankAccount."Payment Fee Code"::Beneficiary);
+        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorNo, '', GetCRReferenceNo);
+
+        // [WHEN] Export payment to file
+        MessageID := GetMessageID(GenJournalLine."Bal. Account No.");
+        FileName := GenJournalLine_XMLExport(GenJournalLine);
+
+        // [THEN] XML File has been exported with correct Swiss SEPA CT scheme for "Payment Type" = "3"
+        VerifyXMLFile(GenJournalLine, FileName, MessageID, PaymentTypeGbl::"3");
+    end;
+
+    [Test]
+    procedure XMLExport_PaymentType5_QRReference()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorBankAccount: Record "Vendor Bank Account";
+        FileName: Text;
+        MessageID: Text;
+    begin
+        // [FEATURE] [XML] [Export] [Payment Reference]
+        // [SCENARIO 357682] Swiss SEPA CT export for "Payment Type" = "5" in case of QR Payment Reference
+        Initialize();
+
+        // [GIVEN] Vendor payment journal line for Payment Type = "5" and filled-in QR Payment Reference
+        CreateVendorWithBankAccount_AbroadSEPA(VendorBankAccount);
+        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorBankAccount."Vendor No.", GetEURCurrency, GetQRReferenceNo);
+
+        // [WHEN] Export payment to file
+        MessageID := GetMessageID(GenJournalLine."Bal. Account No.");
+        FileName := GenJournalLine_XMLExport(GenJournalLine);
+
+        // [THEN] XML File has been exported with correct Swiss SEPA CT scheme for "Payment Type" = "5"
+        VerifyXMLFile(GenJournalLine, FileName, MessageID, PaymentTypeGbl::"5");
+    end;
+
+    [Test]
+    procedure XMLExport_PaymentType5_CRReference()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorBankAccount: Record "Vendor Bank Account";
+        FileName: Text;
+        MessageID: Text;
+    begin
+        // [FEATURE] [XML] [Export] [Payment Reference]
+        // [SCENARIO 357682] Swiss SEPA CT export for "Payment Type" = "5" in case of CR Payment Reference
+        Initialize();
+
+        // [GIVEN] Vendor payment journal line for Payment Type = "5" and filled-in CR Payment Reference
+        CreateVendorWithBankAccount_AbroadSEPA(VendorBankAccount);
+        CreateVendPmtJnlLineWithPaymentReference(GenJournalLine, VendorBankAccount."Vendor No.", GetEURCurrency, GetCRReferenceNo);
+
+        // [WHEN] Export payment to file
+        MessageID := GetMessageID(GenJournalLine."Bal. Account No.");
+        FileName := GenJournalLine_XMLExport(GenJournalLine);
+
+        // [THEN] XML File has been exported with correct Swiss SEPA CT scheme for "Payment Type" = "5"
+        VerifyXMLFile(GenJournalLine, FileName, MessageID, PaymentTypeGbl::"5");
+    end;
+
     local procedure Initialize()
     var
         GLSetup: Record "General Ledger Setup";
@@ -2232,6 +2384,24 @@ codeunit 144352 "Swiss SEPA CT Export"
             Validate("Message to Recipient", LibraryUtility.GenerateGUID);
             Modify(true);
             SetRecFilter;
+        end;
+    end;
+
+    local procedure CreateVendPmtJnlLineWithPaymentReference(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; CurrencyCode: Code[10]; PaymentReference: Code[50])
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        CreateGenJournalBatch(GenJournalBatch, CreateBankAccount(FindSwissSEPACTBankExpImpCode));
+        with GenJournalLine do begin
+            LibraryJournals.CreateGenJournalLine(
+              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+              "Document Type"::Payment, "Account Type"::Vendor, AccountNo, "Bal. Account Type"::"Bank Account",
+              GenJournalBatch."Bal. Account No.", LibraryRandom.RandDecInRange(1000, 2000, 2));
+            Validate("Currency Code", CurrencyCode);
+            Validate("Payment Reference", PaymentReference);
+            Validate("Message to Recipient", LibraryUtility.GenerateGUID);
+            Modify(true);
+            SetRecFilter();
         end;
     end;
 
@@ -2625,6 +2795,16 @@ codeunit 144352 "Swiss SEPA CT Export"
     local procedure GetReferenceNo(): Code[35]
     begin
         exit('210000000003139471430009017');
+    end;
+
+    local procedure GetQRReferenceNo(): Code[50]
+    begin
+        exit('210000000003139471430009017');
+    end;
+
+    local procedure GetCRReferenceNo(): Code[50]
+    begin
+        exit('RF06000000000000000002001');
     end;
 
     local procedure GetMessageID(BankAccountNo: Code[20]): Text
@@ -3090,8 +3270,28 @@ codeunit 144352 "Swiss SEPA CT Export"
                 begin
                     LibraryXMLRead.VerifyNodeValueInSubtree('RmtInf', 'Strd', GenJournalLine."Reference No.");
                     LibraryXMLRead.VerifyElementAbsenceInSubtree('RmtInf', 'Ustrd');
-                end
-            else begin
+                    LibraryXMLRead.VerifyElementAbsenceInSubtree('Strd', 'AddtlRmtInf');
+                end;
+            PaymentTypeGbl::"2.1",
+            PaymentTypeGbl::"2.2":
+                begin
+                    LibraryXMLRead.VerifyNodeValueInSubtree('RmtInf', 'Ustrd', GenJournalLine."Message to Recipient");
+                    LibraryXMLRead.VerifyElementAbsenceInSubtree('RmtInf', 'Strd');
+                end;
+            else
+                if GenJournalLine."Payment Reference" <> '' then begin
+                    LibraryXMLRead.VerifyElementAbsenceInSubtree('RmtInf', 'Ustrd');
+                    LibraryXMLRead.VerifyNodeValueInSubtree('Strd', 'Ref', GenJournalLine."Payment Reference");
+                    if (StrLen(DelChr(GenJournalLine."Payment Reference")) = 27) AND
+                       (PaymentType <> PaymentTypeGbl::"5")
+                    then begin
+                        LibraryXMLRead.VerifyNodeValueInSubtree('Strd', 'Prtry', 'QRR');
+                        asserterror LibraryXMLRead.VerifyNodeValueInSubtree('Strd', 'Cd', 'SCOR');
+                    end else begin
+                        LibraryXMLRead.VerifyNodeValueInSubtree('Strd', 'Cd', 'SCOR');
+                        LibraryXMLRead.VerifyElementAbsenceInSubtree('Strd', 'Prtry');
+                    end;
+                end else begin
                     LibraryXMLRead.VerifyNodeValueInSubtree('RmtInf', 'Ustrd', GenJournalLine."Message to Recipient");
                     LibraryXMLRead.VerifyElementAbsenceInSubtree('RmtInf', 'Strd');
                 end;

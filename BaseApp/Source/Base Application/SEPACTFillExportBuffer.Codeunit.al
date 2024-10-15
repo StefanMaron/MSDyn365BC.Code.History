@@ -77,6 +77,7 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
                 "Transfer Date" := TempGenJnlLine."Posting Date";
                 "Document No." := TempGenJnlLine."Document No.";
                 "Applies-to Ext. Doc. No." := TempGenJnlLine."Applies-to Ext. Doc. No.";
+                "Payment Reference" := TempGenJnlLine."Payment Reference";
                 Amount := TempGenJnlLine.Amount;
                 if TempGenJnlLine."Currency Code" = '' then
                     "Currency Code" := GeneralLedgerSetup."LCY Code"
@@ -112,14 +113,9 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
                 "SEPA Batch Booking" := BatchBooking;
                 SetCreditTransferIDs(MessageID);
 
-
-                if SwissExport and (("Swiss Payment Type" = "Swiss Payment Type"::"1") or (TempGenJnlLine."Payment Reference" <> '')) then begin
-                    if TempGenJnlLine."Payment Reference" <> '' then
-                        AddRemittanceText(TempGenJnlLine."Payment Reference")
-                    else
-                        AddRemittanceText(TempGenJnlLine."Reference No.");
-                    AddRemittanceText(TempGenJnlLine."Message to Recipient");
-                end else begin
+                if SwissExport and ("Swiss Payment Type" = "Swiss Payment Type"::"1") then
+                    AddRemittanceText(TempGenJnlLine."Reference No.")
+                else begin
                     if "Applies-to Ext. Doc. No." <> '' then
                         AddRemittanceText(StrSubstNo(RemitMsg, TempGenJnlLine."Applies-to Doc. Type", "Applies-to Ext. Doc. No."))
                     else

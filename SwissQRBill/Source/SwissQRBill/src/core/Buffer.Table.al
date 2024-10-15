@@ -111,7 +111,7 @@ table 11510 "Swiss QR-Bill Buffer"
         field(15; "Language Code"; Code[10])
         {
             Caption = 'Language Code';
-            TableRelation = Language where("Windows Language ID" = filter(1033 | 1031 | 1036 | 1040));
+            TableRelation = Language where("Windows Language ID" = filter(1033 | 2055 | 4108 | 2064));
         }
         field(20; "Creditor Address Type"; Enum "Swiss QR-Bill Address Type")
         {

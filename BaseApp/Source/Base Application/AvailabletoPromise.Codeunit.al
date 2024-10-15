@@ -185,22 +185,21 @@ codeunit 5790 "Available to Promise"
             AvailableQtyPeriod := AvailabilityAtDate."Scheduled Receipt" - AvailabilityAtDate."Gross Requirement";
             if AvailabilityAtDate."Scheduled Receipt" <= AvailabilityAtDate."Gross Requirement" then begin
                 AvailableQty := AvailableQty + AvailableQtyPeriod;
-                AvailableDate := AvailabilityAtDate."Period End";
                 if AvailableQty < NeededQty then
                     QtyIsAvailable := false;
             end else
-                if QtyIsAvailable then
-                    AvailabilityAtDate.FindLast
-                else begin
+                if not QtyIsAvailable then begin
                     AvailableQty := AvailableQty + AvailableQtyPeriod;
-                    if AvailableQty >= NeededQty then begin
+                    if AvailableQty >= NeededQty then
                         QtyIsAvailable := true;
-                        AvailableDate := AvailabilityAtDate."Period End";
-                        PeriodStart := AvailabilityAtDate."Period Start";
-                        PeriodEnd := AvailabilityAtDate."Period End";
-                        AvailabilityAtDate.FindLast;
-                    end;
                 end;
+
+            if QtyIsAvailable then begin
+                AvailableDate := AvailabilityAtDate."Period End";
+                PeriodStart := AvailabilityAtDate."Period Start";
+                PeriodEnd := AvailabilityAtDate."Period End";
+                AvailabilityAtDate.FindLast();
+            end;
         end;
 
         if QtyIsAvailable then begin
