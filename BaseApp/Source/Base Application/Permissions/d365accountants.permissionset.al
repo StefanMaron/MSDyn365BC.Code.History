@@ -20,6 +20,9 @@ permissionset 2911 "D365 ACCOUNTANTS"
                   tabledata Customer = RIMD,
                   tabledata "Customer Bank Account" = RD,
                   tabledata "Customer Templ." = RIMD,
+#if not CLEAN20
+                  tabledata "Customer Template" = RIMD,
+#endif
                   tabledata "Item Reference" = RD,
                   tabledata "Reminder/Fin. Charge Entry" = Rm,
                   tabledata "Sales Cr.Memo Header" = R,

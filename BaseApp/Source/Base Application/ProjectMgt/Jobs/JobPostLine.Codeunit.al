@@ -67,6 +67,7 @@ codeunit 1001 "Job Post-Line"
            (JobPlanningLine."Line Type" = JobPlanningLine."Line Type"::Billable)
         then
             ChangeGLAccNo(JobPlanningLine);
+        OnPostPlanningLineOnBeforeJobPlanningLineInsert(JobPlanningLine);
         JobPlanningLine.Insert(true);
         JobPlanningLine.Validate("Qty. to Transfer to Journal", 0);
         JobPlanningLine.Modify(true);
@@ -119,6 +120,7 @@ codeunit 1001 "Job Post-Line"
 
         JobPlanningLine.SetCurrentKey("Job Contract Entry No.");
         JobPlanningLine.SetRange("Job Contract Entry No.", SalesLine."Job Contract Entry No.");
+        OnPostInvoiceContractLineOnBeforeJobPlanningLineFindFirst(SalesHeader, SalesLine, JobPlanningLine);
         JobPlanningLine.FindFirst();
         Job.Get(JobPlanningLine."Job No.");
 
@@ -288,21 +290,24 @@ codeunit 1001 "Job Post-Line"
         if IsHandled then
             exit;
 
-        if GenJnlLine."System-Created Entry" then
-            exit;
-        if GenJnlLine."Job No." = '' then
-            exit;
-        SourceCodeSetup.Get();
-        if GenJnlLine."Source Code" = SourceCodeSetup."Job G/L WIP" then
-            exit;
-        GenJnlLine.TestField("Job Task No.");
-        GenJnlLine.TestField("Job Quantity");
-        Job.LockTable();
-        JobTask.LockTable();
-        Job.Get(GenJnlLine."Job No.");
-        GenJnlLine.TestField("Job Currency Code", Job."Currency Code");
-        JobTask.Get(GenJnlLine."Job No.", GenJnlLine."Job Task No.");
-        JobTask.TestField("Job Task Type", JobTask."Job Task Type"::Posting);
+        OnPostGenJnlLineOnBeforeGenJnlCheck(JobJnlLine, GenJnlLine, GLEntry, IsHandled);
+        if not IsHandled then begin
+            if GenJnlLine."System-Created Entry" then
+                exit;
+            if GenJnlLine."Job No." = '' then
+                exit;
+            SourceCodeSetup.Get();
+            if GenJnlLine."Source Code" = SourceCodeSetup."Job G/L WIP" then
+                exit;
+            GenJnlLine.TestField("Job Task No.");
+            GenJnlLine.TestField("Job Quantity");
+            Job.LockTable();
+            JobTask.LockTable();
+            Job.Get(GenJnlLine."Job No.");
+            GenJnlLine.TestField("Job Currency Code", Job."Currency Code");
+            JobTask.Get(GenJnlLine."Job No.", GenJnlLine."Job Task No.");
+            JobTask.TestField("Job Task Type", JobTask."Job Task Type"::Posting);
+        end;
         JobTransferLine.FromGenJnlLineToJnlLine(GenJnlLine, JobJnlLine);
         OnPostGenJnlLineOnAfterTransferToJnlLine(JobJnlLine, GenJnlLine, JobJnlPostLine);
 
@@ -650,6 +655,11 @@ codeunit 1001 "Job Post-Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostInvoiceContractLineOnBeforeJobPlanningLineFindFirst(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostJobOnPurchaseLine(var PurchHeader: Record "Purchase Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var PurchLine: Record "Purchase Line"; var JobJnlLine: Record "Job Journal Line"; var IsHandled: Boolean; var TempPurchaseLineJob: Record "Purchase Line"; var TempJobJournalLine: Record "Job Journal Line"; var Sourcecode: Code[10])
     begin
     end;
@@ -738,6 +748,16 @@ codeunit 1001 "Job Post-Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCurrency(Job: Record Job; SalesHeader: Record "Sales Header"; JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostGenJnlLineOnBeforeGenJnlCheck(var JobJournalLine: Record "Job Journal Line"; GenJournalLine: Record "Gen. Journal Line"; GLEntry: Record "G/L Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostPlanningLineOnBeforeJobPlanningLineInsert(var JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 }

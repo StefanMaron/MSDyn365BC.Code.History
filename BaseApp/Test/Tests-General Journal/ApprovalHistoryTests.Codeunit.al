@@ -44,7 +44,6 @@ codeunit 134323 "Approval History Tests"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PostGenJnlLineApprovalsForCustomer()
     var
@@ -70,7 +69,6 @@ codeunit 134323 "Approval History Tests"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PostGenJnlLineApprovalsForVendor()
     var
@@ -96,7 +94,6 @@ codeunit 134323 "Approval History Tests"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PostGenJnlLineApprovalsForBankAccount()
     var
@@ -124,7 +121,6 @@ codeunit 134323 "Approval History Tests"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PostGenJnlLineApprovalsForFixedAsset()
     var
@@ -152,7 +148,6 @@ codeunit 134323 "Approval History Tests"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PostGenJnlLineApprovalsForGLAccount()
     var
@@ -206,7 +201,6 @@ codeunit 134323 "Approval History Tests"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure LinksShouldCopyFromApprovalEntryToPostedApprovalEntry()
     var

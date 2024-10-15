@@ -657,7 +657,7 @@
             NewServLedgEntry := ServLedgEntry;
             NewServLedgEntry."Entry No." := NextServLedgerEntryNo;
             InvertServLedgEntry(NewServLedgEntry);
-            OnReverseServLedgEntryOnBeforeNewServLedgEntryInsert(NewServLedgEntry, ServLedgEntry);
+            OnReverseServLedgEntryOnBeforeNewServLedgEntryInsert(NewServLedgEntry, ServLedgEntry, ServShptLine);
             NewServLedgEntry.Insert();
             NextServLedgerEntryNo += 1;
         end;
@@ -710,8 +710,12 @@
         ServDocReg: Record "Service Document Register";
         ServDocType: Integer;
         ServDocNo: Code[20];
+        IsHandled: Boolean;
     begin
-        OnBeforeCreateCreditEntry(ServDocReg, ServLine, ServHeader, ServLedgEntry, GenJnlLineDocNo, ServDocType, PassedNextEntryNo, ServDocNo);
+        IsHandled := false;
+        OnBeforeCreateCreditEntry(ServDocReg, ServLine, ServHeader, ServLedgEntry, GenJnlLineDocNo, ServDocType, PassedNextEntryNo, ServDocNo, IsHandled);
+        if IsHandled then
+            exit;
 
         if ServLine."Contract No." = '' then begin
             InsertServLedgEntryCrMemo(PassedNextEntryNo, ServHeader, ServLine, GenJnlLineDocNo);
@@ -1069,7 +1073,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateCreditEntry(var ServiceDocumentRegister: Record "Service Document Register"; var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header"; var ServiceLedgerEntry: Record "Service Ledger Entry"; var GenJnlLineDocNo: Code[20]; var ServDocType: Integer; var PassedNextEntryNo: Integer; var ServDocNo: Code[20])
+    local procedure OnBeforeCreateCreditEntry(var ServiceDocumentRegister: Record "Service Document Register"; var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header"; var ServiceLedgerEntry: Record "Service Ledger Entry"; var GenJnlLineDocNo: Code[20]; var ServDocType: Integer; var PassedNextEntryNo: Integer; var ServDocNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
@@ -1154,7 +1158,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnReverseServLedgEntryOnBeforeNewServLedgEntryInsert(var NewServLedgEntry: Record "Service Ledger Entry"; var ServLedgEntry: Record "Service Ledger Entry")
+    local procedure OnReverseServLedgEntryOnBeforeNewServLedgEntryInsert(var NewServLedgEntry: Record "Service Ledger Entry"; var ServLedgEntry: Record "Service Ledger Entry"; ServiceShipmentLine: Record "Service Shipment Line")
     begin
     end;
 }

@@ -29,19 +29,22 @@ codeunit 5058 "BankCont-Update"
         SalespersonCode: Code[20];
         IsHandled: Boolean;
     begin
-        with ContBusRel do begin
-            SetCurrentKey("Link to Table", "No.");
-            SetRange("Link to Table", "Link to Table"::"Bank Account");
-            SetRange("No.", BankAcc."No.");
-            if not FindFirst() then
-                exit;
-            if not Cont.Get("Contact No.") then begin
-                Delete();
-                Session.LogMessage('0000B38', BankContactUpdateTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankContactUpdateCategoryTxt);
-                exit;
-            end;
-            OldCont := Cont;
+        IsHandled := false;
+        OnBeforeOnModify(BankAcc, IsHandled);
+        if IsHandled then
+            exit;
+
+        ContBusRel.SetCurrentKey("Link to Table", ContBusRel."No.");
+        ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::"Bank Account");
+        ContBusRel.SetRange("No.", BankAcc."No.");
+        if not ContBusRel.FindFirst() then
+            exit;
+        if not Cont.Get(ContBusRel."Contact No.") then begin
+            ContBusRel.Delete();
+            Session.LogMessage('0000B38', BankContactUpdateTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankContactUpdateCategoryTxt);
+            exit;
         end;
+        OldCont := Cont;
 
         ContNo := Cont."No.";
         NoSeries := Cont."No. Series";
@@ -179,6 +182,11 @@ codeunit 5058 "BankCont-Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnOnModifyOnBeforeContModify(var Contact: Record Contact; BankAccount: Record "Bank Account"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnModify(var BankAccount: Record "Bank Account"; var IsHandled: Boolean)
     begin
     end;
 }

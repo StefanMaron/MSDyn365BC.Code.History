@@ -28,9 +28,6 @@ codeunit 1535 "Approvals Mgmt."
         NoReqToRejectErr: Label 'There is no approval request to reject.';
         NoReqToDelegateErr: Label 'There is no approval request to delegate.';
         PendingApprovalMsg: Label 'An approval request has been sent.';
-        NoApprovalsSentMsg: Label 'No approval requests have been sent, either because they are already sent or because related workflows do not support the journal line.';
-        PendingApprovalForSelectedLinesMsg: Label 'Approval requests have been sent.';
-        PendingApprovalForSomeSelectedLinesMsg: Label 'Approval requests have been sent.\\Requests for some journal lines were not sent, either because they are already sent or because related workflows do not support the journal line.';
         PurchaserUserNotFoundErr: Label 'The salesperson/purchaser user ID %1 does not exist in the Approval User Setup window for %2 %3.', Comment = 'Example: The salesperson/purchaser user ID NAVUser does not exist in the Approval User Setup window for Salesperson/Purchaser code AB.';
         NoApprovalRequestsFoundErr: Label 'No approval requests exist.';
         NoWFUserGroupMembersErr: Label 'A workflow user group with at least one member must be set up.';
@@ -1304,9 +1301,14 @@ codeunit 1535 "Approvals Mgmt."
         exit(WorkflowManagement.CanExecuteWorkflow(IncomingDocument, WorkflowEventHandling.RunWorkflowOnSendIncomingDocForApprovalCode()));
     end;
 
-    procedure IsPurchaseApprovalsWorkflowEnabled(var PurchaseHeader: Record "Purchase Header"): Boolean
+    procedure IsPurchaseApprovalsWorkflowEnabled(var PurchaseHeader: Record "Purchase Header") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeIsPurchaseApprovalsWorkflowEnabled(PurchaseHeader);
+        IsHandled := false;
+        OnBeforeIsPurchaseApprovalsWorkflowEnabled(PurchaseHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
         exit(WorkflowManagement.CanExecuteWorkflow(PurchaseHeader, WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode()));
     end;
 
@@ -1897,8 +1899,6 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     procedure TrySendJournalLineApprovalRequests(var GenJournalLine: Record "Gen. Journal Line")
-    var
-        LinesSent: Integer;
     begin
         OnBeforeTrySendJournalLineApprovalRequests(GenJournalLine);
         if GenJournalLine.Count = 1 then
@@ -1911,18 +1911,8 @@ codeunit 1535 "Approvals Mgmt."
                not HasOpenApprovalEntries(GenJournalLine.RecordId)
             then begin
                 OnSendGeneralJournalLineForApproval(GenJournalLine);
-                LinesSent += 1;
             end;
         until GenJournalLine.Next() = 0;
-
-        case LinesSent of
-            0:
-                Message(NoApprovalsSentMsg);
-            GenJournalLine.Count:
-                Message(PendingApprovalForSelectedLinesMsg);
-            else
-                Message(PendingApprovalForSomeSelectedLinesMsg);
-        end;
     end;
 
     procedure TryCancelJournalBatchApprovalRequest(var GenJournalLine: Record "Gen. Journal Line")
@@ -2149,15 +2139,20 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     local procedure FindUserSetupBySalesPurchCode(var UserSetup: Record "User Setup"; ApprovalEntryArgument: Record "Approval Entry")
+    var
+        IsHandled: Boolean;
     begin
-        if ApprovalEntryArgument."Salespers./Purch. Code" <> '' then begin
-            UserSetup.SetCurrentKey("Salespers./Purch. Code");
-            UserSetup.SetRange("Salespers./Purch. Code", ApprovalEntryArgument."Salespers./Purch. Code");
-            if not UserSetup.FindFirst() then
-                Error(
-                  PurchaserUserNotFoundErr, UserSetup."User ID", UserSetup.FieldCaption("Salespers./Purch. Code"),
-                  UserSetup."Salespers./Purch. Code");
-        end;
+        IsHandled := false;
+        OnBeforeFindUserSetupBySalesPurchCode(UserSetup, ApprovalEntryArgument, IsHandled);
+        if not IsHandled then
+            if ApprovalEntryArgument."Salespers./Purch. Code" <> '' then begin
+                UserSetup.SetCurrentKey("Salespers./Purch. Code");
+                UserSetup.SetRange("Salespers./Purch. Code", ApprovalEntryArgument."Salespers./Purch. Code");
+                if not UserSetup.FindFirst() then
+                    Error(
+                      PurchaserUserNotFoundErr, UserSetup."User ID", UserSetup.FieldCaption("Salespers./Purch. Code"),
+                      UserSetup."Salespers./Purch. Code");
+            end;
 
         OnAfterFindUserSetupBySalesPurchCode(UserSetup, ApprovalEntryArgument);
     end;
@@ -2411,7 +2406,7 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeIsPurchaseApprovalsWorkflowEnabled(var PurchaseHeader: Record "Purchase Header");
+    local procedure OnBeforeIsPurchaseApprovalsWorkflowEnabled(var PurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean);
     begin
     end;
 
@@ -2662,6 +2657,11 @@ codeunit 1535 "Approvals Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckSalesApprovalPossible(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindUserSetupBySalesPurchCode(var UserSetup: Record "User Setup"; ApprovalEntryArgument: Record "Approval Entry"; var IsHandled: Boolean)
     begin
     end;
 }

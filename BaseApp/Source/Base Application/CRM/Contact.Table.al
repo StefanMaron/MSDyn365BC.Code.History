@@ -87,6 +87,8 @@
                 OnBeforeLookupCity(Rec, PostCode);
 
                 PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
+
+                OnAfterLookupCity(Rec, PostCode);
             end;
 
             trigger OnValidate()
@@ -403,10 +405,7 @@
 
             trigger OnValidate()
             begin
-                if Type = Type::Company then
-                    "Lookup Contact No." := ''
-                else
-                    "Lookup Contact No." := "No.";
+                ValidateLookupContactNo();
             end;
         }
         field(5054; "First Name"; Text[30])
@@ -1094,7 +1093,7 @@
 
     trigger OnRename()
     begin
-        Validate("Lookup Contact No.");
+        ValidateLookupContactNo();
     end;
 
     var
@@ -2279,6 +2278,7 @@
                             SalesHeader2."Bill-to Name" := Customer.Name;
                             SalesHeader2."Bill-to Customer Templ. Code" := '';
                             SalesHeader2."Salesperson Code" := Customer."Salesperson Code";
+                            SalesHeader2.Reserve := Customer.Reserve;
                         end;
                         SalesHeader2.Modify();
                         SalesLine.SetRange("Document Type", SalesHeader2."Document Type");
@@ -2286,6 +2286,8 @@
                         SalesLine.ModifyAll("Sell-to Customer No.", SalesHeader2."Sell-to Customer No.");
                         if SalesHeader2."Sell-to Contact No." = SalesHeader2."Bill-to Contact No." then
                             SalesLine.ModifyAll("Bill-to Customer No.", SalesHeader2."Bill-to Customer No.");
+                        if SalesHeader2.Reserve <> SalesHeader2.Reserve::Optional then
+                            UpdateReserveFieldOnSalesLines(SalesHeader2, SalesLine);
                         OnAfterModifySellToCustomerNo(SalesHeader2, SalesLine);
                     until SalesHeader.Next() = 0;
 
@@ -2299,10 +2301,13 @@
                         SalesHeader2."Bill-to Customer No." := Customer."No.";
                         SalesHeader2."Bill-to Customer Templ. Code" := '';
                         SalesHeader2."Salesperson Code" := Customer."Salesperson Code";
+                        SalesHeader2.Reserve := Customer.Reserve;
                         SalesHeader2.Modify();
                         SalesLine.SetRange("Document Type", SalesHeader2."Document Type");
                         SalesLine.SetRange("Document No.", SalesHeader2."No.");
                         SalesLine.ModifyAll("Bill-to Customer No.", SalesHeader2."Bill-to Customer No.");
+                        if SalesHeader2.Reserve <> SalesHeader2.Reserve::Optional then
+                            UpdateReserveFieldOnSalesLines(SalesHeader2, SalesLine);
                         OnAfterModifyBillToCustomerNo(SalesHeader2, SalesLine);
                     until SalesHeader.Next() = 0;
                 OnAfterUpdateQuotesForContact(Cont, Customer);
@@ -2313,6 +2318,24 @@
                  StrSubstNo(MultipleCustomerTemplatesConfirmQst, CustomerTemplateCode, Customer."No."), true)
             then
                 TempErrorMessage.ShowErrorMessages(false);
+    end;
+
+    local procedure UpdateReserveFieldOnSalesLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    var
+        Item: Record Item;
+    begin
+        SalesLine.SetLoadFields("No.", "Reserve");
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        if SalesLine.FindSet() then
+            repeat
+                if Item.Get(SalesLine."No.") then begin
+                    if Item.Reserve = Item.Reserve::Optional then
+                        SalesLine.Reserve := SalesHeader.Reserve
+                    else
+                        SalesLine.Reserve := Item.Reserve;
+                    SalesLine.Modify(true);
+                end;
+            until SalesLine.Next() = 0;
     end;
 
     local procedure CheckNewCustomerTemplate(SalesHeader: Record "Sales Header"; var TempErrorMessage: Record "Error Message" temporary; CustomerTemplateCode: Code[20])
@@ -3028,6 +3051,7 @@
           ("Country/Region Code" <> ContactBeforeModify."Country/Region Code") or
           ("Fax No." <> ContactBeforeModify."Fax No.") or
           ("Telex Answer Back" <> ContactBeforeModify."Telex Answer Back") or
+          ("Registration Number" <> ContactBeforeModify."Registration Number") or
           ("VAT Registration No." <> ContactBeforeModify."VAT Registration No.") or
           ("Post Code" <> ContactBeforeModify."Post Code") or
           (County <> ContactBeforeModify.County) or
@@ -3132,6 +3156,14 @@
     begin
         if not Rec.Get(ContactNo) then
             Clear(Rec);
+    end;
+
+    local procedure ValidateLookupContactNo()
+    begin
+        if Type = Type::Company then
+            "Lookup Contact No." := ''
+        else
+            "Lookup Contact No." := "No.";
     end;
 
     [IntegrationEvent(false, false)]
@@ -3646,6 +3678,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateRegistrationNumber(var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupCity(var Contact: Record Contact; var PostCode: Record "Post Code")
     begin
     end;
 }

@@ -698,6 +698,122 @@ codeunit 134776 "Document Attachment Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('GetShipmentLinesPageHandler')]
+    procedure EnsureDocAttachFlowFromSalesShipmentToSalesInvoice()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeaderOrder: Record "Sales Header";
+        SalesLineOrder: Record "Sales Line";
+        SalesInvoicePage: TestPage "Sales Invoice";
+        RecRef: RecordRef;
+        InvoiceNo: Code[20];
+        OrderNo: Code[20];
+    begin
+        // [SCENARIO] Ensuring attached docs on posted sales shipment flow to sales Invoice when using 'Get Shipment Lines'
+
+        // Initialize
+        Initialize();
+        LibrarySales.CreateCustomer(Customer);
+        RecRef.GetTable(Customer);
+
+        // [GIVEN] A sales Order with attachments in header and line item
+        LibraryInventory.CreateItem(Item);
+        CreateSalesDoc(SalesHeaderOrder, SalesLineOrder, Customer, Item, SalesHeaderOrder."Document Type"::Order);
+
+        // Attach docs to Order header and sales line
+        Clear(RecRef);
+        RecRef.GetTable(SalesHeaderOrder);
+        CreateDocAttach(RecRef, 'salesOrder.jpeg', false, false);
+
+        Clear(RecRef);
+        RecRef.GetTable(SalesLineOrder);
+        CreateDocAttach(RecRef, 'salesline.jpeg', false, false);
+
+        // [WHEN] shipment is created from a sales Order
+        OrderNo := SalesHeaderOrder."No.";
+        SalesHeaderOrder.Ship := true;
+        CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeaderOrder);
+
+        // Create an invoice and use 'get shipment lines' to insert lines
+        SalesInvoicePage.OpenNew();
+        SalesInvoicePage."Sell-to Customer Name".SetValue(Customer."No.");
+        SalesInvoicePage.SalesLines.GetShipmentLines.Invoke(); // opens modal page "Get Shipment Lines", and handler clicks OK
+        evaluate(InvoiceNo, SalesInvoicePage."No.".Value);
+
+        // [THEN] Assert docs are flown to sales invoice
+        CheckDocAttachments(DATABASE::"Sales Header", 1, InvoiceNo, SalesHeaderOrder."Document Type"::Invoice.AsInteger(), 'salesOrder');
+
+        // [THEN] the sales line has one attachment for sales invoice
+        CheckDocAttachments(DATABASE::"Sales Line", 1, InvoiceNo, SalesHeaderOrder."Document Type"::Invoice.AsInteger(), 'salesline');
+    end;
+
+    [ModalPageHandler]
+    procedure GetShipmentLinesPageHandler(var GetShipmentLines: TestPage "Get Shipment Lines")
+    begin
+        GetShipmentLines.OK.Invoke();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('GetReceiptLinesPageHandler')]
+    procedure EnsureDocAttachFlowFromPurchaseReceiptToPurchaseInvoice()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseLineOrder: Record "Purchase Line";
+        PurchaseInvoicePage: TestPage "Purchase Invoice";
+        RecRef: RecordRef;
+        InvoiceNo: Code[20];
+        OrderNo: Code[20];
+    begin
+        // [SCENARIO] Ensuring attached docs on posted Purchase shipment flow to Purchase Invoice when using 'Get Shipment Lines'
+
+        // Initialize
+        Initialize();
+        LibraryPurchase.CreateVendor(Vendor);
+        RecRef.GetTable(Vendor);
+
+        // [GIVEN] A Purchase Order with attachments in header and line item
+        LibraryInventory.CreateItem(Item);
+        CreatePurchDoc(PurchaseHeaderOrder, PurchaseLineOrder, Vendor, Item, PurchaseHeaderOrder."Document Type"::Order);
+
+        // Attach docs to Order header and Purchase line
+        Clear(RecRef);
+        RecRef.GetTable(PurchaseHeaderOrder);
+        CreateDocAttach(RecRef, 'PurchaseOrder.jpeg', false, false);
+
+        Clear(RecRef);
+        RecRef.GetTable(PurchaseLineOrder);
+        CreateDocAttach(RecRef, 'Purchaseline.jpeg', false, false);
+
+        // [WHEN] receipt is created from a Purchase Order
+        OrderNo := PurchaseHeaderOrder."No.";
+        PurchaseHeaderOrder.Receive := true;
+        CODEUNIT.Run(CODEUNIT::"Purch.-Post", PurchaseHeaderOrder);
+
+        // Create an invoice and use 'get shipment lines' to insert lines
+        PurchaseInvoicePage.OpenNew();
+        PurchaseInvoicePage."Buy-from Vendor Name".SetValue(Vendor."No.");
+        PurchaseInvoicePage.PurchLines.GetReceiptLines.Invoke(); // opens modal page "Get Receipt Lines", and handler clicks OK
+        evaluate(InvoiceNo, PurchaseInvoicePage."No.".Value);
+
+        // [THEN] Assert docs are flown to Purchase invoice
+        CheckDocAttachments(DATABASE::"Purchase Header", 1, InvoiceNo, PurchaseHeaderOrder."Document Type"::Invoice.AsInteger(), 'PurchaseOrder');
+
+        // [THEN] the Purchase line has one attachment for Purchase invoice
+        CheckDocAttachments(DATABASE::"Purchase Line", 1, InvoiceNo, PurchaseHeaderOrder."Document Type"::Invoice.AsInteger(), 'Purchaseline');
+    end;
+
+    [ModalPageHandler]
+    procedure GetReceiptLinesPageHandler(var GetReceiptLines: TestPage "Get Receipt Lines")
+    begin
+        GetReceiptLines.OK.Invoke();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure TestDocAttachFlowFromPurchQuoteToPurchOrder()
     var
         Vendor: Record Vendor;

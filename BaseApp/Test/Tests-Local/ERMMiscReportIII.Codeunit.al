@@ -124,6 +124,7 @@ codeunit 142062 "ERM Misc. Report III"
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         FileManagement: Codeunit "File Management";
+        LibraryService: Codeunit "Library - Service";
         AmountDue1Cap: Label 'AmountDue_1_';
         AmountDue2Cap: Label 'AmountDue_2_';
         AmountDue3Cap: Label 'AmountDue_3_';
@@ -190,6 +191,9 @@ codeunit 142062 "ERM Misc. Report III"
         TestFieldNotFoundErr: Label 'TestFieldNotFound';
         RemitAddressShouldExistErr: Label 'Remit Address Name should exist in the Positive Pay Export File.';
         RemitToCodeMissingErr: Label 'Remit-To Code missing on payment journal line.';
+        PayeeErr: Label 'Wrong Payee Name';
+        SalesCommentToMatch: Label 'HighDescriptionToPrint';
+        RowMustExist: Label 'Row must exist.';
 
     [Test]
     [HandlerFunctions('PaymentJournalTestRequestPageHandler')]
@@ -2010,6 +2014,117 @@ codeunit 142062 "ERM Misc. Report III"
         Assert.AreEqual(RemitAddress.Code, GenJournalLine."Remit-to Code", RemitToCodeMissingErr);
     end;
 
+    [Test]
+    [HandlerFunctions('PrintCheckStubStubReqPageHandler,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ValidatePayeeNameOnBankAccountPositivePayEntryDetailWhenBankPaymentTypeIsComputerCheck()
+    var
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        ReportSelections: Record "Report Selections";
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+        DataExchLineDef: Record "Data Exch. Line Def";
+        CheckLedgerEntry: Record "Check Ledger Entry";
+        PositivePayEntry: Record "Positive Pay Entry";
+        BankAccount: Record "Bank Account";
+        VendorBankAccount: Record "Vendor Bank Account";
+        PositivePayEntryDetail: Record "Positive Pay Entry Detail";
+        LibraryPaymentExport: Codeunit "Library - Payment Export";
+        ExpLauncherPosPay: Codeunit "Exp. Launcher Pos. Pay";
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        // [SCENARIO  471912] The Payee field in positive pay entries differs between manual and computer checks.
+        Initialize();
+
+        // [GIVEN] Setup: Create Vendor
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Bank Export/Import Setup used Data Exchange Definition of type "Positive Pay Export"
+        LibraryPaymentExport.CreateBankExportImportSetup(
+            BankExportImportSetup,
+            FindPositivePayExportDataExchDef(DataExchLineDef."Line Type"::Detail));
+        BankExportImportSetup.Validate(Direction, BankExportImportSetup.Direction::"Export-Positive Pay");
+        BankExportImportSetup.Modify(true);
+
+        // [GIVEN] Bank Account to use the Bank Export/Import Code
+        BankAccount.Get(CreateBankAccount(BankExportImportSetup.Code));
+        BankAccount.Validate("Export Format", BankAccount."Export Format"::US);
+        BankAccount.Validate("Payment Export Format", BankExportImportSetup.Code);
+        BankAccount.Validate("Positive Pay Export Code", BankExportImportSetup.Code);
+        BankAccount.Modify(true);
+
+        // [THEN] Create a Vendor Bank Account
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
+        VendorBankAccount.Validate("Bank Account No.", BankAccount."No.");
+        VendorBankAccount.Modify(true);
+
+        // [GIVEN] Create a Payment Journal Line using computer check for the Vendor and bank
+        CreateGenJournalLineWithWithExportImportBankAccount(
+            GenJournalLine, "Gen. Journal Document Type"::Payment,
+            "Gen. Journal Account Type"::Vendor,
+            Vendor."No.",
+            LibraryRandom.RandDec(500, 0),
+            "Bank Payment Type"::"Computer Check",
+            BankAccount."No.");
+
+        // [THEN] Update the Description of the Payment Journal Line
+        GenJournalLine.Description := LibraryUtility.GenerateRandomAlphabeticText(LibraryRandom.RandInt(20), 1);
+        GenJournalLine."Recipient Bank Account" := VendorBankAccount.Code;
+        GenJournalLine.Modify(true);
+
+        // [GIVEN] Report 10412 is set as report for Check
+        ReportSelections.Get(ReportSelections.Usage::"B.Check", 1);
+        ReportSelections.Validate("Report ID", REPORT::"Check (Check/Stub/Stub)");
+        ReportSelections.Modify();
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        LibraryVariableStorage.Enqueue(false);
+        Commit();
+
+        // [GIVEN] Check print and post from Payment Journal page
+        PaymentJournal.OpenEdit();
+        PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
+        PaymentJournal.PrintCheck.Invoke();
+        PaymentJournal.Post.Invoke();
+
+        // [WHEN] Export Positive Pay
+        FilterCheckLedgerEntry(CheckLedgerEntry, BankAccount."No.");
+        ExpLauncherPosPay.PositivePayProcess(CheckLedgerEntry, false);
+        CheckLedgerEntry.FindFirst();
+
+        // [THEN] Exported file contain a line with the Remit Address Name as Description
+        GetPositivePayExportedFile(PositivePayEntry, BankAccount."No.");
+        PositivePayEntryDetail.SetRange("Bank Account No.", BankAccount."No.");
+        PositivePayEntryDetail.FindFirst();
+
+        // [VERIFY] Verify: Updated Description transferred to Payee field in "Positive Pay Entry Detail"
+        Assert.IsTrue(PositivePayEntryDetail.Payee = GenJournalLine.Description, PayeeErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesInvoiceNAReportRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PrintOnInvoiceCheckedOnSalesCommentLineRaiseErrorWhileRunningSalesInvoiceNAReport()
+    var
+        SalesCommentLine: Record "Sales Comment Line";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 471909] Having Print on Invoice checkbox checked generate error when running standard Report
+        Initialize();
+
+        // [GIVEN] Create and post Sales Invoice.
+        DocumentNo := CreateAndPostSalesDocumentWithSalesCommentLine(SalesCommentLine);
+        LibraryVariableStorage.Enqueue(DocumentNo); // Enqueue value for SalesInvoiceNAReportRequestPageHandler.
+
+        // [WHEN] Run Sales Invoice NA Report
+        Report.Run(Report::"Sales Invoice NA");  // Opens SalesInvoiceNAReportRequestPageHandler.
+        Commit();
+
+        // [VERIFY] Verify: Verify Sales Comment Line after report generation.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange(SalesCommentToMatch, SalesCommentLine.Comment + ' ');
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), RowMustExist);
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -2866,6 +2981,66 @@ codeunit 142062 "ERM Misc. Report III"
         exit(Exists);
     end;
 
+    local procedure CreateAndPostSalesDocumentWithSalesCommentLine(var SalesCommentLine: Record "Sales Comment Line"): Code[20]
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        CreateCustomerWithCurrency(Customer, '');
+
+        CreateSalesDocumentWithCustomerAndItem(
+            SalesLine,
+            SalesHeader."Document Type"::Order,
+            Customer."No.",
+            CreateItemWithExtendedText,
+            LibraryRandom.RandDec(10, 2));
+
+        CreateSalesCommentLine(
+            SalesCommentLine,
+            SalesCommentLine."Document Type"::Order,
+            SalesLine."Document No.",
+            SalesLine."Line No.");
+
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure CreateSalesCommentLine(
+        var SalesCommentLine: Record "Sales Comment Line";
+        DocumentType: Option;
+        DocumentNo: Code[20];
+        DocumentLineNo: Integer)
+    begin
+        LibrarySales.CreateSalesCommentLine(
+            SalesCommentLine,
+            DocumentType,
+            DocumentNo,
+            DocumentLineNo);
+
+        SalesCommentLine.Code := LibraryUTUtility.GetNewCode10;
+        SalesCommentLine."Print On Invoice" := true;
+        SalesCommentLine.Modify(true);
+    end;
+
+    local procedure CreateItemWithExtendedText(): Code[20]
+    var
+        Item: Record Item;
+        ExtendedTextHeader: Record "Extended Text Header";
+        ExtendedTextLine: Record "Extended Text Line";
+    begin
+        Item.Get(CreateItem());
+        Item.Validate("Unit Price", LibraryRandom.RandDecInDecimalRange(100, 10000, 2));
+        Item.Validate("Automatic Ext. Texts", true);
+        Item.Modify(true);
+
+        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+
+        exit(Item."No.");
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure GSTHSTInternetFileTransferRequestPageHandler(var GSTHSTInternetFileTransfer: TestRequestPage "GST/HST Internet File Transfer")
@@ -3327,6 +3502,17 @@ codeunit 142062 "ERM Misc. Report III"
     begin
         LibraryVariableStorage.Enqueue(SalesOrder.ArchiveDocument.Enabled());
         SalesOrder.Cancel.Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceNAReportRequestPageHandler(var SalesInvoicePrePrinted: TestRequestPage "Sales Invoice NA")
+    var
+        DocumentNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(DocumentNo);
+        SalesInvoicePrePrinted."Sales Invoice Header".SetFilter("No.", DocumentNo);
+        SalesInvoicePrePrinted.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
 

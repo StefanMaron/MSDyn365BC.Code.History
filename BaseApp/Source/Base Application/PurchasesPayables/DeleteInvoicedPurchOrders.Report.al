@@ -75,8 +75,10 @@ report 499 "Delete Invoiced Purch. Orders"
 
                 // The purchase order can be deleted. Archive and delete the document
                 // Archive the purchase document
-                OnBeforeAutoArchivePurchDocument("Purchase Header");
-                ArchiveManagement.AutoArchivePurchDocument("Purchase Header");
+                IsHandled := false;
+                OnBeforeAutoArchivePurchDocument("Purchase Header", IsHandled);
+                if not IsHandled then
+                    ArchiveManagement.AutoArchivePurchDocument("Purchase Header");
 
                 // Delete lines and then the header
                 PurchLine.LockTable();
@@ -117,8 +119,10 @@ report 499 "Delete Invoiced Purch. Orders"
                 if HasLinks then
                     DeleteLinks();
 
-                OnBeforeDeletePurchaseHeader("Purchase Header");
-                Delete();
+                IsHandled := false;
+                OnBeforeDeletePurchaseHeader("Purchase Header", IsHandled);
+                if not IsHandled then
+                    Delete();
                 OnAfterDeletePurchaseHeader("Purchase Header");
 
                 Commit();
@@ -195,7 +199,7 @@ report 499 "Delete Invoiced Purch. Orders"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAutoArchivePurchDocument(var PurchaseHeader: Record "Purchase Header")
+    local procedure OnBeforeAutoArchivePurchDocument(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -204,8 +208,8 @@ report 499 "Delete Invoiced Purch. Orders"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeletePurchaseHeader(var PurchaseHeader: Record "Purchase Header")
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeDeletePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 

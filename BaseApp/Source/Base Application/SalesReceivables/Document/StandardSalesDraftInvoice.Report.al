@@ -544,6 +544,8 @@ report 1303 "Standard Sales - Draft Invoice"
                     else
                         LineDiscountPctText := StrSubstNo('%1%', -Round("Line Discount %", 0.1));
 
+                    OnLineOnAfterGetRecordOnBeforeCalcTotals(Header, Line, VATAmountLine);
+
                     TransHeaderAmount += PrevLineAmount;
                     PrevLineAmount := "Line Amount";
                     TotalSubTotal += "Line Amount";
@@ -552,6 +554,7 @@ report 1303 "Standard Sales - Draft Invoice"
                     TotalAmountVAT += "Amount Including VAT" - Amount;
                     TotalAmountInclVAT += "Amount Including VAT";
                     TotalPaymentDiscOnVAT += -("Line Amount" - "Inv. Discount Amount" - "Amount Including VAT");
+
                     OnLineOnAfterGetRecordOnAfterCalcTotals(Header, Line, TotalAmount, TotalAmountVAT, TotalAmountInclVAT);
 
                     FormatLineValues(Line);
@@ -884,6 +887,7 @@ report 1303 "Standard Sales - Draft Invoice"
                 OnHeaderOnAfterGetRecordOnAfterUpdateVATOnLines(Header, Line, VATAmountLine);
 
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                FormatAddr.SetLanguageCode("Language Code");
 
                 CalcFields("Work Description");
                 ShowWorkDescription := "Work Description".HasValue;
@@ -1279,6 +1283,11 @@ report 1303 "Standard Sales - Draft Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFormatLineValues(SalesLine: Record "Sales Line"; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLineOnAfterGetRecordOnBeforeCalcTotals(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line")
     begin
     end;
 }

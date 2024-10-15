@@ -2074,7 +2074,7 @@ codeunit 141002 "UT REP Check"
     end;
 
     [Test]
-    [HandlerFunctions('OneCheckPerVendorPerDocNoStubStubCheckRequestPageHandler,MessageHandler')]
+    [HandlerFunctions('OneCheckPerVendorPerDocNoStubStubCheckRequestPageHandler')]
     [Scope('OnPrem')]
     procedure RestrictCheckPrintWhenNotAllGenJnlLinesWereApprovedWithOneCheckPerVendorOption_StubStubCheck()
     var
@@ -2109,7 +2109,7 @@ codeunit 141002 "UT REP Check"
     end;
 
     [Test]
-    [HandlerFunctions('OneCheckPerVendorPerDocNoStubCheckStubRequestPageHandler,MessageHandler')]
+    [HandlerFunctions('OneCheckPerVendorPerDocNoStubCheckStubRequestPageHandler')]
     [Scope('OnPrem')]
     procedure RestrictCheckPrintWhenNotAllGenJnlLinesWereApprovedWithOneCheckPerVendorOption_StubCheckStub()
     var
@@ -2144,7 +2144,7 @@ codeunit 141002 "UT REP Check"
     end;
 
     [Test]
-    [HandlerFunctions('OneCheckPerVendorPerDocNoCheckStubStubRequestPageHandler,MessageHandler')]
+    [HandlerFunctions('OneCheckPerVendorPerDocNoCheckStubStubRequestPageHandler')]
     [Scope('OnPrem')]
     procedure RestrictCheckPrintWhenNotAllGenJnlLinesWereApprovedWithOneCheckPerVendorOption_CheckStubStub()
     var
@@ -2179,7 +2179,7 @@ codeunit 141002 "UT REP Check"
     end;
 
     [Test]
-    [HandlerFunctions('OneCheckPerVendorPerDocNoStubStubCheckRequestPageHandler,MessageHandler')]
+    [HandlerFunctions('OneCheckPerVendorPerDocNoStubStubCheckRequestPageHandler')]
     [Scope('OnPrem')]
     procedure RestrictCheckPrintWhenNotAllGenJnlLinesWereApprovedWithoutOneCheckPerVendorOption_StubStubCheck()
     var
@@ -2214,7 +2214,7 @@ codeunit 141002 "UT REP Check"
     end;
 
     [Test]
-    [HandlerFunctions('OneCheckPerVendorPerDocNoStubCheckStubRequestPageHandler,MessageHandler')]
+    [HandlerFunctions('OneCheckPerVendorPerDocNoStubCheckStubRequestPageHandler')]
     [Scope('OnPrem')]
     procedure RestrictCheckPrintWhenNotAllGenJnlLinesWereApprovedWithoutOneCheckPerVendorOption_StubCheckStub()
     var
@@ -2249,7 +2249,7 @@ codeunit 141002 "UT REP Check"
     end;
 
     [Test]
-    [HandlerFunctions('OneCheckPerVendorPerDocNoCheckStubStubRequestPageHandler,MessageHandler')]
+    [HandlerFunctions('OneCheckPerVendorPerDocNoCheckStubStubRequestPageHandler')]
     [Scope('OnPrem')]
     procedure RestrictCheckPrintWhenNotAllGenJnlLinesWereApprovedWithoutOneCheckPerVendorOption_CheckStubStub()
     var

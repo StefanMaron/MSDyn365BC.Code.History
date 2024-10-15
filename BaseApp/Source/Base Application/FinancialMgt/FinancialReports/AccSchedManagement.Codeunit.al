@@ -313,7 +313,7 @@
             end;
         end;
 
-        OnAfterCheckAnalysisView(AccSchedName, ColumnLayoutName);
+        OnAfterCheckAnalysisView(AccSchedName, ColumnLayoutName, AnalysisView);
     end;
 
     procedure AccPeriodStartEnd(ColumnLayout: Record "Column Layout"; Date: Date; var StartDate: Date; var EndDate: Date)
@@ -620,9 +620,13 @@
 
     procedure CalcGLAcc(var GLAcc: Record "G/L Account"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean) ColValue: Decimal
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GLEntry: Record "G/L Entry";
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GLBudgEntry: Record "G/L Budget Entry";
+        [SecurityFiltering(SecurityFilter::Filtered)]
         AnalysisViewEntry: Record "Analysis View Entry";
+        [SecurityFiltering(SecurityFilter::Filtered)]
         AnalysisViewBudgetEntry: Record "Analysis View Budget Entry";
         AmountType: Enum "Account Schedule Amount Type";
         TestBalance: Boolean;
@@ -2132,6 +2136,8 @@
                 ToDate := EndDate;
                 FiscalStartDate2 := FiscalStartDate;
             end;
+
+        OnAfterCalcColumnDates(ColumnLayout, FromDate, ToDate, FiscalStartDate2, PeriodError);
     end;
 
     procedure MoveAccSchedLines(var AccSchedLine: Record "Acc. Schedule Line"; Place: Integer)
@@ -2598,7 +2604,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCheckAnalysisView(AccSchedName: Record "Acc. Schedule Name"; ColumnLayoutName: Record "Column Layout Name")
+    local procedure OnAfterCheckAnalysisView(AccSchedName: Record "Acc. Schedule Name"; ColumnLayoutName: Record "Column Layout Name"; var AnalysisView: Record "Analysis View")
     begin
     end;
 
@@ -2889,6 +2895,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnDrillDownOnGLAccCatFilterOnAfterGLAccSetFilterGroup2(var AccScheduleLine: Record "Acc. Schedule Line"; var GLAccount: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcColumnDates(ColumnLayout: Record "Column Layout"; var FromDate: Date; var ToDate: Date; var FiscalStartDate2: Date; var PeriodError: Boolean)
     begin
     end;
 }

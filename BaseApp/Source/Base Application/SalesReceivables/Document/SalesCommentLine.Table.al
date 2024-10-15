@@ -112,6 +112,7 @@ table 44 "Sales Comment Line"
                 SalesCommentLine2 := SalesCommentLine;
                 SalesCommentLine2."Document Type" := "Sales Comment Document Type".FromInteger(ToDocumentType);
                 SalesCommentLine2."No." := ToNumber;
+                OnBeforeCopyCommentsOnBeforeInsert(SalesCommentLine2, SalesCommentLine);
                 SalesCommentLine2.Insert();
             until SalesCommentLine.Next() = 0;
     end;
@@ -244,6 +245,11 @@ table 44 "Sales Comment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyHeaderComments(var SalesCommentLine: Record "Sales Comment Line"; var IsHandled: Boolean; FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyCommentsOnBeforeInsert(var NewSalesCommentLine: Record "Sales Comment Line"; OldSalesCommentLine: Record "Sales Comment Line")
     begin
     end;
 }

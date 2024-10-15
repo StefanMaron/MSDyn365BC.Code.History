@@ -4082,6 +4082,68 @@
         VerifyQtyOnReqLines(ParentItem, ChildItem, 5, 4, 50);
     end;
 
+    [Test]
+    procedure S472980_StartingDateTimeInPlanningWorksheetIsLessOrEqualToEndingDateTime()
+    var
+        ObjectOptions: Record "Object Options";
+        ManufacturingSetup: Record "Manufacturing Setup";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        BlankDateFormula: DateFormula;
+    begin
+        // [FEATURE] [Default Safety Lead Time] [Planning Worksheet] [Calculate Regenerative Plan]
+        // [SCENARIO 472980] Verify that "Starting Date-Time" is less or equal to "Ending Date-Time" in Planning Worksheet when "Default Safety Lead Time" in "Manufacturing Setup" is blank.
+        Initialize();
+        ObjectOptions.SetRange("Object Type", ObjectOptions."Object Type"::Report);
+        ObjectOptions.SetRange("Object ID", Report::"Calculate Plan - Req. Wksh.");
+        ObjectOptions.DeleteAll();
+
+        // [GIVEN] Set "Default Safety Lead Time" to blank and other settings to default values.
+        ManufacturingSetup.Get();
+        Evaluate(BlankDateFormula, '');
+        if ManufacturingSetup."Default Safety Lead Time" <> BlankDateFormula then
+            ManufacturingSetup.Validate("Default Safety Lead Time", BlankDateFormula);
+        if ManufacturingSetup."Normal Starting Time" = 0T then
+            ManufacturingSetup.Validate("Normal Starting Time", 080000T);
+        if ManufacturingSetup."Normal Ending Time" = 0T then
+            ManufacturingSetup.Validate("Normal Ending Time", 170000T);
+        if ManufacturingSetup."Use Forecast on Locations" then
+            ManufacturingSetup.Validate("Use Forecast on Locations", false);
+        if ManufacturingSetup."Current Production Forecast" <> '' then
+            ManufacturingSetup.Validate("Current Production Forecast", '');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create Item "I" with "Reordering Policy" = "Lot-for-Lot", "Replenishment System" = "Prod. Order".
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Evaluate(BlankDateFormula, '');
+        if Item."Safety Lead Time" <> BlankDateFormula then
+            Item.Validate("Safety Lead Time", BlankDateFormula);
+        Item.Modify(true);
+
+        // [GIVEN] Create Sales Order for Item "I".
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(10, 30));
+
+        // [WHEN] Calculate Regenerative Plan with "Respect Planning Parameters" = false.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate('<+1D+CM>', WorkDate()));
+
+        // [THEN] Verify that there is one Requisition Lines for Item "I".
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", Item."No.");
+        Assert.RecordCount(RequisitionLine, 1);
+
+        // [THEN] Verify that "Quantity" is equal to Sales Line Quantity.
+        RequisitionLine.FindFirst();
+        Assert.AreEqual(SalesLine.Quantity, RequisitionLine.Quantity, 'Quantity must be equal to Sales Line Quantity');
+
+        // [THEN] Verify that "Starting Date-Time" is less or equal to "Ending Date-Time".
+        Assert.IsTrue(RequisitionLine."Starting Date-Time" <= RequisitionLine."Ending Date-Time", 'Starting Date-Time must be less or equal to Ending Date-Time');
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
