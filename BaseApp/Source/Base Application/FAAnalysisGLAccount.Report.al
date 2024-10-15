@@ -3,7 +3,7 @@ report 31041 "FA - Analysis G/L Account"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './FAAnalysisGLAccount.rdlc';
-    Caption = 'FA - Analysis G/L Account';
+    Caption = 'FA - Analysis G/L Account (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
     ObsoleteState = Pending;
     ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';

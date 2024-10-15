@@ -59,6 +59,15 @@
       <Cmt Name="Dev"><![CDATA[%1: Table Caption1,%2: Field Value1,%3: Field Value2,%4: Field Value3,%5:Field Caption1,%6:Field Caption2,%7:Field Value4,%8: Table Caption2,%9: Field Value5.]D;]A;(LookupHint=Codeunit ERM Dimension Fixed Assets - NamedType DimensionValueError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2708761409 - NamedType 1812226211" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Select a %1 for the %2 %3 for %4 %5.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1: Table Caption1,%2: Field Value1,%3: Field Value2,%4: Field Value3,%5:Field Caption1,%6:Field Caption2,%7:Field Value4,%8: Table Caption2,%9: Field Value5.]D;]A;(LookupHint=Codeunit ERM Dimension Fixed Assets - NamedType DimensionValueError2)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2708761409 - NamedType 478324452" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Lines must not be created for Fixed Asset %1. ]]></Val>

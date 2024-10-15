@@ -549,14 +549,14 @@
             action(Form)
             {
                 ApplicationArea = BasicEU;
-                Caption = 'Prints Intrastat Journal';
+                Caption = 'Print Intrastat Journal';
                 Ellipsis = true;
                 Image = PrintForm;
                 Promoted = true;
                 PromotedCategory = "Report";
                 PromotedIsBig = true;
                 PromotedOnly = true;
-                ToolTip = 'Print that Form - this is used to print Intrastat journal.';
+                ToolTip = 'Print the intrastat journal.';
 
                 trigger OnAction()
                 begin
