@@ -18,4 +18,14 @@ pageextension 11787 "Purchase Order Subform CZL" extends "Purchase Order Subform
             }
         }
     }
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        ForceTotalsCalculation();
+    end;
+
+    trigger OnModifyRecord(): Boolean
+    begin
+        ForceTotalsCalculation();
+    end;
 }

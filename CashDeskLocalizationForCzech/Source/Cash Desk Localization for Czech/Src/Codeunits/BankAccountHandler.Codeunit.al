@@ -2,6 +2,7 @@
 codeunit 11793 "Bank Account Handler CZP"
 {
     var
+        CashDeskSingleInstanceCZP: Codeunit "Cash Desk Single Instance CZP";
 
     [EventSubscriber(ObjectType::Table, Database::"Bank Account", 'OnBeforeRenameEvent', '', false, false)]
     local procedure SyncOnBeforeRenameBankAccount(var Rec: Record "Bank Account"; RunTrigger: Boolean)
@@ -47,5 +48,17 @@ codeunit 11793 "Bank Account Handler CZP"
         if Rec."Account Type" = Rec."Account Type"::"Cash Desk" then
             Error(CashDeskDisableChangeErr);
 #endif
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Adjust Exchange Rates", 'OnBeforeOnInitReport', '', false, false)]
+    local procedure ShowCashDesksOnBeforeOnInitReport()
+    begin
+        CashDeskSingleInstanceCZP.SetShowAllBankAccountType(true);
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Adjust Exchange Rates", 'OnCloseRequestPage', '', false, false)]
+    local procedure HideCashDesksOnCloseRequestPage()
+    begin
+        CashDeskSingleInstanceCZP.SetShowAllBankAccountType(false);
     end;
 }

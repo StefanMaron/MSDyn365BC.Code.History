@@ -3570,8 +3570,8 @@
                         PurchLine.Validate(Type, TempPurchLine.Type);
                         OnRecreatePurchLinesOnAfterValidateType(PurchLine, TempPurchLine);
                         if TempPurchLine."No." = '' then begin
-                            PurchLine.Validate(Description, TempPurchLine.Description);
-                            PurchLine.Validate("Description 2", TempPurchLine."Description 2");
+                            PurchLine.Description := TempPurchLine.Description;
+                            PurchLine."Description 2" := TempPurchLine."Description 2";
                         end else begin
                             PurchLine.Validate("No.", TempPurchLine."No.");
                             IsHandled := false;

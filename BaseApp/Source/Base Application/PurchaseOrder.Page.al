@@ -1171,7 +1171,7 @@
                     begin
                         OpenPurchaseOrderStatistics;
                         PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
-                        CurrPage.PurchLines.PAGE.ForceCalculateTotals(); // NAVCZ
+                        CurrPage.PurchLines.Page.ForceTotalsCalculation();
                     end;
                 }
                 action(Vendor)

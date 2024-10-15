@@ -961,7 +961,7 @@ page 49 "Purchase Quote"
                         Commit();
                         PAGE.RunModal(PAGE::"Purchase Statistics", Rec);
                         PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
-                        CurrPage.PurchLines.PAGE.ForceCalculateTotals(); // NAVCZ
+                        CurrPage.PurchLines.Page.ForceTotalsCalculation();
                     end;
                 }
                 action(Vendor)

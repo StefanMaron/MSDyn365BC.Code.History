@@ -18,4 +18,14 @@ pageextension 11789 "Sales Invoice Subform CZL" extends "Sales Invoice Subform"
             }
         }
     }
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        ForceTotalsCalculation();
+    end;
+
+    trigger OnModifyRecord(): Boolean
+    begin
+        ForceTotalsCalculation();
+    end;
 }

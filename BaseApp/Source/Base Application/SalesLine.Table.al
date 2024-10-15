@@ -456,7 +456,7 @@
                 if IsHandled then
                     exit;
 
-                if Type = Type::" " then
+                if not HasTypeToFillMandatoryFields() then
                     exit;
 
                 if "No." <> '' then
@@ -3464,7 +3464,8 @@
         if not SalesCommentLine.IsEmpty then
             SalesCommentLine.DeleteAll();
 
-        ModifyVATFields; // NAVCZ
+        RemoveVATCorrection(); // NAVCZ
+
         // In case we have roundings on VAT or Sales Tax, we should update some other line
         if (Type <> Type::" ") and ("Line No." <> 0) and ("Attached to Line No." = 0) and ("Job Contract Entry No." = 0) and
            (Quantity <> 0) and (Amount <> 0) and (Amount <> "Amount Including VAT") and not StatusCheckSuspended
@@ -3498,7 +3499,7 @@
             CheckInventoryPickConflict();
         if ("Deferral Code" <> '') and (GetDeferralAmount <> 0) then
             UpdateDeferralAmounts();
-        ModifyVATFields; // NAVCZ
+        RemoveVATCorrection(); // NAVCZ
     end;
 
     trigger OnModify()
@@ -3519,7 +3520,7 @@
 
         if ((Quantity <> 0) or (xRec.Quantity <> 0)) and ItemExists(xRec."No.") and not FullReservedQtyIsForAsmToOrder then
             VerifyChangeForSalesLineReserve(0);
-        ModifyVATFields; // NAVCZ
+        RemoveVATCorrection(); // NAVCZ
     end;
 
     trigger OnRename()
@@ -7496,20 +7497,31 @@
         GLSetupRead := true;
     end;
 
-    local procedure ModifyVATFields()
+    local procedure RemoveVATCorrection()
     var
-        ModSalesLine: Record "Sales Line";
+        SalesLine3: Record "Sales Line";
     begin
         // NAVCZ
-        ModSalesLine.Reset();
-        ModSalesLine.SetRange("Document Type", "Document Type");
-        ModSalesLine.SetRange("Document No.", "Document No.");
-        ModSalesLine.SetFilter("Line No.", '<>%1', "Line No.");
-        ModSalesLine.SetFilter(Type, '>%1', ModSalesLine.Type::" ");
-        ModSalesLine.SetRange("VAT Correction", true);
-        ModSalesLine.ModifyAll("VAT Difference", 0);
-        ModSalesLine.ModifyAll("VAT Difference (LCY)", 0);
-        ModSalesLine.ModifyAll("VAT Correction", false);
+        SalesLine3.Reset();
+        SalesLine3.SetRange("Document Type", "Document Type");
+        SalesLine3.SetRange("Document No.", "Document No.");
+        SalesLine3.SetFilter("Line No.", '<>%1', "Line No.");
+        SalesLine3.SetFilter("VAT Difference", '<>0');
+        if SalesLine3.FindSet() then
+            repeat
+                SalesLine3."VAT Difference" := 0;
+                SalesLine3."VAT Difference (LCY)" := 0;
+                SalesLine3."VAT Correction" := false;
+                SalesLine3.UpdateAmounts();
+                SalesLine3.Modify();
+            until SalesLine3.Next() = 0;
+
+        if "VAT Difference" <> 0 then begin
+            "VAT Difference" := 0;
+            "VAT Difference (LCY)" := 0;
+            "VAT Correction" := false;
+            UpdateAmounts();
+        end;
     end;
 
     local procedure DivideAmount(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing,Shipping; SalesLineQty: Decimal; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary)

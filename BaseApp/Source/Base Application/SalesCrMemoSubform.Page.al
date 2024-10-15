@@ -974,9 +974,14 @@
         IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled;
     end;
 
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        DocumentTotals.SalesDocTotalsNotUpToDate(); // NAVCZ
+    end;
+
     trigger OnModifyRecord(): Boolean
     begin
-        DocumentTotals.SalesCheckIfDocumentChanged(Rec, xRec);
+        DocumentTotals.SalesDocTotalsNotUpToDate(); // NAVCZ
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)

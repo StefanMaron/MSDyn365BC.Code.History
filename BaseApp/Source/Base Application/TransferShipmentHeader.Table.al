@@ -196,6 +196,10 @@ table 5744 "Transfer Shipment Header"
             Caption = 'Transport Method';
             TableRelation = "Transport Method";
         }
+        field(49; "Partner VAT ID"; Code[20])
+        {
+            Caption = 'Partner VAT ID';
+        }
         field(59; "Entry/Exit Point"; Code[10])
         {
             Caption = 'Entry/Exit Point';
@@ -354,6 +358,7 @@ table 5744 "Transfer Shipment Header"
         "Shipment Method Code" := TransHeader."Shipment Method Code";
         "Transaction Type" := TransHeader."Transaction Type";
         "Transport Method" := TransHeader."Transport Method";
+        "Partner VAT ID" := TransHeader."Partner VAT ID";
         "Entry/Exit Point" := TransHeader."Entry/Exit Point";
         Area := TransHeader.Area;
         "Transaction Specification" := TransHeader."Transaction Specification";

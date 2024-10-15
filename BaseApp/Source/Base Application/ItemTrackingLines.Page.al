@@ -1097,6 +1097,7 @@
 
         ReservEntry."Source Type" := TrackingSpecification."Source Type";
         ReservEntry."Source Subtype" := TrackingSpecification."Source Subtype";
+        ReservEntry."Source ID" := TrackingSpecification."Source ID";
         CurrentSignFactor := CreateReservEntry.SignFactor(ReservEntry);
         CurrentSourceCaption := ReservEntry.TextCaption;
         CurrentSourceType := ReservEntry."Source Type";
@@ -2021,12 +2022,18 @@
     var
         ItemEntryRelation: Record "Item Entry Relation";
         ItemLedgerEntry: Record "Item Ledger Entry";
+        CurrentQtyBase: Decimal;
+        MaxQtyBase: Decimal;
     begin
         // Used for collecting information about posted Assembly Lines from the created Item Ledger Entries.
         if (TrackingSpecification."Source Type" <> DATABASE::"Assembly Line") and
            (TrackingSpecification."Source Type" <> DATABASE::"Assembly Header")
         then
             exit;
+
+        TempTrackingSpecification.CalcSums("Quantity (Base)");
+        CurrentQtyBase := TempTrackingSpecification."Quantity (Base)";
+        MaxQtyBase := CurrentSignFactor * SourceQuantityArray[1];
 
         ItemEntryRelation.SetCurrentKey("Order No.", "Order Line No.");
         ItemEntryRelation.SetRange("Order No.", TrackingSpecification."Source ID");
@@ -2048,6 +2055,11 @@
                 TempTrackingSpecification."Quantity Invoiced (Base)" := ItemLedgerEntry.Quantity;
                 TempTrackingSpecification."Qty. per Unit of Measure" := ItemLedgerEntry."Qty. per Unit of Measure";
                 TempTrackingSpecification.InitQtyToShip;
+
+                if Abs(TempTrackingSpecification."Quantity (Base)") > Abs(MaxQtyBase - CurrentQtyBase) then
+                    TempTrackingSpecification."Quantity (Base)" := MaxQtyBase - CurrentQtyBase;
+                CurrentQtyBase += TempTrackingSpecification."Quantity (Base)";
+
                 OnBeforeCollectTempTrackingSpecificationInsert(TempTrackingSpecification, ItemLedgerEntry, TrackingSpecification);
                 TempTrackingSpecification.Insert();
             until ItemEntryRelation.Next() = 0;

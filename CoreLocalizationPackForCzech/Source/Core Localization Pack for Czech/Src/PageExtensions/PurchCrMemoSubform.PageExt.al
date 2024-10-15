@@ -18,4 +18,14 @@ pageextension 11788 "Purch. Cr. Memo Subform CZL" extends "Purch. Cr. Memo Subfo
             }
         }
     }
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        ForceTotalsCalculation();
+    end;
+
+    trigger OnModifyRecord(): Boolean
+    begin
+        ForceTotalsCalculation();
+    end;
 }

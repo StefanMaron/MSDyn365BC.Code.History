@@ -464,7 +464,11 @@
         CustLedgerEntry.Get(TempPaymentRegistrationBuffer."Ledger Entry No.");
         CustLedgerEntry."Applies-to ID" :=
           NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", TempPaymentRegistrationBuffer."Date Received", false);
-        CustLedgerEntry."Amount to Apply" := TempPaymentRegistrationBuffer."Amount Received";
+        CustLedgerEntry.CalcFields("Remaining Amount");
+        If (TempPaymentRegistrationBuffer."Amount Received" > CustLedgerEntry."Remaining Amount") then
+            CustLedgerEntry."Amount to Apply" := CustLedgerEntry."Remaining Amount"
+        else
+            CustLedgerEntry."Amount to Apply" := TempPaymentRegistrationBuffer."Amount Received";
         CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgerEntry);
     end;
 

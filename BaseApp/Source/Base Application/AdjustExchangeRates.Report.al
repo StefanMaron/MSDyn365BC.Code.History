@@ -40,6 +40,7 @@ report 595 "Adjust Exchange Rates"
             {
                 DataItemLink = "Currency Code" = FIELD(Code);
                 DataItemTableView = SORTING("Bank Acc. Posting Group");
+                RequestFilterHeading = 'Bank Account and Cash Desk';
                 RequestFilterFields = "No.";
                 column(BankAccNo_Fld; "No.")
                 {
@@ -924,8 +925,8 @@ report 595 "Adjust Exchange Rates"
                     field(AdjVend; AdjVend)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Adjust Vendor';
-                        ToolTip = 'Specifies if vendor''s entries have to be adjusted.';
+                        Caption = 'Adjust Bank Accounts and Cash Desks';
+                        ToolTip = 'Specifies if bank accounts and cash desks has to be adjusted.';
                     }
                     field(AdjBank; AdjBank)
                     {
@@ -996,6 +997,11 @@ report 595 "Adjust Exchange Rates"
                 PostingDescription := TextCZ001;
             // NAVCZ
         end;
+
+        trigger OnClosePage()
+        begin
+            OnCloseRequestPage();
+        end;
     }
 
     labels
@@ -1024,7 +1030,7 @@ report 595 "Adjust Exchange Rates"
         RemainingAmtCaption = 'Remaining Amount';
         RemainingAmtLCYCaption = 'Remaining Amount (LCY)';
         ModRemainingAmtLCYCaption = 'Mod. Remaining Amount (LCY)';
-        BankAccountTableCaption = 'Bank Account';
+        BankAccountTableCaption = 'Bank Account and Cash Desk';
         CustLdgEntryTableCaption = 'Customer Ledger Entry';
         VendLdgEntryTableCaption = 'Vendor Ledger Entry';
     }
@@ -2715,6 +2721,11 @@ report 595 "Adjust Exchange Rates"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostGenJnlLineOnBeforeGenJnlPostLineRun(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCloseRequestPage()
     begin
     end;
 }

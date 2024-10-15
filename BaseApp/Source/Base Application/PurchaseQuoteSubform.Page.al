@@ -856,9 +856,14 @@
         Currency.InitRoundingPrecision();
     end;
 
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        DocumentTotals.PurchaseDocTotalsNotUpToDate(); // NAVCZ
+    end;
+
     trigger OnModifyRecord(): Boolean
     begin
-        DocumentTotals.PurchaseCheckIfDocumentChanged(Rec, xRec);
+        DocumentTotals.PurchaseDocTotalsNotUpToDate(); // NAVCZ
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1015,6 +1020,8 @@
         DocumentTotals.RefreshPurchaseLine(Rec);
     end;
 
+#if not CLEAN20
+    [Obsolete('The function is not needed any more.', '20.0')]
     procedure ForceCalculateTotals();
     begin
         // NAVCZ
@@ -1026,6 +1033,7 @@
             TotalPurchaseHeader, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         DocumentTotals.RefreshPurchaseLine(Rec);
     end;
+#endif
 
     procedure DeltaUpdateTotals()
     begin

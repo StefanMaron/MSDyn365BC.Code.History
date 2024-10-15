@@ -18,4 +18,14 @@ pageextension 31000 "Purchase Quote Subform CZL" extends "Purchase Quote Subform
             }
         }
     }
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        ForceTotalsCalculation();
+    end;
+
+    trigger OnModifyRecord(): Boolean
+    begin
+        ForceTotalsCalculation();
+    end;
 }
