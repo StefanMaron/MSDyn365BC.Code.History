@@ -25,6 +25,7 @@ codeunit 9058 "Plan Upgrade Tag"
         PerDatabaseUpgradeTags.Add(GetPlanfigurationsUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetMicrosoft365UpgradeTag());
         PerDatabaseUpgradeTags.Add(GetEssentialAttachUpgradeTag());
+        PerDatabaseUpgradeTags.Add(GetBCAdminUpgradeTag());
     end;
 
     /// <summary>
@@ -89,7 +90,16 @@ codeunit 9058 "Plan Upgrade Tag"
     begin
         exit('MS-471088-AddAttachPlans-20230427');
     end;
-    
+
+    /// <summary>
+    /// Returns the BC Administrator upgrade tag.
+    /// </summary>
+    /// <returns>The BC Administrator upgrade tag.</returns>
+    internal procedure GetBCAdminUpgradeTag(): Code[250]
+    begin
+        exit('MS-498639-AddBCAdmin-20240205');
+    end;
+
     internal procedure GetPlanfigurationsUpgradeTag(): Code[250]
     begin
         exit('MS-430587-AddPlanConfigurations-20220321');

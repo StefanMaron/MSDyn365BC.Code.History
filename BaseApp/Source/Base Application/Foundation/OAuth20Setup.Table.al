@@ -132,6 +132,17 @@ table 1140 "OAuth 2.0 Setup"
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
         }
+        field(50; "Code Challenge Method"; Enum "OAuth 2.0 Code Challenge")
+        {
+        }
+        field(51; "Code Verifier"; Guid)
+        {
+
+        }
+        field(52; "Use Nonce"; Boolean)
+        {
+
+        }
     }
 
     keys
