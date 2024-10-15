@@ -915,6 +915,7 @@ report 1322 "Standard Purchase - Order"
                 TotalSubTotal := 0;
                 TotalInvoiceDiscountAmount := 0;
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Purchase Header");
                 FormatDocumentFields("Purchase Header");

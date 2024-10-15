@@ -1693,6 +1693,7 @@ page 52 "Purchase Credit Memo"
         BuyFromContact.GetOrClear("Buy-from Contact No.");
         PayToContact.GetOrClear("Pay-to Contact No.");
         UpdateDocHasRegimeCode();
+	CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(RecordId);
 
         OnAfterOnAfterGetRecord(Rec);
     end;

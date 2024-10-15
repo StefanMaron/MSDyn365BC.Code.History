@@ -55,6 +55,7 @@ page 9060 "SO Processor Activities"
                     Caption = 'Ready To Ship';
                     DrillDownPageID = "Sales Order List";
                     ToolTip = 'Specifies the number of sales documents that are ready to ship.';
+                    StyleExpr = ReadyToShipStyle;
 
                     trigger OnDrillDown()
                     begin
@@ -67,6 +68,7 @@ page 9060 "SO Processor Activities"
                     Caption = 'Partially Shipped';
                     DrillDownPageID = "Sales Order List";
                     ToolTip = 'Specifies the number of sales documents that are partially shipped.';
+                    StyleExpr = PartiallyShippedStyle;
 
                     trigger OnDrillDown()
                     begin
@@ -79,6 +81,7 @@ page 9060 "SO Processor Activities"
                     Caption = 'Delayed';
                     DrillDownPageID = "Sales Order List";
                     ToolTip = 'Specifies the number of sales documents where your delivery is delayed.';
+                    StyleExpr = DelayedOrdersStyle;
 
                     trigger OnDrillDown()
                     begin
@@ -92,6 +95,7 @@ page 9060 "SO Processor Activities"
                     DecimalPlaces = 0 : 1;
                     Image = Calendar;
                     ToolTip = 'Specifies the number of days that your order deliveries are delayed on average.';
+                    StyleExpr = AverageDaysDelayedStyle;
                 }
 
                 actions
@@ -272,6 +276,7 @@ page 9060 "SO Processor Activities"
     trigger OnPageBackgroundTaskCompleted(TaskId: Integer; Results: Dictionary of [Text, Text])
     var
         SOActivitiesCalculate: Codeunit "SO Activities Calculate";
+        UIHelperTriggers: Codeunit "UI Helper Triggers";
         PrevUpdatedOn: DateTime;
     begin
         if TaskId <> CalcTaskId then
@@ -286,6 +291,11 @@ page 9060 "SO Processor Activities"
         AverageDaysDelayed := Rec."Average Days Delayed";
         DelayedOrders := Rec.Delayed;
         PartiallyShipped := Rec."Partially Shipped";
+
+        UIHelperTriggers.GetCueStyle(Database::"Sales Cue", Rec.FieldNo("Ready to Ship"), ReadyToShip, ReadyToShipStyle);
+        UIHelperTriggers.GetCueStyle(Database::"Sales Cue", Rec.FieldNo("Average Days Delayed"), AverageDaysDelayed, AverageDaysDelayedStyle);
+        UIHelperTriggers.GetCueStyle(Database::"Sales Cue", Rec.FieldNo(Delayed), DelayedOrders, DelayedOrdersStyle);
+        UIHelperTriggers.GetCueStyle(Database::"Sales Cue", Rec.FieldNo("Partially Shipped"), PartiallyShipped, PartiallyShippedStyle);
 
         if Rec.WritePermission and (Rec."Avg. Days Delayed Updated On" > PrevUpdatedOn) then begin
             PrevUpdatedOn := Rec."Avg. Days Delayed Updated On";
@@ -313,6 +323,10 @@ page 9060 "SO Processor Activities"
         ShowDocumentsPendingDodExchService: Boolean;
         IsAddInReady: Boolean;
         IsPageReady: Boolean;
+        AverageDaysDelayedStyle: Text;
+        ReadyToShipStyle: Text;
+        PartiallyShippedStyle: Text;
+        DelayedOrdersStyle: Text;
 
     trigger PageNotifier::PageReady()
     begin

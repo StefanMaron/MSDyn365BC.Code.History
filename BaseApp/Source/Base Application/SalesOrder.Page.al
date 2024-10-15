@@ -2566,6 +2566,7 @@ page 42 "Sales Order"
             BillToContact.GetOrClear("Bill-to Contact No.");
             SellToContact.GetOrClear("Sell-to Contact No.");
             UpdateDocHasRegimeCode();
+	    CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(RecordId);
         end;
         OnAfterOnAfterGetRecord(Rec);
     end;

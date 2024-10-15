@@ -423,6 +423,12 @@ table 30102 "Shpfy Shop"
             DataClassification = SystemMetadata;
             InitValue = true;
         }
+        field(110; "Fulfillment Service Activated"; Boolean)
+        {
+            Caption = 'Fulfillment Service Activated';
+            DataClassification = SystemMetadata;
+            Description = 'Indicates whether the Shopify Fulfillment Service is activated.';
+        }
         field(200; "Shop Id"; Integer)
         {
             DataClassification = SystemMetadata;

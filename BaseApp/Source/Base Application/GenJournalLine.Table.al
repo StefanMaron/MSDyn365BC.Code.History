@@ -3137,7 +3137,7 @@
         if not IsHandled then begin
             ClearCustVendApplnEntry();
             ClearAppliedGenJnlLine();
-            DeletePaymentFileErrors();
+            DeleteRelatedPaymentFileErrors();
             ClearDataExchangeEntries(false);
 
             GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
@@ -8988,6 +8988,13 @@
         AcquisitionCost := "FA Posting Type" = "FA Posting Type"::"Acquisition Cost";
         OnAfterIsAcquisitionCost(Rec, AcquisitionCost);
         exit(AcquisitionCost);
+    end;
+
+    local procedure DeleteRelatedPaymentFileErrors()
+    var
+        PaymentJnlExportErrorText: Record "Payment Jnl. Export Error Text";
+    begin
+        PaymentJnlExportErrorText.DeleteJnlLineErrorsWhenRecDeleted(Rec);
     end;
 
     [IntegrationEvent(false, false)]

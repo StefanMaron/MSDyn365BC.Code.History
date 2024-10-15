@@ -560,6 +560,7 @@
             begin
                 TempAgingBandBuf.DeleteAll();
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                FormatAddr.SetLanguageCode("Language Code");
                 PrintLine := false;
                 if PrintAllHavingBal then
                     PrintLine := true;

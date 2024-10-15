@@ -3128,7 +3128,10 @@
                         "Expected Receipt Date" :=
                           CalendarMgmt.CalcDateBOC(InternalLeadTimeDays("Planned Receipt Date"), "Planned Receipt Date", CustomCalendarChange, false)
                     end else
-                        GetUpdateBasicDates();
+                        if "Requested Receipt Date" <> 0D then
+                            Validate("Requested Receipt Date")
+                        else
+                            GetUpdateBasicDates();
 
                 if not TrackingBlocked then
                     CheckDateConflict.PurchLineCheck(Rec, CurrFieldNo <> 0);
@@ -8118,7 +8121,7 @@
 
     procedure UpdatePrepmtAmounts()
     begin
-        if (Rec."Outstanding Quantity" = 0) and (Rec."Qty. Rcd. Not Invoiced" = 0) then
+        if (Rec.Quantity <> 0) and (Rec."Outstanding Quantity" = 0) and (Rec."Qty. Rcd. Not Invoiced" = 0) then
             if PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice then
                 exit;
 

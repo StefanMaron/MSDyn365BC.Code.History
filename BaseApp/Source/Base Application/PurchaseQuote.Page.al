@@ -1424,6 +1424,7 @@ page 49 "Purchase Quote"
         CalculateCurrentShippingAndPayToOption();
         BuyFromContact.GetOrClear("Buy-from Contact No.");
         PayToContact.GetOrClear("Pay-to Contact No.");
+        CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(RecordId);
     end;
 
     trigger OnDeleteRecord(): Boolean

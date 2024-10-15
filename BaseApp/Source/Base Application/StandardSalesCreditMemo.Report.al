@@ -927,6 +927,7 @@
                 CalcFields("Work Description");
                 ShowWorkDescription := "Work Description".HasValue;
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields(Header);
                 FormatDocumentFields(Header);
