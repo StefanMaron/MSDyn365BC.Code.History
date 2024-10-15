@@ -309,7 +309,7 @@
                 field("Activity Code"; "Activity Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ShowMandatory = true;
+                    ShowMandatory = IsActivityCodeMandatory;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
                 }
                 field("Job Queue Status"; "Job Queue Status")
@@ -2298,6 +2298,8 @@
     begin
         JobQueuesUsed := SalesReceivablesSetup.JobQueueActive;
         SetExtDocNoMandatoryCondition;
+
+        SetIsActivityCodeMandatory();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -2413,12 +2415,21 @@
     protected var
         ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
         BillToOptions: Option "Default (Customer)","Another Customer","Custom Address";
+        IsActivityCodeMandatory: Boolean;
 
     local procedure ActivateFields()
     begin
         IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
         IsSellToCountyVisible := FormatAddress.UseCounty("Sell-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+    end;
+
+    local procedure SetIsActivityCodeMandatory()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        IsActivityCodeMandatory := GeneralLedgerSetup."Use Activity Code";
     end;
 
     [Obsolete('Replaced by PostSalesOrder().', '18.0')]

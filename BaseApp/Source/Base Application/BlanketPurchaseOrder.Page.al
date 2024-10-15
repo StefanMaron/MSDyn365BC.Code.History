@@ -219,6 +219,7 @@ page 509 "Blanket Purchase Order"
                 field("Activity Code"; "Activity Code")
                 {
                     ApplicationArea = Suite;
+                    ShowMandatory = IsActivityCodeMandatory;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
                 }
                 field(Status; Status)
@@ -995,6 +996,11 @@ page 509 "Blanket Purchase Order"
             SetBuyFromVendorFromFilter;
     end;
 
+    trigger OnInit()
+    begin
+        SetIsActivityCodeMandatory();
+    end;
+
     trigger OnOpenPage()
     begin
         if UserMgt.GetPurchasesFilter <> '' then begin
@@ -1022,9 +1028,20 @@ page 509 "Blanket Purchase Order"
         [InDataSet]
         StatusStyleTxt: Text;
 
+    protected var
+        IsActivityCodeMandatory: Boolean;
+
     local procedure ApproveCalcInvDisc()
     begin
         CurrPage.PurchLines.PAGE.ApproveCalcInvDisc;
+    end;
+
+    local procedure SetIsActivityCodeMandatory()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        IsActivityCodeMandatory := GeneralLedgerSetup."Use Activity Code";
     end;
 
     local procedure SaveInvoiceDiscountAmount()

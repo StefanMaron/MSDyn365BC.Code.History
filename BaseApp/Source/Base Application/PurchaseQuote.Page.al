@@ -261,6 +261,7 @@ page 49 "Purchase Quote"
                 field("Activity Code"; "Activity Code")
                 {
                     ApplicationArea = Basic, Suite;
+                    ShowMandatory = IsActivityCodeMandatory;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
                 }
                 field(Status; Status)
@@ -1322,6 +1323,8 @@ page 49 "Purchase Quote"
     trigger OnInit()
     begin
         ShowShippingOptionsWithLocation := ApplicationAreaMgmtFacade.IsLocationEnabled or ApplicationAreaMgmtFacade.IsAllDisabled;
+
+        SetIsActivityCodeMandatory();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1373,6 +1376,7 @@ page 49 "Purchase Quote"
         IsShipToCountyVisible: Boolean;
 
     protected var
+        IsActivityCodeMandatory: Boolean;
         ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
         PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
 
@@ -1383,6 +1387,14 @@ page 49 "Purchase Quote"
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
 
         OnAfterActivateFields();
+    end;
+
+    local procedure SetIsActivityCodeMandatory()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        IsActivityCodeMandatory := GeneralLedgerSetup."Use Activity Code";
     end;
 
     local procedure ApproveCalcInvDisc()

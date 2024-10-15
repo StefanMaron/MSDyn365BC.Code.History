@@ -5342,8 +5342,7 @@
                 ICInboxOutboxMgt.CreateOutboxJnlLine(ICTransactionNo, 1, TempICGenJnlLine);
                 ICOutboxExport.ProcessAutoSendOutboxTransactionNo(ICTransactionNo);
                 if TempICGenJnlLine.Amount <> 0 then begin
-                    if GLSetup."Use Activity Code" then
-                        TempICGenJnlLine."Activity Code" := ActivityCode;
+                    TempICGenJnlLine."Activity Code" := ActivityCode;
                     GenJnlPostLine.RunWithCheck(TempICGenJnlLine);
                 end;
             until TempICGenJnlLine.Next() = 0;
@@ -7054,8 +7053,7 @@
             CopyDocumentFields(GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode, '');
             CopyFromPurchHeader(PurchHeader);
 
-            if GLSetup."Use Activity Code" then
-                "Activity Code" := PurchHeader."Activity Code";
+            "Activity Code" := PurchHeader."Activity Code";
             "Reverse Sales VAT No. Series" := PurchHeader."Reverse Sales VAT No. Series";
             "Reverse Sales VAT No." := PurchHeader."Reverse Sales VAT No.";
             "Fiscal Code" := PurchHeader."Fiscal Code";

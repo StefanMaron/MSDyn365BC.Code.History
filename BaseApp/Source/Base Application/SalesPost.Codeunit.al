@@ -4996,8 +4996,7 @@
                 ICTransactionNo := ICInOutBoxMgt.CreateOutboxJnlTransaction(TempICGenJnlLine, false);
                 ICInOutBoxMgt.CreateOutboxJnlLine(ICTransactionNo, 1, TempICGenJnlLine);
                 ICOutboxExport.ProcessAutoSendOutboxTransactionNo(ICTransactionNo);
-                if GLSetup."Use Activity Code" then
-                    TempICGenJnlLine."Activity Code" := ActivityCode;
+                TempICGenJnlLine."Activity Code" := ActivityCode;
                 GenJnlPostLine.RunWithCheck(TempICGenJnlLine);
             until TempICGenJnlLine.Next() = 0;
     end;
@@ -7248,8 +7247,7 @@
             CopyDocumentFields(GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode, '');
 
             CopyFromSalesHeader(SalesHeader);
-            if GLSetup."Use Activity Code" then
-                "Activity Code" := SalesHeader."Activity Code";
+            "Activity Code" := SalesHeader."Activity Code";
             "Fiscal Code" := SalesHeader."Fiscal Code";
             "Individual Person" := SalesHeader."Individual Person";
             Resident := SalesHeader.Resident;

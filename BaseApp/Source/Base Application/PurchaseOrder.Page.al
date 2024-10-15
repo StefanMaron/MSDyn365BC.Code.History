@@ -285,7 +285,7 @@ page 50 "Purchase Order"
                 field("Activity Code"; "Activity Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ShowMandatory = true;
+                    ShowMandatory = IsActivityCodeMandatory;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
                 }
                 field("Check Total"; "Check Total")
@@ -1985,6 +1985,8 @@ page 50 "Purchase Order"
         JobQueueUsed := PurchasesPayablesSetup.JobQueueActive;
         SetExtDocNoMandatoryCondition;
         ShowShippingOptionsWithLocation := ApplicationAreaMgmtFacade.IsLocationEnabled or ApplicationAreaMgmtFacade.IsAllDisabled;
+
+        SetIsActivityCodeMandatory();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -2068,12 +2070,21 @@ page 50 "Purchase Order"
     protected var
         ShipToOptions: Option "Default (Company Address)",Location,"Customer Address","Custom Address";
         PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
+        IsActivityCodeMandatory: Boolean;
 
     local procedure ActivateFields()
     begin
         IsBuyFromCountyVisible := FormatAddress.UseCounty("Buy-from Country/Region Code");
         IsPayToCountyVisible := FormatAddress.UseCounty("Pay-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+    end;
+
+    local procedure SetIsActivityCodeMandatory()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        IsActivityCodeMandatory := GeneralLedgerSetup."Use Activity Code";
     end;
 
     procedure CallPostDocument(PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")

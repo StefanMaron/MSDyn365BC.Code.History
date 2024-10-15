@@ -263,6 +263,7 @@ page 6630 "Sales Return Order"
                 field("Activity Code"; "Activity Code")
                 {
                     ApplicationArea = SalesReturnOrder;
+                    ShowMandatory = IsActivityCodeMandatory;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
                 }
                 field("Job Queue Status"; "Job Queue Status")
@@ -1474,6 +1475,8 @@ page 6630 "Sales Return Order"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         JobQueueUsed := SalesReceivablesSetup.JobQueueActive;
+
+        SetIsActivityCodeMandatory();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -1541,11 +1544,22 @@ page 6630 "Sales Return Order"
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
 
+    protected var
+        IsActivityCodeMandatory: Boolean;
+
     local procedure ActivateFields()
     begin
         IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
         IsSellToCountyVisible := FormatAddress.UseCounty("Sell-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+    end;
+
+    local procedure SetIsActivityCodeMandatory()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        IsActivityCodeMandatory := GeneralLedgerSetup."Use Activity Code";
     end;
 
     procedure CallPostDocument(PostingCodeunitID: Integer)
@@ -1665,6 +1679,7 @@ page 6630 "Sales Return Order"
                 then
                     PAGE.Run(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
         end;
+ 
     end;
 
     [IntegrationEvent(false, false)]

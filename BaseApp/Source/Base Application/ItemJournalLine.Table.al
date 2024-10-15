@@ -87,8 +87,9 @@
                 end;
                 OnValidateItemNoOnAfterCalcUnitCost(Rec, Item);
 
-                if (("Entry Type" = "Entry Type"::Output) and (WorkCenter."No." = '') and (MachineCenter."No." = '')) or
-                   ("Entry Type" <> "Entry Type"::Output) or
+                if ("Item No." <> xRec."Item No.") and
+                   ((("Entry Type" = "Entry Type"::Output) and (WorkCenter."No." = '') and (MachineCenter."No." = '')) or
+                   ("Entry Type" <> "Entry Type"::Output)) or
                    ("Value Entry Type" = "Value Entry Type"::Revaluation)
                 then
                     "Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
