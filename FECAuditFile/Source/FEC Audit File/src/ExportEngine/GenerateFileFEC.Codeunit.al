@@ -185,6 +185,7 @@ codeunit 10826 "Generate File FEC"
         CurrencyCode: Code[10];
         DocNoApplied: Text;
         DateApplied: Date;
+        DateCreated: Date;
     begin
         PartyNo := '';
         PartyName := '';
@@ -241,6 +242,10 @@ codeunit 10826 "Generate File FEC"
             end;
 
         FindGLRegister(GLRegister, GLEntry."Entry No.");
+        if GLRegister.SystemCreatedAt <> 0DT then
+            DateCreated := DT2Date(GLRegister.SystemCreatedAt)
+        else
+            DateCreated := GLRegister."Creation Date";
 
         WriteGLEntryToFile(
             GLEntry,
@@ -249,7 +254,7 @@ codeunit 10826 "Generate File FEC"
 #else
             GetProgressiveNo(GLRegister, GLEntry, AuditFileExportHeader),
 #endif
-            DT2Date(GLRegister.SystemCreatedAt), PartyNo, PartyName, FCYAmount, CurrencyCode, DocNoApplied, DateApplied);
+            DateCreated, PartyNo, PartyName, FCYAmount, CurrencyCode, DocNoApplied, DateApplied);
     end;
 
     local procedure CalcDetailedBalanceBySource(GLAccountNo: Code[20]; SourceType: Enum "Gen. Journal Source Type"; SourceNo: Code[20]) TotalAmt: Decimal
@@ -289,11 +294,7 @@ codeunit 10826 "Generate File FEC"
             exit;
         end;
 
-#if not CLEAN24
         GLRegister.SetLoadFields("From Entry No.", "To Entry No.", "Creation Date");
-#else
-        GLRegister.SetLoadFields("From Entry No.", "To Entry No.");
-#endif
         if EntryNo > GLRegisterGlobal."To Entry No." then
             GLRegister.SetFilter("No.", '>%1', GLRegisterGlobal."No.");
         GLRegister.SetFilter("From Entry No.", '<=%1', EntryNo);
@@ -307,9 +308,7 @@ codeunit 10826 "Generate File FEC"
         GLRegisterGlobal."No." := GLRegister."No.";
         GLRegisterGlobal."From Entry No." := GLRegister."From Entry No.";
         GLRegisterGlobal."To Entry No." := GLRegister."To Entry No.";
-#if not CLEAN24
         GLRegisterGlobal."Creation Date" := GLRegister."Creation Date";
-#endif
         GLRegisterGlobal.SystemCreatedAt := GLRegister.SystemCreatedAt;
     end;
 

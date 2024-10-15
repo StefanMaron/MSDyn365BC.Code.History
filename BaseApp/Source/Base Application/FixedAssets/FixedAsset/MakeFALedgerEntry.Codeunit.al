@@ -4,6 +4,7 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.FixedAssets.Depreciation;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.FixedAssets.Journal;
+using Microsoft.Finance.VAT.Calculation;
 
 codeunit 5604 "Make FA Ledger Entry"
 {
@@ -51,6 +52,7 @@ codeunit 5604 "Make FA Ledger Entry"
     procedure CopyFromGenJnlLine(var FALedgEntry: Record "FA Ledger Entry"; GenJnlLine: Record "Gen. Journal Line")
     var
         FAJnlLine: Record "FA Journal Line";
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
     begin
         FALedgEntry.Init();
         FALedgEntry."User ID" := UserId();
@@ -93,6 +95,7 @@ codeunit 5604 "Make FA Ledger Entry"
         FALedgEntry."No. Series" := GenJnlLine."Posting No. Series";
         FAJnlLine."FA Posting Type" := "FA Journal Line FA Posting Type".FromInteger(GenJnlLine."FA Posting Type".AsInteger() - 1);
         FALedgEntry."FA Posting Type" := "FA Ledger Entry FA Posting Type".FromInteger(FAJnlLine.ConvertToLedgEntry(FAJnlLine));
+        NonDeductibleVAT.CopyNonDedVATFromGenJnlLineToFALedgEntry(FALedgEntry, GenJnlLine);
         if FALedgEntry."FA Posting Type" = FALedgEntry."FA Posting Type"::Derogatory then
             FALedgEntry."Automatic Entry" := GenJnlLine."System-Created Entry";
 

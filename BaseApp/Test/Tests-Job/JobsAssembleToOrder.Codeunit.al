@@ -27,6 +27,7 @@ codeunit 136322 "Jobs - Assemble-to Order"
         AssembleOrderExistErr: Label 'One or more assembly orders exists for the project %1.\\You must delete the assembly order before you can change the job status.', Comment = 'Project No.';
         RemainingQtyGreaterThanErr: Label 'Remaining Quantity (Base) cannot be more than %1 in Assembly Header Document Type=''%2'',No.=''%3''', Comment = 'Remaining Quantity, Document Type, No.';
         BillableLineTypeErr: Label 'Line Type must not be Billable in Project Planning Line Project No.=''%1'',Project Task No.=''%2'',Line No.=''%3''.';
+        ZeroJobContractLineMsg: Label 'Job Contract Entry No. is empty.';
 
     [Test]
     procedure AssemblyOrderIsCreated()
@@ -649,6 +650,7 @@ codeunit 136322 "Jobs - Assemble-to Order"
         JobPlanningLine.TestField("Planning Date", PlanningDate);
         JobPlanningLine.TestField("Planned Delivery Date", PlannedDeliveryDate);
         JobPlanningLine.TestField("Document No.", DocumentNo);
+        Assert.IsFalse(JobPlanningLine."Job Contract Entry No." = 0, ZeroJobContractLineMsg);
     end;
 
     [Test]
