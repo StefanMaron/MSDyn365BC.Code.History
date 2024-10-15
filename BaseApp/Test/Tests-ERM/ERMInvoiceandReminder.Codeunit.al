@@ -3,6 +3,7 @@ codeunit 134907 "ERM Invoice and Reminder"
     Permissions = TableData "Issued Reminder Header" = rimd,
                   TableData "Issued Reminder Line" = rimd,
                   TableData "Cust. Ledger Entry" = rimd,
+                  TableData "Detailed Cust. Ledg. Entry" = rimd,
                   TableData "Feature Data Update Status" = rimd;
     Subtype = Test;
     TestPermissions = NonRestrictive;
@@ -26,6 +27,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
+        DueDateLbl: Label '<-%1D>', Locked = true;
         ReminderLineError: Label 'The %1 on the %2 and the %3 must be the same.';
         AmountError: Label 'Amount must be %1 in %2.';
         AmtDueLbl: Label 'You are receiving this email to formally notify you that payment owed by you is past due. The payment was due on %1. Enclosed is a copy of invoice with the details of remaining amount.', Comment = '%1 - Due Date';
@@ -291,6 +293,7 @@ codeunit 134907 "ERM Invoice and Reminder"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('SuggestLinesReportHandler')]
     procedure IssueReminderForMultipleInvoicesWithDifferentReminderLevels()
     var
         ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry";
@@ -577,7 +580,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         Initialize();
 
         // [GIVEN] CLE with "Last Issued Reminder Level" = 0;
-        MockCustLedgerEntry(CustLedgerEntry, LibrarySales.CreateCustomerNo(), CustLedgerEntry."Document Type"::Invoice, 0);
+        MockCustLedgerEntry(CustLedgerEntry, LibrarySales.CreateCustomerNo(), CustLedgerEntry."Document Type"::Invoice, 0, WorkDate());
 
         // [GIVEN] Issued Reminder with line linked to CLE 
         MockIssuedReminder(IssuedReminderHeader);
@@ -664,6 +667,56 @@ codeunit 134907 "ERM Invoice and Reminder"
                 ReminderHeader.FieldCaption("Company Bank Account Code"),
                 BankAccount."No.",
                 ReminderHeader.TableCaption()));
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestLinesReportHandler')]
+    procedure MakeReminderWithDueDateFilter()
+    var
+        Customer: Record Customer;
+        ReminderHeader: Record "Reminder Header";
+        ReminderLine: Record "Reminder Line";
+        WeekDateFormula: DateFormula;
+        TotalReminderLines: Decimal;
+        DueDateFilter: Text;
+        DueDateFilterLbl: Label '..%1', Locked = true;
+        ReminderLinesErr: Label 'Reminder Lines haven''t been created correctly.';
+    begin
+        // [REMINDER] [SUGGEST REMINDER LINES]
+        // [SCENARIO] Make reminder lines from customer ledger entries with applied due date filter
+        Initialize();
+
+        // [GIVEN] Create customer X, reminder term = X, payment term = X
+        // [GIVEN] Create 5 Customer Ledger Entries
+        // [GIVEN] Customer ledger entry 1, due date = workdate - 7D, remaining amount = 100
+        // [GIVEN] Customer ledger entry 2, due date = workdate - 6D, remaining amount = 100
+        // [GIVEN] Customer ledger entry 3, due date = workdate - 5D, remaining amount = 100
+        // [GIVEN] Customer ledger entry 4, due date = workdate - 4D, remaining amount = 100
+        // [GIVEN] Customer ledger entry 5, due date = workdate - 3D, remaining amount = 100
+        Evaluate(WeekDateFormula, '<1W>');
+        CreateCustomerWithPaymentAndReminderTerms(Customer, WeekDateFormula);
+        CreateCustomerLedgerEntries(Customer."No.");
+
+        // [GIVEN] Create reminder X, customer no. = X, document date = workdate
+        ReminderHeader."No." := LibraryUtility.GenerateRandomCode(ReminderHeader.FieldNo("No."), Database::"Reminder Header");
+        ReminderHeader.Validate("Customer No.", Customer."No.");
+        ReminderHeader."Document Date" := WorkDate();
+        ReminderHeader.Insert();
+
+        // [GIVEN] Create due date for filtering = workdate - 3D
+        DueDateFilter := StrSubstNo(DueDateFilterLbl, CalcDate(StrSubstNo(DueDateLbl, 3), WorkDate()));
+        LibraryVariableStorage.Enqueue(DueDateFilter);
+
+        // [WHEN] Run Suggest Reminder Lines, due date filter = workdate - 3D
+        Commit();
+        Report.RunModal(Report::"Suggest Reminder Lines", true, false, ReminderHeader);
+
+        // [THEN] Reminder lines within due date filter are created
+        ReminderLine.SetRange("Reminder No.", ReminderHeader."No.");
+        TotalReminderLines := ReminderLine.Count;
+
+        ReminderLine.SetFilter("Due Date", DueDateFilter);
+        Assert.AreEqual(TotalReminderLines, ReminderLine.Count, ReminderLinesErr);
     end;
 
     local procedure Initialize()
@@ -877,8 +930,6 @@ codeunit 134907 "ERM Invoice and Reminder"
 
     [Scope('OnPrem')]
     procedure CreateReminderForDate(var ReminderHeader: Record "Reminder Header"; CustomerNo: Code[20]; PostingAndDocumentDate: Date)
-    var
-        SuggestReminderLines: Report "Suggest Reminder Lines";
     begin
         LibraryERM.CreateReminderHeader(ReminderHeader);
         ReminderHeader.Validate("Customer No.", CustomerNo);
@@ -886,10 +937,9 @@ codeunit 134907 "ERM Invoice and Reminder"
         ReminderHeader.Validate("Document Date", PostingAndDocumentDate);
         ReminderHeader.Modify(true);
 
-        ReminderHeader.SetRange("No.", ReminderHeader."No.");
-        SuggestReminderLines.SetTableView(ReminderHeader);
-        SuggestReminderLines.UseRequestPage(false);
-        SuggestReminderLines.Run();
+        Commit();
+        LibraryVariableStorage.Enqueue('');
+        Report.RunModal(Report::"Suggest Reminder Lines", true, false, ReminderHeader);
 
         ReminderHeader.SetRecFilter();
     end;
@@ -1130,22 +1180,23 @@ codeunit 134907 "ERM Invoice and Reminder"
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, true));
     end;
 
-    local procedure MockCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; LastIssuedReminderLevel: Integer)
+    local procedure MockCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; LastIssuedReminderLevel: Integer; DueDate: Date)
     var
         LastEntryNo: Integer;
     begin
-        with CustLedgerEntry do begin
-            if FindLast() then
-                LastEntryNo := "Entry No.";
-            Init();
-            "Entry No." := LastEntryNo + 1;
-            "Customer No." := CustomerNo;
-            "Posting Date" := WorkDate();
-            "Document Type" := DocumentType;
-            "Document No." := CustomerNo;
-            "Last Issued Reminder Level" := LastIssuedReminderLevel;
-            Insert();
-        end;
+        if CustLedgerEntry.FindLast() then
+            LastEntryNo := CustLedgerEntry."Entry No.";
+        CustLedgerEntry.Init();
+        CustLedgerEntry."Entry No." := LastEntryNo + 1;
+        CustLedgerEntry."Customer No." := CustomerNo;
+        CustLedgerEntry."Posting Date" := WorkDate();
+        CustLedgerEntry."Document Type" := DocumentType;
+        CustLedgerEntry."Document No." := CustomerNo;
+        CustLedgerEntry."Last Issued Reminder Level" := LastIssuedReminderLevel;
+        CustLedgerEntry."Due Date" := DueDate;
+        CustLedgerEntry.Open := true;
+        CustLedgerEntry.Positive := true;
+        CustLedgerEntry.Insert();
     end;
 
     procedure FindBankAccountDefaultForCurrency(var BankAccount: Record "Bank Account")
@@ -1157,6 +1208,33 @@ codeunit 134907 "ERM Invoice and Reminder"
             BankAccount.Validate("Use as Default for Currency", true);
             BankAccount.Modify(true);
         end;
+    end;
+
+    local procedure CreateCustomerLedgerEntries(CustomerNo: Code[20])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        i: Integer;
+    begin
+        for i := 1 to 5 do begin
+            MockCustLedgerEntry(
+                CustLedgerEntry, CustomerNo, "Gen. Journal Document Type"::Invoice,
+                0, CalcDate(StrSubstNo(DueDateLbl, LibraryRandom.RandIntInRange(1, 10)), WorkDate()));
+            CreateDetailedCustomerLedgerEntry(CustLedgerEntry."Entry No.");
+        end;
+    end;
+
+    local procedure CreateDetailedCustomerLedgerEntry(CustLedgerEntryNo: Integer)
+    var
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
+    begin
+        if DetailedCustLedgEntry2.FindLast() then;
+        DetailedCustLedgEntry.Init();
+        DetailedCustLedgEntry."Entry No." := DetailedCustLedgEntry2."Entry No." + 1;
+        DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntryNo;
+        DetailedCustLedgEntry.Amount := LibraryRandom.RandDec(10, 2);
+        DetailedCustLedgEntry."Posting Date" := WorkDate();
+        DetailedCustLedgEntry.Insert(true);
     end;
 
     [ConfirmHandler]
@@ -1179,6 +1257,13 @@ codeunit 134907 "ERM Invoice and Reminder"
     procedure ReminderTestRequestPageHandler(var ReminderTest: TestRequestPage "Reminder - Test")
     begin
         ReminderTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    procedure SuggestLinesReportHandler(var SuggestReminderLines: TestRequestPage "Suggest Reminder Lines")
+    begin
+        SuggestReminderLines.CustLedgEntry2.SetFilter("Due Date", LibraryVariableStorage.DequeueText());
+        SuggestReminderLines.OK().Invoke();
     end;
 }
 
