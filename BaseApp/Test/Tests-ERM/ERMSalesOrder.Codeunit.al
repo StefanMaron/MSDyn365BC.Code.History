@@ -4934,7 +4934,7 @@ codeunit 134378 "ERM Sales Order"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,ConfirmHandlerYes,ShipToAddressListModalPageHandlerOK')]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerNo,ShipToAddressListModalPageHandlerOK')]
     procedure VerifyConfirmationDialogIsShownOnChangedShipToCodeOption()
     var
         Customer: Record Customer;
