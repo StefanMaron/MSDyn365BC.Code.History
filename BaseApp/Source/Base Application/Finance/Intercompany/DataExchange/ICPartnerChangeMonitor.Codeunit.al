@@ -48,6 +48,7 @@ codeunit 489 "IC Partner Change Monitor"
         FeatureTelemetry: Codeunit "Feature Telemetry";
         ICMapping: Codeunit "IC Mapping";
         EnvironmentInformation: Codeunit "Environment Information";
+        CustomDimensions: Dictionary of [Text, Text];
     begin
         if not EnvironmentInformation.IsSaaSInfrastructure() then
             exit;
@@ -57,7 +58,10 @@ codeunit 489 "IC Partner Change Monitor"
         else
             FeatureTelemetry.LogUptake('0000LKU', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
 
-        FeatureTelemetry.LogUsage('0000LKV', ICMapping.GetFeatureTelemetryName(), Context);
+        CustomDimensions.Add('Context', Context);
+        CustomDimensions.Add('Activity Description', ActivityDescription);
+        CustomDimensions.Add('Activity Message', ActivityMessage);
+        FeatureTelemetry.LogUsage('0000LKV', ICMapping.GetFeatureTelemetryName(), ICCompanySetupPermissionSetNameTxt, CustomDimensions);
 #pragma warning disable AA0139
         ActivityLog.LogActivityForUser(ICPartner.RecordId, ActivityLog.Status::Success, Context, ActivityDescription, ActivityMessage, UserId);
 #pragma warning restore AA0139
@@ -66,7 +70,7 @@ codeunit 489 "IC Partner Change Monitor"
 
     var
         YouMustHaveICPartnerEditPermissionToChangeSensitiveFieldsErr: Label 'To modify sensitive Cross-Environment Setup values, you must be assigned the %1 or SUPER permission set.', Comment = '%1 - Name of permission set';
-        ICCompanySetupPermissionSetNameTxt: Label 'D365 IC Partner Edit', Comment = 'Translation needs to match with - permissionset 200 "D365 IC Partner Edit"', Locked = true;
+        ICCompanySetupPermissionSetNameTxt: Label 'D365 IC Partner Edit', Locked = true;
         InsertICPartnerContextTok: Label 'Insert new IC Partner', Locked = true;
         InsertICPartnerDescriptionTxt: Label 'A new IC Partner was inserted.';
         ModifyICPartnerContextTok: Label 'Modify IC Partner', Locked = true;

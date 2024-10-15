@@ -5,6 +5,8 @@
 namespace Microsoft.Intercompany.DataExchange;
 
 using Microsoft.Intercompany.Partner;
+using System.Telemetry;
+using Microsoft.Intercompany.GLAccount;
 
 codeunit 533 "IC New Notification JR"
 {
@@ -29,6 +31,8 @@ codeunit 533 "IC New Notification JR"
         TempICIncomingNotification: Record "IC Incoming Notification" temporary;
         ICDataExchangeAPI: Codeunit "IC Data Exchange API";
         CrossIntercompanyConnector: Codeunit "CrossIntercompany Connector";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         ContentJsonText: Text;
     begin
         ICPartner.Get(ICOutgoingNotification."Target IC Partner Code");
@@ -38,16 +42,21 @@ codeunit 533 "IC New Notification JR"
         TempICIncomingNotification."Notified DateTime" := ICOutgoingNotification."Notified DateTime";
         ICDataExchangeAPI.CreateJsonContentFromICIncomingNotification(TempICIncomingNotification, ContentJsonText);
         if CrossIntercompanyConnector.SubmitRecordsToICPartnerFromEntityName(ICPartner, ContentJsonText, 'intercompanyIncomingNotification', 'id', TempICIncomingNotification."Operation ID") then begin
+            FeatureTelemetry.LogUsage('0000MV7', ICMapping.GetFeatureTelemetryName(), NewNotificationEventNameTok);
             ICOutgoingNotification.Status := ICOutgoingNotification.Status::Notified;
             ICOutgoingNotification."Notified DateTime" := CurrentDateTime();
             ICOutgoingNotification.Modify();
         end
         else begin
+            FeatureTelemetry.LogError('0000MV6', ICMapping.GetFeatureTelemetryName(), NewNotificationEventNameTok, GetLastErrorText(), GetLastErrorCallStack());
             ICOutgoingNotification.Status := ICOutgoingNotification.Status::Failed;
             ICOutgoingNotification.SetErrorMessage(GetLastErrorText());
             ICOutgoingNotification.Modify();
             ClearLastError();
         end;
     end;
+
+    var
+        NewNotificationEventNameTok: Label 'IC Crossenvironment New Notification', Locked = true;
 }
 
