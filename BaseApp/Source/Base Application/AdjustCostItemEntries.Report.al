@@ -94,7 +94,7 @@ report 795 "Adjust Cost - Item Entries"
         Item: Record Item;
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
     begin
-        OnBeforePreReport(ItemNoFilter, ItemCategoryFilter, PostToGL);
+        OnBeforePreReport(ItemNoFilter, ItemCategoryFilter, PostToGL, Item);
 
         ItemApplnEntry.LockTable();
         if not ItemApplnEntry.FindLast then
@@ -157,7 +157,7 @@ report 795 "Adjust Cost - Item Entries"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnBeforePreReport(ItemNoFilter: Text[250]; ItemCategoryFilter: Text[250]; PostToGL: Boolean)
+    local procedure OnBeforePreReport(ItemNoFilter: Text[250]; ItemCategoryFilter: Text[250]; PostToGL: Boolean; var Item: Record Item)
     begin
     end;
 }

@@ -2190,7 +2190,14 @@ table 38 "Purchase Header"
             Caption = 'Promised Receipt Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidatePromisedReceiptDate(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestStatusOpen();
                 if "Promised Receipt Date" <> xRec."Promised Receipt Date" then
                     UpdatePurchLinesByFieldNo(FieldNo("Promised Receipt Date"), CurrFieldNo <> 0);
@@ -6229,7 +6236,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdatePurchLinesByFieldNoOnBeforeValidateFields(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; ChangedFieldNo: Integer; var PurchaseHeader: record "Purchase Header"; var IsHandled: boolean)
+    local procedure OnUpdatePurchLinesByFieldNoOnBeforeValidateFields(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var ChangedFieldNo: Integer; var PurchaseHeader: record "Purchase Header"; var IsHandled: boolean)
     begin
     end;
 
@@ -6320,6 +6327,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAllLineDimOnAfterGetPurchLineNewDimsetID(PurchHeader: Record "Purchase Header"; xPurchHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; var NewDimSetID: Integer; NewParentDimSetID: Integer; OldParentDimSetID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePromisedReceiptDate(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 

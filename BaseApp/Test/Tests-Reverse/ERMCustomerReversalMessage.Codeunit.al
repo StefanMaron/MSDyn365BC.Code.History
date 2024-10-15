@@ -357,7 +357,7 @@ codeunit 134127 "ERM Customer Reversal Message"
     begin
         // Setup: Create General Ledger Account and Customer, Make Invoice and Post from General Journal and Close Fiscal Year.
         Initialize;
-        LibraryFiscalYear.CloseFiscalYear;
+        LibraryFiscalYear.CreateClosedAccountingPeriods();
         CreateGenJnlLineForInvoice(
           GenJournalLine, GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, CreateCustomer);
         CreateAndPostApplnDateCompress(
@@ -377,7 +377,7 @@ codeunit 134127 "ERM Customer Reversal Message"
     begin
         // Setup: Create Customer, Make Invoice and Post from General Journal and Close Fiscal Year.
         Initialize;
-        LibraryFiscalYear.CloseFiscalYear;
+        LibraryFiscalYear.CreateClosedAccountingPeriods();
         CreateGenJnlLineForInvoice(
           GenJournalLine, GenJournalLine."Bal. Account Type"::"Bank Account", CreateBankAccount, CreateCustomer);
         CreateAndPostApplnDateCompress(

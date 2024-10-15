@@ -202,6 +202,7 @@ codeunit 85 "Sales Post Batch via Job Queue"
             exit(false);
         ReportInbox."Created Date-Time" := RoundDateTime(CurrentDateTime, 60000);
         ReportInbox.Insert(true);
+        OnPrintToPDFOnAfterReportInboxInsert(ReportInbox, SalesHeader, RecRef);
 
         exit(true);
     end;
@@ -223,5 +224,10 @@ codeunit 85 "Sales Post Batch via Job Queue"
             ErrorMessage += StrSubstNo(UnprintedDocumentsErr, ErrorPrinttDocumentsCount, TotalDocumentsCount);
         ErrorMessage := DelChr(ErrorMessage, '>', ' ');
         Error(ErrorMessage);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrintToPDFOnAfterReportInboxInsert(var ReportInbox: Record "Report Inbox"; var SalesHeader: Record "Sales Header"; var RecRef: RecordRef)
+    begin
     end;
 }

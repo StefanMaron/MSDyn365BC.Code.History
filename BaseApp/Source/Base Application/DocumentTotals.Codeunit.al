@@ -221,6 +221,8 @@ codeunit 57 "Document Totals"
 
         PurchPost.SumPurchLinesTemp(
           PurchaseHeader, TempPurchaseLine, 0, TempTotalPurchaseLine, TempTotalPurchaseLineLCY, VATAmount, VATAmountText);
+
+        OnAfterCalculateTotalPurchaseLineAndVATAmount(PurchaseHeader, VATAmount, TempTotalPurchaseLine);
     end;
 
     procedure RefreshSalesLine(var SalesLine: Record "Sales Line")
@@ -978,6 +980,11 @@ codeunit 57 "Document Totals"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculatePurchaseSubPageTotals(var TotalPurchHeader: Record "Purchase Header"; var TotalPurchLine: Record "Purchase Line"; var VATAmount: Decimal; var InvoiceDiscountAmount: Decimal; var InvoiceDiscountPct: Decimal; var TotalPurchaseLine2: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateTotalPurchaseLineAndVATAmount(PurchaseHeader: Record "Purchase Header"; var VATAmount: Decimal; var TempTotalPurchaseLine: Record "Purchase Line" temporary)
     begin
     end;
 

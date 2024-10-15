@@ -251,7 +251,11 @@ codeunit 7301 "Whse. Jnl.-Register Line"
         ExistingExpDate: Date;
         IsHandled: Boolean;
     begin
-        OnBeforeInsertWhseEntryProcedure(WhseEntry, WhseJnlLine);
+        IsHandled := false;
+        OnBeforeInsertWhseEntryProcedure(WhseEntry, WhseJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with WhseEntry do begin
             GetItem("Item No.");
             if ItemTrackingCode.Get(Item."Item Tracking Code") then
@@ -545,7 +549,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertWhseEntryProcedure(var WarehouseEntry: Record "Warehouse Entry"; WarehouseJournalLine: Record "Warehouse Journal Line")
+    local procedure OnBeforeInsertWhseEntryProcedure(var WarehouseEntry: Record "Warehouse Entry"; WarehouseJournalLine: Record "Warehouse Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

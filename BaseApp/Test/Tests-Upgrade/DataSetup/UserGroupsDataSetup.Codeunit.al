@@ -1,4 +1,4 @@
-codeunit 132864 "App ID Data Setup"
+codeunit 132864 "User Groups Data Setup"
 {
     Subtype = Upgrade;
 
@@ -18,13 +18,29 @@ codeunit 132864 "App ID Data Setup"
         UserGroupPermissionSet."User Group Code" := UserGroup.Code;
         UserGroupPermissionSet."Role ID" := 'D365 BASIC';
         UserGroupPermissionSet.Insert();
-        
+
         UserGroupPermissionSet."User Group Code" := UserGroup.Code;
-        UserGroupPermissionSet."Role ID" := 'D365 BUS FULL ACCESS';;
+        UserGroupPermissionSet."Role ID" := 'D365 BUS FULL ACCESS';
         UserGroupPermissionSet.Insert();
-        
+
         UserGroupPermissionSet."User Group Code" := UserGroup.Code;
-        UserGroupPermissionSet."Role ID" := 'SECURITY';;
+        UserGroupPermissionSet."Role ID" := 'SECURITY';
+        UserGroupPermissionSet.Insert();
+
+        UserGroupPermissionSet."User Group Code" := UserGroup.Code;
+        UserGroupPermissionSet."Role ID" := 'EMAIL SETUP';
+        UserGroupPermissionSet.Insert();
+
+        UserGroupPermissionSet."User Group Code" := UserGroup.Code;
+        UserGroupPermissionSet."Role ID" := 'EMAIL USAGE';
+        UserGroupPermissionSet.Insert();
+
+        UserGroupPermissionSet."User Group Code" := UserGroup.Code;
+        UserGroupPermissionSet."Role ID" := 'D365 EXTENSION MGT';
+        UserGroupPermissionSet.Insert();
+
+        UserGroupPermissionSet."User Group Code" := UserGroup.Code;
+        UserGroupPermissionSet."Role ID" := 'RETENTION POL. SETUP';
         UserGroupPermissionSet.Insert();
     end;
 }

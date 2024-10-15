@@ -394,10 +394,8 @@
                         NextVATEntryNo := NextVATEntryNo + 1;
 
                         // Close current VAT entries
-                        if PostSettlement then begin
-                            VATEntry.ModifyAll("Closed by Entry No.", NextVATEntryNo);
-                            VATEntry.ModifyAll(Closed, true);
-                        end;
+                        if PostSettlement then
+                            CloseVATEntriesOnPostSettlement(VATEntry, NextVATEntryNo);
                     end;
                 }
 
@@ -789,6 +787,19 @@
         OnAfterIncrementGenPostingType(OldGenPostingType, NewGenPostingType);
     end;
 
+    local procedure CloseVATEntriesOnPostSettlement(var VATEntry: Record "VAT Entry"; NextVATEntryNo: Integer)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCloseVATEntriesOnPostSettlement(VATEntry, NextVATEntryNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        VATEntry.ModifyAll("Closed by Entry No.", NextVATEntryNo);
+        VATEntry.ModifyAll(Closed, true);
+    end;
+
     local procedure IsNotSettlement(GenPostingType: Enum "General Posting Type"): Boolean
     begin
         exit(
@@ -819,6 +830,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePreReport(var VATPostingSetup: Record "VAT Posting Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCloseVATEntriesOnPostSettlement(var VATEntry: Record "VAT Entry"; NextVATEntryNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
