@@ -1118,7 +1118,7 @@ codeunit 137044 "SCM Order Promising"
 
         LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', JobPlanningLine.Quantity);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
-        JobPlanningLine.AutoReserve;
+        JobPlanningLine.AutoReserve();
 
         // [WHEN] In the "Order Promising" window, set the "Planned Delivery Date" to 26.01.2020, do not accept the change
         AvailabilityManagement.SetJob(OrderPromisingLine, Job);
@@ -1364,7 +1364,7 @@ codeunit 137044 "SCM Order Promising"
         UpdateItem(Item, ProductionBOMHeader."No.", RoutingHeader."No.");
     end;
 
-    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Option)
+    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System")
     begin
         // Random values used are important for test.
         with Item do begin
@@ -1398,7 +1398,7 @@ codeunit 137044 "SCM Order Promising"
         BaseCalendarChange.Modify(true);
     end;
 
-    local procedure CreateProdBOM(var ProductionBOMHeader: Record "Production BOM Header"; ReplenishmentSystem: Option; BaseUnitOfMeasure: Code[10]; NoBOMLine: Integer)
+    local procedure CreateProdBOM(var ProductionBOMHeader: Record "Production BOM Header"; ReplenishmentSystem: Enum "Replenishment System"; BaseUnitOfMeasure: Code[10]; NoBOMLine: Integer)
     var
         ManufacturingSetup: Record "Manufacturing Setup";
         ProductionBOMLine: Record "Production BOM Line";
@@ -1721,7 +1721,7 @@ codeunit 137044 "SCM Order Promising"
         Location.Modify(true);
     end;
 
-    local procedure UpdateSalesLineShippingCalculation(DocumentType: Option; DocumentNo: Code[20]; WhseHandlingTimeFormula: Text; ShippingTimeFormula: Text)
+    local procedure UpdateSalesLineShippingCalculation(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; WhseHandlingTimeFormula: Text; ShippingTimeFormula: Text)
     var
         SalesLine: Record "Sales Line";
     begin

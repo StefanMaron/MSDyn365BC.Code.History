@@ -208,7 +208,7 @@ report 1700 "Deferral Summary - G/L"
         PostedDeferralHeaderPage: Record "Posted Deferral Header";
         GLAccount: Record "G/L Account";
         PostedDeferralLine: Record "Posted Deferral Line";
-        GLDocType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
+        GLDocType: Enum "Gen. Journal Document Type";
         PostedDeferralFilter: Text;
         PrintOnlyOnePerPage: Boolean;
         PageGroupNo: Integer;

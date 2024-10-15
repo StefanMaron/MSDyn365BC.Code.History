@@ -5,6 +5,7 @@ report 311 "Vendor - Top 10 List"
     ApplicationArea = Suite;
     Caption = 'Vendor - Top 10 List';
     UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {

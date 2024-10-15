@@ -7,11 +7,11 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
 
     var
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
-        DocumentIDNotSpecifiedForLinesErr: Label 'You must specify a document id to get the lines.', Locked = true;
-        DocumentDoesNotExistErr: Label 'No document with the specified ID exists.', Locked = true;
-        MultipleDocumentsFoundForIdErr: Label 'Multiple documents have been found for the specified criteria.', Locked = true;
-        CannotInsertALineThatAlreadyExistsErr: Label 'You cannot insert a line because a line already exists.', Locked = true;
-        CannotModifyALineThatDoesntExistErr: Label 'You cannot modify a line that does not exist.', Locked = true;
+        DocumentIDNotSpecifiedForLinesErr: Label 'You must specify a document id to get the lines.';
+        DocumentDoesNotExistErr: Label 'No document with the specified ID exists.';
+        MultipleDocumentsFoundForIdErr: Label 'Multiple documents have been found for the specified criteria.';
+        CannotInsertALineThatAlreadyExistsErr: Label 'You cannot insert a line because a line already exists.';
+        CannotModifyALineThatDoesntExistErr: Label 'You cannot modify a line that does not exist.';
         SkipUpdateDiscounts: Boolean;
 
     [EventSubscriber(ObjectType::Table, 36, 'OnAfterInsertEvent', '', false, false)]
@@ -206,6 +206,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         RecordExists := SalesQuoteEntityBuffer.Get(SalesHeader."No.");
 
         SalesQuoteEntityBuffer.TransferFields(SalesHeader, true);
+        SalesQuoteEntityBuffer.Id := SalesHeader.SystemId;
         SetStatusOptionFromSalesHeader(SalesHeader, SalesQuoteEntityBuffer);
         AssignTotalsFromSalesHeader(SalesHeader, SalesQuoteEntityBuffer);
         SalesQuoteEntityBuffer.UpdateReferencedRecordIds;
@@ -423,6 +424,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         SalesInvoiceLineAggregate.TransferFields(SalesLine, true);
         SalesInvoiceLineAggregate.Id :=
           SalesInvoiceAggregator.GetIdFromDocumentIdAndSequence(SalesQuoteEntityBuffer.Id, SalesLine."Line No.");
+        SalesInvoiceLineAggregate.SystemId := SalesLine.SystemId;
         SalesInvoiceLineAggregate."Document Id" := SalesQuoteEntityBuffer.Id;
         SalesInvoiceAggregator.SetTaxGroupIdAndCode(
           SalesInvoiceLineAggregate,
@@ -560,11 +562,13 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
             if DocumentIDFilter = '' then
                 Error(DocumentIDNotSpecifiedForLinesErr);
             SalesQuoteEntityBuffer.SetFilter(Id, DocumentIDFilter);
-        end else
+            if not SalesQuoteEntityBuffer.FindFirst then
+                Error(DocumentDoesNotExistErr);
+        end else begin
             SalesQuoteEntityBuffer.SetRange(Id, SalesInvoiceLineAggregate."Document Id");
-
-        if not SalesQuoteEntityBuffer.FindFirst then
-            Error(DocumentDoesNotExistErr);
+            if not SalesQuoteEntityBuffer.FindFirst() then
+                Error(DocumentDoesNotExistErr);
+        end;
 
         SearchSalesQuoteEntityBuffer.Copy(SalesQuoteEntityBuffer);
         if SearchSalesQuoteEntityBuffer.Next <> 0 then

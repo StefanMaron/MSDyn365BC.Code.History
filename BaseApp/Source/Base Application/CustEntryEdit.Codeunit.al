@@ -67,7 +67,7 @@ codeunit 103 "Cust. Entry-Edit"
                 CustLedgEntry.SetRange("Document Type");
                 CustLedgEntry.SetRange("Document No.");
             end else
-                if "Applies-to Doc. Type" <> 0 then begin
+                if "Applies-to Doc. Type" <> "Applies-to Doc. Type"::" " then begin
                     CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                     if CustLedgEntry.FindFirst then;
                     CustLedgEntry.SetRange("Document Type");

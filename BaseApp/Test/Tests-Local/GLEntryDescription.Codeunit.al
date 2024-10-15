@@ -87,7 +87,7 @@ codeunit 141042 "G/L Entry Description"
           GenJournalLine."Account Type"::Vendor, Vendor."No.", -LibraryRandom.RandDec(10, 2));  // Random as Direct Unit Cost.
     end;
 
-    local procedure GeneralJournalLineWithAccountTypeDescription(AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure GeneralJournalLineWithAccountTypeDescription(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         Description: Text[50];
         Description2: Text[50];
@@ -103,7 +103,7 @@ codeunit 141042 "G/L Entry Description"
         VerifyDescriptionOnMultipleGLEntry(DocumentNo, Description, Description2);
     end;
 
-    local procedure CreateAndPostGenJournalWithMultipleLine(AccountType: Option; AccountNo: Code[20]; Amount: Decimal; Description: Text[50]; Description2: Text[50]) DocumentNo: Code[20]
+    local procedure CreateAndPostGenJournalWithMultipleLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; Description: Text[50]; Description2: Text[50]) DocumentNo: Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -157,7 +157,7 @@ codeunit 141042 "G/L Entry Description"
         exit(Customer."No.");
     end;
 
-    local procedure CreateGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; GLAccountNo: Code[20]; Amount: Decimal; Description: Text[50])
+    local procedure CreateGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; GLAccountNo: Code[20]; Amount: Decimal; Description: Text[50])
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,

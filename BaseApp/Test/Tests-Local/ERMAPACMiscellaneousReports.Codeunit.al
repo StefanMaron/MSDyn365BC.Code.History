@@ -269,7 +269,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, Invoice);  // True for Receive.
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var DocumentNo: Code[20]; var VATAmount: Decimal; DocType: Option)
+    local procedure CreateAndPostPurchaseDocument(var DocumentNo: Code[20]; var VATAmount: Decimal; DocType: Enum "Purchase Document Type")
     var
         Item: Record Item;
         PurchaseHeader: Record "Purchase Header";
@@ -290,7 +290,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreateAndPostSalesDocument(var DocumentNo: Code[20]; var VATAmount: Decimal; DocType: Option)
+    local procedure CreateAndPostSalesDocument(var DocumentNo: Code[20]; var VATAmount: Decimal; DocType: Enum "Sales Document Type")
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";

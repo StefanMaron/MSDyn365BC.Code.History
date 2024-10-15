@@ -70,6 +70,9 @@ codeunit 5355 "CRM Notes Synch Job"
         CRMConnectionSetup: Record "CRM Connection Setup";
         CRMAnnotationBuffer: Record "CRM Annotation Buffer";
     begin
+        if Result then
+            exit;
+
         if Sender."Object Type to Run" <> Sender."Object Type to Run"::Codeunit then
             exit;
 
@@ -83,7 +86,8 @@ codeunit 5355 "CRM Notes Synch Job"
             exit;
 
         CRMAnnotationBuffer.SetRange("Related Table ID", DATABASE::"Sales Header");
-        Result := not CRMAnnotationBuffer.IsEmpty;
+        if not CRMAnnotationBuffer.IsEmpty() then
+            Result := true;
     end;
 
     local procedure CreateCRMAnnotation(CRMSalesorder: Record "CRM Salesorder"; RecordLinkRecId: RecordID)

@@ -230,11 +230,11 @@ table 28075 "Purch. Tax Inv. Header"
             Editable = false;
             FieldClass = FlowField;
         }
-        field(66; "Vendor Order No."; Code[20])
+        field(66; "Vendor Order No."; Code[35])
         {
             Caption = 'Vendor Order No.';
         }
-        field(68; "Vendor Invoice No."; Code[20])
+        field(68; "Vendor Invoice No."; Code[35])
         {
             Caption = 'Vendor Invoice No.';
         }
@@ -444,7 +444,7 @@ table 28075 "Purch. Tax Inv. Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(5052; "Buy-from Contact No."; Code[20])
@@ -618,11 +618,6 @@ table 28075 "Purch. Tax Inv. Header"
 
     procedure TransferFieldsFrom(PurchInvHeader: Record "Purch. Inv. Header")
     begin
-        // cut values to avoid overflow in TransferFields
-        PurchInvHeader."Vendor Order No." :=
-            CopyStr(PurchInvHeader."Vendor Order No.", 1, MaxStrLen("Vendor Order No."));
-        PurchInvHeader."Vendor Invoice No." :=
-            CopyStr(PurchInvHeader."Vendor Invoice No.", 1, MaxStrLen("Vendor Invoice No."));
         TransferFields(PurchInvHeader);
     end;
 }

@@ -324,7 +324,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
             LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, ItemNo, LibraryRandom.RandIntInRange(2, 10));
             CreateAndUpdatePurchaseLine(
               PurchaseLine, PurchaseHeader, ItemNo, LocationCode, '', LibraryRandom.RandIntInRange(2, 20), ItemUnitOfMeasure.Code);
-            PurchaseLine.OpenItemTrackingLines;
+            PurchaseLine.OpenItemTrackingLines();
         end;
 
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -407,7 +407,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
         WarehouseActivityLine.FindSet;
     end;
 
-    local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Option; SourceNo: Code[20])
+    local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
@@ -446,7 +446,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
         LookUpBinContent :=
           (WhseActivityLine."Activity Type" <= WhseActivityLine."Activity Type"::Movement) or
           (WhseActivityLine."Action Type" <> WhseActivityLine."Action Type"::Place);
-        WhseActivityLine.LookUpTrackingSummary(WhseActivityLine, LookUpBinContent, -1, 1);
+        WhseActivityLine.LookUpTrackingSummary(WhseActivityLine, LookUpBinContent, -1, "Item Tracking Type"::"Lot No.");
     end;
 
     local procedure VerifyLotNosOnBinQuery(SourceNo: Code[20]; ActivityType: Option)

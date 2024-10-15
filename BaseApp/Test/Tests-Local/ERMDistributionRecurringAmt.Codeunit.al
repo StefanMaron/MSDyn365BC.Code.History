@@ -54,7 +54,7 @@ codeunit 141054 "ERM Distribution Recurring Amt"
           GenJournalLine."Recurring Method"::"RB Reversing Balance", WhatToCalculate::Balance, AccountNo, CreateGLAccount, AccountNo);
     end;
 
-    local procedure CreateAndPostRecurringJournalLine(RecurringMethod: Option; WhatToCalculate: Option; GLAccountNo: Code[20]; AllocationAccountNo: Code[20]; AccountNo: Code[20])
+    local procedure CreateAndPostRecurringJournalLine(RecurringMethod: Enum "Gen. Journal Recurring Method"; WhatToCalculate: Option; GLAccountNo: Code[20]; AllocationAccountNo: Code[20]; AccountNo: Code[20])
     var
         GenJournalLine: Record "Gen. Journal Line";
         GLAccount: Record "G/L Account";
@@ -172,7 +172,7 @@ codeunit 141054 "ERM Distribution Recurring Amt"
         LibraryERM.CreateRecurringBatchName(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
-    local procedure CreateRecurringJournalLine(var GenJournalLine: Record "Gen. Journal Line"; RecurringMethod: Option; AccountNo: Code[20])
+    local procedure CreateRecurringJournalLine(var GenJournalLine: Record "Gen. Journal Line"; RecurringMethod: Enum "Gen. Journal Recurring Method"; AccountNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         RecurringFrequency: DateFormula;

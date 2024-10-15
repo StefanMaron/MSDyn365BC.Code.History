@@ -769,7 +769,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         PaymentTerms.Modify(true);
     end;
 
-    local procedure CreateUpdatePaymentToleranceSetup(var GeneralPostingSetup: Record "General Posting Setup"; var VATPostingSetup: Record "VAT Posting Setup"; VATPercent: Integer; VATCalculationType: Option)
+    local procedure CreateUpdatePaymentToleranceSetup(var GeneralPostingSetup: Record "General Posting Setup"; var VATPostingSetup: Record "VAT Posting Setup"; VATPercent: Integer; VATCalculationType: Enum "Tax Calculation Type")
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
@@ -800,14 +800,14 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         GenProductPostingGroup.Modify(true);
     end;
 
-    local procedure CreateGeneralJournalTemplate(var GenJournalTemplate: Record "Gen. Journal Template"; GenJournalTemplateType: Option)
+    local procedure CreateGeneralJournalTemplate(var GenJournalTemplate: Record "Gen. Journal Template"; GenJournalTemplateType: Enum "Gen. Journal Template Type")
     begin
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         GenJournalTemplate.Validate(Type, GenJournalTemplateType);
         GenJournalTemplate.Modify(true);
     end;
 
-    local procedure CreateGeneralJournalLinePayment(var GenJournalLine: Record "Gen. Journal Line"; GenJournalTemplateType: Option; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateGeneralJournalLinePayment(var GenJournalLine: Record "Gen. Journal Line"; GenJournalTemplateType: Enum "Gen. Journal Template Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -832,7 +832,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         Commit();
     end;
 
-    local procedure CreateFixedGenJnlLinePaymentWithApplToMultipleInvoices(var GenJnlLine: Record "Gen. Journal Line"; PostingDate: Date; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateFixedGenJnlLinePaymentWithApplToMultipleInvoices(var GenJnlLine: Record "Gen. Journal Line"; PostingDate: Date; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(GenJnlLine, GenJnlLine."Document Type"::Payment, AccountType, AccountNo, Amount);
         GenJnlLine.Validate("Posting Date", PostingDate);
@@ -866,7 +866,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         end;
     end;
 
-    local procedure SetupUnapplyPaymentWithPaymentToleranceScenario(var Customer: Record Customer; var GeneralPostingSetup: Record "General Posting Setup"; var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option; VATPercent: Integer)
+    local procedure SetupUnapplyPaymentWithPaymentToleranceScenario(var Customer: Record Customer; var GeneralPostingSetup: Record "General Posting Setup"; var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type"; VATPercent: Integer)
     var
         PaymentTerms: Record "Payment Terms";
     begin
@@ -885,7 +885,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         UpdateCustomerPostingGroupSalesDiscAccounts(Customer."Customer Posting Group");
     end;
 
-    local procedure SetupPaymentWithPaymentToleranceAndFullVATScenario(var Vendor: Record Vendor; var GeneralPostingSetup: Record "General Posting Setup"; var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option; VATPercent: Integer)
+    local procedure SetupPaymentWithPaymentToleranceAndFullVATScenario(var Vendor: Record Vendor; var GeneralPostingSetup: Record "General Posting Setup"; var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type"; VATPercent: Integer)
     var
         PaymentTerms: Record "Payment Terms";
     begin
@@ -977,7 +977,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         end;
     end;
 
-    local procedure UpdateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATPercent: Integer; VATCalculcationType: Option)
+    local procedure UpdateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATPercent: Integer; VATCalculcationType: Enum "Tax Calculation Type")
     var
         GLAccount: Record "G/L Account";
     begin
@@ -1164,7 +1164,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         VendLedgEntry.Modify();
     end;
 
-    local procedure PostInvGenJnlLineWithPmtDiscDate(var GenJnlLine: Record "Gen. Journal Line"; PmtDiscDate: Date; GLAccNo: Code[20]; AccType: Option; AccNo: Code[20]; Amount: Decimal)
+    local procedure PostInvGenJnlLineWithPmtDiscDate(var GenJnlLine: Record "Gen. Journal Line"; PmtDiscDate: Date; GLAccNo: Code[20]; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; Amount: Decimal)
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJnlLine, GenJnlLine."Document Type"::Invoice, AccType, AccNo, Amount);
@@ -1257,7 +1257,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         exit(InvAmount);
     end;
 
-    local procedure PostApplicationJnlLine(GenJournalLine: Record "Gen. Journal Line"; CurrencyCode: Code[10]; GenJnlDocumentType: Option; AccountType: Option; Amount2: Decimal; DueDate: Date): Code[20]
+    local procedure PostApplicationJnlLine(GenJournalLine: Record "Gen. Journal Line"; CurrencyCode: Code[10]; GenJnlDocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; Amount2: Decimal; DueDate: Date): Code[20]
     var
         GenJournalLine2: Record "Gen. Journal Line";
     begin
@@ -1269,7 +1269,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         exit(GenJournalLine2."Document No.");
     end;
 
-    local procedure CreateDocumentLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10]; PostingDate: Date)
+    local procedure CreateDocumentLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10]; PostingDate: Date)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1313,7 +1313,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
             LineAmount[LinesCount] += InvAmount - TotalLineAmount;
     end;
 
-    local procedure UpdateAndPostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AppliestoDocType: Option; DocumentNo: Code[20])
+    local procedure UpdateAndPostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AppliestoDocType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         GenJournalLine.Validate("Applies-to Doc. Type", AppliestoDocType);
         GenJournalLine.Validate("Applies-to Doc. No.", DocumentNo);
@@ -1321,7 +1321,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure GetTransactionNoFromUnappliedVendorDtldEntry(DocType: Option; DocNo: Code[20]): Integer
+    local procedure GetTransactionNoFromUnappliedVendorDtldEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]): Integer
     var
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
@@ -1334,7 +1334,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         end;
     end;
 
-    local procedure GetTransactionNoFromUnappliedCustomerDtldEntry(DocType: Option; DocNo: Code[20]): Integer
+    local procedure GetTransactionNoFromUnappliedCustomerDtldEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]): Integer
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
@@ -1414,7 +1414,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         end;
     end;
 
-    local procedure VerifyUnappliedVendorVATEntries(DocType: Option; DocNo: Code[20]; ExpectedAmount: Decimal)
+    local procedure VerifyUnappliedVendorVATEntries(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExpectedAmount: Decimal)
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -1428,7 +1428,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         end;
     end;
 
-    local procedure VerifyUnappliedCustomerVATEntries(DocType: Option; DocNo: Code[20]; ExpectedAmount: Decimal)
+    local procedure VerifyUnappliedCustomerVATEntries(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExpectedAmount: Decimal)
     var
         VATEntry: Record "VAT Entry";
     begin

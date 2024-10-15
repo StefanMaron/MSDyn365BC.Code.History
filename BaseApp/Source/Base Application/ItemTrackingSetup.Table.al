@@ -2,6 +2,9 @@ table 6565 "Item Tracking Setup"
 {
     Caption = 'Item Tracking Code';
     DataCaptionFields = "Code";
+    #pragma warning disable AS0034
+    TableType = Temporary;
+    #pragma warning restore AS0034
 
     fields
     {
@@ -36,6 +39,14 @@ table 6565 "Item Tracking Setup"
         {
             Caption = 'Lot No. Info Required';
         }
+        field(40; "Serial No. Mismatch"; Boolean)
+        {
+            Caption = 'Serial No. Mismatch';
+        }
+        field(41; "Lot No. Mismatch"; Boolean)
+        {
+            Caption = 'Lot No. Mismatch';
+        }
     }
 
     keys
@@ -66,12 +77,60 @@ table 6565 "Item Tracking Setup"
         OnAfterCopyTrackingFromBinContentBuffer(Rec, BinContentBuffer);
     end;
 
+    procedure CopyTrackingFromItemJournalLine(ItemJournalLine: Record "Item Journal Line");
+    begin
+        "Serial No." := ItemJournalLine."Serial No.";
+        "Lot No." := ItemJournalLine."Lot No.";
+
+        OnAfterCopyTrackingFromItemJournalLine(Rec, ItemJournalLine);
+    end;
+
+    procedure CopyTrackingFromItemLedgerEntry(ItemLedgerEntry: Record "Item Ledger Entry");
+    begin
+        "Serial No." := ItemLedgerEntry."Serial No.";
+        "Lot No." := ItemLedgerEntry."Lot No.";
+
+        OnAfterCopyTrackingFromItemLedgerEntry(Rec, ItemLedgerEntry);
+    end;
+
+    procedure CopyTrackingFromItemJnlLine(ItemJnlLine: Record "Item Journal Line");
+    begin
+        "Serial No." := ItemJnlLine."Serial No.";
+        "Lot No." := ItemJnlLine."Lot No.";
+
+        OnAfterCopyTrackingFromItemJnlLine(Rec, ItemJnlLine);
+    end;
+
+    procedure CopyTrackingFromItemTrackingSetup(FromItemTrackingSetup: Record "Item Tracking Setup");
+    begin
+        "Serial No." := FromItemTrackingSetup."Serial No.";
+        "Lot No." := FromItemTrackingSetup."Lot No.";
+
+        OnAfterCopyTrackingFromItemTrackingSetup(Rec, FromItemTrackingSetup);
+    end;
+
     procedure CopyTrackingFromReservEntry(ReservEntry: Record "Reservation Entry");
     begin
         "Serial No." := ReservEntry."Serial No.";
         "Lot No." := ReservEntry."Lot No.";
 
         OnAfterCopyTrackingFromReservEntry(Rec, ReservEntry);
+    end;
+
+    procedure CopyTrackingFromTrackingSpec(TrackingSpecification: Record "Tracking Specification");
+    begin
+        "Serial No." := TrackingSpecification."Serial No.";
+        "Lot No." := TrackingSpecification."Lot No.";
+
+        OnAfterCopyTrackingFromTrackingSpec(Rec, TrackingSpecification);
+    end;
+
+    procedure CopyTrackingFromWhseActivityLine(WhseActivityLine: Record "Warehouse Activity Line");
+    begin
+        "Serial No." := WhseActivityLine."Serial No.";
+        "Lot No." := WhseActivityLine."Lot No.";
+
+        OnAfterCopyTrackingFromWhseActivityLine(Rec, WhseActivityLine);
     end;
 
     procedure CopyTrackingFromWhseEntry(WhseEntry: Record "Warehouse Entry");
@@ -90,22 +149,49 @@ table 6565 "Item Tracking Setup"
         OnAfterCopyTrackingFromWhseItemTrackingLine(Rec, WhseItemTrackingLine);
     end;
 
-    procedure CopyTrackingFromWhseActivityLine(WhseActivityLine: Record "Warehouse Activity Line");
+    procedure SetTrackingFilterForItem(var Item: Record Item)
     begin
-        "Serial No." := WhseActivityLine."Serial No.";
-        "Lot No." := WhseActivityLine."Lot No.";
+        if "Serial No." <> '' then
+            Item.SetRange("Serial No. Filter", "Serial No.");
+        if "Lot No." <> '' then
+            Item.SetRange("Lot No. Filter", "Lot No.");
 
-        OnAfterCopyTrackingFromWhseActivityLine(Rec, WhseActivityLine);
+        OnAfterSetTrackingFilterForItem(Item, Rec);
     end;
 
-    procedure TrackingExists(): Boolean;
+    procedure CheckTrackingMismatch(TrackingSpecification: Record "Tracking Specification"; ItemTrackingCode: Record "Item Tracking Code")
     begin
-        exit(("Serial No." <> '') or ("Lot No." <> ''));
+        if "Serial No." <> '' then
+            "Serial No. Mismatch" :=
+                ItemTrackingCode."SN Specific Tracking" and (TrackingSpecification."Serial No." <> "Serial No.");
+        if "Lot No." <> '' then
+            "Lot No. Mismatch" :=
+                ItemTrackingCode."Lot Specific Tracking" and (TrackingSpecification."Lot No." <> "Lot No.");
+
+        OnAfterCheckTrackingMismatch(Rec, TrackingSpecification, ItemTrackingCode);
     end;
 
-    procedure TrackingRequired(): Boolean;
+    procedure TrackingExists() IsTrackingExists: Boolean;
     begin
-        exit("Serial No. Required" or "Lot No. Required");
+        IsTrackingExists := ("Serial No." <> '') or ("Lot No." <> '');
+        OnAfterTrackingExists(Rec, IsTrackingExists);
+    end;
+
+    procedure TrackingRequired() IsTrackingRequired: Boolean;
+    begin
+        IsTrackingRequired := "Serial No. Required" or "Lot No. Required";
+        OnAfterTrackingRequired(Rec, IsTrackingRequired);
+    end;
+
+    procedure TrackingMismatch() IsTrackingMismatch: Boolean;
+    begin
+        IsTrackingMismatch := "Serial No. Mismatch" or "Lot No. Mismatch";
+        OnAfterTrackingMismatch(Rec, IsTrackingMismatch);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckTrackingMismatch(var ItemTrackingSetup: Record "Item Tracking Setup"; TrackingSpecification: Record "Tracking Specification"; ItemTrackingCode: Record "Item Tracking Code")
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -119,7 +205,37 @@ table 6565 "Item Tracking Setup"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromItemTrackingSetup(var ItemTrackingSetup: Record "Item Tracking Setup"; FromItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromItemJournalLine(var ItemTrackingSetup: Record "Item Tracking Setup"; ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromItemLedgerEntry(var ItemTrackingSetup: Record "Item Tracking Setup"; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromItemJnlLine(var ItemTrackingSetup: Record "Item Tracking Setup"; ItemJnlLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromReservEntry(var ItemTrackingSetup: Record "Item Tracking Setup"; ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromTrackingSpec(var ItemTrackingSetup: Record "Item Tracking Setup"; TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromWhseActivityLine(var ItemTrackingSetup: Record "Item Tracking Setup"; WhseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
 
@@ -134,7 +250,22 @@ table 6565 "Item Tracking Setup"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyTrackingFromWhseActivityLine(var ItemTrackingSetup: Record "Item Tracking Setup"; WhseActivityLine: Record "Warehouse Activity Line")
+    local procedure OnAfterSetTrackingFilterForItem(var Item: Record Item; ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTrackingExists(ItemTrackingSetup: Record "Item Tracking Setup"; var IsTrackingExists: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTrackingRequired(ItemTrackingSetup: Record "Item Tracking Setup"; var IsTrackingRequired: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTrackingMismatch(ItemTrackingSetup: Record "Item Tracking Setup"; var IsTrackingMismatch: Boolean)
     begin
     end;
 }

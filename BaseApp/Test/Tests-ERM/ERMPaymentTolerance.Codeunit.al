@@ -935,7 +935,7 @@ codeunit 134022 "ERM Payment Tolerance"
 
         // [GIVEN] Set empty "Account No." and zero Amount for General Journal Line.
         CreatePaymentOfGenJournalLine(
-          GenJournalLine, GenJournalLine."Account Type"::Customer, '', 0, '',
+          GenJournalLine, GenJournalLine."Account Type"::Customer, '', "Gen. Journal Account Type"::"G/L Account", '',
           0, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), '');
 
         // [WHEN] Set "Applies-to Doc. No." = "SI1".
@@ -970,7 +970,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Difference between Amount and "A1" is greater than Payment Tolerance (1-2%) and less than "Discount %" for Customer (3-10%).
         Amount := Round(AppliesToDocAmount * 0.975, 0.01);
         CreatePaymentOfGenJournalLine(
-          GenJournalLine, GenJournalLine."Account Type"::Customer, GenJournalLine."Account No.", 0, '',
+          GenJournalLine, GenJournalLine."Account Type"::Customer, GenJournalLine."Account No.", "Gen. Journal Account Type"::"G/L Account", '',
           -Amount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), '');
 
         // [WHEN] Set "Applies-to Doc. No." = "SI1".
@@ -1037,7 +1037,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Apply "SI1" to General Journal Line using "Applies-to ID". Amount is set to zero.
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer, GenJournalLine."Account No.",
-          0, '', 0, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), '');
+          "Gen. Journal Account Type"::"G/L Account", '', 0, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), '');
         SetCustLedgerEntryAppliesToID(
           GenJournalLine."Account No.", GenJournalLine."Document Type"::Invoice, PostedDocNo,
           GenJournalLine."Document No.", Amount);
@@ -1206,7 +1206,7 @@ codeunit 134022 "ERM Payment Tolerance"
 
         // [GIVEN] Set empty "Account No." and zero Amount for General Journal Line.
         CreatePaymentOfGenJournalLine(
-          GenJournalLine, GenJournalLine."Account Type"::Vendor, '', 0, '',
+          GenJournalLine, GenJournalLine."Account Type"::Vendor, '', "Gen. Journal Account Type"::"G/L Account", '',
           0, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), '');
 
         // [WHEN] Set "Applies-to Doc. No." = "PI1".
@@ -1241,7 +1241,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Difference between Amount and "A1" is greater than Payment Tolerance (1-2%) and less than "Discount %" for Vendor (3-10%).
         Amount := Round(AppliesToDocAmount * 0.975, 0.01);
         CreatePaymentOfGenJournalLine(
-          GenJournalLine, GenJournalLine."Account Type"::Vendor, GenJournalLine."Account No.", 0, '',
+          GenJournalLine, GenJournalLine."Account Type"::Vendor, GenJournalLine."Account No.", "Gen. Journal Account Type"::"G/L Account", '',
           Amount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), '');
 
         // [WHEN] Set "Applies-to Doc. No." = "SI1".
@@ -1308,7 +1308,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Apply "PI1" to General Journal Line using "Applies-to ID". Amount is set to zero.
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, GenJournalLine."Account No.",
-          0, '', 0, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), '');
+          "Gen. Journal Account Type"::"G/L Account", '', 0, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), '');
         SetVendLedgerEntryAppliesToID(
           GenJournalLine."Account No.", GenJournalLine."Document Type"::Invoice, PostedDocNo,
           GenJournalLine."Document No.", -Amount);
@@ -2040,7 +2040,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [THEN] G/L Entry is created with "Account No." = "Sales. Pmt. Disc. Debit Acc.", Amount = 0, "VAT Amount" = 2
         GenPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
         VerifyGLEntryByTransNo(
-          0, PmtNo, GetTransNoFromUnappliedCustDtldEntry(GLEntry."Document Type"::Payment, PmtNo),
+          "General Posting Type"::" ", PmtNo, GetTransNoFromUnappliedCustDtldEntry(GLEntry."Document Type"::Payment, PmtNo),
           GenPostingSetup."Sales Pmt. Disc. Debit Acc.", CustLedgEntry."Remaining Pmt. Disc. Possible");
 
         // Tear Down
@@ -2098,7 +2098,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [THEN] G/L Entry is created with "Account No." = "Sales Pmt. Tol. Debit Acc.", Amount = -0.01
         GenPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
         VerifyGLEntryByTransNo(
-          0, PmtNo, GetTransNoFromUnappliedCustDtldEntry(GLEntry."Document Type"::Payment, PmtNo),
+          "General Posting Type"::" ", PmtNo, GetTransNoFromUnappliedCustDtldEntry(GLEntry."Document Type"::Payment, PmtNo),
           GenPostingSetup."Sales Pmt. Tol. Debit Acc.", -PmtTolAmount);
 
         // Tear Down
@@ -2194,7 +2194,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [THEN] G/L Entry is created with "Account No." = "Purch. Pmt. Disc. Credit Acc.", Amount = 0, "VAT Amount" = 2
         GenPostingSetup.Get(PurchLine."Gen. Bus. Posting Group", PurchLine."Gen. Prod. Posting Group");
         VerifyGLEntryByTransNo(
-          0, PmtNo, GetTransNoFromUnappliedVendDtldEntry(GLEntry."Document Type"::Payment, PmtNo),
+          "General Posting Type"::" ", PmtNo, GetTransNoFromUnappliedVendDtldEntry(GLEntry."Document Type"::Payment, PmtNo),
           GenPostingSetup."Purch. Pmt. Disc. Credit Acc.", VendLedgEntry."Remaining Pmt. Disc. Possible");
 
         // Tear Down
@@ -2252,7 +2252,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [THEN] G/L Entry is created with "Account No." = "Sales Pmt. Tol. Debit Acc.", Amount = -0.01
         GenPostingSetup.Get(PurchLine."Gen. Bus. Posting Group", PurchLine."Gen. Prod. Posting Group");
         VerifyGLEntryByTransNo(
-          0, PmtNo, GetTransNoFromUnappliedVendDtldEntry(GLEntry."Document Type"::Payment, PmtNo),
+          "General Posting Type"::" ", PmtNo, GetTransNoFromUnappliedVendDtldEntry(GLEntry."Document Type"::Payment, PmtNo),
           GenPostingSetup."Purch. Pmt. Tol. Debit Acc.", -PmtTolAmount);
 
         // Tear Down
@@ -3495,7 +3495,7 @@ codeunit 134022 "ERM Payment Tolerance"
         LibraryERM.PostVendLedgerApplication(VendorLedgerEntry);
     end;
 
-    local procedure ApplyFromGeneralJournal(DocumentType: Option; AccountNo: Code[20])
+    local procedure ApplyFromGeneralJournal(DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20])
     var
         GeneralJournal: TestPage "General Journal";
     begin
@@ -3521,7 +3521,7 @@ codeunit 134022 "ERM Payment Tolerance"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure ApplyVendLedEntryAppliesToDoc(var GenJournalLine: Record "Gen. Journal Line"; AppliestoDocType: Option; AmountToApply: Decimal)
+    local procedure ApplyVendLedEntryAppliesToDoc(var GenJournalLine: Record "Gen. Journal Line"; AppliestoDocType: Enum "Gen. Journal Document Type"; AmountToApply: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -3536,7 +3536,7 @@ codeunit 134022 "ERM Payment Tolerance"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure ApplyCustomerLedgerEntries(CustomerNo: Code[20]; DocumentType: Option)
+    local procedure ApplyCustomerLedgerEntries(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
@@ -3546,7 +3546,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CustomerLedgerEntries."Apply Entries".Invoke;
     end;
 
-    local procedure ApplyVendorLedgerEntries(VendorNo: Code[20]; DocumentType: Option)
+    local procedure ApplyVendorLedgerEntries(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
@@ -3556,7 +3556,7 @@ codeunit 134022 "ERM Payment Tolerance"
         VendorLedgerEntries.ActionApplyEntries.Invoke;
     end;
 
-    local procedure ApplyCustomerLedgerEntriesTwice(CustomerNo: Code[20]; DocumentType: Option)
+    local procedure ApplyCustomerLedgerEntriesTwice(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
@@ -3570,7 +3570,7 @@ codeunit 134022 "ERM Payment Tolerance"
         end;
     end;
 
-    local procedure ApplyVendorLedgerEntriesTwice(VendorNo: Code[20]; DocumentType: Option)
+    local procedure ApplyVendorLedgerEntriesTwice(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
@@ -3630,7 +3630,7 @@ codeunit 134022 "ERM Payment Tolerance"
           GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, 0);
     end;
 
-    local procedure CreatePaymentOfGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; AmountToApply: Decimal; PaymentDate: Date; ApplyToDocNo: Code[20])
+    local procedure CreatePaymentOfGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; AmountToApply: Decimal; PaymentDate: Date; ApplyToDocNo: Code[20])
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
@@ -3643,7 +3643,7 @@ codeunit 134022 "ERM Payment Tolerance"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreatePostPaymentWithAppliesToDoc(GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; AccountType: Option; DocumentNo: Code[20]; PostingDate: Date; PmtAmount: Decimal)
+    local procedure CreatePostPaymentWithAppliesToDoc(GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; AccountType: Enum "Gen. Journal Account Type"; DocumentNo: Code[20]; PostingDate: Date; PmtAmount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         GeneralJournal: TestPage "General Journal";
@@ -3665,7 +3665,7 @@ codeunit 134022 "ERM Payment Tolerance"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostGenJournalLines(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; InvoiceAmount: Decimal; PaymentAmount: Decimal; PaymentDate: Date)
+    local procedure CreateAndPostGenJournalLines(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; InvoiceAmount: Decimal; PaymentAmount: Decimal; PaymentDate: Date)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -3681,7 +3681,7 @@ codeunit 134022 "ERM Payment Tolerance"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostInvoiceOfGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; CurrencyCode: Code[10]; LineAmount: Decimal): Code[20]
+    local procedure CreateAndPostInvoiceOfGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CurrencyCode: Code[10]; LineAmount: Decimal): Code[20]
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -3831,7 +3831,7 @@ codeunit 134022 "ERM Payment Tolerance"
         VerifyVendorInvoiceMaxPaymentToleranceAndRemAmount(VendorNo, InvoiceNo, -MaxPmtTolAmountFCY, -InvoiceAmountFCY);
     end;
 
-    local procedure CreateGenLineAndApplyEntry(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; Amount: Decimal; AccountType: Option; CurrencyCode: Code[10])
+    local procedure CreateGenLineAndApplyEntry(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; Amount: Decimal; AccountType: Enum "Gen. Journal Account Type"; CurrencyCode: Code[10])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GeneralJournal: TestPage "General Journal";
@@ -3847,7 +3847,7 @@ codeunit 134022 "ERM Payment Tolerance"
         GeneralJournal."Apply Entries".Invoke;
     end;
 
-    local procedure CreateModifyGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateModifyGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -3885,7 +3885,7 @@ codeunit 134022 "ERM Payment Tolerance"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreatePairedPaymentAndPostedCrMemoWithPmtDiscGracePeriod(var GenJnlLine: Record "Gen. Journal Line"; var CrMemoNo: Code[20]; AccType: Option; AccNo: Code[20]; PaymentTerms: Record "Payment Terms"; Amount: Decimal)
+    local procedure CreatePairedPaymentAndPostedCrMemoWithPmtDiscGracePeriod(var GenJnlLine: Record "Gen. Journal Line"; var CrMemoNo: Code[20]; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; PaymentTerms: Record "Payment Terms"; Amount: Decimal)
     var
         PaymentAmount: Decimal;
     begin
@@ -3977,7 +3977,7 @@ codeunit 134022 "ERM Payment Tolerance"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateGeneralJournalTemplate(var GenJournalTemplate: Record "Gen. Journal Template"; GenJournalTemplateType: Option)
+    local procedure CreateGeneralJournalTemplate(var GenJournalTemplate: Record "Gen. Journal Template"; GenJournalTemplateType: Enum "Gen. Journal Template Type")
     begin
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         GenJournalTemplate.Validate(Type, GenJournalTemplateType);
@@ -4037,7 +4037,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CurrencyExchangeRate.Modify(true);
     end;
 
-    local procedure CreateGenJournalLineWithCurrencyCode(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Option; Amount: Decimal; PostingDate: Date; AccountType: Option)
+    local procedure CreateGenJournalLineWithCurrencyCode(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; PostingDate: Date; AccountType: Enum "Gen. Journal Account Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -4081,7 +4081,7 @@ codeunit 134022 "ERM Payment Tolerance"
         exit(Currency.Code);
     end;
 
-    local procedure CreateRefundJournalLineAppliesToCrMemo(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; AppliesToDocNo: Code[20]; Amount: Decimal)
+    local procedure CreateRefundJournalLineAppliesToCrMemo(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AppliesToDocNo: Code[20]; Amount: Decimal)
     var
         BankAccount: Record "Bank Account";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -4119,7 +4119,7 @@ codeunit 134022 "ERM Payment Tolerance"
         Commit();
     end;
 
-    local procedure CreateAndPostGenJnlLineWithPaymentTerms(var GenJnlLine: Record "Gen. Journal Line"; DocType: Option; AccountType: Option; AccountNo: Code[20]; PaymentTermsCode: Code[10]; InvAmount: Decimal)
+    local procedure CreateAndPostGenJnlLineWithPaymentTerms(var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PaymentTermsCode: Code[10]; InvAmount: Decimal)
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJnlLine, DocType, AccountType, AccountNo, InvAmount);
@@ -4128,7 +4128,7 @@ codeunit 134022 "ERM Payment Tolerance"
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
     end;
 
-    local procedure CreateFullVATPostingSetupWithAdjForPmtDisc(var VATPostingSetup: Record "VAT Posting Setup"; GenPostingType: Option)
+    local procedure CreateFullVATPostingSetupWithAdjForPmtDisc(var VATPostingSetup: Record "VAT Posting Setup"; GenPostingType: Enum "General Posting Type")
     var
         GLAccount: Record "G/L Account";
         GLAccNo: Code[20];
@@ -4220,7 +4220,7 @@ codeunit 134022 "ERM Payment Tolerance"
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
     end;
 
-    local procedure CreatePostInvAndCrMemoWithDiscAndOpenPmtJournal(var GeneralJournal: TestPage "General Journal"; var PmtDiscAmount: Decimal; AccountType: Option; AccountNo: Code[20]; Sign: Integer)
+    local procedure CreatePostInvAndCrMemoWithDiscAndOpenPmtJournal(var GeneralJournal: TestPage "General Journal"; var PmtDiscAmount: Decimal; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Sign: Integer)
     var
         PaymentTerms: Record "Payment Terms";
         GenJournalLine: Record "Gen. Journal Line";
@@ -4271,7 +4271,7 @@ codeunit 134022 "ERM Payment Tolerance"
         exit(CustLedgEntry."Remaining Amount" - CustLedgEntry."Max. Payment Tolerance");
     end;
 
-    local procedure PostInvAndPmtGeneralJnlLines(AccountType: Option; AccountNo: Code[20]; InvAmount: Decimal; PmtAmount: Decimal)
+    local procedure PostInvAndPmtGeneralJnlLines(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; InvAmount: Decimal; PmtAmount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -4324,7 +4324,7 @@ codeunit 134022 "ERM Payment Tolerance"
         exit(LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true));
     end;
 
-    local procedure PostPaymentWithAppliedToId(AccountType: Option; AccountNo: Code[20]; Amount: Decimal): Code[20]
+    local procedure PostPaymentWithAppliedToId(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal): Code[20]
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -4395,11 +4395,9 @@ codeunit 134022 "ERM Payment Tolerance"
     end;
 
     local procedure PurchaseCreditMemoCopyDocument(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; DocumentNo: Code[20])
-    var
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
-        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, DocumentType::"Posted Invoice", DocumentNo, true, false);
+        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, "Sales Document Type From"::"Posted Invoice", DocumentNo, true, false);
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
     end;
@@ -4423,21 +4421,21 @@ codeunit 134022 "ERM Payment Tolerance"
         ExpectedBalance := Round(InvoiceAmount + PmtAmount - (InvoiceAmount * PmtDiscPct / 100));
     end;
 
-    local procedure FindCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; DocType: Option; CustNo: Code[20])
+    local procedure FindCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; CustNo: Code[20])
     begin
         CustLedgEntry.SetRange("Document Type", DocType);
         CustLedgEntry.SetRange("Customer No.", CustNo);
         CustLedgEntry.FindFirst;
     end;
 
-    local procedure FindVendLedgEntry(var VendLedgEntry: Record "Vendor Ledger Entry"; DocType: Option; VendNo: Code[20])
+    local procedure FindVendLedgEntry(var VendLedgEntry: Record "Vendor Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; VendNo: Code[20])
     begin
         VendLedgEntry.SetRange("Document Type", DocType);
         VendLedgEntry.SetRange("Vendor No.", VendNo);
         VendLedgEntry.FindFirst;
     end;
 
-    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Option; DocumentNo: Code[20]; GLAccountNo: Code[20])
+    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAccountNo: Code[20])
     begin
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
@@ -4445,7 +4443,7 @@ codeunit 134022 "ERM Payment Tolerance"
         GLEntry.FindFirst;
     end;
 
-    local procedure GetTransNoFromUnappliedCustDtldEntry(DocType: Option; DocNo: Code[20]): Integer
+    local procedure GetTransNoFromUnappliedCustDtldEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]): Integer
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
@@ -4458,7 +4456,7 @@ codeunit 134022 "ERM Payment Tolerance"
         end;
     end;
 
-    local procedure GetTransNoFromUnappliedVendDtldEntry(DocType: Option; DocNo: Code[20]): Integer
+    local procedure GetTransNoFromUnappliedVendDtldEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]): Integer
     var
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
@@ -4493,11 +4491,9 @@ codeunit 134022 "ERM Payment Tolerance"
     end;
 
     local procedure SalesCreditMemoCopyDocument(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; DocumentNo: Code[20])
-    var
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo);
-        LibrarySales.CopySalesDocument(SalesHeader, DocumentType::"Posted Invoice", DocumentNo, true, false);
+        LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", DocumentNo, true, false);
     end;
 
     local procedure SelectGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -4552,7 +4548,7 @@ codeunit 134022 "ERM Payment Tolerance"
         RunChangePaymentTolerance(false, CurrencyCode, 0, MaxPmtTolAmount);
     end;
 
-    local procedure SetCustLedgerEntryAppliesToID(CustomerNo: Code[20]; PostedDocType: Option; PostedDocNo: Code[20]; AppliesToID: Code[50]; AmountToApply: Decimal)
+    local procedure SetCustLedgerEntryAppliesToID(CustomerNo: Code[20]; PostedDocType: Enum "Gen. Journal Document Type"; PostedDocNo: Code[20]; AppliesToID: Code[50]; AmountToApply: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -4563,7 +4559,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CustLedgerEntry.Modify(true);
     end;
 
-    local procedure SetVendLedgerEntryAppliesToID(VendorNo: Code[20]; PostedDocType: Option; PostedDocNo: Code[20]; AppliesToID: Code[50]; AmountToApply: Decimal)
+    local procedure SetVendLedgerEntryAppliesToID(VendorNo: Code[20]; PostedDocType: Enum "Gen. Journal Document Type"; PostedDocNo: Code[20]; AppliesToID: Code[50]; AmountToApply: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -4601,7 +4597,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CurrencyExchangeRate.Modify(true);
     end;
 
-    local procedure SetupGenJnlLineForApplication(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; AppliesToDocType: Option; AppliesToDocNo: Code[20])
+    local procedure SetupGenJnlLineForApplication(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20])
     begin
         with GenJournalLine do begin
             Validate("Posting Date", PostingDate);
@@ -4611,7 +4607,7 @@ codeunit 134022 "ERM Payment Tolerance"
         end;
     end;
 
-    local procedure VerifyGLEntry(DocumentType: Option; DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
+    local procedure VerifyGLEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -4619,7 +4615,7 @@ codeunit 134022 "ERM Payment Tolerance"
         Assert.AreNearlyEqual(GLEntry.Amount, Round(Amount), LibraryERM.GetAmountRoundingPrecision, AmountVerificationMsg);
     end;
 
-    local procedure VerifyVATAmountInGLEntry(DocumentType: Option; DocumentNo: Code[20]; GLAccountNo: Code[20]; ExpectedAmount: Decimal)
+    local procedure VerifyVATAmountInGLEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAccountNo: Code[20]; ExpectedAmount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -4627,7 +4623,7 @@ codeunit 134022 "ERM Payment Tolerance"
         GLEntry.TestField("VAT Amount", ExpectedAmount);
     end;
 
-    local procedure VerifyGLEntryByTransNo(DocumentType: Option; DocumentNo: Code[20]; TransNo: Integer; GLAccountNo: Code[20]; ExpectedAmount: Decimal)
+    local procedure VerifyGLEntryByTransNo(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; TransNo: Integer; GLAccountNo: Code[20]; ExpectedAmount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin

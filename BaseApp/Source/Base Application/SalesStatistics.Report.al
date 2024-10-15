@@ -6,6 +6,7 @@ report 112 "Sales Statistics"
     Caption = 'Sales Statistics';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {

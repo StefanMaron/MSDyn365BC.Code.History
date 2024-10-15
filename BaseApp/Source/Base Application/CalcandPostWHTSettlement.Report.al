@@ -179,7 +179,7 @@ report 28041 "Calc. and Post WHT Settlement"
                         GenJnlLine."WHT Business Posting Group" := WHTPostingSetup."WHT Business Posting Group";
                         GenJnlLine."WHT Product Posting Group" := WHTPostingSetup."WHT Product Posting Group";
                         GenJnlLine."Posting Date" := PostingDate;
-                        GenJnlLine."Document Type" := 0;
+                        GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
                         GenJnlLine."Document No." := DocNo;
                         GenJnlLine."Source Code" := SourceCodeSetup."WHT Settlement";
                         WHTPostingSetup.TestField("Payable WHT Account Code");
@@ -202,7 +202,7 @@ report 28041 "Calc. and Post WHT Settlement"
                         GenJnlLine."WHT Business Posting Group" := WHTPostingSetup."WHT Business Posting Group";
                         GenJnlLine."WHT Product Posting Group" := WHTPostingSetup."WHT Product Posting Group";
                         GenJnlLine."Posting Date" := PostingDate;
-                        GenJnlLine."Document Type" := 0;
+                        GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
                         GenJnlLine."Document No." := DocNo;
                         GenJnlLine."Source Code" := SourceCodeSetup."WHT Settlement";
                         GenJnlLine.Amount := -RoundAmount;
@@ -223,7 +223,7 @@ report 28041 "Calc. and Post WHT Settlement"
                         GenJnlLine."WHT Business Posting Group" := WHTPostingSetup."WHT Business Posting Group";
                         GenJnlLine."WHT Product Posting Group" := WHTPostingSetup."WHT Product Posting Group";
                         GenJnlLine."Posting Date" := PostingDate;
-                        GenJnlLine."Document Type" := 0;
+                        GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
                         GenJnlLine."Document No." := DocNo;
                         GenJnlLine."Source Code" := SourceCodeSetup."WHT Settlement";
                         GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
@@ -248,7 +248,7 @@ report 28041 "Calc. and Post WHT Settlement"
                             GenJnlLine."WHT Business Posting Group" := WHTPostingSetup."WHT Business Posting Group";
                             GenJnlLine."WHT Product Posting Group" := WHTPostingSetup."WHT Product Posting Group";
                             GenJnlLine."Posting Date" := PostingDate;
-                            GenJnlLine."Document Type" := 0;
+                            GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
                             GenJnlLine."Document No." := DocNo;
                             GenJnlLine."Source Code" := SourceCodeSetup."WHT Settlement";
                             WHTPostingSetup.TestField("Payable WHT Account Code");

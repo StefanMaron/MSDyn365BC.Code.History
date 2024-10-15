@@ -50,7 +50,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         EmployeePayment(GenJournalLine."Bank Payment Type"::"Computer Check");
     end;
 
-    local procedure EmployeePayment(BankPaymentType: Option)
+    local procedure EmployeePayment(BankPaymentType: Enum "Bank Payment Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -186,7 +186,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         SetApplyIdToDocument(GenJournalLine."Document Type"::" ", GenJournalLine."Document Type"::Payment, -1);
     end;
 
-    local procedure SetApplyIdToDocument(DocumentType: Option; DocumentType2: Option; AmountSign: Integer)
+    local procedure SetApplyIdToDocument(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; AmountSign: Integer)
     var
         Employee: Record Employee;
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -953,7 +953,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Suggest Employee Payment");
     end;
 
-    local procedure ApplyPaymentToEmployee(AccountNo: Code[20]; NumberOfLines: Integer; DocumentType: Option; DocumentType2: Option)
+    local procedure ApplyPaymentToEmployee(AccountNo: Code[20]; NumberOfLines: Integer; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type")
     var
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
         EmployeeLedgerEntry2: Record "Employee Ledger Entry";
@@ -1006,7 +1006,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Option)
+    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Enum "Gen. Journal Template Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
@@ -1041,7 +1041,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         exit(BankAccount."No.");
     end;
 
-    local procedure CreateMultipleGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; NumberOfLines: Integer; PostingDate: Date; EmployeeNo: Code[20]; DocumentType: Option; AmountSign: Integer) AmountSum: Integer
+    local procedure CreateMultipleGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; NumberOfLines: Integer; PostingDate: Date; EmployeeNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; AmountSign: Integer) AmountSum: Integer
     var
         Counter: Integer;
     begin
@@ -1053,7 +1053,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         end;
     end;
 
-    local procedure CreateAndPostGeneralJournal(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option) DocumentNo: Code[20]
+    local procedure CreateAndPostGeneralJournal(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type") DocumentNo: Code[20]
     var
         Employee: Record Employee;
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -1070,7 +1070,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option)
+    local procedure CreateAndPostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type")
     var
         Employee: Record Employee;
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -1083,7 +1083,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; PostingDate: Date; EmployeeNo: Code[20]; DocumentType: Option; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; PostingDate: Date; EmployeeNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
@@ -1175,7 +1175,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure FindEmployeeLedgerEntry(var EmployeeLedgerEntry: Record "Employee Ledger Entry"; EmployeeNo: Code[20]; DocumentType: Option)
+    local procedure FindEmployeeLedgerEntry(var EmployeeLedgerEntry: Record "Employee Ledger Entry"; EmployeeNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         EmployeeLedgerEntry.SetRange("Document Type", DocumentType);
         EmployeeLedgerEntry.SetRange("Employee No.", EmployeeNo);
@@ -1222,7 +1222,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
     end;
 
-    local procedure SuggestEmployeePayment(GenJournalBatch: Record "Gen. Journal Batch"; EmployeeNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; BankPaymentType: Option; SummarizePerEmployee: Boolean)
+    local procedure SuggestEmployeePayment(GenJournalBatch: Record "Gen. Journal Batch"; EmployeeNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; BankPaymentType: Enum "Bank Payment Type"; SummarizePerEmployee: Boolean)
     var
         Employee: Record Employee;
         GenJournalLine: Record "Gen. Journal Line";
@@ -1463,7 +1463,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         Assert.RecordCount(EmployeeLedgerEntry, EmployeeLedgerEntryCount);
     end;
 
-    local procedure VerifyValuesOnEmplLedgerEntry(DocumentNo: Code[20]; DocumentType: Option; EmployeeNo: Code[20]; Amount2: Decimal; RemainingAmount: Decimal; Open2: Boolean)
+    local procedure VerifyValuesOnEmplLedgerEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; EmployeeNo: Code[20]; Amount2: Decimal; RemainingAmount: Decimal; Open2: Boolean)
     var
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
     begin

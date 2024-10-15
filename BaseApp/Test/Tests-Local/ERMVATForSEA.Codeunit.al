@@ -278,7 +278,7 @@ codeunit 141037 "ERM VAT For SEA"
         UpdateGeneralLedgerSetup;
     end;
 
-    local procedure CreateAndPostGeneralJournalLine(AccountNo: Code[20]; AppliesToDocNo: Code[20]; Amount: Decimal; AccountType: Option; DocumentType: Option; AppliesToDocType: Option; Type: Option): Code[20]
+    local procedure CreateAndPostGeneralJournalLine(AccountNo: Code[20]; AppliesToDocNo: Code[20]; Amount: Decimal; AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocType: Enum "Gen. Journal Document Type"; Type: Enum "Gen. Journal Template Type"): Code[20]
     var
         BankAccount: Record "Bank Account";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -297,7 +297,7 @@ codeunit 141037 "ERM VAT For SEA"
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; BillToCustomerNo: Code[20]; No: Code[20]; SellToCustomerNo: Code[20])
+    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; BillToCustomerNo: Code[20]; No: Code[20]; SellToCustomerNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -311,7 +311,7 @@ codeunit 141037 "ERM VAT For SEA"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as Invoice.
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; Type: Option; BuyFromVendorNo: Code[20]; No: Code[20]; PayToVendorNo: Code[20])
+    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; Type: Enum "Purchase Line Type"; BuyFromVendorNo: Code[20]; No: Code[20]; PayToVendorNo: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -340,7 +340,7 @@ codeunit 141037 "ERM VAT For SEA"
         exit(Customer."No.");
     end;
 
-    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Option)
+    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Enum "Gen. Journal Template Type")
     var
         BankAccount: Record "Bank Account";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -480,7 +480,7 @@ codeunit 141037 "ERM VAT For SEA"
         exit(SalesInvoiceLine."Document No.");
     end;
 
-    local procedure PostPurchaseInvoiceAndApplyPayment(BuyFromVendorNo: Code[20]; PayToVendorNo: Code[20]; No: Code[20]; DocumentType: Option; WHTPct: Decimal; VATPct: Decimal)
+    local procedure PostPurchaseInvoiceAndApplyPayment(BuyFromVendorNo: Code[20]; PayToVendorNo: Code[20]; No: Code[20]; DocumentType: Enum "Purchase Document Type"; WHTPct: Decimal; VATPct: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -507,7 +507,7 @@ codeunit 141037 "ERM VAT For SEA"
         VerifyGLEntry(GenJournalLine."Document Type"::Payment, DocumentNo, -Amount);
     end;
 
-    local procedure PostSalesInvoiceAndApplyPayment(BillToCustomerNo: Code[20]; SellToCustomerNo: Code[20]; No: Code[20]; DocumentType: Option; WHTPct: Decimal)
+    local procedure PostSalesInvoiceAndApplyPayment(BillToCustomerNo: Code[20]; SellToCustomerNo: Code[20]; No: Code[20]; DocumentType: Enum "Sales Document Type"; WHTPct: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -606,7 +606,7 @@ codeunit 141037 "ERM VAT For SEA"
         SalesReceivablesSetup.Modify(true);
     end;
 
-    local procedure VerifyGLEntry(DocumentType: Option; DocumentNo: Code[20]; Amount: Decimal)
+    local procedure VerifyGLEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Amount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -616,7 +616,7 @@ codeunit 141037 "ERM VAT For SEA"
         Assert.AreNearlyEqual(GLEntry.Amount, Amount, LibraryERM.GetAmountRoundingPrecision, ValueMatchMsg);
     end;
 
-    local procedure VerifyVATEntry(DocumentType: Option; DocumentNo: Code[20]; Amount: Decimal; Base: Decimal)
+    local procedure VerifyVATEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Amount: Decimal; Base: Decimal)
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -627,7 +627,7 @@ codeunit 141037 "ERM VAT For SEA"
         Assert.AreNearlyEqual(VATEntry.Base, Base, LibraryERM.GetAmountRoundingPrecision, ValueMatchMsg);
     end;
 
-    local procedure VerifyWHTEntry(DocumentType: Option; DocumentNo: Code[20]; Amount: Decimal; Base: Decimal)
+    local procedure VerifyWHTEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Amount: Decimal; Base: Decimal)
     var
         WHTEntry: Record "WHT Entry";
     begin

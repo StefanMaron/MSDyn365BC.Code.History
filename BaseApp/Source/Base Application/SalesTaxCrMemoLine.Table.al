@@ -56,7 +56,7 @@ table 28074 "Sales Tax Cr.Memo Line"
         {
             Caption = 'Shipment Date';
         }
-        field(11; Description; Text[50])
+        field(11; Description; Text[100])
         {
             Caption = 'Description';
         }
@@ -75,7 +75,7 @@ table 28074 "Sales Tax Cr.Memo Line"
         }
         field(22; "Unit Price"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 2;
             CaptionClass = GetCaptionClass(FieldNo("Unit Price"));
             Caption = 'Unit Price';
@@ -100,19 +100,19 @@ table 28074 "Sales Tax Cr.Memo Line"
         }
         field(28; "Line Discount Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Line Discount Amount';
         }
         field(29; Amount; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Amount';
         }
         field(30; "Amount Including VAT"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Amount Including VAT';
         }
@@ -192,7 +192,7 @@ table 28074 "Sales Tax Cr.Memo Line"
         }
         field(69; "Inv. Discount Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Inv. Discount Amount';
         }
@@ -281,28 +281,28 @@ table 28074 "Sales Tax Cr.Memo Line"
         }
         field(99; "VAT Base Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Base Amount';
             Editable = false;
         }
         field(100; "Unit Cost"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 2;
             Caption = 'Unit Cost';
             Editable = false;
         }
         field(103; "Line Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             CaptionClass = GetCaptionClass(FieldNo("Line Amount"));
             Caption = 'Line Amount';
         }
         field(104; "VAT Difference"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Difference';
         }
@@ -319,7 +319,7 @@ table 28074 "Sales Tax Cr.Memo Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(5402; "Variant Code"; Code[10])
@@ -415,8 +415,9 @@ table 28074 "Sales Tax Cr.Memo Line"
         field(5712; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
-            TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
-            ValidateTableRelation = false;
+            ObsoleteState = Pending;
+            ObsoleteTag = '17.0';
+            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
         }
         field(5811; "Appl.-from Item Entry"; Integer)
         {
@@ -592,9 +593,6 @@ table 28074 "Sales Tax Cr.Memo Line"
 
     procedure TransferFieldsFrom(SalesCrMemoLine: Record "Sales Cr.Memo Line")
     begin
-        // cut values to avoid overflow in TransferFields
-        SalesCrMemoLine.Description :=
-            CopyStr(SalesCrMemoLine.Description, 1, MaxStrLen(Description));
         TransferFields(SalesCrMemoLine);
     end;
 }

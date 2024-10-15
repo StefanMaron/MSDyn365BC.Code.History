@@ -1,4 +1,4 @@
-﻿report 7305 "Whse.-Source - Create Document"
+report 7305 "Whse.-Source - Create Document"
 {
     Caption = 'Whse.-Source - Create Document';
     Permissions = TableData "Whse. Item Tracking Line" = rm;
@@ -453,7 +453,6 @@
                         ApplicationArea = Warehouse;
                         Caption = 'Sorting Method for Activity Lines';
                         MultiLine = true;
-                        OptionCaption = ' ,Item,Document,Shelf or Bin,Due Date,,Bin Ranking,Action Type';
                         ToolTip = 'Specifies the method by which the lines in the instruction will be sorted. The options are by item, document, shelf or bin (when the location uses bins, this is the bin code), due date, bin ranking, or action type.';
                     }
                     field(BreakbulkFilter; BreakbulkFilter)
@@ -535,8 +534,8 @@
             repeat
                 CreatePutAway.DeleteBlankBinContent(WhseActivHeader);
                 OnAfterCreatePutAwayDeleteBlankBinContent(WhseActivHeader);
-                if SortActivity > 0 then
-                    WhseActivHeader.SortWhseDoc;
+                if SortActivity <> SortActivity::None then
+                    WhseActivHeader.SortWhseDoc();
                 Commit();
             until WhseActivHeader.Next = 0;
 
@@ -572,7 +571,7 @@
         LastActivityNo: Code[20];
         AssignedID: Code[50];
         WhseDoc: Option "Whse. Mov.-Worksheet","Posted Receipt","Internal Pick","Internal Put-away",Production,"Put-away Worksheet",Assembly,"Service Order";
-        SortActivity: Option " ",Item,Document,"Shelf/Bin No.","Due Date","Ship-To","Bin Ranking","Action Type";
+        SortActivity: Enum "Whse. Activity Sorting Method";
         SourceTableCaption: Text[30];
         CreateErrorText: Text[80];
         Text000: Label '%1 activity no. %2 has been created.';
@@ -581,24 +580,32 @@
         EverythingHandled: Boolean;
         WhseWkshLineFound: Boolean;
         Text002: Label '\For %1 with existing Warehouse Worksheet Lines, no %2 lines have been created.';
-        HideValidationDialog: Boolean;
         Text003: Label 'There is nothing to handle.';
         DoNotFillQtytoHandle: Boolean;
         Text004: Label 'You can create a Movement only for the available quantity in %1 %2 = %3,%4 = %5,%6 = %7,%8 = %9.';
         BreakbulkFilter: Boolean;
         TotalPendingMovQtyExceedsBinAvailErr: Label 'Item tracking defined for line %1, lot number %2, serial number %3 cannot be applied.', Comment = '%1=Line No.,%2=Lot No.,%3=Serial No.';
 
+    protected var
+        HideValidationDialog: Boolean;
+
     procedure SetPostedWhseReceiptLine(var PostedWhseReceiptLine2: Record "Posted Whse. Receipt Line"; AssignedID2: Code[50])
+    var
+        SortingMethod: Option;
     begin
         PostedWhseReceiptLine.Copy(PostedWhseReceiptLine2);
         WhseDoc := WhseDoc::"Posted Receipt";
         SourceTableCaption := PostedWhseReceiptLine.TableCaption;
         AssignedID := AssignedID2;
 
-        OnAfterSetPostedWhseReceiptLine(PostedWhseReceiptLine, SortActivity);
+        SortingMethod := SortActivity.AsInteger();
+        OnAfterSetPostedWhseReceiptLine(PostedWhseReceiptLine, SortingMethod);
+        SortActivity := "Whse. Activity Sorting Method".FromInteger(SortingMethod);
     end;
 
     procedure SetWhseWkshLine(var WhseWkshLine2: Record "Whse. Worksheet Line")
+    var
+        SortingMethod: Option;
     begin
         WhseWkshLine.Copy(WhseWkshLine2);
         case WhseWkshLine."Whse. Document Type" of
@@ -609,36 +616,50 @@
                 WhseDoc := WhseDoc::"Whse. Mov.-Worksheet";
         end;
 
-        OnAfterSetWhseWkshLine(WhseWkshLine, SortActivity);
+        SortingMethod := SortActivity.AsInteger();
+        OnAfterSetWhseWkshLine(WhseWkshLine, SortingMethod);
+        SortActivity := "Whse. Activity Sorting Method".FromInteger(SortingMethod);
     end;
 
     procedure SetWhseInternalPickLine(var WhseInternalPickLine2: Record "Whse. Internal Pick Line"; AssignedID2: Code[50])
+    var
+        SortingMethod: Option;
     begin
         WhseInternalPickLine.Copy(WhseInternalPickLine2);
         WhseDoc := WhseDoc::"Internal Pick";
         SourceTableCaption := WhseInternalPickLine.TableCaption;
         AssignedID := AssignedID2;
 
-        OnAfterSetWhseInternalPickLine(WhseInternalPickLine, SortActivity);
+        SortingMethod := SortActivity.AsInteger();
+        OnAfterSetWhseInternalPickLine(WhseInternalPickLine, SortingMethod);
+        SortActivity := "Whse. Activity Sorting Method".FromInteger(SortingMethod);
     end;
 
     procedure SetWhseInternalPutAway(var WhseInternalPutAwayHeader2: Record "Whse. Internal Put-away Header")
+    var
+        SortingMethod: Option;
     begin
         WhseInternalPutAwayHeader.Copy(WhseInternalPutAwayHeader2);
         WhseDoc := WhseDoc::"Internal Put-away";
         SourceTableCaption := WhseInternalPutAwayHeader.TableCaption;
         AssignedID := WhseInternalPutAwayHeader2."Assigned User ID";
 
-        OnAfterSetWhseInternalPutAway(WhseInternalPutAwayHeader, SortActivity);
+        SortingMethod := SortActivity.AsInteger();
+        OnAfterSetWhseInternalPutAway(WhseInternalPutAwayHeader, SortingMethod);
+        SortActivity := "Whse. Activity Sorting Method".FromInteger(SortingMethod);
     end;
 
     procedure SetProdOrder(var ProdOrderHeader2: Record "Production Order")
+    var
+        SortingMethod: Option;
     begin
         ProdOrderHeader.Copy(ProdOrderHeader2);
         WhseDoc := WhseDoc::Production;
         SourceTableCaption := ProdOrderHeader.TableCaption;
 
-        OnAfterSetProdOrder(ProdOrderHeader, SortActivity);
+        SortingMethod := SortActivity.AsInteger();
+        OnAfterSetProdOrder(ProdOrderHeader, SortingMethod);
+        SortActivity := "Whse. Activity Sorting Method".FromInteger(SortingMethod);
     end;
 
     procedure SetAssemblyOrder(var AssemblyHeader2: Record "Assembly Header")
@@ -703,7 +724,7 @@
                 Location.Get(LocationCode);
     end;
 
-    procedure Initialize(AssignedID2: Code[50]; SortActivity2: Option " ",Item,Document,"Shelf/Bin No.","Due Date","Ship-To","Bin Ranking","Action Type"; PrintDoc2: Boolean; DoNotFillQtytoHandle2: Boolean; BreakbulkFilter2: Boolean)
+    procedure Initialize(AssignedID2: Code[50]; SortActivity2: Enum "Whse. Activity Sorting Method"; PrintDoc2: Boolean; DoNotFillQtytoHandle2: Boolean; BreakbulkFilter2: Boolean)
     begin
         AssignedID := AssignedID2;
         SortActivity := SortActivity2;
@@ -1168,7 +1189,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSortWhseDocsForPrints(WhseDoc: Option "Whse. Mov.-Worksheet","Posted Receipt","Internal Pick","Internal Put-away",Production,"Put-away Worksheet",Assembly,"Service Order"; FirstActivityNo: Code[20]; LastActivityNo: Code[20]; SortActivity: Option " ",Item,Document,"Shelf/Bin No.","Due Date","Ship-To","Bin Ranking","Action Type"; PrintDoc: Boolean; var HideNothingToHandleErr: Boolean)
+    local procedure OnBeforeSortWhseDocsForPrints(WhseDoc: Option "Whse. Mov.-Worksheet","Posted Receipt","Internal Pick","Internal Put-away",Production,"Put-away Worksheet",Assembly,"Service Order"; FirstActivityNo: Code[20]; LastActivityNo: Code[20]; SortActivity: Enum "Whse. Activity Sorting Method"; PrintDoc: Boolean; var HideNothingToHandleErr: Boolean)
     begin
     end;
 

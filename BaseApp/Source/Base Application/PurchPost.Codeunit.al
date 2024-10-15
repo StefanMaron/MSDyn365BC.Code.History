@@ -40,6 +40,7 @@
         BiggestLineNo: Integer;
         ICGenJnlLineNo: Integer;
         LineCount: Integer;
+        SavedHideProgressWindow: Boolean;
     begin
         OnBeforePostPurchaseDoc(Rec, PreviewMode, SuppressCommit, HideProgressWindow);
         if not GuiAllowed then
@@ -49,9 +50,11 @@
 
         SavedPreviewMode := PreviewMode;
         SavedSuppressCommit := SuppressCommit;
+        SavedHideProgressWindow := HideProgressWindow;
         ClearAllVariables;
         PreviewMode := SavedPreviewMode;
         SuppressCommit := SavedSuppressCommit;
+        HideProgressWindow := SavedHideProgressWindow;
 
         GetGLSetup();
         GetCurrency("Currency Code");
@@ -247,7 +250,7 @@
         GenJnlLineExtDocNo: Code[35];
         SrcCode: Code[10];
         ItemLedgShptEntryNo: Integer;
-        GenJnlLineDocType: Integer;
+        GenJnlLineDocType: Enum "Gen. Journal Document Type";
         FALineNo: Integer;
         RoundingLineNo: Integer;
         DeferralLineNo: Integer;
@@ -310,6 +313,13 @@
         HideProgressWindow: Boolean;
         OverReceiptApprovalErr: Label 'There are lines with over-receipt required for approval.';
         PostDocumentLinesMsg: Label 'Post document lines.';
+        PurchRcptHeaderConflictErr: Label 'Cannot post the purchase receipt because its ID, %1, is already assigned to a record. Update the number series and try again.', Comment = '%1 = Receiving No.';
+        ReturnShptHeaderConflictErr: Label 'Cannot post the return shipment because its ID, %1, is already assigned to a record. Update the number series and try again.', Comment = '%1 = Return Shipment No.';
+        PurchInvHeaderConflictErr: Label 'Cannot post the purchase invoice because its ID, %1, is already assigned to a record. Update the number series and try again.', Comment = '%1 = Posting No.';
+        PurchCrMemoHeaderConflictErr: Label 'Cannot post the purchase credit memo because its ID, %1, is already assigned to a record. Update the number series and try again.', Comment = '%1 = Posting No.';
+        PurchLinePostCategoryTok: Label 'Purchase Line Post', Locked = true;
+        SameIdFoundLbl: Label 'Same line id found.', Locked = true;
+        EmptyIdFoundLbl: Label 'Empty line id found.', Locked = true;
 
     local procedure GetZeroPurchLineRecID(PurchHeader: Record "Purchase Header"; var PurchLineRecID: RecordId)
     var
@@ -575,7 +585,9 @@
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";
         PurchInvLine: Record "Purch. Inv. Line";
+        SearchPurchInvLine: Record "Purch. Inv. Line";
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
+        SearchPurchCrMemoLine: Record "Purch. Cr. Memo Line";
         InvoicePostBuffer: Record "Invoice Post. Buffer";
         CostBaseAmount: Decimal;
         IsHandled: Boolean;
@@ -633,7 +645,7 @@
                     PostItemChargeLine(PurchHeader, PurchLine);
             end;
 
-            if (Type >= Type::"G/L Account") and ("Qty. to Invoice" <> 0) then begin
+            if (Type <> Type::" ") and ("Qty. to Invoice" <> 0) then begin
                 AdjustPrepmtAmountLCY(PurchHeader, PurchLine);
                 FillInvoicePostBuffer(PurchHeader, PurchLine, PurchLineACY, TempInvoicePostBuffer, InvoicePostBuffer);
                 InsertPrepmtAdjInvPostingBuf(PurchHeader, PurchLine, TempInvoicePostBuffer, InvoicePostBuffer);
@@ -677,7 +689,19 @@
                                 PurchInvLine."Order Line No." := PurchRcptLine."Order Line No.";
                             end;
                         OnBeforePurchInvLineInsert(PurchInvLine, PurchInvHeader, PurchLine, SuppressCommit);
-                        PurchInvLine.Insert(true);
+                        if not IsNullGuid(PurchLine.SystemId) then begin
+                            SearchPurchInvLine.SetRange(SystemId, PurchLine.SystemId);
+                            if SearchPurchInvLine.IsEmpty() then begin
+                                PurchInvLine.SystemId := PurchLine.SystemId;
+                                PurchInvLine.Insert(true, true);
+                            end else begin
+                                Session.LogMessage('0000DD4', SameIdFoundLbl, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PurchLinePostCategoryTok);
+                                PurchInvLine.Insert(true);
+                            end;
+                        end else begin
+                            PurchInvLine.Insert(true);
+                            Session.LogMessage('0000DDA', EmptyIdFoundLbl, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PurchLinePostCategoryTok);
+                        end;
                         OnAfterPurchInvLineInsert(
                             PurchInvLine, PurchInvHeader, PurchLine, ItemLedgShptEntryNo, WhseShip, WhseReceive, SuppressCommit);
                         CreatePostedDeferralScheduleFromPurchDoc(xPurchLine, PurchInvLine.GetDocumentType,
@@ -692,7 +716,19 @@
                         PurchCrMemoLine."Order Line No." := "Line No.";
                     end;
                     OnBeforePurchCrMemoLineInsert(PurchCrMemoLine, PurchCrMemoHeader, PurchLine, SuppressCommit);
-                    PurchCrMemoLine.Insert(true);
+                    if not IsNullGuid(PurchLine.SystemId) then begin
+                        SearchPurchCrMemoLine.SetRange(SystemId, PurchLine.SystemId);
+                        if SearchPurchCrMemoLine.IsEmpty() then begin
+                            PurchCrMemoLine.SystemId := PurchLine.SystemId;
+                            PurchCrMemoLine.Insert(true, true);
+                        end else begin
+                            Session.LogMessage('0000DD5', SameIdFoundLbl, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PurchLinePostCategoryTok);
+                            PurchCrMemoLine.Insert(true);
+                        end;
+                    end else begin
+                        PurchCrMemoLine.Insert(true);
+                        Session.LogMessage('0000DDB', EmptyIdFoundLbl, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PurchLinePostCategoryTok);
+                    end;
                     OnAfterPurchCrMemoLineInsert(PurchCrMemoLine, PurchCrMemoHeader, PurchLine, SuppressCommit);
                     CreatePostedDeferralScheduleFromPurchDoc(xPurchLine, PurchCrMemoLine.GetDocumentType,
                       PurchCrMemoHeader."No.", PurchCrMemoLine."Line No.", PurchCrMemoHeader."Posting Date");
@@ -1784,7 +1820,7 @@
         PurchaseHeaderCopy: Record "Purchase Header";
         ReleasePurchaseDocument: Codeunit "Release Purchase Document";
         LinesWereModified: Boolean;
-        PrevStatus: Option;
+        PrevStatus: Enum "Purchase Document Status";
         IsHandled: Boolean;
     begin
         with PurchHeader do begin
@@ -1833,7 +1869,7 @@
             case Type of
                 Type::Item:
                     DummyTrackingSpecification.CheckItemTrackingQuantity(
-                      DATABASE::"Purchase Line", "Document Type", "Document No.", "Line No.",
+                      DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.",
                       "Qty. to Receive (Base)", "Qty. to Invoice (Base)", PurchHeader.Receive, PurchHeader.Invoice);
                 Type::"Charge (Item)":
                     TestPurchLineItemCharge(PurchLine);
@@ -1867,7 +1903,7 @@
 
             if "Blanket Order No." <> '' then
                 TestField("Blanket Order Line No.");
-        end;    
+        end;
 
         OnAfterTestPurchLine(PurchHeader, PurchLine, WhseReceive, WhseShip);
     end;
@@ -2085,8 +2121,8 @@
     var
         NoSeriesMgt: Codeunit NoSeriesManagement;
         IsHandled: Boolean;
-        PreviewTokenFoundLbl: Label 'Preview token %1 found on posting related fields on %2 - %3.', Locked = true;
-        PostCategoryLbl: Label 'Post', Locked = true;
+        TelemetryCustomDimensions: Dictionary of [Text, Text];
+        PreviewTokenFoundLbl: Label 'Preview token %1 found on fields.', Locked = true;
     begin
         IsHandled := false;
         OnBeforeUpdatePostingNos(PurchHeader, NoSeriesMgt, ModifyHeader, SuppressCommit, IsHandled);
@@ -2095,16 +2131,23 @@
 
         with PurchHeader do begin
             if ("Receiving No." = PostingPreviewNoTok) or ("Return Shipment No." = PostingPreviewNoTok) or ("Posting No." = PostingPreviewNoTok) then begin
-                if "Receiving No." = PostingPreviewNoTok then
+                TelemetryCustomDimensions.Add(FieldCaption("No."), "No.");
+                TelemetryCustomDimensions.Add(FieldCaption("Document Type"), Format("Document Type"));
+
+                if "Receiving No." = PostingPreviewNoTok then begin
+                    TelemetryCustomDimensions.Add(FieldCaption("Receiving No."), "Receiving No.");
                     "Receiving No." := '';
-
-                if "Return Shipment No." = PostingPreviewNoTok then
+                end;
+                if "Return Shipment No." = PostingPreviewNoTok then begin
+                    TelemetryCustomDimensions.Add(FieldCaption("Return Shipment No."), "Return Shipment No.");
                     "Return Shipment No." := '';
-
-                if "Posting No." = PostingPreviewNoTok then
+                end;
+                if "Posting No." = PostingPreviewNoTok then begin
+                    TelemetryCustomDimensions.Add(FieldCaption("Posting No."), "Posting No.");
                     "Posting No." := '';
+                end;
 
-                SendTraceTag('0000CUW', PostCategoryLbl, Verbosity::Error, StrSubstNo(PreviewTokenFoundLbl, PostingPreviewNoTok, TableCaption, "No."), DataClassification::SystemMetadata);
+                Session.LogMessage('0000CUW', StrSubstNo(PreviewTokenFoundLbl, PostingPreviewNoTok), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryCustomDimensions);
             end;
 
             if Receive and ("Receiving No." = '') then
@@ -2116,6 +2159,11 @@
                         TestField("Receiving No. Series");
                         "Receiving No." := NoSeriesMgt.GetNextNo("Receiving No. Series", "Posting Date", true);
                         ModifyHeader := true;
+
+                        // Check for posting conflicts.
+                        if PurchRcptHeader.Get("Receiving No.") then
+                            Error(PurchRcptHeaderConflictErr, "Receiving No.");
+
                     end else
                         "Receiving No." := PostingPreviewNoTok;
 
@@ -2128,14 +2176,19 @@
                         TestField("Return Shipment No. Series");
                         "Return Shipment No." := NoSeriesMgt.GetNextNo("Return Shipment No. Series", "Posting Date", true);
                         ModifyHeader := true;
+
+                        // Check for posting conflicts.
+                        if ReturnShptHeader.Get("Return Shipment No.") then
+                            Error(ReturnShptHeaderConflictErr, "Return Shipment No.");
+
                     end else
                         "Return Shipment No." := PostingPreviewNoTok;
 
             if Invoice and ("Posting No." = '') then begin
                 if ("No. Series" <> '') or
-                   ("Document Type" in ["Document Type"::Order, "Document Type"::"Return Order", "Document Type"::"Credit Memo"])
+                   ("Document Type" in ["Document Type"::Order, "Document Type"::"Return Order"])
                 then begin
-                    if "Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"] then
+                    if "Document Type" in ["Document Type"::"Return Order"] then
                         ResetPostingNoSeriesFromSetup("Posting No. Series", PurchSetup."Posted Credit Memo Nos.")
                     else
                         ResetPostingNoSeriesFromSetup("Posting No. Series", PurchSetup."Posted Invoice Nos.");
@@ -2150,6 +2203,15 @@
                     end else
                         "Posting No." := PostingPreviewNoTok;
                 end;
+
+                // Check for posting conflicts.
+                if not PreviewMode then
+                    if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice] then begin
+                        if PurchInvHeader.Get("Posting No.") then
+                            Error(PurchInvHeaderConflictErr, "Posting No.");
+                    end else
+                        if PurchCrMemoHeader.Get("Posting No.") then
+                            Error(PurchCrMemoHeaderConflictErr, "Posting No.");
             end;
         end;
 
@@ -2241,13 +2303,8 @@
                 repeat
                     if TempPurchLine."Deferral Code" <> '' then
                         DeferralUtilities.RemoveOrSetDeferralSchedule(
-                          '', DeferralUtilities.GetPurchDeferralDocType, '', '',
-                          TempPurchLine."Document Type",
-                          TempPurchLine."Document No.",
-                          TempPurchLine."Line No.", 0, 0D,
-                          TempPurchLine.Description,
-                          '',
-                          true);
+                            '', "Deferral Document Type"::Purchase.AsInteger(), '', '', TempPurchLine."Document Type".AsInteger(),
+                            TempPurchLine."Document No.", TempPurchLine."Line No.", 0, 0D, TempPurchLine.Description, '', true);
                     if TempPurchLine.HasLinks then
                         TempPurchLine.DeleteLinks;
                 until TempPurchLine.Next() = 0;
@@ -2258,8 +2315,8 @@
             PurchLine.DeleteAll();
 
             DeleteItemChargeAssgnt(PurchHeader);
-            PurchCommentLine.DeleteComments("Document Type", "No.");
-            WarehouseRequest.DeleteRequest(DATABASE::"Purchase Line", "Document Type", "No.");
+            PurchCommentLine.DeleteComments("Document Type".AsInteger(), "No.");
+            WarehouseRequest.DeleteRequest(DATABASE::"Purchase Line", "Document Type".AsInteger(), "No.");
             PostCodeCheck.DeleteAllAddressID(DATABASE::"Purchase Header", GetPosition);
         end;
 
@@ -2284,7 +2341,7 @@
                 UpdateAssocOrder(TempDropShptPostBuffer);
                 UpdateWhseDocuments;
                 WhsePurchRelease.Release(PurchHeader);
-                UpdateItemChargeAssgnt;
+                UpdateItemChargeAssgnt();
             end else begin
                 case "Document Type" of
                     "Document Type"::Invoice:
@@ -3221,7 +3278,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdatePurchaseHeader(VendorLedgerEntry, PurchInvHeader, PurchCrMemoHeader, GenJnlLineDocType, IsHandled);
+        OnBeforeUpdatePurchaseHeader(VendorLedgerEntry, PurchInvHeader, PurchCrMemoHeader, GenJnlLineDocType.AsInteger(), IsHandled);
         if IsHandled then
             exit;
 
@@ -3240,10 +3297,10 @@
                 end;
         end;
 
-        OnAfterUpdatePurchaseHeader(VendorLedgerEntry, PurchInvHeader, PurchCrMemoHeader, GenJnlLineDocType);
+        OnAfterUpdatePurchaseHeader(VendorLedgerEntry, PurchInvHeader, PurchCrMemoHeader, GenJnlLineDocType.AsInteger());
     end;
 
-    local procedure PostVendorEntry(var PurchHeader: Record "Purchase Header"; TotalPurchLine2: Record "Purchase Line"; TotalPurchLineLCY2: Record "Purchase Line"; DocType: Option; DocNo: Code[20]; ExtDocNo: Code[35]; SourceCode: Code[10]; TotalWHTAmount: Decimal)
+    local procedure PostVendorEntry(var PurchHeader: Record "Purchase Header"; TotalPurchLine2: Record "Purchase Line"; TotalPurchLineLCY2: Record "Purchase Line"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Code[35]; SourceCode: Code[10]; TotalWHTAmount: Decimal)
     var
         GenJnlLine: Record "Gen. Journal Line";
         CurrExchRate: Record "Currency Exchange Rate";
@@ -3298,7 +3355,7 @@
         end;
     end;
 
-    local procedure PostBalancingEntry(PurchHeader: Record "Purchase Header"; TotalPurchLine2: Record "Purchase Line"; TotalPurchLineLCY2: Record "Purchase Line"; DocType: Option; DocNo: Code[20]; ExtDocNo: Code[35]; SourceCode: Code[10])
+    local procedure PostBalancingEntry(PurchHeader: Record "Purchase Header"; TotalPurchLine2: Record "Purchase Line"; TotalPurchLineLCY2: Record "Purchase Line"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Code[35]; SourceCode: Code[10])
     var
         GenJnlLine: Record "Gen. Journal Line";
         VendLedgEntry: Record "Vendor Ledger Entry";
@@ -3322,7 +3379,7 @@
             "WHT Business Posting Group" := TempPurchLineGlobal."WHT Business Posting Group";
             "WHT Product Posting Group" := TempPurchLineGlobal."WHT Product Posting Group";
 
-            CopyDocumentFields(0, DocNo, ExtDocNo, SourceCode, '');
+            CopyDocumentFields("Gen. Journal Document Type"::" ", DocNo, ExtDocNo, SourceCode, '');
             "Account Type" := "Account Type"::Vendor;
             "Account No." := PurchHeader."Pay-to Vendor No.";
             CopyFromPurchHeader(PurchHeader);
@@ -3355,7 +3412,7 @@
         end;
     end;
 
-    local procedure SetApplyToDocNo(PurchHeader: Record "Purchase Header"; var GenJnlLine: Record "Gen. Journal Line"; DocType: Option; DocNo: Code[20])
+    local procedure SetApplyToDocNo(PurchHeader: Record "Purchase Header"; var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     begin
         with GenJnlLine do begin
             if PurchHeader."Bal. Account Type" = PurchHeader."Bal. Account Type"::"Bank Account" then
@@ -3368,7 +3425,7 @@
         OnAfterSetApplyToDocNo(GenJnlLine, PurchHeader);
     end;
 
-    local procedure FindVendorLedgerEntry(DocType: Option; DocNo: Code[20]; var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    local procedure FindVendorLedgerEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
         VendorLedgerEntry.SetRange("Document Type", DocType);
         VendorLedgerEntry.SetRange("Document No.", DocNo);
@@ -3529,7 +3586,7 @@
         end;
     end;
 
-    local procedure UpdatePurchChargeAssgntLines(PurchOrderLine: Record "Purchase Line"; ApplToDocType: Option; ApplToDocNo: Code[20]; ApplToDocLineNo: Integer; QtytoAssign: Decimal)
+    local procedure UpdatePurchChargeAssgntLines(PurchOrderLine: Record "Purchase Line"; ApplToDocType: Enum "Purchase Applies-to Document Type"; ApplToDocNo: Code[20]; ApplToDocLineNo: Integer; QtytoAssign: Decimal)
     var
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
         TempItemChargeAssgntPurch2: Record "Item Charge Assignment (Purch)";
@@ -3578,16 +3635,12 @@
                       (TotalToAssign = PurchOrderLine.Quantity);
 
             InsertAssocOrderCharge(
-              PurchOrderLine,
-              ApplToDocType,
-              ApplToDocNo,
-              ApplToDocLineNo,
-              LastLineNo,
+              PurchOrderLine, ApplToDocType, ApplToDocNo, ApplToDocLineNo, LastLineNo,
               TempItemChargeAssgntPurch."Applies-to Doc. Line Amount");
         end;
     end;
 
-    local procedure InsertAssocOrderCharge(PurchOrderLine: Record "Purchase Line"; ApplToDocType: Option; ApplToDocNo: Code[20]; ApplToDocLineNo: Integer; LastLineNo: Integer; ApplToDocLineAmt: Decimal)
+    local procedure InsertAssocOrderCharge(PurchOrderLine: Record "Purchase Line"; ApplToDocType: Enum "Purchase Applies-to Document Type"; ApplToDocNo: Code[20]; ApplToDocLineNo: Integer; LastLineNo: Integer; ApplToDocLineAmt: Decimal)
     var
         NewItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
     begin
@@ -3922,7 +3975,7 @@
                                     ShowError := true
                                 else
                                     if WhseValidateSourceLine.WhseLinesExist(
-                                         DATABASE::"Purchase Line", "Document Type", "Document No.", "Line No.", 0, Quantity)
+                                         DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0, Quantity)
                                     then
                                         ShowError := true;
                             end;
@@ -3934,7 +3987,7 @@
                                     ShowError := true
                                 else
                                     if WhseValidateSourceLine.WhseLinesExist(
-                                         DATABASE::"Purchase Line", "Document Type", "Document No.", "Line No.", 0, Quantity)
+                                         DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0, Quantity)
                                     then
                                         ShowError := true;
                             end;
@@ -3961,8 +4014,8 @@
             WMSMgt.CheckAdjmtBin(Location, ItemJnlLine.Quantity, true);
             WMSMgt.CreateWhseJnlLine(ItemJnlLine, 0, TempWhseJnlLine, false);
             TempWhseJnlLine."Source Type" := DATABASE::"Purchase Line";
-            TempWhseJnlLine."Source Subtype" := "Document Type";
-            TempWhseJnlLine."Source Document" := WhseMgt.GetSourceDocument(TempWhseJnlLine."Source Type", TempWhseJnlLine."Source Subtype");
+            TempWhseJnlLine."Source Subtype" := "Document Type".AsInteger();
+            TempWhseJnlLine."Source Document" := WhseMgt.GetWhseJnlSourceDocument(TempWhseJnlLine."Source Type", TempWhseJnlLine."Source Subtype");
             TempWhseJnlLine."Source No." := "Document No.";
             TempWhseJnlLine."Source Line No." := "Line No.";
             TempWhseJnlLine."Source Code" := SrcCode;
@@ -3982,6 +4035,11 @@
             end;
             TempWhseJnlLine."Reference No." := ItemJnlLine."Document No.";
         end;
+    end;
+
+    procedure WhseHandlingRequiredExternal(PurchaseLine: Record "Purchase Line"): Boolean
+    begin
+        exit(WhseHandlingRequired(PurchaseLine));
     end;
 
     local procedure WhseHandlingRequired(PurchLine: Record "Purchase Line") Required: Boolean
@@ -4096,7 +4154,7 @@
 
             if FindSet then begin
                 ReservationEntry."Source Type" := DATABASE::"Purchase Line";
-                ReservationEntry."Source Subtype" := PurchHeader."Document Type";
+                ReservationEntry."Source Subtype" := PurchHeader."Document Type".AsInteger();
                 SignFactor := CreateReservEntry.SignFactor(ReservationEntry);
                 repeat
                     // Only Item where no SerialNo or LotNo is required
@@ -4105,7 +4163,7 @@
                         Inbound := (Quantity * SignFactor) > 0;
                         ItemTrackingCode.Code := Item."Item Tracking Code";
                         ItemTrackingManagement.GetItemTrackingSetup(
-                            ItemTrackingCode, ItemJnlLine."Entry Type"::Purchase, Inbound, ItemTrackingSetup);
+                            ItemTrackingCode, ItemJnlLine."Entry Type"::Purchase.AsInteger(), Inbound, ItemTrackingSetup);
                         CheckPurchLine := not ItemTrackingSetup.TrackingRequired();
                         if CheckPurchLine then
                             CheckPurchLine := CheckTrackingExists(TempItemPurchLine);
@@ -4136,14 +4194,14 @@
     begin
         exit(
           ItemTrackingMgt.ItemTrackingExistsOnDocumentLine(
-            DATABASE::"Purchase Line", PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No."));
+            DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No."));
     end;
 
     local procedure GetTrackingQuantities(PurchLine: Record "Purchase Line"): Decimal
     begin
         exit(
           ItemTrackingMgt.CalcQtyToHandleForTrackedQtyOnDocumentLine(
-            DATABASE::"Purchase Line", PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No."));
+            DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No."));
     end;
 
     local procedure SaveInvoiceSpecification(var TempInvoicingSpecification: Record "Tracking Specification" temporary)
@@ -4272,7 +4330,7 @@
             repeat
                 TempWhseSplitSpecification := TempHandlingSpecification;
                 TempWhseSplitSpecification."Source Type" := DATABASE::"Purchase Line";
-                TempWhseSplitSpecification."Source Subtype" := PurchLine3."Document Type";
+                TempWhseSplitSpecification."Source Subtype" := PurchLine3."Document Type".AsInteger();
                 TempWhseSplitSpecification."Source ID" := PurchLine3."Document No.";
                 TempWhseSplitSpecification."Source Ref. No." := PurchLine3."Line No.";
                 TempWhseSplitSpecification.Insert();
@@ -4298,7 +4356,7 @@
             ReserveSalesLine.SetApplySpecificItemTracking(true);
             TempTrackingSpecification.Reset();
             TempTrackingSpecification.SetSourceFilter(
-              DATABASE::"Purchase Line", PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.", false);
+              DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.", false);
             TempTrackingSpecification.SetSourceFilter('', 0);
             if TempTrackingSpecification.IsEmpty then
                 ReserveSalesLine.TransferSalesLineToItemJnlLine(
@@ -5225,7 +5283,7 @@
                     Quantity := -Quantity;
                     "Qty. to Handle (Base)" := -"Qty. to Handle (Base)";
                     "Qty. to Invoice (Base)" := -"Qty. to Invoice (Base)";
-                    "Source Subtype" := ItemJournalLine."Entry Type";
+                    "Source Subtype" := ItemJournalLine."Entry Type".AsInteger();
                     "Source Ref. No." := ItemJournalLine."Line No.";
 
                     if not (ItemJournalLine.IsPurchaseReturn or IsNonInventoriableItem) then begin
@@ -5743,7 +5801,7 @@
 
                 if PurchSetup."Copy Comments Order to Receipt" then begin
                     PurchCommentLine.CopyComments(
-                      "Document Type", PurchCommentLine."Document Type"::Receipt, "No.", PurchRcptHeader."No.");
+                      "Document Type".AsInteger(), PurchCommentLine."Document Type"::Receipt.AsInteger(), "No.", PurchRcptHeader."No.");
                     RecordLinkManagement.CopyLinks(PurchHeader, PurchRcptHeader);
                 end;
             end;
@@ -5786,7 +5844,7 @@
         if (PurchLine.Type = PurchLine.Type::Item) and (PurchLine."Qty. to Receive" <> 0) then begin
             if WhseReceive then
                 if WhseRcptLine.GetWhseRcptLine(
-                     WhseRcptHeader."No.", DATABASE::"Purchase Line", PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.")
+                     WhseRcptHeader."No.", DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.")
                 then begin
                     WhseRcptLine.TestField("Qty. to Receive", PurchRcptLine.Quantity);
                     SaveTempWhseSplitSpec(PurchLine);
@@ -5796,7 +5854,7 @@
 
             if WhseShip then
                 if WhseShptLine.GetWhseShptLine(
-                     WhseShptHeader."No.", DATABASE::"Purchase Line", PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.")
+                     WhseShptHeader."No.", DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.")
                 then begin
                     WhseShptLine.TestField("Qty. to Ship", -PurchRcptLine.Quantity);
                     SaveTempWhseSplitSpec(PurchLine);
@@ -5837,7 +5895,7 @@
 
             if PurchSetup."Copy Cmts Ret.Ord. to Ret.Shpt" then begin
                 PurchCommentLine.CopyComments(
-                  "Document Type", PurchCommentLine."Document Type"::"Posted Return Shipment", "No.", ReturnShptHeader."No.");
+                  "Document Type".AsInteger(), PurchCommentLine."Document Type"::"Posted Return Shipment".AsInteger(), "No.", ReturnShptHeader."No.");
                 RecordLinkManagement.CopyLinks(PurchHeader, ReturnShptHeader);
             end;
             if WhseShip then begin
@@ -5876,7 +5934,7 @@
         if (PurchLine.Type = PurchLine.Type::Item) and (PurchLine."Return Qty. to Ship" <> 0) then begin
             if WhseShip then
                 if WhseShptLine.GetWhseShptLine(
-                     WhseShptHeader."No.", DATABASE::"Purchase Line", PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.")
+                     WhseShptHeader."No.", DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.")
                 then begin
                     WhseShptLine.TestField("Qty. to Ship", ReturnShptLine.Quantity);
                     SaveTempWhseSplitSpec(PurchLine);
@@ -5885,7 +5943,7 @@
                 end;
             if WhseReceive then
                 if WhseRcptLine.GetWhseRcptLine(
-                     WhseRcptHeader."No.", DATABASE::"Purchase Line", PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.")
+                     WhseRcptHeader."No.", DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.")
                 then begin
                     WhseRcptLine.TestField("Qty. to Receive", -ReturnShptLine.Quantity);
                     SaveTempWhseSplitSpec(PurchLine);
@@ -5941,7 +5999,7 @@
             ApprovalsMgmt.PostApprovalEntries(RecordId, PurchInvHeader.RecordId, PurchInvHeader."No.");
             if PurchSetup."Copy Comments Order to Invoice" then begin
                 PurchCommentLine.CopyComments(
-                  "Document Type", PurchCommentLine."Document Type"::"Posted Invoice", "No.", PurchInvHeader."No.");
+                  "Document Type".AsInteger(), PurchCommentLine."Document Type"::"Posted Invoice".AsInteger(), "No.", PurchInvHeader."No.");
                 RecordLinkManagement.CopyLinks(PurchHeader, PurchInvHeader);
             end;
         end;
@@ -5982,7 +6040,7 @@
 
             if PurchSetup."Copy Cmts Ret.Ord. to Cr. Memo" then begin
                 PurchCommentLine.CopyComments(
-                  "Document Type", PurchCommentLine."Document Type"::"Posted Credit Memo", "No.", PurchCrMemoHdr."No.");
+                  "Document Type".AsInteger(), PurchCommentLine."Document Type"::"Posted Credit Memo".AsInteger(), "No.", PurchCrMemoHdr."No.");
                 RecordLinkManagement.CopyLinks(PurchHeader, PurchCrMemoHdr);
             end;
         end;
@@ -6277,7 +6335,7 @@
                             end;
                     end;
                     RecGSTReport."Document Line No." := "Fixed Asset Line No.";
-                    RecGSTReport."Document Line Type" := Type;
+                    RecGSTReport."Document Line Type" := "Purchase Line Type".FromInteger(Type);
                     RecGSTReport."Vendor No." := PurchHeader."Buy-from Vendor No.";
                     RecGSTReport."Vendor Name" := PurchHeader."Buy-from Vendor Name";
                     RecGSTReport."GST Entry Type" := RecGSTReport."GST Entry Type"::Purchase;
@@ -6304,7 +6362,7 @@
             GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
             Clear(InvoicePostBufferGST[1]);
             if "Qty. to Invoice" <> 0 then begin
-                InvoicePostBufferGST[1].Type := Type;
+                InvoicePostBufferGST[1].Type := Type.AsInteger();
                 InvoicePostBufferGST[1]."Fixed Asset Line No." := "Line No.";
                 if (Type = Type::"G/L Account") or (Type = Type::"Fixed Asset") then begin
                     InvoicePostBufferGST[1]."Entry Description" := Description;
@@ -6657,7 +6715,7 @@
             FindSet;
             repeat
                 if WarehouseActivityLine.ActivityExists(
-                     DATABASE::"Purchase Line", "Document Type", "Document No.", "Line No.", 0,
+                     DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0,
                      WarehouseActivityLine."Activity Type"::"Invt. Put-away")
                 then
                     exit(true);
@@ -6681,7 +6739,7 @@
             FindSet;
             repeat
                 if WarehouseActivityLine.ActivityExists(
-                     DATABASE::"Purchase Line", "Document Type", "Document No.", "Line No.", 0,
+                     DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0,
                      WarehouseActivityLine."Activity Type"::"Invt. Pick")
                 then
                     exit(true);
@@ -6778,7 +6836,7 @@
                     ApprovalsMgmt.PostApprovalEntries(RecordId, SalesShptHeader.RecordId, SalesShptHeader."No.");
                     if SalesSetup."Copy Comments Order to Shpt." then begin
                         SalesCommentLine.CopyComments(
-                          SalesOrderHeader."Document Type", SalesCommentLine."Document Type"::Shipment,
+                          SalesOrderHeader."Document Type".AsInteger(), SalesCommentLine."Document Type"::Shipment.AsInteger(),
                           SalesOrderHeader."No.", SalesShptHeader."No.");
                         RecordLinkManagement.CopyLinks(SalesOrderHeader, SalesShptHeader);
                     end;
@@ -6880,13 +6938,13 @@
         if PurchLine."Deferral Code" <> '' then begin
             DeferralTemplate.Get(PurchLine."Deferral Code");
 
-            if TempDeferralHeader.Get(DeferralUtilities.GetPurchDeferralDocType, '', '',
-                 PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.")
+            if TempDeferralHeader.Get(
+                "Deferral Document Type"::Purchase, '', '', PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.")
             then begin
                 if TempDeferralHeader."Amount to Defer" <> 0 then begin
                     DeferralUtilities.FilterDeferralLines(
-                      TempDeferralLine, DeferralUtilities.GetPurchDeferralDocType, '', '',
-                      PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.");
+                      TempDeferralLine, "Deferral Document Type"::Purchase.AsInteger(), '', '',
+                      PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.");
                     // Remainder\Initial deferral pair
                     DeferralPostBuffer.PreparePurch(PurchLine, GenJnlLineDocNo);
                     DeferralPostBuffer."Posting Date" := PurchHeader."Posting Date";
@@ -6945,8 +7003,8 @@
             DeferralTemplate.TestField("Deferral Account");
             DeferralAccount := DeferralTemplate."Deferral Account";
 
-            if TempDeferralHeader.Get(DeferralUtilities.GetPurchDeferralDocType, '', '',
-                 PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.")
+            if TempDeferralHeader.Get(
+                "Deferral Document Type"::Purchase, '', '', PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.")
             then begin
                 AmtToDeferACY := TempDeferralHeader."Amount to Defer";
                 AmtToDefer := TempDeferralHeader."Amount to Defer (LCY)";
@@ -7043,7 +7101,6 @@
     local procedure ValidatePostingAndDocumentDate(var PurchaseHeader: Record "Purchase Header")
     var
         BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
-        BatchPostParameterTypes: Codeunit "Batch Post Parameter Types";
         PostingDate: Date;
         ModifyHeader: Boolean;
         PostingDateExists: Boolean;
@@ -7053,12 +7110,12 @@
         OnBeforeValidatePostingAndDocumentDate(PurchaseHeader, SuppressCommit);
 
         PostingDateExists :=
-          BatchProcessingMgt.GetParameterBoolean(
-            PurchaseHeader.RecordId, BatchPostParameterTypes.ReplacePostingDate, ReplacePostingDate) and
-          BatchProcessingMgt.GetParameterBoolean(
-            PurchaseHeader.RecordId, BatchPostParameterTypes.ReplaceDocumentDate, ReplaceDocumentDate) and
-          BatchProcessingMgt.GetParameterDate(
-            PurchaseHeader.RecordId, BatchPostParameterTypes.PostingDate, PostingDate);
+          BatchProcessingMgt.GetBooleanParameter(
+            PurchaseHeader.RecordId, "Batch Posting Parameter Type"::"Replace Posting Date", ReplacePostingDate) and
+          BatchProcessingMgt.GetBooleanParameter(
+            PurchaseHeader.RecordId, "Batch Posting Parameter Type"::"Replace Document Date", ReplaceDocumentDate) and
+          BatchProcessingMgt.GetDateParameter(
+            PurchaseHeader.RecordId, "Batch Posting Parameter Type"::"Posting Date", PostingDate);
 
         if PostingDateExists and (ReplacePostingDate or (PurchaseHeader."Posting Date" = 0D)) then begin
             PurchaseHeader."Posting Date" := PostingDate;
@@ -7082,7 +7139,7 @@
         VendorMgt: Codeunit "Vendor Mgt.";
         Handled: Boolean;
     begin
-        OnBeforeCheckExternalDocumentNumber(VendLedgEntry, PurchaseHeader, Handled, GenJnlLineDocType, GenJnlLineExtDocNo);
+        OnBeforeCheckExternalDocumentNumber(VendLedgEntry, PurchaseHeader, Handled, GenJnlLineDocType.AsInteger(), GenJnlLineExtDocNo);
         if Handled then
             exit;
 
@@ -7599,7 +7656,7 @@
 
                     SetDefaultQtyBlank := PurchSetup."Default Qty. to Receive" = PurchSetup."Default Qty. to Receive"::Blank;
                     OnPostUpdateOrderLineOnSetDefaultQtyBlank(PurchHeader, TempPurchLine, PurchSetup, SetDefaultQtyBlank);
-                    if WhseHandlingRequired(TempPurchLine) or SetDefaultQtyBlank then begin
+                    if WhseHandlingRequiredExternal(TempPurchLine) or SetDefaultQtyBlank then begin
                         if "Document Type" = "Document Type"::"Return Order" then begin
                             "Return Qty. to Ship" := 0;
                             "Return Qty. to Ship (Base)" := 0;
@@ -7704,6 +7761,8 @@
                     PurchOrderLine.Modify();
                 until Next() = 0;
         end;
+
+        OnAfterPostUpdateCreditMemoLine(TempPurchLine);
     end;
 
     procedure SetPostingFlags(var PurchHeader: Record "Purchase Header")
@@ -7756,13 +7815,13 @@
             DeferralAccount := DeferralTemplate."Deferral Account";
 
         if TempDeferralHeader.Get(
-             DeferralUtilities.GetPurchDeferralDocType, '', '', PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.")
+             "Deferral Document Type"::Purchase, '', '', PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.")
         then begin
             PostedDeferralHeader.InitFromDeferralHeader(TempDeferralHeader, '', '', NewDocumentType,
               NewDocumentNo, NewLineNo, DeferralAccount, PurchLine."Buy-from Vendor No.", PostingDate);
             DeferralUtilities.FilterDeferralLines(
-              TempDeferralLine, DeferralUtilities.GetPurchDeferralDocType, '', '',
-              PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.");
+              TempDeferralLine, "Deferral Document Type"::Purchase.AsInteger(), '', '',
+              PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.");
             if TempDeferralLine.FindSet() then
                 repeat
                     PostedDeferralLine.InitFromDeferralLine(
@@ -7791,7 +7850,7 @@
             UseDate := PurchHeader."Posting Date";
 
         if DeferralHeader.Get(
-             DeferralUtilities.GetPurchDeferralDocType, '', '', PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.")
+             "Deferral Document Type"::Purchase, '', '', PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.")
         then begin
             TempDeferralHeader := DeferralHeader;
             if PurchLine.Quantity <> PurchLine."Qty. to Invoice" then
@@ -7807,9 +7866,9 @@
 
             with DeferralLine do begin
                 DeferralUtilities.FilterDeferralLines(
-                  DeferralLine, DeferralHeader."Deferral Doc. Type",
+                  DeferralLine, DeferralHeader."Deferral Doc. Type".AsInteger(),
                   DeferralHeader."Gen. Jnl. Template Name", DeferralHeader."Gen. Jnl. Batch Name",
-                  PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.");
+                  PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.");
                 if FindSet then begin
                     TotalDeferralCount := Count;
                     repeat
@@ -7842,7 +7901,7 @@
         end;
     end;
 
-    local procedure GetAmountRoundingPrecisionInLCY(DocType: Option; DocNo: Code[20]; CurrencyCode: Code[10]) AmountRoundingPrecision: Decimal
+    local procedure GetAmountRoundingPrecisionInLCY(DocType: Enum "Purchase Document Type"; DocNo: Code[20]; CurrencyCode: Code[10]) AmountRoundingPrecision: Decimal
     var
         PurchHeader: Record "Purchase Header";
     begin
@@ -8104,6 +8163,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterPostUpdateCreditMemoLine(var PurchaseLine: Record "Purchase Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterPostUpdateInvoiceLine(var PurchaseLine: Record "Purchase Line" temporary)
     begin
     end;
@@ -8359,7 +8423,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDivideAmount(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; QtyType: Option General,Invoicing,Shipping; PurchLineQty: Decimal; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary)
+    local procedure OnBeforeDivideAmount(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; QtyType: Option General,Invoicing,Shipping; var PurchLineQty: Decimal; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary)
     begin
     end;
 

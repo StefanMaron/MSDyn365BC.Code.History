@@ -139,14 +139,14 @@ page 6550 "Whse. Item Tracking Lines"
                         if ColorOfQuantityArray[1] = 0 then
                             MaxQuantity := UndefinedQtyArray[1] + ("Quantity (Base)" - "Quantity Handled (Base)");
 
-                        LookUpTrackingSummary(Rec, 0, MaxQuantity, -1, true);
+                        LookUpTrackingSummary(Rec, ItemTrackingType::"Serial No.", MaxQuantity, -1, true);
                         CurrPage.Update;
                         CalculateSums;
                     end;
 
                     trigger OnValidate()
                     begin
-                        SerialNoOnAfterValidate;
+                        SerialNoOnAfterValidate();
                     end;
                 }
                 field("New Serial No."; "New Serial No.")
@@ -168,14 +168,14 @@ page 6550 "Whse. Item Tracking Lines"
                         if ColorOfQuantityArray[1] = 0 then
                             MaxQuantity := UndefinedQtyArray[1] + ("Quantity (Base)" - "Quantity Handled (Base)");
 
-                        LookUpTrackingSummary(Rec, 1, MaxQuantity, -1, true);
+                        LookUpTrackingSummary(Rec, ItemTrackingType::"Lot No.", MaxQuantity, -1, true);
                         CurrPage.Update;
                         CalculateSums;
                     end;
 
                     trigger OnValidate()
                     begin
-                        LotNoOnAfterValidate;
+                        LotNoOnAfterValidate();
                     end;
                 }
                 field("New Lot No."; "New Lot No.")
@@ -504,6 +504,9 @@ page 6550 "Whse. Item Tracking Lines"
         FormUpdated: Boolean;
         Reclass: Boolean;
         Text003: Label 'Placeholder';
+
+    protected var
+        ItemTrackingType: Enum "Item Tracking Type";
         [InDataSet]
         Handle1Visible: Boolean;
         [InDataSet]
@@ -834,25 +837,25 @@ page 6550 "Whse. Item Tracking Lines"
         Insert();
     end;
 
-    local procedure SerialNoOnAfterValidate()
+    protected procedure SerialNoOnAfterValidate()
     begin
         UpdateExpDateEditable();
         CurrPage.Update();
     end;
 
-    local procedure LotNoOnAfterValidate()
+    protected procedure LotNoOnAfterValidate()
     begin
         UpdateExpDateEditable();
         CurrPage.Update();
     end;
 
-    local procedure QuantityBaseOnAfterValidate()
+    protected procedure QuantityBaseOnAfterValidate()
     begin
         CurrPage.Update();
         CalculateSums();
     end;
 
-    local procedure QtytoHandleBaseOnAfterValidate()
+    protected procedure QtytoHandleBaseOnAfterValidate()
     begin
         CurrPage.Update();
         CalculateSums();

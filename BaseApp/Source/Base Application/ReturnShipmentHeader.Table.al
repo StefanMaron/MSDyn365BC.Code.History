@@ -527,7 +527,7 @@ table 6650 "Return Shipment Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(5050; "Campaign No."; Code[20])
@@ -654,7 +654,7 @@ table 6650 "Return Shipment Header"
     begin
         with ReturnShptHeader do begin
             Copy(Rec);
-            ReportSelection.PrintWithGUIYesNoVendor(
+            ReportSelection.PrintWithDialogForVend(
               ReportSelection.Usage::"P.Ret.Shpt.", ReturnShptHeader, ShowRequestForm, FieldNo("Buy-from Vendor No."));
         end;
     end;

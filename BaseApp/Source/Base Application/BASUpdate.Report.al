@@ -299,7 +299,7 @@ report 11604 "BAS-Update"
 
                 GLSetup.TestField("LCY Code");
                 HeaderText := StrSubstNo(Text1450002, GLSetup."LCY Code");
-                SelectionTypeNo := Selection;
+                SelectionTypeNo := Selection.AsInteger();
                 PageGroupNo := 1;
                 NextPageGroupNo := 1;
                 FirstPage := true;
@@ -358,14 +358,12 @@ report 11604 "BAS-Update"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Include GST Entries';
-                        OptionCaption = 'Open,Closed,Open and Closed';
                         ToolTip = 'Specifies that you want to include GST entries in the BAS.';
                     }
                     field(PeriodSelection; PeriodSelection)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Include GST Entries';
-                        OptionCaption = 'Before and Within Period,Within Period';
                         ToolTip = 'Specifies that you want to include GST entries in the BAS.';
                     }
                     field(ExcludeClosingEntries; ExcludeClosingEntries)
@@ -439,7 +437,7 @@ report 11604 "BAS-Update"
         BASCalcEntry: Record "BAS Calc. Sheet Entry";
         BASBusUnits: Record "BAS Business Unit";
         GLSetup: Record "General Ledger Setup";
-        Selection: Option Open,Closed,"Open and Closed";
+        Selection: Enum "VAT Statement Report Selection";
         RowNo: array[6] of Code[10];
         SetupName: Code[20];
         BASSetupFilter: Text[250];
@@ -455,7 +453,7 @@ report 11604 "BAS-Update"
         i: Integer;
         UpdateBASCalcSheet: Boolean;
         ExcludeClosingEntries: Boolean;
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         Text1450007: Label 'This %1 has been exported. It cannot be updated.';
         Text1450008: Label '%1 has been consolidated. You will have to run the consolidate function again.\';
         Text1450009: Label 'Do you want to continue?';
@@ -682,7 +680,7 @@ report 11604 "BAS-Update"
     end;
 
     [Scope('OnPrem')]
-    procedure InitializeRequest(var NewBASCalcSheet: Record "BAS Calculation Sheet"; NewUpdateBASCalcSheet: Boolean; NewSelection: Option Open,Closed,"Open and Closed"; NewPeriodSelection: Option "Before and Within Period","Within Period"; NewExcludeClosingEntries: Boolean)
+    procedure InitializeRequest(var NewBASCalcSheet: Record "BAS Calculation Sheet"; NewUpdateBASCalcSheet: Boolean; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewExcludeClosingEntries: Boolean)
     begin
         BASCalcSheet.Copy(NewBASCalcSheet);
         "BAS Setup".SetRange("Setup Name", BASCalcSheet."BAS Setup Name");
@@ -704,7 +702,7 @@ report 11604 "BAS-Update"
     end;
 
     [Scope('OnPrem')]
-    procedure GetPeriodFilter(PeriodSelection2: Option "Before and Within Period","Within Period"; A32: Date; A42: Date): Text[250]
+    procedure GetPeriodFilter(PeriodSelection2: Enum "VAT Statement Report Period Selection"; A32: Date; A42: Date): Text[250]
     begin
         if PeriodSelection2 = PeriodSelection2::"Before and Within Period" then
             exit(StrSubstNo('%1..%2', 20000701D, A42));

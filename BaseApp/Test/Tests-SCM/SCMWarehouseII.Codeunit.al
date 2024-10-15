@@ -611,7 +611,7 @@ codeunit 137048 "SCM Warehouse II"
         // Exercise : Create Pick From Pick Worksheet.
         LibraryWarehouse.CreatePickFromPickWorksheet(
           WhseWorksheetLine, 10000, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name,
-          LocationOrange.Code, '', 0, 0, 0, false, false, false, false, false, false, false);
+          LocationOrange.Code, '', 0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, false, false, false);
 
         // Verify: Check that Take and Place Bin Code is same as expected.
         VerifyBinCode(
@@ -661,8 +661,8 @@ codeunit 137048 "SCM Warehouse II"
 
         // Exercise : Create Pick From Pick Worksheet.
         asserterror LibraryWarehouse.CreatePickFromPickWorksheet(
-            WhseWorksheetLine, 10000, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, LocationOrange.Code, '', 0, 0, 0,
-            false, false, false, false, false, false, false);
+            WhseWorksheetLine, 10000, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, LocationOrange.Code, '',
+            0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, false, false, false);
 
         // Verify : Check that Last error is same as expected.
         Assert.IsTrue(StrPos(GetLastErrorText, ErrorText) > 0, ' ');
@@ -1475,8 +1475,8 @@ codeunit 137048 "SCM Warehouse II"
         FindWhseWorksheetLine(WhseWorksheetLine, WhseWorksheetName, LocationGreen.Code);
         AssignQtyToHndlOnWhseWrkSheet(WhseWorksheetLine, WhseWorksheetName, LocationGreen.Code);
         LibraryWarehouse.CreatePickFromPickWorksheet(
-          WhseWorksheetLine, 10000, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, LocationGreen.Code, '', 0, 0, 0, false,
-          false, false, false, false, false, false);
+          WhseWorksheetLine, 10000, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, LocationGreen.Code, '',
+          0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, false, false, false);
         RegisterWarehouseActivity(SalesHeader."No.", WarehouseActivityHeader.Type::Pick);
 
         // Exercise: Post Whse Shipment.
@@ -1909,8 +1909,8 @@ codeunit 137048 "SCM Warehouse II"
 
         // Exercise: Create Pick from Pick Worksheet.
         LibraryWarehouse.CreatePickFromPickWorksheet(
-          WhseWorksheetLine, 10000, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, LocationGreen.Code, '', 0, 0, 0, false,
-          false, false, false, false, false, false);
+          WhseWorksheetLine, 10000, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, LocationGreen.Code, '',
+          0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, false, false, false);
         RegisterWarehouseActivity(SalesHeader."No.", WarehouseActivityHeader.Type::Pick);
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, true);
 
@@ -2334,7 +2334,7 @@ codeunit 137048 "SCM Warehouse II"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateProdOrder(var ProductionOrder: Record "Production Order"; Status: Option; SourceType: Option; SourceNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; DueDate: Date)
+    local procedure CreateProdOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceType: Enum "Prod. Order Source Type"; SourceNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; DueDate: Date)
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, SourceType, SourceNo, Quantity);
         ProductionOrder.Validate("Location Code", LocationCode);
@@ -2396,7 +2396,7 @@ codeunit 137048 "SCM Warehouse II"
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
     end;
 
-    local procedure CreateAndRefreshProdOrder(var ProductionOrder: Record "Production Order"; Status: Option; SourceType: Option; SourceNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; DueDate: Date)
+    local procedure CreateAndRefreshProdOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceType: Enum "Prod. Order Source Type"; SourceNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; DueDate: Date)
     begin
         CreateProdOrder(ProductionOrder, Status, SourceType, SourceNo, LocationCode, Quantity, DueDate);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
@@ -2608,7 +2608,8 @@ codeunit 137048 "SCM Warehouse II"
     begin
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WarehouseShipmentHeader.Get(
-          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
+              DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
     end;
 
     local procedure CreateWMSLocationWithBinAndBinContent("Fixed": Boolean; Default: Boolean; Dedicated: Boolean): Code[10]
@@ -2641,7 +2642,7 @@ codeunit 137048 "SCM Warehouse II"
         SalesShipmentHeader.FindFirst;
     end;
 
-    local procedure FindWhseShipmentNo(SourceDocument: Option; SourceNo: Code[20]): Code[20]
+    local procedure FindWhseShipmentNo(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]): Code[20]
     var
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
@@ -2718,7 +2719,7 @@ codeunit 137048 "SCM Warehouse II"
         exit(WarehouseActivityLine."No.");
     end;
 
-    local procedure FindWarehouseReceiptNo(SourceDocument: Option; SourceNo: Code[20]): Code[20]
+    local procedure FindWarehouseReceiptNo(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]): Code[20]
     var
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
     begin
@@ -2828,7 +2829,7 @@ codeunit 137048 "SCM Warehouse II"
         Item.Modify(true);
     end;
 
-    local procedure PostWarehouseReceipt(SourceDocument: Option; SourceNo: Code[20])
+    local procedure PostWarehouseReceipt(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     var
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
     begin
@@ -3274,7 +3275,7 @@ codeunit 137048 "SCM Warehouse II"
         ItemLedgerEntry.TestField(Quantity, Quantity);
     end;
 
-    local procedure VerifyPostedPurchaseInvoice(DocumentNo: Code[20]; Type: Option; Quantity: Decimal)
+    local procedure VerifyPostedPurchaseInvoice(DocumentNo: Code[20]; Type: Enum "Purchase Line Type"; Quantity: Decimal)
     var
         PurchInvLine: Record "Purch. Inv. Line";
     begin
@@ -3284,7 +3285,7 @@ codeunit 137048 "SCM Warehouse II"
         PurchInvLine.TestField(Quantity, Quantity);
     end;
 
-    local procedure VerifyPostedSalesInvoice(DocumentNo: Code[20]; Type: Option; Quantity: Decimal)
+    local procedure VerifyPostedSalesInvoice(DocumentNo: Code[20]; Type: Enum "Sales Line Type"; Quantity: Decimal)
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin

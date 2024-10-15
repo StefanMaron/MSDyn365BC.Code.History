@@ -338,7 +338,7 @@ codeunit 141020 "ERM Miscellaneous Features"
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);  // Ship and Invoice -TRUE, Consume - FALSE.
     end;
 
-    local procedure CreatePaymentMethod(var PaymentMethod: Record "Payment Method"; BalAccountType: Option; BalAccountNo: Code[20])
+    local procedure CreatePaymentMethod(var PaymentMethod: Record "Payment Method"; BalAccountType: Enum "Payment Balance Account Type"; BalAccountNo: Code[20])
     begin
         LibraryERM.CreatePaymentMethod(PaymentMethod);
         PaymentMethod.Validate("Bal. Account Type", BalAccountType);
@@ -346,7 +346,7 @@ codeunit 141020 "ERM Miscellaneous Features"
         PaymentMethod.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; PaymentMethodCode: Code[10]; Type: Option; No: Code[20])
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; PaymentMethodCode: Code[10]; Type: Enum "Purchase Line Type"; No: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -394,7 +394,7 @@ codeunit 141020 "ERM Miscellaneous Features"
         exit(BankAccount."No.");
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10])
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10])
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -465,7 +465,7 @@ codeunit 141020 "ERM Miscellaneous Features"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure PostPurchaseDocument(DocumentType: Option; DocumentNo: Code[20]): Code[20]
+    local procedure PostPurchaseDocument(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -473,7 +473,7 @@ codeunit 141020 "ERM Miscellaneous Features"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure PostSalesDocument(DocumentType: Option; DocumentNo: Code[20]): Code[20]
+    local procedure PostSalesDocument(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]): Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin

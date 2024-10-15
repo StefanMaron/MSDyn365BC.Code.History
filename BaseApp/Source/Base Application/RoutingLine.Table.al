@@ -45,11 +45,9 @@ table 99000764 "Routing Line"
                 SetRecalcStatus;
             end;
         }
-        field(7; Type; Option)
+        field(7; Type; Enum "Capacity Type Routing")
         {
             Caption = 'Type';
-            OptionCaption = 'Work Center,Machine Center, ';
-            OptionMembers = "Work Center","Machine Center"," ";
 
             trigger OnValidate()
             begin
@@ -291,7 +289,7 @@ table 99000764 "Routing Line"
         }
         field(45; Comment; Boolean)
         {
-            CalcFormula = Exist ("Routing Comment Line" WHERE("Routing No." = FIELD("Routing No."),
+            CalcFormula = Exist("Routing Comment Line" WHERE("Routing No." = FIELD("Routing No."),
                                                               "Version Code" = FIELD("Version Code"),
                                                               "Operation No." = FIELD("Operation No.")));
             Caption = 'Comment';
@@ -507,8 +505,14 @@ table 99000764 "Routing Line"
         exit(FindSet);
     end;
 
+    [Obsolete('Replaced by CheckIfRoutingCertified().', '17.0')]
     [Scope('OnPrem')]
     procedure CheckCertifiedRouting(RoutingLineType: Option; No: Code[20])
+    begin
+        CheckIfRoutingCertified("Capacity Type Routing".FromInteger(RoutingLineType), No);
+    end;
+
+    procedure CheckIfRoutingCertified(RoutingLineType: Enum "Capacity Type Routing"; No: Code[20])
     var
         RoutingHeader: Record "Routing Header";
         RoutingVersion: Record "Routing Version";

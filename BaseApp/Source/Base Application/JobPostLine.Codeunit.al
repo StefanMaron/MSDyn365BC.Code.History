@@ -1,4 +1,4 @@
-﻿codeunit 1001 "Job Post-Line"
+codeunit 1001 "Job Post-Line"
 {
     Permissions = TableData "Job Ledger Entry" = rm,
                   TableData "Job Planning Line" = rimd;
@@ -91,7 +91,6 @@
         Job: Record Job;
         JobPlanningLine: Record "Job Planning Line";
         JobPlanningLineInvoice: Record "Job Planning Line Invoice";
-        EntryType: Option Usage,Sale;
         JobLedgEntryNo: Integer;
         JobLineChecked: Boolean;
         IsHandled: Boolean;
@@ -166,7 +165,7 @@
         OnAfterJobPlanningLineModify(JobPlanningLine);
 
         if JobPlanningLine.Type <> JobPlanningLine.Type::Text then
-            PostJobOnSalesLine(JobPlanningLine, SalesHeader, SalesLine, EntryType::Sale);
+            PostJobOnSalesLine(JobPlanningLine, SalesHeader, SalesLine, "Job Journal Line Entry Type"::Sale);
 
         OnAfterPostInvoiceContractLine(SalesHeader, SalesLine);
     end;
@@ -230,7 +229,13 @@
         end;
     end;
 
+    [Obsolete('EntryType parameter converted to Enum', '17.0')]
     procedure PostJobOnSalesLine(JobPlanningLine: Record "Job Planning Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; EntryType: Option Usage,Sale)
+    begin
+        PostJobOnSalesLine(JobPlanningLine, SalesHeader, SalesLine, "Job Journal Line Entry Type".FromInteger(EntryType));
+    end;
+
+    procedure PostJobOnSalesLine(JobPlanningLine: Record "Job Planning Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; EntryType: Enum "Job Journal Line Entry Type")
     var
         JobJnlLine: Record "Job Journal Line";
     begin

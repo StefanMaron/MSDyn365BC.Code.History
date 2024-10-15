@@ -6,7 +6,7 @@ page 2811 "Native - Sales Inv. Overview"
     Editable = false;
     InsertAllowed = false;
     ModifyAllowed = false;
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = List;
     SourceTable = "Sales Invoice Entity Aggregate";
 
@@ -16,7 +16,7 @@ page 2811 "Native - Sales Inv. Overview"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'id', Locked = true;

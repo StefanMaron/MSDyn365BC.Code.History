@@ -221,7 +221,7 @@ codeunit 7150 "Update Item Analysis View"
         FlushAnalysisViewBudgetEntry;
     end;
 
-    local procedure UpdateAnalysisViewEntry(DimValue1: Code[20]; DimValue2: Code[20]; DimValue3: Code[20]; EntryType: Option)
+    local procedure UpdateAnalysisViewEntry(DimValue1: Code[20]; DimValue2: Code[20]; DimValue3: Code[20]; EntryType: Enum "Item Ledger Entry Type")
     var
         PostingDate: Date;
         EntryNo: Integer;

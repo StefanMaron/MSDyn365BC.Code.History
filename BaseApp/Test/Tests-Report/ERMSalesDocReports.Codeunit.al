@@ -758,7 +758,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CreateAndPostSalesDocumentWithCurrency(var SalesHeader: Record "Sales Header"; DocumentType: Option): Code[10]
+    local procedure CreateAndPostSalesDocumentWithCurrency(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"): Code[10]
     var
         SalesLine: Record "Sales Line";
         Currency: Record Currency;
@@ -776,7 +776,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         exit(VATIdentifier);
     end;
 
-    local procedure CreateAndPostPurchDocumentWithCurrency(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VATCalType: Option; VendorCrMemoNo: Code[35]): Code[10]
+    local procedure CreateAndPostPurchDocumentWithCurrency(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VATCalType: Enum "General Posting Type"; VendorCrMemoNo: Code[35]): Code[10]
     var
         VATPostingSetup: Record "VAT Posting Setup";
         VATIdentifier: Code[20];
@@ -791,7 +791,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         exit(VATIdentifier);
     end;
 
-    local procedure CreatePurchaseDocumentWithCurrency(var VATPostingSetup: Record "VAT Posting Setup"; var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorCrMemoNo: Code[35]): Code[10]
+    local procedure CreatePurchaseDocumentWithCurrency(var VATPostingSetup: Record "VAT Posting Setup"; var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorCrMemoNo: Code[35]): Code[10]
     var
         Currency: Record Currency;
         PurchaseLine: Record "Purchase Line";
@@ -828,7 +828,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         exit(Currency.Code);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -836,7 +836,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         CreateSalesDocumentWithNormalVAT(VATPostingSetup, SalesHeader, SalesLine, DocumentType, '');
     end;
 
-    local procedure CreateSalesDocumentWithAmount(var SalesHeader: Record "Sales Header"; DocumentType: Option; CurrencyCode: Code[10]; ItemNo: Code[20]; CustomerNo: Code[20]; DirectUnitCost: Decimal; ItemQuantity: Integer)
+    local procedure CreateSalesDocumentWithAmount(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CurrencyCode: Code[10]; ItemNo: Code[20]; CustomerNo: Code[20]; DirectUnitCost: Decimal; ItemQuantity: Integer)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -849,7 +849,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocumentWithNormalVAT(var VATPostingSetup: Record "VAT Posting Setup"; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CurrencyCode: Code[10]): Code[10]
+    local procedure CreateSalesDocumentWithNormalVAT(var VATPostingSetup: Record "VAT Posting Setup"; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CurrencyCode: Code[10]): Code[10]
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer(VATPostingSetup."VAT Bus. Posting Group"));
         SalesHeader.Validate("Currency Code", CurrencyCode);

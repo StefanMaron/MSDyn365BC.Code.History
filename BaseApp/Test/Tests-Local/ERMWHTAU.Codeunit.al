@@ -1084,10 +1084,9 @@ codeunit 141011 "ERM WHT - AU"
     local procedure CreateAndPostPurchCrMemoWithCopyDoc(VendorNo: Code[20]; PostedDocumentNo: Code[20]): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice";
     begin
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo, '');  // Blank Currency.
-        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, DocumentType::"Posted Invoice", PostedDocumentNo, false, true);  // Include Header - False,Recalculate Lines - True.
+        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, "Purchase Document Type From"::"Posted Invoice", PostedDocumentNo, false, true);  // Include Header - False,Recalculate Lines - True.
         DeletePurchaseLineGLAccountLine(PurchaseHeader."No.");
         exit(PostPurchaseDocument(PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeader."No."));
     end;
@@ -1105,7 +1104,7 @@ codeunit 141011 "ERM WHT - AU"
         exit(PostPurchaseDocument(PurchaseLine2."Document Type"::"Credit Memo", PurchaseLine2."Document No."));
     end;
 
-    local procedure CreateAndPostGenJournalLineWithAppliesToDocNo(AccountNo: Code[20]; DocumentType: Option; AppliesToDocType: Option; DocumentNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
+    local procedure CreateAndPostGenJournalLineWithAppliesToDocNo(AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -1185,7 +1184,7 @@ codeunit 141011 "ERM WHT - AU"
         exit(Currency.Code);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20]; AppliesToDocNo: Code[20]; CurrencyCode: Code[10]; AppliesToDocType: Option; Amount: Decimal; DocumentType: Option)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20]; AppliesToDocNo: Code[20]; CurrencyCode: Code[10]; AppliesToDocType: Enum "Gen. Journal Document Type"; Amount: Decimal; DocumentType: Enum "Gen. Journal Document Type")
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
@@ -1248,7 +1247,7 @@ codeunit 141011 "ERM WHT - AU"
         exit(Vendor."No.");
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20]; CurrencyCode: Code[10])
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; CurrencyCode: Code[10])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Currency Code", CurrencyCode);
@@ -1256,7 +1255,7 @@ codeunit 141011 "ERM WHT - AU"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; No: Code[20]; DirectUnitCost: Decimal; CurrencyCode: Code[10])
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; No: Code[20]; DirectUnitCost: Decimal; CurrencyCode: Code[10])
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1264,7 +1263,7 @@ codeunit 141011 "ERM WHT - AU"
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", No, DirectUnitCost);
     end;
 
-    local procedure CreatePurchaseOrderWithMultipleLines(var PurchaseLine: Record "Purchase Line"; Type: Option; No: Code[20]; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; CurrencyCode: Code[10]; ABN: Text[11]; DirectUnitCost: Decimal; var VendorNo: Code[20])
+    local procedure CreatePurchaseOrderWithMultipleLines(var PurchaseLine: Record "Purchase Line"; Type: Enum "Purchase Line Type"; No: Code[20]; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; CurrencyCode: Code[10]; ABN: Text[11]; DirectUnitCost: Decimal; var VendorNo: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1279,7 +1278,7 @@ codeunit 141011 "ERM WHT - AU"
           LibraryRandom.RandDecInRange(100, 1000, 2));  // Direct Unit Cost in Random Decimal Range.
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20]; DirectUnitCost: Decimal)
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20]; DirectUnitCost: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandInt(5));  // Random Quantity.
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
@@ -1393,7 +1392,7 @@ codeunit 141011 "ERM WHT - AU"
         PurchaseLine.Delete(true);  // Deleting last Purchase Line of Type - G/L Account.
     end;
 
-    local procedure FilterOnWHTEntry(var WHTEntry: Record "WHT Entry"; DocumentType: Option; BillToPayToNo: Code[20])
+    local procedure FilterOnWHTEntry(var WHTEntry: Record "WHT Entry"; DocumentType: Enum "Gen. Journal Document Type"; BillToPayToNo: Code[20])
     begin
         WHTEntry.SetRange("Document Type", DocumentType);
         WHTEntry.SetRange("Bill-to/Pay-to No.", BillToPayToNo);
@@ -1407,7 +1406,7 @@ codeunit 141011 "ERM WHT - AU"
               WHTPostingSetup, WHTBusinessPostingGroup, WHTProductPostingGroup);  // VAT Product Posting Group - blank.
     end;
 
-    local procedure FindVendorLedgerEntryAmount(DocumentType: Option; DocumentNo: Code[20]): Decimal
+    local procedure FindVendorLedgerEntryAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]): Decimal
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -1430,7 +1429,7 @@ codeunit 141011 "ERM WHT - AU"
         PostedPurchaseCreditMemo.Statistics.Invoke;  // Open Statistics Page.
     end;
 
-    local procedure PostPurchaseDocument(DocumentType: Option; DocumentNo: Code[20]): Code[20]
+    local procedure PostPurchaseDocument(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1517,7 +1516,7 @@ codeunit 141011 "ERM WHT - AU"
         Assert.AreNearlyEqual(Base, WHTEntry.Base, LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
     end;
 
-    local procedure VerifyWHTEntry(DocumentType: Option; BillToPayToNo: Code[20]; Amount: Decimal; UnrealizedAmount: Decimal)
+    local procedure VerifyWHTEntry(DocumentType: Enum "Gen. Journal Document Type"; BillToPayToNo: Code[20]; Amount: Decimal; UnrealizedAmount: Decimal)
     var
         WHTEntry: Record "WHT Entry";
     begin
@@ -1527,14 +1526,14 @@ codeunit 141011 "ERM WHT - AU"
         Assert.AreNearlyEqual(UnrealizedAmount, WHTEntry."Unrealized Amount", LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
     end;
 
-    local procedure VerifyPurchCreditMemoStatisticsPageAndWHTEntry(PurchCreditMemoStatistics: TestPage "Purch. Credit Memo Statistics"; PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo"; DocumentType: Option; BuyFromVendorNo: Code[20]; RemWHTPrepaidAmount: Decimal; PaidWHTPrepaidAmount: Decimal)
+    local procedure VerifyPurchCreditMemoStatisticsPageAndWHTEntry(PurchCreditMemoStatistics: TestPage "Purch. Credit Memo Statistics"; PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo"; DocumentType: Enum "Gen. Journal Document Type"; BuyFromVendorNo: Code[20]; RemWHTPrepaidAmount: Decimal; PaidWHTPrepaidAmount: Decimal)
     begin
         VerifyPurchCreditMemoStatisticsPage(PurchCreditMemoStatistics, RemWHTPrepaidAmount, PaidWHTPrepaidAmount);
         VerifyWHTEntry(DocumentType, BuyFromVendorNo, PaidWHTPrepaidAmount, RemWHTPrepaidAmount);
         PostedPurchaseCreditMemo.Close;
     end;
 
-    local procedure VerifyPurchaseInvoiceStatisticsPageAndWHTEntry(PurchaseInvoiceStatistics: TestPage "Purchase Invoice Statistics"; PostedPurchaseInvoice: TestPage "Posted Purchase Invoice"; DocumentType: Option; BuyFromVendorNo: Code[20]; RemWHTPrepaidAmount: Decimal; PaidWHTPrepaidAmount: Decimal; Amount: Decimal; UnrealizedAmount: Decimal)
+    local procedure VerifyPurchaseInvoiceStatisticsPageAndWHTEntry(PurchaseInvoiceStatistics: TestPage "Purchase Invoice Statistics"; PostedPurchaseInvoice: TestPage "Posted Purchase Invoice"; DocumentType: Enum "Gen. Journal Document Type"; BuyFromVendorNo: Code[20]; RemWHTPrepaidAmount: Decimal; PaidWHTPrepaidAmount: Decimal; Amount: Decimal; UnrealizedAmount: Decimal)
     begin
         VerifyPurchaseInvoiceStatisticsPage(PurchaseInvoiceStatistics, RemWHTPrepaidAmount, PaidWHTPrepaidAmount);
         VerifyWHTEntry(DocumentType, BuyFromVendorNo, Amount, UnrealizedAmount);
@@ -1563,7 +1562,7 @@ codeunit 141011 "ERM WHT - AU"
         PurchCreditMemoStatistics.OK.Invoke;
     end;
 
-    local procedure VerifyPurchaseInvoiceWHTEntry(DocumentType: Option; BillToPayToNo: Code[20]; RemainingUnrealizedAmount: Decimal; UnrealizedAmountLCY: Decimal)
+    local procedure VerifyPurchaseInvoiceWHTEntry(DocumentType: Enum "Gen. Journal Document Type"; BillToPayToNo: Code[20]; RemainingUnrealizedAmount: Decimal; UnrealizedAmountLCY: Decimal)
     var
         WHTEntry: Record "WHT Entry";
     begin

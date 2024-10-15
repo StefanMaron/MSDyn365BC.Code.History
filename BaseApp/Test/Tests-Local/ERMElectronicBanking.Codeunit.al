@@ -1201,23 +1201,23 @@ codeunit 141021 "ERM Electronic - Banking"
 
         // [GIVEN] Create payment journal line to bank BANK applied to posted invoice with Amount = X
         CreateGenJournalBatchWithBankAccount(GenJnlBatch);
-        SuggestVendorPayments(GenJnlLine,GenJnlBatch,Vendor."No.",false);
-        FindFirstGenJournalLineFromBatch(GenJnlBatch,GenJnlLine);
+        SuggestVendorPayments(GenJnlLine, GenJnlBatch, Vendor."No.", false);
+        FindFirstGenJournalLineFromBatch(GenJnlBatch, GenJnlLine);
         GenJnlLineAmount := GenJnlLine.Amount;
 
         // [GIVEN] Run EFT export for created payment
         EFTPaymentCreateFile(GenJnlLine);
-        FindEFTRegister(EFTRegister,GenJnlBatch."Bal. Account No.");
+        FindEFTRegister(EFTRegister, GenJnlBatch."Bal. Account No.");
 
         // [GIVEN] Exported payment journal line is being posted
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
 
         // [WHEN] File is being exported from EFT register
         FilePath := EFTPaymentCreateFileFromEFTRegister(EFTRegister);
-        TextLine := LibraryTextFileValidation.ReadLine(FilePath,2);
+        TextLine := LibraryTextFileValidation.ReadLine(FilePath, 2);
 
         // [THEN] Exported file contains line with Amount = X
-        VerifyPaymentFileLineAmountAndWHTAmount(TextLine,GenJnlLineAmount,0);
+        VerifyPaymentFileLineAmountAndWHTAmount(TextLine, GenJnlLineAmount, 0);
     end;
 
     local procedure Initialize()
@@ -1271,7 +1271,7 @@ codeunit 141021 "ERM Electronic - Banking"
         exit(DelChr(TotalRemWHTPrepaidAmountTxt, '=', DelChr(TotalRemWHTPrepaidAmountTxt, '=', '0123456789')));
     end;
 
-    local procedure CreateAndPostPurchaseOrder(VendorNo: Code[20]; Type: Option; No: Code[20]; PricesIncludingVAT: Boolean): Code[20]
+    local procedure CreateAndPostPurchaseOrder(VendorNo: Code[20]; Type: Enum "Purchase Line Type"; No: Code[20]; PricesIncludingVAT: Boolean): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";

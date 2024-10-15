@@ -356,7 +356,7 @@ codeunit 141041 "UT AUNZ Statement Report"
         GetTermsStringDocumentTypeDescriptionAUNZStatement(CustLedgerEntry."Document Type"::Invoice, LibraryUTUtility.GetNewCode);  // Payment Term Description.
     end;
 
-    local procedure GetTermsStringDocumentTypeDescriptionAUNZStatement(DocumentType: Option; Description: Code[20])
+    local procedure GetTermsStringDocumentTypeDescriptionAUNZStatement(DocumentType: Enum "Gen. Journal Document Type"; Description: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         AUNZStatement: Report "AU/NZ Statement";
@@ -416,7 +416,7 @@ codeunit 141041 "UT AUNZ Statement Report"
         exit(Customer."No.");
     end;
 
-    local procedure CreateCustomerLedgerEntries(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option)
+    local procedure CreateCustomerLedgerEntries(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type")
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin

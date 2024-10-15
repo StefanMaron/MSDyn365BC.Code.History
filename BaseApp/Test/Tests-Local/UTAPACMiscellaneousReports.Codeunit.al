@@ -515,7 +515,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         exit(BankAccount."No.");
     end;
 
-    local procedure CreateBankAccountLedgerEntry(BankAccountNo: Code[20]; BalAccountType: Option; Amount: Decimal)
+    local procedure CreateBankAccountLedgerEntry(BankAccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; Amount: Decimal)
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         BankAccountLedgerEntry2: Record "Bank Account Ledger Entry";

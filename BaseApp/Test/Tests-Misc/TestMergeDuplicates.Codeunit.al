@@ -890,8 +890,6 @@ codeunit 134399 "Test Merge Duplicates"
     var
         Customer: array[2] of Record Customer;
         xCustomer: array[2] of Record Customer;
-        ActualIntegrationRecord: Record "Integration Record";
-        IntegrationRecord: array[2] of Record "Integration Record";
         TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
     begin
         // [FEATURE] [UT]
@@ -900,10 +898,8 @@ codeunit 134399 "Test Merge Duplicates"
         // [GIVEN] Customers 'A' (ID = 'AAA') and 'B' (ID = 'BBB')
         LibrarySales.CreateCustomer(Customer[1]);
         xCustomer[1] := Customer[1];
-        IntegrationRecord[1].Get(Customer[1].Id);
         LibrarySales.CreateCustomer(Customer[2]);
         xCustomer[2] := Customer[2];
-        IntegrationRecord[2].Get(Customer[2].Id);
 
         // [WHEN] Merge 'A' to 'B', but answer 'No' to confirmation
         TempMergeDuplicatesBuffer."Table ID" := DATABASE::Customer;
@@ -916,19 +912,11 @@ codeunit 134399 "Test Merge Duplicates"
         Assert.IsTrue(Customer[1].Find, 'Customer A must exist');
         Customer[1].TestField("No.", xCustomer[1]."No.");
         Customer[1].TestField(Name, Customer[1].Name);
-        // [THEN] Integration Record 'AAA', where "Deleted On" is blank, "Record ID" points to 'A'
-        ActualIntegrationRecord.Get(IntegrationRecord[1]."Integration ID");
-        ActualIntegrationRecord.TestField("Deleted On", 0DT);
-        Assert.AreEqual(ActualIntegrationRecord."Record ID", IntegrationRecord[1]."Record ID", 'Record ID #1');
+
         // [THEN] Customer 'B' does exist, where Name = 'B', ID is 'BBB'
         Assert.IsTrue(Customer[2].Find, 'Customer B must exist');
         Customer[2].TestField("No.", xCustomer[2]."No.");
         Customer[2].TestField(Name, Customer[2].Name);
-        Customer[2].TestField(Id, IntegrationRecord[2]."Integration ID");
-        // [THEN] Integration Record 'BBB', where "Deleted On" is blank, "Record ID" points to 'B'
-        ActualIntegrationRecord.Get(IntegrationRecord[2]."Integration ID");
-        ActualIntegrationRecord.TestField("Deleted On", 0DT);
-        Assert.AreEqual(ActualIntegrationRecord."Record ID", IntegrationRecord[2]."Record ID", 'Record ID #2');
     end;
 
     [Test]
@@ -1500,7 +1488,6 @@ codeunit 134399 "Test Merge Duplicates"
         GenJournalLine: Record "Gen. Journal Line";
         TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
         TempMergeDuplicatesLineBuffer: Record "Merge Duplicates Line Buffer" temporary;
-        Type: Option " ",Customer,Vendor;
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Respect conditional relations while counting releted records in tables
@@ -1508,17 +1495,17 @@ codeunit 134399 "Test Merge Duplicates"
         // [GIVEN] Table 5717 contains 1 record for Customer 'A' and 2 record for Customer 'B'
         Item.FindFirst;
         LibrarySales.CreateCustomer(Customer[1]);
-        AddItemCrossReference(Item, Type::Customer, Customer[1]."No.", 1);
+        AddItemCrossReference(Item, "Gen. Journal Account Type"::Customer, Customer[1]."No.", 1);
         LibrarySales.CreateCustomer(Customer[2]);
-        AddItemCrossReference(Item, Type::Customer, Customer[2]."No.", 2);
+        AddItemCrossReference(Item, "Gen. Journal Account Type"::Customer, Customer[2]."No.", 2);
         // [GIVEN] Table 5717 contains 3 records for Vendor 'B'
-        AddItemCrossReference(Item, Type::Vendor, Customer[2]."No.", 3);
+        AddItemCrossReference(Item, "Gen. Journal Account Type"::Vendor, Customer[2]."No.", 3);
         // [GIVEN] Table 81 contains 2 record for Customer 'A' and 1 record for Customer 'B'
-        AddGenJnlLine(Type::Customer, Customer[1]."No.", 2);
-        AddGenJnlLine(Type::Customer, Customer[2]."No.", 1);
+        AddGenJnlLine("Gen. Journal Account Type"::Customer, Customer[1]."No.", 2);
+        AddGenJnlLine("Gen. Journal Account Type"::Customer, Customer[2]."No.", 1);
         // [GIVEN] Table 81 contains 3 records for Vendor 'A' and 1 record for Vendor 'B'
-        AddGenJnlLine(Type::Vendor, Customer[1]."No.", 3);
-        AddGenJnlLine(Type::Vendor, Customer[2]."No.", 1);
+        AddGenJnlLine("Gen. Journal Account Type"::Vendor, Customer[1]."No.", 3);
+        AddGenJnlLine("Gen. Journal Account Type"::Vendor, Customer[2]."No.", 1);
 
         // [GIVEN] Prepare Merge for Customer 'A' and 'B'
         TempMergeDuplicatesBuffer.Validate("Table ID", DATABASE::Customer);
@@ -1548,8 +1535,6 @@ codeunit 134399 "Test Merge Duplicates"
     procedure T150_MergeCustomers()
     var
         Customer: array[2] of Record Customer;
-        ActualIntegrationRecord: Record "Integration Record";
-        IntegrationRecord: array[2] of Record "Integration Record";
         TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
         GenJournalLine: Record "Gen. Journal Line";
         O365CouponClaim: Record "O365 Coupon Claim";
@@ -1568,9 +1553,8 @@ codeunit 134399 "Test Merge Duplicates"
         Initialize;
         // [GIVEN] Customers 'A' (ID = 'AAA') and 'B' (ID = 'BBB')
         LibrarySales.CreateCustomer(Customer[1]);
-        IntegrationRecord[1].Get(Customer[1].Id);
         LibrarySales.CreateCustomer(Customer[2]);
-        IntegrationRecord[2].Get(Customer[2].Id);
+
         // [GIVEN] Journal Line, where "Account No." is 'A', "Bal. Account No." is 'B', "Customer Id" is 'AAA'
         GenJournalLine.Init();
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::Customer;
@@ -1578,14 +1562,14 @@ codeunit 134399 "Test Merge Duplicates"
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::Customer;
         GenJournalLine.Validate("Bal. Account No.", Customer[2]."No.");
         GenJournalLine.Insert();
-        GenJournalLine.TestField("Customer Id", IntegrationRecord[1]."Integration ID");
+        GenJournalLine.TestField("Customer Id", Customer[1].SystemId);
         // [GIVEN] O365CouponClaim, where "Customer Id" is 'AAA'
         O365CouponClaim."Claim ID" := LibraryUtility.GenerateGUID;
-        O365CouponClaim."Customer Id" := IntegrationRecord[1]."Integration ID";
+        O365CouponClaim."Customer Id" := Customer[1].SystemId;
         O365CouponClaim.Insert();
         // [GIVEN] O365CouponClaim, where "Customer Id" is 'AAA'
         O365PostedCouponClaim."Claim ID" := LibraryUtility.GenerateGUID;
-        O365PostedCouponClaim."Customer Id" := IntegrationRecord[1]."Integration ID";
+        O365PostedCouponClaim."Customer Id" := Customer[1].SystemId;
         O365PostedCouponClaim.Insert();
         // [GIVEN] Native Payment, where "Customer No." is 'A', "Customer Id" is 'AAA'
         NativePayment."Applies-to Invoice Id" := CreateGuid;
@@ -1611,7 +1595,7 @@ codeunit 134399 "Test Merge Duplicates"
         DimensionValue.FindFirst;
         LibraryDimension.CreateDefaultDimensionCustomer(
           DefaultDimension, Customer[1]."No.", DimensionValue."Dimension Code", DimensionValue.Code);
-        DefaultDimension.TestField(ParentId, IntegrationRecord[1]."Integration ID");
+        DefaultDimension.TestField(ParentId, Customer[1].SystemId);
 
         // [WHEN] Merge 'A' to 'B'
         TempMergeDuplicatesBuffer."Table ID" := DATABASE::Customer;
@@ -1624,54 +1608,46 @@ codeunit 134399 "Test Merge Duplicates"
 
         // [THEN] Customer 'A' does not exist,
         Assert.IsFalse(Customer[1].Find, 'Customer A must not exist');
-        // [THEN] Integration Record 'AAA', where "Deleted On" is filled, "Record ID" points to 'A'
-        ActualIntegrationRecord.Get(IntegrationRecord[1]."Integration ID");
-        Assert.AreNotEqual(0DT, ActualIntegrationRecord."Deleted On", 'Deleted On must not be blank.');
-        Assert.AreEqual(BlankRecordId, ActualIntegrationRecord."Record ID", 'Record ID #1');
+
         // [THEN] Customer 'B' does exist, where Name = 'B', ID is 'BBB', SystemID is 'BBB'
         Assert.IsTrue(Customer[2].Find, 'Customer B must exist');
         Customer[2].TestField(Name, Customer[2].Name);
-        Customer[2].TestField(Id, IntegrationRecord[2]."Integration ID");
-        Customer[2].TestField(SystemId, IntegrationRecord[2]."Integration ID");
-        // [THEN] Integration Record 'BBB', where "Deleted On" is blank, "Record ID" points to 'B'
-        ActualIntegrationRecord.Get(IntegrationRecord[2]."Integration ID");
-        Assert.AreEqual(0DT, ActualIntegrationRecord."Deleted On", 'Deleted On must be blank.');
-        Assert.AreEqual(ActualIntegrationRecord."Record ID", IntegrationRecord[2]."Record ID", 'Record ID #2');
+
         // [THEN] Journal Line, where "Account No." is 'B', "Bal. Account No." is 'B', "Customer Id" is 'BBB'
         GenJournalLine.Find;
         GenJournalLine.TestField("Bal. Account No.", Customer[2]."No.");
         GenJournalLine.TestField("Account No.", Customer[2]."No.");
-        GenJournalLine.TestField("Customer Id", IntegrationRecord[2]."Integration ID");
+        GenJournalLine.TestField("Customer Id", Customer[2].SystemId);
         // [THEN] O365CouponClaim, where "Customer Id" is 'BBB'
         O365CouponClaim.Find;
-        O365CouponClaim.TestField("Customer Id", IntegrationRecord[2]."Integration ID");
+        O365CouponClaim.TestField("Customer Id", Customer[2].SystemId);
         // [THEN] O365PostedCouponClaim, where "Customer Id" is 'BBB'
         O365PostedCouponClaim.Find;
-        O365PostedCouponClaim.TestField("Customer Id", IntegrationRecord[2]."Integration ID");
+        O365PostedCouponClaim.TestField("Customer Id", Customer[2].SystemId);
         // [THEN] Native Payment, where "Customer No." is 'B', "Customer Id" is 'BBB'
         NativePayment.Find;
         NativePayment.TestField("Customer No.", Customer[2]."No.");
-        NativePayment.TestField("Customer Id", IntegrationRecord[2]."Integration ID");
+        NativePayment.TestField("Customer Id", Customer[2].SystemId);
         // [GIVEN] SalesInvoiceEntityAggregate, where "Sell-to Customer No." is 'B', "Customer Id" is 'BBB'
         SalesInvoiceEntityAggregate.Find;
         SalesInvoiceEntityAggregate.TestField("Sell-to Customer No.", Customer[2]."No.");
-        SalesInvoiceEntityAggregate.TestField("Customer Id", IntegrationRecord[2]."Integration ID");
+        SalesInvoiceEntityAggregate.TestField("Customer Id", Customer[2].SystemId);
         // [GIVEN] SalesOrderEntityBuffer, where "Sell-to Customer No." is 'B', "Customer Id" is 'BBB'
         SalesOrderEntityBuffer.Find;
         SalesOrderEntityBuffer.TestField("Sell-to Customer No.", Customer[2]."No.");
-        SalesOrderEntityBuffer.TestField("Customer Id", IntegrationRecord[2]."Integration ID");
+        SalesOrderEntityBuffer.TestField("Customer Id", Customer[2].SystemId);
         // [GIVEN] SalesQuoteEntityBuffer, where "Sell-to Customer No." is 'B', "Customer Id" is 'BBB'
         SalesQuoteEntityBuffer.Find;
         SalesQuoteEntityBuffer.TestField("Sell-to Customer No.", Customer[2]."No.");
-        SalesQuoteEntityBuffer.TestField("Customer Id", IntegrationRecord[2]."Integration ID");
+        SalesQuoteEntityBuffer.TestField("Customer Id", Customer[2].SystemId);
         // [GIVEN] SalesCrMemoEntityBuffer, where "Sell-to Customer No." is 'B', "Customer Id" is 'BBB'
         SalesCrMemoEntityBuffer.Find;
         SalesCrMemoEntityBuffer.TestField("Sell-to Customer No.", Customer[2]."No.");
-        SalesCrMemoEntityBuffer.TestField("Customer Id", IntegrationRecord[2]."Integration ID");
+        SalesCrMemoEntityBuffer.TestField("Customer Id", Customer[2].SystemId);
         // [GIVEN] Default Dimension, where "Table ID" is '18', "No." is 'B', ParentID is 'BBB'
         DefaultDimension.SetRange("No.", Customer[2]."No.");
         DefaultDimension.FindFirst;
-        DefaultDimension.TestField(ParentId, IntegrationRecord[2]."Integration ID");
+        DefaultDimension.TestField(ParentId, Customer[2].SystemId);
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -1894,8 +1870,6 @@ codeunit 134399 "Test Merge Duplicates"
     procedure T200_MergeVendors()
     var
         Vendor: array[2] of Record Vendor;
-        ActualIntegrationRecord: Record "Integration Record";
-        IntegrationRecord: array[2] of Record "Integration Record";
         TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
         PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate";
         IncomingDocument: Record "Incoming Document";
@@ -1908,9 +1882,8 @@ codeunit 134399 "Test Merge Duplicates"
         Initialize;
         // [GIVEN] Vendors 'A' (ID = 'AAA') and 'B' (ID = 'BBB')
         LibraryPurchase.CreateVendor(Vendor[1]);
-        IntegrationRecord[1].Get(Vendor[1].Id);
         LibraryPurchase.CreateVendor(Vendor[2]);
-        IntegrationRecord[2].Get(Vendor[2].Id);
+
         // [GIVEN] PurchInvEntityAggregate, where "Buy-from Vendor No." is 'A', "Vendor Id" is 'AAA'
         PurchInvEntityAggregate."No." := LibraryUtility.GenerateGUID;
         PurchInvEntityAggregate.Validate("Buy-from Vendor No.", Vendor[1]."No.");
@@ -1918,13 +1891,13 @@ codeunit 134399 "Test Merge Duplicates"
         // [GIVEN] IncomingDocument, where "Vendor No." is 'A', "Vendor ID" is 'AAA'
         IncomingDocument."Entry No." := -1;
         IncomingDocument.Validate("Vendor No.", Vendor[1]."No.");
-        IncomingDocument.Validate("Vendor Id", IntegrationRecord[1]."Integration ID");
+        IncomingDocument.Validate("Vendor Id", Vendor[1].SystemId);
         IncomingDocument.Insert();
         // [GIVEN] Default Dimension, where "Table ID" is '18', "No." is 'A', ParentID is 'AAA'
         DimensionValue.FindFirst;
         LibraryDimension.CreateDefaultDimensionVendor(
           DefaultDimension, Vendor[1]."No.", DimensionValue."Dimension Code", DimensionValue.Code);
-        DefaultDimension.TestField(ParentId, IntegrationRecord[1]."Integration ID");
+        DefaultDimension.TestField(ParentId, Vendor[1].SystemId);
 
         // [WHEN] Merge 'A' to 'B'
         TempMergeDuplicatesBuffer."Table ID" := DATABASE::Vendor;
@@ -1935,31 +1908,23 @@ codeunit 134399 "Test Merge Duplicates"
 
         // [THEN] Vendor 'A' does not exist,
         Assert.IsFalse(Vendor[1].Find, 'Vendor A must not exist');
-        // [THEN] Integration Record 'AAA', where "Deleted On" is filled, "Record ID" points to 'A'
-        ActualIntegrationRecord.Get(IntegrationRecord[1]."Integration ID");
-        Assert.AreNotEqual(0DT, ActualIntegrationRecord."Deleted On", 'Deleted On must not be blank.');
-        Assert.AreEqual(BlankRecordId, ActualIntegrationRecord."Record ID", 'Record ID #1');
+
         // [THEN] Vendor 'B' does exist, where Name = 'B', "Id" is 'BBB', SystemId is 'BBB'
         Assert.IsTrue(Vendor[2].Find, 'Vendor B must exist');
         Vendor[2].TestField(Name, Vendor[2].Name);
-        Vendor[2].TestField(Id, IntegrationRecord[2]."Integration ID");
-        Vendor[2].TestField(SystemId, IntegrationRecord[2]."Integration ID");
-        // [THEN] Integration Record 'BBB', where "Deleted On" is blank, "Record ID" points to 'B'
-        ActualIntegrationRecord.Get(IntegrationRecord[2]."Integration ID");
-        Assert.AreEqual(0DT, ActualIntegrationRecord."Deleted On", 'Deleted On must be blank.');
-        Assert.AreEqual(ActualIntegrationRecord."Record ID", IntegrationRecord[2]."Record ID", 'Record ID #2');
+
         // [GIVEN] PurchInvEntityAggregate, where "Sell-to Vendor No." is 'B', "Vendor Id" is 'BBB'
         PurchInvEntityAggregate.Find;
         PurchInvEntityAggregate.TestField("Buy-from Vendor No.", Vendor[2]."No.");
-        PurchInvEntityAggregate.TestField("Vendor Id", IntegrationRecord[2]."Integration ID");
+        PurchInvEntityAggregate.TestField("Vendor Id", Vendor[2].SystemId);
         // [GIVEN] IncomingDocument, where "Vendor No." is 'B', "Vendor ID" is 'BBB'
         IncomingDocument.Find;
         IncomingDocument.TestField("Vendor No.", Vendor[2]."No.");
-        IncomingDocument.TestField("Vendor Id", IntegrationRecord[2]."Integration ID");
+        IncomingDocument.TestField("Vendor Id", Vendor[2].SystemId);
         // [GIVEN] Default Dimension, where "Table ID" is '18', "No." is 'B', ParentID is 'BBB'
         DefaultDimension.SetRange("No.", Vendor[2]."No.");
         DefaultDimension.FindFirst;
-        DefaultDimension.TestField(ParentId, IntegrationRecord[2]."Integration ID");
+        DefaultDimension.TestField(ParentId, Vendor[2].SystemId);
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -2008,8 +1973,6 @@ codeunit 134399 "Test Merge Duplicates"
     procedure T220_MergeVendorsIfCurrentIntegrationIDMissed()
     var
         Vendor: array[2] of Record Vendor;
-        ActualIntegrationRecord: Record "Integration Record";
-        IntegrationRecord: array[2] of Record "Integration Record";
         TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
         BlankRecordId: RecordId;
     begin
@@ -2018,11 +1981,7 @@ codeunit 134399 "Test Merge Duplicates"
         Initialize;
         // [GIVEN] Vendors 'A' (ID = 'AAA') and 'B' (ID = 'BBB')
         LibraryPurchase.CreateVendor(Vendor[1]);
-        IntegrationRecord[1].Get(Vendor[1].Id);
         LibraryPurchase.CreateVendor(Vendor[2]);
-        IntegrationRecord[2].Get(Vendor[2].Id);
-        // [GIVEN] ID = 'BBB' for Vendor 'B' does no exist.
-        IntegrationRecord[2].Delete();
 
         // [WHEN] Merge 'A' to 'B'
         TempMergeDuplicatesBuffer."Table ID" := DATABASE::Vendor;
@@ -2033,18 +1992,11 @@ codeunit 134399 "Test Merge Duplicates"
 
         // [THEN] Vendor 'A' does not exist,
         Assert.IsFalse(Vendor[1].Find, 'Vendor A must not exist');
-        // [THEN] Integration Record 'AAA', where "Deleted On" is filled, "Record ID" points to 'A'
-        ActualIntegrationRecord.Get(IntegrationRecord[1]."Integration ID");
-        Assert.AreNotEqual(0DT, ActualIntegrationRecord."Deleted On", 'Deleted On must not be blank.');
-        Assert.AreEqual(BlankRecordId, ActualIntegrationRecord."Record ID", 'Record ID #1');
+
         // [THEN] Vendor 'B' does exist, where Name = 'B', "Id" is 'BBB'
         Assert.IsTrue(Vendor[2].Find, 'Vendor B must exist');
         Vendor[2].TestField(Name, Vendor[2].Name);
-        Vendor[2].TestField(Id, IntegrationRecord[2]."Integration ID");
-        // [THEN] Integration Record 'BBB', where "Deleted On" is blank, "Record ID" points to 'B'
-        ActualIntegrationRecord.Get(IntegrationRecord[2]."Integration ID");
-        Assert.AreEqual(0DT, ActualIntegrationRecord."Deleted On", 'Deleted On must be blank.');
-        Assert.AreEqual(ActualIntegrationRecord."Record ID", IntegrationRecord[2]."Record ID", 'Record ID #2');
+
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -2053,21 +2005,16 @@ codeunit 134399 "Test Merge Duplicates"
     procedure T221_MergeVendorsIfDuplicateIntegrationIDMissed()
     var
         Vendor: array[2] of Record Vendor;
-        ActualIntegrationRecord: Record "Integration Record";
-        IntegrationRecord: array[2] of Record "Integration Record";
         TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
         BlankRecordId: RecordId;
     begin
         // [FEATURE] [Vendor]
         // [SCENARIO 350424] Action 'Merge Duplicate' removes one of vendors while duplicate Integration Record is missed.
         Initialize;
+
         // [GIVEN] Vendors 'A' (ID = 'AAA') and 'B' (ID = 'BBB')
         LibraryPurchase.CreateVendor(Vendor[1]);
-        IntegrationRecord[1].Get(Vendor[1].Id);
         LibraryPurchase.CreateVendor(Vendor[2]);
-        IntegrationRecord[2].Get(Vendor[2].Id);
-        // [GIVEN] ID = 'AAA' for Vendor 'A' does no exist.
-        IntegrationRecord[1].Delete();
 
         // [WHEN] Merge 'A' to 'B'
         TempMergeDuplicatesBuffer."Table ID" := DATABASE::Vendor;
@@ -2077,19 +2024,13 @@ codeunit 134399 "Test Merge Duplicates"
         TempMergeDuplicatesBuffer.Merge;
 
         // [THEN] Vendor 'A' does not exist,
-        Assert.IsFalse(Vendor[1].Find, 'Vendor A must not exist');
-        // [THEN] Integration Record 'AAA', where "Deleted On" is filled, "Record ID" points to 'A'
-        ActualIntegrationRecord.Get(IntegrationRecord[1]."Integration ID");
-        Assert.AreNotEqual(0DT, ActualIntegrationRecord."Deleted On", 'Deleted On must not be blank.');
-        Assert.AreEqual(BlankRecordId, ActualIntegrationRecord."Record ID", 'Record ID #1');
+        Assert.IsFalse(Vendor[1].GetBySystemId(Vendor[1].SystemId), 'Vendor A must not exist');
+
         // [THEN] Vendor 'B' does exist, where Name = 'B', "Id" is 'BBB'
-        Assert.IsTrue(Vendor[2].Find, 'Vendor B must exist');
+        Assert.IsTrue(Vendor[2].GetBySystemId(Vendor[2].SystemId), 'Vendor B must exist');
         Vendor[2].TestField(Name, Vendor[2].Name);
-        Vendor[2].TestField(Id, IntegrationRecord[2]."Integration ID");
+
         // [THEN] Integration Record 'BBB', where "Deleted On" is blank, "Record ID" points to 'B'
-        ActualIntegrationRecord.Get(IntegrationRecord[2]."Integration ID");
-        Assert.AreEqual(0DT, ActualIntegrationRecord."Deleted On", 'Deleted On must be blank.');
-        Assert.AreEqual(ActualIntegrationRecord."Record ID", IntegrationRecord[2]."Record ID", 'Record ID #2');
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -2102,8 +2043,6 @@ codeunit 134399 "Test Merge Duplicates"
         ContDuplicateSearchString: Record "Cont. Duplicate Search String";
         Contact: array[2] of Record Contact;
         Customer: array[2] of Record Customer;
-        ActualIntegrationRecord: Record "Integration Record";
-        IntegrationRecord: array[2] of Record "Integration Record";
         TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
         BlankRecordId: RecordId;
     begin
@@ -2112,10 +2051,10 @@ codeunit 134399 "Test Merge Duplicates"
         Initialize;
         // [GIVEN] Customer 'A' with Contact 'CA' ("Integration ID" = 'AAA')
         LibraryMarketing.CreateContactWithCustomer(Contact[1], Customer[1]);
-        IntegrationRecord[1].FindByRecordId(Contact[1].RecordId);
+
         // [GIVEN] Customer 'B' with Contact 'CB' ("Integration ID" = 'BBB')
         LibraryMarketing.CreateContactWithCustomer(Contact[2], Customer[2]);
-        IntegrationRecord[2].FindByRecordId(Contact[2].RecordId);
+
         // [GIVEN] Customer 'A' is removed, both contacts are related to Customer 'B'
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
         ContactBusinessRelation.SetRange("No.", Customer[2]."No.");
@@ -2148,19 +2087,11 @@ codeunit 134399 "Test Merge Duplicates"
         TempMergeDuplicatesBuffer.Merge;
 
         // [THEN] Contact 'CA' does not exist,
-        Assert.IsFalse(Contact[1].Find, 'Contact A must not exist');
-        // [THEN] Integration Record 'AAA', where "Deleted On" is filled, "Record ID" points to 'CA'
-        ActualIntegrationRecord.Get(IntegrationRecord[1]."Integration ID");
-        Assert.AreNotEqual(0DT, ActualIntegrationRecord."Deleted On", 'Deleted On must not be blank.');
-        Assert.AreEqual(BlankRecordId, ActualIntegrationRecord."Record ID", 'Record ID #1');
+        Assert.IsFalse(Contact[1].GetBySystemId(Contact[1].SystemId), 'Contact A must not exist');
+
         // [THEN] Contact 'CB' does exist, where Name = 'B', SystemID = 'BBB' 
-        Assert.IsTrue(Contact[2].Find, 'Contact B must exist');
+        Assert.IsTrue(Contact[2].GetBySystemId(Contact[2].SystemId), 'Contact B must exist');
         Contact[2].TestField(Name, Contact[2].Name);
-        Assert.AreEqual(Contact[2].SystemId, IntegrationRecord[2]."Integration ID", 'SystemID');
-        // [THEN] Integration Record 'BBB', where "Deleted On" is blank, "Record ID" points to 'CB'
-        ActualIntegrationRecord.Get(IntegrationRecord[2]."Integration ID");
-        Assert.AreEqual(0DT, ActualIntegrationRecord."Deleted On", 'Deleted On must be blank.');
-        Assert.AreEqual(ActualIntegrationRecord."Record ID", IntegrationRecord[2]."Record ID", 'Record ID #2');
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -2212,7 +2143,6 @@ codeunit 134399 "Test Merge Duplicates"
     procedure T150_MergeCustomers_IntegrationDisabled()
     var
         Customer: array[2] of Record Customer;
-        IntegrationRecord: array[2] of Record "Integration Record";
         TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
         GenJournalLine: Record "Gen. Journal Line";
         O365CouponClaim: Record "O365 Coupon Claim";
@@ -2234,9 +2164,8 @@ codeunit 134399 "Test Merge Duplicates"
         // [GIVEN] Customers 'A' (ID = '0') and 'B' (ID = '0')
         LibrarySales.CreateCustomer(Customer[1]);
         LibrarySales.CreateCustomer(Customer[2]);
-        AssertIntegrationRecordNotFound(Customer[1].Id);
-        AssertIntegrationRecordNotFound(Customer[2].Id);
-        Assert.TableIsEmpty(DATABASE::"Integration Record");
+        AssertIntegrationRecordNotFound(Customer[1].SystemId);
+        AssertIntegrationRecordNotFound(Customer[2].SystemId);
 
         // [GIVEN] Journal Line, where "Account No." is 'A', "Bal. Account No." is 'B', "Customer Id" is '0'
         GenJournalLine.Init();
@@ -2245,14 +2174,14 @@ codeunit 134399 "Test Merge Duplicates"
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::Customer;
         GenJournalLine.Validate("Bal. Account No.", Customer[2]."No.");
         GenJournalLine.Insert();
-        GenJournalLine.TestField("Customer Id", IntegrationRecord[1]."Integration ID");
+        GenJournalLine.TestField("Customer Id", Customer[1].SystemId);
         // [GIVEN] O365CouponClaim, where "Customer Id" is '0'
         O365CouponClaim."Claim ID" := LibraryUtility.GenerateGUID;
-        O365CouponClaim."Customer Id" := IntegrationRecord[1]."Integration ID";
+        O365CouponClaim."Customer Id" := Customer[1].SystemId;
         O365CouponClaim.Insert();
         // [GIVEN] O365CouponClaim, where "Customer Id" is '0'
         O365PostedCouponClaim."Claim ID" := LibraryUtility.GenerateGUID;
-        O365PostedCouponClaim."Customer Id" := IntegrationRecord[1]."Integration ID";
+        O365PostedCouponClaim."Customer Id" := Customer[1].SystemId;
         O365PostedCouponClaim.Insert();
         // [GIVEN] Native Payment, where "Customer No." is 'A', "Customer Id" is '0'
         NativePayment."Applies-to Invoice Id" := CreateGuid;
@@ -2278,7 +2207,7 @@ codeunit 134399 "Test Merge Duplicates"
         DimensionValue.FindFirst;
         LibraryDimension.CreateDefaultDimensionCustomer(
           DefaultDimension, Customer[1]."No.", DimensionValue."Dimension Code", DimensionValue.Code);
-        DefaultDimension.TestField(ParentId, IntegrationRecord[1]."Integration ID");
+        DefaultDimension.TestField(ParentId, Customer[1].SystemId);
 
         // [WHEN] Merge 'A' to 'B'
         TempMergeDuplicatesBuffer."Table ID" := DATABASE::Customer;
@@ -2295,47 +2224,42 @@ codeunit 134399 "Test Merge Duplicates"
         // [THEN] Customer 'B' does exist, where Name = 'B', ID is '0'
         Assert.IsTrue(Customer[2].Find, 'Customer B must exist');
         Customer[2].TestField(Name, Customer[2].Name);
-        Customer[2].TestField(Id, IntegrationRecord[2]."Integration ID");
-        AssertIntegrationRecordNotFound(Customer[2].Id);
 
         // [THEN] Journal Line, where "Account No." is 'B', "Bal. Account No." is 'B', "Customer Id" is '0'
         GenJournalLine.Find;
         GenJournalLine.TestField("Bal. Account No.", Customer[2]."No.");
         GenJournalLine.TestField("Account No.", Customer[2]."No.");
-        GenJournalLine.TestField("Customer Id", IntegrationRecord[2]."Integration ID");
+        GenJournalLine.TestField("Customer Id", Customer[2].SystemId);
         // [THEN] O365CouponClaim, where "Customer Id" is '0'
         O365CouponClaim.Find;
-        O365CouponClaim.TestField("Customer Id", IntegrationRecord[2]."Integration ID");
+        O365CouponClaim.TestField("Customer Id", Customer[2].SystemId);
         // [THEN] O365PostedCouponClaim, where "Customer Id" is '0'
         O365PostedCouponClaim.Find;
-        O365PostedCouponClaim.TestField("Customer Id", IntegrationRecord[2]."Integration ID");
+        O365PostedCouponClaim.TestField("Customer Id", Customer[2].SystemId);
         // [THEN] Native Payment, where "Customer No." is 'B', "Customer Id" is '0'
         NativePayment.Find;
         NativePayment.TestField("Customer No.", Customer[2]."No.");
-        NativePayment.TestField("Customer Id", IntegrationRecord[2]."Integration ID");
+        NativePayment.TestField("Customer Id", Customer[2].SystemId);
         // [THEN] SalesInvoiceEntityAggregate, where "Sell-to Customer No." is 'B', "Customer Id" is '0'
         SalesInvoiceEntityAggregate.Find;
         SalesInvoiceEntityAggregate.TestField("Sell-to Customer No.", Customer[2]."No.");
-        SalesInvoiceEntityAggregate.TestField("Customer Id", IntegrationRecord[2]."Integration ID");
+        SalesInvoiceEntityAggregate.TestField("Customer Id", Customer[2].SystemId);
         // [THEN] SalesOrderEntityBuffer, where "Sell-to Customer No." is 'B', "Customer Id" is '0'
         SalesOrderEntityBuffer.Find;
         SalesOrderEntityBuffer.TestField("Sell-to Customer No.", Customer[2]."No.");
-        SalesOrderEntityBuffer.TestField("Customer Id", IntegrationRecord[2]."Integration ID");
+        SalesOrderEntityBuffer.TestField("Customer Id", Customer[2].SystemId);
         // [THEN] SalesQuoteEntityBuffer, where "Sell-to Customer No." is 'B', "Customer Id" is '0'
         SalesQuoteEntityBuffer.Find;
         SalesQuoteEntityBuffer.TestField("Sell-to Customer No.", Customer[2]."No.");
-        SalesQuoteEntityBuffer.TestField("Customer Id", IntegrationRecord[2]."Integration ID");
+        SalesQuoteEntityBuffer.TestField("Customer Id", Customer[2].SystemId);
         // [THEN] SalesCrMemoEntityBuffer, where "Sell-to Customer No." is 'B', "Customer Id" is '0'
         SalesCrMemoEntityBuffer.Find;
         SalesCrMemoEntityBuffer.TestField("Sell-to Customer No.", Customer[2]."No.");
-        SalesCrMemoEntityBuffer.TestField("Customer Id", IntegrationRecord[2]."Integration ID");
+        SalesCrMemoEntityBuffer.TestField("Customer Id", Customer[2].SystemId);
         // [THEN] Default Dimension, where "Table ID" is '18', "No." is 'B', ParentID is '0'
         DefaultDimension.SetRange("No.", Customer[2]."No.");
         DefaultDimension.FindFirst;
-        DefaultDimension.TestField(ParentId, IntegrationRecord[2]."Integration ID");
-
-        // [THEN] There is no integration records
-        Assert.TableIsEmpty(DATABASE::"Integration Record");
+        DefaultDimension.TestField(ParentId, Customer[2].SystemId);
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -2356,7 +2280,7 @@ codeunit 134399 "Test Merge Duplicates"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Merge Duplicates");
     end;
 
-    local procedure AddGenJnlLine(AccType: Option; AccNo: Code[20]; Counter: Integer)
+    local procedure AddGenJnlLine(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; Counter: Integer)
     var
         GenJournalLine: Record "Gen. Journal Line";
         i: Integer;
@@ -2371,7 +2295,7 @@ codeunit 134399 "Test Merge Duplicates"
         end;
     end;
 
-    local procedure AddItemCrossReference(Item: Record Item; Type: Option; No: Code[20]; Counter: Integer)
+    local procedure AddItemCrossReference(Item: Record Item; Type: Enum "Gen. Journal Account Type"; No: Code[20]; Counter: Integer)
     var
         ItemCrossReference: Record "Item Cross Reference";
         i: Integer;
@@ -2380,7 +2304,7 @@ codeunit 134399 "Test Merge Duplicates"
             ItemCrossReference.Init();
             ItemCrossReference."Item No." := Item."No.";
             ItemCrossReference."Cross-Reference No." := Format(i);
-            ItemCrossReference."Cross-Reference Type" := Type;
+            ItemCrossReference."Cross-Reference Type" := Type.AsInteger();
             ItemCrossReference."Cross-Reference Type No." := No;
             ItemCrossReference.Insert();
         end;
@@ -2520,7 +2444,6 @@ codeunit 134399 "Test Merge Duplicates"
     begin
         InsertODataEdmTypeEntry;
         GraphMgtGeneralTools.APISetupIfEnabled;
-        Assert.IsTrue(IntegrationManagement.IsIntegrationActivated, 'Integration must be activated.');
     end;
 
     local procedure DisableIntegration()

@@ -1054,7 +1054,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure CreateAndPostGeneralJournalLine(AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateAndPostGeneralJournalLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -1104,7 +1104,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         exit(GenBusinessPostingGroup.Code);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Type: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Type: Enum "Gen. Journal Template Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GLAccount: Record "G/L Account";
@@ -1175,7 +1175,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20]; LineDiscountPercent: Decimal)
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20]; LineDiscountPercent: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandDec(10, 2));  // Random for quantity.
@@ -1184,7 +1184,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseInvoice(var PurchaseLine: Record "Purchase Line"; BuyfromVendorNo: Code[20]; Type: Option; No: Code[20]; LineDiscountPercent: Decimal)
+    local procedure CreatePurchaseInvoice(var PurchaseLine: Record "Purchase Line"; BuyfromVendorNo: Code[20]; Type: Enum "Purchase Line Type"; No: Code[20]; LineDiscountPercent: Decimal)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1216,7 +1216,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateSalesDocWithLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; SalesLineType: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; No: Code[20]; PostingDate: Date)
+    local procedure CreateSalesDocWithLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; SalesLineType: Enum "Sales Line Type"; No: Code[20]; PostingDate: Date)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
         SalesHeader.Validate("Posting Date", PostingDate);
@@ -1226,7 +1226,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePurchDocWithLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; PurchLineType: Option " ","G/L Account",Item,,"Fixed Asset","Charge (Item)"; No: Code[20]; PostingDate: Date)
+    local procedure CreatePurchDocWithLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; PurchLineType: Enum "Purchase Line Type"; No: Code[20]; PostingDate: Date)
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo);
         PurchaseHeader.Validate("Posting Date", PostingDate);
@@ -1236,7 +1236,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateServiceDocWithLine(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; DocumentType: Option; ServiceLineType: Option; No: Code[20]; PostingDate: Date)
+    local procedure CreateServiceDocWithLine(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; ServiceLineType: Enum "Service Line Type"; No: Code[20]; PostingDate: Date)
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, LibrarySales.CreateCustomerNo);
         ServiceHeader.Validate("Posting Date", PostingDate);
@@ -1296,7 +1296,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         LibraryVariableStorage.Enqueue(Value2);
     end;
 
-    local procedure FindGeneralJournalTemplateAndBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Option)
+    local procedure FindGeneralJournalTemplateAndBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Enum "Gen. Journal Template Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
@@ -1415,7 +1415,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure VerifyGSTSalesEntryExists(DocumentNo: Code[20]; DocumentType: Option; ExpectedNoOfEntries: Integer)
+    local procedure VerifyGSTSalesEntryExists(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; ExpectedNoOfEntries: Integer)
     var
         GSTSalesEntry: Record "GST Sales Entry";
     begin
@@ -1424,7 +1424,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         Assert.RecordCount(GSTSalesEntry, ExpectedNoOfEntries);
     end;
 
-    local procedure VerifyGSTPurchaseEntryExists(DocumentNo: Code[20]; DocumentType: Option; ExpectedNoOfEntries: Integer)
+    local procedure VerifyGSTPurchaseEntryExists(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; ExpectedNoOfEntries: Integer)
     var
         GSTPurchaseEntry: Record "GST Purchase Entry";
     begin

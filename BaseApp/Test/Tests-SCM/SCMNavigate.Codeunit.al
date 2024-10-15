@@ -390,7 +390,7 @@ codeunit 137078 "SCM Navigate"
         ServiceMgtSetup.Modify(true);
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; ItemNo: Code[20]; Invoice: Boolean): Code[20]
+    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; Invoice: Boolean): Code[20]
     begin
         CreatePurchaseDocument(PurchaseHeader, DocumentType, ItemNo);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, Invoice));  // Receive as TRUE.
@@ -402,7 +402,7 @@ codeunit 137078 "SCM Navigate"
         LibraryService.PostServiceOrder(ServiceHeader, false, false, false);  // Ship, Consume, and Invoice as FALSE for Posting of Credit Memo.
     end;
 
-    local procedure CreateAndPostSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; ItemNo: Code[20]; Invoice: Boolean): Code[20]
+    local procedure CreateAndPostSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; Invoice: Boolean): Code[20]
     begin
         CreateSalesDocument(SalesHeader, DocumentType, ItemNo);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, Invoice));  // Ship as TRUE.
@@ -420,7 +420,7 @@ codeunit 137078 "SCM Navigate"
         LibraryService.CreateServiceItem(ServiceItem, '');
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; ItemNo: Code[20])
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -429,12 +429,12 @@ codeunit 137078 "SCM Navigate"
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2));
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, '');
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; ItemNo: Code[20])
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin

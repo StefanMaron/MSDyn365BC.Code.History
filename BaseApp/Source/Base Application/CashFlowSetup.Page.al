@@ -156,7 +156,7 @@ page 846 "Cash Flow Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies status of Azure AI forecast.';
                 }
-                field("Total Proc. Time"; Format(AzureAIUsage.GetTotalProcessingTime(AzureAIUsage.Service::"Machine Learning")))
+                field("Total Proc. Time"; Format(AzureAIUsage.GetTotalProcessingTime(AzureAIService::"Machine Learning")))
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Total Processing Time';
@@ -209,7 +209,8 @@ page 846 "Cash Flow Setup"
     end;
 
     var
-        AzureAIUsage: Record "Azure AI Usage";
+        AzureAIUsage: Codeunit "Azure AI Usage";
+        AzureAIService: Enum "Azure AI Service";
         TaxAccountTypeValid: Boolean;
 }
 

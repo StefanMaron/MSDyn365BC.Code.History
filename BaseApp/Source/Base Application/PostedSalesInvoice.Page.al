@@ -92,7 +92,34 @@ page 132 "Posted Sales Invoice"
                         Caption = 'Contact No.';
                         Editable = false;
                         Importance = Additional;
-                        ToolTip = 'Specifies the number of the contact that the invoice was sent to.';
+                        ToolTip = 'Specifies a unique identifier for the contact person at the customer the invoice was sent to.';
+                    }
+                    field(SellToPhoneNo; SellToContact."Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the contact person at the customer the invoice was sent to.';
+                    }
+                    field(SellToMobilePhoneNo; SellToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Mobile Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the contact person at the customer the invoice was sent to.';
+                    }
+                    field(SellToEmail; SellToContact."E-Mail")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Email';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the contact person at the customer the invoice was sent to.';
                     }
                 }
                 field("Sell-to Contact"; "Sell-to Contact")
@@ -100,7 +127,7 @@ page 132 "Posted Sales Invoice"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Contact';
                     Editable = false;
-                    ToolTip = 'Specifies the name of the person to contact when you communicate with the customer who you shipped the items to.';
+                    ToolTip = 'Specifies the name of the contact person at the customer the invoice was sent to.';
                 }
                 field("Your Reference"; "Your Reference")
                 {
@@ -546,6 +573,33 @@ page 132 "Posted Sales Invoice"
                         Editable = false;
                         ToolTip = 'Specifies the name of the person you regularly contact when you communicate with the customer to whom the invoice was sent.';
                     }
+                    field(BillToContactPhoneNo; BillToContact."Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the person you regularly contact when you communicate with the customer to whom the invoice was sent.';
+                    }
+                    field(BillToContactMobilePhoneNo; BillToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Mobile Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the person you regularly contact when you communicate with the customer to whom the invoice was sent.';
+                    }
+                    field(BillToContactEmail; BillToContact."E-Mail")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Email';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the person you regularly contact when you communicate with the customer to whom the invoice was sent.';
+                    }
                 }
             }
             group("Foreign Trade")
@@ -658,7 +712,7 @@ page 132 "Posted Sales Invoice"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(Approvals)
@@ -772,6 +826,25 @@ page 132 "Posted Sales Invoice"
         }
         area(processing)
         {
+            group("F&unctions")
+            {
+                Caption = 'F&unctions';
+                Image = "Action";
+                action("&Track Package")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = '&Track Package';
+                    Image = ItemTracking;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    ToolTip = 'Open the shipping agent''s tracking page to track the package. ';
+
+                    trigger OnAction()
+                    begin
+                        StartTrackingSite();
+                    end;
+                }
+            }
             action(SendCustom)
             {
                 ApplicationArea = Basic, Suite;
@@ -852,11 +925,12 @@ page 132 "Posted Sales Invoice"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category4;
-                ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 Visible = NOT IsOfficeAddin;
 
                 trigger OnAction()
@@ -1047,6 +1121,8 @@ page 132 "Posted Sales Invoice"
     trigger OnAfterGetRecord()
     begin
         DocExchStatusStyle := GetDocExchStatusStyle;
+        if SellToContact.Get("Sell-to Contact No.") then;
+        if BillToContact.Get("Bill-to Contact No.") then;
     end;
 
     trigger OnInit()
@@ -1070,6 +1146,8 @@ page 132 "Posted Sales Invoice"
 
     var
         SalesInvHeader: Record "Sales Invoice Header";
+        SellToContact: Record Contact;
+        BillToContact: Record Contact;
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";

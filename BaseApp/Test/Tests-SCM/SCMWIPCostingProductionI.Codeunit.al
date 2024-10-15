@@ -31,8 +31,6 @@ codeunit 137003 "SCM WIP Costing Production-I"
         ExpectedMsg: Label 'Expected Cost Posting to G/L has been changed.';
         WrongLastDirectCostErr: Label 'Last Direct Cost is incorrect.';
         ExpectedCostPostingConfirm: Label 'Do you really want to change the Expected Cost Posting to G/L?';
-        FlushingMethod: Option Manual,Forward,Backward;
-        CostingMethod: Option FIFO,LIFO,Specific,"Average",Standard;
         ExpectedMaterialCostErr: Label 'Standart Material Cost should match Item Single-Level Material Cost';
 
     [Test]
@@ -44,7 +42,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // [SCENARIO] Standard Costing with Flushing method - Manual and Finish Production Order, verify values in GL entries.
 
         // Covers TFS_TC_ID = 32227, 32232, 12617 and 12622.
-        StandardProduction(false, FlushingMethod::Manual, CostingMethod::Standard);
+        StandardProduction(false, "Flushing Method"::Manual, "Costing Method"::Standard);
     end;
 
     [Test]
@@ -56,10 +54,10 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // [SCENARIO] Standard Costing with Flushing method - Backward and Finish Production Order, verify values in GL entries.
 
         // Covers TFS_TC_ID = 32227, 32232, 12617 and 12622.
-        StandardProduction(false, FlushingMethod::Backward, CostingMethod::Standard);
+        StandardProduction(false, "Flushing Method"::Backward, "Costing Method"::Standard);
     end;
 
-    local procedure StandardProduction(AutoCostPosting: Boolean; FlushingMethod: Option Manual,Forward,Backward; CostingMethod: Option FIFO,LIFO,Specific,"Average",Standard)
+    local procedure StandardProduction(AutoCostPosting: Boolean; FlushingMethod: Enum "Flushing Method"; CostingMethod: Enum "Costing Method")
     var
         PurchaseHeader: Record "Purchase Header";
         ItemJournalBatch: Record "Item Journal Batch";
@@ -73,7 +71,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         CreateCostingSetup(
           PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, AutoCostPosting, FlushingMethod, CostingMethod,
           true, true, false, false, false, false, false);
-        if FlushingMethod = FlushingMethod::Manual then begin
+        if FlushingMethod = "Flushing Method"::Manual then begin
             LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
             LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
             LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
@@ -108,7 +106,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Covers TFS_TC_ID = 32227, 32232, 12617 and 12622.
         // 1. Setup: Required Costing Setups.
         CreateCostingSetup(
-          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, FlushingMethod::Forward, CostingMethod::Standard,
+          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Forward, "Costing Method"::Standard,
           true, false, false, false, false, false, false);
 
         // 2.1 Exercise: Run Adjust Cost Item Entries report and Post Inventory Cost to G/L report.
@@ -138,7 +136,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
     begin
         // Covers TFS_TC_ID = 32233 and 12623.
         // Auto Cost Posting - True, Purchase Posting with Full Qty to Receive.
-        StandardManPurchase(true, false, FlushingMethod::Manual, CostingMethod::Standard);  // Boolean-Auto Cost Posting and Partial Posting.
+        StandardManPurchase(true, false, "Flushing Method"::Manual, "Costing Method"::Standard);  // Boolean-Auto Cost Posting and Partial Posting.
     end;
 
     [Test]
@@ -148,7 +146,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
     begin
         // Covers TFS_TC_ID = 32233 and 12623.
         // Auto Cost Posting - True, Purchase Posting with Partial Qty to Receive.
-        StandardManPurchase(true, true, FlushingMethod::Manual, CostingMethod::Standard);
+        StandardManPurchase(true, true, "Flushing Method"::Manual, "Costing Method"::Standard);
     end;
 
     [Test]
@@ -158,7 +156,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
     begin
         // Covers TFS_TC_ID = 32233 and 12623.
         // Auto Cost Posting - False, Purchase Posting with Full Qty to Receive.
-        StandardManPurchase(false, false, FlushingMethod::Manual, CostingMethod::Standard);
+        StandardManPurchase(false, false, "Flushing Method"::Manual, "Costing Method"::Standard);
     end;
 
     [Test]
@@ -168,10 +166,10 @@ codeunit 137003 "SCM WIP Costing Production-I"
     begin
         // Covers TFS_TC_ID = 32233 and 12623.
         // Auto Cost Posting - False, Purchase Posting with Partial Qty to Receive.
-        StandardManPurchase(false, true, FlushingMethod::Manual, CostingMethod::Standard);
+        StandardManPurchase(false, true, "Flushing Method"::Manual, "Costing Method"::Standard);
     end;
 
-    local procedure StandardManPurchase(AutoCostPosting: Boolean; PartialPurchasePosting: Boolean; FlushingMethod: Option; CostingMethod: Option)
+    local procedure StandardManPurchase(AutoCostPosting: Boolean; PartialPurchasePosting: Boolean; FlushingMethod: Enum "Flushing Method"; CostingMethod: Enum "Costing Method")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -209,7 +207,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Flushing Method - Manual, Auto Cost Posting - True, Direct Unit Cost as expected.
         // Purchase Posting with Full Qty to Receive.
         Qty := LibraryRandom.RandInt(10) + 50;
-        AvgPurchase(true, false, Qty, Qty, FlushingMethod::Manual);
+        AvgPurchase(true, false, Qty, Qty, "Flushing Method"::Manual);
     end;
 
     [Test]
@@ -223,7 +221,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Flushing Method - Manual, Auto Cost Posting - False, Direct Unit Cost as expected.
         // Purchase Posting with Full Qty to Receive.
         Qty := LibraryRandom.RandInt(10) + 50;
-        AvgPurchase(false, false, Qty, Qty, FlushingMethod::Manual);
+        AvgPurchase(false, false, Qty, Qty, "Flushing Method"::Manual);
     end;
 
     [Test]
@@ -237,7 +235,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Flushing Method - Manual, Auto Cost Posting - True, Direct Unit Cost different from expected.
         // Purchase Posting with Full Qty to Receive.
         Qty := LibraryRandom.RandInt(10) + 50;
-        AvgPurchase(true, true, Qty, Qty, FlushingMethod::Manual);
+        AvgPurchase(true, true, Qty, Qty, "Flushing Method"::Manual);
     end;
 
     [Test]
@@ -251,7 +249,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Flushing Method - Manual, Auto Cost Posting - False, Direct Unit Cost different from expected.
         // Purchase Posting with Full Qty to Receive.
         Qty := LibraryRandom.RandInt(10) + 50;
-        AvgPurchase(false, true, Qty, Qty, FlushingMethod::Manual);
+        AvgPurchase(false, true, Qty, Qty, "Flushing Method"::Manual);
     end;
 
     [Test]
@@ -265,7 +263,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Flushing Method - Manual, Auto Cost Posting - True, Direct Unit Cost as expected.
         // Purchase Posting with Partial Qty to Receive.
         Qty := LibraryRandom.RandInt(10) + 50;
-        AvgPurchase(true, false, Qty, Qty - 1, FlushingMethod::Manual);
+        AvgPurchase(true, false, Qty, Qty - 1, "Flushing Method"::Manual);
     end;
 
     [Test]
@@ -279,7 +277,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Flushing Method - Manual, Auto Cost Posting - False, Direct Unit Cost as expected.
         // Purchase Posting with Partial Qty to Receive.
         Qty := LibraryRandom.RandInt(10) + 50;
-        AvgPurchase(false, false, Qty, Qty - 1, FlushingMethod::Manual);
+        AvgPurchase(false, false, Qty, Qty - 1, "Flushing Method"::Manual);
     end;
 
     [Test]
@@ -293,7 +291,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Flushing Method - Manual, Auto Cost Posting - True, Direct Unit Cost different from expected.
         // Purchase Posting with Partial Qty to Receive.
         Qty := LibraryRandom.RandInt(10) + 50;
-        AvgPurchase(true, true, Qty, Qty - 1, FlushingMethod::Manual);
+        AvgPurchase(true, true, Qty, Qty - 1, "Flushing Method"::Manual);
     end;
 
     [Test]
@@ -307,7 +305,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Flushing Method - Manual, Auto Cost Posting - False, Direct Unit Cost different from expected.
         // Purchase Posting with Partial Qty to Receive.
         Qty := LibraryRandom.RandInt(10) + 50;
-        AvgPurchase(false, true, Qty, Qty - 1, FlushingMethod::Manual);
+        AvgPurchase(false, true, Qty, Qty - 1, "Flushing Method"::Manual);
     end;
 
     [Test]
@@ -321,10 +319,10 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Flushing Method - Backward, Auto Cost Posting - False, Direct Unit Cost different from expected.
         // Purchase Posting with Full Qty to Receive.
         Qty := LibraryRandom.RandInt(10) + 50;
-        AvgPurchase(false, true, Qty, Qty, FlushingMethod::Backward);
+        AvgPurchase(false, true, Qty, Qty, "Flushing Method"::Backward);
     end;
 
-    local procedure AvgPurchase(AutoCostPosting: Boolean; DirectUnitCost: Boolean; Qty: Decimal; QtyToReceive: Decimal; FlushingMethod: Option)
+    local procedure AvgPurchase(AutoCostPosting: Boolean; DirectUnitCost: Boolean; Qty: Decimal; QtyToReceive: Decimal; FlushingMethod: Enum "Flushing Method")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -341,7 +339,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         Initialize;
         LibraryInventory.UpdateInventorySetup(
           InventorySetup, AutoCostPosting, false, AutomaticCostAdjustment::Never, AverageCostCalcType::Item, AverageCostPeriod::Day);
-        CreateComponentItems(ItemNo, ItemNo2, CostingMethod::Average, FlushingMethod, false);
+        CreateComponentItems(ItemNo, ItemNo2, "Costing Method"::Average, FlushingMethod, false);
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, ItemNo, ItemNo2, Qty, QtyToReceive, DirectUnitCost);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);  // Receive.
         CopyPurchaseLinesToTemp(TempPurchaseLine, PurchaseHeader);
@@ -376,7 +374,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Covers TFS_TC_ID = 32235 and 12625.
         // 1. Setup: Required Costing Setups.
         CreateCostingSetup(
-          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, FlushingMethod::Manual, CostingMethod::Average,
+          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, "Flushing Method"::Manual, "Costing Method"::Average,
           true, true, false, false, false, false, false);
         LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
@@ -409,7 +407,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // 1. Setup: Required Costing Setups.
         // Create and Post Consumption, Run Adjust Cost Item Entries report, Create Output.
         CreateCostingSetup(
-          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, FlushingMethod::Manual, CostingMethod::Average,
+          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, "Flushing Method"::Manual, "Costing Method"::Average,
           true, true, false, false, false, false, false);
         LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
@@ -444,7 +442,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // 1. Setup: Required Costing Setups.
         // Create and Post Consumption, Run Adjust Cost Item Entries report, Post Output, and Finish Production Order.
         CreateCostingSetup(
-          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, FlushingMethod::Manual, CostingMethod::Average,
+          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, "Flushing Method"::Manual, "Costing Method"::Average,
           true, true, false, false, false, false, false);
         LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
@@ -480,7 +478,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // 1. Setup: Required Costing Setups.
         // Finish Production Order.
         CreateCostingSetup(
-          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, FlushingMethod::Backward, CostingMethod::Average,
+          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, "Flushing Method"::Backward, "Costing Method"::Average,
           true, true, false, false, false, false, false);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);
@@ -514,7 +512,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // 1. Setup: Required Costing Setups.
         // Create and Post Consumption & Output.
         CreateCostingSetup(
-          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, FlushingMethod::Manual, CostingMethod::Average,
+          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, "Flushing Method"::Manual, "Costing Method"::Average,
           true, false, false, false, false, false, false);
         LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
@@ -555,7 +553,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Create and Post Consumption & Output, Invoice Purchase Order, Run Adjust Cost Item Entries & Post Inventory  Cost to G/L.
         // Finish Production Order.
         CreateCostingSetup(
-          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, FlushingMethod::Manual, CostingMethod::Average,
+          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, "Flushing Method"::Manual, "Costing Method"::Average,
           true, false, false, false, false, false, false);
         LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
@@ -594,7 +592,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Covers TFS_TC_ID = 32235 and 12625.
         // 1. Setup: Required Costing Setups.
         CreateCostingSetup(
-          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, FlushingMethod::Forward, CostingMethod::Average,
+          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Forward, "Costing Method"::Average,
           true, false, false, false, false, false, false);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
         CopyPurchaseLinesToTemp(TempPurchaseLine, PurchaseHeader);
@@ -628,7 +626,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Covers TFS_TC_ID = 32235 and 12625.
         // 1. Setup: Required Costing Setups.
         CreateCostingSetup(
-          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, FlushingMethod::Forward, CostingMethod::Average,
+          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Forward, "Costing Method"::Average,
           true, false, false, false, false, false, false);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
 
@@ -661,7 +659,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [GIVEN] Required Costing Setups. Create and Post Consumption & Output. Finish Production Order, Invoice Purchase Order.
         CreateCostingSetup(
-          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, FlushingMethod::Manual, CostingMethod::Average,
+          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, "Flushing Method"::Manual, "Costing Method"::Average,
           false, false, false, false, false, false, false);
         LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
@@ -699,7 +697,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [GIVEN] Required Costing Setups. Create and Post Consumption & Output. Finish Production Order, Invoice Purchase Order.
         CreateCostingSetup(
-          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, FlushingMethod::Manual, CostingMethod::Average,
+          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, "Flushing Method"::Manual, "Costing Method"::Average,
           false, false, false, false, false, false, false);
         LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
@@ -733,7 +731,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [GIVEN] Required Costing Setups. Finish Production Order, Invoice Purchase Order.
         CreateCostingSetup(
-          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, FlushingMethod::Forward, CostingMethod::Average,
+          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Forward, "Costing Method"::Average,
           true, false, false, false, false, false, false);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);
@@ -766,7 +764,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [GIVEN] Required Costing Setups. Create and Post Consumption & Output with Reduced Output Qty. Finish Production Order, Invoice Purchase Order.
         CreateCostingSetup(
-          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, FlushingMethod::Manual, CostingMethod::Average,
+          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, "Flushing Method"::Manual, "Costing Method"::Average,
           false, false, false, false, false, false, false);
         LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
@@ -805,7 +803,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [GIVEN] Required Costing Setups. Create and Post Consumption & Output with Reduced Output Qty. Finish Production Order, Invoice Purchase Order.
         CreateCostingSetup(
-          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, FlushingMethod::Manual, CostingMethod::Average,
+          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, "Flushing Method"::Manual, "Costing Method"::Average,
           false, false, false, false, false, false, false);
         LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
@@ -841,7 +839,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [GIVEN] Required Costing Setups. Create and Post Consumption & Output. Invoice Purchase Order, Finish Production Order.
         CreateCostingSetup(
-          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, FlushingMethod::Manual, CostingMethod::Average,
+          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, "Flushing Method"::Manual, "Costing Method"::Average,
           false, false, false, false, false, false, false);
         LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
@@ -875,7 +873,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [GIVEN] Required Costing Setups. Invoice Purchase Order, Finish Production Order.
         CreateCostingSetup(
-          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, FlushingMethod::Forward, CostingMethod::Average,
+          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, false, "Flushing Method"::Forward, "Costing Method"::Average,
           true, false, false, false, false, false, false);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);  // Invoice.
@@ -905,7 +903,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [GIVEN] Required Costing Setups. Finish Production Order.
         CreateCostingSetup(
-          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, FlushingMethod::Forward, CostingMethod::Average,
+          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Forward, "Costing Method"::Average,
           true, true, false, false, false, false, false);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
 
@@ -935,7 +933,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [GIVEN] Required Costing Setups. Create and Post Consumption & Output. Finish Production Order.
         CreateCostingSetup(
-          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, FlushingMethod::Manual, CostingMethod::Average,
+          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Manual, "Costing Method"::Average,
           true, true, false, false, false, false, false);
         LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
@@ -968,7 +966,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [GIVEN] Required Costing Setups. Create and Post Consumption & Output with Reduced Output Qty. Finish Production Order.
         CreateCostingSetup(
-          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, FlushingMethod::Manual, CostingMethod::Average,
+          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Manual, "Costing Method"::Average,
           true, true, false, false, false, false, false);
         LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
@@ -1002,7 +1000,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [GIVEN] Required Costing Setups. Create and Post Consumption & Output with different Consumption and Output Qty. Finish Production Order.
         CreateCostingSetup(
-          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, FlushingMethod::Manual, CostingMethod::Average,
+          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Manual, "Costing Method"::Average,
           true, true, false, false, false, false, false);
         LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         UpdateDiffQtyConsmpJournal(ProductionOrderNo);
@@ -1027,7 +1025,6 @@ codeunit 137003 "SCM WIP Costing Production-I"
     var
         PurchaseHeader: Record "Purchase Header";
         ProductionOrder: Record "Production Order";
-        ProdOrderStatusManagement: Codeunit "Prod. Order Status Management";
         ProductionOrderNo: Code[20];
         ItemNo: Code[20];
         ItemNo2: Code[20];
@@ -1037,10 +1034,10 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [GIVEN] Required Costing Setups.
         CreateCostingSetup(
-          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, FlushingMethod::Forward, CostingMethod::Average,
+          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Forward, "Costing Method"::Average,
           true, true, true, false, false, false, false);
         ProductionOrder.Get(ProductionOrder.Status::Planned, ProductionOrderNo);
-        ProdOrderStatusManagement.ChangeStatusOnProdOrder(ProductionOrder, ProductionOrder.Status::Released, WorkDate, false);
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate, false);
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Released);
         ProductionOrder.SetRange("Source No.", ProductionOrder."Source No.");
         ProductionOrder.FindFirst;
@@ -1070,7 +1067,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [GIVEN] Required Costing Setups. Post Consumption and Output. Finish Production Order.
         CreateCostingSetup(
-          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, FlushingMethod::Manual, CostingMethod::Average,
+          PurchaseHeader, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Manual, "Costing Method"::Average,
           true, true, false, false, false, true, false);
         LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
@@ -1103,7 +1100,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [GIVEN] Required Costing Setups. Run Adjust Cost Item Entries report and Post Inventory Cost to G/L report. Update Status of Production Order to Finished.
         CreateCostingSetupAddnlCurr(
-          PurchaseHeader, CurrencyCode, ProductionOrderNo, ItemNo, ItemNo2, true, FlushingMethod::Forward, CostingMethod::Standard,
+          PurchaseHeader, CurrencyCode, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Forward, "Costing Method"::Standard,
           true, true, false, false, false, false);
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
         LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
@@ -1137,7 +1134,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // [GIVEN] Required Costing Setups. Create and Post Consumption Journal and Run Adjust Cost Item Entries report and Post Inventory Cost to G/L report.
         // [GIVEN] Create and Post Output Journal. Change Status of Production Order to Finished.
         CreateCostingSetupAddnlCurr(
-          PurchaseHeader, CurrencyCode, ProductionOrderNo, ItemNo, ItemNo2, true, FlushingMethod::Manual, CostingMethod::Standard,
+          PurchaseHeader, CurrencyCode, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Manual, "Costing Method"::Standard,
           true, true, false, false, false, false);
         LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
@@ -1175,7 +1172,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // [GIVEN] Required Costing Setups. Create Consumption Journal, Post with Different Qty, Run Adjust Cost Item Entries report and Post Inventory Cost to G/L report.
         // [GIVEN] Create and Post Output Journal. Change Status of Production Order to Finished.
         CreateCostingSetupAddnlCurr(
-          PurchaseHeader, CurrencyCode, ProductionOrderNo, ItemNo, ItemNo2, true, FlushingMethod::Manual, CostingMethod::Standard,
+          PurchaseHeader, CurrencyCode, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Manual, "Costing Method"::Standard,
           true, true, false, false, false, false);
         LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         UpdateDiffQtyConsmpJournal(ProductionOrderNo);
@@ -1214,7 +1211,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // [GIVEN] Required Costing Setups. Create Consumption Journal, Post with Different Qty, Run Adjust Cost Item Entries report and Post Inventory Cost to G/L report.
         // [GIVEN] Create and Post Output Journal with Less Output Quantity. Change Status of Production Order to Finished.
         CreateCostingSetupAddnlCurr(
-          PurchaseHeader, CurrencyCode, ProductionOrderNo, ItemNo, ItemNo2, true, FlushingMethod::Manual, CostingMethod::Standard,
+          PurchaseHeader, CurrencyCode, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Manual, "Costing Method"::Standard,
           true, true, false, false, false, false);
         LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         UpdateDiffQtyConsmpJournal(ProductionOrderNo);
@@ -1242,7 +1239,6 @@ codeunit 137003 "SCM WIP Costing Production-I"
     var
         PurchaseHeader: Record "Purchase Header";
         ProductionOrder: Record "Production Order";
-        ProdOrderStatusManagement: Codeunit "Prod. Order Status Management";
         CurrencyCode: Code[10];
         ProductionOrderNo: Code[20];
         ItemNo: Code[20];
@@ -1253,13 +1249,13 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [GIVEN] Required Costing Setups. Run Adjust Cost Item entries and Post Inventory Cost to G/L report. Change Status of Production Order from Planned to Finished.
         CreateCostingSetupAddnlCurr(
-          PurchaseHeader, CurrencyCode, ProductionOrderNo, ItemNo, ItemNo2, true, FlushingMethod::Forward, CostingMethod::Standard,
+          PurchaseHeader, CurrencyCode, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Forward, "Costing Method"::Standard,
           true, true, true, false, false, false);
         LibraryCosting.AdjustCostItemEntries(ItemNo + '..' + ItemNo2, '');
         LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
 
         ProductionOrder.Get(ProductionOrder.Status::Planned, ProductionOrderNo);
-        ProdOrderStatusManagement.ChangeStatusOnProdOrder(ProductionOrder, ProductionOrder.Status::Released, WorkDate, false);
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate, false);
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Released);
         ProductionOrder.SetRange("Source No.", ProductionOrder."Source No.");
         ProductionOrder.FindFirst;
@@ -1291,7 +1287,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [GIVEN] Required Costing Setups. Finish Production Order.
         CreateCostingSetupAddnlCurr(
-          PurchaseHeader, CurrencyCode, ProductionOrderNo, ItemNo, ItemNo2, true, FlushingMethod::Manual, CostingMethod::Standard,
+          PurchaseHeader, CurrencyCode, ProductionOrderNo, ItemNo, ItemNo2, true, "Flushing Method"::Manual, "Costing Method"::Standard,
           true, true, false, false, false, true);
         LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo2, ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
@@ -1318,7 +1314,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Covers TFS_TC_ID = 11734
         // Auto Cost Posting - True, Purchase Posting with Full Qty to Receive.
         StdManAddlCurrPurchase(
-          true, false, FlushingMethod::Manual, CostingMethod::Standard);  // Boolean-Auto Cost Posting and Partial Posting.
+          true, false, "Flushing Method"::Manual, "Costing Method"::Standard);  // Boolean-Auto Cost Posting and Partial Posting.
     end;
 
     [Test]
@@ -1329,7 +1325,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Covers TFS_TC_ID = 11736
         // Auto Cost Posting - True, Purchase Posting with Partial Qty to Receive.
         StdManAddlCurrPurchase(
-          true, true, FlushingMethod::Manual, CostingMethod::Standard);
+          true, true, "Flushing Method"::Manual, "Costing Method"::Standard);
     end;
 
     [Test]
@@ -1340,7 +1336,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Covers TFS_TC_ID = 11735
         // Auto Cost Posting - False, Purchase Posting with Full Qty to Receive.
         StdManAddlCurrPurchase(
-          false, false, FlushingMethod::Manual, CostingMethod::Standard);
+          false, false, "Flushing Method"::Manual, "Costing Method"::Standard);
     end;
 
     [Test]
@@ -1351,10 +1347,10 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Covers TFS_TC_ID = 11737
         // Auto Cost Posting - False, Purchase Posting with Partial Qty to Receive.
         StdManAddlCurrPurchase(
-          false, true, FlushingMethod::Manual, CostingMethod::Standard);
+          false, true, "Flushing Method"::Manual, "Costing Method"::Standard);
     end;
 
-    local procedure StdManAddlCurrPurchase(AutoCostPosting: Boolean; PartialPurchasePosting: Boolean; FlushingMethod: Option; CostingMethod: Option)
+    local procedure StdManAddlCurrPurchase(AutoCostPosting: Boolean; PartialPurchasePosting: Boolean; FlushingMethod: Enum "Flushing Method"; CostingMethod: Enum "Costing Method")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -1393,7 +1389,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Flushing Method - Manual, Auto Cost Posting - True, Direct Unit Cost as expected.
         // Purchase Posting with Full Qty to Receive.
         Qty := LibraryRandom.RandInt(10) + 50;
-        AvgAddlCurrPurchase(true, false, Qty, Qty, FlushingMethod::Manual);
+        AvgAddlCurrPurchase(true, false, Qty, Qty, "Flushing Method"::Manual);
     end;
 
     [Test]
@@ -1407,7 +1403,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Flushing Method - Manual, Auto Cost Posting - False, Direct Unit Cost as expected.
         // Purchase Posting with Full Qty to Receive.
         Qty := LibraryRandom.RandInt(10) + 50;
-        AvgAddlCurrPurchase(false, false, Qty, Qty, FlushingMethod::Manual);
+        AvgAddlCurrPurchase(false, false, Qty, Qty, "Flushing Method"::Manual);
     end;
 
     [Test]
@@ -1421,7 +1417,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Flushing Method - Manual, Auto Cost Posting - True, Direct Unit Cost different from expected.
         // Purchase Posting with Full Qty to Receive.
         Qty := LibraryRandom.RandInt(10) + 50;
-        AvgAddlCurrPurchase(true, true, Qty, Qty, FlushingMethod::Manual);
+        AvgAddlCurrPurchase(true, true, Qty, Qty, "Flushing Method"::Manual);
     end;
 
     [Test]
@@ -1435,7 +1431,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Flushing Method - Manual, Auto Cost Posting - False, Direct Unit Cost different from expected.
         // Purchase Posting with Full Qty to Receive.
         Qty := LibraryRandom.RandInt(10) + 50;
-        AvgAddlCurrPurchase(false, true, Qty, Qty, FlushingMethod::Manual);
+        AvgAddlCurrPurchase(false, true, Qty, Qty, "Flushing Method"::Manual);
     end;
 
     [Test]
@@ -1449,7 +1445,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Flushing Method - Manual, Auto Cost Posting - True, Direct Unit Cost as expected.
         // Purchase Posting with Partial Qty to Receive.
         Qty := LibraryRandom.RandInt(10) + 50;
-        AvgAddlCurrPurchase(true, false, Qty, Qty - 1, FlushingMethod::Manual);
+        AvgAddlCurrPurchase(true, false, Qty, Qty - 1, "Flushing Method"::Manual);
     end;
 
     [Test]
@@ -1463,7 +1459,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Flushing Method - Manual, Auto Cost Posting - False, Direct Unit Cost as expected.
         // Purchase Posting with Partial Qty to Receive.
         Qty := LibraryRandom.RandInt(10) + 50;
-        AvgAddlCurrPurchase(false, false, Qty, Qty - 1, FlushingMethod::Manual);
+        AvgAddlCurrPurchase(false, false, Qty, Qty - 1, "Flushing Method"::Manual);
     end;
 
     [Test]
@@ -1477,7 +1473,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Flushing Method - Manual, Auto Cost Posting - True, Direct Unit Cost different from expected.
         // Purchase Posting with Partial Qty to Receive.
         Qty := LibraryRandom.RandInt(10) + 50;
-        AvgAddlCurrPurchase(true, true, Qty, Qty - 1, FlushingMethod::Manual);
+        AvgAddlCurrPurchase(true, true, Qty, Qty - 1, "Flushing Method"::Manual);
     end;
 
     [Test]
@@ -1491,10 +1487,10 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Flushing Method - Manual, Auto Cost Posting - False, Direct Unit Cost different from expected.
         // Purchase Posting with Partial Qty to Receive.
         Qty := LibraryRandom.RandInt(10) + 50;
-        AvgAddlCurrPurchase(false, true, Qty, Qty - 1, FlushingMethod::Manual);
+        AvgAddlCurrPurchase(false, true, Qty, Qty - 1, "Flushing Method"::Manual);
     end;
 
-    local procedure AvgAddlCurrPurchase(AutoCostPosting: Boolean; DirectUnitCost: Boolean; Qty: Decimal; QtyToReceive: Decimal; FlushingMethod: Option)
+    local procedure AvgAddlCurrPurchase(AutoCostPosting: Boolean; DirectUnitCost: Boolean; Qty: Decimal; QtyToReceive: Decimal; FlushingMethod: Enum "Flushing Method")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1513,7 +1509,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryERM.SetAddReportingCurrency('');
         LibraryInventory.UpdateInventorySetup(
           InventorySetup, AutoCostPosting, false, AutomaticCostAdjustment::Never, AverageCostCalcType::Item, AverageCostPeriod::Day);
-        CreateComponentItems(ItemNo, ItemNo2, CostingMethod::Average, FlushingMethod, false);
+        CreateComponentItems(ItemNo, ItemNo2, "Costing Method"::Average, FlushingMethod, false);
         CreatePurchaseOrderAddnlCurr(PurchaseHeader, PurchaseLine, CurrencyCode, ItemNo, ItemNo2, Qty, QtyToReceive, DirectUnitCost);
         CurrencyCode := UpdateAddnlReportingCurrency;
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);  // Receive.
@@ -1547,7 +1543,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [GIVEN] Create Finished Production Order and post Production Journal Lines with 2 Component Items with Unit Cost Precision equal to to GLSetup."Unit-Amount Rounding Precision"
         CreateCostingSetup(
-          PurchaseHeader, ProductionOrderNo, CompItemNo, ParentItemNo, true, FlushingMethod::Manual, CostingMethod::Standard,
+          PurchaseHeader, ProductionOrderNo, CompItemNo, ParentItemNo, true, "Flushing Method"::Manual, "Costing Method"::Standard,
           true, false, false, false, false, false, true);
         MaterialCost := GetMaterialCostFromBOMLine(ParentItemNo);
         PostProdOrderJournalLinesAndFinishProdOrder(ProductionOrderNo, ParentItemNo);
@@ -1773,7 +1769,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM WIP Costing Production-I");
     end;
 
-    local procedure CreateCostingSetup(var PurchaseHeader: Record "Purchase Header"; var ProductionOrderNo: Code[20]; var ItemNo: Code[20]; var ItemNo3: Code[20]; AutoCostPosting: Boolean; FlushingMethod: Option Manual,Forward,Backward; CostingMethod: Option FIFO,LIFO,Specific,"Average",Standard; DirectUnitCost: Boolean; Invoice: Boolean; NewProdComponent: Boolean; PurchaseOnly: Boolean; PartialPurchasePosting: Boolean; NewRouting: Boolean; GetAmtPrecFromGLSetup: Boolean)
+    local procedure CreateCostingSetup(var PurchaseHeader: Record "Purchase Header"; var ProductionOrderNo: Code[20]; var ItemNo: Code[20]; var ItemNo3: Code[20]; AutoCostPosting: Boolean; FlushingMethod: Enum "Flushing Method"; CostingMethod: Enum "Costing Method"; DirectUnitCost: Boolean; Invoice: Boolean; NewProdComponent: Boolean; PurchaseOnly: Boolean; PartialPurchasePosting: Boolean; NewRouting: Boolean; GetAmtPrecFromGLSetup: Boolean)
     var
         Item: Record Item;
         InventorySetup: Record "Inventory Setup";
@@ -1810,7 +1806,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
           LibraryRandom.RandDec(5, 2));  // Capacity important for Test.
         if NewRouting then
             CreateMachineCenter(
-              MachineCenter2, WorkCenterNo, FlushingMethod::Manual, 1,
+              MachineCenter2, WorkCenterNo, "Flushing Method"::Manual, 1,
               LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(5, 2),
               LibraryRandom.RandDec(5, 2));
         RoutingNo := NoSeriesManagement.GetNextNo(ManufacturingSetup."Routing Nos.", WorkDate, true);
@@ -1833,7 +1829,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         end;
 
         // Calculate Standard Cost for the main Item and calculate Calendar for Machine Center and Work Center.
-        if CostingMethod = CostingMethod::Standard then
+        if CostingMethod = "Costing Method"::Standard then
             CalculateStandardCost.CalcItem(ItemNo3, false);
         CalculateMachineCntrCalendar(MachineCenter."No.");
         if NewRouting then
@@ -1872,7 +1868,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
             ReplaceProdOrderComponent(ProductionOrderNo, ItemNo2, ItemNo3, ItemNo4);
     end;
 
-    local procedure CreateCostingSetupAddnlCurr(var PurchaseHeader: Record "Purchase Header"; var CurrencyCode: Code[10]; var ProductionOrderNo: Code[20]; var ItemNo: Code[20]; var ItemNo3: Code[20]; AutoCostPosting: Boolean; FlushingMethod: Option Manual,Forward,Backward; CostingMethod: Option FIFO,LIFO,Specific,"Average",Standard; DirectUnitCost: Boolean; Invoice: Boolean; NewProdComponent: Boolean; PurchaseOnly: Boolean; PartialPurchasePosting: Boolean; NewRouting: Boolean)
+    local procedure CreateCostingSetupAddnlCurr(var PurchaseHeader: Record "Purchase Header"; var CurrencyCode: Code[10]; var ProductionOrderNo: Code[20]; var ItemNo: Code[20]; var ItemNo3: Code[20]; AutoCostPosting: Boolean; FlushingMethod: Enum "Flushing Method"; CostingMethod: Enum "Costing Method"; DirectUnitCost: Boolean; Invoice: Boolean; NewProdComponent: Boolean; PurchaseOnly: Boolean; PartialPurchasePosting: Boolean; NewRouting: Boolean)
     var
         Item: Record Item;
         InventorySetup: Record "Inventory Setup";
@@ -1909,7 +1905,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
           LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(5, 2), LibraryRandom.RandDec(5, 2));
         if NewRouting then
             CreateMachineCenter(
-              MachineCenter2, WorkCenterNo, FlushingMethod::Manual, 1,
+              MachineCenter2, WorkCenterNo, "Flushing Method"::Manual, 1,
               LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(5, 2), LibraryRandom.RandDec(5, 2));
         RoutingNo := NoSeriesManagement.GetNextNo(ManufacturingSetup."Routing Nos.", WorkDate, true);
         CreateRouting(WorkCenterNo, MachineCenter."No.", RoutingNo);
@@ -1931,7 +1927,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         end;
 
         // Calculate Standard Cost for the main Item and calculate Calendar for Machine Center and Work Center.
-        if CostingMethod = CostingMethod::Standard then
+        if CostingMethod = "Costing Method"::Standard then
             CalculateStandardCost.CalcItem(ItemNo3, false);
         CalculateMachineCntrCalendar(MachineCenter."No.");
         if NewRouting then
@@ -1971,7 +1967,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
             ReplaceProdOrderComponent(ProductionOrderNo, ItemNo2, ItemNo3, ItemNo4);
     end;
 
-    local procedure CreateWorkCenter(var WorkCenterNo: Code[20]; FlushingMethod: Option)
+    local procedure CreateWorkCenter(var WorkCenterNo: Code[20]; FlushingMethod: Enum "Flushing Method")
     var
         WorkCenter: Record "Work Center";
     begin
@@ -1986,7 +1982,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         WorkCenterNo := WorkCenter."No.";
     end;
 
-    local procedure CreateMachineCenter(var MachineCenter: Record "Machine Center"; WorkCenterNo: Code[20]; FlushingMethod: Option; Capacity: Decimal; DirectUnitCost: Decimal; IndirectCostPercentage: Decimal; OverheadRate: Decimal)
+    local procedure CreateMachineCenter(var MachineCenter: Record "Machine Center"; WorkCenterNo: Code[20]; FlushingMethod: Enum "Flushing Method"; Capacity: Decimal; DirectUnitCost: Decimal; IndirectCostPercentage: Decimal; OverheadRate: Decimal)
     begin
         // Create Machine Center with required fields.
         LibraryManufacturing.CreateMachineCenter(MachineCenter, WorkCenterNo, Capacity);
@@ -2029,7 +2025,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         RoutingNo := RoutingHeader."No.";
     end;
 
-    local procedure CreateComponentItems(var ItemNo: Code[20]; var ItemNo2: Code[20]; ItemCostingMethod: Option; FlushingMethod: Option; GetAmtPrecFromGLSetup: Boolean)
+    local procedure CreateComponentItems(var ItemNo: Code[20]; var ItemNo2: Code[20]; ItemCostingMethod: Enum "Costing Method"; FlushingMethod: Enum "Flushing Method"; GetAmtPrecFromGLSetup: Boolean)
     var
         Item: Record Item;
     begin
@@ -2056,7 +2052,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
             Precision := StrLen(Accurancy) - DotPosIndex;
     end;
 
-    local procedure CreateItem(var Item: Record Item; ItemCostingMethod: Option; ItemReorderPolicy: Option; FlushingMethod: Option; RoutingNo: Code[20]; ProductionBOMNo: Code[20]; GetAmtPrecFromGLSetup: Boolean)
+    local procedure CreateItem(var Item: Record Item; ItemCostingMethod: Enum "Costing Method"; ItemReorderPolicy: Enum "Reordering Policy"; FlushingMethod: Enum "Flushing Method"; RoutingNo: Code[20]; ProductionBOMNo: Code[20]; GetAmtPrecFromGLSetup: Boolean)
     begin
         // Create Item with required fields where random values not important for test.
         LibraryManufacturing.CreateItemManufacturing(
@@ -2078,7 +2074,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryInventory.CreateItem(ProdItem);
         LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, CompItemNo, 1);
         LibraryManufacturing.CreateItemManufacturing(
-          ProdItem, CostingMethod::FIFO, 0, ProdItem."Reordering Policy"::" ", FlushingMethod::Manual, '', ProductionBOMHeader."No.");
+          ProdItem, "Costing Method"::FIFO, 0, ProdItem."Reordering Policy"::" ", "Flushing Method"::Manual, '', ProductionBOMHeader."No.");
     end;
 
     local procedure CalculateMachineCntrCalendar(MachineCenterNo: Code[20])
@@ -2159,8 +2155,8 @@ codeunit 137003 "SCM WIP Costing Production-I"
           LibraryManufacturing.CreateCertifiedProductionBOM(
             ProductionBOMHeader, ItemNo[1], 1); // specific value needed for test
         LibraryManufacturing.CreateItemManufacturing(
-          Item, CostingMethod::FIFO, 0,
-          Item."Reordering Policy"::" ", FlushingMethod::Manual, '', ProductionBOMNo[1]);
+          Item, "Costing Method"::FIFO, 0,
+          Item."Reordering Policy"::" ", "Flushing Method"::Manual, '', ProductionBOMNo[1]);
         Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Order");
         Item.Modify(true);
         ItemNo[3] := Item."No.";
@@ -2170,8 +2166,8 @@ codeunit 137003 "SCM WIP Costing Production-I"
             ProductionBOMHeader, ItemNo[2], 1); // specific value needed for test
         Clear(Item);
         LibraryManufacturing.CreateItemManufacturing(
-          Item, CostingMethod::FIFO, 0,
-          Item."Reordering Policy"::" ", FlushingMethod::Manual, '', ProductionBOMNo[2]);
+          Item, "Costing Method"::FIFO, 0,
+          Item."Reordering Policy"::" ", "Flushing Method"::Manual, '', ProductionBOMNo[2]);
         Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Order");
         Item.Modify(true);
         ItemNo[4] := Item."No.";
@@ -2181,8 +2177,8 @@ codeunit 137003 "SCM WIP Costing Production-I"
             ProductionBOMHeader, ItemNo[3], ItemNo[4], 1); // specific value needed for test
         Clear(Item);
         LibraryManufacturing.CreateItemManufacturing(
-          Item, CostingMethod::FIFO, 0,
-          Item."Reordering Policy"::" ", FlushingMethod::Manual, '', ProductionBOMNo[3]);
+          Item, "Costing Method"::FIFO, 0,
+          Item."Reordering Policy"::" ", "Flushing Method"::Manual, '', ProductionBOMNo[3]);
         Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Order");
         Item.Modify(true);
         ItemNo[5] := Item."No.";
@@ -2211,7 +2207,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
               CreateProductionOrder, ManufacturingUserTemplate."Create Transfer Order"::"Make Trans. Orders");
     end;
 
-    local procedure FindProdOrder(var ProductionOrder: Record "Production Order"; Status: Option; SourceNo: Code[20])
+    local procedure FindProdOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20])
     begin
         ProductionOrder.SetRange(Status, Status);
         ProductionOrder.SetRange("Source No.", SourceNo);

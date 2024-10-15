@@ -2,6 +2,9 @@ table 2831 "Native - Payment"
 {
     Caption = 'Native - Payment';
     ReplicateData = false;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
 
     fields
     {
@@ -16,14 +19,13 @@ table 2831 "Native - Payment"
         field(3; "Customer Id"; Guid)
         {
             Caption = 'Customer Id';
-            TableRelation = Customer.Id;
+            TableRelation = Customer.SystemId;
 
             trigger OnValidate()
             var
                 Customer: Record Customer;
             begin
-                Customer.SetRange(Id, "Customer Id");
-                if Customer.FindFirst then
+                if Customer.GetBySystemId("Customer Id") then
                     "Customer No." := Customer."No.";
             end;
         }
@@ -37,7 +39,7 @@ table 2831 "Native - Payment"
                 Customer: Record Customer;
             begin
                 if Customer.Get("Customer No.") then
-                    "Customer Id" := Customer.Id;
+                    "Customer Id" := Customer.SystemId;
             end;
         }
         field(5; "Payment Date"; Date)
@@ -56,8 +58,7 @@ table 2831 "Native - Payment"
             var
                 SalesInvoiceHeader: Record "Sales Invoice Header";
             begin
-                SalesInvoiceHeader.SetRange(Id, "Applies-to Invoice Id");
-                if not SalesInvoiceHeader.FindFirst then
+                if not SalesInvoiceHeader.GetBySystemId("Applies-to Invoice Id") then
                     exit;
 
                 "Applies-to Invoice No." := SalesInvoiceHeader."No.";
@@ -77,9 +78,10 @@ table 2831 "Native - Payment"
             trigger OnValidate()
             var
                 SalesInvoiceHeader: Record "Sales Invoice Header";
+                SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
             begin
                 if SalesInvoiceHeader.Get("Applies-to Invoice No.") then
-                    "Applies-to Invoice Id" := SalesInvoiceHeader.Id;
+                    "Applies-to Invoice Id" := SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader);
             end;
         }
         field(9; "Payment Method Id"; Guid)
@@ -90,8 +92,7 @@ table 2831 "Native - Payment"
             var
                 PaymentMethod: Record "Payment Method";
             begin
-                PaymentMethod.SetRange(Id, "Payment Method Id");
-                if PaymentMethod.FindFirst then
+                if PaymentMethod.GetBySystemId("Payment Method Id") then
                     "Payment Method Code" := PaymentMethod.Code;
             end;
         }
@@ -104,7 +105,7 @@ table 2831 "Native - Payment"
                 PaymentMethod: Record "Payment Method";
             begin
                 if PaymentMethod.Get("Payment Method Code") then
-                    "Payment Method Id" := PaymentMethod.Id;
+                    "Payment Method Id" := PaymentMethod.SystemId;
             end;
         }
     }

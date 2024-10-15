@@ -210,7 +210,7 @@ table 124 "Purch. Cr. Memo Hdr."
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Purch. Comment Line" WHERE("Document Type" = CONST("Posted Credit Memo"),
+            CalcFormula = Exist("Purch. Comment Line" WHERE("Document Type" = CONST("Posted Credit Memo"),
                                                              "No." = FIELD("No."),
                                                              "Document Line No." = CONST(0)));
             Caption = 'Comment';
@@ -256,7 +256,7 @@ table 124 "Purch. Cr. Memo Hdr."
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Purch. Cr. Memo Line".Amount WHERE("Document No." = FIELD("No.")));
+            CalcFormula = Sum("Purch. Cr. Memo Line".Amount WHERE("Document No." = FIELD("No.")));
             Caption = 'Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -265,7 +265,7 @@ table 124 "Purch. Cr. Memo Hdr."
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Purch. Cr. Memo Line"."Amount Including VAT" WHERE("Document No." = FIELD("No.")));
+            CalcFormula = Sum("Purch. Cr. Memo Line"."Amount Including VAT" WHERE("Document No." = FIELD("No.")));
             Caption = 'Amount Including VAT';
             Editable = false;
             FieldClass = FlowField;
@@ -513,12 +513,12 @@ table 124 "Purch. Cr. Memo Hdr."
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(1302; Paid; Boolean)
         {
-            CalcFormula = - Exist ("Vendor Ledger Entry" WHERE("Entry No." = FIELD("Vendor Ledger Entry No."),
+            CalcFormula = - Exist("Vendor Ledger Entry" WHERE("Entry No." = FIELD("Vendor Ledger Entry No."),
                                                               Open = FILTER(true)));
             Caption = 'Paid';
             Editable = false;
@@ -528,7 +528,7 @@ table 124 "Purch. Cr. Memo Hdr."
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = - Sum ("Detailed Vendor Ledg. Entry".Amount WHERE("Vendor Ledger Entry No." = FIELD("Vendor Ledger Entry No.")));
+            CalcFormula = - Sum("Detailed Vendor Ledg. Entry".Amount WHERE("Vendor Ledger Entry No." = FIELD("Vendor Ledger Entry No.")));
             Caption = 'Remaining Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -544,14 +544,14 @@ table 124 "Purch. Cr. Memo Hdr."
         field(1305; "Invoice Discount Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Purch. Cr. Memo Line"."Inv. Discount Amount" WHERE("Document No." = FIELD("No.")));
+            CalcFormula = Sum("Purch. Cr. Memo Line"."Inv. Discount Amount" WHERE("Document No." = FIELD("No.")));
             Caption = 'Invoice Discount Amount';
             Editable = false;
             FieldClass = FlowField;
         }
         field(1310; Cancelled; Boolean)
         {
-            CalcFormula = Exist ("Cancelled Document" WHERE("Source ID" = CONST(124),
+            CalcFormula = Exist("Cancelled Document" WHERE("Source ID" = CONST(124),
                                                             "Cancelled Doc. No." = FIELD("No.")));
             Caption = 'Cancelled';
             Editable = false;
@@ -559,7 +559,7 @@ table 124 "Purch. Cr. Memo Hdr."
         }
         field(1311; Corrective; Boolean)
         {
-            CalcFormula = Exist ("Cancelled Document" WHERE("Source ID" = CONST(122),
+            CalcFormula = Exist("Cancelled Document" WHERE("Source ID" = CONST(122),
                                                             "Cancelled By Doc. No." = FIELD("No.")));
             Caption = 'Corrective';
             Editable = false;
@@ -723,7 +723,6 @@ table 124 "Purch. Cr. Memo Hdr."
     var
         PostedDeferralHeader: Record "Posted Deferral Header";
         PostPurchDelete: Codeunit "PostPurch-Delete";
-        DeferralUtilities: Codeunit "Deferral Utilities";
     begin
         PostPurchDelete.IsDocumentDeletionAllowed("Posting Date");
         LockTable();
@@ -734,8 +733,10 @@ table 124 "Purch. Cr. Memo Hdr."
         PurchCommentLine.DeleteAll();
 
         ApprovalsMgmt.DeletePostedApprovalEntries(RecordId);
-        PostedDeferralHeader.DeleteForDoc(DeferralUtilities.GetPurchDeferralDocType, '', '',
-          PurchCommentLine."Document Type"::"Posted Credit Memo", "No.");
+        PostedDeferralHeader.DeleteForDoc(
+            "Deferral Document Type"::Purchase.AsInteger(), '', '',
+            PurchCommentLine."Document Type"::"Posted Credit Memo".AsInteger(), "No.");
+
         PostCodeCheck.DeleteAllAddressID(DATABASE::"Purch. Cr. Memo Hdr.", Rec.GetPosition);
     end;
 
@@ -764,7 +765,7 @@ table 124 "Purch. Cr. Memo Hdr."
         if not IsHandled then
             with PurchCrMemoHeader do begin
                 Copy(Rec);
-                ReportSelection.PrintWithGUIYesNoVendor(
+                ReportSelection.PrintWithDialogForVend(
                   ReportSelection.Usage::"P.Cr.Memo", PurchCrMemoHeader, ShowRequestPage, FieldNo("Buy-from Vendor No."));
             end;
     end;
@@ -785,7 +786,8 @@ table 124 "Purch. Cr. Memo Hdr."
         ReportSelections: Record "Report Selections";
     begin
         PurchCrMemoHdr.SetRecFilter();
-        ReportSelections.SaveAsDocumentAttachment(ReportSelections.Usage::"P.Cr.Memo", PurchCrMemoHdr, PurchCrMemoHdr."No.", PurchCrMemoHdr."Buy-from Vendor No.", true);
+        ReportSelections.SaveAsDocumentAttachment(
+            ReportSelections.Usage::"P.Cr.Memo".AsInteger(), PurchCrMemoHdr, PurchCrMemoHdr."No.", PurchCrMemoHdr."Buy-from Vendor No.", true);
     end;
 
     procedure Navigate()

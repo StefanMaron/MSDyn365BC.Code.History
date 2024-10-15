@@ -221,7 +221,7 @@ table 122 "Purch. Inv. Header"
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Purch. Comment Line" WHERE("Document Type" = CONST("Posted Invoice"),
+            CalcFormula = Exist("Purch. Comment Line" WHERE("Document Type" = CONST("Posted Invoice"),
                                                              "No." = FIELD("No."),
                                                              "Document Line No." = CONST(0)));
             Caption = 'Comment';
@@ -267,7 +267,7 @@ table 122 "Purch. Inv. Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Purch. Inv. Line".Amount WHERE("Document No." = FIELD("No.")));
+            CalcFormula = Sum("Purch. Inv. Line".Amount WHERE("Document No." = FIELD("No.")));
             Caption = 'Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -276,7 +276,7 @@ table 122 "Purch. Inv. Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Purch. Inv. Line"."Amount Including VAT" WHERE("Document No." = FIELD("No.")));
+            CalcFormula = Sum("Purch. Inv. Line"."Amount Including VAT" WHERE("Document No." = FIELD("No.")));
             Caption = 'Amount Including VAT';
             Editable = false;
             FieldClass = FlowField;
@@ -547,12 +547,12 @@ table 122 "Purch. Inv. Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(1302; Closed; Boolean)
         {
-            CalcFormula = - Exist ("Vendor Ledger Entry" WHERE("Entry No." = FIELD("Vendor Ledger Entry No."),
+            CalcFormula = - Exist("Vendor Ledger Entry" WHERE("Entry No." = FIELD("Vendor Ledger Entry No."),
                                                               Open = FILTER(true)));
             Caption = 'Closed';
             Editable = false;
@@ -562,7 +562,7 @@ table 122 "Purch. Inv. Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = - Sum ("Detailed Vendor Ledg. Entry".Amount WHERE("Vendor Ledger Entry No." = FIELD("Vendor Ledger Entry No.")));
+            CalcFormula = - Sum("Detailed Vendor Ledg. Entry".Amount WHERE("Vendor Ledger Entry No." = FIELD("Vendor Ledger Entry No.")));
             Caption = 'Remaining Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -578,14 +578,14 @@ table 122 "Purch. Inv. Header"
         field(1305; "Invoice Discount Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Purch. Inv. Line"."Inv. Discount Amount" WHERE("Document No." = FIELD("No.")));
+            CalcFormula = Sum("Purch. Inv. Line"."Inv. Discount Amount" WHERE("Document No." = FIELD("No.")));
             Caption = 'Invoice Discount Amount';
             Editable = false;
             FieldClass = FlowField;
         }
         field(1310; Cancelled; Boolean)
         {
-            CalcFormula = Exist ("Cancelled Document" WHERE("Source ID" = CONST(122),
+            CalcFormula = Exist("Cancelled Document" WHERE("Source ID" = CONST(122),
                                                             "Cancelled Doc. No." = FIELD("No.")));
             Caption = 'Cancelled';
             Editable = false;
@@ -593,7 +593,7 @@ table 122 "Purch. Inv. Header"
         }
         field(1311; Corrective; Boolean)
         {
-            CalcFormula = Exist ("Cancelled Document" WHERE("Source ID" = CONST(124),
+            CalcFormula = Exist("Cancelled Document" WHERE("Source ID" = CONST(124),
                                                             "Cancelled By Doc. No." = FIELD("No.")));
             Caption = 'Corrective';
             Editable = false;
@@ -751,7 +751,6 @@ table 122 "Purch. Inv. Header"
     var
         PostedDeferralHeader: Record "Posted Deferral Header";
         PostPurchDelete: Codeunit "PostPurch-Delete";
-        DeferralUtilities: Codeunit "Deferral Utilities";
     begin
         PostPurchDelete.IsDocumentDeletionAllowed("Posting Date");
         LockTable();
@@ -762,8 +761,10 @@ table 122 "Purch. Inv. Header"
         PurchCommentLine.DeleteAll();
 
         ApprovalsMgmt.DeletePostedApprovalEntries(RecordId);
-        PostedDeferralHeader.DeleteForDoc(DeferralUtilities.GetPurchDeferralDocType, '', '',
-          PurchCommentLine."Document Type"::"Posted Invoice", "No.");
+        PostedDeferralHeader.DeleteForDoc(
+            "Deferral Document Type"::Purchase.AsInteger(), '', '',
+            PurchCommentLine."Document Type"::"Posted Invoice".AsInteger(), "No.");
+
         PostCodeCheck.DeleteAllAddressID(DATABASE::"Purch. Inv. Header", GetPosition);
     end;
 
@@ -798,7 +799,7 @@ table 122 "Purch. Inv. Header"
         if not IsHandled then
             with PurchInvHeader do begin
                 Copy(Rec);
-                ReportSelection.PrintWithGUIYesNoVendor(
+                ReportSelection.PrintWithDialogForVend(
                   ReportSelection.Usage::"P.Invoice", PurchInvHeader, ShowRequestPage, FieldNo("Buy-from Vendor No."));
             end;
     end;
@@ -819,7 +820,8 @@ table 122 "Purch. Inv. Header"
         ReportSelections: Record "Report Selections";
     begin
         PurchInvHeaderLocal.SetRecFilter();
-        ReportSelections.SaveAsDocumentAttachment(ReportSelections.Usage::"P.Invoice", PurchInvHeaderLocal, PurchInvHeaderLocal."No.", PurchInvHeaderLocal."Buy-from Vendor No.", true);
+        ReportSelections.SaveAsDocumentAttachment(
+            ReportSelections.Usage::"P.Invoice".AsInteger(), PurchInvHeaderLocal, PurchInvHeaderLocal."No.", PurchInvHeaderLocal."Buy-from Vendor No.", true);
     end;
 
     procedure Navigate()

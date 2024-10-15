@@ -982,7 +982,7 @@ codeunit 141031 "ERM Post Dated Checks"
         CustLedgerEntry.FindFirst;
     end;
 
-    local procedure FindGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20])
+    local procedure FindGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     begin
         GenJournalLine.SetRange("Account Type", AccountType);
         GenJournalLine.SetRange("Account No.", AccountNo);

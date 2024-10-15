@@ -65,6 +65,9 @@ table 6 "Customer Price Group"
         {
             Clustered = true;
         }
+        key(Key2; SystemModifiedAt)
+        {
+        }
     }
 
     fieldgroups

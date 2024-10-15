@@ -51,7 +51,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        OldDefaultPostingDate: Option;
+        OldDefaultPostingDate: Enum "Default Posting Date";
         OldStockoutWarning: Boolean;
     begin
         // Test if the system allows to create New Sales Quote for Customer.
@@ -80,7 +80,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesLine: Record "Sales Line";
         VATAmountLine: Record "VAT Amount Line";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        OldDefaultPostingDate: Option;
+        OldDefaultPostingDate: Enum "Default Posting Date";
         OldStockoutWarning: Boolean;
         QtyType: Option General,Invoicing,Shipping;
     begin
@@ -118,7 +118,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         SalesQuote: Report "Sales - Quote";
         LibraryUtility: Codeunit "Library - Utility";
-        OldDefaultPostingDate: Option;
+        OldDefaultPostingDate: Enum "Default Posting Date";
         OldStockoutWarning: Boolean;
         FilePath: Text[1024];
     begin
@@ -151,7 +151,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        OldDefaultPostingDate: Option;
+        OldDefaultPostingDate: Enum "Default Posting Date";
         OldStockoutWarning: Boolean;
         LineCount: Integer;
         ResponsibilityCenterCode: Code[10];
@@ -213,7 +213,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        OldDefaultPostingDate: Option;
+        OldDefaultPostingDate: Enum "Default Posting Date";
         OldStockoutWarning: Boolean;
     begin
         // Check if the system allows changing Sell to Contact No. in Sales Quote and Check Sales Line updated for the same.
@@ -248,7 +248,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesLine: Record "Sales Line";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         SalesCalcDiscount: Codeunit "Sales-Calc. Discount";
-        OldDefaultPostingDate: Option;
+        OldDefaultPostingDate: Enum "Default Posting Date";
         OldStockoutWarning: Boolean;
         InvDiscountAmount: Decimal;
     begin
@@ -284,7 +284,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        OldDefaultPostingDate: Option;
+        OldDefaultPostingDate: Enum "Default Posting Date";
         OldStockoutWarning: Boolean;
         LineCount: Integer;
     begin
@@ -316,7 +316,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesLine: Record "Sales Line";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         SalesOrder: TestPage "Sales Order";
-        OldDefaultPostingDate: Option;
+        OldDefaultPostingDate: Enum "Default Posting Date";
         OldStockoutWarning: Boolean;
         LineCount: Integer;
     begin
@@ -354,7 +354,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        OldDefaultPostingDate: Option;
+        OldDefaultPostingDate: Enum "Default Posting Date";
         OldStockoutWarning: Boolean;
     begin
         // Check that blank Posting Date is populating on created Sales Order from Sales Quote while Default Posting Date is set to No Date on the Sales & Receivables Setup.
@@ -1725,7 +1725,7 @@ codeunit 134379 "ERM Sales Quotes"
         CustomerTemplate.Modify(true);
     end;
 
-    local procedure CreateCustomerTemplateWithContactType(var CustomerTemplate: Record "Customer Template"; ContactType: Option): Code[10]
+    local procedure CreateCustomerTemplateWithContactType(var CustomerTemplate: Record "Customer Template"; ContactType: Enum "Contact Type"): Code[10]
     begin
         LibrarySales.CreateCustomerTemplate(CustomerTemplate);
         CustomerTemplate.Validate("Contact Type", ContactType);
@@ -1835,7 +1835,7 @@ codeunit 134379 "ERM Sales Quotes"
         Reply := false;
     end;
 
-    local procedure UpdateSalesReceivablesSetup(var OldDefaultPostingDate: Option; DefaultPostingDate: Option; StockoutWarning: Boolean) OldStockoutWarning: Boolean
+    local procedure UpdateSalesReceivablesSetup(var OldDefaultPostingDate: Enum "Default Posting Date"; DefaultPostingDate: Enum "Default Posting Date"; StockoutWarning: Boolean) OldStockoutWarning: Boolean
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin

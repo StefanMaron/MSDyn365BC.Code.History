@@ -1980,7 +1980,7 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                     if FindSet then
                         repeat
                             PEPPOLMgt.TransferLineToSalesLine(ServiceInvoiceLine, SalesLine);
-                            SalesLine.Type := PEPPOLMgt.MapServiceLineTypeToSalesLineType(Type);
+                            SalesLine.Type := PEPPOLMgt.MapServiceLineTypeToSalesLineTypeEnum(Type);
                             PEPPOLMgt.GetTotals(SalesLine, TempVATAmtLine);
                             PEPPOLMgt.GetTaxCategories(SalesLine, TempVATProductPostingGroup);
                         until Next = 0;

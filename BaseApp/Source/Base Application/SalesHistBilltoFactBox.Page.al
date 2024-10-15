@@ -22,7 +22,7 @@ page 9081 "Sales Hist. Bill-to FactBox"
             group(Control2)
             {
                 ShowCaption = false;
-                Visible = RegularFastTabVisible;
+                Visible = false;
                 field("Bill-To No. of Quotes"; "Bill-To No. of Quotes")
                 {
                     ApplicationArea = Basic, Suite;
@@ -97,7 +97,6 @@ page 9081 "Sales Hist. Bill-to FactBox"
             cuegroup(Control23)
             {
                 ShowCaption = false;
-                Visible = CuesVisible;
                 field(NoOfQuotesTile; "Bill-To No. of Quotes")
                 {
                     ApplicationArea = Basic, Suite;
@@ -187,26 +186,15 @@ page 9081 "Sales Hist. Bill-to FactBox"
         exit(Find(Which));
     end;
 
-    trigger OnOpenPage()
     var
-        OfficeManagement: Codeunit "Office Management";
-    begin
-        RegularFastTabVisible := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Windows;
-        CuesVisible := (not RegularFastTabVisible) or OfficeManagement.IsAvailable;
-    end;
-
-    var
-        ClientTypeManagement: Codeunit "Client Type Management";
         ShowCustomerNo: Boolean;
-        RegularFastTabVisible: Boolean;
-        CuesVisible: Boolean;
 
     local procedure ShowDetails()
     begin
         PAGE.Run(PAGE::"Customer Card", Rec);
     end;
 
-    [Obsolete('Visibility of the Customer No. can be controlled through personalizaition or PTE', '16.0')]
+    [Obsolete('Visibility of the Customer No. can be controlled through personalizaition or PTE', '17.0')]
     procedure SetCustomerNoVisibility(Visible: Boolean)
     begin
         ShowCustomerNo := Visible;

@@ -51,7 +51,7 @@ page 28092 "Post Dated Checks-Purchases"
 
                     trigger OnValidate()
                     begin
-                        VendorNoOnAfterValidate;
+                        VendorNoOnAfterValidate();
                     end;
                 }
             }
@@ -208,7 +208,7 @@ page 28092 "Post Dated Checks-Purchases"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }

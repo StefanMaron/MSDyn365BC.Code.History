@@ -1,4 +1,4 @@
-﻿table 172 "Standard Customer Sales Code"
+table 172 "Standard Customer Sales Code"
 {
     Caption = 'Standard Customer Sales Code';
 
@@ -234,7 +234,7 @@
                     SalesLine."Line No." := GetNextLineNo(SalesLine);
                     SalesLine.Insert(true);
                     SalesLine.AutoAsmToOrder;
-                    InsertExtendedText(SalesLine);
+                    InsertExtendedText(SalesLine, SalesHeader);
                 end;
             until StdSalesLine.Next = 0;
 
@@ -261,6 +261,14 @@
         if SalesLine.Type = SalesLine.Type::" " then
             exit;
         if TransferExtendedText.SalesCheckIfAnyExtText(SalesLine, false) then
+            TransferExtendedText.InsertSalesExtText(SalesLine);
+    end;
+
+    procedure InsertExtendedText(SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    var
+        TransferExtendedText: Codeunit "Transfer Extended Text";
+    begin
+        if TransferExtendedText.SalesCheckIfAnyExtText(SalesLine, false, SalesHeader) then
             TransferExtendedText.InsertSalesExtText(SalesLine);
     end;
 

@@ -41,7 +41,7 @@ codeunit 7311 "Whse. Worksheet-Create"
             WhseWkshLine."Source Subtype" := "Source Subtype";
             WhseWkshLine."Source No." := "Source No.";
             WhseWkshLine."Source Line No." := "Source Line No.";
-            WhseWkshLine."Source Document" := WhseMgt.GetSourceDocument("Source Type", "Source Subtype");
+            WhseWkshLine."Source Document" := WhseMgt.GetWhseActivSourceDocument("Source Type", "Source Subtype");
             WhseWkshLine."Location Code" := "Location Code";
             WhseWkshLine."Item No." := "Item No.";
             WhseWkshLine."Variant Code" := "Variant Code";
@@ -142,11 +142,11 @@ codeunit 7311 "Whse. Worksheet-Create"
             WhseWkshLine."Whse. Document No." := "Prod. Order No.";
             WhseWkshLine."Whse. Document Line No." := "Prod. Order Line No.";
             WhseWkshLine."Source Type" := DATABASE::"Prod. Order Component";
-            WhseWkshLine."Source Subtype" := Status;
+            WhseWkshLine."Source Subtype" := Status.AsInteger();
             WhseWkshLine."Source No." := "Prod. Order No.";
             WhseWkshLine."Source Line No." := "Prod. Order Line No.";
             WhseWkshLine."Source Subline No." := "Line No.";
-            WhseWkshLine."Source Document" := WhseMgt.GetSourceDocument(WhseWkshLine."Source Type", WhseWkshLine."Source Subtype");
+            WhseWkshLine."Source Document" := WhseMgt.GetWhseActivSourceDocument(WhseWkshLine."Source Type", WhseWkshLine."Source Subtype");
             WhseWkshLine."Location Code" := "Location Code";
             WhseWkshLine."Item No." := "Item No.";
             WhseWkshLine."Variant Code" := "Variant Code";
@@ -228,11 +228,11 @@ codeunit 7311 "Whse. Worksheet-Create"
             FindLastWhseWkshLine(WhseWkshLine1, WhseWkshLine."Worksheet Template Name", WhseWkshLine.Name, WhseWkshLine."Location Code");
             WhseWkshLine."Line No." := WhseWkshLine1."Line No." + 10000;
             WhseWkshLine."Source Type" := DATABASE::"Assembly Line";
-            WhseWkshLine."Source Subtype" := "Document Type";
+            WhseWkshLine."Source Subtype" := "Document Type".AsInteger();
             WhseWkshLine."Source No." := "Document No.";
             WhseWkshLine."Source Line No." := "Line No.";
             WhseWkshLine."Source Subline No." := 0;
-            WhseWkshLine."Source Document" := WhseMgt.GetSourceDocument(WhseWkshLine."Source Type", WhseWkshLine."Source Subtype");
+            WhseWkshLine."Source Document" := WhseMgt.GetWhseActivSourceDocument(WhseWkshLine."Source Type", WhseWkshLine."Source Subtype");
             WhseWkshLine."Location Code" := "Location Code";
             TestField(Type, Type::Item);
             WhseWkshLine."Item No." := "No.";
@@ -283,7 +283,7 @@ codeunit 7311 "Whse. Worksheet-Create"
             WhseWkshLine."Source Subtype" := "Source Subtype";
             WhseWkshLine."Source No." := "Source No.";
             WhseWkshLine."Source Line No." := "Source Line No.";
-            WhseWkshLine."Source Document" := WhseMgt.GetSourceDocument("Source Type", "Source Subtype");
+            WhseWkshLine."Source Document" := WhseMgt.GetWhseActivSourceDocument("Source Type", "Source Subtype");
             WhseWkshLine."Location Code" := "Location Code";
             WhseWkshLine."Item No." := "Item No.";
             WhseWkshLine."Variant Code" := "Variant Code";

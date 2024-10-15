@@ -1053,7 +1053,7 @@ codeunit 137908 "SCM Assembly Order"
         WhseEntry.Init();
         WhseEntry."Entry No." := WhseEntry2."Entry No." + 1;
         WhseEntry."Source Type" := DATABASE::"Assembly Header";
-        WhseEntry."Source Subtype" := AsmHeader."Document Type";
+        WhseEntry."Source Subtype" := AsmHeader."Document Type".AsInteger();
         WhseEntry."Source No." := AsmHeader."No.";
         WhseEntry."Source Line No." := 0;
         WhseEntry."Location Code" := AsmHeader."Location Code";

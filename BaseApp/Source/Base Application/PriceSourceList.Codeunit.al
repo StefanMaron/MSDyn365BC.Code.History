@@ -2,11 +2,15 @@ codeunit 7011 "Price Source List"
 {
     var
         TempPriceSource: Record "Price Source" temporary;
+        PriceType: Enum "Price Type";
         CurrentLevel: Integer;
+        InconsistentPriceTypeErr: Label 'The source added to the list must have the Price Type equal to %1',
+            Comment = '%1 - price type value';
 
     procedure Init()
     begin
         CurrentLevel := 0;
+        PriceType := PriceType::Any;
         TempPriceSource.Reset();
         TempPriceSource.DeleteAll();
     end;
@@ -29,6 +33,25 @@ codeunit 7011 "Price Source List"
         Level[2] := LocalTempPriceSource.Level;
     end;
 
+    procedure GetPriceType(): Enum "Price Type";
+    begin
+        exit(PriceType);
+    end;
+
+    local procedure ValidatePriceType(NewPriceType: Enum "Price Type")
+    begin
+        if PriceType = PriceType::Any then
+            PriceType := NewPriceType
+        else
+            if (PriceType <> NewPriceType) and (NewPriceType <> NewPriceType::Any) then
+                Error(InconsistentPriceTypeErr, PriceType);
+    end;
+
+    procedure SetPriceType(NewPriceType: Enum "Price Type")
+    begin
+        ValidatePriceType(NewPriceType);
+    end;
+
     procedure IncLevel()
     begin
         CurrentLevel += 1;
@@ -46,6 +69,7 @@ codeunit 7011 "Price Source List"
         TempPriceSource.NewEntry(SourceType, CurrentLevel);
         TempPriceSource.Validate("Source No.", SourceNo);
         OnAddOnBeforeInsert(TempPriceSource);
+        ValidatePriceType(TempPriceSource."Price Type");
         TempPriceSource.Insert(true);
     end;
 
@@ -57,6 +81,7 @@ codeunit 7011 "Price Source List"
         TempPriceSource.Validate("Parent Source No.", ParentSourceNo);
         TempPriceSource.Validate("Source No.", SourceNo);
         OnAddOnBeforeInsert(TempPriceSource);
+        ValidatePriceType(TempPriceSource."Price Type");
         TempPriceSource.Insert(true);
     end;
 
@@ -67,12 +92,14 @@ codeunit 7011 "Price Source List"
         TempPriceSource.NewEntry(SourceType, CurrentLevel);
         TempPriceSource.Validate("Source ID", SourceId);
         OnAddOnBeforeInsert(TempPriceSource);
+        ValidatePriceType(TempPriceSource."Price Type");
         TempPriceSource.Insert(true);
     end;
 
     procedure Add(SourceType: Enum "Price Source Type")
     begin
         TempPriceSource.NewEntry(SourceType, CurrentLevel);
+        ValidatePriceType(TempPriceSource."Price Type");
         TempPriceSource.Insert(true);
     end;
 
@@ -97,11 +124,25 @@ codeunit 7011 "Price Source List"
         FromPriceSourceList.GetList(TempPriceSource);
     end;
 
-    procedure GetList(var ToTempPriceSource: Record "Price Source" temporary): Boolean
+    procedure GetList(var ToTempPriceSource: Record "Price Source" temporary) Found: Boolean
     begin
         if ToTempPriceSource.IsTemporary then
             ToTempPriceSource.Copy(TempPriceSource, true);
-        exit(not ToTempPriceSource.IsEmpty())
+        Found := ToTempPriceSource.FindSet();
+        UpdatePriceTypeSourceGroup(ToTempPriceSource)
+    end;
+
+    local procedure UpdatePriceTypeSourceGroup(var PriceSource: Record "Price Source")
+    begin
+        if PriceSource."Price Type" = PriceSource."Price Type"::Any then
+            PriceSource."Price Type" := PriceType;
+        if PriceSource."Source Group" = PriceSource."Source Group"::All then
+            case PriceType of
+                PriceType::Sale:
+                    PriceSource."Source Group" := PriceSource."Source Group"::Customer;
+                PriceType::Purchase:
+                    PriceSource."Source Group" := PriceSource."Source Group"::Vendor;
+            end;
     end;
 
     procedure First(var PriceSource: Record "Price Source"; AtLevel: Integer): Boolean;

@@ -59,16 +59,16 @@ codeunit 445 "Purch.-Post Prepmt. (Yes/No)"
         end;
     end;
 
-    local procedure PostPrepmtDocument(var PurchHeader: Record "Purchase Header"; PrepmtDocumentType: Option)
+    local procedure PostPrepmtDocument(var PurchHeader: Record "Purchase Header"; PrepmtDocumentType: Enum "Purchase Document Type")
     var
         PurchPostPrepayments: Codeunit "Purchase-Post Prepayments";
         ErrorMessageHandler: Codeunit "Error Message Handler";
         ErrorMessageMgt: Codeunit "Error Message Management";
     begin
-        OnBeforePostPrepmtDocument(PurchHeader, PrepmtDocumentType);
+        OnBeforePostPrepmtDocument(PurchHeader, PrepmtDocumentType.AsInteger());
 
         ErrorMessageMgt.Activate(ErrorMessageHandler);
-        PurchPostPrepayments.SetDocumentType(PrepmtDocumentType);
+        PurchPostPrepayments.SetDocumentType(PrepmtDocumentType.AsInteger());
         Commit();
         if not PurchPostPrepayments.Run(PurchHeader) then
             ErrorMessageHandler.ShowErrors;

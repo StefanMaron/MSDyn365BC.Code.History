@@ -52,7 +52,7 @@ page 28090 "Post Dated Checks"
 
                     trigger OnValidate()
                     begin
-                        CustomerNoOnAfterValidate;
+                        CustomerNoOnAfterValidate();
                     end;
                 }
             }
@@ -202,7 +202,7 @@ page 28090 "Post Dated Checks"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }

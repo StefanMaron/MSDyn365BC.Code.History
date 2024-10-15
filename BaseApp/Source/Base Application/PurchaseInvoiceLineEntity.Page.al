@@ -36,14 +36,10 @@ page 5528 "Purchase Invoice Line Entity"
                         RegisterFieldSet(FieldNo("No."));
                         RegisterFieldSet(FieldNo("Item Id"));
 
-                        Item.SetRange(Id, "Item Id");
-
-                        if not Item.FindFirst then begin
+                        if not Item.GetBySystemId("Item Id") then begin
                             InsertItem := true;
-                            CheckIntegrationIdInUse;
-
-                            Item.Id := "Item Id";
-                            RegisterFieldSet(Item.FieldNo(Id));
+                            CheckIntegrationIdInUse();
+                            Item.SystemId := Rec."Item Id";
                             exit;
                         end;
 
@@ -405,7 +401,11 @@ page 5528 "Purchase Invoice Line Entity"
     local procedure CheckIntegrationIdInUse()
     var
         IntegrationRecord: Record "Integration Record";
+        IntegrationManagement: Codeunit "Integration Management";
     begin
+        if not IntegrationManagement.IsIntegrationActivated() then
+            exit;
+
         if not IntegrationRecord.Get("Item Id") then
             exit;
 

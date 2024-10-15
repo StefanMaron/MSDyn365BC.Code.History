@@ -303,7 +303,7 @@ page 93 "Job Ledger Entries Preview"
 
                     trigger OnAction()
                     begin
-                        xRec.ShowDimensions;
+                        xRec.ShowDimensions();
                     end;
                 }
                 action(SetDimensionFilter)

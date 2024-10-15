@@ -209,7 +209,7 @@ codeunit 141038 "ERM VAT - Details"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseOrder(var PurchaseLine: Record "Purchase Line"; DocumentType: Option)
+    local procedure CreatePurchaseOrder(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -225,7 +225,7 @@ codeunit 141038 "ERM VAT - Details"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateSalesOrder(var SalesLine: Record "Sales Line"; DocumentType: Option)
+    local procedure CreateSalesOrder(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
     begin

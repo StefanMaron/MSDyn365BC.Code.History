@@ -1098,6 +1098,7 @@ codeunit 139160 "CRM Setup Test"
         CRMConnectionSetup.RegisterConnection();
         CreateTableMapping;
 
+        // [WHEN] Invoking the Synchronize Now action
         CRMConnectionSetupTestPage.OpenEdit;
         Assert.IsTrue(CRMConnectionSetupTestPage.SynchronizeNow.Enabled, 'Expected the Synchronize Now action to be enabled');
         CRMConnectionSetupTestPage.SynchronizeNow.Invoke;
@@ -1106,7 +1107,7 @@ codeunit 139160 "CRM Setup Test"
         SimulateIntegrationSyncJobsExecution();
 
         // [THEN] Jobs are created for each mapping and direction
-        Assert.AreEqual(38, IntegrationSynchJob.Count, 'Expected a job to be created for each mapping and direction');
+        Assert.AreEqual(37, IntegrationSynchJob.Count, 'Expected a job to be created for each mapping and direction');
         CRMConnectionSetup.DeleteAll();
         InitializeCDSConnectionSetup();
     end;
@@ -1909,6 +1910,7 @@ codeunit 139160 "CRM Setup Test"
 
         AssistedSetupTestLibrary.DeleteAll();
         AssistedSetupTestLibrary.CallOnRegister();
+        InitializeCDSConnectionSetup();
 
         if IsInitialized then
             exit;
@@ -1916,7 +1918,7 @@ codeunit 139160 "CRM Setup Test"
         IsInitialized := true;
         SetTenantLicenseStateToTrial;
 
-        InitializeCDSConnectionSetup();
+        Commit();
     end;
 
     local procedure InitializeCDSConnectionSetup()

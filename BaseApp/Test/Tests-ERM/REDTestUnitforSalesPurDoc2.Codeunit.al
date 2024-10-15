@@ -21,8 +21,8 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        CalcMethod: Option "Straight-Line","Equal per Period","Days per Period","User-Defined";
-        StartDate: Option "Posting Date","Beginning of Period","End of Period","Beginning of Next Period";
+        CalcMethod: Enum "Deferral Calculation Method";
+        StartDate: Enum "Deferral Calculation Start Date";
         SalesDocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Shipment,"Posted Invoice","Posted Credit Memo","Posted Return Receipt";
         PurchDocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Shipment,"Posted Invoice","Posted Credit Memo","Posted Return Receipt";
         isInitialized: Boolean;
@@ -72,7 +72,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         Commit(); // Required for the ASSERTERROR to Work
 
         // [THEN] The deferrals were removed also
-        VerifyPostedDeferralScheduleDoesNotExist(DeferralUtilities.GetSalesDeferralDocType,
+        VerifyPostedDeferralScheduleDoesNotExist("Deferral Document Type"::Sales,
           SalesDocType::"Posted Credit Memo", DocNo, LineNo);
     end;
 
@@ -115,7 +115,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         Commit(); // Required for the ASSERTERROR to Work
 
         // [THEN] The deferrals are removed along with the posted sales invoice
-        VerifyPostedDeferralScheduleDoesNotExist(DeferralUtilities.GetSalesDeferralDocType,
+        VerifyPostedDeferralScheduleDoesNotExist("Deferral Document Type"::Sales,
           SalesDocType::"Posted Invoice", DocNo, LineNo);
     end;
 
@@ -191,7 +191,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         Commit(); // Required for the ASSERTERROR to Work
 
         // [THEN] The deferrals were removed also
-        VerifyPostedDeferralScheduleDoesNotExist(DeferralUtilities.GetPurchDeferralDocType,
+        VerifyPostedDeferralScheduleDoesNotExist("Deferral Document Type"::Purchase,
           PurchDocType::"Posted Credit Memo", DocNo, LineNo);
     end;
 
@@ -234,7 +234,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         Commit(); // Required for the ASSERTERROR to Work
 
         // [THEN] The deferrals are removed along with the posted purchase invoice
-        VerifyPostedDeferralScheduleDoesNotExist(DeferralUtilities.GetPurchDeferralDocType,
+        VerifyPostedDeferralScheduleDoesNotExist("Deferral Document Type"::Purchase,
           PurchDocType::"Posted Invoice", DocNo, LineNo);
     end;
 
@@ -267,8 +267,8 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
 
         // [THEN] The deferrals were updated using the new date
         VerifyDeferralSchedule(
-          DeferralUtilities.GetSalesDeferralDocType,
-          SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.",
+          "Deferral Document Type"::Sales,
+          SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.",
           DeferralTemplateCode, SetDateDay(1, WorkDate), SalesLine.GetDeferralAmount, 3);
     end;
 
@@ -300,8 +300,8 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [WHEN] Answer 'No' to the confirmation dialog
 
         // [THEN] The deferrals are not updated
-        VerifyDeferralSchedule(DeferralUtilities.GetSalesDeferralDocType,
-          SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.",
+        VerifyDeferralSchedule("Deferral Document Type"::Sales,
+          SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.",
           DeferralTemplateCode, SetDateDay(25, WorkDate), SalesLine.GetDeferralAmount, 3);
     end;
 
@@ -326,8 +326,8 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
 
         // [THEN] The deferrals are updated using the new date
         VerifyDeferralSchedule(
-          DeferralUtilities.GetPurchDeferralDocType,
-          PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.",
+          "Deferral Document Type"::Purchase,
+          PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.",
           DeferralTemplateCode, SetDateDay(1, WorkDate), PurchaseLine.GetDeferralAmount, 2);
     end;
 
@@ -351,8 +351,8 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [WHEN] Answer 'No' to the confirmation dialog
 
         // [THEN] The deferrals are not updated with the new date
-        VerifyDeferralSchedule(DeferralUtilities.GetPurchDeferralDocType,
-          PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.",
+        VerifyDeferralSchedule("Deferral Document Type"::Purchase,
+          PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.",
           DeferralTemplateCode, SetDateDay(28, WorkDate), PurchaseLine.GetDeferralAmount, 2);
     end;
 
@@ -661,7 +661,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Throw error when unhandled "Calc. Method" passed
-        asserterror DeferralUtilities.CalcDeferralNoOfPeriods(4, LibraryRandom.RandInt(12), WorkDate);
+        asserterror DeferralUtilities.CalcDeferralNoOfPeriods("Deferral Calculation Method".FromInteger(4), LibraryRandom.RandInt(12), WorkDate);
 
         Assert.ExpectedErrorCode(FieldErrorTok);
         Assert.ExpectedError(FieldErrorErr);
@@ -1096,7 +1096,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         SalesLine."Currency Code" := Currency.Code;
 
         // [WHEN] ShowDeferralSchedule is called for Sales Line
-        SalesLine.ShowDeferralSchedule;
+        SalesLine.ShowDeferralSchedule();
         // UI Handled by DeferralScheduleModalPageHandlerOK
 
         DeferralHeader.Get(DeferralHeader."Deferral Doc. Type"::Sales, '', '', SalesHeader."Document Type", SalesHeader."No.", 10000);
@@ -1151,7 +1151,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
           LibraryRandom.RandDec(1000, 2));
     end;
 
-    local procedure CreateItemWithDefaultDeferralCode(var DefaultDeferralCode: Code[10]; var ItemNo: Code[20]; DefaultCalcMethod: Option; DefaultStartDate: Option; DefaultNoOfPeriods: Integer)
+    local procedure CreateItemWithDefaultDeferralCode(var DefaultDeferralCode: Code[10]; var ItemNo: Code[20]; DefaultCalcMethod: Enum "Deferral Calculation Method"; DefaultStartDate: Enum "Deferral Calculation Start Date"; DefaultNoOfPeriods: Integer)
     var
         Item: Record Item;
     begin
@@ -1215,7 +1215,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         GLAccount.Modify(true);
     end;
 
-    local procedure CreateSalesDocWithLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; SalesLineType: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; No: Code[20]; PostingDate: Date)
+    local procedure CreateSalesDocWithLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; SalesLineType: Enum "Sales Line Type"; No: Code[20]; PostingDate: Date)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
         SalesHeader.Validate("Posting Date", PostingDate);
@@ -1231,7 +1231,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         end;
     end;
 
-    local procedure CreatePurchDocWithLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; PurchLineType: Option " ","G/L Account",Item,,"Fixed Asset","Charge (Item)"; No: Code[20]; PostingDate: Date)
+    local procedure CreatePurchDocWithLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; PurchLineType: Enum "Purchase Line Type"; No: Code[20]; PostingDate: Date)
     var
         Item: Record Item;
     begin
@@ -1253,7 +1253,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         end;
     end;
 
-    local procedure CreatePurchDocWithLineRevCharge(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; PurchLineType: Option " ","G/L Account",Item,,"Fixed Asset","Charge (Item)"; No: Code[20]; PostingDate: Date)
+    local procedure CreatePurchDocWithLineRevCharge(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; PurchLineType: Enum "Purchase Line Type"; No: Code[20]; PostingDate: Date)
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo);
         PurchaseHeader.Validate("Posting Date", PostingDate);
@@ -1265,7 +1265,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocWithLineRevCharge(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; SalesLineType: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; No: Code[20]; PostingDate: Date)
+    local procedure CreateSalesDocWithLineRevCharge(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; SalesLineType: Enum "Sales Line Type"; No: Code[20]; PostingDate: Date)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
         SalesHeader.Validate("Posting Date", PostingDate);
@@ -1284,7 +1284,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         PurchaseLine.Validate("Deferral Code", DeferralTemplateCode);
         PurchaseLine.Modify(true);
         UpdateDeferralScheduleForLine(
-          DeferralUtilities.GetPurchDeferralDocType, PurchaseHeader."Document Type", PurchaseHeader."No.",
+          "Deferral Document Type"::Purchase, PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.",
           PurchaseLine."Line No.", PurchaseHeader."Posting Date", DefAmount1, DefAmount2, DefAmount3, LineNo);
     end;
 
@@ -1295,7 +1295,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         SalesLine.Validate("Deferral Code", DeferralTemplateCode);
         SalesLine.Modify(true);
         UpdateDeferralScheduleForLine(
-          DeferralUtilities.GetSalesDeferralDocType, SalesHeader."Document Type", SalesHeader."No.",
+          "Deferral Document Type"::Sales, SalesHeader."Document Type".AsInteger(), SalesHeader."No.",
           SalesLine."Line No.", SalesHeader."Posting Date", DefAmount1, DefAmount2, DefAmount3, LineNo);
     end;
 
@@ -1390,7 +1390,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         PurchaseHeader.Validate("Posting Date", SetDateDay(1, WorkDate));
     end;
 
-    local procedure DeferralLineSetRange(var DeferralLine: Record "Deferral Line"; DeferralDocType: Integer; DocType: Integer; DocNo: Code[20]; LineNo: Integer)
+    local procedure DeferralLineSetRange(var DeferralLine: Record "Deferral Line"; DeferralDocType: Enum "Deferral Document Type"; DocType: Integer; DocNo: Code[20]; LineNo: Integer)
     begin
         DeferralLine.SetRange("Deferral Doc. Type", DeferralDocType);
         DeferralLine.SetRange("Gen. Jnl. Template Name", '');
@@ -1410,7 +1410,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         PurchaseLine.ShowDeferrals(PurchaseHeader."Posting Date", PurchaseHeader."Currency Code");
     end;
 
-    local procedure PostedDeferralLineSetRange(var PostedDeferralLine: Record "Posted Deferral Line"; DeferralDocType: Integer; DocType: Integer; DocNo: Code[20]; LineNo: Integer)
+    local procedure PostedDeferralLineSetRange(var PostedDeferralLine: Record "Posted Deferral Line"; DeferralDocType: Enum "Deferral Document Type"; DocType: Integer; DocNo: Code[20]; LineNo: Integer)
     begin
         PostedDeferralLine.SetRange("Deferral Doc. Type", DeferralDocType);
         PostedDeferralLine.SetRange("Gen. Jnl. Document No.", '');
@@ -1420,7 +1420,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         PostedDeferralLine.SetRange("Line No.", LineNo);
     end;
 
-    local procedure SalesChangeNoOfPeriodsInitScenario(var NoOfPeriods: Integer; var Offset: Integer; CalcMethod: Option; var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header")
+    local procedure SalesChangeNoOfPeriodsInitScenario(var NoOfPeriods: Integer; var Offset: Integer; CalcMethod: Enum "Deferral Calculation Method"; var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header")
     var
         DeferralTemplate: Record "Deferral Template";
         DeferralTemplateCode: Code[10];
@@ -1437,7 +1437,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         LibraryVariableStorage.Enqueue(NoOfPeriods + Offset);
     end;
 
-    local procedure PurchaseChangeNoOfPeriodsInitScenario(var NoOfPeriods: Integer; var Offset: Integer; CalcMethod: Option; var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header")
+    local procedure PurchaseChangeNoOfPeriodsInitScenario(var NoOfPeriods: Integer; var Offset: Integer; CalcMethod: Enum "Deferral Calculation Method"; var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header")
     var
         DeferralTemplate: Record "Deferral Template";
         DeferralTemplateCode: Code[10];
@@ -1479,7 +1479,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         VATPostingSetup.Modify(true);
     end;
 
-    local procedure UpdateDeferralScheduleForLine(DefDocType: Option; DocType: Option; DocNo: Code[20]; DocLineNo: Integer; StartDate: Date; DefAmount1: Decimal; DefAmount2: Decimal; DefAmount3: Decimal; LineNo: Integer)
+    local procedure UpdateDeferralScheduleForLine(DefDocType: Enum "Deferral Document Type"; DocType: Option; DocNo: Code[20]; DocLineNo: Integer; StartDate: Date; DefAmount1: Decimal; DefAmount2: Decimal; DefAmount3: Decimal; LineNo: Integer)
     var
         DeferralLine: Record "Deferral Line";
     begin
@@ -1565,7 +1565,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         DeferralSchedule.OK.Invoke;
     end;
 
-    local procedure VerifyPostedDeferralScheduleDoesNotExist(DeferralDocType: Integer; DocType: Integer; DocNo: Code[20]; LineNo: Integer)
+    local procedure VerifyPostedDeferralScheduleDoesNotExist(DeferralDocType: Enum "Deferral Document Type"; DocType: Integer; DocNo: Code[20]; LineNo: Integer)
     var
         PostedDeferralHeader: Record "Posted Deferral Header";
         PostedDeferralLine: Record "Posted Deferral Line";
@@ -1576,7 +1576,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         Assert.RecordIsEmpty(PostedDeferralLine);
     end;
 
-    local procedure VerifyDeferralSchedule(DeferralDocType: Integer; DocType: Integer; DocNo: Code[20]; LineNo: Integer; DeferralTemplateCode: Code[10]; HeaderPostingDate: Date; HeaderAmountToDefer: Decimal; NoOfPeriods: Integer)
+    local procedure VerifyDeferralSchedule(DeferralDocType: Enum "Deferral Document Type"; DocType: Integer; DocNo: Code[20]; LineNo: Integer; DeferralTemplateCode: Code[10]; HeaderPostingDate: Date; HeaderAmountToDefer: Decimal; NoOfPeriods: Integer)
     var
         DeferralHeader: Record "Deferral Header";
         DeferralLine: Record "Deferral Line";

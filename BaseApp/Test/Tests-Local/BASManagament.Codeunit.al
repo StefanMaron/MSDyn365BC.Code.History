@@ -186,7 +186,8 @@ codeunit 145301 "BAS Managament"
             Commit();
             Assert.AreEqual(false, Exported, ExportedBASCalcSheetErr);
             Clear(BASUpdate);
-            BASUpdate.InitializeRequest(BASCalcSheet, true, 0, 0, false);
+            BASUpdate.InitializeRequest(
+                BASCalcSheet, true, "VAT Statement Report Selection"::Open, "VAT Statement Report Period Selection"::"Before and Within Period", false);
             BASUpdate.UseRequestPage(true);
             BASUpdate.RunModal;
         end;

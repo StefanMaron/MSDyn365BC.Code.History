@@ -349,7 +349,7 @@ table 49 "Invoice Post. Buffer"
         SalesHeader: Record "Sales Header";
     begin
         Clear(Rec);
-        Type := SalesLine.Type;
+        Type := SalesLine.Type.AsInteger();
         "System-Created Entry" := true;
         "Gen. Bus. Posting Group" := SalesLine."Gen. Bus. Posting Group";
         "Gen. Prod. Posting Group" := SalesLine."Gen. Prod. Posting Group";
@@ -462,7 +462,7 @@ table 49 "Invoice Post. Buffer"
         PurchHeader: Record "Purchase Header";
     begin
         Clear(Rec);
-        Type := PurchLine.Type;
+        Type := PurchLine.Type.AsInteger();
         "System-Created Entry" := true;
         "Gen. Bus. Posting Group" := PurchLine."Gen. Bus. Posting Group";
         "Gen. Prod. Posting Group" := PurchLine."Gen. Prod. Posting Group";

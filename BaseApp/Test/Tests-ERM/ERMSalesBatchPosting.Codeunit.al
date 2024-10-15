@@ -548,7 +548,6 @@ codeunit 134391 "ERM Sales Batch Posting"
     var
         SalesHeader: Record "Sales Header";
         BatchProcessingParameter: Record "Batch Processing Parameter";
-        BatchPostParameterTypes: Codeunit "Batch Post Parameter Types";
         LibraryJobQueue: Codeunit "Library - Job Queue";
         BatchID: array[2] of Guid;
         BatchSessionID: array[2] of Integer;
@@ -575,11 +574,11 @@ codeunit 134391 "ERM Sales Batch Posting"
 
         // [GIVEN] Batch "B[1]" processing "I". Batch is lost in current session. Parameter "Posting Date" = March 1st, 2019.
         AddBatchProcessParameters(
-          SalesHeader, BatchPostParameterTypes.PostingDate, PostingDate[1], BatchSessionID[1], BatchID[1]);
+          SalesHeader, "Batch Posting Parameter Type"::"Posting Date", PostingDate[1], BatchSessionID[1], BatchID[1]);
 
         // [GIVEN] Batch "B[2]" processing "I". Batch is live in other session. Parameter "Posting Date" = March 1st, 2019.
         AddBatchProcessParameters(
-          SalesHeader, BatchPostParameterTypes.PostingDate, PostingDate[1], BatchSessionID[2], BatchID[2]);
+          SalesHeader, "Batch Posting Parameter Type"::"Posting Date", PostingDate[1], BatchSessionID[2], BatchID[2]);
 
         // [WHEN] Stan run "Batch Post Sales Invoices" report with "Replace Posting Date" = TRUE and "Posting Date" = March 2nd, 2019 and "I" in filter
         RunBatchPostSales(SalesHeader."Document Type", SalesHeader."No.", PostingDate[2], true);
@@ -827,12 +826,12 @@ codeunit 134391 "ERM Sales Batch Posting"
         CustInvDisc.Insert(true);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; InvDisc: Boolean)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; InvDisc: Boolean)
     begin
         CreateSalesDocumentWithQuantity(SalesHeader, DocumentType, InvDisc, LibraryRandom.RandIntInRange(10, 20));
     end;
 
-    local procedure CreateSalesDocumentWithQuantity(var SalesHeader: Record "Sales Header"; DocumentType: Option; InvDisc: Boolean; DocQuantity: Decimal)
+    local procedure CreateSalesDocumentWithQuantity(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; InvDisc: Boolean; DocQuantity: Decimal)
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -862,7 +861,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         BatchProcessingSessionMap.Insert();
     end;
 
-    local procedure RunBatchPostSales(DocumentType: Option; DocumentNoFilter: Text; PostingDate: Date; CalcInvDisc: Boolean)
+    local procedure RunBatchPostSales(DocumentType: Enum "Sales Document Type"; DocumentNoFilter: Text; PostingDate: Date; CalcInvDisc: Boolean)
     var
         SalesHeader: Record "Sales Header";
     begin

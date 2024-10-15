@@ -245,7 +245,7 @@ codeunit 134325 "ERM Purchase Quote"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-        OldDefaultPostingDate: Option;
+        OldDefaultPostingDate: Enum "Default Posting Date";
     begin
         // Check that blank Posting Date is populating on created Purchase Order from Purchase Quote while Default Posting Date is set to No Date on the Purchase & Payables Setup.
 
@@ -538,7 +538,7 @@ codeunit 134325 "ERM Purchase Quote"
         PurchaseLine.FindFirst;
     end;
 
-    local procedure UpdatePurchasePayablesSetup(var OldDefaultPostingDate: Option; DefaultPostingDate: Option)
+    local procedure UpdatePurchasePayablesSetup(var OldDefaultPostingDate: Enum "Default Posting Date"; DefaultPostingDate: Enum "Default Posting Date")
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin

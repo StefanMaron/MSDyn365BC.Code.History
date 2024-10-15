@@ -1,4 +1,4 @@
-﻿codeunit 1005 "Job Calculate Batches"
+codeunit 1005 "Job Calculate Batches"
 {
 
     trigger OnRun()

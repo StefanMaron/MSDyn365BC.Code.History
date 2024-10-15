@@ -19,7 +19,6 @@ codeunit 135510 "Sales Invoice E2E Test"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
-        GraphContactIdFieldTxt: Label 'contactId';
         CustomerIdFieldTxt: Label 'customerId';
         CustomerNameFieldTxt: Label 'customerName';
         CustomerNumberFieldTxt: Label 'customerNumber';
@@ -333,7 +332,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         SalesHeader.SetRange("No.", InvoiceID);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.FindFirst;
-        InvoiceIntegrationID := SalesHeader.Id;
+        InvoiceIntegrationID := SalesHeader.SystemId;
         Assert.AreNotEqual('', InvoiceIntegrationID, 'ID should not be empty');
 
         if EmptyData then
@@ -399,7 +398,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         SalesHeader."Payment Terms Code" := PaymentTerms.Code;
         SalesHeader."Shipment Method Code" := ShipmentMethod.Code;
         SalesHeader.Modify();
-        InvoiceID := SalesHeader.Id;
+        InvoiceID := SalesHeader.SystemId;
         Commit();
 
         // [GIVEN] that the extra values are not empty
@@ -455,7 +454,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         Commit();
 
         // [WHEN] we PATCH the JSON to the web service, with the new number we should get an error
-        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.SystemId, PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
         asserterror LibraryGraphMgt.PatchToWebService(TargetURL, NewInvoiceNumberJSON, ResponseText);
         Assert.AreNotEqual(0, StrPos(GetLastErrorText, 'read-only'), 'The string "read-only" should exist in the error message');
     end;
@@ -589,7 +588,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         Commit();
 
         // [WHEN] we GET all the invoices from the web service
-        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.SystemId, PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
         LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
 
         // [THEN] the 1 invoice should exist in the response and Invoice Discount Should be Applied
@@ -627,7 +626,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         Commit();
 
         // [WHEN] we GET all the invoices from the web service
-        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.SystemId, PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
         LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
 
         // [THEN] the invoice should exist in the response and Invoice Discount Should be Applied
@@ -635,134 +634,6 @@ codeunit 135510 "Sales Invoice E2E Test"
         LibraryGraphDocumentTools.VerifySalesTotals(
           SalesHeader, ResponseText, DiscountAmt, SalesHeader."Invoice Discount Calculation"::Amount);
         VerifyGettingAgainKeepsETag(ResponseText, TargetURL);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestGetInvoicesWithContactId()
-    var
-        SalesHeader: Record "Sales Header";
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        InvoiceID: Code[20];
-        TargetURL: Text;
-        ResponseText: Text;
-    begin
-        // [FEATURE] [Contact] [ID]
-        // [SCENARIO 184721] Create an invoice with a contact with graph ID (GET method should return Graph Contact ID)
-        // [GIVEN] One invoice with contact ID
-        Initialize;
-
-        CreateSalesInvoiceWithGraphContactID(SalesHeader, GraphIntegrationRecord);
-        InvoiceID := SalesHeader.Id;
-
-        // [WHEN] We get invoice from web service
-        TargetURL := LibraryGraphMgt.CreateTargetURL(InvoiceID, PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
-        LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
-
-        // [THEN] The invoice should contain the Contact ID
-        LibraryGraphMgt.VerifyIDInJson(ResponseText);
-        VerifyContactId(ResponseText, GraphIntegrationRecord."Graph ID");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestPostInvoicesWithGraphContactId()
-    var
-        Contact: Record Contact;
-        Customer: Record Customer;
-        SalesHeader: Record "Sales Header";
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        InvoiceWithComplexJSON: Text;
-        TargetURL: Text;
-        ResponseText: Text;
-        InvoiceNumber: Text;
-    begin
-        // [FEATURE] [Contact] [ID]
-        // [SCENARIO 184721] Posting an invoice with Graph Contact ID (POST method should find the customer based on Contact ID)
-        // [GIVEN] One invoice with contact ID
-        Initialize;
-        LibraryGraphDocumentTools.CreateContactWithGraphId(Contact, GraphIntegrationRecord);
-        LibraryGraphDocumentTools.CreateCustomerFromContact(Customer, Contact);
-        InvoiceWithComplexJSON := CreateInvoiceJSONWithContactId(GraphIntegrationRecord);
-
-        TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
-        Commit();
-
-        // [WHEN] We post an invoice to web service
-        LibraryGraphMgt.PostToWebService(TargetURL, InvoiceWithComplexJSON, ResponseText);
-
-        // [THEN] The invoice should have a customer found based on contact ID
-        VerifyValidPostRequest(ResponseText, InvoiceNumber);
-        VerifyContactId(ResponseText, GraphIntegrationRecord."Graph ID");
-        VerifyCustomerFields(Customer, ResponseText);
-        VerifyContactFieldsUpdatedOnSalesHeader(InvoiceNumber, SalesHeader."Document Type"::Invoice, Contact);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestModifyingContactIdUpdatesSellToCustomer()
-    var
-        SalesHeader: Record "Sales Header";
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        SecondCustomer: Record Customer;
-        SecondContact: Record Contact;
-        SecondGraphIntegrationRecord: Record "Graph Integration Record";
-        InvoiceID: Code[20];
-        TargetURL: Text;
-        ResponseText: Text;
-        InvoiceWithComplexJSON: Text;
-        InvoiceNumber: Text;
-    begin
-        // [FEATURE] [Contact] [ID]
-        // [SCENARIO 184721] Create an invoice with a contact with graph ID (Selecting a different contact will change sell-to customer)
-        // [GIVEN] One invoice with contact ID
-        Initialize;
-
-        CreateSalesInvoiceWithGraphContactID(SalesHeader, GraphIntegrationRecord);
-        InvoiceID := SalesHeader.Id;
-
-        LibraryGraphDocumentTools.CreateContactWithGraphId(SecondContact, SecondGraphIntegrationRecord);
-        LibraryGraphDocumentTools.CreateCustomerFromContact(SecondCustomer, SecondContact);
-
-        TargetURL := LibraryGraphMgt.CreateTargetURL(InvoiceID, PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
-        InvoiceWithComplexJSON := CreateInvoiceJSONWithContactId(SecondGraphIntegrationRecord);
-
-        Commit();
-
-        // [WHEN] We Patch to web service
-        LibraryGraphMgt.PatchToWebService(TargetURL, InvoiceWithComplexJSON, ResponseText);
-
-        // [THEN] The invoice should have a new customer
-        VerifyValidPostRequest(ResponseText, InvoiceNumber);
-        VerifyContactId(ResponseText, SecondGraphIntegrationRecord."Graph ID");
-        VerifyCustomerFields(SecondCustomer, ResponseText);
-        VerifyContactFieldsUpdatedOnSalesHeader(InvoiceNumber, SalesHeader."Document Type"::Invoice, SecondContact);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestDemoDataIntegrationRecordIdsForInvoices()
-    var
-        IntegrationRecord: Record "Integration Record";
-        SalesHeader: Record "Sales Header";
-        BlankGuid: Guid;
-    begin
-        // [SCENARIO 184722] Integration record ids should be set correctly.
-        // [GIVEN] We have demo data applied correctly
-        SalesHeader.SetRange(Id, BlankGuid);
-        Assert.IsFalse(SalesHeader.FindFirst, 'No sales headers should have null id');
-
-        // [WHEN] We look through all sales headers.
-        // [THEN] The integration record for the sales header should have the same record id.
-        SalesHeader.Reset();
-        if SalesHeader.Find('-') then begin
-            repeat
-                Assert.IsTrue(IntegrationRecord.Get(SalesHeader.Id), 'The SalesHeader id should exist in the integration record table');
-                Assert.AreEqual(
-                  IntegrationRecord."Record ID", SalesHeader.RecordId,
-                  'The integration record for the SalesHeader should have the same record id as the SalesHeader.');
-            until SalesHeader.Next <= 0
-        end;
     end;
 
     [Test]
@@ -826,7 +697,7 @@ codeunit 135510 "Sales Invoice E2E Test"
 
         // [WHEN] we PATCH the JSON to the web service, with the unique Item ID
         InvoiceJSON := StrSubstNo('{"%1": %2}', DiscountAmountFieldTxt, Format(InvoiceDiscountAmount, 0, 9));
-        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.SystemId, PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, InvoiceJSON, ResponseText);
 
         // [THEN] Response contains the updated value
@@ -877,7 +748,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         Commit();
 
         // [WHEN] we PATCH the JSON to the web service, with the unique Item ID
-        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.SystemId, PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
         InvoiceJSON := StrSubstNo('{"%1": %2}', DiscountAmountFieldTxt, Format(0, 0, 9));
         LibraryGraphMgt.PatchToWebService(TargetURL, InvoiceJSON, ResponseText);
 
@@ -963,43 +834,10 @@ codeunit 135510 "Sales Invoice E2E Test"
         SalesLine.FindFirst;
     end;
 
-    local procedure CreateSalesInvoiceWithGraphContactID(var SalesHeader: Record "Sales Header"; var GraphIntegrationRecord: Record "Graph Integration Record")
-    var
-        Contact: Record Contact;
-        Customer: Record Customer;
-    begin
-        LibraryGraphDocumentTools.CreateContactWithGraphId(Contact, GraphIntegrationRecord);
-        LibraryGraphDocumentTools.CreateCustomerFromContact(Customer, Contact);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-    end;
-
-    local procedure CreateInvoiceJSONWithContactId(GraphIntegrationRecord: Record "Graph Integration Record"): Text
-    var
-        JSONManagement: Codeunit "JSON Management";
-        JObject: DotNet JObject;
-        InvoiceJSON: Text;
-    begin
-        JSONManagement.InitializeEmptyObject;
-        JSONManagement.GetJSONObject(JObject);
-
-        JSONManagement.AddJPropertyToJObject(JObject, GraphContactIdFieldTxt, GraphIntegrationRecord."Graph ID");
-        InvoiceJSON := JSONManagement.WriteObjectToString;
-
-        exit(InvoiceJSON);
-    end;
-
     local procedure ModifySalesHeaderPostingDate(var SalesHeader: Record "Sales Header"; PostingDate: Date)
     begin
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Modify(true);
-    end;
-
-    local procedure VerifyContactId(ResponseText: Text; ExpectedContactId: Text)
-    var
-        contactId: Text;
-    begin
-        LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, GraphContactIdFieldTxt, contactId);
-        Assert.AreEqual(ExpectedContactId, contactId, 'Wrong contact id was returned');
     end;
 
     local procedure VerifyValidPostRequest(ResponseText: Text; var InvoiceNumber: Text)
@@ -1023,17 +861,9 @@ codeunit 135510 "Sales Invoice E2E Test"
         LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, CustomerNumberFieldTxt, customerNumberValue);
 
         Assert.AreEqual(
-          IntegrationManagement.GetIdWithoutBrackets(ExpectedCustomer.Id), UpperCase(customerIdValue), 'Wrong setting for Customer Id');
+          IntegrationManagement.GetIdWithoutBrackets(ExpectedCustomer.SystemId), UpperCase(customerIdValue), 'Wrong setting for Customer Id');
         Assert.AreEqual(ExpectedCustomer."No.", customerNumberValue, 'Wrong setting for Customer Number');
         Assert.AreEqual(ExpectedCustomer.Name, customerNameValue, 'Wrong setting for Customer Name');
-    end;
-
-    local procedure VerifyContactFieldsUpdatedOnSalesHeader(DocumentNumber: Text; DocumentType: Option; ExpectedContact: Record Contact)
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        Assert.IsTrue(SalesHeader.Get(DocumentType, DocumentNumber), 'Could not find the sales header for ' + DocumentNumber);
-        Assert.AreEqual(ExpectedContact."No.", SalesHeader."Sell-to Contact No.", 'Wrong sell to contact no');
     end;
 }
 

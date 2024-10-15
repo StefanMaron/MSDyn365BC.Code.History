@@ -13,6 +13,7 @@ codeunit 138017 "O365 Miscellaneous"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibraryTemplates: Codeunit "Library - Templates";
         GenProductPostingGroup_Code: Code[10];
         EnvironmentErr: Label 'This feature is only available in the online production version of the product.';
         FieldShouldBeVisibleErr: Label 'Field should be visible in On-prem installation';
@@ -383,6 +384,7 @@ codeunit 138017 "O365 Miscellaneous"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Miscellaneous");
+        LibraryTemplates.DisableTemplatesFeature();
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Miscellaneous");
     end;
@@ -394,7 +396,7 @@ codeunit 138017 "O365 Miscellaneous"
         Reply := true
     end;
 
-    local procedure SetCostingMethodOnItemCard(var Item: Record Item; CostingMethodOption: Option)
+    local procedure SetCostingMethodOnItemCard(var Item: Record Item; CostingMethodOption: Enum "Costing Method")
     var
         ItemCard: TestPage "Item Card";
     begin

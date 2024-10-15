@@ -238,7 +238,7 @@ report 28074 "Sales - Tax Cr. Memo"
                         DataItemTableView = SORTING("Document No.", "Line No.");
                         column(LineAmt_SalesTaxCrMemoLine; "Line Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Desc_SalesTaxCrMemoLine; Description)
@@ -258,7 +258,7 @@ report 28074 "Sales - Tax Cr. Memo"
                         }
                         column(UnitPrice_SalesTaxCrMemoLine; "Unit Price")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 2;
                         }
                         column(LineDisc_SalesTaxCrMemoLine; "Line Discount %")
@@ -272,7 +272,7 @@ report 28074 "Sales - Tax Cr. Memo"
                         }
                         column(InvDiscountAmount; -"Inv. Discount Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(InvDiscountAmount0; TotalInvAmt <> 0)
@@ -283,7 +283,7 @@ report 28074 "Sales - Tax Cr. Memo"
                         }
                         column(SalesTaxCrMemoLineAmount; Amount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalAmt; TotalAmt)
@@ -297,12 +297,12 @@ report 28074 "Sales - Tax Cr. Memo"
                         }
                         column(SalesTaxCrMemoLineAmountIncludingVAT; "Amount Including VAT")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmountIncludingVATAmount; "Amount Including VAT" - Amount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATAmtLineVATAmountText; VATAmountLine.VATAmountText)
@@ -329,17 +329,17 @@ report 28074 "Sales - Tax Cr. Memo"
                         }
                         column(AmountIncLCYAmountLCY; AmountIncLCY - AmountLCY)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmountIncLCY; AmountIncLCY)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmountLCY; AmountLCY)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(CurrencyLCY; CurrencyLCY)

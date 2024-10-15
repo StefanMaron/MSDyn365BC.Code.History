@@ -86,7 +86,7 @@ table 5615 "FA Allocation"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()

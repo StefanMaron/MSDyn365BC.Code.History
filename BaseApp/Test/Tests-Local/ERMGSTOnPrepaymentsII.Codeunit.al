@@ -1171,7 +1171,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         PaymentJournal.OK.Invoke;
     end;
 
-    local procedure CreateAndPostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; AccountType: Integer; AccountNo: Code[20]; AppliesToDocNo: Code[20]; Amount: Decimal)
+    local procedure CreateAndPostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AppliesToDocNo: Code[20]; Amount: Decimal)
     begin
         CreateGeneralJournalLine(GenJournalLine, AccountType, AccountNo, AppliesToDocNo, Amount);
         GenJournalLine.Validate("Posting Date", PostingDate);
@@ -1214,7 +1214,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Integer; AccountNo: Code[20]; AppliesToDocNo: Code[20]; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AppliesToDocNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GLAccount: Record "G/L Account";
@@ -1293,7 +1293,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item."No.", LibraryRandom.RandDec(10, 2));  // Taking random for Quantity.
     end;
 
-    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; No: Code[20]; Quantity: Decimal)
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal)
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, Quantity);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));

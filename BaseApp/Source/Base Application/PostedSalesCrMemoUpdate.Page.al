@@ -9,6 +9,9 @@ page 28065 "Posted Sales Cr. Memo - Update"
     ShowFilter = false;
     SourceTable = "Sales Cr.Memo Header";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced with page 1354 Pstd. Sales Cr. Memo - Update';
+    ObsoleteTag = '17.0';
 
     layout
     {

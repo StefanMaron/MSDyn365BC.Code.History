@@ -73,13 +73,13 @@ codeunit 5774 "Whse.-Production Release"
             if ProdOrderComp."Remaining Quantity" > 0 then begin
                 WhsePickRqst.Init();
                 WhsePickRqst."Document Type" := WhsePickRqst."Document Type"::Production;
-                WhsePickRqst."Document Subtype" := ProdOrderComp.Status;
+                WhsePickRqst."Document Subtype" := ProdOrderComp.Status.AsInteger();
                 WhsePickRqst."Document No." := ProdOrderComp."Prod. Order No.";
                 WhsePickRqst.Status := WhsePickRqst.Status::Released;
                 WhsePickRqst."Location Code" := ProdOrderComp."Location Code";
                 WhsePickRqst."Completely Picked" :=
-                  ProdOrderCompletelyPicked(
-                    ProdOrderComp."Location Code", ProdOrder."No.", ProdOrder.Status, ProdOrderComp."Line No.");
+                    ProdOrderCompletelyPicked(
+                        ProdOrderComp."Location Code", ProdOrder."No.", ProdOrder.Status, ProdOrderComp."Line No.");
                 if WhsePickRqst."Completely Picked" and (not ProdOrderComp."Completely Picked") then
                     WhsePickRqst."Completely Picked" := false;
                 OnBeforeCreateWhsePickRequest(WhsePickRqst, ProdOrderComp, ProdOrder);
@@ -95,7 +95,7 @@ codeunit 5774 "Whse.-Production Release"
             WhseRqst."Location Code" := ProdOrderComp."Location Code";
             WhseRqst."Source Type" := DATABASE::"Prod. Order Component";
             WhseRqst."Source No." := ProdOrderComp."Prod. Order No.";
-            WhseRqst."Source Subtype" := ProdOrderComp.Status;
+            WhseRqst."Source Subtype" := ProdOrderComp.Status.AsInteger();
             WhseRqst."Source Document" := WhseRqst."Source Document"::"Prod. Consumption";
             WhseRqst."Document Status" := WhseRqst."Document Status"::Released;
             WhseRqst.SetDestinationType(ProdOrder);
@@ -126,7 +126,7 @@ codeunit 5774 "Whse.-Production Release"
                     if "Remaining Quantity" > 0 then begin
                         WhsePickRequest.Init();
                         WhsePickRequest."Document Type" := WhsePickRequest."Document Type"::Production;
-                        WhsePickRequest."Document Subtype" := Status;
+                        WhsePickRequest."Document Subtype" := Status.AsInteger();
                         WhsePickRequest."Document No." := "Prod. Order No.";
                         WhsePickRequest.Status := WhsePickRequest.Status::Released;
                         WhsePickRequest."Completely Picked" :=
@@ -149,7 +149,7 @@ codeunit 5774 "Whse.-Production Release"
                         WarehouseRequest."Location Code" := "Location Code";
                         WarehouseRequest."Source Type" := DATABASE::"Prod. Order Component";
                         WarehouseRequest."Source No." := "Prod. Order No.";
-                        WarehouseRequest."Source Subtype" := Status;
+                        WarehouseRequest."Source Subtype" := Status.AsInteger();
                         WarehouseRequest."Source Document" := WarehouseRequest."Source Document"::"Prod. Consumption";
                         WarehouseRequest."Document Status" := WarehouseRequest."Document Status"::Released;
                         WarehouseRequest.SetDestinationType(ProdOrder);
@@ -262,7 +262,7 @@ codeunit 5774 "Whse.-Production Release"
         end;
     end;
 
-    local procedure ProdOrderCompletelyPicked(LocationCode: Code[10]; ProdOrderNo: Code[20]; ProdOrderStatus: Option; CompLineNo: Integer): Boolean
+    local procedure ProdOrderCompletelyPicked(LocationCode: Code[10]; ProdOrderNo: Code[20]; ProdOrderStatus: Enum "Production Order Status"; CompLineNo: Integer): Boolean
     var
         ProdOrderComp: Record "Prod. Order Component";
     begin

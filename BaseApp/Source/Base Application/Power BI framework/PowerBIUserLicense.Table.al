@@ -1,3 +1,6 @@
+/// <summary>
+/// Caches the validity of the Power BI license for a user.
+/// </summary>
 table 6311 "Power BI User License"
 {
     Caption = 'Power BI User License';

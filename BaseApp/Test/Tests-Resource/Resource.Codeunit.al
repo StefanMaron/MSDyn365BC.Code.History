@@ -492,7 +492,7 @@ codeunit 136907 Resource
         AdjustCostItemWithMultipleUOMAndCostingMethod(Item."Costing Method"::LIFO);
     end;
 
-    local procedure AdjustCostItemWithMultipleUOMAndCostingMethod(CostingMethod: Option)
+    local procedure AdjustCostItemWithMultipleUOMAndCostingMethod(CostingMethod: Enum "Costing Method")
     var
         Item: Record Item;
         ItemUnitOfMeasure: Record "Item Unit of Measure";
@@ -518,7 +518,7 @@ codeunit 136907 Resource
         UpdateAutomaticUpdateJobItemCostOnJobsSetup(OldAutomaticUpdateJobItemCost);
     end;
 
-    local procedure UpdateJobItemCostWithPOAndCostingMethod(CostingMethod: Option)
+    local procedure UpdateJobItemCostWithPOAndCostingMethod(CostingMethod: Enum "Costing Method")
     var
         Item: Record Item;
         ItemUnitOfMeasure: Record "Item Unit of Measure";
@@ -1498,7 +1498,7 @@ codeunit 136907 Resource
         JobsSetup.Modify(true);
     end;
 
-    local procedure AdjustCostItemEntriesWithJobAndCostingMethod(var Item: Record Item; var ItemUnitOfMeasure: Record "Item Unit of Measure"; var JobTask: Record "Job Task"; CostingMethod: Option; Quantity: Decimal)
+    local procedure AdjustCostItemEntriesWithJobAndCostingMethod(var Item: Record Item; var ItemUnitOfMeasure: Record "Item Unit of Measure"; var JobTask: Record "Job Task"; CostingMethod: Enum "Costing Method"; Quantity: Decimal)
     begin
         // Create Item with Costing Method and Item Unit of Measure. Create Job and Job Task. Create and post Job Journal and Purchase Order. Run Adjust Cost Item entries batch job.
         CreateItemWithCostingMethodAndUOM(Item, ItemUnitOfMeasure, CostingMethod);
@@ -1617,7 +1617,7 @@ codeunit 136907 Resource
         if Tracking then begin
             LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignSerialNo);  // Enqueue for ItemTrackingPageHandler.
             LibraryVariableStorage.Enqueue(Quantity);  // Enqueue for EnterQtyToCreatePageHandler.
-            PurchaseLine.OpenItemTrackingLines;
+            PurchaseLine.OpenItemTrackingLines();
         end;
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // Post as Receive and Invoice.
     end;
@@ -1671,7 +1671,7 @@ codeunit 136907 Resource
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // Post as Receive and Invoice.
     end;
 
-    local procedure CreateAndPostSalesOrder(CustomerNo: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal)
+    local procedure CreateAndPostSalesOrder(CustomerNo: Code[20]; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1726,13 +1726,13 @@ codeunit 136907 Resource
         LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, ItemNo, LibraryRandom.RandInt(5) + 1);
     end;
 
-    local procedure CreateItemWithCostingMethod(var Item: Record Item; CostingMethod: Option)
+    local procedure CreateItemWithCostingMethod(var Item: Record Item; CostingMethod: Enum "Costing Method")
     begin
         LibraryInventory.CreateItem(Item);
         UpdateCostingMethodOnItem(Item, CostingMethod);
     end;
 
-    local procedure CreateItemWithCostingMethodAndUOM(var Item: Record Item; var ItemUnitOfMeasure: Record "Item Unit of Measure"; CostingMethod: Option)
+    local procedure CreateItemWithCostingMethodAndUOM(var Item: Record Item; var ItemUnitOfMeasure: Record "Item Unit of Measure"; CostingMethod: Enum "Costing Method")
     begin
         CreateItemWithCostingMethod(Item, CostingMethod);
         CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.");
@@ -1813,14 +1813,14 @@ codeunit 136907 Resource
         exit(Count);
     end;
 
-    local procedure CreatePurchaseOrderWithJob(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Option; ItemNo: Code[20]; Quantity: Decimal; QuantityToReceive: Decimal; JobNo: Code[20]; JobTaskNo: Code[20]; DirectUnitCost: Decimal; JobLineType: Option)
+    local procedure CreatePurchaseOrderWithJob(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Enum "Purchase Line Type"; ItemNo: Code[20]; Quantity: Decimal; QuantityToReceive: Decimal; JobNo: Code[20]; JobTaskNo: Code[20]; DirectUnitCost: Decimal; JobLineType: Option)
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         CreatePurchaseLineWithJob(
           PurchaseLine, PurchaseHeader, Type, ItemNo, Quantity, QuantityToReceive, JobNo, JobTaskNo, JobLineType, DirectUnitCost);
     end;
 
-    local procedure CreatePurchaseLineWithJob(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; ItemNo: Code[20]; Quantity: Decimal; QuantityToReceive: Decimal; JobNo: Code[20]; JobTaskNo: Code[20]; JobLineType: Option; DirectUnitCost: Decimal)
+    local procedure CreatePurchaseLineWithJob(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; ItemNo: Code[20]; Quantity: Decimal; QuantityToReceive: Decimal; JobNo: Code[20]; JobTaskNo: Code[20]; JobLineType: Option; DirectUnitCost: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, ItemNo, Quantity);
         PurchaseLine.Validate("Qty. to Receive", QuantityToReceive);
@@ -1889,7 +1889,7 @@ codeunit 136907 Resource
         Resource.Modify(true);
     end;
 
-    local procedure CreateSalesLineWithLocationCode(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Option; No: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    local procedure CreateSalesLineWithLocationCode(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal; LocationCode: Code[10])
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, Quantity);
         SalesLine.Validate("Location Code", LocationCode);
@@ -1906,13 +1906,13 @@ codeunit 136907 Resource
         UnitPrice[2] := CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Resource, ResNo, SecondLineQnt);
     end;
 
-    local procedure CreateSalesLine(SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; SalesLineType: Option; No: Code[20]; Quantity: Decimal): Decimal
+    local procedure CreateSalesLine(SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; SalesLineType: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal): Decimal
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLineType, No, Quantity);
         exit(SalesLine."Unit Price");
     end;
 
-    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal; LocationCode: Code[10])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1977,7 +1977,6 @@ codeunit 136907 Resource
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         DocumentNo: Code[20];
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         DocumentNo :=
           CreateAndPostPurchaseOrderWithJob(
@@ -1985,7 +1984,7 @@ codeunit 136907 Resource
             PurchaseLine."Job Line Type"::Budget, true);  // Invoice as True.
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", PurchaseHeader."Buy-from Vendor No.");
-        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, DocumentType::"Posted Invoice", DocumentNo, false, true);  // TRUE for RecalculateLines.
+        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, "Purchase Document Type From"::"Posted Invoice", DocumentNo, false, true);  // TRUE for RecalculateLines.
     end;
 
     local procedure GetReceiptLines(PurchaseHeader: Record "Purchase Header"; OrderNo: Code[20])
@@ -2016,7 +2015,7 @@ codeunit 136907 Resource
         JobPlanningLine.SetRange("Line Type", LineType);
     end;
 
-    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Option; ItemNo: Code[20])
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20])
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
@@ -2089,7 +2088,7 @@ codeunit 136907 Resource
         JobsSetup.Modify(true);
     end;
 
-    local procedure UpdateCostingMethodOnItem(var Item: Record Item; CostingMethod: Option)
+    local procedure UpdateCostingMethodOnItem(var Item: Record Item; CostingMethod: Enum "Costing Method")
     var
         ItemTrackingCode: Record "Item Tracking Code";
     begin
@@ -2144,7 +2143,7 @@ codeunit 136907 Resource
         PurchaseLine.Modify(true);
     end;
 
-    local procedure UpdateUnitPriceAndCostingMethodOnItem(var Item: Record Item; CostingMethod: Option)
+    local procedure UpdateUnitPriceAndCostingMethodOnItem(var Item: Record Item; CostingMethod: Enum "Costing Method")
     begin
         Item.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
         UpdateCostingMethodOnItem(Item, CostingMethod);
@@ -2158,7 +2157,7 @@ codeunit 136907 Resource
         PurchaseLine.Modify(true);
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignSerialNo);  // Enqueue for ItemTrackingPageHandler.
         LibraryVariableStorage.Enqueue(PurchaseLine."Qty. to Receive");  // Enqueue for EnterQtyToCreatePageHandler.
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
     end;
 
     local procedure UpdateUnitPriceAndPostPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; UnitPrice: Decimal): Code[20]
@@ -2173,7 +2172,7 @@ codeunit 136907 Resource
         PurchaseLine.Modify(true);
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignSerialNo);  // Enqueue for ItemTrackingPageHandler.
         LibraryVariableStorage.Enqueue(PurchaseLine."Qty. to Receive");  // Enqueue for EnterQtyToCreatePageHandler.
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));  // Receive and Invoice as TRUE.
     end;
 
@@ -2215,7 +2214,7 @@ codeunit 136907 Resource
         PurchaseLine.TestField(Quantity, Quantity);
     end;
 
-    local procedure VerifyItemLedgerEntry(EntryType: Option; DocumentType: Option; Open: Boolean; ItemNo: Code[20]; Quantity: Decimal; RemainingQuantity: Decimal; CostAmountActual: Decimal)
+    local procedure VerifyItemLedgerEntry(EntryType: Enum "Item Ledger Entry Type"; DocumentType: Enum "Item Ledger Document Type"; Open: Boolean; ItemNo: Code[20]; Quantity: Decimal; RemainingQuantity: Decimal; CostAmountActual: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin

@@ -29,11 +29,9 @@ table 28161 "GST Sales Entry"
         {
             Caption = 'Document Line No.';
         }
-        field(7; "Document Line Type"; Option)
+        field(7; "Document Line Type"; Enum "Sales Line Type")
         {
             Caption = 'Document Line Type';
-            OptionCaption = ' ,G/L Account,Item,,Fixed Asset,Charge (Item)';
-            OptionMembers = " ","G/L Account",Item,,"Fixed Asset","Charge (Item)";
         }
         field(8; "Document Line Code"; Text[30])
         {

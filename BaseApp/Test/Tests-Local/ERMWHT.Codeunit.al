@@ -55,7 +55,7 @@ codeunit 141012 "ERM WHT"
           GenJournalLine."Account Type"::Customer, CreateCustomer(''), -LibraryRandom.RandDec(10, 2));  // Blank VAT Business Posting Group, Random as Amount.
     end;
 
-    local procedure WHTGeneralJournalLineWithoutAppliedIdPostingErr(AccountType: Option; AccountNumber: Code[20]; Amount: Decimal)
+    local procedure WHTGeneralJournalLineWithoutAppliedIdPostingErr(AccountType: Enum "Gen. Journal Account Type"; AccountNumber: Code[20]; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         WHTPostingSetup: Record "WHT Posting Setup";
@@ -94,7 +94,7 @@ codeunit 141012 "ERM WHT"
         WHTEntryOnPostedSalesDocumentWithWHT(SalesHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure WHTEntryOnPostedSalesDocumentWithWHT(DocumentType: Option) DocumentNo: Code[20]
+    local procedure WHTEntryOnPostedSalesDocumentWithWHT(DocumentType: Enum "Sales Document Type") DocumentNo: Code[20]
     var
         SalesLine: Record "Sales Line";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -175,7 +175,7 @@ codeunit 141012 "ERM WHT"
         WHTEntryOnPostedPurchaseDocumentWithWHT(PurchaseHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure WHTEntryOnPostedPurchaseDocumentWithWHT(DocumentType: Option)
+    local procedure WHTEntryOnPostedPurchaseDocumentWithWHT(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -1788,7 +1788,7 @@ codeunit 141012 "ERM WHT"
             NoWHTPostingSetup."WHT Product Posting Group");
     end;
 
-    local procedure ApplyVendorLedgerEntry(var ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure ApplyVendorLedgerEntry(var ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -1805,7 +1805,7 @@ codeunit 141012 "ERM WHT"
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
     end;
 
-    local procedure ApplyAndPostVendorEntryApplication(DocumentType: Option; DocumentNo: Code[20])
+    local procedure ApplyAndPostVendorEntryApplication(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -1885,7 +1885,7 @@ codeunit 141012 "ERM WHT"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreateAndPostPurchaseDocumentWithWHT(var PurchaseLine: Record "Purchase Line"; WHTPostingSetup: Record "WHT Posting Setup"; DocumentType: Option; VendorNo: Code[20]; GLAccountNo: Code[20]; CurrencyCode: Code[10]) DocumentNo: Code[20]
+    local procedure CreateAndPostPurchaseDocumentWithWHT(var PurchaseLine: Record "Purchase Line"; WHTPostingSetup: Record "WHT Posting Setup"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; GLAccountNo: Code[20]; CurrencyCode: Code[10]) DocumentNo: Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1894,7 +1894,7 @@ codeunit 141012 "ERM WHT"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreateAndPostPurchaseDocumentWithWHTAndAmount(WHTPostingSetup: Record "WHT Posting Setup"; DocumentType: Option; VendorNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal) DocumentNo: Code[20]
+    local procedure CreateAndPostPurchaseDocumentWithWHTAndAmount(WHTPostingSetup: Record "WHT Posting Setup"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal) DocumentNo: Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1909,7 +1909,7 @@ codeunit 141012 "ERM WHT"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreatePurchaseDocumentWithWHTWithAppliesToID(var PurchaseHeader: Record "Purchase Header"; WHTPostingSetup: Record "WHT Posting Setup"; DocumentType: Option; VendorNo: Code[20]; GLAccountNo: Code[20]; CurrencyCode: Code[10]; ApplyToDocNo: Code[20]; Qty: Decimal; ApplnAmount: Decimal)
+    local procedure CreatePurchaseDocumentWithWHTWithAppliesToID(var PurchaseHeader: Record "Purchase Header"; WHTPostingSetup: Record "WHT Posting Setup"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; GLAccountNo: Code[20]; CurrencyCode: Code[10]; ApplyToDocNo: Code[20]; Qty: Decimal; ApplnAmount: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -1930,7 +1930,7 @@ codeunit 141012 "ERM WHT"
         VendorLedgerEntry.Modify();
     end;
 
-    local procedure CreateAndPostPurchaseDocumentWithWHTAndAppliesToDocNo(WHTPostingSetup: Record "WHT Posting Setup"; DocumentType: Option; VendorNo: Code[20]; GLAccountNo: Code[20]; ApplyToDocNo: Code[20]; Qty: Decimal; ApplnAmount: Decimal) DocumentNo: Code[20]
+    local procedure CreateAndPostPurchaseDocumentWithWHTAndAppliesToDocNo(WHTPostingSetup: Record "WHT Posting Setup"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; GLAccountNo: Code[20]; ApplyToDocNo: Code[20]; Qty: Decimal; ApplnAmount: Decimal) DocumentNo: Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1947,7 +1947,7 @@ codeunit 141012 "ERM WHT"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreateAndPostSalesDocumentWithWHT(var SalesLine: Record "Sales Line"; WHTPostingSetup: Record "WHT Posting Setup"; DocumentType: Option; CustomerNo: Code[20]; GLAccountNo: Code[20]) DocumentNo: Code[20]
+    local procedure CreateAndPostSalesDocumentWithWHT(var SalesLine: Record "Sales Line"; WHTPostingSetup: Record "WHT Posting Setup"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; GLAccountNo: Code[20]) DocumentNo: Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1974,14 +1974,16 @@ codeunit 141012 "ERM WHT"
         DocAmount.Add(DocAmount.Get(2) - LibraryRandom.RandDecInRange(100, 200, 2));
         DocAmount.Add(DocAmount.Get(3) - LibraryRandom.RandDecInRange(100, 200, 2));
 
-        DocumentType.Add(PurchaseHeader."Document Type"::Invoice);
-        DocumentType.Add(PurchaseHeader."Document Type"::"Credit Memo");
-        DocumentType.Add(PurchaseHeader."Document Type"::Invoice);
-        DocumentType.Add(PurchaseHeader."Document Type"::"Credit Memo");
+        DocumentType.Add(PurchaseHeader."Document Type"::Invoice.AsInteger());
+        DocumentType.Add(PurchaseHeader."Document Type"::"Credit Memo".AsInteger());
+        DocumentType.Add(PurchaseHeader."Document Type"::Invoice.AsInteger());
+        DocumentType.Add(PurchaseHeader."Document Type"::"Credit Memo".AsInteger());
 
         for i := 1 to DocumentType.Count do begin
-            DocumentNo := CreateAndPostPurchaseDocumentWithWHTAndAmount(WHTPostingSetup, DocumentType.Get(i), VendorNo, GLAccountNo, DocAmount.Get(i));
-            LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType.Get(i), DocumentNo);
+            DocumentNo :=
+              CreateAndPostPurchaseDocumentWithWHTAndAmount(
+                WHTPostingSetup, "Purchase Document Type".FromInteger(DocumentType.Get(i)), VendorNo, GLAccountNo, DocAmount.Get(i));
+            LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, "Gen. Journal Document Type".FromInteger(DocumentType.Get(i)), DocumentNo);
             LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
         end;
 
@@ -2031,7 +2033,7 @@ codeunit 141012 "ERM WHT"
         exit(Currency.Code);
     end;
 
-    local procedure CreateGeneralJournalLineWithCurrency(var GenJournalLine: Record "Gen. Journal Line"; WHTPostingSetup: Record "WHT Posting Setup"; AccountType: Option; DocumentType: Option; AccountNo: Code[20]; AppliesToDocNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
+    local procedure CreateGeneralJournalLineWithCurrency(var GenJournalLine: Record "Gen. Journal Line"; WHTPostingSetup: Record "WHT Posting Setup"; AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; AppliesToDocNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -2044,7 +2046,7 @@ codeunit 141012 "ERM WHT"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateGenJnlLineWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; WHTPostingSetup: Record "WHT Posting Setup"; AccountType: Option; DocumentType: Option; AccountNo: Code[20]; AppliesToID: Code[50]; Amount: Decimal)
+    local procedure CreateGenJnlLineWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; WHTPostingSetup: Record "WHT Posting Setup"; AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; AppliesToID: Code[50]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -2059,7 +2061,7 @@ codeunit 141012 "ERM WHT"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateAndPostGenJnlLineVendorAndSetAppliesToID(var VendorLedgerEntry: Record "Vendor Ledger Entry"; WHTPostingSetup: Record "WHT Posting Setup"; DocumentType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateAndPostGenJnlLineVendorAndSetAppliesToID(var VendorLedgerEntry: Record "Vendor Ledger Entry"; WHTPostingSetup: Record "WHT Posting Setup"; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -2070,7 +2072,7 @@ codeunit 141012 "ERM WHT"
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
     end;
 
-    local procedure CreateGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; WHTPostingSetup: Record "WHT Posting Setup"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; AppliesToDocNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
+    local procedure CreateGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; WHTPostingSetup: Record "WHT Posting Setup"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AppliesToDocNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);
@@ -2096,7 +2098,7 @@ codeunit 141012 "ERM WHT"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; WHTPostingSetup: Record "WHT Posting Setup"; DocumentType: Option; VendorNo: Code[20]; GLAccountNo: Code[20]; CurrencyCode: Code[10])
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; WHTPostingSetup: Record "WHT Posting Setup"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; GLAccountNo: Code[20]; CurrencyCode: Code[10])
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -2115,7 +2117,7 @@ codeunit 141012 "ERM WHT"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20]; Currencycode: Code[10])
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; Currencycode: Code[10])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
@@ -2250,11 +2252,9 @@ codeunit 141012 "ERM WHT"
         exit(CurrencyExchangeRate."Exchange Rate Amount" / CurrencyExchangeRate."Relational Exch. Rate Amount");
     end;
 
-    local procedure FindLineAmount(DocumentType: Option; Amount: Decimal): Decimal
-    var
-        DocumentTypeOption: Option Quote,"Order",Invoice,"Credit Memo";
+    local procedure FindLineAmount(DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal): Decimal
     begin
-        if DocumentType = DocumentTypeOption::Invoice then
+        if DocumentType = "Gen. Journal Document Type"::Invoice then
             exit(-Amount);
         exit(Amount);
     end;
@@ -2350,7 +2350,7 @@ codeunit 141012 "ERM WHT"
         GenJournalLine.Modify();
     end;
 
-    local procedure SetAppliesToIDVendorDocument(DocumentType: Option; DocumentNo: Code[20]) AppliesToID: Code[50]
+    local procedure SetAppliesToIDVendorDocument(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]) AppliesToID: Code[50]
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -2522,7 +2522,7 @@ codeunit 141012 "ERM WHT"
           -Amount2 / FindCurrencyFactor(GenJournalLine."Currency Code"));
     end;
 
-    local procedure VerifyGeneralLedgerAndWHTEntry(DocumentType: Option; DocumentNo: Code[20]; GLAccountNo: Code[20]; LineAmount: Decimal; WHTPct: Decimal)
+    local procedure VerifyGeneralLedgerAndWHTEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAccountNo: Code[20]; LineAmount: Decimal; WHTPct: Decimal)
     var
         Amount: Decimal;
     begin
@@ -2543,7 +2543,7 @@ codeunit 141012 "ERM WHT"
         VerifyUnrealizedAmountAndBaseOnWHTEntry(DocumentNo, Amount, LineAmount, Amount * (1 - Index), LineAmount * (1 - Index), false);
     end;
 
-    local procedure VerifyPostedGenJournalLineAmountOnGLEntry(DocumentNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; AmountFilter: Text[10]; Amount: Decimal)
+    local procedure VerifyPostedGenJournalLineAmountOnGLEntry(DocumentNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; AmountFilter: Text[10]; Amount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin

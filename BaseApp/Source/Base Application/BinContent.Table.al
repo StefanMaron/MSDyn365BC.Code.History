@@ -1205,6 +1205,14 @@ table 7302 "Bin Content"
         OnAfterSetTrackingFilterFromWhseItemTrackingLine(Rec, WhseItemTrackingLine);
     end;
 
+    procedure SetTrackingFilterFromWhseItemTrackingSetup(WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        SetRange("Serial No. Filter", WhseItemTrackingSetup."Serial No.");
+        SetRange("Lot No. Filter", WhseItemTrackingSetup."Lot No.");
+
+        OnAfterSetTrackingFilterFromWhseItemTrackingSetup(Rec, WhseItemTrackingSetup);
+    end;
+
     procedure SetTrackingFilterFromItemTrackingSetupIfRequired(WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
         if WhseItemTrackingSetup."Serial No. Required" then
@@ -1213,6 +1221,18 @@ table 7302 "Bin Content"
             SetRange("Lot No. Filter", WhseItemTrackingSetup."Lot No.");
 
         OnAfterSetTrackingFilterFromItemTrackingSetupIfRequired(Rec, WhseItemTrackingSetup);
+    end;
+
+    procedure SetTrackingFilterFromItemTrackingSetupIfNotBlankIfRequired(WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if WhseItemTrackingSetup."Serial No." <> '' then
+            if WhseItemTrackingSetup."Serial No. Required" then
+                SetRange("Serial No. Filter", WhseItemTrackingSetup."Serial No.");
+        if WhseItemTrackingSetup."Lot No." <> '' then
+            if WhseItemTrackingSetup."Lot No. Required" then
+                SetRange("Lot No. Filter", WhseItemTrackingSetup."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlankIfRequired(Rec, WhseItemTrackingSetup);
     end;
 
     procedure SetTrackingFilterFromItemTrackingSetupIfRequiredWithBlank(WhseItemTrackingSetup: Record "Item Tracking Setup")
@@ -1239,13 +1259,10 @@ table 7302 "Bin Content"
         OnAfterSetTrackingFilterFromBinContentBufferIfRequired(Rec, WhseItemTrackingSetup, BinContentBuffer);
     end;
 
-    procedure TrackingFiltersExist(): Boolean
-    var
-        IsTrackingFiltersExist: Boolean;
+    procedure TrackingFiltersExist() IsTrackingFiltersExist: Boolean
     begin
         IsTrackingFiltersExist := (GetFilter("Lot No. Filter") <> '') or (GetFilter("Serial No. Filter") <> '');
         OnAfterTrackingFiltersExist(Rec, IsTrackingFiltersExist);
-        exit(IsTrackingFiltersExist);
     end;
 
     [IntegrationEvent(false, false)]
@@ -1274,7 +1291,17 @@ table 7302 "Bin Content"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromWhseItemTrackingSetup(var BinContent: Record "Bin Content"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfRequired(var BinContent: Record "Bin Content"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlankIfRequired(var BinContent: Record "Bin Content"; WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 

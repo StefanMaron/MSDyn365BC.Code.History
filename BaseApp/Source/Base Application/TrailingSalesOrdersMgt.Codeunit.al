@@ -62,7 +62,7 @@ codeunit 760 "Trailing Sales Orders Mgt."
 
             CreateMap(ChartToStatusMap);
             for SalesHeaderStatus := 1 to ArrayLen(ChartToStatusMap) do begin
-                SalesHeader.Status := ChartToStatusMap[SalesHeaderStatus];
+                SalesHeader.Status := "Sales Document Status".FromInteger(ChartToStatusMap[SalesHeaderStatus]);
                 AddMeasure(Format(SalesHeader.Status), SalesHeader.Status, "Data Type"::Decimal, TrailingSalesOrdersSetup.GetChartType);
             end;
 
@@ -149,10 +149,10 @@ codeunit 760 "Trailing Sales Orders Mgt."
     var
         SalesHeader: Record "Sales Header";
     begin
-        Map[1] := SalesHeader.Status::Released;
-        Map[2] := SalesHeader.Status::"Pending Prepayment";
-        Map[3] := SalesHeader.Status::"Pending Approval";
-        Map[4] := SalesHeader.Status::Open;
+        Map[1] := SalesHeader.Status::Released.AsInteger();
+        Map[2] := SalesHeader.Status::"Pending Prepayment".AsInteger();
+        Map[3] := SalesHeader.Status::"Pending Approval".AsInteger();
+        Map[4] := SalesHeader.Status::Open.AsInteger();
     end;
 }
 

@@ -195,10 +195,9 @@ codeunit 141083 "ERM IC Purchase Details"
     local procedure CreateAndPostPurchaseCreditMemoFromCopyDoc(DocumentNo: Code[20]; VendorNo: Code[20]): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
-        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, DocumentType::"Posted Invoice", DocumentNo, false, false);  // Using False for IncludeHeader and RecalcLines.
+        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, "Purchase Document Type From"::"Posted Invoice", DocumentNo, false, false);  // Using False for IncludeHeader and RecalcLines.
         PurchaseHeader.Validate("Vendor Cr. Memo No.", DocumentNo);
         PurchaseHeader.Validate("Reason Code", CreateReason);
         PurchaseHeader.Modify(true);
@@ -208,10 +207,9 @@ codeunit 141083 "ERM IC Purchase Details"
     local procedure CreateAndPostSalesCreditMemoFromCopyDoc(DocumentNo: Code[20]; CustomerNo: Code[20]): Code[20]
     var
         SalesHeader: Record "Sales Header";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo);
-        LibrarySales.CopySalesDocument(SalesHeader, DocumentType::"Posted Invoice", DocumentNo, false, false);  // Using False for IncludeHeader and RecalcLines.
+        LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", DocumentNo, false, false);  // Using False for IncludeHeader and RecalcLines.
         SalesHeader.Validate("Reason Code", CreateReason);
         SalesHeader.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));  // Post as Ship and Invoice.
@@ -292,7 +290,7 @@ codeunit 141083 "ERM IC Purchase Details"
         exit(PaymentMethod.Code);
     end;
 
-    local procedure CreatePurchaseInvoice(var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; No: Code[20]; Type: Option)
+    local procedure CreatePurchaseInvoice(var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; No: Code[20]; Type: Enum "Purchase Line Type")
     var
         PurchaseHeader: Record "Purchase Header";
     begin

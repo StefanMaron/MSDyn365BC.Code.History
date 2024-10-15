@@ -57,11 +57,9 @@ table 5914 "Loaner Entry"
         {
             Caption = 'Lent';
         }
-        field(14; "Document Type"; Option)
+        field(14; "Document Type"; Enum "Service Loaner Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Quote,Order';
-            OptionMembers = " ",Quote,"Order";
         }
     }
 
@@ -96,6 +94,26 @@ table 5914 "Loaner Entry"
     procedure GetNextEntryNo(): Integer
     begin
         exit(GetLastEntryNo() + 1);
+    end;
+
+    procedure GetDocTypeFromServDocType(ServDocType: Enum "Service Document Type"): Enum "Service Loaner Document Type"
+    begin
+        case ServDocType of
+            "Service Document Type"::Quote:
+                exit("Service Loaner Document Type"::Quote);
+            "Service Document Type"::Order:
+                exit("Service Loaner Document Type"::Order);
+        end;
+    end;
+
+    procedure GetServDocTypeFromDocType(): Enum "Service Document Type"
+    begin
+        case "Document Type" of
+            "Service Loaner Document Type"::Quote:
+                exit("Service Document Type"::Quote);
+            "Service Loaner Document Type"::Order:
+                exit("Service Document Type"::Order);
+        end;
     end;
 }
 

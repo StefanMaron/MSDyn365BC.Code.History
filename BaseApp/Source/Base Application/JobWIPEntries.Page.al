@@ -148,7 +148,7 @@ page 1008 "Job WIP Entries"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(SetDimensionFilter)

@@ -5,6 +5,7 @@ codeunit 5494 "Graph Mgt - Country/Region"
     begin
     end;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
     procedure UpdateIntegrationRecords(OnlyItemsWithoutId: Boolean)
     var
         DummyCountryRegion: Record "Country/Region";

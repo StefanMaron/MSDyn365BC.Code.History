@@ -77,7 +77,7 @@ codeunit 141073 "UT Input and Output VAT Report"
         VATReportCustomerWithDocumentType(VATServicesCap, BaseAmtServicesCap, VATEntry."Document Type"::Refund);
     end;
 
-    local procedure VATReportCustomerWithDocumentType(AmountCaption: Text[20]; BaseCaption: Text[20]; DocumentType: Option)
+    local procedure VATReportCustomerWithDocumentType(AmountCaption: Text[20]; BaseCaption: Text[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         Customer: Record Customer;
         VATEntry: Record "VAT Entry";
@@ -147,7 +147,7 @@ codeunit 141073 "UT Input and Output VAT Report"
         VATReportVendorWithDocumentType(VATServicesCap, BaseAmtServicesCap, VATEntry."Document Type"::Refund);
     end;
 
-    local procedure VATReportVendorWithDocumentType(AmountCaption: Text[20]; BaseCaption: Text[20]; DocumentType: Option)
+    local procedure VATReportVendorWithDocumentType(AmountCaption: Text[20]; BaseCaption: Text[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         VATEntry: Record "VAT Entry";
         Vendor: Record Vendor;
@@ -238,7 +238,7 @@ codeunit 141073 "UT Input and Output VAT Report"
         Customer.Insert();
     end;
 
-    local procedure CreateGoodsAndServicesVatEntries(BillToPayToNo: Code[20]; VATEntryType: Option; "Count": Integer; var TotalBaseAmtgoods: Decimal; var TotalVATGoods: Decimal; var TotalBaseAmtServices: Decimal; var TotalVATServices: Decimal)
+    local procedure CreateGoodsAndServicesVatEntries(BillToPayToNo: Code[20]; VATEntryType: Enum "General Posting Type"; "Count": Integer; var TotalBaseAmtgoods: Decimal; var TotalVATGoods: Decimal; var TotalBaseAmtServices: Decimal; var TotalVATServices: Decimal)
     var
         VATEntry: Record "VAT Entry";
         i: Integer;
@@ -253,7 +253,7 @@ codeunit 141073 "UT Input and Output VAT Report"
         end;
     end;
 
-    local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; BillToPayToNo: Code[20]; DocumentType: Option; Type: Option)
+    local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; BillToPayToNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Type: Enum "General Posting Type")
     var
         VATEntryLast: Record "VAT Entry";
     begin

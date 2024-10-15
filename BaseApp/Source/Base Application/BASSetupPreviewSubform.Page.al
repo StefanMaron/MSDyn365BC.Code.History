@@ -85,14 +85,14 @@ page 11610 "BAS Setup Preview Subform"
         BASCalcSheet: Record "BAS Calculation Sheet";
         BASUpdate: Report "BAS-Update";
         ColumnValue: Decimal;
-        Selection: Option Open,Closed,"Open and Closed";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         ExcludeClosingEntries: Boolean;
         DocumentNo: Code[11];
         VersionNo: Integer;
 
     [Scope('OnPrem')]
-    procedure SetValues(var NewBASCalcSheet: Record "BAS Calculation Sheet"; NewSelection: Option Open,Closed,"Open and Closed"; NewPeriodSelection: Option "Before and Within Period","Within Period"; NewExcludeClosingEntries: Boolean; NewDocumentNo: Code[11]; NewVersionNo: Integer)
+    procedure SetValues(var NewBASCalcSheet: Record "BAS Calculation Sheet"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewExcludeClosingEntries: Boolean; NewDocumentNo: Code[11]; NewVersionNo: Integer)
     begin
         BASCalcSheet.Copy(NewBASCalcSheet);
         Selection := NewSelection;

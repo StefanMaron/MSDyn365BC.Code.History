@@ -59,7 +59,7 @@ codeunit 137020 "SCM Planning"
         PurchasesPayablesSetup.Modify(true);
     end;
 
-    local procedure ItemSetup(var Item: Record Item; ReplenishmentSystem: Option; SafetyLeadTime: Text[30])
+    local procedure ItemSetup(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; SafetyLeadTime: Text[30])
     begin
         LibraryInventory.CreateItem(Item);
 
@@ -329,7 +329,7 @@ codeunit 137020 "SCM Planning"
         ManufacturingSetup;
     end;
 
-    local procedure AssertPlanningLine(Item: Record Item; ActionMsg: Option; OrigDueDate: Date; DueDate: Date; OrigQty: Decimal; Quantity: Decimal; RefOrderType: Option; NoOfLines: Integer)
+    local procedure AssertPlanningLine(Item: Record Item; ActionMsg: Enum "Action Message Type"; OrigDueDate: Date; DueDate: Date; OrigQty: Decimal; Quantity: Decimal; RefOrderType: Option; NoOfLines: Integer)
     var
         RequisitionLine: Record "Requisition Line";
     begin

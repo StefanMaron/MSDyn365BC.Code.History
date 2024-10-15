@@ -119,7 +119,7 @@ codeunit 6700 "O365 Sync. Management"
     var
         BookingCustomerSync: Codeunit "Booking Customer Sync.";
     begin
-        SendTraceTag('0000ACP', TraceCategory(), Verbosity::Normal, 'Syncing Bookings Customers', DataClassification::SystemMetadata);
+        Session.LogMessage('0000ACP', 'Syncing Bookings Customers', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TraceCategory());
         CheckUserAccess(BookingSync);
         ShowProgress(GettingBookingCustomersTxt);
         RegisterBookingsConnection(BookingSync);
@@ -132,7 +132,7 @@ codeunit 6700 "O365 Sync. Management"
     var
         BookingServiceSync: Codeunit "Booking Service Sync.";
     begin
-        SendTraceTag('0000ACQ', TraceCategory(), Verbosity::Normal, 'Syncing Bookings Services', DataClassification::SystemMetadata);
+        Session.LogMessage('0000ACQ', 'Syncing Bookings Services', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TraceCategory());
         CheckUserAccess(BookingSync);
         ShowProgress(GettingBookingServicesTxt);
         RegisterBookingsConnection(BookingSync);
@@ -145,7 +145,7 @@ codeunit 6700 "O365 Sync. Management"
     var
         ExchangeContactSync: Codeunit "Exchange Contact Sync.";
     begin
-        SendTraceTag('0000ACR', TraceCategory(), Verbosity::Normal, 'Syncing Exchange Contacts', DataClassification::SystemMetadata);
+        Session.LogMessage('0000ACR', 'Syncing Exchange Contacts', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TraceCategory());
         ShowProgress(GettingContactsTxt);
         RegisterExchangeConnection(ExchangeSync);
         CloseProgress;

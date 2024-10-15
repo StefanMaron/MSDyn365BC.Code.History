@@ -96,15 +96,15 @@ codeunit 9005 "Url Helper"
     end;
 
     [Scope('OnPrem')]
-    procedure GetAccountantHubUrl(): Text
-    begin
-        exit(UrlHelperImpl.GetAccountantHubUrl);
-    end;
-
-    [Scope('OnPrem')]
     procedure GetOfficePortalUrl(): Text
     begin
         exit(UrlHelperImpl.GetOfficePortalUrl);
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetPowerAppsUrl(): Text
+    begin
+        exit(UrlHelperImpl.GetPowerAppsUrl());
     end;
 }
 

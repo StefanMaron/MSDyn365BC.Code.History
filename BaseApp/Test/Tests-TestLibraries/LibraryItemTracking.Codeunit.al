@@ -293,7 +293,7 @@ codeunit 130502 "Library - Item Tracking"
                       SerialNo,
                       LotNo,
                       DATABASE::"Sales Line",
-                      SalesLine."Document Type",
+                      SalesLine."Document Type".AsInteger(),
                       SalesLine."Document No.",
                       '',
                       0,
@@ -320,7 +320,7 @@ codeunit 130502 "Library - Item Tracking"
                       SerialNo,
                       LotNo,
                       DATABASE::"Purchase Line",
-                      PurchLine."Document Type",
+                      PurchLine."Document Type".AsInteger(),
                       PurchLine."Document No.",
                       '',
                       0,
@@ -343,7 +343,7 @@ codeunit 130502 "Library - Item Tracking"
                       SerialNo,
                       LotNo,
                       DATABASE::"Assembly Line",
-                      AssemblyLine."Document Type",
+                      AssemblyLine."Document Type".AsInteger(),
                       AssemblyLine."Document No.",
                       '',
                       0,
@@ -366,7 +366,7 @@ codeunit 130502 "Library - Item Tracking"
                       SerialNo,
                       LotNo,
                       DATABASE::"Assembly Header",
-                      AssemblyHeader."Document Type",
+                      AssemblyHeader."Document Type".AsInteger(),
                       AssemblyHeader."No.",
                       '',
                       0,
@@ -439,7 +439,7 @@ codeunit 130502 "Library - Item Tracking"
                       SerialNo,
                       LotNo,
                       DATABASE::"Prod. Order Line",
-                      ProdOrderLine.Status,
+                      ProdOrderLine.Status.AsInteger(),
                       ProdOrderLine."Prod. Order No.",
                       '',
                       ProdOrderLine."Line No.",
@@ -464,7 +464,7 @@ codeunit 130502 "Library - Item Tracking"
                       SerialNo,
                       LotNo,
                       DATABASE::"Prod. Order Component",
-                      ProdOrderCompLine.Status,
+                      ProdOrderCompLine.Status.AsInteger(),
                       ProdOrderCompLine."Prod. Order No.",
                       '',
                       ProdOrderCompLine."Prod. Order Line No.",
@@ -484,7 +484,7 @@ codeunit 130502 "Library - Item Tracking"
                       SerialNo,
                       LotNo,
                       DATABASE::"Item Journal Line",
-                      ItemJournalLine."Entry Type",
+                      ItemJournalLine."Entry Type".AsInteger(),
                       ItemJournalLine."Journal Template Name",
                       ItemJournalLine."Journal Batch Name",
                       0,
@@ -576,7 +576,7 @@ codeunit 130502 "Library - Item Tracking"
         end;
     end;
 
-    local procedure InsertItemTracking(var ReservEntry: Record "Reservation Entry"; Positive2: Boolean; Item: Code[20]; Location: Code[10]; Variant: Code[10]; QtyBase: Decimal; QtyperUOM: Decimal; SerialNo: Code[50]; LotNo: Code[50]; SourceType: Integer; SourceSubType: Option; SourceID: Code[20]; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer; DueDate: Date)
+    local procedure InsertItemTracking(var ReservEntry: Record "Reservation Entry"; Positive2: Boolean; Item: Code[20]; Location: Code[10]; Variant: Code[10]; QtyBase: Decimal; QtyperUOM: Decimal; SerialNo: Code[50]; LotNo: Code[50]; SourceType: Integer; SourceSubType: Integer; SourceID: Code[20]; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer; DueDate: Date)
     var
         SalesLine: Record "Sales Line";
         PurchLine: Record "Purchase Line";
@@ -611,14 +611,14 @@ codeunit 130502 "Library - Item Tracking"
 
             case SourceType of
                 DATABASE::"Item Journal Line":
-                    case SourceSubType of
+                    case "Item Ledger Entry Type".FromInteger(SourceSubType) of
                         ItemJnlLine."Entry Type"::Purchase,
-                      ItemJnlLine."Entry Type"::"Positive Adjmt.",
-                      ItemJnlLine."Entry Type"::Output:
+                        ItemJnlLine."Entry Type"::"Positive Adjmt.",
+                        ItemJnlLine."Entry Type"::Output:
                             Validate("Expected Receipt Date", DueDate);
                         ItemJnlLine."Entry Type"::Sale,
-                      ItemJnlLine."Entry Type"::"Negative Adjmt.",
-                      ItemJnlLine."Entry Type"::Consumption:
+                        ItemJnlLine."Entry Type"::"Negative Adjmt.",
+                        ItemJnlLine."Entry Type"::Consumption:
                             Validate("Shipment Date", DueDate);
                     end;
                 DATABASE::"Prod. Order Line",
@@ -627,22 +627,22 @@ codeunit 130502 "Library - Item Tracking"
                     Validate("Shipment Date", DueDate);
                 DATABASE::"Sales Line":
                     case SourceSubType of
-                        SalesLine."Document Type"::Order,
-                      SalesLine."Document Type"::Invoice,
-                      SalesLine."Document Type"::Quote:
+                        SalesLine."Document Type"::Order.AsInteger(),
+                        SalesLine."Document Type"::Invoice.AsInteger(),
+                        SalesLine."Document Type"::Quote.AsInteger():
                             Validate("Shipment Date", DueDate);
-                        SalesLine."Document Type"::"Return Order",
-                      SalesLine."Document Type"::"Credit Memo":
+                        SalesLine."Document Type"::"Return Order".AsInteger(),
+                        SalesLine."Document Type"::"Credit Memo".AsInteger():
                             Validate("Expected Receipt Date", DueDate);
                     end;
                 DATABASE::"Purchase Line":
                     case SourceSubType of
-                        PurchLine."Document Type"::Order,
-                      PurchLine."Document Type"::Invoice,
-                      PurchLine."Document Type"::Quote:
+                        PurchLine."Document Type"::Order.AsInteger(),
+                        PurchLine."Document Type"::Invoice.AsInteger(),
+                        PurchLine."Document Type"::Quote.AsInteger():
                             Validate("Expected Receipt Date", DueDate);
-                        PurchLine."Document Type"::"Return Order",
-                      PurchLine."Document Type"::"Credit Memo":
+                        PurchLine."Document Type"::"Return Order".AsInteger(),
+                        PurchLine."Document Type"::"Credit Memo".AsInteger():
                             Validate("Shipment Date", DueDate);
                     end;
                 else
@@ -838,7 +838,7 @@ codeunit 130502 "Library - Item Tracking"
         end;
     end;
 
-    local procedure WhseInsertItemTracking(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; Item: Code[20]; Location: Code[10]; Variant: Code[10]; QtyBase: Decimal; QtyperUOM: Decimal; SerialNo: Code[50]; LotNo: Code[50]; SourceType: Integer; SourceSubType: Option; SourceID: Code[20]; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer)
+    local procedure WhseInsertItemTracking(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; Item: Code[20]; Location: Code[10]; Variant: Code[10]; QtyBase: Decimal; QtyperUOM: Decimal; SerialNo: Code[50]; LotNo: Code[50]; SourceType: Integer; SourceSubType: Integer; SourceID: Code[20]; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer)
     var
         LastEntryNo: Integer;
     begin

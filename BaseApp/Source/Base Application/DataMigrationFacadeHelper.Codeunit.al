@@ -127,6 +127,9 @@ codeunit 1797 "Data Migration Facade Helper"
         if PostCode.FindFirst then
             exit(false);
 
+        // APAC requires a matching county record
+        CreateCountyIfNeeded(CountyToSet, '');
+
         PostCode.Init();
         PostCode.Validate(Code, CodeToSet);
         PostCode.Validate(City, CityToSet);
@@ -175,6 +178,21 @@ codeunit 1797 "Data Migration Facade Helper"
         end;
     end;
 
+    procedure CreateCountyIfNeeded(NameToSet: Text[30]; DescriptionToSet: Text[30]): Text[30]
+    var
+        County: Record "County";
+    begin
+        if County.Get(NameToSet) then
+            exit(County.Name);
+
+        County.Init();
+        County.Validate(Name, NameToSet);
+        County.Validate(Description, DescriptionToSet);
+        County.Insert(true);
+
+        exit(County.Name);
+    end;
+
     procedure SearchLanguage(AbbreviatedNameToSearch: Code[3]; var CodeToGet: Code[10]): Boolean
     var
         WindowsLanguageSearch: Record "Windows Language";
@@ -183,7 +201,7 @@ codeunit 1797 "Data Migration Facade Helper"
         WindowsLanguageSearch.SetRange("Abbreviated Name", AbbreviatedNameToSearch);
         if WindowsLanguageSearch.FindFirst then begin
             CodeToGet := Language.GetLanguageCode(WindowsLanguageSearch."Language ID");
-            
+
             if CodeToGet <> '' then
                 exit(true);
         end;
@@ -238,7 +256,7 @@ codeunit 1797 "Data Migration Facade Helper"
         exit(GenJournalTemplate.Name);
     end;
 
-    procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GeneralJournalBatchCode: Code[10]; DocumentNo: Code[20]; Description: Text[50]; AccountType: Option; AccountNo: Code[20]; PostingDate: Date; DueDate: Date; Amount: Decimal; AmountLCY: Decimal; Currency: Code[10]; BalancingAccount: Code[20])
+    procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GeneralJournalBatchCode: Code[10]; DocumentNo: Code[20]; Description: Text[50]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PostingDate: Date; DueDate: Date; Amount: Decimal; AmountLCY: Decimal; Currency: Code[10]; BalancingAccount: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLineCurrent: Record "Gen. Journal Line";
@@ -348,6 +366,19 @@ codeunit 1797 "Data Migration Facade Helper"
         TempDimensionSetEntry.Validate("Dimension Value Code", DimensionValueCode);
         TempDimensionSetEntry.Insert(true);
         exit(DimensionManagement.GetDimensionSetID(TempDimensionSetEntry));
+    end;
+
+    procedure CreateSourceCodeIfNeeded(SourceCodeCode: Code[10]): Code[10]
+    var
+        SourceCode: Record "Source Code";
+    begin
+        if SourceCode.Get(SourceCodeCode) then
+            exit(SourceCode."Code");
+
+        SourceCode.Init();
+        SourceCode.Validate("Code", SourceCodeCode);
+        SourceCode.Insert(true);
+        exit(SourceCode."Code");
     end;
 
     procedure SetAlternativeContact(NameToSet: Text[50]; AddressToSet: Text[50]; Address2ToSet: Text[50]; PostCodeToSet: Code[20]; CityToSet: Text[30]; CountryToSet: Code[10]; EmailToset: Text[80]; PhoneNoToSet: Text[30]; FaxToSet: Text[30]; MobileNoToSet: Text[30]; LinkToTable: Integer; EntityNo: Code[20])

@@ -338,7 +338,7 @@ page 144 "Posted Sales Credit Memos"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(IncomingDoc)
@@ -374,13 +374,14 @@ page 144 "Posted Sales Credit Memos"
                 action("&Navigate")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = '&Navigate';
+                    Caption = 'Find entries...';
                     Image = Navigate;
                     Promoted = true;
                     PromotedCategory = Category4;
                     PromotedIsBig = true;
                     Scope = Repeater;
-                    ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected posted sales document.';
+                    ShortCutKey = 'Shift+Ctrl+I';
+                    ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                     Visible = NOT IsOfficeAddin;
 
                     trigger OnAction()
@@ -534,11 +535,11 @@ page 144 "Posted Sales Credit Memos"
 
                 trigger OnAction()
                 var
-                    PostedSalesCrMemoUpdate: Page "Posted Sales Cr. Memo - Update";
+                    PstdSalesCrMemoUpdate: Page "Pstd. Sales Cr. Memo - Update";
                 begin
-                    PostedSalesCrMemoUpdate.LookupMode := true;
-                    PostedSalesCrMemoUpdate.SetRec(Rec);
-                    PostedSalesCrMemoUpdate.RunModal;
+                    PstdSalesCrMemoUpdate.LookupMode := true;
+                    PstdSalesCrMemoUpdate.SetRec(Rec);
+                    PstdSalesCrMemoUpdate.RunModal();
                 end;
             }
         }

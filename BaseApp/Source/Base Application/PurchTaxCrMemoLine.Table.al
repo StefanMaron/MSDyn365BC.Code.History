@@ -55,7 +55,7 @@ table 28078 "Purch. Tax Cr. Memo Line"
         {
             Caption = 'Expected Receipt Date';
         }
-        field(11; Description; Text[50])
+        field(11; Description; Text[100])
         {
             Caption = 'Description';
         }
@@ -74,7 +74,7 @@ table 28078 "Purch. Tax Cr. Memo Line"
         }
         field(22; "Direct Unit Cost"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 2;
             CaptionClass = GetCaptionClass(FieldNo("Direct Unit Cost"));
             Caption = 'Direct Unit Cost';
@@ -99,19 +99,19 @@ table 28078 "Purch. Tax Cr. Memo Line"
         }
         field(28; "Line Discount Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Line Discount Amount';
         }
         field(29; Amount; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Amount';
         }
         field(30; "Amount Including VAT"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Amount Including VAT';
         }
@@ -174,11 +174,11 @@ table 28078 "Purch. Tax Cr. Memo Line"
         }
         field(69; "Inv. Discount Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Inv. Discount Amount';
         }
-        field(70; "Vendor Item No."; Text[20])
+        field(70; "Vendor Item No."; Text[50])
         {
             Caption = 'Vendor Item No.';
         }
@@ -271,28 +271,28 @@ table 28078 "Purch. Tax Cr. Memo Line"
         }
         field(99; "VAT Base Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Base Amount';
             Editable = false;
         }
         field(100; "Unit Cost"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 2;
             Caption = 'Unit Cost';
             Editable = false;
         }
         field(103; "Line Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             CaptionClass = GetCaptionClass(FieldNo("Line Amount"));
             Caption = 'Line Amount';
         }
         field(104; "VAT Difference"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Difference';
         }
@@ -309,7 +309,7 @@ table 28078 "Purch. Tax Cr. Memo Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(5401; "Prod. Order No."; Code[20])
@@ -439,8 +439,9 @@ table 28078 "Purch. Tax Cr. Memo Line"
         field(5712; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
-            TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
-            ValidateTableRelation = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
+            ObsoleteTag = '17.0';
         }
         field(6608; "Return Reason Code"; Code[10])
         {
@@ -596,11 +597,6 @@ table 28078 "Purch. Tax Cr. Memo Line"
 
     procedure TransferFieldsFrom(PurchCrMemoLine: Record "Purch. Cr. Memo Line")
     begin
-        // cut values to avoid overflow in TransferFields
-        PurchCrMemoLine.Description :=
-            CopyStr(PurchCrMemoLine.Description, 1, MaxStrLen(Description));
-        PurchCrMemoLine."Vendor Item No." :=
-            CopyStr(PurchCrMemoLine."Vendor Item No.", 1, MaxStrLen("Vendor Item No."));
         TransferFields(PurchCrMemoLine);
     end;
 }

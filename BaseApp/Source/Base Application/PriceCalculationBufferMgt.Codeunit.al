@@ -118,16 +118,17 @@ codeunit 7008 "Price Calculation Buffer Mgt."
     begin
         OnBeforeConvertAmount(AmountType, PriceListLine, PriceCalculationBuffer, IsHandled);
         if not IsHandled then
-            case AmountType of
-                AmountType::Price:
-                    ConvertAmount(PriceListLine, PriceListLine."Unit Price");
-                AmountType::Cost:
-                    ConvertAmount(PriceListLine, PriceListLine."Unit Cost");
+            if AmountType <> AmountType::Discount then begin
+                ConvertAmount(PriceListLine, PriceListLine."Unit Price");
+                ConvertAmount(PriceListLine, PriceListLine."Unit Cost");
             end;
     end;
 
     local procedure ConvertAmount(var PriceListLine: Record "Price List Line"; var Amount: Decimal)
     begin
+        if Amount = 0 then
+            exit;
+
         ConvertAmountByTax(PriceListLine, Amount);
         ConvertAmountByUnitOfMeasure(PriceListLine, Amount);
         ConvertAmountByCurrency(PriceListLine, Amount);
@@ -147,8 +148,8 @@ codeunit 7008 "Price Calculation Buffer Mgt."
                 Error(PricesInclVATErr, VATPostingSetup."VAT Calculation Type");
 
             case PriceCalculationBuffer."VAT Calculation Type" of
-                VATPostingSetup."VAT Calculation Type"::"Normal VAT",
-                VATPostingSetup."VAT Calculation Type"::"Full VAT":
+                VATPostingSetup."VAT Calculation Type"::"Normal VAT".AsInteger(),
+                VATPostingSetup."VAT Calculation Type"::"Full VAT".AsInteger():
                     if PriceCalculationBuffer."Prices Including Tax" then begin
                         if PriceCalculationBuffer."VAT Bus. Posting Group" <> PriceListLine."VAT Bus. Posting Gr. (Price)" then
                             Amount := Amount * (100 + PriceCalculationBuffer."Tax %") / (100 + VATPostingSetup."VAT %");
@@ -199,6 +200,8 @@ codeunit 7008 "Price Calculation Buffer Mgt."
 
     procedure SetFiltersOnPriceListLine(var PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; ShowAll: Boolean)
     begin
+        PriceListLine.SetRange(Status, PriceListLine.Status::Active);
+        PriceListLine.SetRange("Price Type", PriceCalculationBuffer."Price Type");
         PriceListLine.SetFilter("Amount Type", '%1|%2', AmountType, PriceListLine."Amount Type"::Any);
         if PriceCalculationBuffer."Work Type Code" <> '' then
             PriceListLine.SetRange("Work Type Code", PriceCalculationBuffer."Work Type Code");

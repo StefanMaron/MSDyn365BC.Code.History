@@ -314,7 +314,7 @@ page 5965 "Service Quote Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 group("Co&mments")
@@ -575,7 +575,7 @@ page 5965 "Service Quote Subform"
         end;
         Clear(FaultResolutionRelation);
         FaultResolutionRelation.SetDocument(
-          DATABASE::"Service Item Line", "Document Type", "Document No.", "Line No.");
+          DATABASE::"Service Item Line", "Document Type".AsInteger(), "Document No.", "Line No.");
         FaultResolutionRelation.SetFilters("Symptom Code", "Fault Code", "Fault Area Code", "Service Item Group Code");
         FaultResolutionRelation.RunModal;
     end;

@@ -386,7 +386,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
         TestAmountsonCashFlowDateListReport(CFForecastEntry."Source Type"::"G/L Budget");
     end;
 
-    local procedure TestAmountsonCashFlowDateListReport(CFEntryType: Option)
+    local procedure TestAmountsonCashFlowDateListReport(CFEntryType: Enum "Cash Flow Source Type")
     var
         CFForecastEntry: Record "Cash Flow Forecast Entry";
         CFForecast: Record "Cash Flow Forecast";

@@ -36,6 +36,10 @@ table 5339 "Integration Synch. Job Errors"
         {
             Caption = 'Exception Detail';
         }
+        field(8; "Error Message"; Text[2048])
+        {
+            Caption = 'Error Message';
+        }
     }
 
     keys
@@ -90,6 +94,7 @@ table 5339 "Integration Synch. Job Errors"
             "Destination Record ID" := DestinationRecordId;
             "Date/Time" := CurrentDateTime;
             Message := CopyStr(ErrorMessage, 1, MaxStrLen(Message));
+            "Error Message" := CopyStr(ErrorMessage, 1, MaxStrLen("Error Message"));
             "Exception Detail".CreateOutStream(StackTraceOutStream);
             StackTraceOutStream.Write(GetLastErrorCallstack);
             Insert(true);

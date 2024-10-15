@@ -111,7 +111,7 @@ codeunit 145300 "Post Dated Check Line"
         CreateGenJnlBatchSetBalAcc(GenJnlBatch, GenJnlBatch."Bal. Account Type"::"G/L Account", GLAcc."No.");
     end;
 
-    local procedure CreateGenJnlBatchSetBalAcc(var GenJnlBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountCode: Code[20])
+    local procedure CreateGenJnlBatchSetBalAcc(var GenJnlBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountCode: Code[20])
     var
         PageTemplate: Option General,Sales,Purchases,"Cash Receipts",Payments,Assets,Intercompany,Jobs;
     begin

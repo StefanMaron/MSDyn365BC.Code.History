@@ -506,8 +506,11 @@ page 371 "Bank Account List"
     end;
 
     trigger OnOpenPage()
+    var
+        MonitorSensitiveField: Codeunit "Monitor Sensitive Field";
     begin
         ShowBankLinkingActions := StatementProvidersExist;
+        MonitorSensitiveField.ShowPromoteMonitorSensitiveFieldNotification();
     end;
 
     var
