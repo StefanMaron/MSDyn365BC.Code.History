@@ -508,7 +508,7 @@ page 22 "Customer List"
             }
             group(ActionGroupCRM)
             {
-                Caption = 'Common Data Service';
+                Caption = 'Dataverse';
                 Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
                 Enabled = (BlockedFilterApplied and (Blocked = Blocked::" ")) or not BlockedFilterApplied;
                 action(CRMGotoAccount)
@@ -516,7 +516,7 @@ page 22 "Customer List"
                     ApplicationArea = Suite;
                     Caption = 'Account';
                     Image = CoupledCustomer;
-                    ToolTip = 'Open the coupled Common Data Service account.';
+                    ToolTip = 'Open the coupled Dataverse account.';
 
                     trigger OnAction()
                     var
@@ -533,7 +533,7 @@ page 22 "Customer List"
                     Image = Refresh;
                     Promoted = true;
                     PromotedCategory = Category7;
-                    ToolTip = 'Send or get updated data to or from Common Data Service.';
+                    ToolTip = 'Send or get updated data to or from Dataverse.';
 
                     trigger OnAction()
                     var
@@ -558,7 +558,7 @@ page 22 "Customer List"
                     Caption = 'Update Account Statistics';
                     Enabled = CRMIsCoupledToRecord;
                     Image = UpdateXML;
-                    ToolTip = 'Send customer statistics data to Common Data Service to update the Account Statistics FactBox.';
+                    ToolTip = 'Send customer statistics data to Dataverse to update the Account Statistics FactBox.';
                     Visible = CRMIntegrationEnabled;
 
                     trigger OnAction()
@@ -572,7 +572,7 @@ page 22 "Customer List"
                 {
                     Caption = 'Coupling', Comment = 'Coupling is a noun';
                     Image = LinkAccount;
-                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Common Data Service record.';
+                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dataverse record.';
                     action(ManageCRMCoupling)
                     {
                         AccessByPermission = TableData "CRM Integration Record" = IM;
@@ -581,7 +581,7 @@ page 22 "Customer List"
                         Image = LinkAccount;
                         Promoted = true;
                         PromotedCategory = Category7;
-                        ToolTip = 'Create or modify the coupling to a Common Data Service account.';
+                        ToolTip = 'Create or modify the coupling to a Dataverse account.';
 
                         trigger OnAction()
                         var
@@ -597,7 +597,7 @@ page 22 "Customer List"
                         Caption = 'Delete Coupling';
                         Enabled = CRMIsCoupledToRecord;
                         Image = UnLinkAccount;
-                        ToolTip = 'Delete the coupling to a Common Data Service account.';
+                        ToolTip = 'Delete the coupling to a Dataverse account.';
 
                         trigger OnAction()
                         var
@@ -618,9 +618,9 @@ page 22 "Customer List"
                     action(CreateInCRM)
                     {
                         ApplicationArea = Suite;
-                        Caption = 'Create Account in Common Data Service';
+                        Caption = 'Create Account in Dataverse';
                         Image = NewCustomer;
-                        ToolTip = 'Generate the account in the coupled Common Data Service account.';
+                        ToolTip = 'Generate the account in the coupled Dataverse account.';
 
                         trigger OnAction()
                         var
@@ -636,7 +636,7 @@ page 22 "Customer List"
                         ApplicationArea = Suite;
                         Caption = 'Create Customer in Business Central';
                         Image = NewCustomer;
-                        ToolTip = 'Generate the customer in the coupled Common Data Service account.';
+                        ToolTip = 'Generate the customer in the coupled Dataverse account.';
 
                         trigger OnAction()
                         var

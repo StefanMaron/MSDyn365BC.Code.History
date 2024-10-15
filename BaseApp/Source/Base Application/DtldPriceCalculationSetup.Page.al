@@ -47,12 +47,12 @@ page 7008 "Dtld. Price Calculation Setup"
                 field(SourceGroup; Rec."Source Group")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a source group (customer, vendor, job).';
+                    ToolTip = 'Specifies whether the prices come from groups of customers, vendors or jobs.';
                 }
                 field(SourceNo; Rec."Source No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a number of the entity (customer, vendor, job) that prices are applied to.';
+                    ToolTip = 'Specifies the unique identifier of the source of the price on the price list line.';
                 }
                 field(Enabled; Rec.Enabled)
                 {

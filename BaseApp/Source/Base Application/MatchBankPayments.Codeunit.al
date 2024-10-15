@@ -239,14 +239,12 @@
     end;
 
     procedure GetLinesForReview(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; ReviewScoreFilter: Text)
-    var
-        BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
         if BankAccReconciliationLine.IsEmpty() then
             exit;
 
         BankAccReconciliationLine.SetFilter("Match Quality", ReviewScoreFilter);
-        BankAccReconciliationLine.SetFilter("Match Confidence", BankPmtApplRule.GetMatchedAutomaticallyFilter());
+        BankAccReconciliationLine.SetFilter("Match Confidence", BankAccReconciliationLine.GetMatchedAutomaticallyFilter());
     end;
 
     procedure GetLinesWithDifference(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")

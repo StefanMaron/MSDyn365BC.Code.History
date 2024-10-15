@@ -863,7 +863,7 @@ codeunit 139031 "Change Log"
         if not ChangeLogEntry.FindFirst then
             exit;
 
-        Assert.AreNotEqual('', ChangeLogEntry.GetPrimaryKeyFriendlyName, 'PrimaryKeyFriendlyName should not be blank.');
+        Assert.AreNotEqual('', ChangeLogEntry.GetFullPrimaryKeyFriendlyName, 'PrimaryKeyFriendlyName should not be blank.');
 
         ChangeLogEntry.TestField("Record ID");
         case TypeOfChange of
@@ -1849,6 +1849,41 @@ codeunit 139031 "Change Log"
         Assert.IsTrue(ChangeLogSetupFieldListPage."Log Modification".Editable(), '');
         Assert.IsTrue(ChangeLogSetupFieldListPage."Log Deletion".Editable(), '');
         ChangeLogSetupFieldListPage.Close();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangeLogEntryGetPrimaryKeyFriendlyNameForLongPrimaryKey()
+    var
+        ChangeLogEntry: Record "Change Log Entry";
+        UserGroupAccessControl: Record "User Group Access Control";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 384259] Change Log Entry function GetPrimaryKeyFriendlyName doesn't throw error on records with long Primary Key.
+        Initialize();
+
+        MockUserGroupAccessControl(UserGroupAccessControl);
+        ChangeLogEntry."Table No." := DATABASE::"User Group Access Control";
+        ChangeLogEntry."Primary Key" := CopyStr(UserGroupAccessControl.GetPosition(false), 1, MaxStrLen(ChangeLogEntry."Primary Key"));
+
+        ChangeLogEntry.GetFullPrimaryKeyFriendlyName();
+    end;
+
+    local procedure MockUserGroupAccessControl(var UserGroupAccessControl: Record "User Group Access Control")
+    var
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"User Group Access Control";
+        with UserGroupAccessControl do begin
+            Init();
+            "User Group Code" := LibraryUtility.GenerateRandomCode20(FieldNo("User Group Code"), TableNo);
+            "User Security ID" := CreateGuid();
+            "Role ID" := LibraryUtility.GenerateRandomCode20(FieldNo("Role ID"), TableNo);
+            "Company Name" := CopyStr(LibraryRandom.RandText(MaxStrLen("Company Name")), 1, MaxStrLen("Company Name"));
+            Scope := Scope::System;
+            "App ID" := CreateGuid();
+            Insert();
+        end;
     end;
 
     [ConfirmHandler]

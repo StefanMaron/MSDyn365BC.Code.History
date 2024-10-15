@@ -1,4 +1,4 @@
-page 51 "Purchase Invoice"
+﻿page 51 "Purchase Invoice"
 {
     Caption = 'Purchase Invoice';
     PageType = Document;
@@ -1476,8 +1476,12 @@ page 51 "Purchase Invoice"
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        ShowConfirmCloseUnposted: Boolean;
     begin
-        if not DocumentIsPosted then
+        ShowConfirmCloseUnposted := not DocumentIsPosted;
+        OnQueryClosePageOnAfterCalcShowConfirmCloseUnposted(Rec, ShowConfirmCloseUnposted);
+        if ShowConfirmCloseUnposted then
             exit(ConfirmCloseUnposted);
     end;
 
@@ -1728,6 +1732,11 @@ page 51 "Purchase Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShipToOptions(var PurchaseHeader: Record "Purchase Header"; ShipToOptions: Option)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnQueryClosePageOnAfterCalcShowConfirmCloseUnposted(var PurchaseHeader: Record "Purchase Header"; var ShowConfirmCloseUnposted: Boolean)
     begin
     end;
 }

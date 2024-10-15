@@ -46,7 +46,7 @@ table 1799 "Data Migration Status"
         }
         field(9; "Error Count"; Integer)
         {
-            CalcFormula = Count ("Data Migration Error" WHERE("Migration Type" = FIELD("Migration Type"),
+            CalcFormula = Count("Data Migration Error" WHERE("Migration Type" = FIELD("Migration Type"),
                                                               "Destination Table ID" = FIELD("Destination Table ID")));
             Caption = 'Error Count';
             FieldClass = FlowField;
@@ -68,7 +68,13 @@ table 1799 "Data Migration Status"
     trigger OnModify()
     var
         DataMigrationMgt: Codeunit "Data Migration Mgt.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnModify(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ("Total Number" <> 0) and ("Migrated Number" <= "Total Number") then
             "Progress Percent" := "Migrated Number" / "Total Number" * 10000; // 10000 = 100%
 
@@ -77,6 +83,11 @@ table 1799 "Data Migration Status"
                       Status::Stopped]
         then
             DataMigrationMgt.CheckIfMigrationIsCompleted(Rec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnModify(var DataMigrationStatus: Record "Data Migration Status"; var IsHandled: Boolean)
+    begin
     end;
 }
 

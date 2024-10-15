@@ -180,6 +180,7 @@
 
                 "System-Created Entry" := TempSalesLine."System-Created Entry";
                 GetSalesHeader();
+                OnValidateNoOnBeforeInitHeaderDefaults(SalesHeader, Rec);
                 InitHeaderDefaults(SalesHeader);
                 OnValidateNoOnAfterInitHeaderDefaults(SalesHeader, TempSalesLine);
 
@@ -647,6 +648,7 @@
                         "VAT Base Amount" := 0;
                     end;
 
+                UpdateUnitPriceByField(FieldNo(Quantity));
                 UpdatePrePaymentAmounts();
 
                 CheckWMS();
@@ -654,8 +656,6 @@
                 UpdatePlanned();
                 if "Document Type" = "Document Type"::"Return Order" then
                     ValidateReturnReasonCode(FieldNo(Quantity));
-
-                UpdateUnitPriceByField(FieldNo(Quantity));
             end;
         }
         field(16; "Outstanding Quantity"; Decimal)
@@ -738,7 +738,7 @@
                 if (CurrFieldNo <> 0) and (Type = Type::Item) and ("Qty. to Ship" < 0) then
                     CheckApplFromItemLedgEntry(ItemLedgEntry);
 
-                ATOLink.UpdateQtyToAsmFromSalesLine(Rec);
+                UpdateQtyToAsmFromSalesLineQtyToShip();
             end;
         }
         field(22; "Unit Price"; Decimal)
@@ -2344,7 +2344,7 @@
                             ApplyResUnitCost(FieldNo("Unit of Measure Code"));
                         end;
                     Type::"G/L Account", Type::"Fixed Asset",
-                  Type::"Charge (Item)", Type::" ":
+                    Type::"Charge (Item)", Type::" ":
                         "Qty. per Unit of Measure" := 1;
                 end;
                 UpdateQuantityFromUOMCode();
@@ -4014,6 +4014,7 @@
         TestField("Qty. per Unit of Measure");
 
         case Type of
+            Type::"G/L Account",
             Type::Item,
             Type::Resource:
                 begin
@@ -4239,8 +4240,11 @@
 
         if SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice then begin
             "Prepayment VAT Difference" := 0;
-            if not PrePaymentLineAmountEntered then
+            if not PrePaymentLineAmountEntered then begin
                 "Prepmt. Line Amount" := Round("Line Amount" * "Prepayment %" / 100, Currency."Amount Rounding Precision");
+                if abs("Inv. Discount Amount" + "Prepmt. Line Amount") > abs("Line Amount") then
+                    "Prepmt. Line Amount" := "Line Amount" - "Inv. Discount Amount";
+            end;
             PrePaymentLineAmountEntered := false;
         end;
 
@@ -4262,6 +4266,8 @@
             if "Prepmt. Line Amount" < "Prepmt. Amt. Inv." then begin
                 if IsServiceChargeLine() then
                     Error(CannotChangePrepaidServiceChargeErr);
+                if "Inv. Discount Amount" <> 0 then
+                    Error(InvDiscForPrepmtExceededErr, "Document No.");
                 FieldError("Prepmt. Line Amount", StrSubstNo(Text049, "Prepmt. Amt. Inv."));
             end;
             if "Prepmt. Line Amount" <> 0 then begin
@@ -5011,10 +5017,22 @@
             "No." := NonstockItem."Entry No.";
             CatalogItemMgt.NonStockSales(Rec);
             Validate("No.", "No.");
-            Validate("Unit Price", NonstockItem."Unit Price");
+            UpdateUnitPriceFromNonstockItem();
 
             OnAfterShowNonStock(Rec, NonstockItem);
         end;
+    end;
+
+    local procedure UpdateUnitPriceFromNonstockItem()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateUnitPriceFromNonstockItem(Rec, NonstockItem, IsHandled);
+        if IsHandled then
+            exit;
+
+        Validate("Unit Price", NonstockItem."Unit Price");
     end;
 
     local procedure GetSalesSetup()
@@ -5368,7 +5386,9 @@
             LockTable();
             if FindSet then
                 repeat
-                    if not ZeroAmountLine(QtyType) then begin
+                    if not ZeroAmountLine(QtyType) and
+                       ((SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice) or ("Prepmt. Amt. Inv." = 0))
+                    then begin
                         DeferralAmount := GetDeferralAmount();
                         VATAmountLine.Get("VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Line Amount" >= 0);
                         if VATAmountLine.Modified then begin
@@ -5749,6 +5769,7 @@
             Location2."Require Put-away" := WhseSetup."Require Put-away";
         end else
             Location2 := Location;
+        OnCheckWarehouseOnAfterSetLocation2(Rec, Location2);
 
         DialogText := Text035;
         if ("Document Type" in ["Document Type"::Order, "Document Type"::"Return Order"]) and
@@ -6361,6 +6382,18 @@
         CalcInvDiscToInvoice();
 
         CalcPrepaymentToDeduct();
+    end;
+
+    local procedure UpdateQtyToAsmFromSalesLineQtyToShip()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateQtyToAsmFromSalesLineQtyToShip(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        ATOLink.UpdateQtyToAsmFromSalesLine(Rec);
     end;
 
     procedure ShowLineComments()
@@ -7026,6 +7059,7 @@
     begin
         TestJobPlanningLine();
         TestStatusOpen();
+        OnValidateLineDiscountPercentOnAfterTestStatusOpen(Rec, xRec, CurrFieldNo);
         "Line Discount Amount" :=
           Round(
             Round(Quantity * "Unit Price", Currency."Amount Rounding Precision") *
@@ -7175,8 +7209,7 @@
 
         "Sell-to Customer No." := SalesHeader."Sell-to Customer No.";
         "Currency Code" := SalesHeader."Currency Code";
-        if not IsNonInventoriableItem then
-            "Location Code" := SalesHeader."Location Code";
+        InitHeaderLocactionCode(SalesHeader);
         "Customer Price Group" := SalesHeader."Customer Price Group";
         "Customer Disc. Group" := SalesHeader."Customer Disc. Group";
         "Allow Line Disc." := SalesHeader."Allow Line Disc.";
@@ -7205,6 +7238,19 @@
         "Shipping Time" := SalesHeader."Shipping Time";
 
         OnAfterInitHeaderDefaults(Rec, SalesHeader, xRec);
+    end;
+
+    local procedure InitHeaderLocactionCode(SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInitHeaderLocactionCode(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not IsNonInventoriableItem then
+            "Location Code" := SalesHeader."Location Code";
     end;
 
     local procedure InitDeferralCode()
@@ -7526,12 +7572,6 @@
         Amount := NewAmount;
         "Amount Including VAT" := NewAmountIncludingVAT;
         "VAT Base Amount" := NewVATBaseAmount;
-        if not SalesHeader."Prices Including VAT" and (Amount > 0) and (Amount < "Prepmt. Line Amount") then
-            "Prepmt. Line Amount" := Amount;
-        if SalesHeader."Prices Including VAT" and ("Amount Including VAT" > 0) and ("Amount Including VAT" < "Prepmt. Line Amount") then
-            "Prepmt. Line Amount" := "Amount Including VAT";
-        if ("Prepmt. Line Amount" < "Prepmt. Amt. Inv.") and ("Inv. Discount Amount" <> 0) then
-            Error(InvDiscForPrepmtExceededErr, "Document No.");
 
         OnAfterUpdateBaseAmounts(Rec, xRec, CurrFieldNo);
     end;
@@ -7940,6 +7980,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitHeaderLocactionCode(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInitOutstandingAmount(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -8071,6 +8116,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateQuantityFromUOMCode(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateQtyToAsmFromSalesLineQtyToShip(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -8325,6 +8375,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateNoOnBeforeInitHeaderDefaults(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateNoOnBeforeInitRec(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CallingFieldNo: Integer)
     begin
     end;
@@ -8405,6 +8460,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckWarehouseOnAfterSetLocation2(var SalesLine: Record "Sales Line"; Location2: Record Location)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckWarehouseOnBeforeShowDialog(var SalesLine: Record "Sales Line"; Location: Record Location; ShowDialog: Option " ",Message,Error; var DialogText: Text[50])
     begin
     end;
@@ -8481,6 +8541,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateItemChargeAssgnt(var SalesLine: Record "Sales Line"; var InHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateUnitPriceFromNonstockItem(var SalesLine: Record "Sales Line"; NonstockItem: Record "Nonstock Item"; var InHandled: Boolean);
     begin
     end;
 
@@ -8757,6 +8822,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateLineDiscountPercentOnBeforeUpdateAmounts(var SalesLine: Record "Sales Line"; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateLineDiscountPercentOnAfterTestStatusOpen(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer)
     begin
     end;
 }

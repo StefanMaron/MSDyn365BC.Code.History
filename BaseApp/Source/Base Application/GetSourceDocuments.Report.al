@@ -1,4 +1,4 @@
-report 5753 "Get Source Documents"
+﻿report 5753 "Get Source Documents"
 {
     Caption = 'Get Source Documents';
     ProcessingOnly = true;
@@ -445,6 +445,8 @@ report 5753 "Get Source Documents"
                     WhseShptHeader.SortWhseDoc;
                     WhseReceiptHeader.SortWhseDoc;
                 end;
+
+                OnWarehouseRequestOnAfterOnPostDataItem(WhseShptHeader);
             end;
 
             trigger OnPreDataItem()
@@ -495,6 +497,7 @@ report 5753 "Get Source Documents"
 
     trigger OnPostReport()
     begin
+        OnBeforePostReport("Warehouse Request", RequestType, OneHeaderCreated, WhseShptHeader, WhseHeaderCreated, ErrorOccured, LineCreated, ActivitiesCreated, Location, WhseShptLine);
         if not HideDialog then
             case RequestType of
                 RequestType::Receive:
@@ -1028,6 +1031,11 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePostReport(WhseRequest: Record "Warehouse Request"; RequestType: Option; OneHeaderCreated: Boolean; var WhseShptHeader: Record "Warehouse Shipment Header"; var WhseHeaderCreated: Boolean; var ErrorOccured: Boolean; var LineCreated: Boolean; var ActivitiesCreated: Integer; Location: record Location; var WhseShptLine: record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeShowSingleWhseReceiptHeaderCreatedMessage(ActivitiesCreated: Integer; SpecialHandlingMessage: Text[1024]; var IsHandled: Boolean)
     begin
     end;
@@ -1049,6 +1057,11 @@ report 5753 "Get Source Documents"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnPostDataItemTransferLine(var WhseReceiptHeader: Record "Warehouse Receipt Header"; RequestType: Option Receive,Ship; OneHeaderCreated: Boolean; WhseHeaderCreated: Boolean; LineCreated: Boolean; HideDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnWarehouseRequestOnAfterOnPostDataItem(WhseShptHeader: Record "Warehouse Shipment Header")
     begin
     end;
 }

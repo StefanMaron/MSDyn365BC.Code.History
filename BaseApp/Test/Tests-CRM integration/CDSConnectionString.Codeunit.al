@@ -117,7 +117,7 @@ codeunit 139193 "CDS Connection String"
         asserterror CDSConnectionSetup.Validate("Server Address", 'http://somedomain.dynamics.com');
 
         // [THEN] Error thrown
-        Assert.ExpectedError('The application is set up to support secure connections (HTTPS) to the Common Data Service environment only. You cannot use HTTP.');
+        Assert.ExpectedError('The application is set up to support secure connections (HTTPS) to the Dataverse environment only. You cannot use HTTP.');
     end;
 
     [Test]

@@ -19,7 +19,7 @@ codeunit 139183 "CRM Integration Mapping"
         ExpectedRecordNotFoundErr: Label 'Expected record not found.';
         UnexpectedRecordFoundErr: Label 'Unexpected record found.';
         NoFieldMappingRowsErr: Label 'There are no field mapping rows for the Integration Table Mapping Name';
-        CurrencyDoesNotExistErr: Label 'The CDS Transactioncurrency does not exist.';
+        CurrencyDoesNotExistErr: Label 'The Dataverse Transactioncurrency does not exist.';
         InsertIsNotAllowedErr: Label 'New method failed because Insert is not allowed.';
         FieldValueMustBeNoErr: Label '%1 must be equal to ''No''', Comment = '%1 - a field name';
         NotNullIsApplicableForGUIDErr: Label 'The Not Null value is applicable for GUID fields only.';

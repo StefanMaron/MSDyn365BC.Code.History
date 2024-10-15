@@ -108,6 +108,7 @@ page 9171 "Profile List"
                 Image = "List";
                 ToolTip = 'View the list of pages that have been customized for the selected profile.';
                 RunObject = page "Profile Customization List";
+                RunPageLink = "App ID" = field("App ID"), "Profile ID" = field("Profile ID");
             }
         }
         area(processing)
