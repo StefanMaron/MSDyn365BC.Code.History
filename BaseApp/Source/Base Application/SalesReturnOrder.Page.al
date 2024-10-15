@@ -1138,6 +1138,8 @@ page 6630 "Sales Return Order"
                     begin
                         CopyDocument();
                         if Get("Document Type", "No.") then;
+                        CurrPage.SalesLines.Page.ForceTotalsCalculation();
+                        CurrPage.Update();
                     end;
                 }
                 action(MoveNegativeLines)
