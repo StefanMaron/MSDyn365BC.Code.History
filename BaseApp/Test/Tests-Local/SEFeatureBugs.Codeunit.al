@@ -125,6 +125,7 @@ codeunit 144023 "SE Feature Bugs"
 
         // [GIVEN] Post General Journal Line with Date = "D", GLAccount "ACC", Amount = "AMT"
         CreatePostGenJnlLineWithBalAcc(GenJournalLine);
+        Commit();
 
         // [WHEN] Run SIE Export report
         FileName := RunSIEExport(GenJournalLine."Account No.", WorkDate, WorkDate);
@@ -153,6 +154,7 @@ codeunit 144023 "SE Feature Bugs"
 
         // [GIVEN] Create fiscal year with period less than calendar year
         CreateNextFiscalYear(LibraryRandom.RandIntInRange(5, 10), StartDate, EndDate);
+        Commit();
 
         // [WHEN] Run SIE Export report
         FileName := RunSIEExport('', StartDate, EndDate);
@@ -179,6 +181,7 @@ codeunit 144023 "SE Feature Bugs"
         // [GIVEN] Create 2 fiscal years with period less than calendar year
         CreateNextFiscalYear(LibraryRandom.RandIntInRange(5, 10), PrevFYStartDate, PrevFYEndDate);
         CreateNextFiscalYear(LibraryRandom.RandIntInRange(5, 10), LastFYStartDate, LastFYEndDate);
+        Commit();
 
         // [WHEN] Run SIE Export report
         FileName := RunSIEExport('', LastFYStartDate, LastFYEndDate);
@@ -204,6 +207,7 @@ codeunit 144023 "SE Feature Bugs"
 
         // [GIVEN] Post General Journal Line with GLAccount "Acc"
         CreatePostGenJnlLineWithBalAcc(GenJournalLine);
+        Commit();
 
         // [GIVEN] Exported file saved on the server
         FileName := RunSIEExport(GenJournalLine."Account No.", WorkDate, WorkDate);
@@ -227,9 +231,66 @@ codeunit 144023 "SE Feature Bugs"
         VerifyImportedGenJnlLine(GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Account No.");
     end;
 
+    [Test]
+    [HandlerFunctions('SIEExportYearRequestPageHandler,SIEImportInsertGLAccountRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SIEImportEmptyGLAccountNo()
+    var
+        GLAccount: Record "G/L Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GLAccountNo: Code[20];
+        FileName: Text;
+    begin
+        // [FEATURE] [SIE Import]
+        // [SCENARIO 372202] Run SIE Import on file that contains #KONTO line with empty No and Name.
+        Initialize();
+        CreateGenJournalBatch(GenJournalBatch);
+
+        // [GIVEN] SIE file, that contains two #KONTO lines.
+        // [GIVEN] First #KONTO line is with alphanumeric No = "GLNO" and Name = "GLNAME": #KONTO  1GU00000000000000000  "1GU00000000000000000".
+        // [GIVEN] Second #KONTO line is with spaces in place of No and Name: #KONTO        .
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+        Commit();
+        FileName := RunSIEExport(GLAccountNo, WorkDate(), WorkDate());
+        AddLineWithEmptyKONTONoAndName(FileName);
+
+        // [GIVEN] G/L Account with No "GLNO" does not exist.
+        GLAccount.Get(GLAccountNo);
+        GLAccount.Delete();
+
+        // [WHEN] Run SIE Import report on this SIE file with option Insert G/L Account set.
+        LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
+        LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
+        Commit();
+        RunSIEImport(FileName);
+
+        // [THEN] G/L Account "GLNO" is created. G/L Account with empty No is not created.
+        GLAccount.Get(GLAccountNo);
+        asserterror GLAccount.Get();
+        Assert.ExpectedError('The G/L Account does not exist.');
+        Assert.ExpectedErrorCode('DB:RecordNotFound');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
+    end;
+
+    local procedure AddLineWithEmptyKONTONoAndName(FileName: Text)
+    var
+        SIEFile: File;
+        CR: Char;
+        LF: Char;
+    begin
+        CR := 13;
+        LF := 10;
+        SIEFile.WriteMode(true);
+        SIEFile.Open(FileName);
+        SIEFile.Seek(SIEFile.Len);
+        SIEFile.Write('#KONTO        ' + Format(CR) + Format(LF));
+        SIEFile.Close();
     end;
 
     local procedure CalculateFinanceChargeMemoTotal(CustomerNo: Code[20]; DocumentNo: Code[20]; InterestPeriod: Integer) FinanceChargeMemoAmount: Decimal
@@ -338,6 +399,14 @@ codeunit 144023 "SE Feature Bugs"
         exit(GLAccount."No.");
     end;
 
+    local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+    end;
+
     local procedure CreateFinanceChargeTerms(var FinanceChargeTerms: Record "Finance Charge Terms")
     begin
         LibraryERM.CreateFinanceChargeTerms(FinanceChargeTerms);
@@ -414,7 +483,6 @@ codeunit 144023 "SE Feature Bugs"
         SIEExport: Report "SIE Export";
         FileMgt: Codeunit "File Management";
     begin
-        Commit;
         FileName := FileMgt.ServerTempFileName('');
         GLAccount.SetRange("No.", GLAccountNo);
         GLAccount.SetRange("Date Filter", StartDate, EndDate);
@@ -422,6 +490,15 @@ codeunit 144023 "SE Feature Bugs"
         SIEExport.SetTableView(GLAccount);
         SIEExport.InitializeRequest(FileName);
         SIEExport.RunModal;
+    end;
+
+    local procedure RunSIEImport(FileName: Text)
+    var
+        SIEImport: Report "SIE Import";
+    begin
+        SIEImport.UseRequestPage(true);
+        SIEImport.InitializeRequest(FileName);
+        SIEImport.RunModal();
     end;
 
     local procedure SuggestVendorPaymentAfterPostPurchDoc(var PurchaseLine: Record "Purchase Line"; AlwaysInclCreditMemo: Boolean)
@@ -544,11 +621,32 @@ codeunit 144023 "SE Feature Bugs"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
+    procedure SIEExportYearRequestPageHandler(var SIEExport: TestRequestPage "SIE Export")
+    var
+        ExportType: Option "1. Year - End Balances","2. Periodic Balances","3. Object Balances","4. Transactions";
+    begin
+        SIEExport.ExportType.SetValue(ExportType::"1. Year - End Balances");
+        SIEExport.FiscalYear.SetValue(Date2DMY(WorkDate(), 3));
+        SIEExport.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
     procedure SIEImportRPH(var SIEImport: TestRequestPage "SIE Import")
     begin
         SIEImport."GenJnlLine.""Journal Template Name""".SetValue(LibraryVariableStorage.DequeueText);
         SIEImport."GenJnlLine.""Journal Batch Name""".SetValue(LibraryVariableStorage.DequeueText);
         SIEImport.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SIEImportInsertGLAccountRequestPageHandler(var SIEImport: TestRequestPage "SIE Import")
+    begin
+        SIEImport."GenJnlLine.""Journal Template Name""".SetValue(LibraryVariableStorage.DequeueText());  // Gen. Journal Template
+        SIEImport."GenJnlLine.""Journal Batch Name""".SetValue(LibraryVariableStorage.DequeueText());  // Gen. Journal Batch
+        SIEImport.InsertNewAccount.SetValue(true);  // Insert G/L Account
+        SIEImport.OK().Invoke();
     end;
 
     [MessageHandler]

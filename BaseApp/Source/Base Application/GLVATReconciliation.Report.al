@@ -11,6 +11,7 @@ report 11 "G/L - VAT Reconciliation"
         dataitem("VAT Statement Name"; "VAT Statement Name")
         {
             DataItemTableView = SORTING("Statement Template Name", Name);
+            RequestFilterFields = Name;
             column(VAT_Statement_Name_Statement_Template_Name; "Statement Template Name")
             {
             }
@@ -379,14 +380,14 @@ report 11 "G/L - VAT Reconciliation"
                     field(Selection; Selection)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Include VAT Entries';
+                        Caption = 'Include VAT Entries by State';
                         OptionCaption = 'Open,Closed,Open and Closed';
-                        ToolTip = 'Specifies if you want to include VAT entries from before the specified time period in the report.';
+                        ToolTip = 'Specifies if you want to include VAT entries that are open and/or closed in the report.';
                     }
                     field(PeriodSelection; PeriodSelection)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Include VAT Entries';
+                        Caption = 'Include VAT Entries by Period';
                         OptionCaption = 'Before and Within Period,Within Period';
                         ToolTip = 'Specifies if you want to include VAT entries from before the specified time period in the report.';
                     }
