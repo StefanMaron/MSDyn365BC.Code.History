@@ -783,7 +783,6 @@ report 20 "Calc. and Post VAT Settlement"
                         PostGenJnlLine(GenJnlLine);
 
                     CreateGenJnlLine(GenJnlLine2, "VAT Posting Setup".GetRevChargeAccount(false));
-		    SetVatPostingSetupToGenJnlLine(GenJnlLine2, "VAT Posting Setup");
                     GenJnlLine2.Amount += VATEntry."Non Ded. VAT Amount";
                     GenJnlLine2."Source Currency Amount" += VATEntry."Non Ded. Source Curr. VAT Amt.";
                     GenJnlLine2."Journal Template Name" := GenJnlLine."Journal Template Name";

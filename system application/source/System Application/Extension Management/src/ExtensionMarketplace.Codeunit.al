@@ -318,7 +318,7 @@ codeunit 2501 "Extension Marketplace"
             Message(GetLastErrorText());
     end;
 
-    [IntegrationEvent(false, false)]
+    [InternalEvent(false)]
     internal procedure OnOverrideUrl(var Url: Text)
     begin
         // Provides an option to rewrite URL in non SaaS environments.
