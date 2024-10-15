@@ -23,7 +23,7 @@ codeunit 1256 "Post Late Gen. Journal Lines"
                     CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Line", GenJournalLine);
                     GenJournalLine.Delete();
                 end;
-            until SalesInvoiceHeader.Next = 0;
+            until SalesInvoiceHeader.Next() = 0;
     end;
 
     var

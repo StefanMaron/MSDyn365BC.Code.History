@@ -121,7 +121,7 @@ table 368 "Dimension Selection Buffer"
                 DimSelectionMultiple.InsertDimSelBuf(
                   SelectedDim.Get(UserId, ObjectType, ObjectID, '', Dim.Code),
                   Dim.Code, Dim.GetMLName(GlobalLanguage));
-            until Dim.Next = 0;
+            until Dim.Next() = 0;
 
         if DimSelectionMultiple.RunModal = ACTION::OK then begin
             DimSelectionMultiple.GetDimSelBuf(TempDimSelectionBuf);
@@ -144,7 +144,7 @@ table 368 "Dimension Selection Buffer"
                   Dim.Code, Dim.GetMLName(GlobalLanguage),
                   SelectedDim."New Dimension Value Code",
                   SelectedDim."Dimension Value Filter");
-            until Dim.Next = 0;
+            until Dim.Next() = 0;
 
         if DimSelectionChange.RunModal = ACTION::OK then begin
             DimSelectionChange.GetDimSelBuf(TempDimSelectionBuf);
@@ -166,7 +166,7 @@ table 368 "Dimension Selection Buffer"
         if SelectedDim.Find('-') then
             repeat
                 AddDimCodeToText(SelectedDim."Dimension Code", SelectedDimTextFromDb);
-            until SelectedDim.Next = 0;
+            until SelectedDim.Next() = 0;
         if SelectedDimTextFromDb <> SelectedDimText then
             Error(
               Text000 +
@@ -206,7 +206,7 @@ table 368 "Dimension Selection Buffer"
                 SelectedDim."Dimension Value Filter" := DimSelectionBuf."Dimension Value Filter";
                 SelectedDim.Level := DimSelectionBuf.Level;
                 SelectedDim.Insert();
-            until DimSelectionBuf.Next = 0;
+            until DimSelectionBuf.Next() = 0;
             SelectedDimText := GetDimSelectionText(ObjectType, ObjectID, AnalysisViewCode);
         end;
     end;
@@ -311,7 +311,7 @@ table 368 "Dimension Selection Buffer"
             if Find('-') then
                 repeat
                     AddDimCodeToText("Dimension Code", SelectedDimText);
-                until Next = 0;
+                until Next() = 0;
         end;
         exit(SelectedDimText);
     end;

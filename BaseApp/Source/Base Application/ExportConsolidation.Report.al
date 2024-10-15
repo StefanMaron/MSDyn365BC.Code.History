@@ -76,10 +76,10 @@ report 91 "Export Consolidation"
                                             TempDimBufIn."Dimension Value Code" := DimSetEntry."Dimension Value Code";
                                         TempDimBufIn.Insert();
                                     end;
-                                until DimSetEntry.Next = 0;
+                                until DimSetEntry.Next() = 0;
                             end;
                             UpdateTempGLEntry(TempDimBufIn);
-                        until Next = 0;
+                        until Next() = 0;
 
                         TempGLEntry.Reset();
                         if TempGLEntry.FindSet then begin
@@ -100,7 +100,7 @@ report 91 "Export Consolidation"
                                                 WriteFile(TempGLEntry, TempDimBufOut);
                                         end;
                                 end;
-                            until TempGLEntry.Next = 0;
+                            until TempGLEntry.Next() = 0;
                         end;
                     end;
 
@@ -158,14 +158,14 @@ report 91 "Export Consolidation"
                         TempDim.Init();
                         TempDim := Dim;
                         TempDim.Insert();
-                    until Dim.Next = 0;
+                    until Dim.Next() = 0;
                 end;
                 if DimVal.Find('-') then begin
                     repeat
                         TempDimVal.Init();
                         TempDimVal := DimVal;
                         TempDimVal.Insert();
-                    until DimVal.Next = 0;
+                    until DimVal.Next() = 0;
                 end;
 
                 SelectedDim.SetRange("User ID", UserId);
@@ -179,7 +179,7 @@ report 91 "Export Consolidation"
                         if TempDim.FindFirst then
                             TempSelectedDim."Dimension Code" := TempDim.Code;
                         TempSelectedDim.Insert();
-                    until SelectedDim.Next = 0;
+                    until SelectedDim.Next() = 0;
                 end;
                 TempDim.Reset();
 
@@ -461,7 +461,7 @@ report 91 "Export Consolidation"
                             DimBuf."Dimension Code",
                             DimBuf."Dimension Value Code"));
                 end;
-            until DimBuf.Next = 0;
+            until DimBuf.Next() = 0;
         end;
     end;
 
@@ -520,12 +520,12 @@ report 91 "Export Consolidation"
             GLEntry.SetRange("G/L Account No.", GLAccNo);
             repeat
                 GLEntry.SetRange("Posting Date", ClosingDate(AccountingPeriod."Starting Date" - 1));
-                if not GLEntry.IsEmpty then
+                if not GLEntry.IsEmpty() then
                     Error(
                       Text009,
                       GLEntry.GetFilter("Posting Date"),
                       GLAccNo);
-            until AccountingPeriod.Next = 0;
+            until AccountingPeriod.Next() = 0;
         end;
     end;
 

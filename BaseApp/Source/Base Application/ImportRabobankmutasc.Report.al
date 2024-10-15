@@ -282,7 +282,7 @@ report 11000021 "Import Rabobank mut.asc"
             repeat
                 if TextFilter(BankAcct."Bank Account No.", '0123456789') = TextFilter(AcctNo, '0123456789') then
                     exit(BankAcct."No.");
-            until BankAcct.Next = 0;
+            until BankAcct.Next() = 0;
     end;
 
     local procedure TextFilter(String: Text[1024]; "Filter": Text[1024]): Text[1024]

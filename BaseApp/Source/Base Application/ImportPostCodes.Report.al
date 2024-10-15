@@ -34,7 +34,7 @@ report 11414 "Import Post Codes"
     begin
         PostCodeRange.Reset();
 
-        if not PostCodeRange.IsEmpty then
+        if not PostCodeRange.IsEmpty() then
             if not Confirm(Text000, false, PostCodeRange.TableCaption) then
                 CurrReport.Quit;
 

@@ -1,4 +1,4 @@
-﻿codeunit 5812 "Calculate Standard Cost"
+codeunit 5812 "Calculate Standard Cost"
 {
 
     trigger OnRun()
@@ -70,14 +70,14 @@
             repeat
                 NewProdBOMVersionErrBuf := ProdBOMVersionErrBuf;
                 NewProdBOMVersionErrBuf.Insert();
-            until ProdBOMVersionErrBuf.Next = 0;
+            until ProdBOMVersionErrBuf.Next() = 0;
 
         RtngVersionErrBuf.Reset();
         if RtngVersionErrBuf.Find('-') then
             repeat
                 NewRtngVersionErrBuf := RtngVersionErrBuf;
                 NewRtngVersionErrBuf.Insert();
-            until RtngVersionErrBuf.Next = 0;
+            until RtngVersionErrBuf.Next() = 0;
     end;
 
     local procedure AnalyzeAssemblyList(var Item: Record Item; var Depth: Integer; var NonAssemblyItemWithList: Boolean; var ContainsProdBOM: Boolean)
@@ -111,7 +111,7 @@
                     if MaxDepth > Depth then
                         Depth := MaxDepth
                 end
-            until BOMComponent.Next = 0
+            until BOMComponent.Next() = 0
         end;
     end;
 
@@ -146,7 +146,7 @@
                                 Depth := MaxDepth
                         end;
                 end;
-            until ProdBOMLine.Next = 0
+            until ProdBOMLine.Next() = 0
         end
     end;
 
@@ -214,7 +214,7 @@
         if TempItem.Find('-') then
             repeat
                 ItemCostMgt.UpdateStdCostShares(TempItem);
-            until TempItem.Next = 0;
+            until TempItem.Next() = 0;
     end;
 
     procedure CalcItems(var Item: Record Item; var NewTempItem: Record Item)
@@ -242,14 +242,14 @@
                     CalcAssemblyItem(Item2."No.", Item3, 0, true)
                 else
                     CalcMfgItem(Item2."No.", Item3, 0);
-            until Item2.Next = 0;
+            until Item2.Next() = 0;
 
         TempItem.Reset();
         if TempItem.Find('-') then
             repeat
                 NewTempItem := TempItem;
                 NewTempItem.Insert();
-            until TempItem.Next = 0;
+            until TempItem.Next() = 0;
 
         if ShowDialog then
             Window.Close;
@@ -332,7 +332,7 @@
                             Item."Single-Level Cap. Ovhd Cost" += ComponentQuantity * (TempPriceListLine."Unit Cost" - TempPriceListLine."Direct Unit Cost");
                         end;
                 end;
-            until BOMComp.Next = 0;
+            until BOMComp.Next() = 0;
 
             Item."Single-Level Mfg. Ovhd Cost" :=
               Round(
@@ -451,7 +451,7 @@
                               UOMMgt.GetResQtyPerUnitOfMeasure(CompResource, BOMComp."Unit of Measure Code") *
                               CompResource."Unit Price";
                 end
-            until BOMComp.Next = 0;
+            until BOMComp.Next() = 0;
             UnitPrice := Round(UnitPrice, GLSetup."Unit-Amount Rounding Precision");
             Item.Validate("Unit Price", UnitPrice);
             Item.Modify(true)
@@ -602,7 +602,7 @@
                             CalcProdBOMCost(
                               MfgItem, "No.", RtngNo, CompItemQtyBase, false, Level, SLMat, RUMat, RUCap, RUSub, RUCapOvhd, RUMfgOvhd);
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -620,7 +620,7 @@
             repeat
                 OnCalcRtngCostOnBeforeCalcRtngLineCost(RtngLine, ParentItem);
                 CalcRtngLineCost(RtngLine, MfgItemQtyBase, SLCap, SLSub, SLCapOvhd);
-            until RtngLine.Next = 0;
+            until RtngLine.Next() = 0;
         end;
     end;
 

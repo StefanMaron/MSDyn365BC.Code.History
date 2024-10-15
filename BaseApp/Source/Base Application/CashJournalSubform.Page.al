@@ -32,7 +32,7 @@ page 11404 "Cash Journal Subform"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Account Type"; "Account Type")

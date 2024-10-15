@@ -304,7 +304,7 @@ page 11000002 "Proposal Detail Line"
                                             "Description 3" := '';
                                             "Description 4" := '';
                                         end;
-                                until "Detail line2".Next = 0;
+                                until "Detail line2".Next() = 0;
                                 LockTable();
                                 Modify;
                             end;

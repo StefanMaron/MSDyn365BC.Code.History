@@ -126,7 +126,7 @@ report 512 "IC Transactions"
                             if Number = 1 then begin
                                 if TempGLEntry.Find('-') then;
                             end else
-                                if TempGLEntry.Next = 0 then;
+                                if TempGLEntry.Next() = 0 then;
                             TempGLEntry.Delete();
                             BalanceAmount += TempGLEntry.Amount;
                         end;
@@ -145,7 +145,7 @@ report 512 "IC Transactions"
                         if Number = 1 then begin
                             if TempTotGLEntry.Find('-') then;
                         end else
-                            if TempTotGLEntry.Next = 0 then;
+                            if TempTotGLEntry.Next() = 0 then;
 
                         GLAcc.Get(TempTotGLEntry."G/L Account No.");
                         TempTotGLEntry.Delete();
@@ -206,7 +206,7 @@ report 512 "IC Transactions"
                                 TempGLEntry := GLEntry;
                                 TempGLEntry.Insert();
                             end;
-                        until GLEntry.Next = 0;
+                        until GLEntry.Next() = 0;
                     TempTotGLEntry.SetRange("G/L Account No.");
                 end;
             }

@@ -159,7 +159,8 @@ report 11408 "Receive Response Messages"
                     begin
                         ServiceCertificateFileName :=
                           FileManagement.BLOBImportWithFilter(
-                            ServiceCertificateTempBlob, ImportFileTxt, '', 'CER Files (*.cer)|*.cer|CRT Files (*.crt)|*.crt', '.crt,.cer');
+                            ServiceCertificateTempBlob, ImportFileTxt, '',
+                            'DER Files (*.der)|*.der|CER Files (*.cer)|*.cer|CRT Files (*.crt)|*.crt|PEM Files (*.pem)|*.pem', '.crt,.cer,.der,.pem');
                     end;
                 }
             }

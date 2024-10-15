@@ -352,8 +352,8 @@ codeunit 144057 "UT COD Telebank"
     begin
         with TempGenJnlLine do begin
             Assert.AreEqual(PaymentHistoryLine.Count, Count, 'Wrong count');
-            PaymentHistoryLine.FindSet;
-            FindSet;
+            PaymentHistoryLine.FindSet();
+            FindSet();
             repeat
                 Assert.AreEqual('', "Journal Template Name", FieldName("Journal Template Name"));
                 Assert.AreEqual('', "Journal Batch Name", FieldName("Journal Batch Name"));

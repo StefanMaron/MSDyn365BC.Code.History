@@ -555,7 +555,7 @@ page 5097 "Create Task"
             end;
         IsMeeting := (Type = Type::Meeting);
         TypeOnAfterValidate;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure TypeOnAfterValidate()

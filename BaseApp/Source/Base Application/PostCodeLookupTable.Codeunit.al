@@ -32,7 +32,7 @@ codeunit 11402 "Post Code Lookup - Table"
             PostCodeRange.SetFilter("To No.", '%1..', PostCodeRange."From No.");
         end;
 
-        if PostCodeRange.IsEmpty then
+        if PostCodeRange.IsEmpty() then
             if HouseNo <> '' then begin
                 PostCodeRange.SetRange(Type);
                 PostCodeRange.SetRange("From No.");
@@ -56,7 +56,7 @@ codeunit 11402 "Post Code Lookup - Table"
         PostCodeRange2: Record "Post Code Range";
         IsHandled: Boolean;
     begin
-        if PostCodeRange.IsEmpty then
+        if PostCodeRange.IsEmpty() then
             exit(false);
 
         PostCodeRange.Find('-');
@@ -64,7 +64,7 @@ codeunit 11402 "Post Code Lookup - Table"
         if not ForcePopup then begin
             PostCodeRange2.Copy(PostCodeRange);
             PostCodeRange2.SetFilter("Street Name", '<>%1', PostCodeRange."Street Name");
-            if PostCodeRange2.IsEmpty then
+            if PostCodeRange2.IsEmpty() then
                 exit(true);
         end;
 

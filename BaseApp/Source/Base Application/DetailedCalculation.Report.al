@@ -215,7 +215,7 @@ report 99000756 "Detailed Calculation"
                 begin
                     CostTotal := 0;
 
-                    while ProdBOMLine[Level].Next = 0 do begin
+                    while ProdBOMLine[Level].Next() = 0 do begin
                         Level := Level - 1;
                         if Level < 1 then
                             CurrReport.Break();

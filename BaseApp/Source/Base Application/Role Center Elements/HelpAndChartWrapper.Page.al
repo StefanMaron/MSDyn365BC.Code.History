@@ -90,7 +90,7 @@ page 1392 "Help And Chart Wrapper"
                 trigger OnAction()
                 begin
                     SelectedChartDefinition.SetRange(Enabled, true);
-                    if SelectedChartDefinition.Next = 0 then
+                    if SelectedChartDefinition.Next() = 0 then
                         if not SelectedChartDefinition.FindFirst then
                             exit;
                     InitializeSelectedChart;

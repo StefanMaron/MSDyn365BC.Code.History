@@ -658,7 +658,7 @@ page 1811 "Setup Email Logging"
                 trigger OnAction()
                 var
                     MarketingSetup: Record "Marketing Setup";
-                    AssistedSetup: Codeunit "Assisted Setup";
+                    GuidedExperience: Codeunit "Guided Experience";
                 begin
                     if MarketingSetup.Get() then begin
                         SetupEmailLogging.ClearEmailLoggingSetup(MarketingSetup);
@@ -675,7 +675,7 @@ page 1811 "Setup Email Logging"
                     end else
                         Session.LogMessage('0000CIL', SkipCreatingEmailLoggingJobTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
-                    AssistedSetup.Complete(PAGE::"Setup Email Logging");
+                    GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Setup Email Logging");
 
                     Session.LogMessage('0000CIJ', EmailLoggingSetupCompletedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
@@ -689,12 +689,12 @@ page 1811 "Setup Email Logging"
     trigger OnInit()
     var
         MarketingSetup: Record "Marketing Setup";
-        EnvrionmentInformation: Codeunit "Environment Information";
+        EnvironmentInfo: Codeunit "Environment Information";
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
         ClientSecretLocal: Text;
     begin
         LoadTopBanners();
-        SoftwareAsAService := EnvrionmentInformation.IsSaaSInfrastructure();
+        SoftwareAsAService := EnvironmentInfo.IsSaaSInfrastructure();
         DefaultFolderSetup := true;
         QueueFolderPath := QueueFolderPathTxt;
         StorageFolderPath := StorageFolderPathTxt;
@@ -731,10 +731,10 @@ page 1811 "Setup Email Logging"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
     begin
         if CloseAction = ACTION::OK then
-            if AssistedSetup.ExistsAndIsNotComplete(PAGE::"Setup Email Logging") then
+            if GuidedExperience.AssistedSetupExistsAndIsNotComplete(ObjectType::Page, PAGE::"Setup Email Logging") then
                 if not Confirm(NAVNotSetUpQst, false) then
                     Error('');
     end;

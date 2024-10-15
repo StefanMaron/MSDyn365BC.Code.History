@@ -391,6 +391,7 @@ page 11309 "Apply General Ledger Entries"
         ShowAmount: Decimal;
         ShowTotalAppliedAmount: Decimal;
 
+
     [Scope('OnPrem')]
     procedure SetApplId(var GLEntryBuf: Record "G/L Entry Application Buffer")
     begin
@@ -410,7 +411,7 @@ page 11309 "Apply General Ledger Entries"
     local procedure CheckGLEntryBufIsOpen(GLEntryApplicationBuffer: Record "G/L Entry Application Buffer")
     begin
         GLEntryApplicationBuffer.SetRange(Open, false);
-        if not GLEntryApplicationBuffer.IsEmpty then
+        if not GLEntryApplicationBuffer.IsEmpty() then
             Error(GLEntryApplicationBufferNotOpenErr, Format(GLEntryApplicationBuffer."Entry No."));
     end;
 
@@ -456,7 +457,7 @@ page 11309 "Apply General Ledger Entries"
                 TempGLEntryBuf.Insert();
                 LineCount := LineCount + 1;
                 Window.Update(1, Round(LineCount / NoOfRecords * 10000, 1));
-            until GLEntry.Next = 0;
+            until GLEntry.Next() = 0;
             Window.Close;
         end;
 
@@ -531,7 +532,7 @@ page 11309 "Apply General Ledger Entries"
             repeat
                 TempGLEntryBuf2 := TempGLEntryBuf;
                 TempGLEntryBuf2.Insert();
-            until TempGLEntryBuf.Next = 0;
+            until TempGLEntryBuf.Next() = 0;
 
         if TempGLEntryBuf.Find('-') then
             repeat
@@ -540,8 +541,8 @@ page 11309 "Apply General Ledger Entries"
                     repeat
                         if TempGLEntryBuf2.Amount = -tmpAmt then
                             Stop := true;
-                    until (TempGLEntryBuf2.Next = 0) or (Stop = true);
-            until (TempGLEntryBuf.Next = 0) or (Stop = true);
+                    until (TempGLEntryBuf2.Next() = 0) or (Stop = true);
+            until (TempGLEntryBuf.Next() = 0) or (Stop = true);
 
         // setApplID
         if Stop = true then begin

@@ -1835,7 +1835,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         PurchaseLine.SetFilter("No.", '<>''''');
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Return Order");
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             PurchaseLine.Validate("Appl.-to Item Entry", 0);
             PurchaseLine.Modify(true);
@@ -1944,7 +1944,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntryType);
         ItemLedgerEntry.SetRange(Positive, Positive);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
             ActualCostAmount += ItemLedgerEntry."Cost Amount (Actual)";
@@ -1975,7 +1975,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ValueEntry.SetRange("Item No.", ItemNo);
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Purchase Credit Memo");
         ValueEntry.SetRange(Adjustment, false);
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             ValueEntry.TestField("Applies-to Entry", 0);
         until ValueEntry.Next = 0;

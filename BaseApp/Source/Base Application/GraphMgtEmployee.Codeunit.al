@@ -18,7 +18,7 @@ codeunit 5483 "Graph Mgt - Employee"
             GraphMgtComplexTypes.GetPostalAddressJSON(Address, "Address 2", City, County, "Country/Region Code", "Post Code", JSON);
     end;
 
-    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
+    [Obsolete('Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
     procedure UpdateIntegrationRecords(OnlyEmployeesWithoutId: Boolean)
     var
         DummyEmployee: Record Employee;
@@ -45,7 +45,7 @@ codeunit 5483 "Graph Mgt - Employee"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5465, 'ApiSetup', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]
     local procedure HandleApiSetup()
     begin
         UpdateIntegrationRecords(false);

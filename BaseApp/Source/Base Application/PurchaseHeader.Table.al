@@ -1,4 +1,4 @@
-﻿table 38 "Purchase Header"
+table 38 "Purchase Header"
 {
     Caption = 'Purchase Header';
     DataCaptionFields = "No.", "Buy-from Vendor Name";
@@ -706,7 +706,7 @@
 
                         Currency.Initialize("Currency Code");
 
-                        PurchLine.FindSet;
+                        PurchLine.FindSet();
                         repeat
                             PurchLine.TestField("Quantity Invoiced", 0);
                             PurchLine.TestField("Prepmt. Amt. Inv.", 0);
@@ -740,7 +740,7 @@
                             end;
                             OnValidatePricesIncludingVATOnBeforePurchLineModify(PurchHeader, PurchLine, Currency, RecalculatePrice);
                             PurchLine.Modify();
-                        until PurchLine.Next = 0;
+                        until PurchLine.Next() = 0;
                     end;
                     OnAfterChangePricesIncludingVAT(Rec);
                 end;
@@ -1334,7 +1334,7 @@
                     "Buy-from Vendor Name" := Vend.Name;
                     "Buy-from Vendor Name 2" := Vend."Name 2";
                     CopyBuyFromVendorAddressFieldsFromVendor(Vend, true);
-                    
+
                     OnValidateOrderAddressCodeOnAfterCopyBuyFromVendorAddressFieldsFromVendor(Rec);
 
                     if IsCreditDocType() then begin
@@ -1613,11 +1613,9 @@
                 end;
             end;
         }
-        field(124; "IC Status"; Option)
+        field(124; "IC Status"; Enum "Purchase Document IC Status")
         {
             Caption = 'IC Status';
-            OptionCaption = 'New,Pending,Sent';
-            OptionMembers = New,Pending,Sent;
         }
         field(125; "Buy-from IC Partner Code"; Code[20])
         {
@@ -2475,6 +2473,7 @@
         RecreatePurchLinesMsg: Label 'If you change %1, the existing purchase lines will be deleted and new purchase lines based on the new information in the header will be created.\\Do you want to continue?', Comment = '%1: FieldCaption';
         ResetItemChargeAssignMsg: Label 'If you change %1, the existing purchase lines will be deleted and new purchase lines based on the new information in the header will be created.\The amount of the item charge assignment will be reset to 0.\\Do you want to continue?', Comment = '%1: FieldCaption';
         LinesNotUpdatedMsg: Label 'You have changed %1 on the purchase header, but it has not been changed on the existing purchase lines.', Comment = 'You have changed Posting Date on the purchase header, but it has not been changed on the existing purchase lines.';
+        LinesNotUpdatedDateMsg: Label 'You have changed the %1 on the purchase order, which might affect the prices and discounts on the purchase order lines. You should review the lines and manually update prices and discounts if needed.', Comment = '%1: OrderDate';
         Text020: Label 'You must update the existing purchase lines manually.';
         AffectExchangeRateMsg: Label 'The change may affect the exchange rate that is used for price calculation on the purchase lines.';
         Text022: Label 'Do you want to update the exchange rate?';
@@ -3051,10 +3050,10 @@
                         ItemChargeAssgntPurch."Document Line No." := TempInteger.Number;
                         ItemChargeAssgntPurch.Validate("Unit Cost", 0);
                         ItemChargeAssgntPurch.Insert();
-                    until TempItemChargeAssgntPurch.Next = 0;
+                    until TempItemChargeAssgntPurch.Next() = 0;
                     TempInteger.Delete();
                 end;
-            until TempPurchLine.Next = 0;
+            until TempPurchLine.Next() = 0;
 
         ClearItemAssgntPurchFilter(TempItemChargeAssgntPurch);
         TempItemChargeAssgntPurch.DeleteAll();
@@ -3178,7 +3177,7 @@
         MessageText: Text;
     begin
         if PurchLinesExist and not GetHideValidationDialog then begin
-            MessageText := StrSubstNo(LinesNotUpdatedMsg, ChangedFieldName);
+            MessageText := StrSubstNo(LinesNotUpdatedDateMsg, ChangedFieldName);
             if "Currency Code" <> '' then
                 MessageText := StrSubstNo(SplitMessageTxt, MessageText, AffectExchangeRateMsg);
             Message(MessageText);
@@ -3298,7 +3297,7 @@
             repeat
                 PurchLine.UpdateAmounts();
                 PurchLine.Modify();
-            until PurchLine.Next = 0;
+            until PurchLine.Next() = 0;
         end;
     end;
 
@@ -3330,7 +3329,7 @@
                       FieldNo("Promised Receipt Date"),
                       FieldNo("Lead Time Calculation"),
                       FieldNo("Inbound Whse. Handling Time"):
-                            ConfirmResvDateConflict;
+                            ConfirmReservationDateConflict();
                     end
                 else
                     exit;
@@ -3389,9 +3388,9 @@
             until PurchLine.Next() = 0;
     end;
 
-    local procedure ConfirmResvDateConflict()
+    procedure ConfirmReservationDateConflict()
     var
-        ResvEngMgt: Codeunit "Reservation Engine Mgt.";
+        ReservationEngineMgt: Codeunit "Reservation Engine Mgt.";
         ConfirmManagement: Codeunit "Confirm Management";
         IsHandled: Boolean;
     begin
@@ -3400,7 +3399,7 @@
         if IsHandled then
             exit;
 
-        if ResvEngMgt.ResvExistsForPurchHeader(Rec) then
+        if ReservationEngineMgt.ResvExistsForPurchHeader(Rec) then
             if not ConfirmManagement.GetResponseOrDefault(Text050, true) then
                 Error('');
     end;
@@ -3971,15 +3970,9 @@
                     CreateTempJobJnlLine(false);
                     UpdateJobPrices();
                     Modify();
-                until Next = 0;
+                until Next() = 0;
             end;
         end
-    end;
-
-    [Obsolete('Typo in the function name, use GetPstdDocLinesToReverse instead', '15.1')]
-    procedure GetPstdDocLinesToRevere()
-    begin
-        GetPstdDocLinesToReverse();
     end;
 
     procedure GetPstdDocLinesToReverse()
@@ -4282,7 +4275,7 @@
         if PurchaseLine.FindSet then
             repeat
                 CollectParamsInBufferForCreateDimSet(TempPurchaseLine, PurchaseLine);
-            until PurchaseLine.Next = 0;
+            until PurchaseLine.Next() = 0;
         TempPurchaseLine.Reset();
         TempPurchaseLine.MarkedOnly(false);
         if TempPurchaseLine.FindSet then
@@ -4291,7 +4284,7 @@
                   DATABASE::Job, TempPurchaseLine."Job No.",
                   DATABASE::"Responsibility Center", TempPurchaseLine."Responsibility Center",
                   DATABASE::"Work Center", TempPurchaseLine."Work Center No.");
-            until TempPurchaseLine.Next = 0;
+            until TempPurchaseLine.Next() = 0;
     end;
 
     local procedure CollectParamsInBufferForCreateDimSet(var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseLine: Record "Purchase Line")
@@ -4349,7 +4342,7 @@
             repeat
                 TempItemChargeAssgntPurch := ItemChargeAssgntPurch;
                 TempItemChargeAssgntPurch.Insert();
-            until ItemChargeAssgntPurch.Next = 0;
+            until ItemChargeAssgntPurch.Next() = 0;
             ItemChargeAssgntPurch.DeleteAll();
         end;
     end;
@@ -5122,7 +5115,7 @@
                 else
                     IsMarked := ReceiveValue;
                 Mark(IsMarked);
-            until Next = 0;
+            until Next() = 0;
 
         Rec := PurchaseHeaderOriginal;
         MarkedOnly(true);
@@ -5147,7 +5140,7 @@
                 else
                     IsMarked := InvoiceValue;
                 Mark(IsMarked);
-            until Next = 0;
+            until Next() = 0;
 
         Rec := PurchaseHeaderOriginal;
         MarkedOnly(true);
@@ -5370,7 +5363,7 @@
                             Resource.TestField(Blocked, false);
                         end;
                 end;
-            until CurrentPurchLine.Next = 0;
+            until CurrentPurchLine.Next() = 0;
     end;
 
     procedure TestStatusIsNotPendingApproval() NotPending: Boolean;

@@ -1,4 +1,4 @@
-﻿report 5405 "Calc. Consumption"
+report 5405 "Calc. Consumption"
 {
     Caption = 'Calc. Consumption';
     ProcessingOnly = true;
@@ -241,10 +241,10 @@
             ItemLedgerEntry.SetRange("Order Line No.", ItemJournalLine."Order Line No.");
             ItemLedgerEntry.SetRange("Prod. Order Comp. Line No.", ItemJournalLine."Prod. Order Comp. Line No.");
             ItemLedgerEntry.SetRange("Item No.", ItemJournalLine."Item No.");
-            if ItemLedgerEntry.IsEmpty then
+            if ItemLedgerEntry.IsEmpty() then
                 exit;
 
-            ItemLedgerEntry.FindSet;
+            ItemLedgerEntry.FindSet();
             repeat
                 TempReservEntry.SetTrackingFilterFromItemLedgEntry(ItemLedgerEntry);
                 if TempReservEntry.FindFirst then begin
@@ -258,7 +258,7 @@
                     OnAssignItemTrackingOnBeforeTempReservEntryInsert(TempReservEntry, ItemLedgerEntry);
                     TempReservEntry.Insert();
                 end;
-            until ItemLedgerEntry.Next = 0;
+            until ItemLedgerEntry.Next() = 0;
 
             TempReservEntry.Reset();
             ItemTrackingMgt.SumUpItemTracking(TempReservEntry, TempTrackingSpecification, false, true);

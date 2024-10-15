@@ -22,6 +22,12 @@
       "path": "./testframework/TestRunner/Test Runner"
     },
     {
+      "path": "./testframework/performancetoolkit/Performance Toolkit Tests"
+    },
+    {
+      "path": "./testframework/performancetoolkit/Performance Toolkit Tests/src/Mock Tests"
+    },
+    {
       "path": "./VATGroupManagement/Test/VAT Group Management Tests"
     },
     {
@@ -139,10 +145,16 @@
       "path": "./BaseApp/Source/Base Application/Test Framework"
     },
     {
+      "path": "./CompanyHub/Test/Company Hub Tests"
+    },
+    {
       "path": "./NLDigitalTaxDeclaration/Test/Digital Tax Declaration for the Netherlands Tests"
     },
     {
       "path": "./WorldPayPaymentsStandard/Test/WorldPay Payments Standard Tests"
+    },
+    {
+      "path": "./Onprem Permissions/Test/OnPrem Permissions Tests"
     },
     {
       "path": "./Email - SMTP Connector/Test/Email - SMTP Connector Tests"

@@ -70,7 +70,7 @@ table 369 "Selected Dimension"
             repeat
                 TempSelectedDim := Rec;
                 TempSelectedDim.Insert();
-            until Next = 0;
+            until Next() = 0;
     end;
 }
 

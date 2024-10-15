@@ -1,3 +1,4 @@
+#if not CLEAN16
 codeunit 9315 "Sync.Dep.Fld-PowerBIReportConf"
 {
     // This codeunit is used to synchronization between obsolete pending fields 
@@ -76,3 +77,4 @@ codeunit 9315 "Sync.Dep.Fld-PowerBIReportConf"
         exit(SyncLoopingHelper.IsFieldSynchronizationSkipped(Database::"Power BI Report Configuration", FieldNo));
     end;
 }
+#endif

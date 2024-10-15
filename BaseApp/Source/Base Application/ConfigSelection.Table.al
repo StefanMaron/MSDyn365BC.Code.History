@@ -56,7 +56,7 @@ table 8621 "Config. Selection"
                                     ConfigSelection2.SetRange("Parent Line No.", ConfigSelection."Line No.");
                                     ConfigSelection2.SetRange("Line Type", "Line Type"::Table);
                                     ConfigSelection2.ModifyAll(Selected, Selected);
-                                until ConfigSelection.Next = 0;
+                                until ConfigSelection.Next() = 0;
                         end;
                 end;
             end;

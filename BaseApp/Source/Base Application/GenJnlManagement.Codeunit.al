@@ -399,7 +399,7 @@ codeunit 230 GenJnlManagement
                 Balance := TempGenJnlLine."Balance (LCY)";
                 TempGenJnlLine.CopyFilters(GenJnlLine);
                 TempGenJnlLine := LastGenJnlLine;
-                if TempGenJnlLine.Next = 0 then
+                if TempGenJnlLine.Next() = 0 then
                     Balance := Balance + LastGenJnlLine."Balance (LCY)";
             end;
         end;

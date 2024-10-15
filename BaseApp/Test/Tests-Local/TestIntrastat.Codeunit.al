@@ -283,7 +283,7 @@
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        Item: Record 27;
+        Item: Record "Item";
         Filename: Text;
     begin
         // [FEATURE] [Report] [Export]
@@ -442,7 +442,7 @@
     begin
         IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
-        IntrastatJnlLine.FindSet;
+        IntrastatJnlLine.FindSet();
         repeat
             IntrastatJnlLine.Validate("Transport Method", TransportMethod);
             IntrastatJnlLine.Validate("Transaction Type", TransactionType);
@@ -508,7 +508,7 @@
     begin
         TariffNumber.FindFirst;
         Item.SetRange("Tariff No.", '');
-        if not Item.IsEmpty then
+        if not Item.IsEmpty() then
             Item.ModifyAll("Tariff No.", TariffNumber."No.");
     end;
 

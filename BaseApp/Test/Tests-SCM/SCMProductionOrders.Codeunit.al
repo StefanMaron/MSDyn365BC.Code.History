@@ -37,7 +37,7 @@ codeunit 137069 "SCM Production Orders"
         ProductionJournalMgt: Codeunit "Production Journal Mgt";
         Initialized: Boolean;
         UpdateDimensionMethod: Option ByProductionOrderLine,ByShowDimensionsOnLine,ByProductionOrder;
-        AvailabilityWarningsMsg: Label 'There are availability warnings on one or more lines.';
+        AvailabilityWarningsMsg: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
         CaptionErr: Label 'Caption must be the same.';
         SummaryTypeItemLedgerEntryTxt: Label 'Item Ledger Entry';
         SummaryTypePurchaseLineOrderTxt: Label 'Purchase Line, Order';
@@ -57,7 +57,6 @@ codeunit 137069 "SCM Production Orders"
         BinCodeMustHaveValueErr: Label 'The Bin does not exist. Identification fields and values: ';
         ProdOrderLineExistsErr: Label 'There is no Prod. Order Line within the filter.';
         FromProductionBinCodeErr: Label 'When creating PO from SO Bin Code should be taken from Location."From-Production Bin Code" filed';
-        OrderType: Option ItemOrder,ProjectOrder;
         WrongFieldValueErr: Label '%1 in %2 must be copied from %3';
         ItemTrackingMode: Option " ","Assign Lot No.","Select Entries","Verify Entries","Set Lot No.","Set Quantity & Lot No.","Get Lot Quantity";
         PostingQst: Label 'Do you want to post the journal lines?';
@@ -98,7 +97,8 @@ codeunit 137069 "SCM Production Orders"
         SalesLine.Modify(true);
 
         // [WHEN] Create Prod. Order from Sales Order
-        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, "Production Order Status"::Simulated, 0);
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(
+            SalesHeader, "Production Order Status"::Simulated, "Create Production Order Type"::ItemOrder);
 
         // [THEN] Prod Order line, where "Dimension Set ID" is 'X', and
         // [THEN] "Shortcut Dimension 1 Code" is 'A', "Shortcut Dimension 2 Code" is 'B'
@@ -126,7 +126,8 @@ codeunit 137069 "SCM Production Orders"
         CreateSalesOrderWithLocation(SalesLine, LocationWhite.Code, '');
 
         // [WHEN] Create Prod. Order from Sales Order Planning with Order Type = Project Order
-        CreateProdOrderFromSale.CreateProdOrder(SalesLine, "Production Order Status"::Released, OrderType::ProjectOrder);
+        CreateProdOrderFromSale.CreateProductionOrder(
+            SalesLine, "Production Order Status"::Released, "Create Production Order Type"::ProjectOrder);
 
         // [THEN] Prod. Order Line has correct Bin Code from Sales Line's Location
         VerifyProdOrderLineBinCode(LocationWhite."From-Production Bin Code", SalesLine);
@@ -151,7 +152,8 @@ codeunit 137069 "SCM Production Orders"
         CreateSalesOrderWithLocation(SalesLine, LocationWhite.Code, BinCode);
 
         // [WHEN] Create Prod. Order from Sales Order Planning with Order Type = Project Order
-        CreateProdOrderFromSale.CreateProdOrder(SalesLine, "Production Order Status"::Released, OrderType::ProjectOrder);
+        CreateProdOrderFromSale.CreateProductionOrder(
+            SalesLine, "Production Order Status"::Released, "Create Production Order Type"::ProjectOrder);
 
         // [THEN] Prod. Order Line has correct Bin Code from Location "From-Production Bin Code"
         VerifyProdOrderLineBinCode(LocationWhite."From-Production Bin Code", SalesLine);
@@ -179,7 +181,8 @@ codeunit 137069 "SCM Production Orders"
         CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LibraryRandom.RandDec(10, 2));
 
         // [WHEN] Create Prod. Order from Sales Order Planning with Order Type = Project Order
-        CreateProdOrderFromSale.CreateProdOrder(SalesLine, "Production Order Status"::Released, OrderType::ProjectOrder);
+        CreateProdOrderFromSale.CreateProductionOrder(
+            SalesLine, "Production Order Status"::Released, "Create Production Order Type"::ProjectOrder);
 
         // [THEN] Verify Prod. Order Line does not exists
         VerifyProdOrderLineDoesNotExist(SalesLine);
@@ -201,7 +204,8 @@ codeunit 137069 "SCM Production Orders"
         CreateItemWithSKU(SalesLine);
 
         // [WHEN] Create Prod. Order from Sales Order Planning with Order Type = Project Order
-        CreateProdOrderFromSale.CreateProdOrder(SalesLine, "Production Order Status"::Released, OrderType::ProjectOrder);
+        CreateProdOrderFromSale.CreateProductionOrder(
+            SalesLine, "Production Order Status"::Released, "Create Production Order Type"::ProjectOrder);
 
         // [THEN] Verify Prod. Order Line is calculated correctly
         VerifyProdOrderLineFromSalesLine(SalesLine);
@@ -3172,7 +3176,7 @@ codeunit 137069 "SCM Production Orders"
         RecordLink.SetRange("Record ID", ProductionOrder.RecordId);
         Assert.RecordCount(RecordLink, NoOfLinkTypeLinks + 1);
 
-        RecordLink.FindSet;
+        RecordLink.FindSet();
         for Index := 1 to NoOfLinkTypeLinks do begin
             RecordLink.TestField(URL1, RecordLinkURL1[Index]);
             RecordLink.Next;
@@ -4050,7 +4054,7 @@ codeunit 137069 "SCM Production Orders"
     begin
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", No);
-        RequisitionLine.FindSet;
+        RequisitionLine.FindSet();
     end;
 
     local procedure AcceptActionMessage(ItemNo: Code[20])
@@ -5288,7 +5292,7 @@ codeunit 137069 "SCM Production Orders"
     local procedure VerifyDimensionOnOutputJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; DimensionValue: Record "Dimension Value")
     begin
         ItemJournalLine.SetRange("Item No.", ItemNo);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
         repeat
             VerifyDimensionSetEntry(ItemJournalLine."Dimension Set ID", DimensionValue."Dimension Code", DimensionValue.Code);
         until ItemJournalLine.Next = 0;
@@ -5328,7 +5332,7 @@ codeunit 137069 "SCM Production Orders"
     begin
         with ReservationEntry do begin
             SetRange("Item No.", ItemNo);
-            FindSet;
+            FindSet();
             repeat
                 TestField(Binding, Binding::" ");
             until Next = 0;
@@ -5355,8 +5359,7 @@ codeunit 137069 "SCM Production Orders"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6501, 'OnBeforeAssistEditTrackingNo', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Data Collection", 'OnBeforeAssistEditTrackingNo', '', false, false)]
     procedure CheckTrackingSpecOnBeforeAssistEditTrackingNoEvent(var TempTrackingSpecification: Record "Tracking Specification" temporary; var SearchForSupply: Boolean; CurrentSignFactor: Integer; LookupMode: Enum "Item Tracking Type"; MaxQuantity: Decimal)
     var
         ProdOrderComponent: Record "Prod. Order Component";

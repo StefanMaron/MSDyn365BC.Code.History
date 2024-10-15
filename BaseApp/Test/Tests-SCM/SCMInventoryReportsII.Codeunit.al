@@ -390,7 +390,7 @@ codeunit 137302 "SCM Inventory Reports - II"
 
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
         ItemLedgerEntry.SetRange("Source No.", Item."No.");
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
             CostAmountActual += ItemLedgerEntry."Cost Amount (Actual)";
@@ -1016,7 +1016,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         // Verify: Check the value of Cost Posted to G/L column.
         ValueEntry.SetRange("Posting Date", CalcDate('<-1M>', WorkDate), CalcDate('<-1M+CM>', WorkDate));
         ValueEntry.SetRange("Source No.", Item."No.");
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             CostPostedToGL += ValueEntry."Cost Posted to G/L";
         until ValueEntry.Next = 0;
@@ -2095,7 +2095,7 @@ codeunit 137302 "SCM Inventory Reports - II"
     begin
         ProdOrderLine.SetRange(Status, ProductionOrder.Status::Released);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderLine.FindSet;
+        ProdOrderLine.FindSet();
     end;
 
     local procedure CreateAndRefreshRelProdOrder(var ProductionOrder: Record "Production Order"; SourceType: Enum "Prod. Order Source Type"; SourceNo: Code[20]; Qty: Decimal)
@@ -2353,7 +2353,7 @@ codeunit 137302 "SCM Inventory Reports - II"
     local procedure SelectProductionBOMLines(var ProductionBOMLine: Record "Production BOM Line"; ProductionBOMNo: Code[20])
     begin
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
-        ProductionBOMLine.FindSet;
+        ProductionBOMLine.FindSet();
     end;
 
     local procedure FindPurchaseOrderLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20])
@@ -2629,7 +2629,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         LibraryReportDataset.LoadDataSetFile;
         ProductionBOMLine.SetRange("Version Code", VersionCode);
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
-        ProductionBOMLine.FindSet;
+        ProductionBOMLine.FindSet();
         repeat
             LibraryReportDataset.AssertElementWithValueExists('ProdBOMLineIndexNo', ProductionBOMLine."No.");
         until ProductionBOMLine.Next = 0;

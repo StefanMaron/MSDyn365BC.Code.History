@@ -79,7 +79,7 @@ codeunit 11407 "Imp. SEPA CAMT Post-Mapping"
                         UpdateCBGStatementLine(CBGStatementLine, DataExchField.Value, OverrideDescription)
                     else
                         InsertCBGStatementLineAddInfo(CBGStatementLine, DataExchField.Value, InformationType);
-            until DataExchField.Next = 0;
+            until DataExchField.Next() = 0;
     end;
 
     local procedure UpdateCBGStatementLine(var CBGStatementLine: Record "CBG Statement Line"; Value: Text; OverrideDescription: Boolean)

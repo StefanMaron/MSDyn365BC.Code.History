@@ -41,9 +41,9 @@
 
                     trigger OnValidate()
                     begin
-                        TempOptionLookupBuffer.SetCurrentType(Type.AsInteger());
-                        if TempOptionLookupBuffer.AutoCompleteOption(TypeAsText, TempOptionLookupBuffer."Lookup Type"::Purchases) then
-                            Validate(Type, TempOptionLookupBuffer.ID);
+                        TempOptionLookupBuffer.SetCurrentType(Rec.Type.AsInteger());
+                        if TempOptionLookupBuffer.AutoCompleteLookup(TypeAsText, "Option Lookup Type"::Purchases) then
+                            Rec.Validate(Type, TempOptionLookupBuffer.ID);
                         TempOptionLookupBuffer.ValidateOption(TypeAsText);
                         UpdateEditableOnRow();
                         UpdateTypeText();
@@ -65,6 +65,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
+#if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -87,6 +88,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
+#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -943,6 +945,17 @@
                             ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByLocation)
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                     action("BOM Level")
                     {
                         AccessByPermission = TableData "BOM Buffer" = R;
@@ -1094,13 +1107,13 @@
 
     trigger OnDeleteRecord(): Boolean
     var
-        ReservePurchLine: Codeunit "Purch. Line-Reserve";
+        PurchLineReserve: Codeunit "Purch. Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
             Commit();
-            if not ReservePurchLine.DeleteLineConfirm(Rec) then
+            if not PurchLineReserve.DeleteLineConfirm(Rec) then
                 exit(false);
-            ReservePurchLine.DeleteLine(Rec);
+            PurchLineReserve.DeleteLine(Rec);
         end;
         DocumentTotals.PurchaseDocTotalsNotUpToDate();
     end;
@@ -1115,7 +1128,7 @@
     begin
         PurchasesPayablesSetup.Get();
         Currency.InitRoundingPrecision();
-        TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
+        TempOptionLookupBuffer.FillLookupBuffer("Option Lookup Type"::Purchases);
         IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
     end;
 
@@ -1152,16 +1165,11 @@
     var
         Currency: Record Currency;
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-        TotalPurchaseHeader: Record "Purchase Header";
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
-        DocumentTotals: Codeunit "Document Totals";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-        VATAmount: Decimal;
-        InvoiceDiscountAmount: Decimal;
-        InvoiceDiscountPct: Decimal;
         AmountWithDiscountAllowed: Decimal;
         IsFoundation: Boolean;
         InvDiscAmountEditable: Boolean;
@@ -1175,7 +1183,12 @@
         ItemReferenceVisible: Boolean;
 
     protected var
+        TotalPurchaseHeader: Record "Purchase Header";
         TotalPurchaseLine: Record "Purchase Line";
+        DocumentTotals: Codeunit "Document Totals";
+        InvoiceDiscountAmount: Decimal;
+        InvoiceDiscountPct: Decimal;
+        VATAmount: Decimal;
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
@@ -1283,7 +1296,7 @@
         DocumentTotals.GetTotalPurchaseHeaderAndCurrency(Rec, TotalPurchaseHeader, Currency);
     end;
 
-    local procedure CalculateTotals()
+    procedure CalculateTotals()
     begin
         if SuppressTotals then
             exit;

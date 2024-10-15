@@ -525,7 +525,7 @@ report 11000000 "Get Proposal Entries"
                     ProposalLine.Validate("Foreign Amount", 0);
                     ProposalLine.Modify();
                 end;
-            until ProposalLine.Next = 0;
+            until ProposalLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

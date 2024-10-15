@@ -1207,7 +1207,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         LibraryDimension.FindDimension(Dimension);
 
         FAAllocation.SetRange(Code, FAAllocation.Code);
-        FAAllocation.FindSet;
+        FAAllocation.FindSet();
         repeat
             LibraryDimension.FindDimensionValue(DimensionValue, Dimension.Code);
             FAAllocation.Validate(
@@ -1899,7 +1899,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
     begin
         FAAllocation.SetRange(Code, FAAllocation.Code);
         FAAllocation.SetRange("Allocation Type", FAAllocation."Allocation Type");
-        FAAllocation.FindSet;
+        FAAllocation.FindSet();
 
         // Using Random Number Generator for Allocation Percent.
         repeat
@@ -2048,7 +2048,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         FAJournalLine: Record "FA Journal Line";
     begin
         FALedgerEntry.SetRange("FA No.", FANo);
-        FALedgerEntry.FindSet;
+        FALedgerEntry.FindSet();
         repeat
             FAJournalLine.SetRange("FA Error Entry No.", FALedgerEntry."Entry No.");
             FAJournalLine.FindFirst;
@@ -2063,7 +2063,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         FALedgerEntry.SetRange("FA No.", FANo);
-        FALedgerEntry.FindSet;
+        FALedgerEntry.FindSet();
         repeat
             GenJournalLine.SetRange("FA Error Entry No.", FALedgerEntry."Entry No.");
             GenJournalLine.FindFirst;
@@ -2094,7 +2094,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
     begin
         FAAllocation.SetRange(Code, Code);
         FAAllocation.SetRange("Allocation Type", FAAllocation."Allocation Type"::Acquisition);
-        FAAllocation.FindSet;
+        FAAllocation.FindSet();
         GenJournalLine.SetRange("Document No.", DocumentNo);
         GenJournalLine.FindFirst;
         repeat
@@ -2109,7 +2109,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
     begin
         FAAllocation.SetRange(Code, Code);
         FAAllocation.SetRange("Allocation Type", AllocationType);
-        FAAllocation.FindSet;
+        FAAllocation.FindSet();
         GenJournalLine.SetRange("Document No.", DocumentNo);
         repeat
             GenJournalLine.SetRange("Account No.", FAAllocation."Account No.");

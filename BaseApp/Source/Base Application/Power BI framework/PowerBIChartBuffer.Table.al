@@ -2,6 +2,13 @@ table 6305 "Power BI Chart Buffer"
 {
     Caption = 'Power BI Chart Buffer';
     ReplicateData = false;
+#if CLEAN18
+    TableType = Temporary;
+#else
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This table should not contain any data and will be marked as TableType=Temporary. Make sure you are not saving any data in this table.';
+    ObsoleteTag = '18.0';
+#endif
 
     fields
     {

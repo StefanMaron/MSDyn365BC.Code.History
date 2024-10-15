@@ -503,6 +503,7 @@ report 1306 "Standard Sales - Invoice"
                 column(ItemNo_Line_Lbl; FieldCaption("No."))
                 {
                 }
+#if not CLEAN16
                 column(CrossReferenceNo_Line; "Cross-Reference No.")
                 {
                     ObsoleteState = Pending;
@@ -515,6 +516,7 @@ report 1306 "Standard Sales - Invoice"
                     ObsoleteReason = 'Replaced by Item Reference No.';
                     ObsoleteTag = '17.0';
                 }
+#endif
                 column(ItemReferenceNo_Line; "Item Reference No.")
                 {
                 }
@@ -957,7 +959,7 @@ report 1306 "Standard Sales - Invoice"
                         if not TempLineFeeNoteOnReportHist.FindSet then
                             CurrReport.Break
                     end else
-                        if TempLineFeeNoteOnReportHist.Next = 0 then
+                        if TempLineFeeNoteOnReportHist.Next() = 0 then
                             CurrReport.Break();
                 end;
             }
@@ -1256,7 +1258,7 @@ report 1306 "Standard Sales - Invoice"
                         SegManagement.LogDocument(
                           4, Header."No.", 0, 0, DATABASE::Customer, Header."Bill-to Customer No.", Header."Salesperson Code",
                           Header."Campaign No.", Header."Posting Description", '');
-                until Header.Next = 0;
+                until Header.Next() = 0;
     end;
 
     trigger OnPreReport()
@@ -1425,7 +1427,7 @@ report 1306 "Standard Sales - Invoice"
         if ShipmentLine.FindFirst then begin
             SalesShipmentBuffer2 := ShipmentLine;
             if not DisplayShipmentInformation then
-                if ShipmentLine.Next = 0 then begin
+                if ShipmentLine.Next() = 0 then begin
                     ShipmentLine.Get(SalesShipmentBuffer2."Document No.", SalesShipmentBuffer2."Line No.", SalesShipmentBuffer2."Entry No.");
                     ShipmentLine.Delete();
                     exit;
@@ -1509,7 +1511,7 @@ report 1306 "Standard Sales - Invoice"
                 TempLineFeeNoteOnReportHist.Init();
                 TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
                 TempLineFeeNoteOnReportHist.Insert();
-            until LineFeeNoteOnReportHist.Next = 0;
+            until LineFeeNoteOnReportHist.Next() = 0;
         end else begin
             LineFeeNoteOnReportHist.SetRange("Language Code", Language.GetUserLanguageCode);
             if LineFeeNoteOnReportHist.FindSet then
@@ -1517,7 +1519,7 @@ report 1306 "Standard Sales - Invoice"
                     TempLineFeeNoteOnReportHist.Init();
                     TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
                     TempLineFeeNoteOnReportHist.Insert();
-                until LineFeeNoteOnReportHist.Next = 0;
+                until LineFeeNoteOnReportHist.Next() = 0;
         end;
     end;
 

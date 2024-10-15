@@ -42,7 +42,7 @@ page 11000016 "Import Protocol List"
                 trigger OnAction()
                 begin
                     PAGE.Run(PAGE::"Import Protocols", Rec);
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
         }

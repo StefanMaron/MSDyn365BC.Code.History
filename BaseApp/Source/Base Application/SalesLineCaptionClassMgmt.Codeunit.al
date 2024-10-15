@@ -33,22 +33,30 @@ codeunit 345 "Sales Line CaptionClass Mgmt"
         exit(GlobalField."Field Caption");
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterChangePricesIncludingVAT', '', true, true)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterChangePricesIncludingVAT', '', true, true)]
     local procedure SalesHeaderChangedPricesIncludingVAT(var SalesHeader: Record "Sales Header")
     begin
         GlobalSalesHeader := SalesHeader;
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterSetFieldsBilltoCustomer', '', true, true)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterSetFieldsBilltoCustomer', '', true, true)]
     local procedure UpdateSalesLineFieldsCaptionOnAfterSetFieldsBilltoCustomer(var SalesHeader: Record "Sales Header"; Customer: Record Customer)
     begin
         GlobalSalesHeader := SalesHeader;
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnValidateBilltoCustomerTemplateCodeBeforeRecreateSalesLines', '', true, true)]
+#if not CLEAN18
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnValidateBilltoCustomerTemplateCodeBeforeRecreateSalesLines', '', true, true)]
     local procedure UpdateSalesLineFieldsCaptionOnValidateBilltoCustTemplCodeBeforeRecreateSalesLines(var SalesHeader: Record "Sales Header"; CallingFieldNo: Integer)
     begin
         GlobalSalesHeader := SalesHeader;
     end;
+#else
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnValidateBilltoCustomerTemplCodeOnBeforeRecreateSalesLines', '', true, true)]
+    local procedure UpdateSalesLineFieldsCaptionOnValidateBilltoCustTemplCodeBeforeRecreateSalesLines(var SalesHeader: Record "Sales Header"; CallingFieldNo: Integer)
+    begin
+        GlobalSalesHeader := SalesHeader;
+    end;
+#endif
 }
 

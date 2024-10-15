@@ -72,7 +72,7 @@ page 11408 "Post Code Updates"
                     begin
                         REPORT.RunModal(REPORT::"Import Post Codes");
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action("Import Post Codes &Update")
@@ -87,7 +87,7 @@ page 11408 "Post Code Updates"
                     begin
                         REPORT.RunModal(REPORT::"Import Post Codes Update");
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

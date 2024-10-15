@@ -100,7 +100,7 @@ table 11000000 "Proposal Line"
                     repeat
                         DetailLine.Date := "Transaction Date";
                         DetailLine.Modify();
-                    until DetailLine.Next = 0;
+                    until DetailLine.Next() = 0;
             end;
         }
         field(5; Amount; Decimal)
@@ -803,7 +803,7 @@ table 11000000 "Proposal Line"
             repeat
                 Process := true;
                 Modify;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -813,7 +813,7 @@ table 11000000 "Proposal Line"
             repeat
                 Process := false;
                 Modify;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     [Scope('OnPrem')]

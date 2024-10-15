@@ -56,7 +56,7 @@ page 567 "Dimension Selection-Change"
             repeat
                 TheDimSelectionBuf := Rec;
                 TheDimSelectionBuf.Insert();
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure InsertDimSelBuf(NewSelected: Boolean; NewCode: Text[30]; NewDescription: Text[30]; NewNewDimValueCode: Code[20]; NewDimValueFilter: Text[250])

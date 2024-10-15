@@ -472,14 +472,14 @@ report 11420 "Export Financial Data to XML"
         // Current period filters should be within same fiscal year
         AccountingPeriod2.SetRange("New Fiscal Year", true);
         AccountingPeriod2.SetFilter("Starting Date", '<=%1', StartDate);
-        if AccountingPeriod2.IsEmpty then
+        if AccountingPeriod2.IsEmpty() then
             Error(Text018, StartDate);
 
         AccountingPeriod2.FindLast;
 
         AccountingPeriod3.SetRange("New Fiscal Year", true);
         AccountingPeriod3.SetFilter("Starting Date", '<=%1', EndDate);
-        if AccountingPeriod3.IsEmpty then
+        if AccountingPeriod3.IsEmpty() then
             Error(Text018, EndDate);
 
         AccountingPeriod3.FindLast;
@@ -496,14 +496,14 @@ report 11420 "Export Financial Data to XML"
 
             AccountingPeriod2.SetRange("New Fiscal Year", true);
             AccountingPeriod2.SetFilter("Starting Date", '<=%1', PrevStartDate);
-            if AccountingPeriod2.IsEmpty then
+            if AccountingPeriod2.IsEmpty() then
                 Error(Text018, PrevStartDate);
 
             AccountingPeriod2.FindLast;
 
             AccountingPeriod3.SetRange("New Fiscal Year", true);
             AccountingPeriod3.SetFilter("Starting Date", '<=%1', PrevEndDate);
-            if AccountingPeriod3.IsEmpty then
+            if AccountingPeriod3.IsEmpty() then
                 Error(Text018, PrevEndDate);
 
             AccountingPeriod3.FindLast;

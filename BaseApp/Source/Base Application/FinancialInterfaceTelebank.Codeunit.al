@@ -272,7 +272,7 @@ codeunit 11000001 "Financial Interface Telebank"
         if FinJnlLine.Find('-') then
             repeat
                 GenJnlPostLine.RunWithCheck(FinJnlLine);
-            until FinJnlLine.Next = 0
+            until FinJnlLine.Next() = 0
     end;
 
     [Scope('OnPrem')]
@@ -366,7 +366,7 @@ codeunit 11000001 "Financial Interface Telebank"
                                 end;
                         end;
                 end;
-            until DetailLine.Next = 0;
+            until DetailLine.Next() = 0;
 
         // Modify the detail line to pass checks of codeunit 12
         if Post then
@@ -389,9 +389,9 @@ codeunit 11000001 "Financial Interface Telebank"
                 PaymentHistLine.SetRange(Identification, CBGStatementLine.Identification);
                 if PaymentHistLine.FindFirst then
                     SetApplyCVLedgerEntries(PaymentHistLine, '', false, true);
-            until CBGStatementLine.Next = 0;
+            until CBGStatementLine.Next() = 0;
 
-        if not TempErrorMessage.IsEmpty then begin
+        if not TempErrorMessage.IsEmpty() then begin
             ErrorMessages.SetRecords(TempErrorMessage);
             ErrorMessages.Run;
             Error('');

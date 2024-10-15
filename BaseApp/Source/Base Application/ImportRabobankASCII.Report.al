@@ -281,7 +281,7 @@ report 11000023 "Import Rabobank ASCII"
             repeat
                 if TextFilter(BankAcct."Bank Account No.", '0123456789') = TextFilter(AcctNo, '0123456789') then
                     exit(BankAcct."No.");
-            until BankAcct.Next = 0;
+            until BankAcct.Next() = 0;
     end;
 
     [Scope('OnPrem')]

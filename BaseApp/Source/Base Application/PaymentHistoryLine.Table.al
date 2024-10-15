@@ -459,7 +459,7 @@ table 11000002 "Payment History Line"
                     else
                         exit('');
                 end;
-            until DetailLine.Next = 0;
+            until DetailLine.Next() = 0;
         exit(List);
     end;
 
@@ -549,7 +549,7 @@ table 11000002 "Payment History Line"
             exit;
 
         FindRelatedDetailLines(DetailLine);
-        if DetailLine.IsEmpty then
+        if DetailLine.IsEmpty() then
             exit("Description 1");
 
         if DetailLine.FindSet then
@@ -571,7 +571,7 @@ table 11000002 "Payment History Line"
                                 exit;
                         end;
                 end;
-            until DetailLine.Next = 0;
+            until DetailLine.Next() = 0;
 
         OnAfterGetUnstrRemitInfo(Rec, DetailLine, UnstrRemitInfo);
     end;

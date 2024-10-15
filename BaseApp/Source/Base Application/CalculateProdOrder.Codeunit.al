@@ -61,7 +61,7 @@ codeunit 99000773 "Calculate Prod. Order"
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
         ProdOrderRoutingLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
         ProdOrderRoutingLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
-        if not ProdOrderRoutingLine.IsEmpty then
+        if not ProdOrderRoutingLine.IsEmpty() then
             exit;
 
         RoutingLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
@@ -105,7 +105,7 @@ codeunit 99000773 "Calculate Prod. Order"
                 ProdOrderRoutingLine.Insert();
                 OnAfterInsertProdRoutingLine(ProdOrderRoutingLine, ProdOrderLine);
                 TransferTaskInfo(ProdOrderRoutingLine, ProdOrderLine."Routing Version Code");
-            until RoutingLine.Next = 0;
+            until RoutingLine.Next() = 0;
 
         OnAfterTransferRouting(ProdOrderLine);
     end;
@@ -206,7 +206,7 @@ codeunit 99000773 "Calculate Prod. Order"
                             end;
                     end;
                 end;
-            until ProdBOMLine[Level].Next = 0;
+            until ProdBOMLine[Level].Next() = 0;
 
         OnAfterTransferBOM(ProdOrder, ProdOrderLine, ProdBOMNo, Level, LineQtyPerUOM, ItemQtyPerUOM, Blocked, ErrorOccured);
 
@@ -318,7 +318,7 @@ codeunit 99000773 "Calculate Prod. Order"
                     ProdOrderComp.Modify();
                     ProdOrderComp.AutoReserve();
                 end;
-            until ProdOrderComp.Next = 0;
+            until ProdOrderComp.Next() = 0;
             OnAfterCalculateComponents(ProdOrderLine);
         end;
     end;
@@ -372,7 +372,7 @@ codeunit 99000773 "Calculate Prod. Order"
                 end;
             CalculateRoutingLine.CalculateRoutingLine(ProdOrderRoutingLine, Direction, CalcStartEndDate);
             CalcStartEndDate := true;
-        until ProdOrderRoutingLine.Next = 0;
+        until ProdOrderRoutingLine.Next() = 0;
     end;
 
     local procedure CalculateRouting(Direction: Option Forward,Backward; LetDueDateDecrease: Boolean)
@@ -529,7 +529,7 @@ codeunit 99000773 "Calculate Prod. Order"
             ItemLedgEntry.SetCurrentKey("Order Type", "Order No.");
             ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
             ItemLedgEntry.SetRange("Order No.", ProdOrderLine."Prod. Order No.");
-            if not ItemLedgEntry.IsEmpty then
+            if not ItemLedgEntry.IsEmpty() then
                 Error(
                   Text001,
                   ProdOrderLine.Status, ProdOrderLine.TableCaption, ProdOrderLine."Prod. Order No.",
@@ -538,7 +538,7 @@ codeunit 99000773 "Calculate Prod. Order"
             CapLedgEntry.SetCurrentKey("Order Type", "Order No.");
             CapLedgEntry.SetRange("Order Type", CapLedgEntry."Order Type"::Production);
             CapLedgEntry.SetRange("Order No.", ProdOrderLine."Prod. Order No.");
-            if not CapLedgEntry.IsEmpty then
+            if not CapLedgEntry.IsEmpty() then
                 Error(
                   Text001,
                   ProdOrderLine.Status, ProdOrderLine.TableCaption, ProdOrderLine."Prod. Order No.",
@@ -577,7 +577,7 @@ codeunit 99000773 "Calculate Prod. Order"
                         repeat
                             if ProdOrderRoutingLine3."Next Operation No." <> '' then begin
                                 ProdOrderRoutingLine4.SetRange("Operation No.", ProdOrderRoutingLine3."Next Operation No.");
-                                if ProdOrderRoutingLine4.IsEmpty then begin
+                                if ProdOrderRoutingLine4.IsEmpty() then begin
                                     IsHandled := false;
                                     OnCalculateOnBeforeCheckNextOperation(ProdOrder, ProdOrderLine2, ProdOrderRoutingLine3, IsHandled);
                                     if not IsHandled then
@@ -586,14 +586,14 @@ codeunit 99000773 "Calculate Prod. Order"
                             end;
                             if ProdOrderRoutingLine3."Previous Operation No." <> '' then begin
                                 ProdOrderRoutingLine4.SetRange("Operation No.", ProdOrderRoutingLine3."Previous Operation No.");
-                                if ProdOrderRoutingLine4.IsEmpty then begin
+                                if ProdOrderRoutingLine4.IsEmpty() then begin
                                     IsHandled := false;
                                     OnCalculateOnBeforeCheckPrevOperation(ProdOrder, ProdOrderLine2, ProdOrderRoutingLine3, IsHandled);
                                     if not IsHandled then
                                         Error(OperationCannotPrecedeErr, ProdOrderRoutingLine3."Previous Operation No.");
                                 end;
                             end;
-                        until ProdOrderRoutingLine3.Next = 0;
+                        until ProdOrderRoutingLine3.Next() = 0;
                 end;
 
         if CalcComponents then
@@ -643,7 +643,7 @@ codeunit 99000773 "Calculate Prod. Order"
                 ProdOrderCompCmtLine.CopyFromProdBOMComponent(ProdBOMCommentLine, ProdOrderComp);
                 if not ProdOrderCompCmtLine.Insert() then
                     ProdOrderCompCmtLine.Modify();
-            until ProdBOMCommentLine.Next = 0;
+            until ProdBOMCommentLine.Next() = 0;
     end;
 
     local procedure CopyRoutingComments(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; VersionCode: Code[20])
@@ -661,7 +661,7 @@ codeunit 99000773 "Calculate Prod. Order"
                 ProdOrderRtngCommentLine."Prod. Order No." := ProdOrderRoutingLine."Prod. Order No.";
                 ProdOrderRtngCommentLine."Routing Reference No." := ProdOrderRoutingLine."Routing Reference No.";
                 ProdOrderRtngCommentLine.Insert();
-            until RoutingCommentLine.Next = 0;
+            until RoutingCommentLine.Next() = 0;
     end;
 
     local procedure CopyRoutingPersonnel(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; VersionCode: Code[20])
@@ -679,7 +679,7 @@ codeunit 99000773 "Calculate Prod. Order"
                 ProdOrderRoutingPersonnel."Prod. Order No." := ProdOrderRoutingLine."Prod. Order No.";
                 ProdOrderRoutingPersonnel."Routing Reference No." := ProdOrderRoutingLine."Routing Reference No.";
                 ProdOrderRoutingPersonnel.Insert();
-            until RoutingPersonnel.Next = 0;
+            until RoutingPersonnel.Next() = 0;
     end;
 
     local procedure CopyRoutingQualityMeasures(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; VersionCode: Code[20])
@@ -697,7 +697,7 @@ codeunit 99000773 "Calculate Prod. Order"
                 ProdOrderRtngQltyMeas."Prod. Order No." := ProdOrderRoutingLine."Prod. Order No.";
                 ProdOrderRtngQltyMeas."Routing Reference No." := ProdOrderRoutingLine."Routing Reference No.";
                 ProdOrderRtngQltyMeas.Insert();
-            until RoutingQualityMeasure.Next = 0;
+            until RoutingQualityMeasure.Next() = 0;
     end;
 
     local procedure CopyRoutingTools(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; VersionCode: Code[20])
@@ -715,7 +715,7 @@ codeunit 99000773 "Calculate Prod. Order"
                 ProdOrderRoutingTool."Prod. Order No." := ProdOrderRoutingLine."Prod. Order No.";
                 ProdOrderRoutingTool."Routing Reference No." := ProdOrderRoutingLine."Routing Reference No.";
                 ProdOrderRoutingTool.Insert();
-            until RoutingTool.Next = 0;
+            until RoutingTool.Next() = 0;
     end;
 
     local procedure Recalculate(var ProdOrderLine: Record "Prod. Order Line"; Direction: Option; LetDueDateDecrease: Boolean; CalcRouting: Boolean; CalcComponents: Boolean)

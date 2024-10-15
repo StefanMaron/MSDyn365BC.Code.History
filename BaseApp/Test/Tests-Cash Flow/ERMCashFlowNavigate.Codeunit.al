@@ -144,7 +144,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         NonExistingName :=
           CopyStr(
             LibraryUtility.GenerateRandomCode(GLBudgetName.FieldNo(Name), DATABASE::"G/L Budget Name"), 1, MaxStrLen(GLBudgetName.Name));
-        GLAccount.FindSet;
+        GLAccount.FindSet();
         GLAccount.Next(LibraryRandom.RandInt(GLAccount.Count));
         InsertJournalLine(CFWorksheetLine, CFWorksheetLine."Source Type"::"G/L Budget", GLAccount."No.");
         CFWorksheetLine."G/L Budget Name" := NonExistingName;
@@ -173,7 +173,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
     begin
         Initialize;
 
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         CustLedgerEntry.Next(LibraryRandom.RandInt(CustLedgerEntry.Count));
         ExpectedNo := CustLedgerEntry."Document No.";
 
@@ -212,7 +212,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
     begin
         Initialize;
 
-        VendLedgEntry.FindSet;
+        VendLedgEntry.FindSet();
         VendLedgEntry.Next(LibraryRandom.RandInt(VendLedgEntry.Count));
         ExpectedNo := VendLedgEntry."Document No.";
 
@@ -741,7 +741,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
 
         // [THEN] "R1".Field "Code" = 'REV0000001'
         Assert.RecordCount(CashFlowManualRevenue, 2);
-        CashFlowManualRevenue.FindSet;
+        CashFlowManualRevenue.FindSet();
         CashFlowManualRevenue.TestField(Code, FirstRevenueCodeTxt);
 
         // [THEN] "R2".Field "Code" = 'REV0000002'
@@ -770,7 +770,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
 
         // [THEN] "E1".Field "Code" = 'EXP0000001'
         Assert.RecordCount(CashFlowManualExpense, 2);
-        CashFlowManualExpense.FindSet;
+        CashFlowManualExpense.FindSet();
         CashFlowManualExpense.TestField(Code, FirstExpenseCodeTxt);
 
         // [THEN] "E2".Field "Code" = 'EXP0000002'
@@ -898,7 +898,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CFWorksheetLine.Validate("Source Type", SourceType);
         CFWorksheetLine.Validate("Source No.", SourceNo);
         if CFWorksheetLine."Source Type" = CFWorksheetLine."Source Type"::"G/L Budget" then begin
-            GLBudgetName.FindSet;
+            GLBudgetName.FindSet();
             GLBudgetName.Next(LibraryRandom.RandInt(GLBudgetName.Count));
             CFWorksheetLine."G/L Budget Name" := GLBudgetName.Name;
         end;

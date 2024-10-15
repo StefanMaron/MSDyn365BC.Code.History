@@ -58,7 +58,7 @@ codeunit 11404 "Import SEPA CAMT"
             repeat
                 if DataExchMapping."Pre-Mapping Codeunit" <> 0 then
                     CODEUNIT.Run(DataExchMapping."Pre-Mapping Codeunit", CBGStatementLine);
-            until DataExchMapping.Next = 0;
+            until DataExchMapping.Next() = 0;
 
         DataExchMapping.Get(DataExchDef.Code, DataExchLineDef.Code, DATABASE::"CBG Statement Line");
         DataExchMapping.TestField("Mapping Codeunit");
@@ -69,7 +69,7 @@ codeunit 11404 "Import SEPA CAMT"
             repeat
                 if DataExchMapping."Post-Mapping Codeunit" <> 0 then
                     CODEUNIT.Run(DataExchMapping."Post-Mapping Codeunit", CBGStatementLine);
-            until DataExchMapping.Next = 0;
+            until DataExchMapping.Next() = 0;
 
         ProgressWindow.Close;
     end;

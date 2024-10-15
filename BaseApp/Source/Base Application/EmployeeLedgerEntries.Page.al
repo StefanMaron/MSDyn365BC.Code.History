@@ -9,6 +9,8 @@ page 5237 "Employee Ledger Entries"
     PromotedActionCategories = 'New,Process,Report,Entry';
     SourceTable = "Employee Ledger Entry";
     UsageCategory = History;
+    AdditionalSearchTerms = 'Employee Check, Employee Expense, Pay Employee';
+
 
     layout
     {
@@ -309,7 +311,7 @@ page 5237 "Employee Ledger Entries"
                         EmplEntryApplyPostedEntries.ApplyEmplEntryFormEntry(EmployeeLedgerEntry);
                         Rec := EmployeeLedgerEntry;
                         Get("Entry No.");
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 separator(Action9)

@@ -122,7 +122,7 @@ page 1170 "User Task List"
                         repeat
                             UserTask.SetCompleted;
                             UserTask.Modify();
-                        until UserTask.Next = 0;
+                        until UserTask.Next() = 0;
                 end;
             }
             action("Go To Task Item")

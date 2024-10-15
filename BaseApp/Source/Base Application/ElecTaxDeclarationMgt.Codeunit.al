@@ -393,7 +393,7 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
         exit('Omzetbelasting');
     end;
 
-    [EventSubscriber(ObjectType::Table, 1262, 'OnBeforeDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Isolated Certificate", 'OnBeforeDeleteEvent', '', false, false)]
     local procedure OnBeforeDeleteIsolatedCertificate(var Rec: Record "Isolated Certificate"; RunTrigger: Boolean)
     var
         ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";

@@ -1196,7 +1196,7 @@ codeunit 144051 "ERM EVAT"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetRange("Posting Date", GetDeclarationQuarterStartingDate, CalcDate('<+CQ>', GetDeclarationQuarterStartingDate));
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         repeat
             VATAmount := VATAmount + VATEntry.Amount;
         until VATEntry.Next = 0;
@@ -1715,9 +1715,8 @@ codeunit 144051 "ERM EVAT"
         SubmitElecTaxDeclaration.Cancel.Invoke;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 419, 'OnBeforeDownloadFromStreamHandler', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeDownloadFromStreamHandler(var ToFolder: Text; ToFileName: Text; FromInStream: InStream; var IsHandled: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"File Management", 'OnBeforeDownloadFromStreamHandler', '', false, false)]
+    local procedure OnBeforeDownloadFromStreamHandler(var ToFolder: Text; ToFileName: Text; FromInStream: InStream; var IsHandled: Boolean)
     begin
         if NameValueBuffer.FindLast() then;
         NameValueBuffer.ID += 1;

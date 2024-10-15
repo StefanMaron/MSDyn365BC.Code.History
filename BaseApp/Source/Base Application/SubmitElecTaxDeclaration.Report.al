@@ -177,7 +177,7 @@ report 11405 "Submit Elec. Tax Declaration"
                         ServiceCertificateFileName :=
                           FileManagement.BLOBImportWithFilter(
                             ServiceCertificateTempBlob, ImportFileTxt, '',
-                            'DER Files (*.der)|*.der|CER Files (*.cer)|*.cer|CRT Files (*.crt)|*.crt', '.crt,.cer,.der');
+                            'DER Files (*.der)|*.der|CER Files (*.cer)|*.cer|CRT Files (*.crt)|*.crt|PEM Files (*.pem)|*.pem', '.crt,.cer,.der,.pem');
                     end;
                 }
             }
@@ -250,7 +250,7 @@ report 11405 "Submit Elec. Tax Declaration"
                     if ElecTaxDeclarationLine.Find('-') then
                         repeat
                             AddDeclarationLine(NewNode, ElecTaxDeclarationLine);
-                        until ElecTaxDeclarationLine.Next = 0;
+                        until ElecTaxDeclarationLine.Next() = 0;
                 end;
             ElecTaxDeclarationLine."Line Type"::Attribute:
                 AppendAttribute(Parent, ElecTaxDeclarationLine.Name, ElecTaxDeclarationLine.Data, ElecTaxDeclarationLine);
@@ -325,7 +325,7 @@ report 11405 "Submit Elec. Tax Declaration"
                         then
                             exit(Data);
                     end;
-                until (Next = 0) or (TargetElecTaxDeclarationLine."Line No." = "Line No.");
+                until (Next() = 0) or (TargetElecTaxDeclarationLine."Line No." = "Line No.");
         end;
     end;
 

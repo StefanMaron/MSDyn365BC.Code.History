@@ -962,7 +962,7 @@ codeunit 144055 "UT TAB Telebank"
         OtherTypeAllObj: Record AllObj;
     begin
         AllObj.SetRange("Object Type", Type);
-        AllObj.FindSet;
+        AllObj.FindSet();
         repeat
             OtherTypeAllObj.SetFilter("Object Type", '<>%1', Type);
             OtherTypeAllObj.SetRange("Object ID", AllObj."Object ID");

@@ -69,7 +69,7 @@ report 11412 "Tax Authority - Audit File"
                 FindPeriodNo("Accounting Period");
                 NextAcctPeriod.Get("Starting Date");
 
-                if NextAcctPeriod.Next = 0 then
+                if NextAcctPeriod.Next() = 0 then
                     EndPeriodDate := CalcDate('<+1M-1D>', NextAcctPeriod."Starting Date")
                 else
                     EndPeriodDate := CalcDate('<-1D>', NextAcctPeriod."Starting Date");
@@ -146,7 +146,7 @@ report 11412 "Tax Authority - Audit File"
         GLSetup.Get();
         GLSetup.TestField("LCY Code");
         CompanyInfo.Get();
-        if StrLen(CompanyInfo."VAT Registration No.") > 15 then
+        if StrLen(FormatVATRegNo(CompanyInfo."VAT Registration No.")) > 15 then
             Error(Text007, CompanyInfo.FieldCaption("VAT Registration No."), CompanyInfo.TableCaption);
     end;
 
@@ -229,7 +229,7 @@ report 11412 "Tax Authority - Audit File"
                 if AccountingPeriod."New Fiscal Year" and not FirstRecord then
                     Error(Text006);
                 FirstRecord := false;
-            until AccountingPeriod.Next = 0;
+            until AccountingPeriod.Next() = 0;
 
         Window.Open(Text009);
         LocGLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
@@ -416,7 +416,7 @@ report 11412 "Tax Authority - Audit File"
                 EndElement('ledgerAccount');
                 UpdateWindow(2);
                 FlushOutput;
-            until TempAuditFileBuffer.Next = 0;
+            until TempAuditFileBuffer.Next() = 0;
 
         EndElement('generalLedger');
     end;
@@ -440,7 +440,7 @@ report 11412 "Tax Authority - Audit File"
                 case TempAuditFileBuffer.Rectype of
                     TempAuditFileBuffer.Rectype::Customer:
                         if Cust.Get(TempAuditFileBuffer.Code) then begin
-                            if StrLen(Cust."VAT Registration No.") > 15 then
+                            if StrLen(FormatVATRegNo(Cust."VAT Registration No.")) > 15 then
                                 Error(Text008, Cust.FieldCaption("VAT Registration No."), Cust.TableCaption, Cust."No.");
                             WriteElement('type', 'Debiteur');
                             WriteElement('taxRegistrationNr', Cust."VAT Registration No.");
@@ -462,7 +462,7 @@ report 11412 "Tax Authority - Audit File"
                         end;
                     TempAuditFileBuffer.Rectype::Vendor:
                         if Vend.Get(TempAuditFileBuffer.Code) then begin
-                            if StrLen(Vend."VAT Registration No.") > 15 then
+                            if StrLen(FormatVATRegNo(Vend."VAT Registration No.")) > 15 then
                                 Error(Text008, Vend.FieldCaption("VAT Registration No."), Vend.TableCaption, Vend."No.");
                             WriteElement('type', 'Crediteur');
                             WriteElement('taxRegistrationNr', Vend."VAT Registration No.");
@@ -506,7 +506,7 @@ report 11412 "Tax Authority - Audit File"
                 EndElement('customerSupplier');
                 UpdateWindow(2);
                 FlushOutput;
-            until TempAuditFileBuffer.Next = 0;
+            until TempAuditFileBuffer.Next() = 0;
         EndElement('customersSuppliers');
     end;
 
@@ -581,7 +581,7 @@ report 11412 "Tax Authority - Audit File"
                 EndElement('line');
                 UpdateWindow(2);
                 FlushOutput;
-            until TempAuditFileBuffer.Next = 0;
+            until TempAuditFileBuffer.Next() = 0;
 
         if TransactionElementStarted then
             EndElement('transaction');
@@ -715,6 +715,11 @@ report 11412 "Tax Authority - Audit File"
         if Rectype = AuditFileBuffer.Rectype::" " then
             exit(CustomerSupID);
         exit(StrSubstNo('%1%2', Format(Rectype, 0, 2), CustomerSupID));
+    end;
+
+    local procedure FormatVATRegNo(VATRegNo: Text[20]): Text
+    begin
+        exit(DelChr(VATRegNo, '=', '.'));
     end;
 }
 

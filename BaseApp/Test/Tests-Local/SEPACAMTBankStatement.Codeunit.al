@@ -1345,7 +1345,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
     begin
         DataExchColumnDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchColumnDef.SetFilter(Path, Path);
-        DataExchColumnDef.FindSet;
+        DataExchColumnDef.FindSet();
         repeat
             TempDataExchColumnDef := DataExchColumnDef;
             TempDataExchColumnDef.Insert();
@@ -1358,7 +1358,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
     var
         DataExchColumnDef: Record "Data Exch. Column Def";
     begin
-        TempDataExchColumnDef.FindSet;
+        TempDataExchColumnDef.FindSet();
         repeat
             DataExchColumnDef := TempDataExchColumnDef;
             DataExchColumnDef.Insert();
@@ -1796,7 +1796,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
             SetRange("Journal Template Name", CBGStatement."Journal Template Name");
             SetRange("CBG Statement No.", CBGStatement."No.");
             SetRange("Information Type", InformationType);
-            FindSet;
+            FindSet();
 
             Assert.AreEqual(FirstExpectedEntry, Description, StrSubstNo(IncorrectValueForTypeErr, Format("Information Type")));
             if SecondExpectedEntry <> '' then begin

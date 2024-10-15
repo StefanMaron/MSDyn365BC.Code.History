@@ -34,11 +34,11 @@ page 270 "Online Bank Accounts"
     procedure SetRecs(var OnlineBankAccLink: Record "Online Bank Acc. Link")
     begin
         OnlineBankAccLink.Reset();
-        OnlineBankAccLink.FindSet;
+        OnlineBankAccLink.FindSet();
         repeat
             Rec := OnlineBankAccLink;
             Insert;
-        until OnlineBankAccLink.Next = 0
+        until OnlineBankAccLink.Next() = 0
     end;
 }
 

@@ -18,7 +18,7 @@ codeunit 5354 "Auto Process Sales Quotes"
             repeat
                 if CODEUNIT.Run(CODEUNIT::"CRM Quote to Sales Quote", CRMQuote) then
                     Commit();
-            until CRMQuote.Next = 0;
+            until CRMQuote.Next() = 0;
     end;
 }
 

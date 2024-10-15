@@ -19,6 +19,9 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         LibraryRandom: Codeunit "Library - Random";
         ValueMustNotEqualMsg: Label 'Value must not be equal';
         ValueMustEqualMsg: Label 'Value must be equal';
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySmallBusiness: Codeunit "Library - Small Business";
+        LibraryCosting: Codeunit "Library - Costing";
         IsInitialized: Boolean;
 
     [Test]
@@ -247,6 +250,50 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         PurchaseHeader.TestField("Doc. Amount VAT", 0);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure TestCorrectInvoiceWithServiceItemFromListPageWithCheckDocTotalAmounts()
+    var
+        Item: Record Item;
+    begin
+        // [SCENARIO 369152] Correct Purchase Invoice with Service item from list page when "Check Doc. Total Amounts" is unabled
+        CorrectInvoiceFromListPage(Item.Type::Service);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure TestCorrectInvoiceWithInventoryItemFromListPageWithCheckDocTotalAmounts()
+    var
+        Item: Record Item;
+    begin
+        // [SCENARIO 369152] Correct Purchase Invoice with Inventory item from list page when "Check Doc. Total Amounts" is unabled
+        CorrectInvoiceFromListPage(Item.Type::Inventory);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure TestCorrectInvoiceWithServiceItemFromCardPageWithCheckDocTotalAmounts()
+    var
+        Item: Record Item;
+    begin
+        // [SCENARIO 369152] Correct Purchase Invoice with Service item from card page when "Check Doc. Total Amounts" is unabled
+        CorrectInvoiceFromCardPage(Item.Type::Service);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure TestCorrectInvoiceWithInventoryItemFromCardPageWithCheckDocTotalAmounts()
+    var
+        Item: Record Item;
+    begin
+        // [SCENARIO 369152] Correct Purchase Invoice with Inventory item from card page when "Check Doc. Total Amounts" is unabled
+        CorrectInvoiceFromCardPage(Item.Type::Inventory);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Purchase Doc. Amounts");
@@ -360,6 +407,187 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         PurchCrMemoLine.SetRange("Document No.", DocumentNo);
         PurchCrMemoLine.FindFirst;
         PurchCrMemoLine.TestField("Amount Including VAT", AmountIncludingVAT);
+    end;
+
+    local procedure CorrectInvoiceFromListPage(Type: Option Inventory,Service)
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchInvHeader: Record "Purch. Inv. Header";
+        GLEntry: Record "G/L Entry";
+        PostedPurchaseInvoices: TestPage "Posted Purchase Invoices";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        Initialize();
+
+        // [GIVEN] Unabled "Check Doc. Total Amounts" in Purchase & Payables Setup
+        UnableCheckDocTotalAmounts();
+
+        if GLEntry.FindLast() then;
+
+        // [GIVEN] Created and posted Purchase Invoice
+        CreateAndPostPurchaseInvForNewItemAndVendor(Item, Type, Vendor, 1, 1, PurchInvHeader);
+        CheckSomethingIsPosted(Item, Vendor);
+
+        // [GIVEN] Opened page "Posted Purchase Invoices"
+        PostedPurchaseInvoices.OpenView();
+        PostedPurchaseInvoices.Filter.SetFilter("No.", PurchInvHeader."No.");
+        PostedPurchaseInvoices.First();
+        LibraryVariableStorage.Enqueue(true); // for the confirm handler
+        PurchaseInvoice.Trap();
+
+        // [WHEN] Correct Purchase Invoice
+        PostedPurchaseInvoices.CorrectInvoice.Invoke();
+        PurchaseInvoice.Close();
+
+        // [THEN] Purchase Invoice corrected successfully
+        CheckEverythingIsReverted(Item, Vendor, GLEntry);
+        DisableCheckDocTotalAmounts();
+    end;
+
+    local procedure CorrectInvoiceFromCardPage(Type: Option Inventory,Service)
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchInvHeader: Record "Purch. Inv. Header";
+        GLEntry: Record "G/L Entry";
+        PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        Initialize();
+
+        // [GIVEN] Unabled "Check Doc. Total Amounts" in Purchase & Payables Setup
+        UnableCheckDocTotalAmounts();
+
+        if GLEntry.FindLast() then;
+
+        // [GIVEN] Created and posted Purchase Invoice
+        CreateAndPostPurchaseInvForNewItemAndVendor(Item, Type, Vendor, 1, 1, PurchInvHeader);
+        CheckSomethingIsPosted(Item, Vendor);
+
+        // [GIVEN] Opened page "Posted Purchase Invoice"
+        PostedPurchaseInvoice.OpenView();
+        PostedPurchaseInvoice.Filter.SetFilter("No.", PurchInvHeader."No.");
+        PostedPurchaseInvoice.First();
+        LibraryVariableStorage.Enqueue(true); // for the confirm handler
+        PurchaseInvoice.Trap();
+
+        // [WHEN] Correct Purchase Invoice
+        PostedPurchaseInvoice.CorrectInvoice.Invoke();
+        PurchaseInvoice.Close();
+
+        // [THEN] Purchase Invoice corrected successfully
+        CheckEverythingIsReverted(Item, Vendor, GLEntry);
+        DisableCheckDocTotalAmounts();
+    end;
+
+    local procedure CreateAndPostPurchaseInvForNewItemAndVendor(var Item: Record Item; Type: Option Inventory,Service; var Vendor: Record Vendor; UnitCost: Decimal; Qty: Decimal; var PurchInvHeader: Record "Purch. Inv. Header")
+    begin
+        CreateItemWithCost(Item, Type, UnitCost);
+        LibrarySmallBusiness.CreateVendor(Vendor);
+        BuyItem(Vendor, Item, Qty, PurchInvHeader);
+    end;
+
+    local procedure CheckSomethingIsPosted(Item: Record Item; Vendor: Record Vendor)
+    begin
+        // Inventory should be positive
+        Item.CalcFields(Inventory);
+        Assert.IsTrue(Item.Inventory > 0, '');
+
+        // Vendor balance should be positive
+        Vendor.CalcFields(Balance);
+        Assert.IsTrue(Vendor.Balance > 0, '');
+    end;
+
+    local procedure CheckEverythingIsReverted(Item: Record Item; Vendor: Record Vendor; LastGLEntry: Record "G/L Entry")
+    var
+        VendorPostingGroup: Record "Vendor Posting Group";
+        GLEntry: Record "G/L Entry";
+        ValueEntry: Record "Value Entry";
+        TotalDebit: Decimal;
+        TotalCredit: Decimal;
+        TotalCost: Decimal;
+        TotalQty: Decimal;
+    begin
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+        ValueEntry.SetRange("Source Type", ValueEntry."Source Type"::Vendor);
+        ValueEntry.SetRange("Source No.", Vendor."No.");
+        ValueEntry.FindSet();
+        repeat
+            TotalQty += ValueEntry."Item Ledger Entry Quantity";
+            TotalCost += ValueEntry."Cost Amount (Actual)";
+        until ValueEntry.Next() = 0;
+        Assert.AreEqual(0, TotalQty, '');
+        Assert.AreEqual(0, TotalCost, '');
+
+        // Vendor balance should go back to zero
+        Vendor.CalcFields(Balance);
+        Assert.AreEqual(0, Vendor.Balance, '');
+
+        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
+        GLEntry.SetFilter("Entry No.", '>%1', LastGLEntry."Entry No.");
+        GLEntry.FindSet();
+        repeat
+            TotalDebit += GLEntry."Credit Amount";
+            TotalCredit += GLEntry."Debit Amount";
+        until GLEntry.Next() = 0;
+
+        Assert.AreEqual(TotalDebit, TotalCredit, '');
+    end;
+
+    local procedure CreateItemWithCost(var Item: Record Item; Type: Option Inventory,Service; UnitCost: Decimal)
+    begin
+        LibrarySmallBusiness.CreateItem(Item);
+        Item.Validate(Type, Type);
+        Item."Last Direct Cost" := UnitCost;
+        Item.Modify();
+    end;
+
+    local procedure BuyItem(BuyFromVendor: Record Vendor; Item: Record Item; Qty: Decimal; var PurchInvHeader: Record "Purch. Inv. Header")
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        CreatePurchaseInvoiceForItem(BuyFromVendor, Item, Qty, PurchaseHeader, PurchaseLine);
+        PurchInvHeader.Get(LibrarySmallBusiness.PostPurchaseInvoice(PurchaseHeader));
+    end;
+
+    local procedure CreatePurchaseInvoiceForItem(Vendor: Record Vendor; Item: Record Item; Qty: Decimal; var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
+    begin
+        LibrarySmallBusiness.CreatePurchaseInvoiceHeader(PurchaseHeader, Vendor);
+        LibrarySmallBusiness.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item, Qty);
+    end;
+
+    local procedure UnableCheckDocTotalAmounts()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        with PurchasesPayablesSetup do begin
+            Get();
+            Validate("Check Doc. Total Amounts", true);
+            Modify(true);
+        end;
+    end;
+
+    local procedure DisableCheckDocTotalAmounts()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        with PurchasesPayablesSetup do begin
+            Get();
+            Validate("Check Doc. Total Amounts", false);
+            Modify(true);
+        end;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    var
+        VarReply: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(VarReply);
+        Reply := VarReply;
     end;
 }
 

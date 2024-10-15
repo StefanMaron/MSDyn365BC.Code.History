@@ -83,7 +83,7 @@ codeunit 11000000 "Process Proposal Lines"
                     ProposalLine.Warning := Warningstext;
                     ProposalLine.Modify();
                 end;
-            until ProposalLine.Next = 0;
+            until ProposalLine.Next() = 0;
 
         if NumberPosted = 0 then
             Message(Text1000000)
@@ -126,7 +126,7 @@ codeunit 11000000 "Process Proposal Lines"
                     end;
                     ErrorNumber := ErrorNumber + 1;
                 end
-            until ProposalLine.Next = 0;
+            until ProposalLine.Next() = 0;
             FinancialInterfaceTelebank.PostFDBR(GenJnlLine);
             GenJnlLine.DeleteAll();
         end;
@@ -313,7 +313,7 @@ codeunit 11000000 "Process Proposal Lines"
                         DetailLine.TableCaption);
                     exit(false);
                 end;
-            until DetailLine.Next = 0;
+            until DetailLine.Next() = 0;
 
         // //////////////////////////////////////////////////////////////////////
         // Protocol specific

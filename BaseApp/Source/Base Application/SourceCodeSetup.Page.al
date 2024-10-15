@@ -261,6 +261,16 @@ page 279 "Source Code Setup"
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the code that is linked to entries that are posted with assembly orders.';
                 }
+                field("Invt. Receipt"; "Invt. Receipt")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of the inventory receipt.';
+                }
+                field("Invt. Shipment"; "Invt. Shipment")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of the inventory shipment.';
+                }
             }
             group(Resources)
             {

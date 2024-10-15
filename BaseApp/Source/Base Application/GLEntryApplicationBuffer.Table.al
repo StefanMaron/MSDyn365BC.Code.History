@@ -406,7 +406,7 @@ table 11307 "G/L Entry Application Buffer"
                         TempGLEntryApplicationBuffer.TransferFields(GLEntry);
                         TempGLEntryApplicationBuffer.Insert();
                     end;
-                until GLEntry.Next = 0;
+                until GLEntry.Next() = 0;
         end;
     end;
 
@@ -435,7 +435,7 @@ table 11307 "G/L Entry Application Buffer"
                 OnApplyOnBeforeUpdateTables(Rec, GLEntryApplicationBuffer, GLEntry, AppliedAmount, TotalAppliedAmount, BaseEntryNo);
                 UpdateTempTable(GLEntryApplicationBuffer, 0, false, BaseEntryNo, "Posting Date", -AppliedAmount, '');
                 UpdateRealTable(GLEntry, 0, false, BaseEntryNo, "Posting Date", -AppliedAmount, '');
-            until GLEntryApplicationBuffer.Next = 0;
+            until GLEntryApplicationBuffer.Next() = 0;
         end else
             exit;
 
@@ -484,7 +484,7 @@ table 11307 "G/L Entry Application Buffer"
                     if Get(UndoGLEntry."Entry No.") then
                         UpdateTempTable(GLEntryApplicationBuffer, "Closed by Amount", true, 0, 0D, 0, '');
                     UpdateRealTable(UndoGLEntry, UndoGLEntry."Closed by Amount", true, 0, 0D, 0, '');
-                until UndoGLEntry.Next = 0;
+                until UndoGLEntry.Next() = 0;
 
             GLEntry.Get(BaseEntryNo);
             UpdateRealTable(GLEntry, GLEntry.Amount, true, 0, 0D, 0, '');

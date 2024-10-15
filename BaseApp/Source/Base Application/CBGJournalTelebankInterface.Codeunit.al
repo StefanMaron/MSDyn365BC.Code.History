@@ -53,7 +53,7 @@ codeunit 11000002 "CBG Journal Telebank Interface"
                         end;
                         CheckConfirmPaymentHistoryAmount(PaymentHistLine, LineAmount, IsConfirmHandled, UseAdjustedAmount);
                         InsertCBGStatementLine(CBGStatementLine, CBGStatement, PaymentHistLine, UseAdjustedAmount, LineAmount);
-                    until PaymentHistLine.Next = 0;
+                    until PaymentHistLine.Next() = 0;
                 end;
             end;
         end;

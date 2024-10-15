@@ -199,9 +199,9 @@ codeunit 131305 "Library - ERM Country Data"
         GeneralBusinessPostingGroup: Record "Gen. Business Posting Group";
         GeneralProductPostingGroup: Record "Gen. Product Posting Group";
     begin
-        GeneralBusinessPostingGroup.FindSet;
+        GeneralBusinessPostingGroup.FindSet();
         repeat
-            GeneralProductPostingGroup.FindSet;
+            GeneralProductPostingGroup.FindSet();
             repeat
                 GeneralPostingSetup.Reset();
                 if not GeneralPostingSetup.Get(GeneralBusinessPostingGroup.Code, GeneralProductPostingGroup.Code) then begin

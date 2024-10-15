@@ -116,7 +116,7 @@ report 11000003 "Paymt. History - Change Status"
                     CurrentMandateCounter := MandatePaymentHistoryLine."Direct Debit Mandate Counter";
                     MandatePaymentHistoryLine.Validate("Direct Debit Mandate Counter", CurrentMandateCounter - 1);
                     MandatePaymentHistoryLine.Modify(true);
-                until MandatePaymentHistoryLine.Next = 0;
+                until MandatePaymentHistoryLine.Next() = 0;
 
             PaymentHistoryLine.Validate("Direct Debit Mandate Counter", 0);
             PaymentHistoryLine.Modify(true);

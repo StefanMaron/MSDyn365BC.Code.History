@@ -338,7 +338,7 @@ page 11000008 "Payment History Line Subform"
 
     local procedure StatusOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

@@ -25,7 +25,7 @@ page 11411 "Elec. Tax Declaration Card"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Declaration Period"; "Declaration Period")

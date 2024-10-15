@@ -1125,7 +1125,7 @@ codeunit 134475 "ERM Dimension Sales"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
         LibraryERM.SetApplyCustomerEntry(CustLedgerEntry, AmountToApply);
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry2, CustLedgerEntry2."Document Type"::Invoice, DocumentNo);
-        CustLedgerEntry2.FindSet;
+        CustLedgerEntry2.FindSet();
         repeat
             CustLedgerEntry2.CalcFields("Remaining Amount");
             CustLedgerEntry2.Validate("Amount to Apply", CustLedgerEntry2."Remaining Amount");
@@ -1225,7 +1225,7 @@ codeunit 134475 "ERM Dimension Sales"
         LibrarySales.PostSalesDocument(SalesHeader, true, false); // Ship
     end;
 
-    local procedure CreateCustomerWithDimension(var DefaultDimension: Record "Default Dimension"; ValuePosting: Option; DimensionCode: Code[20]): Code[20]
+    local procedure CreateCustomerWithDimension(var DefaultDimension: Record "Default Dimension"; ValuePosting: Enum "Default Dimension Value Posting Type"; DimensionCode: Code[20]): Code[20]
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         Customer: Record Customer;
@@ -1281,7 +1281,7 @@ codeunit 134475 "ERM Dimension Sales"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateItemWithDimension(DimensionCode: Code[20]; ValuePosting: Option) ItemNo: Code[20]
+    local procedure CreateItemWithDimension(DimensionCode: Code[20]; ValuePosting: Enum "Default Dimension Value Posting Type") ItemNo: Code[20]
     var
         Item: Record Item;
         DefaultDimension: Record "Default Dimension";
@@ -1301,7 +1301,7 @@ codeunit 134475 "ERM Dimension Sales"
         DefaultDimension.Modify(true);
     end;
 
-    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerDimensionCode: Code[20]; ItemDimensionCode: Code[20]; ValuePosting: Option; DocumentType: Enum "Sales Document Type")
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerDimensionCode: Code[20]; ItemDimensionCode: Code[20]; ValuePosting: Enum "Default Dimension Value Posting Type"; DocumentType: Enum "Sales Document Type")
     var
         DefaultDimension: Record "Default Dimension";
     begin
@@ -1332,7 +1332,7 @@ codeunit 134475 "ERM Dimension Sales"
         LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, SalesLine."Dimension Set ID");
         CopyDimensionSetEntry(TempDimensionSetEntry, DimensionSetEntry);
         TempDimensionSetEntry.SetFilter("Dimension Code", '<>%1', ShortcutDimensionCode);
-        TempDimensionSetEntry.FindSet;
+        TempDimensionSetEntry.FindSet();
 
         // [WHEN] Change Dimension Value for Sales Header Shortcut Dimension.
         ChangeDimensionOnSalesHeader(SalesHeader, ShortcutDimensionCode);
@@ -1796,7 +1796,7 @@ codeunit 134475 "ERM Dimension Sales"
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         GLEntry.SetRange("Document No.", DocumentnNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             Assert.IsTrue(DimensionSetEntry.Get(GLEntry."Dimension Set ID", DimensionCode), 'Dimension Set Entry must found');
         until GLEntry.Next = 0;

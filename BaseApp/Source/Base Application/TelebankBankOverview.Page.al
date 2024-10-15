@@ -277,7 +277,7 @@ page 11000000 "Telebank - Bank Overview"
                     trigger OnAction()
                     begin
                         REPORT.RunModal(REPORT::"Get Proposal Entries");
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 separator(Action14)

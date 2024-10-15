@@ -297,7 +297,7 @@ codeunit 144003 "ERM Apply GL Entries"
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             GLEntry.TestField("Remaining Amount", RemAmount * GLEntry.Amount / Abs(GLEntry.Amount));
         until GLEntry.Next = 0;

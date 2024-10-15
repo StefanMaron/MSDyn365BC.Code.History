@@ -22,7 +22,7 @@ page 6053 "Service Contract Quote"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field(Description; Description)
@@ -769,7 +769,7 @@ page 6053 "Service Contract Quote"
                     trigger OnAction()
                     begin
                         LockOpenServContract.LockServContract(Rec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action("&Open")
@@ -783,7 +783,7 @@ page 6053 "Service Contract Quote"
                     trigger OnAction()
                     begin
                         LockOpenServContract.OpenServContract(Rec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -941,27 +941,27 @@ page 6053 "Service Contract Quote"
 
     local procedure StatusOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure CustomerNoOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure StartingDateOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure BilltoCustomerNoOnAfterValidat()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ShiptoCodeOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ResponseTimeHoursOnAfterValida()
@@ -971,7 +971,7 @@ page 6053 "Service Contract Quote"
 
     local procedure AnnualAmountOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure InvoiceafterServiceOnAfterVali()
@@ -981,7 +981,7 @@ page 6053 "Service Contract Quote"
 
     local procedure AllowUnbalancedAmountsOnAfterV()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure PrepaidOnAfterValidate()
@@ -991,12 +991,12 @@ page 6053 "Service Contract Quote"
 
     local procedure ExpirationDateOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ServicePeriodOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

@@ -186,7 +186,7 @@ codeunit 136300 "Job Consumption Basic"
         JobJournalConsumption(LibraryJob.UsageLineTypeBoth, LibraryJob.ItemType)
     end;
 
-    local procedure JobJournalConsumption(LineType: Option; ConsumableType: Enum "Job Planning Line Type")
+    local procedure JobJournalConsumption(LineType: Enum "Job Line Type"; ConsumableType: Enum "Job Planning Line Type")
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -239,7 +239,7 @@ codeunit 136300 "Job Consumption Basic"
         // Create 2 - 5 job journal lines
         for Idx := 2 to 2 + LibraryRandom.RandInt(3) do
             LibraryJob.CreateJobJournalLineForType(
-              LibraryRandom.RandInt(4) - 1, "Job Planning Line Type".FromInteger(LibraryRandom.RandInt(3) - 1), JobTask, JobJournalLine);
+              "Job Line Type".FromInteger(LibraryRandom.RandInt(4) - 1), "Job Planning Line Type".FromInteger(LibraryRandom.RandInt(3) - 1), JobTask, JobJournalLine);
 
         VerifyJobJournalLineCostPrice(JobJournalLine);
 
@@ -364,7 +364,7 @@ codeunit 136300 "Job Consumption Basic"
         JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.ItemType, LibraryJob.UsageLineTypeBoth)
     end;
 
-    local procedure JobPurchaseConsumption(PurchaseDocumentType: Enum "Purchase Document Type"; ConsumableType: Enum "Job Planning Line Type"; JobLineType: Option)
+    local procedure JobPurchaseConsumption(PurchaseDocumentType: Enum "Purchase Document Type"; ConsumableType: Enum "Job Planning Line Type"; JobLineType: Enum "Job Line Type")
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -512,7 +512,7 @@ codeunit 136300 "Job Consumption Basic"
 
         // [THEN] All inbound item ledger entries have "Cost Amount (Actual)" = 500, outbound entries - "Cost Amount (Actual)" = -500, "Cost Amount (Expected)" = 0 for all entries
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             ItemLedgerEntry.CalcFields("Cost Amount (Actual)", "Cost Amount (Expected)");
             ItemLedgerEntry.TestField("Cost Amount (Actual)", Item."Unit Cost" * ItemLedgerEntry.Quantity);
@@ -520,7 +520,7 @@ codeunit 136300 "Job Consumption Basic"
         until ItemLedgerEntry.Next = 0;
     end;
 
-    local procedure JobGLJournalConsumption(JobLineType: Option)
+    local procedure JobGLJournalConsumption(JobLineType: Enum "Job Line Type")
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -651,7 +651,7 @@ codeunit 136300 "Job Consumption Basic"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Qty);
     end;
 
-    local procedure CreateJobGLJournalLineGLAcc(var GenJournalLine: Record "Gen. Journal Line"; JobTask: Record "Job Task"; JobLineType: Option)
+    local procedure CreateJobGLJournalLineGLAcc(var GenJournalLine: Record "Gen. Journal Line"; JobTask: Record "Job Task"; JobLineType: Enum "Job Line Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GLAccount: Record "G/L Account";
@@ -661,12 +661,12 @@ codeunit 136300 "Job Consumption Basic"
         CreateJobGLJournalLine(GenJournalLine, JobTask, JobLineType, GLAccount."No.", GenJournalBatch);
     end;
 
-    local procedure CreateJobGLJournalLineGLAccWithVATPostingSetup(var GenJournalLine: Record "Gen. Journal Line"; JobTask: Record "Job Task"; JobLineType: Option; GenJournalBatch: Record "Gen. Journal Batch")
+    local procedure CreateJobGLJournalLineGLAccWithVATPostingSetup(var GenJournalLine: Record "Gen. Journal Line"; JobTask: Record "Job Task"; JobLineType: Enum "Job Line Type"; GenJournalBatch: Record "Gen. Journal Batch")
     begin
         CreateJobGLJournalLine(GenJournalLine, JobTask, JobLineType, LibraryERM.CreateGLAccountWithSalesSetup, GenJournalBatch);
     end;
 
-    local procedure CreateJobGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; JobTask: Record "Job Task"; JobLineType: Option; GLAccountNo: Code[20]; GenJournalBatch: Record "Gen. Journal Batch")
+    local procedure CreateJobGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; JobTask: Record "Job Task"; JobLineType: Enum "Job Line Type"; GLAccountNo: Code[20]; GenJournalBatch: Record "Gen. Journal Batch")
     begin
         with GenJournalLine do begin
             LibraryERM.CreateGeneralJnlLine(
@@ -745,7 +745,7 @@ codeunit 136300 "Job Consumption Basic"
         PurchaseLine: Record "Purchase Line";
     begin
         PurchRcptLine.SetRange("Buy-from Vendor No.", VendorNo);
-        PurchRcptLine.FindSet;
+        PurchRcptLine.FindSet();
         repeat
             PurchaseLine."Document Type" := DocumentType;
             PurchaseLine."Document No." := DocumentNo;

@@ -195,7 +195,7 @@ table 11000004 "Transaction Mode"
                         repeat
                             if Customer."Partner Type" <> "Partner Type" then
                                 Error(CustomerTypeMismatchErr);
-                        until Customer.Next = 0;
+                        until Customer.Next() = 0;
                 end;
             "Account Type"::Vendor:
                 begin
@@ -204,7 +204,7 @@ table 11000004 "Transaction Mode"
                         repeat
                             if Vendor."Partner Type" <> "Partner Type" then
                                 Error(VendorTypeMismatchErr);
-                        until Vendor.Next = 0;
+                        until Vendor.Next() = 0;
                 end;
             "Account Type"::Employee:
                 begin

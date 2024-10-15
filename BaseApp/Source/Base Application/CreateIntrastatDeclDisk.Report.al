@@ -20,6 +20,7 @@
                 var
                     Item: Record Item;
                     Country: Record "Country/Region";
+                    CountryRegion: Record "Country/Region";
                     SpecialUnit: Decimal;
                     RoundedWeight: Integer;
                     ItemDirection: Integer;
@@ -72,9 +73,10 @@
                     Write(Format(ItemDirection));
                     Write(PADSTR2(CompanyInfo."VAT Registration No.", 12, '0', 'L'));
                     Write(PADSTR2(Format(LineNo, 0, '<Integer>'), 5, '0', '<'));
-                    if CounterpartyInfo then
-                        Write(PADSTR2("Country/Region of Origin Code", 3, ' ', '>'))
-                    else
+                    if CounterpartyInfo then begin
+                        CountryRegion.Get("Country/Region of Origin Code");
+                        Write(PADSTR2(CountryRegion."Intrastat Code", 3, ' ', '>'))
+                    end else
                         Write(PADSTR2('', 3, ' ', '>'));
                     case ContainsAlpha(Country."Intrastat Code") of
                         true:

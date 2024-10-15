@@ -300,44 +300,44 @@ codeunit 139065 "Hybrid Deployment Test"
         ExpectedStatus := NewStatus;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6060, 'OnCreateIntegrationRuntime', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Hybrid Deployment", 'OnCreateIntegrationRuntime', '', false, false)]
     local procedure OnCreateIntegrationRuntime(var InstanceId: Text)
     begin
         InstanceId := InstanceIdTxt;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6060, 'OnDisableReplication', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Hybrid Deployment", 'OnDisableReplication', '', false, false)]
     local procedure OnDisableReplication(var InstanceId: Text)
     begin
         InstanceId := InstanceIdTxt;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6060, 'OnEnableReplication', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Hybrid Deployment", 'OnEnableReplication', '', false, false)]
     local procedure OnEnableReplication(OnPremiseConnectionString: Text; DatabaseType: Text; IntegrationRuntimeName: Text; NotificationUrl: Text; ClientState: Text; SubscriptionId: Text; ServiceNotificationUrl: Text; ServiceClientState: Text; ServiceSubscriptionId: Text; var InstanceId: Text)
     begin
         InstanceId := InstanceIdTxt;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6060, 'OnGetErrorMessage', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Hybrid Deployment", 'OnGetErrorMessage', '', false, false)]
     local procedure OnGetErrorMessage(ErrorCode: Text; var Message: Text)
     begin
         if ErrorCode = ErrorCodeTxt then
             Message := ErrorMessageTxt;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6060, 'OnGetIntegrationRuntimeKeys', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Hybrid Deployment", 'OnGetIntegrationRuntimeKeys', '', false, false)]
     local procedure OnGetIntegrationRuntimeKeys(var InstanceId: Text)
     begin
         InstanceId := InstanceIdTxt;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6060, 'OnGetReplicationRunStatus', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Hybrid Deployment", 'OnGetReplicationRunStatus', '', false, false)]
     local procedure OnGetReplicationRunStatus(var InstanceId: Text; RunId: Text)
     begin
         InstanceId := InstanceIdTxt;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6060, 'OnGetRequestStatus', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Hybrid Deployment", 'OnGetRequestStatus', '', false, false)]
     local procedure OnGetRequestStatus(InstanceId: Text; var JsonOutput: Text; var Status: Text)
     begin
         if InstanceId <> InstanceIdTxt then
@@ -347,19 +347,19 @@ codeunit 139065 "Hybrid Deployment Test"
         Status := ExpectedStatus;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6060, 'OnRegenerateIntegrationRuntimeKeys', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Hybrid Deployment", 'OnRegenerateIntegrationRuntimeKeys', '', false, false)]
     local procedure OnRegenerateIntegrationRuntimeKeys(var InstanceId: Text)
     begin
         InstanceId := InstanceIdTxt;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6060, 'OnRunReplication', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Hybrid Deployment", 'OnRunReplication', '', false, false)]
     local procedure OnRunReplication(var InstanceId: Text)
     begin
         InstanceId := InstanceIdTxt;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6060, 'OnSetReplicationSchedule', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Hybrid Deployment", 'OnSetReplicationSchedule', '', false, false)]
     local procedure OnSetReplicationSchedule(ReplicationFrequency: Text; DaysToRun: Text; TimeToRun: Time; Activate: Boolean; var InstanceId: Text)
     begin
         InstanceId := InstanceIdTxt;

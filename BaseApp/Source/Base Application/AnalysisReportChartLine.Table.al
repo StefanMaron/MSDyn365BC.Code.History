@@ -33,12 +33,10 @@ table 771 "Analysis Report Chart Line"
             TableRelation = "Analysis Column"."Line No." WHERE("Analysis Area" = FIELD("Analysis Area"),
                                                                 "Analysis Column Template" = FIELD("Analysis Column Template Name"));
         }
-        field(6; "Analysis Area"; Option)
+        field(6; "Analysis Area"; Enum "Analysis Area Type")
         {
             Caption = 'Analysis Area';
             Editable = false;
-            OptionCaption = 'Sales,Purchase,Inventory';
-            OptionMembers = Sales,Purchase,Inventory;
             TableRelation = "Analysis Report Chart Setup"."Analysis Area" WHERE("User ID" = FIELD("User ID"),
                                                                                  Name = FIELD(Name));
         }
@@ -101,7 +99,7 @@ table 771 "Analysis Report Chart Line"
                                (AnalysisReportChartLine."Analysis Column Line No." <> "Analysis Column Line No.")
                             then
                                 ActualNumMeasures += 1;
-                        until AnalysisReportChartLine.Next = 0;
+                        until AnalysisReportChartLine.Next() = 0;
                     if ActualNumMeasures >= BusinessChartBuffer.GetMaxNumberOfMeasures then
                         BusinessChartBuffer.RaiseErrorMaxNumberOfMeasuresExceeded;
                 end;

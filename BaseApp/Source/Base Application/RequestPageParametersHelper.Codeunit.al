@@ -184,7 +184,7 @@ codeunit 1530 "Request Page Parameters Helper"
             repeat
                 if not TableList.Contains(DynamicRequestPageEntity."Related Table ID") then
                     TableList.Add(DynamicRequestPageEntity."Related Table ID");
-            until DynamicRequestPageEntity.Next = 0;
+            until DynamicRequestPageEntity.Next() = 0;
 
         exit(true);
     end;
@@ -197,7 +197,7 @@ codeunit 1530 "Request Page Parameters Helper"
         if DynamicRequestPageField.FindSet then
             repeat
                 FilterPageBuilder.AddFieldNo(Name, DynamicRequestPageField."Field ID");
-            until DynamicRequestPageField.Next = 0;
+            until DynamicRequestPageField.Next() = 0;
     end;
 
     procedure SetViewOnDynamicRequestPage(var FilterPageBuilder: FilterPageBuilder; Filters: Text; EntityName: Code[20]; TableID: Integer): Boolean

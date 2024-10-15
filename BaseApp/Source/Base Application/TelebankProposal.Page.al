@@ -176,7 +176,7 @@ page 11000001 "Telebank Proposal"
                     trigger OnAssistEdit()
                     begin
                         if IdentificationAssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Description 1"; "Description 1")
@@ -578,7 +578,7 @@ page 11000001 "Telebank Proposal"
                                                 if Find('-') then
                                                     repeat
                                                         MoveLineToOtherBank(Propline, BankAcc);
-                                                    until Next = 0;
+                                                    until Next() = 0;
                                             end;
                                         else
                                             exit;
@@ -925,13 +925,13 @@ page 11000001 "Telebank Proposal"
 
     local procedure ProcessOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure BankAccFilterOnAfterValidate()
     begin
         SetFilter("Our Bank No.", BankAccFilter);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure BankAccFilterOnFormat()

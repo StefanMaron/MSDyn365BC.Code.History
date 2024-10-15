@@ -690,7 +690,7 @@ codeunit 138929 "O365 HTML Templates"
 
         // [GIVEN] Mock French langeuage customer name
         Customer.Get(SalesHeader."Sell-to Customer No.");
-        Customer.Name := 'Ce courriel a été envoyé à';
+        Customer.Name := 'Ce courriel a Ã©tÃ© envoyÃ© Ã ';
         Customer.Modify(true);
         SalesHeader."Sell-to Customer Name" := Customer.Name;
         SalesHeader.Modify();
@@ -847,7 +847,7 @@ codeunit 138929 "O365 HTML Templates"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 453, 'OnBeforeJobQueueScheduleTask', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue - Enqueue", 'OnBeforeJobQueueScheduleTask', '', false, false)]
     local procedure DisableTaskOnBeforeJobQueueScheduleTask(var DoNotScheduleTask: Boolean)
     begin
         DoNotScheduleTask := true

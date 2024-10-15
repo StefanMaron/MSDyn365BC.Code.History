@@ -153,9 +153,9 @@ table 5200 Employee
         {
             Caption = 'Picture';
             ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             SubType = Bitmap;
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '18.0';
         }
         field(20; "Birth Date"; Date)
         {
@@ -418,11 +418,9 @@ table 5200 Employee
             TableRelation = "SWIFT Code";
             ValidateTableRelation = false;
         }
-        field(80; "Application Method"; Option)
+        field(80; "Application Method"; Enum "Application Method")
         {
             Caption = 'Application Method';
-            OptionCaption = 'Manual,Apply to Oldest';
-            OptionMembers = Manual,"Apply to Oldest";
         }
         field(140; Image; Media)
         {

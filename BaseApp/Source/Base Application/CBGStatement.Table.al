@@ -490,10 +490,10 @@ table 11400 "CBG Statement"
                     NumberOfLines := GenJnlLine.Count();
                     repeat
                         GenJnlPostLine.RunWithCheck(GenJnlLine);
-                    until GenJnlLine.Next = 0;
+                    until GenJnlLine.Next() = 0;
                     GenJnlLine.DeleteAll(true);
                 end;
-            until CBGStatementLine.Next = 0;
+            until CBGStatementLine.Next() = 0;
 
         if "Account Type" = "Account Type"::"Bank Account" then
             if BankAcct.Get("Account No.") then begin
@@ -562,7 +562,7 @@ table 11400 "CBG Statement"
                         CBGStatementLine.Validate(Date, Date);
                         CBGStatementLine.Modify(true);
                     end;
-                until CBGStatementLine.Next = 0;
+                until CBGStatementLine.Next() = 0;
         end;
     end;
 

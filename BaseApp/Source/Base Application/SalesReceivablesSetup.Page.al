@@ -138,6 +138,12 @@ page 459 "Sales & Receivables Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the price calculation method that will be default for sales transactions.';
                 }
+                field("Allow Editing Active Price"; "Allow Editing Active Price")
+                {
+                    Visible = ExtendedPriceEnabled;
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies it the existing active sales price line can be modified or removed, or a new price line can be added to the active price list.';
+                }
                 field("Calc. Inv. Discount"; "Calc. Inv. Discount")
                 {
                     ApplicationArea = Basic, Suite;

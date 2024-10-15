@@ -32,7 +32,7 @@ page 1651 "Curr. Exch. Rate Service Card"
                     begin
                         NotEnabledAndCurrPageEditable := not Enabled and CurrPage.Editable;
                         EnabledAndCurrPageEditable := Enabled and CurrPage.Editable;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(ShowEnableWarning; ShowEnableWarning)
@@ -233,7 +233,7 @@ page 1651 "Curr. Exch. Rate Service Card"
         if Confirm(DisableEnableQst, true) then begin
             Enabled := false;
             UpdateBasedOnEnable;
-            CurrPage.Update;
+            CurrPage.Update();
         end;
     end;
 

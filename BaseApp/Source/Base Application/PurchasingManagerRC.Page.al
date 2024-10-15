@@ -67,7 +67,7 @@ page 8905 "Purchasing Manager Role Center"
                 {
                     ApplicationArea = Suite;
                     Caption = 'CMR - Return Shipment';
-                    RunObject = report 11410;
+                    RunObject = report "CMR - Return Shipment";
                 }
                 action("Certificates of Supply")
                 {

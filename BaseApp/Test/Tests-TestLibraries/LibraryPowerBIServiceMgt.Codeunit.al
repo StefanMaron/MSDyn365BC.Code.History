@@ -115,7 +115,7 @@ codeunit 131016 "Library - Power BI Service Mgt"
         exit(false);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6301, 'OnGetReports', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Power BI Service Mgt.", 'OnGetReports', '', false, false)]
     local procedure OnGetReports(var TempPowerBIReportBuffer: Record "Power BI Report Buffer" temporary; var ExceptionMessage: Text; var ExceptionDetails: Text; EnglishContext: Text[30])
     var
         PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
@@ -134,7 +134,7 @@ codeunit 131016 "Library - Power BI Service Mgt"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6301, 'OnUploadReports', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Power BI Service Mgt.", 'OnUploadReports', '', false, false)]
     local procedure OnUploadReports(var ApiRequestList: DotNet ImportReportRequestList; var ApiResponseList: DotNet ImportReportResponseList)
     var
         UploadRequest: DotNet ImportReportRequest;
@@ -169,7 +169,7 @@ codeunit 131016 "Library - Power BI Service Mgt"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6301, 'OnRetryUploads', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Power BI Service Mgt.", 'OnRetryUploads', '', false, false)]
     local procedure OnRetryUploads(var ImportIdList: DotNet ImportedReportRequestList; var ApiResponseList: DotNet ImportedReportResponseList)
     var
         MockResponse: DotNet ImportedReportResponse;

@@ -72,8 +72,8 @@ codeunit 11408 "Imp. Bank Trans. Data Updates"
                         TempChildDataExchField.Copy(ChildDataExchField);
                         TempChildDataExchField.Insert();
                     end;
-                until ChildDataExchField.Next = 0;
-                TempChildDataExchField.FindSet;
+                until ChildDataExchField.Next() = 0;
+                TempChildDataExchField.FindSet();
 
                 // For each child of current parent
                 repeat
@@ -92,14 +92,14 @@ codeunit 11408 "Imp. Bank Trans. Data Updates"
                                     CopyParentFieldToChild(
                                       ParentLookupDataExchField, TempChildDataExchField, ChildDataExchColumnDef."Column No.");
                             end;
-                        until ChildDataExchColumnDef.Next = 0;
-                until TempChildDataExchField.Next = 0;
+                        until ChildDataExchColumnDef.Next() = 0;
+                until TempChildDataExchField.Next() = 0;
                 TempChildDataExchField.DeleteAll();
 
                 // Remove parent line (which is now a subset of the child lines created above)
                 DeleteLines(ParentDataExchField);
             end;
-        until ParentDataExchField.Next = 0;
+        until ParentDataExchField.Next() = 0;
 
         CorrectSequence(DataExch."Entry No.");
     end;
@@ -124,7 +124,7 @@ codeunit 11408 "Imp. Bank Trans. Data Updates"
                     DataExchField.Validate("Line No.", NewLineNo);
                     DataExchField.Insert(true);
                 end;
-            until DataExchField.Next = 0;
+            until DataExchField.Next() = 0;
     end;
 
     local procedure CopyParentFieldToChild(ParentLookupDataExchField: Record "Data Exch. Field"; ChildDataExchField: Record "Data Exch. Field"; ColumnNo: Integer)

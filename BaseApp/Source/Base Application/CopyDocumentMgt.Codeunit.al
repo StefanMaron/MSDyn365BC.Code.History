@@ -1,4 +1,4 @@
-﻿codeunit 6620 "Copy Document Mgt."
+codeunit 6620 "Copy Document Mgt."
 {
 
     trigger OnRun()
@@ -170,12 +170,15 @@
         end;
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by GetSalesDocumentType().', '17.0')]
     procedure SalesHeaderDocType(DocType: Option): Integer
     begin
         exit(GetSalesDocumentType("Sales Document Type From".FromInteger(DocType)).AsInteger());
     end;
+#endif
 
+#if not CLEAN17
     [Obsolete('Replaced by GetPurchaseDocumentType().', '17.0')]
     procedure PurchHeaderDocType(DocType: Option): Integer
     var
@@ -183,6 +186,7 @@
     begin
         exit(GetPurchaseDocumentType("Purchase Document Type From".FromInteger(DocType)).AsInteger());
     end;
+#endif
 
     procedure CopySalesDocForInvoiceCancelling(FromDocNo: Code[20]; var ToSalesHeader: Record "Sales Header")
     begin
@@ -360,7 +364,7 @@
           FromDocType.AsInteger(), FromDocNo, ToSalesHeader, FromDocOccurrenceNo, FromDocVersionNo, IncludeHeader, RecalculateLines, MoveNegLines);
     end;
 
-    local procedure CopySalesDocSalesLine(FromSalesHeader: Record "Sales Header"; var ToSalesHeader: Record "Sales Header"; var LinesNotCopied: Integer; NextLineNo: Integer)
+    procedure CopySalesDocSalesLine(FromSalesHeader: Record "Sales Header"; var ToSalesHeader: Record "Sales Header"; var LinesNotCopied: Integer; NextLineNo: Integer)
     var
         ToSalesLine: Record "Sales Line";
         FromSalesLine: Record "Sales Line";
@@ -528,6 +532,9 @@
     local procedure CopySalesDocUpdateHeader(FromDocType: Enum "Sales Document Type From"; FromDocNo: Code[20]; var ToSalesHeader: Record "Sales Header"; FromSalesHeader: Record "Sales Header"; FromSalesShptHeader: Record "Sales Shipment Header"; FromSalesInvHeader: Record "Sales Invoice Header"; FromReturnRcptHeader: Record "Return Receipt Header"; FromSalesCrMemoHeader: Record "Sales Cr.Memo Header"; FromSalesHeaderArchive: Record "Sales Header Archive"; var ReleaseDocument: Boolean);
     var
         OldSalesHeader: Record "Sales Header";
+#if not CLEAN18
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+#endif
     begin
         with ToSalesHeader do begin
             CheckCustomer(FromSalesHeader, ToSalesHeader);
@@ -571,12 +578,22 @@
             CopyFieldsFromOldSalesHeader(ToSalesHeader, OldSalesHeader);
             OnAfterCopyFieldsFromOldSalesHeader(ToSalesHeader, OldSalesHeader, MoveNegLines, IncludeHeader);
             if RecalculateLines then
-                CreateDim(
-                    DATABASE::"Responsibility Center", "Responsibility Center",
-                    DATABASE::Customer, "Bill-to Customer No.",
-                    DATABASE::"Salesperson/Purchaser", "Salesperson Code",
-                    DATABASE::Campaign, "Campaign No.",
-                    DATABASE::"Customer Template", "Bill-to Customer Template Code");
+#if not CLEAN18
+                if not CustomerTemplMgt.IsEnabled() then
+                    CreateDim(
+                        DATABASE::"Responsibility Center", "Responsibility Center",
+                        DATABASE::Customer, "Bill-to Customer No.",
+                        DATABASE::"Salesperson/Purchaser", "Salesperson Code",
+                        DATABASE::Campaign, "Campaign No.",
+                        DATABASE::"Customer Template", "Bill-to Customer Template Code")
+                else
+#endif
+                    CreateDim(
+                        DATABASE::"Responsibility Center", "Responsibility Center",
+                        DATABASE::Customer, "Bill-to Customer No.",
+                        DATABASE::"Salesperson/Purchaser", "Salesperson Code",
+                        DATABASE::Campaign, "Campaign No.",
+                        DATABASE::"Customer Templ.", "Bill-to Customer Templ. Code");
             "No. Printed" := 0;
             "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
             "Applies-to Doc. No." := '';
@@ -872,7 +889,7 @@
           FromDocType.AsInteger(), FromDocNo, ToPurchHeader, FromDocOccurrenceNo, FromDocVersionNo, IncludeHeader, RecalculateLines, MoveNegLines);
     end;
 
-    local procedure CopyPurchDocPurchLine(FromPurchHeader: Record "Purchase Header"; ToPurchHeader: Record "Purchase Header"; var LinesNotCopied: Integer; NextLineNo: Integer)
+    procedure CopyPurchDocPurchLine(FromPurchHeader: Record "Purchase Header"; ToPurchHeader: Record "Purchase Header"; var LinesNotCopied: Integer; NextLineNo: Integer)
     var
         ToPurchLine: Record "Purchase Line";
         FromPurchLine: Record "Purchase Line";
@@ -1325,6 +1342,7 @@
         end;
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by CopySalesDocLine().', '17.0')]
     procedure CopySalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var NextLineNo: Integer; var LinesNotCopied: Integer; RecalculateAmount: Boolean; FromSalesDocType: Option; var CopyPostedDeferral: Boolean; DocLineNo: Integer): Boolean
     begin
@@ -1333,6 +1351,7 @@
                 ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLine, NextLineNo, LinesNotCopied,
                 RecalculateAmount, "Sales Document Type From".FromInteger(FromSalesDocType), CopyPostedDeferral, DocLineNo));
     end;
+#endif
 
     procedure CopySalesDocLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var NextLineNo: Integer; var LinesNotCopied: Integer; RecalculateAmount: Boolean; FromSalesDocType: Enum "Sales Document Type From"; var CopyPostedDeferral: Boolean; DocLineNo: Integer): Boolean
     var
@@ -1680,6 +1699,7 @@
         OnAfterHandleAsmAttachedToSalesLine(ToSalesLine);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by CopyPurchDocLine().', '17.0')]
     procedure CopyPurchLine(var ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var FromPurchHeader: Record "Purchase Header"; var FromPurchLine: Record "Purchase Line"; var NextLineNo: Integer; var LinesNotCopied: Integer; RecalculateAmount: Boolean; FromPurchDocType: Option; var CopyPostedDeferral: Boolean; DocLineNo: Integer): Boolean
     begin
@@ -1688,6 +1708,7 @@
                 ToPurchHeader, ToPurchLine, FromPurchHeader, FromPurchLine, NextLineNo, LinesNotCopied, RecalculateAmount,
                 "Purchase Document Type From".FromInteger(FromPurchDocType), CopyPostedDeferral, DocLineNo));
     end;
+#endif
 
     procedure CopyPurchDocLine(var ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var FromPurchHeader: Record "Purchase Header"; var FromPurchLine: Record "Purchase Line"; var NextLineNo: Integer; var LinesNotCopied: Integer; RecalculateAmount: Boolean; FromPurchDocType: Enum "Purchase Document Type From"; var CopyPostedDeferral: Boolean; DocLineNo: Integer): Boolean
     var
@@ -5534,11 +5555,13 @@
         end;
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by GetSalesDocumentType().', '17.0')]
     procedure ArchSalesHeaderDocType(DocType: Option): Integer
     begin
         exit(GetSalesDocumentType("Sales Document Type From".FromInteger(DocType)).AsInteger());
     end;
+#endif
 
     local procedure CopyFromArchSalesDocDimToHdr(var ToSalesHeader: Record "Sales Header"; FromSalesHeaderArchive: Record "Sales Header Archive")
     begin
@@ -5556,11 +5579,13 @@
         end;
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by GetPurchaseDocumentType().', '17.0')]
     procedure ArchPurchHeaderDocType(DocType: Option): Integer
     begin
         exit(GetPurchaseDocumentType("Purchase Document Type From".FromInteger(DocType)).AsInteger());
     end;
+#endif
 
     local procedure CopyFromArchPurchDocDimToHdr(var ToPurchHeader: Record "Purchase Header"; FromPurchHeaderArchive: Record "Purchase Header Archive")
     begin

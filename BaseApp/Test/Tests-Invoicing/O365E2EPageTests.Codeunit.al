@@ -80,33 +80,6 @@ codeunit 138910 "O365 E2E Page Tests"
     [Test]
     [HandlerFunctions('VerifyNoNotificationsAreSend')]
     [Scope('OnPrem')]
-    procedure InvoicingAppAreaDoesNotAppearInApplicationAreasPage()
-    var
-        ApplicationAreaSetup: Record "Application Area Setup";
-        ApplicationAreaBuffer: Record "Application Area Buffer";
-        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
-    begin
-        // [FEATURE] [Application Area]
-        // [SCENARIO 197381] Enabled #Invoicing does not appear in the Application Area page
-        LibraryLowerPermissions.SetInvoiceApp;
-        LibraryApplicationArea.DisableApplicationAreaSetup;
-
-        // [GIVEN] #Invoicing area enabled in ApplicationAreaSetup
-        Clear(ApplicationAreaSetup);
-        ApplicationAreaSetup.DeleteAll();
-        ApplicationAreaSetup.Invoicing := true;
-        ApplicationAreaSetup.Insert();
-
-        // [WHEN] Application Areas are found
-        // [THEN] Invoicing value does not exist
-        ApplicationAreaMgmt.GetApplicationAreaBuffer(ApplicationAreaBuffer);
-        ApplicationAreaBuffer.SetRange("Application Area", ApplicationAreaSetup.FieldName(Invoicing));
-        Assert.RecordIsEmpty(ApplicationAreaBuffer);
-    end;
-
-    [Test]
-    [HandlerFunctions('VerifyNoNotificationsAreSend')]
-    [Scope('OnPrem')]
     procedure TestCreateCustomer()
     var
         Customer: Record Customer;

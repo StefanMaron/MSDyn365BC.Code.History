@@ -67,7 +67,7 @@ page 5999 "Available - Service Lines"
                         ReservMgt.MarkReservConnection(ReservEntry2, ReservEntry);
                         PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry2);
                         UpdateReservFrom;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -140,7 +140,7 @@ page 5999 "Available - Service Lines"
                             UpdateReservMgt;
                             repeat
                                 ReservEngineMgt.CancelReservation(ReservEntry2);
-                            until ReservEntry2.Next = 0;
+                            until ReservEntry2.Next() = 0;
 
                             UpdateReservFrom;
                         end;
@@ -215,6 +215,7 @@ page 5999 "Available - Service Lines"
         CaptionText := ReservMgt.FilterReservFor(SourceRecRef, ReservEntry, Direction);
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetSalesLine(var CurrentSalesLine: Record "Sales Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
@@ -278,6 +279,21 @@ page 5999 "Available - Service Lines"
         SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
+    [Obsolete('Replaced by SetSource procedure.', '16.0')]
+    procedure SetAssemblyLine(var CurrentAssemblyLine: Record "Assembly Line"; CurrentReservEntry: Record "Reservation Entry")
+    begin
+        SourceRecRef.GetTable(CurrentAssemblyLine);
+        SetSource(SourceRecRef, CurrentReservEntry);
+    end;
+
+    [Obsolete('Replaced by SetSource procedure.', '16.0')]
+    procedure SetAssemblyHeader(var CurrentAssemblyHeader: Record "Assembly Header"; CurrentReservEntry: Record "Reservation Entry")
+    begin
+        SourceRecRef.GetTable(CurrentAssemblyHeader);
+        SetSource(SourceRecRef, CurrentReservEntry);
+    end;
+#endif
+
     local procedure CreateReservation(ReserveQuantity: Decimal; ReserveQuantityBase: Decimal)
     var
         TrackingSpecification: Record "Tracking Specification";
@@ -326,20 +342,6 @@ page 5999 "Available - Service Lines"
         CurrentSubType := SubType;
     end;
 
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetAssemblyLine(var CurrentAssemblyLine: Record "Assembly Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentAssemblyLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetAssemblyHeader(var CurrentAssemblyHeader: Record "Assembly Header"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentAssemblyHeader);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
     local procedure SetFilters()
     begin
         SetRange(Type, Type::Item);
@@ -380,4 +382,3 @@ page 5999 "Available - Service Lines"
     begin
     end;
 }
-

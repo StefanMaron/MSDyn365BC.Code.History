@@ -1,4 +1,4 @@
-codeunit 2 "Company-Initialize"
+﻿codeunit 2 "Company-Initialize"
 {
     Permissions = TableData "Company Information" = i,
                   TableData "General Ledger Setup" = i,
@@ -185,6 +185,8 @@ codeunit 2 "Company-Initialize"
         Text116: Label 'Cost Allocation';
         Text117: Label 'TRABUD', Comment = 'Uppercase of the translation of Transfer Budget to Actual with a max of 10 char';
         Text118: Label 'Transfer Budget to Actual';
+        InvtReceiptsTxt: Label 'INVTRCPT', Comment = 'INVENTORY RECEIPTS';
+        InvtShipmentsTxt: Label 'INVTSHPT', Comment = 'INVENTORY SHIPMENTS';
         InvtOrderTxt: Label 'INVTORDER', Comment = 'INVENTORY ORDERS';
         Text1000000: Label 'CASHJNL';
         Text1000001: Label 'BANKJNL';
@@ -452,9 +454,11 @@ codeunit 2 "Company-Initialize"
                 InsertSourceCode("Cost Allocation", Text115, Text116);
                 InsertSourceCode("Transfer Budget to Actual", Text117, Text118);
                 InsertSourceCode("Phys. Invt. Orders", InvtOrderTxt, PageName(PAGE::"Physical Inventory Order"));
+                InsertSourceCode("Invt. Receipt", InvtReceiptsTxt, PageName(PAGE::"Invt. Receipts"));
+                InsertSourceCode("Invt. Shipment", InvtShipmentsTxt, PageName(PAGE::"Invt. Shipments"));
                 InsertSourceCode("Cash Journal", Text1000000, PageName(PAGE::"Cash Journal"));
                 InsertSourceCode("Bank Journal", Text1000001, PageName(PAGE::"Bank/Giro Journal"));
-                Insert;
+                Insert();
             end;
     end;
 
@@ -643,7 +647,7 @@ codeunit 2 "Company-Initialize"
         InsertClientAddIn(
           'Microsoft.Dynamics.Nav.Client.FlowIntegration', '31bf3856ad364e35', '',
           ClientAddIn.Category::"JavaScript Control Add-in",
-          'Microsoft Power Automate Integration control add-in',
+          'Power Automate Integration control add-in',
           ApplicationPath + 'Add-ins\FlowIntegration\Microsoft.Dynamics.Nav.Client.FlowIntegration.zip');
         InsertClientAddIn(
           'Microsoft.Dynamics.Nav.Client.RoleCenterSelector', '31bf3856ad364e35', '',
@@ -749,7 +753,7 @@ codeunit 2 "Company-Initialize"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Table, 2000000006, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Company", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterCompanyDeleteRemoveReferences(var Rec: Record Company; RunTrigger: Boolean)
     var
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";

@@ -287,8 +287,7 @@
         TransactionMode.Validate("Acc. No. Pmt./Rcpt. in Process", GLAccount."No.");
         TransactionMode.Modify(true);
 
-        LibraryVariableStorage.Enqueue(5);
-        LibraryVariableStorage.Enqueue(BankAccountPostingGroup.FieldName("G/L Bank Account No."));
+        LibraryVariableStorage.Enqueue(4);
         LibraryVariableStorage.Enqueue(BankAccountPostingGroup.FieldName("G/L Account No."));
         LibraryVariableStorage.Enqueue(BankAccountPostingGroup.FieldName("Acc.No. Pmt./Rcpt. in Process"));
         LibraryVariableStorage.Enqueue(CustomerPostingGroup.FieldName("Receivables Account"));
@@ -525,7 +524,7 @@
         RunIntrastatMakeDiskTaxAuth(Filename);
 
         // [THEN] Intrastat Declaration is created with Transaction = '12' and 'Partner ID' = 'NL23456789456'
-        VerifyTransactionAndPatnerIDInDeclarationFile(Filename, '', '');
+        VerifyTransactionAndPatnerIDInDeclarationFile(Filename, '', '', '  ');
     end;
 
     [Test]
@@ -535,6 +534,7 @@
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        CountryRegion: Record "Country/Region";
         Filename: Text;
     begin
         // [FEATURE] [Intrastat] [Export] [Shipment]
@@ -554,9 +554,12 @@
         RunIntrastatMakeDiskTaxAuth(Filename);
 
         // [THEN] Intrastat Declaration is created with Transaction = '12' and 'Partner ID' = '     NL0123456789'
+        // [THEN] Intrastat Code is exported as Country of Origin (TFS 391822)
+        CountryRegion.Get(IntrastatJnlLine."Country/Region of Origin Code");
         VerifyTransactionAndPatnerIDInDeclarationFile(
           Filename, IntrastatJnlLine."Transaction Specification",
-          PadStr('', 17 - StrLen(IntrastatJnlLine."Partner VAT ID"), ' ') + IntrastatJnlLine."Partner VAT ID");
+          PadStr('', 17 - StrLen(IntrastatJnlLine."Partner VAT ID"), ' ') + IntrastatJnlLine."Partner VAT ID",
+          CountryRegion."Intrastat Code");
     end;
 
     [Test]
@@ -566,6 +569,7 @@
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         Item: Record Item;
+        CountryRegion: Record "Country/Region";
         Filename: Text;
         LineContent: Text;
     begin
@@ -590,8 +594,9 @@
         RunIntrastatMakeDiskTaxAuth(Filename);
 
         LineContent := LibraryTextFileValidation.ReadLine(Filename, 2);
+        CountryRegion.Get(Item."Country/Region of Origin Code");
         Assert.ExpectedMessage(
-          StrSubstNo('%1 %2', Item."Country/Region of Origin Code", IntrastatJnlLine."Country/Region Code"),
+          StrSubstNo('%1 %2', CountryRegion."Intrastat Code", IntrastatJnlLine."Country/Region Code"),
           LineContent);
     end;
 
@@ -621,7 +626,7 @@
         RunIntrastatMakeDiskTaxAuth(Filename);
 
         // [THEN] Intrastat Declaration is created with Transaction = '12' and 'Partner ID' = 'NL23456789456'
-        VerifyTransactionAndPatnerIDInDeclarationFile(Filename, '', '');
+        VerifyTransactionAndPatnerIDInDeclarationFile(Filename, '', '', '  ');
     end;
 
     [Test]
@@ -631,6 +636,7 @@
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        CountryRegion: Record "Country/Region";
         Filename: Text;
     begin
         // [FEATURE] [Intrastat] [Export] [Receipt]
@@ -650,9 +656,12 @@
         RunIntrastatMakeDiskTaxAuth(Filename);
 
         // [THEN] Intrastat Declaration is created with Transaction = '12' and 'Partner ID' = '     NL0123456789'
+        // [THEN] Intrastat Code is exported as Country of Origin (TFS 391822)
+        CountryRegion.Get(IntrastatJnlLine."Country/Region of Origin Code");
         VerifyTransactionAndPatnerIDInDeclarationFile(
           Filename, IntrastatJnlLine."Transaction Specification",
-          PadStr('', 17 - StrLen(IntrastatJnlLine."Partner VAT ID"), ' ') + IntrastatJnlLine."Partner VAT ID");
+          PadStr('', 17 - StrLen(IntrastatJnlLine."Partner VAT ID"), ' ') + IntrastatJnlLine."Partner VAT ID",
+          CountryRegion."Intrastat Code");
     end;
 
     local procedure Initialize()
@@ -799,6 +808,7 @@
         if not CountryRegion.Get(CountryRegionCode) then begin
             CountryRegion.Init();
             CountryRegion.Code := CountryRegionCode;
+            CountryRegion."Intrastat Code" := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(2, 0), 1, 2);
             CountryRegion.Insert();
         end;
 
@@ -1104,6 +1114,7 @@
         IntrastatJnlLine.Validate(Quantity, LibraryRandom.RandIntInRange(1, 10));
         IntrastatJnlLine.Validate("Net Weight", LibraryRandom.RandDecInRange(1, 10, 2));
         IntrastatJnlLine.Validate("Country/Region Code", CountryCode);
+        IntrastatJnlLine.Validate("Country/Region of Origin Code", CreateCountryRegionCode);
         IntrastatJnlLine.Modify(true);
     end;
 
@@ -1154,7 +1165,7 @@
         CustLedgerEntry.TestField("Recipient Bank Account", ServiceHeader."Bank Account Code");
     end;
 
-    local procedure VerifyTransactionAndPatnerIDInDeclarationFile(FileName: Text; ExpectedTransaction: Text; ExpectedPartnedID: Text)
+    local procedure VerifyTransactionAndPatnerIDInDeclarationFile(FileName: Text; ExpectedTransaction: Text; ExpectedPartnedID: Text; ExpectedCountryOfOrigin: Text)
     var
         DeclFile: File;
         DeclarationString: Text[256];
@@ -1165,6 +1176,7 @@
         DeclFile.Read(DeclarationString);
         Assert.AreEqual(ExpectedTransaction, CopyStr(DeclarationString, 116, 2), StrSubstNo(WrongValueErr, 'Transaction'));
         Assert.AreEqual(ExpectedPartnedID, CopyStr(DeclarationString, 118, 17), StrSubstNo(WrongValueErr, 'Partner ID'));
+        Assert.AreEqual(ExpectedCountryOfOrigin, CopyStr(DeclarationString, 25, 2), StrSubstNo(WrongValueErr, 'Country of Origin'));
         DeclFile.Close();
     end;
 
@@ -1198,7 +1210,7 @@
         Reply := true;
     end;
 
-    [EventSubscriber(ObjectType::Report, 11413, 'OnInitializeServerFileName', '', false, false)]
+    [EventSubscriber(ObjectType::Report, Report::"Create Intrastat Decl. Disk", 'OnInitializeServerFileName', '', false, false)]
     [Scope('OnPrem')]
     procedure CreateIntrastatDeclDiskSubscriber(var Filename: Text)
     var

@@ -27,6 +27,7 @@ codeunit 19 "Gen. Jnl.-Post Preview"
         LastErrorText: Text;
         HideDialogs: Boolean;
 
+    [CommitBehavior(CommitBehavior::Error)]
     procedure Preview(Subscriber: Variant; RecVar: Variant)
     var
         ErrorContextElement: Codeunit "Error Context Element";
@@ -112,7 +113,7 @@ codeunit 19 "Gen. Jnl.-Post Preview"
             exit;
 
         PostingPreviewEventHandler.FillDocumentEntry(TempDocumentEntry);
-        if not TempDocumentEntry.IsEmpty then begin
+        if not TempDocumentEntry.IsEmpty() then begin
             GLPostingPreview.Set(TempDocumentEntry, PostingPreviewEventHandler);
             GLPostingPreview.Run
         end else

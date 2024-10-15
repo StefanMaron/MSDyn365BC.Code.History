@@ -1,4 +1,4 @@
-﻿table 11401 "CBG Statement Line"
+table 11401 "CBG Statement Line"
 {
     Caption = 'CBG Statement Line';
     Permissions = TableData "Cust. Ledger Entry" = rm,
@@ -525,7 +525,7 @@
                                   CBGStatementLine.FieldCaption(Identification),
                                   CBGStatementLine.Identification,
                                   CBGStatementLine."Journal Template Name", CBGStatementLine."No.");
-                        until CBGStatementLine.Next = 0;
+                        until CBGStatementLine.Next() = 0;
 
                     PaymentHistLine.SetCurrentKey("Our Bank", Identification);
                     PaymentHistLine.SetRange("Our Bank", "Statement No.");
@@ -1330,7 +1330,7 @@
                         if CustLedgEntry.Find('-') then
                             repeat
                                 ClearCustApplnEntryFields(CustLedgEntry);
-                            until CustLedgEntry.Next = 0;
+                            until CustLedgEntry.Next() = 0;
                     end;
                 "Account Type"::Vendor:
                     begin
@@ -1341,7 +1341,7 @@
                         if VendLedgEntry.Find('-') then
                             repeat
                                 ClearVendApplnEntryFields(VendLedgEntry);
-                            until VendLedgEntry.Next = 0;
+                            until VendLedgEntry.Next() = 0;
                     end;
                 "Account Type"::Employee:
                     begin
@@ -1352,7 +1352,7 @@
                         if EmployeeLedgerEntry.Find('-') then
                             repeat
                                 ClearEmployeeApplnEntryFields(EmployeeLedgerEntry);
-                            until EmployeeLedgerEntry.Next = 0;
+                            until EmployeeLedgerEntry.Next() = 0;
                     end;
             end;
             "Applies-to ID" := '';
@@ -1535,7 +1535,7 @@
         CustLedgEntry.SetRange("Customer No.", CBGStatementLine."Account No.");
         CustLedgEntry.SetRange(Open, true);
         CustLedgEntry.SetFilter("Posting Date", '>%1', CBGStatementLine.Date);
-        if not CustLedgEntry.IsEmpty then
+        if not CustLedgEntry.IsEmpty() then
             Error(PostingDateEarlierErr);
     end;
 
@@ -1560,7 +1560,7 @@
         VendLedgEntry.SetRange("Vendor No.", CBGStatementLine."Account No.");
         VendLedgEntry.SetRange(Open, true);
         VendLedgEntry.SetFilter("Posting Date", '>%1', CBGStatementLine.Date);
-        if not VendLedgEntry.IsEmpty then
+        if not VendLedgEntry.IsEmpty() then
             Error(PostingDateEarlierErr);
     end;
 
@@ -1585,7 +1585,7 @@
         EmplLedgEntry.SetRange("Employee No.", CBGStatementLine."Account No.");
         EmplLedgEntry.SetRange(Open, true);
         EmplLedgEntry.SetFilter("Posting Date", '>%1', CBGStatementLine.Date);
-        if not EmplLedgEntry.IsEmpty then
+        if not EmplLedgEntry.IsEmpty() then
             Error(PostingDateEarlierErr);
     end;
 

@@ -15,7 +15,7 @@ codeunit 1034 "Job Planning Line - Calendar"
             repeat
                 SetPlanningLine(LocalJobPlanningLine);
                 CreateAndSend;
-            until LocalJobPlanningLine.Next = 0;
+            until LocalJobPlanningLine.Next() = 0;
         end else
             Message(NoPlanningLinesMsg);
     end;
@@ -181,7 +181,7 @@ codeunit 1034 "Job Planning Line - Calendar"
                     LocalResource.Get("No.");
                     AdditionalResources += StrSubstNo('\n    (%1) %2 - %3',
                         "Line Type", LocalResource.Name, Description);
-                until Next = 0;
+                until Next() = 0;
             end;
         end;
     end;
@@ -313,7 +313,7 @@ codeunit 1034 "Job Planning Line - Calendar"
                 Resource.Get(JobPlanningLine."No.");
     end;
 
-    [EventSubscriber(ObjectType::Table, 1003, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Job Planning Line", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnDeletePlanningLine(var Rec: Record "Job Planning Line"; RunTrigger: Boolean)
     var
         LocalJobPlanningLineCalendar: Record "Job Planning Line - Calendar";

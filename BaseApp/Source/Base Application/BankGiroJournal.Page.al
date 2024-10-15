@@ -65,7 +65,7 @@ page 11400 "Bank/Giro Journal"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Opening Balance"; "Opening Balance")

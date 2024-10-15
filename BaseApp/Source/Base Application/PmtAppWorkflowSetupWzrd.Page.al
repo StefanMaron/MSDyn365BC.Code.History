@@ -106,7 +106,7 @@ page 1815 "Pmt. App. Workflow Setup Wzrd."
 
                             trigger OnDrillDown()
                             begin
-                                CurrPage.Update;
+                                CurrPage.Update();
                             end;
                         }
                     }
@@ -179,10 +179,10 @@ page 1815 "Pmt. App. Workflow Setup Wzrd."
                 trigger OnAction()
                 var
                     ApprovalWorkflowSetupMgt: Codeunit "Approval Workflow Setup Mgt.";
-                    AssistedSetup: Codeunit "Assisted Setup";
+                    GuidedExperience: Codeunit "Guided Experience";
                 begin
                     ApprovalWorkflowSetupMgt.ApplyPaymantJrnlWizardUserInput(Rec);
-                    AssistedSetup.Complete(PAGE::"Pmt. App. Workflow Setup Wzrd.");
+                    GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Pmt. App. Workflow Setup Wzrd.");
 
                     CurrPage.Close;
                 end;
@@ -213,10 +213,10 @@ page 1815 "Pmt. App. Workflow Setup Wzrd."
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
     begin
-        if CloseAction = ACTION::OK then 
-            if AssistedSetup.ExistsAndIsNotComplete(PAGE::"Pmt. App. Workflow Setup Wzrd.") then
+        if CloseAction = ACTION::OK then
+            if GuidedExperience.AssistedSetupExistsAndIsNotComplete(ObjectType::Page, PAGE::"Pmt. App. Workflow Setup Wzrd.") then
                 if not Confirm(NAVNotSetUpQst, false) then
                     Error('');
     end;

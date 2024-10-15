@@ -586,7 +586,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader2, PurchaseHeader2."Document Type"::"Return Order", PurchaseHeader."Buy-from Vendor No.");
         UpdatePurchaseHeader(PurchaseHeader2);
-        PurchaseHeader2.GetPstdDocLinesToRevere;
+        PurchaseHeader2.GetPstdDocLinesToReverse();
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader2, true, false);
 
         PurchaseHeader.Find;
@@ -613,27 +613,10 @@ codeunit 137032 "SCM Costing Purch Returns II"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        if AutomaticCostPosting then
-            UpdateLegacyGLEntryLocking(AutomaticCostPosting);
-
         with InventorySetup do begin
             Get;
             Validate("Automatic Cost Posting", AutomaticCostPosting);
             Validate("Automatic Cost Adjustment", AutomaticCostAdjustment);
-            Modify(true);
-        end;
-
-        if not AutomaticCostPosting then
-            UpdateLegacyGLEntryLocking(AutomaticCostPosting);
-    end;
-
-    local procedure UpdateLegacyGLEntryLocking(NewValue: Boolean)
-    var
-        GLSetup: Record "General Ledger Setup";
-    begin
-        with GLSetup do begin
-            Get;
-            Validate("Use Legacy G/L Entry Locking", NewValue);
             Modify(true);
         end;
     end;
@@ -691,7 +674,11 @@ codeunit 137032 "SCM Costing Purch Returns II"
         CopyPurchaseDocument: Report "Copy Purchase Document";
     begin
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
+#if CLEAN17
+        CopyPurchaseDocument.SetParameters(DocType, DocNo, true, true);
+#else
         CopyPurchaseDocument.InitializeRequest(DocType, DocNo, true, true);
+#endif
         CopyPurchaseDocument.UseRequestPage(false);
         CopyPurchaseDocument.RunModal;
     end;
@@ -827,7 +814,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         with PurchaseLine do begin
             SetRange("Document Type", "Document Type");
             SetRange("Document No.", "Document No.");
-            FindSet;
+            FindSet();
             repeat
                 TempPurchaseLine := PurchaseLine;
                 TempPurchaseLine.Insert();
@@ -852,7 +839,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
     local procedure CalcExpectedPurchaseDocAmount(var TempPurchaseLine: Record "Purchase Line" temporary) ExpectedPurchaseDocumnetAmount: Decimal
     begin
         with TempPurchaseLine do begin
-            FindSet;
+            FindSet();
             repeat
                 ExpectedPurchaseDocumnetAmount +=
                   Quantity * "Direct Unit Cost" + "VAT %" * (Quantity * "Direct Unit Cost") / 100;
@@ -894,7 +881,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         ExpectedPurchaseCrMemoAmount: Decimal;
     begin
         VendorLedgerEntry.SetRange("Vendor No.", TempPurchaseLine."Buy-from Vendor No.");
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
         repeat
             VendorLedgerEntry.CalcFields(Amount);
             ActualVendLedgerAmount += VendorLedgerEntry.Amount;
@@ -916,7 +903,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         with ValueEntry do begin
             SetRange("Item No.", ItemNo);
             SetRange(Adjustment, IsAdjustment);
-            FindSet;
+            FindSet();
             repeat
                 TestField("Entry Type", ExpectedEntryType);
             until Next = 0;

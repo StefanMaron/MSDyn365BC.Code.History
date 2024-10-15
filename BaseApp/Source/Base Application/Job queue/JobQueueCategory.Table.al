@@ -40,11 +40,5 @@ table 471 "Job Queue Category"
         Description := DescriptionToInsert;
         Insert;
     end;
-
-    [Obsolete('Job Queue Category should be defined by the feature that is creating the Job Queue Entry.','15.3')]
-    procedure NotifyNowCode(): Code[10]
-    begin
-        exit(UpperCase('NotifyNow'));
-    end;
 }
 

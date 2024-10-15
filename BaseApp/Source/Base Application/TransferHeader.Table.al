@@ -1,4 +1,4 @@
-﻿table 5740 "Transfer Header"
+table 5740 "Transfer Header"
 {
     Caption = 'Transfer Header';
     DataCaptionFields = "No.";
@@ -314,6 +314,14 @@
         field(20; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
+
+            trigger OnValidate()
+            begin
+                if "Direct Transfer" then begin
+                    Validate("Shipment Date", "Posting Date");
+                    Validate("Receipt Date", "Posting Date");
+                end;
+            end;
         }
         field(21; "Shipment Date"; Date)
         {
@@ -657,7 +665,7 @@
 
         WhseRequest.SetRange("Source Type", DATABASE::"Transfer Line");
         WhseRequest.SetRange("Source No.", "No.");
-        if not WhseRequest.IsEmpty then
+        if not WhseRequest.IsEmpty() then
             WhseRequest.DeleteAll(true);
 
         ReservMgt.DeleteDocumentReservation(DATABASE::"Transfer Line", 0, "No.", HideValidationDialog);
@@ -802,6 +810,11 @@
         exit(NoSeriesCode);
     end;
 
+    procedure GetHideValidationDialog(): Boolean
+    begin
+        exit(HideValidationDialog);
+    end;
+
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
     begin
         HideValidationDialog := NewHideValidationDialog;
@@ -818,7 +831,7 @@
 
         if OldDimSetID <> "Dimension Set ID" then begin
             Modify;
-            if TransferLinesExist then
+            if TransferLinesExist() then
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
 
@@ -925,7 +938,7 @@
                         OnUpdateTransLines(TransferLine, TransferHeader, FieldID);
                 end;
                 TransferLine.Modify(true);
-            until TransferLine.Next = 0;
+            until TransferLine.Next() = 0;
         end;
     end;
 
@@ -949,7 +962,7 @@
                    (TransLine2."Qty. Shipped (Base)" <> TransLine2."Qty. Received (Base)")
                 then
                     exit(false);
-            until TransLine2.Next = 0;
+            until TransLine2.Next() = 0;
 
         exit(true);
     end;
@@ -971,7 +984,7 @@
 
         WhseRequest.SetRange("Source Type", DATABASE::"Transfer Line");
         WhseRequest.SetRange("Source No.", No);
-        if not WhseRequest.IsEmpty then
+        if not WhseRequest.IsEmpty() then
             WhseRequest.DeleteAll(true);
 
         InvtCommentLine.SetRange("Document Type", InvtCommentLine."Document Type"::"Transfer Order");
@@ -1039,11 +1052,11 @@
         end;
     end;
 
-    local procedure TransferLinesExist(): Boolean
+    procedure TransferLinesExist(): Boolean
     begin
         TransLine.Reset();
         TransLine.SetRange("Document No.", "No.");
-        exit(TransLine.FindFirst);
+        exit(TransLine.FindFirst());
     end;
 
     procedure UpdateAllLineDim(NewParentDimSetID: Integer; OldParentDimSetID: Integer)
@@ -1076,7 +1089,7 @@
                       TransLine."Dimension Set ID", TransLine."Shortcut Dimension 1 Code", TransLine."Shortcut Dimension 2 Code");
                     TransLine.Modify();
                 end;
-            until TransLine.Next = 0;
+            until TransLine.Next() = 0;
     end;
 
     local procedure VerifyShippedLineDimChange(var ShippedLineDimChangeConfirmed: Boolean)
@@ -1205,7 +1218,7 @@
             repeat
                 LineNo := LineNo + 10000;
                 AddTransferLineFromReceiptLine(PurchRcptLine, LineNo);
-            until PurchRcptLine.Next = 0;
+            until PurchRcptLine.Next() = 0;
     end;
 
     local procedure AddTransferLineFromReceiptLine(PurchRcptLine: Record "Purch. Rcpt. Line"; LineNo: Integer)
@@ -1244,6 +1257,10 @@
     var
         Location: Record Location;
     begin
+        GetInventorySetup();
+        if InvtSetup."Direct Transfer Posting" = InvtSetup."Direct Transfer Posting"::"Direct Transfer" then
+            exit;
+
         if not Location.Get(LocationCode) then
             exit;
 
@@ -1255,6 +1272,10 @@
     var
         Location: Record Location;
     begin
+        GetInventorySetup();
+        if InvtSetup."Direct Transfer Posting" = InvtSetup."Direct Transfer Posting"::"Direct Transfer" then
+            exit;
+
         if not Location.Get(LocationCode) then
             exit;
 

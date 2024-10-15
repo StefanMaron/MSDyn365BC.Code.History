@@ -153,7 +153,7 @@ page 11000007 "Payment History List"
                     trigger OnAction()
                     begin
                         ExportToPaymentFile;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action(PrintDocket)
@@ -180,7 +180,7 @@ page 11000007 "Payment History List"
                         OnPrintDocketOnAfterPaymHistSetFilters(Rec, SentProtocol, PaymHist);
                         REPORT.RunModal(SentProtocol."Docket ID", true, true, PaymHist);
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action(Dimensions)

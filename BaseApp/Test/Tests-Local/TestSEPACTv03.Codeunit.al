@@ -340,7 +340,7 @@ codeunit 144101 "Test SEPA CT v03"
         DetailLine.FindLast;
 
         VendLedgEntry.SetFilter("External Document No.", '<>%1', '');
-        VendLedgEntry.FindSet;
+        VendLedgEntry.FindSet();
         while not Done do begin
             Addition := Delimiter + VendLedgEntry."External Document No.";
             if StrLen(Addition) + StrLen(ExpectedInfo) < MaxStrLen(ExpectedInfo) then
@@ -2391,7 +2391,7 @@ codeunit 144101 "Test SEPA CT v03"
         PaymentHistoryLine.SetCurrentKey(Date, "Sequence Type");
         PaymentHistoryLine.SetRange("Our Bank", PaymentHistory."Our Bank");
         PaymentHistoryLine.SetRange("Run No.", PaymentHistory."Run No.");
-        PaymentHistoryLine.FindSet;
+        PaymentHistoryLine.FindSet();
         repeat
             i += 1;
             PaymentHistoryLine.SetRange(Date, PaymentHistoryLine.Date);
@@ -2553,9 +2553,8 @@ codeunit 144101 "Test SEPA CT v03"
         ExportBTL91ABNAMRO.OK.Invoke;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1221, 'OnFillExportBufferOnBeforeValidateNormalSEPAInstructionPriority', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnFillExportBufferOnBeforeValidateNormalSEPAInstructionPriority(var IsHandled: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"SEPA CT-Fill Export Buffer", 'OnFillExportBufferOnBeforeValidateNormalSEPAInstructionPriority', '', false, false)]
+    local procedure OnFillExportBufferOnBeforeValidateNormalSEPAInstructionPriority(var IsHandled: Boolean)
     begin
         IsHandled := true;
     end;

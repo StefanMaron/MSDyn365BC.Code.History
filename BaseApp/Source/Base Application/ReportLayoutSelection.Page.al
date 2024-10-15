@@ -54,9 +54,10 @@ page 9652 "Report Layout Selection"
 
                     trigger OnValidate()
                     begin
-                        UpdateRec;
+                        UpdateRec();
                         Commit();
-                        LookupCustomLayout;
+                        if Rec.Type = Type::"Custom Layout" then
+                            LookupCustomLayout();
                         CurrPage.Update(false);
                     end;
                 }
@@ -70,37 +71,40 @@ page 9652 "Report Layout Selection"
                     trigger OnValidate()
                     begin
                         ReportLayoutSelection.Validate("Custom Report Layout Code", ReportLayoutSelection."Custom Report Layout Code");
-                        UpdateRec;
+                        UpdateRec();
                         CurrPage.Update(false);
                     end;
                 }
                 field(CustomLayoutDescription; CustomLayoutDescription)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Custom Layout Description';
-                    ToolTip = 'Specifies the description for a custom layout that is used by the report when the Selected Layout field is set to Custom.';
+                    Caption = 'Layout Description';
+                    ToolTip = 'Specifies the description of the layout that is used by the report.';
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupCustomLayout;
+                        LookupCustomLayout();
                     end;
 
                     trigger OnValidate()
                     var
                         CustomReportLayout2: Record "Custom Report Layout";
                     begin
-                        CustomReportLayout2.SetCurrentKey("Report ID", "Company Name", Type);
-                        CustomReportLayout2.SetRange("Report ID", ReportLayoutSelection."Report ID");
-                        CustomReportLayout2.SetFilter("Company Name", '%1|%2', '', SelectedCompany);
-                        CustomReportLayout2.SetFilter(
-                          Description, StrSubstNo('@*%1*', CustomLayoutDescription));
-                        if not CustomReportLayout2.FindFirst then
-                            Error(CouldNotFindCustomReportLayoutErr, CustomLayoutDescription);
+                        if Rec.Type = Type::"Custom Layout" then begin
+                            CustomReportLayout2.SetCurrentKey("Report ID", "Company Name", Type);
+                            CustomReportLayout2.SetRange("Report ID", ReportLayoutSelection."Report ID");
+                            CustomReportLayout2.SetFilter("Company Name", '%1|%2', '', SelectedCompany);
+                            CustomReportLayout2.SetFilter(Description, '%1', '@*' + CustomLayoutDescription + '*');
+                            if not CustomReportLayout2.FindFirst() then
+                                Error(CouldNotFindCustomReportLayoutErr, CustomLayoutDescription);
 
-                        if CustomReportLayout2.Code <> "Custom Report Layout Code" then begin
-                            Validate("Custom Report Layout Code", CustomReportLayout2.Code);
-                            UpdateRec;
-                        end;
+                            if CustomReportLayout2.Code <> "Custom Report Layout Code" then begin
+                                Validate("Custom Report Layout Code", CustomReportLayout2.Code);
+                                UpdateRec();
+                            end;
+                        end else
+                            ValidateBuiltInReportLayoutDescription();
+
                         CurrPage.Update(false);
                     end;
                 }
@@ -181,18 +185,18 @@ page 9652 "Report Layout Selection"
 
     trigger OnAfterGetCurrRecord()
     begin
-        GetRec;
+        GetRec();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        GetRec;
+        GetRec();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
         if not IsInitialized then
-            InitializeData;
+            InitializeData();
         exit(Find(Which));
     end;
 
@@ -205,12 +209,25 @@ page 9652 "Report Layout Selection"
         ReportLayoutSelection: Record "Report Layout Selection";
         SelectedCompany: Text[30];
         WrongCompanyErr: Label 'You cannot select a layout that is specific to another company.';
+        DefaultLbl: Label 'Default';
         CustomLayoutDescription: Text;
         IsInitialized: Boolean;
         CouldNotFindCustomReportLayoutErr: Label 'There is no custom report layout with %1 in the description.', Comment = '%1 Description of custom report layout';
+        CouldNotFindBuiltInReportLayoutErr: Label 'There is no built-in report layout with %1 in the description.', Comment = '%1 Description of custom report layout';
 
     procedure UpdateRec()
+    var
+        TenantReportLayoutSelection: Record "Tenant Report Layout Selection";
+        ReportLayoutList: Record "Report Layout List";
     begin
+        if (Rec.Type <> Rec.Type::"Custom Layout") and
+           (TenantReportLayoutSelection.Get(Rec."Report ID", SelectedCompany)) then begin
+            ReportLayoutList.SetRange(Name, TenantReportLayoutSelection."Layout Name");
+            ApplyFilterToReportLayoutList(ReportLayoutList);
+            if ReportLayoutList.IsEmpty() then
+                TenantReportLayoutSelection.Delete();
+        end;
+
         if ReportLayoutSelection.Get("Report ID", SelectedCompany) then begin
             ReportLayoutSelection := Rec;
             ReportLayoutSelection."Report Name" := '';
@@ -235,10 +252,12 @@ page 9652 "Report Layout Selection"
         UpdateTempRec();
 
         OnGetRecOnBeforeModify(Rec, SelectedCompany);
-        Modify;
+        Rec.Modify();
     end;
 
     local procedure UpdateTempRec()
+    var
+        TenantReportLayoutSelection: Record "Tenant Report Layout Selection";
     begin
         // Update the temporary record's field with the values from the actual record
 
@@ -249,26 +268,73 @@ page 9652 "Report Layout Selection"
 
         Rec.Type := ReportLayoutSelection.Type;
         Rec."Custom Report Layout Code" := ReportLayoutSelection."Custom Report Layout Code";
-        Rec.CalcFields("Report Layout Description");
+        case Rec.Type of
+            Type::"Custom Layout":
+                Rec.CalcFields("Report Layout Description");
+            else
+                if TenantReportLayoutSelection.Get(Rec."Report ID", SelectedCompany) then
+                    Rec."Report Layout Description" := TenantReportLayoutSelection."Layout Name"
+                else
+                    Rec."Report Layout Description" := DefaultLbl;
+        end;
+
         CustomLayoutDescription := Rec."Report Layout Description";
     end;
 
     local procedure LookupCustomLayout()
     begin
-        if Type <> Type::"Custom Layout" then
-            exit;
+        case Rec.Type of
+            Type::"Custom Layout":
+                if not SelectReportLayout() then
+                    exit;
+            else
+                if not SelectBuiltInReportLayout() then
+                    exit;
+        end;
 
-        if not SelectReportLayout then
-            exit;
-
-        GetRec;
+        GetRec();
         if (Type = Type::"Custom Layout") and
            ("Custom Report Layout Code" = '')
         then begin
             Validate(Type, GetDefaultType("Report ID"));
-            UpdateRec;
+            UpdateRec();
         end;
         CurrPage.Update(false);
+    end;
+
+    local procedure SelectBuiltInReportLayout(): Boolean
+    var
+        ReportLayoutList: Record "Report Layout List";
+    begin
+        ReportLayoutList.FilterGroup(4);
+        ApplyFilterToReportLayoutList(ReportLayoutList);
+        ReportLayoutList.FilterGroup(0);
+        if PAGE.RunModal(PAGE::"Built-in Report Layouts", ReportLayoutList) = ACTION::LookupOK then begin
+            UpdateTenantLayoutSelection(ReportLayoutList);
+            UpdateRec();
+            exit(true);
+        end;
+
+        exit(false);
+    end;
+
+    local procedure ValidateBuiltInReportLayoutDescription()
+    var
+        ReportLayoutList: Record "Report Layout List";
+        TenantReportLayoutSelection: Record "Tenant Report Layout Selection";
+    begin
+        if CustomLayoutDescription <> '' then begin
+            ApplyFilterToReportLayoutList(ReportLayoutList);
+            ReportLayoutList.SetFilter(Name, '%1', '@*' + CustomLayoutDescription + '*');
+            if not ReportLayoutList.FindFirst() then
+                Error(CouldNotFindBuiltInReportLayoutErr, CustomLayoutDescription);
+
+            UpdateTenantLayoutSelection(ReportLayoutList);
+        end else
+            if TenantReportLayoutSelection.Get("Report ID", SelectedCompany) then
+                TenantReportLayoutSelection.Delete(true);
+
+        UpdateRec();
     end;
 
     local procedure SelectReportLayout(): Boolean
@@ -282,19 +348,19 @@ page 9652 "Report Layout Selection"
         CustomReportLayout2.SetFilter("Company Name", '%1|%2', SelectedCompany, '');
         OK := PAGE.RunModal(PAGE::"Custom Report Layouts", CustomReportLayout2) = ACTION::LookupOK;
         if OK then begin
-            if CustomReportLayout2.Find then begin
+            if CustomReportLayout2.Find() then begin
                 if not (CustomReportLayout2."Company Name" in [SelectedCompany, '']) then
                     Error(WrongCompanyErr);
                 "Custom Report Layout Code" := CustomReportLayout2.Code;
                 Type := Type::"Custom Layout";
-                UpdateRec;
+                UpdateRec();
             end
         end else
             if Type = Type::"Custom Layout" then
-                if CustomReportLayout2.IsEmpty then begin
+                if CustomReportLayout2.IsEmpty() then begin
                     Type := GetDefaultType("Report ID");
                     "Custom Report Layout Code" := '';
-                    UpdateRec;
+                    UpdateRec();
                 end;
         exit(OK);
     end;
@@ -304,7 +370,7 @@ page 9652 "Report Layout Selection"
         ReportMetadata: Record "Report Metadata";
     begin
         ReportMetadata.SetRange(ProcessingOnly, false);
-        if ReportMetadata.FindSet then
+        if ReportMetadata.FindSet() then
             repeat
                 Init();
                 "Report ID" := ReportMetadata.ID;
@@ -313,9 +379,36 @@ page 9652 "Report Layout Selection"
                 UpdateTempRec();
 
                 Insert();
-            until ReportMetadata.Next = 0;
-        if FindFirst then;
+            until ReportMetadata.Next() = 0;
+        if Rec.FindFirst() then;
         IsInitialized := true;
+    end;
+
+    local procedure ApplyFilterToReportLayoutList(var ReportLayoutList: Record "Report Layout List")
+    begin
+        ReportLayoutList.SetRange("Report ID", Rec."Report ID");
+        case Rec.Type of
+            Type::"RDLC (built-in)":
+                ReportLayoutList.SetRange("Layout Format", ReportLayoutList."Layout Format"::RDLC);
+            Type::"Word (built-in)":
+                ReportLayoutList.SetRange("Layout Format", ReportLayoutList."Layout Format"::Word);
+        end;
+    end;
+
+    local procedure UpdateTenantLayoutSelection(ReportLayoutList: Record "Report Layout List")
+    var
+        PublishedApplication: Record "Published Application";
+        TenantReportLayoutSelection: Record "Tenant Report Layout Selection";
+    begin
+        if not PublishedApplication.Get(ReportLayoutList."Runtime Package ID") then
+            exit;
+
+        TenantReportLayoutSelection."App ID" := PublishedApplication.ID;
+        TenantReportLayoutSelection."Company Name" := SelectedCompany;
+        TenantReportLayoutSelection."Layout Name" := ReportLayoutList.Name;
+        TenantReportLayoutSelection."Report ID" := ReportLayoutList."Report ID";
+        if not TenantReportLayoutSelection.Insert(true) then
+            TenantReportLayoutSelection.Modify(true);
     end;
 
     procedure GetSelectedCompanyName(): Text[30]

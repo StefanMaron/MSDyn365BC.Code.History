@@ -4,7 +4,7 @@ page 1252 "Payment Application Rules"
     ApplicationArea = Basic, Suite;
     Caption = 'Payment Application Rules';
     DelayedInsert = true;
-    PageType = List;
+    PageType = Worksheet;
     SourceTable = "Bank Pmt. Appl. Rule";
     UsageCategory = Tasks;
 
@@ -14,7 +14,7 @@ page 1252 "Payment Application Rules"
         {
             repeater(Rules)
             {
-                field("Match Confidence"; "Match Confidence")
+                field("Match Confidence"; Rec."Match Confidence")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies your confidence in the application rule that you defined by the values in the Related Party Matched, Doc. No./Ext. Doc. No. Matched, and Amount Incl. Tolerance Matched fields on the line in the Payment Application Rules window.';
@@ -24,34 +24,42 @@ page 1252 "Payment Application Rules"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the priority of the application rule in relation to other application rules that are defined as lines in the Payment Application Rules window. 1 represents the highest priority.';
                 }
-                field("Related Party Matched"; "Related Party Matched")
+                field("Related Party Matched"; Rec."Related Party Matched")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how much information on the payment reconciliation journal line must match the open entry before the application rule will apply the payment to the open entry.';
                 }
-                field("Doc. No./Ext. Doc. No. Matched"; "Doc. No./Ext. Doc. No. Matched")
+                field("Doc. No./Ext. Doc. No. Matched"; Rec."Doc. No./Ext. Doc. No. Matched")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Document No./Ext. Document No. Matched';
                     ToolTip = 'Specifies if text on the payment reconciliation journal line must match with the value in the Document No. field or the External Document No. field on the open entry before the application rule will be used to automatically apply the payment to the open entry.';
                 }
-                field("Amount Incl. Tolerance Matched"; "Amount Incl. Tolerance Matched")
+                field("Amount Incl. Tolerance Matched"; Rec."Amount Incl. Tolerance Matched")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Number of Entries Within Amount Tolerance Found';
                     ToolTip = 'Specifies how many entries must match the amount including payment tolerance, before the application rule will be used to apply a payment to the open entry.';
                 }
-                field("Direct Debit Collect. Matched"; "Direct Debit Collect. Matched")
+                field("Direct Debit Collect. Matched"; Rec."Direct Debit Collect. Matched")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Direct Debit Collection Matched';
                     ToolTip = 'Specifies if the Transaction ID value on the payment reconciliation journal line must match with the value in the related Transaction ID field in the Direct Debit Collect. Entries window.';
                 }
-                field("Review Required"; "Review Required")
+                field("Review Required"; Rec."Review Required")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Review Required';
                     ToolTip = 'Specifies if bank statement lines matched with this rule will be shown as recommended for review.';
+                }
+
+                field("Apply Immediatelly"; Rec."Apply Immediatelly")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Apply Immediatelly';
+                    ToolTip = 'Specifies whether to search for alternative ledger entries that this line can be applied to. If turned on, the value is applied to the first match and alternative ledger entries are not considered.';
+                    Visible = ApplyAutomaticallyVisible;
                 }
             }
         }
@@ -59,7 +67,7 @@ page 1252 "Payment Application Rules"
 
     actions
     {
-        area(creation)
+        area(Processing)
         {
             action(RestoreDefaultRules)
             {
@@ -69,6 +77,7 @@ page 1252 "Payment Application Rules"
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedIsBig = true;
+                PromotedOnly = true;
                 ToolTip = 'Delete the application rules and replace them with the default rules, which control whether payments are automatically applied to open ledger entries.';
 
                 trigger OnAction()
@@ -80,16 +89,35 @@ page 1252 "Payment Application Rules"
                     InsertDefaultMatchingRules;
                 end;
             }
+
+            action(AdvancedSettings)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Advanced Settings';
+                Image = Setup;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Opens advanced settings for configuring payment application matching.';
+                RunObject = page "Payment Application Settings";
+                RunPageOnRec = false;
+            }
         }
     }
 
     trigger OnOpenPage()
+    var
+        BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
     begin
         SetCurrentKey(Score);
         Ascending(false);
+        BankPmtApplSettings.GetOrInsert();
+        ApplyAutomaticallyVisible := BankPmtApplSettings."Enable Apply Immediatelly";
     end;
 
     var
         ResetToDefaultsQst: Label 'All current payment application rules will be deleted and replaced with the default payment application rules.\\Do you want to continue?';
+        ApplyAutomaticallyVisible: Boolean;
 }
 

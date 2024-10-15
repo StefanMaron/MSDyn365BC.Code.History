@@ -8,7 +8,11 @@ xmlport 5801 "Export Item Data"
     Format = VariableText;
     TextEncoding = UTF16;
     UseRequestPage = false;
-
+#if not CLEAN18
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Legacy G/L Locking is no longer supported and the field element GeneralLedgSetup."Use Legacy G/L Entry Locking" will be removed. Therefore, the XML generated from this XmlPort for table element GeneralLedgSetup will no longer contain the "Use Legacy G/L Entry Locking" field.';
+    ObsoleteTag = '18.0';
+#endif
     schema
     {
         textelement(root)
@@ -380,7 +384,7 @@ xmlport 5801 "Export Item Data"
                 trigger OnAfterGetRecord()
                 begin
                     if not ItemUnitOfMeasure.Get(FilteredItem."No.", UnitOfMeasure.Code) then
-                        currXMLport.Skip;
+                        currXMLport.Skip();
                 end;
             }
             tableelement(itemunitofmeasure; "Item Unit of Measure")
@@ -529,8 +533,8 @@ xmlport 5801 "Export Item Data"
                     ItemLedgEntry2.SetCurrentKey("Item No.");
                     ItemLedgEntry2.SetRange("Item No.", FilteredItem."No.");
                     ItemLedgEntry2.SetRange("Location Code", InventoryPostingSetup."Location Code");
-                    if ItemLedgEntry2.IsEmpty then
-                        currXMLport.Skip;
+                    if ItemLedgEntry2.IsEmpty() then
+                        currXMLport.Skip();
                 end;
             }
             tableelement(itemledgentry; "Item Ledger Entry")
@@ -1059,8 +1063,8 @@ xmlport 5801 "Export Item Data"
                     ItemLedgEntry2.SetCurrentKey("Item No.");
                     ItemLedgEntry2.SetRange("Item No.", FilteredItem."No.");
                     ItemLedgEntry2.SetRange("Location Code", Location.Code);
-                    if ItemLedgEntry2.IsEmpty then
-                        currXMLport.Skip;
+                    if ItemLedgEntry2.IsEmpty() then
+                        currXMLport.Skip();
                 end;
             }
             tableelement(itemvariant; "Item Variant")
@@ -1301,7 +1305,7 @@ xmlport 5801 "Export Item Data"
                 trigger OnAfterGetRecord()
                 begin
                     CollectProdOrder(ProdOrder."No.");
-                    currXMLport.Skip;
+                    currXMLport.Skip();
                 end;
 
                 trigger OnPreXmlItem()
@@ -2058,9 +2062,11 @@ xmlport 5801 "Export Item Data"
                 fieldelement(GeneralLedgSetup_GlobalDimension2Code; GeneralLedgSetup."Global Dimension 2 Code")
                 {
                 }
+#if not CLEAN18
                 fieldelement(GeneralLedgSetup_UseLegacyGlEntryLocking; GeneralLedgSetup."Use Legacy G/L Entry Locking")
                 {
                 }
+#endif
             }
             tableelement(accountingperiod; "Accounting Period")
             {
@@ -2489,7 +2495,7 @@ xmlport 5801 "Export Item Data"
             repeat
                 TempItemApplnEntry := ItemApplnEntry;
                 TempItemApplnEntry.Insert();
-            until ItemApplnEntry.Next = 0;
+            until ItemApplnEntry.Next() = 0;
     end;
 
     procedure CollectItemApplnEntryHist(ItemLedgEntryNo: Integer)
@@ -2501,7 +2507,7 @@ xmlport 5801 "Export Item Data"
             repeat
                 TempItemApplnEntryHistory := ItemApplnEntryHistory;
                 TempItemApplnEntryHistory.Insert();
-            until ItemApplnEntryHistory.Next = 0;
+            until ItemApplnEntryHistory.Next() = 0;
     end;
 
     procedure CollectProdOrder(ProdOrderNo: Code[20])
@@ -2525,7 +2531,7 @@ xmlport 5801 "Export Item Data"
             repeat
                 TempProdOrderLine := ProdOrderLine;
                 if TempProdOrderLine.Insert() then;
-            until ProdOrderLine.Next = 0;
+            until ProdOrderLine.Next() = 0;
     end;
 
     procedure CollectCapValueEntry(CapEntryNo: Integer)
@@ -2538,7 +2544,7 @@ xmlport 5801 "Export Item Data"
             repeat
                 TempCapValueEntry := ValueEntry;
                 TempCapValueEntry.Insert();
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
     end;
 }
 

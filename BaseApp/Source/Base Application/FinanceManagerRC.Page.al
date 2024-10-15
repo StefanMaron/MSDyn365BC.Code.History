@@ -31,19 +31,19 @@ page 8901 "Finance Manager Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Bank/Giro Journal';
-                    RunObject = page 11402;
+                    RunObject = page "Bank/Giro Journal List";
                 }
                 action("Cash Journal")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cash Journal';
-                    RunObject = page 11405;
+                    RunObject = page "Cash Journal List";
                 }
                 action("Telebank - Bank Overview")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Telebank - Bank Overview';
-                    RunObject = page 11000000;
+                    RunObject = page "Telebank - Bank Overview";
                 }
                 action("Analyses by Dimensions")
                 {
@@ -138,13 +138,13 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Elec. Tax Declarations';
-                        RunObject = page 11412;
+                        RunObject = page "Elec. Tax Declaration List";
                     }
                     action("Elec. Tax Decl. Response Msgs.")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Elec. Tax Decl. Response Msgs.';
-                        RunObject = page 11416;
+                        RunObject = page "Elec. Tax Decl. Response Msgs.";
                     }
                 }
                 group("Group3")
@@ -402,28 +402,28 @@ page 8901 "Finance Manager Role Center"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Balance Sheet';
                             RunObject = codeunit "Run Acc. Sched. Balance Sheet";
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                         action("Income Statement")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Income Statement';
                             RunObject = codeunit "Run Acc. Sched. Income Stmt.";
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                         action("Statement of Cashflows")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Cash Flow Statement';
                             RunObject = codeunit "Run Acc. Sched. CashFlow Stmt.";
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                         action("Statement of Retained Earnings")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Retained Earnings Statement';
                             RunObject = codeunit "Run Acc. Sched. Retained Earn.";
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                     }
                     group("Group10")
@@ -451,7 +451,7 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Tax Authority - Audit File';
-                            RunObject = report 11412;
+                            RunObject = report "Tax Authority - Audit File";
                         }
                         action("XBRL Spec. 2 Instance Document")
                         {
@@ -469,7 +469,7 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'NL Export Financial Data to XML';
-                            RunObject = report 11420;
+                            RunObject = report "Export Financial Data to XML";
                         }
                         action("Reconcile Cust. and Vend. Accs")
                         {
@@ -527,7 +527,7 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'G/L Account Categories';
                         RunObject = page "G/L Account Categories";
-                        AccessByPermission = tabledata 570 = R;
+                        AccessByPermission = TableData "G/L Account Category" = R;
                     }
                     action("XBRL Taxonomies")
                     {
@@ -548,13 +548,13 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Elec. Tax Declaration Setup';
-                            RunObject = page 11410;
+                            RunObject = page "Elec. Tax Declaration Setup";
                         }
                         action("Elec. Tax Decl. VAT Categories")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Elec. Tax Decl. VAT Categories';
-                            RunObject = page 11414;
+                            RunObject = page "Elec. Tax Decl. VAT Categ.";
                         }
                     }
                     group("Group63")
@@ -564,25 +564,25 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Transaction Modes';
-                            RunObject = page 11000010;
+                            RunObject = page "Transaction Mode List";
                         }
                         action("Export Protocols")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Export Protocols';
-                            RunObject = page 11000012;
+                            RunObject = page "Export Protocols";
                         }
                         action("Import Protocols")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Import Protocols';
-                            RunObject = page 11000015;
+                            RunObject = page "Import Protocols";
                         }
                         action("Freely Transferable Maximums")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Freely Transferable Maximums';
-                            RunObject = page 11406;
+                            RunObject = page "Freely Transferable Maximums";
                         }
                     }
                 }
@@ -1988,7 +1988,7 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Rounding Methods';
                         RunObject = page "Rounding Methods";
-                        AccessByPermission = tabledata 156 = R;
+                        AccessByPermission = TableData "Resource" = R;
                     }
                     action("Analysis Types")
                     {

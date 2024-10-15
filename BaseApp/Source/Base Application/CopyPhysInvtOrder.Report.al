@@ -114,7 +114,7 @@ report 5882 "Copy Phys. Invt. Order"
                                         NoOfNoInsertedLines := NoOfNoInsertedLines + 1;
                                     end;
                                 end;
-                            until FromPhysInvtOrderLine.Next = 0;
+                            until FromPhysInvtOrderLine.Next() = 0;
                     end;
                 DocType::"Posted Phys. Invt. Order":
                     begin
@@ -141,7 +141,7 @@ report 5882 "Copy Phys. Invt. Order"
                                         NoOfNoInsertedLines := NoOfNoInsertedLines + 1;
                                     end;
                                 end;
-                            until FromPstdPhysInvtOrderLine.Next = 0;
+                            until FromPstdPhysInvtOrderLine.Next() = 0;
                     end;
             end;
         end;

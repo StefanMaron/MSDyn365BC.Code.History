@@ -231,7 +231,7 @@ page 99000915 "Work Center Task List"
 
                         CalculateProdOrder.AssignProdOrderLineBinCodeFromProdRtngLineMachineCenter(Rec);
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action("Order &Tracking")

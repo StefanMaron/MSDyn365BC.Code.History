@@ -498,7 +498,7 @@ codeunit 144005 "ERM Tax Authority"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetFilter(Amount, Condition, 0);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             Amount += GLEntry.Amount;
         until GLEntry.Next = 0;

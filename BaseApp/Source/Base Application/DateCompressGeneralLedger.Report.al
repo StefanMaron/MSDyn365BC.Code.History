@@ -28,7 +28,7 @@ report 98 "Date Compress General Ledger"
                         repeat
                             if Amount = "Remaining Amount" then
                                 Mark(true);
-                        until Next = 0;
+                        until Next() = 0;
                 end;
                 GLEntry2 := "G/L Entry";
                 with GLEntry2 do begin
@@ -109,11 +109,7 @@ report 98 "Date Compress General Ledger"
             trigger OnPreDataItem()
             var
                 GLSetup: Record "General Ledger Setup";
-                ConfirmManagement: Codeunit "Confirm Management";
             begin
-                if not ConfirmManagement.GetResponseOrDefault(CompressEntriesQst, true) then
-                    CurrReport.Break();
-
                 if EntrdDateComprReg."Ending Date" = 0D then
                     Error(Text003, EntrdDateComprReg.FieldCaption("Ending Date"));
 
@@ -246,12 +242,23 @@ report 98 "Date Compress General Ledger"
                         }
                     }
                 }
+
             }
         }
 
         actions
         {
         }
+
+        trigger OnQueryClosePage(CloseAction: Action): Boolean
+        var
+            ConfirmManagement: Codeunit "Confirm Management";
+        begin
+            if CloseAction = Action::Cancel then
+                exit;
+            if not ConfirmManagement.GetResponseOrDefault(CompressEntriesQst, true) then
+                CurrReport.Break();
+        end;
 
         trigger OnOpenPage()
         begin
@@ -415,7 +422,7 @@ report 98 "Date Compress General Ledger"
                     GLEntryVatEntrylink2.Delete();
                     GLEntryVatEntrylink2."G/L Entry No." := NewGLEntry."Entry No.";
                     if GLEntryVatEntrylink2.Insert() then;
-                until GLEntryVatEntrylink.Next = 0;
+                until GLEntryVatEntrylink.Next() = 0;
             DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
             Window.Update(4, DateComprReg."No. Records Deleted");
         end;

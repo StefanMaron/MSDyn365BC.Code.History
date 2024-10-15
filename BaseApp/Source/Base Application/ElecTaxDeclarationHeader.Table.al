@@ -400,7 +400,7 @@ table 11409 "Elec. Tax Declaration Header"
         if ElecTaxDeclarationLine2.Find('-') then
             repeat
                 DeleteLine(ElecTaxDeclarationLine2);
-            until ElecTaxDeclarationLine2.Next = 0;
+            until ElecTaxDeclarationLine2.Next() = 0;
         ElecTaxDeclarationLine.Delete();
     end;
 

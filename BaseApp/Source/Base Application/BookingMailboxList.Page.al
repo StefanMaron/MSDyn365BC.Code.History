@@ -46,7 +46,7 @@ page 6704 "Booking Mailbox List"
                 Init;
                 TransferFields(TempBookingMailbox);
                 Insert;
-            until TempBookingMailbox.Next = 0;
+            until TempBookingMailbox.Next() = 0;
     end;
 }
 

@@ -18,6 +18,7 @@ codeunit 130512 "Library - Purchase"
         LibraryJournals: Codeunit "Library - Journals";
         LibraryRandom: Codeunit "Library - Random";
         LibraryResource: Codeunit "Library - Resource";
+        LibraryFixedAsset: Codeunit "Library - Fixed Asset";
 
     procedure BlanketPurchaseOrderMakeOrder(var PurchaseHeader: Record "Purchase Header"): Code[20]
     var
@@ -163,12 +164,18 @@ codeunit 130512 "Library - Purchase"
             PurchaseLine.Type::Item:
                 if No = '' then
                     No := LibraryInventory.CreateItemNo;
+            PurchaseLine.Type::"G/L Account":
+                if No = '' then
+                    No := LibraryERM.CreateGLAccountWithPurchSetup();
             PurchaseLine.Type::"Charge (Item)":
                 if No = '' then
                     No := LibraryInventory.CreateItemChargeNo;
             PurchaseLine.Type::Resource:
                 if No = '' then
                     No := LibraryResource.CreateResourceNo();
+            PurchaseLine.Type::"Fixed Asset":
+                if No = '' then
+                    No := LibraryFixedAsset.CreateFixedAssetNo;
         end;
         PurchaseLine.Validate("No.", No);
         if LineType <> PurchaseLine.Type::" " then
@@ -188,6 +195,13 @@ codeunit 130512 "Library - Purchase"
         RecRef.GetTable(PurchaseLine);
         PurchaseLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, PurchaseLine.FieldNo("Line No.")));
         PurchaseLine.Insert(true);
+    end;
+
+    procedure CreatePurchaseLineWithUnitCost(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; UnitCost: Decimal; Quantity: Decimal)
+    begin
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
+        PurchaseLine.Validate("Direct Unit Cost", UnitCost);
+        PurchaseLine.Modify();
     end;
 
     procedure CreatePurchaseQuote(var PurchaseHeader: Record "Purchase Header")
@@ -245,6 +259,30 @@ codeunit 130512 "Library - Purchase"
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 100, 2));
         PurchaseLine.Modify(true);
+    end;
+
+    procedure CreatePurchaseOrderWithLocation(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; LocationCode: Code[10])
+    begin
+        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
+        PurchaseHeader.Validate("Location Code", LocationCode);
+        PurchaseHeader.Modify();
+    end;
+
+    procedure CreatePurchaseReturnOrderWithLocation(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; LocationCode: Code[10])
+    begin
+        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", VendorNo);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
+        PurchaseHeader.Validate("Location Code", LocationCode);
+        PurchaseHeader.Modify();
+    end;
+
+    procedure CreatePurchaseCreditMemoWithLocation(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; LocationCode: Code[10])
+    begin
+        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
+        PurchaseHeader.Validate("Location Code", LocationCode);
+        PurchaseHeader.Modify();
     end;
 
     procedure CreatePurchaseReturnOrder(var PurchaseHeader: Record "Purchase Header")

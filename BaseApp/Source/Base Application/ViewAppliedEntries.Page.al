@@ -359,7 +359,7 @@ page 522 "View Applied Entries"
             repeat
                 Rec := TempItemLedgEntry;
                 Insert;
-            until TempItemLedgEntry.Next = 0;
+            until TempItemLedgEntry.Next() = 0;
     end;
 
     local procedure InitView()
@@ -383,7 +383,7 @@ page 522 "View Applied Entries"
                 if ItemApplnEntry.Find('-') then
                     repeat
                         InsertTempEntry(ItemApplnEntry."Outbound Item Entry No.", ItemApplnEntry.Quantity, true);
-                    until ItemApplnEntry.Next = 0;
+                    until ItemApplnEntry.Next() = 0;
             end else begin
                 ItemApplnEntry.Reset();
                 ItemApplnEntry.SetCurrentKey("Outbound Item Entry No.", "Item Ledger Entry No.", "Cost Application");
@@ -392,7 +392,7 @@ page 522 "View Applied Entries"
                 if ItemApplnEntry.Find('-') then
                     repeat
                         InsertTempEntry(ItemApplnEntry."Inbound Item Entry No.", -ItemApplnEntry.Quantity, true);
-                    until ItemApplnEntry.Next = 0;
+                    until ItemApplnEntry.Next() = 0;
             end;
     end;
 
@@ -414,7 +414,7 @@ page 522 "View Applied Entries"
                            not ItemApplnEntry.ExistsBetween("Entry No.", ItemLedgEntry2."Entry No.")
                         then
                             InsertTempEntry(ItemLedgEntry2."Entry No.", 0, true);
-                    until ItemLedgEntry2.Next = 0;
+                    until ItemLedgEntry2.Next() = 0;
             end;
     end;
 
@@ -434,7 +434,7 @@ page 522 "View Applied Entries"
                 if ItemApplnEntry.Find('-') then
                     repeat
                         InsertTempEntry(ItemApplnEntry."Outbound Item Entry No.", ItemApplnEntry.Quantity, false);
-                    until ItemApplnEntry.Next = 0;
+                    until ItemApplnEntry.Next() = 0;
             end else begin
                 ItemApplnEntry.Reset();
                 ItemApplnEntry.SetCurrentKey("Outbound Item Entry No.", "Item Ledger Entry No.", "Cost Application");
@@ -444,7 +444,7 @@ page 522 "View Applied Entries"
                 if ItemApplnEntry.Find('-') then
                     repeat
                         InsertTempEntry(ItemApplnEntry."Inbound Item Entry No.", -ItemApplnEntry.Quantity, false);
-                    until ItemApplnEntry.Next = 0;
+                    until ItemApplnEntry.Next() = 0;
             end;
     end;
 
@@ -467,7 +467,7 @@ page 522 "View Applied Entries"
                        not ItemApplnEntry.ExistsBetween("Entry No.", ItemLedgEntry2."Entry No.")
                     then
                         InsertTempEntry(ItemLedgEntry2."Entry No.", 0, true);
-                until ItemLedgEntry2.Next = 0;
+                until ItemLedgEntry2.Next() = 0;
         end;
     end;
 
@@ -517,7 +517,7 @@ page 522 "View Applied Entries"
             repeat
                 Apply.UnApply(Application);
                 Apply.LogUnapply(Application);
-            until Application.Next = 0;
+            until Application.Next() = 0;
     end;
 
     local procedure UnapplyRec()
@@ -536,7 +536,7 @@ page 522 "View Applied Entries"
                     else
                         RemoveApplications(AppliedItemLedgEntry."Entry No.", Applyrec."Entry No.");
                 end;
-            until TempItemLedgEntry.Next = 0;
+            until TempItemLedgEntry.Next() = 0;
 
             BlockItem(Applyrec."Item No.");
         end;
@@ -557,7 +557,7 @@ page 522 "View Applied Entries"
                     Apply.ReApply(Applyrec, AppliedItemLedgEntry."Entry No.");
                     Apply.LogApply(Applyrec, AppliedItemLedgEntry);
                 end;
-            until TempItemLedgEntry.Next = 0;
+            until TempItemLedgEntry.Next() = 0;
 
         if Applyrec.Positive then
             RemoveDuplicateApplication(Applyrec."Entry No.");
@@ -574,7 +574,7 @@ page 522 "View Applied Entries"
             SetRange("Inbound Item Entry No.", ItemLedgerEntryNo);
             SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
             SetFilter("Outbound Item Entry No.", '<>0');
-            if not IsEmpty then begin
+            if not IsEmpty() then begin
                 SetRange("Outbound Item Entry No.", 0);
                 DeleteAll();
             end

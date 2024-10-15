@@ -1,4 +1,4 @@
-table 1293 "Payment Application Proposal"
+﻿table 1293 "Payment Application Proposal"
 {
     Caption = 'Payment Application Proposal';
 
@@ -455,7 +455,7 @@ table 1293 "Payment Application Proposal"
                   AppliedPaymentEntry."Account Type", AppliedPaymentEntry."Account No.",
                   AppliedPaymentEntry."Applies-to Entry No.");
                 Unapply;
-            until AppliedPaymentEntry.Next = 0;
+            until AppliedPaymentEntry.Next() = 0;
 
         Rec := CurrentTempPaymentApplicationProposal;
     end;
@@ -464,6 +464,7 @@ table 1293 "Payment Application Proposal"
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
+        Employee: Record Employee;
         GLAccount: Record "G/L Account";
         BankAccount: Record "Bank Account";
         AccountType: Enum "Gen. Journal Account Type";
@@ -482,6 +483,11 @@ table 1293 "Payment Application Proposal"
                     Vendor.Get(AccountNo);
                     PAGE.Run(PAGE::"Vendor Card", Vendor);
                 end;
+            "Account Type"::Employee:
+                begin
+                    Employee.Get(AccountNo);
+                    PAGE.Run(PAGE::"Employee Card", Employee);
+                end;
             "Account Type"::"G/L Account":
                 begin
                     GLAccount.Get(AccountNo);
@@ -499,6 +505,7 @@ table 1293 "Payment Application Proposal"
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
+        Employee: Record Employee;
         GLAccount: Record "G/L Account";
         BankAccount: Record "Bank Account";
         AccountType: Enum "Gen. Journal Account Type";
@@ -516,6 +523,9 @@ table 1293 "Payment Application Proposal"
             "Account Type"::Vendor:
                 if Vendor.Get(AccountNo) then
                     Name := Vendor.Name;
+            "Account Type"::Employee:
+                if Employee.Get(AccountNo) then
+                    Name := Employee.FullName();
             "Account Type"::"G/L Account":
                 if GLAccount.Get(AccountNo) then
                     Name := GLAccount.Name;
@@ -602,6 +612,7 @@ table 1293 "Payment Application Proposal"
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
+        EmployeeLedgEntry: Record "Employee Ledger Entry";
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
         RemainingAmount: Decimal;
         RemainingAmountLCY: Decimal;
@@ -640,6 +651,16 @@ table 1293 "Payment Application Proposal"
                     RemainingAmount := VendLedgEntry."Remaining Amount";
                     RemainingAmountLCY := VendLedgEntry."Remaining Amt. (LCY)";
                 end;
+            "Account Type"::Employee:
+                begin
+                    EmployeeLedgEntry.SetRange(Open, true);
+                    EmployeeLedgEntry.SetRange("Employee No.", "Account No.");
+                    EmployeeLedgEntry.SetAutoCalcFields("Remaining Amount", "Remaining Amt. (LCY)");
+                    EmployeeLedgEntry.Get("Applies-to Entry No.");
+
+                    RemainingAmount := EmployeeLedgEntry."Remaining Amount";
+                    RemainingAmountLCY := EmployeeLedgEntry."Remaining Amt. (LCY)";
+                end;
         end;
 
         if BankAccount.IsInLocalCurrency then
@@ -670,6 +691,7 @@ table 1293 "Payment Application Proposal"
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
+        EmployeeLedgEntry: Record "Employee Ledger Entry";
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
         GLEntry: Record "G/L Entry";
     begin
@@ -695,6 +717,13 @@ table 1293 "Payment Application Proposal"
                     VendLedgEntry.SetRange("Vendor No.", "Account No.");
                     VendLedgEntry.Get("Applies-to Entry No.");
                     PAGE.RunModal(0, VendLedgEntry);
+                end;
+            "Account Type"::Employee:
+                begin
+                    EmployeeLedgEntry.SetRange(Open, true);
+                    EmployeeLedgEntry.SetRange("Employee No.", "Account No.");
+                    EmployeeLedgEntry.Get("Applies-to Entry No.");
+                    PAGE.RunModal(0, EmployeeLedgEntry);
                 end;
             "Account Type"::"Bank Account":
                 begin
