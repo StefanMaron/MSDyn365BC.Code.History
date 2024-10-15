@@ -7,7 +7,12 @@ codeunit 104010 "UPG Set Country App Areas"
     end;
 
     trigger OnUpgradePerCompany()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+
         SetCountryAppAreas();
     end;
 

@@ -167,14 +167,7 @@ page 343 "Check Credit Limit"
            SalesSetup."Credit Warnings"::"No Warning"
         then
             exit(false);
-        if SalesHeader."Currency Code" = '' then
-            NewOrderAmountLCY := SalesHeader."Amount Including VAT"
-        else
-            NewOrderAmountLCY :=
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  WorkDate, SalesHeader."Currency Code",
-                  SalesHeader."Amount Including VAT", SalesHeader."Currency Factor"));
+        CalcSalesHeaderNewOrderAmountLCY(SalesHeader);
 
         if not (SalesHeader."Document Type" in
                 [SalesHeader."Document Type"::Quote,
@@ -193,6 +186,25 @@ page 343 "Check Credit Limit"
         if AssignDeltaAmount then
             DeltaAmount := NewOrderAmountLCY;
         exit(ShowWarning(SalesHeader."Bill-to Customer No.", NewOrderAmountLCY, 0, true));
+    end;
+
+    local procedure CalcSalesHeaderNewOrderAmountLCY(SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcSalesHeaderNewOrderAmountLCY(Rec, SalesHeader, NewOrderAmountLCY, IsHandled);
+        if IsHandled then
+            exit;
+
+        if SalesHeader."Currency Code" = '' then
+            NewOrderAmountLCY := SalesHeader."Amount Including VAT"
+        else
+            NewOrderAmountLCY :=
+              Round(
+                CurrExchRate.ExchangeAmtFCYToLCY(
+                  WorkDate, SalesHeader."Currency Code",
+                  SalesHeader."Amount Including VAT", SalesHeader."Currency Factor"));
     end;
 
     [Scope('OnPrem')]
@@ -223,12 +235,7 @@ page 343 "Check Credit Limit"
            (SalesHeader."No." <> SalesLine."Document No.")
         then
             SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-        NewOrderAmountLCY := SalesLine."Outstanding Amount (LCY)" + SalesLine."Shipped Not Invoiced (LCY)";
-
-        if SalesLine.Find then
-            OldOrderAmountLCY := SalesLine."Outstanding Amount (LCY)" + SalesLine."Shipped Not Invoiced (LCY)"
-        else
-            OldOrderAmountLCY := 0;
+        CalcSalesLineOrderAmountsLCY(SalesLine);
 
         DeltaAmount := NewOrderAmountLCY - OldOrderAmountLCY;
         NewOrderAmountLCY :=
@@ -238,6 +245,23 @@ page 343 "Check Credit Limit"
             DeltaAmount := NewOrderAmountLCY;
 
         exit(ShowWarning(SalesHeader."Bill-to Customer No.", NewOrderAmountLCY, OldOrderAmountLCY, false))
+    end;
+
+    local procedure CalcSalesLineOrderAmountsLCY(SalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcSalesLineOrderAmountsLCY(Rec, SalesLine, NewOrderAmountLCY, OldOrderAmountLCY, IsHandled);
+        if IsHandled then
+            exit;
+
+        NewOrderAmountLCY := SalesLine."Outstanding Amount (LCY)" + SalesLine."Shipped Not Invoiced (LCY)";
+
+        if SalesLine.Find then
+            OldOrderAmountLCY := SalesLine."Outstanding Amount (LCY)" + SalesLine."Shipped Not Invoiced (LCY)"
+        else
+            OldOrderAmountLCY := 0;
     end;
 
     [Scope('OnPrem')]
@@ -372,8 +396,15 @@ page 343 "Check Credit Limit"
         exit(Result);
     end;
 
-    local procedure SalesLineAmount(DocType: Enum "Sales Document Type"; DocNo: Code[20]): Decimal
+    local procedure SalesLineAmount(DocType: Enum "Sales Document Type"; DocNo: Code[20]) Result: Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesLineAmount(Rec, DocType, DocNo, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         SalesLine.Reset();
         SalesLine.SetRange("Document Type", DocType);
         SalesLine.SetRange("Document No.", DocNo);
@@ -397,7 +428,7 @@ page 343 "Check Credit Limit"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeShowWarning(Rec, NewOrderAmountLCY, OldOrderAmountLCY, OrderAmountTotalLCY, ShippedRetRcdNotIndLCY, CustCreditAmountLCY, DeltaAmount, CheckOverDueBalance, Heading, Result, IsHandled, NotificationId);
+        OnBeforeShowWarning(Rec, NewOrderAmountLCY, OldOrderAmountLCY, OrderAmountTotalLCY, ShippedRetRcdNotIndLCY, CustCreditAmountLCY, DeltaAmount, CheckOverDueBalance, Heading, Result, IsHandled, NotificationId, NewCustNo, NewOrderAmountLCY2, OldOrderAmountLCY2);
         if IsHandled then
             exit(Result);
 
@@ -580,6 +611,16 @@ page 343 "Check Credit Limit"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcSalesHeaderNewOrderAmountLCY(var Customer: Record Customer; SalesHeader: Record "Sales Header"; var NewOrderAmountLCY: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcSalesLineOrderAmountsLCY(var Customer: Record Customer; SalesLine: Record "Sales Line"; var NewOrderAmountLCY: Decimal; var OldOrderAmountLCY: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGenJnlLineShowWarning(GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean; var Result: Boolean);
     begin
     end;
@@ -595,6 +636,11 @@ page 343 "Check Credit Limit"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesLineAmount(var Customer: Record Customer; DocType: Enum "Sales Document Type"; DocNo: Code[20]; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeServiceLineShowWarning(var ServLine: Record "Service Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -605,7 +651,7 @@ page 343 "Check Credit Limit"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowWarning(var Customer: Record Customer; var NewOrderAmountLCY: Decimal; OldOrderAmountLCY: Decimal; OrderAmountTotalLCY: Decimal; ShippedRetRcdNotIndLCY: Decimal; CustCreditAmountLCY: Decimal; DeltaAmount: Decimal; CheckOverDueBalance: Boolean; var Heading: Text[250]; var Result: Boolean; var IsHandled: Boolean; var NotificationId: Guid);
+    local procedure OnBeforeShowWarning(var Customer: Record Customer; var NewOrderAmountLCY: Decimal; OldOrderAmountLCY: Decimal; OrderAmountTotalLCY: Decimal; ShippedRetRcdNotIndLCY: Decimal; CustCreditAmountLCY: Decimal; DeltaAmount: Decimal; CheckOverDueBalance: Boolean; var Heading: Text[250]; var Result: Boolean; var IsHandled: Boolean; var NotificationId: Guid; var NewCustNo: Code[20]; NewOrderAmountLCY2: Decimal; OldOrderAmountLCY2: Decimal);
     begin
     end;
 

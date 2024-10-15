@@ -1,6 +1,7 @@
 report 357 "Copy Company"
 {
     Caption = 'Copy Company';
+    Permissions = tabledata "Feature Data Update Status" = ri;
     ProcessingOnly = true;
 
     dataset
@@ -52,6 +53,20 @@ report 357 "Copy Company"
                     CustomReportLayout.Code := '';
                     CustomReportLayout."Company Name" := NewCompanyName;
                     if CustomReportLayout.Insert(true) then;
+                end;
+            }
+            dataitem("Feature Data Update Status"; "Feature Data Update Status")
+            {
+                DataItemLink = "Company Name" = FIELD(Name);
+                DataItemTableView = SORTING("Feature Key", "Company Name");
+
+                trigger OnAfterGetRecord()
+                var
+                    FeatureDataUpdateStatus: Record "Feature Data Update Status";
+                begin
+                    FeatureDataUpdateStatus := "Feature Data Update Status";
+                    FeatureDataUpdateStatus."Company Name" := NewCompanyName;
+                    if FeatureDataUpdateStatus.Insert() then;
                 end;
             }
 

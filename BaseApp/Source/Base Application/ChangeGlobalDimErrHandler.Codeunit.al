@@ -31,7 +31,9 @@ codeunit 485 "Change Global Dim Err. Handler"
         JobQueueLogEntry."Start Date/Time" := CurrentDateTime;
         JobQueueLogEntry."End Date/Time" := JobQueueLogEntry."Start Date/Time";
         JobQueueLogEntry."User ID" := UserId;
+#if not CLEAN20
         JobQueueLogEntry."Processed by User ID" := UserId;
+#endif
         JobQueueLogEntry.Insert(true);
     end;
 }

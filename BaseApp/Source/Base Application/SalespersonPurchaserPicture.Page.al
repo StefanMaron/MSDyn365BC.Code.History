@@ -37,10 +37,7 @@ page 5108 "Salesperson/Purchaser Picture"
 
                 trigger OnAction()
                 begin
-                    TestField(Code);
-                    TestField(Name);
-
-                    Camera.AddPicture(Rec, Rec.FieldNo(Image));
+                    TakeNewPicture();
                 end;
             }
             action(ImportPicture)
@@ -138,6 +135,26 @@ page 5108 "Salesperson/Purchaser Picture"
         DeleteImageQst: Label 'Are you sure you want to delete the picture?';
         SelectPictureTxt: Label 'Select a picture to upload';
         DeleteExportEnabled: Boolean;
+        MimeTypeTok: Label 'image/jpeg', Locked = true;
+
+    procedure TakeNewPicture()
+    var
+        PictureInstream: InStream;
+        PictureDescription: Text;
+    begin
+        Rec.TestField(Code);
+        Rec.TestField(Name);
+
+        if Rec.Image.HasValue() then
+            if not Confirm(OverrideImageQst) then
+                exit;
+
+        if Camera.GetPicture(PictureInstream, PictureDescription) then begin
+            Clear(Rec.Image);
+            Rec.Image.ImportStream(PictureInstream, PictureDescription, MimeTypeTok);
+            Rec.Modify(true)
+        end;
+    end;
 
     local procedure SetEditableOnPictureActions()
     begin

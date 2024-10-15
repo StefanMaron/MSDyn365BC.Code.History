@@ -13,6 +13,8 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         CannotCreateSalesOrderInNAVTxt: Label 'The sales order cannot be created.';
         NoCRMAccountForOrderErr: Label 'Sales order %1 is created for %2 %3, which doesn''t correspond to an account in %4.', Comment = '%1=Dataverse Sales Order Name, %2 - customer id type, %3 customer id, %4 - Dataverse service name';
         ItemDoesNotExistErr: Label '%1 The item %2 does not exist.', Comment = '%1= the text: "The sales order cannot be created.", %2=product name';
+        ItemUnitOfMeasureDoesNotExistErr: Label '%1 The item unit of measure %2 does not exist.', Comment = '%1= the text: "The sales order cannot be created.", %2=item unit of measure name';
+        ResourceUnitOfMeasureDoesNotExistErr: Label '%1 The resource unit of measure %2 does not exist.', Comment = '%1= the text: "The sales order cannot be created.", %2=resource unit of measure name';
         NoCustomerErr: Label '%1 There is no potential customer defined on the %3 sales order %2.', Comment = '%1= the text: "The sales order cannot be created.", %2=sales order title, %3 - Dataverse service name';
         CRMSynchHelper: Codeunit "CRM Synch. Helper";
         CRMProductName: Codeunit "CRM Product Name";
@@ -22,6 +24,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         NotCoupledCRMResourceErr: Label '%1 The %3 resource %2 is not coupled to a resource.', Comment = '%1= the text: "The sales order cannot be created.", %2=resource name, %3 - Dataverse service name';
         NotCoupledCRMSalesOrderErr: Label 'The %2 sales order %1 is not coupled.', Comment = '%1=sales order number, %2 - Dataverse service name';
         NotCoupledSalesHeaderErr: Label 'The sales order %1 is not coupled to %2.', Comment = '%1=sales order number, %2 - Dataverse service name';
+        NotCoupledCRMUomErr: Label '%1 The %3 unit %2 is not coupled to a unit of measure.', Comment = '%1= the text: "The sales order cannot be created.", %2=unit name, %3 - Dataverse service name';
         AccountNotCustomerErr: Label '%1 The selected type of the %2 %3 account is not customer.', Comment = '%1= the text: "The sales order cannot be created.", %2=account name, %3=Dataverse service name';
         AccountNotCustomerTelemetryMsg: Label '%1 The selected type of the %2 %3 account is not customer.', Locked = true;
         OverwriteCRMDiscountQst: Label 'There is a discount on the %2 sales order, which will be overwritten by %1 settings. You will have the possibility to update the discounts directly on the sales order, after it is created. Do you want to continue?', Comment = '%1 - product name, %2 - Dataverse service name';
@@ -399,6 +402,11 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         QuoteSalesHeader: Record "Sales header";
         CRMQuote: Record "CRM Quote";
         ArchiveManagement: Codeunit ArchiveManagement;
+        IntegrationRecordSynch: Codeunit "Integration Record Synch.";
+        SourceRecordRef: RecordRef;
+        DestinationRecordRef: RecordRef;
+        SourceFieldRef: FieldRef;
+        DestinationFieldRef: FieldRef;
     begin
         Session.LogMessage('0000DF0', StrSubstNo(StartingToCreateSalesOrderHeaderTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
         SalesHeader.Init();
@@ -416,6 +424,12 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         CopyCRMOptionFields(CRMSalesorder, SalesHeader);
         SalesHeader.Validate("Payment Discount %", CRMSalesorder.DiscountPercentage);
         SalesHeader.Validate("External Document No.", CopyStr(CRMSalesorder.Name, 1, MaxStrLen(SalesHeader."External Document No.")));
+        SourceRecordRef.GetTable(CRMSalesorder);
+        DestinationRecordRef.GetTable(SalesHeader);
+        SourceFieldRef := SourceRecordRef.Field(CRMSalesorder.FieldNo(Description));
+        DestinationFieldRef := DestinationRecordRef.Field(SalesHeader.FieldNo("Work Description"));
+        IntegrationRecordSynch.SetTextValue(DestinationFieldRef, IntegrationRecordSynch.GetTextValue(SourceFieldRef));
+        DestinationRecordRef.SetTable(SalesHeader);
 
         // if this order was made out of a won quote, and that won quote is coupled, set the Quote No. on the Sales header too
         if not IsNullGuid(CRMSalesorder.QuoteId) then
@@ -618,10 +632,16 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         Error(ZombieCouplingErr, PRODUCTNAME.Short, CRMProductName.CDSServiceName());
     end;
 
-    procedure GetCRMAccountOfCRMSalesOrder(CRMSalesorder: Record "CRM Salesorder"; var CRMAccount: Record "CRM Account"): Boolean
+    procedure GetCRMAccountOfCRMSalesOrder(CRMSalesorder: Record "CRM Salesorder"; var CRMAccount: Record "CRM Account") Result: Boolean
     var
         CRMContact: Record "CRM Contact";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCRMAccountOfCRMSalesOrder(CRMSalesorder, CRMAccount, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if CRMSalesorder.CustomerIdType = CRMSalesorder.CustomerIdType::account then
             if CRMAccount.Get(CRMSalesorder.CustomerId) then
                 if CRMAccount.CustomerTypeCode <> CRMAccount.CustomerTypeCode::Customer then begin
@@ -659,6 +679,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         Item: Record Item;
         VATPostingSetup: Record "VAT Posting Setup";
         GeneralLedgerSetup: Record "General Ledger Setup";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         UnitPrice: Decimal;
         UpdateItemUnitPriceNeeded: Boolean;
         IsHandled: Boolean;
@@ -686,6 +707,9 @@ codeunit 5343 "CRM Sales Order to Sales Order"
 
         SetLineDescription(SalesHeader, SalesLine, CRMSalesorderdetail);
 
+        if CRMIntegrationManagement.IsUnitGroupMappingEnabled() then
+            UpdateSalesLineUnitOfMeasure(CRMSalesorderdetail, CRMProduct, SalesLine);
+
         SalesLine.Validate(Quantity, CRMSalesorderdetail.Quantity);
         UnitPrice := CRMSalesorderdetail.PricePerUnit;
         GeneralLedgerSetup.Get();
@@ -704,6 +728,38 @@ codeunit 5343 "CRM Sales Order to Sales Order"
             "Line Discount Amount",
             CRMSalesorderdetail.Quantity * CRMSalesorderdetail.VolumeDiscountAmount +
             CRMSalesorderdetail.ManualDiscountAmount);
+    end;
+
+    local procedure UpdateSalesLineUnitOfMeasure(CRMSalesorderdetail: Record "CRM Salesorderdetail"; CRMProduct: Record "CRM Product"; var SalesLine: Record "Sales Line")
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ResourceUnitOfMeasure: Record "Resource Unit of Measure";
+        NAVItemUomRecordId: RecordID;
+        NAVResourceUomRecordId: RecordID;
+    begin
+        case CRMProduct.ProductTypeCode of
+            CRMProduct.ProductTypeCode::SalesInventory:
+                begin
+                    if not CRMIntegrationRecord.FindRecordIDFromID(CRMSalesorderdetail.UoMId, Database::"Item Unit of Measure", NAVItemUomRecordId) then
+                        Error(NotCoupledCRMUomErr, CannotCreateSalesOrderInNAVTxt, CRMSalesorderdetail.UoMIdName, CRMProductName.CDSServiceName());
+
+                    if not ItemUnitOfMeasure.Get(NAVItemUomRecordId) then
+                        Error(ItemUnitOfMeasureDoesNotExistErr, CannotCreateSalesOrderInNAVTxt, CRMSalesorderdetail.UoMIdName);
+
+                    SalesLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+                end;
+            CRMProduct.ProductTypeCode::Services:
+                begin
+                    if not CRMIntegrationRecord.FindRecordIDFromID(CRMSalesorderdetail.UoMId, Database::"Resource Unit of Measure", NAVResourceUomRecordId) then
+                        Error(NotCoupledCRMUomErr, CannotCreateSalesOrderInNAVTxt, CRMSalesorderdetail.UoMIdName, CRMProductName.CDSServiceName());
+
+                    if not ResourceUnitOfMeasure.Get(NAVResourceUomRecordId) then
+                        Error(ResourceUnitOfMeasureDoesNotExistErr, CannotCreateSalesOrderInNAVTxt, CRMSalesorderdetail.UoMIdName);
+
+                    SalesLine.Validate("Unit of Measure Code", ResourceUnitOfMeasure.Code);
+                end;
+        end;
     end;
 
     local procedure InitializeSalesOrderLineFromItem(CRMProduct: Record "CRM Product"; var SalesLine: Record "Sales Line")
@@ -781,6 +837,11 @@ codeunit 5343 "CRM Sales Order to Sales Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetLineDescription(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var CRMSalesorderdetail: Record "CRM Salesorderdetail"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCRMAccountOfCRMSalesOrder(CRMSalesorder: Record "CRM Salesorder"; var CRMAccount: Record "CRM Account"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

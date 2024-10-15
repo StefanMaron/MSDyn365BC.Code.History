@@ -146,6 +146,12 @@ page 99000817 "Prod. Order Routing"
                         CurrPage.Update(false);
                     end;
                 }
+                field("Setup Time Unit of Meas. Code"; Rec."Setup Time Unit of Meas. Code")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the unit of measure code that applies to the setup time of the operation.';
+                    Visible = false;
+                }
                 field("Run Time"; "Run Time")
                 {
                     ApplicationArea = Manufacturing;
@@ -155,6 +161,12 @@ page 99000817 "Prod. Order Routing"
                     begin
                         CurrPage.Update(false);
                     end;
+                }
+                field("Run Time Unit of Meas. Code"; Rec."Run Time Unit of Meas. Code")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the unit of measure code that applies to the run time of the operation.';
+                    Visible = false;
                 }
                 field("Wait Time"; "Wait Time")
                 {
@@ -166,6 +178,12 @@ page 99000817 "Prod. Order Routing"
                         CurrPage.Update(false);
                     end;
                 }
+                field("Wait Time Unit of Meas. Code"; Rec."Wait Time Unit of Meas. Code")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the unit of measure code that applies to the wait time.';
+                    Visible = false;
+                }
                 field("Move Time"; "Move Time")
                 {
                     ApplicationArea = Manufacturing;
@@ -175,6 +193,12 @@ page 99000817 "Prod. Order Routing"
                     begin
                         CurrPage.Update(false);
                     end;
+                }
+                field("Move Time Unit of Meas. Code"; Rec."Move Time Unit of Meas. Code")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the unit of measure code that applies to the move time.';
+                    Visible = false;
                 }
                 field("Fixed Scrap Quantity"; "Fixed Scrap Quantity")
                 {

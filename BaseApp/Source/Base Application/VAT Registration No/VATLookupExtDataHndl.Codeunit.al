@@ -56,6 +56,7 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
         SOAPWebServiceRequestMgt.DisableHttpsCheck;
         SOAPWebServiceRequestMgt.SetTimeout(60000);
 
+        OnSendRequestToVatRegistrationServiceOnBeforeSendRequestToWebService(SOAPWebServiceRequestMgt, TempBlobBody);
         if SOAPWebServiceRequestMgt.SendRequestToWebService then begin
             SOAPWebServiceRequestMgt.GetResponseContent(ResponseInStream);
 
@@ -161,6 +162,11 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnAfterLookupVatRegistrationFromWebService(VATRegistrationLog: Record "VAT Registration Log"; var RecVATRegistrationLog: Record "VAT Registration Log")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendRequestToVatRegistrationServiceOnBeforeSendRequestToWebService(var SOAPWebServiceRequestMgt: Codeunit "SOAP Web Service Request Mgt."; var TempBlobBody: Codeunit "Temp Blob")
     begin
     end;
 }
