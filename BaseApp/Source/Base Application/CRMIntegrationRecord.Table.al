@@ -383,11 +383,23 @@ table 5331 "CRM Integration Record"
         exit(FindByCRMID(GetCRMIdFromRecRef(CRMRecordRef)));
     end;
 
+#if not CLEAN22
+    [Obsolete('Replaced by IsIntegrationIdCoupled(IntegrationID: Guid; TableId: Integer)', '22.0')]
     procedure IsIntegrationIdCoupled(IntegrationID: Guid): Boolean
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
-        exit(FindRowFromIntegrationID(IntegrationID, CRMIntegrationRecord));
+        CRMIntegrationRecord.SetCurrentKey("Integration ID", "Table ID");
+        CRMIntegrationRecord.SetFilter("Integration ID", IntegrationID);
+        exit(CRMIntegrationRecord.IsEmpty());
+    end;
+#endif
+
+    procedure IsIntegrationIdCoupled(IntegrationID: Guid; TableId: Integer): Boolean
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+    begin
+        exit(FindRowFromIntegrationID(IntegrationID, TableId, CRMIntegrationRecord));
     end;
 
     procedure IsRecordCoupled(DestinationRecordID: RecordID): Boolean
@@ -594,7 +606,7 @@ table 5331 "CRM Integration Record"
         RecRef.Get(RecordID);
         SystemIdFieldRef := RecRef.Field(RecRef.SystemIdNo);
         IntegrationID := SystemIdFieldRef.Value();
-        if not FindRowFromIntegrationID(IntegrationID, CRMIntegrationRecord) then begin
+        if not FindRowFromIntegrationID(IntegrationID, RecRef.Number, CRMIntegrationRecord) then begin
             AssertRecordIDCanBeCoupled(RecordID, CRMID);
             CRMIntegrationRecord.InsertRecord(CRMID, IntegrationID, RecRef.Number);
         end else
@@ -612,7 +624,7 @@ table 5331 "CRM Integration Record"
         if not FindSystemIdByRecordId(SysId, RecordID) then
             Error(IntegrationRecordNotFoundErr, Format(RecordID, 0, 1));
 
-        if FindRowFromIntegrationID(SysId, CRMIntegrationRecord) then begin
+        if FindRowFromIntegrationID(SysId, RecordID.TableNo, CRMIntegrationRecord) then begin
             Copy(CRMIntegrationRecord);
             CRMIntegrationRecord.Delete(true);
             exit(true);
@@ -627,7 +639,7 @@ table 5331 "CRM Integration Record"
         if not FindSystemIdByRecordRef(SysId, RecordRef) then
             Error(IntegrationRecordNotFoundErr, RecordRef.Field(RecordRef.SystemIdNo()).Value());
 
-        if FindRowFromIntegrationID(SysId, CRMIntegrationRecord) then begin
+        if FindRowFromIntegrationID(SysId, RecordRef.Number, CRMIntegrationRecord) then begin
             Copy(CRMIntegrationRecord);
             CRMIntegrationRecord.Delete(true);
             exit(true);
@@ -848,7 +860,7 @@ table 5331 "CRM Integration Record"
         CRMIntegrationRecord."Table ID" := TableId;
         CRMIntegrationRecord."Integration ID" := IntegrationId;
         if not CRMIntegrationRecord.FindRecordId(RecId) then begin
-            if FindRowFromIntegrationID(IntegrationId, CRMIntegrationRecord) then
+            if FindRowFromIntegrationID(IntegrationId, TableId, CRMIntegrationRecord) then
                 CRMIntegrationRecord.Delete();
             exit(true);
         end;
@@ -865,33 +877,17 @@ table 5331 "CRM Integration Record"
     local procedure FindRowFromRecordID(SourceRecordID: RecordID; var CRMIntegrationRecord: Record "CRM Integration Record"): Boolean
     var
         SysId: Guid;
-        Found: Boolean;
     begin
-        if FindSystemIdByRecordId(SysId, SourceRecordID) then begin
-            Found := FindRowFromIntegrationID(SysId, CRMIntegrationRecord);
-            if Found then
-                if CRMIntegrationRecord."Table ID" = 0 then begin
-                    CRMIntegrationRecord."Table ID" := SourceRecordID.TableNo();
-                    CRMIntegrationRecord.Modify();
-                end;
-        end;
-        exit(Found);
+        if FindSystemIdByRecordId(SysId, SourceRecordID) then
+            exit(FindRowFromIntegrationID(SysId, SourceRecordID.TableNo, CRMIntegrationRecord));
     end;
 
     local procedure FindRowFromRecordRef(SourceRecordRef: RecordRef; var CRMIntegrationRecord: Record "CRM Integration Record"): Boolean
     var
         SysId: Guid;
-        Found: Boolean;
     begin
-        if FindSystemIdByRecordRef(SysId, SourceRecordRef) then begin
-            Found := FindRowFromIntegrationID(SysId, CRMIntegrationRecord);
-            if Found then
-                if CRMIntegrationRecord."Table ID" = 0 then begin
-                    CRMIntegrationRecord."Table ID" := SourceRecordRef.Number();
-                    CRMIntegrationRecord.Modify();
-                end;
-        end;
-        exit(Found);
+        if FindSystemIdByRecordRef(SysId, SourceRecordRef) then
+            exit(FindRowFromIntegrationID(SysId, SourceRecordRef.Number, CRMIntegrationRecord));
     end;
 
     local procedure FindRowFromCRMID(CRMID: Guid; DestinationTableID: Integer; var CRMIntegrationRecord: Record "CRM Integration Record"): Boolean
@@ -902,10 +898,11 @@ table 5331 "CRM Integration Record"
         exit(CRMIntegrationRecord.FindFirst());
     end;
 
-    local procedure FindRowFromIntegrationID(IntegrationID: Guid; var CRMIntegrationRecord: Record "CRM Integration Record"): Boolean
+    local procedure FindRowFromIntegrationID(IntegrationID: Guid; TableID: Integer; var CRMIntegrationRecord: Record "CRM Integration Record"): Boolean
     begin
-        CRMIntegrationRecord.SetCurrentKey("Integration ID");
+        CRMIntegrationRecord.SetCurrentKey("Integration ID", "Table ID");
         CRMIntegrationRecord.SetFilter("Integration ID", IntegrationID);
+        CRMIntegrationRecord.SetRange("Table ID", TableID);
         exit(CRMIntegrationRecord.FindFirst());
     end;
 

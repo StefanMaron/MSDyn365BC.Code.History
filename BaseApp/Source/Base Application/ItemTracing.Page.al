@@ -606,10 +606,15 @@ page 6520 "Item Tracing"
         FiltersInitialized: Boolean;
 
     procedure FindRecords()
+    var
+        IsHandled: Boolean;
     begin
-        ItemTracingMgt.FindRecords(TempTrackEntry, Rec,
-          SerialNoFilter, LotNoFilter, PackageNoFilter, ItemNoFilter, VariantFilter,
-          TraceMethod, ShowComponents);
+        IsHandled := false;
+        OnFindRecordsOnBeforeItemTracingMgtFindRecords(TempTrackEntry, Rec, SerialNoFilter, LotNoFilter, PackageNoFilter, ItemNoFilter, VariantFilter, TraceMethod, ShowComponents, IsHandled);
+        if not IsHandled then
+            ItemTracingMgt.FindRecords(TempTrackEntry, Rec,
+              SerialNoFilter, LotNoFilter, PackageNoFilter, ItemNoFilter, VariantFilter,
+              TraceMethod, ShowComponents);
         InitButtons();
 
         ItemTracingMgt.GetHistoryStatus(PreviousExists, NextExists);
@@ -617,6 +622,7 @@ page 6520 "Item Tracing"
         UpdateTraceText();
 
         ItemTracingMgt.ExpandAll(TempTrackEntry, Rec);
+	    OnFindRecordsOnBeforeCurrPageUpdate(Rec);
         CurrPage.Update(false)
     end;
 
@@ -676,9 +682,14 @@ page 6520 "Item Tracing"
     end;
 
     local procedure RecallHistory(Steps: Integer)
+    var
+        IsHandled: Boolean;
     begin
-        ItemTracingMgt.RecallHistory(Steps, TempTrackEntry, Rec, SerialNoFilter,
-          LotNoFilter, PackageNoFilter, ItemNoFilter, VariantFilter, TraceMethod, ShowComponents);
+        IsHandled := false;
+        OnRecallHistoryOnBeforeItemTracingMgtRecallHistory(Steps, TempTrackEntry, Rec, SerialNoFilter, LotNoFilter, PackageNoFilter, ItemNoFilter, VariantFilter, TraceMethod, ShowComponents, IsHandled);
+        if not IsHandled then
+            ItemTracingMgt.RecallHistory(Steps, TempTrackEntry, Rec, SerialNoFilter,
+              LotNoFilter, PackageNoFilter, ItemNoFilter, VariantFilter, TraceMethod, ShowComponents);
         UpdateTraceText();
         InitButtons();
         ItemTracingMgt.GetHistoryStatus(PreviousExists, NextExists);
@@ -740,6 +751,21 @@ page 6520 "Item Tracing"
 
     [IntegrationEvent(false, false)]
     local procedure OnInitButtons(var FunctionsEnable: Boolean; var PrintEnable: Boolean; var NavigateEnable: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindRecordsOnBeforeItemTracingMgtFindRecords(var ItemTracingBuffer: Record "Item Tracing Buffer"; var ItemTracingBufferRec: Record "Item Tracing Buffer"; SerialNoFilter: Text; LotNoFilter: Text; PackageNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text; Direction: Option; ShowComponents: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindRecordsOnBeforeCurrPageUpdate(var ItemTracingBuffer: Record "Item Tracing Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecallHistoryOnBeforeItemTracingMgtRecallHistory(Steps: Integer; var ItemTracingBuffer: Record "Item Tracing Buffer"; var ItemTracingBufferRec: Record "Item Tracing Buffer"; var SerialNoFilter: Text; var LotNoFilter: Text; var PackageNoFilter: Text; var ItemNoFilter: Text; var VariantFilter: Text; var TraceMethod: Option; var ShowComponents: Option; var IsHandled: Boolean)
     begin
     end;
 }

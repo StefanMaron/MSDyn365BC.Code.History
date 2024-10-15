@@ -222,7 +222,7 @@ codeunit 136613 "Res. Jnl. Error Handling"
         TempErrorMessage.FindFirst();
 
         VerifyErrorMessageText(
-            TempErrorMessage.Description,
+            TempErrorMessage."Message",
             StrSubstNo(TestFieldMustHaveValueErr, ResJournalLine[2].FieldCaption("Gen. Prod. Posting Group")));
     end;
 

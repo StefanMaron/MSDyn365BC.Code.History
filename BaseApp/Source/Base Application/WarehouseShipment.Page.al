@@ -107,7 +107,7 @@ page 7335 "Warehouse Shipment"
                 {
                     ApplicationArea = Warehouse;
                     Importance = Promoted;
-                    ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
+                    ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system. If you enter a value, the source document will be updated during posting. If this field is blank, the original document number is used.';
                 }
                 field("Shipment Date"; Rec."Shipment Date")
                 {
@@ -118,18 +118,18 @@ page 7335 "Warehouse Shipment"
                 field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = Warehouse;
-                    ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
+                    ToolTip = 'Specifies the code for the shipping agent who is transporting the items. This value is not carried over from the source documents because one warehouse shipment can contain lines from many source documents. If you enter a value, the source document will be updated during posting. If this field is blank, the original shipping agent of the source document is used.';
                 }
                 field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
+                    ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent. This value is not carried over from the source documents because one warehouse shipment can contain lines from many source documents. If you enter a value, the source document will be updated during posting. If this field is blank, the original shipping agent service of the source document is used.';
                 }
                 field("Shipment Method Code"; Rec."Shipment Method Code")
                 {
                     ApplicationArea = Warehouse;
-                    ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
+                    ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB). This value is not carried over from the source documents because one warehouse shipment can contain lines from many source documents. If you enter a code, the source document will be updated during posting. If this field is blank, the original shipment method of the source document is used.';
                 }
             }
         }

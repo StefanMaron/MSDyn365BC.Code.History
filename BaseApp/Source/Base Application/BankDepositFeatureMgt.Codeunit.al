@@ -5,6 +5,13 @@ codeunit 1514 "Bank Deposit Feature Mgt."
     ObsoleteReason = 'Bank Deposits feature will be enabled by default';
     ObsoleteTag = '21.0';
 
+    procedure OnBeforeUpgradeToBankDeposits(var DepositsTableId: Integer; var BankRecHeaderTableId: Integer; var BankRecLineTableId: Integer)
+    begin
+        DepositsTableId := 0;
+        BankRecHeaderTableId := 0;
+        BankRecLineTableId := 0;
+    end;
+
     procedure IsEnabled(): Boolean
     var
         FeatureManagementFacade: Codeunit "Feature Management Facade";

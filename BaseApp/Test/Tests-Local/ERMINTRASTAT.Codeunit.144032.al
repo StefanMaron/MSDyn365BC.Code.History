@@ -1516,7 +1516,7 @@ codeunit 144032 "ERM INTRASTAT"
         ErrorMessage.SetRange("Record ID", IntrastatJnlLine.RecordId());
         Assert.RecordCount(ErrorMessage, 1);
         ErrorMessage.FindFirst();
-        Assert.ExpectedMessage(FieldName, ErrorMessage.Description);
+        Assert.ExpectedMessage(FieldName, ErrorMessage."Message");
     end;
 
     [RequestPageHandler]

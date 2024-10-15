@@ -196,6 +196,7 @@ codeunit 5923 "Service-Quote to Order"
                 ServCommentLine2 := ServCommentLine;
                 ServCommentLine2."Table Subtype" := ServOrderHeader."Document Type";
                 ServCommentLine2."No." := ServOrderHeader."No.";
+                OnMakeOrderOnBeforeServCommentLine2Insert(ServCommentLine2, ServCommentLine);
                 ServCommentLine2.Insert();
             until ServCommentLine.Next() = 0;
 
@@ -322,6 +323,11 @@ codeunit 5923 "Service-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferQuoteLineToOrderLineLoop(var ServiceQuoteLine: Record "Service Line"; var ServiceQuoteHeader: Record "Service Header"; var ServiceOrderHeader: Record "Service Header"; var IsHandled: Boolean; var ServiceOrderLine: Record "Service Line"; var ServiceOrderLineGlobal: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeOrderOnBeforeServCommentLine2Insert(var ServiceCommentLine2: Record "Service Comment Line"; var ServiceCommentLine: Record "Service Comment Line")
     begin
     end;
 

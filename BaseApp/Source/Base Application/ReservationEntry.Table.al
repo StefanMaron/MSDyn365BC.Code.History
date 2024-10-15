@@ -250,42 +250,21 @@ table 337 "Reservation Entry"
         }
         key(Key2; "Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line", "Reservation Status", "Shipment Date", "Expected Receipt Date")
         {
-            MaintainSIFTIndex = false;
-            SumIndexFields = "Quantity (Base)", Quantity, "Qty. to Handle (Base)", "Qty. to Invoice (Base)";
+            IncludedFields = "Quantity (Base)", "Qty. to Handle (Base)";
         }
         key(Key3; "Item No.", "Variant Code", "Location Code")
         {
-            MaintainSIFTIndex = false;
         }
-#pragma warning disable AS0009
         key(Key4; "Item No.", "Variant Code", "Location Code", "Reservation Status", "Shipment Date", "Expected Receipt Date", "Serial No.", "Lot No.", "Package No.")
-#pragma warning restore AS0009
         {
-            MaintainSIFTIndex = false;
-            SumIndexFields = "Quantity (Base)";
-        }
-#pragma warning disable AS0009
-        key(Key5; "Item No.", "Source Type", "Source Subtype", "Reservation Status", "Location Code", "Variant Code", "Shipment Date", "Expected Receipt Date", "Serial No.", "Lot No.", "Package No.")
-#pragma warning restore AS0009
-        {
-            MaintainSIFTIndex = false;
-            MaintainSQLIndex = false;
-            SumIndexFields = "Quantity (Base)", Quantity;
-        }
-#pragma warning disable AS0009
-        key(Key6; "Item No.", "Variant Code", "Location Code", "Item Tracking", "Reservation Status", "Lot No.", "Serial No.", "Package No.")
-#pragma warning restore AS0009
-        {
-            MaintainSIFTIndex = false;
-            MaintainSQLIndex = false;
-            SumIndexFields = "Quantity (Base)";
         }
         key(Key9; "Source Type", "Source Subtype", "Source ID", "Source Batch Name", "Source Prod. Order Line", "Source Ref. No.")
         {
+            IncludedFields = "Qty. to Handle (Base)", "Item Tracking";
         }
         key(Key10; "Reservation Status", "Item No.", "Variant Code", "Location Code", "Expected Receipt Date")
         {
-            SumIndexFields = "Quantity (Base)";
+            IncludedFields = "Quantity (Base)";
         }
         key(Key11; "Serial No.", "Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line")
         {
@@ -476,9 +455,12 @@ table 337 "Reservation Entry"
     var
         Rec2: Record "Reservation Entry";
     begin
-        Rec2.SetCurrentKey("Item No.");
-        if "Item No." <> '' then
+        Rec2.SetCurrentKey("Item No.", "Variant Code", "Location Code");
+        if "Item No." <> '' then begin
             Rec2.SetRange("Item No.", "Item No.");
+            Rec2.SetRange("Variant Code", "Variant Code");
+            Rec2.SetRange("Location Code", "Location Code");
+        end;
         Rec2.LockTable();
         if Rec2.FindLast() then;
     end;

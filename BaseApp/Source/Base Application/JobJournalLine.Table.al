@@ -87,10 +87,8 @@ table 210 "Job Journal Line"
             trigger OnValidate()
             begin
                 Validate("No.", '');
-                if Type = Type::Item then begin
-                    GetLocation("Location Code");
-                    Location.TestField("Directed Put-away and Pick", false);
-                end;
+                if Type = Type::Item then
+                    CheckDirectedPutawayandPickIsFalse(Rec.FieldNo(Type));
             end;
         }
         field(8; "No."; Code[20])
@@ -334,8 +332,7 @@ table 210 "Job Journal Line"
             begin
                 "Bin Code" := '';
                 OnValidateLocationCodeOnBeforeGetLocation(Rec);
-                GetLocation("Location Code");
-                Location.TestField("Directed Put-away and Pick", false);
+                CheckDirectedPutawayandPickIsFalse(Rec.FieldNo("Location Code"));
                 Validate(Quantity);
                 if (Type = Type::Item) and ("Location Code" <> xRec."Location Code") then
                     if ("Location Code" <> '') and ("No." <> '') then begin
@@ -649,6 +646,7 @@ table 210 "Job Journal Line"
                 TestField("Job No.");
                 JobTask.Get("Job No.", "Job Task No.");
                 JobTask.TestField("Job Task Type", JobTask."Job Task Type"::Posting);
+                OnValidateJobTaskNoOnAfterTestJobTaskType(Rec, xRec, JobTask);
                 UpdateDimensions();
             end;
         }
@@ -1202,6 +1200,17 @@ table 210 "Job Journal Line"
 
         if not IsTemporary() then
             TestField("Posting Date");
+    end;
+
+    local procedure CheckDirectedPutawayandPickIsFalse(CallingFieldNo: Integer)
+    var
+        IsHandled: Boolean;
+    begin
+        GetLocation(Rec."Location Code");
+        IsHandled := false;
+        OnCheckDirectedPutawayandPickIsFalseOnBeforeTestField(Location, CallingFieldNo, IsHandled);
+        if not IsHandled then
+            Location.TestField("Directed Put-away and Pick", false);
     end;
 
     local procedure CopyFromItem()
@@ -2386,7 +2395,7 @@ table 210 "Job Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRetrieveCostPrice(JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line"; var ShouldRetrieveCostPrice: Boolean; var Result: Boolean; CalledByFieldNo: Integer)
+    local procedure OnBeforeRetrieveCostPrice(var JobJournalLine: Record "Job Journal Line"; var xJobJournalLine: Record "Job Journal Line"; var ShouldRetrieveCostPrice: Boolean; var Result: Boolean; CalledByFieldNo: Integer)
     begin
     end;
 
@@ -2506,6 +2515,11 @@ table 210 "Job Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckDirectedPutawayandPickIsFalseOnBeforeTestField(var Location: Record Location; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCopyFromItemOnAfterCheckItem(var JobJournalLine: Record "Job Journal Line"; Item: Record Item)
     begin
     end;
@@ -2527,6 +2541,11 @@ table 210 "Job Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateJobNoOnBeforeCheckJob(var JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line"; var Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateJobTaskNoOnAfterTestJobTaskType(var JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task")
     begin
     end;
 

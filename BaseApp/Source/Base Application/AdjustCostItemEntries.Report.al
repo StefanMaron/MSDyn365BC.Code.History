@@ -79,10 +79,16 @@ report 795 "Adjust Cost - Item Entries"
         }
 
         trigger OnInit()
+        var
+            ClientTypeManagement: Codeunit "Client Type Management";
         begin
             FilterItemCategoryEditable := true;
             FilterItemNoEditable := true;
             PostEnable := true;
+            if ClientTypeManagement.GetCurrentClientType() = ClientType::Background then begin
+                InvtSetup.Get();
+                PostToGL := InvtSetup."Automatic Cost Posting";
+            end;
         end;
 
         trigger OnOpenPage()

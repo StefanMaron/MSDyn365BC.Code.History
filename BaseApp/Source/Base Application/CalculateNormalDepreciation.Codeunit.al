@@ -526,6 +526,7 @@
             end;
 
             SetDeprMethod(FADeprBook);
+            OnTransferValuesOnAfterSetDeprMethod(FADeprBook, UntilDate);
 
             if DateFromProjection = 0D then begin
                 CalcFields("Book Value");
@@ -549,7 +550,7 @@
             DeprBasis := "Depreciable Basis";
             SalvageValue := "Salvage Value";
 
-            OnAfterBookValueRecalculateBookValue(FA, DeprBook, FALedgEntry, DeprBasis, BookValue, EndingDate, FADeprBook."Disposal Date");
+            OnAfterBookValueRecalculateBookValue(FA, DeprBook, FALedgEntry, DeprBasis, BookValue, EndingDate, FADeprBook."Disposal Date", FADeprBook);
 
             BookValue2 := BookValue;
             SalvageValue2 := SalvageValue;
@@ -982,14 +983,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterBookValueRecalculateBookValue(
-        FixedAsset: Record "Fixed Asset";
-        DeprBook: Record "Depreciation Book";
-        FAledgEntry2: Record "FA Ledger Entry";
-        var DeprBasis: Decimal;
-        var BookValue: Decimal;
-        var DeprEndingDate: Date;
-        DisposalDate: date)
+    local procedure OnAfterBookValueRecalculateBookValue(FixedAsset: Record "Fixed Asset"; DeprBook: Record "Depreciation Book"; FAledgEntry2: Record "FA Ledger Entry"; var DeprBasis: Decimal; var BookValue: Decimal; var DeprEndingDate: Date; DisposalDate: Date; var FADepreciationBook: Record "FA Depreciation Book")
     begin
     end;
 
@@ -1109,6 +1103,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcHalfYearConventionDeprOnAfterFirstCalcDeprAmount(FADeprBook: Record "FA Depreciation Book"; FixedAmount: Decimal; NumberOfDays: Integer; DaysInFiscalYear: Integer; HalfYearFactor: Decimal; UntilDate: Date; HalfYearPercent: Decimal; NewYearDate: Date; FirstDeprDate: Date; var DeprAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferValuesOnAfterSetDeprMethod(var FADepreciationBook: Record "FA Depreciation Book"; UntilDate: Date)
     begin
     end;
 }
