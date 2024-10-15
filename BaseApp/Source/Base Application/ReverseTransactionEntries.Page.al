@@ -55,7 +55,7 @@ page 183 "Reverse Transaction Entries"
                     Editable = false;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = DescriptionEditable;
@@ -149,7 +149,7 @@ page 183 "Reverse Transaction Entries"
                     Editable = false;
                     ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account that the balancing entry is posted to, such as a cash account for cash purchases.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -452,6 +452,7 @@ page 183 "Reverse Transaction Entries"
         GLEntry: Record "G/L Entry";
         CustLedgEntry: Record "Cust. Ledger Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
         FALedgEntry: Record "FA Ledger Entry";
         MaintenanceLedgEntry: Record "Maintenance Ledger Entry";
@@ -471,6 +472,8 @@ page 183 "Reverse Transaction Entries"
                 exit(CustLedgEntry.TableCaption());
             "Entry Type"::Vendor:
                 exit(VendLedgEntry.TableCaption());
+            "Entry Type"::Employee:
+                exit(EmployeeLedgerEntry.TableCaption());
             "Entry Type"::"Bank Account":
                 exit(BankAccLedgEntry.TableCaption());
             "Entry Type"::"Fixed Asset":

@@ -67,7 +67,7 @@ page 14944 "G/L Corr. Analysis View Entr."
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the credit dimension value code by which the general ledger correspondence is grouped.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount associated with the general ledger correspondence.';

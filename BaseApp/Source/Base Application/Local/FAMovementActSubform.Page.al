@@ -44,12 +44,12 @@ page 12479 "FA Movement Act Subform"
                         end;
                     end;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a description of the fixed asset.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the status of the fixed asset.';
@@ -70,7 +70,7 @@ page 12479 "FA Movement Act Subform"
                     ToolTip = 'Specifies the employee number of the person who maintains possession of the fixed asset.';
                     Visible = FAEmployeeNoVisible;
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the quantity of the fixed asset movement or write-off line.';

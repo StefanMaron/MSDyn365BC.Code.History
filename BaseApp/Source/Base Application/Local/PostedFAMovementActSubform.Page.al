@@ -22,12 +22,12 @@ page 12481 "Posted FA Movement Act Subform"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the related fixed asset. ';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a description of the fixed asset.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the status of the fixed asset.';

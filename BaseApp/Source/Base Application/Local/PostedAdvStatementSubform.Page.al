@@ -13,7 +13,7 @@ page 12434 "Posted Adv. Statement Subform"
             repeater(Control1210008)
             {
                 ShowCaption = false;
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the record.';
@@ -23,16 +23,6 @@ page 12434 "Posted Adv. Statement Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-#if not CLEAN19
-                field("Cross-Reference No."; Rec."Item Reference No.")
-                {
-                    ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Item Reference feature.';
-                    ObsoleteTag = '19.0';
-                }
-#endif
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -58,7 +48,7 @@ page 12434 "Posted Adv. Statement Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the employee purchase document date associated with this line.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this line.';
@@ -72,7 +62,7 @@ page 12434 "Posted Adv. Statement Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the warehouse or other place where the involved items are handled or stored.';
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;

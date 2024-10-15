@@ -1,4 +1,4 @@
-permissionset 3602 "Payables Journals - Post"
+﻿permissionset 3602 "Payables Journals - Post"
 {
     Access = Public;
     Assignable = false;
@@ -21,6 +21,8 @@ permissionset 3602 "Payables Journals - Post"
                   tabledata "Dimension Value Combination" = R,
                   tabledata "Dynamic Request Page Entity" = R,
                   tabledata "Dynamic Request Page Field" = R,
+                  tabledata "Employee Ledger Entry" = rim,
+                  tabledata "Employee Posting Group" = R,
                   tabledata "G/L Account" = R,
                   tabledata "G/L Entry - VAT Entry Link" = Ri,
                   tabledata "G/L Entry" = Ri,

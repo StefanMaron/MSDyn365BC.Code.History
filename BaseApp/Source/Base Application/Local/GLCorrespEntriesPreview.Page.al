@@ -40,7 +40,7 @@ page 14954 "G/L Corresp. Entries Preview"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the credit account number associated with this correspondence entry.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount associated with this correspondence entry.';

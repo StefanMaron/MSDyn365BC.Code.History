@@ -43,6 +43,7 @@ table 5395 "Dataverse Entity Change"
             exit;
 
         repeat
+            IntegrationTableMapping.SetRange(Type, IntegrationTableMapping.Type::Dataverse);
             IntegrationTableMapping.SetRange("Integration Table ID", TableMetadata.ID);
             IntegrationTableMapping.SetRange("Delete After Synchronization", false);
             if IntegrationTableMapping.FindSet() then

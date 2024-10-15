@@ -1,9 +1,9 @@
-permissionset 3846 "Fixed Assets - Edit"
+﻿permissionset 3846 "Fixed Assets - Edit"
 {
     Access = Public;
     Assignable = false;
-
     Caption = 'Edit fixed assets';
+
     Permissions = tabledata "Assessed Tax Allowance" = RIMD,
                   tabledata "Assessed Tax Code" = RIMD,
                   tabledata "Bank Account Ledger Entry" = r,
@@ -19,6 +19,7 @@ permissionset 3846 "Fixed Assets - Edit"
                   tabledata "Depreciation Table Header" = RIMD,
                   tabledata "Depreciation Table Line" = RIMD,
                   tabledata Employee = R,
+                  tabledata "Employee Ledger Entry" = r,
                   tabledata "FA Class" = RIMD,
                   tabledata "FA Depreciation Book" = RIMD,
                   tabledata "FA Ledger Entry" = Rm,

@@ -12,12 +12,12 @@ page 17305 "Tax Difference Journal Batches"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name associated with the tax differences journal batch.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with the tax differences journal batch.';

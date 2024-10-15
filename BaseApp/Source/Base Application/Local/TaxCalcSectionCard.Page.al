@@ -16,12 +16,12 @@ page 17308 "Tax Calc. Section Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the tax calculation section.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the tax calculation section code description associated with the tax calculation section.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the tax calculation section.';
@@ -103,7 +103,7 @@ page 17308 "Tax Calc. Section Card"
             group(System)
             {
                 Caption = 'System';
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

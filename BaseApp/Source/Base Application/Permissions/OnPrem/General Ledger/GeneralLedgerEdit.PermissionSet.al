@@ -1,4 +1,4 @@
-permissionset 6720 "General Ledger - Edit"
+﻿permissionset 6720 "General Ledger - Edit"
 {
     Access = Public;
     Assignable = false;
@@ -52,6 +52,8 @@ permissionset 6720 "General Ledger - Edit"
                   tabledata "Date Compr. Register" = RimD,
                   tabledata "Detailed Cust. Ledg. Entry" = Rimd,
                   tabledata "Detailed Vendor Ledg. Entry" = Rimd,
+                  tabledata "Employee Ledger Entry" = Rmd,
+                  tabledata "Employee Posting Group" = R,
                   tabledata "Exch. Rate Adjmt. Reg." = RimD,
                   tabledata "Exch. Rate Adjmt. Ledg. Entry" = RimD,
                   tabledata "G/L Account" = R,

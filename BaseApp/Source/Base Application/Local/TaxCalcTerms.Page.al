@@ -17,7 +17,7 @@ page 17316 "Tax Calc. Terms"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the term code associated with the tax calculation term name.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with the tax calculation term name.';

@@ -25,7 +25,7 @@ page 17205 "Tax Register Calc. Templ. Subf"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line code associated with the tax register template.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;

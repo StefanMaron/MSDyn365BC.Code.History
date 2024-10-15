@@ -19,7 +19,7 @@ page 17301 "Tax Diff. Posting Groups"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code associated with the tax differences posting group.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code description associated with the tax difference posting group.';

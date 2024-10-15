@@ -30,12 +30,12 @@ page 17325 "Tax Calc. Entries"
                     ToolTip = 'Specifies the number of the related document.';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the term entry line code description associated with the tax calculation entry.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount associated with the tax calculation entry.';

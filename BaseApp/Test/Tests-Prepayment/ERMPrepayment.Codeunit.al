@@ -6465,7 +6465,10 @@
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure CurrencyExchangeRatesModalPageHandler(var CurrencyExchangeRates: Page "Currency Exchange Rates"; var Response: Action)
+    procedure CurrencyExchangeRatesModalPageHandler(var CurrencyExchangeRates: Page "Currency Exchange Rates";
+
+    var
+        Response: Action)
     begin
         Response := ACTION::OK;
     end;

@@ -96,7 +96,7 @@ page 12423 "Ingoing Cash Order"
                         CreditAmountOnAfterValidate();
                     end;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'From to';

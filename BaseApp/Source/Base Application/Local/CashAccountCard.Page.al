@@ -25,7 +25,7 @@ page 12426 "Cash Account Card"
                             CurrPage.Update();
                     end;
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;

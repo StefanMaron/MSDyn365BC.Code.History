@@ -1,4 +1,4 @@
-codeunit 132210 "Library - Templates"
+﻿codeunit 132210 "Library - Templates"
 {
     EventSubscriberInstance = Manual;
 
@@ -152,14 +152,20 @@ codeunit 132210 "Library - Templates"
 
     procedure CreateEmployeeTemplateWithData(var EmployeeTempl: Record "Employee Templ.")
     var
+        EmployeePostingGroup: Record "Employee Posting Group";
         EmployeeStatisticsGroup: Record "Employee Statistics Group";
     begin
         CreateEmployeeTemplate(EmployeeTempl);
+
+        EmployeePostingGroup.Init();
+        EmployeePostingGroup.Validate(Code, LibraryUtility.GenerateRandomCode(EmployeePostingGroup.FieldNo(Code), Database::"Employee Posting Group"));
+        EmployeePostingGroup.Insert();
 
         EmployeeStatisticsGroup.Init();
         EmployeeStatisticsGroup.Validate(Code, LibraryUtility.GenerateRandomCode(EmployeeStatisticsGroup.FieldNo(Code), Database::"Employee Statistics Group"));
         EmployeeStatisticsGroup.Insert();
 
+        EmployeeTempl.Validate("Employee Posting Group", EmployeePostingGroup.Code);
         EmployeeTempl.Validate("Statistics Group Code", EmployeeStatisticsGroup.Code);
         EmployeeTempl.Modify(true);
     end;

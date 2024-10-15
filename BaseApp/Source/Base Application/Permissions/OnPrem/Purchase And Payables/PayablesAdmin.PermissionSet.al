@@ -1,4 +1,4 @@
-permissionset 6092 "Payables - Admin"
+﻿permissionset 6092 "Payables - Admin"
 {
     Access = Public;
     Assignable = false;
@@ -9,6 +9,7 @@ permissionset 6092 "Payables - Admin"
                   tabledata "Currency for Fin. Charge Terms" = RIMD,
                   tabledata "Customized Calendar Change" = RIMD,
                   tabledata "Customized Calendar Entry" = RIMD,
+                  tabledata "Employee Posting Group" = RIMD,
                   tabledata "Finance Charge Terms" = RIMD,
                   tabledata "G/L Account" = R,
                   tabledata "Gen. Business Posting Group" = R,

@@ -101,7 +101,7 @@ page 17328 "Tax Calc. Create"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date of the last fixed asset entry associated with the tax calculation section.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

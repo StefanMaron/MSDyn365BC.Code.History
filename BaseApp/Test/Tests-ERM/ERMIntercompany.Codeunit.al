@@ -230,7 +230,11 @@ codeunit 134151 "ERM Intercompany"
           GenJournalLine."Account Type"::"G/L Account", ICGLAccount."Map-to G/L Acc. No.", -Amount);
         GenJournalLine.Validate("Document No.", DocumentNo);
         GenJournalLine.Validate("IC Partner Code", CreateICPartner);
+#if not CLEAN22
         GenJournalLine.Validate("IC Partner G/L Acc. No.", ICGLAccount."No.");
+#endif
+        GenJournalLine.Validate("IC Account Type", "IC Journal Account Type"::"G/L Account");
+        GenJournalLine.Validate("IC Account No.", ICGLAccount."No.");
         GenJournalLine.Modify(true);
 
         // Exercise: Post the General Journal Line.
@@ -277,7 +281,7 @@ codeunit 134151 "ERM Intercompany"
         // Verify: Verify error message.
         Assert.ExpectedError(
           StrSubstNo(
-            ICAccountErr, GenJournalLine.FieldCaption("IC Partner G/L Acc. No."), GenJournalLine.TableCaption(),
+            ICAccountErr, GenJournalLine.FieldCaption("IC Account No."), GenJournalLine.TableCaption(),
             GenJournalLine.FieldCaption("Journal Template Name"), GenJournalLine."Journal Template Name",
             GenJournalLine.FieldCaption("Journal Batch Name"), GenJournalLine."Journal Batch Name",
             GenJournalLine.FieldCaption("Line No."), GenJournalLine."Line No."));
@@ -316,7 +320,7 @@ codeunit 134151 "ERM Intercompany"
         // Verify: Verify error message.
         Assert.ExpectedError(
           StrSubstNo(
-            ICAccountErr, GenJournalLine.FieldCaption("IC Partner G/L Acc. No."), GenJournalLine.TableCaption(),
+            ICAccountErr, GenJournalLine.FieldCaption("IC Account No."), GenJournalLine.TableCaption(),
             GenJournalLine.FieldCaption("Journal Template Name"), GenJournalLine."Journal Template Name",
             GenJournalLine.FieldCaption("Journal Batch Name"), GenJournalLine."Journal Batch Name",
             GenJournalLine.FieldCaption("Line No."), GenJournalLine."Line No."));
@@ -426,7 +430,7 @@ codeunit 134151 "ERM Intercompany"
         // Verify: Verify Error Message.
         Assert.ExpectedError(
           StrSubstNo(
-            ICAccountErr, GenJournalLine.FieldCaption("IC Partner G/L Acc. No."), GenJournalLine.TableCaption(),
+            ICAccountErr, GenJournalLine.FieldCaption("IC Account No."), GenJournalLine.TableCaption(),
             GenJournalLine.FieldCaption("Journal Template Name"), GenJournalLine."Journal Template Name",
             GenJournalLine.FieldCaption("Journal Batch Name"), GenJournalLine."Journal Batch Name",
             GenJournalLine.FieldCaption("Line No."), GenJournalLine."Line No."));
@@ -439,6 +443,7 @@ codeunit 134151 "ERM Intercompany"
         Customer: Record Customer;
         GenJournalLine: Record "Gen. Journal Line";
         ICOutboxJnlLine: Record "IC Outbox Jnl. Line";
+        ICAccountNo: Code[20];
     begin
         // Check IC Outbox Journal Entries after posting IC Journal Line with Customer blocked Ship and unblocked IC Partner.
 
@@ -457,8 +462,14 @@ codeunit 134151 "ERM Intercompany"
         VerifyICOutboxJournalLine(
           GenJournalLine."IC Partner Code", ICOutboxJnlLine."Account Type"::Customer, GenJournalLine."Account No.",
           GenJournalLine."Document No.", GenJournalLine.Amount);
+
+#if not CLEAN22
+        ICAccountNo := GenJournalLine."IC Partner G/L Acc. No.";
+#else
+        ICAccountNo := GenJournalLine."IC Account No.";
+#endif
         VerifyICOutboxJournalLine(
-          GenJournalLine."IC Partner Code", ICOutboxJnlLine."Account Type"::"G/L Account", GenJournalLine."IC Partner G/L Acc. No.",
+          GenJournalLine."IC Partner Code", ICOutboxJnlLine."Account Type"::"G/L Account", ICAccountNo,
           GenJournalLine."Document No.", -GenJournalLine.Amount);
 
         // Tear Down: Delete newly created batch.
@@ -774,7 +785,11 @@ codeunit 134151 "ERM Intercompany"
         // Setup: Create Customer with unblocked IC Partner, Create and update IC Journal Line, taking 1 for sign factor.
         CreateAndUpdateICJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, JournalLineAccountType, AccountNumber, 1);
         AccountNo := AccountNumber;  // Assigning Value to Global Variable.
+#if not CLEAN22
         GLAccountNo := GenJournalLine."IC Partner G/L Acc. No.";  // Assigning Value to Global Variable.
+#else
+        GLAccountNo := GenJournalLine."IC Account No.";  // Assigning Value to Global Variable.
+#endif
         AccountType := Format(JournalLineAccountType);  // Assigning Value to Global Variable.
         Amount2 := GenJournalLine.Amount;  // Assigning Value to Global Variable.
 
@@ -1290,10 +1305,10 @@ codeunit 134151 "ERM Intercompany"
         // Verify: Verify error message.
         Assert.ExpectedError(
           StrSubstNo(
-            ICPartnerGLAccountNoErr, GenJournalLine.FieldCaption("IC Partner G/L Acc. No."), '', GenJournalLine.TableCaption(),
+            ICPartnerGLAccountNoErr, GenJournalLine.FieldCaption("IC Account No."), '', GenJournalLine.TableCaption(),
             GenJournalLine.FieldCaption("Journal Template Name"), GenJournalLine."Journal Template Name",
             GenJournalLine.FieldCaption("Journal Batch Name"), GenJournalLine."Journal Batch Name",
-            GenJournalLine.FieldCaption("Line No."), GenJournalLine."Line No.", GenJournalLine."IC Partner G/L Acc. No."));
+            GenJournalLine.FieldCaption("Line No."), GenJournalLine."Line No.", GenJournalLine."IC Account No."));
     end;
 
     [Test]
@@ -1303,6 +1318,7 @@ codeunit 134151 "ERM Intercompany"
         GenJournalLine: Record "Gen. Journal Line";
         ICGLAccount: Record "IC G/L Account";
         ICOutboxJnlLine: Record "IC Outbox Jnl. Line";
+        ICAccountNo: Code[20];
     begin
         // Check IC Outbox Journal Lines after posting a non-IC line and an IC line at the same time.
 
@@ -1324,8 +1340,13 @@ codeunit 134151 "ERM Intercompany"
         VerifyICOutboxJournalLine(
           GenJournalLine."IC Partner Code", ICOutboxJnlLine."Account Type"::"IC Partner", GenJournalLine."IC Partner Code",
           GenJournalLine."Document No.", GenJournalLine.Amount);
+#if not CLEAN22
+        ICAccountNo := GenJournalLine."IC Partner G/L Acc. No.";
+#else
+        ICAccountNo := GenJournalLine."IC Account No.";
+#endif
         VerifyICOutboxJournalLine(
-          GenJournalLine."IC Partner Code", ICOutboxJnlLine."Account Type"::"G/L Account", GenJournalLine."IC Partner G/L Acc. No.",
+          GenJournalLine."IC Partner Code", ICOutboxJnlLine."Account Type"::"G/L Account", ICAccountNo,
           GenJournalLine."Document No.", -GenJournalLine.Amount);
 
         // Tear Down.
@@ -1854,8 +1875,15 @@ codeunit 134151 "ERM Intercompany"
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        ICSetup: Record "IC Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Intercompany");
+        if not ICSetup.Get() then begin
+            ICSetup.Init();
+            ICSetup.Insert();
+        end;
+        ICSetup."Auto. Send Transactions" := false;
+        ICSetup.Modify();
         ClearGlobalVariables;
         if IsInitialized then
             exit;
@@ -2039,7 +2067,11 @@ codeunit 134151 "ERM Intercompany"
             "Document No." := LibraryUtility.GenerateGUID();
             "Posting Date" := LibraryRandom.RandDate(10);
             "Document Date" := LibraryRandom.RandDate(10);
-            "IC Partner G/L Acc. No." := LibraryUtility.GenerateGUID();
+            "IC Account Type" := "IC Journal Account Type"::"G/L Account";
+            "IC Account No." := LibraryUtility.GenerateGUID();
+#if not CLEAN22
+            "IC Partner G/L Acc. No." := "IC Account No.";
+#endif
             "Source Line No." := LibraryRandom.RandInt(100);
             Insert();
         end;
@@ -2192,7 +2224,10 @@ codeunit 134151 "ERM Intercompany"
     begin
         GenJournalLine.Validate("Document No.", DocumentNo);
         GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
+#if not CLEAN22
         GenJournalLine.Validate("IC Partner G/L Acc. No.", ICPartnerGLAccNo);
+#endif
+        GenJournalLine.Validate("IC Account No.", ICPartnerGLAccNo);
         GenJournalLine.Modify(true);
     end;
 
@@ -2297,8 +2332,11 @@ codeunit 134151 "ERM Intercompany"
             Assert.AreEqual(ICOutboxTransaction."Posting Date", "Posting Date", FieldCaption("Posting Date"));
             Assert.AreEqual(ICOutboxTransaction."Document Date", "Document Date", FieldCaption("Document Date"));
             Assert.AreEqual("Line Action"::"No Action", "Line Action", FieldCaption("Line Action"));
-            Assert.AreEqual(
-              ICOutboxTransaction."IC Partner G/L Acc. No.", "IC Partner G/L Acc. No.", FieldCaption("IC Partner G/L Acc. No."));
+#if not CLEAN22
+            Assert.AreEqual(ICOutboxTransaction."IC Partner G/L Acc. No.", "IC Partner G/L Acc. No.", FieldCaption("IC Partner G/L Acc. No."));
+#endif
+            Assert.AreEqual(ICOutboxTransaction."IC Account Type", "IC Account Type", FieldCaption("IC Account Type"));
+            Assert.AreEqual(ICOutboxTransaction."IC Account No.", "IC Account No.", FieldCaption("IC Account No."));
             Assert.AreEqual(ICOutboxTransaction."Source Line No.", "Source Line No.", FieldCaption("Source Line No."));
         end;
     end;

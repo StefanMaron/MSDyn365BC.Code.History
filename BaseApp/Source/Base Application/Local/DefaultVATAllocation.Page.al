@@ -14,7 +14,7 @@ page 14927 "Default VAT Allocation"
             repeater(Control1470000)
             {
                 ShowCaption = false;
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of default VAT allocation.';
@@ -24,7 +24,7 @@ page 14927 "Default VAT Allocation"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account number to post the VAT allocation to.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the default VAT allocation entry.';
@@ -39,7 +39,7 @@ page 14927 "Default VAT Allocation"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the percentage of the amount to be allocated to VAT.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount, including VAT, of the transaction.';

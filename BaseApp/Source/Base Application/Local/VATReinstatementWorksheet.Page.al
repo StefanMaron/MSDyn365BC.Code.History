@@ -132,7 +132,7 @@ page 14947 "VAT Reinstatement Worksheet"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the creditor or debitor.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

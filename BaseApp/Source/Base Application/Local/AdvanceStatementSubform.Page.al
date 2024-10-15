@@ -16,7 +16,7 @@ page 12432 "Advance Statement Subform"
             repeater(Control1210004)
             {
                 ShowCaption = false;
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the record.';
@@ -82,7 +82,7 @@ page 12432 "Advance Statement Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the employee purchase document date associated with the purchase line.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this line.';
@@ -111,7 +111,7 @@ page 12432 "Advance Statement Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved employee.';
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;

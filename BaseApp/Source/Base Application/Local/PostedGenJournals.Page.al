@@ -90,7 +90,7 @@ page 12409 "Posted Gen. Journals"
                         GetAccounts(AccName, BalAccName);
                     end;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this line.';
@@ -149,7 +149,7 @@ page 12409 "Posted Gen. Journals"
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of this line.';

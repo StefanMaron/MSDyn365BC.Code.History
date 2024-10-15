@@ -1682,6 +1682,7 @@ codeunit 137510 "SMB Service Item"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure WhseShipmentForSalesNotCreatedForItemTypeService()
     var
@@ -1714,6 +1715,7 @@ codeunit 137510 "SMB Service Item"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure WhseShipmentForSalesCreatedOnlyForItemTypeInventory()
     var
@@ -1754,6 +1756,7 @@ codeunit 137510 "SMB Service Item"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure WhseShipmentForPurchaseNotCreatedForItemTypeService()
     var
@@ -1786,6 +1789,7 @@ codeunit 137510 "SMB Service Item"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure WhseShipmentForPurchaseCreatedOnlyForItemTypeInventory()
     var
@@ -1828,6 +1832,7 @@ codeunit 137510 "SMB Service Item"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure WhseReceiptForPurchaseNotCreatedForItemTypeService()
     var
@@ -1860,6 +1865,7 @@ codeunit 137510 "SMB Service Item"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure WhseReceiptForPurchaseCreatedOnlyForItemTypeInventory()
     var
@@ -1902,6 +1908,7 @@ codeunit 137510 "SMB Service Item"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure WhseReceiptForSalesNotCreatedForItemTypeService()
     var
@@ -1934,6 +1941,7 @@ codeunit 137510 "SMB Service Item"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure WhseReceiptForSalesCreatedOnlyForItemTypeInventory()
     var
@@ -2460,6 +2468,7 @@ codeunit 137510 "SMB Service Item"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     procedure PurchLineForNonInventoryItemNotBlankedOutOnPostingWhseReceipt()
     var
         Location: Record Location;
@@ -2501,6 +2510,7 @@ codeunit 137510 "SMB Service Item"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     procedure SalesLineForNonInventoryItemNotBlankedOutOnPostingWhseShipment()
     var
         Location: Record Location;

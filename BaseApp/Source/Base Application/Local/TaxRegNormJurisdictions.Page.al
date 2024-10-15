@@ -18,7 +18,7 @@ page 17246 "Tax Reg. Norm Jurisdictions"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the norm jurisdiction code.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the norm jurisdiction code.';

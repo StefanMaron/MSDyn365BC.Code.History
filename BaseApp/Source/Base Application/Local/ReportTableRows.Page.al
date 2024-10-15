@@ -13,7 +13,7 @@ page 26553 "Report Table Rows"
             repeater(Control1210000)
             {
                 ShowCaption = false;
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with the statutory report table row.';

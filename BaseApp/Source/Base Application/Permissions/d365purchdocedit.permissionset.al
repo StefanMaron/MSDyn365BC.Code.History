@@ -1,4 +1,4 @@
-permissionset 5807 "D365 PURCH DOC, EDIT"
+﻿permissionset 5807 "D365 PURCH DOC, EDIT"
 {
     Assignable = true;
     Caption = 'Dyn. 365 Create purch. doc.';
@@ -13,14 +13,13 @@ permissionset 5807 "D365 PURCH DOC, EDIT"
                   tabledata "Cost Type" = RIMD,
                   tabledata Currency = RM,
                   tabledata "Customer Bank Account" = R,
+                  tabledata "Detailed Employee Ledger Entry" = Rm,
                   tabledata "Detailed Vendor Ledg. Entry" = Rm,
                   tabledata Employee = R,
+                  tabledata "Employee Ledger Entry" = Rm,
                   tabledata "G/L Account" = R,
                   tabledata "General Ledger Setup" = rm,
                   tabledata "Item Charge" = R,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = R,
-#endif
                   tabledata "Item Entry Relation" = R,
                   tabledata "Item Reference" = R,
                   tabledata "Item Tracing Buffer" = Rimd,

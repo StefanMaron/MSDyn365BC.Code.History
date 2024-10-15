@@ -19,12 +19,12 @@ page 17300 "Tax Differences"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an identifying income or expense code that defines the source of the tax difference.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description for the tax difference code.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the tax difference represents Income or Expense for your organization.';

@@ -13,7 +13,7 @@ page 14918 "Payment Order Codes"
             repeater(Control1210000)
             {
                 ShowCaption = false;
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the record.';
@@ -22,7 +22,7 @@ page 14918 "Payment Order Codes"
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this line.';

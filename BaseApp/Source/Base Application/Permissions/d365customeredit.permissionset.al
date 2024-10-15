@@ -1,4 +1,4 @@
-permissionset 5729 "D365 CUSTOMER, EDIT"
+﻿permissionset 5729 "D365 CUSTOMER, EDIT"
 {
     Assignable = true;
     Caption = 'Dynamics 365 Create customers';
@@ -29,6 +29,7 @@ permissionset 5729 "D365 CUSTOMER, EDIT"
                   tabledata "Dtld. Price Calculation Setup" = Rid,
                   tabledata "Duplicate Price Line" = Rid,
                   tabledata "Duplicate Search String Setup" = R,
+                  tabledata "Employee Ledger Entry" = rm,
                   tabledata "Filed Contract Line" = rm,
                   tabledata "Finance Charge Text" = R,
                   tabledata "G/L Entry - VAT Entry Link" = rm,
@@ -38,9 +39,6 @@ permissionset 5729 "D365 CUSTOMER, EDIT"
                   tabledata "Item Analysis View Entry" = rid,
                   tabledata "Item Budget Entry" = r,
                   tabledata "Item Reference" = IMD,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = IMD,
-#endif
                   tabledata "Line Fee Note on Report Hist." = R,
                   tabledata Opportunity = Rm,
                   tabledata "Opportunity Entry" = Rm,

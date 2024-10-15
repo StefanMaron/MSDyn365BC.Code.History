@@ -22,12 +22,12 @@ page 17285 "Tax Reg. Norm Accum. Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the template line code associated with the norm accumulation information.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with the norm accumulation information.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount associated with the norm accumulation information.';

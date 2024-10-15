@@ -131,7 +131,7 @@ page 17236 "Tax Register Create"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last payroll entry date for the tax register section.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

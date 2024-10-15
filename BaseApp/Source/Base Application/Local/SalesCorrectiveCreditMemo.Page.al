@@ -116,7 +116,7 @@ page 14973 "Sales Corrective Credit Memo"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the record.';
@@ -565,7 +565,7 @@ page 14973 "Sales Corrective Credit Memo"
                     Image = Signature;
                     RunObject = Page "Document Signatures";
                     RunPageLink = "Table ID" = CONST(36),
-#pragma warning disable
+#pragma warning disable AL0603
                                   "Document Type" = FIELD("Document Type"),
 #pragma warning restore
                                   "Document No." = FIELD("No.");

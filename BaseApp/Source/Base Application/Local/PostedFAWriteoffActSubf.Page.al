@@ -21,7 +21,7 @@ page 12473 "Posted FA Writeoff Act Subf"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the related fixed asset. ';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a description of the fixed asset.';
@@ -41,7 +41,7 @@ page 12473 "Posted FA Writeoff Act Subf"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the employee number of the person who maintains possession of the fixed asset.';
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the quantity of the fixed asset movement or the write-off line.';
@@ -52,7 +52,7 @@ page 12473 "Posted FA Writeoff Act Subf"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'This field is used internally.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the amount of the fixed asset document line transaction.';

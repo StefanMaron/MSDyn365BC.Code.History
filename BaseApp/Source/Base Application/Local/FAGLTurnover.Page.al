@@ -37,7 +37,7 @@ page 12499 "FA G/L Turnover"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the description associated with this line.';

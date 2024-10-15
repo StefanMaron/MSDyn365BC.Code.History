@@ -28,8 +28,10 @@ page 496 "Payment Rec. Related Entries"
                     var
                         CustLedgerEntry: Record "Cust. Ledger Entry";
                         VendorLedgerEntry: Record "Vendor Ledger Entry";
+                        EmployeeLedgerEntry: Record "Employee Ledger Entry";
                         CustomerLedgerEntries: Page "Customer Ledger Entries";
                         VendorLedgerEntries: Page "Vendor Ledger Entries";
+                        EmployeeLedgerEntries: Page "Employee Ledger Entries";
                     begin
                         case Rec."Entry Type" of
                             Rec."Entry Type"::Customer:
@@ -39,11 +41,18 @@ page 496 "Payment Rec. Related Entries"
                                     CustomerLedgerEntries.Run();
                                 end;
                             Rec."Entry Type"::Vendor:
-                            begin
-                                VendorLedgerEntry.SetRange("Entry No.", Rec."Entry No.");
-                                VendorLedgerEntries.SetTableView(VendorLedgerEntry);
-                                VendorLedgerEntries.Run();
-                            end;
+                                begin
+                                    VendorLedgerEntry.SetRange("Entry No.", Rec."Entry No.");
+                                    VendorLedgerEntries.SetTableView(VendorLedgerEntry);
+                                    VendorLedgerEntries.Run();
+                                end;
+                            Rec."Entry Type"::Employee:
+                                begin
+                                    EmployeeLedgerEntry.SetRange("Entry No.", Rec."Entry No.");
+                                    EmployeeLedgerEntries.SetTableView(EmployeeLedgerEntry);
+                                    EmployeeLedgerEntries.Run();
+                                end;
+
                         end;
                     end;
                 }

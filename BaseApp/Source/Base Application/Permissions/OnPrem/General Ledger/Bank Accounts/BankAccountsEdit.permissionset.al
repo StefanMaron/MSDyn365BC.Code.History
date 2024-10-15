@@ -1,4 +1,4 @@
-permissionset 7785 "Bank Accounts - Edit"
+﻿permissionset 7785 "Bank Accounts - Edit"
 {
     Access = Public;
     Assignable = false;
@@ -25,6 +25,7 @@ permissionset 7785 "Bank Accounts - Edit"
                   tabledata "Cust. Ledger Entry" = r,
                   tabledata "Default Dimension" = RIMD,
                   tabledata "Duplicate Search String Setup" = R,
+                  tabledata "Employee Ledger Entry" = rm,
                   tabledata "FA Ledger Entry" = r,
                   tabledata "G/L Entry" = rm,
                   tabledata "Gen. Journal Batch" = rm,

@@ -19,7 +19,7 @@ page 26562 "Report Data List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the statutory report data header information.';
@@ -29,7 +29,7 @@ page 26562 "Report Data List"
                     ToolTip = 'Specifies the data filter of the statutory report data header.';
                     Visible = false;
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the statutory report data header.';

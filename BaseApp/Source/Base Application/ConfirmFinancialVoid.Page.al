@@ -82,7 +82,7 @@ page 695 "Confirm Financial Void"
 
         with CheckLedgerEntry do begin
             VoidDate := "Check Date";
-            if "Bal. Account Type" in ["Bal. Account Type"::Vendor, "Bal. Account Type"::Customer] then
+            if "Bal. Account Type" in ["Bal. Account Type"::Vendor, "Bal. Account Type"::Customer, "Bal. Account Type"::Employee] then
                 VoidType := VoidType::"Unapply and void check"
             else
                 VoidType := VoidType::"Void check only";

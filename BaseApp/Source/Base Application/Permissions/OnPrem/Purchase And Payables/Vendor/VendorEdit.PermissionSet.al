@@ -1,4 +1,4 @@
-permissionset 7371 "Vendor - Edit"
+﻿permissionset 7371 "Vendor - Edit"
 {
     Access = Public;
     Assignable = false;
@@ -11,7 +11,7 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Comment Line" = RIMD,
                   tabledata "Cont. Duplicate Search String" = RIMD,
                   tabledata Contact = RIM,
-                  tabledata "Contact Business Relation" = ImD,
+                  tabledata "Contact Business Relation" = rimd,
                   tabledata "Contact Duplicate" = R,
                   tabledata "Contract Gain/Loss Entry" = rm,
                   tabledata "Country/Region" = R,
@@ -22,6 +22,8 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Dtld. Price Calculation Setup" = Rid,
                   tabledata "Duplicate Price Line" = Rid,
                   tabledata "Duplicate Search String Setup" = R,
+                  tabledata "Employee Ledger Entry" = Rm,
+                  tabledata "Employee Posting Group" = R,
                   tabledata "FA Ledger Entry" = rm,
                   tabledata "Filed Contract Line" = rm,
                   tabledata "Filed Service Contract Header" = rm,
@@ -34,6 +36,7 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Gen. Journal Batch" = r,
                   tabledata "Gen. Journal Line" = r,
                   tabledata "Gen. Journal Template" = r,
+                  tabledata "IC Bank Account" = Rm,
                   tabledata "IC Partner" = Rm,
                   tabledata Insurance = r,
                   tabledata "Interaction Log Entry" = R,
@@ -41,9 +44,6 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Item Analysis View Budg. Entry" = r,
                   tabledata "Item Analysis View Entry" = rid,
                   tabledata "Item Budget Entry" = r,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = RIMD,
-#endif
                   tabledata "Item Journal Line" = r,
                   tabledata "Item Ledger Entry" = rm,
                   tabledata "Item Reference" = RIMD,

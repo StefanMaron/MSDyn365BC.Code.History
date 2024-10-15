@@ -19,7 +19,7 @@ page 12485 "Depreciation Code List"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the unique identification code for this depreciation code.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = FixedAssets;
                     Style = Strong;

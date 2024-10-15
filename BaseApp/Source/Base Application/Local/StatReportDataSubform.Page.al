@@ -14,7 +14,7 @@ page 35622 "_Stat. Report Data Subform"
             repeater(Control1210000)
             {
                 ShowCaption = false;
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

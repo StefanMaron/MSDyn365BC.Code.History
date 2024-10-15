@@ -241,7 +241,6 @@
         PurchInvLine.TestField("Description 2", 'A');
     end;
 
-#if FIX_UNSTABLEREPORTTEST_VSO416487
     [Test]
     [Scope('OnPrem')]
     procedure PostedPurchaseInvoiceReport()
@@ -274,34 +273,6 @@
 
         // Verify: Verify that Saved files have some data.
         LibraryUtility.CheckFileNotEmpty(FilePath);
-    end;
-#endif
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PostPurchaseInvoiceWithAlternativeVendorPostingGroup()
-    var
-        VendPostingGroup: Record "Vendor Posting Group";
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        PostedDocumentNo: Code[20];
-    begin
-        // Create Sales Invoice, Post and Verify Sales Invoice Header and Line.
-
-        // Setup: Create Sales Invoice.
-        Initialize();
-        CreatePurchaseInvoice(PurchaseHeader, PurchaseLine, CreateVendor(''));
-
-        LibraryPurchase.CreateVendorPostingGroup(VendPostingGroup);
-        PurchaseHeader.Validate("Vendor Posting Group", VendPostingGroup.Code);
-
-        // Exercise: Post Sales Invoice.
-        PostedDocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", WorkDate(), false);
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-
-        // Verify vendor posting group in posted document and ledger entries
-        VerifyPurchaseInvoiceVendPostingGroup(PostedDocumentNo, VendPostingGroup);
     end;
 
     [Test]
@@ -3144,12 +3115,19 @@
 
     local procedure Initialize()
     var
+        ICSetup: Record "IC Setup";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PriceListLine: Record "Price List Line";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Purchase Invoice");
+        if not ICSetup.Get() then begin
+            ICSetup.Init();
+            ICSetup.Insert();
+        end;
+        ICSetup."Auto. Send Transactions" := false;
+        ICSetup.Modify();
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
         PurchaseLine.DeleteAll();

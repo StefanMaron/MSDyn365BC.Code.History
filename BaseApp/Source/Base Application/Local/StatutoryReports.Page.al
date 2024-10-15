@@ -25,7 +25,7 @@ page 26550 "Statutory Reports"
                     StyleExpr = CodeEmphasize;
                     ToolTip = 'Specifies the code for statutory reports.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;

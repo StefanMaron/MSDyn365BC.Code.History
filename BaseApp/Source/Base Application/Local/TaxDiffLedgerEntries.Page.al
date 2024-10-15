@@ -22,7 +22,7 @@ page 17307 "Tax Diff. Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the related document.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with the tax differences ledger entry.';

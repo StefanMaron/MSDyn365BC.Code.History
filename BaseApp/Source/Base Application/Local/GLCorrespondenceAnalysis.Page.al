@@ -88,7 +88,7 @@ page 12402 "G/L Correspondence Analysis"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the credit account associated with this correspondence.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     BlankNumbers = BlankZero;

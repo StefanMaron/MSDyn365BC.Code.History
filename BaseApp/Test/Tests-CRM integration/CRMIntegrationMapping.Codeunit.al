@@ -314,59 +314,6 @@ codeunit 139183 "CRM Integration Mapping"
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure TableMappingDeletionRemovesRelatedOptionMapping()
-    var
-        IntegrationTableMapping: Record "Integration Table Mapping";
-        CRMOptionMapping: Record "CRM Option Mapping";
-        PaymentTerms: Record "Payment Terms";
-    begin
-        // [FEATURE] [Option Mapping]
-        IntegrationTableMapping.DeleteAll(true);
-        // [GIVEN] the Table Mapping for "Payment Terms" table mapped to a CRM option field PaymentTermsCode
-        IntegrationTableMapping.Init();
-        IntegrationTableMapping.Name := 'X';
-        IntegrationTableMapping."Table ID" := DATABASE::"Payment Terms";
-        IntegrationTableMapping."Integration Table ID" := DATABASE::"CRM Account";
-        IntegrationTableMapping."Integration Table UID Fld. No." := 15;
-        IntegrationTableMapping.Insert();
-
-        // [GIVEN] CRM Option Mapping table contains 4 records:
-        CRMOptionMapping.DeleteAll();
-        // [GIVEN] 1 record, where "Table ID" is not equal to one set in Integration Table Mapping
-        CRMOptionMapping.Init();
-        CRMOptionMapping."Table ID" := DATABASE::"Shipping Agent";
-        CRMOptionMapping."Integration Table ID" := DATABASE::"CRM Account";
-        CRMOptionMapping."Integration Field ID" := 15;
-        PaymentTerms.Find('-');
-        CRMOptionMapping."Record ID" := PaymentTerms.RecordId;
-        CRMOptionMapping.Insert();
-        // [GIVEN] 1 record, where "Integration Table ID" is not equal to one set in Integration Table Mapping
-        CRMOptionMapping."Table ID" := DATABASE::"Payment Terms";
-        CRMOptionMapping."Integration Table ID" := DATABASE::"CRM Contact";
-        PaymentTerms.Next();
-        CRMOptionMapping."Record ID" := PaymentTerms.RecordId;
-        CRMOptionMapping.Insert();
-        // [GIVEN] 1 record, where all "Table ID","Integration Table ID","Integration Field ID" equal to ones set in Integration Table Mapping
-        CRMOptionMapping."Integration Table ID" := DATABASE::"CRM Account";
-        PaymentTerms.Next();
-        CRMOptionMapping."Record ID" := PaymentTerms.RecordId;
-        CRMOptionMapping.Insert();
-        // [GIVEN] 1 record, where "Integration Field ID" is not equal to one set in Integration Table Mapping
-        CRMOptionMapping."Integration Field ID" := 16;
-        PaymentTerms.Next();
-        CRMOptionMapping."Record ID" := PaymentTerms.RecordId;
-        CRMOptionMapping.Insert();
-
-        // [WHEN] Delete the Table Mapping
-        IntegrationTableMapping.Delete(true);
-
-        // [THEN] There are 3 Option Mapping records
-        Assert.RecordCount(CRMOptionMapping, 3);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
     procedure IntTableUIDFieldTypeDefinedByUIDNoValidation()
     var
         "Field": Record "Field";
@@ -766,27 +713,6 @@ codeunit 139183 "CRM Integration Mapping"
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure ShippingAgentFilledByDefault()
-    var
-        CRMOptionMapping: Record "CRM Option Mapping";
-        ShippingAgent: Record "Shipping Agent";
-    begin
-        // [FEATURE] [Shipping Agent]
-        Initialize();
-        // [GIVEN] "Shipping Agent" is empty
-        ShippingAgent.DeleteAll();
-        // [WHEN] Reset CRM Configuration
-        ResetCRMConfiguration(false);
-        // [THEN] "Shipping Agent" is NOT empty
-        Assert.TableIsNotEmpty(DATABASE::"Shipping Agent");
-        // [THEN] "CRM Option Mapping" is defined
-        CRMOptionMapping.SetRange("Table ID", DATABASE::"Shipping Agent");
-        Assert.RecordIsNotEmpty(CRMOptionMapping)
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
     procedure ShippingAgentMappedToShippingMethodCodeEnum()
     var
         CRMAccount: Record "CRM Account";
@@ -798,30 +724,9 @@ codeunit 139183 "CRM Integration Mapping"
 
         VerifyMapping(
           IntegrationTableMapping, DATABASE::"Shipping Agent", DATABASE::"CRM Account",
-          CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), 1, 2, false);
+          CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), 1, 1, false);
         VerifyUIDFieldIsOpton(IntegrationTableMapping.Name);
-        VerifyNoJobQueueEntry(IntegrationTableMapping);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure ShipmentMethodFilledByDefault()
-    var
-        CRMOptionMapping: Record "CRM Option Mapping";
-        ShipmentMethod: Record "Shipment Method";
-    begin
-        // [FEATURE] [Shipment Method]
-        Initialize();
-        // [GIVEN] "Shipment Method" is empty
-        ShipmentMethod.DeleteAll();
-        // [WHEN] Reset CRM Configuration
-        ResetCRMConfiguration(false);
-        // [GIVEN] "Shipment Method" is NOT empty
-        Assert.TableIsNotEmpty(DATABASE::"Shipment Method");
-        // [THEN] "CRM Option Mapping" is defined
-        CRMOptionMapping.SetRange("Table ID", DATABASE::"Shipment Method");
-        Assert.RecordIsNotEmpty(CRMOptionMapping)
+        VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
 
     [Test]
@@ -837,30 +742,9 @@ codeunit 139183 "CRM Integration Mapping"
         Initialize();
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::"Shipment Method", DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), 1, 2, false);
+          IntegrationTableMapping, DATABASE::"Shipment Method", DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), 1, 1, false);
         VerifyUIDFieldIsOpton(IntegrationTableMapping.Name);
-        VerifyNoJobQueueEntry(IntegrationTableMapping);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure PaymentTermsFilledByDefault()
-    var
-        CRMOptionMapping: Record "CRM Option Mapping";
-        PaymentTerms: Record "Payment Terms";
-    begin
-        // [FEATURE] [Payment Terms]
-        Initialize();
-        // [GIVEN] "Payment Terms" is empty
-        PaymentTerms.DeleteAll();
-        // [WHEN] Reset CRM Configuration
-        ResetCRMConfiguration(false);
-        // [THEN] "Payment Terms" is NOT empty
-        Assert.TableIsNotEmpty(DATABASE::"Payment Terms");
-        // [THEN] "CRM Option Mapping" is defined
-        CRMOptionMapping.SetRange("Table ID", DATABASE::"Payment Terms");
-        Assert.RecordIsNotEmpty(CRMOptionMapping)
+        VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
 
     [Test]
@@ -876,9 +760,9 @@ codeunit 139183 "CRM Integration Mapping"
         Initialize();
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::"Payment Terms", DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), 1, 2, false);
+          IntegrationTableMapping, DATABASE::"Payment Terms", DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), 1, 1, false);
         VerifyUIDFieldIsOpton(IntegrationTableMapping.Name);
-        VerifyNoJobQueueEntry(IntegrationTableMapping);
+        VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
 
     [Test]
@@ -976,36 +860,6 @@ codeunit 139183 "CRM Integration Mapping"
 
     [Test]
     [Scope('OnPrem')]
-    procedure SyncNowShouldRestoreOptionMapping()
-    var
-        CRMOptionMapping: Record "CRM Option Mapping";
-        IntegrationTableMapping: Record "Integration Table Mapping";
-        PaymentTerms: Record "Payment Terms";
-    begin
-        Initialize();
-        // [GIVEN] Reset CRM Configuration
-        ResetCRMConfiguration(false);
-        // [GIVEN] "Payment Terms" and "CRM Option Mapping" are empty
-        PaymentTerms.DeleteAll();
-        CRMOptionMapping.DeleteAll();
-
-        // [WHEN] SynchronizeNow on "Payment Terms" table mapping record
-        IntegrationTableMapping.SetRange("Table ID", DATABASE::"Payment Terms");
-        IntegrationTableMapping.FindFirst();
-        IntegrationTableMapping.SynchronizeNow(true);
-
-        // [WHEN] The scheduled jobs is finished
-        SimulateIntegrationSyncJobExecution(IntegrationTableMapping);
-
-        // [THEN] "Payment Terms" is NOT empty
-        Assert.TableIsNotEmpty(DATABASE::"Payment Terms");
-        // [THEN] "CRM Option Mapping" is defined for "Payment Terms"
-        CRMOptionMapping.SetRange("Table ID", DATABASE::"Payment Terms");
-        Assert.RecordIsNotEmpty(CRMOptionMapping)
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure SyncTableWithAllEnabledFields()
     var
         Currency: Record Currency;
@@ -1025,7 +879,7 @@ codeunit 139183 "CRM Integration Mapping"
         SyncCurrency(Currency);
 
         // [THEN] new Transactioncurrency coupled to 'X', where ISOCurrencyCode, CurrencySymbol, and CurrencyName are in sync
-        VerifyTransactionCurrency(Currency, CopyStr(Currency.Code, 1, 5), CopyStr(Currency.Code, 1, 10), Currency.Description);
+        VerifyTransactionCurrency(Currency, CopyStr(Currency.Code, 1, 5), Currency.Symbol, Currency.Description);
     end;
 
     [Test]
@@ -1274,9 +1128,9 @@ codeunit 139183 "CRM Integration Mapping"
         Initialize();
         ResetCRMConfiguration(false);
 
-        // [GIVEN] Posted Sales Invoice, where "Payment Terms" = "Net45", "Shipping Agent" = "WillCall"
-        ExpectedShippingMethodCode := CRMInvoice.ShippingMethodCodeEnum::WillCall.AsInteger();
-        ExpectedPaymentTermsCode := CRMInvoice.PaymentTermsCodeEnum::Net45.AsInteger();
+        // [GIVEN] Posted Sales Invoice, where "Payment Terms" = "Net30", "Shipping Agent" = "Airborne"
+        ExpectedShippingMethodCode := CRMInvoice.ShippingMethodCodeEnum::Airborne.AsInteger();
+        ExpectedPaymentTermsCode := CRMInvoice.PaymentTermsCodeEnum::Net30.AsInteger();
 
         SalesInvoiceHeader.Init();
         SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID();
@@ -1317,7 +1171,7 @@ codeunit 139183 "CRM Integration Mapping"
           LibraryCRMIntegration.RunJobQueueEntry(
             DATABASE::"Sales Invoice Header", FilteredSalesInvoiceHeader.GetView(), IntegrationTableMapping);
 
-        // [THEN] The coupled CRM Invoice is created, where "Payment Terms" = "Net 45", "Shipping Agent" = "Will Call"
+        // [THEN] The coupled CRM Invoice is created, where "Payment Terms" = "Net30", "Shipping Agent" = "Airborne"
         Assert.IsTrue(CRMCouplingManagement.IsRecordCoupledToCRM(SalesInvoiceHeader.RecordId), 'Invoice is not coupled.');
         CRMIntegrationRecord.FindIDFromRecordID(SalesInvoiceHeader.RecordId, CRMId);
         CRMInvoice.Get(CRMId);
@@ -2011,16 +1865,16 @@ codeunit 139183 "CRM Integration Mapping"
 
         VerifyMapping(
                   IntegrationTableMapping, DATABASE::"Shipping Agent", DATABASE::"CRM Account",
-                  CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), 1, 2, false);
-        VerifyNoJobQueueEntry(IntegrationTableMapping);
+                  CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), 1, 1, false);
+        VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
-                  IntegrationTableMapping, DATABASE::"Shipment Method", DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), 1, 2, false);
-        VerifyNoJobQueueEntry(IntegrationTableMapping);
+                  IntegrationTableMapping, DATABASE::"Shipment Method", DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), 1, 1, false);
+        VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::"Payment Terms", DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), 1, 2, false);
-        VerifyNoJobQueueEntry(IntegrationTableMapping);
+          IntegrationTableMapping, DATABASE::"Payment Terms", DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), 1, 1, false);
+        VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
 
     [Test]
@@ -2147,16 +2001,16 @@ codeunit 139183 "CRM Integration Mapping"
 
         VerifyMapping(
                   IntegrationTableMapping, DATABASE::"Shipping Agent", DATABASE::"CRM Account",
-                  CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), 1, 2, false);
-        VerifyNoJobQueueEntry(IntegrationTableMapping);
+                  CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), 1, 1, false);
+        VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
-                  IntegrationTableMapping, DATABASE::"Shipment Method", DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), 1, 2, false);
-        VerifyNoJobQueueEntry(IntegrationTableMapping);
+                  IntegrationTableMapping, DATABASE::"Shipment Method", DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), 1, 1, false);
+        VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
         VerifyMapping(
-          IntegrationTableMapping, DATABASE::"Payment Terms", DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), 1, 2, false);
-        VerifyNoJobQueueEntry(IntegrationTableMapping);
+          IntegrationTableMapping, DATABASE::"Payment Terms", DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), 1, 1, false);
+        VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
 
     [Test]
@@ -2336,9 +2190,9 @@ codeunit 139183 "CRM Integration Mapping"
 
     local procedure FillSalesOrderOptionFields(var CRMSalesorder: Record "CRM Salesorder")
     begin
-        CRMSalesorder.ShippingMethodCodeEnum := CRMSalesorder.ShippingMethodCodeEnum::WillCall;
-        CRMSalesorder.PaymentTermsCodeEnum := CRMSalesorder.PaymentTermsCodeEnum::"2%10Net30";
-        CRMSalesorder.FreightTermsCodeEnum := CRMSalesorder.FreightTermsCodeEnum::NoCharge;
+        CRMSalesorder.ShippingMethodCodeEnum := CRMSalesorder.ShippingMethodCodeEnum::Airborne;
+        CRMSalesorder.PaymentTermsCodeEnum := CRMSalesorder.PaymentTermsCodeEnum::Net30;
+        CRMSalesorder.FreightTermsCodeEnum := CRMSalesorder.FreightTermsCodeEnum::FOB;
         CRMSalesorder.Modify();
     end;
 

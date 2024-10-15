@@ -51,7 +51,7 @@ page 17306 "Tax Difference Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the related document.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the tax differences journal line.';

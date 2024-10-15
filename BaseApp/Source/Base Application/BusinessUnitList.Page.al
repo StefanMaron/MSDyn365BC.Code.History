@@ -27,7 +27,7 @@ page 240 "Business Unit List"
                     LookupPageID = Companies;
                     ToolTip = 'Specifies the company that will become a business unit in the consolidated company.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name of the business unit in the consolidated company.';
@@ -268,6 +268,23 @@ page 240 "Business Unit List"
                     Image = Export;
                     RunObject = Report "Export Consolidation";
                     ToolTip = 'Export transactions from the business units to a file.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group("Category_Exch. Rates")
+            {
+                Caption = 'Exch. Rates';
+
+                actionref("Average Rate (Manual)_Promoted"; "Average Rate (Manual)")
+                {
+                }
+                actionref("Closing Rate_Promoted"; "Closing Rate")
+                {
+                }
+                actionref("Last Closing Rate_Promoted"; "Last Closing Rate")
+                {
                 }
             }
         }

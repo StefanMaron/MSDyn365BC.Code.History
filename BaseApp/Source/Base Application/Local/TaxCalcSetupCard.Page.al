@@ -25,7 +25,7 @@ page 17311 "Tax Calc. Setup Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the register ID associated with the tax calculation header.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with the tax calculation header.';

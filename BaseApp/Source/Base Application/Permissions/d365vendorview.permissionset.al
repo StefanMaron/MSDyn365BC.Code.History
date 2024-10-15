@@ -1,4 +1,4 @@
-permissionset 6555 "D365 VENDOR, VIEW"
+﻿permissionset 6555 "D365 VENDOR, VIEW"
 {
     Assignable = true;
 
@@ -6,9 +6,6 @@ permissionset 6555 "D365 VENDOR, VIEW"
     Permissions = tabledata "Employee" = R,
                   tabledata "G/L Account" = R,
                   tabledata "Item Reference" = R,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = R,
-#endif
                   tabledata "Transaction Type" = R,
                   tabledata "Transport Method" = R,
                   tabledata "Vendor Bank Account" = R,

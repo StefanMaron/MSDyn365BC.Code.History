@@ -3983,9 +3983,9 @@ codeunit 137405 "SCM Item Tracking"
         Initialize();
 
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCodeWithoutWhse, false, true);
+        ItemTrackingCodeWithoutWhse.Validate("Lot Warehouse Tracking", false);
+        ItemTrackingCodeWithoutWhse.Modify(true);
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCodeWithWhse, false, true);
-        ItemTrackingCodeWithWhse.Validate("Lot Warehouse Tracking", true);
-        ItemTrackingCodeWithWhse.Modify(true);
 
         LibraryInventory.CreateTrackedItem(Item, '', '', ItemTrackingCodeWithoutWhse.Code);
         MockWarehouseEntry(Item."No.");
@@ -4009,9 +4009,9 @@ codeunit 137405 "SCM Item Tracking"
         Initialize();
 
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCodeWithoutWhse, true, false);
+        ItemTrackingCodeWithoutWhse.Validate("SN Warehouse Tracking", false);
+        ItemTrackingCodeWithoutWhse.Modify(true);
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCodeWithWhse, true, false);
-        ItemTrackingCodeWithWhse.Validate("SN Warehouse Tracking", true);
-        ItemTrackingCodeWithWhse.Modify(true);
 
         LibraryInventory.CreateTrackedItem(Item, '', '', ItemTrackingCodeWithWhse.Code);
         MockWarehouseEntry(Item."No.");
@@ -4567,6 +4567,9 @@ codeunit 137405 "SCM Item Tracking"
 
         // [GIVEN] Both package and serial no.-tracked item.
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false, true);
+        ItemTrackingCode.Validate("SN Warehouse Tracking", false);
+        ItemTrackingCode.Validate("Package Warehouse Tracking", false);
+        ItemTrackingCode.Modify(true);
         LibraryInventory.CreateTrackedItem(Item, '', '', ItemTrackingCode.Code);
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInformation, Item."No.", PackageNos[1]);
         LibraryItemTracking.CreatePackageNoInformation(PackageNoInformation, Item."No.", PackageNos[2]);
@@ -5047,7 +5050,11 @@ codeunit 137405 "SCM Item Tracking"
     begin
         LibraryInventory.CreateItemTrackingCode(ItemTrackingCode);
         ItemTrackingCode.Validate("Lot Specific Tracking", LotSpecificTracking);
+        if LotSpecificTracking then
+            ItemTrackingCode.Validate("Lot Warehouse Tracking", not LotSpecificTracking);
         ItemTrackingCode.Validate("SN Specific Tracking", SNSpecificTracking);
+        if SNSpecificTracking then
+            ItemTrackingCode.Validate("SN Warehouse Tracking", not SNSpecificTracking);
         ItemTrackingCode.Modify(true);
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Standard, LibraryPatterns.RandCost(Item));
         with Item do begin

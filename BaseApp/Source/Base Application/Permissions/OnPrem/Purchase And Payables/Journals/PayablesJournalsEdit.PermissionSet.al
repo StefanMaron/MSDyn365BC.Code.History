@@ -1,4 +1,4 @@
-permissionset 8824 "Payables Journals - Edit"
+﻿permissionset 8824 "Payables Journals - Edit"
 {
     Access = Public;
     Assignable = false;
@@ -31,6 +31,7 @@ permissionset 8824 "Payables Journals - Edit"
                   tabledata "Default Dimension" = R,
                   tabledata "Default Dimension Priority" = R,
                   tabledata "Detailed Vendor Ledg. Entry" = Ri,
+                  tabledata "Employee Ledger Entry" = Rm,
                   tabledata "G/L Account" = R,
                   tabledata "Gen. Business Posting Group" = R,
                   tabledata "Gen. Jnl. Allocation" = RIMD,

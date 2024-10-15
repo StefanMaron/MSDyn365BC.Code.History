@@ -12,7 +12,7 @@ page 12412 "VAT Ledger List"
             repeater(Control1210000)
             {
                 ShowCaption = false;
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT ledger type.';
@@ -28,7 +28,7 @@ page 12412 "VAT Ledger List"
                             CurrPage.Update();
                     end;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this VAT ledger.';

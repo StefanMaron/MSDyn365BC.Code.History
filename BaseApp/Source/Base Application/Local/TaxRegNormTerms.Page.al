@@ -17,7 +17,7 @@ page 17282 "Tax Reg. Norm Terms"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the term code associated with the norm term name.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the term code description associated with the norm term name.';

@@ -1,4 +1,4 @@
-permissionset 4936 "Inventory - Periodic"
+﻿permissionset 4936 "Inventory - Periodic"
 {
     Access = Public;
     Assignable = false;
@@ -17,6 +17,7 @@ permissionset 4936 "Inventory - Periodic"
                   tabledata "Date Compr. Register" = RimD,
                   tabledata "Dtld. Price Calculation Setup" = RIMD,
                   tabledata "Duplicate Price Line" = RIMD,
+                  tabledata "Employee Posting Group" = R,
                   tabledata "G/L Account" = R,
                   tabledata "G/L Entry" = Ri,
                   tabledata "G/L Register" = Rim,

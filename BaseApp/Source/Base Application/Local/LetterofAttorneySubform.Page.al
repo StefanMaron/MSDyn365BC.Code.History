@@ -13,7 +13,7 @@ page 14907 "Letter of Attorney Subform"
             repeater(Control1210000)
             {
                 ShowCaption = false;
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of item to be purchased.';
@@ -23,7 +23,7 @@ page 14907 "Letter of Attorney Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the goods.';
@@ -33,7 +33,7 @@ page 14907 "Letter of Attorney Subform"
                     ToolTip = 'Specifies a description of the goods.';
                     Visible = false;
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity of the goods.';

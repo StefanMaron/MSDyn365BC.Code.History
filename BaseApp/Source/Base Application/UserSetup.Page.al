@@ -39,6 +39,16 @@ page 119 "User Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last date on which the user is allowed to post deferrals to the company.';
                 }
+                field("Sales Invoice Posting Policy"; Rec."Sales Invoice Posting Policy")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specify if you want user who posts warehouse shipment, sales shipments, or inventory pick to be able to post invoice/credit-memo as well.';
+                }
+                field("Purch. Invoice Posting Policy"; Rec."Purch. Invoice Posting Policy")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specify if you want user who posts purchase receipt or inventory put-away to be able to post invoice/credit-memo as well.';
+                }
                 field("Register Time"; Rec."Register Time")
                 {
                     ApplicationArea = Basic, Suite;

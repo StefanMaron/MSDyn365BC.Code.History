@@ -43,7 +43,7 @@ page 12454 "Report Selection - Item. Docs"
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the display name of the report.';
                 }
-                field(Default; Default)
+                field(Default; Rec.Default)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the report ID is the default for the report selection.';

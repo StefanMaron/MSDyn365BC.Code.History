@@ -31,7 +31,7 @@ page 12421 "Bank Directory Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the full name associated with the bank.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank type.';
@@ -71,7 +71,7 @@ page 12421 "Bank Directory Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the RKC number associated with the bank.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank status information.';

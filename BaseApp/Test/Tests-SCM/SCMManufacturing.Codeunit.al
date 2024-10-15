@@ -62,6 +62,7 @@ codeunit 137404 "SCM Manufacturing"
         ReservationDateConflictTxt: Label 'The change causes a date conflict with an existing reservation';
         ReservDateConflictErr: Label 'The change leads to a date conflict with existing reservations.';
         ProdOrdRtngLnExistErr: Label 'Production Order Routing Lines exist, contrary to the expected result.';
+        ProdOrdRtngLnWrongRoutingNoErr: Label 'Production Order Routing Lines were found with an incorrect Routing No.';
         ProdOrdRtngLnNotExistErr: Label 'Production Order Routing Lines do not exist, contrary to the expected result.';
         WorkShiftShouldExistErr: Label 'The work shift start from %1 with allocated time %2 on %3 should exist';
         WorkShiftShouldNotExistErr: Label 'The work shift for non-working day should not exist';
@@ -1528,6 +1529,49 @@ codeunit 137404 "SCM Manufacturing"
 
         // [THEN] Table 5409 (Prod. Order Routing Line) has no Routing Lines for the first Prod. Order Line
         Assert.IsFalse(FindProductionOrderRoutingLine(ProdOrdRtngLn, ProdOrdLn), ProdOrdRtngLnExistErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangeRtngOnProdOrdLnThroughItem()
+    var
+        Item: Record Item;
+        ProdOrdLn: Record "Prod. Order Line";
+        ProdOrd: Record "Production Order";
+        ProdOrdRtngLn: Record "Prod. Order Routing Line";
+    begin
+        // [FEATURE] [Production Order]
+        // [SCENARIO] Production Order Routing Lines should be be deleted for the specific production order line when the Routing No. is changed
+
+        Initialize();
+        Item.Get(CreateItemWithRoutingAndProductionBOM);
+
+        // [GIVEN] Create a released Prod. Order, create 2 Prod. Order lines, calculate routings
+        SetupProdOrdWithRtng(ProdOrd, Item."No.");
+
+        // Find the first Prod. Order Line
+        FindProductionOrderLine(ProdOrdLn, ProdOrd.Status, ProdOrd."No.", Item."No.");
+
+        // Check Table 5409 (Prod. Order Routing Line) has Routing Lines for the first Prod. Order Line
+        Assert.IsTrue(FindProductionOrderRoutingLine(ProdOrdRtngLn, ProdOrdLn), ProdOrdRtngLnNotExistErr);
+
+        // [GIVEN] The Routing No is changed on the item of the first line
+        Item.Get(ProdOrdLn."Item No.");
+        Item.Validate("Routing No.", CreateRouting());
+        Item.Modify();
+
+        // [WHEN] The item no is validated on the line again
+        ProdOrdLn.Validate("Item No.", Item."No.");
+
+        // [THEN] Table 5409 (Prod. Order Routing Line) has no Routing Lines for the first Prod. Order Line
+        Assert.IsFalse(FindProductionOrderRoutingLine(ProdOrdRtngLn, ProdOrdLn), ProdOrdRtngLnExistErr);
+
+        // [WHEN] The routing is now refreshed with "CalcLines = true" and "CalcRoutings = true"
+        LibraryManufacturing.RefreshProdOrder(ProdOrd, false, true, true, false, false); // Select Calculating Lines when Refreshing Order
+
+        // [THEN] Table 5409 (Prod. Order Routing Line) has Routing Lines with the new Routing No.
+        FindProductionOrderRoutingLine(ProdOrdRtngLn, ProdOrdLn);
+        Assert.AreEqual(Item."Routing No.", ProdOrdRtngLn."Routing No.", ProdOrdRtngLnWrongRoutingNoErr);
     end;
 
     [Test]

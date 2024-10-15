@@ -39,7 +39,7 @@ page 35611 "Posted Purch. Advance Reports"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency code for the record.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount.';

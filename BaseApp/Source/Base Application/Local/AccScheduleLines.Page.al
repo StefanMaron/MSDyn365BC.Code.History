@@ -17,7 +17,7 @@ page 26595 "Acc. Schedule Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number that identifies the line.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this line.';

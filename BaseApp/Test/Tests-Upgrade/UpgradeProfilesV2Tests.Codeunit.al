@@ -1,3 +1,4 @@
+#if not CLEAN22
 codeunit 135971 "Upgrade Profile V2 Tests"
 {
     Subtype = Test;
@@ -78,3 +79,4 @@ codeunit 135971 "Upgrade Profile V2 Tests"
     end;
 
 }
+#endif

@@ -27,7 +27,7 @@ page 17324 "Tax Calc. Calc. Buffer"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the expression of the related XML element.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     DecimalPlaces = 2 :;
@@ -38,7 +38,7 @@ page 17324 "Tax Calc. Calc. Buffer"
                         DrillDownAmount();
                     end;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this line.';

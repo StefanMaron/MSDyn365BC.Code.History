@@ -22,7 +22,7 @@ page 2021 "Office Attachments"
                     Caption = 'Attach';
                     ToolTip = 'Select';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

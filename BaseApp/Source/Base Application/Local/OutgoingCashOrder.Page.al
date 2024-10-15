@@ -96,7 +96,7 @@ page 12446 "Outgoing Cash Order"
                         DebitAmountOnAfterValidate();
                     end;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Give to';

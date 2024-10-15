@@ -1,4 +1,4 @@
-permissionset 959 "D365 BUS FULL ACCESS"
+﻿permissionset 959 "D365 BUS FULL ACCESS"
 {
     Access = Public;
     Assignable = true;
@@ -44,10 +44,7 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Object Access Intent Override" = Rimd,
                   tabledata Permission = imd,
                   tabledata "Permission Set" = imd,
-                  tabledata Profile = imd,
                   tabledata "Profile Configuration Symbols" = imd,
-                  tabledata "Profile Metadata" = IMD,
-                  tabledata "Profile Page Metadata" = IMD,
                   tabledata "Published Application" = Rimd,
                   tabledata "Tenant Profile" = imd,
                   tabledata "Tenant Profile Extension" = imd,
@@ -173,9 +170,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Customer Amount" = RIMD,
                   tabledata "Customer Sales Buffer" = RIMD,
                   tabledata "Customer Templ." = RIMD,
-#if not CLEAN19
-                  tabledata "Customer Template" = RIMD,
-#endif
                   tabledata "Customized Calendar Change" = RIMD,
                   tabledata "Customized Calendar Entry" = RIMD,
                   tabledata "CV Ledger Entry Buffer" = RIMD,
@@ -238,6 +232,7 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Email Item" = RIMD,
                   tabledata "Email Parameter" = RIMD,
                   tabledata "Employee Absence" = M,
+                  tabledata "Employee Payment Buffer" = RIMD,
                   tabledata "Employee Qualification" = RIMD,
                   tabledata "Employee Relative" = RIMD,
                   tabledata "Employee Statistics Group" = RIMD,
@@ -259,7 +254,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Exchange Sync" = RIMD,
                   tabledata "Experience Tier Buffer" = RIMD,
                   tabledata "Experience Tier Setup" = RIMD,
-                  tabledata "Ext Txt ID Integration Record" = RIMD,
                   tabledata "Extended Text Header" = RIMD,
                   tabledata "Extended Text Line" = RIMD,
                   tabledata "FA Journal Template" = IMD,
@@ -309,24 +303,21 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Human Resource Comment Line" = IM,
                   tabledata "Hybrid Deployment Setup" = RIMD,
                   tabledata "Image Analysis Setup" = RIMD,
+                  tabledata "Image Analysis Scenario" = Rimd,
                   tabledata "Import G/L Transaction" = RIMD,
                   tabledata "Incoming Document Attachment" = RIMD,
                   tabledata "Insurance Journal Template" = IMD,
                   tabledata "Insurance Type" = IMD,
                   tabledata Integer = RIMD,
-                  tabledata "Integration Management Setup" = RIMD,
-                  tabledata "Integration Record" = RIMD,
-                  tabledata "Integration Record Archive" = RIMD,
                   tabledata "Interaction Template Setup" = RIMD,
                   tabledata "Intermediate Data Import" = IM,
                   tabledata "Internal Movement Header" = RIMD,
                   tabledata "Internal Movement Line" = RIMD,
-#if not CLEAN19
-                  tabledata "Intrastat Checklist Setup" = RIMD,
-#endif
+#if not CLEAN22
                   tabledata "Advanced Intrastat Checklist" = RIMD,
                   tabledata "Intrastat Jnl. Batch" = RIMD,
                   tabledata "Intrastat Jnl. Template" = RIMD,
+#endif
                   tabledata "Invalidated Dim Correction" = R,
                   tabledata "Inventory Adjmt. Entry (Order)" = Rim,
                   tabledata "Inventory Adjustment Buffer" = Rimd,
@@ -372,9 +363,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Item Charge" = RIMD,
                   tabledata "Item Charge Assignment (Purch)" = RIMD,
                   tabledata "Item Charge Assignment (Sales)" = RIMD,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = RIMD,
-#endif
                   tabledata "Item Discount Group" = RIMD,
                   tabledata "Item Entry Relation" = RIMD,
                   tabledata "Item Identifier" = RIMD,
@@ -498,18 +486,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Option Lookup Buffer" = rimd,
                   tabledata "Order Promising Line" = I,
                   tabledata "Order Tracking Entry" = RIMD,
-#if not CLEAN19
-                  tabledata "Outlook Synch. Dependency" = RIMD,
-                  tabledata "Outlook Synch. Entity" = RIMD,
-                  tabledata "Outlook Synch. Entity Element" = RIMD,
-                  tabledata "Outlook Synch. Field" = RIMD,
-                  tabledata "Outlook Synch. Filter" = RIMD,
-                  tabledata "Outlook Synch. Link" = RIMD,
-                  tabledata "Outlook Synch. Lookup Name" = RIMD,
-                  tabledata "Outlook Synch. Option Correl." = RIMD,
-                  tabledata "Outlook Synch. Setup Detail" = RIMD,
-                  tabledata "Outlook Synch. User Setup" = RIMD,
-#endif
                   tabledata "Outstanding Bank Transaction" = RIMD,
                   tabledata "Over-Receipt Code" = RIMD,
                   tabledata "Overdue Approval Entry" = Rimd,
@@ -565,7 +541,9 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Power BI Report Configuration" = RIMD,
                   tabledata "Power BI Report Labels" = R,
                   tabledata "Power BI Report Uploads" = RIMD,
+#if not CLEAN22
                   tabledata "Power BI Service Status Setup" = RIMD,
+#endif
                   tabledata "Power BI User Configuration" = RIMD,
 #if not CLEAN21
                   tabledata "Power BI User License" = RIMD,
@@ -690,11 +668,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Service Shipment Buffer" = RimD,
                   tabledata "Shipment Method Translation" = RIMD,
                   tabledata "Skill Code" = RIMD,
-#if not CLEAN19
-                  tabledata "SmartList Designer Setup" = RIMD,
-                  tabledata "SmartList Export Results" = RIMD,
-                  tabledata "SmartList Import Results" = RIMD,
-#endif
                   tabledata "Sorting Table" = RIMD,
                   tabledata "Standard Address" = Rimd,
                   tabledata "Standard Cost Worksheet" = RIMD,
@@ -742,10 +715,12 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Unit of Measure Translation" = RIMD,
                   tabledata "Unlinked Attachment" = RIMD,
                   tabledata "Untracked Planning Element" = RIM,
+#if not CLEAN22
                   tabledata "User Group" = R,
                   tabledata "User Group Access Control" = R,
                   tabledata "User Group Permission Set" = R,
                   tabledata "User Group Plan" = Rimd,
+#endif
                   tabledata "User Preference" = RIMD,
                   tabledata "User Security Status" = RIM,
                   tabledata "User Task" = RIMD,

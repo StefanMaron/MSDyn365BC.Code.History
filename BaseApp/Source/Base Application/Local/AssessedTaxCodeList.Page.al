@@ -20,7 +20,7 @@ page 14922 "Assessed Tax Code List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code number that represents an assessed fixed assets tax.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description for the assessed tax code.';

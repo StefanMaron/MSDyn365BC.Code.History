@@ -1,4 +1,4 @@
-codeunit 131901 "Library - Human Resource"
+﻿codeunit 131901 "Library - Human Resource"
 {
     // Contains all utility functions related to Human Resource.
 
@@ -40,6 +40,31 @@ codeunit 131901 "Library - Human Resource"
     begin
         CreateEmployee(Employee);
         exit(Employee."No.");
+    end;
+
+    procedure CreateEmployeeNoWithBankAccount(): Code[20]
+    var
+        Employee: Record Employee;
+    begin
+        CreateEmployeeWithBankAccount(Employee);
+        exit(Employee."No.");
+    end;
+
+    procedure CreateEmployeeWithBankAccount(var Employee: Record Employee)
+    var
+        EmployeePostingGroup: Record "Employee Posting Group";
+    begin
+        CreateEmployee(Employee);
+        Employee."Bank Account No." := LibraryUtility.GenerateGUID();
+        Employee.IBAN := LibraryUtility.GenerateGUID();
+        Employee."SWIFT Code" := LibraryUtility.GenerateGUID();
+        Employee."Bank Branch No." := LibraryUtility.GenerateGUID();
+        EmployeePostingGroup.Init();
+        EmployeePostingGroup.Validate(Code, LibraryUtility.GenerateGUID());
+        EmployeePostingGroup.Validate("Payables Account", LibraryERM.CreateGLAccountNoWithDirectPosting);
+        EmployeePostingGroup.Insert(true);
+        Employee.Validate("Employee Posting Group", EmployeePostingGroup.Code);
+        Employee.Modify(true);
     end;
 
     procedure CreateMiscArticle(var MiscArticle: Record "Misc. Article")

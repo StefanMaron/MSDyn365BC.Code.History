@@ -12,6 +12,8 @@ permissionset 207 "D365 BASIC"
                   tabledata "Aggregate Permission Set" = Rimd,
                   tabledata AllObj = imd,
                   tabledata AllObjWithCaption = Rimd,
+                  tabledata "Alt. Customer Posting Group" = R,
+                  tabledata "Alt. Vendor Posting Group" = R,
                   tabledata Chart = imd,
                   tabledata "Code Coverage" = Rimd,
                   tabledata "CodeUnit Metadata" = imd,
@@ -55,12 +57,7 @@ permissionset 207 "D365 BASIC"
                   tabledata "Object Metadata" = imd,
                   tabledata "Page Metadata" = imd,
                   tabledata "Permission Range" = imd,
-                  tabledata "Profile Metadata" = imd,
-                  tabledata "Profile Page Metadata" = imd,
                   tabledata "Query Navigation" = RIMD,
-#if not CLEAN19
-                  tabledata "Query Navigation Validation" = IMD,
-#endif
                   tabledata "Report Layout" = Rimd,
                   tabledata "Report Metadata" = imd,
                   tabledata "Scheduled Task" = imd,
@@ -232,7 +229,7 @@ permissionset 207 "D365 BASIC"
                   tabledata "Data Exch. Field Grouping" = RIMD,
                   tabledata "Data Exch. FlowField Gr. Buff." = RIMD,
                   tabledata "Data Exchange Type" = R,
-				  tabledata "Data Exch. Table Filter" = Rimd,
+                  tabledata "Data Exch. Table Filter" = Rimd,
                   tabledata "Data Privacy Records" = R,
                   tabledata "DataExch-RapidStart Buffer" = RIMD,
                   tabledata "Date Lookup Buffer" = RIMD,
@@ -246,6 +243,8 @@ permissionset 207 "D365 BASIC"
                   tabledata "Deferral Template" = RIMD,
                   tabledata "Detailed Cust. Ledg. Entry" = R,
                   tabledata "Detailed CV Ledg. Entry Buffer" = RIMD,
+                  tabledata "Detailed Employee Ledger Entry" = R,
+                  tabledata "Detailed Vendor Ledg. Entry" = R,
                   tabledata "Dim Correct Selection Criteria" = R,
                   tabledata "Dim Correction Blocked Setup" = R,
                   tabledata "Dim Correction Change" = R,
@@ -286,6 +285,8 @@ permissionset 207 "D365 BASIC"
                   tabledata "Electronic Document Format" = RIMD,
                   tabledata "Email Item" = RIMD,
                   tabledata "Email Parameter" = RIMD,
+                  tabledata "Employee Payment Buffer" = RIMD,
+                  tabledata "Employee Posting Group" = R,
                   tabledata "Employee Templ." = R,
                   tabledata "Employee Time Reg Buffer" = RIMD,
                   tabledata "Entry No. Amount Buffer" = RIMD,
@@ -303,7 +304,6 @@ permissionset 207 "D365 BASIC"
                   tabledata "Exchange Sync" = RIMD,
                   tabledata "Experience Tier Buffer" = RIMD,
                   tabledata "Experience Tier Setup" = RIMD,
-                  tabledata "Ext Txt ID Integration Record" = RIMD,
                   tabledata "Extended Text Header" = RIMD,
                   tabledata "Extended Text Line" = RIMD,
                   tabledata "Field Buffer" = RIMD,
@@ -341,28 +341,29 @@ permissionset 207 "D365 BASIC"
 #if not CLEAN21
                   tabledata "Graph Mail Setup" = RIMD,
 #endif
+#if not CLEAN20
+                  tabledata "Graph Subscription" = RIMD,
+                  tabledata "Graph Business Setting" = RIMD,
+#endif                  
                   tabledata "Human Resources Setup" = R,
                   tabledata "IC Setup" = R,
                   tabledata "Image Analysis Setup" = RIMD,
+                  tabledata "Image Analysis Scenario" = R,
                   tabledata "Import G/L Transaction" = RIMD,
                   tabledata "Inc. Doc. Attachment Overview" = RIM,
                   tabledata "Incoming Document" = RIM,
                   tabledata "Incoming Document Approver" = R,
                   tabledata "Incoming Document Attachment" = RIMD,
                   tabledata "Incoming Documents Setup" = R,
-                  tabledata "Integration Management Setup" = RIMD,
-                  tabledata "Integration Record" = RIMD,
-                  tabledata "Integration Record Archive" = RIMD,
                   tabledata "Interaction Merge Data" = RIMD,
                   tabledata "Interaction Template Setup" = RIMD,
-#if not CLEAN19
-                  tabledata "Intrastat Checklist Setup" = RIMD,
-#endif
+#if not CLEAN22
                   tabledata "Advanced Intrastat Checklist" = RIMD,
                   tabledata "Intrastat Jnl. Batch" = RIMD,
                   tabledata "Intrastat Jnl. Line" = Rim,
                   tabledata "Intrastat Jnl. Template" = RIMD,
                   tabledata "Intrastat Setup" = R,
+#endif
                   tabledata "Invalidated Dim Correction" = R,
                   tabledata "Inventory Adjustment Buffer" = Rimd,
                   tabledata "Inventory Buffer" = Rimd,
@@ -479,9 +480,7 @@ permissionset 207 "D365 BASIC"
 #if not CLEAN21
                   tabledata "O365 Payment Terms" = RIMD,
                   tabledata "O365 Posted Coupon Claim" = Rimd,
-#endif
                   tabledata "O365 Sales Cue" = RIMD,
-#if not CLEAN21
                   tabledata "O365 Sales Document" = RIMD,
                   tabledata "O365 Sales Event" = RIMD,
                   tabledata "O365 Sales Graph" = Rimd,
@@ -554,7 +553,9 @@ permissionset 207 "D365 BASIC"
                   tabledata "Power BI Report Configuration" = RIMD,
                   tabledata "Power BI Report Labels" = R,
                   tabledata "Power BI Report Uploads" = RIMD,
+#if not CLEAN22
                   tabledata "Power BI Service Status Setup" = RIMD,
+#endif
                   tabledata "Power BI User Configuration" = RIMD,
 #if not CLEAN21
                   tabledata "Power BI User License" = RIMD,
@@ -677,11 +678,6 @@ permissionset 207 "D365 BASIC"
                   tabledata "Shipment Method" = R,
                   tabledata "Shipment Method Translation" = RIMD,
                   tabledata "Shipping Agent" = R,
-#if not CLEAN19
-                  tabledata "SmartList Designer Setup" = RIMD,
-                  tabledata "SmartList Export Results" = RIMD,
-                  tabledata "SmartList Import Results" = RIMD,
-#endif
                   tabledata "Sorting Table" = RIMD,
                   tabledata "Source Code" = R,
                   tabledata "Source Code Setup" = R,
@@ -743,13 +739,12 @@ permissionset 207 "D365 BASIC"
                   tabledata "Unit of Measure" = RIMD,
                   tabledata "Unit of Measure Translation" = RIMD,
                   tabledata "Unlinked Attachment" = RIMD,
-#if not CLEAN19
-                  tabledata "User Callouts" = RIMD,
-#endif
+#if not CLEAN22
                   tabledata "User Group" = R,
                   tabledata "User Group Access Control" = R,
                   tabledata "User Group Member" = R,
                   tabledata "User Group Permission Set" = R,
+#endif
                   tabledata "User Preference" = RIMD,
                   tabledata "User Setup" = R,
                   tabledata "User Task" = RIMD,

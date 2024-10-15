@@ -26,7 +26,7 @@ page 12400 "Company Address"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of company address for use in statutory reports.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company name for this address, as you want it to appear on printed materials.';

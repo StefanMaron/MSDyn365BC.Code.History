@@ -18,7 +18,7 @@ page 12486 "Precious Metal"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the code associated with this precious metal asset.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the name of the precious metal asset.';

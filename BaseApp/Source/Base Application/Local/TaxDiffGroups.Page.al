@@ -17,7 +17,7 @@ page 17334 "Tax Diff. Groups"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the deferral code associated with the tax differences group.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with the tax differences group.';

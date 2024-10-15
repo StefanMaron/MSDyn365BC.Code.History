@@ -60,7 +60,7 @@ page 12497 "FA Sheet"
                     ApplicationArea = FixedAssets;
                     Caption = 'Undepr. FA';
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = FixedAssets;
                     BlankZero = true;

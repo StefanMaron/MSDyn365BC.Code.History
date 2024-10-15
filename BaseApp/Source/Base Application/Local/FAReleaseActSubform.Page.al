@@ -26,7 +26,7 @@ page 12475 "FA Release Act Subform"
                     ToolTip = 'Specifies a new fixed assets number.';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a description of the fixed asset.';
@@ -53,7 +53,7 @@ page 12475 "FA Release Act Subform"
                     ToolTip = 'Specifies the employee number of the person who maintains possession of the fixed asset.';
                     Visible = FAEmployeeNoVisible;
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the quantity of the fixed asset movement or write-off line.';

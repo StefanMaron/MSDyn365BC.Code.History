@@ -117,7 +117,7 @@ page 12405 "G/L Account Turnover"
                     StyleExpr = NoEmphasize;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;

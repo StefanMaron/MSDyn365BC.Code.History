@@ -213,6 +213,7 @@ codeunit 386 "Reverse Payment Rec. Journal"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
     begin
         BankAccReconciliationLine."Applied Amount" := 0;
         case PaymentRecRelatedEntry."Entry Type" of
@@ -234,7 +235,16 @@ codeunit 386 "Reverse Payment Rec. Journal"
                     BankAccReconciliationLine."Transaction Date" := VendorLedgerEntry."Posting Date";
                     BankAccReconciliationLine.Validate("Statement Amount", -VendorLedgerEntry."Closed by Amount");
                 end;
-       end;
+            PaymentRecRelatedEntry."Entry Type"::Employee:
+                if EmployeeLedgerEntry.Get(PaymentRecRelatedEntry."Entry No.") then begin
+                    BankAccReconciliationLine."Account Type" := BankAccReconciliationLine."Account Type"::Employee;
+                    BankAccReconciliationLine."Account No." := EmployeeLedgerEntry."Employee No.";
+                    BankAccReconciliationLine.Description := EmployeeLedgerEntry.Description;
+                    BankAccReconciliationLine."Transaction Text" := EmployeeLedgerEntry.Description;
+                    BankAccReconciliationLine."Transaction Date" := EmployeeLedgerEntry."Posting Date";
+                    BankAccReconciliationLine.Validate("Statement Amount", -EmployeeLedgerEntry."Closed by Amount");
+                end;
+        end;
     end;
 
     local procedure CopyPaymentRecJournalFromPostedPaymentReconLines(var PostedPaymentReconHdr: Record "Posted Payment Recon. Hdr"; var BankAccReconciliation: Record "Bank Acc. Reconciliation")
@@ -298,6 +308,8 @@ codeunit 386 "Reverse Payment Rec. Journal"
                 UnapplyCustomerEntry(PaymentRecRelatedEntry, ShowEntriesToPost);
             PaymentRecRelatedEntry."Entry Type"::Vendor:
                 UnapplyVendorEntry(PaymentRecRelatedEntry, ShowEntriesToPost);
+            PaymentRecRelatedEntry."Entry Type"::Employee:
+                UnapplyEmployeeEntry(PaymentRecRelatedEntry, ShowEntriesToPost);
         end;
     end;
 
@@ -306,6 +318,7 @@ codeunit 386 "Reverse Payment Rec. Journal"
         BankAccountStatement: Record "Bank Account Statement";
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
         ReversalEntry: Record "Reversal Entry";
     begin
         if not ShowEntriesToPost then
@@ -326,6 +339,12 @@ codeunit 386 "Reverse Payment Rec. Journal"
                     VendorLedgerEntry.Get(PaymentRecRelatedEntry."Entry No.");
                     ErrorIfEntryIsNotReversable(VendorLedgerEntry);
                     ReversalEntry.ReverseTransaction(VendorLedgerEntry."Transaction No.");
+                end;
+            PaymentRecRelatedEntry."Entry Type"::Employee:
+                begin
+                    EmployeeLedgerEntry.Get(PaymentRecRelatedEntry."Entry No.");
+                    ErrorIfEntryIsNotReversable(EmployeeLedgerEntry);
+                    ReversalEntry.ReverseTransaction(EmployeeLedgerEntry."Transaction No.");
                 end;
         end;
         RefreshRelatedEntryReversalStatus(PaymentRecRelatedEntry);
@@ -390,6 +409,7 @@ codeunit 386 "Reverse Payment Rec. Journal"
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
         StatementLineNo: Integer;
     begin
         BankAccountLedgerEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
@@ -411,7 +431,14 @@ codeunit 386 "Reverse Payment Rec. Journal"
                 StatementLineNo += 10000;
                 InsertRelatedAndAppliedEntries(PostedPaymentReconHdr."Bank Account No.", PostedPaymentReconHdr."Statement No.", StatementLineNo, VendorLedgerEntry);
             until VendorLedgerEntry.Next() = 0;
-   end;
+
+        EmployeeLedgerEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
+        if EmployeeLedgerEntry.FindSet() then
+            repeat
+                StatementLineNo += 10000;
+                InsertRelatedAndAppliedEntries(PostedPaymentReconHdr."Bank Account No.", PostedPaymentReconHdr."Statement No.", StatementLineNo, EmployeeLedgerEntry);
+            until EmployeeLedgerEntry.Next() = 0;
+    end;
 
     local procedure RefreshRelatedEntryReversalStatus(var PaymentRecRelatedEntry: Record "Payment Rec. Related Entry")
     begin
@@ -422,8 +449,10 @@ codeunit 386 "Reverse Payment Rec. Journal"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
         CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
         VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
+        EmplEntryApplyPostedEntries: Codeunit "EmplEntry-Apply Posted Entries";
     begin
         case PaymentRecRelatedEntry."Entry Type" of
             PaymentRecRelatedEntry."Entry Type"::Customer:
@@ -436,15 +465,24 @@ codeunit 386 "Reverse Payment Rec. Journal"
                         PaymentRecRelatedEntry.Unapplied := CustEntryApplyPostedEntries.FindLastApplEntry(CustLedgerEntry."Entry No.") = 0;
                 end;
             PaymentRecRelatedEntry."Entry Type"::Vendor:
-            begin
-                VendorLedgerEntry.Get(PaymentRecRelatedEntry."Entry No.");
-                PaymentRecRelatedEntry.Reversed := VendorLedgerEntry.Reversed;
-                if PaymentRecRelatedEntry.Reversed then
-                    PaymentRecRelatedEntry.Unapplied := true
-                else
-                    PaymentRecRelatedEntry.Unapplied := VendEntryApplyPostedEntries.FindLastApplEntry(VendorLedgerEntry."Entry No.") = 0;
-            end;
-       end;
+                begin
+                    VendorLedgerEntry.Get(PaymentRecRelatedEntry."Entry No.");
+                    PaymentRecRelatedEntry.Reversed := VendorLedgerEntry.Reversed;
+                    if PaymentRecRelatedEntry.Reversed then
+                        PaymentRecRelatedEntry.Unapplied := true
+                    else
+                        PaymentRecRelatedEntry.Unapplied := VendEntryApplyPostedEntries.FindLastApplEntry(VendorLedgerEntry."Entry No.") = 0;
+                end;
+            PaymentRecRelatedEntry."Entry Type"::Employee:
+                begin
+                    EmployeeLedgerEntry.Get(PaymentRecRelatedEntry."Entry No.");
+                    PaymentRecRelatedEntry.Reversed := EmployeeLedgerEntry.Reversed;
+                    if PaymentRecRelatedEntry.Reversed then
+                        PaymentRecRelatedEntry.Unapplied := true
+                    else
+                        PaymentRecRelatedEntry.Unapplied := EmplEntryApplyPostedEntries.FindLastApplEntry(EmployeeLedgerEntry."Entry No.") = 0;
+                end;
+        end;
         if PaymentRecRelatedEntry.Unapplied then
             PaymentRecRelatedEntry.ToUnapply := false;
         if PaymentRecRelatedEntry.Reversed then
@@ -482,6 +520,55 @@ codeunit 386 "Reverse Payment Rec. Journal"
     procedure ErrorIfEntryIsNotReversable(VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
         ErrorIfEntryIsNotReversable(VendorLedgerEntry.Reversed, VendorLedgerEntry.TableCaption, VendorLedgerEntry."Entry No.", VendorLedgerEntry."Transaction No.", VendorLedgerEntry."Journal Batch Name", VendorLedgerEntry."Document Type", VendorLedgerEntry."Amount to Apply", VendorLedgerEntry."Applies-to Doc. No.", VendorLedgerEntry."Applies-to ID", VendorLedgerEntry."Source Code");
+    end;
+
+    procedure ErrorIfEntryIsNotReversable(EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    begin
+        ErrorIfEntryIsNotReversable(EmployeeLedgerEntry.Reversed, EmployeeLedgerEntry.TableCaption, EmployeeLedgerEntry."Entry No.", EmployeeLedgerEntry."Transaction No.", EmployeeLedgerEntry."Journal Batch Name", EmployeeLedgerEntry."Document Type", EmployeeLedgerEntry."Amount to Apply", EmployeeLedgerEntry."Applies-to Doc. No.", EmployeeLedgerEntry."Applies-to ID", EmployeeLedgerEntry."Source Code");
+    end;
+
+    local procedure InsertRelatedAndAppliedEntries(BankAccountNo: Code[20]; StatementNo: Code[20]; StatementLineNo: Integer; var EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    var
+        PaymentRecRelatedEntry: Record "Payment Rec. Related Entry";
+        PmtRecAppliedToEntry: Record "Pmt. Rec. Applied-to Entry";
+        DetailedEmployeeLedgerEntry1: Record "Detailed Employee Ledger Entry";
+        DetailedEmployeeLedgerEntry2: Record "Detailed Employee Ledger Entry";
+    begin
+        // Insert the CustomerLedgerEntry to the related entries
+        PaymentRecRelatedEntry."Entry No." := EmployeeLedgerEntry."Entry No.";
+        PaymentRecRelatedEntry."Entry Type" := PaymentRecRelatedEntry."Entry Type"::Employee;
+        PaymentRecRelatedEntry."Bank Account No." := BankAccountNo;
+        PaymentRecRelatedEntry."Statement No." := StatementNo;
+        PaymentRecRelatedEntry."Statement Line No." := StatementLineNo;
+        PaymentRecRelatedEntry.Insert();
+        // Find entries that this entry was applied to. Insert this entries into PmtRecAppliedToEntry
+        // we follow the same approach as AppliedVendorEntries.Page.al
+        DetailedEmployeeLedgerEntry1.SetCurrentKey("Employee Ledger Entry No.");
+        DetailedEmployeeLedgerEntry1.SetRange("Employee Ledger Entry No.", EmployeeLedgerEntry."Entry No.");
+        DetailedEmployeeLedgerEntry1.SetRange(Unapplied, false);
+        if not DetailedEmployeeLedgerEntry1.FindSet() then
+            exit;
+        repeat
+            DetailedEmployeeLedgerEntry2.Reset();
+            DetailedEmployeeLedgerEntry2.SetCurrentKey("Applied Empl. Ledger Entry No.");
+            DetailedEmployeeLedgerEntry2.SetRange("Applied Empl. Ledger Entry No.", DetailedEmployeeLedgerEntry1."Applied Empl. Ledger Entry No.");
+            DetailedEmployeeLedgerEntry2.SetRange("Entry Type", DetailedEmployeeLedgerEntry2."Entry Type"::Application);
+            DetailedEmployeeLedgerEntry2.SetRange(Unapplied, false);
+            if DetailedEmployeeLedgerEntry2.FindSet() then
+                repeat
+                    if DetailedEmployeeLedgerEntry2."Employee Ledger Entry No." <> DetailedEmployeeLedgerEntry2."Applied Empl. Ledger Entry No." then begin
+                        PmtRecAppliedToEntry.Init();
+                        PmtRecAppliedToEntry."Entry No." := DetailedEmployeeLedgerEntry2."Employee Ledger Entry No.";
+                        PmtRecAppliedToEntry.Amount := DetailedEmployeeLedgerEntry2.Amount;
+                        PmtRecAppliedToEntry."Entry Type" := PmtRecAppliedToEntry."Entry Type"::Employee;
+                        PmtRecAppliedToEntry."Bank Account No." := BankAccountNo;
+                        PmtRecAppliedToEntry."Statement No." := StatementNo;
+                        PmtRecAppliedToEntry."Statement Line No." := StatementLineNo;
+                        PmtRecAppliedToEntry."Applied by Entry No." := EmployeeLedgerEntry."Entry No.";
+                        PmtRecAppliedToEntry.Insert();
+                    end;
+                until DetailedEmployeeLedgerEntry2.Next() = 0;
+        until DetailedEmployeeLedgerEntry1.Next() = 0;
     end;
 
     local procedure InsertRelatedAndAppliedEntries(BankAccountNo: Code[20]; StatementNo: Code[20]; StatementLineNo: Integer; var VendorLedgerEntry: Record "Vendor Ledger Entry")
@@ -588,6 +675,7 @@ codeunit 386 "Reverse Payment Rec. Journal"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
     begin
         InsertBankPaymentRecRelatedEntry(BankAccountLedgerEntry, StatementNo, StatementLineNo);
         // Find if there's any Customer, Vendor or Employee related entries for this Bank Account Ledger Entry
@@ -605,17 +693,29 @@ codeunit 386 "Reverse Payment Rec. Journal"
                         until CustLedgerEntry.Next() = 0;
                 end;
             AccountType::Vendor:
-            begin
-                VendorLedgerEntry.SetRange("Document No.", BankAccountLedgerEntry."Document No.");
-                VendorLedgerEntry.SetRange("Posting Date", BankAccountLedgerEntry."Posting Date");
-                VendorLedgerEntry.SetRange(Reversed, false);
-                VendorLedgerEntry.SetRange("Transaction No.", BankAccountLedgerEntry."Transaction No.");
-                VendorLedgerEntry.SetRange("Vendor No.", BankAccountLedgerEntry."Bal. Account No.");
-                if VendorLedgerEntry.FindSet() then
-                    repeat
-                        InsertRelatedAndAppliedEntries(BankAccountNo, StatementNo, StatementLineNo, VendorLedgerEntry);
-                    until VendorLedgerEntry.Next() = 0;
-            end;
+                begin
+                    VendorLedgerEntry.SetRange("Document No.", BankAccountLedgerEntry."Document No.");
+                    VendorLedgerEntry.SetRange("Posting Date", BankAccountLedgerEntry."Posting Date");
+                    VendorLedgerEntry.SetRange(Reversed, false);
+                    VendorLedgerEntry.SetRange("Transaction No.", BankAccountLedgerEntry."Transaction No.");
+                    VendorLedgerEntry.SetRange("Vendor No.", BankAccountLedgerEntry."Bal. Account No.");
+                    if VendorLedgerEntry.FindSet() then
+                        repeat
+                            InsertRelatedAndAppliedEntries(BankAccountNo, StatementNo, StatementLineNo, VendorLedgerEntry);
+                        until VendorLedgerEntry.Next() = 0;
+                end;
+            AccountType::Employee:
+                begin
+                    EmployeeLedgerEntry.SetRange("Document No.", BankAccountLedgerEntry."Document No.");
+                    EmployeeLedgerEntry.SetRange("Posting Date", BankAccountLedgerEntry."Posting Date");
+                    EmployeeLedgerEntry.SetRange(Reversed, false);
+                    EmployeeLedgerEntry.SetRange("Transaction No.", BankAccountLedgerEntry."Transaction No.");
+                    EmployeeLedgerEntry.SetRange("Employee No.", BankAccountLedgerEntry."Bal. Account No.");
+                    if EmployeeLedgerEntry.FindSet() then
+                        repeat
+                            InsertRelatedAndAppliedEntries(BankAccountNo, StatementNo, StatementLineNo, EmployeeLedgerEntry);
+                        until EmployeeLedgerEntry.Next() = 0;
+                end;
         end;
     end;
 
@@ -637,6 +737,7 @@ codeunit 386 "Reverse Payment Rec. Journal"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
         BankAccount: Record "Bank Account";
         TempPaymentApplicationProposal: Record "Payment Application Proposal" temporary;
     begin
@@ -666,17 +767,26 @@ codeunit 386 "Reverse Payment Rec. Journal"
                     TempPaymentApplicationProposal."Currency Code" := CustLedgerEntry."Currency Code"
                 end;
             PmtRecAppliedToEntry."Entry Type"::Vendor:
-            begin
-                if not VendorLedgerEntry.Get(PmtRecAppliedToEntry."Entry No.") then;
-                TempPaymentApplicationProposal.Description := VendorLedgerEntry.Description;
-                TempPaymentApplicationProposal."Posting Date" := VendorLedgerEntry."Posting Date";
-                TempPaymentApplicationProposal."Due Date" := VendorLedgerEntry."Due Date";
-                TempPaymentApplicationProposal."Document Type" := VendorLedgerEntry."Document Type";
-                TempPaymentApplicationProposal."Document No." := VendorLedgerEntry."Document No.";
-                TempPaymentApplicationProposal."External Document No." := VendorLedgerEntry."External Document No.";
-                TempPaymentApplicationProposal."Currency Code" := VendorLedgerEntry."Currency Code"
-            end;
-       end;
+                begin
+                    if not VendorLedgerEntry.Get(PmtRecAppliedToEntry."Entry No.") then;
+                    TempPaymentApplicationProposal.Description := VendorLedgerEntry.Description;
+                    TempPaymentApplicationProposal."Posting Date" := VendorLedgerEntry."Posting Date";
+                    TempPaymentApplicationProposal."Due Date" := VendorLedgerEntry."Due Date";
+                    TempPaymentApplicationProposal."Document Type" := VendorLedgerEntry."Document Type";
+                    TempPaymentApplicationProposal."Document No." := VendorLedgerEntry."Document No.";
+                    TempPaymentApplicationProposal."External Document No." := VendorLedgerEntry."External Document No.";
+                    TempPaymentApplicationProposal."Currency Code" := VendorLedgerEntry."Currency Code"
+                end;
+            PmtRecAppliedToEntry."Entry Type"::Employee:
+                begin
+                    if not EmployeeLedgerEntry.Get(PmtRecAppliedToEntry."Entry No.") then;
+                    TempPaymentApplicationProposal.Description := EmployeeLedgerEntry.Description;
+                    TempPaymentApplicationProposal."Posting Date" := EmployeeLedgerEntry."Posting Date";
+                    TempPaymentApplicationProposal."Document Type" := EmployeeLedgerEntry."Document Type";
+                    TempPaymentApplicationProposal."Document No." := EmployeeLedgerEntry."Document No.";
+                    TempPaymentApplicationProposal."Currency Code" := EmployeeLedgerEntry."Currency Code"
+                end;
+        end;
         TempPaymentApplicationProposal.Quality := 100;
         TempPaymentApplicationProposal."Match Confidence" := TempPaymentApplicationProposal."Match Confidence"::High;
         TempPaymentApplicationProposal.UpdateDefaultCalculatedFields(BankAccount, TempPaymentApplicationProposal."Applies-to Entry No.");
@@ -718,6 +828,24 @@ codeunit 386 "Reverse Payment Rec. Journal"
         ApplyUnapplyParameters."Document No." := DetailedVendorLedgEntry."Document No.";
         ApplyUnapplyParameters."Posting Date" := DetailedVendorLedgEntry."Posting Date";
         VendEntryApplyPostedEntries.PostUnApplyVendor(DetailedVendorLedgEntry, ApplyUnapplyParameters);
+    end;
+
+    local procedure UnapplyEmployeeEntry(var PaymentRecRelatedEntry: Record "Payment Rec. Related Entry"; ShowEntriesToPost: Boolean)
+    var
+        DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry";
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
+        EmplEntryApplyPostedEntries: Codeunit "EmplEntry-Apply Posted Entries";
+    begin
+        if ShowEntriesToPost then begin
+            EmplEntryApplyPostedEntries.UnApplyEmplLedgEntry(PaymentRecRelatedEntry."Entry No.");
+            RefreshRelatedEntryReversalStatus(PaymentRecRelatedEntry);
+            exit;
+        end;
+        EmplEntryApplyPostedEntries.CheckEmployeeLedgerEntryToUnapply(PaymentRecRelatedEntry."Entry No.", DetailedEmployeeLedgerEntry);
+        ApplyUnapplyParameters.Init();
+        ApplyUnapplyParameters."Document No." := DetailedEmployeeLedgerEntry."Document No.";
+        ApplyUnapplyParameters."Posting Date" := DetailedEmployeeLedgerEntry."Posting Date";
+        EmplEntryApplyPostedEntries.PostUnApplyEmployee(DetailedEmployeeLedgerEntry, ApplyUnapplyParameters);
     end;
 
     local procedure EntryIsReversable(JournalBatchName: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; AmountToApply: Decimal; AppliesToDocNo: Code[20]; AppliesToID: Code[50]; SourceCode: Code[10]): Boolean

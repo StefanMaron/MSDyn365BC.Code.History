@@ -181,7 +181,7 @@ page 14940 "G/L Corr. Analysis by Dim."
                         LookUpCode(LineDimCode, Code);
                     end;
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

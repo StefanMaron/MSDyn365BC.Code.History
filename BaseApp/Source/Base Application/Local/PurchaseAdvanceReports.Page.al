@@ -155,7 +155,7 @@ page 35610 "Purchase Advance Reports"
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ToolTip = 'Specifies the status of the record.';
                     Visible = false;

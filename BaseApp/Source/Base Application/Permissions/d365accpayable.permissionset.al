@@ -1,4 +1,4 @@
-permissionset 5289 "D365 ACC. PAYABLE"
+﻿permissionset 5289 "D365 ACC. PAYABLE"
 {
     Assignable = true;
     Caption = 'Dynamics 365 Accounts payable';
@@ -30,9 +30,6 @@ permissionset 5289 "D365 ACC. PAYABLE"
                   tabledata "Item Analysis View Entry" = RIM,
                   tabledata "Item Charge Assignment (Purch)" = RIMD,
                   tabledata "Item Charge Assignment (Sales)" = Rm,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = R,
-#endif
                   tabledata "Item Entry Relation" = R,
                   tabledata "Item Journal Line" = RIMD,
                   tabledata "Item Ledger Entry" = Rimd,
@@ -47,6 +44,8 @@ permissionset 5289 "D365 ACC. PAYABLE"
                   tabledata "Notification Entry" = RIMD,
                   tabledata "Order Address" = RIMD,
                   tabledata "Package No. Information" = RIMD,
+                  tabledata "Payable Employee Ledger Entry" = RIMD,
+                  tabledata "Payable Vendor Ledger Entry" = RIMD,
                   tabledata "Payment Matching Details" = RIMD,
                   tabledata "Payment Rec. Related Entry" = RIMD,
                   tabledata "Pmt. Rec. Applied-to Entry" = RIMD,

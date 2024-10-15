@@ -18,7 +18,7 @@ page 26551 "Statutory Report Groups"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the statutory report group code.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the statutory report group description.';

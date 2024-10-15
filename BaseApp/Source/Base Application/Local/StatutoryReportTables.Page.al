@@ -19,7 +19,7 @@ page 26552 "Statutory Report Tables"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code associated with the statutory report table.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the statutory report table.';

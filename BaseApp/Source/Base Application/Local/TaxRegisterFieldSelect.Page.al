@@ -12,7 +12,7 @@ page 17215 "Tax Register Field Select"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the record.';

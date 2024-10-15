@@ -22,7 +22,7 @@ page 12477 "Posted FA Release Act Subform"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the related fixed asset. ';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a description of the fixed asset.';

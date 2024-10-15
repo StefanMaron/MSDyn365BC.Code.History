@@ -34,7 +34,7 @@ page 17243 "Tax Customer Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the customer related to this entry.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this line.';
@@ -67,7 +67,7 @@ page 17243 "Tax Customer Ledger Entries"
                 {
                     Visible = false;
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount.';

@@ -1,4 +1,4 @@
-permissionset 862 "Payables Documents - Post"
+﻿permissionset 862 "Payables Documents - Post"
 {
     Access = Public;
     Assignable = false;
@@ -22,6 +22,8 @@ permissionset 862 "Payables Documents - Post"
                   tabledata "Detailed Vendor Ledg. Entry" = ri,
                   tabledata "Dimension Combination" = R,
                   tabledata "Dimension Value Combination" = R,
+                  tabledata "Employee Ledger Entry" = rim,
+                  tabledata "Employee Posting Group" = r,
                   tabledata "FA Charge" = RIMD,
                   tabledata "G/L Account" = r,
                   tabledata "G/L Entry - VAT Entry Link" = Ri,
@@ -30,6 +32,7 @@ permissionset 862 "Payables Documents - Post"
                   tabledata "Gen. Journal Template" = R,
                   tabledata "General Ledger Setup" = rm,
                   tabledata "General Posting Setup" = R,
+                  tabledata "IC Bank Account" = R,
                   tabledata "IC Comment Line" = RIMD,
                   tabledata "IC Dimension" = R,
                   tabledata "IC Dimension Value" = R,

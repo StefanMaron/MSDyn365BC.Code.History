@@ -1,4 +1,4 @@
-permissionset 7946 "Payables Documents - Edit"
+﻿permissionset 7946 "Payables Documents - Edit"
 {
     Access = Public;
     Assignable = false;
@@ -21,6 +21,8 @@ permissionset 7946 "Payables Documents - Edit"
                   tabledata "Detailed Vendor Ledg. Entry" = R,
                   tabledata "Dtld. Price Calculation Setup" = R,
                   tabledata "Duplicate Price Line" = R,
+                  tabledata "Employee Ledger Entry" = R,
+                  tabledata "Employee Posting Group" = R,
                   tabledata "Entry Summary" = RIMD,
                   tabledata "Extended Text Header" = R,
                   tabledata "Extended Text Line" = R,
@@ -35,9 +37,6 @@ permissionset 7946 "Payables Documents - Edit"
                   tabledata "Item Charge" = R,
                   tabledata "Item Charge Assignment (Purch)" = RIMD,
                   tabledata "Item Charge Assignment (Sales)" = Rm,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = R,
-#endif
                   tabledata "Item Journal Line" = Rm,
                   tabledata "Item Ledger Entry" = Rm,
                   tabledata "Item Reference" = R,

@@ -38,6 +38,9 @@ codeunit 1295 "Get Bank Stmt. Line Candidates"
         if not BankPmtApplSettings."Vendor Ledger Entries Matching" then
             MatchBankPayments.GetVendorLedgerEntriesAsMatchingBuffer(TempBankStmtMatchingBuffer, BankAccReconLine);
 
+        if not BankPmtApplSettings."Empl. Ledger Entries Matching" then
+            MatchBankPayments.GetEmployeeLedgerEntriesAsMatchingBuffer(TempBankStmtMatchingBuffer, BankAccReconLine);
+
         if not BankPmtApplSettings."Bank Ledger Entries Matching" then
             MatchBankPayments.GetBankLedgerEntriesAsMatchingBuffer(TempBankStmtMatchingBuffer, BankAccReconLine);
     end;

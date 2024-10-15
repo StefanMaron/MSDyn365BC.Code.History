@@ -39,7 +39,7 @@ page 12429 "Tax Authority/Fund Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies the company registration code associated with the vendor.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;

@@ -27,7 +27,7 @@ page 12427 "Resp. Employee Card"
                             CurrPage.Update();
                     end;
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;

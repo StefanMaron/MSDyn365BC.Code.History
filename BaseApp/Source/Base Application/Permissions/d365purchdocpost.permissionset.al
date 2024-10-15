@@ -1,4 +1,4 @@
-permissionset 2909 "D365 PURCH DOC, POST"
+﻿permissionset 2909 "D365 PURCH DOC, POST"
 {
     Assignable = true;
     Caption = 'Dyn. 365 Post purchase doc.';
@@ -11,9 +11,11 @@ permissionset 2909 "D365 PURCH DOC, POST"
                   tabledata "Batch Processing Parameter" = Rimd,
                   tabledata "Batch Processing Session Map" = Rimd,
                   tabledata "Check Ledger Entry" = rim,
+                  tabledata "Detailed Employee Ledger Entry" = i,
                   tabledata "Detailed Vendor Ledg. Entry" = i,
                   tabledata "Dtld. Price Calculation Setup" = RIMD,
                   tabledata "Duplicate Price Line" = RIMD,
+                  tabledata "Employee Ledger Entry" = imd,
                   tabledata "FA Setup" = R,
                   tabledata "G/L Account" = RIM,
                   tabledata "G/L Entry - VAT Entry Link" = Ri,
@@ -21,10 +23,8 @@ permissionset 2909 "D365 PURCH DOC, POST"
                   tabledata "G/L Register" = Rimd,
                   tabledata "Interaction Template" = R,
                   tabledata "Interaction Tmpl. Language" = R,
+                  tabledata "Interaction Log Entry" = Rimd,
                   tabledata "Item Charge" = R,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = R,
-#endif
                   tabledata "Item Entry Relation" = R,
                   tabledata "Item Ledger Entry" = Rimd,
                   tabledata "Item Register" = Rimd,

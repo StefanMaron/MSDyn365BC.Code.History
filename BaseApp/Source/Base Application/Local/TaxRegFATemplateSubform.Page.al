@@ -37,7 +37,7 @@ page 17239 "Tax Reg. FA Template Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line code associated with the tax register template.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;

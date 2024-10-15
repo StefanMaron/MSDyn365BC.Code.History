@@ -16,7 +16,7 @@ page 14941 "G/L Corr. Analysis View Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code that identifies the general ledger correspondence.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the code that identifies the general ledger correspondence.';

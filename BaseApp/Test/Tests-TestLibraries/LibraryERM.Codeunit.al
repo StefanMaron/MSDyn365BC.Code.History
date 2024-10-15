@@ -95,6 +95,8 @@
         exit(CheckPreview.AmountText.Value);
     end;
 
+#if not CLEAN22
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
     procedure ClearIntrastatJnlLines(IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
@@ -103,6 +105,7 @@
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
         IntrastatJnlLine.DeleteAll(true);
     end;
+#endif
 
     procedure ClearGenJournalLines(GenJournalBatch: Record "Gen. Journal Batch")
     var
@@ -496,11 +499,14 @@
         CustomerDiscountGroup.Insert(true);
     end;
 
+#if not CLEAN22
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
     procedure CreateIntrastatSetup(var IntrastatSetup: Record "Intrastat Setup")
     begin
         IntrastatSetup.Init();
         IntrastatSetup.Insert();
     end;
+#endif
 
     procedure CreateItemDiscountGroup(var ItemDiscountGroup: Record "Item Discount Group")
     begin
@@ -922,6 +928,8 @@
         exit(ICPartner.Code);
     end;
 
+#if not CLEAN22
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
     procedure CreateIntrastatJnlBatch(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; JournalTemplateName: Code[10])
     begin
         IntrastatJnlBatch.Init();
@@ -932,6 +940,7 @@
         IntrastatJnlBatch.Insert(true);
     end;
 
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
     procedure CreateIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10])
     var
         RecRef: RecordRef;
@@ -944,6 +953,7 @@
         IntrastatJnlLine.Insert(true);
     end;
 
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
     procedure CreateIntrastatJnlTemplate(var IntrastatJnlTemplate: Record "Intrastat Jnl. Template")
     begin
         IntrastatJnlTemplate.Init();
@@ -953,6 +963,7 @@
         IntrastatJnlTemplate.Insert(true);
     end;
 
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
     procedure CreateIntrastatJnlTemplateAndBatch(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; JournalDate: Date)
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
@@ -964,7 +975,7 @@
           "Statistics Period", Format(JournalDate, 0, LibraryFiscalYear.GetStatisticsPeriod));
         IntrastatJnlBatch.Modify(true);
     end;
-
+#endif
     procedure CreateInvDiscForCustomer(var CustInvoiceDisc: Record "Cust. Invoice Disc."; "Code": Code[20]; CurrencyCode: Code[10]; MinimumAmount: Decimal)
     begin
         CustInvoiceDisc.Init();
@@ -1005,7 +1016,7 @@
         exit(Language.Code);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     procedure CreateLineDiscForCustomer(var SalesLineDiscount: Record "Sales Line Discount"; Type: Enum "Sales Line Discount Type"; "Code": Code[20]; SalesType: Option; SalesCode: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; MinimumQuantity: Decimal)
     begin
         SalesLineDiscount.Init();
@@ -1666,6 +1677,8 @@
         exit(CountryRegion.Code);
     end;
 
+#if not CLEAN22
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
     procedure CreateIntrastatContact(ContactType: Option): Code[20]
     var
         IntrastatSetup: Record "Intrastat Setup";
@@ -1677,6 +1690,7 @@
                 exit(LibraryPurchase.CreateIntrastatContact(CreateCountryRegionWithIntrastatCode));
         end;
     end;
+#endif
 
     procedure CreateItemBudgetName(var ItemBudgetName: Record "Item Budget Name"; AnalysisArea: Enum "Analysis Area Type")
     begin
@@ -1979,11 +1993,14 @@
         GenProdPostingGroup.Modify();
     end;
 
+#if not CLEAN22
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
     procedure FindIntrastatSetup(var IntrastatSetup: Record "Intrastat Setup")
     begin
         if not IntrastatSetup.Get() then
             CreateIntrastatSetup(IntrastatSetup);
     end;
+#endif
 
     procedure FindPaymentMethod(var PaymentMethod: Record "Payment Method")
     begin
@@ -2101,6 +2118,16 @@
     begin
         // Finds the matching Vendor Ledger Entry from a General Journal Line.
         with VendorLedgerEntry do begin
+            SetRange("Document Type", DocumentType);
+            SetRange("Document No.", DocumentNo);
+            FindFirst();
+        end;
+    end;
+
+    procedure FindEmployeeLedgerEntry(var EmployeeLedgerEntry: Record "Employee Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
+    begin
+        // Finds the matching Vendor Ledger Entry from a General Journal Line.
+        with EmployeeLedgerEntry do begin
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
             FindFirst();
@@ -2294,6 +2321,12 @@
     begin
         // Post Application Entries.
         CODEUNIT.Run(CODEUNIT::"VendEntry-Apply Posted Entries", VendorLedgerEntry);
+    end;
+
+    procedure PostEmplLedgerApplication(EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    begin
+        // Post Application Entries.
+        CODEUNIT.Run(CODEUNIT::"EmplEntry-Apply Posted Entries", EmployeeLedgerEntry);
     end;
 
     procedure PostBankAccReconciliation(BankAccReconciliation: Record "Bank Acc. Reconciliation")
@@ -2545,7 +2578,9 @@
     end;
 #endif
 
+#if not CLEAN22
     [Scope('OnPrem')]
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
     procedure SetDefaultTransactionTypesInIntrastatSetup()
     var
         IntrastatSetup: Record "Intrastat Setup";
@@ -2557,6 +2592,7 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
     procedure SetDefaultTransactionSpecificationInIntrastatSetup()
     var
         IntrastatSetup: Record "Intrastat Setup";
@@ -2566,6 +2602,7 @@
         IntrastatSetup."Default Trans. Spec. Ret. Code" := LibraryUtility.CreateCodeRecord(DATABASE::"Transaction Specification");
         IntrastatSetup.Modify();
     end;
+#endif
 
     procedure SetAppliestoIdCustomer(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
@@ -2597,6 +2634,22 @@
             end;
             VendorLedgerEntry.Modify(true);
         until VendorLedgerEntry.Next() = 0;
+    end;
+
+    procedure SetAppliestoIdEmployee(var EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    begin
+        // Set Applies-to ID.
+        EmployeeLedgerEntry.LockTable();
+        EmployeeLedgerEntry.FindFirst();
+        repeat
+            EmployeeLedgerEntry.TestField(Open, true);
+            EmployeeLedgerEntry.Validate("Applies-to ID", UserId);
+            if EmployeeLedgerEntry."Amount to Apply" = 0 then begin
+                EmployeeLedgerEntry.CalcFields("Remaining Amount");
+                EmployeeLedgerEntry.Validate("Amount to Apply", EmployeeLedgerEntry."Remaining Amount");
+            end;
+            EmployeeLedgerEntry.Modify(true);
+        until EmployeeLedgerEntry.Next() = 0;
     end;
 
     procedure SetApplyCustomerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; AmountToApply: Decimal)
@@ -2662,6 +2715,38 @@
             Modify(true);
         end;
         CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendorLedgerEntry);
+    end;
+
+    procedure SetApplyEmployeeEntry(var EmployeeLedgerEntry: Record "Employee Ledger Entry"; AmountToApply: Decimal)
+    var
+        EmployeeLedgerEntry2: Record "Employee Ledger Entry";
+    begin
+        // Clear any existing applying entries.
+        EmployeeLedgerEntry2.SetRange("Applying Entry", true);
+        EmployeeLedgerEntry2.SetFilter("Entry No.", '<>%1', EmployeeLedgerEntry."Entry No.");
+        if EmployeeLedgerEntry2.FindSet() then
+            repeat
+                EmployeeLedgerEntry2.Validate("Applying Entry", false);
+                EmployeeLedgerEntry2.Modify(true);
+            until EmployeeLedgerEntry2.Next() = 0;
+
+        // Clear Applies-to IDs.
+        EmployeeLedgerEntry2.Reset();
+        EmployeeLedgerEntry2.SetFilter("Applies-to ID", '<>%1', '');
+        if EmployeeLedgerEntry2.FindSet() then
+            repeat
+                EmployeeLedgerEntry2.Validate("Applies-to ID", '');
+                EmployeeLedgerEntry2.Modify(true);
+            until EmployeeLedgerEntry2.Next() = 0;
+
+        // Apply Payment Entry on Posted Invoice.
+        with EmployeeLedgerEntry do begin
+            Validate("Applying Entry", true);
+            Validate("Applies-to ID", UserId);
+            Validate("Amount to Apply", AmountToApply);
+            Modify(true);
+        end;
+        CODEUNIT.Run(CODEUNIT::"Empl. Entry-Edit", EmployeeLedgerEntry);
     end;
 
     procedure SetGLAccountDirectPostingFilter(var GLAccount: Record "G/L Account")
@@ -2795,6 +2880,8 @@
         GeneralLedgerSetup.Modify(true);
     end;
 
+#if not CLEAN22
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
     procedure SetMandatoryFieldsOnIntrastatJnlLines(IntrastatJnlLine: Record "Intrastat Jnl. Line"; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; TransportMethod: Code[10]; TransactionType: Code[10]; TransactionSpecification: Code[10]; NetWeight: Decimal)
     begin
         IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
@@ -2811,6 +2898,7 @@
             IntrastatJnlLine.Modify(true);
         until IntrastatJnlLine.Next() = 0;
     end;
+#endif
 
     procedure SetMaxVATDifferenceAllowed(MaxVATDifferenceAllowed: Decimal)
     begin
@@ -2930,6 +3018,7 @@
             WorkDate := NormalDate(GLEntry."Posting Date");
     end;
 
+#if not CLEAN22
     procedure SetIntrastatContact(ContactType: Option; ContactNo: Code[20])
     var
         IntrastatSetup: Record "Intrastat Setup";
@@ -2939,6 +3028,7 @@
         IntrastatSetup.Validate("Intrastat Contact No.", ContactNo);
         IntrastatSetup.Modify(true);
     end;
+#endif
 
     procedure SetupReportSelection(ReportUsage: Enum "Report Selection Usage"; ReportId: Integer)
     var
@@ -2976,6 +3066,11 @@
     procedure UnapplyVendorLedgerEntry(VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
         LibraryERMUnapply.UnapplyVendorLedgerEntry(VendorLedgerEntry);
+    end;
+
+    procedure UnapplyEmployeeLedgerEntry(EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    begin
+        LibraryERMUnapply.UnapplyEmployeeLedgerEntry(EmployeeLedgerEntry);
     end;
 
     procedure UpdateAnalysisView(var AnalysisView: Record "Analysis View")
@@ -3348,7 +3443,6 @@
         FieldListToExclude.Add(SalesHeaderRef.FieldName("Prepayment No. Series"));
         FieldListToExclude.Add(SalesHeaderRef.FieldName("Prepmt. Cr. Memo No. Series"));
         FieldListToExclude.Add(SalesHeaderRef.FieldName("Shipping No. Series"));
-        FieldListToExclude.Add(SalesHeaderRef.FieldName(Id));
 
         OnAfterFillSalesHeaderExcludedFieldList(FieldListToExclude);
     end;

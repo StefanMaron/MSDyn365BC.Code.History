@@ -1557,44 +1557,6 @@ codeunit 134483 "ERM Change Global Dimensions"
 
     [Test]
     [Scope('OnPrem')]
-    procedure T220_IntegrationIsDisabledBeforeTaskRun()
-    var
-        ChangeGlobalDimLogEntry: array[2] of Record "Change Global Dim. Log Entry";
-        ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
-        IntegrationManagement: Codeunit "Integration Management";
-        APIMockEvents: Codeunit "API Mock Events";
-        ActiveManualInstances: Integer;
-        Flag: Boolean;
-    begin
-        // [FEATURE] [Log] [Integration] [UT]
-        Initialize();
-        // [GIVEN] LogEntry "36" for table 36 is in progress
-        MockScheduledLogEntry(ChangeGlobalDimLogEntry[1], DATABASE::"Sales Header", 0, 1);
-        ChangeGlobalDimLogEntry[1].Status := ChangeGlobalDimLogEntry[1].Status::"In Progress";
-        ChangeGlobalDimLogEntry[1].Modify();
-        // [GIVEN] LogEntry "37" for dependent table 37 is scheduled
-        MockScheduledLogEntry(ChangeGlobalDimLogEntry[2], DATABASE::"Sales Line", 0, 1);
-        // [GIVEN] Integration is enabled
-        APIMockEvents.SetIsIntegrationManagementEnabled(true);
-        BindSubscription(APIMockEvents);
-        IntegrationManagement.SetConnectorIsEnabledForSession(true);
-        ActiveManualInstances := GetActiveManualInstances;
-
-        // [WHEN] LogEntry "37" is getting started
-        BindSubscription(ERMChangeGlobalDimensions);
-        MockTaskScheduling(ERMChangeGlobalDimensions, DATABASE::"Sales Line");
-        RunChangeGlobalDimensionsInParallel(ChangeGlobalDimLogEntry[2]);
-
-        // [THEN] LogEntry "37" is completed and removed
-        Assert.IsFalse(ChangeGlobalDimLogEntry[2].Find, 'Log entry for Table 37 should be removed');
-        // [THEN] Integration is enabled
-        Assert.AreEqual(0, GetActiveManualInstances - ActiveManualInstances, 'COD484 should not be subscribed');
-        IntegrationManagement.GetDatabaseTableTriggerSetup(DATABASE::"Sales Line", Flag, Flag, Flag, Flag);
-        Assert.IsTrue(IntegrationManagement.IsIntegrationActivated, 'IsIntegrationActivated');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure T250_RunTaskCommitsStatusChangeBeforeExecutingDataUpdate()
     var
         ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry";
@@ -4019,21 +3981,6 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry."Table ID" := TableNo;
         InsertChangeGlobalDimLogEntry(ChangeGlobalDimLogEntry);
         exit(ChangeGlobalDimLogEntry."Parent Table ID");
-    end;
-
-    local procedure GetActiveManualInstances(): Integer
-    var
-        EventSubscription: Record "Event Subscription";
-    begin
-        with EventSubscription do begin
-            SetRange("Publisher Object Type", "Publisher Object Type"::Codeunit);
-            SetRange("Publisher Object ID", CODEUNIT::"Integration Management");
-            SetRange("Published Function", 'OnGetIntegrationDisabled');
-            SetRange("Subscriber Codeunit ID", CODEUNIT::"Change Global Dim. Log Mgt.");
-            SetRange("Subscriber Instance", 'Manual');
-            FindFirst();
-            exit("Active Manual Instances");
-        end;
     end;
 
     local procedure IsObsolete(TableID: Integer): Boolean

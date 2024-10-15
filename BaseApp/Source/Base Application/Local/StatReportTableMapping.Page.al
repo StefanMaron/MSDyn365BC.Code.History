@@ -14,7 +14,7 @@ page 26592 "Stat. Report Table Mapping"
             repeater(Control1210000)
             {
                 ShowCaption = false;
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

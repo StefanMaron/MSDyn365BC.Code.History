@@ -25,7 +25,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the record.';
@@ -41,7 +41,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
                         NoOnAfterValidate();
                     end;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this line.';

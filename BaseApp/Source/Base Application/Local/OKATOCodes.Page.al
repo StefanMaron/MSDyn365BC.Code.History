@@ -18,7 +18,7 @@ page 12430 "OKATO Codes"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the standard OKATO classification code.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the OKATO classification code.';

@@ -40,7 +40,7 @@ page 17315 "Tax Calc. Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line code associated with the tax calculation line.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;

@@ -22,7 +22,7 @@ page 35603 Vendors
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the related record.';
@@ -351,25 +351,6 @@ page 35603 Vendors
                         CopyFromCustomer(Rec);
                     end;
                 }
-#if not CLEAN19
-                action("Combine Vendors")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Combine Vendors';
-                    Image = BusinessRelation;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by W1 action MergeDuplicate in Vendor Card.';
-                    ObsoleteTag = '19.0';
-
-                    trigger OnAction()
-                    var
-                        JoinEntries: Report "Combine Customer/Vendor";
-                    begin
-                        JoinEntries.ChangeVendor(Rec);
-                        JoinEntries.Run();
-                    end;
-                }
-#endif
             }
             group("&Purchases")
             {
@@ -446,7 +427,7 @@ page 35603 Vendors
                         PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN19
+#if not CLEAN21
                 action(Prices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -881,12 +862,6 @@ page 35603 Vendors
                 }
                 actionref(DiscountLines_Promoted; DiscountLines)
                 {
-                }
-                actionref("Line Discounts_Promoted"; "Line Discounts")
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '19.0';
                 }
             }
         }

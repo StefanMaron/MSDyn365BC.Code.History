@@ -19,7 +19,7 @@ page 17336 "FA Tax Differences Detailed"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'This field is used internally.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the description associated with this line.';

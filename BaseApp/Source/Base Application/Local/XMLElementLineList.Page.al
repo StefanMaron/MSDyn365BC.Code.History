@@ -17,7 +17,7 @@ page 26588 "XML Element Line List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the element name associated with the XML element line.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the XML element line.';

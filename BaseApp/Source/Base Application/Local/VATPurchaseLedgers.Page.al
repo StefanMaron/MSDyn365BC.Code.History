@@ -26,7 +26,7 @@ page 35628 "VAT Purchase Ledgers"
                             CurrPage.Update();
                     end;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this VAT ledger.';

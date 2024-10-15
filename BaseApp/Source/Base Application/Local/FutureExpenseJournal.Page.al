@@ -73,7 +73,7 @@ page 17333 "Future Expense Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting type, if Account Type field contains Fixed Asset.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this line.';
@@ -83,7 +83,7 @@ page 17333 "Future Expense Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the warehouse or other place where the involved items are handled or stored.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount.';

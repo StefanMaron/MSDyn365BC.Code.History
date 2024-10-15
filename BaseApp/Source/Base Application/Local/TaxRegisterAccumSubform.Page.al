@@ -25,12 +25,12 @@ page 17210 "Tax Register Accum. Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the report line code associated with the tax register accumulation.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with the tax register accumulation.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount associated with the tax register accumulation.';

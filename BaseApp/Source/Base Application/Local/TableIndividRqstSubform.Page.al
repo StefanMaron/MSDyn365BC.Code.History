@@ -13,7 +13,7 @@ page 26567 "Table Individ. Rqst. Subform"
             repeater(Control1210000)
             {
                 ShowCaption = false;
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;

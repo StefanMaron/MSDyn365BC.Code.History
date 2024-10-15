@@ -16,12 +16,12 @@ page 17219 "Tax Register Section Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code associated with the tax register section.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with the tax register section.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status associated with the tax register section.';
@@ -153,7 +153,7 @@ page 17219 "Tax Register Section Card"
             group(System)
             {
                 Caption = 'System';
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

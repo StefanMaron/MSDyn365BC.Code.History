@@ -67,15 +67,9 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata Permission = imd,
                   tabledata "Permission Range" = imd,
                   tabledata "Permission Set" = imd,
-                  tabledata Profile = imd,
                   tabledata "Profile Configuration Symbols" = imd,
-                  tabledata "Profile Metadata" = IMD,
-                  tabledata "Profile Page Metadata" = IMD,
                   tabledata "Published Application" = Rimd,
                   tabledata "Query Navigation" = RIMD,
-#if not CLEAN19
-                  tabledata "Query Navigation Validation" = IMD,
-#endif
                   tabledata "Report Layout" = Rimd,
                   tabledata "Report Metadata" = imd,
                   tabledata "Scheduled Task" = imd,
@@ -96,20 +90,6 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "User Property" = Rimd,
                   tabledata "Web Service" = RIMD,
                   tabledata "Windows Language" = imd,
-#if not CLEAN19
-                  page "Automation - Config. Package" = X,
-                  page "Automation - RS Package File" = X,
-#endif
-#if not CLEAN19
-                  page "Automation Extension Upload" = X,
-#endif
-#if not CLEAN19
-                  page "Automation Permission Sets" = X,
-                  page "Automation User" = X,
-                  page "Automation User Group Member" = X,
-                  page "Automation User Groups" = X,
-                  page "Automation User Permission" = X,
-#endif
                   tabledata "AAD Application" = RIMD,
                   tabledata "Acc. Sched. Cell Value" = RIMD,
                   tabledata "Acc. Sched. Chart Setup Line" = RIMD,
@@ -136,6 +116,8 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Administration Cue" = RIMD,
                   tabledata "Aged Report Entity" = RIMD,
                   tabledata "Aging Band Buffer" = RIMD,
+                  tabledata "Alt. Customer Posting Group" = RIMD,
+                  tabledata "Alt. Vendor Posting Group" = RIMD,
                   tabledata "Alternative Address" = RIMD,
                   tabledata "Analysis by Dim. Parameters" = RIMD,
                   tabledata "Analysis by Dim. User Param." = RIMD,
@@ -266,7 +248,9 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "CDS Connection Setup" = RIMD,
                   tabledata "CDS Coupled Business Unit" = RIMD,
                   tabledata "CDS Environment" = RIMD,
+#if not CLEAN22
                   tabledata "CDS Failed Option Mapping" = RIMD,
+#endif
                   tabledata "CDS Solution" = RIMD,
                   tabledata "CDS Teammembership" = RIMD,
                   tabledata "CDS Teamroles" = RIMD,
@@ -351,7 +335,9 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Cost Type" = RIMD,
                   tabledata "Country/Region" = RIMD,
                   tabledata "Country/Region Translation" = RIMD,
+#if not CLEAN22                  
                   tabledata "Coupling Field Buffer" = RIMD,
+#endif
                   tabledata "Coupling Record Buffer" = RIMD,
                   tabledata "Credit Trans Re-export History" = RIMD,
                   tabledata "Credit Transfer Entry" = RIMD,
@@ -429,9 +415,6 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Customer Price Group" = RIMD,
                   tabledata "Customer Sales Buffer" = RIMD,
                   tabledata "Customer Templ." = RIMD,
-#if not CLEAN19
-                  tabledata "Customer Template" = RIMD,
-#endif
                   tabledata "Customized Calendar Change" = RIMD,
                   tabledata "Customized Calendar Entry" = RIMD,
                   tabledata "CV Ledger Entry Buffer" = RIMD,
@@ -446,7 +429,7 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Data Exch. Field Grouping" = RIMD,
                   tabledata "Data Exch. FlowField Gr. Buff." = RIMD,
                   tabledata "Data Exchange Type" = RIMD,
-				  tabledata "Data Exch. Table Filter" = RIMD,
+                  tabledata "Data Exch. Table Filter" = RIMD,
                   tabledata "Data Migration Entity" = RIMD,
                   tabledata "Data Migration Error" = RIMD,
                   tabledata "Data Migration Parameters" = RIMD,
@@ -472,6 +455,8 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Depreciation Table Line" = RIMD,
                   tabledata "Detailed Cust. Ledg. Entry" = Rimd,
                   tabledata "Detailed CV Ledg. Entry Buffer" = RIMD,
+                  tabledata "Detailed Employee Ledger Entry" = Rimd,
+                  tabledata "Detailed Vendor Ledg. Entry" = Rimd,
                   tabledata "Dim Correct Selection Criteria" = R,
                   tabledata "Dim Correction Blocked Setup" = R,
                   tabledata "Dim Correction Change" = R,
@@ -517,6 +502,9 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Email Parameter" = RIMD,
                   tabledata Employee = RIMD,
                   tabledata "Employee Absence" = RIMD,
+                  tabledata "Employee Ledger Entry" = Rimd,
+                  tabledata "Employee Payment Buffer" = RIMD,
+                  tabledata "Employee Posting Group" = RIMD,
                   tabledata "Employee Qualification" = RIMD,
                   tabledata "Employee Relative" = RIMD,
                   tabledata "Employee Statistics Group" = RIMD,
@@ -542,7 +530,6 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Exp. Phys. Invt. Tracking" = RIMD,
                   tabledata "Experience Tier Buffer" = RIMD,
                   tabledata "Experience Tier Setup" = RIMD,
-                  tabledata "Ext Txt ID Integration Record" = RIMD,
                   tabledata "Extended Text Header" = RIMD,
                   tabledata "Extended Text Line" = RIMD,
                   tabledata "FA Allocation" = RIMD,
@@ -610,7 +597,6 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Gen. Jnl. Dim. Filter" = RIMD,
                   tabledata "Gen. Journal Batch" = RIMD,
                   tabledata "Gen. Journal Line" = RIMD,
-                  tabledata "Gen. Journal Line Archive" = RiMd,
                   tabledata "Gen. Journal Template" = RIMD,
                   tabledata "Gen. Product Posting Group" = RIMD,
                   tabledata "General Ledger Setup" = RIMD,
@@ -624,6 +610,10 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata Geolocation = RIMD,
 #if not CLEAN21
                   tabledata "Graph Mail Setup" = RIMD,
+#endif
+#if not CLEAN20
+                  tabledata "Graph Subscription" = RIMD,
+                  tabledata "Graph Business Setting" = RIMD,
 #endif
                   tabledata "Grounds for Termination" = RIMD,
                   tabledata "Handled IC Inbox Jnl. Line" = RIMD,
@@ -643,6 +633,7 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Human Resource Unit of Measure" = RIMD,
                   tabledata "Human Resources Setup" = RIMD,
                   tabledata "Hybrid Deployment Setup" = RIMD,
+                  tabledata "IC Bank Account" = RIMD,
                   tabledata "IC Comment Line" = RIMD,
                   tabledata "IC Dimension" = RIMD,
                   tabledata "IC Dimension Value" = RIMD,
@@ -664,6 +655,7 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "IC Partner" = RIMD,
                   tabledata "IC Setup" = RIMD,
                   tabledata "Image Analysis Setup" = RIMD,
+                  tabledata "Image Analysis Scenario" = R,
                   tabledata "Import G/L Transaction" = RIMD,
                   tabledata "Inc. Doc. Attachment Overview" = RIMD,
                   tabledata "Incoming Document" = RIMD,
@@ -679,9 +671,6 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Insurance Register" = Rimd,
                   tabledata "Insurance Type" = RIMD,
                   tabledata "Integration Field Mapping" = RIMD,
-                  tabledata "Integration Management Setup" = RIMD,
-                  tabledata "Integration Record" = RIMD,
-                  tabledata "Integration Record Archive" = RIMD,
                   tabledata "Integration Synch. Job" = RIMD,
                   tabledata "Integration Synch. Job Errors" = RIMD,
                   tabledata "Integration Table Mapping" = RIMD,
@@ -695,14 +684,13 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Intermediate Data Import" = RIMD,
                   tabledata "Internal Movement Header" = RIMD,
                   tabledata "Internal Movement Line" = RIMD,
-#if not CLEAN19
-                  tabledata "Intrastat Checklist Setup" = RIMD,
-#endif
+#if not CLEAN22
                   tabledata "Advanced Intrastat Checklist" = RIMD,
                   tabledata "Intrastat Jnl. Batch" = RIMD,
                   tabledata "Intrastat Jnl. Line" = RIMD,
                   tabledata "Intrastat Jnl. Template" = RIMD,
                   tabledata "Intrastat Setup" = RIMD,
+#endif
                   tabledata "Invalidated Dim Correction" = R,
                   tabledata "Inventory Adjmt. Entry (Order)" = Rimd,
                   tabledata "Inventory Adjustment Buffer" = Rimd,
@@ -761,9 +749,6 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Item Charge" = RIMD,
                   tabledata "Item Charge Assignment (Purch)" = RIMD,
                   tabledata "Item Charge Assignment (Sales)" = RIMD,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = RIMD,
-#endif
                   tabledata "Item Discount Group" = RIMD,
                   tabledata "Item Entry Relation" = RIMD,
                   tabledata "Item Identifier" = RIMD,
@@ -919,9 +904,7 @@ permissionset 5117 "D365 AUTOMATION"
 #if not CLEAN21
                   tabledata "O365 Payment Terms" = RIMD,
                   tabledata "O365 Posted Coupon Claim" = Rimd,
-#endif
                   tabledata "O365 Sales Cue" = RIMD,
-#if not CLEAN21
                   tabledata "O365 Sales Document" = RIMD,
                   tabledata "O365 Sales Event" = RIMD,
                   tabledata "O365 Sales Graph" = Rimd,
@@ -955,22 +938,11 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Order Promising Setup" = RIMD,
                   tabledata "Order Tracking Entry" = RIMD,
                   tabledata "Organizational Level" = RIMD,
-#if not CLEAN19
-                  tabledata "Outlook Synch. Dependency" = RIMD,
-                  tabledata "Outlook Synch. Entity" = RIMD,
-                  tabledata "Outlook Synch. Entity Element" = RIMD,
-                  tabledata "Outlook Synch. Field" = RIMD,
-                  tabledata "Outlook Synch. Filter" = RIMD,
-                  tabledata "Outlook Synch. Link" = RIMD,
-                  tabledata "Outlook Synch. Lookup Name" = RIMD,
-                  tabledata "Outlook Synch. Option Correl." = RIMD,
-                  tabledata "Outlook Synch. Setup Detail" = RIMD,
-                  tabledata "Outlook Synch. User Setup" = RIMD,
-#endif
                   tabledata "Outstanding Bank Transaction" = RIMD,
                   tabledata "Over-Receipt Code" = RIMD,
                   tabledata "Overdue Approval Entry" = Rimd,
                   tabledata "Package No. Information" = RIMD,
+                  tabledata "Payable Employee Ledger Entry" = RIMD,
                   tabledata "Payable Vendor Ledger Entry" = RIMD,
                   tabledata "Payment Application Proposal" = RIMD,
 #if not CLEAN22
@@ -1053,7 +1025,9 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Power BI Report Configuration" = RIMD,
                   tabledata "Power BI Report Labels" = R,
                   tabledata "Power BI Report Uploads" = RIMD,
+#if not CLEAN22
                   tabledata "Power BI Service Status Setup" = RIMD,
+#endif
                   tabledata "Power BI User Configuration" = RIMD,
 #if not CLEAN21
                   tabledata "Power BI User License" = RIMD,
@@ -1327,11 +1301,6 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Shop Calendar Holiday" = RIMD,
                   tabledata "Shop Calendar Working Days" = RIMD,
                   tabledata "Skill Code" = RIMD,
-#if not CLEAN19
-                  tabledata "SmartList Designer Setup" = RIMD,
-                  tabledata "SmartList Export Results" = RIMD,
-                  tabledata "SmartList Import Results" = RIMD,
-#endif
                   tabledata "Sorting Table" = RIMD,
                   tabledata "Source Code" = RIMD,
                   tabledata "Source Code Setup" = RIMD,
@@ -1436,14 +1405,13 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Unlinked Attachment" = RIMD,
                   tabledata "Unplanned Demand" = RIMD,
                   tabledata "Untracked Planning Element" = RIMD,
-#if not CLEAN19
-                  tabledata "User Callouts" = RIMD,
-#endif
+#if not CLEAN22
                   tabledata "User Group" = R,
                   tabledata "User Group Access Control" = R,
                   tabledata "User Group Member" = Rimd,
                   tabledata "User Group Permission Set" = R,
                   tabledata "User Group Plan" = Rimd,
+#endif
                   tabledata "User Preference" = RIMD,
                   tabledata "User Security Status" = RIMD,
                   tabledata "User Setup" = RIMD,

@@ -74,7 +74,7 @@ page 14905 "Letter of Attorney Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the validity date of the document.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;

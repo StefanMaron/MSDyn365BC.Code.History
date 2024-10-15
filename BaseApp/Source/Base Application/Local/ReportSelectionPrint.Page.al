@@ -21,7 +21,7 @@ page 12448 "Report Selection - Print"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the display name of the report.';
                 }
-                field(Default; Default)
+                field(Default; Rec.Default)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Print Report';

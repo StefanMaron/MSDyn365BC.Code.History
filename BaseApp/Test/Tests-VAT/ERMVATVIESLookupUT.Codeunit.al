@@ -12,6 +12,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         DefaultTxt: Label 'Default';
         CustomerUpdatedMsg: Label 'The customer has been updated.';
@@ -935,6 +936,42 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         CustomerCard."Country/Region Code".SetValue(CountryRegion.Code);
         CustomerCard."VAT Registration No.".SetValue('');
         CustomerCard.Close();
+
+        // [VERIFY] Verify VAT registration log created for contact
+        VerifyVATRegNoAndCountryCodeInLog(2);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure ValidateVatRegistrationLogForContactCreatedByVendor()
+    var
+        Vendor: Record Vendor;
+        Contact: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        VATRegistrationLog: Record "VAT Registration Log";
+        CountryRegion: Record "Country/Region";
+        VendorCard: TestPage "Vendor Card";
+    begin
+        // [SCENARIO 461536] Verify VAt Registration Log on Contact when vendor VAT Registration No. validated
+        Initialize();
+        InitDefaultTemplate();
+
+        //[GIVEN] Create vendor and mock contact
+        PrepareVendorLog(Vendor, VATRegistrationLog);
+        MockContact(Contact, '', '', '', '');
+        MockContBusRelation(Contact."No.", ContactBusinessRelation."Link to Table"::Vendor, Vendor."No.");
+        PrepareContactLog(Contact, VATRegistrationLog);
+
+        // [GIVEN] Create Country and update EU country Code
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        UpdateEUCountryRegion(CountryRegion.Code);
+
+        // [GIVEN] Open vendor card and validate "VAT Registration No."
+        VendorCard.OpenEdit();
+        VendorCard.GoToRecord(Vendor);
+        VendorCard."Country/Region Code".SetValue(CountryRegion.Code);
+        VendorCard."VAT Registration No.".SetValue('');
+        VendorCard.Close();
 
         // [VERIFY] Verify VAT registration log created for contact
         VerifyVATRegNoAndCountryCodeInLog(2);

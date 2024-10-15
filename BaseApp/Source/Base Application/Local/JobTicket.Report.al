@@ -2,6 +2,9 @@ report 14950 "Job Ticket"
 {
     Caption = 'Job Ticket';
     ProcessingOnly = true;
+    ObsoleteReason = 'Use not supported DotNet component.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     dataset
     {
@@ -59,12 +62,6 @@ report 14950 "Job Ticket"
         SalesHeader: Record "Sales Header";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         DocumentTemplate: Record "Excel Template";
-        [RunOnClient]
-        wrdApp: DotNet ApplicationClass;
-        [RunOnClient]
-        wrdDoc: DotNet DocumentClass;
-        [RunOnClient]
-        WordHelper: DotNet WordHelper;
         FileName: Text[1024];
         ReportSource: Option UnpostedSales,SalesInvoice,SalesShipment;
     begin
@@ -76,62 +73,12 @@ report 14950 "Job Ticket"
 
         SalesReceivablesSetup.Get();
         FileName := DocumentTemplate.OpenTemplate(SalesReceivablesSetup."Job Ticket Template Code");
-
-        wrdApp := wrdApp.ApplicationClass();
-        wrdDoc := WordHelper.CallOpen(wrdApp, FileName, false, false);
-
-        FillBookmarks(wrdDoc, SalesHeader, ReportSource);
-        wrdApp.Visible(true);
     end;
 
     var
         ItemDescription: Text[1024];
         VehicleDescription: Text[1024];
         VehicleDescriptionRegNo: Text[1024];
-
-    [Scope('OnPrem')]
-    procedure FillBookmarks(var wrdDoc: DotNet DocumentClass; SalesHeader: Record "Sales Header"; ReportSource: Option UnpostedSales,SalesInvoice,SalesShipment)
-    var
-        LocalReportManagement: Codeunit "Local Report Management";
-        Quantity: Decimal;
-        Weight: Decimal;
-        Volume: Decimal;
-    begin
-        FillBookmark(wrdDoc, 'OrderDate', Format(SalesHeader."Order Date"));
-        FillBookmark(wrdDoc, 'OrderNo', SalesHeader."No.");
-        FillBookmark(wrdDoc, 'Vendor', GetVendorInfo(SalesHeader));
-        FillBookmark(wrdDoc, 'ResponsiblePerson', GetResponsiblePersonInfo(SalesHeader, ReportSource));
-        FillBookmark(wrdDoc, 'ShippingAgent', GetShippingAgentName(SalesHeader));
-
-        FillBookmark(wrdDoc, 'ItemDescription', ItemDescription);
-        GetLinesInfo(SalesHeader, Quantity, Weight, Volume, ReportSource);
-        FillBookmark(wrdDoc, 'Quantity', Format(Quantity));
-        FillBookmark(
-          wrdDoc, 'NetWeight',
-          LocalReportManagement.FormatReportValue(Weight, 2) + ',  ,' +
-          LocalReportManagement.FormatReportValue(Volume, 2));
-
-        FillBookmark(wrdDoc, 'VehicleDescription', VehicleDescription);
-        FillBookmark(wrdDoc, 'VehicleDescriptionRegNo', VehicleDescriptionRegNo);
-    end;
-
-    [Scope('OnPrem')]
-    procedure FillBookmark(var wrdDoc: DotNet DocumentClass; BookmarkName: Text[250]; TextValue: Text[1024])
-    var
-        [RunOnClient]
-        wrdBookmark: DotNet Bookmark;
-        [RunOnClient]
-        Enumerator: DotNet IEnumerator;
-    begin
-        Enumerator := wrdDoc.Bookmarks.GetEnumerator();
-        while Enumerator.MoveNext() do begin
-            wrdBookmark := Enumerator.Current;
-            if wrdBookmark.Name = BookmarkName then begin
-                wrdBookmark.Range.Text(TextValue);
-                exit;
-            end;
-        end;
-    end;
 
     [Scope('OnPrem')]
     procedure GetVendorInfo(SalesHeader: Record "Sales Header"): Text[250]

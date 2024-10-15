@@ -17,7 +17,7 @@ page 17247 "Tax Register Norm Groups"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code associated with the norm group.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code description associated with the norm group.';

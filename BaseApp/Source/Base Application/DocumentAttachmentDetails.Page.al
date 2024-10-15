@@ -93,7 +93,8 @@ page 1173 "Document Attachment Details"
                 Caption = 'Open in OneDrive';
                 ToolTip = 'Copy the file to your Business Central folder in OneDrive and open it in a new window so you can manage or share the file.', Comment = 'OneDrive should not be translated';
                 Image = Cloud;
-                Visible = ShareOptionsEnabled;
+                Visible = ShareOptionsVisible;
+                Enabled = not IsMultiSelect;
                 Scope = Repeater;
                 trigger OnAction()
                 var
@@ -108,13 +109,40 @@ page 1173 "Document Attachment Details"
                     DocumentServiceMgt.OpenInOneDriveFromMedia(FileName, FileExtension, "Document Reference ID".MediaId());
                 end;
             }
+            action(EditInOneDrive)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Edit in OneDrive';
+                ToolTip = 'Copy the file to your Business Central folder in OneDrive and open it in a new window so you can edit the file.', Comment = 'OneDrive should not be translated';
+                Image = Cloud;
+                Visible = (ShareOptionsVisible and ShareEditOptionVisible);
+                Enabled = not IsMultiSelect;
+                Scope = Repeater;
+
+                trigger OnAction()
+                var
+                    FileManagement: Codeunit "File Management";
+                    DocumentServiceMgt: Codeunit "Document Service Management";
+                    FileName: Text;
+                    FileExtension: Text;
+                begin
+                    FileName := FileManagement.StripNotsupportChrInFileName(Rec."File Name");
+                    FileExtension := StrSubstNo(FileExtensionLbl, Rec."File Extension");
+
+                    if DocumentServiceMgt.EditInOneDriveFromMedia(FileName, FileExtension, "Document Reference ID".MediaId()) then begin
+                        Rec."Attached Date" := CurrentDateTime();
+                        Rec.Modify();
+                    end;
+                end;
+            }
             action(ShareWithOneDrive)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Share';
                 ToolTip = 'Copy the file to your Business Central folder in OneDrive and share the file. You can also see who it''s already shared with.', Comment = 'OneDrive should not be translated';
                 Image = Share;
-                Visible = ShareOptionsEnabled;
+                Visible = ShareOptionsVisible;
+                Enabled = not IsMultiSelect;
                 Scope = Repeater;
                 trigger OnAction()
                 var
@@ -134,7 +162,7 @@ page 1173 "Document Attachment Details"
                 ApplicationArea = All;
                 Caption = 'Download';
                 Image = Download;
-                Enabled = DowbloadEnabled;
+                Enabled = DownloadEnabled;
                 Scope = Repeater;
                 ToolTip = 'Download the file to your device. Depending on the file, you will need an app to view or edit the file.';
 
@@ -184,11 +212,20 @@ page 1173 "Document Attachment Details"
                 actionref(Preview_Promoted; Preview)
                 {
                 }
-                actionref(OpenInOneDrive_Promoted; OpenInOneDrive)
+                group(OneDrive_Process)
                 {
-                }
-                actionref(ShareWithOneDrive_Promoted; ShareWithOneDrive)
-                {
+                    ShowAs = SplitButton;
+                    Image = Cloud;
+
+                    actionref(OpenInOneDrive_Promoted; OpenInOneDrive)
+                    {
+                    }
+                    actionref(EditInOneDrive_Promoted; EditInOneDrive)
+                    {
+                    }
+                    actionref(ShareWithOneDrive_Promoted; ShareWithOneDrive)
+                    {
+                    }
                 }
                 actionref(AttachFromEmail_Promoted; AttachFromEmail)
                 {
@@ -213,14 +250,19 @@ page 1173 "Document Attachment Details"
 
     trigger OnAfterGetCurrRecord()
     var
+        SelectedDocumentAttachment: Record "Document Attachment";
         DocumentSharing: Codeunit "Document Sharing";
     begin
-        if OfficeMgmt.IsAvailable() or OfficeMgmt.IsPopOut() then
-            ShareOptionsEnabled := false
-        else
-            ShareOptionsEnabled := (Rec."Document Reference ID".HasValue()) and (DocumentSharing.ShareEnabled());
-
-        DowbloadEnabled := Rec."Document Reference ID".HasValue();
+        CurrPage.SetSelectionFilter(SelectedDocumentAttachment);
+        IsMultiSelect := SelectedDocumentAttachment.Count() > 1;
+        if OfficeMgmt.IsAvailable() or OfficeMgmt.IsPopOut() then begin
+            ShareOptionsVisible := false;
+            ShareEditOptionVisible := false;
+        end else begin
+            ShareOptionsVisible := (Rec."Document Reference ID".HasValue()) and (DocumentSharing.ShareEnabled());
+            ShareEditOptionVisible := DocumentSharing.EditEnabledForFile('.' + Rec."File Extension");
+        end;
+        DownloadEnabled := Rec."Document Reference ID".HasValue() and (not IsMultiSelect);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -238,13 +280,15 @@ page 1173 "Document Attachment Details"
         ImportTxt: Label 'Attach a document.';
         SelectFileTxt: Label 'Attach File(s)...';
         PurchaseDocumentFlow: Boolean;
-        ShareOptionsEnabled: Boolean;
-        DowbloadEnabled: Boolean;
+        ShareOptionsVisible: Boolean;
+        ShareEditOptionVisible: Boolean;
+        DownloadEnabled: Boolean;
         FlowToPurchTxt: Label 'Flow to Purch. Trx';
         FlowToSalesTxt: Label 'Flow to Sales Trx';
         FlowFieldsEditable: Boolean;
         EmailHasAttachments: Boolean;
         IsOfficeAddin: Boolean;
+        IsMultiSelect: Boolean;
         MenuOptionsTxt: Label 'Attach from email,Upload file', Comment = 'Comma seperated phrases must be translated seperately.';
         SelectInstructionTxt: Label 'Choose the files to attach.';
 

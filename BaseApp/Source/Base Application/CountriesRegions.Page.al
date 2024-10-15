@@ -23,7 +23,7 @@ page 10 "Countries/Regions"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the local country/region code.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';

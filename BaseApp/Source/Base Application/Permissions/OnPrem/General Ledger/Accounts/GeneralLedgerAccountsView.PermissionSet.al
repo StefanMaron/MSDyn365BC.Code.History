@@ -1,4 +1,4 @@
-permissionset 4123 "General Ledger Accounts - View"
+﻿permissionset 4123 "General Ledger Accounts - View"
 {
     Access = Public;
     Assignable = false;
@@ -13,6 +13,7 @@ permissionset 4123 "General Ledger Accounts - View"
                   tabledata Currency = R,
                   tabledata "Customer Posting Group" = R,
                   tabledata "Default Dimension" = R,
+                  tabledata "Employee Posting Group" = R,
                   tabledata "Extended Text Header" = R,
                   tabledata "Extended Text Line" = R,
                   tabledata "FA Allocation" = R,

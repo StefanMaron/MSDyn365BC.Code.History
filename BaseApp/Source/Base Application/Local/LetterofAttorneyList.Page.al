@@ -31,7 +31,7 @@ page 14906 "Letter of Attorney List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the validity date of the document.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the Letter of Attorney is open for revisions or is released.';

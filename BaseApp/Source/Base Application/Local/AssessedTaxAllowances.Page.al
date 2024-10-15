@@ -18,7 +18,7 @@ page 14920 "Assessed Tax Allowances"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for an assessed tax allowance.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of an assessed tax allowance on fixed assets.';

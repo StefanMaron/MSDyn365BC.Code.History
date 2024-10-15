@@ -25,8 +25,11 @@
                   tabledata "Trial Balance Setup" = i,
                   TableData "Config. Setup" = i,
                   TableData "Tax Register Setup" = i,
+#if not CLEAN22
                   TableData "User Group Member" = d,
+#endif
                   TableData "Statutory Report Setup" = i;
+
 
     trigger OnRun()
     var
@@ -98,6 +101,8 @@
         PaymentReconJnlTok: Label 'PAYMTRECON', Comment = 'Payment Reconciliation Journal Code';
         Text026: Label 'PURCHAPPL';
         Text027: Label 'Purchase Entry Application';
+        EmployeeEntryApplicationCodeTxt: Label 'EMPLAPPL', Comment = 'EMPL stands for employee, APPL stands for application';
+        EmployeeEntryApplicationTxt: Label 'Employee Entry Application';
         Text028: Label 'VATSTMT';
         Text029: Label 'COMPRGL';
         Text030: Label 'COMPRVAT';
@@ -153,6 +158,8 @@
         Text085: Label 'Intercompany';
         Text086: Label 'UNAPPSALES';
         Text087: Label 'Unapplied Sales Entry Application';
+        UnappliedEmplEntryApplnCodeTxt: Label 'UNAPPEMPL', Comment = 'EMPL stands for employee, UNAPP stands for unapply';
+        UnappliedEmplEntryApplnTxt: Label 'Unapplied Employee Entry Application';
         Text088: Label 'UNAPPPURCH';
         Text089: Label 'Unapplied Purchase Entry Application';
         Text090: Label 'REVERSAL';
@@ -209,6 +216,8 @@
         SourceCodeGeneralDeferralTxt: Label 'General Deferral';
         SourceCodeSalesDeferralTxt: Label 'Sales Deferral';
         SourceCodePurchaseDeferralTxt: Label 'Purchase Deferral';
+        ProductionOrderLbl: Label 'PRODUCTION';
+        ProductionOrderTxt: Label 'Production Order';
 
     internal procedure InitializeCompany()
     var
@@ -447,8 +456,10 @@
                 InsertSourceCode("Sales Entry Application", Text024, Text025);
                 InsertSourceCode("Unapplied Sales Entry Appln.", Text086, Text087);
                 InsertSourceCode("Unapplied Purch. Entry Appln.", Text088, Text089);
+                InsertSourceCode("Unapplied Empl. Entry Appln.", UnappliedEmplEntryApplnCodeTxt, UnappliedEmplEntryApplnTxt);
                 InsertSourceCode(Reversal, Text090, Text091);
                 InsertSourceCode("Purchase Entry Application", Text026, Text027);
+                InsertSourceCode("Employee Entry Application", EmployeeEntryApplicationCodeTxt, EmployeeEntryApplicationTxt);
                 InsertSourceCode("VAT Settlement", Text028, ReportName(REPORT::"Calc. and Post VAT Settlement"));
                 InsertSourceCode("Compress G/L", Text029, ReportName(REPORT::"Date Compress General Ledger"));
                 InsertSourceCode("Compress VAT Entries", Text030, ReportName(REPORT::"Date Compress VAT Entries"));
@@ -499,13 +510,13 @@
                 InsertSourceCode("Vendor Prepayments", Text12404, SourceCodeSetup.FieldCaption("Vendor Prepayments"));
                 InsertSourceCode("Cash Order Payments", Text12407, SourceCodeSetup.FieldCaption("Cash Order Payments"));
                 InsertSourceCode("Tax Difference Journal", Text17300, PageName(PAGE::"Tax Difference Journal Batches"));
-                InsertSourceCode("FA Release", Text12470, SourceCodeSetup.FieldCaption("FA Release"));
                 InsertSourceCode("FA Movement", Text12471, SourceCodeSetup.FieldCaption("FA Movement"));
                 InsertSourceCode("FA Writeoff", Text12472, SourceCodeSetup.FieldCaption("FA Writeoff"));
                 InsertSourceCode("VAT for Customer Adjustment", Text12474, SourceCodeSetup.FieldCaption("VAT for Customer Adjustment"));
                 InsertSourceCode("VAT for Vendor Adjustment", Text12473, SourceCodeSetup.FieldCaption("VAT for Vendor Adjustment"));
                 InsertSourceCode("VAT Reinstatement", Text12408, PageName(PAGE::"VAT Reinstatement Journal"));
                 InsertSourceCode("VAT Allocation on Cost", Text14809, SourceCodeSetup.FieldCaption("VAT Allocation on Cost"));
+		InsertSourceCode("Production Order", ProductionOrderLbl, ProductionOrderTxt);
                 Insert();
             end;
     end;
@@ -721,7 +732,7 @@
         if ClientAddIn.Insert() then;
     end;
 
-    local procedure InsertJobWIPMethod("Code": Code[20]; Description: Text[100]; RecognizedCosts: Option; RecognizedSales: Option; SystemDefinedIndex: Integer)
+    local procedure InsertJobWIPMethod("Code": Code[20]; Description: Text[100]; RecognizedCosts: Enum "Job WIP Recognized Costs Type"; RecognizedSales: Enum "Job WIP Recognized Sales Type"; SystemDefinedIndex: Integer)
     var
         JobWIPMethod: Record "Job WIP Method";
     begin
@@ -794,8 +805,10 @@
     local procedure OnAfterCompanyDeleteRemoveReferences(var Rec: Record Company; RunTrigger: Boolean)
     var
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
+#if not CLEAN22
         UserGroupMember: Record "User Group Member";
         UserGroupAccessControl: Record "User Group Access Control";
+#endif
         ApplicationAreaSetup: Record "Application Area Setup";
         CustomReportLayout: Record "Custom Report Layout";
         ReportLayoutSelection: Record "Report Layout Selection";
@@ -806,10 +819,12 @@
 
         AssistedCompanySetupStatus.SetRange("Company Name", Rec.Name);
         AssistedCompanySetupStatus.DeleteAll();
+#if not CLEAN22
         UserGroupMember.SetRange("Company Name", Rec.Name);
         UserGroupMember.DeleteAll();
         UserGroupAccessControl.SetRange("Company Name", Rec.Name);
         UserGroupAccessControl.DeleteAll();
+#endif
         ApplicationAreaSetup.SetRange("Company Name", Rec.Name);
         ApplicationAreaSetup.DeleteAll();
         CustomReportLayout.SetRange("Company Name", Rec.Name);

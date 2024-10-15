@@ -35,7 +35,7 @@ page 17337 "FA Tax Differences"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the description associated with this line.';

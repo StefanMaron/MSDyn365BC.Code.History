@@ -17,7 +17,7 @@ page 17284 "Tax Reg. Norm Template Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line code associated with the norm template line.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with the norm template line.';

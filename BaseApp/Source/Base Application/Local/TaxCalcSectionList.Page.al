@@ -20,12 +20,12 @@ page 17309 "Tax Calc. Section List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the tax calculation section.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the tax calculation section code description associated with the tax calculation section.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the tax calculation section.';

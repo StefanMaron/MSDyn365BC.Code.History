@@ -13,7 +13,7 @@ page 12496 "Posted FA Comments"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the type of comment line associated with this fixed asset act.';

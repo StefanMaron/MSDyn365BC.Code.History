@@ -1,4 +1,4 @@
-permissionset 5600 "Vendor - View"
+﻿permissionset 5600 "Vendor - View"
 {
     Access = Public;
     Assignable = false;
@@ -8,9 +8,7 @@ permissionset 5600 "Vendor - View"
                   tabledata Contact = R,
                   tabledata "Default Dimension" = R,
                   tabledata "Detailed Vendor Ledg. Entry" = R,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = R,
-#endif
+                  tabledata "Employee Ledger Entry" = R,
                   tabledata "Item Reference" = R,
                   tabledata Location = R,
                   tabledata "My Vendor" = Rimd,

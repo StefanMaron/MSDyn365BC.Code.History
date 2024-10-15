@@ -51,7 +51,7 @@ page 17314 "Tax Calc. Line Select Subf"
                     ToolTip = 'Specifies the number of the sum field associated with the tax calculation line.';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;

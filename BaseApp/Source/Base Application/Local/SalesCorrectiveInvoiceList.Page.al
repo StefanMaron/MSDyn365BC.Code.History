@@ -148,7 +148,7 @@ page 36847 "Sales Corrective Invoice List"
                     ToolTip = 'Specifies the number of the campaign the journal line is linked to.';
                     Visible = false;
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ToolTip = 'Specifies the status of the record.';
                     Visible = false;

@@ -15,7 +15,7 @@ page 14926 "VAT Allocation"
             repeater(Control1470000)
             {
                 ShowCaption = false;
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of VAT allocation.';
@@ -25,7 +25,7 @@ page 14926 "VAT Allocation"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account number to post the VAT allocation.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the VAT allocation entry.';
@@ -50,7 +50,7 @@ page 14926 "VAT Allocation"
                         CurrPage.Update(true);
                     end;
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount, including VAT, of the transaction.';

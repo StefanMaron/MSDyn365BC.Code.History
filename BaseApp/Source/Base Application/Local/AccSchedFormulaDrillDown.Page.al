@@ -25,7 +25,7 @@ page 26591 "Acc. Sched. Formula Drill-Down"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number that identifies the line.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
@@ -41,7 +41,7 @@ page 26591 "Acc. Sched. Formula Drill-Down"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'This field is used internally.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount.';

@@ -42,7 +42,7 @@ page 12484 "Report Selection - FA"
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the display name of the report.';
                 }
-                field(Default; Default)
+                field(Default; Rec.Default)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies if the report ID is the default for the report selection.';

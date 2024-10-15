@@ -103,7 +103,7 @@ page 12438 "Cash Order Journal"
                     ToolTip = 'Specifies the beneficiary bank code associated with the general journal line.';
                     Visible = true;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this line.';
@@ -182,7 +182,7 @@ page 12438 "Cash Order Journal"
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ToolTip = 'Specifies the amount.';
                     Visible = false;

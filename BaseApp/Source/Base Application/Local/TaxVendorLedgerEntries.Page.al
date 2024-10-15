@@ -33,7 +33,7 @@ page 17244 "Tax Vendor Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor that is associated with the person.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this line.';
@@ -71,7 +71,7 @@ page 17244 "Tax Vendor Ledger Entries"
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ToolTip = 'Specifies the amount.';
                     Visible = false;

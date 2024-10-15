@@ -37,12 +37,12 @@ page 17220 "Tax Register G/L Entry"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document amount associated with the tax register general ledger entry.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ToolTip = 'Specifies the amount of the tax register general ledger entry.';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with the tax register general ledger entry.';

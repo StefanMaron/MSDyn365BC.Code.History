@@ -23,7 +23,7 @@ page 12493 "Company Address List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company name for this address, as you want it to appear on printed materials.';

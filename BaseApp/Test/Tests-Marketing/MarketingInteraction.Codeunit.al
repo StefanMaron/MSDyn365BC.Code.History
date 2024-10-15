@@ -1386,7 +1386,7 @@ codeunit 136208 "Marketing Interaction"
         CreateSalesInvoiceForCustomerWithContact(SalesHeader);
 
         // [WHEN] A document creation is logged
-        SegManagement.LogDocument(SegManagement.SalesInvoiceInterDocType, SalesHeader."No.", 0, 0, DATABASE::Contact,
+        SegManagement.LogDocument("Interaction Log Entry Document Type"::"Sales Inv.", SalesHeader."No.", 0, 0, DATABASE::Contact,
           SalesHeader."Bill-to Contact No.", SalesHeader."Salesperson Code", SalesHeader."Campaign No.",
           SalesHeader."Posting Description", '');
 
@@ -1411,7 +1411,7 @@ codeunit 136208 "Marketing Interaction"
         CreateSalesInvoiceForCustomerWithContact(SalesHeader);
 
         // [WHEN] A document creation is logged
-        SegManagement.LogDocument(SegManagement.SalesInvoiceInterDocType, SalesHeader."No.", 0, 0, DATABASE::Contact,
+        SegManagement.LogDocument("Interaction Log Entry Document Type"::"Sales Inv.", SalesHeader."No.", 0, 0, DATABASE::Contact,
           SalesHeader."Bill-to Contact No.", SalesHeader."Salesperson Code", SalesHeader."Campaign No.",
           SalesHeader."Posting Description", '');
 
@@ -1751,32 +1751,6 @@ codeunit 136208 "Marketing Interaction"
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
-#if not CLEAN19
-    [Test]
-    [Scope('OnPrem')]
-    procedure UT_PopulateInterLogEntryToMergeSource()
-    var
-        Attachment: Record Attachment;
-    begin
-        // [FEATURE] [Merge Source]
-        // [SCENARIO 278291] PopulateInterLogEntryToMergeSource HTML merge file generation for specific Interaction Log Entry
-        Initialize();
-
-        // [GIVEN] Attachment Record
-        LibraryMarketing.CreateAttachment(Attachment);
-
-        // [GIVEN] Attachment has "Merge Source" blob field with data for Interaction Log Entries 139, 140
-        MockAttachmentMergeSource(Attachment);
-
-        // [WHEN] WordManagement.PopulateInterLogEntryToMergeSource is run for record 140
-        // [THEN] HTML Merge file generated only for record 140 and contains '<td>HundredForty</td>' value and closing '</tr> tag
-        VerifyILEHTMLMergeFile(Attachment, 140, '<td>HundredForty</td>', '<td>HundredThirtyNine</td>');
-
-        // [WHEN] WordManagement.PopulateInterLogEntryToMergeSource is run for record 139
-        // [THEN] HTML Merge file generated only for record 139 and contains '<td>HundredThirtyNine</td>' value and closing '</tr> tag
-        VerifyILEHTMLMergeFile(Attachment, 139, '<td>HundredThirtyNine</td>', '<td>HundredForty</td>');
-    end;
-#endif
     [Test]
     [Scope('OnPrem')]
     procedure ExportInteractionTemplates()
@@ -3237,12 +3211,14 @@ codeunit 136208 "Marketing Interaction"
     end;
 
     local procedure MockInterLogEntryWithAttachment(var InteractionLogEntry: Record "Interaction Log Entry"; AttachmentNo: Integer)
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
         with InteractionLogEntry do begin
             Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(InteractionLogEntry, FieldNo("Entry No."));
+            "Entry No." := SequenceNoMgt.GetNextSeqNo(DATABASE::"Interaction Log Entry");
             "Attachment No." := AttachmentNo;
-            Insert();
+            InsertRecord();
         end;
     end;
 
@@ -3257,11 +3233,13 @@ codeunit 136208 "Marketing Interaction"
     end;
 
     local procedure MockInterLogEntry(var InteractionLogEntry: Record "Interaction Log Entry")
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
         with InteractionLogEntry do begin
             Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(InteractionLogEntry, FieldNo("Entry No."));
-            Insert();
+            "Entry No." := SequenceNoMgt.GetNextSeqNo(DATABASE::"Interaction Log Entry");
+            InsertRecord();
         end;
     end;
 
@@ -3297,14 +3275,15 @@ codeunit 136208 "Marketing Interaction"
     local procedure MockInterLogEntryRelatedToSalesDocument(SalesHeader: Record "Sales Header")
     var
         InteractionLogEntry: Record "Interaction Log Entry";
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
         with InteractionLogEntry do begin
             Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(InteractionLogEntry, FieldNo("Entry No."));
+            "Entry No." := SequenceNoMgt.GetNextSeqNo(DATABASE::"Interaction Log Entry");
             "Document No." := SalesHeader."No.";
             "Document Type" := GetInterLogEntryDocTypeFromSalesDoc(SalesHeader);
             "Contact No." := SalesHeader."Bill-to Contact No.";
-            Insert();
+            InsertRecord();
         end;
     end;
 
@@ -3928,41 +3907,6 @@ CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Locatio
         Opportunity.TestField("No.", OpportunityNo);
     end;
 
-#if not CLEAN19
-    local procedure VerifyILEHTMLMergeFile(Attachment: Record Attachment; InteractionLogEntryNo: Integer; ShouldFindValue: Text; ShouldNotFindValue: Text)
-    var
-        WordManagement: Codeunit WordManagement;
-        FileManagement: Codeunit "File Management";
-        Instream: InStream;
-        MergeFile: File;
-        HeaderIsReady: Boolean;
-        TRCount: Integer;
-        ValueFound: Boolean;
-        WrongValueFound: Boolean;
-        FileName: Text;
-        TextLine: Text;
-    begin
-        FileName := FileManagement.ServerTempFileName('htm');
-        MergeFile.WriteMode := true;
-        MergeFile.TextMode := true;
-        MergeFile.Create(FileName);
-        WordManagement.PopulateInterLogEntryToMergeSource(MergeFile, Attachment, InteractionLogEntryNo, HeaderIsReady, 0);
-        MergeFile.CreateInStream(Instream);
-        repeat
-            Instream.ReadText(TextLine);
-            if StrPos(TextLine, ShouldFindValue) > 0 then
-                ValueFound := true;
-            if StrPos(TextLine, ShouldNotFindValue) > 0 then
-                WrongValueFound := true;
-            if StrPos(TextLine, '</tr>') > 0 then
-                TRCount += 1;
-        until Instream.EOS;
-        MergeFile.Close();
-        Assert.IsTrue(ValueFound, 'Value not found');
-        Assert.IsFalse(WrongValueFound, 'Wrong value found');
-        Assert.IsTrue(TRCount = 2, 'Wrong </tr> count');
-    end;
-#endif
     local procedure BindActiveDirectoryMockEvents()
     begin
         if ActiveDirectoryMockEvents.Enabled then
@@ -3979,21 +3923,12 @@ CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Locatio
         LibraryVariableStorage.Clear();
 
         if WordTemplateRec.Get(SegmentHeader."Word Template Code") then begin
-            WordTemplate.RemoveRelatedTable(WordTemplateRec.Code, Database::Contact);
-            WordTemplate.RemoveRelatedTable(WordTemplateRec.Code, Database::"Salesperson/Purchaser");
+            WordTemplate.RemoveTable(WordTemplateRec.Code, Database::Contact);
+            WordTemplate.RemoveTable(WordTemplateRec.Code, Database::"Salesperson/Purchaser");
             WordTemplateRec.Delete();
             Commit();
         end;
     end;
-
-#if not CLEAN19
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"WordManagement", 'OnBeforeCheckCanRunWord', '', false, false)]
-    local procedure SetCanRunWord(var CanRunWord: Boolean; var CanRunWordModified: Boolean)
-    begin
-        CanRunWord := WordAppExist;
-        CanRunWordModified := true;
-    end;
-#endif
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"File Management", 'OnBeforeDownloadHandler', '', false, false)]
     local procedure OnBeforeDownloadHandler(var ToFolder: Text; ToFileName: Text; FromFileName: Text; var IsHandled: Boolean)

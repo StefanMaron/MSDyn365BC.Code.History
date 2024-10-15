@@ -1,4 +1,4 @@
-codeunit 144100 "ERM G/L Corr. Analysis View"
+﻿codeunit 144100 "ERM G/L Corr. Analysis View"
 {
     TestPermissions = NonRestrictive;
     Subtype = Test;
@@ -302,7 +302,7 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
         InternalDateFilter := CopyStr(Item.GetFilter("Date Filter"), 1, MaxStrLen(InternalDateFilter));
 
         // Exercize
-        ItemAnalysisMgt.FindRec(
+        ItemAnalysisMgt.FindRecord(
           ItemAnalysisView, DimOption, DimCodeBuf, '', '', '',
           PeriodType, DateFilter, PeriodInitialized, InternalDateFilter, '', '', '');
 

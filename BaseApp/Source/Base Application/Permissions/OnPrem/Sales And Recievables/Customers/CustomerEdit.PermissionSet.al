@@ -1,4 +1,4 @@
-permissionset 9221 "Customer - Edit"
+﻿permissionset 9221 "Customer - Edit"
 {
     Access = Public;
     Assignable = false;
@@ -7,6 +7,7 @@ permissionset 9221 "Customer - Edit"
     IncludedPermissionSets = "Language - Read";
 
     Permissions = tabledata "Additional Fee Setup" = R,
+                  tabledata "Alt. Customer Posting Group" = R,
                   tabledata "API Entities Setup" = RIMD,
                   tabledata "Bank Account Ledger Entry" = rm,
                   tabledata Bin = R,
@@ -17,7 +18,7 @@ permissionset 9221 "Customer - Edit"
                   tabledata "Config. Tmpl. Selection Rules" = RIMD,
                   tabledata "Cont. Duplicate Search String" = RIMD,
                   tabledata Contact = RIM,
-                  tabledata "Contact Business Relation" = ImD,
+                  tabledata "Contact Business Relation" = rimd,
                   tabledata "Contact Duplicate" = R,
                   tabledata "Contact Profile Answer" = R,
                   tabledata "Contract Gain/Loss Entry" = rm,
@@ -32,11 +33,15 @@ permissionset 9221 "Customer - Edit"
                   tabledata "Customer Posting Group" = R,
                   tabledata "Customer Price Group" = R,
                   tabledata "Customer Templ." = rm,
+#if not CLEAN20
+                  tabledata "Customer Template" = r,
+#endif
                   tabledata "Default Dimension" = RIMD,
                   tabledata "Detailed Cust. Ledg. Entry" = Rim,
                   tabledata "Dtld. Price Calculation Setup" = Rid,
                   tabledata "Duplicate Price Line" = Rid,
                   tabledata "Duplicate Search String Setup" = R,
+                  tabledata "Employee Ledger Entry" = r,
                   tabledata "FA Ledger Entry" = rm,
                   tabledata "Filed Contract Line" = rm,
                   tabledata "Filed Service Contract Header" = rm,
@@ -48,14 +53,12 @@ permissionset 9221 "Customer - Edit"
                   tabledata "Gen. Journal Batch" = r,
                   tabledata "Gen. Journal Line" = r,
                   tabledata "Gen. Journal Template" = r,
+                  tabledata "IC Bank Account" = Rm,
                   tabledata "IC Partner" = Rm,
                   tabledata "Interaction Log Entry" = R,
                   tabledata "Item Analysis View Budg. Entry" = r,
                   tabledata "Item Analysis View Entry" = rid,
                   tabledata "Item Budget Entry" = r,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = RIMD,
-#endif
                   tabledata "Item Journal Line" = r,
                   tabledata "Item Ledger Entry" = rm,
                   tabledata "Item Reference" = RIMD,

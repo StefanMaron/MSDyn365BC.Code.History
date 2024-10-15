@@ -2572,7 +2572,7 @@ codeunit 138012 "O365 Templates Test"
         for I := 2 to RecordRef1.FieldCount do begin
             FieldRef1 := RecordRef1.FieldIndex(I);
             FieldRef2 := RecordRef2.FieldIndex(I);
-            if not ((RecordRef1.Number = DATABASE::Item) and (FieldRef1.Number = Item.FieldNo(Id))) then
+            if not ((RecordRef1.Number = DATABASE::Item) and (FieldRef1.Number = Item.FieldNo(SystemId))) then
                 if Assert.IsDataTypeSupported(FieldRef1.Value) then
                     Assert.AreEqual(FieldRef1.Value, FieldRef2.Value, StrSubstNo('Field values for field %1 do not match', FieldRef1.Caption));
         end;
@@ -2612,7 +2612,6 @@ codeunit 138012 "O365 Templates Test"
         Item."Last Time Modified" := NewItem."Last Time Modified";
         Item."Last Date Modified" := NewItem."Last Date Modified";
         Item."Last DateTime Modified" := NewItem."Last DateTime Modified";
-        Item.Id := NewItem.Id;
         Item.Modify();
         RecordRef1.GetTable(Item);
         RecordRef2.GetTable(NewItem);

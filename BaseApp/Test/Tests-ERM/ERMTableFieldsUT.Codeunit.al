@@ -473,8 +473,10 @@ codeunit 134155 "ERM Table Fields UT"
         Item.TestField("Cost is Adjusted", true);
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
     procedure ChangingTariffNoForIntrastatJnlLineWithItemNo()
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
@@ -495,6 +497,7 @@ codeunit 134155 "ERM Table Fields UT"
 
         IntrastatJnlLine.TestField("Tariff No.", TariffNumber."No.");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -965,6 +968,33 @@ codeunit 134155 "ERM Table Fields UT"
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::"Bank Account");
         CommentLine.SetRange("No.", BankAccount."No.");
         Assert.RecordCount(CommentLine, 2);
+    end;
+
+    [Test]
+    procedure ValidatingCustomerNoFromRecRefDoesntTryToGetNoSeries()
+    var
+        Customer: Record Customer;
+        RecRef: RecordRef;
+    begin
+        // [FEATURE] [Customer] [Comments] [Rename]
+        // [SCENARIO 441079] When validating No. on a exisitng customer then it should not try to get next no. series
+
+        // [GIVEN] Create a new customer with no. and name
+        Customer.Init();
+        Customer."No." := LibraryUtility.GenerateGUID();
+        Customer.Name := LibraryRandom.RandText(100);
+        Customer.Insert();
+
+        // [WHEN] validating the no. with RecordRef
+        RecRef.Open(Database::Customer);
+        RecRef.Init();
+
+        // [THEN] it should not try to get a new no. from no. series. because of no xRec.
+        RecRef.Field(Customer.FieldNo("No.")).Validate(Customer."No.");
+        if RecRef.Find() then begin
+            RecRef.Field(Customer.FieldNo(Name)).Validate(LibraryRandom.RandText(100));
+            RecRef.Modify(true);
+        end;
     end;
 
     local procedure CreateAccountingPeriod(var AccountingPeriod: Record "Accounting Period"; StartingDate: Date; IsNewFiscalYear: Boolean)

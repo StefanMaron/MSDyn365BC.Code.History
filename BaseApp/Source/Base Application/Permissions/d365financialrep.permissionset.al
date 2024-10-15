@@ -1,4 +1,4 @@
-permissionset 7576 "D365 FINANCIAL REP."
+﻿permissionset 7576 "D365 FINANCIAL REP."
 {
     Assignable = true;
 
@@ -40,6 +40,7 @@ permissionset 7576 "D365 FINANCIAL REP."
                   tabledata Customer = Rimd,
                   tabledata "Date Compr. Register" = Rimd,
                   tabledata Dimension = RIMD,
+                  tabledata "Employee Ledger Entry" = Rimd,
                   tabledata "Exch. Rate Adjmt. Reg." = Rimd,
                   tabledata "G/L Account (Analysis View)" = RIMD,
                   tabledata "G/L Account" = RIMD,

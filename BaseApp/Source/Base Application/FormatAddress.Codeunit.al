@@ -1,5 +1,6 @@
 ﻿codeunit 365 "Format Address"
 {
+    Permissions = tabledata "Country/Region" = r;
     SingleInstance = true;
 
     var

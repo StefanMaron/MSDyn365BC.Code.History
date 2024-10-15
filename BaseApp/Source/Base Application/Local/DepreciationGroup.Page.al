@@ -18,7 +18,7 @@ page 12489 "Depreciation Group"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the code for this depreciation group.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the description of the fixed asset depreciation group.';

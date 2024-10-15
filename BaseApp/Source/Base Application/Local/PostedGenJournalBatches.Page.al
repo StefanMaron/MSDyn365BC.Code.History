@@ -17,12 +17,12 @@ page 12411 "Posted Gen. Journal Batches"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the journal template, the basis of the journal batch, that the entries were posted from.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the related record.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this line.';

@@ -28,8 +28,16 @@
         IsInitialized: Boolean;
 
     local procedure Initialize()
+    var
+        ICSetup: Record "IC Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Gen. Jnl. Post Preview");
+        if not ICSetup.Get() then begin
+            ICSetup.Init();
+            ICSetup.Insert();
+        end;
+        ICSetup."Auto. Send Transactions" := false;
+        ICSetup.Modify();
         LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
@@ -145,7 +153,11 @@
           GenJournalLine."Account Type"::"G/L Account",
           GLAccount."No.", Amount);
 
+#if not CLEAN22
         GenJournalLine."IC Partner G/L Acc. No." := ICGLAccount."No.";
+#endif
+        GenJournalLine."IC Account Type" := "IC Journal Account Type"::"G/L Account";
+        GenJournalLine."IC Account No." := ICGLAccount."No.";
         GenJournalLine.Description := 'TEST';
         GenJournalLine.Modify();
 
@@ -627,6 +639,7 @@
         // [THEN] Extended G/L Posting Preview page shows grouped G/L Entries: Account No. = "A", Amount = 600, Account No. = "B", Amount = -600
         VerifyGLEntriesExtendedGrouped(GenJournalLine, ExtendedGLPostingPreview, GLAccount."No.", BalGLAccount."No.", TotalAmount);
     end;
+
 
     local procedure CreateGeneralJournalTemplate(var GenJournalTemplate: Record "Gen. Journal Template"; GenJournalTemplateType: Enum "Gen. Journal Template Type")
     begin

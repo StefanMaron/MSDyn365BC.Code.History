@@ -45,7 +45,7 @@ page 12408 "Gen. Journal Line Card"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -56,7 +56,7 @@ page 12408 "Gen. Journal Line Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency code for the record.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount.';

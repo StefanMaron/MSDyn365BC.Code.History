@@ -31,7 +31,7 @@ page 14910 "Invent. Act Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date of inventory, and is filled with the work date.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the inventory act.';

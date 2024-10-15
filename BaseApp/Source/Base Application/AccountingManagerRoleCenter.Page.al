@@ -550,6 +550,7 @@ page 9001 "Accounting Manager Role Center"
                                         Recurring = CONST(false));
                     ToolTip = 'Post financial transactions directly to general ledger accounts and other accounts, such as bank, customer, vendor, and employee accounts. Posting with a general journal always creates entries on general ledger accounts. This is true even when, for example, you post a journal line to a customer account, because an entry is posted to a general ledger receivables account through a posting group.';
                 }
+#if not CLEAN22
                 action("Intrastat Journals")
                 {
                     ApplicationArea = BasicEU;
@@ -557,7 +558,11 @@ page 9001 "Accounting Manager Role Center"
                     Image = "Report";
                     RunObject = Page "Intrastat Jnl. Batches";
                     ToolTip = 'Summarize the value of your purchases and sales with business partners in the EU for statistical purposes and prepare to send it to the relevant authority.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
+                    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                 }
+#endif
                 action("Invent. Act List")
                 {
                     Caption = 'Invent. Act List';

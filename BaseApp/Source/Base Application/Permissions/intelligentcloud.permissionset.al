@@ -1,4 +1,4 @@
-permissionset 6121 "INTELLIGENT CLOUD"
+﻿permissionset 6121 "INTELLIGENT CLOUD"
 {
     Access = Public;
     Assignable = true;
@@ -52,10 +52,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Object Options" = M,
                   tabledata Permission = m,
                   tabledata "Permission Set" = m,
-                  tabledata Profile = IMD,
                   tabledata "Profile Configuration Symbols" = IMD,
-                  tabledata "Profile Metadata" = IMD,
-                  tabledata "Profile Page Metadata" = IMD,
                   tabledata "Published Application" = R,
                   tabledata "Query Navigation" = R,
                   tabledata "Report Layout" = Rm,
@@ -70,9 +67,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Tenant Profile Setting" = IMD,
                   tabledata "Tenant Web Service" = RIMD,
                   tabledata "Upgrade Blob Storage" = Rm,
-#if not CLEAN19
-                  tabledata "User Callouts" = RIMD,
-#endif
                   tabledata User = RM,
                   tabledata "User Property" = Rimd,
                   report "Account Schedule" = X,
@@ -239,7 +233,9 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "CDS Connection Setup" = R,
                   tabledata "CDS Coupled Business Unit" = R,
                   tabledata "CDS Environment" = R,
+#if not CLEAN22
                   tabledata "CDS Failed Option Mapping" = R,
+#endif
                   tabledata "CDS Solution" = R,
                   tabledata "CDS Teammembership" = R,
                   tabledata "CDS Teamroles" = R,
@@ -324,7 +320,9 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Cost Type" = R,
                   tabledata "Country/Region" = R,
                   tabledata "Country/Region Translation" = R,
+#if not CLEAN22
                   tabledata "Coupling Field Buffer" = R,
+#endif
                   tabledata "Coupling Record Buffer" = R,
                   tabledata "Credit Trans Re-export History" = R,
                   tabledata "Credit Transfer Entry" = R,
@@ -402,9 +400,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Customer Price Group" = R,
                   tabledata "Customer Sales Buffer" = R,
                   tabledata "Customer Templ." = R,
-#if not CLEAN19
-                  tabledata "Customer Template" = R,
-#endif
                   tabledata "Customized Calendar Change" = R,
                   tabledata "Customized Calendar Entry" = R,
                   tabledata "CV Ledger Entry Buffer" = R,
@@ -419,7 +414,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Data Exch. Field Grouping" = R,
                   tabledata "Data Exch. FlowField Gr. Buff." = R,
                   tabledata "Data Exchange Type" = R,
-				  tabledata "Data Exch. Table Filter" = R,
+                  tabledata "Data Exch. Table Filter" = R,
                   tabledata "Data Migration Entity" = R,
                   tabledata "Data Migration Error" = R,
                   tabledata "Data Migration Parameters" = R,
@@ -446,6 +441,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Designer Diagnostic" = RIMD,
                   tabledata "Detailed Cust. Ledg. Entry" = R,
                   tabledata "Detailed CV Ledg. Entry Buffer" = R,
+                  tabledata "Detailed Employee Ledger Entry" = R,
                   tabledata "Detailed Vendor Ledg. Entry" = R,
                   tabledata "Dim Correct Selection Criteria" = R,
                   tabledata "Dim Correction Blocked Setup" = R,
@@ -492,6 +488,9 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Email Parameter" = R,
                   tabledata Employee = R,
                   tabledata "Employee Absence" = R,
+                  tabledata "Employee Ledger Entry" = R,
+                  tabledata "Employee Payment Buffer" = R,
+                  tabledata "Employee Posting Group" = R,
                   tabledata "Employee Qualification" = R,
                   tabledata "Employee Relative" = R,
                   tabledata "Employee Statistics Group" = R,
@@ -517,7 +516,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Exp. Phys. Invt. Tracking" = R,
                   tabledata "Experience Tier Buffer" = R,
                   tabledata "Experience Tier Setup" = R,
-                  tabledata "Ext Txt ID Integration Record" = R,
                   tabledata "Extended Text Header" = R,
                   tabledata "Extended Text Line" = R,
                   tabledata "FA Allocation" = R,
@@ -617,6 +615,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Human Resource Unit of Measure" = R,
                   tabledata "Human Resources Setup" = R,
                   tabledata "Hybrid Deployment Setup" = R,
+                  tabledata "IC Bank Account" = R,
                   tabledata "IC Comment Line" = R,
                   tabledata "IC Dimension" = R,
                   tabledata "IC Dimension Value" = R,
@@ -638,6 +637,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "IC Partner" = R,
                   tabledata "IC Setup" = R,
                   tabledata "Image Analysis Setup" = R,
+                  tabledata "Image Analysis Scenario" = R,
                   tabledata "Import G/L Transaction" = R,
                   tabledata "Inc. Doc. Attachment Overview" = R,
                   tabledata "Incoming Document" = R,
@@ -653,9 +653,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Insurance Register" = R,
                   tabledata "Insurance Type" = R,
                   tabledata "Integration Field Mapping" = R,
-                  tabledata "Integration Management Setup" = R,
-                  tabledata "Integration Record" = R,
-                  tabledata "Integration Record Archive" = R,
                   tabledata "Integration Synch. Job" = R,
                   tabledata "Integration Synch. Job Errors" = R,
                   tabledata "Integration Table Mapping" = R,
@@ -669,14 +666,13 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Intermediate Data Import" = R,
                   tabledata "Internal Movement Header" = R,
                   tabledata "Internal Movement Line" = R,
-#if not CLEAN19
-                  tabledata "Intrastat Checklist Setup" = R,
-#endif
+#if not CLEAN22
                   tabledata "Advanced Intrastat Checklist" = R,
                   tabledata "Intrastat Jnl. Batch" = R,
                   tabledata "Intrastat Jnl. Line" = R,
                   tabledata "Intrastat Jnl. Template" = R,
                   tabledata "Intrastat Setup" = R,
+#endif
                   tabledata "Invalidated Dim Correction" = R,
                   tabledata "Inventory Adjmt. Entry (Order)" = R,
                   tabledata "Inventory Adjustment Buffer" = R,
@@ -735,9 +731,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Item Charge" = R,
                   tabledata "Item Charge Assignment (Purch)" = R,
                   tabledata "Item Charge Assignment (Sales)" = R,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = R,
-#endif
                   tabledata "Item Discount Group" = R,
                   tabledata "Item Entry Relation" = R,
                   tabledata "Item Identifier" = R,
@@ -925,22 +918,11 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Order Promising Setup" = R,
                   tabledata "Order Tracking Entry" = R,
                   tabledata "Organizational Level" = R,
-#if not CLEAN19
-                  tabledata "Outlook Synch. Dependency" = R,
-                  tabledata "Outlook Synch. Entity" = R,
-                  tabledata "Outlook Synch. Entity Element" = R,
-                  tabledata "Outlook Synch. Field" = R,
-                  tabledata "Outlook Synch. Filter" = R,
-                  tabledata "Outlook Synch. Link" = R,
-                  tabledata "Outlook Synch. Lookup Name" = R,
-                  tabledata "Outlook Synch. Option Correl." = R,
-                  tabledata "Outlook Synch. Setup Detail" = R,
-                  tabledata "Outlook Synch. User Setup" = R,
-#endif
                   tabledata "Outstanding Bank Transaction" = R,
                   tabledata "Over-Receipt Code" = R,
                   tabledata "Overdue Approval Entry" = R,
                   tabledata "Package No. Information" = R,
+                  tabledata "Payable Employee Ledger Entry" = R,
                   tabledata "Payable Vendor Ledger Entry" = R,
                   tabledata "Payment Application Proposal" = R,
 #if not CLEAN22
@@ -1023,7 +1005,9 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Power BI Report Configuration" = RIMD,
                   tabledata "Power BI Report Labels" = RIMD,
                   tabledata "Power BI Report Uploads" = R,
+#if not CLEAN22
                   tabledata "Power BI Service Status Setup" = R,
+#endif
                   tabledata "Power BI User Configuration" = RIMD,
 #if not CLEAN21
                   tabledata "Power BI User License" = R,
@@ -1298,11 +1282,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Shop Calendar Holiday" = R,
                   tabledata "Shop Calendar Working Days" = R,
                   tabledata "Skill Code" = R,
-#if not CLEAN19
-                  tabledata "SmartList Designer Setup" = R,
-                  tabledata "SmartList Export Results" = R,
-                  tabledata "SmartList Import Results" = R,
-#endif
                   tabledata "Sorting Table" = R,
                   tabledata "Source Code" = R,
                   tabledata "Source Code Setup" = R,
@@ -1406,11 +1385,13 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Unlinked Attachment" = R,
                   tabledata "Unplanned Demand" = R,
                   tabledata "Untracked Planning Element" = R,
+#if not CLEAN22
                   tabledata "User Group" = R,
                   tabledata "User Group Access Control" = R,
                   tabledata "User Group Member" = R,
                   tabledata "User Group Permission Set" = R,
                   tabledata "User Group Plan" = R,
+#endif
                   tabledata "User Preference" = R,
                   tabledata "User Security Status" = RIMD,
                   tabledata "User Setup" = R,

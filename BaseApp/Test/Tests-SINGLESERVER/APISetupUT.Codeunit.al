@@ -31,32 +31,6 @@ codeunit 134636 "API Setup UT"
 
     [Test]
     [Scope('OnPrem')]
-    procedure SetupAPIDoesNotCreateIntRecordsIdAPIDisabled()
-    var
-        Customer: Record Customer;
-        IntegrationRecord: Record "Integration Record";
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
-    begin
-        Initialze;
-        // [GIVEN] API Services is disabled
-        UnbindSubscription(APIMockEvents);
-        APIMockEvents.SetIsAPIEnabled(false);
-        BindSubscription(APIMockEvents);
-        // [GIVEN] new Customer, with no integration record
-        Customer.Init();
-        Customer.Insert(true);
-        IntegrationRecord.Get(Customer.SystemId);
-        IntegrationRecord.Delete();
-
-        // [WHEN] Run APISetupIfEnabled
-        GraphMgtGeneralTools.APISetupIfEnabled;
-
-        // [THEN] Customer still has no Integration Record
-        Assert.IsFalse(IntegrationRecord.Get(Customer.SystemId), 'IntegrationRecord should not exist');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestInsertingWithTriggerAssingsRelatedRecordIDsCustomer()
     var
         Customer: Record Customer;
@@ -277,7 +251,6 @@ codeunit 134636 "API Setup UT"
         Clear(Vendor."Payment Method Id");
         Clear(Vendor."Payment Terms Id");
         Clear(Vendor."Currency Id");
-        Clear(Vendor.Id);
 
         // Execute
         Vendor.Modify(true);
@@ -287,7 +260,6 @@ codeunit 134636 "API Setup UT"
         Assert.AreEqual(Vendor."Payment Method Id", PreviousVendor."Payment Method Id", 'Mismatch on "Payment Method Id"');
         Assert.AreEqual(Vendor."Payment Terms Id", PreviousVendor."Payment Terms Id", 'Mismatch on "Payment Terms Id"');
         Assert.AreEqual(Vendor."Currency Id", PreviousVendor."Currency Id", 'Mismatch on "Currency Id"');
-        Assert.AreEqual(Vendor.Id, PreviousVendor.Id, 'Id should be preserved, it should ot change');
     end;
 
     [Test]
@@ -307,7 +279,6 @@ codeunit 134636 "API Setup UT"
         Clear(Vendor."Payment Method Id");
         Clear(Vendor."Payment Terms Id");
         Clear(Vendor."Currency Id");
-        Clear(Vendor.Id);
 
         // Execute
         GraphMgtGeneralTools.ApiSetup();
@@ -318,7 +289,6 @@ codeunit 134636 "API Setup UT"
         Assert.AreEqual(Vendor."Payment Method Id", PreviousVendor."Payment Method Id", 'Mismatch on "Payment Method Id"');
         Assert.AreEqual(Vendor."Payment Terms Id", PreviousVendor."Payment Terms Id", 'Mismatch on "Payment Terms Id"');
         Assert.AreEqual(Vendor."Currency Id", PreviousVendor."Currency Id", 'Mismatch on "Currency Id"');
-        Assert.AreEqual(Vendor.Id, PreviousVendor.Id, 'Id should be preserved');
     end;
 
     [Test]
@@ -408,7 +378,6 @@ codeunit 134636 "API Setup UT"
         PreviousItem.Copy(Item);
 
         Clear(Item."Unit of Measure Id");
-        Clear(Item.Id);
 
         // Execute
         Item.Modify(true);
@@ -417,7 +386,6 @@ codeunit 134636 "API Setup UT"
         VerifyItemRelatedRecordIDs(Item);
         Assert.AreEqual(Item."Unit of Measure Id", PreviousItem."Unit of Measure Id", 'Mismatch on "Unit of Measure Id"');
         Assert.AreEqual(Item."Tax Group Id", PreviousItem."Tax Group Id", 'Mismatch on "Tax Group Id"');
-        Assert.AreEqual(Item.Id, PreviousItem.Id, 'Id should be preserved');
     end;
 
     [Test]
@@ -435,7 +403,6 @@ codeunit 134636 "API Setup UT"
         PreviousItem.Copy(Item);
 
         Clear(Item."Unit of Measure Id");
-        Clear(Item.Id);
 
         // Execute
         GraphMgtGeneralTools.ApiSetup();
@@ -445,7 +412,6 @@ codeunit 134636 "API Setup UT"
 
         Assert.AreEqual(Item."Unit of Measure Id", PreviousItem."Unit of Measure Id", 'Mismatch on "Unit of Measure Id"');
         Assert.AreEqual(Item."Tax Group Id", PreviousItem."Tax Group Id", 'Mismatch on "Tax Group Id"');
-        Assert.AreEqual(Item.Id, PreviousItem.Id, 'Id should be preserved');
     end;
 
     [Test]
@@ -812,15 +778,9 @@ codeunit 134636 "API Setup UT"
         Assert.IsTrue(PaymentMethod.Get(Customer."Payment Method Code"), 'Could not get Payment Method');
         Assert.IsTrue(Currency.Get(Customer."Currency Code"), 'Could not get Currency');
 
-        Assert.IsFalse(IsNullGuid(PaymentTerms.Id), 'Setup Error Payment Terms ID should not be blank');
-        Assert.IsFalse(IsNullGuid(PaymentMethod.Id), 'Setup Error Payment Method ID should not be blank');
-        Assert.IsFalse(IsNullGuid(Currency.Id), 'Setup Error Currency ID should not be blank');
-
-        Assert.AreEqual(Customer."Payment Terms Id", PaymentTerms.Id, '"Payment Terms Id" was not set');
-        Assert.AreEqual(Customer."Payment Method Id", PaymentMethod.Id, '"Payment Method Id" was not set');
-        Assert.AreEqual(Customer."Currency Id", Currency.Id, '"Currency Id" was not set');
-
-        VerifyIntegrationRecord(Customer.SystemId, Customer.RecordId);
+        Assert.AreEqual(Customer."Payment Terms Id", PaymentTerms.SystemId, '"Payment Terms Id" was not set');
+        Assert.AreEqual(Customer."Payment Method Id", PaymentMethod.SystemId, '"Payment Method Id" was not set');
+        Assert.AreEqual(Customer."Currency Id", Currency.SystemId, '"Currency Id" was not set');
     end;
 
     local procedure VerifyVendorRelatedRecordIDs(var Vendor: Record Vendor)
@@ -835,15 +795,9 @@ codeunit 134636 "API Setup UT"
         Assert.IsTrue(PaymentMethod.Get(Vendor."Payment Method Code"), 'Could not get Payment Method');
         Assert.IsTrue(Currency.Get(Vendor."Currency Code"), 'Could not get Currency');
 
-        Assert.IsFalse(IsNullGuid(PaymentTerms.Id), 'Setup Error Payment Terms ID should not be blank');
-        Assert.IsFalse(IsNullGuid(PaymentMethod.Id), 'Setup Error Payment Method ID should not be blank');
-        Assert.IsFalse(IsNullGuid(Currency.Id), 'Setup Error Currency ID should not be blank');
-
-        Assert.AreEqual(Vendor."Payment Terms Id", PaymentTerms.Id, '"Payment Terms Id" was not set');
-        Assert.AreEqual(Vendor."Payment Method Id", PaymentMethod.Id, '"Payment Method Id" was not set');
-        Assert.AreEqual(Vendor."Currency Id", Currency.Id, '"Currency Id" was not set');
-
-        VerifyIntegrationRecord(Vendor.Id, Vendor.RecordId);
+        Assert.AreEqual(Vendor."Payment Terms Id", PaymentTerms.SystemId, '"Payment Terms Id" was not set');
+        Assert.AreEqual(Vendor."Payment Method Id", PaymentMethod.SystemId, '"Payment Method Id" was not set');
+        Assert.AreEqual(Vendor."Currency Id", Currency.SystemId, '"Currency Id" was not set');
     end;
 
     local procedure VerifyItemRelatedRecordIDs(var Item: Record Item)
@@ -854,11 +808,7 @@ codeunit 134636 "API Setup UT"
 
         Assert.IsTrue(UnitOfMeasure.Get(Item."Base Unit of Measure"), 'Could not get "Base Unit of Measure"');
 
-        Assert.IsFalse(IsNullGuid(UnitOfMeasure.Id), 'Setup Error UnitOfMeasure ID should not be blank');
-
-        Assert.AreEqual(Item."Unit of Measure Id", UnitOfMeasure.Id, '"Unit of Measure Id" was not set');
-
-        VerifyIntegrationRecord(Item.Id, Item.RecordId);
+        Assert.AreEqual(Item."Unit of Measure Id", UnitOfMeasure.SystemId, '"Unit of Measure Id" was not set');
     end;
 
     local procedure CreatePostedInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -888,7 +838,6 @@ codeunit 134636 "API Setup UT"
     local procedure VerifySalesInvoiceAggregateMatchesMainTable(ExpectedRecord: Variant)
     var
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
-        IntegrationRecord: Record "Integration Record";
         DummySalesHeader: Record "Sales Header";
         DummySalesInvoiceHeader: Record "Sales Invoice Header";
         DataTypeManagement: Codeunit "Data Type Management";
@@ -899,8 +848,6 @@ codeunit 134636 "API Setup UT"
         Posted: Boolean;
     begin
         SourceRecordRef.GetTable(ExpectedRecord);
-        IntegrationRecord.SetRange("Record ID", SourceRecordRef.RecordId);
-        Assert.IsTrue(IntegrationRecord.FindFirst, 'Could not find the integration record for ' + Format(SourceRecordRef.RecordId));
 
         case SourceRecordRef.Number of
             DATABASE::"Sales Header":
@@ -912,14 +859,10 @@ codeunit 134636 "API Setup UT"
         end;
 
         DataTypeManagement.FindFieldByName(SourceRecordRef, NoFieldRef, DummySalesHeader.FieldName("No."));
-        Assert.IsFalse(IsNullGuid(IntegrationRecord."Integration ID"), 'Integration ID was set to null');
         Assert.IsTrue(SalesInvoiceEntityAggregate.Get(NoFieldRef.Value, Posted), 'Could not find the Aggregate record');
 
         if Posted = false then begin
-            Assert.AreEqual(
-              IntegrationRecord."Integration ID", SalesInvoiceEntityAggregate.Id,
-              'Integration Id was not set to a correct value on Aggregate');
-            DataTypeManagement.FindFieldByName(SourceRecordRef, IdFieldRef, DummySalesHeader.FieldName(Id));
+            DataTypeManagement.FindFieldByName(SourceRecordRef, IdFieldRef, DummySalesHeader.FieldName(SystemId));
             Assert.AreEqual(
                 Format(IdFieldRef.Value), Format(SalesInvoiceEntityAggregate.Id), 'Integration Id was not set on the source record');
         end else begin
@@ -928,10 +871,7 @@ codeunit 134636 "API Setup UT"
                 Assert.AreEqual(
                     Format(DraftInvoiceFieldRef.Value), Format(SalesInvoiceEntityAggregate.Id), 'Integration Id must be set to the value from the draft')
             else begin
-                Assert.AreEqual(
-                  IntegrationRecord."Integration ID", SalesInvoiceEntityAggregate.Id,
-                  'Integration Id was not set to a correct value on Aggregate');
-                DataTypeManagement.FindFieldByName(SourceRecordRef, IdFieldRef, DummySalesHeader.FieldName(Id));
+                DataTypeManagement.FindFieldByName(SourceRecordRef, IdFieldRef, DummySalesHeader.FieldName(SystemId));
                 Assert.AreEqual(
                     Format(IdFieldRef.Value), Format(SalesInvoiceEntityAggregate.Id), 'Integration Id was not set on the source record');
             end;
@@ -941,7 +881,6 @@ codeunit 134636 "API Setup UT"
     local procedure VerifySalesQuoteEntityBufferMatchesMainTable(ExpectedRecord: Variant)
     var
         SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer";
-        IntegrationRecord: Record "Integration Record";
         DummySalesHeader: Record "Sales Header";
         DataTypeManagement: Codeunit "Data Type Management";
         SourceRecordRef: RecordRef;
@@ -949,17 +888,11 @@ codeunit 134636 "API Setup UT"
         IdFieldRef: FieldRef;
     begin
         SourceRecordRef.GetTable(ExpectedRecord);
-        IntegrationRecord.SetRange("Record ID", SourceRecordRef.RecordId);
-        Assert.IsTrue(IntegrationRecord.FindFirst, 'Could not find the integration record for ' + Format(SourceRecordRef.RecordId));
 
         DataTypeManagement.FindFieldByName(SourceRecordRef, NoFieldRef, DummySalesHeader.FieldName("No."));
-        Assert.IsFalse(IsNullGuid(IntegrationRecord."Integration ID"), 'Integration ID was set to null');
         Assert.IsTrue(SalesQuoteEntityBuffer.Get(NoFieldRef.Value), 'Could not find the Aggregate record');
-        Assert.AreEqual(
-          IntegrationRecord."Integration ID", SalesQuoteEntityBuffer.Id,
-          'Integration Id was not set to a correct value on Aggregate');
 
-        DataTypeManagement.FindFieldByName(SourceRecordRef, IdFieldRef, DummySalesHeader.FieldName(Id));
+        DataTypeManagement.FindFieldByName(SourceRecordRef, IdFieldRef, DummySalesHeader.FieldName(SystemId));
         Assert.AreEqual(
           Format(IdFieldRef.Value), Format(SalesQuoteEntityBuffer.Id), 'Integration Id was not set on the source record');
     end;
@@ -967,7 +900,6 @@ codeunit 134636 "API Setup UT"
     local procedure VerifySalesCreditMemoAggregateMatchesMainTable(ExpectedRecord: Variant)
     var
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
-        IntegrationRecord: Record "Integration Record";
         DummySalesHeader: Record "Sales Header";
         DummySalesCrMemoHeader: Record "Sales Cr.Memo Header";
         DataTypeManagement: Codeunit "Data Type Management";
@@ -977,8 +909,6 @@ codeunit 134636 "API Setup UT"
         Posted: Boolean;
     begin
         SourceRecordRef.GetTable(ExpectedRecord);
-        IntegrationRecord.SetRange("Record ID", SourceRecordRef.RecordId);
-        Assert.IsTrue(IntegrationRecord.FindFirst, 'Could not find the integration record for ' + Format(SourceRecordRef.RecordId));
 
         case SourceRecordRef.Number of
             DATABASE::"Sales Header":
@@ -990,22 +920,17 @@ codeunit 134636 "API Setup UT"
         end;
 
         DataTypeManagement.FindFieldByName(SourceRecordRef, NoFieldRef, DummySalesHeader.FieldName("No."));
-        Assert.IsFalse(IsNullGuid(IntegrationRecord."Integration ID"), 'Integration ID was set to null');
         Assert.IsTrue(SalesCrMemoEntityBuffer.Get(NoFieldRef.Value, Posted), 'Could not find the Aggregate record');
 
         if Posted then begin
             DataTypeManagement.FindFieldByName(SourceRecordRef, IdFieldRef, DummySalesCrMemoHeader.FieldName("Draft Cr. Memo SystemId"));
             if IsNullGuid(IdFieldRef.Value) then
-                DataTypeManagement.FindFieldByName(SourceRecordRef, IdFieldRef, DummySalesCrMemoHeader.FieldName(Id));
+                DataTypeManagement.FindFieldByName(SourceRecordRef, IdFieldRef, DummySalesCrMemoHeader.FieldName(SystemId));
 
             Assert.AreEqual(
   Format(IdFieldRef.Value), Format(SalesCrMemoEntityBuffer.Id), 'Integration Id was not set on the source record');
         end else begin
-            Assert.AreEqual(
-                 IntegrationRecord."Integration ID", SalesCrMemoEntityBuffer.Id,
-                 'Integration Id was not set to a correct value on Aggregate');
-
-            DataTypeManagement.FindFieldByName(SourceRecordRef, IdFieldRef, DummySalesHeader.FieldName(Id));
+            DataTypeManagement.FindFieldByName(SourceRecordRef, IdFieldRef, DummySalesHeader.FieldName(SystemId));
             Assert.AreEqual(
               Format(IdFieldRef.Value), Format(SalesCrMemoEntityBuffer.Id), 'Integration Id was not set on the source record');
         end;
@@ -1014,7 +939,6 @@ codeunit 134636 "API Setup UT"
     local procedure VerifySalesOrderEntityBufferMatchesMainTable(ExpectedRecord: Variant)
     var
         SalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
-        IntegrationRecord: Record "Integration Record";
         DummySalesHeader: Record "Sales Header";
         DataTypeManagement: Codeunit "Data Type Management";
         SourceRecordRef: RecordRef;
@@ -1022,17 +946,11 @@ codeunit 134636 "API Setup UT"
         IdFieldRef: FieldRef;
     begin
         SourceRecordRef.GetTable(ExpectedRecord);
-        IntegrationRecord.SetRange("Record ID", SourceRecordRef.RecordId);
-        Assert.IsTrue(IntegrationRecord.FindFirst, 'Could not find the integration record for ' + Format(SourceRecordRef.RecordId));
 
         DataTypeManagement.FindFieldByName(SourceRecordRef, NoFieldRef, DummySalesHeader.FieldName("No."));
-        Assert.IsFalse(IsNullGuid(IntegrationRecord."Integration ID"), 'Integration ID was set to null');
         Assert.IsTrue(SalesOrderEntityBuffer.Get(NoFieldRef.Value), 'Could not find the Aggregate record');
-        Assert.AreEqual(
-          IntegrationRecord."Integration ID", SalesOrderEntityBuffer.Id,
-          'Integration Id was not set to a correct value on Aggregate');
 
-        DataTypeManagement.FindFieldByName(SourceRecordRef, IdFieldRef, DummySalesHeader.FieldName(Id));
+        DataTypeManagement.FindFieldByName(SourceRecordRef, IdFieldRef, DummySalesHeader.FieldName(SystemId));
         Assert.AreEqual(
           Format(IdFieldRef.Value), Format(SalesOrderEntityBuffer.Id), 'Integration Id was not set on the source record');
     end;
@@ -1040,7 +958,6 @@ codeunit 134636 "API Setup UT"
     local procedure VerifyPruchaseInvoiceAggregateMatchesMainTable(ExpectedRecord: Variant)
     var
         PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate";
-        IntegrationRecord: Record "Integration Record";
         DummySalesHeader: Record "Sales Header";
         DummyPurchInvHeader: Record "Purch. Inv. Header";
         DataTypeManagement: Codeunit "Data Type Management";
@@ -1050,8 +967,6 @@ codeunit 134636 "API Setup UT"
         Posted: Boolean;
     begin
         SourceRecordRef.GetTable(ExpectedRecord);
-        IntegrationRecord.SetRange("Record ID", SourceRecordRef.RecordId);
-        Assert.IsTrue(IntegrationRecord.FindFirst, 'Could not find the integration record for ' + Format(SourceRecordRef.RecordId));
 
         case SourceRecordRef.Number of
             DATABASE::"Purchase Header":
@@ -1063,34 +978,20 @@ codeunit 134636 "API Setup UT"
         end;
 
         DataTypeManagement.FindFieldByName(SourceRecordRef, NoFieldRef, DummySalesHeader.FieldName("No."));
-        Assert.IsFalse(IsNullGuid(IntegrationRecord."Integration ID"), 'Integration ID was set to null');
         Assert.IsTrue(PurchInvEntityAggregate.Get(NoFieldRef.Value, Posted), 'Could not find the Aggregate record');
 
         if Posted then begin
             DataTypeManagement.FindFieldByName(SourceRecordRef, IdFieldRef, DummyPurchInvHeader.FieldName("Draft Invoice SystemId"));
             if IsNullGuid(IdFieldRef.Value) then
-                DataTypeManagement.FindFieldByName(SourceRecordRef, IdFieldRef, DummyPurchInvHeader.FieldName("Id"));
+                DataTypeManagement.FindFieldByName(SourceRecordRef, IdFieldRef, DummyPurchInvHeader.FieldName(SystemId));
 
             Assert.AreEqual(
               Format(IdFieldRef.Value), Format(PurchInvEntityAggregate.Id), 'Integration Id was not set on the source record');
         end else begin
-            Assert.AreEqual(
-              IntegrationRecord."Integration ID", PurchInvEntityAggregate.Id,
-              'Integration Id was not set to a correct value on Aggregate');
-
-            DataTypeManagement.FindFieldByName(SourceRecordRef, IdFieldRef, DummySalesHeader.FieldName(Id));
+            DataTypeManagement.FindFieldByName(SourceRecordRef, IdFieldRef, DummySalesHeader.FieldName(SystemId));
             Assert.AreEqual(
               Format(IdFieldRef.Value), Format(PurchInvEntityAggregate.Id), 'Integration Id was not set on the source record');
         end;
-    end;
-
-    local procedure VerifyIntegrationRecord(Id: Guid; RecId: RecordID)
-    var
-        IntegrationRecord: Record "Integration Record";
-    begin
-        Assert.IsFalse(IsNullGuid(Id), 'Id must be set');
-        Assert.IsTrue(IntegrationRecord.Get(Id), 'Could not find the integration record');
-        Assert.AreEqual(Format(RecId), Format(IntegrationRecord."Record ID"), 'Record IDs do not match');
     end;
 
     local procedure ClearExistingPurchaseInvoices()

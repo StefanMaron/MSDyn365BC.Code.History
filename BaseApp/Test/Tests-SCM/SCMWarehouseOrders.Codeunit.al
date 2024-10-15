@@ -187,6 +187,7 @@ codeunit 137161 "SCM Warehouse Orders"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure PickFromWarehouseShipmentWithBlankLocation()
     begin
@@ -198,6 +199,7 @@ codeunit 137161 "SCM Warehouse Orders"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure PostWarehouseShipmentWithBlankLocation()
     begin
@@ -4180,6 +4182,13 @@ codeunit 137161 "SCM Warehouse Orders"
         LibraryVariableStorage.Dequeue(DequeueVariable);
         LocalMessage := DequeueVariable;
         Assert.IsTrue(StrPos(ConfirmMessage, LocalMessage) > 0, ConfirmMessage);
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(ConfirmMessage: Text[1024]; var Reply: Boolean)
+    begin
         Reply := true;
     end;
 

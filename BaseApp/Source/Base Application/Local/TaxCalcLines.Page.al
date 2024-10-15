@@ -17,7 +17,7 @@ page 17320 "Tax Calc. Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line code associated with the tax calculation line.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line code description associated with the tax calculation line.';

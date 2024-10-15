@@ -20,7 +20,7 @@ page 12420 "Bank Directory List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the SWIFT BIC code of the bank.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank status information.';

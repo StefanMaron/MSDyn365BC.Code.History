@@ -1,4 +1,4 @@
-permissionset 865 "D365 CUSTOMER, VIEW"
+﻿permissionset 865 "D365 CUSTOMER, VIEW"
 {
     Assignable = true;
 
@@ -8,9 +8,6 @@ permissionset 865 "D365 CUSTOMER, VIEW"
                   tabledata "Cust. Ledger Entry" = R,
                   tabledata "Customer Bank Account" = R,
                   tabledata "G/L Account" = R,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = R,
-#endif
                   tabledata "Item Reference" = R,
                   tabledata "Profile Questionnaire Line" = R,
                   tabledata "Reminder/Fin. Charge Entry" = R,

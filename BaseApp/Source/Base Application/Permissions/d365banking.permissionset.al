@@ -1,4 +1,4 @@
-permissionset 5759 "D365 BANKING"
+﻿permissionset 5759 "D365 BANKING"
 {
     Assignable = true;
 
@@ -36,10 +36,13 @@ permissionset 5759 "D365 BANKING"
                   tabledata "Customer Bank Account" = R,
                   tabledata "Date Compr. Register" = R,
                   tabledata "Detailed Cust. Ledg. Entry" = Rimd,
+                  tabledata "Detailed Employee Ledger Entry" = Rimd,
                   tabledata "Detailed Vendor Ledg. Entry" = Rimd,
                   tabledata "Direct Debit Collection" = RIMD,
                   tabledata "Direct Debit Collection Entry" = RIMD,
                   tabledata "Duplicate Search String Setup" = R,
+                  tabledata "Employee Ledger Entry" = Rimd,
+                  tabledata "Employee Posting Group" = RIMD,
                   tabledata "Exch. Rate Adjmt. Reg." = Rimd,
                   tabledata "Exch. Rate Adjmt. Ledg. Entry" = Rimd,
                   tabledata "G/L Account" = R,

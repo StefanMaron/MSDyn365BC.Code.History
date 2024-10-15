@@ -111,7 +111,7 @@ page 14971 "Sales Corrective Invoice"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the record.';

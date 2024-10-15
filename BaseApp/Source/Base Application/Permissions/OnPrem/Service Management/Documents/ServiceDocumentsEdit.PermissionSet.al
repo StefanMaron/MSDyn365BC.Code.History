@@ -6,7 +6,8 @@ permissionset 8611 "Service Documents - Edit"
 
     IncludedPermissionSets = "Language - Read";
 
-    Permissions = tabledata Bin = R,
+    Permissions = tabledata "Alt. Customer Posting Group" = R,
+                  tabledata Bin = R,
                   tabledata "BOM Component" = r,
                   tabledata Campaign = R,
                   tabledata "Comment Line" = R,

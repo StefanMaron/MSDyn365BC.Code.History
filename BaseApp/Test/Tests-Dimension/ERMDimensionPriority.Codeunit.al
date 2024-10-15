@@ -23,6 +23,7 @@ codeunit 134381 "ERM Dimension Priority"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryJob: Codeunit "Library - Job";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
         SystemActionTriggers: Codeunit "System Action Triggers";
         isInitialized: Boolean;
         WrongDimValueCodeErr: Label 'Wrong dimension value code.';
@@ -690,6 +691,71 @@ codeunit 134381 "ERM Dimension Priority"
 
         // [THEN] The notification is enabled
         Assert.IsTrue(Enabled, 'Notification status must be true for enabled notification');
+    end;
+
+    [Test]
+    procedure VerifyDefDimensionsOnProdOrderComponentLine()
+    var
+        Dimension: Record Dimension;
+        CompDimensionValue: Record "Dimension Value";
+        ProdDimensionValue: Record "Dimension Value";
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        // [SCENARIO 462109] Verify def. dimensions on Prod. Order Component when Default Dimension Priority are setup and when there is no priority
+        Initialize();
+
+        // [GIVEN] Create Dimension and set as Global Dimension 1
+        LibraryDimension.CreateDimension(Dimension);
+        LibraryERM.SetGlobalDimensionCode(1, Dimension.Code);
+
+        // [GIVEN] Component Item with Default Dimension Value 
+        CreateItemWithDefaultDimension(CompItem, CompDimensionValue, Dimension.Code);
+
+        // [GIVEN] Create Production BOM
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem."No.", 1);
+
+        // [GIVEN] Create Prod. Item
+        CreateItemWithDefaultDimension(ProdItem, ProdDimensionValue, Dimension.Code);
+        ProdItem."Replenishment System" := ProdItem."Replenishment System"::"Prod. Order";
+        ProdItem."Manufacturing Policy" := ProdItem."Manufacturing Policy"::"Make-to-Order";
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [GIVEN] Create Prod. Order
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ProdItem."No.", 1);
+
+        // [WHEN] Refresh Production Order
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, false, true, false);
+
+        // Find Prod. Order Line and Component
+        FindProdOrderLine(ProdOrderLine, ProductionOrder, ProdItem."No.");
+        FindProdOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", CompItem."No.");
+
+        // [THEN] Verify Dimension on Prod. Order Component from Prod. Order Line
+        Assert.IsTrue(ProdOrderComponent."Shortcut Dimension 1 Code" = ProdDimensionValue.Code, 'Dimensions are not equal.');
+        Assert.IsTrue(ProdOrderLine."Shortcut Dimension 1 Code" = ProdDimensionValue.Code, 'Dimensions are not equal.');
+        Assert.IsTrue(ProdOrderLine."Shortcut Dimension 1 Code" = ProdOrderComponent."Shortcut Dimension 1 Code", 'Dimensions are not equal.');
+
+        // [GIVEN] Define Dimension Priority for Prod. Order Source Code
+        SetupDimensionPriorityForProductionSourceCode();
+
+        // [WHEN] Refresh Prod. Order
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, false, true, false);
+
+        // Find Prod. Order Line and Component
+        FindProdOrderLine(ProdOrderLine, ProductionOrder, ProdItem."No.");
+        FindProdOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", CompItem."No.");
+
+        // [THEN] Verify Dimension on Prod. Order Component from Component Item
+        Assert.IsTrue(ProdOrderComponent."Shortcut Dimension 1 Code" = CompDimensionValue.Code, 'Dimensions are not equal.');
+        Assert.IsTrue(ProdOrderLine."Shortcut Dimension 1 Code" = ProdDimensionValue.Code, 'Dimensions are not equal.');
+        Assert.IsFalse(ProdOrderLine."Shortcut Dimension 1 Code" = ProdOrderComponent."Shortcut Dimension 1 Code", 'Dimensions are equal.');
     end;
 
     local procedure Initialize()
@@ -1452,6 +1518,36 @@ codeunit 134381 "ERM Dimension Priority"
     begin
         DefaultDimPriorities.OpenEdit();
         DefaultDimPriorities.CurrentSourceCode.SetValue(SourceCodeSetup.Sales);
+    end;
+
+    local procedure SetupDimensionPriorityForProductionSourceCode()
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+        DefaultDimensionPriority: Record "Default Dimension Priority";
+    begin
+        SourceCodeSetup.Get();
+        with DefaultDimensionPriority do begin
+            SetRange("Source Code", SourceCodeSetup."Production Order");
+            DeleteAll();
+            Validate("Source Code", SourceCodeSetup."Production Order");
+            CreateDefaultDimPriority(DefaultDimensionPriority, Database::Item, 1);
+        end;
+    end;
+
+    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order"; ItemNo: Code[20])
+    begin
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.SetRange("Item No.", ItemNo);
+        ProdOrderLine.FindFirst();
+    end;
+
+    local procedure FindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; Status: Enum "Production Order Status"; ProdOrderNo: Code[20]; ItemNo: Code[20])
+    begin
+        ProdOrderComponent.SetRange(Status, Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
+        ProdOrderComponent.SetRange("Item No.", ItemNo);
+        ProdOrderComponent.FindFirst();
     end;
 
     [ConfirmHandler]

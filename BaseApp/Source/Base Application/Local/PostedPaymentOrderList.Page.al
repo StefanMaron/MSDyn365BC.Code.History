@@ -42,12 +42,12 @@ page 12425 "Posted Payment Order List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the related document.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this line.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount.';

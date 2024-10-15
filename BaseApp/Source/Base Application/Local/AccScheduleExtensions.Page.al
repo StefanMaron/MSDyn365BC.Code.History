@@ -25,7 +25,7 @@ page 26590 "Acc. Schedule Extensions"
                     ToolTip = 'Specifies the source table for the account schedule extension.';
                     Visible = "Source TableVisible";
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description for the account schedule extension.';

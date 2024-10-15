@@ -23,7 +23,7 @@ page 12442 "VAT Purchase Ledger Card"
                             CurrPage.Update();
                     end;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this VAT ledger.';

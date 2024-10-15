@@ -75,7 +75,7 @@ page 12431 "Advance Statement"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the Unit Price and Line Amount fields on document lines should be shown with or without VAT.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;

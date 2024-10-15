@@ -18,7 +18,7 @@ page 12487 "Item/FA Precious Metal"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the code associated with this precious metal asset.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the name of the precious metal asset.';
@@ -33,7 +33,7 @@ page 12487 "Item/FA Precious Metal"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the quantity of units of the precious metal asset.';

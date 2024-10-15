@@ -18,7 +18,7 @@ page 14919 "Excel Templates"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for a Microsoft Excel template.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of a Microsoft Excel template.';

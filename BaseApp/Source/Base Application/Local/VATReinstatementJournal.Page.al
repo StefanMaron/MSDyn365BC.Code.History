@@ -82,7 +82,7 @@ page 14946 "VAT Reinstatement Journal"
                     Editable = false;
                     ToolTip = 'Specifies the G/L account number.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this line.';
@@ -126,7 +126,7 @@ page 14946 "VAT Reinstatement Journal"
                     Editable = false;
                     ToolTip = 'Specifies the VAT amount that remains to be processed.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount.';

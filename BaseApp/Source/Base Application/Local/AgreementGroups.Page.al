@@ -13,7 +13,7 @@ page 14916 "Agreement Groups"
             repeater(Control1210000)
             {
                 ShowCaption = false;
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of customer agreement.';
@@ -23,7 +23,7 @@ page 14916 "Agreement Groups"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for a customer agreement.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description for the customer agreement.';
