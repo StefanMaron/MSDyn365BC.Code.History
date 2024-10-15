@@ -206,7 +206,7 @@ table 10752 "SII Doc. Upload State"
         {
             Caption = 'Version No.';
             OptionCaption = '1.1,1.0';
-            OptionMembers = "1.1","1.0";
+            OptionMembers = "1.1","1.0","2.1";
         }
         field(80; "Accepted By User ID"; Code[50])
         {
@@ -311,7 +311,6 @@ table 10752 "SII Doc. Upload State"
         SIIDocUploadState: Record "SII Doc. Upload State";
         TempSIIDocUploadState: Record "SII Doc. Upload State" temporary;
         SIIManagement: Codeunit "SII Management";
-        SIIXMLCreator: Codeunit "SII XML Creator";
         IsCVPayment: Boolean;
     begin
         if not SIIManagement.IsSIISetupEnabled then
@@ -346,7 +345,7 @@ table 10752 "SII Doc. Upload State"
         SIIDocUploadState."Inv. Entry No" := InvEntryNo;
         SIIDocUploadState.GetCorrectionInfo(
           SIIDocUploadState."Corrected Doc. No.", SIIDocUploadState."Corr. Posting Date", SIIDocUploadState."Posting Date");
-        SIIDocUploadState."Version No." := SIIXMLCreator.GetSIIVersionNo;
+        SIIDocUploadState."Version No." := GetSIIVersionNo();
         SetStatus(SIIDocUploadState);
         SIIDocUploadState.Insert;
 
@@ -456,6 +455,13 @@ table 10752 "SII Doc. Upload State"
         exit(FindLast);
     end;
 
+    local procedure GetSIIVersionNo(): Integer
+    begin
+        if Date2DMY(WorkDate(), 3) >= 2021 then
+            exit("Version No."::"2.1");
+        exit("Version No."::"1.1");
+    end;
+    
     [Scope('OnPrem')]
     procedure ValidateDocInfo(var TempSIIDocUploadState: Record "SII Doc. Upload State" temporary; EntryNo: Integer; DocumentSource: Option "Customer Ledger","Vendor Ledger","Detailed Customer Ledger","Detailed Vendor Ledger"; DocumentType: Option ,Payment,Invoice,"Credit Memo"; DocumentNo: Code[35])
     var

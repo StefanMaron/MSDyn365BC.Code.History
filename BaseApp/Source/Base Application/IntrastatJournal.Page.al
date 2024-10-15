@@ -1,4 +1,4 @@
-page 311 "Intrastat Journal"
+﻿page 311 "Intrastat Journal"
 {
     ApplicationArea = BasicEU;
     AutoSplitKey = true;
@@ -180,6 +180,12 @@ page 311 "Intrastat Journal"
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies a reference number used by the customs and tax authorities.';
+                    Visible = false;
+                }
+                field("Partner VAT ID"; "Partner VAT ID")
+                {
+                    ApplicationArea = BasicEU;
+                    ToolTip = 'Specifies the counter party''s VAT number.';
                     Visible = false;
                 }
             }

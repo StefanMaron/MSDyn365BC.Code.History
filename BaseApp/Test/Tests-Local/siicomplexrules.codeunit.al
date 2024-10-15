@@ -729,6 +729,67 @@ codeunit 147559 "SII Complex Rules"
           XMLDoc, XPathPurchBaseDetalleIVATok, 'sii:ImporteCompensacionREAGYP', SIIXMLCreator.FormatNumber(VATEntry.Amount));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ZeroCuotaDeducibleWhenExportPurchInvWithInvoiceTypeF2Version21()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Purchase] [Invoice]
+        // [SCENARIO 375398] XML has value "0" in node "CuotaDeducible" for the Purchase Invoice with "Invoice Type" = "F2"
+
+        Initialize();
+
+        // [GIVEN] Post Purchase Invoice with "Invoice Type" = "F2"
+        PostPurchDocWithInvoiceType(
+          VendorLedgerEntry, PurchaseHeader."Document Type"::Invoice, 0, PurchaseHeader."Invoice Type"::"F2 Simplified Invoice");
+
+        // [GIVEN] SII version is 2.1
+        SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No."::"2.1");
+
+        // [WHEN] Create xml for Posted Purchase Invoice
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has node "CuotaDeducible" = "0"
+        LibrarySII.ValidateElementByName(XMLDoc, 'sii:CuotaDeducible', SIIXMLCreator.FormatNumber(0));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ZeroCuotaDeducibleWhenExportPurchInvWithInvoiceIDType03Version21()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Purchase] [Invoice]
+        // [SCENARIO 375398] XML has value "0" in node "CuotaDeducible" for the Purchase Invoice with "ID Type" = "03"
+
+        Initialize();
+
+        // [GIVEN] Post Purchase Invoice with "ID Type" = "03"
+        PostPurchDocWithInvoiceType(
+          VendorLedgerEntry, PurchaseHeader."Document Type"::Invoice, 0, 0);
+        SIIDocUploadState.GetSIIDocUploadStateByVendLedgEntry(VendorLedgerEntry);
+        SIIDocUploadState.Validate(IDType, SIIDocUploadState.IDType::"03-Passport");
+        SIIDocUploadState.Modify(true);
+
+        // [GIVEN] SII version is 2.1
+        SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No."::"2.1");
+
+        // [WHEN] Create xml for Posted Purchase Invoice
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has node "CuotaDeducible" = "0"
+        LibrarySII.ValidateElementByName(XMLDoc, 'sii:CuotaDeducible', SIIXMLCreator.FormatNumber(0));
+    end;
+
     local procedure Initialize()
     begin
         if IsInitialized then
@@ -757,12 +818,23 @@ codeunit 147559 "SII Complex Rules"
     end;
 
     local procedure PostPurchDocWithSpecialSchemeCode(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option; CorrType: Option; SpecialSchemeCode: Option)
+    begin
+        PostPurchDoc(VendorLedgerEntry, DocType, CorrType, 0, SpecialSchemeCode);
+    end;
+
+    local procedure PostPurchDocWithInvoiceType(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option; CorrType: Option; InvoiceType: Option)
+    begin
+        PostPurchDoc(VendorLedgerEntry, DocType, CorrType, InvoiceType, 0);
+    end;
+
+    local procedure PostPurchDoc(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option; CorrType: Option; InvoiceType: Option; SpecialSchemeCode: Option)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorNo);
         PurchaseHeader.Validate("Correction Type", CorrType);
+        PurchaseHeader.Validate("Invoice Type", InvoiceType);
         PurchaseHeader.Validate("Special Scheme Code", SpecialSchemeCode);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(

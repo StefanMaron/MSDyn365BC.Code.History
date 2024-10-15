@@ -2059,6 +2059,80 @@ codeunit 147520 SIIDocumentTests
           XMLDoc, 'sii:ImporteTotal', SIIXMLCreator.FormatNumber(CustLedgerEntry."Amount (LCY)"));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure FechaOperacionAfterPostingDateWhenSchemeCode14AndVersion21()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        XMLDoc: DotNet XmlDocument;
+        CustomerNo: Code[20];
+        SalesInvoiceHeaderNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Shipment]
+        // [SCENARIO 375398] FechaOperacion xml node has value after the posting date in the sales invoice with the "Special Scheme Code" equals 14 and SII version equals 2.1
+
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with "Special Scheme Code" = "14", "Posting Date" = January 20, "Shipment Date" = January 25
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        CreateSalesShipmentWithShipDate(SalesHeader, CustomerNo, LibraryRandom.RandDateFrom(WorkDate, 10));
+        SalesHeader.Validate("Special Scheme Code", SalesHeader."Special Scheme Code"::"14 Invoice Work Certification");
+        SalesHeader.Modify(true);
+        SalesInvoiceHeaderNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, SalesInvoiceHeaderNo);
+
+        // [GIVEN] SII Version is 2.1
+        SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No."::"2.1");
+
+        // [WHEN] We create the xml to be transmitted for that transaction
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] FechaOperacion tag contains January 26 (the day after posting date)
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:FechaOperacion', SIIXMLCreator.FormatDate(SalesHeader."Posting Date" + 1), 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FechaOperacionAfterPostingDateDoesNotExistWhenSchemeCode01AndVersion21()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        XMLDoc: DotNet XmlDocument;
+        CustomerNo: Code[20];
+        SalesInvoiceHeaderNo: Code[20];
+        ShipmentDate: Date;
+        OldWorkDate: Date;
+    begin
+        // [FEATURE] [Sales] [Shipment]
+        // [SCENARIO 375398] FechaOperacion xml node does not exist when shipment date after the posting date for in the sales invoice with the "Special Scheme Code" equals 14 and SII version equals 2.1
+
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with "Special Scheme Code" = "01", "Posting Date" = January 20, "Shipment Date" = January 25
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        ShipmentDate := LibraryRandom.RandDateFrom(WorkDate, 10);
+        OldWorkDate := WorkDate();
+        WorkDate := ShipmentDate;
+        CreateSalesShipmentWithShipDate(SalesHeader, CustomerNo, ShipmentDate);
+        SalesInvoiceHeaderNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, SalesInvoiceHeaderNo);
+
+        // [GIVEN] SII Version is 2.1
+        SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No."::"2.1");
+
+        // [WHEN] We create the xml to be transmitted for that transaction
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] FechaOperacion tag does not contain in the xml file
+        LibrarySII.ValidateNoElementsByName(XMLDoc, 'sii:FechaOperacion');
+
+        // Tear down
+        WorkDate := OldWorkDate;
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
