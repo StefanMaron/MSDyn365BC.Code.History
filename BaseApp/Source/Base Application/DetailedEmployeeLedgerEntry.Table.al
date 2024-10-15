@@ -214,7 +214,7 @@ table 5223 "Detailed Employee Ledger Entry"
                 DtldEmplLedgEntry."Transaction No." := 0;
                 DtldEmplLedgEntry."Application No." := ApplicationNo;
                 DtldEmplLedgEntry.Modify();
-            until DtldEmplLedgEntry.Next = 0;
+            until DtldEmplLedgEntry.Next() = 0;
         end;
     end;
 

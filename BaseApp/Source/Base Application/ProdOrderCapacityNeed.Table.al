@@ -227,6 +227,7 @@ table 5410 "Prod. Order Capacity Need"
         CurrDate := DT2Date("Ending Date-Time");
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by SetCapacityFilters.', '17.0')]
     procedure SetFilters(Type2: Option; No2: Code[20])
     begin
@@ -236,6 +237,7 @@ table 5410 "Prod. Order Capacity Need"
         SetFilter(Status, '<> %1', Status::Simulated);
         SetFilter("Allocated Time", '> 0');
     end;
+#endif
 
     procedure SetCapacityFilters(CapType: Enum "Capacity Type"; CapNo: Code[20])
     begin

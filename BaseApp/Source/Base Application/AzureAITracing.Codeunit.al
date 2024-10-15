@@ -12,13 +12,13 @@ codeunit 2002 "Azure AI Tracing"
         AnalysisStartTime: DateTime;
         TraceImageAnalysisSuccessTxt: Label 'Number of Image Analysis calls: %1;Limit: %2;Period type: %3;Execution time: %4 ms.', Locked = true;
 
-    [EventSubscriber(ObjectType::Codeunit, 2020, 'OnBeforeImageAnalysis', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Image Analysis Management", 'OnBeforeImageAnalysis', '', false, false)]
     local procedure TraceImageAnalysisStart(var Sender: Codeunit "Image Analysis Management")
     begin
         AnalysisStartTime := CurrentDateTime;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2020, 'OnAfterImageAnalysis', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Image Analysis Management", 'OnAfterImageAnalysis', '', false, false)]
     local procedure TraceImageAnalysisEnd(var Sender: Codeunit "Image Analysis Management"; ImageAnalysisResult: Codeunit "Image Analysis Result")
     var
         AzureAIUsage: Codeunit "Azure AI Usage";

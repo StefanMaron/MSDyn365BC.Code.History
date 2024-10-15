@@ -1,4 +1,4 @@
-﻿codeunit 1011 "Job Jnl.-Check Line"
+codeunit 1011 "Job Jnl.-Check Line"
 {
     TableNo = "Job Journal Line";
 

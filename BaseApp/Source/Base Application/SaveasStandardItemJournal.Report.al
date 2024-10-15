@@ -150,7 +150,7 @@ report 751 "Save as Standard Item Journal"
                 if not SaveQuantity then
                     StdItemJnlLine.Validate(Quantity, 0);
                 StdItemJnlLine.Insert(true);
-            until ItemJnlLine.Next = 0;
+            until ItemJnlLine.Next() = 0;
 
         StdJournalCreated := true;
     end;

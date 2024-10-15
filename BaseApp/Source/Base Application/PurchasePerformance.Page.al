@@ -166,7 +166,7 @@ page 771 "Purchase Performance"
     local procedure UpdateChart(Period: Option ,Next,Previous)
     begin
         AnalysisReportChartMgt.UpdateChart(
-          Period, AnalysisReportChartSetup, AnalysisReportChartSetup."Analysis Area"::Purchase, Rec, StatusText);
+          Period, AnalysisReportChartSetup, AnalysisReportChartSetup."Analysis Area"::Purchase.AsInteger(), Rec, StatusText);
         Update(CurrPage.BusinessChart);
     end;
 }

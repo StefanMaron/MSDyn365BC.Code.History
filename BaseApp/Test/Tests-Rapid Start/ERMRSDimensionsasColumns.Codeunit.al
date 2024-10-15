@@ -106,7 +106,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         CreateAndExportBasicPackage(ConfigPackage, ConfigPackageTable, Customer, FileName);
         LibraryReportValidation.OpenExcelFile;
 
-        Dimension.FindSet;
+        Dimension.FindSet();
         repeat
             Assert.IsTrue(
               LibraryReportValidation.CheckIfValueExists(
@@ -413,7 +413,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         LibraryReportValidation.OpenExcelFile;
 
         DimensionSetEntry.SetRange("Dimension Set ID", SalesHeader."Dimension Set ID");
-        Dimension.FindSet;
+        Dimension.FindSet();
         repeat
             DimensionColumnCaption := StrSubstNo(ExportedDimensionCap, Dimension."Code Caption", Dimension.TableCaption);
             DimensionSetEntry.SetRange("Dimension Code", Dimension.Code);
@@ -787,7 +787,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
     begin
         DefaultDimension.SetRange("Table ID", TableID);
         DefaultDimension.SetRange("No.", MasterNo);
-        DefaultDimension.FindSet;
+        DefaultDimension.FindSet();
     end;
 
     local procedure SetPackageDataFieldFilterByDefaultDimValueCode(var ConfigPackageData: Record "Config. Package Data"; ConfigPackageCode: Code[20])
@@ -797,7 +797,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ConfigPackageData.SetRange("Package Code", ConfigPackageCode);
         ConfigPackageData.SetRange("Table ID", DATABASE::"Default Dimension");
         ConfigPackageData.SetRange("Field ID", DefaultDimension.FieldNo("Dimension Value Code"));
-        ConfigPackageData.FindSet;
+        ConfigPackageData.FindSet();
     end;
 
 #if not CLEAN17
@@ -1033,7 +1033,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ConfigPackageField.SetRange("Package Code", PackageCode);
         ConfigPackageField.SetRange("Table ID", DATABASE::Customer);
         ConfigPackageField.SetRange(Dimension, true);
-        ConfigPackageField.FindSet;
+        ConfigPackageField.FindSet();
         repeat
             ConfigPackageData.SetRange("Field ID", ConfigPackageField."Field ID");
             Assert.IsTrue(ConfigPackageData.FindFirst, IncorrectDimPackageDataErr);
@@ -1106,7 +1106,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ConfigPackageError: Record "Config. Package Error";
     begin
         ConfigPackageError.SetRange("Table ID", TableId);
-        ConfigPackageError.FindSet;
+        ConfigPackageError.FindSet();
         repeat
             if StrPos(ConfigPackageError."Error Text", Substring) <> 0 then
                 exit(true);

@@ -4,15 +4,15 @@ codeunit 6110 "GL Acc. Data Migration Facade"
 
     trigger OnRun()
     begin
-        FindSet;
-        repeat
-            OnMigrateGlAccount("Staging Table RecId To Process");
-            OnMigrateGlAccountDimensions("Staging Table RecId To Process");
-            OnCreateOpeningBalanceTrx("Staging Table RecId To Process");
-            OnMigratePostingGroups("Staging Table RecId To Process");
-            OnMigrateAccountTransactions("Staging Table RecId To Process");
-            GLAccountIsSet := false;
-        until Next = 0;
+        if FindSet() then
+            repeat
+                OnMigrateGlAccount("Staging Table RecId To Process");
+                OnMigrateGlAccountDimensions("Staging Table RecId To Process");
+                OnCreateOpeningBalanceTrx("Staging Table RecId To Process");
+                OnMigratePostingGroups("Staging Table RecId To Process");
+                OnMigrateAccountTransactions("Staging Table RecId To Process");
+                GLAccountIsSet := false;
+            until Next() = 0;
     end;
 
     var

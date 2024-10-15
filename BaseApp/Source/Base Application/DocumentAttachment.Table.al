@@ -87,7 +87,7 @@ table 1173 "Document Attachment"
         }
         field(10; User; Code[50])
         {
-            CalcFormula = Lookup (User."User Name" WHERE("User Security ID" = FIELD("Attached By"),
+            CalcFormula = Lookup(User."User Name" WHERE("User Security ID" = FIELD("Attached By"),
                                                          "License Type" = CONST("Full User")));
             Caption = 'User';
             Editable = false;
@@ -329,6 +329,8 @@ table 1173 "Document Attachment"
                     Validate("Line No.", LineNo);
                 end;
         end;
+
+        OnAfterInitFieldsFromRecRef(Rec, RecRef);
     end;
 
     procedure FindUniqueFileName(FileName: Text; FileExtension: Text): Text[250]
@@ -370,5 +372,9 @@ table 1173 "Document Attachment"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFieldsFromRecRef(var DocumentAttachment: Record "Document Attachment"; var RecRef: RecordRef)
+    begin
+    end;
 }
 

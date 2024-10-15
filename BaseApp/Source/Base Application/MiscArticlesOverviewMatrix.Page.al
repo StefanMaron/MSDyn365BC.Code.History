@@ -552,7 +552,7 @@ page 9281 "Misc. Articles Overview Matrix"
         MiscArticleInformation.SetRange("Employee No.", "No.");
         MiscArticleInformation.SetRange("Misc. Article Code", MatrixRecords[MATRIX_ColumnOrdinal].Code);
         PAGE.Run(PAGE::"Misc. Article Information", MiscArticleInformation);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure MATRIX_OnAfterGetRecord(MATRIX_ColumnOrdinal: Integer)

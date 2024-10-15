@@ -1,4 +1,4 @@
-﻿codeunit 5878 "Phys. Invt. Rec.-Reopen"
+codeunit 5878 "Phys. Invt. Rec.-Reopen"
 {
     TableNo = "Phys. Invt. Record Header";
 
@@ -57,7 +57,7 @@
                         PhysInvtRecordLine."Recorded Without Order" := false;
                         PhysInvtRecordLine.Modify();
                     end;
-                until PhysInvtRecordLine.Next = 0;
+                until PhysInvtRecordLine.Next() = 0;
 
             Status := Status::Open;
             Modify;

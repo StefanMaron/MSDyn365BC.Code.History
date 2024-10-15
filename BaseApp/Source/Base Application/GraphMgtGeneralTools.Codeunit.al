@@ -33,6 +33,7 @@ codeunit 5465 "Graph Mgt - General Tools"
             Error(MissingFieldValueErr, PropertyName);
     end;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemModifiedAt ', '18.0')]
     procedure UpdateIntegrationRecords(var SourceRecordRef: RecordRef; FieldNumber: Integer; OnlyRecordsWithoutID: Boolean)
     var
         IntegrationRecord: Record "Integration Record";
@@ -63,7 +64,7 @@ codeunit 5465 "Graph Mgt - General Tools"
 
                     SourceRecordRef.Modify(false);
                 end;
-            until SourceRecordRef.Next = 0;
+            until SourceRecordRef.Next() = 0;
     end;
 
     procedure HandleUpdateReferencedIdFieldOnItem(var RecRef: RecordRef; NewId: Guid; var Handled: Boolean; DatabaseNumber: Integer; RecordFieldNumber: Integer)
@@ -187,7 +188,7 @@ codeunit 5465 "Graph Mgt - General Tools"
             ApiSetup;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5150, 'OnGetIntegrationActivated', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Management", 'OnGetIntegrationActivated', '', false, false)]
     local procedure OnGetIntegrationActivated(var IsSyncEnabled: Boolean)
     var
         ApiWebService: Record "Api Web Service";
@@ -208,7 +209,7 @@ codeunit 5465 "Graph Mgt - General Tools"
 
         ApiWebService.SetRange("Object Type", ApiWebService."Object Type"::Page);
         ApiWebService.SetRange(Published, true);
-        if ApiWebService.IsEmpty then
+        if ApiWebService.IsEmpty() then
             exit;
         if not ODataEdmType.ReadPermission then
             exit;
@@ -250,7 +251,7 @@ codeunit 5465 "Graph Mgt - General Tools"
         exit(CurrentCurrencyCode);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2, 'OnCompanyInitialize', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnCompanyInitialize', '', true, true)]
     local procedure InitDemoCompanyApisForSaaS()
     var
         CompanyInformation: Record "Company Information";
@@ -293,7 +294,7 @@ codeunit 5465 "Graph Mgt - General Tools"
             OriginalFieldRef := OriginalRecordRef.Field(TempRelatedRecodIdsField."No.");
             UpdatedFieldRef := UpdatedRecordRef.Field(TempRelatedRecodIdsField."No.");
             OriginalFieldRef.Value := UpdatedFieldRef.Value;
-        until TempRelatedRecodIdsField.Next = 0;
+        until TempRelatedRecodIdsField.Next() = 0;
     end;
 
     procedure CleanAggregateWithoutParent(MainRecordVariant: Variant)
@@ -369,7 +370,7 @@ codeunit 5465 "Graph Mgt - General Tools"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Table, 8618, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Config. Template Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnDeleteConfigTemplates(var Rec: Record "Config. Template Header"; RunTrigger: Boolean)
     var
         ConfigTmplSelectionRules: Record "Config. Tmpl. Selection Rules";

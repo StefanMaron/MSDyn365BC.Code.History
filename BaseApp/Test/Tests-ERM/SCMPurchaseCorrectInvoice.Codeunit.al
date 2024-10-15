@@ -1057,7 +1057,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
         ValueEntry.SetRange("Source Type", ValueEntry."Source Type"::Vendor);
         ValueEntry.SetRange("Source No.", Vendor."No.");
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             TotalQty += ValueEntry."Item Ledger Entry Quantity";
             TotalCost += ValueEntry."Cost Amount (Actual)";
@@ -1070,7 +1070,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         Assert.AreEqual(0, Vendor.Balance, '');
 
         GLEntry.SetFilter("Entry No.", '>%1', LastGLEntry."Entry No.");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             TotalDebit += GLEntry."Credit Amount";
             TotalCredit += GLEntry."Debit Amount";

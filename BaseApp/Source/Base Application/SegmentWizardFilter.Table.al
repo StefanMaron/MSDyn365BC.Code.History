@@ -121,7 +121,7 @@ table 5096 "Segment Wizard Filter"
             repeat
                 TempProfileQuestionnaireLine := GetProfileQuestionnaireLine;
                 TempProfileQuestionnaireLine.Insert();
-            until GetProfileQuestionnaireLine.Next = 0;
+            until GetProfileQuestionnaireLine.Next() = 0;
     end;
 }
 

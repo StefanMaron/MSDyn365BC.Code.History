@@ -268,7 +268,7 @@ table 7331 "Whse. Internal Put-away Header"
                 WhseInternalPutAwayLine."Sorting Sequence No." := SequenceNo;
                 WhseInternalPutAwayLine.Modify();
                 SequenceNo := SequenceNo + 10000;
-            until WhseInternalPutAwayLine.Next = 0;
+            until WhseInternalPutAwayLine.Next() = 0;
         end;
     end;
 
@@ -277,7 +277,7 @@ table 7331 "Whse. Internal Put-away Header"
         WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line";
     begin
         WhseInternalPutAwayLine.SetRange("No.", "No.");
-        if not WhseInternalPutAwayLine.IsEmpty then
+        if not WhseInternalPutAwayLine.IsEmpty() then
             if not HideValidationDialog then
                 Message(
                   StrSubstNo(

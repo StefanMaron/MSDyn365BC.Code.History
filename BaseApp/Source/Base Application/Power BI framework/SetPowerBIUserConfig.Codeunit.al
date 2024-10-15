@@ -22,33 +22,46 @@ codeunit 6305 "Set Power BI User Config"
         // entry by itself is created on the FactBox page
         PowerBIUserConfiguration.Reset();
         PowerBIUserConfiguration.SetFilter("Page ID", PageID);
-        PowerBIUserConfiguration.SetFilter("User Security ID", UserSecurityId);
-        PowerBIUserConfiguration.SetFilter("Profile ID", PowerBIServiceMgt.GetEnglishContext);
-        if not PowerBIUserConfiguration.IsEmpty then begin
-            PowerBIUserConfiguration.FindFirst;
+        PowerBIUserConfiguration.SetFilter("User Security ID", UserSecurityId());
+        PowerBIUserConfiguration.SetFilter("Profile ID", PowerBIServiceMgt.GetEnglishContext());
+        if not PowerBIUserConfiguration.IsEmpty() then begin
+            PowerBIUserConfiguration.FindFirst();
             exit(PowerBIUserConfiguration."Report Visibility");
         end;
     end;
 
+    procedure HasConfig(PageID: Text): Boolean
+    var
+        PowerBIUserConfiguration: Record "Power BI User Configuration";
+    begin
+        PowerBIUserConfiguration.Reset();
+        PowerBIUserConfiguration.SetFilter("Page ID", PageID);
+        PowerBIUserConfiguration.SetFilter("User Security ID", UserSecurityId());
+        PowerBIUserConfiguration.SetFilter("Profile ID", PowerBIServiceMgt.GetEnglishContext());
+        exit(not PowerBIUserConfiguration.IsEmpty());
+    end;
+
+#if not CLEAN18
+    [Obsolete('Use CreateOrReadUserConfigEntry without GUID parameter instead', '18.0')]
     procedure CreateOrReadUserConfigEntry(var PowerBIUserConfiguration: Record "Power BI User Configuration"; var LastOpenedReportID: Guid; Context: Text[50])
+    begin
+        CreateOrReadUserConfigEntry(PowerBIUserConfiguration, Context);
+        LastOpenedReportID := PowerBIUserConfiguration."Selected Report ID";
+        Commit();
+    end;
+#endif
+
+    procedure CreateOrReadUserConfigEntry(var PowerBIUserConfiguration: Record "Power BI User Configuration"; Context: Text[50])
     begin
         // create a new Power BI User Configuration table entry or read one if it exist
         PowerBIUserConfiguration.Reset();
-        PowerBIUserConfiguration.SetFilter("Page ID", Context);
-        PowerBIUserConfiguration.SetFilter("User Security ID", UserSecurityId);
-        PowerBIUserConfiguration.SetFilter("Profile ID", PowerBIServiceMgt.GetEnglishContext);
-        if PowerBIUserConfiguration.IsEmpty then begin
+
+        if not PowerBIUserConfiguration.Get(Context, UserSecurityId(), PowerBIServiceMgt.GetEnglishContext()) then begin
             PowerBIUserConfiguration."Page ID" := Context;
-            PowerBIUserConfiguration."User Security ID" := UserSecurityId;
-            PowerBIUserConfiguration."Profile ID" := PowerBIServiceMgt.GetEnglishContext;
+            PowerBIUserConfiguration."User Security ID" := UserSecurityId();
+            PowerBIUserConfiguration."Profile ID" := PowerBIServiceMgt.GetEnglishContext();
             PowerBIUserConfiguration."Report Visibility" := true;
-            // SelectedReportId field is set to an empty GUID by default
-            Clear(LastOpenedReportID);
             PowerBIUserConfiguration.Insert(true);
-            Commit();
-        end else begin
-            PowerBIUserConfiguration.FindFirst;
-            LastOpenedReportID := PowerBIUserConfiguration."Selected Report ID";
         end;
     end;
 

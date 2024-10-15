@@ -46,8 +46,8 @@ codeunit 1510 "Notification Management"
                         NotificationEntry.CreateNotificationEntry(NotificationEntry.Type::Overdue,
                           UserSetup."User ID", OverdueApprovalEntry, WorkflowStepArgument."Link Target Page",
                           WorkflowStepArgument."Custom Link", '');
-                    until ApprovalEntry.Next = 0;
-            until UserSetup.Next = 0;
+                    until ApprovalEntry.Next() = 0;
+            until UserSetup.Next() = 0;
 
         Message(OverdueEntriesMsg);
     end;
@@ -67,7 +67,7 @@ codeunit 1510 "Notification Management"
             end;
 
             "Table ID" := ApprovalEntry."Table ID";
-            "Document Type" := ApprovalEntry."Document Type".AsInteger();
+            "Document Type" := ApprovalEntry."Document Type";
             "Document No." := ApprovalEntry."Document No.";
             "Sent to ID" := ApprovalEntry."Approver ID";
             "Sent Date" := Today;
@@ -83,11 +83,13 @@ codeunit 1510 "Notification Management"
         end;
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by CreateDefaultNotificationTypeSetup().', '17.0')]
     procedure CreateDefaultNotificationSetup(NotificationType: Option)
     begin
         CreateDefaultNotificationTypeSetup("Notification Entry Type".FromInteger(NotificationType));
     end;
+#endif
 
     procedure CreateDefaultNotificationTypeSetup(NotificationType: Enum "Notification Entry Type")
     var

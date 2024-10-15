@@ -8,7 +8,7 @@ codeunit 104010 "UPG Set Country App Areas"
 
     trigger OnUpgradePerCompany()
     begin
-        SetCountryAppAreas;
+        SetCountryAppAreas();
     end;
 
     local procedure SetCountryAppAreas()
@@ -17,7 +17,7 @@ codeunit 104010 "UPG Set Country App Areas"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCountryApplicationAreasTag) THEN
+        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCountryApplicationAreasTag()) THEN
             EXIT;
 
         IF ApplicationAreaSetup.GET AND ApplicationAreaSetup.Basic THEN BEGIN
@@ -26,7 +26,7 @@ codeunit 104010 "UPG Set Country App Areas"
             ApplicationAreaSetup.Modify();
         END;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCountryApplicationAreasTag);
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCountryApplicationAreasTag());
     end;
 }
 

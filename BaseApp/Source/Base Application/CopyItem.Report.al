@@ -404,7 +404,7 @@ report 730 "Copy Item"
                 TargetFieldRef := TargetRecRef.Field(FieldNo);
                 TargetFieldRef.Value(ToItemNo);
                 TargetRecRef.Insert();
-            until SourceRecRef.Next = 0;
+            until SourceRecRef.Next() = 0;
     end;
 
     local procedure CopyItemRelatedTableFromRecRef(var SourceRecRef: RecordRef; FieldNo: Integer; FromItemNo: Code[20]; ToItemNo: Code[20])
@@ -421,7 +421,7 @@ report 730 "Copy Item"
                 TargetFieldRef := TargetRecRef.Field(FieldNo);
                 TargetFieldRef.Value(ToItemNo);
                 TargetRecRef.Insert();
-            until SourceRecRef.Next = 0;
+            until SourceRecRef.Next() = 0;
     end;
 
     local procedure CopyItemComments(FromItemNo: Code[20]; ToItemNo: Code[20])
@@ -506,12 +506,12 @@ report 730 "Copy Item"
                         NewExtendedTextLine.TransferFields(ExtendedTextLine);
                         NewExtendedTextLine."No." := TargetItem."No.";
                         NewExtendedTextLine.Insert();
-                    until ExtendedTextLine.Next = 0;
+                    until ExtendedTextLine.Next() = 0;
 
                 NewExtendedTextHeader.TransferFields(ExtendedTextHeader);
                 NewExtendedTextHeader."No." := TargetItem."No.";
                 NewExtendedTextHeader.Insert();
-            until ExtendedTextHeader.Next = 0;
+            until ExtendedTextHeader.Next() = 0;
 
         OnAfterCopyExtendedTexts(SourceItem, TargetItem);
     end;
@@ -549,7 +549,7 @@ report 730 "Copy Item"
                     NewDefaultDim.TransferFields(DefaultDim);
                     NewDefaultDim."No." := ToItem."No.";
                     NewDefaultDim.Insert();
-                until DefaultDim.Next = 0;
+                until DefaultDim.Next() = 0;
             ToItem."Global Dimension 1 Code" := FromItem."Global Dimension 1 Code";
             ToItem."Global Dimension 2 Code" := FromItem."Global Dimension 2 Code";
             ToItem.Modify();

@@ -3,7 +3,7 @@ page 7335 "Warehouse Shipment"
     Caption = 'Warehouse Shipment';
     PageType = Document;
     PopulateAllFields = true;
-    PromotedActionCategories = 'New,Process,Report,Print/Send,Release,Posting,Shipment';
+    PromotedActionCategories = 'New,Process,Report,Print/Send,Release,Posting,Shipment,Navigate';
     RefreshOnActivate = true;
     SourceTable = "Warehouse Shipment Header";
 
@@ -23,7 +23,7 @@ page 7335 "Warehouse Shipment"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Location Code"; "Location Code")
@@ -193,7 +193,7 @@ page 7335 "Warehouse Shipment"
                     Caption = 'Pick Lines';
                     Image = PickLines;
                     Promoted = true;
-                    PromotedCategory = Process;
+                    PromotedCategory = Category8;
                     RunObject = Page "Warehouse Activity Lines";
                     RunPageLink = "Whse. Document Type" = CONST(Shipment),
                                   "Whse. Document No." = FIELD("No.");
@@ -450,7 +450,7 @@ page 7335 "Warehouse Shipment"
 
     local procedure SortingMethodOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

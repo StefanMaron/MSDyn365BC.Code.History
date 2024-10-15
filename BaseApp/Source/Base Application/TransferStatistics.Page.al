@@ -93,7 +93,7 @@ page 5755 "Transfer Statistics"
 
                 OnCalculateTotalsOnAfterAddLineTotals(
                     TransLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
-            until TransLine.Next = 0;
+            until TransLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

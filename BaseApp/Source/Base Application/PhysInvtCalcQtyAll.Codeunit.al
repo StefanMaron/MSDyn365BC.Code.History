@@ -27,7 +27,7 @@ codeunit 5887 "Phys. Invt.-Calc. Qty. All"
                             PhysInvtOrderLine.CalcQtyAndTrackLinesExpected;
                             PhysInvtOrderLine.Modify();
                         end;
-                until PhysInvtOrderLine.Next = 0;
+                until PhysInvtOrderLine.Next() = 0;
         end;
 
         Rec := PhysInvtOrderHeader;

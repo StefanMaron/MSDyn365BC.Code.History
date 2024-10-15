@@ -115,13 +115,13 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'VAT Reconciliation A';
-                            RunObject = report 10940;
+                            RunObject = report "VAT Reconciliation A";
                         }
                         action("VAT Reconciliation Report")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'VAT Balancing Report';
-                            RunObject = report 10941;
+                            RunObject = report "VAT Balancing Report";
                         }
                     }
                 }
@@ -380,40 +380,40 @@ page 8901 "Finance Manager Role Center"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Balance Sheet';
                             RunObject = codeunit "Run Acc. Sched. Balance Sheet";
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                         action("Income Statement")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Income Statement';
                             RunObject = codeunit "Run Acc. Sched. Income Stmt.";
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                         action("Statement of Cashflows")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Cash Flow Statement';
                             RunObject = codeunit "Run Acc. Sched. CashFlow Stmt.";
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                         action("Statement of Retained Earnings")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Retained Earnings Statement';
                             RunObject = codeunit "Run Acc. Sched. Retained Earn.";
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                         action("IRS Details")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'IRS Details';
-                            RunObject = report 10911;
+                            RunObject = report "IRS Details";
                         }
                         action("Trial Balance - IRS Number")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Trial Balance - IRS Number';
-                            RunObject = report 10912;
+                            RunObject = report "Trial Balance - IRS Number";
                         }
                     }
                     group("Group10")
@@ -505,7 +505,7 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'G/L Account Categories';
                         RunObject = page "G/L Account Categories";
-                        AccessByPermission = tabledata 570 = R;
+                        AccessByPermission = TableData "G/L Account Category" = R;
                     }
                     action("XBRL Taxonomies")
                     {
@@ -523,19 +523,19 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea =;
                         Caption = 'IRS Group';
-                        RunObject = page 10901;
+                        RunObject = page "IRS Group";
                     }
                     action("IRS Type")
                     {
                         ApplicationArea =;
                         Caption = 'IRS Type';
-                        RunObject = page 10902;
+                        RunObject = page "IRS Type";
                     }
                     action("IRS Number")
                     {
                         ApplicationArea =;
                         Caption = 'IRS Number';
-                        RunObject = page 10911;
+                        RunObject = page "IRS Number";
                     }
                 }
             }
@@ -1940,7 +1940,7 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Rounding Methods';
                         RunObject = page "Rounding Methods";
-                        AccessByPermission = tabledata 156 = R;
+                        AccessByPermission = TableData "Resource" = R;
                     }
                     action("Analysis Types")
                     {

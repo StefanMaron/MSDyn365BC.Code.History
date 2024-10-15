@@ -180,7 +180,7 @@ report 10940 "VAT Reconciliation A"
                     GLEntry.SetRange("Posting Date", DateFrom, DateTo);
                     GLEntry.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
                     GLEntry.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
-                    if GLEntry.IsEmpty then
+                    if GLEntry.IsEmpty() then
                         CurrReport.Skip();
                 end;
             }
@@ -192,7 +192,7 @@ report 10940 "VAT Reconciliation A"
                 GLEntry.SetRange("G/L Account No.", "No.");
                 GLEntry.SetRange("Posting Date", DateFrom, DateTo);
                 GLEntry.SetRange("Gen. Posting Type", GLEntry."Gen. Posting Type"::Purchase, GLEntry."Gen. Posting Type"::Sale);
-                if GLEntry.IsEmpty then
+                if GLEntry.IsEmpty() then
                     CurrReport.Skip();
             end;
         }

@@ -146,12 +146,12 @@ page 5300 "Outlook Synch. Entity"
 
     local procedure TableNoOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure OutlookItemOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

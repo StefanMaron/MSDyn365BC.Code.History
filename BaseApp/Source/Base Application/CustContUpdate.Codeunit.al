@@ -154,6 +154,7 @@ codeunit 5056 "CustCont-Update"
                     "Company No." := ContComp."No.";
                     Validate(Name, Cust.Contact);
                     InheritCompanyToPersonData(ContComp);
+                    UpdateBusinessRelation();
                     OnInsertNewContactPersonOnBeforeContactModify(Cont, Cust);
                     Modify(true);
                     Cust."Primary Contact No." := "No.";
@@ -173,7 +174,7 @@ codeunit 5056 "CustCont-Update"
                 repeat
                     if Contact.Get("Contact No.") then
                         Contact.Delete(true);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

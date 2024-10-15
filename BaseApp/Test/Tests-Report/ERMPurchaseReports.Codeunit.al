@@ -55,7 +55,7 @@ codeunit 134983 "ERM Purchase Reports"
 
         // Verify: Verify VAT Lines different column values.
         VATAmountLine.SetFilter("VAT %", '>0');
-        VATAmountLine.FindSet;
+        VATAmountLine.FindSet();
         LibraryReportDataset.LoadDataSetFile;
         repeat
             LibraryReportDataset.SetRange('VATAmountLine__VAT_Identifier_', VATAmountLine."VAT Identifier");
@@ -223,7 +223,7 @@ codeunit 134983 "ERM Purchase Reports"
 
         // Verify: Verify VAT Lines different column values.
         VATAmountLine.SetFilter("VAT %", '>0');
-        VATAmountLine.FindSet;
+        VATAmountLine.FindSet();
         LibraryReportDataset.LoadDataSetFile;
         repeat
             LibraryReportDataset.SetRange('VATAmtLineVATIdentifier', VATAmountLine."VAT Identifier");
@@ -351,7 +351,7 @@ codeunit 134983 "ERM Purchase Reports"
 
         // [THEN] Verify VAT Lines different column values.
         VATAmountLine.SetFilter("VAT %", '>0');
-        VATAmountLine.FindSet;
+        VATAmountLine.FindSet();
         LibraryReportDataset.LoadDataSetFile;
         repeat
             LibraryReportDataset.SetRange('VATAmtLineVATIdentifier', VATAmountLine."VAT Identifier");
@@ -488,7 +488,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Verify: Verify VAT Lines different column values.
         LibraryReportDataset.LoadDataSetFile;
         VATAmountLine.SetFilter("VAT %", '>0');
-        VATAmountLine.FindSet;
+        VATAmountLine.FindSet();
 
         with VATAmountLine do
             repeat
@@ -601,7 +601,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Verify: Verify VAT Entry on Posted Purchase Credit Memo Report.
         LibraryReportDataset.LoadDataSetFile;
         VATAmountLine.SetFilter("VAT %", '>0');
-        VATAmountLine.FindSet;
+        VATAmountLine.FindSet();
         with VATAmountLine do
             repeat
                 LibraryReportDataset.AssertElementWithValueExists('VATAmountLineVAT_VATCounter', "VAT %");
@@ -1918,7 +1918,7 @@ codeunit 134983 "ERM Purchase Reports"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             LibraryReportDataset.SetRange('Purchase_Line__Type', Format(PurchaseLine.Type));
             if not LibraryReportDataset.GetNextRow then
@@ -1936,7 +1936,7 @@ codeunit 134983 "ERM Purchase Reports"
     begin
         PurchCrMemoLine.SetRange("Document No.", DocumentNo);
         PurchCrMemoLine.SetRange(Type, PurchCrMemoLine.Type::Item);
-        PurchCrMemoLine.FindSet;
+        PurchCrMemoLine.FindSet();
         with PurchCrMemoLine do
             repeat
                 LibraryReportDataset.AssertElementWithValueExists('Quantity_PurchCrMemoLine', Quantity);
@@ -1960,7 +1960,7 @@ codeunit 134983 "ERM Purchase Reports"
     begin
         LibraryReportDataset.LoadDataSetFile;
         PurchInvLine.SetRange("Document No.", DocumentNo);
-        PurchInvLine.FindSet;
+        PurchInvLine.FindSet();
 
         with PurchInvLine do
             repeat

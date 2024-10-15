@@ -113,7 +113,7 @@ table 469 "Workflow Webhook Subscription"
                 if WorkflowWebhookSubBuffer.FindSet then begin
                     repeat
                         DisableWorkflow(WorkflowWebhookSubBuffer."WF Definition Id");
-                    until WorkflowWebhookSubBuffer.Next = 0;
+                    until WorkflowWebhookSubBuffer.Next() = 0;
                 end;
             end;
 
@@ -391,7 +391,7 @@ table 469 "Workflow Webhook Subscription"
         // log exact error message
         Company.Get(CompanyName);
         ActivityLog.LogActivityForUser(
-          Company.RecordId, ActivityLog.Status::Failed, 'Microsoft Power Automate', Description, ErrorText, UserId);
+          Company.RecordId, ActivityLog.Status::Failed, 'Power Automate', Description, ErrorText, UserId);
         // send descriptive error to user
         Error(Description);
     end;

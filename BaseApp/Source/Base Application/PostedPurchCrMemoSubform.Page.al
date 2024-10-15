@@ -31,6 +31,7 @@ page 141 "Posted Purch. Cr. Memo Subform"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
+#if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -39,6 +40,7 @@ page 141 "Posted Purch. Cr. Memo Subform"
                     ObsoleteState = Pending;
                     ObsoleteTag = '17.0';
                 }
+#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     ApplicationArea = Suite;
@@ -451,7 +453,6 @@ page 141 "Posted Purch. Cr. Memo Subform"
     end;
 
     var
-        TotalPurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         DocumentTotals: Codeunit "Document Totals";
         VATAmount: Decimal;
         IsFoundation: Boolean;
@@ -459,6 +460,7 @@ page 141 "Posted Purch. Cr. Memo Subform"
         ItemReferenceVisible: Boolean;
 
     protected var
+        TotalPurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

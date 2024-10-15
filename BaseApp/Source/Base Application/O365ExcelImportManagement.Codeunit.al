@@ -116,7 +116,7 @@ codeunit 2130 "O365 Excel Import Management"
             repeat
                 CreateCustomerFromBuffer(TempCustomer, Customer);
                 UpdateRecordFromTemplate(ConfigTemplateHeader, Customer);
-            until TempCustomer.Next = 0;
+            until TempCustomer.Next() = 0;
     end;
 
     local procedure CreateItemsFromBuffer(var TempItem: Record Item temporary)
@@ -130,7 +130,7 @@ codeunit 2130 "O365 Excel Import Management"
             repeat
                 CreateItemFromBuffer(TempItem, Item);
                 UpdateRecordFromTemplate(ConfigTemplateHeader, Item);
-            until TempItem.Next = 0;
+            until TempItem.Next() = 0;
     end;
 
     local procedure CreateCustomerFromBuffer(var TempCustomer: Record Customer temporary; var Customer: Record Customer)
@@ -152,7 +152,7 @@ codeunit 2130 "O365 Excel Import Management"
         if ExcelBuffer.FindSet then
             repeat
                 AddFieldValueToRecordRef(ExcelBuffer, O365FieldExcelMapping, RecRef);
-            until ExcelBuffer.Next = 0;
+            until ExcelBuffer.Next() = 0;
     end;
 
     procedure FillCustomerFieldsMappingBuffer(var O365FieldExcelMapping: Record "O365 Field Excel Mapping")
@@ -195,7 +195,7 @@ codeunit 2130 "O365 Excel Import Management"
         if ExcelBuffer.FindSet then
             repeat
                 MappingFound := MappingFound or AdjustColumnMapping(O365FieldExcelMapping, ExcelBuffer);
-            until ExcelBuffer.Next = 0;
+            until ExcelBuffer.Next() = 0;
     end;
 
     local procedure AdjustColumnMapping(var O365FieldExcelMapping: Record "O365 Field Excel Mapping"; ExcelBuffer: Record "Excel Buffer"): Boolean
@@ -208,7 +208,7 @@ codeunit 2130 "O365 Excel Import Management"
                     O365FieldExcelMapping.Modify();
                     exit(true);
                 end;
-            until O365FieldExcelMapping.Next = 0;
+            until O365FieldExcelMapping.Next() = 0;
 
         exit(false);
     end;

@@ -16,7 +16,7 @@ page 510 "Blanket Purchase Order Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the line type.';
@@ -27,19 +27,20 @@ page 510 "Blanket Purchase Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
 
                     trigger OnValidate()
                     begin
-                        ShowShortcutDimCode(ShortcutDimCode);
+                        Rec.ShowShortcutDimCode(ShortcutDimCode);
                         NoOnAfterValidate();
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Cross-Reference No."; "Cross-Reference No.")
+#if not CLEAN16
+                field("Cross-Reference No."; Rec."Cross-Reference No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
@@ -50,7 +51,7 @@ page 510 "Blanket Purchase Order Subform"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        CrossReferenceNoLookUp();
+                        Rec.CrossReferenceNoLookUp();
                         InsertExtendedText(false);
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
@@ -61,7 +62,8 @@ page 510 "Blanket Purchase Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Item Reference No."; "Item Reference No.")
+#endif
+                field("Item Reference No."; Rec."Item Reference No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the referenced item number.';
@@ -82,7 +84,7 @@ page 510 "Blanket Purchase Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -93,7 +95,7 @@ page 510 "Blanket Purchase Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
@@ -104,7 +106,7 @@ page 510 "Blanket Purchase Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a description of the blanket purchase order.';
@@ -114,12 +116,12 @@ page 510 "Blanket Purchase Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a code for the location where you want the items to be placed when they are received.';
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Suite;
                     BlankZero = true;
@@ -130,7 +132,7 @@ page 510 "Blanket Purchase Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
@@ -140,13 +142,13 @@ page 510 "Blanket Purchase Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Unit of Measure"; "Unit of Measure")
+                field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name of the item or resource''s unit of measure, such as piece or hour.';
                     Visible = false;
                 }
-                field("Direct Unit Cost"; "Direct Unit Cost")
+                field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
                     ApplicationArea = Suite;
                     BlankZero = true;
@@ -157,32 +159,32 @@ page 510 "Blanket Purchase Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Indirect Cost %"; "Indirect Cost %")
+                field("Indirect Cost %"; Rec."Indirect Cost %")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the percentage of the item''s last purchase cost that includes indirect costs, such as freight that is associated with the purchase of the item.';
                     Visible = false;
                 }
-                field("Unit Cost (LCY)"; "Unit Cost (LCY)")
+                field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the cost, in LCY, of one unit of the item or resource on the line.';
                     Visible = false;
                 }
-                field("Unit Price (LCY)"; "Unit Price (LCY)")
+                field("Unit Price (LCY)"; Rec."Unit Price (LCY)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the price, in LCY, of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
                     Visible = false;
                 }
-                field("Tax Liable"; "Tax Liable")
+                field("Tax Liable"; Rec."Tax Liable")
                 {
                     ApplicationArea = SalesTax;
                     Editable = false;
                     ToolTip = 'Specifies if this vendor charges you sales tax for purchases.';
                     Visible = false;
                 }
-                field("Tax Area Code"; "Tax Area Code")
+                field("Tax Area Code"; Rec."Tax Area Code")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
@@ -192,7 +194,7 @@ page 510 "Blanket Purchase Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Tax Group Code"; "Tax Group Code")
+                field("Tax Group Code"; Rec."Tax Group Code")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the tax group code for the tax detail entry.';
@@ -202,13 +204,13 @@ page 510 "Blanket Purchase Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Use Tax"; "Use Tax")
+                field("Use Tax"; Rec."Use Tax")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies a U.S. sales tax that is paid on items purchased by a company that are used by the company, instead of being sold to a customer.';
                     Visible = false;
                 }
-                field("Line Discount %"; "Line Discount %")
+                field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = Suite;
                     BlankZero = true;
@@ -219,7 +221,7 @@ page 510 "Blanket Purchase Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Line Amount"; "Line Amount")
+                field("Line Amount"; Rec."Line Amount")
                 {
                     ApplicationArea = Suite;
                     BlankZero = true;
@@ -230,7 +232,7 @@ page 510 "Blanket Purchase Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Line Discount Amount"; "Line Discount Amount")
+                field("Line Discount Amount"; Rec."Line Discount Amount")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the discount amount that is granted for the item on the line.';
@@ -241,7 +243,7 @@ page 510 "Blanket Purchase Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Allow Invoice Disc."; "Allow Invoice Disc.")
+                field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if the invoice line is included when the invoice discount is calculated.';
@@ -252,37 +254,37 @@ page 510 "Blanket Purchase Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-                field("Qty. to Receive"; "Qty. to Receive")
+                field("Qty. to Receive"; Rec."Qty. to Receive")
                 {
                     ApplicationArea = Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the quantity of items that remains to be received.';
                 }
-                field("Quantity Received"; "Quantity Received")
+                field("Quantity Received"; Rec."Quantity Received")
                 {
                     ApplicationArea = Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies how many units of the item on the line have been posted as received.';
                 }
-                field("Quantity Invoiced"; "Quantity Invoiced")
+                field("Quantity Invoiced"; Rec."Quantity Invoiced")
                 {
                     ApplicationArea = Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies how many units of the item on the line have been posted as invoiced.';
                 }
-                field("Expected Receipt Date"; "Expected Receipt Date")
+                field("Expected Receipt Date"; Rec."Expected Receipt Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date you expect the items to be available in your warehouse. If you leave the field blank, it will be calculated as follows: Planned Receipt Date + Safety Lead Time + Inbound Warehouse Handling Time = Expected Receipt Date.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -492,7 +494,7 @@ page 510 "Blanket Purchase Order Subform"
                     ApplicationArea = Suite;
                     Caption = 'E&xplode BOM';
                     Image = ExplodeBOM;
-                    Enabled = Type = Type::Item;
+                    Enabled = Rec.Type = Rec.Type::Item;
                     ToolTip = 'Add a line for each component on the bill of materials for the selected item. For example, this is useful for selling the parent item as a kit. CAUTION: The line for the parent item will be deleted and only its description will display. To undo this action, delete the component lines and add a line for the parent item again. This action is available only for lines that contain an item.';
 
                     trigger OnAction()
@@ -522,7 +524,7 @@ page 510 "Blanket Purchase Order Subform"
                 {
                     Caption = 'Item Availability by';
                     Image = ItemAvailability;
-                    Enabled = Type = Type::Item;
+                    Enabled = Rec.Type = Rec.Type::Item;
                     action("Event")
                     {
                         ApplicationArea = Suite;
@@ -572,6 +574,17 @@ page 510 "Blanket Purchase Order Subform"
                             ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByLocation)
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                     action("BOM Level")
                     {
                         ApplicationArea = Suite;
@@ -598,7 +611,7 @@ page 510 "Blanket Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            ShowOrders();
+                            Rec.ShowBlanketOrderPurchaseLines("Purchase Document Type"::Order);
                         end;
                     }
                     action(Invoices)
@@ -610,7 +623,7 @@ page 510 "Blanket Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            ShowInvoices();
+                            Rec.ShowBlanketOrderPurchaseLines("Purchase Document Type"::Invoice);
                         end;
                     }
                     action("Return Orders")
@@ -623,7 +636,7 @@ page 510 "Blanket Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            ShowReturnOrders();
+                            Rec.ShowBlanketOrderPurchaseLines("Purchase Document Type"::"Return Order");
                         end;
                     }
                     action("Credit Memos")
@@ -635,7 +648,7 @@ page 510 "Blanket Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            ShowCreditMemos();
+                            Rec.ShowBlanketOrderPurchaseLines("Purchase Document Type"::"Credit Memo");
                         end;
                     }
                 }
@@ -652,7 +665,7 @@ page 510 "Blanket Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            ShowPostedReceipts();
+                            Rec.ShowBlanketOrderPostedReceiptLines();
                         end;
                     }
                     action(Action1904522204)
@@ -664,7 +677,7 @@ page 510 "Blanket Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            ShowPostedInvoices();
+                            Rec.ShowBlanketOrderPostedInvoiceLines();
                         end;
                     }
                     action("Return Receipts")
@@ -676,7 +689,7 @@ page 510 "Blanket Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            ShowPostedReturnReceipts();
+                            Rec.ShowBlanketOrderPostedReturnReceiptLines();
                         end;
                     }
                     action(Action1902056104)
@@ -688,7 +701,7 @@ page 510 "Blanket Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            ShowPostedCreditMemos();
+                            Rec.ShowBlanketOrderPostedCreditMemoLines();
                         end;
                     }
                 }
@@ -703,7 +716,7 @@ page 510 "Blanket Purchase Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action("Co&mments")
@@ -715,7 +728,7 @@ page 510 "Blanket Purchase Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowLineComments();
+                        Rec.ShowLineComments();
                     end;
                 }
                 action(DocumentLineTracking)
@@ -760,19 +773,19 @@ page 510 "Blanket Purchase Order Subform"
 
     trigger OnAfterGetRecord()
     begin
-        ShowShortcutDimCode(ShortcutDimCode);
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
         Clear(DocumentTotals);
     end;
 
     trigger OnDeleteRecord(): Boolean
     begin
-        DocumentTotals.PurchaseDocTotalsNotUpToDate;
+        DocumentTotals.PurchaseDocTotalsNotUpToDate();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
         DocumentTotals.PurchaseCheckAndClearTotals(Rec, xRec, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
-        exit(Find(Which));
+        exit(Rec.Find(Which));
     end;
 
     trigger OnInit()
@@ -788,7 +801,7 @@ page 510 "Blanket Purchase Order Subform"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        InitType();
+        Rec.InitType();
         Clear(ShortcutDimCode);
     end;
 
@@ -799,23 +812,22 @@ page 510 "Blanket Purchase Order Subform"
     end;
 
     var
-        TotalPurchaseHeader: Record "Purchase Header";
-        TotalPurchaseLine: Record "Purchase Line";
-        PurchLine: Record "Purchase Line";
-        CurrentPurchLine: Record "Purchase Line";
         Currency: Record Currency;
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         DocumentTotals: Codeunit "Document Totals";
-        VATAmount: Decimal;
-        InvoiceDiscountAmount: Decimal;
-        InvoiceDiscountPct: Decimal;
         AmountWithDiscountAllowed: Decimal;
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
 
     protected var
+        TotalPurchaseHeader: Record "Purchase Header";
+        TotalPurchaseLine: Record "Purchase Line";
+        ShortcutDimCode: array[8] of Code[20];
+        InvoiceDiscountAmount: Decimal;
+        InvoiceDiscountPct: Decimal;
+        VATAmount: Decimal;
         InvDiscAmountEditable: Boolean;
         DimVisible1: Boolean;
         DimVisible2: Boolean;
@@ -830,13 +842,10 @@ page 510 "Blanket Purchase Order Subform"
         [InDataSet]
         ItemReferenceVisible: Boolean;
 
-    protected var
-        ShortcutDimCode: array[8] of Code[20];
-
     procedure ApproveCalcInvDisc()
     begin
         CODEUNIT.Run(CODEUNIT::"Purch.-Disc. (Yes/No)", Rec);
-        DocumentTotals.PurchaseDocTotalsNotUpToDate;
+        DocumentTotals.PurchaseDocTotalsNotUpToDate();
     end;
 
     local procedure ValidateInvoiceDiscountAmount()
@@ -844,12 +853,12 @@ page 510 "Blanket Purchase Order Subform"
         PurchaseHeader: Record "Purchase Header";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        PurchaseHeader.Get("Document Type", "Document No.");
+        PurchaseHeader.Get(Rec."Document Type", Rec."Document No.");
         if PurchaseHeader.InvoicedLineExists then
             if not ConfirmManagement.GetResponseOrDefault(UpdateInvDiscountQst, true) then
                 exit;
 
-        DocumentTotals.PurchaseDocTotalsNotUpToDate;
+        DocumentTotals.PurchaseDocTotalsNotUpToDate();
         PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, PurchaseHeader);
         CurrPage.Update(false);
     end;
@@ -857,17 +866,17 @@ page 510 "Blanket Purchase Order Subform"
     local procedure ExplodeBOM()
     begin
         CODEUNIT.Run(CODEUNIT::"Purch.-Explode BOM", Rec);
-        DocumentTotals.PurchaseDocTotalsNotUpToDate;
+        DocumentTotals.PurchaseDocTotalsNotUpToDate();
     end;
 
     procedure InsertExtendedText(Unconditionally: Boolean)
     begin
         OnBeforeInsertExtendedText(Rec);
         if TransferExtendedText.PurchCheckIfAnyExtText(Rec, Unconditionally) then begin
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
             TransferExtendedText.InsertPurchExtText(Rec);
         end;
-        if TransferExtendedText.MakeUpdate then
+        if TransferExtendedText.MakeUpdate() then
             UpdateForm(true);
     end;
 
@@ -878,7 +887,7 @@ page 510 "Blanket Purchase Order Subform"
 
     procedure RedistributeTotalsOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
 
         DocumentTotals.PurchaseRedistributeInvoiceDiscountAmounts(Rec, VATAmount, TotalPurchaseLine);
         CurrPage.Update(false);
@@ -889,7 +898,7 @@ page 510 "Blanket Purchase Order Subform"
         DocumentTotals.GetTotalPurchaseHeaderAndCurrency(Rec, TotalPurchaseHeader, Currency);
     end;
 
-    local procedure CalculateTotals()
+    procedure CalculateTotals()
     begin
         DocumentTotals.PurchaseCheckIfDocumentChanged(Rec, xRec);
         DocumentTotals.CalculatePurchaseSubPageTotals(
@@ -917,110 +926,18 @@ page 510 "Blanket Purchase Order Subform"
         if IsHandled then
             exit;
 
-        if "Line Amount" <> xRec."Line Amount" then
-            SendLineInvoiceDiscountResetNotification();
+        if Rec."Line Amount" <> xRec."Line Amount" then
+            Rec.SendLineInvoiceDiscountResetNotification();
     end;
 
     procedure UpdateEditableOnRow()
     begin
-        IsCommentLine := not HasTypeToFillMandatoryFields;
+        IsCommentLine := not Rec.HasTypeToFillMandatoryFields();
         IsBlankNumber := IsCommentLine;
 
         InvDiscAmountEditable := CurrPage.Editable and not PurchasesPayablesSetup."Calc. Inv. Discount";
 
         OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);
-    end;
-
-    local procedure ShowOrders()
-    begin
-        CurrentPurchLine := Rec;
-        PurchLine.Reset();
-        PurchLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
-        PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
-        PurchLine.SetRange("Blanket Order No.", CurrentPurchLine."Document No.");
-        PurchLine.SetRange("Blanket Order Line No.", CurrentPurchLine."Line No.");
-        PAGE.RunModal(PAGE::"Purchase Lines", PurchLine);
-    end;
-
-    local procedure ShowInvoices()
-    begin
-        CurrentPurchLine := Rec;
-        PurchLine.Reset();
-        PurchLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
-        PurchLine.SetRange("Document Type", PurchLine."Document Type"::Invoice);
-        PurchLine.SetRange("Blanket Order No.", CurrentPurchLine."Document No.");
-        PurchLine.SetRange("Blanket Order Line No.", CurrentPurchLine."Line No.");
-        PAGE.RunModal(PAGE::"Purchase Lines", PurchLine);
-    end;
-
-    local procedure ShowReturnOrders()
-    begin
-        CurrentPurchLine := Rec;
-        PurchLine.Reset();
-        PurchLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
-        PurchLine.SetRange("Document Type", PurchLine."Document Type"::"Return Order");
-        PurchLine.SetRange("Blanket Order No.", CurrentPurchLine."Document No.");
-        PurchLine.SetRange("Blanket Order Line No.", CurrentPurchLine."Line No.");
-        PAGE.RunModal(PAGE::"Purchase Lines", PurchLine);
-    end;
-
-    local procedure ShowCreditMemos()
-    begin
-        CurrentPurchLine := Rec;
-        PurchLine.Reset();
-        PurchLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
-        PurchLine.SetRange("Document Type", PurchLine."Document Type"::"Credit Memo");
-        PurchLine.SetRange("Blanket Order No.", CurrentPurchLine."Document No.");
-        PurchLine.SetRange("Blanket Order Line No.", CurrentPurchLine."Line No.");
-        PAGE.RunModal(PAGE::"Purchase Lines", PurchLine);
-    end;
-
-    local procedure ShowPostedReceipts()
-    var
-        PurchRcptLine: Record "Purch. Rcpt. Line";
-    begin
-        CurrentPurchLine := Rec;
-        PurchRcptLine.Reset();
-        PurchRcptLine.SetCurrentKey("Blanket Order No.", "Blanket Order Line No.");
-        PurchRcptLine.SetRange("Blanket Order No.", CurrentPurchLine."Document No.");
-        PurchRcptLine.SetRange("Blanket Order Line No.", CurrentPurchLine."Line No.");
-        PAGE.RunModal(PAGE::"Posted Purchase Receipt Lines", PurchRcptLine);
-    end;
-
-    local procedure ShowPostedInvoices()
-    var
-        PurchInvLine: Record "Purch. Inv. Line";
-    begin
-        CurrentPurchLine := Rec;
-        PurchInvLine.Reset();
-        PurchInvLine.SetCurrentKey("Blanket Order No.", "Blanket Order Line No.");
-        PurchInvLine.SetRange("Blanket Order No.", CurrentPurchLine."Document No.");
-        PurchInvLine.SetRange("Blanket Order Line No.", CurrentPurchLine."Line No.");
-        PAGE.RunModal(PAGE::"Posted Purchase Invoice Lines", PurchInvLine);
-    end;
-
-    local procedure ShowPostedReturnReceipts()
-    var
-        ReturnShptLine: Record "Return Shipment Line";
-    begin
-        CurrentPurchLine := Rec;
-        ReturnShptLine.Reset();
-        ReturnShptLine.SetCurrentKey("Blanket Order No.", "Blanket Order Line No.");
-        ReturnShptLine.SetRange("Blanket Order No.", CurrentPurchLine."Document No.");
-        ReturnShptLine.SetRange("Blanket Order Line No.", CurrentPurchLine."Line No.");
-        PAGE.RunModal(PAGE::"Posted Return Shipment Lines", ReturnShptLine);
-    end;
-
-    local procedure ShowPostedCreditMemos()
-    var
-        PurchCrMemoLine: Record "Purch. Cr. Memo Line";
-    begin
-        CurrentPurchLine := Rec;
-        PurchCrMemoLine.Reset();
-        PurchCrMemoLine.SetCurrentKey("Blanket Order No.", "Blanket Order Line No.");
-        PurchCrMemoLine.SetRange("Blanket Order No.", CurrentPurchLine."Document No.");
-        PurchCrMemoLine.SetRange("Blanket Order Line No.", CurrentPurchLine."Line No.");
-        PAGE.RunModal(PAGE::"Posted Purchase Cr. Memo Lines", PurchCrMemoLine);
     end;
 
     procedure NoOnAfterValidate()
@@ -1035,8 +952,9 @@ page 510 "Blanket Purchase Order Subform"
         DocumentLineTracking: Page "Document Line Tracking";
     begin
         Clear(DocumentLineTracking);
-        DocumentLineTracking.SetDoc(3, "Document No.", "Line No.", "Blanket Order No.", "Blanket Order Line No.", '', 0);
-        DocumentLineTracking.RunModal;
+        DocumentLineTracking.SetDoc(
+            3, Rec."Document No.", Rec."Line No.", Rec."Blanket Order No.", Rec."Blanket Order Line No.", '', 0);
+        DocumentLineTracking.RunModal();
     end;
 
     local procedure SetDimensionsVisibility()

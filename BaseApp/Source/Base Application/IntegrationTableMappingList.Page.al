@@ -186,6 +186,25 @@ page 5335 "Integration Table Mapping List"
 
                     CRMIntegrationMgt.ResetIntTableMappingDefaultConfiguration(IntegrationTableMapping);
                     CurrPage.Update();
+
+                    if Confirm(JobQEntryCreatedQst) then
+                        ShowJobQueueEntry(IntegrationTableMapping);
+                end;
+            }
+            action(JobQueueEntry)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Job Queue Entry';
+                Enabled = HasRecords;
+                Image = JobListSetup;
+                Promoted = true;
+                PromotedIsBig = true;
+                PromotedCategory = Category5;
+                ToolTip = 'View or edit the job queue entry for this integration table mapping.';
+
+                trigger OnAction()
+                begin
+                    ShowJobQueueEntry(Rec);
                 end;
             }
             action("View Integration Synch. Job Log")
@@ -222,7 +241,7 @@ page 5335 "Integration Table Mapping List"
                 var
                     IntegrationSynchJobList: Page "Integration Synch. Job List";
                 begin
-                    if IsEmpty then
+                    if IsEmpty() then
                         exit;
 
                     SynchronizeNow(false);
@@ -243,7 +262,7 @@ page 5335 "Integration Table Mapping List"
                 var
                     IntegrationSynchJobList: Page "Integration Synch. Job List";
                 begin
-                    if IsEmpty then
+                    if IsEmpty() then
                         exit;
 
                     if not Confirm(StartFullSynchronizationQst) then
@@ -266,7 +285,7 @@ page 5335 "Integration Table Mapping List"
                 var
                     IntegrationSynchJobList: Page "Integration Synch. Job List";
                 begin
-                    if IsEmpty then
+                    if IsEmpty() then
                         exit;
 
                     if not Confirm(StartUnconditionalFullSynchronizationQst) then
@@ -378,6 +397,7 @@ page 5335 "Integration Table Mapping List"
         IntegrationTableCaptionValue: Text[250];
         TableFilter: Text;
         IntegrationTableFilter: Text;
+        JobQEntryCreatedQst: Label 'A synchronization job queue entry has been created.\\Do you want to view the job queue entry?';
         StartFullSynchronizationQst: Label 'You are about to synchronize all data within the mapping.\The synchronization will run in the background, so you can continue with other tasks.\\Do you want to continue?';
         StartUnconditionalFullSynchronizationQst: Label 'You are about to synchronize all data within the mapping, regardless of whether they were modified since last synchronization or not.\The synchronization will run in the background, so you can continue with other tasks.\\Do you want to continue?';
         StartUncouplingQst: Label 'You are about to uncouple the selected mappings, which means data for the records will no longer synchronize.\The uncoupling will run in the background, so you can continue with other tasks.\\Do you want to continue?';
@@ -422,6 +442,17 @@ page 5335 "Integration Table Mapping List"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
+    end;
+
+    local procedure ShowJobQueueEntry(var IntegrationTableMapping: Record "Integration Table Mapping");
+    var
+        JQueueEntry: Record "Job Queue Entry";
+    begin
+        JQueueEntry.SetRange("Object Type to Run", JQueueEntry."Object Type to Run"::Codeunit);
+        JQueueEntry.SetRange("Object ID to Run", Codeunit::"Integration Synch. Job Runner");
+        JQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId());
+        if JQueueEntry.FindFirst() then
+            Page.Run(Page::"Job Queue Entries", JQueueEntry);
     end;
 }
 

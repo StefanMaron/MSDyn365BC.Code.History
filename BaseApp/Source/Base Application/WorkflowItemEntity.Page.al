@@ -639,6 +639,9 @@ page 6409 "Workflow - Item Entity"
                 }
                 field(scheduledNeedQty; "Scheduled Need (Qty.)")
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Use the field ''qtyOnComponentLines'' instead';
+                    ObsoleteTag = '18.0';
                     ApplicationArea = All;
                     Caption = 'Scheduled Need (Qty.)', Locked = true;
                 }

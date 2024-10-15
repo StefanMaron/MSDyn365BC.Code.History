@@ -7,6 +7,9 @@ page 5491 "Shipment Method Entity"
     ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = "Shipment Method";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {
@@ -60,7 +63,7 @@ page 5491 "Shipment Method Entity"
         RecRef: RecordRef;
     begin
         ShipmentMethod.SetRange(Code, Code);
-        if not ShipmentMethod.IsEmpty then
+        if not ShipmentMethod.IsEmpty() then
             Insert;
 
         Insert(true);

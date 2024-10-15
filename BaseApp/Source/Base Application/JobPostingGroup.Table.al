@@ -116,11 +116,11 @@ table 208 "Job Posting Group"
         JobLedgerEntry: Record "Job Ledger Entry";
     begin
         Job.SetRange("Job Posting Group", Code);
-        if not Job.IsEmpty then
+        if not Job.IsEmpty() then
             Error(YouCannotDeleteErr, Code);
 
         JobLedgerEntry.SetRange("Job Posting Group", Code);
-        if not JobLedgerEntry.IsEmpty then
+        if not JobLedgerEntry.IsEmpty() then
             Error(YouCannotDeleteErr, Code);
     end;
 

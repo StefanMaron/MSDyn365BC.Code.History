@@ -1,4 +1,4 @@
-﻿codeunit 5720 "Item Reference Management"
+codeunit 5720 "Item Reference Management"
 {
 
     trigger OnRun()

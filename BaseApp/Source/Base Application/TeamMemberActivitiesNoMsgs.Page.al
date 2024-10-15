@@ -81,7 +81,7 @@ page 9043 "Team Member Activities No Msgs"
         end;
 
         TimeSheetHeader.SetRange("Approver User ID", UserId);
-        if not TimeSheetHeader.IsEmpty then begin
+        if not TimeSheetHeader.IsEmpty() then begin
             SetRange("Approve ID Filter", UserId);
             SetRange("User ID Filter", UserId);
             ShowTimeSheetsToApprove := true;

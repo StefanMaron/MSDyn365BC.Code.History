@@ -497,6 +497,66 @@ page 25 "Customer Ledger Entries"
             {
                 Caption = 'F&unctions';
                 Image = "Action";
+                action("Create Reminder")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    Scope = Repeater;
+                    Ellipsis = true;
+                    Image = CreateReminders;
+                    ToolTip = 'Create reminders for this customer if they have overdue payments.';
+                    trigger OnAction()
+                    var
+                        Customer: Record "Customer";
+                        ReminderHeader: Record "Reminder Header";
+                    begin
+                        ReminderHeader.setrange("Customer No.", Rec."Customer No.");
+                        if ReminderHeader.FindFirst() then begin
+                            page.RunModal(Page::Reminder, ReminderHeader);
+                            exit
+                        end;
+                        Customer.setrange("No.", Rec."Customer No.");
+                        REPORT.RunModal(REPORT::"Create Reminders", true, true, Customer);
+                        ReminderHeader.setrange("Customer No.", Rec."Customer No.");
+                        if ReminderHeader.FindFirst() then begin
+                            commit();
+                            page.RunModal(Page::Reminder, ReminderHeader);
+                            exit
+                        end;
+                        Error(NoReminderCreatedErr);
+                    end;
+                }
+                action("Create Finance Charge Memo")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    Scope = Repeater;
+                    Ellipsis = true;
+                    Image = CreateReminders;
+                    ToolTip = 'Create finance charge memos for this customer if they have overdue payments';
+                    trigger OnAction()
+                    var
+                        Customer: Record "Customer";
+                        FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
+                    begin
+                        FinanceChargeMemoHeader.setrange("Customer No.", Rec."Customer No.");
+                        if FinanceChargeMemoHeader.FindFirst() then begin
+                            page.RunModal(Page::"Finance Charge Memo", FinanceChargeMemoHeader);
+                            exit
+                        end;
+                        Customer.setrange("No.", Rec."Customer No.");
+                        REPORT.RunModal(REPORT::"Create Finance Charge Memos", true, true, Customer);
+                        FinanceChargeMemoHeader.setrange("Customer No.", Rec."Customer No.");
+                        if FinanceChargeMemoHeader.FindFirst() then begin
+                            commit();
+                            page.RunModal(Page::"Finance Charge Memo", FinanceChargeMemoHeader);
+                            exit
+                        end;
+                        Error(NoFinanceChargeMemoHeaderCreatedErr);
+                    end;
+                }
                 action("Apply Entries")
                 {
                     ApplicationArea = Basic, Suite;
@@ -517,7 +577,7 @@ page 25 "Customer Ledger Entries"
                         CustEntryApplyPostEntries.ApplyCustEntryFormEntry(CustLedgEntry);
                         CustLedgEntry.Get(CustLedgEntry."Entry No.");
                         Rec := CustLedgEntry;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action(UnapplyEntries)
@@ -672,12 +732,12 @@ page 25 "Customer Ledger Entries"
         IncomingDocument: Record "Incoming Document";
     begin
         HasIncomingDocument := IncomingDocument.PostedDocExists("Document No.", "Posting Date");
-        HasDocumentAttachment := HasPostedDocAttachment;
+        HasDocumentAttachment := HasPostedDocAttachment();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        StyleTxt := SetStyle;
+        StyleTxt := SetStyle();
     end;
 
     trigger OnInit()
@@ -710,6 +770,8 @@ page 25 "Customer Ledger Entries"
         DebitCreditVisible: Boolean;
         CustNameVisible: Boolean;
         ExportToPaymentFileConfirmTxt: Label 'Editing the Exported to Payment File field will change the payment suggestions in the Payment Journal. Edit this field only if you must correct a mistake.\Do you want to continue?';
+        NoReminderCreatedErr: Label 'No reminder was created. Check the reminder terms for the customer.';
+        NoFinanceChargeMemoHeaderCreatedErr: Label 'No finance charge memo was created. Check the finance charge terms for the customer.';
 
     protected var
         Dim1Visible: Boolean;

@@ -144,7 +144,7 @@ codeunit 48 PostingSetupManagement
         AccountingPeriod: Record "Accounting Period";
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        if AccountingPeriod.IsEmpty then
+        if AccountingPeriod.IsEmpty() then
             exit(true);
         if GuiAllowed and
            InstructionMgt.IsMyNotificationEnabled(InstructionMgt.GetPostingAfterCurrentCalendarDateNotificationId)
@@ -349,7 +349,7 @@ codeunit 48 PostingSetupManagement
         VATPostingSetupPage.RunModal;
     end;
 
-    [EventSubscriber(ObjectType::Page, 1518, 'OnInitializingNotificationWithDefaultState', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
     local procedure OnInitializingNotificationWithDefaultState()
     begin
         MyNotifications.InsertDefault(

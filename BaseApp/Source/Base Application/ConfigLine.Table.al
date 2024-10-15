@@ -385,7 +385,7 @@ table 8622 "Config. Line"
             if FindSet then
                 repeat
                     StatusWeight += GetLineStatusWeight;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -407,7 +407,7 @@ table 8622 "Config. Line"
                     if ConfigLine.FindSet then
                         repeat
                             Total += ConfigLine.GetNoOfDirectChildrenTables;
-                        until ConfigLine.Next = 0;
+                        until ConfigLine.Next() = 0;
                 end;
         end;
     end;
@@ -430,7 +430,7 @@ table 8622 "Config. Line"
                     if ConfigLine.FindSet then
                         repeat
                             Total += ConfigLine.GetDirectChildrenTablesStatusWeight;
-                        until ConfigLine.Next = 0;
+                        until ConfigLine.Next() = 0;
                 end;
         end;
     end;
@@ -453,7 +453,7 @@ table 8622 "Config. Line"
                         ConfigRelatedField."Relation Table ID" := Field.RelationTableNo;
                         ConfigRelatedField.Insert();
                     end;
-            until Field.Next = 0;
+            until Field.Next() = 0;
 
         if ConfigRelatedField.FindSet then
             repeat
@@ -462,7 +462,7 @@ table 8622 "Config. Line"
                     ConfigRelatedTable."Relation Table ID" := ConfigRelatedField."Relation Table ID";
                     ConfigRelatedTable.Insert();
                 end;
-            until ConfigRelatedField.Next = 0;
+            until ConfigRelatedField.Next() = 0;
     end;
 
     procedure GetLineStatusWeight(): Decimal
@@ -525,7 +525,7 @@ table 8622 "Config. Line"
                 TempConfigLine.SetRange("Line Type", "Line Type"::Table);
                 TempConfigLine.SetRange("Table ID", "Table ID");
                 TempConfigLine.SetRange("Package Code", "Package Code");
-                if not TempConfigLine.IsEmpty then begin
+                if not TempConfigLine.IsEmpty() then begin
                     ConfigLine.Get("Line No.");
                     ConfigLine.Delete(true);
                     NoOfDuplicateLines := NoOfDuplicateLines + 1;
@@ -534,7 +534,7 @@ table 8622 "Config. Line"
                     TempConfigLine := Rec;
                     TempConfigLine.Insert();
                 end;
-            until Next = 0;
+            until Next() = 0;
 
         if NoOfDuplicateLines = 0 then
             Message(NoDuplicateLinesMsg)

@@ -7,24 +7,88 @@ page 6306 "Power BI Report FactBox"
     {
         area(content)
         {
+            group(OptInControlGroup)
+            {
+                ShowCaption = false;
+                Visible = PageState = PageState::GetStarted;
+
+                field(OptInGettingStarted; GettingStartedTxt)
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ShowCaption = false;
+                    Style = StrongAccent;
+                    StyleExpr = TRUE;
+                    ToolTipML = ENU = 'Specifies whether the Power BI functionality is enabled.';
+
+                    trigger OnDrillDown()
+                    var
+                        PowerBIUserConfiguration: Record "Power BI User Configuration";
+                        PowerBIEmbedSetupWizard: Page "Power BI Embed Setup Wizard";
+                    begin
+                        Session.LogMessage('0000E4A', PowerBiOptInTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
+
+                        SetPowerBIUserConfig.CreateOrReadUserConfigEntry(PowerBIUserConfiguration, Context);
+                        Commit();
+                        LastOpenedReportID := PowerBIUserConfiguration."Selected Report ID";
+
+                        if not PowerBISessionManager.GetHasPowerBILicense() then begin
+                            PowerBIEmbedSetupWizard.SetContext(Context);
+                            if PowerBIEmbedSetupWizard.RunModal() = Action::Cancel then
+                                exit;
+                        end else
+                            StartAutoDeployment();
+
+                        OpenPageOrRefresh(false); // The control add-in will load reports when ready
+                    end;
+                }
+                field(OptInImageField1; MediaResources."Media Reference")
+                {
+                    CaptionML = ENU = '';
+                    ApplicationArea = All;
+                    Editable = false;
+                }
+            }
+            group(DeployReportsGroup)
+            {
+                ShowCaption = false;
+                Visible = PageState = PageState::ShouldDeploy;
+
+                field(DeployReportsLink; DeployReportsTxt)
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ShowCaption = false;
+                    Style = StrongAccent;
+                    StyleExpr = TRUE;
+                    ToolTipML = ENU = 'Specifies that the user can upload one or more demo reports for this page.';
+
+                    trigger OnDrillDown()
+                    begin
+                        StartAutoDeployment();
+                        Message(ReportsDeployingMsg);
+                    end;
+                }
+            }
             group(Control3)
             {
                 ShowCaption = false;
-                Visible = NOT IsGettingStartedVisible AND NOT IsErrorMessageVisible AND HasReports;
+                Visible = PageState = PageState::ReportVisible;
+
                 usercontrol(WebReportViewer; "Microsoft.Dynamics.Nav.Client.WebPageViewer")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = All;
 
                     trigger ControlAddInReady(callbackUrl: Text)
                     begin
                         AddInReady := true;
-                        if not TempPowerBiReportBuffer.IsEmpty then
-                            SetReport;
+                        if not TempPowerBiReportBuffer.IsEmpty() then
+                            SetReport();
                     end;
 
                     trigger DocumentReady()
                     begin
-                        if not TempPowerBiReportBuffer.IsEmpty then
+                        if not TempPowerBiReportBuffer.IsEmpty() then
                             CurrPage.WebReportViewer.PostMessage(PowerBiEmbedHelper.GetLoadReportMessage(), PowerBiEmbedHelper.TargetOrigin(), false);
                     end;
 
@@ -35,23 +99,29 @@ page 6306 "Power BI Report FactBox"
 
                     trigger Refresh(callbackUrl: Text)
                     begin
-                        if AddInReady and not TempPowerBiReportBuffer.IsEmpty then
-                            SetReport;
+                        if AddInReady and not TempPowerBiReportBuffer.IsEmpty() then
+                            SetReport();
                     end;
                 }
             }
-            group(Control12)
+            grid(Control12)
             {
-                //The GridLayout property is only supported on controls of type Grid
-                //GridLayout = Columns;
+                GridLayout = Columns;
                 ShowCaption = false;
+
                 group(Control11)
                 {
                     ShowCaption = false;
+
+#if not CLEAN18
                     group(Control10)
                     {
                         ShowCaption = false;
-                        Visible = IsGettingStartedVisible;
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This control has been removed from this subpage. Option to set up Power BI is still available in "Power BI Report Spinner" page.';
+                        ObsoleteTag = '18.0';
+
                         field(GettingStarted; GettingStartedTxt)
                         {
                             ApplicationArea = Basic, Suite;
@@ -59,22 +129,19 @@ page 6306 "Power BI Report FactBox"
                             ShowCaption = false;
                             Style = StrongAccent;
                             StyleExpr = TRUE;
-                            ToolTip = 'Specifies the process of connecting to Power BI.';
-
-                            trigger OnDrillDown()
-                            begin
-                                if not TryAzureAdMgtGetAccessToken then
-                                    ShowErrorMessage(GetLastErrorText);
-
-                                PowerBiServiceMgt.SelectDefaultReports;
-                                LoadContent;
-                            end;
+                            Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This control has been removed from this subpage. Option to set up Power BI is still available in "Power BI Report Spinner" page.';
+                            ToolTip = 'Specifies that the Azure AD setup window opens. ';
+                            ObsoleteTag = '18.0';
                         }
                     }
+#endif
                     group(Control8)
                     {
                         ShowCaption = false;
-                        Visible = IsErrorMessageVisible;
+                        Visible = PageState = PageState::ErrorVisible;
+
                         field(ErrorMessageText; ErrorMessageText)
                         {
                             ApplicationArea = Basic, Suite;
@@ -82,18 +149,26 @@ page 6306 "Power BI Report FactBox"
                             ShowCaption = false;
                             ToolTip = 'Specifies the error message from Power BI.';
                         }
-                        field(ErrorUrlTextField; PowerBiServiceMgt.GetPowerBIUrl)
+#if not CLEAN18
+                        field(ErrorUrlTextField; PowerBiServiceMgt.GetPowerBIUrl())
                         {
                             ApplicationArea = Basic, Suite;
                             ExtendedDatatype = URL;
                             ShowCaption = false;
                             ToolTip = 'Specifies the link that generated the error.';
-                            Visible = IsUrlFieldVisible;
+                            Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Functionality to display a URL here in case of error is deprecated.';
+                            ObsoleteTag = '18.0';
                         }
                         group(Control30)
                         {
                             ShowCaption = false;
-                            Visible = IsGetReportsVisible;
+                            Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Functionality to open a page to select reports in case of error is deprecated';
+                            ObsoleteTag = '18.0';
+
                             field(GetReportsLink; GetReportsTxt)
                             {
                                 ApplicationArea = All;
@@ -102,121 +177,171 @@ page 6306 "Power BI Report FactBox"
                                 Style = StrongAccent;
                                 StyleExpr = TRUE;
                                 ToolTip = 'Specifies the reports.';
+                                Visible = false;
+                                ObsoleteState = Pending;
+                                ObsoleteReason = 'Functionality to open a page to select reports in case of error is deprecated';
+                                ObsoleteTag = '18.0';
 
                                 trigger OnDrillDown()
                                 begin
-                                    SelectReports;
+                                    SelectReports();
                                 end;
                             }
                         }
+#endif
                     }
                     group(Control6)
                     {
                         ShowCaption = false;
-                        Visible = NOT IsGettingStartedVisible AND NOT IsErrorMessageVisible AND NOT HasReports AND NOT IsDeployingReports AND NOT IsLicenseTimerActive AND NOT CheckingLicenseInBackground;
+                        Visible = PageState = PageState::NoReport;
+
                         label(EmptyMessage)
                         {
-                            ApplicationArea = Basic, Suite;
-                            Caption = 'There are no enabled reports. Choose Select Report to see a list of reports that you can display.';
+                            ApplicationArea = All;
+                            Caption = 'There are no enabled reports.';
                             Editable = false;
                             ShowCaption = false;
-                            ToolTip = 'Specifies that the user needs to select Power BI reports.';
-                            Visible = NOT IsDeployingReports;
+                        }
+                        field(SelectReportsLink; SelectReportsTxt)
+                        {
+                            ApplicationArea = All;
+                            Editable = false;
+                            ShowCaption = false;
+                            Style = StrongAccent;
+                            StyleExpr = TRUE;
+                            ToolTip = 'Specifies that the user can select the reports to show from here.';
+
+                            trigger OnDrillDown()
+                            begin
+                                SelectReports();
+                            end;
                         }
                     }
+                    group(DeployingReports)
+                    {
+                        ShowCaption = false;
+                        Visible = PageState = PageState::NoReportButDeploying;
+
+                        label(EmptyMessage2)
+                        {
+                            ApplicationArea = All;
+                            Caption = 'There are no enabled reports.';
+                            Editable = false;
+                            ShowCaption = false;
+                        }
+                        label(NoReportsMessage2)
+                        {
+                            ApplicationArea = All;
+                            Caption = 'If you just started the upload of new reports from Business Central, choose Refresh to see if they''ve completed.';
+                            Editable = false;
+                            ShowCaption = false;
+                        }
+                        field(SelectReportsLink2; SelectReportsTxt)
+                        {
+                            ApplicationArea = All;
+                            Editable = false;
+                            ShowCaption = false;
+                            Style = StrongAccent;
+                            StyleExpr = TRUE;
+                            ToolTip = 'Specifies that the user can select the reports to show from here.';
+
+                            trigger OnDrillDown()
+                            begin
+                                SelectReports();
+                            end;
+                        }
+                        field(RefreshPartLink; RefreshPartTxt)
+                        {
+                            ApplicationArea = All;
+                            Editable = false;
+                            ShowCaption = false;
+                            Style = StrongAccent;
+                            StyleExpr = TRUE;
+                            ToolTip = 'Specifies that the user can refresh the page part. If reports have been deployed in the background, refreshing the page part will make them visible.';
+
+                            trigger OnDrillDown()
+                            begin
+                                OpenPageOrRefresh(true);
+                            end;
+                        }
+                    }
+#if not CLEAN18
                     group(Control22)
                     {
                         ShowCaption = false;
-                        Visible = NOT IsDeploymentUnavailable AND IsDeployingReports AND NOT HasReports AND NOT CheckingLicenseInBackground;
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Functionality has been moved to page "Power BI Embed Setup Wizard"';
+                        ObsoleteTag = '18.0';
+
                         label(InProgressMessage)
                         {
                             ApplicationArea = All;
                             Caption = 'Power BI report deployment is in progress.';
                             ToolTip = 'Specifies that the page is deploying reports to Power BI.';
+                            Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Functionality has been moved to page "Power BI Embed Setup Wizard"';
+                            ObsoleteTag = '18.0';
                         }
                     }
                     group(Control28)
                     {
                         ShowCaption = false;
-                        Visible = IsLicenseTimerActive OR CheckingLicenseInBackground AND NOT IsDeployingReports AND NOT IsErrorMessageVisible;
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Functionality has been moved to page "Power BI Embed Setup Wizard"';
+                        ObsoleteTag = '18.0';
+
                         label(CheckLicenseMessage)
                         {
                             ApplicationArea = All;
                             Caption = 'Verifying your Power BI license.';
                             Editable = false;
                             ShowCaption = false;
+                            Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Functionality has been moved to page "Power BI Embed Setup Wizard"';
                             ToolTip = 'Specifies that the page is checking for Power BI license.';
+                            ObsoleteTag = '18.0';
                         }
                     }
                     group(Control26)
                     {
                         ShowCaption = false;
-                        Visible = IsDeploymentUnavailable AND NOT IsDeployingReports AND NOT HasReports;
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This control has been merged with ErrorMessageText';
+                        ObsoleteTag = '18.0';
+
                         label(ServiceUnavailableMessage)
                         {
                             ApplicationArea = All;
                             Caption = 'Power BI report deployment is currently unavailable.';
                             ToolTip = 'Specifies that the page cannot currently deploy reports to Power BI.';
+                            Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This control has been merged with ErrorMessageText';
+                            ObsoleteTag = '18.0';
                         }
                     }
                     group(Control21)
                     {
                         ShowCaption = false;
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Setup is now done in the page "Power BI Embed Setup Wizard"';
+                        ObsoleteTag = '18.0';
+
+                        // UserControls do not support Obsolete properties
+                        // Bug 380401: UserControl elements in a page do not support Obsolete* properties, but app fails to build if they are removed.
                         usercontrol(DeployTimer; "Microsoft.Dynamics.Nav.Client.PowerBIManagement")
                         {
                             ApplicationArea = All;
-
-                            trigger AddInReady()
-                            begin
-                                // Timer for refreshing the page during Out of Box report deployment started by another page.
-                                IsTimerReady := true;
-                                StartLicenseTimer;
-                                if not CheckingLicenseInBackground and IsDeployingReports and not IsErrorMessageVisible then
-                                    StartDeploymentTimer;
-                            end;
-
-                            trigger Pong()
-                            var
-                                HasPowerBILicense: Boolean;
-                                MaxTimerCount: Integer;
-                            begin
-                                HasPowerBILicense := PowerBiServiceMgt.CheckForPowerBILicense;
-                                IsLicenseTimerActive := not HasPowerBILicense;
-                                CheckingLicenseInBackground := not HasPowerBILicense;
-
-                                MaxTimerCount := (60000 * 5) / TimerDelay; // Set the max count so that it doesn't exceed five minutes
-
-                                if HasPowerBILicense then begin
-                                    RefreshPart;
-
-                                    if IsTimerActive and not IsLicenseTimerActive and not CheckingLicenseInBackground
-                                    then begin
-                                        PowerBiServiceMgt.SelectDefaultReports;
-                                        DeployDefaultReports;
-
-                                        IsDeployingReports := PowerBiServiceMgt.GetIsDeployingReports;
-
-                                        CurrentTimerCount := CurrentTimerCount + 1;
-                                        IsTimerActive := IsDeployingReports and (CurrentTimerCount < MaxTimerCount) and not IsErrorMessageVisible;
-                                        if IsTimerActive then
-                                            CurrPage.DeployTimer.Ping(TimerDelay)
-                                        else begin
-                                            PowerBiServiceMgt.SetIsDeployingReports(false);
-                                            IsDeployingReports := false;
-                                            CurrPage.DeployTimer.Stop;
-                                            CurrPage.Update;
-                                        end;
-                                    end;
-                                end else begin
-                                    ShowErrorMessage(PowerBiServiceMgt.GetUnauthorizedErrorText);
-                                    CurrPage.DeployTimer.Stop;
-                                end;
-
-                                if not IsDeployingReports and HasReports then
-                                    CurrPage.DeployTimer.Stop;
-                            end;
+                            Visible = false;
                         }
                     }
+#endif
                 }
             }
         }
@@ -230,20 +355,20 @@ page 6306 "Power BI Report FactBox"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Select Report';
-                Enabled = NOT IsGettingStartedVisible AND NOT IsErrorMessageVisible;
+                Enabled = (PageState = PageState::ReportVisible) or (PageState = PageState::NoReport) or (PageState = PageState::NoReportButDeploying) or (PageState = PageState::ShouldDeploy);
                 Image = SelectChart;
                 ToolTip = 'Select the report.';
 
                 trigger OnAction()
                 begin
-                    SelectReports;
+                    SelectReports();
                 end;
             }
             action("Expand Report")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Expand Report';
-                Enabled = HasReports AND NOT IsErrorMessageVisible;
+                Enabled = PageState = PageState::ReportVisible;
                 Image = View;
                 ToolTip = 'View all information in the report.';
 
@@ -261,7 +386,7 @@ page 6306 "Power BI Report FactBox"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Previous Report';
-                Enabled = HasReports AND NOT IsErrorMessageVisible;
+                Enabled = PageState = PageState::ReportVisible;
                 Image = PreviousSet;
                 ToolTip = 'Go to the previous report.';
 
@@ -269,19 +394,19 @@ page 6306 "Power BI Report FactBox"
                 begin
                     // need to reset filters or it would load the LastLoadedReport otherwise
                     TempPowerBiReportBuffer.Reset();
-                    TempPowerBiReportBuffer.SetFilter(Enabled, '%1', true);
+                    TempPowerBiReportBuffer.SetRange(Enabled, true);
                     if TempPowerBiReportBuffer.Next(-1) = 0 then
-                        TempPowerBiReportBuffer.FindLast;
+                        TempPowerBiReportBuffer.FindLast();
 
                     if AddInReady then
-                        CurrPage.WebReportViewer.Navigate(GetEmbedUrl);
+                        CurrPage.WebReportViewer.Navigate(GetEmbedUrl());
                 end;
             }
             action("Next Report")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Next Report';
-                Enabled = HasReports AND NOT IsErrorMessageVisible;
+                Enabled = PageState = PageState::ReportVisible;
                 Image = NextSet;
                 ToolTip = 'Go to the next report.';
 
@@ -289,32 +414,19 @@ page 6306 "Power BI Report FactBox"
                 begin
                     // need to reset filters or it would load the LastLoadedReport otherwise
                     TempPowerBiReportBuffer.Reset();
-                    TempPowerBiReportBuffer.SetFilter(Enabled, '%1', true);
-                    if TempPowerBiReportBuffer.Next = 0 then
-                        TempPowerBiReportBuffer.FindFirst;
+                    TempPowerBiReportBuffer.SetRange(Enabled, true);
+                    if TempPowerBiReportBuffer.Next() = 0 then
+                        TempPowerBiReportBuffer.FindFirst();
 
                     if AddInReady then
-                        CurrPage.WebReportViewer.Navigate(GetEmbedUrl);
-                end;
-            }
-            action(Refresh)
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Refresh Page';
-                Enabled = NOT IsGettingStartedVisible;
-                Image = Refresh;
-                ToolTip = 'Refresh the visible content.';
-
-                trigger OnAction()
-                begin
-                    RefreshPart;
+                        CurrPage.WebReportViewer.Navigate(GetEmbedUrl());
                 end;
             }
             action("Manage Report")
             {
                 ApplicationArea = All;
                 Caption = 'Manage Report';
-                Enabled = HasReports AND NOT IsErrorMessageVisible;
+                Enabled = PageState = PageState::ReportVisible;
                 Image = PowerBI;
                 ToolTip = 'Opens current selected report for edits.';
                 Visible = IsSaaSUser;
@@ -323,10 +435,24 @@ page 6306 "Power BI Report FactBox"
                 var
                     PowerBIManagement: Page "Power BI Management";
                 begin
-                    PowerBIManagement.SetTargetReport(LastOpenedReportID, GetEmbedUrl);
+                    PowerBIManagement.SetTargetReport(LastOpenedReportID, GetEmbedUrl());
                     PowerBIManagement.LookupMode(true);
-                    PowerBIManagement.Run;
-                    RefreshPart;
+                    PowerBIManagement.Run();
+
+                    OpenPageOrRefresh(false);
+                end;
+            }
+            action(Refresh)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Refresh Page';
+                Enabled = PageState <> PageState::GetStarted;
+                Image = Refresh;
+                ToolTip = 'Refresh the visible content.';
+
+                trigger OnAction()
+                begin
+                    OpenPageOrRefresh(true);
                 end;
             }
         }
@@ -337,70 +463,128 @@ page 6306 "Power BI Report FactBox"
         EnvironmentInfo: Codeunit "Environment Information";
     begin
         IsSaaSUser := EnvironmentInfo.IsSaaS();
-
-        // Variables used by PingPong timer when deploying default PBI reports.
-        TimerDelay := 30000; // 30 seconds
-        IsVisible := false;
     end;
 
     trigger OnOpenPage()
     begin
         if IsVisible then
-            LoadFactBox
+            OpenPageOrRefresh(false);
     end;
 
     var
-        NoReportsAvailableErr: Label 'There are no reports available from Power BI.';
-        PowerBIReportLoadTelemetryMsg: Label 'Loading Power BI report for user', Locked = true;
-        GettingStartedTxt: Label 'Get started with Power BI';
-        GetReportsTxt: Label 'Get reports';
-        PowerBIUserConfiguration: Record "Power BI User Configuration";
         TempPowerBiReportBuffer: Record "Power BI Report Buffer" temporary;
+        MediaResources: Record "Media Resources";
+        PowerBISessionManager: Codeunit "Power BI Session Manager";
+        SetPowerBIUserConfig: Codeunit "Set Power BI User Config";
         PowerBiServiceMgt: Codeunit "Power BI Service Mgt.";
-        PowerBiEmbedHelper: Codeunit "Power BI Embed Helper";
         ClientTypeManagement: Codeunit "Client Type Management";
+        PowerBiEmbedHelper: Codeunit "Power BI Embed Helper";
+        PowerBiOptInImageNameLbl: Label 'PowerBi-OptIn-480px.png', Locked = true;
+        GettingStartedTxt: Label 'Get started with Power BI';
+        DeployReportsTxt: Label 'Upload demo reports for this page';
+        ReportsDeployingMsg: Label 'We are uploading a demo report to Power BI in the background for you. Once the upload finishes, choose Refresh to see it in this page.\\If you have already reports in your Power BI workspace, you can choose Select Reports instead.';
+        StillDeployingMsg: Label 'We are still uploading your demo report. Once the upload finishes, choose Refresh again to see it in this page.\\If you have already reports in your Power BI workspace, you can choose Select Reports instead.';
+        RefreshPartTxt: Label 'Refresh';
+        SelectReportsTxt: Label 'Select reports';
+        PageState: Option GetStarted,ShouldDeploy,NoReport,NoReportButDeploying,ReportVisible,ErrorVisible;
         LastOpenedReportID: Guid;
         Context: Text[30];
         NameFilter: Text;
-        IsGettingStartedVisible: Boolean;
         HasReports: Boolean;
         AddInReady: Boolean;
-        IsErrorMessageVisible: Boolean;
         ErrorMessageText: Text;
-        IsUrlFieldVisible: Boolean;
-        IsGetReportsVisible: Boolean;
         CurrentListSelection: Text;
         LatestReceivedFilterInfo: Text;
         CurrentReportFirstPage: Text;
-        TimerDelay: Integer;
-        CurrentTimerCount: Integer;
-        IsDeployingReports: Boolean;
-        IsDeploymentUnavailable: Boolean;
-        IsTimerReady: Boolean;
-        IsTimerActive: Boolean;
         IsSaaSUser: Boolean;
-        IsLoaded: Boolean;
         IsVisible: Boolean;
-        IsLicenseTimerActive: Boolean;
-        CheckingLicenseInBackground: Boolean;
+        // Telemetry labels
+        NoOptInImageTxt: Label 'There is no Power BI Opt-in image in the Database with ID: %1', Locked = true;
+        PowerBIReportLoadTelemetryMsg: Label 'Loading Power BI report for user', Locked = true;
+        PowerBiOptInTxt: Label 'User has opted in to enable Power BI services in factbox', Locked = true;
 
-    procedure SetCurrentListSelection(CurrentSelection: Text; IsValueIntInput: Boolean; PowerBIVisible: Boolean)
+#if not CLEAN18
+        GetReportsTxt: Label 'Get reports';
+#endif
+
+    local procedure OpenPageOrRefresh(ShowMessages: Boolean)
+    var
+        PreviousPageState: Option;
     begin
-        if not PowerBIVisible then
-            exit;
-        // get the name of the selected element from the corresponding list of the parent page and filter the report
-        CurrentListSelection := PowerBiServiceMgt.FormatSpecialChars(CurrentSelection);
-        if not IsValueIntInput then
-            CurrentListSelection := '"' + CurrentListSelection + '"';
+        PreviousPageState := PageState;
 
-        // Selection changed: send the latest message to the Addin again with the updated selection, if we have the filter info already
-        if LatestReceivedFilterInfo <> '' then
-            HandleAddinCallback(LatestReceivedFilterInfo);
+        UpdateContext();
+        SetInitialPageState();
+
+        CurrPage.Update();
+
+        if ShowMessages then
+            if (PageState = PageState::NoReportButDeploying) and (PreviousPageState = PageState::NoReportButDeploying) then
+                Message(StillDeployingMsg);
+    end;
+
+    local procedure SetInitialPageState()
+    var
+        PowerBIReportSynchronizer: Codeunit "Power BI Report Synchronizer";
+        PowerBIUserConfiguration: Record "Power BI User Configuration";
+        ExceptionMessage: Text;
+        ExceptionDetails: Text;
+    begin
+        // No license has been verified yet
+        if not PowerBISessionManager.GetHasPowerBILicense() then begin
+            LoadOptInImage();
+            PageState := PageState::GetStarted;
+            exit;
+        end;
+
+        if not PowerBiServiceMgt.IsUserSynchronizingReports() then
+            if PowerBIReportSynchronizer.UserNeedsToSynchronize(Context) then begin
+                LoadOptInImage();
+                PageState := PageState::ShouldDeploy;
+                exit;
+            end;
+
+        SetPowerBIUserConfig.CreateOrReadUserConfigEntry(PowerBIUserConfiguration, Context);
+        LastOpenedReportID := PowerBIUserConfiguration."Selected Report ID";
+        RefreshTempReportBuffer(ExceptionMessage, ExceptionDetails); // Also points the record to last opened report id
+
+        if ExceptionMessage <> '' then begin
+            ShowErrorMessage(ExceptionMessage);
+            exit;
+        end;
+
+        if TempPowerBiReportBuffer.IsEmpty() then begin
+            if PowerBiServiceMgt.IsUserSynchronizingReports() then
+                PageState := PageState::NoReportButDeploying
+            else
+                PageState := PageState::NoReport;
+
+            exit;
+        end;
+
+        PageState := PageState::ReportVisible;
+
+        if AddInReady then
+            SetReport();
+    end;
+
+    local procedure StartAutoDeployment()
+    var
+        DummyPowerBIUserConfiguration: Record "Power BI User Configuration";
+        PowerBIReportSynchronizer: Codeunit "Power BI Report Synchronizer";
+    begin
+        // Ensure user config for context before deployment
+        if Context = '' then
+            exit;
+
+        SetPowerBIUserConfig.CreateOrReadUserConfigEntry(DummyPowerBIUserConfiguration, Context);
+        PowerBIReportSynchronizer.SelectDefaultReports();
+        PowerBiServiceMgt.SynchronizeReportsInBackground();
     end;
 
     local procedure GetEmbedUrl(): Text
     begin
-        if TempPowerBiReportBuffer.IsEmpty then begin
+        if TempPowerBiReportBuffer.IsEmpty() then begin
             // Clear out last opened report if there are no reports to display.
             Clear(LastOpenedReportID);
             SetLastOpenedReportID(LastOpenedReportID);
@@ -414,75 +598,40 @@ page 6306 "Power BI Report FactBox"
         end;
     end;
 
-    local procedure LoadContent()
-    var
-        ExceptionMessage: Text;
-        ExceptionDetails: Text;
+    local procedure GetEmbedUrlWithNavigationWithFilters(): Text
     begin
-        // The end to end process for loading reports onscreen, or defaulting to an error state if that fails,
-        // including deploying default reports in case they haven't been loaded yet. Called when first logging
-        // into Power BI or any time the part has reloaded from scratch.
-        if not TryLoadPart(ExceptionMessage, ExceptionDetails) then
-            ShowErrorMessage(GetLastErrorText);
-
-        // Always call this after TryLoadPart. Since we can't modify record from a TryFunction.
-        PowerBiServiceMgt.UpdateEmbedUrlCache(TempPowerBiReportBuffer, Context);
-
-        // Always call this function after calling TryLoadPart to log exceptions to ActivityLog table
-        if ExceptionMessage <> '' then
-            Session.LogMessage('0000B74', ExceptionMessage + ' : ' + ExceptionDetails, Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
-
-        if not IsGettingStartedVisible then
-            CheckPowerBILicense;
-
-        CurrPage.Update;
-
-        DeployDefaultReports();
+        // update last loaded report
+        SetLastOpenedReportID(TempPowerBiReportBuffer.ReportID);
+        // Shows filters and shows navigation tabs.
+        exit(TempPowerBiReportBuffer.ReportEmbedUrl);
     end;
 
-    local procedure RefreshAvailableReports()
+    local procedure RefreshTempReportBuffer(var ExceptionMessage: Text; var ExceptionDetails: Text)
+    var
+        NullGuid: Guid;
     begin
-        // Filters the report buffer to show the user's selected report onscreen if possible, otherwise defaulting
-        // to other enabled reports.
-        // (The updated selection will automatically get saved on render - can't save to database here without
-        // triggering errors about calling MODIFY during a TryFunction.)
+        TempPowerBiReportBuffer.Reset();
+        TempPowerBiReportBuffer.DeleteAll();
+
+        PowerBiServiceMgt.GetReportsForUserContext(TempPowerBiReportBuffer, ExceptionMessage, ExceptionDetails, Context);
+        if ExceptionMessage <> '' then
+            exit;
+
+        PowerBiServiceMgt.UpdateEmbedUrlCache(TempPowerBiReportBuffer, Context);
 
         TempPowerBiReportBuffer.Reset();
         TempPowerBiReportBuffer.SetFilter(Enabled, '%1', true);
         if not IsNullGuid(LastOpenedReportID) then begin
-            TempPowerBiReportBuffer.SetFilter(ReportID, '%1', LastOpenedReportID);
+            TempPowerBiReportBuffer.SetRange(ReportID, LastOpenedReportID);
 
-            if TempPowerBiReportBuffer.IsEmpty then begin
+            if TempPowerBiReportBuffer.IsEmpty() then begin
                 // If last selection is invalid, clear it and default to showing the first enabled report.
-                Clear(LastOpenedReportID);
-                RefreshAvailableReports();
+                SetLastOpenedReportID(NullGuid);
+                TempPowerBiReportBuffer.SetRange(ReportID);
             end;
         end;
 
         HasReports := TempPowerBiReportBuffer.FindFirst();
-    end;
-
-    local procedure RefreshPart()
-    var
-        SetPowerBIUserConfig: Codeunit "Set Power BI User Config";
-    begin
-        // Refreshes content by re-rendering the whole page part - removes any current error message text, and tries to
-        // reload the user's list of reports, as if the page just loaded. Used by the Refresh button or when closing the
-        // Select Reports page, to make sure we have the most up to date list of reports and aren't stuck in an error state.
-        IsErrorMessageVisible := false;
-        IsUrlFieldVisible := false;
-        IsGetReportsVisible := false;
-
-        IsDeployingReports := PowerBiServiceMgt.GetIsDeployingReports();
-        IsDeploymentUnavailable := not PowerBiServiceMgt.IsPBIServiceAvailable();
-
-        PowerBiServiceMgt.SelectDefaultReports();
-
-        SetPowerBIUserConfig.CreateOrReadUserConfigEntry(PowerBIUserConfiguration, LastOpenedReportID, Context);
-        LoadContent();
-
-        if AddInReady then
-            CurrPage.WebReportViewer.Navigate(GetEmbedUrl());
     end;
 
     [Scope('OnPrem')]
@@ -498,7 +647,7 @@ page 6306 "Power BI Report FactBox"
         // Automatically sets the parent page ID based on the user's selected role center (role centers can't
         // have codebehind, so they have no other way to set the context for their reports).
         if Context = '' then
-            SetContext(PowerBiServiceMgt.GetEnglishContext);
+            SetContext(PowerBiServiceMgt.GetEnglishContext());
     end;
 
     [Scope('OnPrem')]
@@ -511,50 +660,12 @@ page 6306 "Power BI Report FactBox"
 
     local procedure ShowErrorMessage(TextToShow: Text)
     begin
-        // this condition checks if we caught the authorization error that contains a link to Power BI
-        // the function divide the error message into simple text and url part
-        if TextToShow = PowerBiServiceMgt.GetUnauthorizedErrorText() then begin
-            IsUrlFieldVisible := true;
-            // this message is required to have ':' at the end, but it has '.' instead due to C/AL Localizability requirement
-            TextToShow := DelStr(PowerBiServiceMgt.GetUnauthorizedErrorText(), StrLen(PowerBiServiceMgt.GetUnauthorizedErrorText()), 1) + ':';
-        end;
+        PageState := PageState::ErrorVisible;
 
-        IsGetReportsVisible := (TextToShow = NoReportsAvailableErr);
-
-        IsErrorMessageVisible := true;
-        IsGettingStartedVisible := false;
-        TempPowerBiReportBuffer.DeleteAll(); // Required to avoid one INSERT after another (that will lead to an error)
         if TextToShow = '' then
-            TextToShow := PowerBiServiceMgt.GetGenericError;
+            TextToShow := PowerBiServiceMgt.GetGenericError();
         ErrorMessageText := TextToShow;
-        TempPowerBiReportBuffer.Insert(); // Hack to show the field with the text
-        CurrPage.Update;
-    end;
-
-    [TryFunction]
-    local procedure TryLoadPart(var ExceptionMessage: Text; var ExceptionDetails: Text)
-    begin
-        IsGettingStartedVisible := not PowerBiServiceMgt.IsUserReadyForPowerBI;
-
-        TempPowerBiReportBuffer.Reset();
-        TempPowerBiReportBuffer.DeleteAll();
-        if IsGettingStartedVisible then begin
-            if IsSaasUser then
-                Error(PowerBiServiceMgt.GetGenericError);
-
-            TempPowerBiReportBuffer.Insert // Hack to display Get Started link.
-        end else begin
-            PowerBiServiceMgt.GetReportsForUserContext(TempPowerBiReportBuffer, ExceptionMessage, ExceptionDetails, Context);
-            RefreshAvailableReports;
-        end;
-    end;
-
-    [TryFunction]
-    local procedure TryAzureAdMgtGetAccessToken()
-    var
-        AzureAdMgt: Codeunit "Azure AD Mgt.";
-    begin
-        AzureAdMgt.GetAccessToken(PowerBiServiceMgt.GetPowerBIResourceUrl, PowerBiServiceMgt.GetPowerBiResourceName, true);
+        CurrPage.Update();
     end;
 
     local procedure SetReport()
@@ -562,82 +673,31 @@ page 6306 "Power BI Report FactBox"
         JsonArray: DotNet Array;
         DotNetString: DotNet String;
     begin
-        if (ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::Phone) and
-           (ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::Windows)
-        then
+        if not (ClientTypeManagement.GetCurrentClientType() in [ClientType::Phone, ClientType::Windows]) then
             CurrPage.WebReportViewer.InitializeIFrame('4:3');
         // subscribe to events
-        CurrPage.WebReportViewer.SubscribeToEvent('message', GetEmbedUrl);
-        CurrPage.WebReportViewer.Navigate(GetEmbedUrl);
+        CurrPage.WebReportViewer.SubscribeToEvent('message', GetEmbedUrl());
+        CurrPage.WebReportViewer.Navigate(GetEmbedUrl());
         JsonArray := JsonArray.CreateInstance(GetDotNetType(DotNetString), 1);
         JsonArray.SetValue('{"statusCode":202,"headers":{}}', 0);
         CurrPage.WebReportViewer.SetCallbacksFromSubscribedEventToIgnore('message', JsonArray);
     end;
 
     [Scope('OnPrem')]
-    procedure SetLastOpenedReportID(LastOpenedReportIDInput: Guid)
-    begin
-        // update the last loaded report field (the record at this point should already exist bacause it was created OnOpenPage)
-        LastOpenedReportID := LastOpenedReportIDInput;
-        PowerBIUserConfiguration.Reset();
-        PowerBIUserConfiguration.SetFilter("Page ID", '%1', Context);
-        PowerBIUserConfiguration.SetFilter("User Security ID", '%1', UserSecurityId);
-        PowerBIUserConfiguration.SetFilter("Profile ID", '%1', PowerBiServiceMgt.GetEnglishContext);
-        if not PowerBIUserConfiguration.IsEmpty then begin
-            PowerBIUserConfiguration."Selected Report ID" := LastOpenedReportID;
-            PowerBIUserConfiguration.Modify();
-            Commit();
-        end;
-    end;
-
-    procedure SetFactBoxVisibility(var VisibilityInput: Boolean)
-    begin
-        if VisibilityInput then
-            VisibilityInput := false
-        else
-            VisibilityInput := true;
-
-        PowerBIUserConfiguration.Reset();
-        PowerBIUserConfiguration.SetFilter("Page ID", '%1', Context);
-        PowerBIUserConfiguration.SetFilter("User Security ID", '%1', UserSecurityId);
-        PowerBIUserConfiguration.SetFilter("Profile ID", '%1', PowerBiServiceMgt.GetEnglishContext);
-        if PowerBIUserConfiguration.FindFirst then begin
-            PowerBIUserConfiguration."Report Visibility" := VisibilityInput;
-            PowerBIUserConfiguration.Modify();
-        end;
-        if VisibilityInput and not IsLoaded then
-            LoadFactBox
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Use HandleAddinCallback instead', '16.0')]
-    procedure GetAndSetReportFilter(data: Text)
-    begin
-        HandleAddinCallback(data);
-    end;
-
-    [Scope('OnPrem')]
-    procedure HandleAddinCallback(CallbackMessage: Text)
+    procedure SetLastOpenedReportID(LastOpenedReportIDInputValue: Guid)
     var
-        MessageForWebPage: Text;
+        PowerBIUserConfiguration: Record "Power BI User Configuration";
     begin
-        PowerBiEmbedHelper.HandleAddInCallback(CallbackMessage, CurrentListSelection, CurrentReportFirstPage, LatestReceivedFilterInfo, MessageForWebPage);
-        if MessageForWebPage <> '' then
-            CurrPage.WebReportViewer.PostMessage(MessageForWebPage, PowerBiEmbedHelper.TargetOrigin(), true);
-    end;
+        SetPowerBIUserConfig.CreateOrReadUserConfigEntry(PowerBIUserConfiguration, Context);
+        PowerBIUserConfiguration."Selected Report ID" := LastOpenedReportIDInputValue;
+        PowerBIUserConfiguration.Modify();
 
-    local procedure GetEmbedUrlWithNavigationWithFilters(): Text
-    begin
-        // update last loaded report
-        SetLastOpenedReportID(TempPowerBiReportBuffer.ReportID);
-        // Shows filters and shows navigation tabs.
-        exit(TempPowerBiReportBuffer.ReportEmbedUrl);
+        LastOpenedReportID := LastOpenedReportIDInputValue;
     end;
 
     local procedure SelectReports()
     var
         PowerBIReportSelection: Page "Power BI Report Selection";
-        EmbedUrl: Text;
         PrevNameFilter: Text;
     begin
         // Opens the report selection page, then updates the onscreen report depending on the user's
@@ -652,8 +712,8 @@ page 6306 "Power BI Report FactBox"
         PowerBIReportSelection.SetNameFilter(NameFilter);
         PowerBIReportSelection.LookupMode(true);
 
-        PowerBIReportSelection.RunModal;
-        if PowerBIReportSelection.IsPageClosedOkay then begin
+        PowerBIReportSelection.RunModal();
+        if PowerBIReportSelection.IsPageClosedOkay() then begin
             PowerBIReportSelection.GetRecord(TempPowerBiReportBuffer);
 
             if TempPowerBiReportBuffer.Enabled then begin
@@ -661,79 +721,53 @@ page 6306 "Power BI Report FactBox"
                 SetLastOpenedReportID(LastOpenedReportID); // Resolves bug to set last selected report
             end;
 
-            RefreshPart;
-            EmbedUrl := GetEmbedUrl;
-            if AddInReady and (EmbedUrl <> '') then
-                CurrPage.WebReportViewer.Navigate(GetEmbedUrl);
-            // At this point, NAV will load the web page viewer since HasReports should be true. WebReportViewer::ControlAddInReady will then fire, calling Navigate()
+            OpenPageOrRefresh(false);
         end;
     end;
 
-    local procedure DeployDefaultReports()
+    procedure SetFactBoxVisibility(var VisibilityInput: Boolean)
+    var
+        PowerBIUserConfiguration: Record "Power BI User Configuration";
     begin
-        if not PowerBiServiceMgt.IsPowerBIDeploymentEnabled then
-            exit;
+        if VisibilityInput then
+            VisibilityInput := false
+        else
+            VisibilityInput := true;
 
-        // Checks if there are any default reports the user needs to upload/select, and automatically begins
-        // those processes. The page will refresh when the PingPong control runs later.
-        if CheckingLicenseInBackground then
-            exit;
-
-        if IsErrorMessageVisible or IsGettingStartedVisible then
-            exit;
-
-        if not IsSaaSUser then
-            exit;
-
-        DeleteMarkedReports;
-        FinishPartialUploads;
-
-        if PowerBiServiceMgt.UserNeedsToDeployReports(Context) and not PowerBiServiceMgt.IsUserDeployingReports then begin
-            IsDeployingReports := true;
-            PowerBiServiceMgt.UploadDefaultReportInBackground;
-            StartDeploymentTimer;
+        PowerBIUserConfiguration.Reset();
+        PowerBIUserConfiguration.SetFilter("Page ID", '%1', Context);
+        PowerBIUserConfiguration.SetFilter("User Security ID", '%1', UserSecurityId());
+        PowerBIUserConfiguration.SetFilter("Profile ID", '%1', PowerBiServiceMgt.GetEnglishContext());
+        if PowerBIUserConfiguration.FindFirst() then begin
+            PowerBIUserConfiguration."Report Visibility" := VisibilityInput;
+            PowerBIUserConfiguration.Modify();
         end;
+        if VisibilityInput then
+            OpenPageOrRefresh(false);
     end;
 
-    local procedure FinishPartialUploads()
+#if not CLEAN16
+    [Scope('OnPrem')]
+    [Obsolete('Use HandleAddinCallback instead', '16.0')]
+    procedure GetAndSetReportFilter(data: Text)
     begin
-        // Checks if there are any default reports whose uploads only partially completed, and begins a
-        // background process for those reports. The page will refresh when the PingPong control runs later.
-        if PowerBiServiceMgt.UserNeedsToRetryUploads and not PowerBiServiceMgt.IsUserRetryingUploads then begin
-            IsDeployingReports := true;
-            PowerBiServiceMgt.RetryUnfinishedReportsInBackground;
-            StartDeploymentTimer;
-        end;
+        HandleAddinCallback(data);
     end;
+#endif
 
-    local procedure DeleteMarkedReports()
+    [Scope('OnPrem')]
+    procedure HandleAddinCallback(CallbackMessage: Text)
+    var
+        MessageForWebPage: Text;
     begin
-        // Checks if there are any default reports that have been marked to be deleted on page 6321, and begins
-        // a background process for those reports. The page will refresh when the timer control runs later.
-        if PowerBiServiceMgt.UserNeedsToDeleteReports and not PowerBiServiceMgt.IsUserDeletingReports then begin
-            IsDeployingReports := true;
-            PowerBiServiceMgt.DeleteDefaultReportsInBackground;
-            StartDeploymentTimer;
-        end;
-    end;
-
-    local procedure StartDeploymentTimer()
-    begin
-        // Resets the timer for refreshing the page during Out of Box report deployment, if the add-in is
-        // ready to go and the timer isn't already going. (This page doesn't deploy reports itself,
-        // but it may be opened while another page is deploying reports that would show up here.)
-        if IsTimerReady and not IsTimerActive and not IsLicenseTimerActive then begin
-            CurrentTimerCount := 0;
-            IsTimerActive := true;
-            CurrPage.DeployTimer.Ping(TimerDelay);
-        end;
+        PowerBiEmbedHelper.HandleAddInCallback(CallbackMessage, CurrentListSelection, CurrentReportFirstPage, LatestReceivedFilterInfo, MessageForWebPage);
+        if MessageForWebPage <> '' then
+            CurrPage.WebReportViewer.PostMessage(MessageForWebPage, PowerBiEmbedHelper.TargetOrigin(), true);
     end;
 
     procedure InitFactBox(PageId: Text[30]; PageCaption: Text; var PowerBIVisible: Boolean)
     var
         PowerBIUserConfiguration: Record "Power BI User Configuration";
-        SetPowerBIUserConfig: Codeunit "Set Power BI User Config";
-        PowerBISessionManager: Codeunit "Power BI Session Manager";
     begin
         // Initialize Factbox and make it visibile only if the user has a Power BI License
         IF PowerBISessionManager.GetHasPowerBILicense() then begin
@@ -744,28 +778,32 @@ page 6306 "Power BI Report FactBox"
         IsVisible := PowerBIVisible;
     end;
 
-    local procedure LoadFactBox()
+    procedure SetCurrentListSelection(CurrentSelection: Text; IsValueIntInput: Boolean; PowerBIVisible: Boolean)
     begin
-        UpdateContext;
-        RefreshPart;
-        IsLoaded := true;
+        if not PowerBIVisible then
+            exit;
+        // get the name of the selected element from the corresponding list of the parent page and filter the report
+        CurrentListSelection := PowerBiServiceMgt.FormatSpecialChars(CurrentSelection);
+        if not IsValueIntInput then
+            CurrentListSelection := '"' + CurrentListSelection + '"';
+
+        // Selection changed: send the latest message to the Addin again with the updated selection, if we have the filter info already
+        if LatestReceivedFilterInfo <> '' then
+            HandleAddinCallback(LatestReceivedFilterInfo);
     end;
 
-    local procedure StartLicenseTimer()
+    local procedure LoadOptInImage()
+    var
+        MediaRepository: Record "Media Repository";
     begin
-        if CheckingLicenseInBackground and IsTimerReady and not IsLicenseTimerActive and not IsTimerActive then begin
-            CurrentTimerCount := 0;
-            IsLicenseTimerActive := true;
-            CurrPage.DeployTimer.Ping(TimerDelay);
+        if not MediaResources."Media Reference".HasValue() then begin
+            if MediaRepository.Get(PowerBiOptInImageNameLbl, Format(ClientTypeManagement.GetCurrentClientType())) then
+                if MediaResources.Get(MediaRepository."Media Resources Ref") then
+                    exit;
+
+            Session.LogMessage('0000E4U', StrSubstNo(NoOptInImageTxt, PowerBiOptInImageNameLbl), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
         end;
     end;
 
-    local procedure CheckPowerBILicense()
-    begin
-        if not PowerBiServiceMgt.CheckForPowerBILicense then begin
-            CheckingLicenseInBackground := true;
-            StartLicenseTimer;
-        end;
-    end;
 }
 

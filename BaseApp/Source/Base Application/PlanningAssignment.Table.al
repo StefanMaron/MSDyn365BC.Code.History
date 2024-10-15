@@ -144,7 +144,7 @@ table 99000850 "Planning Assignment"
     begin
         ProductionBOMVersion.SetRange("Production BOM No.", ProductionBOMNo);
         ProductionBOMVersion.SetRange(Status, ProductionBOMVersion.Status::Certified);
-        UseVersions := ProductionBOMVersion.FindSet;
+        UseVersions := ProductionBOMVersion.FindSet();
 
         if ProductionBOMHeader.Get(ProductionBOMNo) and
            (ProductionBOMHeader.Status = ProductionBOMHeader.Status::Certified)
@@ -167,9 +167,9 @@ table 99000850 "Planning Assignment"
                     end else
                         if ProductionBOMLine.Type = ProductionBOMLine.Type::"Production BOM" then
                             OldBom(ProductionBOMLine."No.");
-                until ProductionBOMLine.Next = 0;
+                until ProductionBOMLine.Next() = 0;
             if UseVersions then
-                EndLoop := ProductionBOMVersion.Next = 0
+                EndLoop := ProductionBOMVersion.Next() = 0
             else
                 EndLoop := true;
         until EndLoop;
@@ -185,7 +185,7 @@ table 99000850 "Planning Assignment"
             repeat
                 if Item."Reordering Policy" <> Item."Reordering Policy"::" " then
                     AssignPlannedOrders(Item."No.", false);
-            until Item.Next = 0;
+            until Item.Next() = 0;
     end;
 
     procedure AssignPlannedOrders(ItemNo: Code[20]; CheckSKU: Boolean)
@@ -210,7 +210,7 @@ table 99000850 "Planning Assignment"
                 ProdOrderLine.FindLast;
                 ProdOrderLine.SetRange("Variant Code");
                 ProdOrderLine.SetRange("Location Code");
-            until ProdOrderLine.Next = 0;
+            until ProdOrderLine.Next() = 0;
 
         ReqLine.SetCurrentKey(Type, "No.", "Variant Code", "Location Code");
         ReqLine.SetRange(Type, ReqLine.Type::Item);
@@ -228,7 +228,7 @@ table 99000850 "Planning Assignment"
                 ReqLine.FindLast;
                 ReqLine.SetRange("Variant Code");
                 ReqLine.SetRange("Location Code");
-            until ReqLine.Next = 0;
+            until ReqLine.Next() = 0;
     end;
 
     procedure AssignOne(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; UpdateDate: Date)

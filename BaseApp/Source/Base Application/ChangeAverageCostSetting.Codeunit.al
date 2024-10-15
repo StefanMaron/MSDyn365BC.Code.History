@@ -13,7 +13,7 @@ codeunit 5810 "Change Average Cost Setting"
 
         Modify;
 
-        if AccPeriod.IsEmpty then
+        if AccPeriod.IsEmpty() then
             StartingValuationDate := CalcDate('<-CY>', WorkDate)
         else begin
             AccPeriod.SetRange("New Fiscal Year", true);
@@ -27,7 +27,7 @@ codeunit 5810 "Change Average Cost Setting"
                 AccPeriod."Average Cost Period" := "Average Cost Period";
                 AccPeriod."Average Cost Calc. Type" := "Average Cost Calc. Type";
                 AccPeriod.Modify();
-            until AccPeriod.Next = 0;
+            until AccPeriod.Next() = 0;
         end;
 
         ProcessItemsFromDate(StartingValuationDate);
@@ -79,7 +79,7 @@ codeunit 5810 "Change Average Cost Setting"
             repeat
                 if Item."Costing Method" = Item."Costing Method"::Average then
                     ProcessItemAvgCostPoint(Item, StartingValuationDate);
-            until Item.Next = 0;
+            until Item.Next() = 0;
     end;
 
     local procedure ProcessItemAvgCostPoint(var Item: Record Item; StartingValuationDate: Date)
@@ -114,7 +114,7 @@ codeunit 5810 "Change Average Cost Setting"
                     SetRange("Valuation Date");
                     SetRange("Location Code");
                     SetRange("Variant Code");
-                until Next = 0;
+                until Next() = 0;
                 Item."Cost is Adjusted" := false;
                 Item.Modify();
             end;
@@ -155,7 +155,7 @@ codeunit 5810 "Change Average Cost Setting"
         exit(false);
     end;
 
-    [EventSubscriber(ObjectType::Table, 50, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Accounting Period", 'OnAfterDeleteEvent', '', false, false)]
     local procedure UpdateAvgCostOnAfterDeleteAccountingPeriod(var Rec: Record "Accounting Period"; RunTrigger: Boolean)
     begin
         if not RunTrigger or Rec.IsTemporary then
@@ -164,7 +164,7 @@ codeunit 5810 "Change Average Cost Setting"
         UpdateAvgCostFromAccPeriodChg(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 50, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Accounting Period", 'OnAfterInsertEvent', '', false, false)]
     local procedure UpdateAvgCostOnAfterInsertAccountingPeriod(var Rec: Record "Accounting Period"; RunTrigger: Boolean)
     begin
         if not RunTrigger or Rec.IsTemporary then
@@ -173,7 +173,7 @@ codeunit 5810 "Change Average Cost Setting"
         UpdateAvgCostFromAccPeriodChg(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 50, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Accounting Period", 'OnAfterModifyEvent', '', false, false)]
     local procedure UpdateAvgCostOnAfterModifyAccountingPeriod(var Rec: Record "Accounting Period"; var xRec: Record "Accounting Period"; RunTrigger: Boolean)
     begin
         if not RunTrigger or Rec.IsTemporary then
@@ -182,7 +182,7 @@ codeunit 5810 "Change Average Cost Setting"
         UpdateAvgCostFromAccPeriodChg(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 50, 'OnAfterRenameEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Accounting Period", 'OnAfterRenameEvent', '', false, false)]
     local procedure UpdateAvgCostOnAfterRenameAccountingPeriod(var Rec: Record "Accounting Period"; var xRec: Record "Accounting Period"; RunTrigger: Boolean)
     var
         AccountingPeriod: Record "Accounting Period";

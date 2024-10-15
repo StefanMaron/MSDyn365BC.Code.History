@@ -29,7 +29,7 @@ codeunit 1660 "Payroll Management"
         TempServiceConnection.DeleteAll();
         OnRegisterPayrollService(TempServiceConnection);
 
-        if TempServiceConnection.IsEmpty then
+        if TempServiceConnection.IsEmpty() then
             Error(PayrollServiceNotFoundErr);
 
         if not EnabledPayrollServiceExists(TempServiceConnection) then begin
@@ -63,7 +63,7 @@ codeunit 1660 "Payroll Management"
             SetupPayrollService(TempServiceConnection);
             TempServiceConnection.DeleteAll();
             OnRegisterPayrollService(TempServiceConnection);
-            if not TempServiceConnection.IsEmpty then begin
+            if not TempServiceConnection.IsEmpty() then begin
                 TempServiceConnection.SetRange("Record ID", SelectedServiceRecordId);
                 if not EnabledPayrollServiceExists(TempServiceConnection) then
                     Error(PayrollServiceDisabledErr, SelectedServiceName);
@@ -88,7 +88,7 @@ codeunit 1660 "Payroll Management"
                 ServiceList := ConvertStr(TempServiceConnection.Name, ',', ' ')
             else
                 ServiceList := ServiceList + ',' + ConvertStr(TempServiceConnection.Name, ',', ' ');
-        until TempServiceConnection.Next = 0;
+        until TempServiceConnection.Next() = 0;
         SelectedServiceIndex := StrMenu(ServiceList, 1, Instruction);
 
         if SelectedServiceIndex > 0 then begin
@@ -101,17 +101,18 @@ codeunit 1660 "Payroll Management"
 
     local procedure SetupPayrollService(var TempServiceConnection: Record "Service Connection" temporary)
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         RecordRef: RecordRef;
         RecordRefVariant: Variant;
+        GuidedExperienceType: Enum "Guided Experience Type";
     begin
         RecordRef.Get(TempServiceConnection."Record ID");
         if (TempServiceConnection.Status <> TempServiceConnection.Status::Enabled) and
            (TempServiceConnection.Status <> TempServiceConnection.Status::Connected) and
            (TempServiceConnection."Assisted Setup Page ID" <> 0) and
-           (AssistedSetup.ExistsAndIsNotComplete(TempServiceConnection."Assisted Setup Page ID"))
+           (GuidedExperience.AssistedSetupExistsAndIsNotComplete(ObjectType::Page, TempServiceConnection."Assisted Setup Page ID"))
         then
-            AssistedSetup.Run(TempServiceConnection."Assisted Setup Page ID")
+            GuidedExperience.Run(GuidedExperienceType::"Assisted Setup", ObjectType::Page, TempServiceConnection."Assisted Setup Page ID")
         else begin
             RecordRefVariant := RecordRef;
             PAGE.RunModal(TempServiceConnection."Page ID", RecordRefVariant);
