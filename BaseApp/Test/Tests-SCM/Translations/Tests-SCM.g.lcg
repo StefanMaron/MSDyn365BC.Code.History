@@ -10922,6 +10922,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Item, %2 = Item 2, %3 = Item 3]D;]A;(LookupHint=Codeunit SCM Plan-Req. Wksht - NamedType ItemFilterLbl)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 901776604 - NamedType 1807004656" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1|%2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Item, %2 = Item 2]D;]A;(LookupHint=Codeunit SCM Plan-Req. Wksht - NamedType ItemFiltersLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 901776604 - NamedType 411971653" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You have modified Promised Receipt Date.]]></Val>
@@ -10947,6 +10956,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Plan-Req. Wksht - NamedType QtyRoundingErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 901776604 - NamedType 1473162410" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Quantity, %2 = Minimum Order Quanity, %3 = Requisition Line]D;]A;(LookupHint=Codeunit SCM Plan-Req. Wksht - NamedType QuantityErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 901776604 - NamedType 2631626152" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

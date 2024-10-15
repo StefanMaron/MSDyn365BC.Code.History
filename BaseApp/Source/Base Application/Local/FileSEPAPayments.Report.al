@@ -212,10 +212,15 @@ report 2000005 "File SEPA Payments"
     trigger OnPreReport()
     var
         XMLDOMManagement: Codeunit "XML DOM Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        SEPACTExportFile: Codeunit "SEPA CT-Export File";     
         XMLRootElement: DotNet XmlElement;
         XMLNodeCurr: DotNet XmlNode;
         XMLNewChild: DotNet XmlNode;
     begin
+        FeatureTelemetry.LogUptake('0000N2H', SEPACTExportFile.FeatureName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000N2I', SEPACTExportFile.FeatureName(), 'Report (BE) File SEPA Payments');
+
         EBSetup.Get();
         CompanyInfo.Get();
 

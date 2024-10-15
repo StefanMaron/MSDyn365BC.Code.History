@@ -198,10 +198,15 @@ report 2000006 "File Non Euro SEPA Payments"
     trigger OnPreReport()
     var
         XMLDOMManagement: Codeunit "XML DOM Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        SEPACTExportFile: Codeunit "SEPA CT-Export File";     
         XMLRootElement: DotNet XmlElement;
         XMLNodeCurr: DotNet XmlNode;
         XMLNewChild: DotNet XmlNode;
     begin
+        FeatureTelemetry.LogUptake('0000N2F', SEPACTExportFile.FeatureName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000N2G', SEPACTExportFile.FeatureName(), 'Report (BE) File Non Euro SEPA Payments');
+
         EBSetup.Get();
         CompanyInfo.Get();
 
