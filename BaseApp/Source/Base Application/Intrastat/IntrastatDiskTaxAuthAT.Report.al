@@ -121,7 +121,7 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                     Period := "Intrastat Jnl. Batch"."Statistics Period";
                     if not Evaluate(PeriodYear, CopyStr(Period, 1, 2)) then
                         Error(Text004, Period);
-                    Period4 := Format(PeriodYear) + Period;
+                    Period4 := '20' + Period;
 
                     // Check of OEstatnumber
                     CompanyInfo.TestField("Statistic No.");

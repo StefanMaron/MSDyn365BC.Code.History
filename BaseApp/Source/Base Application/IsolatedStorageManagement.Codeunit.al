@@ -5,6 +5,7 @@ codeunit 1293 "Isolated Storage Management"
     begin
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure Get("Key": Text; Datascope: DataScope; var Value: Text): Boolean
     begin
@@ -12,6 +13,7 @@ codeunit 1293 "Isolated Storage Management"
         exit(ISOLATEDSTORAGE.Get(CopyStr(Key, 1, 200), Datascope, Value));
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure Set("Key": Text; Value: Text; Datascope: DataScope): Boolean
     begin
