@@ -420,11 +420,11 @@ report 11794 "Balance Sheet CZL"
 
                             trigger OnLookup(var Text: Text): Boolean
                             var
-                                EntrdColumnName: Text[10];
+                                EntrdSchedName: Text[10];
                             begin
-                                EntrdColumnName := CopyStr(Text, 1, 10);
-                                if AccSchedManagement.LookupColumnName(AccSchedName, EntrdColumnName) then
-                                    AccSchedName := EntrdColumnName;
+                                EntrdSchedName := CopyStr(Text, 1, 10);
+                                if AccSchedManagement.LookupName(AccSchedName, EntrdSchedName) then
+                                    AccSchedName := EntrdSchedName;
                             end;
 
                             trigger OnValidate()

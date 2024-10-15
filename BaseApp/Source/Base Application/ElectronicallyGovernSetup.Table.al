@@ -45,7 +45,7 @@ table 11761 "Electronically Govern. Setup"
         {
             Caption = 'UncertaintyPayerWebService';
             ExtendedDatatype = URL;
-            InitValue = 'http://adisrws.mfcr.cz/adistc/axis2/services/rozhraniCRPDPH.rozhraniCRPDPHSOAP';
+            InitValue = 'https://adisrws.mfcr.cz/dpr/axis2/services/rozhraniCRPDPH.rozhraniCRPDPHSOAP';
         }
         field(81; "Public Bank Acc.Chck.Star.Date"; Date)
         {

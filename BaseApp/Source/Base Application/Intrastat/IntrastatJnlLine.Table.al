@@ -598,11 +598,11 @@ table 263 "Intrastat Jnl. Line"
         IntrastatJnlBatch.TestField(Reported, false);
     end;
 
-    procedure GetCountryOfOriginCode(): Code[10]
+    procedure GetCountryOfOriginCode() CountryOfOriginCode: Code[10]
     begin
-        if not Item.Get("Item No.") then
-            exit('');
-        exit(Item."Country/Region of Origin Code");
+        if Item.Get("Item No.") then
+            CountryOfOriginCode := Item."Country/Region of Origin Code";
+        OnAfterGetCountryOfOriginCode(Rec, CountryOfOriginCode);
     end;
 
     procedure GetPartnerID(): Text[50]
@@ -789,6 +789,11 @@ table 263 "Intrastat Jnl. Line"
     begin
         // NAVCZ
         OnCheckIntrastatJnlTemplateUserRestrictions(GetRangeMax("Journal Template Name"));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetCountryOfOriginCode(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; var CountryOfOriginCode: Code[10])
+    begin
     end;
 
     [IntegrationEvent(true, false)]

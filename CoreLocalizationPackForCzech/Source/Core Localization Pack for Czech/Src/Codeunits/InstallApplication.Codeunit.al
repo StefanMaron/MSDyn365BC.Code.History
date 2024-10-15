@@ -3028,7 +3028,7 @@ codeunit 11748 "Install Application CZL"
         end;
 
         PrevUnrelPayerServiceSetupCZL := UnrelPayerServiceSetupCZL;
-        UnrelPayerServiceSetupCZL."Unreliable Payer Web Service" := UnreliablePayerMgtCZL.GetUnreliablePayerServiceURL();
+        UnreliablePayerMgtCZL.SetDefaultUnreliablePayerServiceURL(UnrelPayerServiceSetupCZL);
         UnrelPayerServiceSetupCZL.Enabled := false;
         UnrelPayerServiceSetupCZL."Public Bank Acc.Chck.Star.Date" := 20140101D;
         UnrelPayerServiceSetupCZL."Public Bank Acc.Check Limit" := 700000;

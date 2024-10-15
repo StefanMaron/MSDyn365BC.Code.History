@@ -22,6 +22,7 @@ codeunit 134610 "Test User Group Permissions"
         WrongRoleIDErr: Label 'Wrong Role ID for User Group.';
         SubscriptionPlanTok: Label 'My subscription plan';
         XTestPermissionTxt: Label 'TEST PERMISSION';
+        LibrarySingleServer: Codeunit "Library - Single Server";
 
     [Test]
     [HandlerFunctions('ConfirmYes')]
@@ -61,7 +62,7 @@ codeunit 134610 "Test User Group Permissions"
         // Verify that the OnDelete trigger of table 9000 also deletes from table 9003.
         // Init
         LibraryPermissions.CreateUserGroup(UserGroup, '');
-        CreateUserGroupPermissionSet(UserGroupPermissionSet, UserGroup.Code, 'X');
+        CreateUserGroupPermissionSet(UserGroupPermissionSet, UserGroup.Code, CreateTenantPermissionSet);
         UserGroupPermissionSet.SetRange("User Group Code", UserGroup.Code);
         Assert.AreEqual(1, UserGroupPermissionSet.Count, '');
 
@@ -267,7 +268,7 @@ codeunit 134610 "Test User Group Permissions"
         CreateUserGroupPermissionSet(UserGroupPermissionSet, UserGroupCode, CreateTenantPermissionSet);
 
         // [WHEN] Rename User Group Permission Set from "P" to "P2"
-        NewRoleID := CreateTenantPermissionSet;
+        NewRoleID := CreateTenantPermissionSet()."Role ID";
         UserGroupPermissionSet.Rename(
           UserGroupPermissionSet."User Group Code", NewRoleID,
           UserGroupPermissionSet.Scope, UserGroupPermissionSet."App ID");
@@ -277,7 +278,7 @@ codeunit 134610 "Test User Group Permissions"
         VerifyUserGroupAccessControlCount(UserGroupCode, UserSecurityID, 1);
 
         FilterUserGroupAccessControl(UserGroupAccessControl, UserGroupCode, UserSecurityID);
-        UserGroupAccessControl.FindFirst;
+        UserGroupAccessControl.FindFirst();
         Assert.AreEqual(
           NewRoleID, UserGroupAccessControl."Role ID", UserGroupAccessControl.FieldCaption("Role ID"));
 
@@ -488,7 +489,7 @@ codeunit 134610 "Test User Group Permissions"
     begin
         // Test page 9816 which is a 'matrix'-like presentation of permission sets by users.
         // Init
-        LibraryPermissions.CreateUsersUserGroupsPermissionSets;
+        CreateUsersUserGroupsPermissionSets();
         LibraryPermissions.GetMyUser(User);
 
         // Execute
@@ -587,7 +588,7 @@ codeunit 134610 "Test User Group Permissions"
     begin
         // Test page 9837 which is a 'matrix'-like presentation of permission sets by user groups.
         // Init
-        LibraryPermissions.CreateUsersUserGroupsPermissionSets;
+        CreateUsersUserGroupsPermissionSets();
         UserGroup.FindFirst;
         LibraryPermissions.GetMyUser(User);
 
@@ -639,6 +640,34 @@ codeunit 134610 "Test User Group Permissions"
         TestCleanup;
     end;
 
+    local procedure CreateUsersUserGroupsPermissionSets()
+    var
+        User: Record User;
+        UserGroup: Record "User Group";
+        TenantPermissionSet: Record "Tenant Permission Set";
+        i: Integer;
+        NewCode: Text[20];
+    begin
+        // Creates a batch of test data, using other functions in this library
+        UserGroup.SetFilter(Code, 'TEST*');
+        UserGroup.DeleteAll(true);
+        UserGroup.SetRange(Code);
+        TenantPermissionSet.SetFilter("Role ID", 'TEST*');
+        TenantPermissionSet.DeleteAll(true);
+        Initialize;
+        for i := 1 to 15 do begin
+            NewCode := StrSubstNo('TEST%1', i);
+            User.SetRange("User Name", NewCode);
+            if User.IsEmpty() then
+                LibraryPermissions.CreateUser(User, NewCode, false);
+            if not UserGroup.Get(NewCode) then
+                LibraryPermissions.CreateUserGroup(UserGroup, NewCode);
+            TenantPermissionSet."App ID" := LibrarySingleServer.GetAppIdGuid();
+            if not TenantPermissionSet.Get(TenantPermissionSet."App ID", NewCode) then
+                LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, NewCode, TenantPermissionSet."App ID");
+        end;
+    end;
+
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -658,7 +687,7 @@ codeunit 134610 "Test User Group Permissions"
         // Test page 9838 which is a 'matrix'-like presentation of users by user groups.
         // Init
 
-        LibraryPermissions.CreateUsersUserGroupsPermissionSets;
+        CreateUsersUserGroupsPermissionSets();
         UserGroup.FindFirst;
         LibraryPermissions.GetMyUser(User);
         PlanID := AzureADPlanTestLibrary.CreatePlan(SubscriptionPlanTok);
@@ -1066,6 +1095,7 @@ codeunit 134610 "Test User Group Permissions"
         User: Record User;
         UserGroup: array[3] of Record "User Group";
         UserGroupPermissionSet: array[3] of Record "User Group Permission Set";
+        TenantPermissionSet: array[3] of Record "Tenant Permission Set";
         UserCard: TestPage "User Card";
     begin
         // [SCENARIO 225576] User Card page is updated on insert\modify\delete user groups subpage
@@ -1073,10 +1103,12 @@ codeunit 134610 "Test User Group Permissions"
 
         // [GIVEN] User group "A" with permission set "B"
         LibraryPermissions.CreateUserGroup(UserGroup[1], '');
-        CreateUserGroupPermissionSet(UserGroupPermissionSet[1], UserGroup[1].Code, 'B');
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet[1], 'TEST TOOL', LibrarySingleServer.GetAppIdGuid());
+        CreateUserGroupPermissionSet(UserGroupPermissionSet[1], UserGroup[1].Code, TenantPermissionSet[1]);
         // [GIVEN] User group "B" with permission set "A"
         LibraryPermissions.CreateUserGroup(UserGroup[2], '');
-        CreateUserGroupPermissionSet(UserGroupPermissionSet[2], UserGroup[2].Code, 'A');
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet[2], 'TEST TABLES', LibrarySingleServer.GetAppIdGuid());
+        CreateUserGroupPermissionSet(UserGroupPermissionSet[2], UserGroup[2].Code, TenantPermissionSet[2]);
 
         // [GIVEN] User card
         UserCard.OpenEdit;
@@ -1086,7 +1118,7 @@ codeunit 134610 "Test User Group Permissions"
         UserCard.UserGroups.UserGroupCode.SetValue(UserGroup[1].Code);
         UserCard.UserGroups.Next;
 
-        // [GIVEN] User permission set "B" has been added
+        // [GIVEN] User permission set "TEST TOOL" has been added
         UserCard.Permissions.First;
         UserCard.Permissions.PermissionSet.AssertEquals(UserGroupPermissionSet[1]."Role ID");
 
@@ -1096,7 +1128,8 @@ codeunit 134610 "Test User Group Permissions"
         UserCard.UserGroups.UserGroupCode.SetValue(UserGroup[2].Code);
         UserCard.UserGroups.Next;
 
-        // [THEN] User permission set "A" has been added and is shown as first record in "User Permission Sets" subpage
+        // [THEN] User permission set 'TEST TABLES' has been added and is shown as first record in "User Permission Sets" subpage
+        // (as 'TEST TABLES' > 'TEST TOOL' in alphabetical order)
         UserCard.Permissions.First;
         UserCard.Permissions.PermissionSet.AssertEquals(UserGroupPermissionSet[2]."Role ID");
         UserCard.Close;
@@ -1191,12 +1224,23 @@ codeunit 134610 "Test User Group Permissions"
         UserGroupCode := UserGroup.Code;
     end;
 
-    local procedure CreateUserGroupPermissionSet(var UserGroupPermissionSet: Record "User Group Permission Set"; UserGroupCode: Code[20]; RoleID: Code[20])
+    local procedure CreateUserGroupPermissionSet(var UserGroupPermissionSet: Record "User Group Permission Set"; UserGroupCode: Code[20]; TenantPermissionSet: Record "Tenant Permission Set")
+    begin
+        UserGroupPermissionSet.Init;
+        UserGroupPermissionSet."User Group Code" := UserGroupCode;
+        UserGroupPermissionSet."Role ID" := TenantPermissionSet."Role ID";
+        UserGroupPermissionSet."App ID" := TenantPermissionSet."App ID";
+        UserGroupPermissionSet.Scope := UserGroupPermissionSet.Scope::Tenant;
+        UserGroupPermissionSet.Insert(true);
+    end;
+
+    local procedure CreateUserGroupPermissionSet(var UserGroupPermissionSet: Record "User Group Permission Set"; UserGroupCode: Code[20]; RoleID: Code[20]; Scope: Option; AppID: Guid)
     begin
         UserGroupPermissionSet.Init();
         UserGroupPermissionSet."User Group Code" := UserGroupCode;
+        UserGroupPermissionSet.Scope := Scope;
         UserGroupPermissionSet."Role ID" := RoleID;
-        UserGroupPermissionSet."App ID" := CreateGuid();
+        UserGroupPermissionSet."App ID" := AppID;
         UserGroupPermissionSet.Insert(true);
     end;
 
@@ -1213,12 +1257,12 @@ codeunit 134610 "Test User Group Permissions"
         LibraryPermissions.AddPermissionSetToUserGroup(AggregatePermissionSet, UserGroup.Code);
     end;
 
-    local procedure CreateTenantPermissionSet(): Code[20]
+    local procedure CreateTenantPermissionSet(): Record "Tenant Permission Set"
     var
         TenantPermissionSet: Record "Tenant Permission Set";
     begin
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, '', CreateGuid());
-        exit(TenantPermissionSet."Role ID");
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, '', LibrarySingleServer.GetAppIdGuid());
+        exit(TenantPermissionSet);
     end;
 
     [Scope('OnPrem')]
@@ -1614,6 +1658,7 @@ codeunit 134610 "Test User Group Permissions"
         UserGroupPermissionSet."Role ID" := TenantPermissionSet."Role ID";
         UserGroupPermissionSet."User Group Code" := UserGroup.Code;
         UserGroupPermissionSet."App ID" := CreateGuid();
+        UserGroupPermissionSet.Scope := UserGroupPermissionSet.Scope::Tenant;
         UserGroupPermissionSet.Insert();
         Commit();
 
