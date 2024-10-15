@@ -2042,6 +2042,62 @@ codeunit 137068 "SCM Inventory Orders-II"
     end;
 
     [Test]
+    procedure PurchasingCodeFromItemToSalesInvoice()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Purchasing: Record Purchasing;
+    begin
+        // [FEATURE] [Sales] [Quote] [Purchasing Code] [UT]
+        // [SCENARIO 414638] Purchasing code copied to sales quote line from item card.
+        Initialize();
+
+        // [GIVEN] Item "I" with Purchasing Code = "PC".
+        LibraryPurchase.CreatePurchasingCode(Purchasing);
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Purchasing Code", Purchasing.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Sales quote. 
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
+
+        // [WHEN] Select the item "I" on the sales line.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        // [THEN] Sales line has Purchasing Line = "PC".
+        SalesLine.TestField("Purchasing Code", Item."Purchasing Code");
+    end;
+
+    [Test]
+    procedure PurchasingCodeFromItemToSalesBlanketOrder()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Purchasing: Record Purchasing;
+    begin
+        // [FEATURE] [Sales] [Quote] [Purchasing Code] [UT]
+        // [SCENARIO 414638] Purchasing code copied to sales quote line from item card.
+        Initialize();
+
+        // [GIVEN] Item "I" with Purchasing Code = "PC".
+        LibraryPurchase.CreatePurchasingCode(Purchasing);
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Purchasing Code", Purchasing.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Sales quote. 
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", '');
+
+        // [WHEN] Select the item "I" on the sales line.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        // [THEN] Sales line has Purchasing Line = "PC".
+        SalesLine.TestField("Purchasing Code", Item."Purchasing Code");
+    end;
+
+    [Test]
     procedure PurchasingCodeDoesNotCopyFromItemToSalesReturnOrderLine()
     var
         Item: Record Item;

@@ -377,6 +377,8 @@
                   SetupRecID, ErrorMessageMgt.GetFieldNo(SetupRecID.TableNo, ''),
                   ForwardLinkMgt.GetHelpCodeForAllowedPostingDate());
 
+            SalesHeader.CheckIfCompressPrepaymentCanBeUsed();
+
             if not CheckOpenPrepaymentLines(SalesHeader, DocumentType) then
                 Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 

@@ -28,6 +28,7 @@ codeunit 144058 "Test CH Small Features"
         GlobalFooterLabel: Text[30];
         GlobalFooterTxt: Text;
         ShipingDateTxt: Label 'Shipping Date';
+        CompressPrepaymentCannotBeUsedWithApplyInvRoundAmtToVATErr: Label 'You cannot use %1 for %2 %3 when %4 is enabled in %5.', Comment = '%1 - Compress Prepayment field caption, %2 - Document Type field value, %3 - No. field value, %4 - Apply Inv. Round. Amt. To VAT field caption, %5 - Sales & Receivables Setup table caption.';
 
     [Normal]
     local procedure ShipmentOnShipAndInvoice(ShipmentOnShipAndInvoice: Boolean)
@@ -620,6 +621,67 @@ codeunit 144058 "Test CH Small Features"
         VerifyPurchExtendedHeaderAndFooterData(HeaderLabel, HeaderTxt, FooterLabel, FooterTxt);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure S463717_CompressPrepaymentCannotBeUsedWithApplyInvRoundAmtToVAT()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [UT] [Apply Inv. Round. Amt. To VAT] [Compress Prepayment]
+        // [SCENARIO 283760] "Compress Prepayment" cannot be used in Sales Header when "Apply Inv. Round. Amt. To VAT" is enabled.
+        Initialize();
+
+        // [GIVEN] Set "Apply Inv. Round. Amt. To VAT" to true.
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Apply Inv. Round. Amt. To VAT" := true;
+        SalesReceivablesSetup.Modify(true);
+
+        // [WHEN] Create Sales Order 1.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+
+        // [THEN] Compress Prepayment is false.
+        SalesHeader.TestField("Compress Prepayment", false);
+        Clear(SalesHeader);
+
+        // [GIVEN] Set "Apply Inv. Round. Amt. To VAT" to false.
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Apply Inv. Round. Amt. To VAT" := false;
+        SalesReceivablesSetup.Modify(true);
+
+        // [WHEN] Create Sales Order 2.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+
+        // [THEN] Compress Prepayment is true.
+        SalesHeader.TestField("Compress Prepayment", true);
+
+        // [GIVEN] Set "Apply Inv. Round. Amt. To VAT" to true after Sales Order is created.
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Apply Inv. Round. Amt. To VAT" := true;
+        SalesReceivablesSetup.Modify(true);
+
+        // [GIVEN] Create Sales Line with Prepayment % = 1.
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
+        SalesLine.Validate("Prepayment %", 1);
+        SalesLine.Modify(true);
+
+        // [WHEN] Try to Post Prepayment Invoice.
+        SalesOrder.OpenEdit();
+        SalesOrder.GotoRecord(SalesHeader);
+        ErrorMessages.Trap();
+        SalesOrder.PostPrepaymentInvoice.Invoke(); // Uses ConfirmHandler.
+
+        // [THEN] Error is thrown that Compress Prepayment cannot be used with Apply Inv. Round. Amt. To VAT.
+        ErrorMessages.Description.AssertEquals(StrSubstNo(CompressPrepaymentCannotBeUsedWithApplyInvRoundAmtToVATErr, SalesHeader.FieldCaption("Compress Prepayment"), SalesHeader."Document Type", SalesHeader."No.", SalesReceivablesSetup.FieldCaption("Apply Inv. Round. Amt. To VAT"), SalesReceivablesSetup.TableCaption()));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test CH Small Features");
@@ -822,6 +884,12 @@ codeunit 144058 "Test CH Small Features"
         SalesOrderStatistics.TotalInclVAT_Invoicing.AssertEquals(AmtInclVAT);
     end;
 
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]

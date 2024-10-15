@@ -360,7 +360,12 @@
                       ShipToAddr.Name, ShipToAddr."Name 2", ShipToAddr.Address, ShipToAddr."Address 2",
                       ShipToAddr.City, ShipToAddr."Post Code", ShipToAddr.County, ShipToAddr."Country/Region Code");
                     "Ship-to Contact" := ShipToAddr.Contact;
-                    "Shipment Method Code" := ShipToAddr."Shipment Method Code";
+                    if ShipToAddr."Shipment Method Code" <> '' then
+                        "Shipment Method Code" := ShipToAddr."Shipment Method Code"
+                    else
+                        if "Sell-to Customer No." <> '' then
+                            if Cust.Get("Sell-to Customer No.") then
+                                "Shipment Method Code" := Cust."Shipment Method Code";
                     if ShipToAddr."Location Code" <> '' then
                         Validate("Location Code", ShipToAddr."Location Code");
                     OnValidateShipToCodeOnAfterCopyFromShipToAddr(Rec, ShipToAddr);

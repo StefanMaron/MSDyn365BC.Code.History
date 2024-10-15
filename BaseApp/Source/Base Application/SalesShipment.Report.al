@@ -581,6 +581,7 @@
             trigger OnAfterGetRecord()
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                FormatAddr.SetLanguageCode("Language Code");
 
                 PrepareHeader();
                 PrepareFooter();

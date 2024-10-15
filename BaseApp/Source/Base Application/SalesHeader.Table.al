@@ -1902,6 +1902,11 @@
         {
             Caption = 'Compress Prepayment';
             InitValue = true;
+
+            trigger OnValidate()
+            begin
+                CheckIfCompressPrepaymentCanBeUsed();
+            end;
         }
         field(133; "Prepayment Due Date"; Date)
         {
@@ -2228,7 +2233,7 @@
         {
             Caption = 'Received-from Country/Region Code';
             TableRelation = "Country/Region";
-        }        
+        }
         field(200; "Work Description"; BLOB)
         {
             Caption = 'Work Description';
@@ -3014,6 +3019,8 @@
         // Remove view filters so that the cards does not show filtered view notification
         SetView('');
 
+        UpdateDefaultCompressPrepaymentValue();
+
         OnAfterOnInsert(Rec);
     end;
 
@@ -3147,6 +3154,7 @@
         SalesHeaderCannotModifyLbl: Label 'Cannot modify Sales Header.', Locked = true;
         WarnZeroQuantitySalesPostingTxt: Label 'Warn before posting Sales lines with 0 quantity';
         WarnZeroQuantitySalesPostingDescriptionTxt: Label 'Warn before posting lines on Sales documents where quantity is 0.';
+        CompressPrepaymentCannotBeUsedWithApplyInvRoundAmtToVATErr: Label 'You cannot use %1 for %2 %3 when %4 is enabled in %5.', Comment = '%1 - Compress Prepayment field caption, %2 - Document Type field value, %3 - No. field value, %4 - Apply Inv. Round. Amt. To VAT field caption, %5 - Sales & Receivables Setup table caption.';
         CalledFromWhseDoc: Boolean;
 
     protected var
@@ -4818,6 +4826,7 @@
     var
         ShipToAddress: Record "Ship-to Address";
         IsHandled: Boolean;
+        IsShipmentMethodCodeAssigned: Boolean;
     begin
         IsHandled := false;
         OnBeforeGetShipmentMethodCode(Rec, IsHandled);
@@ -4825,15 +4834,18 @@
             exit;
 
         if "Ship-to Code" <> '' then begin
+            ShipToAddress.SetLoadFields("Shipment Method Code");
             ShipToAddress.Get("Sell-to Customer No.", "Ship-to Code");
-            if ShipToAddress."Shipment Method Code" <> '' then
+            if ShipToAddress."Shipment Method Code" <> '' then begin
                 Validate("Shipment Method Code", ShipToAddress."Shipment Method Code");
-        end else
-            if "Sell-to Customer No." <> '' then begin
-                GetCust("Sell-to Customer No.");
-                if Customer."Shipment Method Code" <> '' then
-                    Validate("Shipment Method Code", Customer."Shipment Method Code");
+                IsShipmentMethodCodeAssigned := true;
             end;
+        end;
+
+        if (not IsShipmentMethodCodeAssigned) and ("Sell-to Customer No." <> '') then begin
+            GetCust("Sell-to Customer No.");
+            Validate("Shipment Method Code", Customer."Shipment Method Code");
+        end;
     end;
 
     procedure GetShippingTime(CalledByFieldNo: Integer)
@@ -4982,7 +4994,7 @@
             exit;
         Rec."Rcvd-from Country/Region Code" := RcvdFromCountryRegionCode;
     end;
-    
+
     local procedure UpdateShipToCodeFromCust()
     var
         IsHandled: Boolean;
@@ -7753,6 +7765,32 @@
         CreateDimTableIDs(DefaultDimSource, TableID, No);
         OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
         CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+
+    local procedure UpdateDefaultCompressPrepaymentValue()
+    begin
+        if not "Compress Prepayment" then
+            exit;
+
+        GetSalesSetup();
+        if SalesSetup."Apply Inv. Round. Amt. To VAT" then
+            "Compress Prepayment" := false;
+    end;
+
+    internal procedure CheckIfCompressPrepaymentCanBeUsed()
+    begin
+        if not "Compress Prepayment" then
+            exit;
+
+        GetSalesSetup();
+        if SalesSetup."Apply Inv. Round. Amt. To VAT" then
+            Error(
+                ErrorInfo.Create(
+                    StrSubstNo(
+                        CompressPrepaymentCannotBeUsedWithApplyInvRoundAmtToVATErr, FieldCaption("Compress Prepayment"), "Document Type", "No.", SalesSetup.FieldCaption("Apply Inv. Round. Amt. To VAT"), SalesSetup.TableCaption()),
+                    true,
+                    Rec,
+                    Rec.FieldNo("Compress Prepayment")));
     end;
 
     [Obsolete('Temporary event for compatibility', '20.0')]

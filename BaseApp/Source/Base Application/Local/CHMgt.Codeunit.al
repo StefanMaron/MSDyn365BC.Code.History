@@ -166,7 +166,6 @@ codeunit 11503 CHMgt
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure ReplaceXMLNamespaceCaption(var TempBlob: Codeunit "Temp Blob"; OldCaption: Text; NewCaption: Text)
     var
         TypeHelper: Codeunit "Type Helper";
@@ -191,21 +190,24 @@ codeunit 11503 CHMgt
         OutStream.WriteText(XMLText);
     end;
 
-    [Scope('OnPrem')]
     procedure IsSwissSEPACTExport(GenJournalLine: Record "Gen. Journal Line"): Boolean
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         BankAccount: Record "Bank Account";
         BankExportImportSetup: Record "Bank Export/Import Setup";
+        BalAccountNo: Code[20];
     begin
         if GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name") then
-            if BankAccount.Get(GenJournalBatch."Bal. Account No.") then
-                if BankExportImportSetup.Get(BankAccount."Payment Export Format") then
-                    exit(BankExportImportSetup."Processing Codeunit ID" = CODEUNIT::"Swiss SEPA CT-Export File");
+            BalAccountNo := GenJournalBatch."Bal. Account No.";
+        if BalAccountNo = '' then
+            BalAccountNo := GenJournalLine."Bal. Account No.";
+
+        if BankAccount.Get(BalAccountNo) then
+            if BankExportImportSetup.Get(BankAccount."Payment Export Format") then
+                exit(BankExportImportSetup."Processing Codeunit ID" = Codeunit::"Swiss SEPA CT-Export File");
         exit(false);
     end;
 
-    [Scope('OnPrem')]
     procedure IsSwissSEPADDExport(DirectDebitCollectionNo: Integer): Boolean
     var
         DirectDebitCollection: Record "Direct Debit Collection";
@@ -218,7 +220,6 @@ codeunit 11503 CHMgt
                     exit(BankExportImportSetup."Processing Codeunit ID" = CODEUNIT::"Swiss SEPA DD-Export File");
     end;
 
-    [Scope('OnPrem')]
     procedure IsSwissSEPACTImport(BankAccountNo: Code[20]): Boolean
     var
         BankAccount: Record "Bank Account";
@@ -231,7 +232,6 @@ codeunit 11503 CHMgt
                   [CODEUNIT::"SEPA CAMT 053 Bank Rec. Lines", CODEUNIT::"SEPA CAMT 054 Bank Rec. Lines"]);
     end;
 
-    [Scope('OnPrem')]
     procedure IsDomesticIBAN(IBAN: Code[50]): Boolean
     var
         DtaMgt: Codeunit DtaMgt;
@@ -239,7 +239,6 @@ codeunit 11503 CHMgt
         exit(CopyStr(DtaMgt.IBANDELCHR(IBAN), 1, 2) in ['CH', 'LI']);
     end;
 
-    [Scope('OnPrem')]
     procedure IsDomesticCurrency(CurrencyCode: Code[10]): Boolean
     var
         DtaMgt: Codeunit DtaMgt;
@@ -247,7 +246,6 @@ codeunit 11503 CHMgt
         exit(DtaMgt.GetIsoCurrencyCode(CurrencyCode) in ['CHF', 'EUR']);
     end;
 
-    [Scope('OnPrem')]
     procedure IsSEPACountry(CountryCode: Code[10]): Boolean
     var
         CountryRegion: Record "Country/Region";
@@ -261,7 +259,6 @@ codeunit 11503 CHMgt
            'MT', 'MC', 'NL', 'NO', 'AT', 'PL', 'PT', 'RO', 'SE', 'CH', 'SK', 'SI', 'ES', 'CZ', 'HU', 'CY']);
     end;
 
-    [Scope('OnPrem')]
     procedure IsESRFormat(RefNo: Text): Boolean
     var
         BankMgt: Codeunit BankMgt;
@@ -342,7 +339,6 @@ codeunit 11503 CHMgt
         exit('957D62D7-3D00-4C8F-A3B0-D14DBC9EC4FD');
     end;
 
-    [Scope('OnPrem')]
     procedure NoOfPaymentsForBatchBooking(): Integer
     begin
         exit(50);

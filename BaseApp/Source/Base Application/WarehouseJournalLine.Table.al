@@ -1269,7 +1269,7 @@ table 7311 "Warehouse Journal Line"
         if IsHandled then
             exit;
 
-        if ("Line No." <> 0) and IsReclass("Journal Template Name") then begin
+        if IsReclass("Journal Template Name") then begin
             LookupItemTracking(WhseItemTrackingSetup);
             BinCode := WMSMgt.BinContentLookUp("Location Code", "Item No.", "Variant Code", "Zone Code", WhseItemTrackingSetup, "Bin Code");
         end else

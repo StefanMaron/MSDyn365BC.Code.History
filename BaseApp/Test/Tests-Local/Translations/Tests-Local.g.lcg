@@ -1454,6 +1454,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test CH Small Features - NamedType AccountTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 994930039 - NamedType 2695165310" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot use %1 for %2 %3 when %4 is enabled in %5.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Compress Prepayment field caption, %2 - Document Type field value, %3 - No. field value, %4 - Apply Inv. Round. Amt. To VAT field caption, %5 - Sales & Receivables Setup table caption.]D;]A;(LookupHint=Codeunit Test CH Small Features - NamedType CompressPrepaymentCannotBeUsedWithApplyInvRoundAmtToVATErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 994930039 - NamedType 1116795642" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Shipping Date]]></Val>

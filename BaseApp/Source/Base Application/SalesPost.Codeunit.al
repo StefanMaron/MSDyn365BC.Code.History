@@ -636,6 +636,9 @@
 
             CheckVATDate(SalesHeader);
 
+            if (SalesHeader."Last Prepayment No." <> '') or (SalesHeader."Last Prepmt. Cr. Memo No." <> '') then
+                SalesHeader.CheckIfCompressPrepaymentCanBeUsed();
+
             if LogErrorMode then
                 SetLogErrorModePostingFlags(SalesHeader)
             else
