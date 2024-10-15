@@ -16,6 +16,7 @@ report 321 "Vendor - Balance to Date"
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
+    WordMergeDataItem = Vendor;
 
     dataset
     {

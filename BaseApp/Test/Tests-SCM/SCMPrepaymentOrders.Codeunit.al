@@ -215,6 +215,121 @@ codeunit 137160 "SCM Prepayment Orders"
             LibraryERM.GetAmountRoundingPrecision) / CurrencyFactor); // Value required for the test.
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckPrepaymentWhenPostingWhseReceiptWithOverReceipt()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        GeneralPostingSetup: Record "General Posting Setup";
+        Location: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+    begin
+        // [FEATURE] [Prepayment] [Over-Receipt] [Warehouse Receipt]
+        // [SCENARIO 483707] Check that the prepayment invoice is posted when posting a warehouse receipt with over-receipt.
+        Initialize();
+
+        // [GIVEN] Set up item, vendor, and g/l account for posting prepayment.
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type");
+        CreateItemWithVendorNoAndReorderingPolicy(Item, '', Item."Reordering Policy"::" ");
+        UpdateVATProdPostingGroupOnItem(Item, VATPostingSetup."VAT Prod. Posting Group");
+        CreateVendorWithVATBusPostingGroup(Vendor, VATPostingSetup."VAT Bus. Posting Group");
+        GeneralPostingSetup.Get(Vendor."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
+        UpdateGLAccount(Item, GeneralPostingSetup."Purch. Prepayments Account");
+
+        // [GIVEN] Set up location for posting warehouse receipt.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, true, false);
+
+        // [GIVEN] Create purchase order, post prepayment invoice, and release the order.
+        CreateAndReleasePurchaseOrderWithPostPrepaymentInvoice(PurchaseHeader, PurchaseLine, Vendor."No.", Item."No.", 100, Location.Code);
+
+        // [GIVEN] Create warehouse receipt and set Over-Receipt Quantity on the warehouse receipt line.
+        CreateWarehouseReceipt(PurchaseHeader);
+        FindWarehouseReceiptLine(WarehouseReceiptLine, PurchaseHeader."No.", Item."No.");
+        WarehouseReceiptLine.Validate("Over-Receipt Quantity", 1);
+        WarehouseReceiptLine.Modify(true);
+
+        // [WHEN] Post the warehouse receipt.
+        // [THEN] Posting fails because of missing prepayment invoice.
+        Commit();
+        asserterror PostWarehouseReceipt(PurchaseHeader."No.", Item."No.");
+        Assert.ExpectedError('prepayment');
+
+        // [THEN] Post the prepayment invoice for the over-receipt quantity.
+        PurchaseHeader.Find();
+        UpdateVendorInvoiceNoOnPurchaseHeader(PurchaseHeader);
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [THEN] Now the warehouse receipt can be posted.
+        PostWarehouseReceipt(PurchaseHeader."No.", Item."No.");
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckPrepaymentWhenPostingInventoryPutawayWithOverReceipt()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        GeneralPostingSetup: Record "General Posting Setup";
+        Location: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+    begin
+        // [FEATURE] [Prepayment] [Over-Receipt] [Inventory Put-away]
+        // [SCENARIO 483707] Check that the prepayment invoice is posted when posting an inventory put-away with over-receipt.
+        Initialize();
+
+        // [GIVEN] Set up item, vendor, and g/l account for posting prepayment.
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type");
+        CreateItemWithVendorNoAndReorderingPolicy(Item, '', Item."Reordering Policy"::" ");
+        UpdateVATProdPostingGroupOnItem(Item, VATPostingSetup."VAT Prod. Posting Group");
+        CreateVendorWithVATBusPostingGroup(Vendor, VATPostingSetup."VAT Bus. Posting Group");
+        GeneralPostingSetup.Get(Vendor."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
+        UpdateGLAccount(Item, GeneralPostingSetup."Purch. Prepayments Account");
+
+        // [GIVEN] Set up location for posting inventory put-away.
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, false, false, false);
+
+        // [GIVEN] Create purchase order, post prepayment invoice, and release the order.
+        CreateAndReleasePurchaseOrderWithPostPrepaymentInvoice(PurchaseHeader, PurchaseLine, Vendor."No.", Item."No.", 100, Location.Code);
+
+        // [GIVEN] Create inventory put-away and set Over-Receipt Quantity on the put-away line.
+        LibraryWarehouse.CreateInvtPutPickPurchaseOrder(PurchaseHeader);
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.",
+          WarehouseActivityLine."Activity Type"::"Invt. Put-away");
+        WarehouseActivityLine.Validate("Over-Receipt Quantity", 1);
+        WarehouseActivityLine.Modify(true);
+
+        // [WHEN] Post the inventory put-away.
+        // [THEN] Posting fails because of missing prepayment invoice.
+        Commit();
+        asserterror PostInventoryActivity(WarehouseActivityLine."Source Document", WarehouseActivityLine."Source No.", WarehouseActivityLine."Activity Type");
+        Assert.ExpectedError('prepayment');
+
+        // [THEN] Post the prepayment invoice for the over-receipt quantity.
+        PurchaseHeader.Find();
+        UpdateVendorInvoiceNoOnPurchaseHeader(PurchaseHeader);
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [THEN] Now the inventory put-away can be posted.
+        PostInventoryActivity(WarehouseActivityLine."Source Document", WarehouseActivityLine."Source No.", WarehouseActivityLine."Activity Type");
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Prepayment Orders");
@@ -593,6 +708,16 @@ codeunit 137160 "SCM Prepayment Orders"
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
 
+    local procedure PostInventoryActivity(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        FindWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, ActivityType);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
+    end;
+
     local procedure UpdateBinCodeOnPutAwayLine(Bin: Record Bin; SourceNo: Code[20])
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -682,6 +807,11 @@ codeunit 137160 "SCM Prepayment Orders"
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualErr);
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(Message: Text)
+    begin
     end;
 }
 

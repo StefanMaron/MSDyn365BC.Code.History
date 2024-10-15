@@ -13,6 +13,7 @@ report 752 "Work Order"
     DefaultLayout = RDLC;
     RDLCLayout = './Sales/Document/WorkOrder.rdlc';
     Caption = 'Work Order';
+    WordMergeDataItem = "Sales Header";
 
     dataset
     {

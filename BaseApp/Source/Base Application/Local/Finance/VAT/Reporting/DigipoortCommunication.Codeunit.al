@@ -57,8 +57,14 @@ codeunit 11000054 "Digipoort Communication"
         DigipoortOnpremCommunication: Codeunit "Digipoort Onprem Communication";
         DigipoortSaaSCommunication: Codeunit "Digipoort SaaS Communication";
         EnvironmentInformation: Codeunit "Environment Information";
+        IsHandled: Boolean;
     begin
         if Initialized then
+            exit;
+
+        IsHandled := false;
+        OnBeforeInit(DigiPoortCommunication, IsHandled);
+        if IsHandled then
             exit;
 
         if EnvironmentInformation.IsSaaS() then
@@ -67,5 +73,10 @@ codeunit 11000054 "Digipoort Communication"
             DigiPoortCommunication := DigipoortOnpremCommunication;
 
         Initialized := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInit(var DigiPoortCommunication: Interface "DigiPoort Communication"; var IsHandled: Boolean)
+    begin
     end;
 }

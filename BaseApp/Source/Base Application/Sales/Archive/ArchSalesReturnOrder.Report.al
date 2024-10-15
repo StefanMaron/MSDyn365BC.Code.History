@@ -23,6 +23,7 @@ report 418 "Arch. Sales Return Order"
     DefaultLayout = RDLC;
     RDLCLayout = './Sales/Archive/ArchSalesReturnOrder.rdlc';
     Caption = 'Arch. Sales Return Order';
+    WordMergeDataItem = "Sales Header Archive";
 
     dataset
     {

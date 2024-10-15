@@ -33,6 +33,7 @@ codeunit 137048 "SCM Warehouse II"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
         WarehouseShipmentNo: Code[20];
         NewUnitOfMeasure: Code[10];
         isInitialized: Boolean;
@@ -2423,6 +2424,87 @@ codeunit 137048 "SCM Warehouse II"
 
         // [VERIFY] Verify Location Code in Registered Warehouse Put-away.
         Assert.AreEqual(WarehouseActivityHeader."Location Code", RegisteredWhseActivityHdr."Location Code", LocationCodeMustMatchErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyConfirmationDialogOpenPostedPurchaseInvoiceWhenPurchaseInvoiceCreatedWithReceiptNo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+        PurchaseHeader2: Record "Purchase Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
+    begin
+        // [SCENARIO 487977] Confirmation dialogue in Purchase Invoices after Posting is missing
+        Initialize();
+
+        // [GIVEN] Setup: Create a Purchase Order, create and post Warehouse Receipt
+        CreateItem(Item);
+        UpdatePurchaseInvoiceNoSeries(true);
+        CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, LocationRed.Code, Item."No.");
+
+        // [GIVEN] Create adn post Warehouse Receipt
+        CreateAndPostWhseReceiptFromPO(PurchaseHeader);
+        FindPurchaseReceiptLine(PurchRcptLine, PurchaseHeader."No.");
+
+        // [THEN] Create Purchase Invoice with Receipt No.
+        CreatePurchaseInvoiceWithReceiptNo(PurchaseHeader2, PurchaseHeader, PurchRcptLine."Document No.");
+
+        // [THEN] Open Purchase Invoice Page and Post the Invoice 
+        PostedPurchaseInvoice.Trap();
+        PurchaseInvoice.OpenView;
+        PurchaseInvoice.Filter.SetFilter("No.", PurchaseHeader2."No.");
+        LibrarySales.EnableWarningOnCloseUnpostedDoc();
+        LibrarySales.EnableConfirmOnPostingDoc();
+        PurchaseInvoice.Post.Invoke();
+
+        // [VERIFY] Verify: The posted document opened in the Posted Purchase Invoice page
+        PostedPurchaseInvoice.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyConfirmationDialogOpenPostedPurchInvWhenPurchInvCreatedWithReceiptNoAndPostedFromPurchaseInvoicesList()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+        PurchaseHeader2: Record "Purchase Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchaseInvoices: TestPage "Purchase Invoices";
+        PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
+    begin
+        // [SCENARIO 487977] Confirmation dialogue in Purchase Invoices after Posting is missing
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
+
+        // [GIVEN] Setup: Create a Purchase Order, create and post Warehouse Receipt
+        CreateItem(Item);
+        UpdatePurchaseInvoiceNoSeries(true);
+        CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, LocationRed.Code, Item."No.");
+
+        // [GIVEN] Create adn post Warehouse Receipt
+        CreateAndPostWhseReceiptFromPO(PurchaseHeader);
+        FindPurchaseReceiptLine(PurchRcptLine, PurchaseHeader."No.");
+
+        // [THEN] Create Purchase Invoice with Receipt No.
+        CreatePurchaseInvoiceWithReceiptNo(PurchaseHeader2, PurchaseHeader, PurchRcptLine."Document No.");
+
+        // [THEN] Open Purchase Invoices List Page and Post the Invoice 
+        PostedPurchaseInvoice.Trap();
+        PurchaseInvoices.OpenView;
+        PurchaseInvoices.Filter.SetFilter("No.", PurchaseHeader2."No.");
+        LibrarySales.EnableWarningOnCloseUnpostedDoc();
+        LibrarySales.EnableConfirmOnPostingDoc();
+        PurchaseInvoices.PostSelected.Invoke(); //.Post.Invoke();
+
+        // [VERIFY] Verify: The posted document opened in the Posted Purchase Invoice page
+        PostedPurchaseInvoice.Close();
     end;
 
     local procedure Initialize()

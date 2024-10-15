@@ -566,6 +566,8 @@ codeunit 6223 "OpenXML Management"
     [Scope('OnPrem')]
     procedure WriteCellValue(var WrkShtWriter: DotNet WorksheetWriter; DataColumnDataType: Text; var DataRow: DotNet DataRow; RowsCount: Integer; ColumnsCount: Integer)
     begin
+        OnBeforeWriteCellValue(RowsCount);
+
         case DataColumnDataType of
             'System.DateTime':
                 WrkShtWriter.SetCellValueDate(
@@ -606,6 +608,11 @@ codeunit 6223 "OpenXML Management"
     local procedure CreateCommentVmlAnchor(ColId: Integer; RowId: Integer): Text
     begin
         exit(StrSubstNo(VmlShapeAnchorTxt, ColId, RowId - 2, ColId + 2, RowId + 5));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeWriteCellValue(var RowsCount: Integer)
+    begin
     end;
 }
 

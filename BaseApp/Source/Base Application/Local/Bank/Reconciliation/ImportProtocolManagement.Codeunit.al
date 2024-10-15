@@ -42,7 +42,6 @@ codeunit 11000005 "Import Protocol Management"
     var
         ImportProtocol: Record "Import Protocol";
 
-    [Scope('OnPrem')]
     procedure GetCurrentImportProtocol(var ImportProtocol: Record "Import Protocol"): Boolean
     begin
         ImportProtocol.Reset();
