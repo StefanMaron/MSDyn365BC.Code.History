@@ -611,6 +611,7 @@ page 5330 "CRM Connection Setup"
 
     var
         CRMProductName: Codeunit "CRM Product Name";
+        [NonDebuggable]
         CRMPassword: Text;
         ResetIntegrationTableMappingConfirmQst: Label 'This will delete all existing integration table mappings and %1 synchronization jobs and install the default integration table mappings and jobs for %1 synchronization.\\Are you sure that you want to continue?', Comment = '%1 = CRM product name';
         ConfirmGenerateIntegrationIdsQst: Label 'You are about to add integration data to tables. This process may take several minutes. Do you want to continue?';

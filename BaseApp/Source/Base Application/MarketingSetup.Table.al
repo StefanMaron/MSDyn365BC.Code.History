@@ -394,6 +394,7 @@ table 5079 "Marketing Setup"
         Stream.ReadText(Return);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure SetExchangeAccountPassword(Password: Text)
     begin
@@ -413,6 +414,7 @@ table 5079 "Marketing Setup"
         IsolatedStorageManagement.Set("Exchange Account Password Key", Password, DATASCOPE::Company);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure CreateExchangeAccountCredentials(var WebCredentials: DotNet WebCredentials)
     var

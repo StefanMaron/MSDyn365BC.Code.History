@@ -188,7 +188,7 @@ table 414 "IC Outbox Transaction"
         HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
         ICOutboxTransaction2: Record "IC Outbox Transaction";
         Text001: Label 'Transaction No. %2 is a copy of Transaction No. %1, which has already been set to Send to IC Partner.\Do you also want to send Transaction No. %2?';
-        Text002: Label 'A copy of Transaction No. %1 has already been sent to IC Partner and is now in the Handled IC Outbox Transactions window.\Do you also want to send Transaction No. %1?';
+        TransactionAlreadyExistsInOutboxHandledQst: Label '%1 %2 has already been sent to intercompany partner %3. Resending it will create a duplicate %1 for them. Do you want to send it again?', Comment = '%1 - Document Type, %2 - Document No, %3 - IC parthner code';
         ConfirmManagement: Codeunit "Confirm Management";
         IsHandled: Boolean;
     begin
@@ -201,7 +201,12 @@ table 414 "IC Outbox Transaction"
         HandledICOutboxTrans.SetRange("Document Type", "Document Type");
         HandledICOutboxTrans.SetRange("Document No.", "Document No.");
         if HandledICOutboxTrans.FindFirst then
-            if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text002, "Transaction No."), true) then
+            if not ConfirmManagement.GetResponseOrDefault(
+                StrSubstNo(
+                    TransactionAlreadyExistsInOutboxHandledQst, HandledICOutboxTrans."Document Type",
+                    HandledICOutboxTrans."Document No.", HandledICOutboxTrans."IC Partner Code"),
+                true)
+            then
                 Error('');
 
         ICOutboxTransaction2.SetRange("Source Type", "Source Type");

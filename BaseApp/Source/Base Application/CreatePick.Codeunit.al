@@ -400,6 +400,7 @@
     local procedure FindBWPickBin(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ToBinCode: Code[20]; UnitofMeasureCode: Code[10]; QtyPerUnitofMeasure: Decimal; DefaultBin: Boolean; CrossDockBin: Boolean; var TotalQtyToPick: Decimal; var TotalQtyToPickBase: Decimal; var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary)
     var
         FromBinContent: Record "Bin Content";
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
         QtyAvailableBase: Decimal;
         QtyToPickBase: Decimal;
         QtytoPick: Decimal;
@@ -436,8 +437,10 @@
                     AddToFilterText(BinCodeFilterText, '&', '<>', ToBinCode);
                 if BinCodeFilterText <> '' then
                     SetFilter("Bin Code", BinCodeFilterText);
-                if WhseItemTrkgExists then
-                    SetTrackingFilterFromWhseItemTrackingLine(TempWhseItemTrackingLine);
+                if WhseItemTrkgExists then begin
+                    WhseItemTrackingSetup.CopyTrackingFromWhseItemTrackingLine(TempWhseItemTrackingLine);
+                    SetTrackingFilterFromItemTrackingSetupIfRequiredWithBlank(WhseItemTrackingSetup);
+                end;
             end;
 
             IsHandled := false;
@@ -599,8 +602,6 @@
         GetBin(LocationCode, ToBinCode);
         GetLocation(LocationCode);
 
-        WhseItemTrackingSetup."Serial No. Required" := true;
-        WhseItemTrackingSetup."Lot No. Required" := true;
         WhseItemTrackingSetup.CopyTrackingFromWhseItemTrackingLine(TempWhseItemTrackingLine);
 
         if FromBinContent.GetBinContent(

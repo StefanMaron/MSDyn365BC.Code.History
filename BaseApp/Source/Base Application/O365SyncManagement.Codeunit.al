@@ -57,6 +57,7 @@ codeunit 6700 "O365 Sync. Management"
         end;
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure IsO365Setup(AddOnTheFly: Boolean): Boolean
     var
@@ -163,6 +164,7 @@ codeunit 6700 "O365 Sync. Management"
           ActivityDescription, ActivityMessage, UserID);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure BuildBookingsConnectionString(var BookingSync: Record "Booking Sync") ConnectionString: Text
     var
@@ -192,6 +194,7 @@ codeunit 6700 "O365 Sync. Management"
             ConnectionString := StrSubstNo('%1;{Uri}=%2', ConnectionString, ExchangeSync.GetExchangeEndpoint);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure BuildExchangeConnectionString(var ExchangeSync: Record "Exchange Sync") ConnectionString: Text
     var
@@ -324,6 +327,7 @@ codeunit 6700 "O365 Sync. Management"
         end;
     end;
 
+    [NonDebuggable]
     local procedure CreateExchangeAccountCredentials(var ExchangeSync: Record "Exchange Sync"; var Credentials: DotNet ExchangeCredentials)
     var
         User: Record User;
@@ -392,6 +396,7 @@ codeunit 6700 "O365 Sync. Management"
         ExchangeConnectionString := NewConnectionString;
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     local procedure GetPasswordOrToken(ExchangeSync: Record "Exchange Sync"; var Password: Text; var Token: Text): Boolean
     var
