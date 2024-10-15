@@ -1,0 +1,2085 @@
+codeunit 137212 "SCM Copy Document Mgt."
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [Copy Document]
+        IsInitialized := false;
+    end;
+
+    var
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryAssembly: Codeunit "Library - Assembly";
+        Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        CopyDocumentMgt: Codeunit "Copy Document Mgt.";
+        LibraryDimension: Codeunit "Library - Dimension";
+        LibraryResource: Codeunit "Library - Resource";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryRandom: Codeunit "Library - Random";
+        IsInitialized: Boolean;
+        SalesDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
+        MsgCorrectedInvoiceNo: Label 'have a Corrected Invoice No. Do you want to continue?';
+        WrongDimensionsCopiedErr: Label 'Wrong dimensions in copied document';
+        PurchDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
+        ItemTrackingMode: Option "Assign Lot No.","Select Entries","Assign Serial Nos.";
+
+    local procedure CopyDocument(SourceType: Option; SourceUnpostedType: Option; DestType: Option)
+    var
+        SalesHeader: Record "Sales Header";
+        SourceNo: Code[20];
+        DestNo: Code[20];
+    begin
+        Initialize;
+        SourceNo := CreateSourceDocument(SourceType, SourceUnpostedType);
+        CreateEmptySalesHeader(SalesHeader, DestType);
+        DestNo := CopyToDestinationSalesDocument(SourceType, SourceNo, SalesHeader);
+        VerifyCopy(SourceType, SourceNo, DestType, DestNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopySalesOrderToSalesOrder()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        CopyDocument(SalesDocType::Order, SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Order);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyQuoteToSalesOrder()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        CopyDocument(SalesDocType::Quote, SalesHeader."Document Type"::Quote, SalesHeader."Document Type"::Order);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyInvoiceToReturnOrder()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        CopyDocument(SalesDocType::"Posted Invoice", SalesHeader."Document Type"::Order, SalesHeader."Document Type"::"Return Order");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyShipmentToQuote()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        CopyDocument(SalesDocType::"Posted Shipment", SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Quote);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyReturnOrderToCrMemo()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        CopyDocument(
+          SalesDocType::"Return Order", SalesHeader."Document Type"::"Return Order", SalesHeader."Document Type"::"Credit Memo");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CopyCrMemoToInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        ExecuteConfirmHandler;
+        CopyDocument(
+          SalesDocType::"Posted Credit Memo", SalesHeader."Document Type"::"Return Order", SalesHeader."Document Type"::Invoice);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CopyReceiptToBlanketOrder()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        ExecuteConfirmHandler;
+        CopyDocument(SalesDocType::"Posted Return Receipt",
+          SalesHeader."Document Type"::"Return Order", SalesHeader."Document Type"::"Blanket Order");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyItemChargeAssignment()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesHeader2: Record "Sales Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        SourceNo: Code[20];
+    begin
+        // [FEATURE] [Item Charge]
+        Initialize;
+
+        SourceNo := CreateSourceDocument(SalesDocType::"Posted Shipment", SalesHeader."Document Type"::Order);
+        SalesShipmentHeader.Get(SourceNo);
+        SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
+        SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
+        SalesShipmentLine.FindFirst;
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SalesShipmentHeader."Sell-to Customer No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", CreateItemCharge, 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(10000) / 100);
+        SalesLine.Modify(true);
+        LibraryInventory.CreateItemChargeAssignment(ItemChargeAssignmentSales,
+          SalesLine, ItemChargeAssignmentSales."Applies-to Doc. Type"::Shipment,
+          SalesShipmentLine."Document No.", SalesShipmentLine."Line No.", SalesShipmentLine."No.");
+
+        LibrarySales.CreateSalesHeader(SalesHeader2,
+          SalesHeader2."Document Type"::Order, SalesShipmentHeader."Sell-to Customer No.");
+
+        CopyDocumentMgt.CopySalesDoc(SalesDocType::Order,
+          SalesHeader."No.", SalesHeader2);
+
+        VerifyShipmntItemChargeAssngmt(SalesHeader2, SalesShipmentLine."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestOverwriteHeader()
+    var
+        SalesHeader: Record "Sales Header";
+        SourceType: Option;
+        DestType: Option;
+        SourceNo: Code[20];
+        DestNo: Code[20];
+        ExpectedErrorMsg: Text[50];
+    begin
+        Initialize;
+
+        SourceType := SalesDocType::Order;
+        DestType := SalesHeader."Document Type"::Order;
+        SourceNo := CreateSourceDocument(SourceType, SalesHeader."Document Type"::Order);
+
+        LibrarySales.CreateSalesHeader(SalesHeader,
+          CopyDocumentMgt.SalesHeaderDocType(SourceType), CreateCustomer);
+        DestNo := CopyToDestinationSalesDocument(SourceType, SourceNo, SalesHeader);
+        VerifyCopy(SourceType, SourceNo, DestType, DestNo);
+
+        CopyDocumentMgt.SetProperties(false, true, false, false, true, false, false);
+        Clear(SalesHeader);
+        LibrarySales.CreateSalesHeader(SalesHeader,
+          CopyDocumentMgt.SalesHeaderDocType(SourceType), CreateCustomer);
+
+        DestNo := CopyToDestinationSalesDocument(SourceType, SourceNo, SalesHeader);
+
+        asserterror VerifyCopy(SourceType, SourceNo, DestType, DestNo);
+
+        ExpectedErrorMsg := 'Sell-to Customer No. must be equal to';
+
+        Assert.AreEqual(CopyStr(GetLastErrorText, 1, StrLen(ExpectedErrorMsg)), ExpectedErrorMsg,
+          StrSubstNo('Unexpected error message when validating copied header. Got %1, expected %2.',
+            GetLastErrorText, ExpectedErrorMsg));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopySalesQuoteWithoutCustomer()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+    begin
+        // [SCENARIO 71922] No error occurs while creating Sales Quote from Copy Document.
+        // [GIVEN] Create Sales Quote without Sell-to Customer No.
+        Initialize;
+        CreateSalesQuote(SalesHeader);
+        CreateEmptySalesHeader(SalesHeader2, SalesHeader2."Document Type"::Quote);
+
+        // [WHEN] Create a Sales Quote with Copy Document.
+        CopyDocumentMgt.CopySalesDoc(SalesDocType::Quote, SalesHeader."No.", SalesHeader2);
+
+        // [THEN] Sales Quote Created With Copy Document.
+        ValidateCopiedSalesHeaderAndSalesLines(SalesHeader2, SalesHeader2."Document Type", SalesHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyDimensionsSalesDocumentRecalculateLines()
+    begin
+        CopyDimensionsSalesDocument(true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyDimensionsSalesDocumentNoRecalculateLines()
+    begin
+        CopyDimensionsSalesDocument(false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyDimensionsPurchaseDocumentRecalculateLines()
+    begin
+        CopyDimensionsPurchaseDocument(true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyDimensionsPurchaseDocumentNoRecalculateLines()
+    begin
+        CopyDimensionsPurchaseDocument(false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyDimensionsSalesLineRecalculateLines()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PostedDocNo: Code[20];
+        DefaultDimSetID: Integer;
+    begin
+        // [SCENARIO 371951] Default Dimensions used for Sales Document when running Copy Sales Document with "Recalculate Lines" = Yes
+        // [FEATURE] [Sales] [Dimension] [Recalculate Lines]
+
+        Initialize;
+        CopyDocumentMgt.SetProperties(true, true, false, false, true, false, false);
+        // [GIVEN] Posted Sales Order with Dimension Set ID in Sales Line = "X" (different from Default Dimension Set ID = "Y")
+        DefaultDimSetID := PostSalesOrderWithUpdatedDimensions(SalesLine, PostedDocNo);
+        LibrarySales.CreateSalesHeader(
+          SalesHeader, SalesHeader."Document Type"::Order, SalesLine."Bill-to Customer No.");
+
+        // [WHEN] Copy Sales Document with "Recalculate Lines" = Yes
+        CopyToDestinationSalesDocument(SalesDocType::"Posted Invoice", PostedDocNo, SalesHeader);
+
+        // [THEN] Dimension Set ID of copied Sales Line = "X"
+        FindSalesLine(SalesHeader, SalesLine);
+        SalesLine.TestField("Dimension Set ID", DefaultDimSetID);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyDimensionsSalesLineNoRecalculateLines()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PostedDocNo: Code[20];
+        ExpectedDimSetID: Integer;
+    begin
+        // [SCENARIO 371951] Dimensions from Posted Sales Order used for Sales Document when running Copy Sales Document with "Recalculate Lines" = No
+        // [FEATURE] [Sales] [Dimension]
+
+        Initialize;
+        // [GIVEN] Posted Sales Order with Dimension Set ID in Sales Line = "X" (different from Default Dimension Set ID = "Y")
+        PostSalesOrderWithUpdatedDimensions(SalesLine, PostedDocNo);
+        ExpectedDimSetID := SalesLine."Dimension Set ID";
+        LibrarySales.CreateSalesHeader(
+          SalesHeader, SalesHeader."Document Type"::Order, SalesLine."Bill-to Customer No.");
+
+        // [WHEN] Copy Sales Document with "Recalculate Lines" = No
+        CopyToDestinationSalesDocument(SalesDocType::"Posted Invoice", PostedDocNo, SalesHeader);
+
+        // [THEN] Dimension Set ID of copied Sales Line = "Y"
+        FindSalesLine(SalesHeader, SalesLine);
+        SalesLine.TestField("Dimension Set ID", ExpectedDimSetID);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyDimensionsPurchLineRecalculateLines()
+    var
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        PostedDocNo: Code[20];
+        DefaultDimSetID: Integer;
+    begin
+        // [SCENARIO 371951] Default Dimensions used for Purchase Document when running Copy Purch. Document with "Recalculate Lines" = Yes
+        // [FEATURE] [Purchase] [Dimension] [Recalculate Lines]
+
+        Initialize;
+        CopyDocumentMgt.SetProperties(true, true, false, false, true, false, false);
+        // [GIVEN] Posted Purch. Order with Dimension Set ID in Purch. Line = "X" (different from Default Dimension Set ID = "Y")
+        DefaultDimSetID := PostPurchOrderWithUpdatedDimensions(PurchLine, PostedDocNo);
+        LibraryPurchase.CreatePurchHeader(
+          PurchHeader, PurchHeader."Document Type"::Order, PurchLine."Pay-to Vendor No.");
+
+        // [WHEN] Copy Purch. Document with "Recalculate Lines" = Yes
+        CopyToDestinationPurchaseDocument(SalesDocType::"Posted Invoice", PostedDocNo, PurchHeader);
+
+        // [THEN] Dimension Set ID of copied Purch. Line = "X"
+        FindPurchLine(PurchHeader, PurchLine);
+        PurchLine.TestField("Dimension Set ID", DefaultDimSetID);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyDimensionsPurchLineNoRecalculateLines()
+    var
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        PostedDocNo: Code[20];
+        ExpectedDimSetID: Integer;
+    begin
+        // [SCENARIO 371951] Dimensions from Posted Purchase Order used for Purchase Document when running Copy Purch. Document with "Recalculate Lines" = No
+        // [FEATURE] [Purchase] [Dimension]
+
+        Initialize;
+        // [GIVEN] Posted Purch. Order with Dimension Set ID in Purch. Line = "X" (different from Default Dimension Set ID = "Y")
+        PostPurchOrderWithUpdatedDimensions(PurchLine, PostedDocNo);
+        ExpectedDimSetID := PurchLine."Dimension Set ID";
+        LibraryPurchase.CreatePurchHeader(
+          PurchHeader, PurchHeader."Document Type"::Order, PurchLine."Pay-to Vendor No.");
+
+        // [WHEN] Copy Purch. Document with "Recalculate Lines" = No
+        CopyToDestinationPurchaseDocument(SalesDocType::"Posted Invoice", PostedDocNo, PurchHeader);
+
+        // [THEN] Dimension Set ID of copied Purch. Line = "Y"
+        FindPurchLine(PurchHeader, PurchLine);
+        PurchLine.TestField("Dimension Set ID", ExpectedDimSetID);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyTwoItemChargesAssignedToOneReceipt()
+    var
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+        ItemRcptNo: Code[20];
+        ChargeRcptNo: Code[20];
+        Quantity: Integer;
+        I: Integer;
+    begin
+        // [FEATURE] [Item Charge] [Get Receipt Lines]
+        // [SCENARIO 377987] "Get Receipt Lines" function copies all item charges assigned to a single purchase receipt line
+        Initialize;
+
+        // [GIVEN] Create a purchase order with one line of type "Item"
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::Order, '');
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader[1], PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Post receipt
+        ItemRcptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader[1], true, false);
+
+        Quantity := LibraryRandom.RandInt(10);
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader[1]);
+
+        // [GIVEN] Create two item charge lines and assign to the posted receipt
+        for I := 1 to 2 do
+            CreateItemChargePurchaseLine(
+              PurchaseLine, PurchaseHeader[1], ItemRcptNo, FindPurchRcptLineNo(ItemRcptNo, 1), Item."No.", Quantity, Quantity);
+
+        // [GIVEN] Post item charges receipt
+        ChargeRcptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader[1], true, false);
+
+        // [WHEN] Create a purchase invoice and copy lines from posted receipts
+        CreatePurchaseInvoiceCopyFromReceipt(
+          PurchaseHeader[2], PurchaseHeader[1]."Pay-to Vendor No.", StrSubstNo('%1|%2', ItemRcptNo, ChargeRcptNo));
+
+        // [THEN] All item charge assignments are copied into the new invoice
+        VerifyItemChargeAssignmentPurchCopied(
+          PurchaseHeader[1]."Document Type", PurchaseHeader[1]."No.",
+          PurchaseHeader[2]."Document Type", PurchaseHeader[2]."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyOneItemChargeAssignedToTwoReceipts()
+    var
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+        ItemRcptNo: Code[20];
+        ChargeRcptNo: Code[20];
+        Quantity: Integer;
+        I: Integer;
+    begin
+        // [FEATURE] [Item Charge] [Get Receipt Lines]
+        // [SCENARIO 377987] "Get Receipt Lines" function copies item charge assignments when a single item charge line is assigned to several purchase receipt lines
+
+        Initialize;
+
+        // [GIVEN] Create a purchase order with two lines of type "Item"
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::Order, '');
+        LibraryInventory.CreateItem(Item);
+
+        for I := 1 to 2 do
+            LibraryPurchase.CreatePurchaseLine(
+              PurchaseLine, PurchaseHeader[1], PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Post receipt
+        ItemRcptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader[1], true, false);
+
+        // [GIVEN] Create one item charge line and split item charge amount among posted receipt lines
+        Quantity := LibraryRandom.RandInt(10);
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader[1]);
+        CreateItemChargePurchaseLine(
+          PurchaseLine, PurchaseHeader[1], ItemRcptNo, FindPurchRcptLineNo(ItemRcptNo, 1), Item."No.", Quantity * 2, Quantity);
+
+        CreateItemChargeAssignmentPurch(PurchaseLine, ItemRcptNo, FindPurchRcptLineNo(ItemRcptNo, 2), Item."No.", Quantity);
+        ChargeRcptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader[1], true, false);
+
+        // [WHEN] Create a purchase invoice and copy lines from posted receipts
+        CreatePurchaseInvoiceCopyFromReceipt(
+          PurchaseHeader[2], PurchaseHeader[1]."Pay-to Vendor No.", StrSubstNo('%1|%2', ItemRcptNo, ChargeRcptNo));
+
+        // [THEN] All item charge assignments are copied into the new invoice
+        VerifyItemChargeAssignmentPurchCopied(
+          PurchaseHeader[1]."Document Type", PurchaseHeader[1]."No.",
+          PurchaseHeader[2]."Document Type", PurchaseHeader[2]."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyTwoItemChargesAssignedToOneShipment()
+    var
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        ItemShptNo: Code[20];
+        ChargeShptNo: Code[20];
+        Quantity: Integer;
+        I: Integer;
+    begin
+        // [FEATURE] [Item Charge] [Get Shipment Lines]
+        // [SCENARIO 377987] "Get Shipment Lines" function copies all item charges assigned to a single sales shipment line
+
+        Initialize;
+
+        // [GIVEN] Create a sales order with one line of type "Item"
+        LibrarySales.CreateSalesHeader(SalesHeader[1], SalesHeader[1]."Document Type"::Order, '');
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader[1], SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Post shipment
+        ItemShptNo := LibrarySales.PostSalesDocument(SalesHeader[1], true, false);
+
+        // [GIVEN] Create two item charge lines and assign to the posted shipment
+        Quantity := LibraryRandom.RandInt(10);
+        LibrarySales.ReopenSalesDocument(SalesHeader[1]);
+
+        for I := 1 to 2 do
+            CreateItemChargeSalesLine(
+              SalesLine, SalesHeader[1], ItemShptNo, FindSalesShptLineNo(ItemShptNo, 1), Item."No.", Quantity, Quantity);
+
+        // [GIVEN] Post item charges shipment
+        ChargeShptNo := LibrarySales.PostSalesDocument(SalesHeader[1], true, false);
+
+        // [WHEN] Create a sales invoice and copy lines from posted shipments
+        CreateSalesInvoiceCopyFromShipment(
+          SalesHeader[2], SalesHeader[1]."Bill-to Customer No.", StrSubstNo('%1|%2', ItemShptNo, ChargeShptNo));
+
+        // [THEN] All item charge assignments are copied into the new invoice
+        VerifyItemChargeAssignmentSalesCopied(
+          SalesHeader[1]."Document Type", SalesHeader[1]."No.",
+          SalesHeader[2]."Document Type", SalesHeader[2]."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyOneItemChargeAssignedToTwoShipments()
+    var
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        ItemShptNo: Code[20];
+        ChargeShptNo: Code[20];
+        Quantity: Integer;
+        I: Integer;
+    begin
+        // [FEATURE] [Item Charge] [Get Shipment Lines]
+        // [SCENARIO 377987] "Get Shipment Lines" function copies item charge assignments when a single item charge line is assigned to several sales shipment lines
+
+        Initialize;
+
+        // [GIVEN] Create a sales order with two lines of type "Item"
+        LibrarySales.CreateSalesHeader(SalesHeader[1], SalesHeader[1]."Document Type"::Order, '');
+        LibraryInventory.CreateItem(Item);
+
+        for I := 1 to 2 do
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader[1], SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Post shipment
+        ItemShptNo := LibrarySales.PostSalesDocument(SalesHeader[1], true, false);
+
+        // [GIVEN] Create one item charge line and split item charge amount among posted shipment lines
+        Quantity := LibraryRandom.RandInt(10);
+        LibrarySales.ReopenSalesDocument(SalesHeader[1]);
+        CreateItemChargeSalesLine(
+          SalesLine, SalesHeader[1], ItemShptNo, FindSalesShptLineNo(ItemShptNo, 1), Item."No.", Quantity * 2, Quantity);
+
+        CreateItemChargeAssignmentSales(SalesLine, ItemShptNo, FindSalesShptLineNo(ItemShptNo, 2), Item."No.", Quantity);
+
+        // [GIVEN] Post item charges shipment
+        ChargeShptNo := LibrarySales.PostSalesDocument(SalesHeader[1], true, false);
+
+        // [WHEN] Create a sales invoice and copy lines from posted shipments
+        CreateSalesInvoiceCopyFromShipment(
+          SalesHeader[2], SalesHeader[1]."Bill-to Customer No.", StrSubstNo('%1|%2', ItemShptNo, ChargeShptNo));
+
+        // [THEN] All item charge assignments are copied into the new invoice
+        VerifyItemChargeAssignmentSalesCopied(
+          SalesHeader[1]."Document Type", SalesHeader[1]."No.",
+          SalesHeader[2]."Document Type", SalesHeader[2]."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler,ItemTrackingSummaryModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CopyPurchOrderWithTrackingAndNoRemainingQuantity()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        ReservationEntry: Record "Reservation Entry";
+        PurchInvoiceNo: Code[20];
+        ItemNo: Code[20];
+        Quantity: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Item Tracking]
+        // [SCENARIO 381103] No Item Tracking should be created for the Purchase Line copied from Purchase with fully sold Lot.
+        Initialize;
+
+        // [GIVEN] Lot-tracked Item "I".
+        ItemNo := CreateLotTrackedItem;
+        Quantity := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Received and invoiced Purchase "P" of Item "I" with Lot "L".
+        PurchInvoiceNo := CreateAndPostPurchOrderWithTracking(ItemNo, Quantity);
+
+        // [GIVEN] Lot "L" is sold in full.
+        CreateAndPostSalesOrderWithTracking(ItemNo, Quantity);
+
+        // [WHEN] Create new Purchase Order by copying the posted invoice of the Purchase "P".
+        CopyPurchDocument(PurchaseHeader, PurchDocType::"Posted Invoice", PurchInvoiceNo);
+
+        // [THEN] No Item Tracking for "I" is created.
+        ReservationEntry.Init;
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        Assert.RecordIsEmpty(ReservationEntry);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler,EnterQuantityToCreateModalPageHandler,PostedSalesDocumentLinesModalPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesReturnOrderCanBePopulatedFromPostedInvoiceWithATOAndItemTracking()
+    var
+        Item: Record Item;
+        CompItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ReturnSalesHeader: Record "Sales Header";
+        ReturnSalesLine: Record "Sales Line";
+        PostedInvoiceNo: Code[20];
+        CustomerNo: Code[20];
+        SalesQty: Decimal;
+    begin
+        // [FEATURE] [Sales] [Return Order] [Order] [Item Tracking] [Assembly] [Assemble-to-Order]
+        // [SCENARIO 218977] Sales return order can be populated using "Get Posted Document Lines to Reverse" function from posted sales invoice with linked assembly order and serial no. tracking.
+        Initialize;
+
+        // [GIVEN] Serial no.-tracked assembled item "I" with "Assemble-to-Order" assembly policy.
+        CreateSNTrackedItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
+        Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
+        Item.Modify(true);
+
+        // [GIVEN] Component "C" of the parent item "I" is in inventory.
+        LibraryAssembly.CreateAssemblyList(Item."Costing Method", Item."No.", true, 1, 0, 0, LibraryRandom.RandInt(5), '', '');
+        CompItem.Get(FindComponentItem(Item."No."));
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, CompItem."No.", '', '', LibraryRandom.RandIntInRange(100, 200));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Sales order for "Q" pcs of item "I".
+        // [GIVEN] Serial nos. "S1..SQ" are assigned to the linked Assembly Order.
+        // [GIVEN] The sales order is posted with "Ship & Invoice" option.
+        SalesQty := LibraryRandom.RandInt(10);
+        CustomerNo := LibrarySales.CreateCustomerNo;
+        PostedInvoiceNo :=
+          CreateAndPostSalesOrderWithAsmToOrderAndTracking(CustomerNo, Item."No.", SalesQty, ItemTrackingMode::"Assign Serial Nos.");
+
+        // [GIVEN] Sales Return Order.
+        LibrarySales.CreateSalesHeader(
+          ReturnSalesHeader, ReturnSalesHeader."Document Type"::"Return Order", CustomerNo);
+
+        // [WHEN] Run "Get Posted Document Lines to Reverse" and select the posted invoice.
+        LibraryVariableStorage.Enqueue(PostedInvoiceNo);
+        ReturnSalesHeader.GetPstdDocLinesToRevere;
+
+        // [THEN] Document line for "Q" pcs of "I" is created in the sales return order.
+        FindSalesLine(ReturnSalesHeader, ReturnSalesLine);
+        ReturnSalesLine.TestField("No.", Item."No.");
+        ReturnSalesLine.TestField(Quantity, SalesQty);
+
+        // [THEN] The sales return line is tracked with "Q" serial nos.
+        VerifySNItemTrackingOnSalesLine(ReturnSalesLine, SalesQty);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RoundQtyToAssignOnDistributingItemChargeViaGetReceiptLines()
+    var
+        Item: Record Item;
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchaseLine: array[2] of Record "Purchase Line";
+        PurchReceiptNo: array[2] of Code[20];
+    begin
+        // [FEATURE] [Purchase] [Get Receipt Lines] [Item Charge] [Rounding]
+        // [SCENARIO 272850] "Qty. to Assign" is rounded on purchase invoice line for item charge generated using "Get Receipt Lines".
+        Initialize;
+
+        // [GIVEN] Purchase order with item line and item charge line. Quantity = 3.
+        // [GIVEN] Set item charge assignment.
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeaderOrder, PurchaseLine[1], PurchaseHeaderOrder."Document Type"::Order,
+          LibraryPurchase.CreateVendorNo, Item."No.", 3, '', WorkDate);
+        CreateItemChargePurchaseLine(
+          PurchaseLine[2], PurchaseHeaderOrder, PurchaseLine[1]."Document No.", PurchaseLine[1]."Line No.", Item."No.", 3, 3);
+
+        // [GIVEN] Set "Qty. to Receipt" on both lines to 2 and post the order with "Receive" option. Posted receipt no. = "R1".
+        UpdateQtyToReceiveOnPurchaseLines(PurchaseHeaderOrder, 2);
+        PurchReceiptNo[1] := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
+
+        // [GIVEN] Set "Qty. to Receipt" on both lines to 1 and post the order with "Receive" option. Posted receipt no. = "R2".
+        UpdateQtyToReceiveOnPurchaseLines(PurchaseHeaderOrder, 1);
+        PurchReceiptNo[2] := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
+
+        // [WHEN] Create a purchase invoice, run "Get Receipt Lines", select both receipts.
+        CreatePurchaseInvoiceCopyFromReceipt(
+          PurchaseHeaderInvoice, PurchaseHeaderOrder."Pay-to Vendor No.", StrSubstNo('%1|%2', PurchReceiptNo[1], PurchReceiptNo[2]));
+
+        // [THEN] "Qty. to Assign" on the purchase invoice line representing receipt "R1" = 2. (instead of 3 * (2 / 3) = 3 * 0.6666666667 = 2.0000000001)
+        // [THEN] "Qty. to Assign" on the purchase invoice line representing receipt "R2" = 1. (instead of 3 * (1 / 3) = 3 * 0.3333333333 = 0.9999999999)
+        VerifyQtyToAssignOnPurchInvoiceLine(PurchaseHeaderInvoice, PurchReceiptNo[1], 2);
+        VerifyQtyToAssignOnPurchInvoiceLine(PurchaseHeaderInvoice, PurchReceiptNo[2], 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RoundQtyToAssignOnDistributingItemChargeViaGetShipmentLines()
+    var
+        Item: Record Item;
+        SalesHeaderOrder: Record "Sales Header";
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        SalesShipmentNo: array[2] of Code[20];
+    begin
+        // [FEATURE] [Sales] [Get Shipment Lines] [Item Charge] [Rounding]
+        // [SCENARIO 272850] "Qty. to Assign" is rounded on sales invoice line for item charge generated using "Get Shipment Lines".
+        Initialize;
+
+        // [GIVEN] Sales order with item line and item charge line. Quantity = 3.
+        // [GIVEN] Set item charge assignment.
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeaderOrder, SalesLine[1], SalesHeaderOrder."Document Type"::Order,
+          LibrarySales.CreateCustomerNo, Item."No.", 3, '', WorkDate);
+        CreateItemChargeSalesLine(
+          SalesLine[2], SalesHeaderOrder, SalesLine[1]."Document No.", SalesLine[1]."Line No.", Item."No.", 3, 3);
+
+        // [GIVEN] Set "Qty. to Ship" on both lines to 2 and post the order with "Ship" option. Posted shipment no. = "S1".
+        UpdateQtyToShipOnSalesLines(SalesHeaderOrder, 2);
+        SalesShipmentNo[1] := LibrarySales.PostSalesDocument(SalesHeaderOrder, true, false);
+
+        // [GIVEN] Set "Qty. to Ship" on both lines to 1 and post the order with "Ship" option. Posted shipment no. = "S2".
+        UpdateQtyToShipOnSalesLines(SalesHeaderOrder, 1);
+        SalesShipmentNo[2] := LibrarySales.PostSalesDocument(SalesHeaderOrder, true, false);
+
+        // [WHEN] Create a sales invoice, run "Get Shipment Lines", select both shipments.
+        CreateSalesInvoiceCopyFromShipment(
+          SalesHeaderInvoice, SalesHeaderOrder."Bill-to Customer No.", StrSubstNo('%1|%2', SalesShipmentNo[1], SalesShipmentNo[2]));
+
+        // [THEN] "Qty. to Assign" on the sales invoice line representing shipment "S1" = 2. (instead of 3 * (2 / 3) = 3 * 0.6666666667 = 2.0000000001)
+        // [THEN] "Qty. to Assign" on the sales invoice line representing shipment "S2" = 1. (instead of 3 * (1 / 3) = 3 * 0.3333333333 = 0.9999999999)
+        VerifyQtyToAssignOnSalesInvoiceLine(SalesHeaderInvoice, SalesShipmentNo[1], 2);
+        VerifyQtyToAssignOnSalesInvoiceLine(SalesHeaderInvoice, SalesShipmentNo[2], 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RoundQtyToAssignOnDistributingItemChargeViaGetReturnShipmentLines()
+    var
+        Item: Record Item;
+        PurchaseHeaderReturnOrder: Record "Purchase Header";
+        PurchaseHeaderCrMemo: Record "Purchase Header";
+        PurchaseLine: array[2] of Record "Purchase Line";
+        ReturnShipmentNo: array[2] of Code[20];
+    begin
+        // [FEATURE] [Purchase] [Get Return Shipment Lines] [Item Charge] [Rounding]
+        // [SCENARIO 272850] "Qty. to Assign" is rounded on purchase credit memo line for item charge generated using "Get Return Shipment Lines".
+        Initialize;
+
+        // [GIVEN] Purchase return order with item line and item charge line. Quantity = 3.
+        // [GIVEN] Set item charge assignment.
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeaderReturnOrder, PurchaseLine[1], PurchaseHeaderReturnOrder."Document Type"::"Return Order",
+          LibraryPurchase.CreateVendorNo, Item."No.", 3, '', WorkDate);
+        CreateItemChargePurchaseLine(
+          PurchaseLine[2], PurchaseHeaderReturnOrder, PurchaseLine[1]."Document No.", PurchaseLine[1]."Line No.", Item."No.", 3, 3);
+
+        // [GIVEN] Set "Return Qty. to Ship" on both lines to 2 and post the return order with "Ship" option. Posted shipment no. = "S1".
+        UpdateReturnQtyToShipOnPurchaseLines(PurchaseHeaderReturnOrder, 2);
+        ReturnShipmentNo[1] := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderReturnOrder, true, false);
+
+        // [GIVEN] Set "Return Qty. to Ship" on both lines to 1 and post the return order with "Ship" option. Posted shipment no. = "S2".
+        UpdateReturnQtyToShipOnPurchaseLines(PurchaseHeaderReturnOrder, 1);
+        ReturnShipmentNo[2] := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderReturnOrder, true, false);
+
+        // [WHEN] Create a purchase credit memo, run "Get Return Shipment Lines", select both shipments.
+        CreatePurchaseCrMemoCopyFromReturnShipment(
+          PurchaseHeaderCrMemo, PurchaseHeaderReturnOrder."Pay-to Vendor No.", StrSubstNo('%1|%2', ReturnShipmentNo[1], ReturnShipmentNo[2]));
+
+        // [THEN] "Qty. to Assign" on the purchase credit memo line representing shipment "S1" = 2. (instead of 3 * (2 / 3) = 3 * 0.6666666667 = 2.0000000001)
+        // [THEN] "Qty. to Assign" on the purchase credit memo line representing shipment "S2" = 1. (instead of 3 * (1 / 3) = 3 * 0.3333333333 = 0.9999999999)
+        VerifyQtyToAssignOnPurchCrMemoLine(PurchaseHeaderCrMemo, ReturnShipmentNo[1], 2);
+        VerifyQtyToAssignOnPurchCrMemoLine(PurchaseHeaderCrMemo, ReturnShipmentNo[2], 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RoundQtyToAssignOnDistributingItemChargeViaGetReturnReceiptLines()
+    var
+        Item: Record Item;
+        SalesHeaderReturnOrder: Record "Sales Header";
+        SalesHeaderCrMemo: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        ReturnReceiptNo: array[2] of Code[20];
+    begin
+        // [FEATURE] [Sales] [Get Return Receipt Lines] [Item Charge] [Rounding]
+        // [SCENARIO 272850] "Qty. to Assign" is rounded on sales credit memo line for item charge generated using "Get Return Receipt Lines".
+        Initialize;
+
+        // [GIVEN] Sales return order with item line and item charge line. Quantity = 3.
+        // [GIVEN] Set item charge assignment.
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeaderReturnOrder, SalesLine[1], SalesHeaderReturnOrder."Document Type"::"Return Order",
+          LibrarySales.CreateCustomerNo, Item."No.", 3, '', WorkDate);
+        CreateItemChargeSalesLine(
+          SalesLine[2], SalesHeaderReturnOrder, SalesLine[1]."Document No.", SalesLine[1]."Line No.", Item."No.", 3, 3);
+
+        // [GIVEN] Set "Return Qty. to Receive" on both lines to 2 and post the return order with "Receive" option. Posted receipt no. = "R1".
+        UpdateReturnQtyToReceiveOnSalesLines(SalesHeaderReturnOrder, 2);
+        ReturnReceiptNo[1] := LibrarySales.PostSalesDocument(SalesHeaderReturnOrder, true, false);
+
+        // [GIVEN] Set "Return Qty. to Receive" on both lines to 1 and post the return order with "Receive" option. Posted receipt no. = "R2".
+        UpdateReturnQtyToReceiveOnSalesLines(SalesHeaderReturnOrder, 1);
+        ReturnReceiptNo[2] := LibrarySales.PostSalesDocument(SalesHeaderReturnOrder, true, false);
+
+        // [WHEN] Create a sales credit memo, run "Get Return Receipt Lines", select both receipts.
+        CreateSalesCrMemoCopyFromReturnReceipt(
+          SalesHeaderCrMemo, SalesHeaderReturnOrder."Bill-to Customer No.", StrSubstNo('%1|%2', ReturnReceiptNo[1], ReturnReceiptNo[2]));
+
+        // [THEN] "Qty. to Assign" on the sales credit memo line representing receipt "R1" = 2. (instead of 3 * (2 / 3) = 3 * 0.6666666667 = 2.0000000001)
+        // [THEN] "Qty. to Assign" on the sales credit memo line representing receipt "R2" = 1. (instead of 3 * (1 / 3) = 3 * 0.3333333333 = 0.9999999999)
+        VerifyQtyToAssignOnSalesCrMemoLine(SalesHeaderCrMemo, ReturnReceiptNo[1], 2);
+        VerifyQtyToAssignOnSalesCrMemoLine(SalesHeaderCrMemo, ReturnReceiptNo[2], 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShipToAddressValidatedFromCustomerOnCopySalesReturnOrderWithBlankShipToCode()
+    var
+        Customer: Record Customer;
+        SalesHeaderReturn: Record "Sales Header";
+        SalesHeaderOrder: Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Return Order] [Order]
+        // [SCENARIO 228033] Ship-to Address is validated from customer card when sales order is copied from sales return order with blank ship-to code.
+        Initialize;
+
+        // [GIVEN] Customer "C" with Address = "A" and "Address 2" = "A2".
+        LibrarySales.CreateCustomerWithAddress(Customer);
+
+        // [GIVEN] Sales Return Order "SR" to customer "C".
+        // [GIVEN] "SR"."Ship-to Code" is blank; "SR"."Ship-to Address" = "B"; "SR"."Ship-to Address 2" = "B2".
+        LibrarySales.CreateSalesHeader(SalesHeaderReturn, SalesHeaderReturn."Document Type"::"Return Order", Customer."No.");
+        SalesHeaderReturn.Validate("Ship-to Code", '');
+        SalesHeaderReturn.Validate(
+          "Ship-to Address", LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeaderReturn."Ship-to Address")));
+        SalesHeaderReturn.Validate(
+          "Ship-to Address 2", LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeaderReturn."Ship-to Address 2")));
+        SalesHeaderReturn.Modify(true);
+
+        // [GIVEN] Sales Order "SO" for customer "C".
+        LibrarySales.CreateSalesHeader(SalesHeaderOrder, SalesHeaderOrder."Document Type"::Order, Customer."No.");
+
+        // [WHEN] Copy sales return order "SR" to sales order "SO".
+        CopyDocumentMgt.CopySalesDoc(
+          SalesDocType::"Return Order", SalesHeaderReturn."No.", SalesHeaderOrder);
+
+        // [THEN] "SO"."Ship-to Address" = "A".
+        // [THEN] "SO"."Ship-to Address 2" = "A2".
+        SalesHeaderOrder.TestField("Ship-to Address", Customer.Address);
+        SalesHeaderOrder.TestField("Ship-to Address 2", Customer."Address 2");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetPstdSalesLinesSameLineNoDifferentInvoices()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        ShipmentNo: Code[20];
+        CustomerNo: Code[20];
+        I: Integer;
+        LinesNotCopied: Integer;
+        MissingExCostRevLink: Boolean;
+    begin
+        // [FEATURE] [Sales] [Get Posted Document Lines to Reverse] [Invoice]
+        // [SCENARIO 279030] Sales Lines with same "Line No." in different invoice documents and same Shipment "Document No." can be copied
+
+        Initialize;
+
+        // [GIVEN] Created Customer
+        CustomerNo := LibrarySales.CreateCustomerNo;
+
+        // [GIVEN] Sales Order for Customer with two Sales Lines
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine[1], SalesHeader, SalesLine[1].Type::Item, '', 1);
+        LibrarySales.CreateSalesLine(SalesLine[2], SalesHeader, SalesLine[2].Type::Item, '', 1);
+
+        // [GIVEN] Sales Order posted with shipment
+        ShipmentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Sales Invoice created and posted for each posted Sales Shipment Line for Customer
+        for I := 1 to ArrayLen(SalesLine) do begin
+            LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+            GetSalesShipmentLineWithOrderNo(SalesHeader, ShipmentNo, I);
+            LibrarySales.PostSalesDocument(SalesHeader, false, false);
+        end;
+
+        // [GIVEN] Sales Credit Memo created for Customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo);
+
+        // [WHEN] Copy both Posted Sales Invoice Lines to Sales Credit Memo
+        LinesNotCopied := 0;
+        MissingExCostRevLink := false;
+        SalesInvoiceLine.SetRange("Sell-to Customer No.", CustomerNo);
+        CopyDocumentMgt.SetProperties(false, false, false, false, true, true, false);
+        CopyDocumentMgt.CopySalesInvLinesToDoc(SalesHeader, SalesInvoiceLine, LinesNotCopied, MissingExCostRevLink);
+
+        // [THEN] Sales Lines created for Sales Credit Memo
+        VerifyCopySalesLinesNos(
+          SalesHeader."Document Type"::"Credit Memo",
+          SalesHeader."No.",
+          SalesLine[1].Type::Item,
+          SalesLine[1]."No.",
+          SalesLine[2]."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetPstdPurchLinesSameLineNoDifferentInvoices()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[2] of Record "Purchase Line";
+        PurchInvLine: Record "Purch. Inv. Line";
+        ReceiptNo: Code[20];
+        VendorNo: Code[20];
+        I: Integer;
+        LinesNotCopied: Integer;
+        MissingExCostRevLink: Boolean;
+    begin
+        // [FEATURE] [Purchase] [Get Posted Document Lines to Reverse] [Invoice]
+        // [SCENARIO 279030] Purchase Lines with same "Line No." in different invoice documents and same Receipt "Document No." can be copied
+
+        Initialize;
+
+        // [GIVEN] Created Vendor
+        VendorNo := LibraryPurchase.CreateVendorNo;
+
+        // [GIVEN] Purchase Order for Vendor with two Purchase Lines
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine[1], PurchaseHeader, PurchaseLine[1].Type::Item, '', 1);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine[2], PurchaseHeader, PurchaseLine[2].Type::Item, '', 1);
+
+        // [GIVEN] Purchase Order posted with Receipt
+        ReceiptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Purchase Invoice created and posted for each posted Purchase Receipt Line for Vendor
+        for I := 1 to ArrayLen(PurchaseLine) do begin
+            LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+            GetPurchaseReceiptLineWithOrderNo(PurchaseHeader, ReceiptNo, I);
+            LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false);
+        end;
+
+        // [GIVEN] Purchase Credit Memo created for Vendor
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
+
+        // [WHEN] Copy both Posted Purchase Invoice Lines to Purchase Credit Memo
+        LinesNotCopied := 0;
+        MissingExCostRevLink := false;
+        PurchInvLine.SetRange("Buy-from Vendor No.", VendorNo);
+        CopyDocumentMgt.SetProperties(false, false, false, false, true, true, false);
+        CopyDocumentMgt.CopyPurchInvLinesToDoc(PurchaseHeader, PurchInvLine, LinesNotCopied, MissingExCostRevLink);
+
+        // [THEN] Purchase Lines created for Purchase Credit Memo
+        VerifyCopyPurchLinesNos(
+          PurchaseHeader."Document Type"::"Credit Memo",
+          PurchaseHeader."No.",
+          PurchaseLine[1].Type::Item,
+          PurchaseLine[1]."No.",
+          PurchaseLine[2]."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CopyingSalesOrderWithATOAndRecalculateLinesFalseCopiesStandardCostFromSourceAsm()
+    var
+        Item: Record Item;
+        CompItem: Record Item;
+        SourceSalesHeader: Record "Sales Header";
+        SourceSalesLine: Record "Sales Line";
+        TargetSalesHeader: Record "Sales Header";
+        AssemblyLine: Record "Assembly Line";
+        UnitCost: Decimal;
+    begin
+        // [FEATURE] [Sales] [Order] [Assemble-to-Order] [Costing Method]
+        // [SCENARIO 312542] Copying of sales order with linked assembly-to-order and turned OFF "Recalculate Lines" option copies unit cost of assembly component from the source assembly line, despite the changed standard cost.
+        Initialize;
+
+        LibraryAssembly.SetStockoutWarning(false);
+
+        // [GIVEN] Assemble-to-order item "I".
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
+        Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
+        Item.Modify(true);
+
+        // [GIVEN] Create component "C" with "Standard" costing method and add it to the assembly BOM of item "I".
+        LibraryAssembly.CreateAssemblyList(CompItem."Costing Method"::Standard, Item."No.", true, 1, 0, 0, LibraryRandom.RandInt(5), '', '');
+        CompItem.Get(FindComponentItem(Item."No."));
+
+        // [GIVEN] Set the standard cost of item "C" to "X" LCY.
+        UnitCost := LibraryRandom.RandDec(100, 2);
+        CompItem.Validate("Standard Cost", UnitCost);
+        CompItem.Modify(true);
+
+        // [GIVEN] Create sales order "SO-SOURCE" with linked assembly order.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SourceSalesHeader, SourceSalesLine, SourceSalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
+          Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+
+        // [GIVEN] Increase the standard cost of "C" to "2X" LCY.
+        CompItem.Validate("Standard Cost", UnitCost * 2);
+        CompItem.Modify(true);
+
+        // [WHEN] Copy "SO-SOURCE" to new sales order "SO-TARGET".
+        LibrarySales.CreateSalesHeader(
+          TargetSalesHeader, TargetSalesHeader."Document Type"::Order, SourceSalesHeader."Sell-to Customer No.");
+        LibrarySales.CopySalesDocument(TargetSalesHeader, 2, SourceSalesHeader."No.", true, false);
+
+        // [THEN] Copy is successful. No error message is thrown.
+        // [THEN] "Unit Cost" of assembly component "C" in the assembly order linked to "SO-TARGET" is equal to "X".
+        FindATOLine(AssemblyLine, TargetSalesHeader, CompItem."No.");
+        AssemblyLine.TestField("Unit Cost", UnitCost);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CopyingSalesOrderWithATOAndRecalculateLinesTrueRetrievesStandardCostFromItemCard()
+    var
+        Item: Record Item;
+        CompItem: Record Item;
+        SourceSalesHeader: Record "Sales Header";
+        SourceSalesLine: Record "Sales Line";
+        TargetSalesHeader: Record "Sales Header";
+        AssemblyLine: Record "Assembly Line";
+        UnitCost: Decimal;
+    begin
+        // [FEATURE] [Sales] [Order] [Assemble-to-Order] [Costing Method]
+        // [SCENARIO 312542] Copying of sales order with linked assembly-to-order and turned ON "Recalculate Lines" option retrieves unit cost of assembly component from the item card.
+        Initialize;
+
+        LibraryAssembly.SetStockoutWarning(false);
+
+        // [GIVEN] Assemble-to-order item "I".
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
+        Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
+        Item.Modify(true);
+
+        // [GIVEN] Create component "C" with "Standard" costing method and add it to the assembly BOM of item "I".
+        LibraryAssembly.CreateAssemblyList(CompItem."Costing Method"::Standard, Item."No.", true, 1, 0, 0, LibraryRandom.RandInt(5), '', '');
+        CompItem.Get(FindComponentItem(Item."No."));
+
+        // [GIVEN] Set the standard cost of item "C" to "X" LCY.
+        UnitCost := LibraryRandom.RandDec(100, 2);
+        CompItem.Validate("Standard Cost", UnitCost);
+        CompItem.Modify(true);
+
+        // [GIVEN] Create sales order "SO-SOURCE" with linked assembly order.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SourceSalesHeader, SourceSalesLine, SourceSalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
+          Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+
+        // [GIVEN] Increase the standard cost of "C" to "2X" LCY.
+        CompItem.Validate("Standard Cost", UnitCost * 2);
+        CompItem.Modify(true);
+
+        // [WHEN] Copy "SO-SOURCE" to new sales order "SO-TARGET".
+        LibrarySales.CreateSalesHeader(
+          TargetSalesHeader, TargetSalesHeader."Document Type"::Order, SourceSalesHeader."Sell-to Customer No.");
+        LibrarySales.CopySalesDocument(TargetSalesHeader, 2, SourceSalesHeader."No.", true, true);
+
+        // [THEN] Copy is successful. No error message is thrown.
+        // [THEN] "Unit Cost" of assembly component "C" in the assembly order linked to "SO-TARGET" is equal to "2X".
+        FindATOLine(AssemblyLine, TargetSalesHeader, CompItem."No.");
+        AssemblyLine.TestField("Unit Cost", UnitCost * 2);
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Copy Document Mgt.");
+
+        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore;
+
+        CopyDocumentMgt.SetProperties(true, false, false, false, true, false, false);
+        if IsInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Copy Document Mgt.");
+
+        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibrarySales.SetCreditWarningsToNoWarnings;
+
+        LibrarySetupStorage.Save(DATABASE::"Assembly Setup");
+
+        IsInitialized := true;
+        Commit;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Copy Document Mgt.");
+    end;
+
+    local procedure CreateSourceDocument(Type: Option; TypeBeforePosting: Option) DocNo: Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+    begin
+        DocNo := CreateSalesOrder(SalesHeader, TypeBeforePosting, CreateCustomer);
+
+        case Type of
+            SalesDocType::"Posted Shipment",
+            SalesDocType::"Posted Invoice",
+            SalesDocType::"Posted Return Receipt",
+            SalesDocType::"Posted Credit Memo":
+                begin
+                    CreateItemChargeAssignment(SalesHeader);
+                    LibrarySales.PostSalesDocument(SalesHeader, true, true);
+                end;
+        end;
+
+        case Type of
+            SalesDocType::"Posted Credit Memo":
+                begin
+                    SalesCrMemoHeader.SetRange("Return Order No.", SalesHeader."No.");
+                    SalesCrMemoHeader.FindFirst;
+                    DocNo := SalesCrMemoHeader."No.";
+                end;
+            SalesDocType::"Posted Shipment":
+                begin
+                    SalesShipmentHeader.SetRange("Order No.", SalesHeader."No.");
+                    SalesShipmentHeader.FindFirst;
+                    DocNo := SalesShipmentHeader."No.";
+                end;
+            SalesDocType::"Posted Invoice":
+                begin
+                    SalesInvoiceHeader.SetRange("Order No.", SalesHeader."No.");
+                    SalesInvoiceHeader.FindFirst;
+                    DocNo := SalesInvoiceHeader."No.";
+                end;
+            SalesDocType::"Posted Return Receipt":
+                begin
+                    ReturnReceiptHeader.SetRange("Return Order No.", SalesHeader."No.");
+                    ReturnReceiptHeader.FindFirst;
+                    DocNo := ReturnReceiptHeader."No.";
+                end;
+        end;
+
+        exit(DocNo);
+    end;
+
+    local procedure CopyToDestinationSalesDocument(SourceType: Option; SourceNo: Code[20]; var SalesHeader: Record "Sales Header"): Code[20]
+    begin
+        CopyDocumentMgt.CopySalesDoc(SourceType, SourceNo, SalesHeader);
+        exit(SalesHeader."No.");
+    end;
+
+    local procedure CopyToDestinationPurchaseDocument(SourceType: Option; SourceNo: Code[20]; var PurchaseHeader: Record "Purchase Header"): Code[20]
+    begin
+        CopyDocumentMgt.CopyPurchDoc(SourceType, SourceNo, PurchaseHeader);
+        exit(PurchaseHeader."No.");
+    end;
+
+    local procedure CopyPurchDocument(var PurchaseHeader: Record "Purchase Header"; SourceType: Option; SourceNo: Code[20])
+    begin
+        CreateEmptyPurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order);
+        CopyDocumentMgt.SetProperties(true, false, false, false, true, false, false);
+        CopyDocumentMgt.CopyPurchDoc(SourceType, SourceNo, PurchaseHeader);
+    end;
+
+    local procedure CopyDimensionsSalesDocument(RecalculateLines: Boolean)
+    var
+        SalesHeader: Record "Sales Header";
+        DocNo: Code[20];
+        DimensionSetID: Integer;
+    begin
+        Initialize;
+        CopyDocumentMgt.SetProperties(true, RecalculateLines, false, false, true, false, false);
+
+        CreateSalesOrder(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
+        CreateItemChargeAssignment(SalesHeader);
+        DimensionSetID := SalesHeader."Dimension Set ID";
+        SalesHeader."Dimension Set ID" := UpdateDimensionSet(SalesHeader."Dimension Set ID");
+        if not RecalculateLines then
+            DimensionSetID := SalesHeader."Dimension Set ID";
+        DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        CreateEmptySalesHeader(SalesHeader, SalesHeader."Document Type"::Order);
+        CopyToDestinationSalesDocument(SalesDocType::"Posted Invoice", DocNo, SalesHeader);
+
+        VerifySalesDocumentDimension(SalesHeader, DimensionSetID);
+    end;
+
+    local procedure CopyDimensionsPurchaseDocument(RecalculateLines: Boolean)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        DocNo: Code[20];
+        DimensionSetID: Integer;
+    begin
+        Initialize;
+        CopyDocumentMgt.SetProperties(true, RecalculateLines, false, false, true, false, false);
+
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
+        DimensionSetID := PurchaseHeader."Dimension Set ID";
+        PurchaseHeader."Dimension Set ID" := UpdateDimensionSet(PurchaseHeader."Dimension Set ID");
+        if not RecalculateLines then
+            DimensionSetID := PurchaseHeader."Dimension Set ID";
+        DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        CreateEmptyPurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order);
+        CopyToDestinationPurchaseDocument(SalesDocType::"Posted Invoice", DocNo, PurchaseHeader);
+
+        VerifyPurchaseDocumentDimension(PurchaseHeader, DimensionSetID);
+    end;
+
+    local procedure CreateItemChargePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; AppliesToDocNo: Code[20]; AppliesToDocLineNo: Integer; ItemNo: Code[20]; Quantity: Decimal; QtyToAssign: Decimal)
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", '', Quantity);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
+        CreateItemChargeAssignmentPurch(PurchaseLine, AppliesToDocNo, AppliesToDocLineNo, ItemNo, QtyToAssign);
+    end;
+
+    local procedure CreateItemChargeSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; AppliesToDocNo: Code[20]; AppliesToDocLineNo: Integer; ItemNo: Code[20]; Quantity: Decimal; QtyToAssign: Decimal)
+    begin
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", '', Quantity);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+        CreateItemChargeAssignmentSales(SalesLine, AppliesToDocNo, AppliesToDocLineNo, ItemNo, QtyToAssign);
+    end;
+
+    local procedure CreatePurchaseInvoiceCopyFromReceipt(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; CopyFromDocNoFilter: Text)
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        GetPurchaseReceiptLines(PurchaseHeader, CopyFromDocNoFilter);
+    end;
+
+    local procedure CreateSalesInvoiceCopyFromShipment(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; CopyFromDocNoFilter: Text)
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        GetSalesShipmentLines(SalesHeader, CopyFromDocNoFilter);
+    end;
+
+    local procedure CreatePurchaseCrMemoCopyFromReturnShipment(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; CopyFromDocNoFilter: Text)
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
+        GetReturnShipmentLines(PurchaseHeader, CopyFromDocNoFilter);
+    end;
+
+    local procedure CreateSalesCrMemoCopyFromReturnReceipt(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; CopyFromDocNoFilter: Text)
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo);
+        GetReturnReceiptLines(SalesHeader, CopyFromDocNoFilter);
+    end;
+
+    local procedure CreateSalesQuote(var SalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        CreateEmptySalesHeader(SalesHeader, SalesHeader."Document Type"::Quote);
+        SalesHeader."Document Date" := WorkDate;
+        SalesHeader."Sell-to Customer Template Code" := FindCustomerTemplate;
+        SalesHeader."Bill-to Customer Template Code" := SalesHeader."Sell-to Customer Template Code";
+        SalesHeader.Modify;
+        CreateBlankSalesLine(SalesHeader, SalesLine, SalesHeader."Document Type");
+    end;
+
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; Type: Option; CustomerNo: Code[20]): Code[20]
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, Type, CustomerNo);
+
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", CreateGLAccount, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Resource, LibraryResource.CreateResourceNo, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", CreateItemCharge, 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(10000) / 100);
+        SalesLine.Modify(true);
+
+        exit(SalesHeader."No.");
+    end;
+
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; Type: Option; VendorNo: Code[20])
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, Type, VendorNo);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, 1);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", CreateGLAccount, 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(10, 100, 2));
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreateEmptySalesHeader(var SalesHeader: Record "Sales Header"; Type: Option): Code[20]
+    begin
+        SalesHeader.Init;
+        SalesHeader.Validate("Document Type", Type);
+        SalesHeader.Insert(true);
+        exit(SalesHeader."No.");
+    end;
+
+    local procedure CreateEmptyPurchHeader(var PurchaseHeader: Record "Purchase Header"; Type: Option): Code[20]
+    begin
+        PurchaseHeader.Init;
+        PurchaseHeader.Validate("Document Type", Type);
+        PurchaseHeader.Insert(true);
+        exit(PurchaseHeader."No.");
+    end;
+
+    local procedure CreateItemCharge(): Code[20]
+    var
+        ItemCharge: Record "Item Charge";
+    begin
+        ItemCharge.Next(LibraryRandom.RandInt(ItemCharge.Count));
+        exit(ItemCharge."No.");
+    end;
+
+    local procedure CreateItemChargeAssignment(SalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+    begin
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange(Type, SalesLine.Type::"Charge (Item)");
+        SalesLine.FindFirst;
+
+        SalesLine2.SetRange("Document No.", SalesHeader."No.");
+        SalesLine2.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine2.SetRange(Type, SalesLine2.Type::Item);
+        SalesLine2.FindFirst;
+
+        LibraryInventory.CreateItemChargeAssignment(ItemChargeAssignmentSales,
+          SalesLine, SalesLine2."Document Type", SalesLine2."Document No.",
+          SalesLine2."Line No.", SalesLine2."No.");
+    end;
+
+    local procedure CreateItemChargeAssignmentPurch(PurchaseLine: Record "Purchase Line"; AppliesToDocNo: Code[20]; AppliesToDocLineNo: Integer; ItemNo: Code[20]; QtyToAssign: Decimal)
+    var
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+    begin
+        LibraryInventory.CreateItemChargeAssignPurchase(
+          ItemChargeAssignmentPurch, PurchaseLine, ItemChargeAssignmentPurch."Applies-to Doc. Type"::Receipt,
+          AppliesToDocNo, AppliesToDocLineNo, ItemNo);
+        ItemChargeAssignmentPurch.Validate("Qty. to Assign", QtyToAssign);
+        ItemChargeAssignmentPurch.Modify(true);
+    end;
+
+    local procedure CreateItemChargeAssignmentSales(SalesLine: Record "Sales Line"; AppliesToDocNo: Code[20]; AppliesToDocLineNo: Integer; ItemNo: Code[20]; QtyToAssign: Decimal)
+    var
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+    begin
+        LibraryInventory.CreateItemChargeAssignment(
+          ItemChargeAssignmentSales, SalesLine, ItemChargeAssignmentSales."Applies-to Doc. Type"::Shipment,
+          AppliesToDocNo, AppliesToDocLineNo, ItemNo);
+        ItemChargeAssignmentSales.Validate("Qty. to Assign", QtyToAssign);
+        ItemChargeAssignmentSales.Modify(true);
+    end;
+
+    local procedure CreateGLAccount(): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+        GenBusPostingGroup: Record "Gen. Business Posting Group";
+        GenProdPostingGroup: Record "Gen. Product Posting Group";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        GenProdPostingGroup.SetFilter("Def. VAT Prod. Posting Group", '<>%1', '');
+        GenProdPostingGroup.Next(LibraryRandom.RandInt(GenProdPostingGroup.Count));
+        GLAccount.Validate("Gen. Prod. Posting Group", GenProdPostingGroup.Code);
+        GenBusPostingGroup.Next(LibraryRandom.RandInt(GenBusPostingGroup.Count));
+        GLAccount.Validate("Gen. Bus. Posting Group", GenBusPostingGroup.Code);
+        GLAccount.Modify(true);
+        exit(GLAccount."No.");
+    end;
+
+    local procedure CreateItem(): Code[20]
+    var
+        Item: Record Item;
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+    begin
+        LibraryInventory.CreateItem(Item);
+        GenerateDimensions(Dimension, DimensionValue);
+        LibraryDimension.CreateDefaultDimensionItem(DefaultDimension, Item."No.", Dimension.Code, DimensionValue.Code);
+        exit(Item."No.");
+    end;
+
+    local procedure CreateLotTrackedItem(): Code[20]
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItemTrackingCode(ItemTrackingCode);
+        ItemTrackingCode.Validate("Lot Specific Tracking", true);
+        ItemTrackingCode.Modify(true);
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, '', ItemTrackingCode.Code);
+        exit(Item."No.");
+    end;
+
+    local procedure CreateSNTrackedItem(var Item: Record Item)
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        LibraryInventory.CreateItemTrackingCode(ItemTrackingCode);
+        ItemTrackingCode.Validate("SN Specific Tracking", true);
+        ItemTrackingCode.Modify(true);
+        LibraryInventory.CreateTrackedItem(Item, '', LibraryUtility.GetGlobalNoSeriesCode, ItemTrackingCode.Code);
+    end;
+
+    local procedure CreateCustomer(): Code[20]
+    var
+        Customer: Record Customer;
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        GenerateDimensions(Dimension, DimensionValue);
+        LibraryDimension.CreateDefaultDimensionCustomer(DefaultDimension, Customer."No.", Dimension.Code, DimensionValue.Code);
+        exit(Customer."No.");
+    end;
+
+    local procedure CreateBlankSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option)
+    var
+        RecRef: RecordRef;
+    begin
+        Clear(SalesLine);
+        SalesLine.Init;
+        SalesLine.Validate("Document Type", DocumentType);
+        SalesLine.Validate("Document No.", SalesHeader."No.");
+        RecRef.GetTable(SalesLine);
+        SalesLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, SalesLine.FieldNo("Line No.")));
+        SalesLine.Validate(Description, Format(CreateGuid));
+        SalesLine.Insert(true);
+    end;
+
+    local procedure CreateAndPostPurchOrderWithTracking(ItemNo: Code[20]; Quantity: Decimal): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Assign Lot No.");
+        PurchaseLine.OpenItemTrackingLines;
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
+    local procedure CreateAndPostSalesOrderWithTracking(ItemNo: Code[20]; Quantity: Decimal)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Select Entries");
+        SalesLine.OpenItemTrackingLines;
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+    end;
+
+    local procedure CreateAndPostSalesOrderWithAsmToOrderAndTracking(CustomerNo: Code[20]; ItemNo: Code[20]; Qty: Decimal; ItemTracking: Option): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        AssemblyHeader: Record "Assembly Header";
+    begin
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CustomerNo, ItemNo, Qty, '', WorkDate);
+        LibraryAssembly.FindLinkedAssemblyOrder(AssemblyHeader, SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        LibraryVariableStorage.Enqueue(ItemTracking);
+        AssemblyHeader.OpenItemTrackingLines;
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure FindCustomerTemplate(): Code[10]
+    var
+        CustomerTemplate: Record "Customer Template";
+    begin
+        CustomerTemplate.FindFirst;
+        exit(CustomerTemplate.Code);
+    end;
+
+    local procedure CreateVendor(): Code[20]
+    var
+        Vendor: Record Vendor;
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        GenerateDimensions(Dimension, DimensionValue);
+        LibraryDimension.CreateDefaultDimensionVendor(DefaultDimension, Vendor."No.", Dimension.Code, DimensionValue.Code);
+        exit(Vendor."No.");
+    end;
+
+    local procedure GetPurchaseReceiptLines(PurchaseHeader: Record "Purchase Header"; ReceiptNoFilter: Text)
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchGetReceipt: Codeunit "Purch.-Get Receipt";
+    begin
+        PurchRcptLine.SetFilter("Document No.", ReceiptNoFilter);
+        PurchGetReceipt.SetPurchHeader(PurchaseHeader);
+        PurchGetReceipt.CreateInvLines(PurchRcptLine);
+    end;
+
+    local procedure GetPurchaseReceiptLineWithOrderNo(PurchaseHeader: Record "Purchase Header"; ReceiptNo: Code[20]; LineOrderNo: Integer)
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchGetReceipt: Codeunit "Purch.-Get Receipt";
+    begin
+        PurchRcptLine.SetRange("Document No.", ReceiptNo);
+        PurchRcptLine.SetRange("Line No.", FindPurchRcptLineNo(ReceiptNo, LineOrderNo));
+        PurchGetReceipt.SetPurchHeader(PurchaseHeader);
+        PurchGetReceipt.CreateInvLines(PurchRcptLine);
+    end;
+
+    local procedure GetSalesShipmentLines(SalesHeader: Record "Sales Header"; ShipmentNoFilter: Text)
+    var
+        SalesShipmentLine: Record "Sales Shipment Line";
+        SalesGetShipment: Codeunit "Sales-Get Shipment";
+    begin
+        SalesShipmentLine.SetFilter("Document No.", ShipmentNoFilter);
+        SalesGetShipment.SetSalesHeader(SalesHeader);
+        SalesGetShipment.CreateInvLines(SalesShipmentLine);
+    end;
+
+    local procedure GetSalesShipmentLineWithOrderNo(SalesHeader: Record "Sales Header"; ShipmentNo: Code[20]; LineOrderNo: Integer)
+    var
+        SalesShipmentLine: Record "Sales Shipment Line";
+        SalesGetShipment: Codeunit "Sales-Get Shipment";
+    begin
+        SalesShipmentLine.SetRange("Document No.", ShipmentNo);
+        SalesShipmentLine.SetRange("Line No.", FindSalesShptLineNo(ShipmentNo, LineOrderNo));
+        SalesGetShipment.SetSalesHeader(SalesHeader);
+        SalesGetShipment.CreateInvLines(SalesShipmentLine);
+    end;
+
+    local procedure GetReturnShipmentLines(PurchaseHeader: Record "Purchase Header"; ReturnShipmentNoFilter: Text)
+    var
+        ReturnShipmentLine: Record "Return Shipment Line";
+        PurchGetReturnShipments: Codeunit "Purch.-Get Return Shipments";
+    begin
+        ReturnShipmentLine.SetFilter("Document No.", ReturnShipmentNoFilter);
+        PurchGetReturnShipments.SetPurchHeader(PurchaseHeader);
+        PurchGetReturnShipments.CreateInvLines(ReturnShipmentLine);
+    end;
+
+    local procedure GetReturnReceiptLines(SalesHeader: Record "Sales Header"; ReturnReceiptNoFilter: Text)
+    var
+        ReturnReceiptLine: Record "Return Receipt Line";
+        SalesGetReturnReceipts: Codeunit "Sales-Get Return Receipts";
+    begin
+        ReturnReceiptLine.SetFilter("Document No.", ReturnReceiptNoFilter);
+        SalesGetReturnReceipts.SetSalesHeader(SalesHeader);
+        SalesGetReturnReceipts.CreateInvLines(ReturnReceiptLine);
+    end;
+
+    local procedure PostSalesOrderWithUpdatedDimensions(var SalesLine: Record "Sales Line"; var PostedDocNo: Code[20]) DefaultDimSetID: Integer
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+
+        DefaultDimSetID := SalesLine."Dimension Set ID";
+        SalesLine."Dimension Set ID" := UpdateDimensionSet(SalesLine."Dimension Set ID");
+        SalesLine.Modify;
+        PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        exit(DefaultDimSetID);
+    end;
+
+    local procedure PostPurchOrderWithUpdatedDimensions(var PurchLine: Record "Purchase Line"; var PostedDocNo: Code[20]) DefaultDimSetID: Integer
+    var
+        PurchHeader: Record "Purchase Header";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, CreateVendor);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchLine, PurchHeader, PurchLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        DefaultDimSetID := PurchLine."Dimension Set ID";
+        PurchLine."Dimension Set ID" := UpdateDimensionSet(PurchLine."Dimension Set ID");
+        PurchLine.Modify;
+        PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
+        exit(DefaultDimSetID);
+    end;
+
+    local procedure FindComponentItem(ParentItemNo: Code[20]): Code[20]
+    var
+        BOMComponent: Record "BOM Component";
+    begin
+        BOMComponent.SetRange("Parent Item No.", ParentItemNo);
+        BOMComponent.SetRange(Type, BOMComponent.Type::Item);
+        BOMComponent.FindFirst;
+        exit(BOMComponent."No.");
+    end;
+
+    local procedure FindDimension(var Dimension: Record Dimension; var DimensionValueCode: Code[20]; DimensionSetId: Integer)
+    var
+        DimensionSetEntry: Record "Dimension Set Entry";
+    begin
+        DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetId);
+        DimensionSetEntry.FindFirst;
+        DimensionValueCode := DimensionSetEntry."Dimension Value Code";
+        Dimension.Get(DimensionSetEntry."Dimension Code");
+    end;
+
+    local procedure FindDimensionValue(var DimensionValue: Record "Dimension Value"; DimensionCode: Code[20]; OldDimensionValueCode: Code[20])
+    begin
+        DimensionValue.SetRange("Dimension Code", DimensionCode);
+        DimensionValue.SetFilter(Code, '<>%1', OldDimensionValueCode);
+        DimensionValue.FindFirst;
+    end;
+
+    local procedure FindSalesLine(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindLast;
+    end;
+
+    local procedure FindSalesShptLineNo(SalesShptNo: Code[20]; LineOrderNo: Integer): Integer
+    var
+        SalesShipmentLine: Record "Sales Shipment Line";
+    begin
+        SalesShipmentLine.SetRange("Document No.", SalesShptNo);
+        SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
+        SalesShipmentLine.FindSet;
+        SalesShipmentLine.Next(LineOrderNo - 1);
+
+        exit(SalesShipmentLine."Line No.");
+    end;
+
+    local procedure FindPurchLine(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line")
+    begin
+        PurchLine.SetRange("Document Type", PurchHeader."Document Type");
+        PurchLine.SetRange("Document No.", PurchHeader."No.");
+        PurchLine.FindLast;
+    end;
+
+    local procedure FindPurchRcptLineNo(PurchRcptNo: Code[20]; LineOrderNo: Integer): Integer
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+    begin
+        PurchRcptLine.SetRange("Document No.", PurchRcptNo);
+        PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
+        PurchRcptLine.FindSet;
+        PurchRcptLine.Next(LineOrderNo - 1);
+
+        exit(PurchRcptLine."Line No.");
+    end;
+
+    local procedure FindATOLine(var AssemblyLine: Record "Assembly Line"; SalesHeader: Record "Sales Header"; ItemNo: Code[20])
+    var
+        AssembleToOrderLink: Record "Assemble-to-Order Link";
+    begin
+        AssembleToOrderLink.SetRange("Document Type", SalesHeader."Document Type");
+        AssembleToOrderLink.SetRange("Document No.", SalesHeader."No.");
+        AssembleToOrderLink.FindFirst;
+        AssemblyLine.SetRange("Document Type", AssembleToOrderLink."Assembly Document Type");
+        AssemblyLine.SetRange("Document No.", AssembleToOrderLink."Assembly Document No.");
+        AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
+        AssemblyLine.SetRange("No.", ItemNo);
+        AssemblyLine.FindFirst;
+    end;
+
+    local procedure GenerateDimensions(var Dimension: Record Dimension; var DimensionValue: Record "Dimension Value")
+    var
+        "Count": Integer;
+    begin
+        LibraryDimension.CreateDimension(Dimension);
+        Count := LibraryRandom.RandIntInRange(5, 10);
+        while Count > 0 do begin
+            LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
+            Count -= 1;
+        end;
+    end;
+
+    local procedure UpdateDimensionSet(DimensionSetID: Integer): Integer
+    var
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        OldDimensionValueCode: Code[20];
+    begin
+        FindDimension(Dimension, OldDimensionValueCode, DimensionSetID);
+        FindDimensionValue(DimensionValue, Dimension.Code, OldDimensionValueCode);
+        exit(LibraryDimension.EditDimSet(DimensionSetID, Dimension.Code, DimensionValue.Code));
+    end;
+
+    local procedure UpdateQtyToReceiveOnPurchaseLines(PurchaseHeader: Record "Purchase Header"; QtyToReceive: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        with PurchaseLine do begin
+            SetRange("Document Type", PurchaseHeader."Document Type");
+            SetRange("Document No.", PurchaseHeader."No.");
+            FindSet;
+            repeat
+                Validate("Qty. to Receive", QtyToReceive);
+                Modify(true);
+            until Next = 0;
+        end;
+    end;
+
+    local procedure UpdateReturnQtyToShipOnPurchaseLines(PurchaseHeader: Record "Purchase Header"; ReturnQtyToShip: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        with PurchaseLine do begin
+            SetRange("Document Type", PurchaseHeader."Document Type");
+            SetRange("Document No.", PurchaseHeader."No.");
+            FindSet;
+            repeat
+                Validate("Return Qty. to Ship", ReturnQtyToShip);
+                Modify(true);
+            until Next = 0;
+        end;
+    end;
+
+    local procedure UpdateQtyToShipOnSalesLines(SalesHeader: Record "Sales Header"; QtyToShip: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        with SalesLine do begin
+            SetRange("Document Type", SalesHeader."Document Type");
+            SetRange("Document No.", SalesHeader."No.");
+            FindSet;
+            repeat
+                Validate("Qty. to Ship", QtyToShip);
+                Modify(true);
+            until Next = 0;
+        end;
+    end;
+
+    local procedure UpdateReturnQtyToReceiveOnSalesLines(SalesHeader: Record "Sales Header"; ReturnQtyToReceive: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        with SalesLine do begin
+            SetRange("Document Type", SalesHeader."Document Type");
+            SetRange("Document No.", SalesHeader."No.");
+            FindSet;
+            repeat
+                Validate("Return Qty. to Receive", ReturnQtyToReceive);
+                Modify(true);
+            until Next = 0;
+        end;
+    end;
+
+    local procedure VerifyCopy(SourceType: Option; SourceNo: Code[20]; DestType: Option; DestNo: Code[20])
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        SalesHeader.Get(DestType, DestNo);
+        SalesLine.SetRange("Document No.", DestNo);
+        SalesLine.SetRange("Document Type", DestType);
+        SalesLine.SetFilter(Type, '<>%1', SalesLine.Type::" ");
+        SalesLine.FindSet;
+
+        case SourceType of
+            SalesDocType::Order, SalesDocType::"Return Order", SalesDocType::"Credit Memo",
+          SalesDocType::Quote, SalesDocType::Invoice, SalesDocType::"Blanket Order":
+                ValidateCopiedSalesHeader(SalesHeader, SalesLine, SourceType, SourceNo);
+            SalesDocType::"Posted Credit Memo":
+                ValidateCopiedCrMemoHeader(SalesHeader, SalesLine, SourceNo);
+            SalesDocType::"Posted Shipment":
+                ValidateCopiedShipmentHeader(SalesHeader, SalesLine, SourceNo);
+            SalesDocType::"Posted Invoice":
+                ValidateCopiedInvoiceHeader(SalesHeader, SalesLine, SourceNo);
+            SalesDocType::"Posted Return Receipt":
+                ValidateCopiedReceiptHeader(SalesHeader, SalesLine, SourceNo);
+        end;
+
+        Assert.IsTrue(SalesLine.Next = 0,
+          'Unexpected remaining data in destination document');
+    end;
+
+    local procedure VerifyItemChargeAssignmentPurchCopied(FromDocType: Option; FromDocNo: Code[20]; ToDocType: Option; ToDocNo: Code[20])
+    var
+        FromItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        ToItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+    begin
+        FromItemChargeAssignmentPurch.SetRange("Document Type", FromDocType);
+        FromItemChargeAssignmentPurch.SetRange("Document No.", FromDocNo);
+        ToItemChargeAssignmentPurch.SetRange("Document Type", ToDocType);
+        ToItemChargeAssignmentPurch.SetRange("Document No.", ToDocNo);
+        FromItemChargeAssignmentPurch.FindSet;
+        repeat
+            ToItemChargeAssignmentPurch.SetRange("Item Charge No.", FromItemChargeAssignmentPurch."Item Charge No.");
+            ToItemChargeAssignmentPurch.FindFirst;
+            ToItemChargeAssignmentPurch.TestField("Qty. to Assign", FromItemChargeAssignmentPurch."Qty. to Assign");
+        until FromItemChargeAssignmentPurch.Next = 0;
+    end;
+
+    local procedure VerifyItemChargeAssignmentSalesCopied(FromDocType: Option; FromDocNo: Code[20]; ToDocType: Option; ToDocNo: Code[20])
+    var
+        FromItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        ToItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+    begin
+        FromItemChargeAssignmentSales.SetRange("Document Type", FromDocType);
+        FromItemChargeAssignmentSales.SetRange("Document No.", FromDocNo);
+        ToItemChargeAssignmentSales.SetRange("Document Type", ToDocType);
+        ToItemChargeAssignmentSales.SetRange("Document No.", ToDocNo);
+        FromItemChargeAssignmentSales.FindSet;
+        repeat
+            ToItemChargeAssignmentSales.SetRange("Item Charge No.", FromItemChargeAssignmentSales."Item Charge No.");
+            ToItemChargeAssignmentSales.FindFirst;
+            ToItemChargeAssignmentSales.TestField("Qty. to Assign", FromItemChargeAssignmentSales."Qty. to Assign");
+        until FromItemChargeAssignmentSales.Next = 0;
+    end;
+
+    local procedure VerifyShipmntItemChargeAssngmt(SalesHeader: Record "Sales Header"; ItemNo: Code[20])
+    var
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+    begin
+        ItemChargeAssignmentSales.SetRange("Document No.", SalesHeader."No.");
+        ItemChargeAssignmentSales.SetRange("Document Type", SalesHeader."Document Type");
+        ItemChargeAssignmentSales.FindSet;
+
+        Assert.AreEqual(
+          ItemChargeAssignmentSales."Applies-to Doc. Type",
+          ItemChargeAssignmentSales."Applies-to Doc. Type"::Shipment,
+          StrSubstNo('Item Charge Assignment should apply to Posted Shipment. Type was %1.',
+            ItemChargeAssignmentSales."Applies-to Doc. Type"));
+        Assert.AreEqual(ItemChargeAssignmentSales."Item No.", ItemNo,
+          StrSubstNo('Wrong Item No. when validating Item Charge Assignment on Shipment. Was %1, expected %2.',
+            ItemChargeAssignmentSales."Item No.", ItemNo));
+
+        Assert.IsTrue(
+          ItemChargeAssignmentSales.Next = 0,
+          'Unexpected data in item charge assignment');
+    end;
+
+    local procedure ValidateCopiedSalesHeader(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SourceType: Option; SourceNo: Code[20])
+    var
+        SalesHeader2: Record "Sales Header";
+        SalesLine2: Record "Sales Line";
+    begin
+        SalesHeader2.Get(CopyDocumentMgt.SalesHeaderDocType(SourceType), SourceNo);
+        SalesHeader.TestField("Sell-to Customer No.", SalesHeader2."Sell-to Customer No.");
+        SalesLine2.SetRange("Document No.", SourceNo);
+        SalesLine2.SetRange("Document Type", CopyDocumentMgt.SalesHeaderDocType(SourceType));
+        SalesLine2.SetFilter(Type, '<>%1', SalesLine2.Type::" ");
+        SalesLine2.FindSet;
+        repeat
+            SalesLine.TestField(Type, SalesLine2.Type);
+            SalesLine.TestField("No.", SalesLine2."No.");
+            SalesLine.TestField(Quantity, SalesLine2.Quantity);
+            SalesLine.TestField("Unit of Measure", SalesLine2."Unit of Measure");
+            SalesLine.TestField("Unit Price", SalesLine2."Unit Price");
+            SalesLine.TestField("Location Code", SalesLine2."Location Code");
+        until (SalesLine2.Next = 0) and (SalesLine.Next = 0);
+        Assert.IsTrue(SalesLine2.Next = 0,
+          'Unexpected remaining data in source document');
+    end;
+
+    local procedure ValidateCopiedCrMemoHeader(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SourceNo: Code[20])
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+    begin
+        SalesCrMemoHeader.Get(SourceNo);
+        SalesHeader.TestField("Sell-to Customer No.", SalesCrMemoHeader."Sell-to Customer No.");
+        SalesCrMemoLine.SetRange("Document No.", SourceNo);
+        SalesCrMemoLine.SetFilter(Type, '<>%1', SalesCrMemoLine.Type::" ");
+        SalesCrMemoLine.FindSet;
+        repeat
+            SalesLine.TestField(Type, SalesCrMemoLine.Type);
+            SalesLine.TestField("No.", SalesCrMemoLine."No.");
+            SalesLine.TestField(Quantity, SalesCrMemoLine.Quantity);
+            SalesLine.TestField("Unit of Measure", SalesCrMemoLine."Unit of Measure");
+            SalesLine.TestField("Unit Price", SalesCrMemoLine."Unit Price");
+            SalesLine.TestField("Location Code", SalesCrMemoLine."Location Code");
+        until (SalesCrMemoLine.Next = 0) and (SalesLine.Next = 0);
+        Assert.IsTrue(SalesCrMemoLine.Next = 0,
+          'Unexpected remaining data in source document');
+    end;
+
+    local procedure ValidateCopiedShipmentHeader(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SourceNo: Code[20])
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+    begin
+        SalesShipmentHeader.Get(SourceNo);
+        SalesHeader.TestField("Sell-to Customer No.", SalesShipmentHeader."Sell-to Customer No.");
+        SalesShipmentLine.SetRange("Document No.", SourceNo);
+        SalesShipmentLine.SetFilter(Type, '<>%1', SalesShipmentLine.Type::" ");
+        SalesShipmentLine.FindSet;
+        repeat
+            SalesLine.TestField(Type, SalesShipmentLine.Type);
+            SalesLine.TestField("No.", SalesShipmentLine."No.");
+            SalesLine.TestField(Quantity, SalesShipmentLine.Quantity);
+            SalesLine.TestField("Unit of Measure", SalesShipmentLine."Unit of Measure");
+            SalesLine.TestField("Unit Price", SalesShipmentLine."Unit Price");
+            SalesLine.TestField("Location Code", SalesShipmentLine."Location Code");
+        until (SalesShipmentLine.Next = 0) and (SalesLine.Next = 0);
+        Assert.IsTrue(SalesShipmentLine.Next = 0,
+          'Unexpected remaining data in source document');
+    end;
+
+    local procedure ValidateCopiedInvoiceHeader(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SourceNo: Code[20])
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+    begin
+        SalesInvoiceHeader.Get(SourceNo);
+        SalesHeader.TestField("Sell-to Customer No.", SalesInvoiceHeader."Sell-to Customer No.");
+        SalesInvoiceLine.SetRange("Document No.", SourceNo);
+        SalesInvoiceLine.SetFilter(Type, '<>%1', SalesInvoiceLine.Type::" ");
+        SalesInvoiceLine.FindSet;
+        repeat
+            SalesLine.TestField(Type, SalesInvoiceLine.Type);
+            SalesLine.TestField("No.", SalesInvoiceLine."No.");
+            SalesLine.TestField(Quantity, SalesInvoiceLine.Quantity);
+            SalesLine.TestField("Unit of Measure", SalesInvoiceLine."Unit of Measure");
+            SalesLine.TestField("Unit Price", SalesInvoiceLine."Unit Price");
+            SalesLine.TestField("Location Code", SalesInvoiceLine."Location Code");
+        until (SalesInvoiceLine.Next = 0) and (SalesLine.Next = 0);
+        Assert.IsTrue(SalesInvoiceLine.Next = 0,
+          'Unexpected remaining data in source document');
+    end;
+
+    local procedure ValidateCopiedReceiptHeader(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SourceNo: Code[20])
+    var
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        ReturnReceiptLine: Record "Return Receipt Line";
+    begin
+        ReturnReceiptHeader.Get(SourceNo);
+        SalesHeader.TestField("Sell-to Customer No.", ReturnReceiptHeader."Sell-to Customer No.");
+        ReturnReceiptLine.SetRange("Document No.", SourceNo);
+        ReturnReceiptLine.SetFilter(Type, '<>%1', ReturnReceiptLine.Type::" ");
+        ReturnReceiptLine.FindSet;
+        repeat
+            SalesLine.TestField(Type, ReturnReceiptLine.Type);
+            SalesLine.TestField("No.", ReturnReceiptLine."No.");
+            SalesLine.TestField(Quantity, ReturnReceiptLine.Quantity);
+            SalesLine.TestField("Unit of Measure", ReturnReceiptLine."Unit of Measure");
+            SalesLine.TestField("Unit Price", ReturnReceiptLine."Unit Price");
+            SalesLine.TestField("Location Code", ReturnReceiptLine."Location Code");
+        until (ReturnReceiptLine.Next = 0) and (SalesLine.Next = 0);
+        Assert.IsTrue(ReturnReceiptLine.Next = 0,
+          'Unexpected remaining data in source document');
+    end;
+
+    local procedure ValidateCopiedSalesHeaderAndSalesLines(var SalesHeader: Record "Sales Header"; FromType: Option; FromDocNo: Code[20])
+    var
+        FromSalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+    begin
+        FromSalesHeader.Get(FromType, FromDocNo);
+        FindSalesLine(FromSalesHeader, SalesLine);
+        FindSalesLine(SalesHeader, SalesLine2);
+        repeat
+            SalesLine2.TestField(Type, SalesLine.Type);
+            SalesLine2.TestField("No.", SalesLine."No.");
+        until (SalesLine2.Next = 0) and (SalesLine.Next = 0);
+    end;
+
+    local procedure VerifySNItemTrackingOnSalesLine(SalesLine: Record "Sales Line"; Qty: Decimal)
+    var
+        ReservationEntry: Record "Reservation Entry";
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
+    begin
+        SalesLineReserve.FilterReservFor(ReservationEntry, SalesLine);
+        ReservationEntry.SetRange("Item Tracking", ReservationEntry."Item Tracking"::"Serial No.");
+        Assert.RecordCount(ReservationEntry, Qty);
+    end;
+
+    local procedure VerifySalesDocumentDimension(var SalesHeader: Record "Sales Header"; ExpectedDimensionSetID: Integer)
+    begin
+        Assert.AreEqual(ExpectedDimensionSetID, SalesHeader."Dimension Set ID", WrongDimensionsCopiedErr);
+    end;
+
+    local procedure VerifyPurchaseDocumentDimension(var PurchaseHeader: Record "Purchase Header"; ExpectedDimensionSetID: Integer)
+    begin
+        Assert.AreEqual(ExpectedDimensionSetID, PurchaseHeader."Dimension Set ID", WrongDimensionsCopiedErr);
+    end;
+
+    local procedure VerifyCopySalesLinesNos(DocumentType: Option; DocumentNo: Code[20]; LineType: Option; ItemNo1: Code[20]; ItemNo2: Code[20])
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document Type", DocumentType);
+        SalesLine.SetRange("Document No.", DocumentNo);
+        SalesLine.SetRange(Type, LineType);
+        SalesLine.FindSet;
+        Assert.AreEqual(ItemNo1, SalesLine."No.", '');
+        SalesLine.Next;
+        Assert.AreEqual(ItemNo2, SalesLine."No.", '');
+        Assert.AreEqual(0, SalesLine.Next, 'Unexpected remaining data in source document');
+    end;
+
+    local procedure VerifyCopyPurchLinesNos(DocumentType: Option; DocumentNo: Code[20]; LineType: Option; ItemNo1: Code[20]; ItemNo2: Code[20])
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseLine.SetRange("Document Type", DocumentType);
+        PurchaseLine.SetRange("Document No.", DocumentNo);
+        PurchaseLine.SetRange(Type, LineType);
+        PurchaseLine.FindSet;
+        Assert.AreEqual(ItemNo1, PurchaseLine."No.", '');
+        PurchaseLine.Next;
+        Assert.AreEqual(ItemNo2, PurchaseLine."No.", '');
+        Assert.AreEqual(0, PurchaseLine.Next, 'Unexpected remaining data in source document');
+    end;
+
+    local procedure VerifyQtyToAssignOnPurchInvoiceLine(PurchaseHeader: Record "Purchase Header"; PurchReceiptNo: Code[20]; QtyToAssign: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseLine.SetRange("Receipt No.", PurchReceiptNo);
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::"Charge (Item)");
+        FindPurchLine(PurchaseHeader, PurchaseLine);
+        PurchaseLine.CalcFields("Qty. to Assign");
+        PurchaseLine.TestField("Qty. to Assign", QtyToAssign);
+    end;
+
+    local procedure VerifyQtyToAssignOnSalesInvoiceLine(SalesHeader: Record "Sales Header"; SalesShipmentNo: Code[20]; QtyToAssign: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Shipment No.", SalesShipmentNo);
+        SalesLine.SetRange(Type, SalesLine.Type::"Charge (Item)");
+        FindSalesLine(SalesHeader, SalesLine);
+        SalesLine.CalcFields("Qty. to Assign");
+        SalesLine.TestField("Qty. to Assign", QtyToAssign);
+    end;
+
+    local procedure VerifyQtyToAssignOnPurchCrMemoLine(PurchaseHeader: Record "Purchase Header"; ReturnShipmentNo: Code[20]; QtyToAssign: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseLine.SetRange("Return Shipment No.", ReturnShipmentNo);
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::"Charge (Item)");
+        FindPurchLine(PurchaseHeader, PurchaseLine);
+        PurchaseLine.CalcFields("Qty. to Assign");
+        PurchaseLine.TestField("Qty. to Assign", QtyToAssign);
+    end;
+
+    local procedure VerifyQtyToAssignOnSalesCrMemoLine(SalesHeader: Record "Sales Header"; ReturnReceiptNo: Code[20]; QtyToAssign: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Return Receipt No.", ReturnReceiptNo);
+        SalesLine.SetRange(Type, SalesLine.Type::"Charge (Item)");
+        FindSalesLine(SalesHeader, SalesLine);
+        SalesLine.CalcFields("Qty. to Assign");
+        SalesLine.TestField("Qty. to Assign", QtyToAssign);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingLinesModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        case LibraryVariableStorage.DequeueInteger of
+            ItemTrackingMode::"Assign Lot No.":
+                ItemTrackingLines."Assign Lot No.".Invoke;
+            ItemTrackingMode::"Assign Serial Nos.":
+                ItemTrackingLines."Assign Serial No.".Invoke;
+            ItemTrackingMode::"Select Entries":
+                ItemTrackingLines."Select Entries".Invoke;
+        end;
+        ItemTrackingLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingSummaryModalPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
+    begin
+        ItemTrackingSummary.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure EnterQuantityToCreateModalPageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
+    begin
+        EnterQuantityToCreate.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedSalesDocumentLinesModalPageHandler(var PostedSalesDocumentLines: TestPage "Posted Sales Document Lines")
+    var
+        DocType: Option "Posted Shipments","Posted Invoices","Posted Return Receipts","Posted Cr. Memos";
+    begin
+        PostedSalesDocumentLines.PostedShipmentsBtn.SetValue(DocType::"Posted Invoices");
+        PostedSalesDocumentLines.PostedInvoices.FILTER.SetFilter("Document No.", LibraryVariableStorage.DequeueText);
+        PostedSalesDocumentLines.OK.Invoke;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Assert.IsTrue(StrPos(Question, MsgCorrectedInvoiceNo) > 0, Question);
+        Reply := true;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+    end;
+
+    local procedure ExecuteConfirmHandler()
+    begin
+        if Confirm(MsgCorrectedInvoiceNo) then;
+    end;
+}
+

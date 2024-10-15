@@ -1,0 +1,4006 @@
+codeunit 137159 "SCM Warehouse VII"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [Warehouse] [SCM]
+        isInitialized := false;
+    end;
+
+    var
+        LocationWhite: Record Location;
+        LocationBlue: Record Location;
+        LocationSilver: Record Location;
+        LocationRed: Record Location;
+        LocationGreen: Record Location;
+        LocationYellow: Record Location;
+        LocationBlack: Record Location;
+        LocationOrange: Record Location;
+        LocationInTransit: Record Location;
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalTemplate: Record "Item Journal Template";
+        JobJournalTemplate: Record "Job Journal Template";
+        JobJournalBatch: Record "Job Journal Batch";
+        LibraryRandom: Codeunit "Library - Random";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryPlanning: Codeunit "Library - Planning";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
+        LibraryERM: Codeunit "Library - ERM";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        isInitialized: Boolean;
+        DirectedPutAwayAndPickError: Label 'Directed Put-away and Pick must be equal to ''No''  in Location:';
+        InventoryMovementConfirmMessage: Label 'Do you want to create Inventory Movement?';
+        InventoryMovementCreated: Label 'Invt. Movement activity number';
+        InternalMovementHeaderDelete: Label '%1 must be deleted.';
+        QuantityMustBeSame: Label 'Quantity must be same.';
+        PostJobJournalLines: Label 'Do you want to post the journal lines';
+        JobJournalPosted: Label 'The journal lines were successfully posted';
+        ReservationConfirmMessage: Label 'Automatic reservation is not possible.';
+        ReservationNotPossibleMessage: Label 'Full automatic Reservation is not possible.';
+        InventoryMovementCreatedMessage: Label 'Number of Invt. Movement activities created';
+        TotalBaseQuantityError: Label 'The total base quantity to take %1 must be equal to the total base quantity to place', Comment = '%1 = Quantity.';
+        PostJournalLinesConfirmationMessage: Label 'Do you want to post the journal lines';
+        JournalLinesPostedMessage: Label 'The journal lines were successfully posted';
+        ItemNotOnInventoryError: Label 'Item %1 is not in inventory.', Comment = '%1 = Item No.';
+        UndoShipmentConfirmationMessage: Label 'Do you really want to undo the selected Shipment lines?';
+        UndoReceiptConfirmationMessage: Label 'Do you really want to undo the selected Receipt lines?';
+        WarehouseShipmentRequiredError: Label 'Warehouse Shipment is required';
+        WarehouseReceiveRequiredError: Label 'Warehouse Receive is required';
+        UndoReturnReceiptConfirmationMessage: Label 'Do you really want to undo the selected Return Receipt lines?';
+        NotMadeOrderErr: Label '%1 of %2 %3 in %4 %5 cannot be more than %6.', Comment = '%1 = PurchaseLine."Qty. to Receive (Base)",%2 = PurchaseLine.Type,%3 = PurchaseLine."No.",%4 = PurchaseLine."Line No."';
+        UndoShipmentAfterPickedConfirmationMsg: Label 'The items have been picked. If you undo line';
+        SpecificReservationTxt: Label 'Do you want to reserve specific';
+        WarehouseEntryMsg: Label 'The Warehouse Entry is not correct after undo Sales Shipment Lines.';
+        WrongQuantityBaseErr: Label 'Quantity (Base) must not be';
+        ItemTrackingQuantityMsg: Label 'The corrections cannot be saved as excess quantity has been defined.\Close the form anyway?';
+        BlankCodeErr: Label 'Code must be filled in. Enter a value.';
+        UsageNotLinkedToBlankLineTypeMsg: Label 'Usage will not be linked to the job planning line because the Line Type field is empty';
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreatePutAwayFromPurchaseOrderOnLocationWithBins()
+    begin
+        // Setup.
+        Initialize;
+        PostShipmentAfterRegisterPickWithReservedQuantity(false, false, false, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RegisterPutAwayFromPurchaseOrderOnLocationWithBins()
+    begin
+        // Setup.
+        Initialize;
+        PostShipmentAfterRegisterPickWithReservedQuantity(true, false, false, false);  // Register Put-away as TRUE.
+    end;
+
+    [Test]
+    [HandlerFunctions('ReservationPageHandler')]
+    [Scope('OnPrem')]
+    procedure CreatePickWithReservedQuantityOnLocationWithBins()
+    begin
+        // Setup.
+        Initialize;
+        PostShipmentAfterRegisterPickWithReservedQuantity(true, true, false, false);  // Register Put-away and Create Pick as TRUE.
+    end;
+
+    [Test]
+    [HandlerFunctions('ReservationPageHandler')]
+    [Scope('OnPrem')]
+    procedure RegisterPickWithReservedQuantityOnLocationWithBins()
+    begin
+        // Setup.
+        Initialize;
+        PostShipmentAfterRegisterPickWithReservedQuantity(true, true, true, false);  // Register Put-away, Create Pick and Register Pick as TRUE.
+    end;
+
+    [Test]
+    [HandlerFunctions('ReservationPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostShipmentWithReservedQuantityOnLocationWithBins()
+    begin
+        // Setup.
+        Initialize;
+        PostShipmentAfterRegisterPickWithReservedQuantity(true, true, true, true);  // Register Put-away, Create Pick, Register Pick and Post Shipment as TRUE.
+    end;
+
+    local procedure PostShipmentAfterRegisterPickWithReservedQuantity(RegisterPutAway: Boolean; CreatePickFromSalesOrder: Boolean; RegisterPick: Boolean; PostShipment: Boolean)
+    var
+        Bin: Record Bin;
+        Item: Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        PurchaseHeader: Record "Purchase Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseEntry: Record "Warehouse Entry";
+        Quantity: Decimal;
+    begin
+        // Create and release Purchase Order. Create Warehouse Receipt from Purchase Order.
+        Quantity := LibraryRandom.RandDec(10, 2);
+        LibraryInventory.CreateItem(Item);
+        CreateWarehouseReceiptFromPurchaseOrder(PurchaseHeader, Item."No.", Quantity, LocationSilver.Code, false);
+
+        // Exercise.
+        PostWarehouseReceipt(PurchaseHeader."No.");
+
+        // Verify.
+        VerifyItemLedgerEntry(
+          ItemLedgerEntry."Entry Type"::Purchase, ItemLedgerEntry."Document Type"::"Purchase Receipt", LocationSilver.Code, Item."No.", '',
+          '', Quantity);
+
+        if RegisterPutAway then begin
+            // Exercise.
+            FindBin(Bin, LocationSilver);
+            RegisterWarehouseActivity(
+              WarehouseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.",
+              WarehouseActivityLine."Activity Type"::"Put-away");
+
+            // Verify.
+            VerifyWarehouseEntry(
+              WarehouseEntry."Entry Type"::Movement, WarehouseEntry."Source Document"::"P. Order", Item."No.",
+              LocationSilver."Receipt Bin Code", '', -Quantity, false);
+            VerifyWarehouseEntry(
+              WarehouseEntry."Entry Type"::Movement, WarehouseEntry."Source Document"::"P. Order", Item."No.", Bin.Code, '', Quantity, false);
+        end;
+
+        if CreatePickFromSalesOrder then begin
+            // Exercise.
+            CreateWarehouseShipmentFromSalesOrder(
+              SalesHeader, SalesLine, '', Item."No.", Quantity, LocationSilver.Code, true);  // TRUE for Reserve.
+            CreatePick(SalesHeader."No.");
+
+            // Verify.
+            VerifyWarehousePickLine(WarehouseActivityLine."Action Type"::Take, SalesHeader."No.", Item."No.", Quantity, Bin.Code);
+            VerifyWarehousePickLine(
+              WarehouseActivityLine."Action Type"::Place, SalesHeader."No.", Item."No.", Quantity, LocationSilver."Shipment Bin Code");
+        end;
+
+        if RegisterPick then begin
+            // Exercise.
+            RegisterWarehouseActivity(
+              WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.", WarehouseActivityLine."Activity Type"::Pick);
+
+            // Verify.
+            VerifyWarehouseEntry(
+              WarehouseEntry."Entry Type"::Movement, WarehouseEntry."Source Document"::"S. Order", Item."No.", Bin.Code, '', -Quantity, false);
+            VerifyWarehouseEntry(
+              WarehouseEntry."Entry Type"::Movement, WarehouseEntry."Source Document"::"S. Order", Item."No.",
+              LocationSilver."Shipment Bin Code", '', Quantity, false);
+        end;
+
+        if PostShipment then begin
+            // Exercise.
+            PostWarehouseShipment(SalesHeader."No.");
+
+            // Verify.
+            VerifyWarehouseEntry(
+              WarehouseEntry."Entry Type"::"Negative Adjmt.", WarehouseEntry."Source Document"::"S. Order", Item."No.",
+              LocationSilver."Shipment Bin Code", '', -Quantity, false);
+        end;
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,ReservationPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure PickWithUnreservedQuantityWithAlwaysCreatePickLine()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Quantity: Decimal;
+        OldAlwaysCreatePickLine: Boolean;
+    begin
+        // Setup: Update Always Create Pick Line on Location. Create Warehouse Shipment from Sales Order.
+        Initialize;
+        Quantity := LibraryRandom.RandDec(10, 2);
+        OldAlwaysCreatePickLine := UpdateAlwaysCreatePickLineOnLocation(LocationWhite, true);
+        CreateItem(Item, Item.Reserve::Always, Item."Reordering Policy");
+        CreateAndReleaseSalesOrderByPage(SalesHeader, Item."No.", LocationWhite.Code, Quantity);
+        CreateWarehouseShipment(SalesHeader);
+
+        // Exercise.
+        CreatePick(SalesHeader."No.");
+
+        // Verify.
+        VerifyWarehousePickLine(WarehouseActivityLine."Action Type"::Take, SalesHeader."No.", Item."No.", Quantity, '');
+        VerifyWarehousePickLine(
+          WarehouseActivityLine."Action Type"::Place, SalesHeader."No.", Item."No.", Quantity, LocationWhite."Shipment Bin Code");
+
+        // Tear Down.
+        UpdateAlwaysCreatePickLineOnLocation(LocationWhite, OldAlwaysCreatePickLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostWarehouseShipmentFromSalesOrder()
+    begin
+        // Setup.
+        Initialize;
+        PostSalesInvoiceWithItemChargeAndGetShipmentLines(false);  // Post Sales Invoice as FALSE.
+    end;
+
+    [Test]
+    [HandlerFunctions('GetShipmentLinesPageHandler,ItemChargeAssignmentSalesPageHandler,SalesShipmentLinePageHandler')]
+    [Scope('OnPrem')]
+    procedure PostSalesInvoiceWithPostedShipmentNoWithItemCharge()
+    begin
+        // Setup.
+        Initialize;
+        PostSalesInvoiceWithItemChargeAndGetShipmentLines(true);  // Post Sales Invoice as TRUE.
+    end;
+
+    local procedure PostSalesInvoiceWithItemChargeAndGetShipmentLines(PostSalesInvoice: Boolean)
+    var
+        Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
+        GeneralPostingSetup: Record "General Posting Setup";
+        Item: Record Item;
+        ItemCharge: Record "Item Charge";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        Quantity: Decimal;
+        PostedDocumentNo: Code[20];
+    begin
+        // Create Customer. Create Warehouse Shipment from Sales Order.
+        Quantity := LibraryRandom.RandDec(10, 2);
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateCustomer(Customer);
+        CreateWarehouseShipmentFromSalesOrder(SalesHeader, SalesLine, Customer."No.", Item."No.", Quantity, LocationBlue.Code, false);
+
+        // Exercise.
+        PostWarehouseShipment(SalesHeader."No.");
+
+        // Verify.
+        VerifyItemLedgerEntry(
+          ItemLedgerEntry."Entry Type"::Sale, ItemLedgerEntry."Document Type"::"Sales Shipment", LocationBlue.Code, Item."No.", '', '',
+          -Quantity);
+
+        if PostSalesInvoice then begin
+            // Exercise: Create and post Sales Invoice with same No. as Posted Sales Shipment.
+            PostedDocumentNo :=
+              PostSalesInvoiceWithGetShipmentLinesAndItemCharge(
+                SalesLine2, FindPostedSalesShipment(Customer."No.", SalesHeader."No."), Customer."No.");
+
+            // Verify item charge entry
+            ItemCharge.Get(SalesLine2."No.");
+            CustomerPostingGroup.Get(Customer."Customer Posting Group");
+            GeneralPostingSetup.Get(Customer."Gen. Bus. Posting Group", ItemCharge."Gen. Prod. Posting Group");
+            VerifyGLEntry(PostedDocumentNo, GeneralPostingSetup."Sales Account", -SalesLine2."Line Amount", false);
+
+            // Verify item entry
+            CustomerPostingGroup.Get(Customer."Customer Posting Group");
+            GeneralPostingSetup.Get(Customer."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
+            VerifyGLEntry(PostedDocumentNo, GeneralPostingSetup."Sales Account", -SalesLine."Line Amount", true);  // TRUE for Next Line.
+            VerifyGLEntry(
+              PostedDocumentNo, CustomerPostingGroup."Receivables Account",
+              SalesLine."Amount Including VAT" + SalesLine2."Amount Including VAT", false);  // Value required for verification.
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemSelectedOnItemsByLocationMatrixPage()
+    var
+        Item: Record Item;
+        ItemsbyLocation: TestPage "Items by Location";
+    begin
+        // [SCENARIO 278254] Stan opens "Items by Location" page from Item List and can see that matrix subform is positioned to item selected in Item List
+        Initialize;
+        LibraryInventory.CreateItem(Item);
+
+        ItemsbyLocation.Trap;
+        OpenItemsByLocationPageFromItemCard(Item."No.");
+
+        ItemsbyLocation.MatrixForm."No.".AssertEquals(Item."No.");
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemIsNotModifiedAfterItemByLocationsPageIsOpened()
+    var
+        Item: Record Item;
+        ItemsbyLocation: TestPage "Items by Location";
+    begin
+        Initialize;
+        LibraryInventory.CreateItem(Item);
+
+        Item."Last DateTime Modified" := 0DT;
+        Item."Last Date Modified" := 0D;
+        Item."Last Time Modified" := 0T;
+        Item.Modify;
+
+        ItemsbyLocation.Trap;
+        OpenItemsByLocationPageFromItemCard(Item."No.");
+
+        Item.Find;
+        Item.TestField("Last DateTime Modified", 0DT);
+        Item.TestField("Last Date Modified", 0D);
+        Item.TestField("Last Time Modified", 0T);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorOnUpdatingLocationOnInventoryMovement()
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+    begin
+        // Setup.
+        Initialize;
+        LibraryWarehouse.CreateInventoryMovementHeader(WarehouseActivityHeader, '');
+
+        // Exercise.
+        asserterror WarehouseActivityHeader.Validate("Location Code", LocationWhite.Code);
+
+        // Verify.
+        Assert.ExpectedError(DirectedPutAwayAndPickError);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,EnterQuantityToCreatePageHandler')]
+    [Scope('OnPrem')]
+    procedure GetBinContentOnInternalMovementWithSerial()
+    begin
+        // Setup.
+        Initialize;
+        InvtMovementFromInternalMovementWithSerial(false);  // Inventory Movement as FALSE.
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,EnterQuantityToCreatePageHandler,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure InventorytMovementAfterGetBinContentWithSerial()
+    begin
+        // Setup.
+        Initialize;
+        InvtMovementFromInternalMovementWithSerial(true);  // Inventory Movement as TRUE.
+    end;
+
+    local procedure InvtMovementFromInternalMovementWithSerial(InventoryMovement: Boolean)
+    var
+        Item: Record Item;
+        Bin: Record Bin;
+        InternalMovementHeader: Record "Internal Movement Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Bin2: Record Bin;
+        ItemTrackingMode: Option " ",AssignLotNo,AssignSerialNo,AssignMultipleLotNo,SelectEntries,SelectSerialNo,SelectLotNo;
+        Quantity: Decimal;
+    begin
+        // Create Item with Serial Item Tracking Code. Create Item Journal Line and update Expiration Date on Reservation Entry. Post Item Journal Line. Create Internal Movement with Get Bin Content.
+        Quantity := LibraryRandom.RandInt(100);
+        CreateTrackedItemAndUpdateInventoryOnLocationWithBin(
+          Item, Bin, Quantity, false, true, true, '', LibraryUtility.GetGlobalNoSeriesCode, ItemTrackingMode::AssignSerialNo, true);
+
+        // Exercise.
+        CreateInternalMovementWithGetBinContent(InternalMovementHeader, Bin2, Bin, Item."No.");
+
+        // Verify.
+        VerifyInternalMovementLine(Bin, Item."No.", Bin2.Code, Quantity);
+
+        if InventoryMovement then begin
+            // Exercise.
+            CreateInventoryMovementFromInternalMovement(InternalMovementHeader);
+
+            // Verify: Verify Empty Internal Movement Header and Inventory Movement Lines for Serial.
+            VerifyInternalMovementHeaderExists(LocationSilver.Code, Bin2.Code);
+            VerifyInventoryMovementLinesForSerial(Bin, WarehouseActivityLine."Action Type"::Take, Item."No.", Quantity);
+            VerifyInventoryMovementLinesForSerial(Bin2, WarehouseActivityLine."Action Type"::Place, Item."No.", Quantity);
+        end;
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure GetBinContentOnInternalMovementWithLot()
+    begin
+        // Setup.
+        Initialize;
+        InvtMovementFromInternalMovementWithLot(false);  // Inventory Movement as FALSE.
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryMovementAfterGetBinContentWithLot()
+    begin
+        // Setup.
+        Initialize;
+        InvtMovementFromInternalMovementWithLot(true);  // Inventory Movement as TRUE.
+    end;
+
+    local procedure InvtMovementFromInternalMovementWithLot(InventoryMovement: Boolean)
+    var
+        Item: Record Item;
+        Bin: Record Bin;
+        InternalMovementHeader: Record "Internal Movement Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Bin2: Record Bin;
+        ItemTrackingMode: Option " ",AssignLotNo,AssignSerialNo,AssignMultipleLotNo,SelectEntries,SelectSerialNo,SelectLotNo;
+        LotNo: Code[20];
+        Quantity: Decimal;
+    begin
+        // Create Item with Lot Item Tracking Code. Create Item Journal Line and update Expiration Date on Reservation Entry. Post Item journal Line. Create Internal Movement with Get Bin Content.
+        Quantity := LibraryRandom.RandDec(10, 2);
+        CreateTrackedItemAndUpdateInventoryOnLocationWithBin(
+          Item, Bin, Quantity, true, false, true, LibraryUtility.GetGlobalNoSeriesCode, '', ItemTrackingMode::AssignLotNo, true);
+        GetLotNoFromItemTrackingPageHandler(LotNo);
+
+        // Exercise.
+        CreateInternalMovementWithGetBinContent(InternalMovementHeader, Bin2, Bin, Item."No.");
+
+        // Verify.
+        VerifyInternalMovementLine(Bin, Item."No.", Bin2.Code, Quantity);
+
+        if InventoryMovement then begin
+            // Exercise.
+            CreateInventoryMovementFromInternalMovement(InternalMovementHeader);
+
+            // Verify: Verify Empty Internal Movement Header Inventory Movement Lines for Lot.
+            VerifyInternalMovementHeaderExists(LocationSilver.Code, Bin2.Code);
+            VerifyInventoryMovementLineForLot(Bin, WarehouseActivityLine."Action Type"::Take, Item."No.", LotNo, Quantity);
+            VerifyInventoryMovementLineForLot(Bin2, WarehouseActivityLine."Action Type"::Place, Item."No.", LotNo, Quantity);
+        end;
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,EnterQuantityToCreatePageHandler,WhseItemTrackingLinesPageHandler,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure InventorytMovementAfterInternalMovementWithSerial()
+    var
+        Item: Record Item;
+        Bin: Record Bin;
+        InternalMovementHeader: Record "Internal Movement Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Bin2: Record Bin;
+        ItemTrackingMode: Option " ",AssignLotNo,AssignSerialNo,AssignMultipleLotNo,SelectEntries,SelectSerialNo,SelectLotNo;
+        WhseItemTrackingMode: Option SelectSerialNo,SelectLotNo;
+        Quantity: Decimal;
+    begin
+        // Setup: Create Item with Serial Item Tracking Code. Create Item Journal Line and update Expiration Date on Reservation Entry. Post Item Journal Line. Create Internal Movement.
+        Initialize;
+        Quantity := LibraryRandom.RandInt(100);
+        CreateTrackedItemAndUpdateInventoryOnLocationWithBin(
+          Item, Bin, Quantity, false, true, true, '', LibraryUtility.GetGlobalNoSeriesCode, ItemTrackingMode::AssignSerialNo, true);
+        CreateInternalMovement(InternalMovementHeader, Bin2, Bin, Item."No.", Quantity, WhseItemTrackingMode::SelectSerialNo);
+
+        // Exercise.
+        CreateInventoryMovementFromInternalMovement(InternalMovementHeader);
+
+        // Verify: Verify Empty Internal Movement Header and Inventory Movement Lines for Serial.
+        VerifyInternalMovementHeaderExists(LocationSilver.Code, Bin2.Code);
+        VerifyInventoryMovementLinesForSerial(Bin, WarehouseActivityLine."Action Type"::Take, Item."No.", Quantity);
+        VerifyInventoryMovementLinesForSerial(Bin2, WarehouseActivityLine."Action Type"::Place, Item."No.", Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,WhseItemTrackingLinesPageHandler,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryMovementAfterInternalMovementWithLot()
+    var
+        Item: Record Item;
+        Bin: Record Bin;
+        Bin2: Record Bin;
+        InternalMovementHeader: Record "Internal Movement Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ItemTrackingMode: Option " ",AssignLotNo,AssignSerialNo,AssignMultipleLotNo,SelectEntries,SelectSerialNo,SelectLotNo;
+        WhseItemTrackingMode: Option SelectSerialNo,SelectLotNo;
+        LotNo: Code[20];
+        Quantity: Decimal;
+    begin
+        // Setup: Create Item with Lot Item Tracking Code. Create Item Journal Line and update Expiration Date on Reservation Entry. Post Item Journal Line. Create Internal Movement.
+        Initialize;
+        Quantity := LibraryRandom.RandDec(10, 2);
+        CreateTrackedItemAndUpdateInventoryOnLocationWithBin(
+          Item, Bin, Quantity, true, false, true, LibraryUtility.GetGlobalNoSeriesCode, '', ItemTrackingMode::AssignLotNo, true);
+        GetLotNoFromItemTrackingPageHandler(LotNo);
+        CreateInternalMovement(InternalMovementHeader, Bin2, Bin, Item."No.", Quantity, WhseItemTrackingMode::SelectLotNo);
+
+        // Exercise.
+        CreateInventoryMovementFromInternalMovement(InternalMovementHeader);
+
+        // Verify: Verify Empty Internal Movement Header Inventory Movement Lines for Lot.
+        VerifyInternalMovementHeaderExists(LocationSilver.Code, Bin2.Code);
+        VerifyInventoryMovementLineForLot(Bin, WarehouseActivityLine."Action Type"::Take, Item."No.", LotNo, Quantity);
+        VerifyInventoryMovementLineForLot(Bin2, WarehouseActivityLine."Action Type"::Place, Item."No.", LotNo, Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetShipmentLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostSalesInvoiceUsingBlanketSalesOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DocumentNo: Code[20];
+    begin
+        // Setup: Create Sales Order with Partial Quantity from Blanket Sales Order. Post Sales Order. Get Shipment Line on Sales Invoice. Create Sales Order with Remaining Quantity from Blanket Sales Order.
+        Initialize;
+        LibrarySales.SetStockoutWarning(false);
+        CreateSOFromBlanketSalesOrderWithPartialQuantity(SalesHeader, SalesLine);
+        PostSalesOrder(SalesHeader."Sell-to Customer No.");
+        GetShipmentLineOnSalesInvoice(SalesHeader2, SalesHeader."Sell-to Customer No.");
+        LibrarySales.BlanketSalesOrderMakeOrder(SalesHeader);
+
+        // Exercise:
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader2, false, false);  // Post Sales Invoice.
+
+        // Verify.
+        VerifySalesInvoiceLine(DocumentNo, SalesLine."No.", SalesLine.Quantity / 2);  // Calculated Value Required.
+    end;
+
+    [Test]
+    [HandlerFunctions('OrderTrackingDetailsPageHandler')]
+    [Scope('OnPrem')]
+    procedure OrderTrackingOnReqLineAndSOAfterCalcRegenPlan()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Quantity: Decimal;
+    begin
+        // Setup: Create Lot for Lot Item. Create and Update Multiple Stocks Keeping Unit. Create Sales Order.
+        Initialize;
+        Quantity := LibraryRandom.RandDec(10, 2);
+        CreateItem(Item, Item.Reserve, Item."Reordering Policy"::"Lot-for-Lot");
+        CreateMultipleStockkeepingUnit(Item."No.", LocationBlue.Code, LocationRed.Code);
+        UpdateReplenishmentSystemAsTransferOnSKU(LocationBlue.Code, Item."No.", LocationRed.Code);
+        UpdateVendorNoOnStockkeepingUnit(LocationRed.Code, Item."No.");
+        CreateSalesOrder(SalesHeader, SalesLine, '', Item."No.", Quantity, LocationBlue.Code, false);  // Reserve as FALSE.
+
+        // Exercise.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(
+          Item, CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate),
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+
+        // Verify: Verification is done in OrderTrackingDetailsPageHandler.
+        VerifyOrderTrackingOnReqLineAndSalesOrder(Item."No.", Quantity, SalesHeader."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler,MessageHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure PostJobJournalWithLotItemTracking()
+    var
+        Item: Record Item;
+        Bin: Record Bin;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        WarehouseEntry: Record "Warehouse Entry";
+        LotNo: Variant;
+        LotNo2: Variant;
+        ItemTrackingMode: Option " ",AssignLotNo,AssignSerialNo,AssignMultipleLotNo,SelectEntries,SelectSerialNo,SelectLotNo;
+        Quantity: Decimal;
+    begin
+        // Setup: Create Item with Lot Item Tracking. Create and Post Item Journal Line.
+        Initialize;
+        Quantity := LibraryRandom.RandDec(10, 2);
+        CreateTrackedItemAndUpdateInventoryOnLocationWithBin(
+          Item, Bin, Quantity, true, false, false, LibraryUtility.GetGlobalNoSeriesCode, '', ItemTrackingMode::AssignMultipleLotNo, false);
+        GetLotNoFromItemTrackingPageHandler(LotNo);
+        GetLotNoFromItemTrackingPageHandler(LotNo2);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::SelectEntries);   // Enqueue for ItemTrackingLinesPageHandler.
+
+        // Exercise.
+        CreateAndPostJobJournalLine(Bin, Item."No.", Quantity);
+
+        // Verify: Verify Item Ledger Entry and Warehouse Entry.
+        VerifyItemLedgerEntry(
+          ItemLedgerEntry."Entry Type"::"Positive Adjmt.", ItemLedgerEntry."Document Type", LocationSilver.Code, Item."No.", LotNo, '',
+          Quantity / 2);  // Calculated Value Required.
+        VerifyItemLedgerEntry(
+          ItemLedgerEntry."Entry Type"::"Positive Adjmt.", ItemLedgerEntry."Document Type", LocationSilver.Code, Item."No.", LotNo2, '',
+          Quantity / 2);  // Calculated Value Required.
+        VerifyItemLedgerEntry(
+          ItemLedgerEntry."Entry Type"::"Negative Adjmt.", ItemLedgerEntry."Document Type", LocationSilver.Code, Item."No.", LotNo, '',
+          -Quantity / 2);  // Calculated Value Required.
+        VerifyItemLedgerEntry(
+          ItemLedgerEntry."Entry Type"::"Negative Adjmt.", ItemLedgerEntry."Document Type", LocationSilver.Code, Item."No.", LotNo2, '',
+          -Quantity / 2);  // Calculated Value Required.
+        VerifyWarehouseEntry(
+          WarehouseEntry."Entry Type"::"Negative Adjmt.", WarehouseEntry."Source Document"::"Job Jnl.", Item."No.", Bin.Code, LotNo,
+          -Quantity / 2, false);  // Calculated Value Required.
+        VerifyWarehouseEntry(
+          WarehouseEntry."Entry Type"::"Negative Adjmt.", WarehouseEntry."Source Document"::"Job Jnl.", Item."No.", Bin.Code, LotNo2,
+          -Quantity / 2, false);  // Calculated Value Required.
+        VerifyWarehouseEntry(
+          WarehouseEntry."Entry Type"::"Positive Adjmt.", WarehouseEntry."Source Document"::"Item Jnl.", Item."No.", Bin.Code, LotNo,
+          Quantity / 2, false);  // Calculated Value Required.
+        VerifyWarehouseEntry(
+          WarehouseEntry."Entry Type"::"Positive Adjmt.", WarehouseEntry."Source Document"::"Item Jnl.", Item."No.", Bin.Code, LotNo2,
+          Quantity / 2, false);  // Calculated Value Required.
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,EnterQuantityToCreatePageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryMovementFromRPOWithBOMAndSerial()
+    begin
+        // Setup.
+        Initialize;
+        PostConsumpAfterRegisterMovementFromRPOWithSerial(false, false, false, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,EnterQuantityToCreatePageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ErrorOnRegisterMovementWithWrongSerial()
+    begin
+        // Setup.
+        Initialize;
+        PostConsumpAfterRegisterMovementFromRPOWithSerial(true, false, false, false);  // Register Movement Error as TRUE.
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,EnterQuantityToCreatePageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure RegisterInventoryMovementFromRPOWithSerial()
+    begin
+        // Setup.
+        Initialize;
+        PostConsumpAfterRegisterMovementFromRPOWithSerial(true, true, false, false);  // Register Movement Error and Register Movement as TRUE.
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,EnterQuantityToCreatePageHandler,MessageHandler,ProductionJournalPageHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ErrorOnPostingConsumptionWithWrongSerial()
+    begin
+        // Setup.
+        Initialize;
+        PostConsumpAfterRegisterMovementFromRPOWithSerial(true, true, true, false);  // Register Movement Error, Register Movement and Post Consumption Error as TRUE.
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,EnterQuantityToCreatePageHandler,MessageHandler,ProductionJournalPageHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure PostConsumptionJournalWithSerial()
+    begin
+        // Setup.
+        Initialize;
+        PostConsumpAfterRegisterMovementFromRPOWithSerial(true, true, true, true);  // Register Movement Error, Register Movement, Post Consumption Error and Post Consumption as TRUE.
+    end;
+
+    local procedure PostConsumpAfterRegisterMovementFromRPOWithSerial(RegisterMovementError: Boolean; RegisterMovement: Boolean; PostConsumptionError: Boolean; PostConsumption: Boolean)
+    var
+        ParentItem: Record Item;
+        ChildItem: Record Item;
+        Bin: Record Bin;
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ProdOrderLine: Record "Prod. Order Line";
+        BinCode: Code[20];
+        ItemTrackingMode: Option " ",AssignLotNo,AssignSerialNo,AssignMultipleLotNo,SelectEntries,SelectSerialNo,SelectLotNo;
+        Quantity: Decimal;
+    begin
+        // Create Item with Serial Item Tracking code. Create Item with Production BOM. Create and Post Item Journal Line. Create and Refresh Released Production Order. Update Bin on Production Order Component Line.
+        Quantity := 1 + LibraryRandom.RandInt(5);  // Value required for multiple Serial Nos.
+        CreateItemWithProductionBOM(ParentItem, ChildItem, Quantity, false, true, LibraryUtility.GetGlobalNoSeriesCode);  // TRUE for Serial.
+        FindBin(Bin, LocationGreen);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignSerialNo);  // Enqueue for ItemTrackingLinesPageHandler.
+        CreateAndPostItemJournalLine(Bin."Location Code", Bin.Code, ChildItem."No.", '', Quantity * Quantity * 2, true, true);  // Large Quantity required for test. Update Expiration Date and Use Tracking as TRUE.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Bin, ParentItem."No.", Quantity);
+        BinCode := UpdateBinCodeOnProductionOrderComponent(ProdOrderComponent, Bin, ProductionOrder);
+
+        // Exercise.
+        CreateInventoryMovement(ProductionOrder."No.");
+
+        // Verify:
+        VerifyInventoryMovementLinesForProdConsumption(
+          WarehouseActivityLine."Action Type"::Take, ChildItem."No.", ProductionOrder."No.", BinCode, 1, Quantity * Quantity);  // Value 1 required for Serial Quantity.
+        VerifyInventoryMovementLinesForProdConsumption(
+          WarehouseActivityLine."Action Type"::Place, ChildItem."No.", ProductionOrder."No.", Bin.Code, 1, Quantity * Quantity);  // Value 1 required for Serial Quantity.
+
+        if RegisterMovementError then begin
+            // Exercise: Update Wrong Serial No. on Inventory Movement Lines and handle the Error.
+            UpdateSerialNoOnInventoryMovementLines(ChildItem."No.", WarehouseActivityLine."Action Type"::Take, ProductionOrder."No.", false);  // Move Next as FALSE.
+            UpdateSerialNoOnInventoryMovementLines(ChildItem."No.", WarehouseActivityLine."Action Type"::Place, ProductionOrder."No.", true);  // Move Next as TRUE.
+            asserterror RegisterWarehouseActivity(
+                WarehouseActivityLine."Source Document"::"Prod. Consumption", ProductionOrder."No.",
+                WarehouseActivityLine."Activity Type"::"Invt. Movement");
+
+            // Verify: Error message.
+            Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(TotalBaseQuantityError, 1)) > 0, GetLastErrorText);  // Value 1 required for Serial Quantity.
+        end;
+
+        if RegisterMovement then begin
+            // Exercise: Update Serial No. on Inventory Movement Lines and Register Inventory Movement.
+            UpdateSerialNoOnInventoryMovementLines(ChildItem."No.", WarehouseActivityLine."Action Type"::Take, ProductionOrder."No.", false);  // Move Next as FALSE.
+            UpdateSerialNoOnInventoryMovementLines(ChildItem."No.", WarehouseActivityLine."Action Type"::Place, ProductionOrder."No.", false);  // Move Next as FALSE.
+            RegisterWarehouseActivity(
+              WarehouseActivityLine."Source Document"::"Prod. Consumption", ProductionOrder."No.",
+              WarehouseActivityLine."Activity Type"::"Invt. Movement");
+
+            // Verify.
+            VerifyProductionOrderComponent(ProdOrderComponent, Quantity * Quantity, Quantity * Quantity, Bin.Code);  // Value required for test.
+        end;
+
+        if PostConsumptionError then begin
+            // Exercise: Open Production Journal from Production Order Line and Update Wrong Serial No. on Consumption.
+            FindProductionOrderLine(ProdOrderLine, ProductionOrder);
+            EnqueueValuesForProductionJournalHandler(ItemTrackingMode::SelectSerialNo, ChildItem."No.", 0);
+            asserterror LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+            // Verify.
+            Assert.ExpectedError(WrongQuantityBaseErr);
+        end;
+
+        if PostConsumption then begin
+            // Exercise: Open Production Journal from Production Order Line and Update Serial No. on Consumption.
+            LibraryVariableStorage.Enqueue(ItemTrackingMode);  // Enqueue for ItemTrackingLinesPageHandler.
+            LibraryVariableStorage.Enqueue(PostJournalLinesConfirmationMessage);  // Enqueue for ConfirmHandler.
+            LibraryVariableStorage.Enqueue(JournalLinesPostedMessage);  // Enqueue for MessageHandler.
+            LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");  // Posting is done in ProductionJournalPageHandler.
+
+            // Verify.
+            VerifyProductionOrderComponent(ProdOrderComponent, Quantity * Quantity, 0, Bin.Code);  // Value required for test.
+        end;
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryMovementFromRPOWithBOMAndLot()
+    begin
+        // Setup.
+        Initialize;
+        PostConsumptionAfterRegisterMovementFromRPOWithLot(false, false, false, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ErrorOnRegisterMovementWithWrongLot()
+    begin
+        // Setup.
+        Initialize;
+        PostConsumptionAfterRegisterMovementFromRPOWithLot(true, false, false, false);  // Register Movement Error as TRUE.
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure RegisterInventoryMovementFromRPOWithLot()
+    begin
+        // Setup.
+        Initialize;
+        PostConsumptionAfterRegisterMovementFromRPOWithLot(true, true, false, false);  // Register Movement Error and Register Movement as TRUE.
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,MessageHandler,ProductionJournalPageHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ErrorOnPostingConsumptionWithWrongLot()
+    begin
+        // Setup.
+        Initialize;
+        PostConsumptionAfterRegisterMovementFromRPOWithLot(true, true, true, false);  // Register Movement Error, Register Movement and Post Consumption Error as TRUE.
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,MessageHandler,ProductionJournalPageHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure PostConsumptionJournalWithLot()
+    begin
+        // Setup.
+        Initialize;
+        PostConsumptionAfterRegisterMovementFromRPOWithLot(true, true, true, true);  // Register Movement Error, Register Movement, Post Consumption Error and Post Consumption as TRUE.
+    end;
+
+    local procedure PostConsumptionAfterRegisterMovementFromRPOWithLot(RegisterMovementError: Boolean; RegisterMovement: Boolean; PostConsumptionError: Boolean; PostConsumption: Boolean)
+    var
+        Bin: Record Bin;
+        ParentItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ChildItem: Record Item;
+        ProdOrderComponent: Record "Prod. Order Component";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNo: Variant;
+        LotNo2: Variant;
+        Quantity: Decimal;
+        ItemTrackingMode: Option " ",AssignLotNo,AssignSerialNo,AssignMultipleLotNo,SelectEntries,SelectSerialNo,SelectLotNo;
+        BinCode: Code[20];
+    begin
+        // Create Item with Lot Item Tracking code. Create Item with Production BOM. Create and Post Item Journal Line. Create and Refresh Released Production Order. Update Bin on Production Order Component Line.
+        Quantity := LibraryRandom.RandInt(10);
+        FindBin(Bin, LocationGreen);
+        CreateItemWithProductionBOM(ParentItem, ChildItem, Quantity, true, false, '');  // TRUE for Lot.
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignMultipleLotNo);  // Enqueue for ItemTrackingLinesPageHandler.
+        CreateAndPostItemJournalLine(Bin."Location Code", Bin.Code, ChildItem."No.", '', Quantity * Quantity * 2, true, true);  // Value required for test. Update Expiration Date and Use Tracking as TRUE.
+        LibraryVariableStorage.Dequeue(LotNo);
+        LibraryVariableStorage.Dequeue(LotNo2);
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Bin, ParentItem."No.", Quantity);
+        BinCode := UpdateBinCodeOnProductionOrderComponent(ProdOrderComponent, Bin, ProductionOrder);
+
+        // Exercise.
+        CreateInventoryMovement(ProductionOrder."No.");
+
+        // Verify.
+        VerifyInventoryMovementLinesForProdConsumption(
+          WarehouseActivityLine."Action Type"::Take, ChildItem."No.", ProductionOrder."No.", BinCode, Quantity * Quantity,
+          Quantity * Quantity);  // Value required for verification.
+        VerifyInventoryMovementLinesForProdConsumption(
+          WarehouseActivityLine."Action Type"::Place, ChildItem."No.", ProductionOrder."No.", Bin.Code, Quantity * Quantity,
+          Quantity * Quantity);  // Value required for verification.
+
+        if RegisterMovementError then begin
+            // Exercise: Update wrong Lot No. and handle the Error.
+            UpdateLotNoOnInventoryMovementLine(WarehouseActivityLine."Action Type"::Take, ProductionOrder."No.", LotNo);
+            UpdateLotNoOnInventoryMovementLine(WarehouseActivityLine."Action Type"::Place, ProductionOrder."No.", LotNo2);
+            asserterror RegisterWarehouseActivity(
+                WarehouseActivityLine."Source Document"::"Prod. Consumption", ProductionOrder."No.",
+                WarehouseActivityLine."Activity Type"::"Invt. Movement");
+
+            // Verify: Error message.
+            Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(TotalBaseQuantityError, Quantity * Quantity)) > 0, GetLastErrorText);  // Value required for test.
+        end;
+
+        if RegisterMovement then begin
+            // Exercise.
+            UpdateLotNoOnInventoryMovementLine(WarehouseActivityLine."Action Type"::Take, ProductionOrder."No.", LotNo);
+            UpdateLotNoOnInventoryMovementLine(WarehouseActivityLine."Action Type"::Place, ProductionOrder."No.", LotNo);
+            RegisterWarehouseActivity(
+              WarehouseActivityLine."Source Document"::"Prod. Consumption", ProductionOrder."No.",
+              WarehouseActivityLine."Activity Type"::"Invt. Movement");
+
+            // Verify.
+            VerifyProductionOrderComponent(ProdOrderComponent, Quantity * Quantity, Quantity * Quantity, Bin.Code);  // Value required for verification.
+        end;
+
+        if PostConsumptionError then begin
+            // Exercise.
+            FindProductionOrderLine(ProdOrderLine, ProductionOrder);
+            EnqueueValuesForProductionJournalHandler(ItemTrackingMode::SelectLotNo, LotNo2, Quantity);
+            asserterror LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+            // Verify.
+            Assert.ExpectedError(WrongQuantityBaseErr);
+        end;
+
+        if PostConsumption then begin
+            // Exercise.
+            EnqueueValuesForProductionJournalHandler(ItemTrackingMode::SelectLotNo, LotNo, Quantity);
+            LibraryVariableStorage.Enqueue(JournalLinesPostedMessage);  // Enqueue for MessageHandler.
+            LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");  // Posting is done in ProductionJournalPageHandler.
+
+            // Verify.
+            VerifyProductionOrderComponent(ProdOrderComponent, Quantity * Quantity, 0, Bin.Code);  // Value required for verification.
+        end;
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure UndoSalesShipmentLineAfterPostSalesOrder()
+    begin
+        // Setup.
+        Initialize;
+        PostTransferOrderAfterUndoSalesShipment(false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ErrorOnPostingTransferOrderAfterUndoShipment()
+    begin
+        // Setup.
+        Initialize;
+        PostTransferOrderAfterUndoSalesShipment(true);  // TRUE for Transfer Order.
+    end;
+
+    local procedure PostTransferOrderAfterUndoSalesShipment(TransferOrder: Boolean)
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TransferHeader: Record "Transfer Header";
+        PostedDocumentNo: Code[20];
+    begin
+        // Create Item. Create and Post Sales Order as SHIP.
+        LibraryInventory.CreateItem(Item);
+        CreateSalesOrder(SalesHeader, SalesLine, '', Item."No.", LibraryRandom.RandDec(10, 2), '', false);
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);  // Post as SHIP.
+
+        // Exercise.
+        UndoSalesShipmentLine(PostedDocumentNo);
+
+        // Verify.
+        VerifySalesShipmentLine(PostedDocumentNo, Item."No.", SalesLine.Quantity, false);
+        VerifySalesShipmentLine(PostedDocumentNo, Item."No.", -SalesLine.Quantity, true);  // MoveNext as TRUE.
+
+        if TransferOrder then begin
+            // Exercise.
+            asserterror CreateAndPostTransferOrder(TransferHeader, SalesLine, LocationBlack.Code, LocationOrange.Code);
+
+            // Verify.
+            Assert.ExpectedError(StrSubstNo(ItemNotOnInventoryError, Item."No."));
+        end;
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,EnterQuantityToCreatePageHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure UndoPostedPurchaseReceiptWithLocationAndSerial()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        Quantity: Decimal;
+    begin
+        // Setup: Update Use Put-away Worksheet on Location. Create and post Warehouse Receipt from Purchase Order with Serial No.
+        Initialize;
+        Quantity := LibraryRandom.RandInt(10);
+        CreateItemWithItemTrackingCode(Item, false, false, false, '', LibraryUtility.GetGlobalNoSeriesCode);
+        UpdateUsePutAwayWorksheetOnLocation(LocationYellow, true);
+        CreateWarehouseReceiptFromPurchaseOrder(PurchaseHeader, Item."No.", Quantity, LocationYellow.Code, true);  // Use Tracking as TRUE.
+        PostWarehouseReceipt(PurchaseHeader."No.");
+
+        // Exercise.
+        UndoPurchaseReceiptLine(Item."No.");
+
+        // Verify.
+        VerifyPurchRcptLine(PurchaseHeader."No.", Item."No.", LocationYellow.Code, Quantity, false);
+        VerifyPurchRcptLine(PurchaseHeader."No.", Item."No.", LocationYellow.Code, -Quantity, true);  // MoveNext as TRUE.
+
+        // Tear Down.
+        UpdateUsePutAwayWorksheetOnLocation(LocationYellow, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorOnUpdatingQuantityToShipOnSalesOrder()
+    var
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // Setup: Create Sales Order by page.
+        Initialize;
+        LibrarySales.SetStockoutWarning(false);
+        CreateSalesOrderByPage(SalesOrder, LocationWhite.Code);
+
+        // Exercise.
+        asserterror SalesOrder.SalesLines."Qty. to Ship".SetValue(LibraryRandom.RandDec(10, 2));
+
+        // Verify.
+        Assert.ExpectedError(WarehouseShipmentRequiredError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorOnUpdatingQuantityOnSalesInvoice()
+    var
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        // Setup: Create Sales Invoice by page.
+        Initialize;
+        LibrarySales.SetStockoutWarning(false);
+        CreateSalesInvoiceWithSalesLineByPage(SalesInvoice, LocationWhite.Code);
+
+        // Exercise.
+        asserterror SalesInvoice.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
+
+        // Verify.
+        Assert.ExpectedError(WarehouseShipmentRequiredError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorOnUpdatingReturnQuantityOnSalesReturnOrder()
+    var
+        SalesReturnOrder: TestPage "Sales Return Order";
+    begin
+        // Setup: Create Sales Return Order by page.
+        Initialize;
+        LibrarySales.SetStockoutWarning(false);
+        CreateSalesReturnOrderByPage(SalesReturnOrder, LocationWhite.Code);
+
+        // Exercise.
+        Commit;
+        asserterror SalesReturnOrder.SalesLines."Return Qty. to Receive".SetValue(LibraryRandom.RandDec(10, 2));
+
+        // Verify.
+        Assert.ExpectedError(WarehouseReceiveRequiredError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorOnUpdatingQuantityOnSalesCreditMemo()
+    var
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        // Setup: Create Sales Credit Memo by page.
+        Initialize;
+        LibrarySales.SetStockoutWarning(false);
+        CreateSalesCreditMemoByPage(SalesCreditMemo, LocationWhite.Code);
+
+        // Exercise.
+        asserterror SalesCreditMemo.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
+
+        // Verify.
+        Assert.ExpectedError(WarehouseReceiveRequiredError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorOnUpdatingQuantityOnPurchaseInvoice()
+    var
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // Setup: Create Purchase Invoice by page.
+        Initialize;
+        CreatePurchaseInvoiceByPage(PurchaseInvoice, LocationWhite.Code);
+
+        // Exercise.
+        Commit;
+        asserterror PurchaseInvoice.PurchLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
+
+        // Verify.
+        Assert.ExpectedError(WarehouseReceiveRequiredError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorOnUpdatingReturnQuantityOnPurchaseReturnOrder()
+    var
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+    begin
+        // Setup: Create Purchase Return Order by page.
+        Initialize;
+        CreatePurchaseReturnOrderByPage(PurchaseReturnOrder, LocationWhite.Code);
+
+        // Exercise.
+        asserterror PurchaseReturnOrder.PurchLines."Return Qty. to Ship".SetValue(LibraryRandom.RandDec(10, 2));
+
+        // Verify.
+        Assert.ExpectedError(WarehouseShipmentRequiredError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorOnUpdatingQuantityOnPurchaseCreditMemo()
+    var
+        PurchaseCreditMemo: TestPage "Purchase Credit Memo";
+    begin
+        // Setup: Create Purchase Credit Memo by page.
+        Initialize;
+        CreatePurchaseCreditMemoByPage(PurchaseCreditMemo, LocationWhite.Code);
+
+        // Exercise.
+        asserterror PurchaseCreditMemo.PurchLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
+
+        // Verify.
+        Assert.ExpectedError(WarehouseShipmentRequiredError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostSalesOrderAsInvoice()
+    begin
+        // Setup.
+        Initialize;
+        SalesReturnOrderWithGetPostedDocLinesToReverse(false, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedSalesDocumentLinesHandler')]
+    [Scope('OnPrem')]
+    procedure PostSalesReturnOrderAsReceive()
+    begin
+        // Setup.
+        Initialize;
+        SalesReturnOrderWithGetPostedDocLinesToReverse(true, false);  // Receive Return Order as TRUE.
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedSalesDocumentLinesHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure PostSalesReturnOrderAfterUndoReturnReceipt()
+    begin
+        // Setup.
+        Initialize;
+        SalesReturnOrderWithGetPostedDocLinesToReverse(true, true);  // Invoice Return Order as TRUE.
+    end;
+
+    local procedure SalesReturnOrderWithGetPostedDocLinesToReverse(ReceiveReturnOrder: Boolean; InvoiceReturnOrder: Boolean)
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
+        GeneralPostingSetup: Record "General Posting Setup";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PostedDocumentNo: Code[20];
+        Quantity: Decimal;
+    begin
+        // Create Item. Create Customer. Create Sales Order.
+        Quantity := LibraryRandom.RandDec(10, 2);
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateCustomer(Customer);
+        CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", Item."No.", Quantity, '', false);
+        CustomerPostingGroup.Get(Customer."Customer Posting Group");
+        GeneralPostingSetup.Get(Customer."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
+
+        // Exercise.
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as SHIP and INVOICE.
+
+        // Verify.
+        VerifyGLEntry(PostedDocumentNo, GeneralPostingSetup."Sales Account", -SalesLine."Line Amount", false);
+        VerifyGLEntry(PostedDocumentNo, CustomerPostingGroup."Receivables Account", SalesLine."Amount Including VAT", false);
+
+        if ReceiveReturnOrder then begin
+            // Exercise.
+            PostedDocumentNo := PostSalesReturnOrderWithGetPostedDocLinesToReverse(SalesHeader2, Customer."No.");
+
+            // Verify.
+            VerifyItemLedgerEntry(
+              ItemLedgerEntry."Entry Type"::Sale, ItemLedgerEntry."Document Type"::"Sales Return Receipt", '', Item."No.", '', '', Quantity);
+        end;
+
+        if InvoiceReturnOrder then begin
+            // Exercise.
+            UndoReturnReceiptLine(PostedDocumentNo);
+            LibrarySales.ReopenSalesDocument(SalesHeader2);
+            FindSalesReturnOrderLine(SalesLine, SalesHeader2."No.", Item."No.");
+            UpdateQuantityOnSalesLine(SalesLine, Quantity / 2);  // Partial value required for test.
+            PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader2, true, true);  // Post as RECEIVE and INVOICE.
+
+            // Verify.
+            VerifyGLEntry(PostedDocumentNo, GeneralPostingSetup."Sales Account", SalesLine."Line Amount", false);
+            VerifyGLEntry(PostedDocumentNo, CustomerPostingGroup."Receivables Account", -SalesLine."Amount Including VAT", false);
+        end;
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostPurchaseOrderWithLot()
+    begin
+        // Setup.
+        Initialize;
+        SalesReturnOrderWithGetPostedDocLinesAndLot(false, false, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostSalesOrderWithLot()
+    begin
+        // Setup.
+        Initialize;
+        SalesReturnOrderWithGetPostedDocLinesAndLot(true, false, false);  // Post Sales Order as TRUE.
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler,PostedSalesDocumentLinesHandler')]
+    [Scope('OnPrem')]
+    procedure PostSalesReturnOrderAsReceiveWithLot()
+    begin
+        // Setup.
+        Initialize;
+        SalesReturnOrderWithGetPostedDocLinesAndLot(true, true, false);  // Post Sales Order and Receive Return Order as TRUE.
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler,PostedSalesDocumentLinesHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure PostSalesReturnOrderAfterUndoReturnReceiptWithLot()
+    begin
+        // Setup.
+        Initialize;
+        SalesReturnOrderWithGetPostedDocLinesAndLot(true, true, true);  // Post Sales Order, Receive Return Order and Invoice Return Order as TRUE.
+    end;
+
+    local procedure SalesReturnOrderWithGetPostedDocLinesAndLot(PostSalesOrder: Boolean; ReceiveReturnOrder: Boolean; InvoiceReturnOrder: Boolean)
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        CustomerPostingGroup: Record "Customer Posting Group";
+        GeneralPostingSetup: Record "General Posting Setup";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        PurchaseHeader: Record "Purchase Header";
+        SalesHeader: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        LotNo: Variant;
+        PostedDocumentNo: Code[20];
+        Quantity: Decimal;
+    begin
+        // Create Item with Lot specific tracking. Create Purchase Order and assign Lot No.
+        Quantity := LibraryRandom.RandInt(50);
+        CreateItemWithItemTrackingCode(Item, true, false, false, LibraryUtility.GetGlobalNoSeriesCode, '');  // TRUE for Lot.
+        CreatePurchaseOrderWithLot(PurchaseHeader, Item."No.", Quantity);
+        LibraryVariableStorage.Dequeue(LotNo);
+
+        // Exercise.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // Post as RECEIVE and INVOICE.
+
+        // Verify.
+        VerifyItemLedgerEntry(
+          ItemLedgerEntry."Entry Type"::Purchase, ItemLedgerEntry."Document Type"::"Purchase Receipt", '', Item."No.", LotNo, '', Quantity);
+
+        if PostSalesOrder then begin
+            // Exercise.
+            LibrarySales.CreateCustomer(Customer);
+            CreateAndPostSalesOrderWithItemTracking(SalesHeader, Customer."No.", Item."No.", Quantity);
+
+            // Verify.
+            VerifyItemLedgerEntry(
+              ItemLedgerEntry."Entry Type"::Sale, ItemLedgerEntry."Document Type"::"Sales Shipment", '', Item."No.", LotNo, '', -Quantity);
+        end;
+
+        if ReceiveReturnOrder then begin
+            // Exercise.
+            PostedDocumentNo := PostSalesReturnOrderWithGetPostedDocLinesToReverse(SalesHeader2, Customer."No.");
+
+            // Verify.
+            VerifyItemLedgerEntry(
+              ItemLedgerEntry."Entry Type"::Sale, ItemLedgerEntry."Document Type"::"Sales Return Receipt", '', Item."No.", LotNo, '', Quantity);
+        end;
+
+        if InvoiceReturnOrder then begin
+            // Exercise.
+            UndoReturnReceiptLine(PostedDocumentNo);
+            UpdateQuantityOnSalesAndReservationLine(SalesHeader2, SalesLine, Item."No.", Quantity / 2);  // Partial value required for test.
+
+            PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader2, true, true);  // Post as RECEIVE and INVOICE.
+            CustomerPostingGroup.Get(Customer."Customer Posting Group");
+            GeneralPostingSetup.Get(Customer."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
+
+            // Verify.
+            VerifyItemLedgerEntry(
+              ItemLedgerEntry."Entry Type"::Sale, ItemLedgerEntry."Document Type"::"Sales Return Receipt", '', Item."No.", LotNo, '',
+              Quantity / 2);  // Partial value required for verification.
+            VerifyGLEntry(PostedDocumentNo, GeneralPostingSetup."Sales Account", SalesLine."Line Amount", false);
+            VerifyGLEntry(PostedDocumentNo, CustomerPostingGroup."Receivables Account", -SalesLine."Amount Including VAT", false);
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WarehouseReceiptWithMultipleLines()
+    begin
+        // Setup.
+        Initialize;
+        CalcCrossDockOnWhseReceiptAndRegisterPutAway(false, false, false);  // Cross Dock, Post Receipt and Register Put Away as FALSE.
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalcCrossDockOnWarehouseReceiptWithMultipleLines()
+    begin
+        // Setup.
+        Initialize;
+        CalcCrossDockOnWhseReceiptAndRegisterPutAway(true, false, false);  // Cross Dock as TRUE. Post Receipt and Register Put Away as FALSE.
+    end;
+
+    [Test]
+    [HandlerFunctions('SourceDocumentsPageHandler')]
+    [Scope('OnPrem')]
+    procedure CalcCrossDockOnWhseRcptWthLineBasedOnSpecOrder()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        WhseCrossDockOpportunity: Record "Whse. Cross-Dock Opportunity";
+        WhseRcptNo: Code[20];
+        MaxInventoryQty: Decimal;
+        SalesQty: Decimal;
+    begin
+        // [FEATURE] [Warehouse Receipt] [Cross-Docking] [Special Order] [Requisition Worksheet]
+        // [SCENARIO 378380] "Qty To Cross-Dock" should be equal to "Qty. to Receive" in Whse Receipt Line with Special Order after Calculating Cross-Dock if this line goes after line with Max Inventory
+        Initialize;
+
+        // [GIVEN] Item with Reordering Policy as "Maximum Qty.".
+        CreateItemWithReorderPolicyAsMaxQty(Item, MaxInventoryQty, SalesQty);
+        // [GIVEN] Create and release Sales Order as Special Order.
+        CreateAndReleaseSpecialOrder(SalesHeader, Item."No.", SalesQty);
+        // [GIVEN] Create Warehouse Receipt based on Purchase Orders with first line according to Reordering Policy and second based on Special Order.
+        WhseRcptNo := CreateWhseRcpt(Item);
+
+        // [WHEN] Calc Cross-Dock
+        LibraryWarehouse.CalculateCrossDockLines(WhseCrossDockOpportunity, '', WhseRcptNo, LocationWhite.Code);
+
+        // [THEN] "Qty To Cross-Dock" = 0 in Warehouse Receipt Line for Maximum Inventory.
+        VerifyQtyToCrossDock(Item."No.", MaxInventoryQty, 0);
+        // [THEN] "Qty To Cross-Dock" = "Qty. to Receive" in Warehouse Receipt Line based on Special Order.
+        VerifyQtyToCrossDock(Item."No.", SalesQty, SalesQty);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostWhseReceiptAfterCalcCrossDockWithMultipleLines()
+    begin
+        // Setup.
+        Initialize;
+        CalcCrossDockOnWhseReceiptAndRegisterPutAway(true, true, false);  // Cross Dock and Post Receipt as TRUE. Register Put Away as FALSE.
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RegisterPutAwayAfterCalcCrossDockWithMultipleLines()
+    begin
+        // Setup.
+        Initialize;
+        CalcCrossDockOnWhseReceiptAndRegisterPutAway(true, true, true);  // Cross Dock, Post Receipt and Register Put Away as TRUE.
+    end;
+
+    local procedure CalcCrossDockOnWhseReceiptAndRegisterPutAway(CrossDock: Boolean; PostReceipt: Boolean; RegisterPutaway: Boolean)
+    var
+        Bin: Record Bin;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseEntry: Record "Warehouse Entry";
+        Quantity: Decimal;
+        Quantity2: Decimal;
+    begin
+        // Create Item, Find Pick Bin. Create and Release Purchase Order with Multiple Lines. Create Warehouse Receipt.
+        Quantity := LibraryRandom.RandDec(10, 2);
+        Quantity2 := Quantity + LibraryRandom.RandDec(10, 2);  // Value Required for test.
+        LibraryInventory.CreateItem(Item);
+        FindPickBin(Bin, LocationWhite.Code);
+        CreateAndReleasePurchaseOrderWithMultipleLines(PurchaseHeader, Item."No.", Quantity * 2, LocationWhite.Code, Quantity2);  // Value Required for test.
+        CreateWarehouseReceipt(PurchaseHeader);
+
+        // Exercise.
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, '', Item."No.", Quantity, LocationWhite.Code, false);  // Reserve as FALSE.
+
+        // Verify.
+        VerifyWarehouseReceiptLine(PurchaseHeader."No.", Item."No.", Quantity * 2, 0, LocationWhite.Code, false);  // Value Required for test. Move Next as FALSE.
+        VerifyWarehouseReceiptLine(PurchaseHeader."No.", Item."No.", Quantity2, 0, LocationWhite.Code, true);  // Value Required for test. Move Next as TRUE.
+
+        if CrossDock then begin
+            // Exercise.
+            CalculateCrossDock(PurchaseHeader."No.");
+
+            // Verify.
+            VerifyWarehouseReceiptLine(PurchaseHeader."No.", Item."No.", Quantity * 2, Quantity, LocationWhite.Code, false);  // Value Required for test. Move Next as FALSE.
+            VerifyWarehouseReceiptLine(PurchaseHeader."No.", Item."No.", Quantity2, 0, LocationWhite.Code, true);  // Value Required for test. Move Next as TRUE.
+        end;
+
+        if PostReceipt then begin
+            // Exercise.
+            PostWarehouseReceipt(PurchaseHeader."No.");
+
+            // Verify.
+            // Take line for Receipt line that feeds the cross-dock.
+            VerifyPutAwayLine(
+              WarehouseActivityLine."Action Type"::Take, PurchaseHeader."No.", Item."No.", LocationWhite.Code, Quantity * 2,
+              WarehouseActivityLine."Cross-Dock Information"::"Some Items Cross-Docked");
+            // Take line for Receipt line that is not cross-docked.
+            VerifyPutAwayLine(
+              WarehouseActivityLine."Action Type"::Take, PurchaseHeader."No.", Item."No.", LocationWhite.Code, Quantity2,
+              WarehouseActivityLine."Cross-Dock Information"::" ");
+
+            // Place line for Cross-dock bin.
+            VerifyPutAwayLine(
+              WarehouseActivityLine."Action Type"::Place, PurchaseHeader."No.", Item."No.", LocationWhite.Code, Quantity,
+              WarehouseActivityLine."Cross-Dock Information"::"Cross-Dock Items");
+            // Place line for normal Pick bin.
+            VerifyPutAwayLine(
+              WarehouseActivityLine."Action Type"::Place, PurchaseHeader."No.", Item."No.", LocationWhite.Code, Quantity,
+              WarehouseActivityLine."Cross-Dock Information"::"Some Items Cross-Docked");
+            // Place line for non cross-docked Receipt line.
+            VerifyPutAwayLine(
+              WarehouseActivityLine."Action Type"::Place, PurchaseHeader."No.", Item."No.", LocationWhite.Code, Quantity2,
+              WarehouseActivityLine."Cross-Dock Information"::" ");
+        end;
+
+        if RegisterPutaway then begin
+            // Exercise: Update Bin Code on place Line and Register Put Away.
+            UpdateBinCodeOnPutAwayLine(Bin, PurchaseHeader."No.");
+            RegisterWarehouseActivity(
+              WarehouseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.",
+              WarehouseActivityLine."Activity Type"::"Put-away");
+
+            // Verify.
+            VerifyWarehouseEntry(
+              WarehouseEntry."Entry Type"::Movement, WarehouseEntry."Source Document"::"P. Order", Item."No.",
+              LocationWhite."Receipt Bin Code", '', -Quantity * 2, false);  // Value Required for test. Move Next as FALSE.
+            VerifyWarehouseEntry(
+              WarehouseEntry."Entry Type"::Movement, WarehouseEntry."Source Document"::"P. Order", Item."No.",
+              LocationWhite."Cross-Dock Bin Code", '', Quantity, false);  // Move Next as FALSE.
+            VerifyWarehouseEntry(
+              WarehouseEntry."Entry Type"::Movement, WarehouseEntry."Source Document"::"P. Order", Item."No.", Bin.Code, '', Quantity, false);  // Move Next as FALSE.
+            VerifyWarehouseEntry(
+              WarehouseEntry."Entry Type"::Movement, WarehouseEntry."Source Document"::"P. Order", Item."No.",
+              LocationWhite."Receipt Bin Code", '', -Quantity2, true);  // Move Next as TRUE.
+            VerifyWarehouseEntry(
+              WarehouseEntry."Entry Type"::Movement, WarehouseEntry."Source Document"::"P. Order", Item."No.", Bin.Code, '', Quantity2, true);  // Move Next as TRUE.
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TransferOrderWithVariantCode()
+    begin
+        // Setup.
+        Initialize;
+        CreateAndPostTransferOrderWithVariantCode(false);  // Post Transfer as FALSE.
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostTransferOrderWithVariantCode()
+    begin
+        // Setup.
+        Initialize;
+        CreateAndPostTransferOrderWithVariantCode(true);  // Post Transfer as TRUE.
+    end;
+
+    local procedure CreateAndPostTransferOrderWithVariantCode(PostTransferOrder: Boolean)
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        Quantity: Decimal;
+    begin
+        // Create Item with Variant. Create and Post Item Journal Line with Variant. Create Transfer Order.
+        Quantity := LibraryRandom.RandDec(10, 2);
+        CreateItemWithVariant(Item, ItemVariant);
+        CreateAndPostItemJournalLine(LocationBlack.Code, '', Item."No.", ItemVariant.Code, Quantity, false, false);  // Update Expiration Date and Use Tracking as FALSE.
+        CreateTransferOrder(TransferHeader, TransferLine, LocationBlack.Code, LocationOrange.Code, Item."No.", Quantity);
+
+        // Exerise.
+        UpdateVariantCodeOnTransferLine(TransferLine, ItemVariant.Code);
+
+        // Verify.
+        TransferLine.TestField("Variant Code", ItemVariant.Code);
+
+        if PostTransferOrder then begin
+            // Exercise.
+            LibraryWarehouse.PostTransferOrder(TransferHeader, true, true);  // Post as Ship and Receive.
+
+            // Verify.
+            VerifyItemLedgerEntry(
+              ItemLedgerEntry."Entry Type"::Transfer, ItemLedgerEntry."Document Type"::"Transfer Shipment", LocationBlack.Code, Item."No.",
+              '', ItemVariant.Code, -Quantity);
+            VerifyItemLedgerEntry(
+              ItemLedgerEntry."Entry Type"::Transfer, ItemLedgerEntry."Document Type"::"Transfer Shipment", LocationInTransit.Code,
+              Item."No.", '', ItemVariant.Code, Quantity);
+            VerifyItemLedgerEntry(
+              ItemLedgerEntry."Entry Type"::Transfer, ItemLedgerEntry."Document Type"::"Transfer Receipt", LocationInTransit.Code,
+              Item."No.", '', ItemVariant.Code, -Quantity);
+            VerifyItemLedgerEntry(
+              ItemLedgerEntry."Entry Type"::Transfer, ItemLedgerEntry."Document Type"::"Transfer Receipt", LocationOrange.Code, Item."No.",
+              '', ItemVariant.Code, Quantity);
+        end;
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure JobLedgerEntryWithManExpirDateEntryReqdTrue()
+    begin
+        // Test No Error will appear while Posting Job Journal with Item Reversal when Man. Expir. Date Entry Reqd. is True.
+        VerifyNoErrorForJobJnlReversal(true);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure JobLedgerEntryWithManExpirDateEntryReqdFalse()
+    begin
+        // Test No Error will appear while Posting Job Journal with Item Reversal when Man. Expir. Date Entry Reqd. is False.
+        VerifyNoErrorForJobJnlReversal(false);
+    end;
+
+    [Test]
+    [HandlerFunctions('SendNotificationHandler,RecallNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure MakeSalesOrderAfterCreateInvoiceAndOrderLinkBlanketOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        SalesHeader3: Record "Sales Header";
+        BlanketOrderSalesLine: Record "Sales Line";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        PartialInvoicedQty: Integer;
+    begin
+        // Setup: Create Blanket Sales Order, create Sales Invoice and Sales Order link to Blanket Sales Order with Partial quantity.
+        Initialize;
+        CreateSalesBlanketOrder(SalesHeader, BlanketOrderSalesLine, ''); // Set Location to blank.
+        PartialInvoicedQty := BlanketOrderSalesLine.Quantity / 2;
+        CreateSalesDocumentLinkBlanketOrder(
+          SalesHeader2, BlanketOrderSalesLine, PartialInvoicedQty / 2, SalesHeader2."Document Type"::Invoice);
+        CreateSalesDocumentLinkBlanketOrder(
+          SalesHeader3, BlanketOrderSalesLine, PartialInvoicedQty / 2, SalesHeader3."Document Type"::Order);
+
+        // Exercise and Verify: Pops up an error that Sales Order cannot be made.
+        MakeSalesOrderAndVerifyErr(SalesHeader, BlanketOrderSalesLine, (BlanketOrderSalesLine.Quantity - PartialInvoicedQty));
+
+        // Reduce the Quantity to Ship on Sales Line then Make Sales Order.
+        BlanketOrderSalesLine.Validate("Qty. to Ship", (BlanketOrderSalesLine.Quantity - PartialInvoicedQty));
+        BlanketOrderSalesLine.Modify(true);
+        LibrarySales.BlanketSalesOrderMakeOrder(SalesHeader);
+
+        // Post Sales Invoice and the Sales Order linked Blanket Order.
+        LibrarySales.PostSalesDocument(SalesHeader2, false, false);
+        LibrarySales.PostSalesDocument(SalesHeader3, true, true);
+
+        // Exercise and Verify: Post the Sales Order made from Blanket Order successfully.
+        PostSalesOrder(BlanketOrderSalesLine."Sell-to Customer No.");
+        NotificationLifecycleMgt.RecallAllNotifications;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MakePurchOrderAfterCreateInvoiceAndOrderLinkBlanketOrder()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeader2: Record "Purchase Header";
+        PurchaseHeader3: Record "Purchase Header";
+        BlanketOrderPurchaseLine: Record "Purchase Line";
+        PartialInvoicedQty: Integer;
+    begin
+        // Setup: Create Blanket Purchase Order, create Purchase Invoice and Sales Order link to Blanket Purchase Order with Partial quantity.
+        Initialize;
+        CreatePurchaseBlanketOrder(PurchaseHeader, BlanketOrderPurchaseLine, ''); // Set Location to blank.
+        PartialInvoicedQty := BlanketOrderPurchaseLine.Quantity / 2;
+        CreatePurchaseDocumentLinkBlanketOrder(
+          PurchaseHeader2, BlanketOrderPurchaseLine, PartialInvoicedQty / 2, PurchaseHeader2."Document Type"::Invoice);
+        CreatePurchaseDocumentLinkBlanketOrder(
+          PurchaseHeader3, BlanketOrderPurchaseLine, PartialInvoicedQty / 2, PurchaseHeader3."Document Type"::Order);
+
+        // Exercise and Verify: Pops up an error that Purchase Order cannot be made.
+        MakePurchaseOrderAndVerifyErr(PurchaseHeader, BlanketOrderPurchaseLine, (BlanketOrderPurchaseLine.Quantity - PartialInvoicedQty));
+
+        // Reduce the Quantity to Receive on Purchase Line then Make Purchase Order.
+        BlanketOrderPurchaseLine.Validate("Qty. to Receive", (BlanketOrderPurchaseLine.Quantity - PartialInvoicedQty));
+        BlanketOrderPurchaseLine.Modify(true);
+        LibraryPurchase.BlanketPurchaseOrderMakeOrder(PurchaseHeader);
+
+        // Post Purchase Invoice and the Sales Order linked Blanket Order.
+        PostPurchaseDocument(PurchaseHeader2."Buy-from Vendor No.", PurchaseHeader2."Document Type"::Invoice, false, false);
+        PostPurchaseDocument(PurchaseHeader3."Buy-from Vendor No.", PurchaseHeader3."Document Type"::Order, true, true);
+
+        // Exercise and Verify: Post the Purchase Order made from Blanket Order successfully.
+        PostPurchaseDocument(PurchaseHeader."Buy-from Vendor No.", PurchaseHeader3."Document Type"::Order, true, true);
+    end;
+
+    [Test]
+    [HandlerFunctions('SendNotificationHandler,RecallNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure MakeSalesOrderAfterCreateReturnOrderAndCreditMemoLinkBlanketOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        SalesHeader3: Record "Sales Header";
+        BlanketOrderSalesLine: Record "Sales Line";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        PartialShipQty: Integer;
+    begin
+        // Setup: Create Blanket Sales Order, create Sales Credit Memo link to Blanket Sales Order.
+        // Make Sales Order from Blanket Sales Order.
+        Initialize;
+        CreateSalesBlanketOrder(SalesHeader, BlanketOrderSalesLine, ''); // Set Location to blank.
+        LibrarySales.BlanketSalesOrderMakeOrder(SalesHeader);
+
+        // Partial Post Sales Order, make the "Qty. to Ship" on Blanket Sales Order more than PartialShipQty.
+        PartialShipQty := Round(BlanketOrderSalesLine.Quantity / 3, 1);
+        UpdateQtyToShipOnSalesLine(BlanketOrderSalesLine."Sell-to Customer No.", PartialShipQty);
+        PostSalesOrder(BlanketOrderSalesLine."Sell-to Customer No.");
+        CreateSalesDocumentLinkBlanketOrder(
+          SalesHeader2, BlanketOrderSalesLine, PartialShipQty / 2, SalesHeader."Document Type"::"Return Order");
+        CreateSalesDocumentLinkBlanketOrder(
+          SalesHeader3, BlanketOrderSalesLine, PartialShipQty / 2, SalesHeader."Document Type"::"Credit Memo");
+
+        // Exercise and Verify: Verify the error message when making Sales Order as
+        // "Qty. to Ship" is more than the Quantity on the Sales Credit Memo add the Quantity on Sales Return Order.
+        BlanketOrderSalesLine.Find;
+        MakeSalesOrderAndVerifyErr(SalesHeader, BlanketOrderSalesLine, PartialShipQty);
+
+        // Reduce the Quantity to Ship on Sales Line then Make Sales Order.
+        BlanketOrderSalesLine.Validate("Qty. to Ship", PartialShipQty);
+        BlanketOrderSalesLine.Modify(true);
+        LibrarySales.BlanketSalesOrderMakeOrder(SalesHeader);
+
+        // Post Sales Return Order and Sales Credit Memo.
+        LibrarySales.PostSalesDocument(SalesHeader2, true, true);
+        LibrarySales.PostSalesDocument(SalesHeader3, false, false);
+
+        // Exercise and Verify: the Sales Order made can be post successfully.
+        PostSalesOrder(BlanketOrderSalesLine."Sell-to Customer No.");
+        NotificationLifecycleMgt.RecallAllNotifications;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MakePurchOrderAfterCreateReturnOrderAndCreditMemoLinkBlanketOrder()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeader2: Record "Purchase Header";
+        PurchaseHeader3: Record "Purchase Header";
+        BlanketOrderPurchaseLine: Record "Purchase Line";
+        PartialReceiveQty: Integer;
+    begin
+        // Setup: Create Blanket Purchase Order,
+        // create Purchase Credit Memo link to Blanket Purchase Order.
+        // Make Purchase Order from Blanket Purchase Order.
+        Initialize;
+        CreatePurchaseBlanketOrder(PurchaseHeader, BlanketOrderPurchaseLine, ''); // Set Location to blank.
+        LibraryPurchase.BlanketPurchaseOrderMakeOrder(PurchaseHeader);
+
+        // Partial Post Purchase Order, make the "Qty. to Receive" on the Blanket Purchase Order more than PartialReceiveQty.
+        PartialReceiveQty := Round(BlanketOrderPurchaseLine.Quantity / 3, 1);
+        UpdateQtyToReceiveOnPurchaseLine(PurchaseHeader."Buy-from Vendor No.", PurchaseHeader."Document Type"::Order, PartialReceiveQty);
+        PostPurchaseDocument(PurchaseHeader."Buy-from Vendor No.", PurchaseHeader."Document Type"::Order, true, false);
+        CreatePurchaseDocumentLinkBlanketOrder(
+          PurchaseHeader2, BlanketOrderPurchaseLine, PartialReceiveQty / 2, PurchaseHeader."Document Type"::"Return Order");
+        CreatePurchaseDocumentLinkBlanketOrder(
+          PurchaseHeader3, BlanketOrderPurchaseLine, PartialReceiveQty / 2, PurchaseHeader."Document Type"::"Credit Memo");
+
+        // Exercise and Verify: Verify the error message when making Purchase Order
+        // as "Qty. to Receive" is more than the Quantity on the Purchase Return Order add the Quantity on Purchase Credit Memo.
+        BlanketOrderPurchaseLine.Find;
+        MakePurchaseOrderAndVerifyErr(PurchaseHeader, BlanketOrderPurchaseLine, PartialReceiveQty);
+
+        // Reduce the Quantity to Receive on Purchase Line then Make Purchase Order.
+        BlanketOrderPurchaseLine.Validate("Qty. to Receive", PartialReceiveQty);
+        BlanketOrderPurchaseLine.Modify(true);
+        LibraryPurchase.BlanketPurchaseOrderMakeOrder(PurchaseHeader);
+
+        // Post Purchase Return Order and Purchase Credit Memo.
+        PostPurchaseDocument(PurchaseHeader2."Buy-from Vendor No.", PurchaseHeader2."Document Type"::"Return Order", true, true);
+        PostPurchaseDocument(PurchaseHeader3."Buy-from Vendor No.", PurchaseHeader2."Document Type"::"Credit Memo", false, false);
+
+        // Exercise and Verify: the Purchase Order made can be post successfully.
+        PostPurchaseDocument(PurchaseHeader."Buy-from Vendor No.", PurchaseHeader."Document Type"::Order, true, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalcConsumptionWhenItemIsNotInTheBin()
+    var
+        ProductionOrder: Record "Production Order";
+        ItemJournalLine: Record "Item Journal Line";
+        ChildItemNo: Code[20];
+    begin
+        // Test Calc. Consumption is run successfully without any errors when the Bin Code
+        // filled in Prod. Order Component does not include the child item.
+
+        // Setup: Create Item With ProductionBOM. Post Item Journal with ChildItem with Bin.
+        // Uncheck Fixed and Default in Bin Content for ChildItem. Create RPO and fill another
+        // bin which does not include the ChildItem in Production Component.
+        Initialize;
+        ChildItemNo := PreparationForCalcConsumptionAndOpeningProductionJournal(ProductionOrder);
+
+        // Exercise & Verify: Verify Calc. Consumption is run successfully with the line generated.
+        CalcConsumptionInConsumptionJournal(ProductionOrder."No.");
+        SelectConsumptionLine(ItemJournalLine, ProductionOrder."No.");
+        ItemJournalLine.TestField("Item No.", ChildItemNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJournalPageHandler2')]
+    [Scope('OnPrem')]
+    procedure OpenProductionJournalWhenItemIsNotInTheBin()
+    var
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ChildItemNo: Code[20];
+    begin
+        // Test Production Journal can be opened successfully without any errors when
+        // the Bin Code filled in Prod. Order Component does not include the child item.
+
+        // Setup: Create Item With ProductionBOM. Post Item Journal with ChildItem with Bin.
+        // Uncheck Fixed and Default in Bin Content for ChildItem. Create RPO and fill another
+        // bin which does not include the ChildItem in Prod. Order Component.
+        Initialize;
+        ChildItemNo := PreparationForCalcConsumptionAndOpeningProductionJournal(ProductionOrder);
+
+        // Exercise & Verify: Verify no error pops up when opening Production Journal.
+        // Verify the line in ProductionJournalPageHandler2.
+        LibraryVariableStorage.Enqueue(ChildItemNo);
+        FindProductionOrderLine(ProdOrderLine, ProductionOrder);
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure UndoMultipleSalesShipmentLinesAfterRegisterWhseShipment()
+    var
+        Bin: Record Bin;
+        Item: Record Item;
+        SalesLine: Record "Sales Line";
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        // Test Warehouse Entry is correct after undo multiple Sales Shipment Lines with warehouse.
+
+        // Setup: Create and post Item Journal Line with Location and Bin. Create and post Warehouse Shipment From Sales Order.
+        Initialize;
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateBin(Bin, LocationSilver.Code, LibraryUtility.GenerateGUID, '', '');
+        CreateAndPostItemJournalLine(Bin."Location Code", Bin.Code, Item."No.", '', LibraryRandom.RandDec(10, 2) + 100, false, false);
+        CreateAndPostWarehouseShipmentFromSalesOrder(
+          SalesLine, '', Item."No.", LibraryRandom.RandDec(50, 2), LocationSilver.Code);
+
+        // Exercise: Undo multiple Sales Shipment Lines.
+        UndoMultipleShipmentLines(SalesLine."Document No.");
+
+        // Verify: Verify Warehouse Entry has two lines after undo multiple Sales Shipment Lines.
+        VerifyWarehouseEntryWithTotalLines(
+          WarehouseEntry."Entry Type"::"Positive Adjmt.", WarehouseEntry."Source Document"::"S. Order", Item."No.", 2);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesHandler')]
+    [Scope('OnPrem')]
+    procedure ReducingQuantityInTrackingLinesDoesNotClearLedgerEntryRelations()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        Customer: Record Customer;
+        ItemNo: Code[20];
+        LotNo: Code[20];
+        ItemTrackingMode: Option " ",AssignLotNo,SelectEntries,SetQuantity;
+        QuantityToInvoice: Decimal;
+        DeltaQty: Decimal;
+    begin
+        // [FEATURE] [Item Tracking] [Sales Invoice]
+        // [SCENARIO 363510] Reducing Quantity (Base) in Tracking Lines does not clear "Appl.-to Item Entry" if Quantity to Invoice is sufficient
+        Initialize;
+
+        // [GIVEN] Item Ledger Entry "L" for Item with Tracking
+        DeltaQty := LibraryRandom.RandDec(10, 2);
+        QuantityToInvoice := LibraryRandom.RandDec(10, 2) + DeltaQty;
+
+        ItemNo := CreateItemOnInventoryWithTracking(LotNo, QuantityToInvoice);
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.FindFirst;
+
+        // [GIVEN] Sales Order with Quantity to Invoice = "Q"
+        LibrarySales.CreateCustomer(Customer);
+        CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", ItemNo, QuantityToInvoice, LocationOrange.Code, false);
+
+        // [GIVEN] Tracking Specification for Item with Quantity = "Q" and "Appl.-to Item Entry" = "L"
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::SelectEntries); // Enqueue for ItemTrackingLinesHandler
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(QuantityToInvoice);
+        LibraryVariableStorage.Enqueue(ItemLedgerEntry."Entry No.");
+        SalesLine.OpenItemTrackingLines;
+
+        // [WHEN] Set "Quantity (Base)" on Tracking Line to "X", "X" < "Q"
+        // [THEN] "Appl.-to Item Entry" = "L"
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::SetQuantity);
+        LibraryVariableStorage.Enqueue(QuantityToInvoice - DeltaQty);
+        LibraryVariableStorage.Enqueue(ItemLedgerEntry."Entry No.");
+        SalesLine.OpenItemTrackingLines;
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure IncreasingQuantityInTrackingLinesClearsLedgerEntryRelations()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        Customer: Record Customer;
+        ItemNo: Code[20];
+        LotNo: Code[20];
+        ItemTrackingMode: Option " ",AssignLotNo,SelectEntries,SetQuantity;
+        QuantityToInvoice: Decimal;
+        DeltaQty: Decimal;
+    begin
+        // [FEATURE] [Item Tracking] [Sales Invoice]
+        // [SCENARIO 363510] Increasing Quantity (Base) in Tracking Lines clears "Appl.-to Item Entry"
+        Initialize;
+
+        // [GIVEN] Item Ledger Entry "L" for Item with Tracking
+        DeltaQty := LibraryRandom.RandDec(10, 2);
+        QuantityToInvoice := LibraryRandom.RandDec(10, 2) + DeltaQty;
+
+        ItemNo := CreateItemOnInventoryWithTracking(LotNo, QuantityToInvoice + DeltaQty);
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.FindFirst;
+
+        // [GIVEN] Sales Order with Quantity to Invoice = "Q"
+        LibrarySales.CreateCustomer(Customer);
+        CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", ItemNo, QuantityToInvoice, LocationOrange.Code, false);
+
+        // [GIVEN] Tracking Specification for Item with Quantity = "Q" and "Appl.-to Item Entry" = "L"
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::SelectEntries); // Enqueue for ItemTrackingLinesHandler
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(QuantityToInvoice);
+        LibraryVariableStorage.Enqueue(ItemLedgerEntry."Entry No.");
+        SalesLine.OpenItemTrackingLines;
+
+        // [WHEN] Set "Quantity (Base)" on Tracking Line to "X", "X" > "Q"
+        // [THEN] "Appl.-to Item Entry" = 0
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::SetQuantity);
+        LibraryVariableStorage.Enqueue(QuantityToInvoice + DeltaQty);
+        LibraryVariableStorage.Enqueue(0);
+        LibraryVariableStorage.Enqueue(ItemTrackingQuantityMsg);
+        SalesLine.OpenItemTrackingLines;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BlankCodeInReturnReasonTable()
+    var
+        ReturnReason: TestPage "Return Reasons";
+    begin
+        // [FEATURE] [Return Reason]
+        // [SCENARIO 374829] It should not be possible to insert a record in Return Reason table with field "Code" blank
+
+        // [WHEN] Insert record with "Code" = '' in Return Reason table
+        ReturnReason.OpenNew;
+        asserterror ReturnReason.Code.SetValue('');
+
+        // [THEN] Error is thrown: 'Code must be filled in. Enter a value.'
+        Assert.ExpectedError(BlankCodeErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoProdOrderForComponentWhenSKUReorderingPolicyAsLotForLot()
+    var
+        Item: Record Item;
+        ComponentItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ItemQty: Decimal;
+        ComponentQty: Decimal;
+        QtyPer: Decimal;
+        Direction: Option Forward,Backward;
+        CalcMethod: Option "No Levels","One level","All levels";
+    begin
+        // [FEATURE] [Production Order] [Production BOM] [Stockkeeping Unit]
+        // [SCENARIO 378606] Production Order for Component shouldn't be created when Replan PO with enough Inventory and "Reordering Policy" at SKU is equal to "Lot-for-Lot".
+        Initialize;
+
+        // [GIVEN] Item called ComponentItem with "Replenishment System" as "Prod. Order" and "Reordering Policy" as "Lot-for-Lot" at Stockkeeping Unit.
+        ClearComponentsAtLocationInManufacturingSetup;
+        QtyPer := LibraryRandom.RandInt(10);
+        ItemQty := LibraryRandom.RandInt(20);
+        ComponentQty := ItemQty * QtyPer + LibraryRandom.RandInt(100);
+        CreateItemWithSKU(ComponentItem, LocationBlue.Code);
+        // [GIVEN] Created Inventory of "X" for Component.
+        CreateAndPostItemJournalLine(LocationBlue.Code, '', ComponentItem."No.", '', ComponentQty, false, false);
+        // [GIVEN] Parent Item with Component as a child item.
+        CreateItemWithComponent(Item, ComponentItem, QtyPer);
+        // [GIVEN] Created Production Order for Parent Item with Component Item of Quantity < "X".
+        CreateProdOrderForParentItem(ProductionOrder, LocationBlue.Code, Item."No.", ItemQty);
+
+        // [WHEN] Replan Production Order for Parent Item.
+        LibraryManufacturing.RunReplanProductionOrder(ProductionOrder, Direction::Backward, CalcMethod::"All levels");
+
+        // [THEN] Production Order for Component doesn't exist.
+        VerifyProdOrderLineNotExists(ComponentItem."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler,ItemTrackingListPageHandler,ReservationPageHandler,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure InvtMovementReservedLotCanBeSelected()
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNo: Code[20];
+    begin
+        // [FEATURE] [Inventory Movement] [Item Tracking] [Reservation]
+        // [SCENARIO 381324] Reserved lot can be selected on inventory movement line.
+        Initialize;
+
+        with WarehouseActivityLine do begin
+            // [GIVEN] Lot-tracked Item with inventory in bin "B1". Lot No. = "L".
+            // [GIVEN] Inventory Movement of Item from bin "B1" to "B2".
+            // [GIVEN] Lot "L" is reserved for Sales Order.
+            CreateInventoryMovementForReservedLot(WarehouseActivityLine, LotNo);
+            Validate("Qty. to Handle", Quantity);
+
+            // [WHEN] Select "L" on Inventory Movement "take" line.
+            Validate("Lot No.", LotNo);
+
+            // [THEN] Reserved lot "L" can be selected.
+            TestField("Lot No.", LotNo);
+        end;
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler,ItemTrackingListPageHandler,ReservationPageHandler,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure InvtMovementCanBeRegisteredWhenLotIsReserved()
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseEntry: Record "Warehouse Entry";
+        LotNo: Code[20];
+    begin
+        // [FEATURE] [Inventory Movement] [Item Tracking] [Reservation]
+        // [SCENARIO 381324] Inventory movement of reserved lot can be registered.
+        Initialize;
+
+        with WarehouseActivityLine do begin
+            // [GIVEN] Lot-tracked Item with inventory in bin "B1". Lot No. = "L".
+            // [GIVEN] Inventory Movement of Item from bin "B1" to "B2".
+            // [GIVEN] Lot "L" is reserved for Sales Order.
+            CreateInventoryMovementForReservedLot(WarehouseActivityLine, LotNo);
+            SetRange("Action Type", "Action Type"::Place);
+            FindFirst;
+
+            // [WHEN] Autofill qty. to handle and register Inventory Movement.
+            RegisterWarehouseActivity("Source Document", "Source No.", "Activity Type"::"Invt. Movement");
+
+            // [THEN] Reserved lot "L" is successfully moved to bin "B2".
+            VerifyWarehouseEntry(
+              WarehouseEntry."Entry Type"::Movement, 0, "Item No.", "Bin Code", LotNo, Quantity, false);
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SinglePutawayLineForCrossDockReceipt()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WhseCrossDockOpportunity: Record "Whse. Cross-Dock Opportunity";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Receipt] [Put-away] [Cross-Docking]
+        // [SCENARIO 208108] At Location with enabled "Use Cross-Docking", without bins, put-away and receive are required, only single "Warehouse Activity Line" with "Activity Type" = "Put-away" is created for single line of Cross-Dock receipt.
+        Initialize;
+
+        // [GIVEN] Location "L" without bins with enabled "Use Cross-Docking", put-away and receive are required;
+        CreateCrossDockLocationWithoutBins(Location);
+
+        LibraryInventory.CreateItem(Item);
+        Qty := LibraryRandom.RandInt(1000);
+
+        // [GIVEN] Released Sales Order "SO" of Item "I" at "L" with Quantity "Q";
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, Location.Code, WorkDate);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Released Purchase Order "PO" of Item "I" at "L" with Quantity "Q" and Warehouse Receipt "WR" for "PO";
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", Qty, Location.Code, WorkDate);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+        FindWarehouseReceipt(WarehouseReceiptHeader, Item."No.");
+
+        // [WHEN] Calculate Cross-Dock Lines for "WR" and post "WR"
+        LibraryWarehouse.CalculateCrossDockLines(WhseCrossDockOpportunity, '', WarehouseReceiptHeader."No.", Location.Code);
+        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+
+        // [THEN] Only single Warehouse Activity Line "AL" for "I" is created, "AL"."Activity Type" = "Put-away","AL"."Action Type" is blank, "AL"."Cross-Dock Information" = "Cross-Dock Items","AL".Quantity = "Q".
+        WarehouseActivityLine.SetRange("Item No.", Item."No.");
+        Assert.RecordCount(WarehouseActivityLine, 1);
+        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.TestField("Activity Type", WarehouseActivityLine."Activity Type"::"Put-away");
+        WarehouseActivityLine.TestField("Action Type", WarehouseActivityLine."Action Type"::" ");
+        WarehouseActivityLine.TestField(Quantity, Qty);
+        WarehouseActivityLine.TestField("Cross-Dock Information", WarehouseActivityLine."Cross-Dock Information"::"Cross-Dock Items");
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse VII");
+        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore;
+
+        // Lazy Setup.
+        if isInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Warehouse VII");
+
+        NoSeriesSetup;
+        LocationSetup;
+        LibraryInventory.ItemJournalSetup(ItemJournalTemplate, ItemJournalBatch);
+        CreateTransferRoute;
+        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+        LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
+
+        isInitialized := true;
+        Commit;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse VII");
+    end;
+
+    local procedure AddSpecialOrderToReqWsht(var RequisitionLine: Record "Requisition Line"; TemplateName: Code[10]; WshtName: Code[10]; ItemNo: Code[20])
+    begin
+        with RequisitionLine do begin
+            SetRange("Worksheet Template Name", TemplateName);
+            SetRange("Journal Batch Name", WshtName);
+            FindFirst;
+        end;
+        LibraryPlanning.GetSpecialOrder(RequisitionLine, ItemNo);
+    end;
+
+    local procedure CreateFullWarehouseSetup(var Location: Record Location)
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        LibraryWarehouse.CreateFullWMSLocation(Location, 2);  // Value used for number of bin per zone.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+    end;
+
+    local procedure LocationSetup()
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        WarehouseEmployee.DeleteAll(true);
+        CreateFullWarehouseSetup(LocationWhite);  // Location: White.
+        CreateAndUpdateLocation(LocationSilver, true, true, true, true, true);  // Location Silver.
+        CreateBinsAndUpdateLocation(LocationSilver);
+        CreateAndUpdateLocation(LocationBlue, false, false, false, true, false);  // Location Blue with Require Shipment.
+        CreateAndUpdateLocation(LocationRed, false, false, false, true, false);  // Location Red with Require Shipment.
+        CreateAndUpdateLocation(LocationGreen, false, true, false, false, true);  // Location Green with Require Pick and Bin Manadatory.
+        CreateBins(LocationGreen);
+        CreateAndUpdateLocation(LocationYellow, true, true, true, true, false);  // Location Yellow with Require Put Away, Require Pick, Require Receive, Require Shipment.
+        CreateAndUpdateLocation(LocationBlack, false, false, false, false, false);  // Location Black.
+        CreateAndUpdateLocation(LocationOrange, false, false, false, false, false);  // Location Orange.
+        CreateInTransitLocation;
+    end;
+
+    local procedure NoSeriesSetup()
+    begin
+        LibrarySales.SetOrderNoSeriesInSetup;
+        LibraryPurchase.SetOrderNoSeriesInSetup;
+    end;
+
+    local procedure AssignLotNoOnItemTrackingLine(var ItemTrackingLines: TestPage "Item Tracking Lines"; Quantity: Decimal)
+    begin
+        ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID);
+        ItemTrackingLines."Quantity (Base)".SetValue(Quantity);
+        LibraryVariableStorage.Enqueue(ItemTrackingLines."Lot No.".Value);  // Enqueue Lot No.
+    end;
+
+    local procedure CalcPlanForReqWsht(var Item: Record Item; var TemplateName: Code[10]; var WshtName: Code[10])
+    var
+        ReqWkshName: Record "Requisition Wksh. Name";
+    begin
+        TemplateName := SelectRequisitionTemplateName;
+        LibraryPlanning.CreateRequisitionWkshName(ReqWkshName, TemplateName);
+        WshtName := ReqWkshName.Name;
+        LibraryPlanning.CalculatePlanForReqWksh(Item, TemplateName, WshtName, WorkDate, WorkDate);
+    end;
+
+    local procedure CalculateCrossDock(SourceNo: Code[20])
+    var
+        WhseCrossDockOpportunity: Record "Whse. Cross-Dock Opportunity";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+    begin
+        FindWarehouseReceiptLine(WarehouseReceiptLine, SourceNo);
+        LibraryWarehouse.CalculateCrossDockLines(
+          WhseCrossDockOpportunity, '', WarehouseReceiptLine."No.", WarehouseReceiptLine."Location Code");
+    end;
+
+    local procedure ClearComponentsAtLocationInManufacturingSetup()
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        ManufacturingSetup.Get;
+        ManufacturingSetup.Validate("Components at Location", '');
+        ManufacturingSetup.Modify(true);
+    end;
+
+    local procedure CreateCrossDockLocationWithoutBins(var Location: Record Location)
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, true, true, true);
+        Location.Validate("Use Cross-Docking", true);
+        Location.Modify(true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+    end;
+
+    local procedure CreateAndCertifyProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; Item: Record Item; QuantityPer: Decimal)
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item."No.", QuantityPer);
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+    end;
+
+    local procedure CreateAndPostItemJournalLine(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; Quantity: Decimal; UpdateExpirationDate: Boolean; UseTracking: Boolean)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        UpdateNoSeriesOnItemJournalBatch(ItemJournalBatch, '');  // Use Blank No. Series.
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo,
+          Quantity);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Validate("Bin Code", BinCode);
+        ItemJournalLine.Validate("Variant Code", VariantCode);
+        ItemJournalLine.Modify(true);
+        if UseTracking then
+            ItemJournalLine.OpenItemTrackingLines(false);
+        if UpdateExpirationDate then
+            UpdateExpirationDateOnReservationEntry(ItemNo);
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+    end;
+
+    local procedure CreateAndPostJobJournalLine(Bin: Record Bin; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        JobTask: Record "Job Task";
+        JobJournalLine: Record "Job Journal Line";
+        LibraryJob: Codeunit "Library - Job";
+    begin
+        CreateJobWithJobTask(JobTask);
+        LibraryJob.GetJobJournalTemplate(JobJournalTemplate);
+        LibraryJob.CreateJobJournalBatch(JobJournalTemplate.Name, JobJournalBatch);
+        LibraryJob.CreateJobJournalLine(JobJournalLine."Line Type"::"Both Budget and Billable", JobTask, JobJournalLine);
+        JobJournalLine.Validate(Type, JobJournalLine.Type::Item);
+        JobJournalLine.Validate("No.", ItemNo);
+        JobJournalLine.Validate("Location Code", Bin."Location Code");
+        JobJournalLine.Validate("Bin Code", Bin.Code);
+        JobJournalLine.Validate(Quantity, Quantity);
+        JobJournalLine.Modify(true);
+        JobJournalLine.OpenItemTrackingLines(false);
+        LibraryVariableStorage.Enqueue(PostJobJournalLines);  // Enqueue for ConfirmMessageHandler.
+        LibraryVariableStorage.Enqueue(JobJournalPosted);  // Enqueue for MessageHandler.
+        LibraryJob.PostJobJournal(JobJournalLine);
+    end;
+
+    local procedure CreateAndPostSalesOrderWithItemTracking(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+        ItemTrackingMode: Option " ",AssignLotNo,AssignSerialNo,AssignMultipleLotNo,SelectEntries,SelectSerialNo,SelectLotNo;
+    begin
+        CreateSalesOrder(SalesHeader, SalesLine, CustomerNo, ItemNo, Quantity, '', false);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::SelectEntries);  // Enqueue for ItemTrackingLinesPageHandler.
+        SalesLine.OpenItemTrackingLines;
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as SHIP and INVOICE.
+    end;
+
+    local procedure CreateAndPostTransferOrder(var TransferHeader: Record "Transfer Header"; SalesLine: Record "Sales Line"; FromLocationCode: Code[10]; ToLocationCode: Code[10])
+    var
+        TransferLine: Record "Transfer Line";
+    begin
+        CreateTransferOrder(TransferHeader, TransferLine, FromLocationCode, ToLocationCode, SalesLine."No.", SalesLine.Quantity);
+        LibraryWarehouse.PostTransferOrder(TransferHeader, true, false);  // Post as SHIP.
+    end;
+
+    local procedure CreateAndRefreshReleasedProductionOrder(var ProductionOrder: Record "Production Order"; Bin: Record Bin; ItemNo: Code[20]; Quantity: Decimal)
+    begin
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ItemNo, Quantity);
+        ProductionOrder.Validate("Location Code", Bin."Location Code");
+        ProductionOrder.Validate("Bin Code", Bin.Code);
+        ProductionOrder.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);  // CalcLines, CalcRoutings, CalcComponents as TRUE.
+    end;
+
+    local procedure CreateAndReleasePurchaseOrderWithMultipleLines(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; Quantity2: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        CreatePurchaseOrder(PurchaseHeader, ItemNo, Quantity, LocationCode);
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine, ItemNo, Quantity2, LocationCode);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+    end;
+
+    local procedure CreateAndReleasePurchOrdersOnSpecialOrder(Item: Record Item)
+    var
+        RequisitionLine: Record "Requisition Line";
+        TemplateName: Code[10];
+        WshtName: Code[10];
+    begin
+        CalcPlanForReqWsht(Item, TemplateName, WshtName);
+        AddSpecialOrderToReqWsht(RequisitionLine, TemplateName, WshtName, Item."No.");
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
+        ReleasePurchaseOrders(Item."No.");
+    end;
+
+    local procedure CreateAndReleaseSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; Reserve: Boolean)
+    begin
+        CreateSalesOrder(SalesHeader, SalesLine, CustomerNo, ItemNo, Quantity, LocationCode, Reserve);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+    end;
+
+    local procedure CreateAndReleaseSalesOrderByPage(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; LocationCode: Code[20]; Quantity: Decimal)
+    var
+        Customer: Record Customer;
+        SalesOrder: TestPage "Sales Order";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibraryVariableStorage.Enqueue(ReservationConfirmMessage);  // Enqueue for ConfirmHandler.
+        LibraryVariableStorage.Enqueue(ReservationNotPossibleMessage);  // Enqueue for MessageHandler.
+        SalesOrder.OpenNew;
+        SalesOrder."Sell-to Customer Name".SetValue(Customer.Name);
+        SalesOrder.SalesLines.Type.SetValue(SalesOrder.SalesLines.Type.GetOption(3));  // Option 3 is used for Item.
+        SalesOrder.SalesLines."No.".SetValue(ItemNo);
+        SalesOrder.SalesLines."Location Code".SetValue(LocationCode);
+        SalesOrder.SalesLines.Quantity.SetValue(Quantity);
+        SalesHeader.Get(SalesHeader."Document Type"::Order, SalesOrder."No.");
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+    end;
+
+    local procedure CreateAndReleaseSpecialOrder(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        CreateSalesOrder(SalesHeader, SalesLine, '', ItemNo, Quantity, LocationWhite.Code, false);
+        UpdatePurchasingCodeOnSalesLine(SalesLine);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+    end;
+
+    local procedure CreateAndUpdateLocation(var Location: Record Location; RequirePutAway: Boolean; RequirePick: Boolean; RequireReceive: Boolean; RequireShipment: Boolean; BinMandatory: Boolean)
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        LibraryWarehouse.CreateLocationWMS(Location, BinMandatory, RequirePutAway, RequirePick, RequireReceive, RequireShipment);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+    end;
+
+    local procedure CreateBins(var Location: Record Location)
+    var
+        Bin: Record Bin;
+    begin
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+    end;
+
+    local procedure CreateBinsAndUpdateLocation(var Location: Record Location)
+    var
+        Bin: Record Bin;
+    begin
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        Location.Validate("Receipt Bin Code", Bin.Code);
+        Location.Modify(true);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        Location.Validate("Shipment Bin Code", Bin.Code);
+        Location.Modify(true);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+    end;
+
+    local procedure CreateJobWithJobTask(var JobTask: Record "Job Task")
+    var
+        Job: Record Job;
+        LibraryJob: Codeunit "Library - Job";
+    begin
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+    end;
+
+    local procedure CreateInternalMovement(var InternalMovementHeader: Record "Internal Movement Header"; var Bin2: Record Bin; Bin: Record Bin; ItemNo: Code[20]; Quantity: Decimal; WhseItemTrackingMode: Option)
+    var
+        InternalMovementLine: Record "Internal Movement Line";
+    begin
+        CreateInternalMovementHeader(InternalMovementHeader, Bin2, Bin);
+        LibraryWarehouse.CreateInternalMovementLine(InternalMovementHeader, InternalMovementLine, ItemNo, Bin.Code, Bin2.Code, Quantity);
+        LibraryVariableStorage.Enqueue(WhseItemTrackingMode);   // Enqueue for WhseItemTrackingLinesPageHandler.
+        LibraryVariableStorage.Enqueue(ItemNo);  // Enqueue for WhseItemTrackingLinesPageHandler.
+        InternalMovementLine.OpenItemTrackingLines;
+    end;
+
+    local procedure CreateInternalMovementHeader(var InternalMovementHeader: Record "Internal Movement Header"; var Bin2: Record Bin; Bin: Record Bin)
+    begin
+        LibraryWarehouse.CreateBin(Bin2, Bin."Location Code", LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateInternalMovementHeader(InternalMovementHeader, Bin."Location Code", Bin2.Code);
+    end;
+
+    local procedure CreateInternalMovementWithGetBinContent(var InternalMovementHeader: Record "Internal Movement Header"; var Bin2: Record Bin; Bin: Record Bin; ItemNo: Code[20])
+    begin
+        CreateInternalMovementHeader(InternalMovementHeader, Bin2, Bin);
+        LibraryWarehouse.GetBinContentInternalMovement(InternalMovementHeader, Bin."Location Code", ItemNo, Bin.Code);
+    end;
+
+    local procedure CreateInventoryMovement(SourceNo: Code[20])
+    var
+        WarehouseRequest: Record "Warehouse Request";
+    begin
+        LibraryVariableStorage.Enqueue(InventoryMovementCreatedMessage);  // Enqueue for MessageHandler.
+        LibraryWarehouse.CreateInvtPutPickMovement(WarehouseRequest."Source Document"::"Prod. Consumption", SourceNo, false, false, true);  // TRUE for Movement.
+    end;
+
+    local procedure CreateInventoryMovementForReservedLot(var WarehouseActivityLine: Record "Warehouse Activity Line"; var LotNo: Code[20])
+    var
+        Item: Record Item;
+        Bin: Record Bin;
+        InternalMovementHeader: Record "Internal Movement Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemTrackingMode: Option " ",AssignLotNo,AssignSerialNo,AssignMultipleLotNo,SelectEntries,SelectSerialNo,SelectLotNo;
+        Qty: Decimal;
+    begin
+        Qty := LibraryRandom.RandInt(100);
+        CreateTrackedItemAndUpdateInventoryOnLocationWithBin(
+          Item, Bin, Qty, true, false, false, LibraryUtility.GetGlobalNoSeriesCode, '', ItemTrackingMode::AssignLotNo, false);
+        GetLotNoFromItemTrackingPageHandler(LotNo);
+
+        LibraryWarehouse.CreateBin(Bin, LocationSilver.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateInternalMovementHeader(InternalMovementHeader, Bin."Location Code", Bin.Code);
+        LibraryWarehouse.GetBinContentInternalMovement(InternalMovementHeader, '', Item."No.", '');
+        CreateInventoryMovementFromInternalMovement(InternalMovementHeader);
+
+        CreateSalesOrder(SalesHeader, SalesLine, LibrarySales.CreateCustomerNo, Item."No.", Qty, LocationSilver.Code, false);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::SelectEntries);
+        SalesLine.OpenItemTrackingLines;
+        LibraryVariableStorage.Enqueue(SpecificReservationTxt);
+        SalesLine.ShowReservation;
+
+        FindInventoryMovementLine(
+          WarehouseActivityLine, WarehouseActivityLine."Action Type"::Take, Item."No.", WarehouseActivityLine."Source Document"::" ", '');
+    end;
+
+    local procedure CreateInTransitLocation()
+    begin
+        LibraryWarehouse.CreateInTransitLocation(LocationInTransit);
+        LibraryInventory.UpdateInventoryPostingSetup(LocationInTransit);
+    end;
+
+    local procedure CreateItemTrackingCode(var ItemTrackingCode: Record "Item Tracking Code"; Lot: Boolean; Serial: Boolean; ManExpirDateEntryReqd: Boolean)
+    begin
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, Serial, Lot);
+        ItemTrackingCode.Validate("Lot Warehouse Tracking", Lot);
+        ItemTrackingCode.Validate("SN Warehouse Tracking", Serial);
+        ItemTrackingCode.Validate("Use Expiration Dates", ManExpirDateEntryReqd);
+        ItemTrackingCode.Validate("Man. Expir. Date Entry Reqd.", ManExpirDateEntryReqd);
+        ItemTrackingCode.Modify(true);
+    end;
+
+    local procedure CreateItemWithComponent(var Item: Record Item; ComponentItem: Record Item; QtyPer: Decimal)
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+    begin
+        LibraryInventory.CreateItem(Item);
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, ComponentItem, QtyPer);
+        Item.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Modify(true);
+    end;
+
+    local procedure CreateItemWithItemTrackingCode(var Item: Record Item; Lot: Boolean; Serial: Boolean; ManExpirDateEntryReqd: Boolean; LotNos: Code[20]; SerialNos: Code[20])
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        CreateItemTrackingCode(ItemTrackingCode, Lot, Serial, ManExpirDateEntryReqd);
+        LibraryInventory.CreateTrackedItem(Item, LotNos, SerialNos, ItemTrackingCode.Code);
+    end;
+
+    local procedure CreateItemWithProductionBOM(var ParentItem: Record Item; var ChildItem: Record Item; QuantityPer: Decimal; Lot: Boolean; Serial: Boolean; SerialNos: Code[20])
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+    begin
+        LibraryInventory.CreateItem(ParentItem);
+        CreateItemWithItemTrackingCode(ChildItem, Lot, Serial, true, '', SerialNos);  // TRUE for Man. Expir. Date Entry Reqd.
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem, QuantityPer);
+        ParentItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ParentItem.Modify(true);
+    end;
+
+    local procedure CreateItemWithReorderPolicyAsMaxQty(var Item: Record Item; var MaxInventoryQty: Decimal; var SalesQty: Decimal)
+    var
+        Vendor: Record Vendor;
+        StockkeepingUnit: Record "Stockkeeping Unit";
+    begin
+        SalesQty := LibraryRandom.RandInt(10);
+        MaxInventoryQty := LibraryRandom.RandInt(90) + SalesQty;
+
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryInventory.CreateItem(Item);
+        with Item do begin
+            Validate("Vendor No.", Vendor."No.");
+            Validate("Reordering Policy", "Reordering Policy"::"Maximum Qty.");
+            Validate("Reorder Point", LibraryRandom.RandInt(SalesQty));
+            Validate("Maximum Inventory", MaxInventoryQty);
+            Modify(true);
+        end;
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, LocationWhite.Code, Item."No.", '');
+    end;
+
+    local procedure CreateItemWithSKU(var ComponentItem: Record Item; LocationCode: Code[10])
+    var
+        StockkeepingUnit: Record "Stockkeeping Unit";
+    begin
+        CreateItem(ComponentItem, ComponentItem.Reserve, ComponentItem."Reordering Policy"::" ");
+        ComponentItem.Validate("Replenishment System", ComponentItem."Replenishment System"::"Prod. Order");
+        ComponentItem.Modify(true);
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, LocationCode, ComponentItem."No.", '');
+        StockkeepingUnit.Validate("Reordering Policy", StockkeepingUnit."Reordering Policy"::"Lot-for-Lot");
+        StockkeepingUnit.Modify(true);
+    end;
+
+    local procedure CreateItemWithVariant(var Item: Record Item; var ItemVariant: Record "Item Variant")
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+    end;
+
+    local procedure CreateItem(var Item: Record Item; Reserve: Option; ReorderingPolicy: Option)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Reserve, Reserve);
+        Item.Validate("Reordering Policy", ReorderingPolicy);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateTrackedItemAndUpdateInventoryOnLocationWithBin(var Item: Record Item; var Bin: Record Bin; Qty: Decimal; IsLotTracking: Boolean; IsSerialNoTracking: Boolean; ManExpirDateEntryReqd: Boolean; LotNos: Code[20]; SerialNos: Code[20]; ItemTrackingMode: Option; UpdateExpirDate: Boolean)
+    begin
+        CreateItemWithItemTrackingCode(
+          Item, IsLotTracking, IsSerialNoTracking, ManExpirDateEntryReqd, LotNos, SerialNos);
+        LibraryWarehouse.CreateBin(Bin, LocationSilver.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryVariableStorage.Enqueue(ItemTrackingMode);
+        CreateAndPostItemJournalLine(Bin."Location Code", Bin.Code, Item."No.", '', Qty, UpdateExpirDate, true);
+    end;
+
+    local procedure CreateInventoryMovementFromInternalMovement(InternalMovementHeader: Record "Internal Movement Header")
+    begin
+        LibraryVariableStorage.Enqueue(InventoryMovementConfirmMessage);  // Enqueue for Confirm Handler.
+        LibraryVariableStorage.Enqueue(InventoryMovementCreated);  // Enqueue for Message Handler.
+        LibraryWarehouse.CreateInvtMvmtFromInternalMvmt(InternalMovementHeader);
+    end;
+
+    local procedure CreateMultipleStockkeepingUnit(ItemNo: Code[20]; LocationCode: Code[10]; LocationCode2: Code[10])
+    var
+        Item: Record Item;
+    begin
+        Item.SetRange("No.", ItemNo);
+        Item.SetFilter("Location Filter", '%1|%2', LocationCode, LocationCode2);
+        LibraryInventory.CreateStockKeepingUnit(Item, 0, false, false);  // Create Per Option as Zero.
+    end;
+
+    local procedure CreatePick(SourceNo: Code[20])
+    var
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        GetWarehouseShipmentHeader(WarehouseShipmentHeader, SourceNo);
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+    end;
+
+    local procedure CreateProdOrderForParentItem(var ProductionOrder: Record "Production Order"; LocationCode: Code[10]; ItemNo: Code[20]; ItemQty: Decimal)
+    begin
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ItemNo, ItemQty);
+        ProductionOrder.Validate("Location Code", LocationCode);
+        ProductionOrder.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);  // CalcLines, CalcRoutings, CalcComponents as TRUE.
+    end;
+
+    local procedure CreatePurchaseCreditMemoByPage(var PurchaseCreditMemo: TestPage "Purchase Credit Memo"; LocationCode: Code[10])
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreateVendor(Vendor);
+        PurchaseCreditMemo.OpenNew;
+        PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vendor.Name);
+        PurchaseCreditMemo.PurchLines.Type.SetValue(PurchaseCreditMemo.PurchLines.Type.GetOption(3));  // Option 3 is used for Item.
+        PurchaseCreditMemo.PurchLines."No.".SetValue(Item."No.");
+        PurchaseCreditMemo.PurchLines."Location Code".SetValue(LocationCode);
+    end;
+
+    local procedure CreatePurchaseLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
+        PurchaseLine.Validate("Location Code", LocationCode);
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine, ItemNo, Quantity, LocationCode);
+    end;
+
+    local procedure CreatePurchaseOrderWithLot(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+        ItemTrackingMode: Option " ",AssignLotNo,AssignSerialNo,AssignMultipleLotNo,SelectEntries,SelectSerialNo,SelectLotNo;
+    begin
+        CreatePurchaseOrder(PurchaseHeader, ItemNo, Quantity, '');
+        FindPurchaseOrderLine(PurchaseLine, PurchaseHeader."No.");
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignLotNo);  // Enqueue for ItemTrackingLinesPageHandler.
+        PurchaseLine.OpenItemTrackingLines;
+    end;
+
+    local procedure CreatePurchaseInvoiceByPage(var PurchaseInvoice: TestPage "Purchase Invoice"; LocationCode: Code[10])
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreateVendor(Vendor);
+        PurchaseInvoice.OpenNew;
+        PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
+        PurchaseInvoice.PurchLines.Type.SetValue(PurchaseInvoice.PurchLines.Type.GetOption(3));  // Option 3 is used for Item.
+        PurchaseInvoice.PurchLines."No.".SetValue(Item."No.");
+        PurchaseInvoice.PurchLines."Location Code".SetValue(LocationCode);
+    end;
+
+    local procedure CreatePurchaseReturnOrderByPage(var PurchaseReturnOrder: TestPage "Purchase Return Order"; LocationCode: Code[10])
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        ReturnReason: Record "Return Reason";
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreateVendor(Vendor);
+        ReturnReason.FindFirst;
+        PurchaseReturnOrder.OpenNew;
+        PurchaseReturnOrder."Buy-from Vendor Name".SetValue(Vendor."No.");
+        PurchaseReturnOrder.PurchLines.Type.SetValue(PurchaseReturnOrder.PurchLines.Type.GetOption(3));  // Option 3 is used for Item.
+        PurchaseReturnOrder.PurchLines."No.".SetValue(Item."No.");
+        PurchaseReturnOrder.PurchLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
+        PurchaseReturnOrder.PurchLines."Return Reason Code".SetValue(ReturnReason.Code);
+        PurchaseReturnOrder.PurchLines."Location Code".SetValue(LocationCode);
+    end;
+
+    local procedure CreateSalesCreditMemoByPage(var SalesCreditMemo: TestPage "Sales Credit Memo"; LocationCode: Code[10])
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibraryInventory.CreateItem(Item);
+        SalesCreditMemo.OpenNew;
+        SalesCreditMemo."Sell-to Customer Name".SetValue(Customer."No.");
+        SalesCreditMemo.SalesLines.Type.SetValue(SalesCreditMemo.SalesLines.Type.GetOption(3));  // Option 3 is used for Item.
+        SalesCreditMemo.SalesLines."No.".SetValue(Item."No.");
+        SalesCreditMemo.SalesLines."Location Code".SetValue(LocationCode);
+    end;
+
+    local procedure CreateSalesInvoiceByPage(No: Code[20]; CustomerNo: Code[20])
+    var
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        SalesInvoice.OpenNew;
+        SalesInvoice."No.".SetValue(No);
+        SalesInvoice."Sell-to Customer Name".SetValue(CustomerNo);
+        SalesInvoice.OK.Invoke;
+    end;
+
+    local procedure CreateSalesInvoiceWithSalesLineByPage(var SalesInvoice: TestPage "Sales Invoice"; LocationCode: Code[10])
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateCustomer(Customer);
+        SalesInvoice.OpenNew;
+        SalesInvoice."Sell-to Customer Name".SetValue(Customer."No.");
+        SalesInvoice.SalesLines.Type.SetValue(SalesInvoice.SalesLines.Type.GetOption(3));  // Option 3 is used for Item.
+        SalesInvoice.SalesLines."No.".SetValue(Item."No.");
+        SalesInvoice.SalesLines."Location Code".SetValue(LocationCode);
+    end;
+
+    local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Option; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    begin
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, ItemNo, Quantity);
+        SalesLine.Validate("Location Code", LocationCode);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(50));
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; Reserve: Boolean)
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        CreateSalesLine(SalesHeader, SalesLine, SalesLine.Type::Item, ItemNo, Quantity, LocationCode);
+        if Reserve then
+            SalesLine.ShowReservation;
+    end;
+
+    local procedure CreateSalesOrderWithMultipleLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        CreateSalesLine(SalesHeader, SalesLine, SalesLine.Type::Item, ItemNo, Quantity, LocationCode);
+        CreateSalesLine(SalesHeader, SalesLine, SalesLine.Type::Item, ItemNo, Quantity, LocationCode);
+    end;
+
+    local procedure CreateSalesBlanketOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; LocationCode: Code[10])
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", Customer."No.");
+        CreateSalesLine(SalesHeader, SalesLine, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(100), LocationCode);
+    end;
+
+    local procedure CreatePurchaseBlanketOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; LocationCode: Code[10])
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", Vendor."No.");
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine, Item."No.", LibraryRandom.RandInt(100), LocationCode);
+    end;
+
+    local procedure CreateSalesOrderByPage(var SalesOrder: TestPage "Sales Order"; LocationCode: Code[10])
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateCustomer(Customer);
+        SalesOrder.OpenNew;
+        SalesOrder."Sell-to Customer Name".SetValue(Customer.Name);
+        SalesOrder.SalesLines.Type.SetValue(SalesOrder.SalesLines.Type.GetOption(3));  // Option 3 is used for Item.
+        SalesOrder.SalesLines."No.".SetValue(Item."No.");
+        SalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
+        SalesOrder.SalesLines."Location Code".SetValue(LocationCode);
+    end;
+
+    local procedure CreateSOFromBlanketSalesOrderWithPartialQuantity(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
+        SalesLine.Validate("Qty. to Ship", SalesLine.Quantity / 2);  // Making Sales Order of Partial Quantity.
+        SalesLine.Modify(true);
+        LibrarySales.BlanketSalesOrderMakeOrder(SalesHeader);
+    end;
+
+    local procedure CreateSalesReturnOrderByPage(var SalesReturnOrder: TestPage "Sales Return Order"; LocationCode: Code[10])
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        ReturnReason: Record "Return Reason";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibraryInventory.CreateItem(Item);
+        ReturnReason.FindFirst;
+        SalesReturnOrder.OpenNew;
+        SalesReturnOrder."Sell-to Customer Name".SetValue(Customer."No.");
+        SalesReturnOrder.SalesLines.Type.SetValue(SalesReturnOrder.SalesLines.Type.GetOption(3));  // Option 3 is used for Item.
+        SalesReturnOrder.SalesLines."No.".SetValue(Item."No.");
+        SalesReturnOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
+        SalesReturnOrder.SalesLines."Return Reason Code".SetValue(ReturnReason.Code);
+        SalesReturnOrder.SalesLines."Location Code".SetValue(LocationCode);
+    end;
+
+    local procedure CreateTransferRoute()
+    var
+        TransferRoute: Record "Transfer Route";
+    begin
+        LibraryWarehouse.CreateTransferRoute(TransferRoute, LocationRed.Code, LocationBlue.Code);
+        TransferRoute.Validate("In-Transit Code", LocationInTransit.Code);
+        TransferRoute.Modify(true);
+    end;
+
+    local procedure CreateTransferOrder(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; FromLocationCode: Code[10]; ToLocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
+    begin
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocationCode, ToLocationCode, LocationInTransit.Code);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, Quantity);
+    end;
+
+    local procedure CreateWarehouseReceipt(PurchaseHeader: Record "Purchase Header")
+    begin
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+    end;
+
+    local procedure CreateWarehouseReceiptFromPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; UseTracking: Boolean)
+    var
+        PurchaseLine: Record "Purchase Line";
+        ItemTrackingMode: Option " ",AssignLotNo,AssignSerialNo,AssignMultipleLotNo,SelectEntries,SelectSerialNo,SelectLotNo;
+    begin
+        CreatePurchaseOrder(PurchaseHeader, ItemNo, Quantity, LocationCode);
+        if UseTracking then begin
+            FindPurchaseOrderLine(PurchaseLine, PurchaseHeader."No.");
+            LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignSerialNo);
+            PurchaseLine.OpenItemTrackingLines;
+        end;
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        CreateWarehouseReceipt(PurchaseHeader);
+    end;
+
+    local procedure CreateWarehouseShipment(SalesHeader: Record "Sales Header")
+    begin
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+    end;
+
+    local procedure CreateWarehouseShipmentFromSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; Reserve: Boolean)
+    begin
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, CustomerNo, ItemNo, Quantity, LocationCode, Reserve);
+        CreateWarehouseShipment(SalesHeader);
+    end;
+
+    local procedure CreateWhseRcpt(Item: Record Item) WhseRcptNo: Code[20]
+    var
+        WhseReceiptHeader: Record "Warehouse Receipt Header";
+        PurchLine: Record "Purchase Line";
+        GetSourceDocInbound: Codeunit "Get Source Doc. Inbound";
+    begin
+        CreateAndReleasePurchOrdersOnSpecialOrder(Item);
+        LibraryWarehouse.CreateWarehouseReceiptHeader(WhseReceiptHeader);
+        WhseReceiptHeader.Validate("Location Code", LocationWhite.Code);
+        WhseReceiptHeader.Modify(true);
+        WhseRcptNo := WhseReceiptHeader."No.";
+
+        with PurchLine do begin
+            SetRange("No.", Item."No.");
+            FindSet;
+            repeat
+                LibraryVariableStorage.Enqueue("Document No.");
+                GetSourceDocInbound.GetSingleInboundDoc(WhseReceiptHeader);
+            until Next = 0;
+        end;
+    end;
+
+    local procedure CreateAndPostWarehouseShipmentFromSalesOrder(var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        CreateSalesOrderWithMultipleLines(SalesHeader, SalesLine, CustomerNo, ItemNo, Quantity, LocationCode);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        CreateWarehouseShipment(SalesHeader);
+        CreateAndRegisterPick(SalesHeader."No.");
+        PostWarehouseShipment(SalesHeader."No.");
+    end;
+
+    local procedure CreateAndRegisterPick(SalesHeaderNo: Code[20])
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        CreatePick(SalesHeaderNo);
+        RegisterWarehouseActivity(
+          WarehouseActivityLine."Source Document"::"Sales Order", SalesHeaderNo, WarehouseActivityLine."Activity Type"::Pick);
+    end;
+
+    local procedure CalcConsumptionInConsumptionJournal(ProductionOrderNo: Code[20])
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Consumption);
+        LibraryInventory.SelectItemJournalBatchName(
+          ItemJournalBatch, ItemJournalBatch."Template Type"::Consumption, ItemJournalTemplate.Name);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        LibraryManufacturing.CalculateConsumption(ProductionOrderNo, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure EnqueueValuesForOrderTrackingDetailsPageHandler(ItemNo: Code[20]; Quantity: Decimal; MultipleLines: Boolean)
+    begin
+        LibraryVariableStorage.Enqueue(MultipleLines);  // Enqueue for MultipleLines.
+        LibraryVariableStorage.Enqueue(ItemNo);  // Enqueue for Item No.
+        LibraryVariableStorage.Enqueue(Quantity);  // Enqueue for Quantity.
+        LibraryVariableStorage.Enqueue(Quantity - Quantity);  // Enqueue for UntrackedQuantity.
+        LibraryVariableStorage.Enqueue(Quantity);  // Enqueue for Line Quantity.
+    end;
+
+    local procedure EnqueueValuesForProductionJournalHandler(ItemTrackingMode: Option " ",AssignLotNo,AssignSerialNo,AssignMultipleLotNo,SelectEntries,SelectSerialNo,SelectLotNo; No: Code[20]; Quantity: Decimal)
+    begin
+        LibraryVariableStorage.Enqueue(ItemTrackingMode);  // Enqueue for ItemTrackingLinesPageHandler.
+        LibraryVariableStorage.Enqueue(No);  // Enqueue for ItemTrackingLinesPageHandler.
+        if ItemTrackingMode = ItemTrackingMode::SelectLotNo then
+            LibraryVariableStorage.Enqueue(Quantity);
+        LibraryVariableStorage.Enqueue(PostJournalLinesConfirmationMessage);  // Enqueue for ConfirmHandler.
+    end;
+
+    local procedure EnqueueValuesForItemTrackingLinesPageHandler(ItemTrackingMode: Option; LotNo: Code[20]; Quantity: Decimal)
+    begin
+        LibraryVariableStorage.Enqueue(ItemTrackingMode);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Quantity);
+    end;
+
+    local procedure FindBin(var Bin: Record Bin; Location: Record Location)
+    begin
+        Bin.SetRange("Location Code", Location.Code);
+        Bin.SetFilter(Code, '<>%1&<>%2', Location."Shipment Bin Code", Location."Receipt Bin Code");
+        Bin.FindFirst;
+    end;
+
+    local procedure FindPickBin(var Bin: Record Bin; LocationCode: Code[10])
+    var
+        Zone: Record Zone;
+    begin
+        FindPickZone(Zone, LocationCode);
+        Bin.SetRange("Location Code", LocationCode);
+        Bin.SetRange("Zone Code", Zone.Code);
+        LibraryWarehouse.FindBin(Bin, LocationCode, Zone.Code, LibraryRandom.RandInt(Bin.Count));  // Find Random Bin.
+    end;
+
+    local procedure FindPickZone(var Zone: Record Zone; LocationCode: Code[10])
+    begin
+        Zone.SetRange("Location Code", LocationCode);
+        Zone.SetRange("Bin Type Code", LibraryWarehouse.SelectBinType(false, false, true, true));  // TRUE for Put-away and Pick.
+        Zone.SetRange("Cross-Dock Bin Zone", false);
+        Zone.FindFirst;
+    end;
+
+    local procedure FindInventoryMovementLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActionType: Option; ItemNo: Code[20]; SourceDocument: Option; SourceNo: Code[20])
+    begin
+        WarehouseActivityLine.SetRange("Action Type", ActionType);
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        FindWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, WarehouseActivityLine."Activity Type"::"Invt. Movement");
+    end;
+
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20])
+    begin
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::"Positive Adjmt.");
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.FindSet;
+    end;
+
+    local procedure FindPostedSalesShipment(CustomerNo: Code[20]; OrderNo: Code[20]): Code[20]
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+    begin
+        SalesShipmentHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesShipmentHeader.SetRange("Order No.", OrderNo);
+        SalesShipmentHeader.FindFirst;
+        exit(SalesShipmentHeader."No.");
+    end;
+
+    local procedure FindProductionOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order")
+    begin
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst;
+    end;
+
+    local procedure FindSalesOrderLine(var SalesLine: Record "Sales Line"; DocumentNo: Code[20])
+    begin
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        SalesLine.SetRange("Document No.", DocumentNo);
+        SalesLine.FindFirst;
+    end;
+
+    local procedure FindPurchaseOrderLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20])
+    begin
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetRange("Document No.", DocumentNo);
+        PurchaseLine.FindFirst;
+    end;
+
+    local procedure FindSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    begin
+        SalesHeader.SetRange("Document Type", DocumentType);
+        SalesHeader.FindFirst;
+    end;
+
+    local procedure FindPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; BuyFromVendorNo: Code[20]; DocumentType: Option)
+    begin
+        PurchaseHeader.SetRange("Buy-from Vendor No.", BuyFromVendorNo);
+        PurchaseHeader.SetRange("Document Type", DocumentType);
+        PurchaseHeader.FindFirst;
+    end;
+
+    local procedure FindSalesInvoiceHeader(var SalesHeader: Record "Sales Header"; No: Code[20])
+    begin
+        SalesHeader.SetRange("No.", No);
+        FindSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
+    end;
+
+    local procedure FindSalesReturnOrderLine(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]; ItemNo: Code[20])
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type"::"Return Order");
+        SalesLine.SetRange("Document No.", DocumentNo);
+        SalesLine.SetRange("No.", ItemNo);
+        SalesLine.FindFirst;
+    end;
+
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Option; SourceNo: Code[20]; ActivityType: Option)
+    begin
+        WarehouseActivityLine.SetRange("Source Document", SourceDocument);
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.FindFirst;
+    end;
+
+    local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceNo: Code[20])
+    begin
+        WarehouseReceiptLine.SetRange("Source Document", WarehouseReceiptLine."Source Document"::"Purchase Order");
+        WarehouseReceiptLine.SetRange("Source No.", SourceNo);
+        WarehouseReceiptLine.FindFirst;
+    end;
+
+    local procedure FindWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceNo: Code[20])
+    begin
+        WarehouseShipmentLine.SetRange("Source Document", WarehouseShipmentLine."Source Document"::"Sales Order");
+        WarehouseShipmentLine.SetRange("Source No.", SourceNo);
+        WarehouseShipmentLine.FindFirst;
+    end;
+
+    local procedure FindWarehouseReceipt(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; ItemNo: Code[20])
+    var
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+    begin
+        WarehouseReceiptLine.SetRange("Item No.", ItemNo);
+        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptHeader.SetRange("No.", WarehouseReceiptLine."No.");
+        WarehouseReceiptHeader.FindFirst;
+    end;
+
+    local procedure GetLotNoFromItemTrackingPageHandler(var LotNo: Code[20])
+    var
+        DequeueVariable: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(DequeueVariable);
+        LotNo := DequeueVariable;
+    end;
+
+    local procedure GetShipmentLineOnSalesInvoice(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        SalesLine.Init;
+        SalesLine.Validate("Document Type", SalesHeader."Document Type");
+        SalesLine.Validate("Document No.", SalesHeader."No.");
+        LibrarySales.GetShipmentLines(SalesLine);
+    end;
+
+    local procedure CreateSalesDocumentLinkBlanketOrder(var SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; Quantity: Decimal; DocumentType: Option)
+    var
+        SalesLine2: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, SalesLine."Sell-to Customer No.");
+        LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine.Type, SalesLine."No.", Quantity);
+        SalesLine2.Validate("Blanket Order No.", SalesLine."Document No.");
+        SalesLine2.Validate("Blanket Order Line No.", SalesLine."Line No.");
+        SalesLine2.Modify(true);
+    end;
+
+    local procedure CreatePurchaseDocumentLinkBlanketOrder(var PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; Quantity: Decimal; DocumentType: Option)
+    var
+        PurchaseLine2: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, PurchaseLine."Buy-from Vendor No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine2, PurchaseHeader, PurchaseLine.Type, PurchaseLine."No.", Quantity);
+        PurchaseLine2.Validate("Blanket Order No.", PurchaseLine."Document No.");
+        PurchaseLine2.Validate("Blanket Order Line No.", PurchaseLine."Line No.");
+        PurchaseLine2.Modify(true);
+    end;
+
+    local procedure GetWarehouseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceNo: Code[20])
+    var
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        FindWarehouseShipmentLine(WarehouseShipmentLine, SourceNo);
+        WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
+    end;
+
+    local procedure OpenItemsByLocationPageFromItemCard(ItemNo: Code[20])
+    var
+        ItemCard: TestPage "Item Card";
+    begin
+        ItemCard.OpenEdit;
+        ItemCard.FILTER.SetFilter("No.", ItemNo);
+        ItemCard.ItemsByLocation.Invoke;
+    end;
+
+    local procedure OpenOrderTrackingPageFromPlanningWorksheet(ItemNo: Code[20]; RefOrderType: Option; Quantity: Decimal; MultipleLines: Boolean)
+    var
+        PlanningWorksheet: TestPage "Planning Worksheet";
+    begin
+        EnqueueValuesForOrderTrackingDetailsPageHandler(ItemNo, Quantity, MultipleLines);
+        PlanningWorksheet.OpenEdit;
+        PlanningWorksheet.FILTER.SetFilter("No.", ItemNo);
+        PlanningWorksheet.FILTER.SetFilter("Ref. Order Type", Format(RefOrderType));
+        PlanningWorksheet.OrderTracking.Invoke;
+    end;
+
+    local procedure OpenOrderTrackingPageFromSalesOrder(DocumentNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        SalesOrder: TestPage "Sales Order";
+    begin
+        EnqueueValuesForOrderTrackingDetailsPageHandler(ItemNo, Quantity, true);  // Multiple Lines as TRUE.
+        OpenSalesOrderByPage(SalesOrder, DocumentNo);
+        SalesOrder.SalesLines.OrderTracking.Invoke;
+    end;
+
+    local procedure OpenSalesOrderByPage(var SalesOrder: TestPage "Sales Order"; No: Code[20])
+    begin
+        SalesOrder.OpenEdit;
+        SalesOrder.FILTER.SetFilter("No.", No);
+    end;
+
+    local procedure PostJobJournalLineWithSelectedItemTrackingLines(JobTask: Record "Job Task"; ItemNo: Code[20]; Quantity: Decimal): Code[20]
+    var
+        JobJournalLine: Record "Job Journal Line";
+        LibraryJob: Codeunit "Library - Job";
+    begin
+        LibraryJob.CreateJobJournalLine(JobJournalLine."Line Type"::" ", JobTask, JobJournalLine);
+        JobJournalLine.Validate(Type, JobJournalLine.Type::Item);
+        JobJournalLine.Validate("No.", ItemNo);
+        JobJournalLine.Validate(Quantity, Quantity);
+        JobJournalLine.Modify(true);
+        JobJournalLine.OpenItemTrackingLines(false);
+        LibraryVariableStorage.Enqueue(PostJobJournalLines);
+        LibraryVariableStorage.Enqueue(UsageNotLinkedToBlankLineTypeMsg);
+        LibraryVariableStorage.Enqueue(JobJournalPosted);
+        LibraryJob.PostJobJournal(JobJournalLine);
+        exit(JobJournalLine."Document No.");
+    end;
+
+    local procedure PostSalesInvoiceWithGetShipmentLinesAndItemCharge(var SalesLine: Record "Sales Line"; No: Code[20]; CustomerNo: Code[20]): Code[20]
+    var
+        ItemCharge: Record "Item Charge";
+        SalesHeader: Record "Sales Header";
+    begin
+        UpdateManualNosAsTrueOnNoSeriesSetupOfSalesInvoice;
+        CreateSalesInvoiceByPage(No, CustomerNo);
+        FindSalesInvoiceHeader(SalesHeader, No);
+        LibraryInventory.CreateItemCharge(ItemCharge);
+        CreateSalesLine(SalesHeader, SalesLine, SalesLine.Type::"Charge (Item)", ItemCharge."No.", LibraryRandom.RandDec(10, 2), '');
+        LibraryVariableStorage.Enqueue(SalesLine.Quantity);  // Enqueue for ItemChargeAssignmentSalesPageHandler.
+        SalesLine.ShowItemChargeAssgnt;
+        LibrarySales.GetShipmentLines(SalesLine);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));  // Post as SHIP and INVOICE.
+    end;
+
+    local procedure PostSalesReturnOrderWithGetPostedDocLinesToReverse(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]): Code[20]
+    var
+        ReasonCode: Record "Reason Code";
+    begin
+        LibraryERM.CreateReasonCode(ReasonCode);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CustomerNo);
+        SalesHeader.Validate("Reason Code", ReasonCode.Code);
+        SalesHeader.Modify(true);
+        SalesHeader.GetPstdDocLinesToRevere;
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, false));  // Post as RECEIVE.
+    end;
+
+    local procedure PostSalesOrder(SellToCustomerNo: Code[20])
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        SalesHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
+        FindSalesHeader(SalesHeader, SalesHeader."Document Type"::Order);
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);  // Ship as TRUE.
+    end;
+
+    local procedure CreateItemOnInventoryWithTracking(var LotNo: Code[20]; Quantity: Decimal): Code[20]
+    var
+        Item: Record Item;
+        ItemTrackingMode: Option " ",AssignLotNo,SelectEntries,SetQuantity,VerifyEntryNo;
+    begin
+        CreateItemWithItemTrackingCode(Item, true, false, true, LibraryUtility.GetGlobalNoSeriesCode, '');
+
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignLotNo);
+        CreateAndPostItemJournalLine(LocationOrange.Code, '', Item."No.", '', Quantity, true, true);
+        GetLotNoFromItemTrackingPageHandler(LotNo);
+        exit(Item."No.");
+    end;
+
+    local procedure PostPurchaseDocument(BuyFromVendorNo: Code[20]; DocumentType: Option; Receive: Boolean; Invoice: Boolean)
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        FindPurchaseHeader(PurchaseHeader, BuyFromVendorNo, DocumentType);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, Receive, Invoice);
+    end;
+
+    local procedure PostWarehouseReceipt(SourceNo: Code[20])
+    var
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+    begin
+        FindWarehouseReceiptLine(WarehouseReceiptLine, SourceNo);
+        WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
+        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+    end;
+
+    local procedure PostWarehouseShipment(SourceNo: Code[20])
+    var
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        GetWarehouseShipmentHeader(WarehouseShipmentHeader, SourceNo);
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+    end;
+
+    local procedure PreparationForCalcConsumptionAndOpeningProductionJournal(var ProductionOrder: Record "Production Order"): Code[20]
+    var
+        Bin: Record Bin;
+        ChildItem: Record Item;
+        ParentItem: Record Item;
+        ProdOrderComponent: Record "Prod. Order Component";
+        Quantity: Decimal;
+    begin
+        // General preparation for running Calc. Consumption / openning Production Journal.
+        Quantity := LibraryRandom.RandInt(10);
+        FindBin(Bin, LocationGreen);
+        CreateItemWithProductionBOM(ParentItem, ChildItem, Quantity, false, false, '');
+        CreateAndPostItemJournalLine(
+          Bin."Location Code", Bin.Code, ChildItem."No.", '', Quantity, false, false);
+        UpdateBinContentForItem(LocationGreen.Code, ChildItem."No.");
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Bin, ParentItem."No.", Quantity);
+
+        // Filled with another Bin which does not include the Item in Prod. Order Component.
+        UpdateBinCodeOnProductionOrderComponent(ProdOrderComponent, Bin, ProductionOrder);
+
+        exit(ChildItem."No.");
+    end;
+
+    local procedure RegisterWarehouseActivity(SourceDocument: Option; SourceNo: Code[20]; ActivityType: Option)
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        FindWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, ActivityType);
+        WarehouseActivityLine.AutofillQtyToHandle(WarehouseActivityLine);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+    end;
+
+    local procedure ReleasePurchaseOrders(ItemNo: Code[20])
+    var
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+    begin
+        PurchLine.SetRange("No.", ItemNo);
+        PurchLine.FindSet;
+        repeat
+            PurchHeader.Get(PurchHeader."Document Type"::Order, PurchLine."Document No.");
+            LibraryPurchase.ReleasePurchaseDocument(PurchHeader);
+        until PurchLine.Next = 0;
+    end;
+
+    local procedure SelectConsumptionLine(var ItemJournalLine: Record "Item Journal Line"; ProductionOrderNo: Code[20])
+    begin
+        with ItemJournalLine do begin
+            SetRange("Entry Type", "Entry Type"::Consumption);
+            SetRange("Order Type", "Order Type"::Production);
+            SetRange("Order No.", ProductionOrderNo);
+            FindFirst;
+        end;
+    end;
+
+    local procedure SelectRequisitionTemplateName(): Code[10]
+    var
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+    begin
+        with ReqWkshTemplate do begin
+            SetRange(Type, Type::Planning);
+            SetRange(Recurring, false);
+            FindFirst;
+            exit(Name);
+        end;
+    end;
+
+    local procedure UndoSalesShipmentLine(DocumentNo: Code[20])
+    var
+        SalesShipmentLine: Record "Sales Shipment Line";
+    begin
+        LibraryVariableStorage.Enqueue(UndoShipmentConfirmationMessage);  // UndoShipmentMessage Used in ConfirmHandler.
+        SalesShipmentLine.SetRange("Document No.", DocumentNo);
+        LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
+    end;
+
+    local procedure UndoMultipleShipmentLines(OrderNo: Code[20])
+    var
+        SalesShipmentLine: Record "Sales Shipment Line";
+    begin
+        LibraryVariableStorage.Enqueue(UndoShipmentConfirmationMessage);  // UndoShipmentMessage Used in ConfirmHandler.
+        LibraryVariableStorage.Enqueue(UndoShipmentAfterPickedConfirmationMsg);
+        LibraryVariableStorage.Enqueue(UndoShipmentAfterPickedConfirmationMsg);
+        SalesShipmentLine.SetRange("Order No.", OrderNo);
+        LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
+    end;
+
+    local procedure UpdateAlwaysCreatePickLineOnLocation(var Location: Record Location; NewAlwaysCreatePickLine: Boolean) OldAlwaysCreatePickLine: Boolean
+    begin
+        OldAlwaysCreatePickLine := Location."Always Create Pick Line";
+        Location.Validate("Always Create Pick Line", NewAlwaysCreatePickLine);
+        Location.Modify(true);
+    end;
+
+    local procedure UpdateBinCodeOnProductionOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; var Bin: Record Bin; ProductionOrder: Record "Production Order") BinCode: Code[20]
+    begin
+        BinCode := Bin.Code;
+        Bin.Next;  // Next is required to get second different Bin.
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.Validate("Location Code", Bin."Location Code");
+        ProdOrderComponent.Validate("Bin Code", Bin.Code);
+        ProdOrderComponent.Modify(true);
+    end;
+
+    local procedure UpdateBinCodeOnPutAwayLine(Bin: Record Bin; SourceNo: Code[20])
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Zone Code", Bin."Zone Code");
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Purchase Order", SourceNo,
+          WarehouseActivityLine."Activity Type"::"Put-away");
+        WarehouseActivityLine.ModifyAll("Bin Code", Bin.Code, true);
+    end;
+
+    local procedure UpdateExpirationDateOnReservationEntry(ItemNo: Code[20])
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.ModifyAll("Expiration Date", WorkDate, true);
+    end;
+
+    local procedure UpdateLotNoOnInventoryMovementLine(ActionType: Option; SourceNo: Code[20]; LotNo: Code[20])
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Action Type", ActionType);
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Prod. Consumption", SourceNo,
+          WarehouseActivityLine."Activity Type"::"Invt. Movement");
+        WarehouseActivityLine.Validate("Lot No.", LotNo);
+        WarehouseActivityLine.Modify(true);
+    end;
+
+    local procedure UpdateManualNosAsTrueOnNoSeriesSetupOfSalesInvoice()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        NoSeries: Record "No. Series";
+    begin
+        SalesReceivablesSetup.Get;
+        NoSeries.Get(SalesReceivablesSetup."Invoice Nos.");
+        NoSeries.Validate("Manual Nos.", true);
+        NoSeries.Modify(true);
+    end;
+
+    local procedure UpdateNoSeriesOnItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; NoSeries: Code[20])
+    begin
+        ItemJournalBatch.Validate("No. Series", NoSeries);
+        ItemJournalBatch.Modify(true);
+    end;
+
+    local procedure UpdatePurchasingCodeOnSalesLine(var SalesLine: Record "Sales Line")
+    var
+        Purchasing: Record Purchasing;
+    begin
+        LibraryPurchase.CreatePurchasingCode(Purchasing);
+        Purchasing.Validate("Special Order", true);
+        Purchasing.Modify(true);
+        SalesLine.Validate("Purchasing Code", Purchasing.Code);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure UpdateQuantityBaseOnReservationEntry(ItemNo: Code[20]; Quantity: Decimal)
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.FindFirst;
+        ReservationEntry.Validate("Quantity (Base)", Quantity);
+        ReservationEntry.Modify(true);
+    end;
+
+    local procedure UpdateQuantityOnSalesLine(var SalesLine: Record "Sales Line"; Quantity: Decimal)
+    begin
+        SalesLine.Validate(Quantity, Quantity);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure UpdateQtyToShipOnSalesLine(SellToCustomerNo: Code[20]; ShipQty: Decimal)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        SalesHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
+        FindSalesHeader(SalesHeader, SalesHeader."Document Type"::Order);
+        FindSalesOrderLine(SalesLine, SalesHeader."No.");
+        SalesLine.Validate("Qty. to Ship", ShipQty);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure UpdateQtyToReceiveOnPurchaseLine(BuyFromVendorNo: Code[20]; DocumentType: Option; ReceiveQty: Decimal)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        FindPurchaseHeader(PurchaseHeader, BuyFromVendorNo, DocumentType);
+        FindPurchaseOrderLine(PurchaseLine, PurchaseHeader."No.");
+        PurchaseLine.Validate("Qty. to Receive", ReceiveQty);
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure UpdateQuantityOnSalesAndReservationLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; Quantity: Decimal)
+    begin
+        LibrarySales.ReopenSalesDocument(SalesHeader);
+        UpdateQuantityBaseOnReservationEntry(ItemNo, Quantity);
+        FindSalesReturnOrderLine(SalesLine, SalesHeader."No.", ItemNo);
+        UpdateQuantityOnSalesLine(SalesLine, Quantity);
+    end;
+
+    local procedure UpdateReplenishmentSystemAsTransferOnSKU(LocationCode: Code[10]; ItemNo: Code[20]; TransferFromCode: Code[10])
+    var
+        StockkeepingUnit: Record "Stockkeeping Unit";
+    begin
+        StockkeepingUnit.Get(LocationCode, ItemNo, '');
+        StockkeepingUnit.Validate("Replenishment System", StockkeepingUnit."Replenishment System"::Transfer);
+        StockkeepingUnit.Validate("Transfer-from Code", TransferFromCode);
+        StockkeepingUnit.Modify(true);
+    end;
+
+    local procedure UpdateSerialNoOnInventoryMovementLines(ItemNo: Code[20]; ActionType: Option; SourceNo: Code[20]; MoveNext: Boolean)
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        FindInventoryMovementLine(
+          WarehouseActivityLine, ActionType, ItemNo, WarehouseActivityLine."Source Document"::"Prod. Consumption", SourceNo);
+        FindItemLedgerEntry(ItemLedgerEntry, ItemNo);
+        if MoveNext then
+            ItemLedgerEntry.Next(WarehouseActivityLine.Count);  // Required for Entering Wrong Serial No.
+        repeat
+            WarehouseActivityLine.Validate("Serial No.", ItemLedgerEntry."Serial No.");
+            WarehouseActivityLine.Modify(true);
+            ItemLedgerEntry.Next;
+        until WarehouseActivityLine.Next = 0;
+    end;
+
+    local procedure UpdateUsePutAwayWorksheetOnLocation(var Location: Record Location; UsePutAwayWorksheet: Boolean)
+    begin
+        Location.Validate("Use Put-away Worksheet", UsePutAwayWorksheet);
+        Location.Modify(true);
+    end;
+
+    local procedure UpdateVariantCodeOnTransferLine(var TransferLine: Record "Transfer Line"; VariantCode: Code[10])
+    begin
+        TransferLine.Validate("Variant Code", VariantCode);
+        TransferLine.Modify(true);
+    end;
+
+    local procedure UpdateVendorNoOnStockkeepingUnit(LocationCode: Code[10]; ItemNo: Code[20])
+    var
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        StockkeepingUnit.Get(LocationCode, ItemNo, '');
+        StockkeepingUnit.Validate("Vendor No.", Vendor."No.");
+        StockkeepingUnit.Modify(true);
+    end;
+
+    local procedure UpdateBinContentForItem(LocationCode: Code[10]; ItemNo: Code[20])
+    var
+        BinContent: Record "Bin Content";
+    begin
+        with BinContent do begin
+            SetRange("Location Code", LocationCode);
+            SetRange("Item No.", ItemNo);
+            FindFirst;
+            Validate(Default, false);
+            Validate(Fixed, false);
+            Modify(true);
+        end;
+    end;
+
+    local procedure UndoPurchaseReceiptLine(ItemNo: Code[20])
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+    begin
+        LibraryVariableStorage.Enqueue(UndoReceiptConfirmationMessage);  // UndoReceiptMessage Used in ConfirmHandler.
+        PurchRcptLine.SetRange("No.", ItemNo);
+        PurchRcptLine.FindFirst;
+        LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
+    end;
+
+    local procedure UndoReturnReceiptLine(DocumentNo: Code[20])
+    var
+        ReturnReceiptLine: Record "Return Receipt Line";
+    begin
+        LibraryVariableStorage.Enqueue(UndoReturnReceiptConfirmationMessage);  // Enqueue for ConfirmHandler.
+        ReturnReceiptLine.SetRange("Document No.", DocumentNo);
+        LibrarySales.UndoReturnReceiptLine(ReturnReceiptLine);
+    end;
+
+    local procedure VerifyInternalMovementHeaderExists(LocationCode: Code[10]; ToBinCode: Code[20])
+    var
+        InternalMovementHeader: Record "Internal Movement Header";
+    begin
+        InternalMovementHeader.SetRange("Location Code", LocationCode);
+        InternalMovementHeader.SetRange("To Bin Code", ToBinCode);
+        Assert.IsTrue(InternalMovementHeader.IsEmpty, StrSubstNo(InternalMovementHeaderDelete, InternalMovementHeader.TableCaption));
+    end;
+
+    local procedure VerifyGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal; NextLine: Boolean)
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.FindSet;
+        if NextLine then
+            GLEntry.Next;
+        GLEntry.TestField(Amount, Amount);
+    end;
+
+    local procedure VerifyInternalMovementLine(Bin: Record Bin; ItemNo: Code[20]; ToBinCode: Code[20]; Quantity: Decimal)
+    var
+        InternalMovementLine: Record "Internal Movement Line";
+    begin
+        InternalMovementLine.SetRange("Item No.", ItemNo);
+        InternalMovementLine.SetRange("Location Code", Bin."Location Code");
+        InternalMovementLine.SetRange("From Bin Code", Bin.Code);
+        InternalMovementLine.SetRange("To Bin Code", ToBinCode);
+        InternalMovementLine.FindFirst;
+        InternalMovementLine.TestField(Quantity, Quantity);
+    end;
+
+    local procedure VerifyItemLedgerEntry(EntryType: Option; DocumentType: Option; LocationCode: Code[10]; ItemNo: Code[20]; LotNo: Code[20]; VariantCode: Code[10]; Quantity: Decimal)
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry.SetRange("Entry Type", EntryType);
+        ItemLedgerEntry.SetRange("Document Type", DocumentType);
+        ItemLedgerEntry.SetRange("Location Code", LocationCode);
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Lot No.", LotNo);
+        ItemLedgerEntry.SetRange("Variant Code", VariantCode);
+        ItemLedgerEntry.FindLast;
+        ItemLedgerEntry.TestField(Quantity, Quantity);
+    end;
+
+    local procedure VerifyInventoryMovementLinesForProdConsumption(ActionType: Option; ItemNo: Code[20]; SourceNo: Code[20]; BinCode: Code[20]; Quantity: Decimal; ExpectedTotalQuantity: Decimal)
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ActualTotalQuantity: Decimal;
+    begin
+        FindInventoryMovementLine(
+          WarehouseActivityLine, ActionType, ItemNo, WarehouseActivityLine."Source Document"::"Prod. Consumption", SourceNo);
+        repeat
+            WarehouseActivityLine.TestField("Bin Code", BinCode);
+            WarehouseActivityLine.TestField(Quantity, Quantity);
+            ActualTotalQuantity += WarehouseActivityLine.Quantity;
+        until WarehouseActivityLine.Next = 0;
+        Assert.AreEqual(ExpectedTotalQuantity, ActualTotalQuantity, QuantityMustBeSame);
+    end;
+
+    local procedure VerifyInventoryMovementLineForLot(Bin: Record Bin; ActionType: Option; ItemNo: Code[20]; LotNo: Code[20]; Quantity: Decimal)
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        FindInventoryMovementLine(WarehouseActivityLine, ActionType, ItemNo, WarehouseActivityLine."Source Document"::" ", '');
+        WarehouseActivityLine.TestField("Location Code", Bin."Location Code");
+        WarehouseActivityLine.TestField("Bin Code", Bin.Code);
+        WarehouseActivityLine.TestField("Lot No.", LotNo);
+        WarehouseActivityLine.TestField("Expiration Date", WorkDate);
+        WarehouseActivityLine.TestField(Quantity, Quantity);
+    end;
+
+    local procedure VerifyInventoryMovementLinesForSerial(Bin: Record Bin; ActionType: Option; ItemNo: Code[20]; TotalQuantity: Decimal)
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Quantity: Decimal;
+    begin
+        FindInventoryMovementLine(WarehouseActivityLine, ActionType, ItemNo, WarehouseActivityLine."Source Document"::" ", '');
+        repeat
+            WarehouseActivityLine.TestField("Location Code", Bin."Location Code");
+            WarehouseActivityLine.TestField("Bin Code", Bin.Code);
+            WarehouseActivityLine.TestField("Serial No.");
+            WarehouseActivityLine.TestField("Expiration Date", WorkDate);
+            WarehouseActivityLine.TestField(Quantity, 1);   // Value required for Serial No. Item Tracking.
+            Quantity += WarehouseActivityLine.Quantity;
+        until WarehouseActivityLine.Next = 0;
+        Assert.AreEqual(TotalQuantity, Quantity, QuantityMustBeSame);
+    end;
+
+    local procedure VerifyJobLedgerEntry(DocumentNo: Code[20]; JobNo: Code[20]; Quantity: Decimal)
+    var
+        JobLedgerEntry: Record "Job Ledger Entry";
+    begin
+        JobLedgerEntry.SetRange("Document No.", DocumentNo);
+        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.TestField("Job No.", JobNo);
+        JobLedgerEntry.TestField(Quantity, Quantity);
+    end;
+
+    local procedure VerifyOrderTracking(var OrderTracking: TestPage "Order Tracking")
+    var
+        ItemNo: Variant;
+        Quantity: Variant;
+        UntrackedQuantity: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ItemNo);  // Dequeue variable.
+        LibraryVariableStorage.Dequeue(Quantity);  // Dequeue variable.
+        LibraryVariableStorage.Dequeue(UntrackedQuantity);  // Dequeue variable.
+        OrderTracking.CurrItemNo.AssertEquals(ItemNo);
+        OrderTracking.Quantity.AssertEquals(Quantity);
+        OrderTracking."Untracked Quantity".AssertEquals(UntrackedQuantity);
+    end;
+
+    local procedure VerifyOrderTrackingLine(var OrderTracking: TestPage "Order Tracking")
+    var
+        Quantity: Variant;
+        LineQuantity: Decimal;
+    begin
+        LibraryVariableStorage.Dequeue(Quantity);  // Dequeue variable.
+        LineQuantity := Quantity;
+        OrderTracking.Quantity.AssertEquals(LineQuantity);
+    end;
+
+    local procedure VerifyOrderTrackingOnReqLineAndSalesOrder(ItemNo: Code[20]; Quantity: Decimal; SalesHeaderNo: Code[20])
+    var
+        RequisitionLine: Record "Requisition Line";
+    begin
+        OpenOrderTrackingPageFromPlanningWorksheet(ItemNo, RequisitionLine."Ref. Order Type"::Transfer, Quantity, false);  // Multiple Lines as FALSE.
+        OpenOrderTrackingPageFromPlanningWorksheet(ItemNo, RequisitionLine."Ref. Order Type"::Purchase, Quantity, true);  // Multiple Lines as TRUE.
+        OpenOrderTrackingPageFromSalesOrder(SalesHeaderNo, ItemNo, -Quantity);
+    end;
+
+    local procedure VerifyProdOrderLineNotExists(ItemNo: Code[20])
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        ProdOrderLine.Init;
+        ProdOrderLine.SetRange("Item No.", ItemNo);
+        Assert.RecordIsEmpty(ProdOrderLine);
+    end;
+
+    local procedure VerifyProductionOrderComponent(ProdOrderComponent: Record "Prod. Order Component"; QuantityPicked: Decimal; RemainingQuantity: Decimal; BinCode: Code[20])
+    begin
+        ProdOrderComponent.Find;
+        ProdOrderComponent.TestField("Qty. Picked", QuantityPicked);
+        ProdOrderComponent.TestField("Remaining Quantity", RemainingQuantity);
+        ProdOrderComponent.TestField("Bin Code", BinCode);
+    end;
+
+    local procedure VerifyPurchRcptLine(OrderNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; MoveNext: Boolean)
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+    begin
+        PurchRcptLine.SetRange("Order No.", OrderNo);
+        PurchRcptLine.SetRange("No.", ItemNo);
+        PurchRcptLine.SetRange("Location Code", LocationCode);
+        PurchRcptLine.FindSet;
+        if MoveNext then
+            PurchRcptLine.Next;
+        PurchRcptLine.TestField(Quantity, Quantity);
+    end;
+
+    local procedure VerifyPutAwayLine(ActionType: Option; SourceNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; CrossDockInformation: Option)
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Purchase Order", SourceNo,
+          WarehouseActivityLine."Activity Type"::"Put-away");
+        WarehouseActivityLine.SetRange("Cross-Dock Information", CrossDockInformation);
+        WarehouseActivityLine.SetRange("Action Type", ActionType);
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.SetRange("Location Code", LocationCode);
+        WarehouseActivityLine.SetRange(Quantity, Quantity);
+        Assert.AreEqual(
+          1, WarehouseActivityLine.Count, 'Unexpected no. of Whse activity lines for Put Away ' + WarehouseActivityLine."No.");
+    end;
+
+    local procedure VerifyQtyToCrossDock(ItemNo: Code[20]; QtyToReceive: Decimal; QtyToCrossDock: Decimal)
+    var
+        WhseRcptLine: Record "Warehouse Receipt Line";
+    begin
+        with WhseRcptLine do begin
+            SetRange("Item No.", ItemNo);
+            SetRange("Qty. to Receive", QtyToReceive);
+            FindFirst;
+            TestField("Qty. to Cross-Dock", QtyToCrossDock);
+        end;
+    end;
+
+    local procedure VerifySalesInvoiceLine(DocumentNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        SalesInvoiceLine: Record "Sales Invoice Line";
+    begin
+        SalesInvoiceLine.SetRange("Document No.", DocumentNo);
+        SalesInvoiceLine.SetRange("No.", ItemNo);
+        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.TestField(Quantity, Quantity);
+    end;
+
+    local procedure VerifySalesShipmentLine(DocumentNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; MoveNext: Boolean)
+    var
+        SalesShipmentLine: Record "Sales Shipment Line";
+    begin
+        SalesShipmentLine.SetRange("Document No.", DocumentNo);
+        SalesShipmentLine.SetRange("No.", ItemNo);
+        SalesShipmentLine.FindSet;
+        if MoveNext then
+            SalesShipmentLine.Next;
+        SalesShipmentLine.TestField(Quantity, Quantity);
+    end;
+
+    local procedure VerifyWarehouseEntry(EntryType: Option; SourceDocument: Option; ItemNo: Code[20]; BinCode: Code[20]; LotNo: Code[20]; Quantity: Decimal; MoveNext: Boolean)
+    var
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        WarehouseEntry.SetRange("Entry Type", EntryType);
+        WarehouseEntry.SetRange("Source Document", SourceDocument);
+        WarehouseEntry.SetRange("Item No.", ItemNo);
+        WarehouseEntry.SetRange("Bin Code", BinCode);
+        WarehouseEntry.SetRange("Lot No.", LotNo);
+        WarehouseEntry.FindSet;
+        if MoveNext then
+            WarehouseEntry.Next;
+        WarehouseEntry.TestField(Quantity, Quantity);
+    end;
+
+    local procedure VerifyWarehousePickLine(ActionType: Option; SourceNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; BinCode: Code[20])
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Action Type", ActionType);
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SourceNo,
+          WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.TestField("Item No.", ItemNo);
+        WarehouseActivityLine.TestField(Quantity, Quantity);
+        WarehouseActivityLine.TestField("Bin Code", BinCode);
+    end;
+
+    local procedure VerifyWarehouseReceiptLine(SourceNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; QtyToCrossDock: Decimal; LocationCode: Code[10]; MoveNext: Boolean)
+    var
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+    begin
+        FindWarehouseReceiptLine(WarehouseReceiptLine, SourceNo);
+        if MoveNext then
+            WarehouseReceiptLine.Next;
+        WarehouseReceiptLine.TestField("Item No.", ItemNo);
+        WarehouseReceiptLine.TestField(Quantity, Quantity);
+        WarehouseReceiptLine.TestField("Qty. to Cross-Dock", QtyToCrossDock);
+        WarehouseReceiptLine.TestField("Location Code", LocationCode);
+    end;
+
+    local procedure VerifyNoErrorForJobJnlReversal(ManExpirDateEntryReqd: Boolean)
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        JobTask: Record "Job Task";
+        LotNo: Variant;
+        DocumentNo: Code[20];
+        Quantity: Decimal;
+        ItemTrackingMode: Option " ",AssignLotNo,AssignSerialNo,AssignMultipleLotNo,SelectEntries,SelectSerialNo,SelectLotNo;
+    begin
+        // Setup: Create and Post Purchase Order with Assigned Lot No. and Expiration Date.
+        // Post Job Journal with Select Entries and with Positive Quantity.
+        Initialize;
+        Quantity := LibraryRandom.RandInt(50);
+        CreateItemWithItemTrackingCode(Item, true, false, ManExpirDateEntryReqd, LibraryUtility.GetGlobalNoSeriesCode, '');
+        CreatePurchaseOrderWithLot(PurchaseHeader, Item."No.", Quantity);
+        UpdateExpirationDateOnReservationEntry(Item."No.");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        LibraryVariableStorage.Dequeue(LotNo);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::SelectEntries);
+        CreateJobWithJobTask(JobTask);
+        PostJobJournalLineWithSelectedItemTrackingLines(JobTask, Item."No.", Quantity);
+        EnqueueValuesForItemTrackingLinesPageHandler(ItemTrackingMode::SelectLotNo, LotNo, -Quantity);
+
+        // Exercise: Post Job Journal.
+        DocumentNo := PostJobJournalLineWithSelectedItemTrackingLines(JobTask, Item."No.", -Quantity);
+
+        // Verify: Verify Job Journal Line with Negative Quantity and Expiration Date Posted with out error Message.
+        VerifyJobLedgerEntry(DocumentNo, JobTask."Job No.", -Quantity);
+    end;
+
+    local procedure VerifyWarehouseEntryWithTotalLines(EntryType: Option; SourceDocument: Option; ItemNo: Code[20]; WarehouseEntryCount: Integer)
+    var
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        WarehouseEntry.SetRange("Entry Type", EntryType);
+        WarehouseEntry.SetRange("Source Document", SourceDocument);
+        WarehouseEntry.SetRange("Item No.", ItemNo);
+        Assert.AreEqual(WarehouseEntryCount, WarehouseEntry.Count, WarehouseEntryMsg);
+    end;
+
+    local procedure MakeSalesOrderAndVerifyErr(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; ExpectedQty: Integer)
+    begin
+        Commit; // COMMIT is necessary here since the following LibraryInventory.BlanketSalesOrderMakeOrder will invoke RUNMODAL.
+        asserterror LibrarySales.BlanketSalesOrderMakeOrder(SalesHeader);
+        Assert.ExpectedError(
+          StrSubstNo(
+            NotMadeOrderErr, SalesLine.FieldCaption("Qty. to Ship (Base)"), SalesLine.Type,
+            SalesLine."No.", SalesLine.FieldCaption("Line No."), SalesLine."Line No.", ExpectedQty));
+    end;
+
+    local procedure MakePurchaseOrderAndVerifyErr(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; ExpectedQty: Integer)
+    begin
+        Commit; // COMMIT is necessary here since the following LibraryInventory.BlanketPurchaseOrderMakeOrder will invoke RUNMODAL.
+        asserterror LibraryPurchase.BlanketPurchaseOrderMakeOrder(PurchaseHeader);
+        Assert.ExpectedError(
+          StrSubstNo(
+            NotMadeOrderErr, PurchaseLine.FieldCaption("Qty. to Receive (Base)"), PurchaseLine.Type,
+            PurchaseLine."No.", PurchaseLine.FieldCaption("Line No."), PurchaseLine."Line No.", ExpectedQty));
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
+    var
+        ExpectedMessage: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ExpectedMessage);
+        Assert.IsTrue(StrPos(ConfirmMessage, ExpectedMessage) > 0, ConfirmMessage);
+        Reply := true;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure EnterQuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
+    begin
+        EnterQuantityToCreate.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GetShipmentLinesPageHandler(var GetShipmentLines: TestPage "Get Shipment Lines")
+    begin
+        GetShipmentLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemChargeAssignmentSalesPageHandler(var ItemChargeAssignmentSales: TestPage "Item Charge Assignment (Sales)")
+    var
+        DequeueVariable: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(DequeueVariable);
+        ItemChargeAssignmentSales.GetShipmentLines.Invoke;
+        ItemChargeAssignmentSales."Qty. to Assign".SetValue(DequeueVariable);
+        ItemChargeAssignmentSales.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingLinesPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        DequeueVariable: Variant;
+        QuantityBase: Variant;
+        ItemTrackingMode: Option " ",AssignLotNo,AssignSerialNo,AssignMultipleLotNo,SelectEntries,SelectSerialNo,SelectLotNo;
+        ItemNo: Code[20];
+        TrackingQuantity: Decimal;
+    begin
+        LibraryVariableStorage.Dequeue(DequeueVariable);
+        ItemTrackingMode := DequeueVariable;
+        case ItemTrackingMode of
+            ItemTrackingMode::AssignLotNo:
+                begin
+                    ItemTrackingLines."Assign Lot No.".Invoke;
+                    LibraryVariableStorage.Enqueue(ItemTrackingLines."Lot No.".Value);
+                end;
+            ItemTrackingMode::AssignSerialNo:
+                ItemTrackingLines."Assign Serial No.".Invoke;
+            ItemTrackingMode::AssignMultipleLotNo:
+                begin
+                    TrackingQuantity := ItemTrackingLines.Quantity3.AsDEcimal / 2;  // Value required for test.
+                    AssignLotNoOnItemTrackingLine(ItemTrackingLines, TrackingQuantity);
+                    ItemTrackingLines.Next;
+                    AssignLotNoOnItemTrackingLine(ItemTrackingLines, TrackingQuantity);
+                end;
+            ItemTrackingMode::SelectEntries:
+                ItemTrackingLines."Select Entries".Invoke;
+            ItemTrackingMode::SelectSerialNo:
+                begin
+                    LibraryVariableStorage.Dequeue(DequeueVariable);
+                    ItemNo := DequeueVariable;
+                    ItemLedgerEntry.SetRange("Item No.", ItemNo);
+                    ItemLedgerEntry.FindLast;
+                    ItemTrackingLines."Serial No.".SetValue(ItemLedgerEntry."Serial No.");
+                end;
+            ItemTrackingMode::SelectLotNo:
+                begin
+                    LibraryVariableStorage.Dequeue(DequeueVariable);
+                    LibraryVariableStorage.Dequeue(QuantityBase);
+                    ItemTrackingLines."Lot No.".SetValue(DequeueVariable);
+                    ItemTrackingLines."Quantity (Base)".SetValue(QuantityBase);
+                end;
+        end;
+        ItemTrackingLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingLinesHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        DequeueVariable: Variant;
+        LotNo: Variant;
+        QuantityBase: Variant;
+        EntryNo: Variant;
+        ItemTrackingMode: Option " ",AssignLotNo,SelectEntries,SetQuantity;
+    begin
+        LibraryVariableStorage.Dequeue(DequeueVariable);
+        ItemTrackingMode := DequeueVariable;
+        case ItemTrackingMode of
+            ItemTrackingMode::AssignLotNo:
+                begin
+                    ItemTrackingLines."Assign Lot No.".Invoke;
+                    LibraryVariableStorage.Enqueue(ItemTrackingLines."Lot No.".Value);
+                end;
+            ItemTrackingMode::SelectEntries:
+                begin
+                    LibraryVariableStorage.Dequeue(LotNo);
+                    LibraryVariableStorage.Dequeue(QuantityBase);
+                    LibraryVariableStorage.Dequeue(EntryNo);
+                    ItemTrackingLines."Lot No.".SetValue(LotNo);
+                    ItemTrackingLines."Quantity (Base)".SetValue(QuantityBase);
+                    ItemTrackingLines."Appl.-to Item Entry".SetValue(EntryNo);
+                end;
+            ItemTrackingMode::SetQuantity:
+                begin
+                    LibraryVariableStorage.Dequeue(QuantityBase);
+                    LibraryVariableStorage.Dequeue(EntryNo);
+                    ItemTrackingLines."Quantity (Base)".SetValue(QuantityBase);
+                    ItemTrackingLines."Appl.-to Item Entry".AssertEquals(EntryNo)
+                end;
+        end;
+        ItemTrackingLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
+    begin
+        ItemTrackingSummary.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingListPageHandler(var ItemTrackingList: TestPage "Item Tracking List")
+    begin
+        ItemTrackingList.OK.Invoke;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    var
+        DequeueVariable: Variant;
+        LocalMessage: Text[1024];
+    begin
+        LibraryVariableStorage.Dequeue(DequeueVariable);
+        LocalMessage := DequeueVariable;
+        Assert.IsTrue(StrPos(Message, LocalMessage) > 0, Message);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure OrderTrackingDetailsPageHandler(var OrderTracking: TestPage "Order Tracking")
+    var
+        Variant: Variant;
+    begin
+        // Verify Item No, Quantity and UntrackedQuantity.
+        LibraryVariableStorage.Dequeue(Variant);
+        VerifyOrderTracking(OrderTracking);
+        VerifyOrderTrackingLine(OrderTracking);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJournalPageHandler(var ProductionJournal: TestPage "Production Journal")
+    begin
+        ProductionJournal.FILTER.SetFilter("Entry Type", ProductionJournal."Entry Type".GetOption(6));  // Value 6 is used for Consumption.
+        ProductionJournal.ItemTrackingLines.Invoke;
+        ProductionJournal.Post.Invoke;
+        ProductionJournal.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ReservationPageHandler(var Reservation: TestPage Reservation)
+    begin
+        Reservation."Auto Reserve".Invoke;
+        Reservation.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesShipmentLinePageHandler(var SalesShipmentLines: TestPage "Sales Shipment Lines")
+    begin
+        SalesShipmentLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure WhseItemTrackingLinesPageHandler(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        DequeueVariable: Variant;
+        WhseItemTrackingMode: Option SelectSerialNo,SelectLotNo;
+        ItemNo: Code[20];
+    begin
+        LibraryVariableStorage.Dequeue(DequeueVariable);
+        WhseItemTrackingMode := DequeueVariable;
+        LibraryVariableStorage.Dequeue(DequeueVariable);
+        ItemNo := DequeueVariable;
+        case WhseItemTrackingMode of
+            WhseItemTrackingMode::SelectSerialNo:
+                begin
+                    ItemLedgerEntry.SetRange("Item No.", ItemNo);
+                    ItemLedgerEntry.FindSet;
+                    repeat
+                        WhseItemTrackingLines."Serial No.".SetValue(ItemLedgerEntry."Serial No.");
+                        WhseItemTrackingLines.Quantity.SetValue(ItemLedgerEntry.Quantity);
+                        WhseItemTrackingLines.Next;
+                    until ItemLedgerEntry.Next = 0;
+                end;
+            WhseItemTrackingMode::SelectLotNo:
+                begin
+                    ItemLedgerEntry.SetRange("Item No.", ItemNo);
+                    ItemLedgerEntry.FindSet;
+                    repeat
+                        WhseItemTrackingLines."Lot No.".SetValue(ItemLedgerEntry."Lot No.");
+                        WhseItemTrackingLines.Quantity.SetValue(ItemLedgerEntry.Quantity);
+                        WhseItemTrackingLines.Next;
+                    until ItemLedgerEntry.Next = 0;
+                end;
+        end;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedSalesDocumentLinesHandler(var PostedSalesDocumentLines: TestPage "Posted Sales Document Lines")
+    begin
+        PostedSalesDocumentLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJournalPageHandler2(var ProductionJournal: TestPage "Production Journal")
+    var
+        ItemNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ItemNo);
+        ProductionJournal.FILTER.SetFilter("Entry Type", ProductionJournal."Entry Type".GetOption(6)); // Value 6 is used for Consumption.
+        ProductionJournal."Item No.".AssertEquals(ItemNo);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SourceDocumentsPageHandler(var SourceDocuments: Page "Source Documents"; var Response: Action)
+    var
+        WarehouseRequest: Record "Warehouse Request";
+    begin
+        WarehouseRequest.SetRange("Source Document", WarehouseRequest."Source Document"::"Purchase Order");
+        WarehouseRequest.SetFilter("Source No.", LibraryVariableStorage.DequeueText);
+        WarehouseRequest.FindFirst;
+        SourceDocuments.SetRecord(WarehouseRequest);
+        Response := ACTION::LookupOK;
+    end;
+
+    [RecallNotificationHandler]
+    [Scope('OnPrem')]
+    procedure RecallNotificationHandler(var Notification: Notification): Boolean
+    begin
+    end;
+
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure SendNotificationHandler(var Notification: Notification): Boolean
+    begin
+    end;
+}
+

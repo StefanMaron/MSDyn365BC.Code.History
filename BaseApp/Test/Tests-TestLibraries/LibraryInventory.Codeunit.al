@@ -1,0 +1,1408 @@
+codeunit 132201 "Library - Inventory"
+{
+    // Unsupported version tags:
+    // 
+    // Contains all utility functions related to Inventory Management.
+
+
+    trigger OnRun()
+    begin
+    end;
+
+    var
+        InventorySetup: Record "Inventory Setup";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryRandom: Codeunit "Library - Random";
+        LibraryUtility: Codeunit "Library - Utility";
+        JOURNAL: Label ' journal';
+        ReserveConfirmMsg: Label 'Do you want to reserve specific serial or lot numbers?';
+
+    procedure CalculateInventory(ItemJournalLine: Record "Item Journal Line"; var Item: Record Item; PostingDate: Date; ItemsNotOnInvt: Boolean; ItemsWithNoTransactions: Boolean)
+    var
+        CalculateInventory: Report "Calculate Inventory";
+    begin
+        Clear(CalculateInventory);
+        CalculateInventory.UseRequestPage(false);
+        CalculateInventory.SetTableView(Item);
+        CalculateInventory.SetItemJnlLine(ItemJournalLine);
+        CalculateInventory.InitializeRequest(PostingDate, ItemJournalLine."Document No.", ItemsNotOnInvt, ItemsWithNoTransactions);
+        CalculateInventory.Run;
+    end;
+
+    procedure CalculateInventoryForSingleItem(ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; PostingDate: Date; ItemsNotOnInvt: Boolean; ItemsWithNoTransactions: Boolean)
+    var
+        Item: Record Item;
+    begin
+        Item.SetRange("No.", ItemNo);
+        CalculateInventory(ItemJournalLine, Item, PostingDate, ItemsNotOnInvt, ItemsWithNoTransactions);
+    end;
+
+    procedure CreateAnalysisColumnTemplate(var AnalysisColumnTemplate: Record "Analysis Column Template"; AnalysisArea: Option)
+    begin
+        AnalysisColumnTemplate.Init;
+        AnalysisColumnTemplate.Validate("Analysis Area", AnalysisArea);
+        AnalysisColumnTemplate.Validate(
+          Name, LibraryUtility.GenerateRandomCode(AnalysisColumnTemplate.FieldNo(Name), DATABASE::"Analysis Column Template"));
+        AnalysisColumnTemplate.Insert(true);
+    end;
+
+    procedure CreateAnalysisColumn(var AnalysisColumn: Record "Analysis Column"; AnalysisArea: Option; AnalysisColumnTemplateName: Code[10])
+    var
+        RecRef: RecordRef;
+    begin
+        AnalysisColumn.Init;
+        AnalysisColumn.Validate("Analysis Area", AnalysisArea);
+        AnalysisColumn.Validate("Analysis Column Template", AnalysisColumnTemplateName);
+        RecRef.GetTable(AnalysisColumn);
+        AnalysisColumn.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, AnalysisColumn.FieldNo("Line No.")));
+        AnalysisColumn.Insert(true);
+    end;
+
+    procedure CreateBaseCalendarChange(var BaseCalendarChange: Record "Base Calendar Change"; BaseCalendarCode: Code[10]; RecurringSystem: Option; Date: Date; Day: Option)
+    begin
+        BaseCalendarChange.Init;
+        BaseCalendarChange.Validate("Base Calendar Code", BaseCalendarCode);
+        BaseCalendarChange.Validate("Recurring System", RecurringSystem);
+        BaseCalendarChange.Validate(Date, Date);
+        BaseCalendarChange.Validate(Day, Day);
+        BaseCalendarChange.Insert(true);
+    end;
+
+    procedure ClearItemJournal(ItemJournalTemplate: Record "Item Journal Template"; ItemJournalBatch: Record "Item Journal Batch")
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        Clear(ItemJournalLine);
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalTemplate.Name);
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.DeleteAll;
+    end;
+
+    procedure CreateAnalysisLine(var AnalysisLine: Record "Analysis Line"; AnalysisArea: Option; AnalysisLineTemplateName: Code[10])
+    var
+        RecRef: RecordRef;
+    begin
+        AnalysisLine.Init;
+        AnalysisLine.Validate("Analysis Area", AnalysisArea);
+        AnalysisLine.Validate("Analysis Line Template Name", AnalysisLineTemplateName);
+        RecRef.GetTable(AnalysisLine);
+        AnalysisLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, AnalysisLine.FieldNo("Line No.")));
+        AnalysisLine.Insert(true);
+    end;
+
+    procedure CreateAnalysisLineTemplate(var AnalysisLineTemplate: Record "Analysis Line Template"; AnalysisArea: Option)
+    begin
+        AnalysisLineTemplate.Init;
+        AnalysisLineTemplate.Validate("Analysis Area", AnalysisArea);
+        AnalysisLineTemplate.Validate(
+          Name, LibraryUtility.GenerateRandomCode(AnalysisLineTemplate.FieldNo(Name), DATABASE::"Analysis Line Template"));
+        AnalysisLineTemplate.Insert(true);
+    end;
+
+    procedure CreateAnalysisReportName(var AnalysisReportName: Record "Analysis Report Name"; AnalysisArea: Option)
+    begin
+        AnalysisReportName.Init;
+        AnalysisReportName.Validate("Analysis Area", AnalysisArea);
+        AnalysisReportName.Validate(
+          Name, LibraryUtility.GenerateRandomCode(AnalysisReportName.FieldNo(Name), DATABASE::"Analysis Report Name"));
+        AnalysisReportName.Insert(true);
+    end;
+
+    procedure CreateAndUpdateTransferRoute(var TransferRoute: Record "Transfer Route"; TransferFrom: Code[10]; TransferTo: Code[10]; InTransitCode: Code[10]; ShippingAgentCode: Code[10]; ShippingAgentServiceCode: Code[10])
+    begin
+        CreateTransferRoute(TransferRoute, TransferFrom, TransferTo);
+        TransferRoute.Validate("In-Transit Code", InTransitCode);
+        TransferRoute.Validate("Shipping Agent Code", ShippingAgentCode);
+        TransferRoute.Validate("Shipping Agent Service Code", ShippingAgentServiceCode);
+        TransferRoute.Modify(true);
+    end;
+
+    procedure CreateSerialNoInformation(var SerialNoInformation: Record "Serial No. Information"; ItemNo: Code[20]; VariantCode: Code[10]; SerialNo: Code[20])
+    begin
+        Clear(SerialNoInformation);
+        SerialNoInformation.Init;
+        SerialNoInformation.Validate("Item No.", ItemNo);
+        SerialNoInformation.Validate("Variant Code", VariantCode);
+        SerialNoInformation.Validate("Serial No.", SerialNo);
+        SerialNoInformation.Insert(true);
+    end;
+
+    procedure CreateLotNoInformation(var LotNoInformation: Record "Lot No. Information"; ItemNo: Code[20]; VariantCode: Code[10]; LotNo: Code[20])
+    begin
+        Clear(LotNoInformation);
+        LotNoInformation.Init;
+        LotNoInformation.Validate("Item No.", ItemNo);
+        LotNoInformation.Validate("Variant Code", VariantCode);
+        LotNoInformation.Validate("Lot No.", LotNo);
+        LotNoInformation.Insert(true);
+    end;
+
+    procedure CreateInventoryPostingGroup(var InventoryPostingGroup: Record "Inventory Posting Group")
+    begin
+        Clear(InventoryPostingGroup);
+        InventoryPostingGroup.Init;
+        InventoryPostingGroup.Validate(Code,
+          LibraryUtility.GenerateRandomCode(InventoryPostingGroup.FieldNo(Code), DATABASE::"Inventory Posting Group"));
+        InventoryPostingGroup.Validate(Description, InventoryPostingGroup.Code);
+        InventoryPostingGroup.Insert(true);
+    end;
+
+    procedure CreateInventoryPeriod(var InventoryPeriod: Record "Inventory Period"; EndingDate: Date)
+    begin
+        Clear(InventoryPeriod);
+        if InventoryPeriod.Get(EndingDate) then
+            exit;
+        InventoryPeriod.Init;
+        InventoryPeriod.Validate("Ending Date", EndingDate);
+        InventoryPeriod.Insert(true);
+    end;
+
+    procedure CreateInventoryPostingSetup(var InventoryPostingSetup: Record "Inventory Posting Setup"; LocationCode: Text[10]; PostingGroupCode: Text[20])
+    begin
+        Clear(InventoryPostingSetup);
+        InventoryPostingSetup.Init;
+        InventoryPostingSetup.Validate("Location Code", LocationCode);
+        InventoryPostingSetup.Validate("Invt. Posting Group Code", PostingGroupCode);
+        InventoryPostingSetup.Insert(true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreatePhysInvtOrderHeader(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
+    begin
+        with PhysInvtOrderHeader do begin
+            Init;
+            Insert(true);
+        end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreatePhysInvtOrderLine(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; CountNo: Code[20]; ItemNo: Code[20])
+    begin
+        with PhysInvtOrderLine do begin
+            Validate("Document No.", CountNo);
+            Validate("Line No.", LibraryUtility.GetNewRecNo(PhysInvtOrderLine, FieldNo("Line No.")));
+            Validate("Item No.", ItemNo);
+            Insert(true);
+        end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreatePhysInvtRecordHeader(var PhysInvtRecordHeader: Record "Phys. Invt. Record Header"; CountNo: Code[20])
+    begin
+        with PhysInvtRecordHeader do begin
+            Validate("Order No.", CountNo);
+            Validate("Recording No.", LibraryUtility.GetNewRecNo(PhysInvtRecordHeader, FieldNo("Recording No.")));
+            Insert(true);
+        end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreatePhysInvtRecordLine(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; RecordingNo: Integer; Qty: Decimal)
+    begin
+        with PhysInvtRecordLine do begin
+            Validate("Order No.", PhysInvtOrderLine."Document No.");
+            Validate("Order Line No.", PhysInvtOrderLine."Line No.");
+            Validate("Recording No.", RecordingNo);
+            Validate("Line No.", LibraryUtility.GetNewRecNo(PhysInvtRecordLine, FieldNo("Line No.")));
+            Validate("Item No.", PhysInvtOrderLine."Item No.");
+            Validate(Quantity, Qty);
+            Validate(Recorded, true);
+            Insert(true);
+        end;
+    end;
+
+    procedure CreateItemWithoutVAT(var Item: Record Item)
+    var
+        InventorySetup: Record "Inventory Setup";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        GeneralPostingSetup: Record "General Posting Setup";
+        InventoryPostingGroup: Record "Inventory Posting Group";
+        TaxGroup: Record "Tax Group";
+    begin
+        ItemNoSeriesSetup(InventorySetup);
+        Clear(Item);
+        Item.Insert(true);
+
+        CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", '', 1);
+        LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
+
+        if not InventoryPostingGroup.FindFirst then
+            CreateInventoryPostingGroup(InventoryPostingGroup);
+
+        Item.Validate(Description, Item."No.");  // Validation Description as No. because value is not important.
+        Item.Validate("Base Unit of Measure", ItemUnitOfMeasure.Code);
+        Item.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        Item.Validate("Inventory Posting Group", InventoryPostingGroup.Code);
+
+        if TaxGroup.FindFirst then
+            Item.Validate("Tax Group Code", TaxGroup.Code);
+
+        Item.Modify(true);
+    end;
+
+    procedure CreateItem(var Item: Record Item): Code[20]
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        CreateItemWithoutVAT(Item);
+
+        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+
+        Item.Modify(true);
+        OnAfterCreateItem(Item);
+        exit(Item."No.");
+    end;
+
+    procedure CreateItemNo(): Code[20]
+    var
+        Item: Record Item;
+    begin
+        CreateItem(Item);
+        exit(Item."No.");
+    end;
+
+    procedure CreateItemNoWithoutVAT(): Code[20]
+    var
+        Item: Record Item;
+    begin
+        CreateItemWithoutVAT(Item);
+        exit(Item."No.");
+    end;
+
+    procedure CreateItemWithTariffNo(var Item: Record Item; TariffNo: Code[20])
+    begin
+        CreateItem(Item);
+        Item.Validate("Tariff No.", TariffNo);
+        Item.Modify(true);
+    end;
+
+    procedure CreateItemWithUnitPriceAndUnitCost(var Item: Record Item; UnitPrice: Decimal; UnitCost: Decimal)
+    begin
+        with Item do begin
+            CreateItem(Item);
+            Validate("Unit Price", UnitPrice);
+            Validate("Unit Cost", UnitCost);
+            Modify(true);
+        end;
+    end;
+
+    procedure CreateItemWithUnitPriceUnitCostAndPostingGroup(var Item: Record Item; UnitPrice: Decimal; UnitCost: Decimal)
+    begin
+        CreateItemWithUnitPriceAndUnitCost(Item, UnitPrice, UnitCost);
+    end;
+
+    procedure CreateItemWithPostingSetup(var Item: Record Item; GenProdPostingGroup: Code[20]; VATProductPostingGroup: Code[20])
+    begin
+        CreateItem(Item);
+        Item.Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
+        Item.Validate("VAT Prod. Posting Group", VATProductPostingGroup);
+        Item.Modify(true);
+    end;
+
+    procedure CreateItemNoWithPostingSetup(GenProdPostingGroup: Code[20]; VATProductPostingGroup: Code[20]): Code[20]
+    var
+        Item: Record Item;
+    begin
+        CreateItemWithPostingSetup(Item, GenProdPostingGroup, VATProductPostingGroup);
+        exit(Item."No.");
+    end;
+
+    procedure CreateItemNoWithVATProdPostingGroup(VATProdPostGroupCode: Code[20]): Code[20]
+    var
+        Item: Record Item;
+    begin
+        CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATProdPostGroupCode);
+        Item.Modify(true);
+        exit(Item."No.");
+    end;
+
+    procedure CreateItemAttribute(var ItemAttribute: Record "Item Attribute"; AttributeType: Option; UnitOfMeasure: Text[30])
+    begin
+        Clear(ItemAttribute);
+        ItemAttribute.Validate(Name, LibraryUtility.GenerateRandomCode(ItemAttribute.FieldNo(Name), DATABASE::"Item Attribute"));
+        ItemAttribute.Validate(Type, AttributeType);
+        ItemAttribute.Validate("Unit of Measure", UnitOfMeasure);
+        ItemAttribute.Insert(true);
+    end;
+
+    procedure CreateItemAttributeWithValue(var ItemAttribute: Record "Item Attribute"; var ItemAttributeValue: Record "Item Attribute Value"; Type: Option Option,Text,"Integer",Decimal; Value: Text[250])
+    begin
+        CreateItemAttribute(ItemAttribute, Type, '');
+        CreateItemAttributeValue(ItemAttributeValue, ItemAttribute.ID, Value);
+    end;
+
+    procedure CreateItemAttributeValue(var ItemAttributeValue: Record "Item Attribute Value"; AttributeID: Integer; AttributeValue: Text[250])
+    begin
+        Clear(ItemAttributeValue);
+        ItemAttributeValue.Validate("Attribute ID", AttributeID);
+        ItemAttributeValue.Validate(Value, AttributeValue);
+        ItemAttributeValue.Insert(true);
+    end;
+
+    procedure CreateItemAttributeValueMapping(TableID: Integer; No: Code[20]; AttributeID: Integer; AttributeValueID: Integer)
+    var
+        ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
+    begin
+        ItemAttributeValueMapping.Validate("Table ID", TableID);
+        ItemAttributeValueMapping.Validate("No.", No);
+        ItemAttributeValueMapping.Validate("Item Attribute ID", AttributeID);
+        ItemAttributeValueMapping.Validate("Item Attribute Value ID", AttributeValueID);
+        ItemAttributeValueMapping.Insert(true);
+    end;
+
+    procedure CreateItemBudgetEntry(var ItemBudgetEntry: Record "Item Budget Entry"; AnalysisArea: Option; BudgetName: Code[10]; Date: Date; ItemNo: Code[20])
+    begin
+        Clear(ItemBudgetEntry);
+        ItemBudgetEntry.Validate("Analysis Area", AnalysisArea);
+        ItemBudgetEntry.Validate("Budget Name", BudgetName);
+        ItemBudgetEntry.Validate(Date, Date);
+        ItemBudgetEntry.Validate("Item No.", ItemNo);
+        ItemBudgetEntry.Insert(true);
+    end;
+
+    procedure CreateItemCategory(var ItemCategory: Record "Item Category")
+    begin
+        ItemCategory.Init;
+        ItemCategory.Validate(Code, LibraryUtility.GenerateRandomCode(ItemCategory.FieldNo(Code), DATABASE::"Item Category"));
+        ItemCategory.Insert(true);
+    end;
+
+    procedure CreateItemTemplate(var ItemTemplate: Record "Item Template")
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        InventoryPostingGroup: Record "Inventory Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
+        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
+        InventoryPostingGroup.FindFirst;
+
+        ItemTemplate.Init;
+        ItemTemplate.Validate(Code, LibraryUtility.GenerateRandomCode(ItemTemplate.FieldNo(Code), DATABASE::"Item Template"));
+        ItemTemplate.Validate("Template Name", LibraryUtility.GenerateGUID);
+        ItemTemplate.Insert(true);
+        ItemTemplate.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        ItemTemplate.Validate("Inventory Posting Group", InventoryPostingGroup.Code);
+        ItemTemplate.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        ItemTemplate.Modify(true);
+    end;
+
+    procedure CreateItemChargeWithoutVAT(var ItemCharge: Record "Item Charge")
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        Clear(ItemCharge);
+        ItemCharge.Init;
+        ItemCharge.Validate("No.", LibraryUtility.GenerateRandomCode(ItemCharge.FieldNo("No."), DATABASE::"Item Charge"));
+        ItemCharge.Insert(true);
+
+        LibraryERM.FindGeneralPostingSetupInvtBase(GeneralPostingSetup);
+
+        ItemCharge.Validate(Description, ItemCharge."No.");  // Validation Description as No. because value is not important.
+        ItemCharge.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        ItemCharge.Modify(true);
+    end;
+
+    procedure CreateItemCharge(var ItemCharge: Record "Item Charge")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        CreateItemChargeWithoutVAT(ItemCharge);
+
+        LibraryERM.FindZeroVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        ItemCharge.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        ItemCharge.Modify(true);
+    end;
+
+    procedure CreateItemChargeNo(): Code[20]
+    var
+        ItemCharge: Record "Item Charge";
+    begin
+        CreateItemCharge(ItemCharge);
+        exit(ItemCharge."No.")
+    end;
+
+    procedure CreateItemChargeNoWithoutVAT(): Code[20]
+    var
+        ItemCharge: Record "Item Charge";
+    begin
+        CreateItemChargeWithoutVAT(ItemCharge);
+        exit(ItemCharge."No.");
+    end;
+
+    procedure CreateItemChargeAssignment(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; SalesLine: Record "Sales Line"; DocType: Option; DocNo: Code[20]; DocLineNo: Integer; ItemNo: Code[20])
+    var
+        ItemChargeAssgntSales: Codeunit "Item Charge Assgnt. (Sales)";
+        RecRef: RecordRef;
+        LineNo: Integer;
+    begin
+        ItemChargeAssignmentSales.Init;
+
+        with ItemChargeAssignmentSales do begin
+            "Document Type" := SalesLine."Document Type";
+            "Document No." := SalesLine."Document No.";
+            "Document Line No." := SalesLine."Line No.";
+            "Item Charge No." := SalesLine."No.";
+            "Unit Cost" := SalesLine."Unit Cost";
+        end;
+
+        RecRef.GetTable(ItemChargeAssignmentSales);
+        LineNo := LibraryUtility.GetNewLineNo(RecRef, ItemChargeAssignmentSales.FieldNo("Line No."));
+        ItemChargeAssgntSales.InsertItemChargeAssgnt(ItemChargeAssignmentSales, DocType,
+          DocNo, DocLineNo, ItemNo, '', LineNo);
+
+        ItemChargeAssignmentSales.Get(SalesLine."Document Type", SalesLine."Document No.",
+          SalesLine."Line No.", LineNo);
+        ItemChargeAssignmentSales.Validate("Qty. to Assign", SalesLine.Quantity);
+        ItemChargeAssignmentSales.Modify(true);
+    end;
+
+    procedure CreateItemChargeAssignPurchase(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; PurchaseLine: Record "Purchase Line"; DocType: Option; DocNo: Code[20]; DocLineNo: Integer; ItemNo: Code[20])
+    var
+        ItemChargeAssgntPurch: Codeunit "Item Charge Assgnt. (Purch.)";
+        RecRef: RecordRef;
+        LineNo: Integer;
+    begin
+        ItemChargeAssignmentPurch.Init;
+
+        with ItemChargeAssignmentPurch do begin
+            "Document Type" := PurchaseLine."Document Type";
+            "Document No." := PurchaseLine."Document No.";
+            "Document Line No." := PurchaseLine."Line No.";
+            "Item Charge No." := PurchaseLine."No.";
+            "Unit Cost" := PurchaseLine."Unit Cost";
+        end;
+
+        RecRef.GetTable(ItemChargeAssignmentPurch);
+        LineNo := LibraryUtility.GetNewLineNo(RecRef, ItemChargeAssignmentPurch.FieldNo("Line No."));
+        ItemChargeAssgntPurch.InsertItemChargeAssgnt(ItemChargeAssignmentPurch, DocType, DocNo, DocLineNo, ItemNo, '', LineNo);
+
+        ItemChargeAssignmentPurch.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.", LineNo);
+        ItemChargeAssignmentPurch.Validate("Qty. to Assign", PurchaseLine.Quantity);
+        ItemChargeAssignmentPurch.Modify(true);
+    end;
+
+    procedure CreateItemCrossReference(var ItemCrossReference: Record "Item Cross Reference"; ItemNo: Code[20]; CrossReferenceType: Option; CrossReferenceTypeNo: Code[30])
+    begin
+        CreateItemCrossReferenceWithNo(
+          ItemCrossReference, LibraryUtility.GenerateRandomCode(
+            ItemCrossReference.FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference"),
+          ItemNo, CrossReferenceType, CrossReferenceTypeNo);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateItemCrossReferenceWithNo(var ItemCrossReference: Record "Item Cross Reference"; CrossRefNo: Code[20]; ItemNo: Code[20]; CrossRefType: Integer; CrossRefTypeNo: Code[30])
+    begin
+        ItemCrossReference.Init;
+        ItemCrossReference.Validate("Item No.", ItemNo);
+        ItemCrossReference.Validate("Cross-Reference Type", CrossRefType);
+        ItemCrossReference.Validate("Cross-Reference Type No.", CrossRefTypeNo);
+        ItemCrossReference.Validate("Cross-Reference No.", CrossRefNo);
+        ItemCrossReference.Insert(true);
+    end;
+
+    procedure CreateItemJournal(var ItemJournalBatch: Record "Item Journal Batch"; ItemNo: Code[20]; ItemJournalTemplateType: Option Item,Transfer,"Phys. Inventory",Revaluation,Consumption,Output,Capacity,"Prod. Order"; ProductionOrderNo: Code[20])
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        // Create Journals for Consumption and Output.
+        SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplateType);
+        SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplateType, ItemJournalTemplate.Name);
+        if ItemJournalTemplateType = ItemJournalTemplateType::Consumption then
+            LibraryManufacturing.CalculateConsumption(ProductionOrderNo, ItemJournalTemplate.Name, ItemJournalBatch.Name)
+        else begin
+            LibraryManufacturing.CreateOutputJournal(ItemJournalLine, ItemJournalTemplate, ItemJournalBatch, ItemNo, ProductionOrderNo);
+            OutputJnlExplRoute(ItemJournalLine);
+            LibraryManufacturing.UpdateOutputJournal(ProductionOrderNo);
+        end;
+    end;
+
+    procedure CreateItemJournalTemplate(var ItemJournalTemplate: Record "Item Journal Template")
+    begin
+        ItemJournalTemplate.Init;
+        ItemJournalTemplate.Validate(
+          Name,
+          CopyStr(
+            LibraryUtility.GenerateRandomCode(ItemJournalTemplate.FieldNo(Name), DATABASE::"Item Journal Template"),
+            1,
+            LibraryUtility.GetFieldLength(DATABASE::"Item Journal Template", ItemJournalTemplate.FieldNo(Name))));
+        ItemJournalTemplate.Validate(Description, ItemJournalTemplate.Name);
+        // Validating Name as Description because value is not important.
+        ItemJournalTemplate.Insert(true);
+    end;
+
+    procedure CreateItemJournalTemplateByType(var ItemJournalTemplate: Record "Item Journal Template"; TemplateType: Option)
+    begin
+        CreateItemJournalTemplate(ItemJournalTemplate);
+        ItemJournalTemplate.Validate(Type, TemplateType);
+        ItemJournalTemplate.Modify(true);
+    end;
+
+    procedure CreateItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalTemplateName: Code[10])
+    begin
+        // Create Item Journal Batch with a random Name of String length less than 10.
+        ItemJournalBatch.Init;
+        ItemJournalBatch.Validate("Journal Template Name", ItemJournalTemplateName);
+        ItemJournalBatch.Validate(
+          Name, CopyStr(LibraryUtility.GenerateRandomCode(ItemJournalBatch.FieldNo(Name), DATABASE::"Item Journal Batch"), 1,
+            MaxStrLen(ItemJournalBatch.Name)));
+        ItemJournalBatch.Insert(true);
+    end;
+
+    procedure CreateItemJournalBatchByType(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Option)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        Clear(ItemJournalBatch);
+        SelectItemJournalTemplateName(ItemJournalTemplate, TemplateType);
+        ItemJournalBatch."Journal Template Name" := ItemJournalTemplate.Name;
+        ItemJournalBatch.Name := LibraryUtility.GenerateRandomCode(ItemJournalBatch.FieldNo(Name), DATABASE::"Item Journal Batch");
+        ItemJournalBatch.Insert(true);
+    end;
+
+    procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; EntryType: Option; ItemNo: Text[20]; NewQuantity: Decimal)
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        if not ItemJournalBatch.Get(JournalTemplateName, JournalBatchName) then begin
+            ItemJournalBatch.Init;
+            ItemJournalBatch.Validate("Journal Template Name", JournalTemplateName);
+            ItemJournalBatch.SetupNewBatch;
+            ItemJournalBatch.Validate(Name, JournalBatchName);
+            ItemJournalBatch.Validate(Description, JournalBatchName + JOURNAL);
+            ItemJournalBatch.Insert(true);
+        end;
+        CreateItemJnlLineWithNoItem(ItemJournalLine, ItemJournalBatch, JournalTemplateName, JournalBatchName, EntryType);
+        ItemJournalLine.Validate("Item No.", ItemNo);
+        ItemJournalLine.Validate(Quantity, NewQuantity);
+        ItemJournalLine.Modify(true);
+    end;
+
+    procedure CreateItemJournalLineInItemTemplate(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
+        CreateItemJournalLine(
+          ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Qty);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Validate("Bin Code", BinCode);
+        ItemJournalLine.Modify(true);
+    end;
+
+    procedure CreateItemJnlLineWithNoItem(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; EntryType: Option)
+    var
+        NoSeries: Record "No. Series";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        RecRef: RecordRef;
+        DocumentNo: Code[20];
+    begin
+        Clear(ItemJournalLine);
+        ItemJournalLine.Init;
+        ItemJournalLine.Validate("Journal Template Name", JournalTemplateName);
+        ItemJournalLine.Validate("Journal Batch Name", JournalBatchName);
+        RecRef.GetTable(ItemJournalLine);
+        ItemJournalLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, ItemJournalLine.FieldNo("Line No.")));
+        ItemJournalLine.Insert(true);
+        ItemJournalLine.Validate("Posting Date", WorkDate);
+        ItemJournalLine.Validate("Entry Type", EntryType);
+        if NoSeries.Get(ItemJournalBatch."No. Series") then
+            DocumentNo := NoSeriesManagement.GetNextNo(ItemJournalBatch."No. Series", ItemJournalLine."Posting Date", false)
+        else
+            DocumentNo := LibraryUtility.GenerateRandomCode(ItemJournalLine.FieldNo("Document No."), DATABASE::"Item Journal Line");
+        ItemJournalLine.Validate("Document No.", DocumentNo);
+        ItemJournalLine.Modify(true);
+
+        OnAfterCreateItemJnlLineWithNoItem(ItemJournalLine, ItemJournalBatch, JournalTemplateName, JournalBatchName, EntryType);
+    end;
+
+    procedure CreateItemManufacturing(var Item: Record Item): Code[20]
+    var
+        InventorySetup: Record "Inventory Setup";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        GeneralPostingSetup: Record "General Posting Setup";
+        InventoryPostingGroup: Record "Inventory Posting Group";
+        TaxGroup: Record "Tax Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        ItemNoSeriesSetup(InventorySetup);
+        Clear(Item);
+        Item.Insert(true);
+
+        CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", '', 1);
+
+        LibraryERM.FindGeneralPostingSetupInvtToGL(GeneralPostingSetup);
+        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
+        InventoryPostingGroup.FindFirst;
+
+        Item.Validate(Description, Item."No.");  // Validation Description as No. because value is not important.
+        Item.Validate("Base Unit of Measure", ItemUnitOfMeasure.Code);
+        Item.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Validate("Inventory Posting Group", InventoryPostingGroup.Code);
+
+        if TaxGroup.FindFirst then
+            Item.Validate("Tax Group Code", TaxGroup.Code);
+
+        Item.Modify(true);
+        OnAfterCreateItemManufacturing(Item);
+        exit(Item."No.");
+    end;
+
+    procedure CreateItemTrackingCode(var ItemTrackingCode: Record "Item Tracking Code")
+    begin
+        ItemTrackingCode.Init;
+        ItemTrackingCode.Validate(Code, LibraryUtility.GenerateRandomCode(ItemTrackingCode.FieldNo(Code), DATABASE::"Item Tracking Code"));
+        ItemTrackingCode.Insert(true);
+    end;
+
+    procedure CreateItemUnitOfMeasure(var ItemUnitOfMeasure: Record "Item Unit of Measure"; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; QtyPerUoM: Decimal)
+    var
+        UnitOfMeasure: Record "Unit of Measure";
+    begin
+        ItemUnitOfMeasure.Init;
+        ItemUnitOfMeasure.Validate("Item No.", ItemNo);
+
+        // The IF condition is important because it grants flexibility to the function.
+        if UnitOfMeasureCode = '' then begin
+            UnitOfMeasure.SetFilter(Code, '<>%1', UnitOfMeasureCode);
+            UnitOfMeasure.FindFirst;
+            ItemUnitOfMeasure.Validate(Code, UnitOfMeasure.Code);
+        end else
+            ItemUnitOfMeasure.Validate(Code, UnitOfMeasureCode);
+        if QtyPerUoM = 0 then
+            QtyPerUoM := 1;
+        ItemUnitOfMeasure.Validate("Qty. per Unit of Measure", QtyPerUoM);
+        ItemUnitOfMeasure.Insert(true);
+    end;
+
+    procedure CreateItemUnitOfMeasureCode(var ItemUnitOfMeasure: Record "Item Unit of Measure"; ItemNo: Code[20]; QtyPerUoM: Decimal)
+    var
+        UnitOfMeasure: Record "Unit of Measure";
+    begin
+        CreateUnitOfMeasureCode(UnitOfMeasure);
+        CreateItemUnitOfMeasure(ItemUnitOfMeasure, ItemNo, UnitOfMeasure.Code, QtyPerUoM);
+    end;
+
+    procedure CreateItemVariant(var ItemVariant: Record "Item Variant"; ItemNo: Code[20]): Code[10]
+    var
+        Handled: Boolean;
+    begin
+        OnBeforeCreateItemVariant(ItemVariant, ItemNo, Handled);
+        if Handled then
+            exit(ItemVariant.Code);
+
+        ItemVariant.Init;
+        ItemVariant.Validate("Item No.", ItemNo);
+        ItemVariant.Validate(Code, LibraryUtility.GenerateRandomCode(ItemVariant.FieldNo(Code), DATABASE::"Item Variant"));
+        ItemVariant.Validate(Description, ItemVariant.Code);
+        ItemVariant.Insert(true);
+        OnAfterCreateItemVariant(ItemVariant, ItemNo);
+
+        exit(ItemVariant.Code)
+    end;
+
+    procedure CreateItemVendor(var ItemVendor: Record "Item Vendor"; VendorNo: Code[20]; ItemNo: Code[20])
+    begin
+        ItemVendor.Init;
+        ItemVendor.Validate("Vendor No.", VendorNo);
+        ItemVendor.Validate("Item No.", ItemNo);
+        ItemVendor.Insert(true);
+    end;
+
+    procedure CreateNonStock(var NonstockItem: Record "Nonstock Item")
+    begin
+        NonstockItem.Init;
+        NonstockItem.Validate(
+          "Entry No.", LibraryUtility.GenerateRandomCode(NonstockItem.FieldNo("Entry No."), DATABASE::"Nonstock Item"));
+        NonstockItem.Insert(true);
+    end;
+
+    procedure CreateNonStockItem(var NonstockItem: Record "Nonstock Item")
+    var
+        ItemCategory: Record "Item Category";
+        ItemTemplate: Record "Item Template";
+        UnitOfMeasure: Record "Unit of Measure";
+        CatalogItemManagement: Codeunit "Catalog Item Management";
+    begin
+        ItemCategory.FindFirst;
+        CreateUnitOfMeasureCode(UnitOfMeasure);
+        ItemTemplate.FindFirst;
+
+        CreateNonStock(NonstockItem);
+        NonstockItem.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        NonstockItem.Validate(
+          "Vendor Item No.", LibraryUtility.GenerateRandomCode(NonstockItem.FieldNo("Vendor Item No."), DATABASE::"Nonstock Item"));
+        NonstockItem.Validate("Item Template Code", ItemTemplate.Code);
+        NonstockItem.Validate("Unit of Measure", UnitOfMeasure.Code);
+        NonstockItem.Validate(Description, NonstockItem."Entry No.");
+        NonstockItem.Modify(true);
+        CatalogItemManagement.NonstockAutoItem(NonstockItem);
+    end;
+
+    procedure CreateServiceTypeItem(var Item: Record Item)
+    begin
+        CreateItem(Item);
+        Item.Validate(Type, Item.Type::Service);
+        Item.Modify(true);
+    end;
+
+    procedure CreateNonInventoryTypeItem(var Item: Record Item)
+    begin
+        CreateItem(Item);
+        Item.Validate(Type, Item.Type::"Non-Inventory");
+        Item.Modify(true);
+    end;
+
+    procedure CreateStockKeepingUnit(var Item: Record Item; CreatePerOption: Option; NewItemInInventoryOnly: Boolean; NewReplacePreviousSKUs: Boolean)
+    var
+        TmpItem: Record Item;
+        CreateStockkeepingUnit: Report "Create Stockkeeping Unit";
+    begin
+        CreateStockkeepingUnit.InitializeRequest(CreatePerOption, NewItemInInventoryOnly, NewReplacePreviousSKUs);
+        if Item.HasFilter then
+            TmpItem.CopyFilters(Item)
+        else begin
+            Item.Get(Item."No.");
+            TmpItem.SetRange("No.", Item."No.");
+        end;
+
+        CreateStockkeepingUnit.SetTableView(TmpItem);
+        CreateStockkeepingUnit.UseRequestPage(false);
+        CreateStockkeepingUnit.Run;
+    end;
+
+    procedure CreateStockkeepingUnitForLocationAndVariant(var StockkeepingUnit: Record "Stockkeeping Unit"; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10])
+    begin
+        StockkeepingUnit.Init;
+        StockkeepingUnit.Validate("Location Code", LocationCode);
+        StockkeepingUnit.Validate("Item No.", ItemNo);
+        StockkeepingUnit.Validate("Variant Code", VariantCode);
+        StockkeepingUnit.Insert(true);
+    end;
+
+    procedure CreateShippingAgent(var ShippingAgent: Record "Shipping Agent")
+    begin
+        ShippingAgent.Init;
+        ShippingAgent.Validate(Code, LibraryUtility.GenerateRandomCode(ShippingAgent.FieldNo(Code), DATABASE::"Shipping Agent"));
+        ShippingAgent.Insert(true);
+    end;
+
+    procedure CreateShippingAgentService(var ShippingAgentServices: Record "Shipping Agent Services"; ShippingAgentCode: Code[10]; ShippingTime: DateFormula)
+    begin
+        ShippingAgentServices.Init;
+        ShippingAgentServices.Validate("Shipping Agent Code", ShippingAgentCode);
+        ShippingAgentServices.Validate(
+          Code, LibraryUtility.GenerateRandomCode(ShippingAgentServices.FieldNo(Code), DATABASE::"Shipping Agent Services"));
+        ShippingAgentServices.Insert(true);
+        ShippingAgentServices.Validate("Shipping Time", ShippingTime);
+        ShippingAgentServices.Modify(true);
+    end;
+
+    procedure CreateShippingAgentServiceUsingPages(ShippingAgentCode: Code[10]) ShippingAgentServiceCode: Code[10]
+    var
+        ShippingAgentServices: Record "Shipping Agent Services";
+        ShippingAgents: TestPage "Shipping Agents";
+        ShippingAgentServicesPage: TestPage "Shipping Agent Services";
+        ShippingTime: DateFormula;
+    begin
+        ShippingAgents.OpenEdit;
+        ShippingAgents.GotoKey(ShippingAgentCode);
+
+        ShippingAgentServicesPage.Trap;
+        ShippingAgents.ShippingAgentServices.Invoke;
+
+        ShippingAgentServiceCode :=
+          LibraryUtility.GenerateRandomCode(ShippingAgentServices.FieldNo(Code), DATABASE::"Shipping Agent Services");
+        Evaluate(ShippingTime, '<1M>');
+
+        ShippingAgentServicesPage.New;
+        ShippingAgentServicesPage.Code.SetValue(ShippingAgentServiceCode);
+        ShippingAgentServicesPage."Shipping Time".SetValue(ShippingTime);
+
+        ShippingAgentServicesPage.Close;
+    end;
+
+    procedure CreateStandardCostWorksheetName(var StandardCostWorksheetName: Record "Standard Cost Worksheet Name")
+    begin
+        StandardCostWorksheetName.Init;
+        StandardCostWorksheetName.Validate(
+          Name, LibraryUtility.GenerateRandomCode(StandardCostWorksheetName.FieldNo(Name), DATABASE::"Standard Cost Worksheet Name"));
+        StandardCostWorksheetName.Insert(true);
+    end;
+
+    procedure CreateTrackedItem(var Item: Record Item; LotNos: Code[20]; SerialNos: Code[20]; ItemTrackingCode: Code[10])
+    begin
+        CreateItem(Item);
+        Item.Validate("Item Tracking Code", ItemTrackingCode);
+        Item.Validate("Serial Nos.", SerialNos);
+        Item.Validate("Lot Nos.", LotNos);
+        Item.Modify(true);
+    end;
+
+    procedure CreateTransferHeader(var TransferHeader: Record "Transfer Header"; FromLocation: Text[10]; ToLocation: Text[10]; InTransitCode: Text[10])
+    var
+        Handled: Boolean;
+    begin
+        OnBeforeCreateTransferHeader(TransferHeader, FromLocation, ToLocation, InTransitCode, Handled);
+        if Handled then
+            exit;
+
+        Clear(TransferHeader);
+        TransferHeader.Init;
+        TransferHeader.Insert(true);
+        TransferHeader.Validate("Transfer-from Code", FromLocation);
+        TransferHeader.Validate("Transfer-to Code", ToLocation);
+        TransferHeader.Validate("In-Transit Code", InTransitCode);
+        TransferHeader.Modify(true);
+
+        OnAfterCreateTransferHeader(TransferHeader, FromLocation, ToLocation, InTransitCode);
+    end;
+
+    procedure CreateTransferLine(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; ItemNo: Text[20]; Quantity: Decimal)
+    var
+        RecRef: RecordRef;
+    begin
+        Clear(TransferLine);
+        TransferLine.Init;
+        TransferLine.Validate("Document No.", TransferHeader."No.");
+        RecRef.GetTable(TransferLine);
+        TransferLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, TransferLine.FieldNo("Line No.")));
+        TransferLine.Insert(true);
+        TransferLine.Validate("Item No.", ItemNo);
+        TransferLine.Validate(Quantity, Quantity);
+        TransferLine.Modify(true);
+    end;
+
+    procedure CreateTransferRoute(var TransferRoute: Record "Transfer Route"; TransferFrom: Code[10]; TransferTo: Code[10])
+    begin
+        Clear(TransferRoute);
+        TransferRoute.Init;
+        TransferRoute.Validate("Transfer-from Code", TransferFrom);
+        TransferRoute.Validate("Transfer-to Code", TransferTo);
+        TransferRoute.Insert(true);
+    end;
+
+    procedure CreateUnitOfMeasureCode(var UnitOfMeasure: Record "Unit of Measure")
+    begin
+        UnitOfMeasure.Init;
+        UnitOfMeasure.Validate(Code, LibraryUtility.GenerateRandomCode(UnitOfMeasure.FieldNo(Code), DATABASE::"Unit of Measure"));
+        UnitOfMeasure.Validate(Description, UnitOfMeasure.Code);
+        UnitOfMeasure.Validate("International Standard Code",
+          LibraryUtility.GenerateRandomCode(UnitOfMeasure.FieldNo("International Standard Code"), DATABASE::"Unit of Measure"));
+        UnitOfMeasure.Validate(Symbol,
+          LibraryUtility.GenerateRandomCode(UnitOfMeasure.FieldNo(Symbol), DATABASE::"Unit of Measure"));
+        UnitOfMeasure.Insert(true);
+    end;
+
+    procedure CreateVariant(var ItemVariant: Record "Item Variant"; Item: Record Item)
+    var
+        Handled: Boolean;
+    begin
+        OnBeforeCreateVariant(ItemVariant, Item, Handled);
+        if Handled then
+            exit;
+
+        Clear(ItemVariant);
+        ItemVariant.Init;
+        ItemVariant.Validate("Item No.", Item."No.");
+        ItemVariant.Validate(Code, LibraryUtility.GenerateRandomCode(ItemVariant.FieldNo(Code), DATABASE::"Item Variant"));
+        ItemVariant.Validate(Description, ItemVariant.Code);
+        ItemVariant.Insert;
+
+        OnAfterCreateVariant(ItemVariant, Item);
+    end;
+
+    procedure CreatePhysicalInventoryCountingPeriod(var PhysInvtCountingPeriod: Record "Phys. Invt. Counting Period")
+    begin
+        Clear(PhysInvtCountingPeriod);
+        PhysInvtCountingPeriod.Init;
+        PhysInvtCountingPeriod.Validate(
+          Code, LibraryUtility.GenerateRandomCode(PhysInvtCountingPeriod.FieldNo(Code), DATABASE::"Phys. Invt. Counting Period"));
+        PhysInvtCountingPeriod.Insert(true);
+    end;
+
+    procedure CreatePaymentTerms(var PaymentTerms: Record "Payment Terms")
+    begin
+        PaymentTerms.Init;
+        PaymentTerms.Validate(Code, LibraryUtility.GenerateRandomCode(PaymentTerms.FieldNo(Code), DATABASE::"Payment Terms"));
+        PaymentTerms.Validate(Description, PaymentTerms.Code);
+        PaymentTerms.Insert(true);
+    end;
+
+    procedure CreatePaymentMethod(var PaymentMethod: Record "Payment Method")
+    begin
+        PaymentMethod.Init;
+        PaymentMethod.Validate(Code, LibraryUtility.GenerateRandomCode(PaymentMethod.FieldNo(Code), DATABASE::"Payment Method"));
+        PaymentMethod.Validate(Description, PaymentMethod.Code);
+        PaymentMethod.Insert(true);
+    end;
+
+    procedure CopyItemAttributeToFilterItemAttributesBuffer(var TempFilterItemAttributesBuffer: Record "Filter Item Attributes Buffer" temporary; ItemAttributeValue: Record "Item Attribute Value")
+    begin
+        ItemAttributeValue.CalcFields("Attribute Name");
+        TempFilterItemAttributesBuffer.Init;
+        TempFilterItemAttributesBuffer.Attribute := ItemAttributeValue."Attribute Name";
+        TempFilterItemAttributesBuffer.Value := ItemAttributeValue.Value;
+        TempFilterItemAttributesBuffer.Insert;
+    end;
+
+    procedure CalculateCountingPeriod(var ItemJournalLine: Record "Item Journal Line")
+    var
+        PhysInvtCountManagement: Codeunit "Phys. Invt. Count.-Management";
+    begin
+        Clear(PhysInvtCountManagement);
+        PhysInvtCountManagement.InitFromItemJnl(ItemJournalLine);
+        PhysInvtCountManagement.Run;
+    end;
+
+    procedure DateComprItemBudgetEntries(var ItemBudgetEntry: Record "Item Budget Entry"; AnalysisAreaSelection: Option; StartDate: Date; EndDate: Date; PeriodLength: Option; Description: Text[50])
+    var
+        TmpItemBudgetEntry: Record "Item Budget Entry";
+        DateCompItemBudgetEntries: Report "Date Comp. Item Budget Entries";
+    begin
+        DateCompItemBudgetEntries.InitializeRequest(AnalysisAreaSelection, StartDate, EndDate, PeriodLength, Description);
+        if ItemBudgetEntry.HasFilter then
+            TmpItemBudgetEntry.CopyFilters(ItemBudgetEntry)
+        else begin
+            ItemBudgetEntry.Get(ItemBudgetEntry."Entry No.");
+            TmpItemBudgetEntry.SetRange("Entry No.", ItemBudgetEntry."Entry No.");
+        end;
+        DateCompItemBudgetEntries.SetTableView(TmpItemBudgetEntry);
+        DateCompItemBudgetEntries.UseRequestPage(false);
+        DateCompItemBudgetEntries.RunModal;
+    end;
+
+    procedure FindItemJournalTemplate(var ItemJournalTemplate: Record "Item Journal Template")
+    begin
+        ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Item);
+        ItemJournalTemplate.SetRange(Recurring, false);
+        if not ItemJournalTemplate.FindFirst then begin
+            CreateItemJournalTemplate(ItemJournalTemplate);
+            ItemJournalTemplate.Validate(Type, ItemJournalTemplate.Type::Item);
+            ItemJournalTemplate.Modify(true);
+        end;
+    end;
+
+    procedure FindItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch")
+    begin
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.FindFirst;
+    end;
+
+    procedure FindUnitOfMeasure(var UnitOfMeasure: Record "Unit of Measure")
+    begin
+        if not UnitOfMeasure.FindFirst then
+            CreateUnitOfMeasureCode(UnitOfMeasure);
+    end;
+
+    procedure GetQtyPerForItemUOM(ItemNo: Code[20]; UOMCode: Code[10]): Decimal
+    var
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        Clear(ItemUnitOfMeasure);
+        ItemUnitOfMeasure.Get(ItemNo, UOMCode);
+
+        exit(ItemUnitOfMeasure."Qty. per Unit of Measure");
+    end;
+
+    procedure GetVariant(ItemNo: Code[20]; OldVariantCode: Code[10]): Code[10]
+    var
+        ItemVariant: Record "Item Variant";
+    begin
+        ItemVariant.SetRange("Item No.", ItemNo);
+        ItemVariant.SetFilter(Code, '<>%1', OldVariantCode);
+        if ItemVariant.Count = 0 then
+            exit('');
+        ItemVariant.Next(LibraryRandom.RandInt(ItemVariant.Count));
+        exit(ItemVariant.Code);
+    end;
+
+    procedure GetReservConfirmText(): Text
+    begin
+        exit(ReserveConfirmMsg);
+    end;
+
+    procedure NoSeriesSetup(var InventorySetup: Record "Inventory Setup")
+    begin
+        InventorySetup.Get;
+        InventorySetup.Validate("Internal Movement Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        InventorySetup.Validate("Inventory Movement Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        InventorySetup.Validate("Inventory Pick Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        InventorySetup.Validate("Item Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        InventorySetup.Validate("Posted Invt. Pick Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        InventorySetup.Validate("Posted Transfer Rcpt. Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        InventorySetup.Validate("Posted Transfer Shpt. Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        InventorySetup.Validate("Registered Invt. Movement Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        InventorySetup.Validate("Transfer Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        InventorySetup.Modify(true);
+    end;
+
+    local procedure ItemNoSeriesSetup(var InventorySetup: Record "Inventory Setup")
+    var
+        NoSeriesCode: Code[20];
+    begin
+        InventorySetup.Get;
+        NoSeriesCode := LibraryUtility.GetGlobalNoSeriesCode;
+        if NoSeriesCode <> InventorySetup."Item Nos." then begin
+            InventorySetup.Validate("Item Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            InventorySetup.Modify(true);
+        end;
+    end;
+
+    procedure MakeItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; Item: Record Item; PostingDate: Date; EntryType: Option; Quantity: Decimal)
+    var
+        RecRef: RecordRef;
+    begin
+        Clear(ItemJournalLine);
+        ItemJournalLine."Journal Template Name" := ItemJournalBatch."Journal Template Name";
+        ItemJournalLine."Journal Batch Name" := ItemJournalBatch.Name;
+        ItemJournalLine."Posting Date" := PostingDate;
+        ItemJournalLine."Entry Type" := EntryType;
+        ItemJournalBatch.CalcFields("Template Type");
+        if ItemJournalBatch."Template Type" = ItemJournalBatch."Template Type"::Revaluation then
+            ItemJournalLine."Value Entry Type" := ItemJournalLine."Value Entry Type"::Revaluation;
+        if Item.IsNonInventoriableType then
+            ItemJournalLine."Order Type" := ItemJournalLine."Order Type"::Production;
+        ItemJournalLine.Validate("Item No.", Item."No.");
+        ItemJournalLine.Validate(Quantity, Quantity);
+        ItemJournalLine."Document No." :=
+          LibraryUtility.GenerateRandomCode(ItemJournalLine.FieldNo("Document No."), DATABASE::"Item Journal Line");
+        RecRef.GetTable(ItemJournalLine);
+        ItemJournalLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, ItemJournalLine.FieldNo("Line No."));
+    end;
+
+    procedure OutputJnlExplRoute(var ItemJournalLine: Record "Item Journal Line")
+    var
+        OutputJnlExplRoute: Codeunit "Output Jnl.-Expl. Route";
+    begin
+        Clear(OutputJnlExplRoute);
+        OutputJnlExplRoute.Run(ItemJournalLine);
+    end;
+
+    procedure PostDirectTransferOrder(var TransferHeader: Record "Transfer Header")
+    begin
+        PostTransferHeader(TransferHeader, true, true);
+    end;
+
+    procedure PostItemJournalBatch(ItemJournalBatch: Record "Item Journal Batch")
+    begin
+        PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    procedure PostItemJournalLine(JournalTemplateName: Text[10]; JournalBatchName: Text[10])
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        ItemJournalLine.Init;
+        ItemJournalLine.Validate("Journal Template Name", JournalTemplateName);
+        ItemJournalLine.Validate("Journal Batch Name", JournalBatchName);
+        CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
+    end;
+
+    procedure PostTransferHeader(var TransferHeader: Record "Transfer Header"; Ship: Boolean; Receive: Boolean)
+    var
+        TransferOrderPostShipment: Codeunit "TransferOrder-Post Shipment";
+        TransferOrderPostReceipt: Codeunit "TransferOrder-Post Receipt";
+    begin
+        Clear(TransferOrderPostShipment);
+        if Ship then begin
+            TransferOrderPostShipment.SetHideValidationDialog(true);
+            TransferOrderPostShipment.Run(TransferHeader);
+        end;
+        if Receive then begin
+            TransferOrderPostReceipt.SetHideValidationDialog(true);
+            TransferOrderPostReceipt.Run(TransferHeader);
+        end;
+    end;
+
+    procedure ReleaseTransferOrder(var TransferHeader: Record "Transfer Header")
+    var
+        ReleaseTransferDocument: Codeunit "Release Transfer Document";
+    begin
+        Clear(ReleaseTransferDocument);
+        ReleaseTransferDocument.Run(TransferHeader);
+    end;
+
+    procedure ReopenTransferOrder(var TransferHeader: Record "Transfer Header")
+    var
+        ReleaseTransferDocument: Codeunit "Release Transfer Document";
+    begin
+        ReleaseTransferDocument.Reopen(TransferHeader);
+    end;
+
+    procedure SaveAsStandardJournal(var GenJournalBatch: Record "Gen. Journal Batch"; "Code": Code[10]; SaveAmount: Boolean)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        StandardGeneralJournal: Record "Standard General Journal";
+        SaveAsStandardGenJournal: Report "Save as Standard Gen. Journal";
+    begin
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        SaveAsStandardGenJournal.Initialise(GenJournalLine, GenJournalBatch);
+        SaveAsStandardGenJournal.InitializeRequest(Code, '', SaveAmount);
+        SaveAsStandardGenJournal.UseRequestPage(false);
+        SaveAsStandardGenJournal.RunModal;
+        if not SaveAsStandardGenJournal.GetStdGeneralJournal(StandardGeneralJournal) then;
+    end;
+
+    procedure SelectItemJournalTemplateName(var ItemJournalTemplate: Record "Item Journal Template"; ItemJournalTemplateType: Option)
+    begin
+        // Find Item Journal Template for the given Template Type.
+        ItemJournalTemplate.SetRange(Type, ItemJournalTemplateType);
+        ItemJournalTemplate.SetRange(Recurring, false);
+        if not ItemJournalTemplate.FindFirst then
+            CreateItemJournalTemplateByType(ItemJournalTemplate, ItemJournalTemplateType);
+    end;
+
+    procedure SelectItemJournalBatchName(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalBatchTemplateType: Option; ItemJournalTemplateName: Code[10])
+    begin
+        // Find Name for Batch Name.
+        ItemJournalBatch.SetRange("Template Type", ItemJournalBatchTemplateType);
+        ItemJournalBatch.SetRange("Journal Template Name", ItemJournalTemplateName);
+
+        // If Item Journal Batch not found then create it.
+        if not ItemJournalBatch.FindFirst then
+            CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplateName);
+    end;
+
+    procedure SetAutomaticCostAdjmtAlways()
+    begin
+        InventorySetup.Get;
+        InventorySetup."Automatic Cost Adjustment" := InventorySetup."Automatic Cost Adjustment"::Always;
+        InventorySetup.Modify;
+    end;
+
+    procedure SetAutomaticCostAdjmtNever()
+    begin
+        InventorySetup.Get;
+        InventorySetup."Automatic Cost Adjustment" := InventorySetup."Automatic Cost Adjustment"::Never;
+        InventorySetup.Modify;
+    end;
+
+    procedure SetAutomaticCostPosting(AutomaticCostPosting: Boolean)
+    begin
+        InventorySetup.Get;
+        InventorySetup."Automatic Cost Posting" := AutomaticCostPosting;
+        InventorySetup.Modify;
+    end;
+
+    procedure SetAverageCostSetup(AverageCostCalcType: Option; AverageCostPeriod: Option)
+    begin
+        InventorySetup.Get;
+        InventorySetup."Average Cost Calc. Type" := AverageCostCalcType;
+        InventorySetup."Average Cost Period" := AverageCostPeriod;
+        InventorySetup.Modify;
+    end;
+
+    procedure SetAverageCostSetupInAccPeriods(AverageCostCalcType: Option; AverageCostPeriod: Option)
+    var
+        AccountingPeriod: Record "Accounting Period";
+    begin
+        AccountingPeriod.SetRange("New Fiscal Year", true);
+        AccountingPeriod.ModifyAll("Average Cost Calc. Type", AverageCostCalcType);
+        AccountingPeriod.ModifyAll("Average Cost Period", AverageCostPeriod);
+    end;
+
+    procedure SetExpectedCostPosting(ExpectedCostPosting: Boolean)
+    begin
+        InventorySetup.Get;
+        InventorySetup."Expected Cost Posting to G/L" := ExpectedCostPosting;
+        InventorySetup.Modify;
+    end;
+
+    procedure SetLocationMandatory(LocationMandatory: Boolean)
+    begin
+        InventorySetup.Get;
+        InventorySetup."Location Mandatory" := LocationMandatory;
+        InventorySetup.Modify;
+    end;
+
+    procedure SetPreventNegativeInventory(PreventNegativeInventory: Boolean)
+    begin
+        InventorySetup.Get;
+        InventorySetup."Prevent Negative Inventory" := PreventNegativeInventory;
+        InventorySetup.Modify;
+    end;
+
+    procedure UpdateAverageCostSettings(AverageCostCalcType: Option; AverageCostPeriod: Option)
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        InventorySetup.Get;
+        InventorySetup."Average Cost Calc. Type" := AverageCostCalcType;
+        InventorySetup."Average Cost Period" := AverageCostPeriod;
+        CODEUNIT.Run(CODEUNIT::"Change Average Cost Setting", InventorySetup);
+    end;
+
+    procedure UpdateGenProdPostingSetup()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        if GeneralPostingSetup.FindSet then
+            repeat
+                if GeneralPostingSetup."Sales Account" = '' then
+                    GeneralPostingSetup.Validate("Sales Account", LibraryERM.CreateGLAccountNo);
+                if GeneralPostingSetup."Purch. Account" = '' then
+                    GeneralPostingSetup.Validate("Purch. Account", GeneralPostingSetup."Sales Account");
+                if GeneralPostingSetup."COGS Account" = '' then
+                    GeneralPostingSetup.Validate("COGS Account", GeneralPostingSetup."Sales Account");
+                if GeneralPostingSetup."Inventory Adjmt. Account" = '' then
+                    GeneralPostingSetup.Validate("Inventory Adjmt. Account", GeneralPostingSetup."Sales Account");
+                if GeneralPostingSetup."COGS Account (Interim)" = '' then
+                    GeneralPostingSetup.Validate("COGS Account (Interim)", GeneralPostingSetup."Sales Account");
+                if GeneralPostingSetup."Direct Cost Applied Account" = '' then
+                    GeneralPostingSetup.Validate("Direct Cost Applied Account", GeneralPostingSetup."Sales Account");
+                if GeneralPostingSetup."Purchase Variance Account" = '' then
+                    GeneralPostingSetup.Validate("Purchase Variance Account", GeneralPostingSetup."Sales Account");
+                if GeneralPostingSetup."Purch. Credit Memo Account" = '' then
+                    GeneralPostingSetup.Validate("Purch. Credit Memo Account", GeneralPostingSetup."Sales Account");
+                if GeneralPostingSetup."Sales Credit Memo Account" = '' then
+                    GeneralPostingSetup.Validate("Sales Credit Memo Account", GeneralPostingSetup."Sales Account");
+                if GeneralPostingSetup."Sales Prepayments Account" = '' then
+                    GeneralPostingSetup.Validate("Sales Prepayments Account", LibraryERM.CreateGLAccountWithSalesSetup);
+                if GeneralPostingSetup."Purch. Prepayments Account" = '' then
+                    GeneralPostingSetup.Validate("Purch. Prepayments Account", LibraryERM.CreateGLAccountWithPurchSetup);
+                GeneralPostingSetup.Modify(true);
+            until GeneralPostingSetup.Next = 0;
+    end;
+
+    procedure UpdateInventorySetup(var InventorySetup: Record "Inventory Setup"; AutomaticCostPosting: Boolean; ExpectedCostPostingtoGL: Boolean; AutomaticCostAdjustment: Option; AverageCostCalcType: Option; AverageCostPeriod: Option)
+    begin
+        InventorySetup.Get;
+        InventorySetup.Validate("Automatic Cost Posting", AutomaticCostPosting);
+        InventorySetup.Validate("Expected Cost Posting to G/L", ExpectedCostPostingtoGL);
+        InventorySetup.Validate("Automatic Cost Adjustment", AutomaticCostAdjustment);
+        InventorySetup.Validate("Average Cost Calc. Type", AverageCostCalcType);
+        InventorySetup.Validate("Average Cost Period", AverageCostPeriod);
+        InventorySetup.Modify(true);
+    end;
+
+    procedure UpdateInventoryPostingSetup(Location: Record Location)
+    var
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+        InventoryPostingGroup: Record "Inventory Posting Group";
+    begin
+        if InventoryPostingGroup.FindSet then
+            repeat
+                InventoryPostingSetup.SetRange("Location Code", Location.Code);
+                InventoryPostingSetup.SetRange("Invt. Posting Group Code", InventoryPostingGroup.Code);
+                if not InventoryPostingSetup.FindFirst then
+                    CreateInventoryPostingSetup(InventoryPostingSetup, Location.Code, InventoryPostingGroup.Code);
+                InventoryPostingSetup.Validate("Inventory Account", LibraryERM.CreateGLAccountNo);
+                InventoryPostingSetup.Validate("Inventory Account (Interim)", LibraryERM.CreateGLAccountNo);
+                InventoryPostingSetup.Validate("WIP Account", LibraryERM.CreateGLAccountNo);
+                InventoryPostingSetup.Validate("Material Variance Account", LibraryERM.CreateGLAccountNo);
+                InventoryPostingSetup.Validate("Capacity Variance Account", LibraryERM.CreateGLAccountNo);
+                InventoryPostingSetup.Modify(true);
+            until InventoryPostingGroup.Next = 0;
+    end;
+
+    procedure UpdateSalesLine(var SalesLine: Record "Sales Line"; FieldNo: Integer; Value: Variant)
+    var
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+    begin
+        // Update Sales Line base on Field and its corresponding value.
+        RecRef.GetTable(SalesLine);
+        FieldRef := RecRef.Field(FieldNo);
+        FieldRef.Validate(Value);
+        RecRef.SetTable(SalesLine);
+        SalesLine.Modify(true);
+    end;
+
+    procedure ItemJournalSetup(var ItemJournalTemplate: Record "Item Journal Template"; var ItemJournalBatch: Record "Item Journal Batch")
+    begin
+        Clear(ItemJournalTemplate);
+        ItemJournalTemplate.Init;
+        SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalTemplate.Modify(true);
+
+        Clear(ItemJournalBatch);
+        ItemJournalBatch.Init;
+        SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+        ItemJournalBatch.Validate("No. Series", '');  // Value required to avoid the Document No mismatch.
+        ItemJournalBatch.Modify(true);
+    end;
+
+    procedure OutputJournalSetup(var ItemJournalTemplate: Record "Item Journal Template"; var ItemJournalBatch: Record "Item Journal Batch")
+    begin
+        SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Output);
+        SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+    end;
+
+    procedure ConsumptionJournalSetup(var ItemJournalTemplate: Record "Item Journal Template"; var ItemJournalBatch: Record "Item Journal Batch")
+    begin
+        SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Consumption);
+        SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+    end;
+
+    procedure VerifyReservationEntryWithLotExists(SourceType: Option; SourceSubtype: Option; SourceID: Code[20]; SourceRefNo: Integer; ItemNo: Code[20]; ExpectedQty: Decimal)
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        ReservationEntry.SetRange("Source Type", SourceType);
+        ReservationEntry.SetRange("Source Subtype", SourceSubtype);
+        ReservationEntry.SetRange("Source ID", SourceID);
+        ReservationEntry.SetRange("Source Ref. No.", SourceRefNo);
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.FindFirst;
+        ReservationEntry.TestField("Quantity (Base)", ExpectedQty);
+        ReservationEntry.TestField("Lot No.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateItem(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateItemJnlLineWithNoItem(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; EntryType: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateItemManufacturing(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateItemVariant(var ItemVariant: Record "Item Variant"; ItemNo: Code[20]; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateItemVariant(var ItemVariant: Record "Item Variant"; ItemNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTransferHeader(var TransferHeader: Record "Transfer Header"; FromLocation: Text[10]; ToLocation: Text[10]; InTransitCode: Text[10]; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateTransferHeader(var TransferHeader: Record "Transfer Header"; FromLocation: Text[10]; ToLocation: Text[10]; InTransitCode: Text[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateVariant(var ItemVariant: Record "Item Variant"; Item: Record Item; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateVariant(var ItemVariant: Record "Item Variant"; Item: Record Item)
+    begin
+    end;
+}
+

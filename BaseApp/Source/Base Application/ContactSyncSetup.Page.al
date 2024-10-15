@@ -1,0 +1,169 @@
+page 6701 "Contact Sync. Setup"
+{
+    Caption = 'Contact Sync. Setup';
+    DeleteAllowed = false;
+    InsertAllowed = false;
+    LinksAllowed = false;
+    PageType = Card;
+    PromotedActionCategories = 'New,Process,Report,Filter,Logging';
+    SourceTable = "Exchange Sync";
+
+    layout
+    {
+        area(content)
+        {
+            group(General)
+            {
+                Caption = 'General';
+                field("User ID"; "User ID")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Lookup = false;
+                    ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
+                }
+                field("Folder ID"; "Folder ID")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the public folder on the Exchange server that you want to use for your queue and storage folders.';
+                }
+                field("Last Sync Date Time"; "Last Sync Date Time")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the last date/time that the Exchange server was synchronized.';
+                }
+                field(Enabled; Enabled)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Enable Background Synchronization';
+                    ToolTip = 'Specifies that data synchronization can occur while users perform related tasks.';
+                }
+            }
+        }
+    }
+
+    actions
+    {
+        area(processing)
+        {
+            group(Process)
+            {
+                Caption = 'Process';
+                Image = "Action";
+                action("Validate Exchange Connection")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Validate Exchange Connection';
+                    Image = ValidateEmailLoggingSetup;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    ToolTip = 'Test that the provided exchange server connection works.';
+
+                    trigger OnAction()
+                    begin
+                        ProgressWindow.Open(ProgressWindowMsg);
+
+                        if O365SyncManagement.CreateExchangeConnection(Rec) then
+                            Message(ConnectionSuccessMsg)
+                        else begin
+                            ProgressWindow.Close;
+                            Error(ConnectionFailureErr);
+                        end;
+
+                        ProgressWindow.Close;
+                    end;
+                }
+                action(SyncO365)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sync with Office 365';
+                    Image = Refresh;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    ToolTip = 'Synchronize with Office 365 based on last sync date and last modified date. All changes in Office 365 since the last sync date will be synchronized back.';
+
+                    trigger OnAction()
+                    begin
+                        Clear(O365SyncManagement);
+                        if O365SyncManagement.IsO365Setup(false) then
+                            O365SyncManagement.SyncExchangeContacts(Rec, false);
+                    end;
+                }
+                action(SetSyncFilter)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Set Sync Filter';
+                    Image = "Filter";
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    ToolTip = 'Synchronize, but ignore the last synchronized and last modified dates. All changes will be pushed to Office 365 and take all contacts from your Exchange folder and sync back.';
+
+                    trigger OnAction()
+                    var
+                        ExchangeContactSync: Codeunit "Exchange Contact Sync.";
+                    begin
+                        ExchangeContactSync.GetRequestParameters(Rec);
+                    end;
+                }
+            }
+            group(Logging)
+            {
+                Caption = 'Logging';
+                action(ActivityLog)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Activity Log';
+                    Image = Log;
+                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
+                    //PromotedCategory = Category5;
+                    ToolTip = 'View the status and any errors related to the connection to Exchange.';
+
+                    trigger OnAction()
+                    var
+                        ActivityLog: Record "Activity Log";
+                    begin
+                        ActivityLog.ShowEntries(Rec);
+                    end;
+                }
+                action(DeleteActivityLog)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Delete Activity Log';
+                    Image = Delete;
+                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
+                    //PromotedCategory = Category5;
+                    ToolTip = 'Delete the exchange synchronization log file.';
+
+                    trigger OnAction()
+                    begin
+                        DeleteActivityLog;
+                    end;
+                }
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    var
+        User: Record User;
+    begin
+        GetUser(User);
+        if not O365SyncManagement.IsO365Setup(false) then
+            Error(EmailMissingErr);
+    end;
+
+    var
+        O365SyncManagement: Codeunit "O365 Sync. Management";
+        ProgressWindow: Dialog;
+        ProgressWindowMsg: Label 'Validating the connection to Exchange.';
+        ConnectionSuccessMsg: Label 'Connected successfully to Exchange.';
+        ConnectionFailureErr: Label 'Cannot connect to Exchange. Check your user name, password and Folder ID, and then try again.';
+        EmailMissingErr: Label 'An authentication email and Exchange password must be set in order to set up contact synchronization.';
+
+    local procedure GetUser(var User: Record User): Boolean
+    begin
+        User.SetRange("User Name", UserId);
+        exit(User.FindFirst);
+    end;
+}
+
